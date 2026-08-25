@@ -111,8 +111,8 @@
         },
         {
           "href": "/suppliers",
-          "en": "Partners portal",
-          "ar": "بوابة الشركاء"
+          "en": "Partner registration",
+          "ar": "تسجيل الشركاء"
         },
         {
           "href": "/employer-join",
@@ -128,11 +128,6 @@
           "href": "/employer-login",
           "en": "Employers — sign in",
           "ar": "أصحاب العمل — دخول"
-        },
-        {
-          "href": "/partner-dashboard",
-          "en": "Partner dashboard",
-          "ar": "لوحة الشريك"
         },
         {
           "href": "/shared-services",

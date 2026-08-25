@@ -3231,7 +3231,7 @@ function buildTourism() {
           <h3>${L("How it works", "كيف تعمل")}</h3>
           <ul class="feat-list">${evFeats}</ul>
           <p class="mini">${L("Are you an events supplier?", "هل أنت مورّد فعاليات؟")}</p>
-          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Join our partners portal", "سجّل في بوابة الشركاء")}</a>
+          <a class="btn btn-ghost" href="${u("/suppliers")}">${L("Register as a partner", "سجّل كشريك")}</a>
         </div>
       </aside>
     </div>
@@ -7185,7 +7185,7 @@ function buildAccount() {
               <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
-              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partners portal", "بوابة الشركاء")}</strong></a>
+              <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partner registration", "تسجيل الشركاء")}</strong></a>
               <a class="portal-card" id="ai-employees-link" href="${u("/portal")}"><span>🤖</span><strong>${L("Smart Specialized Agent", "الموظف المتخصص")}</strong></a>
               <a class="portal-card" href="${u("/shared-services")}"><span>🤝</span><strong>${L("Shared Services", "الخدمات المشتركة")}</strong></a>
               <a class="portal-card" href="${u("/bank-account")}"><span>🏦</span><strong>${L("Open a bank account", "فتح حساب بنكي")}</strong></a>
@@ -7380,51 +7380,74 @@ const SUPPLIER_CATS = [
 
 function buildSuppliers() {
   const cats = SUPPLIER_CATS;
-  const catOpts = cats.map((c2) => `<option value="${esc(c2.ar)}">${L(c2.en, c2.ar)}</option>`).join("");
+  // One registration, not two. The sign-up that actually works lives on the
+  // partner dashboard — password, e-mailed code, then the portal opens. This
+  // page is the pitch and the door to it; it used to carry a second form of
+  // its own that posted without a password and so could never register anyone.
+  const joinHref = `${u("/partner-dashboard")}#signup`;
+  const loginHref = `${u("/partner-dashboard")}#login`;
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">${L("Partners portal", "بوابة الشركاء")}</span>
+    <span class="eyebrow">${L("Partners", "الشركاء")}</span>
     <h1>${L("Join the Business Partner network", "انضم كشريك لدى بيزنس بارتنر")}</h1>
-    <p class="lead">${L("We send our clients' event and service requests to registered suppliers and collect competing offers. Register once — receive matching requests.", "نرسل طلبات عملائنا (فعاليات وخدمات) للموردين المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — وتصلك الطلبات المناسبة لنشاطك.")}</p>
+    <p class="lead">${L("We send our clients' service and event requests to registered partners and collect competing offers. Register once — matching requests reach you, and your dashboard opens straight away.", "نرسل طلبات عملائنا (خدمات وفعاليات) للشركاء المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — تصلك الطلبات المناسبة لنشاطك وتفتح لوحتك فوراً.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${loginHref}">${L("Already a partner? Sign in", "شريك بالفعل؟ سجّل الدخول")}</a>
+    </div>
   </div></section>
+
   <section class="section"><div class="container">
-    <div class="booking-wrap">
-      <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">${L("Partner registration", "تسجيل الشركاء")}</h2><a class="btn btn-ghost btn-sm" href="${u("/partner-dashboard")}">${L("Already a partner? Open your dashboard →", "شريك بالفعل؟ افتح لوحتك ←")}</a></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-company">${L("Company name", "اسم الشركة")}</label><input id="sp-company" type="text" required></div>
-          <div class="field"><label for="sp-person">${L("Contact person", "الشخص المسؤول")}</label><input id="sp-person" type="text" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-phone">${L("Mobile", "رقم الجوال")}</label><input id="sp-phone" type="tel" required placeholder="05xxxxxxxx"></div>
-          <div class="field"><label for="sp-email">${L("Email", "البريد الإلكتروني")}</label><input id="sp-email" type="email" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-city">${L("City", "المدينة")}</label><input id="sp-city" type="text" placeholder="${Lraw("Riyadh", "الرياض")}"></div>
-          <div class="field"><label for="sp-cr">${L("CR number (optional)", "رقم السجل التجاري (اختياري)")}</label><input id="sp-cr" type="text"></div>
-          <div class="field"><label for="sp-vat">${L("VAT number (optional)", "الرقم الضريبي (اختياري)")}</label><input id="sp-vat" type="text"></div>
-        </div>
-        <div class="field"><label for="sp-cat">${L("Service category", "تصنيف الخدمة")}</label>
-          <select id="sp-cat">${catOpts}</select></div>
-        <div class="field"><label for="sp-notes">${L("Describe your services briefly", "اوصف خدماتك باختصار")}</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">${L("Register as a partner", "سجّل كشريك")}</button>
-        <p class="form-note">${L("Your dashboard opens as soon as you verify your email — you will see every service you can execute and what each one pays you. Approval is what lets us assign you work.", "لوحتك تفتح فور تأكيد بريدك — تشوف فيها كل خدمة تقدر تنفّذها وكم تكسب منها. والاعتماد هو ما يسمح لنا بإسناد العمل إليك.")}</p>
-        <div class="form-success" id="supplier-success" hidden></div>
-      </form>
-      <aside class="booking-side">
-        <div class="order-box">
-          <h3>${L("Why join?", "ليش تنضم؟")}</h3>
-          <ul class="feat-list">
-            <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
-            <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
-            <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
-            <li>${I.check}<span>${L("Direct WhatsApp/email coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
-          </ul>
-        </div>
-      </aside>
+    <div class="section-head"><h2>${L("Three steps, no fees", "ثلاث خطوات، وبدون رسوم")}</h2>
+      <p>${L("Registration takes a couple of minutes and costs nothing.", "التسجيل يأخذ دقيقتين ولا يكلّفك شيئاً.")}</p></div>
+    <div class="grid grid-3">
+      <div class="step"><div class="step-n">1</div><div>
+        <h3>${L("Create your account", "أنشئ حسابك")}</h3>
+        <p class="text-soft">${L("Company name, contact person, mobile, e-mail, a password and your service category.", "اسم الشركة، الشخص المسؤول، الجوال، البريد، كلمة مرور، وتصنيف خدمتك.")}</p></div></div>
+      <div class="step"><div class="step-n">2</div><div>
+        <h3>${L("Verify your e-mail", "أكّد بريدك")}</h3>
+        <p class="text-soft">${L("A six-digit code reaches your inbox and is valid for fifteen minutes.", "يصلك رمز من ستة أرقام على بريدك، صالح لخمس عشرة دقيقة.")}</p></div></div>
+      <div class="step"><div class="step-n">3</div><div>
+        <h3>${L("Your dashboard opens", "تفتح لوحتك")}</h3>
+        <p class="text-soft">${L("You see every service you can execute and what each pays you. Approval by our team is what lets us assign you work.", "تشوف كل خدمة تقدر تنفّذها وكم تكسب منها. واعتماد فريقنا هو ما يسمح لنا بإسناد العمل إليك.")}</p></div></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="grid grid-2" style="gap:28px;align-items:start">
+      <div class="order-box">
+        <h3>${L("Why join?", "ليش تنضم؟")}</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
+          <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
+          <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
+          <li>${I.check}<span>${L("Direct WhatsApp and e-mail coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
+          <li>${I.check}<span>${L("Your own referral link — you earn on what you bring in", "رابط إحالة خاص بك — تكسب على ما تجلبه")}</span></li>
+        </ul>
+      </div>
+      <div class="order-box">
+        <h3>${L("What your dashboard gives you", "وش تلقى في لوحتك")}</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li>${I.check}<span>${L("Work orders assigned to you, with their status", "أوامر العمل المُسنَدة إليك وحالاتها")}</span></li>
+          <li>${I.check}<span>${L("Your own services and prices", "خدماتك وأسعارك")}</span></li>
+          <li>${I.check}<span>${L("Every catalogue service and your share of it", "كل خدمات الكتالوج وعمولتك من كل واحدة")}</span></li>
+          <li>${I.check}<span>${L("Propose a service we do not offer yet", "اقترح خدمة غير موجودة عندنا")}</span></li>
+          <li>${I.check}<span>${L("Your wallet: what is held for you and what is released", "محفظتك: المحتجز لك والمُفرَج عنه")}</span></li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>${L("Categories we register", "التصنيفات التي نسجّلها")}</h2>
+      <p>${L("Pick yours while creating the account.", "تختار تصنيفك أثناء إنشاء الحساب.")}</p></div>
+    <div class="chip-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">${cats.map((c2) => `<span class="chip">${L(c2.en, c2.ar)}</span>`).join("")}</div>
+    <div class="cta-band" style="margin-top:36px">
+      <h2>${L("Register once — the requests come to you", "سجّل مرة واحدة — والطلبات تجيك")}</h2>
+      <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Partners portal — Business Partner", "بوابة الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 // Partner dashboard — the operational side of the partners portal, wired to the

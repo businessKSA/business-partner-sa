@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>بوابة الشركاء — بيزنس بارتنر</title>
+<title>تسجيل الشركاء — بيزنس بارتنر</title>
 <meta name="description" content="سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك.">
-<meta property="og:title" content="بوابة الشركاء — بيزنس بارتنر">
+<meta property="og:title" content="تسجيل الشركاء — بيزنس بارتنر">
 <meta property="og:description" content="سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
@@ -66,9 +66,9 @@
     <button type="button" class="nav-drop" aria-expanded="false">الأدوات والحاسبات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div class="nav-menu"><a href="/ar/tools-and-calculators">كل الأدوات</a><a href="/ar/calculator">حاسبة التكاليف</a><a href="/ar/calculators/government-cost">التكاليف الحكومية</a><a href="/ar/calculators/profession-checker">فاحص المهن</a><a href="/ar/calculators/end-of-service">مكافأة نهاية الخدمة</a><a href="/ar/calculators/annual-leave">الإجازة السنوية</a><a href="/ar/calculators/overtime">العمل الإضافي</a><a href="/ar/calculators/gosi">حاسبة التأمينات</a></div>
   </div><a href="/ar/magazine">المجلة (PDF)</a></div>
-    </div><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">المنصات والبوابات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/ar/account">منصّة العملاء</a><a href="/ar/revenue-dashboard">لوحة Revenue OS</a><a href="/ar/suppliers" class="active">بوابة الشركاء</a><a href="/ar/partner-dashboard">لوحة الشريك</a><a href="/ar/portal">بوابة الموظفين الأذكياء</a><a href="/ar/employer-join">أصحاب العمل — انضم</a><a href="/ar/employer-login">أصحاب العمل — دخول</a></div>
+    </div><div class="nav-group">
+      <button type="button" class="nav-drop" aria-expanded="false">المنصات والبوابات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="nav-menu"><a href="/ar/account">منصّة العملاء</a><a href="/ar/revenue-dashboard">لوحة Revenue OS</a><a href="/ar/portal">بوابة الموظفين الأذكياء</a><a href="/ar/employer-join">أصحاب العمل — انضم</a><a href="/ar/employer-login">أصحاب العمل — دخول</a></div>
     </div><a href="/ar/contact">تواصل معنا</a></nav>
   <div class="header-cta">
     <div class="nav-group lang-group">
@@ -82,45 +82,63 @@
   </div>
 </div></header><main>
   <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">بوابة الشركاء</span>
+    <span class="eyebrow">الشركاء</span>
     <h1>انضم كشريك لدى بيزنس بارتنر</h1>
-    <p class="lead">نرسل طلبات عملائنا (فعاليات وخدمات) للموردين المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — وتصلك الطلبات المناسبة لنشاطك.</p>
+    <p class="lead">نرسل طلبات عملائنا (خدمات وفعاليات) للشركاء المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — تصلك الطلبات المناسبة لنشاطك وتفتح لوحتك فوراً.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="/ar/partner-dashboard#signup">أنشئ حسابك كشريك</a>
+      <a class="btn btn-ghost btn-lg" href="/ar/partner-dashboard#login">شريك بالفعل؟ سجّل الدخول</a>
+    </div>
   </div></section>
+
   <section class="section"><div class="container">
-    <div class="booking-wrap">
-      <form class="calc-form" id="supplier-form" novalidate>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">تسجيل الشركاء</h2><a class="btn btn-ghost btn-sm" href="/ar/partner-dashboard">شريك بالفعل؟ افتح لوحتك ←</a></div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-company">اسم الشركة</label><input id="sp-company" type="text" required></div>
-          <div class="field"><label for="sp-person">الشخص المسؤول</label><input id="sp-person" type="text" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-phone">رقم الجوال</label><input id="sp-phone" type="tel" required placeholder="05xxxxxxxx"></div>
-          <div class="field"><label for="sp-email">البريد الإلكتروني</label><input id="sp-email" type="email" required></div>
-        </div>
-        <div class="grid grid-2" style="gap:0 20px">
-          <div class="field"><label for="sp-city">المدينة</label><input id="sp-city" type="text" placeholder="الرياض"></div>
-          <div class="field"><label for="sp-cr">رقم السجل التجاري (اختياري)</label><input id="sp-cr" type="text"></div>
-          <div class="field"><label for="sp-vat">الرقم الضريبي (اختياري)</label><input id="sp-vat" type="text"></div>
-        </div>
-        <div class="field"><label for="sp-cat">تصنيف الخدمة</label>
-          <select id="sp-cat"><option value="تأسيس الشركات">تأسيس الشركات</option><option value="الاستثمار الأجنبي">الاستثمار الأجنبي</option><option value="العلاقات الحكومية">العلاقات الحكومية</option><option value="خدمات الموارد البشرية">خدمات الموارد البشرية</option><option value="الاستقدام والتوظيف">الاستقدام والتوظيف</option><option value="دعم الأعمال">دعم الأعمال</option><option value="العقارات والمساحات">العقارات والمساحات</option><option value="الإقامة المميزة">الإقامة المميزة</option><option value="الذكاء الاصطناعي والأتمتة">الذكاء الاصطناعي والأتمتة</option><option value="فعاليات وضيافة">فعاليات وضيافة</option><option value="إعاشة وتغذية">إعاشة وتغذية</option><option value="نقل ومواصلات">نقل ومواصلات</option><option value="إسكان عمالة">إسكان عمالة</option><option value="تشغيل وصيانة">تشغيل وصيانة</option><option value="تسويق وإعلان">تسويق وإعلان</option><option value="أخرى">أخرى</option></select></div>
-        <div class="field"><label for="sp-notes">اوصف خدماتك باختصار</label><textarea id="sp-notes" rows="3"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">سجّل كشريك</button>
-        <p class="form-note">لوحتك تفتح فور تأكيد بريدك — تشوف فيها كل خدمة تقدر تنفّذها وكم تكسب منها. والاعتماد هو ما يسمح لنا بإسناد العمل إليك.</p>
-        <div class="form-success" id="supplier-success" hidden></div>
-      </form>
-      <aside class="booking-side">
-        <div class="order-box">
-          <h3>ليش تنضم؟</h3>
-          <ul class="feat-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>طلبات جاهزة من عملائنا (شركات)</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنافس على طلبات واضحة ومحددة</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>بدون رسوم تسجيل</span></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنسيق مباشر عبر واتساب والبريد</span></li>
-          </ul>
-        </div>
-      </aside>
+    <div class="section-head"><h2>ثلاث خطوات، وبدون رسوم</h2>
+      <p>التسجيل يأخذ دقيقتين ولا يكلّفك شيئاً.</p></div>
+    <div class="grid grid-3">
+      <div class="step"><div class="step-n">1</div><div>
+        <h3>أنشئ حسابك</h3>
+        <p class="text-soft">اسم الشركة، الشخص المسؤول، الجوال، البريد، كلمة مرور، وتصنيف خدمتك.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div>
+        <h3>أكّد بريدك</h3>
+        <p class="text-soft">يصلك رمز من ستة أرقام على بريدك، صالح لخمس عشرة دقيقة.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div>
+        <h3>تفتح لوحتك</h3>
+        <p class="text-soft">تشوف كل خدمة تقدر تنفّذها وكم تكسب منها. واعتماد فريقنا هو ما يسمح لنا بإسناد العمل إليك.</p></div></div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="grid grid-2" style="gap:28px;align-items:start">
+      <div class="order-box">
+        <h3>ليش تنضم؟</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>طلبات جاهزة من عملائنا (شركات)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنافس على طلبات واضحة ومحددة</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>بدون رسوم تسجيل</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>تنسيق مباشر عبر واتساب والبريد</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>رابط إحالة خاص بك — تكسب على ما تجلبه</span></li>
+        </ul>
+      </div>
+      <div class="order-box">
+        <h3>وش تلقى في لوحتك</h3>
+        <ul class="feat-list" style="grid-template-columns:1fr">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>أوامر العمل المُسنَدة إليك وحالاتها</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>خدماتك وأسعارك</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>كل خدمات الكتالوج وعمولتك من كل واحدة</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>اقترح خدمة غير موجودة عندنا</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>محفظتك: المحتجز لك والمُفرَج عنه</span></li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><h2>التصنيفات التي نسجّلها</h2>
+      <p>تختار تصنيفك أثناء إنشاء الحساب.</p></div>
+    <div class="chip-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><span class="chip">تأسيس الشركات</span><span class="chip">الاستثمار الأجنبي</span><span class="chip">العلاقات الحكومية</span><span class="chip">خدمات الموارد البشرية</span><span class="chip">الاستقدام والتوظيف</span><span class="chip">دعم الأعمال</span><span class="chip">العقارات والمساحات</span><span class="chip">الإقامة المميزة</span><span class="chip">الذكاء الاصطناعي والأتمتة</span><span class="chip">فعاليات وضيافة</span><span class="chip">إعاشة وتغذية</span><span class="chip">نقل ومواصلات</span><span class="chip">إسكان عمالة</span><span class="chip">تشغيل وصيانة</span><span class="chip">تسويق وإعلان</span><span class="chip">أخرى</span></div>
+    <div class="cta-band" style="margin-top:36px">
+      <h2>سجّل مرة واحدة — والطلبات تجيك</h2>
+      <a class="btn btn-white btn-lg" href="/ar/partner-dashboard#signup">أنشئ حسابك كشريك</a>
     </div>
   </div></section></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
@@ -161,11 +179,10 @@
     <div class="footer-col"><h4>المنصات والبوابات</h4><ul>
       <li><a href="/ar/account">منصّة العملاء</a></li>
       <li><a href="/ar/revenue-dashboard">لوحة Revenue OS</a></li>
-      <li><a href="/ar/suppliers">بوابة الشركاء</a></li>
+      <li><a href="/ar/suppliers">تسجيل الشركاء</a></li>
       <li><a href="/ar/employer-join">لأصحاب العمل</a></li>
       <li><a href="/ar/portal">بوابة الموظفين الأذكياء</a></li>
       <li><a href="/ar/employer-login">أصحاب العمل — دخول</a></li>
-      <li><a href="/ar/partner-dashboard">لوحة الشريك</a></li>
       <li><a href="/ar/shared-services">فريق الخدمات المشتركة</a></li>
     </ul></div>
     <div class="footer-col"><h4>مركز المعرفة</h4><ul>
@@ -283,4 +300,4 @@
         <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=629293ae20"></script></body></html>
+  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script></body></html>

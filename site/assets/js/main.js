@@ -2639,7 +2639,10 @@ var BP = window.BP = window.BP || {};
     [].slice.call(document.querySelectorAll(".sup-tab")).forEach(function (t) {
       t.addEventListener("click", function () { if (errEl) errEl.hidden = true; paneTo(t.getAttribute("data-tab")); });
     });
-    paneTo("login");
+    // /suppliers sends new partners here with #signup, returning ones with
+    // #login — landing them on the wrong tab is what makes a two-page flow
+    // feel like a dead end.
+    paneTo(/^#signup$/i.test(location.hash) ? "signup" : "login");
 
     // Supplier wallet: escrows held for them, released balance, withdrawals.
     // Loaded on first open of the wallet tab, refreshed after a withdrawal.
@@ -3835,45 +3838,11 @@ var BP = window.BP = window.BP || {};
       function (d, ref) { return "طلب فعالية " + ref + "\nالشركة: " + d.company + "\nالنوع: " + d.eventType + "\nالتاريخ: " + d.date + "\nالأفراد: " + d.count; },
       { register: true, prefill: { company: "ev-company", person: "ev-person", email: "ev-email", phone: "ev-phone" } });
 
-    // Supplier registration writes straight into the Suppliers registry — not
-    // the customer CRM — and no session is created here: the supplier can only
-    // sign in after the owner approves them and the access code is emailed.
-    var spForm = document.getElementById("supplier-form");
-    if (spForm) spForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var okBox = document.getElementById("supplier-success");
-      var payload = {
-        type: "register", company: val("sp-company"), person: val("sp-person"), phone: val("sp-phone"),
-        email: (val("sp-email") || "").toLowerCase(), city: val("sp-city"), cr: val("sp-cr"), vat: val("sp-vat"),
-        categories: [(document.getElementById("sp-cat") || {}).value].filter(Boolean),
-        services: val("sp-notes"),
-      };
-      if (!payload.company || !payload.person || !payload.phone || !payload.email) {
-        if (okBox) { okBox.textContent = BP.t("Please fill all required fields.", "الرجاء تعبئة كل الحقول المطلوبة."); okBox.hidden = false; }
-        return;
-      }
-      var btn = spForm.querySelector("button[type=submit]"), lbl = btn.textContent;
-      btn.disabled = true; btn.textContent = BP.t("Sending…", "جارٍ الإرسال…");
-      fetch("/api/suppliers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          btn.disabled = false; btn.textContent = lbl;
-          if (!okBox) return;
-          if (d && d.ok) {
-            okBox.innerHTML = "✅ <strong>" + BP.t("Registered", "تم التسجيل") + (d.ref ? " — " + d.ref : "") + "</strong><br>" +
-              BP.t("We review your file and email your portal access code once approved.",
-                   "نراجع ملفك ويصلك رمز دخول البوابة على بريدك فور الاعتماد.");
-            spForm.reset();
-          } else {
-            okBox.textContent = BP.t("Could not register — please try again or contact us.", "تعذّر التسجيل — حاول مرة أخرى أو تواصل معنا.");
-          }
-          okBox.hidden = false;
-        })
-        .catch(function () {
-          btn.disabled = false; btn.textContent = lbl;
-          if (okBox) { okBox.textContent = BP.t("Connection issue — please try again.", "مشكلة في الاتصال — حاول مرة أخرى."); okBox.hidden = false; }
-        });
-    });
+    // The partner sign-up lives on /partner-dashboard, which collects the
+    // password and the e-mailed code that /api/suppliers requires. The form
+    // that used to sit on /suppliers posted without either, so every
+    // submission came back "weak_password" and no partner could register.
+    // /suppliers now links there instead of carrying a second, broken form.
 
     wire("mm-form-el", "mm-success",
       function () {
