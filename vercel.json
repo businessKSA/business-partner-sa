@@ -7,39 +7,185 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
-    "api/candidate.js": { "maxDuration": 30 }
+    "api/candidate.js": {
+      "maxDuration": 30
+    }
   },
   "redirects": [
-    { "source": "/blog", "destination": "/saudi-arabia", "permanent": true },
-    { "source": "/business-tourism", "destination": "/tourism", "permanent": true },
-    { "source": "/lead-generation", "destination": "/data", "permanent": true },
-    { "source": "/ar/lead-generation", "destination": "/ar/data", "permanent": true },
-    { "source": "/compliance-portal", "destination": "/compliance-agent", "permanent": true },
-    { "source": "/ar/compliance-portal", "destination": "/ar/compliance-agent", "permanent": true }
+    {
+      "source": "/blog",
+      "destination": "/saudi-arabia",
+      "permanent": true
+    },
+    {
+      "source": "/business-tourism",
+      "destination": "/tourism",
+      "permanent": true
+    },
+    {
+      "source": "/lead-generation",
+      "destination": "/data",
+      "permanent": true
+    },
+    {
+      "source": "/ar/lead-generation",
+      "destination": "/ar/data",
+      "permanent": true
+    },
+    {
+      "source": "/compliance-portal",
+      "destination": "/compliance-agent",
+      "permanent": true
+    },
+    {
+      "source": "/ar/compliance-portal",
+      "destination": "/ar/compliance-agent",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-os" },
-    { "source": "/dashboard", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
-    { "source": "/client-portal", "has": [{ "type": "host", "value": "new.businesspartner.sa" }], "destination": "/assets/data/revenue-command-center" },
-    { "source": "/revenue-os", "destination": "/assets/data/revenue-os" },
-    { "source": "/revenue-dashboard", "destination": "/assets/data/revenue-command-center" },
-    { "source": "/client-portal", "destination": "/assets/data/revenue-command-center" },
-    { "source": "/", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/index" },
-    { "source": "/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/join" },
-    { "source": "/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/dashboard" },
-    { "source": "/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/ar/portal/candidates" },
-    { "source": "/en", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/index" },
-    { "source": "/en/join", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/join" },
-    { "source": "/en/dashboard", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/dashboard" },
-    { "source": "/en/candidates", "has": [{ "type": "host", "value": "hr.businesspartner.sa" }], "destination": "/portal/candidates" }
+    {
+      "source": "/api/live-catalog",
+      "destination": "https://bp-quotes-three.vercel.app/api/catalog"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "new.businesspartner.sa"
+        }
+      ],
+      "destination": "/assets/data/revenue-os"
+    },
+    {
+      "source": "/dashboard",
+      "has": [
+        {
+          "type": "host",
+          "value": "new.businesspartner.sa"
+        }
+      ],
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
+      "source": "/client-portal",
+      "has": [
+        {
+          "type": "host",
+          "value": "new.businesspartner.sa"
+        }
+      ],
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
+      "source": "/revenue-os",
+      "destination": "/assets/data/revenue-os"
+    },
+    {
+      "source": "/revenue-dashboard",
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
+      "source": "/client-portal",
+      "destination": "/assets/data/revenue-command-center"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/index"
+    },
+    {
+      "source": "/join",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/join"
+    },
+    {
+      "source": "/dashboard",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/dashboard"
+    },
+    {
+      "source": "/candidates",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/ar/portal/candidates"
+    },
+    {
+      "source": "/en",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/index"
+    },
+    {
+      "source": "/en/join",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/join"
+    },
+    {
+      "source": "/en/dashboard",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/dashboard"
+    },
+    {
+      "source": "/en/candidates",
+      "has": [
+        {
+          "type": "host",
+          "value": "hr.businesspartner.sa"
+        }
+      ],
+      "destination": "/portal/candidates"
+    }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
   "crons": [
-    { "path": "/api/newsletter", "schedule": "0 6 * * 0" }
+    {
+      "path": "/api/newsletter",
+      "schedule": "0 6 * * 0"
+    }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T03:14:15.290Z",
+  "updatedAt": "2026-08-25T03:24:35.848Z",
   "currency": "SAR",
   "services": [
     {
@@ -1441,7 +1441,7 @@
       "nameAr": "باقة الانطلاق",
       "nameEn": "Launch Package",
       "amount": 6000,
-      "priceLabel": "Starting from 6,000 SAR / yearly",
+      "priceLabel": "6,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "تشغيل وإدارة السجل التجاري ومتابعة تجديده",
@@ -1468,7 +1468,7 @@
       "nameAr": "باقة النمو",
       "nameEn": "Growth Package",
       "amount": 10800,
-      "priceLabel": "Starting from 10,800 SAR / yearly",
+      "priceLabel": "10,800 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "كل ما في باقة الانطلاق",
@@ -1495,7 +1495,7 @@
       "nameAr": "باقة التوسّع",
       "nameEn": "Scale Package",
       "amount": 16000,
-      "priceLabel": "Starting from 16,000 SAR / yearly",
+      "priceLabel": "16,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "كل ما في باقة النمو",
@@ -1553,7 +1553,7 @@
       "nameAr": "باقة تأسيس الشركات الأجنبية",
       "nameEn": "Foreign Companies Formation Package",
       "amount": 46000,
-      "priceLabel": "Starting from 46,000 SAR / yearly",
+      "priceLabel": "46,000 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "التقديم على ترخيص الاستثمار الأجنبي",
@@ -1582,7 +1582,7 @@
       "nameAr": "باقة تأسيس الشركات السعودية والخليجية",
       "nameEn": "Saudi & Gulf Companies Formation Package",
       "amount": 18400,
-      "priceLabel": "Starting from 18,400 SAR / yearly",
+      "priceLabel": "18,400 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "إعداد وصياغة عقد التأسيس وتوثيقه",
@@ -1611,7 +1611,7 @@
       "nameAr": "الباقة الاستراتيجية",
       "nameEn": "Strategic Package",
       "amount": 47200,
-      "priceLabel": "Starting from 47,200 SAR / yearly",
+      "priceLabel": "47,200 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -1648,7 +1648,7 @@
       "nameAr": "الباقة الشاملة",
       "nameEn": "Comprehensive Package",
       "amount": 31200,
-      "priceLabel": "Starting from 31,200 SAR / yearly",
+      "priceLabel": "31,200 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -1683,7 +1683,7 @@
       "nameAr": "الباقة المتقدمة",
       "nameEn": "Advanced Package",
       "amount": 15920,
-      "priceLabel": "Starting from 15,920 SAR / yearly",
+      "priceLabel": "15,920 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",
@@ -1714,7 +1714,7 @@
       "nameAr": "الباقة الأساسية",
       "nameEn": "Basic Package",
       "amount": 7920,
-      "priceLabel": "Starting from 7,920 SAR / yearly",
+      "priceLabel": "7,920 SAR / yearly",
       "billingPeriod": "one_time",
       "featuresAr": [
         "استشارات هاتفية غير محدودة",

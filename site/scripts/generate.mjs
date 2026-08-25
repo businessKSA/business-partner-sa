@@ -14,6 +14,7 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
 const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex").slice(0, 10);
 const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
+const LIVE_V = assetV("assets/js/live-prices.js");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -182,13 +183,96 @@ const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
 // السلة شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل
 // إلى نطاق فرعي من businesspartner.sa دون تعديل الشيفرة.
 const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
-// سحب أسعار الكتالوج الحيّة من لوحة التحكم عند البناء. مغلق افتراضياً:
-// الأسعار مُعدَّلة يدوياً في الجهتين، فلا يُكتب فوق سعر منشور قبل أن يُرى
-// جدول الفروقات (site/scripts/compare-prices.mjs) ويُختار أيّهما يسود.
-// شغّله بـ CATALOG_FROM_PANEL=1 بعد الاختيار.
-const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL === "1";
+// سحب أسعار الكتالوج الحيّة من لوحة التحكم عند البناء.
+//
+// مفعّل افتراضياً بقرار المالك (٢٥ أغسطس ٢٠٢٦): السعر يُعدَّل في اللوحة وحدها،
+// فيسري على الموقع والعرض والعقد والفاتورة معاً. أغلقه بـ CATALOG_FROM_PANEL=0
+// إن أردت البناء من ملفات الموقع وحدها.
+//
+// وتعذُّر الوصول للوحة لا يُفشِل البناء: الموقع يُنشر بأسعار ملفاته، ويُطبع
+// تحذير صريح — نشرُ موقع بسعر أقدم بساعة أهون من موقع لا يُنشر أصلاً.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL !== "0";
 const portalQuoteUrl = (code) =>
   `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
+
+// أسعار اللوحة تسود على ملفات الموقع حين يكون المفتاح مفتوحاً. تُطبَّق هنا —
+// قبل أي عرض — فتصل كل بطاقة وكل صفحة تفصيل والحاسبة والسلة بالرقم نفسه،
+// بدل أن يُصحَّح كل موضع طباعة على حدة.
+const PANEL_PRICES = new Map();
+if (CATALOG_FROM_PANEL) {
+  try {
+    const r = await fetch(`${CLIENT_PORTAL_URL}/api/catalog`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const live = await r.json();
+    for (const row of live.services || []) {
+      PANEL_PRICES.set(String(row.code).toUpperCase(), row);
+    }
+    console.log(`أسعار اللوحة: ${PANEL_PRICES.size} خدمة.`);
+  } catch (e) {
+    console.warn(`تعذّر سحب أسعار اللوحة (${e.message}) — البناء يكمل بأسعار ملفات الموقع.`);
+  }
+}
+
+// صيغة السعر تُبنى من الرقم والوحدة، فلا يبقى نص قديم يناقض رقماً جديداً.
+function panelLabel(row, fallback) {
+  if (row.openPrice || !(row.unitPrice > 0)) return fallback;
+  const n = new Intl.NumberFormat("en-US").format(row.unitPrice);
+  const unit = String(row.unitAr || "").trim();
+  return unit && unit !== "خدمة" ? `${n} ﷼ / ${unit}` : `${n} ﷼`;
+}
+
+let repriced = 0;
+for (const s of services) {
+  const row = PANEL_PRICES.get(String(s.code || "").toUpperCase());
+  if (!row) continue;
+  const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+  if ((s.price && s.price.amount) === amount) continue;
+  s.price = {
+    label: panelLabel(row, (s.price && s.price.label) || ""),
+    amount,
+    note: (s.price && s.price.note) || null,
+    noteEn: (s.price && s.price.noteEn) || null,
+  };
+  repriced++;
+}
+// نص سعر الباقة يحمل الرقم داخله، فلا يكفي تعديل amount: الزائر يقرأ النص.
+// يُستبدل الرقم وحده ويبقى ما حوله كما كُتب، وتُنزع «تبدأ من» لأن السعر ثابت.
+function repriceLabel(label, amount) {
+  if (!label) return label;
+  const n = new Intl.NumberFormat("en-US").format(amount);
+  return String(label)
+    .replace(/^\s*(تبدأ من|يبدأ من|ابتداءً من)\s*/u, "")
+    .replace(/^\s*Starting from\s*/i, "")
+    .replace(/[\d][\d,\.]*/, n);
+}
+
+for (const g of site.packages.groups || []) {
+  for (const t of g.tiers || []) {
+    const row = PANEL_PRICES.get(`PKG-${String(t.key || "").toUpperCase()}`);
+    if (!row) continue;
+    const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+    if (t.amount === amount) continue;
+    t.amount = amount;
+    if (amount != null) {
+      t.price = repriceLabel(t.price, amount);
+      t.priceEn = repriceLabel(t.priceEn, amount);
+    }
+    repriced++;
+  }
+}
+// كتلة tiers القديمة تتبع أول مجموعة — كانت تحمل أرقاماً أعلى بـ٢٥٪ فتسرّبت
+// إلى اللوحة، فصارت تُشتق ولا تُكتب مرتين.
+if (site.packages.groups && site.packages.groups[0]) {
+  const first = new Map((site.packages.groups[0].tiers || []).map((t) => [t.key, t]));
+  for (const t of site.packages.tiers || []) {
+    const src = first.get(t.key);
+    if (src) t.amount = src.amount;
+  }
+}
+if (repriced) console.log(`عُدِّل سعر ${repriced} صفاً من اللوحة.`);
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -411,7 +495,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
+function cartBtns({ id, code, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -422,7 +506,8 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
   const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
+  const bp = code ? ` data-bp-code="${esc(String(code).toUpperCase())}"` : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}${bp}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -623,7 +708,7 @@ function page({ title, desc, active, path, body, script = "" }) {
     footer() +
     waFab() +
     advisorWidget() +
-    `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
+    `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
 
@@ -1161,7 +1246,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1239,9 +1324,9 @@ function buildServiceDetail(s) {
     <aside class="svc-aside">
       <div class="order-box">
         ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+          ? `<div class="price-tailored" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         <div class="price-note">${esc(priceNote)}</div>
-        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
         <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
         <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
@@ -1639,7 +1724,7 @@ function buildPackages() {
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
         <div class="pk-name">${esc(name)}</div>
-        <div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>
+        <div class="pk-price" data-bp-price="PKG-${esc(String(t.key || "").toUpperCase())}" data-bp-keep-unit="1"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
@@ -1654,10 +1739,10 @@ function buildPackages() {
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
       <div class="pk-name">${esc(name)}</div>
-      ${t.price ? `<div class="pk-price">${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
+      ${t.price ? `<div class="pk-price"${t.key ? ` data-bp-price="PKG-${esc(String(t.key).toUpperCase())}"` : ""}>${esc(localizeLabel(L(t.priceEn || t.price, t.price)))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), code: t.key ? "PKG-" + String(t.key).toUpperCase() : null, nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: L(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
       <a class="btn btn-ghost" href="${portalQuoteUrl(t.key ? "PKG-" + String(t.key).toUpperCase() : "")}" style="width:100%"><span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
       ${t.surcharge || t.surchargeEn ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
     </div>`;

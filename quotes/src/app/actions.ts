@@ -408,11 +408,21 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
  */
 export async function actionFixOpenPrices(): Promise<State> {
   await requireAdmin();
+  // خدمة بلا رقم لكنها ليست «سعراً مفتوحاً» بيانات متناقضة: لا سعر لها تُصدره
+  // ولا هي معلَّمة بأنك تسعّرها. تُفتح هنا فتصل إليك بدل أن تسقط في الفراغ.
+  const contradictory = await prisma.service.updateMany({
+    where: { openPrice: false, unitPrice: { lte: 0 } },
+    data: { openPrice: true, syncSource: 'panel', syncedAt: new Date() },
+  });
+
   const targets = await prisma.service.findMany({
     where: { openPrice: true, unitPrice: { gt: 0 } },
     select: { id: true, code: true, unitPrice: true },
   });
-  if (!targets.length) return { ok: 'لا توجد أسعار معلّقة — كل خدمة مسعّرة صارت ثابتة.' };
+  const opened = contradictory.count ? ` وفُتح سعر ${contradictory.count} خدمة بلا رقم.` : '';
+  if (!targets.length) {
+    return { ok: `لا توجد أسعار معلّقة — كل خدمة مسعّرة صارت ثابتة.${opened}` };
+  }
 
   await prisma.service.updateMany({
     where: { id: { in: targets.map((t) => t.id) } },
@@ -432,7 +442,81 @@ export async function actionFixOpenPrices(): Promise<State> {
   });
   revalidatePath('/admin/catalog');
   revalidatePath('/admin/catalog/map');
-  return { ok: `ثُبِّت سعر ${targets.length} خدمة: ${targets.map((t) => t.code).join('، ')}` };
+  return { ok: `ثُبِّت سعر ${targets.length} خدمة: ${targets.map((t) => t.code).join('، ')}.${opened}` };
+}
+
+/**
+ * اعتماد أسعار الموقع المنشورة في اللوحة — مرة واحدة، بقرار المالك.
+ *
+ * كانت اللوحة تحمل لتسع باقات سعراً أعلى ٢٥٪ من المنشور على الموقع، لأن ملف
+ * الموقع كان يحمل قائمتَي أسعار وأُخذت القديمة. قرار المالك (٢٥ أغسطس ٢٠٢٦):
+ * **الرقم المنشور على الموقع هو الصحيح.** هذا الإجراء يجعل اللوحة تطابقه،
+ * وبعدها تصير اللوحة هي المصدر ويقرأ منها الموقع.
+ *
+ * لا يُغيّر إلا ما اختلف فعلاً، ويعيد قائمة كل تعديل بالرقمين — فلا يُبتلع شيء.
+ * والخدمات التي لا وجود لها في الموقع لا تُمسّ.
+ */
+export async function actionAdoptSitePrices(): Promise<State> {
+  await requireAdmin();
+  const base = (process.env.SITE_URL || 'https://businesspartner.sa').replace(/\/+$/, '');
+
+  type SiteRow = { code?: string; key?: string; amount?: number | null; pricingModel?: string };
+  let cat: { services?: SiteRow[]; packages?: SiteRow[] };
+  try {
+    const res = await fetch(`${base}/assets/data/catalog.json`, {
+      headers: { accept: 'application/json' },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    cat = await res.json();
+  } catch (e) {
+    return { error: `تعذّر قراءة كتالوج الموقع من ${base}: ${e instanceof Error ? e.message : String(e)}` };
+  }
+
+  const published = new Map<string, number>();
+  for (const r of cat.services || []) {
+    const code = String(r.code || '').trim().toUpperCase();
+    if (code && Number(r.amount) > 0) published.set(code, round2(Number(r.amount)));
+  }
+  for (const r of cat.packages || []) {
+    const key = String(r.key || '').trim().toUpperCase();
+    if (key && Number(r.amount) > 0) published.set(`PKG-${key}`, round2(Number(r.amount)));
+  }
+  if (!published.size) return { error: 'كتالوج الموقع لم يُرجع أي سعر — لم يُغيَّر شيء.' };
+
+  const rows = await prisma.service.findMany({
+    where: { code: { in: [...published.keys()] } },
+    select: { id: true, code: true, unitPrice: true },
+  });
+
+  const changes = rows
+    .map((r) => ({ ...r, to: published.get(r.code)! }))
+    .filter((r) => Math.abs(r.unitPrice - r.to) > 0.005);
+
+  if (!changes.length) {
+    return { ok: `اللوحة مطابقة للموقع بالفعل — ${rows.length} خدمة مقارَنة، بلا فرق.` };
+  }
+
+  for (const c of changes) {
+    await prisma.service.update({
+      where: { id: c.id },
+      data: { unitPrice: c.to, syncSource: 'site', syncedAt: new Date() },
+    });
+  }
+  await audit({
+    action: 'CATALOG_ADOPTED_SITE_PRICES',
+    entityType: 'Service',
+    entityId: 'catalog',
+    actor: 'admin',
+    payload: { source: base, changes: changes.map((c) => ({ code: c.code, from: c.unitPrice, to: c.to })) },
+  });
+  await notifyCatalogChanged({ codes: changes.map((c) => c.code), source: 'panel', actor: 'admin' });
+  revalidatePath('/admin/catalog');
+  revalidatePath('/admin/catalog/map');
+
+  const list = changes.map((c) => `${c.code}: ${fmtMoney(c.unitPrice)} ← ${fmtMoney(c.to)}`).join('، ');
+  return { ok: `اعتُمد سعر الموقع في ${changes.length} خدمة — ${list}` };
 }
 
 export async function actionToggleService(id: string, active: boolean) {
