@@ -1188,6 +1188,17 @@
         .then(function(r){ return r.json().catch(function(){ return {}; }); });
     }
 
+    // Most panel actions live in /api/requests, but the payment recovery reads
+    // Moyasar's own ledger and so lives with the payment code. Posting it to
+    // /api/requests fell through to the public request intake, which answered
+    // invalid_fields because a reconcile body carries no name or subject —
+    // the tool looked broken while the endpoint behind it was fine.
+    function postPay(payload){
+      payload.key = accessKey; payload.ticket = accessTicket;
+      return fetch('/api/pay', { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); });
+    }
+
     function changeStatus(ref, status, sel){
       if (!status) return;
       if (!confirm('تغيير حالة الطلب ' + ref + ' إلى «' + status + '»؟')) { sel.value = ''; return; }
@@ -2155,8 +2166,21 @@
     function rcRender(r, applied){
       var m = $('rcMsg');
       if (!r || !r.ok){
-        m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص' +
-          (r && r.error ? ' — ' + esc(r.error) : '') + '</span>';
+        // A raw code tells the owner nothing about what to do next. These are
+        // every failure /api/pay can answer with here, each with its remedy.
+        var why = {
+          unauthorized: 'الجلسة غير مصرّح لها — أعد فتح اللوحة بمفتاح الوصول.',
+          not_configured: 'مفتاح مُيسّر السري غير مضبوط في Vercel.',
+          no_secret_key: 'مفتاح مُيسّر السري غير مضبوط في Vercel.',
+          invalid_fields: 'الطلب وصل لواجهة خاطئة — بلّغني.'
+        };
+        var code = r && r.error ? String(r.error) : '';
+        var note = why[code] || (/^moyasar_http_/.test(code)
+          ? 'مُيسّر ردّ بـ ' + esc(code.replace('moyasar_http_', '')) + ' — المفتاح السري غالباً غير صحيح أو من بيئة مختلفة.'
+          : '');
+        m.innerHTML = '<span style="color:#b91c1c">تعذّر الفحص' + (code ? ' — ' + esc(code) : '') + '</span>' +
+          (note ? '<div style="margin-top:6px">' + note + '</div>' : '') +
+          (r && r.detail ? '<div style="margin-top:6px;direction:ltr;font-size:11px;opacity:.7">' + esc(String(r.detail).slice(0, 160)) + '</div>' : '');
         return;
       }
       rcRows = r.rows || [];
@@ -2186,7 +2210,7 @@
       var btn = apply ? $('rcApply') : $('rcScan'), m = $('rcMsg');
       btn.disabled = true; m.style.display = 'block';
       m.innerHTML = apply ? '⏳ أسترجع الدفعات…' : '⏳ أسأل مُيسّر عمّا دُفع…';
-      postPanel({ action:'reconcile', apply: !!apply, limit: 50 }).then(function(r){
+      postPay({ action:'reconcile', apply: !!apply, limit: 50 }).then(function(r){
         btn.disabled = false; rcRender(r, !!apply);
         if (apply) refresh();
       }).catch(function(){ btn.disabled = false; m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال.</span>'; });
