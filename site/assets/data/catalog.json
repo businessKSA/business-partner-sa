@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T03:02:59.700Z",
+  "updatedAt": "2026-08-25T03:21:08.795Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -2058,6 +2058,28 @@
       "group": "revenue-os",
       "groupNameAr": "Revenue OS",
       "groupNameEn": "Revenue OS",
+      "code": "revos-connect-intro",
+      "key": "revos-connect-intro",
+      "nameAr": "Revenue OS — باقة Connect (أول شهر)",
+      "nameEn": "Revenue OS — Connect (first month)",
+      "amount": 249,
+      "priceLabel": "249 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "commissionPercent": 12,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": false,
+      "featuresAr": [
+        "قائمة شركات مستهدفة بالقطاع والمدينة",
+        "التقاط عملاء وحجز مواعيد على موقعك",
+        "لوحة عميل وتقرير شهري",
+        "عرض تعريفي: أول شهر 249 ﷼ ثم 499 ﷼ شهريًا"
+      ],
+      "url": "https://businesspartner.sa/revenue-os"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "Revenue OS",
+      "groupNameEn": "Revenue OS",
       "code": "revos-connect",
       "key": "revos-connect",
       "nameAr": "Revenue OS — باقة Connect (شهري)",
@@ -2065,11 +2087,13 @@
       "amount": 499,
       "priceLabel": "499 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 12,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": false,
       "featuresAr": [
-        "قائمة شركات مستهدفة",
-        "التقاط عملاء وحجز مواعيد",
-        "لوحة عميل وتقرير شهري",
-        "بدون عمولة"
+        "قائمة شركات مستهدفة بالقطاع والمدينة",
+        "التقاط عملاء وحجز مواعيد على موقعك",
+        "لوحة عميل وتقرير شهري"
       ],
       "url": "https://businesspartner.sa/revenue-os"
     },
@@ -2084,9 +2108,13 @@
       "amount": 2500,
       "priceLabel": "2,500 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 8,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": false,
       "featuresAr": [
         "Pipeline مستهدف حتى 1M",
-        "عمولة نجاح 10% + إغلاق 2.5%"
+        "قاعدة بيانات محددة",
+        "تأهيل وتقرير شهري"
       ],
       "url": "https://businesspartner.sa/revenue-os"
     },
@@ -2101,9 +2129,14 @@
       "amount": 5000,
       "priceLabel": "5,000 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 0,
+      "commissionBasisAr": "بدون عمولة — سعر شهري ثابت",
+      "closingByBusinessPartner": false,
       "featuresAr": [
         "Pipeline مستهدف حتى 3M",
-        "عمولة نجاح 8% + إغلاق 2%"
+        "CRM وتقارير أسبوعية",
+        "حملات متعددة القنوات",
+        "سعر ثابت بدون أي عمولة"
       ],
       "url": "https://businesspartner.sa/revenue-os"
     },
@@ -2118,9 +2151,13 @@
       "amount": 9500,
       "priceLabel": "9,500 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 5,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": true,
       "featuresAr": [
         "Pipeline مستهدف حتى 10M",
-        "عمولة نجاح 6% + إغلاق 1.5%"
+        "Forecast وإدارة عروض",
+        "دعم التفاوض والإغلاق"
       ],
       "url": "https://businesspartner.sa/revenue-os"
     }

@@ -22,9 +22,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=245ea1b540">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-<link rel="stylesheet" href="/assets/css/revenue-os-page.css?v=b0c358daae"></head>
+<link rel="stylesheet" href="/assets/css/revenue-os-page.css?v=b3224e46ca"></head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation"><a href="/ar/">الرئيسية</a><a href="/ar/about">من نحن</a><div class="nav-group active">
@@ -155,44 +155,46 @@
   </div></section>
 
   <section class="section dot-bg" id="pricing"><div class="container">
-    <div class="section-head"><span class="eyebrow">الباقات</span><h2>كلما زاد الاشتراك، انخفضت نسبة الأداء</h2><p>اختر التوازن المناسب بين الرسوم الشهرية والعمولة على النجاح والإغلاق.</p></div>
+    <div class="section-head"><span class="eyebrow">الباقات</span><h2>سؤال واحد يحدد باقتك: من يُغلق الصفقة؟</h2><p>ادفع رسومًا شهرية فقط فنولّد ونؤهّل ونحجز الاجتماعات وأنت تُغلق. أضف عمولة فيُغلق فريقنا معك — والعمولة تُحتسب على الإيراد الذي تحصّله فعليًا، لا شيء غيره.</p></div>
     <div class="pricing">
       <article class="price-card"><h3>Starter</h3><p class="muted">دخول بدون رسوم شهرية.</p>
         <div class="amount" style="font-size:1.05rem">بدون رسوم شهرية <span>أداء فقط</span></div>
         <ul class="clean-list"><li>تشغيل حسب التوفر</li><li>Pipeline أساسي</li><li>تقرير نتائج مختصر</li></ul>
-        <div class="fee">عمولة النجاح <strong>12%</strong> + إضافة الإغلاق <strong>3%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn" href="#leadForm">ابدأ الآن</a></article>
+        <div class="closer closer-us"><b>نُغلق معك</b> — عروض وتفاوض ومتابعة تحصيل.</div><div class="fee">عمولة نجاح <strong>18%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div><a class="btn" href="#leadForm">ابدأ الآن</a></article>
 
       <article class="price-card"><h3>Connect</h3><p class="muted">أدوات وبيانات تشتغل بها بنفسك.</p>
         <div class="amount">499 ﷼ <span>شهريًا + الضريبة</span></div>
+        <p class="intro-offer">أول شهر 249 ﷼</p>
         <ul class="clean-list"><li>قائمة شركات مستهدفة بالقطاع والمدينة</li><li>التقاط عملاء وحجز مواعيد على موقعك</li><li>لوحة عميل وتقرير شهري</li></ul>
-        <div class="fee">بدون عمولة نجاح — <strong>أدوات وبيانات ولوحة فقط</strong>, وفريق التنفيذ يبدأ من Launch</div>
-        <a class="btn" href="#" data-revos-cart="revos-connect" data-amount="499" data-name-ar="Revenue OS — باقة Connect (شهري)" data-name-en="Revenue OS — Connect (monthly)">اشترك في Connect</a></article>
+        <div class="closer"><b>أنت تُغلق</b> — نحن نولّد ونؤهّل ونحجز الاجتماعات.</div><div class="fee">عمولة نجاح <strong>12%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div>
+        <a class="btn" href="#" data-revos-cart="revos-connect-intro" data-amount="249" data-intro-amount="499" data-commission="12" data-billing="monthly" data-name-ar="Revenue OS — باقة Connect (أول شهر)" data-name-en="Revenue OS — Connect (first month)">ابدأ Connect بـ 249</a></article>
 
       <article class="price-card"><h3>Launch</h3><p class="muted">للتجربة المنظمة.</p>
         <div class="amount">2,500 ﷼ <span>شهريًا + الضريبة</span></div>
         <ul class="clean-list"><li>Pipeline مستهدف حتى 1M</li><li>قاعدة بيانات محددة</li><li>تأهيل وتقرير شهري</li></ul>
-        <div class="fee">عمولة النجاح <strong>10%</strong> + إضافة الإغلاق <strong>2.5%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn" href="#" data-revos-cart="revos-launch" data-amount="2500" data-name-ar="Revenue OS — باقة Launch (شهري)" data-name-en="Revenue OS — Launch (monthly)">اشترك في Launch</a></article>
+        <div class="closer"><b>أنت تُغلق</b> — نحن نولّد ونؤهّل ونحجز الاجتماعات.</div><div class="fee">عمولة نجاح <strong>8%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div><a class="btn" href="#" data-revos-cart="revos-launch" data-amount="2500" data-commission="8" data-billing="monthly" data-name-ar="Revenue OS — باقة Launch (شهري)" data-name-en="Revenue OS — Launch (monthly)">اشترك في Launch</a></article>
 
-      <article class="price-card featured"><span class="price-badge">الأكثر اختيارًا</span><h3>Growth</h3><p class="muted">لبناء مسار مستمر.</p>
+      <article class="price-card featured"><span class="price-badge">الأكثر اختيارًا</span><h3>Growth</h3><p class="muted">سعر ثابت بلا مفاجآت.</p>
         <div class="amount">5,000 ﷼ <span>شهريًا + الضريبة</span></div>
         <ul class="clean-list"><li>Pipeline مستهدف حتى 3M</li><li>CRM وتقارير أسبوعية</li><li>حملات متعددة القنوات</li></ul>
-        <div class="fee">عمولة النجاح <strong>8%</strong> + إضافة الإغلاق <strong>2%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn btn-primary" href="#" data-revos-cart="revos-growth" data-amount="5000" data-name-ar="Revenue OS — باقة Growth (شهري)" data-name-en="Revenue OS — Growth (monthly)">اشترك في Growth</a></article>
+        <div class="closer"><b>أنت تُغلق</b> — نحن نولّد ونؤهّل ونحجز الاجتماعات.</div><div class="fee">بدون عمولة — <strong>سعر شهري ثابت</strong>, مهما أغلقت.</div><a class="btn btn-primary" href="#" data-revos-cart="revos-growth" data-amount="5000" data-commission="0" data-billing="monthly" data-name-ar="Revenue OS — باقة Growth (شهري)" data-name-en="Revenue OS — Growth (monthly)">اشترك في Growth</a></article>
 
       <article class="price-card"><h3>Professional</h3><p class="muted">للصفقات الأعلى قيمة.</p>
         <div class="amount">9,500 ﷼ <span>شهريًا + الضريبة</span></div>
         <ul class="clean-list"><li>Pipeline مستهدف حتى 10M</li><li>Forecast وإدارة عروض</li><li>دعم التفاوض</li></ul>
-        <div class="fee">عمولة النجاح <strong>6%</strong> + إضافة الإغلاق <strong>1.5%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn" href="#" data-revos-cart="revos-professional" data-amount="9500" data-name-ar="Revenue OS — باقة Professional (شهري)" data-name-en="Revenue OS — Professional (monthly)">اشترك في Professional</a></article>
+        <div class="closer closer-us"><b>نُغلق معك</b> — عروض وتفاوض ومتابعة تحصيل.</div><div class="fee">عمولة نجاح <strong>5%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div><a class="btn" href="#" data-revos-cart="revos-professional" data-amount="9500" data-commission="5" data-billing="monthly" data-name-ar="Revenue OS — باقة Professional (شهري)" data-name-en="Revenue OS — Professional (monthly)">اشترك في Professional</a></article>
 
       <article class="price-card"><h3>Enterprise</h3><p class="muted">لأسواق وقطاعات متعددة.</p>
         <div class="amount">يبدأ من 15,000 ﷼ <span>شهريًا + الضريبة</span></div>
         <ul class="clean-list"><li>Pipeline يبدأ من 10M</li><li>لوحات تنفيذية</li><li>SLA مخصص</li></ul>
-        <div class="fee">عمولة النجاح <strong>4%</strong> + إضافة الإغلاق <strong>1%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn" href="#leadForm">تحدث معنا</a></article>
+        <div class="closer closer-us"><b>نُغلق معك</b> — عروض وتفاوض ومتابعة تحصيل.</div><div class="fee">عمولة نجاح <strong>3%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div><a class="btn" href="#leadForm">تحدث معنا</a></article>
 
       <article class="price-card"><h3>Dedicated Team</h3><p class="muted">فريق تطوير أعمال مخصص.</p>
         <div class="amount">يبدأ من 20,000 ﷼ <span>شهريًا + الضريبة</span></div>
         <ul class="clean-list"><li>SDR وAccount Manager</li><li>Pipeline حسب SLA</li><li>تكاملات وأتمتة مخصصة</li></ul>
-        <div class="fee">عمولة النجاح <strong>3%</strong> + إضافة الإغلاق <strong>1%</strong> — على الإيراد المحصّل فعليًا</div><a class="btn" href="#leadForm">اطلب عرضًا</a></article>
+        <div class="closer closer-us"><b>نُغلق معك</b> — عروض وتفاوض ومتابعة تحصيل.</div><div class="fee">عمولة نجاح <strong>2%</strong> — على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.</div><a class="btn" href="#leadForm">اطلب عرضًا</a></article>
     </div>
+    <p class="fee-basis">العمولة تُحتسب فقط على الإيراد المحصّل من فرص ولّدها Business Partner وموثّقة في CRM الخاص بك — لا على عملائك الحاليين، ولا على فاتورة لم تُحصّلها بعد.</p>
 
     <div class="paths" style="margin-top:26px">
       <article class="path-card"><div class="card-icon">◷</div><h3>تشغيل موجّه من البداية</h3><p class="muted">نجهّز لك المسار ونربطه ببياناتك ونطلقه معك — بدون تعقيد تقني ولا فريق إضافي.</p></article>
@@ -215,7 +217,8 @@
     <div class="faq">
       <details open><summary>هل قيمة الـPipeline تعني إيرادًا مضمونًا؟</summary><p>لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.</p></details>
       <details><summary>متى تستحق عمولة النجاح؟</summary><p>تحدد الاتفاقية نقطة الاستحقاق. النموذج المفضل يربط العمولة بالإيراد المحصل فعليًا.</p></details>
-      <details><summary>ما الفرق بين عمولة النجاح وإضافة الإغلاق؟</summary><p>عمولة النجاح ترتبط بتوليد وإدارة الفرصة، وإضافة الإغلاق ترتبط بالمشاركة الفعلية في التفاوض والتوقيع.</p></details>
+      <details><summary>لماذا توجد باقة بدون أي عمولة؟</summary><p>لأن العمولة تشتري فريق الإغلاق لدينا، لا الـPipeline نفسه. في باقة Growth نولّد ونؤهّل ونحجز اجتماعاتك بسعر شهري ثابت وفريقك هو من يُغلق — فلا شيء نأخذ عليه نسبة. ومن Professional فأعلى نجلس معك في التفاوض، والعمولة هي ما يدفع مقابل ذلك.</p></details>
+      <details><summary>هل تأخذون عمولة على عملائي الحاليين؟</summary><p>لا. العمولة تُطبَّق فقط على الفرص التي ولّدها Business Partner وسُجّلت في CRM قبل أول تواصل، وعلى الإيراد الذي حصّلته فعليًا — لا على عقد موقّع ولا على فاتورة لم تُدفع.</p></details>
       <details><summary>هل يمكن البحث عن الموردين فقط؟</summary><p>نعم. يمكن تشغيل مسار مستقل للعملاء أو الموردين أو الموزعين أو الشركاء.</p></details>
     </div>
   </div></section>
@@ -396,4 +399,4 @@
         <button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=d3a4f77f1d"></script><script src="/assets/js/revenue-os-v1.js?v=cf797ed05c"></script></body></html>
+  </section><script src="/assets/js/main.js?v=5f35822a29"></script><script src="/assets/js/revenue-os-v1.js?v=f1fa470294"></script></body></html>

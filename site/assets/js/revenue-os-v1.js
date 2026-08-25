@@ -17,6 +17,7 @@
     let cart = [];
     try { cart = JSON.parse(localStorage.getItem('bp_cart')) || []; } catch (_) {}
     const id = btn.getAttribute('data-revos-cart');
+    const renews = Number(btn.getAttribute('data-intro-amount')) || null;
     const item = {
       id,
       nameEn: btn.getAttribute('data-name-en') || id,
@@ -27,6 +28,15 @@
       qty: 1,
       surchargeAmount: null,
       surchargeFreeCount: null,
+      // These prices are published on a public marketing page, so the cart must
+      // show them even to a signed-out visitor — the "hide prices" policy is
+      // about the service catalogue, not about a package the page just quoted.
+      pricePublic: 1,
+      // A monthly subscription, not a one-off order. Everything downstream (cart
+      // line, checkout, receipt, portal) reads these instead of guessing.
+      billingPeriod: btn.getAttribute('data-billing') || 'monthly',
+      renewsAt: renews,
+      commissionPercent: Number(btn.getAttribute('data-commission')) || 0,
     };
     const ex = cart.find((x) => x.id === item.id);
     if (ex) ex.qty = (ex.qty || 1) + 1; else cart.push(item);

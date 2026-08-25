@@ -101,19 +101,53 @@
   ]);
 
   // A Revenue OS subscription is what makes this workspace fill up. Detect it
-  // from the client's own confirmed orders.
+  // from the client's own orders — matching on what they actually bought (the
+  // note items and the recorded subscription terms), not on the CRM opportunity
+  // title, which is generic and never names the package.
+  function isRevos(o) {
+    if (!o) return false;
+    const hay = [o.title, o.ref, o.items, (o.subscriptions || []).map((s) => s.name).join(' ')].join(' ');
+    return /revenue\s*os|revos/i.test(hay);
+  }
+  // Three states, not two. A client who paid an hour ago is "being activated",
+  // not "not subscribed" — telling them otherwise reads as if the payment was
+  // lost.
   function revosPlan() {
-    const hit = state.orders.find((o) => /revenue\s*os/i.test((o.title || '') + ' ' + (o.ref || '')) && (ACTIVE.includes(o.status) || DONE.includes(o.status)));
-    return hit || null;
+    const mine = state.orders.filter(isRevos);
+    const live = mine.find((o) => ACTIVE.includes(o.status) || DONE.includes(o.status));
+    if (live) return { state: 'active', order: live };
+    const pending = mine.find((o) => o.status !== 'ملغي');
+    if (pending) return { state: 'pending', order: pending };
+    return { state: 'none', order: null };
+  }
+  // The terms they accepted at checkout, shown back to them.
+  function planTerms(o) {
+    const s = (o && o.subscriptions && o.subscriptions[0]) || null;
+    if (!s) return '';
+    return s.commissionPercent
+      ? L(`renews at ${s.renewsAt} SAR/month · ${s.commissionPercent}% success fee on collected revenue`,
+          `يتجدد بـ ${s.renewsAt} ﷼ شهرياً · عمولة نجاح ${s.commissionPercent}% على الإيراد المحصّل`)
+      : L(`renews at ${s.renewsAt} SAR/month · no commission`, `يتجدد بـ ${s.renewsAt} ﷼ شهرياً · بدون عمولة`);
   }
 
   const views = {
     overview() {
       const plan = revosPlan();
       const o = orderSummary();
-      const banner = plan
-        ? `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #168A5B"><b>${L('Revenue OS is active', 'اشتراك Revenue OS مفعّل')}</b><br><small style="color:#6B7280">${esc(plan.title || '')} · ${L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')}</small></div>`
-        : `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #B7791F"><b>${L('This workspace is ready — Revenue OS is not subscribed yet', 'مساحتك جاهزة — اشتراك Revenue OS غير مفعّل بعد')}</b><br><small style="color:#6B7280">${L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.')}</small><div style="margin-top:10px">${pkgCta()}</div></div>`;
+      const bar = (color, head, sub, cta) =>
+        `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid ${color}"><b>${head}</b><br><small style="color:#6B7280">${sub}</small>${cta ? `<div style="margin-top:10px">${cta}</div>` : ''}</div>`;
+      const banner =
+        plan.state === 'active'
+          ? bar('#168A5B', L('Revenue OS is active', 'اشتراك Revenue OS مفعّل'),
+              [esc(plan.order.items || plan.order.title || ''), planTerms(plan.order),
+               L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')].filter(Boolean).join(' · '))
+          : plan.state === 'pending'
+          ? bar('#0B1B5A', L('Your subscription was received — being activated', 'استلمنا اشتراكك — قيد التفعيل'),
+              [`<b dir="ltr">${esc(plan.order.ref)}</b>`, esc(plan.order.items || ''), planTerms(plan.order),
+               L('we are verifying your transfer; the workspace opens as soon as it is confirmed.', 'نتحقق من تحويلك الآن، وتُفتح مساحتك فور التأكيد.')].filter(Boolean).join(' · '))
+          : bar('#B7791F', L('This workspace is ready — Revenue OS is not subscribed yet', 'مساحتك جاهزة — اشتراك Revenue OS غير مفعّل بعد'),
+              L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.'),
+              pkgCta());
 
       // These are Revenue OS numbers — opportunities generated FOR the client.
       // They are not the client's own purchases from us; those live below.

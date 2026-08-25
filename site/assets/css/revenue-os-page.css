@@ -2,3 +2,11 @@
 .revos .section-nav .chip-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .revos .section-nav a.sector-chip{cursor:pointer;transition:.15s}
 .revos .section-nav a.sector-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* "Who closes the deal" — the line that makes the ladder legible. */
+.revos .closer{margin:14px 0 0;padding:10px 12px;border-radius:12px;background:#F8F9FC;border:1px solid var(--line);font-size:12.5px;color:#5F687A;line-height:1.55}
+.revos .closer b{color:#5F687A;font-weight:900}
+.revos .closer-us{background:var(--soft);border-color:#DCE2EE}
+.revos .closer-us b{color:var(--navy)}
+.revos .intro-offer{margin:6px 0 0;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#EAF7F1;color:var(--success);font-size:12px;font-weight:900}
+.revos .fee-basis{max-width:900px;margin:26px auto 0;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.75}

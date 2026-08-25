@@ -1316,10 +1316,22 @@ function buildServiceDetail(s) {
    cannot collide with styles.css. */
 function buildRevenueOS() {
   const track = (en, ar) => `data-track="${esc(L(en, ar))}"`;
-  const feeLine = (succ, close) =>
-    `<div class="fee">${L("Success fee", "عمولة النجاح")} <strong>${succ}</strong> + ${L("closing add-on", "إضافة الإغلاق")} <strong>${close}</strong> — ${L("on revenue actually collected", "على الإيراد المحصّل فعليًا")}</div>`;
-  const pkgBtn = (code, amount, nameEn, nameAr, label, primary) =>
-    `<a class="btn${primary ? " btn-primary" : ""}" href="#" data-revos-cart="${code}" data-amount="${amount}" data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}">${label}</a>`;
+  // One commission number, on collected revenue only. The old page printed two
+  // (success + closing) which nobody could tell apart and which read as ~12.5%.
+  const feeLine = (rate) =>
+    rate === 0
+      ? `<div class="fee">${L("No commission", "بدون عمولة")} — <strong>${L("a fixed monthly price", "سعر شهري ثابت")}</strong>, ${L("whatever you close.", "مهما أغلقت.")}</div>`
+      : `<div class="fee">${L("Success fee", "عمولة نجاح")} <strong>${rate}%</strong> — ${L("on revenue you actually collect from the deals we generate.", "على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.")}</div>`;
+  // The line that makes the ladder make sense: paying a commission is what buys
+  // our closing team. Below it, we generate and qualify and the client closes.
+  const closer = (us) =>
+    `<div class="closer${us ? " closer-us" : ""}">${us
+      ? `<b>${L("We close with you", "نُغلق معك")}</b> — ${L("proposals, negotiation and collection follow-up.", "عروض وتفاوض ومتابعة تحصيل.")}`
+      : `<b>${L("You close", "أنت تُغلق")}</b> — ${L("we generate, qualify and book the meetings.", "نحن نولّد ونؤهّل ونحجز الاجتماعات.")}`}</div>`;
+  const pkgBtn = (code, amount, nameEn, nameAr, label, primary, commission, intro) =>
+    `<a class="btn${primary ? " btn-primary" : ""}" href="#" data-revos-cart="${code}" data-amount="${amount}"${
+      intro ? ` data-intro-amount="${intro}"` : ""
+    } data-commission="${commission}" data-billing="monthly" data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}">${label}</a>`;
 
   const body = `<div class="revos">
   <section class="hero dot-bg"><div class="container hero-inner">
@@ -1396,44 +1408,46 @@ function buildRevenueOS() {
   </div></section>
 
   <section class="section dot-bg" id="pricing"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("The higher the subscription, the lower the performance rate", "كلما زاد الاشتراك، انخفضت نسبة الأداء")}</h2><p>${L("Choose the balance between a monthly fee and a fee on success and closing.", "اختر التوازن المناسب بين الرسوم الشهرية والعمولة على النجاح والإغلاق.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("One question decides your package: who closes the deal?", "سؤال واحد يحدد باقتك: من يُغلق الصفقة؟")}</h2><p>${L("Pay a monthly fee only and we generate, qualify and book the meetings while you close. Add a commission and our team closes with you — and that commission is charged on revenue you actually collect, nothing else.", "ادفع رسومًا شهرية فقط فنولّد ونؤهّل ونحجز الاجتماعات وأنت تُغلق. أضف عمولة فيُغلق فريقنا معك — والعمولة تُحتسب على الإيراد الذي تحصّله فعليًا، لا شيء غيره.")}</p></div>
     <div class="pricing">
       <article class="price-card"><h3>Starter</h3><p class="muted">${L("Entry with no monthly fee.", "دخول بدون رسوم شهرية.")}</p>
         <div class="amount" style="font-size:1.05rem">${L("No monthly fee", "بدون رسوم شهرية")} <span>${L("performance only", "أداء فقط")}</span></div>
         <ul class="clean-list"><li>${L("Runs as capacity allows", "تشغيل حسب التوفر")}</li><li>${L("Basic pipeline", "Pipeline أساسي")}</li><li>${L("Short results report", "تقرير نتائج مختصر")}</li></ul>
-        ${feeLine("12%", "3%")}<a class="btn" href="#leadForm">${L("Start now", "ابدأ الآن")}</a></article>
+        ${closer(true)}${feeLine(18)}<a class="btn" href="#leadForm">${L("Start now", "ابدأ الآن")}</a></article>
 
       <article class="price-card"><h3>Connect</h3><p class="muted">${L("Tools and data you run yourself.", "أدوات وبيانات تشتغل بها بنفسك.")}</p>
         <div class="amount">499 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
+        <p class="intro-offer">${L("First month 249 SAR", "أول شهر 249 ﷼")}</p>
         <ul class="clean-list"><li>${L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة")}</li><li>${L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك")}</li><li>${L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")}</li></ul>
-        <div class="fee">${L("No success fee", "بدون عمولة نجاح")} — <strong>${L("tools, data and the dashboard only", "أدوات وبيانات ولوحة فقط")}</strong>, ${L("the delivery team starts at Launch", "وفريق التنفيذ يبدأ من Launch")}</div>
-        ${pkgBtn("revos-connect", 499, "Revenue OS — Connect (monthly)", "Revenue OS — باقة Connect (شهري)", L("Subscribe to Connect", "اشترك في Connect"), false)}</article>
+        ${closer(false)}${feeLine(12)}
+        ${pkgBtn("revos-connect-intro", 249, "Revenue OS — Connect (first month)", "Revenue OS — باقة Connect (أول شهر)", L("Start Connect for 249", "ابدأ Connect بـ 249"), false, 12, 499)}</article>
 
       <article class="price-card"><h3>Launch</h3><p class="muted">${L("For a structured trial.", "للتجربة المنظمة.")}</p>
         <div class="amount">2,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M")}</li><li>${L("A defined database", "قاعدة بيانات محددة")}</li><li>${L("Qualification and a monthly report", "تأهيل وتقرير شهري")}</li></ul>
-        ${feeLine("10%", "2.5%")}${pkgBtn("revos-launch", 2500, "Revenue OS — Launch (monthly)", "Revenue OS — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false)}</article>
+        ${closer(false)}${feeLine(8)}${pkgBtn("revos-launch", 2500, "Revenue OS — Launch (monthly)", "Revenue OS — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false, 8)}</article>
 
-      <article class="price-card featured"><span class="price-badge">${L("Most chosen", "الأكثر اختيارًا")}</span><h3>Growth</h3><p class="muted">${L("To build a continuous pipeline.", "لبناء مسار مستمر.")}</p>
+      <article class="price-card featured"><span class="price-badge">${L("Most chosen", "الأكثر اختيارًا")}</span><h3>Growth</h3><p class="muted">${L("A fixed price with no surprises.", "سعر ثابت بلا مفاجآت.")}</p>
         <div class="amount">5,000 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M")}</li><li>${L("CRM and weekly reports", "CRM وتقارير أسبوعية")}</li><li>${L("Multi-channel campaigns", "حملات متعددة القنوات")}</li></ul>
-        ${feeLine("8%", "2%")}${pkgBtn("revos-growth", 5000, "Revenue OS — Growth (monthly)", "Revenue OS — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true)}</article>
+        ${closer(false)}${feeLine(0)}${pkgBtn("revos-growth", 5000, "Revenue OS — Growth (monthly)", "Revenue OS — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true, 0)}</article>
 
       <article class="price-card"><h3>Professional</h3><p class="muted">${L("For higher-value deals.", "للصفقات الأعلى قيمة.")}</p>
         <div class="amount">9,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M")}</li><li>${L("Forecast and proposal management", "Forecast وإدارة عروض")}</li><li>${L("Negotiation support", "دعم التفاوض")}</li></ul>
-        ${feeLine("6%", "1.5%")}${pkgBtn("revos-professional", 9500, "Revenue OS — Professional (monthly)", "Revenue OS — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false)}</article>
+        ${closer(true)}${feeLine(5)}${pkgBtn("revos-professional", 9500, "Revenue OS — Professional (monthly)", "Revenue OS — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false, 5)}</article>
 
       <article class="price-card"><h3>Enterprise</h3><p class="muted">${L("For multiple markets and sectors.", "لأسواق وقطاعات متعددة.")}</p>
         <div class="amount">${L("From 15,000 SAR", "يبدأ من 15,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("Pipeline starting at 10M", "Pipeline يبدأ من 10M")}</li><li>${L("Executive dashboards", "لوحات تنفيذية")}</li><li>${L("Custom SLA", "SLA مخصص")}</li></ul>
-        ${feeLine("4%", "1%")}<a class="btn" href="#leadForm">${L("Talk to us", "تحدث معنا")}</a></article>
+        ${closer(true)}${feeLine(3)}<a class="btn" href="#leadForm">${L("Talk to us", "تحدث معنا")}</a></article>
 
       <article class="price-card"><h3>Dedicated Team</h3><p class="muted">${L("A dedicated business-development team.", "فريق تطوير أعمال مخصص.")}</p>
         <div class="amount">${L("From 20,000 SAR", "يبدأ من 20,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
         <ul class="clean-list"><li>${L("SDR and account manager", "SDR وAccount Manager")}</li><li>${L("Pipeline per SLA", "Pipeline حسب SLA")}</li><li>${L("Custom integrations and automation", "تكاملات وأتمتة مخصصة")}</li></ul>
-        ${feeLine("3%", "1%")}<a class="btn" href="#leadForm">${L("Request a proposal", "اطلب عرضًا")}</a></article>
+        ${closer(true)}${feeLine(2)}<a class="btn" href="#leadForm">${L("Request a proposal", "اطلب عرضًا")}</a></article>
     </div>
+    <p class="fee-basis">${L("The commission is charged only on revenue collected from opportunities Business Partner generated and documented in your CRM — never on your existing customers, and never on an invoice you have not been paid for.", "العمولة تُحتسب فقط على الإيراد المحصّل من فرص ولّدها Business Partner وموثّقة في CRM الخاص بك — لا على عملائك الحاليين، ولا على فاتورة لم تُحصّلها بعد.")}</p>
 
     <div class="paths" style="margin-top:26px">
       <article class="path-card"><div class="card-icon">◷</div><h3>${L("Guided setup from day one", "تشغيل موجّه من البداية")}</h3><p class="muted">${L("We prepare the track, connect it to your data and launch it with you — no technical complexity and no extra headcount.", "نجهّز لك المسار ونربطه ببياناتك ونطلقه معك — بدون تعقيد تقني ولا فريق إضافي.")}</p></article>
@@ -1456,7 +1470,8 @@ function buildRevenueOS() {
     <div class="faq">
       <details open><summary>${L("Does pipeline value mean guaranteed revenue?", "هل قيمة الـPipeline تعني إيرادًا مضمونًا؟")}</summary><p>${L("No. It is a target value for qualified opportunities and depends on offer quality, the market, response speed and closing factors.", "لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.")}</p></details>
       <details><summary>${L("When is the success fee due?", "متى تستحق عمولة النجاح؟")}</summary><p>${L("The agreement defines the trigger. The preferred model ties the fee to revenue actually collected.", "تحدد الاتفاقية نقطة الاستحقاق. النموذج المفضل يربط العمولة بالإيراد المحصل فعليًا.")}</p></details>
-      <details><summary>${L("What is the difference between the success fee and the closing add-on?", "ما الفرق بين عمولة النجاح وإضافة الإغلاق؟")}</summary><p>${L("The success fee relates to generating and managing the opportunity; the closing add-on relates to actually taking part in negotiation and signing.", "عمولة النجاح ترتبط بتوليد وإدارة الفرصة، وإضافة الإغلاق ترتبط بالمشاركة الفعلية في التفاوض والتوقيع.")}</p></details>
+      <details><summary>${L("Why does one package have no commission at all?", "لماذا توجد باقة بدون أي عمولة؟")}</summary><p>${L("Because the commission buys our closing team, not the pipeline. On Growth we generate, qualify and book your meetings for one fixed monthly price and your own team closes — so there is nothing to take a percentage of. From Professional up, we sit in the negotiation with you, and the commission is what pays for that.", "لأن العمولة تشتري فريق الإغلاق لدينا، لا الـPipeline نفسه. في باقة Growth نولّد ونؤهّل ونحجز اجتماعاتك بسعر شهري ثابت وفريقك هو من يُغلق — فلا شيء نأخذ عليه نسبة. ومن Professional فأعلى نجلس معك في التفاوض، والعمولة هي ما يدفع مقابل ذلك.")}</p></details>
+      <details><summary>${L("Do you take a commission on my existing customers?", "هل تأخذون عمولة على عملائي الحاليين؟")}</summary><p>${L("No. The commission applies only to opportunities Business Partner generated and documented in your CRM before the first contact, and only on revenue you have actually collected — not on a signed contract or an unpaid invoice.", "لا. العمولة تُطبَّق فقط على الفرص التي ولّدها Business Partner وسُجّلت في CRM قبل أول تواصل، وعلى الإيراد الذي حصّلته فعليًا — لا على عقد موقّع ولا على فاتورة لم تُدفع.")}</p></details>
       <details><summary>${L("Can we run the supplier track only?", "هل يمكن البحث عن الموردين فقط؟")}</summary><p>${L("Yes. Customers, suppliers, distributors or partners can each run as an independent track.", "نعم. يمكن تشغيل مسار مستقل للعملاء أو الموردين أو الموزعين أو الشركاء.")}</p></details>
     </div>
   </div></section>
@@ -10559,13 +10574,38 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // Revenue OS subscriptions (sold from /revenue-os): monthly fee + success
-    // commission ladder. Codes match the cart item ids so the order API's
-    // server-side re-pricing can find them.
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-connect", key: "revos-connect", nameAr: "Revenue OS — باقة Connect (شهري)", nameEn: "Revenue OS — Connect (monthly)", amount: 499, priceLabel: "499 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["قائمة شركات مستهدفة", "التقاط عملاء وحجز مواعيد", "لوحة عميل وتقرير شهري", "بدون عمولة"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-launch", key: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, priceLabel: "2,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 1M", "عمولة نجاح 10% + إغلاق 2.5%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-growth", key: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, priceLabel: "5,000 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 3M", "عمولة نجاح 8% + إغلاق 2%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-professional", key: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, priceLabel: "9,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 10M", "عمولة نجاح 6% + إغلاق 1.5%"], url: `${base}/revenue-os` },
+    // Revenue OS subscriptions (sold from /revenue-os). Owner-approved ladder
+    // (2026-08): ONE success-fee number, charged on collected revenue only, and
+    // the rate buys our closing team — pay a monthly fee alone and the client
+    // closes; pay a commission and we close with them. Codes match the cart item
+    // ids so the order API's server-side re-pricing can find them. The Connect
+    // intro month is its own code so 249 re-prices as 249, not as 499.
+    ...[
+      { code: "revos-connect-intro", nameAr: "Revenue OS — باقة Connect (أول شهر)", nameEn: "Revenue OS — Connect (first month)", amount: 249, commission: 12, closedByUs: false,
+        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري", "عرض تعريفي: أول شهر 249 ﷼ ثم 499 ﷼ شهريًا"] },
+      { code: "revos-connect", nameAr: "Revenue OS — باقة Connect (شهري)", nameEn: "Revenue OS — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
+        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
+      { code: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 1M", "قاعدة بيانات محددة", "تأهيل وتقرير شهري"] },
+      { code: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
+      { code: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
+        featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
+    ].map((p) => ({
+      group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS",
+      code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
+      priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
+      billingPeriod: "monthly",
+      // Commercial terms travel with the price so the order, the invoice and the
+      // admin panel all read the same number the pricing page printed.
+      commissionPercent: p.commission,
+      commissionBasisAr: p.commission
+        ? "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM"
+        : "بدون عمولة — سعر شهري ثابت",
+      closingByBusinessPartner: p.closedByUs,
+      featuresAr: p.featuresAr,
+      url: `${base}/revenue-os`,
+    })),
   ],
 };
 write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
