@@ -18,6 +18,7 @@ import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/sto
 import { logEvent, audit } from '@/lib/timeline';
 import { round2, fmtMoney, fmtDate } from '@/lib/money';
 import { notifyCatalogChanged } from '@/lib/catalog-sync';
+import { createTamaraCheckout, tamaraEligible } from '@/lib/payments/tamara';
 
 type State = { error?: string; ok?: string; link?: string };
 
@@ -139,6 +140,94 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
     ok: `أُرسل رابط السداد إلى ${invoice.client.email}`,
     link: `https://wa.me/${phone}?text=${encodeURIComponent(wa)}`,
   };
+}
+
+/**
+ * يفتح جلسة تقسيط لدى تمارا ويعيد رابطها.
+ *
+ * يُفتح برمز الفاتورة وحده كصفحة السداد نفسها — من يملك الرابط يملك السداد،
+ * ولا شيء هنا يكشف بيانات غير المبلغ الذي في الصفحة أصلاً.
+ */
+export async function actionStartTamara(_prev: State, fd: FormData): Promise<State> {
+  const payToken = s(fd, 'payToken');
+  if (!payToken) return { error: 'رابط غير صالح' };
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { payToken },
+    include: { client: true },
+  });
+  if (!invoice) return { error: 'الفاتورة غير موجودة' };
+
+  const fit = tamaraEligible({
+    total: invoice.total,
+    isGovFeeDeposit: invoice.isGovFeeDeposit,
+    depositKind: invoice.depositKind,
+    status: invoice.status,
+  });
+  if (!fit.ok) return { error: fit.reasonAr || 'التقسيط غير متاح لهذه الفاتورة' };
+
+  const base = process.env.APP_URL || 'http://localhost:3000';
+  const ret = (outcome: string) =>
+    `${base}/api/payments/tamara?pay=${encodeURIComponent(payToken)}&outcome=${outcome}`;
+
+  const created = await createTamaraCheckout({
+    invoiceNumber: invoice.number,
+    invoiceId: invoice.id,
+    titleAr: invoice.titleAr,
+    titleEn: invoice.titleEn,
+    amountExclVat: invoice.amountExclVat,
+    vatAmount: invoice.vatAmount,
+    total: invoice.total,
+    clientName: invoice.client.companyEn || invoice.client.nameEn || invoice.client.nameAr,
+    clientEmail: invoice.client.email,
+    clientPhone: normalizePhone(invoice.client.phone),
+    successUrl: ret('success'),
+    failureUrl: ret('failure'),
+    cancelUrl: ret('cancel'),
+    notificationUrl: `${base}/api/payments/tamara`,
+  });
+
+  if (!created.ok) {
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { tamaraError: created.error.slice(0, 500) },
+    });
+    await logEvent({
+      entityType: 'invoice',
+      entityId: invoice.id,
+      clientId: invoice.clientId,
+      code: 'TAMARA_SESSION_FAILED',
+      titleAr: `تعذّر فتح جلسة تمارا للفاتورة ${invoice.number}: ${created.error}`,
+      titleEn: `Could not open Tamara session for invoice ${invoice.number}: ${created.error}`,
+      actor: 'client',
+      actorKind: 'payment',
+      clientVisible: false,
+    });
+    return { error: 'تعذّر فتح صفحة التقسيط الآن. جرّب البطاقة أو التحويل البنكي.' };
+  }
+
+  // معرّف الطلبية يُحفظ قبل مغادرة العميل — هو الرابط الوحيد بين الإشعار وهذه الفاتورة
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      tamaraOrderId: created.data.orderId,
+      tamaraStatus: created.data.status,
+      tamaraError: null,
+    },
+  });
+
+  await logEvent({
+    entityType: 'invoice',
+    entityId: invoice.id,
+    clientId: invoice.clientId,
+    code: 'TAMARA_SESSION_OPENED',
+    titleAr: `فُتحت جلسة تقسيط تمارا للفاتورة ${invoice.number}`,
+    titleEn: `Tamara instalment session opened for invoice ${invoice.number}`,
+    actor: 'client',
+    actorKind: 'payment',
+  });
+
+  return { link: created.data.checkoutUrl };
 }
 
 // ------------------------------------------------------------------- الدخول

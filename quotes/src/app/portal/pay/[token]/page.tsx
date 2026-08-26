@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
 import { payments } from '@/lib/payments';
+import { tamaraEligible } from '@/lib/payments/tamara';
+import TamaraButton from './TamaraButton';
 import { COMPANY } from '@config/company';
 
 export const dynamic = 'force-dynamic';
@@ -41,6 +43,14 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
   }
 
   const provider = payments();
+  const tamara = tamaraEligible({
+    total: invoice.total,
+    isGovFeeDeposit: invoice.isGovFeeDeposit,
+    depositKind: invoice.depositKind,
+    status: invoice.status,
+  });
+  // التكلفة تُذكر للعميل كحقيقة عن الخدمة لا كرسم يُضاف عليه — المستحق ثابت
+  const feeNote = 'تُقسَّم على دفعات وفق شروط تمارا.';
   const base = process.env.APP_URL || 'http://localhost:3000';
   const intent = await provider.createPayment({
     amount: invoice.total,
@@ -74,8 +84,11 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
         <a className="btn" href={intent.url}>
           ادفع الآن {provider.supportsApplePay ? '— مدى، فيزا، آبل باي' : '(بيئة اختبار)'}
         </a>
-        
       </div>
+
+      {/* التقسيط لا يُعرض على العهدة: مبلغها يمرّ للجهات ولا إيراد فيه
+          يُغطّي خصم تمارا. الشرط في tamaraEligible لا هنا، وهذا عرضه فقط. */}
+      {tamara.ok ? <TamaraButton payToken={token} fee={feeNote} /> : null}
 
       <h3>التحويل البنكي</h3>
       <p className="muted">

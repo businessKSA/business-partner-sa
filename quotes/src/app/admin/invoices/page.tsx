@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
+import { tamaraFee } from '@/lib/payments/tamara';
 import { payUrl } from '@/lib/send';
 import { SendInvoiceLink } from './InvoiceActions';
 
@@ -85,6 +86,17 @@ export default async function InvoicesPage({
                     <div className="sub" style={{ color: 'var(--bad, #9C4620)' }}>
                       تعذّر إصدار الفاتورة الضريبية: {inv.daftraError}
                     </div>
+                  ) : null}
+                  {/* خصم تمارا تكلفةٌ علينا لا على العميل، فيُعرض هنا وحده.
+                      إخفاؤه يجعل الهامش يتآكل بلا أن يظهر في أي شاشة. */}
+                  {inv.method === 'tamara' || inv.tamaraStatus ? (
+                    <div className="sub">
+                      تمارا: {inv.tamaraStatus || '—'}
+                      {inv.status === 'PAID' ? ` — تكلفة القبول ${fmtMoney(tamaraFee(inv.total))} ريال` : ''}
+                    </div>
+                  ) : null}
+                  {inv.tamaraError ? (
+                    <div className="sub" style={{ color: 'var(--bad, #9C4620)' }}>{inv.tamaraError}</div>
                   ) : null}
                 </td>
                 <td>{inv.client.companyAr || inv.client.nameAr}</td>

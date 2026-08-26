@@ -464,6 +464,13 @@ model Invoice {
   // الفاتورة الضريبية المعتمدة تصدر من الدفترة، لا من هنا. `number` أعلاه رقم
   // مطالبة السداد في هذه اللوحة؛ والرقم الضريبي هو `daftraNumber` — تسلسل واحد
   // للمنشأة كما تشترط هيئة الزكاة والضريبة، لا تسلسلان.
+  /// معرّف الطلبية لدى تمارا — يُكتب عند فتح جلسة السداد قبل الدفع، فهو
+  /// الرابط الوحيد بين إشعار تمارا وهذه الفاتورة.
+  tamaraOrderId String?
+  /// approved | authorised | captured | declined | expired | canceled
+  tamaraStatus  String?
+  tamaraError   String?
+
   daftraId       String?
   daftraNumber   String?
   daftraPdfUrl   String? // رابط الفاتورة في الدفترة حين لا يُسلَّم الملف
@@ -477,6 +484,7 @@ model Invoice {
 
   @@index([clientId])
   @@index([status])
+  @@index([tamaraOrderId])
 }
 
 // --------------------------------------------------------- محفظة العميل
