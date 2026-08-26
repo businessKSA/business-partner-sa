@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { currentAdmin } from '@/lib/auth';
 import {
   tamaraStatus,
   tamaraEligible,
@@ -26,7 +26,11 @@ function notificationUrl(req: Request): string {
  * POST — يسجّل رابط الإشعار لدى تمارا. خطوة صريحة بطلب لا تقع تلقائياً.
  */
 export async function GET(req: Request) {
-  await requireAdmin();
+  // 401 صريح لا استثناء غير ملتقَط: طلب بلا جلسة يردّ «غير مصرّح» لا 500،
+  // فالخمسمائة تقول «الخادم معطوب» وترسل من يقرأها يبحث عن عطل غير موجود.
+  if (!(await currentAdmin())) {
+    return NextResponse.json({ error: 'يتطلب تسجيل دخول المدير.' }, { status: 401 });
+  }
 
   const st = tamaraStatus();
   const sample = [1000, 5000, 10000, 28175];
@@ -69,7 +73,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  await requireAdmin();
+  if (!(await currentAdmin())) {
+    return NextResponse.json({ error: 'يتطلب تسجيل دخول المدير.' }, { status: 401 });
+  }
 
   const url = notificationUrl(req);
   const res = await registerTamaraWebhook(url);
