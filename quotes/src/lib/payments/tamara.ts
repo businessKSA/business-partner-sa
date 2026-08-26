@@ -208,6 +208,25 @@ export async function createTamaraCheckout(
       email: input.clientEmail,
       phone_number: input.clientPhone,
     },
+    // تمارا تطلب العنوانين حتى في الخدمات الرقمية. تكامل الموقع في
+    // api/_bnpl.js يرسلهما، فيُرسلان هنا بالشكل نفسه — تكاملان لمنشأة
+    // واحدة يجب أن يقولا الشيء نفسه لتمارا، وإلا اختلف قبولها بينهما.
+    billing_address: {
+      first_name: first,
+      last_name: last,
+      line1: 'الرياض',
+      city: 'Riyadh',
+      country_code: 'SA',
+      phone_number: input.clientPhone,
+    },
+    shipping_address: {
+      first_name: first,
+      last_name: last,
+      line1: 'الرياض',
+      city: 'Riyadh',
+      country_code: 'SA',
+      phone_number: input.clientPhone,
+    },
     country_code: 'SA',
     description: `${input.invoiceNumber} — ${input.titleEn}`,
     merchant_url: {
