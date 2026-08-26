@@ -10,7 +10,7 @@ import { nextInvoiceNumber } from './numbering';
 import { publicToken } from './tokens';
 import { logEvent, audit } from './timeline';
 import { DOC_STATUS } from './enums';
-import { notifyEvent } from './send';
+import { notifyEvent, sendPaymentReceipt } from './send';
 import { issueTaxInvoice, daftraLive } from './daftra';
 
 export interface InvoiceInput {
@@ -224,6 +224,10 @@ export async function markInvoicePaid(
   // تثبيت السداد لا قبله، ولا تُفشِل السداد إن تعذّرت — المال حُصِّل والحركة
   // قُيِّدت، وإبطال ذلك لأن نظام محاسبة لم يستجب يجعل الحال أسوأ.
   await issueTaxInvoiceFor(paid.id).catch(() => {});
+
+  // إيصال العميل بعد محاولة الإصدار لا قبلها، حتى يحمل رقم الفاتورة الضريبية
+  // ورابط نسختها إن صدرت. وإن لم تصدر بعد فالإيصال يقول ذلك ولا يَعِد بما لم يتم.
+  await sendPaymentReceipt(paid.id).catch(() => {});
 
   return paid;
 }

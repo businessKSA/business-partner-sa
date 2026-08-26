@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin, requireClient, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
 import { createClient, updateClient, normalizePhone } from '@/lib/clients';
 import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, autoIssueEligible, type ItemInput } from '@/lib/documents';
-import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl } from '@/lib/send';
+import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl, composeClientMail, vatTotals, sendQuoteRequestAck } from '@/lib/send';
 import { sendForSignature } from '@/lib/docusign/service';
 import { createInvoicesForContract, createInvoice, markInvoicePaid, walletSpend } from '@/lib/billing';
 import { generateQuoteAndContract, promoteAgentServiceToCatalog } from '@/lib/agent';
@@ -16,7 +16,7 @@ import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
 import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/storage';
 import { logEvent, audit } from '@/lib/timeline';
-import { round2, fmtMoney } from '@/lib/money';
+import { round2, fmtMoney, fmtDate } from '@/lib/money';
 import { notifyCatalogChanged } from '@/lib/catalog-sync';
 
 type State = { error?: string; ok?: string; link?: string };
@@ -67,8 +67,9 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
   if (invoice.status === 'PAID') return { error: 'الفاتورة مسددة — لا داعي لإرسال رابط سداد' };
 
   const link = payUrl(invoice.payToken);
+  const clientNameAr = invoice.client.companyAr || invoice.client.nameAr;
   const vars = {
-    clientName: invoice.client.companyAr || invoice.client.nameAr,
+    clientName: clientNameAr,
     number: invoice.number,
     title: invoice.titleAr,
     amount: fmtMoney(invoice.amountExclVat),
@@ -77,15 +78,33 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
     link,
   };
 
-  const tpl = loadTemplate<{
-    email: Record<string, { subject: { ar: string; en: string }; bodyAr: string; bodyEn: string }>;
-    whatsapp: Record<string, { ar: string; en: string }>;
-  }>('messages.json');
+  const tpl = loadTemplate<{ whatsapp: Record<string, { ar: string; en: string }> }>('messages.json');
+
+  const composed = composeClientMail('invoice', vars, {
+    items: [{ name: invoice.titleAr, amount: `${fmtMoney(invoice.amountExclVat)} ريال` }],
+    totals: vatTotals(invoice.amountExclVat, invoice.vatAmount, invoice.total, 'الإجمالي المستحق'),
+    ctaUrl: link,
+    refs: [
+      { label: 'رقم الفاتورة', value: invoice.number },
+      { label: 'العميل', value: clientNameAr },
+      ...(invoice.dueDate ? [{ label: 'تاريخ الاستحقاق', value: fmtDate(invoice.dueDate, 'ar') }] : []),
+    ],
+    govFeesNote: !invoice.isGovFeeDeposit && !invoice.depositKind,
+    signature: true,
+    enRows: [
+      { label: 'Invoice number', value: invoice.number },
+      { label: 'Amount excluding VAT', value: `SAR ${fmtMoney(invoice.amountExclVat)}` },
+      { label: 'Value added tax 15%', value: `SAR ${fmtMoney(invoice.vatAmount)}` },
+      { label: 'Total due', value: `SAR ${fmtMoney(invoice.total)}` },
+    ],
+    enUrl: link,
+  });
 
   const mail = await sendMail({
     to: invoice.client.email,
-    subject: render(tpl.email.invoice.subject.ar, vars),
-    text: render(tpl.email.invoice.bodyAr, vars),
+    subject: composed.subject,
+    text: composed.text,
+    html: composed.html,
   });
 
   await prisma.delivery.create({
@@ -94,8 +113,10 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
       channel: 'EMAIL',
       toName: invoice.client.nameAr,
       toAddress: invoice.client.email,
-      body: render(tpl.email.invoice.bodyAr, vars),
+      subject: composed.subject,
+      body: composed.text,
       status: mail.ok ? 'SENT' : 'FAILED',
+      error: mail.error ?? null,
       actor,
     },
   });
@@ -156,13 +177,23 @@ export async function requestClientLink(_prev: State, fd: FormData): Promise<Sta
   if (!client) return generic;
 
   const link = await createMagicLink(email, 'CLIENT', client.id);
-  const tpl = loadTemplate<{ email: Record<string, { subject: { ar: string; en: string }; bodyEn?: string; bodyAr?: string }> }>('messages.json');
-  const b = tpl.email.portalInvite;
-  const vars = { clientName: client.companyAr || client.nameAr, link, validMinutes: MAGIC_LINK_TTL_MIN };
+  const composed = composeClientMail(
+    'portalInvite',
+    { clientName: client.companyAr || client.nameAr, link, validMinutes: MAGIC_LINK_TTL_MIN },
+    {
+      ctaUrl: link,
+      enRows: [
+        { label: 'Link validity', value: `${MAGIC_LINK_TTL_MIN} minutes` },
+        { label: 'Password', value: 'Not required — the link opens the portal directly' },
+      ],
+      enUrl: link,
+    },
+  );
   await sendMail({
     to: email,
-    subject: render(b.subject.en, vars),
-    text: `${render(b.bodyEn || '', vars)}\n\n${'-'.repeat(56)}\n\n${render(b.bodyAr || '', vars)}`,
+    subject: composed.subject,
+    text: composed.text,
+    html: composed.html,
   });
   return { ...generic, link: process.env.DEV_SHOW_MAGIC_LINK === '1' ? link : undefined };
 }
@@ -331,8 +362,10 @@ export async function actionRequestQuote(_prev: State, fd: FormData): Promise<St
         'الخدمة مفتوحة السعر — يحتاج العرض تسعيراً منك قبل إرساله.',
         `${process.env.APP_URL || ''}/admin/documents/${doc.id}`,
       );
+      // العميل يخرج بيده برقم يسأل به، لا بجملة على الشاشة وحدها
+      await sendQuoteRequestAck(doc.id, service.nameAr).catch(() => {});
       return {
-        ok: 'وصلنا طلبك. هذه الخدمة تُسعَّر حسب الحالة، وسيصلك العرض بعد إعداده.',
+        ok: `وصلنا طلبك برقم ${doc.number}، ووصلك إشعار الاستلام على بريدك. هذه الخدمة تُسعَّر حسب الحالة، وسيصلك العرض بعد إعداده.`,
       };
     }
 

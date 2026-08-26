@@ -7,9 +7,8 @@ import { prisma } from '../db';
 import { hmac, safeEqual } from '../tokens';
 import { logEvent, audit } from '../timeline';
 import { DOC_STATUS, ENVELOPE_STATUS_LABEL } from '../enums';
-import { notifyEvent } from '../send';
+import { notifyEvent, composeClientMail } from '../send';
 import { sendMail } from '../mailer';
-import { loadTemplate, render } from '../templates';
 import { storage } from '../storage';
 import { downloadSignedDocuments } from './service';
 import { queue, JOB } from '../queue';
@@ -50,10 +49,6 @@ export function parseEvent(payload: ConnectEvent): { envelopeId: string | null; 
   if (!raw) return { envelopeId, status: null };
   const status = STATUS_MAP[raw.toLowerCase()] ?? raw.toLowerCase();
   return { envelopeId, status };
-}
-
-interface MsgTpl {
-  email: Record<string, { subject: { ar: string; en: string }; bodyEn?: string; bodyAr?: string }>;
 }
 
 /** المعالج الموحّد لكل تحديثات الحالة — يُستخدم من الـwebhook ومن وضع المحاكاة. */
@@ -179,8 +174,7 @@ export async function emailSignedCopies(envelopeDbId: string) {
   });
   if (!env.signedPdfPath) return;
   const doc = env.document;
-  const tpl = loadTemplate<MsgTpl>('messages.json');
-  const block = tpl.email.signedCopy;
+  const portal = `${process.env.APP_URL || 'http://localhost:3000'}/portal/contracts`;
 
   const s = storage();
   const attachments = [
@@ -200,22 +194,43 @@ export async function emailSignedCopies(envelopeDbId: string) {
 
   for (const to of [doc.client.email, env.bpEmail]) {
     const isClient = to === doc.client.email;
-    const vars = {
-      number: doc.number,
-      clientName: isClient ? doc.client.companyEn || doc.client.nameEn || doc.client.nameAr : env.bpName,
-    };
-    const text = `${render(block.bodyEn || '', vars)}\n\n${'-'.repeat(56)}\n\n${render(block.bodyAr || '', {
-      ...vars,
-      clientName: isClient ? doc.client.companyAr || doc.client.nameAr : env.bpName,
-    })}`;
-    const result = await sendMail({ to, subject: render(block.subject.en, vars), text, attachments });
+    const nameAr = isClient ? doc.client.companyAr || doc.client.nameAr : env.bpName;
+    const nameEn = isClient
+      ? doc.client.companyEn || doc.client.nameEn || doc.client.nameAr
+      : env.bpName;
+    const composed = composeClientMail(
+      'signedCopy',
+      { number: doc.number, clientName: nameAr },
+      {
+        // نسخة الطرف الآخر تفتح البوابة أيضاً، ومرفقاتها هي نفسها
+        ctaUrl: isClient ? portal : undefined,
+        refs: [
+          { label: 'رقم العقد', value: doc.number },
+          { label: 'الطرف المتعاقد', value: nameAr },
+          { label: 'حالة التوقيع', value: 'موقّع من الطرفين' },
+        ],
+        enRows: [
+          { label: 'Agreement number', value: doc.number },
+          { label: 'Party', value: nameEn },
+          { label: 'Signature status', value: 'Signed by both parties' },
+        ],
+        enUrl: isClient ? portal : undefined,
+      },
+    );
+    const result = await sendMail({
+      to,
+      subject: composed.subject,
+      text: composed.text,
+      html: composed.html,
+      attachments,
+    });
     await prisma.delivery.create({
       data: {
         documentId: doc.id,
         channel: 'EMAIL',
         toAddress: to,
-        subject: render(block.subject.en, vars),
-        body: text,
+        subject: composed.subject,
+        body: composed.text,
         status: result.ok ? 'SENT' : 'FAILED',
         error: result.error ?? null,
         meta: JSON.stringify({ kind: 'signed-copy', provider: result.provider }),
