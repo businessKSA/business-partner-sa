@@ -2999,7 +2999,7 @@ export default async function handler(req, res) {
       if (nameEn) patch.name_en = nameEn;
       if (crNum) patch.cr_number = crNum;
       const rows = await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", body: patch });
-      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity: "organizations", entity_id: String(orgId) });
+      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity_type: "organization", entity_id: String(orgId) });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, organization: (rows && rows[0]) || null }));
     } catch {
