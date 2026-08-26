@@ -36,6 +36,13 @@ export interface MailRef {
   value: string;
 }
 
+/** جدول عام لما ليس بنوداً ومبالغ — أطراف التوقيع مثلاً. */
+export interface MailTable {
+  heading: string;
+  columns: string[];
+  rows: string[][];
+}
+
 export interface MailDoc {
   /** عنوان الرسالة داخل المتن، لا موضوع البريد. */
   title: string;
@@ -45,6 +52,7 @@ export interface MailDoc {
   items?: MailItem[];
   itemsHeading?: string;
   totals?: MailTotal[];
+  table?: MailTable;
   /** الإجراء الوحيد. */
   cta?: { label: string; url: string };
   /** روابط ثانوية تظهر كسطور نصية تحت الزر. */
@@ -78,6 +86,13 @@ export function sanitizeMailDoc(doc: MailDoc): MailDoc {
     itemsHeading: doc.itemsHeading ? t(doc.itemsHeading) : undefined,
     items: doc.items?.map((i) => ({ ...i, name: t(i.name) })),
     totals: doc.totals?.map((x) => ({ ...x, label: t(x.label) })),
+    table: doc.table
+      ? {
+          heading: t(doc.table.heading),
+          columns: doc.table.columns.map(t),
+          rows: doc.table.rows.map((r) => r.map(t)),
+        }
+      : undefined,
     cta: doc.cta ? { ...doc.cta, label: t(doc.cta.label) } : undefined,
     links: doc.links?.map((l) => ({ ...l, label: t(l.label) })),
     refsHeading: doc.refsHeading ? t(doc.refsHeading) : undefined,
@@ -170,6 +185,39 @@ function itemsTable(doc: MailDoc): string {
     `style="border-collapse:collapse;border:1px solid ${B.line};border-radius:6px;margin:0 0 22px;">` +
     `<thead style="background:${B.wash};">${head}</thead>` +
     `<tbody>${body}${totals}</tbody></table>`
+  );
+}
+
+function genericTable(doc: MailDoc): string {
+  const t = doc.table;
+  if (!t || !t.rows.length) return '';
+  const th = `padding:10px 14px;font-size:12px;font-weight:700;color:${B.muted};text-align:right;border-bottom:1px solid ${B.line};`;
+  const td = `padding:11px 14px;font-size:13px;color:${B.ink};border-bottom:1px solid ${B.line};text-align:right;`;
+
+  let head = '';
+  for (const c of t.columns) head += `<th style="${th}">${esc(c)}</th>`;
+
+  let body = '';
+  for (const r of t.rows) {
+    body += '<tr>';
+    r.forEach((cell, i) => {
+      // العمود الأول اسم الطرف فيُبرز، وما بعده بيانات تُقرأ من اليسار.
+      // العمود الأخير توقيت، وانقسامه على سطرين يفصل «UTC» عن ساعته.
+      const last = i === r.length - 1 && r.length > 1;
+      const style =
+        i === 0
+          ? `${td}font-weight:700;`
+          : `${td}direction:ltr;text-align:right;color:${B.muted};${last ? 'white-space:nowrap;' : 'word-break:break-word;'}`;
+      body += `<td style="${style}">${prose(cell)}</td>`;
+    });
+    body += '</tr>';
+  }
+
+  return (
+    `<p style="margin:0 0 10px;font-size:12px;font-weight:700;color:${B.muted};">${esc(t.heading)}</p>` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" ` +
+    `style="border-collapse:collapse;border:1px solid ${B.line};border-radius:6px;margin:0 0 22px;">` +
+    `<thead style="background:${B.wash};"><tr>${head}</tr></thead><tbody>${body}</tbody></table>`
   );
 }
 
@@ -279,6 +327,7 @@ export function renderMailHtml(doc: MailDoc): string {
     `<p style="margin:18px 0 12px;font-size:14px;color:${B.ink};">${prose(doc.greeting)}</p>` +
     `<p style="margin:0 0 22px;font-size:14px;line-height:1.9;color:${B.ink};">${prose(doc.intro)}</p>` +
     itemsTable(doc) +
+    genericTable(doc) +
     ctaBlock(doc) +
     refsBlock(doc) +
     notes +
@@ -314,6 +363,11 @@ export function renderMailText(doc: MailDoc): string {
   }
   if (doc.totals?.length) {
     for (const t of doc.totals) parts.push(`${t.label}: ${t.value}`);
+    parts.push('');
+  }
+  if (doc.table?.rows.length) {
+    parts.push(doc.table.heading);
+    for (const r of doc.table.rows) parts.push(r.filter(Boolean).join(' — '));
     parts.push('');
   }
   if (doc.cta) {

@@ -32,6 +32,7 @@ import {
   type MailItem,
   type MailTotal,
   type MailRef,
+  type MailTable,
 } from './mail-layout';
 import { PAYMENT_METHODS, type PaymentMethodKey } from './payment-methods';
 
@@ -58,6 +59,7 @@ export interface ComposeInput {
   items?: MailItem[];
   itemsHeading?: string;
   totals?: MailTotal[];
+  table?: MailTable;
   /** وجهة الزر الوحيد. بلا رابط لا يظهر زر. */
   ctaUrl?: string;
   links?: { label: string; url: string }[];
@@ -99,6 +101,7 @@ export function composeClientMail(
     items: body.items,
     itemsHeading: body.itemsHeading,
     totals: body.totals,
+    table: body.table,
     cta: body.ctaUrl && block.cta ? { label: render(block.cta, vars), url: body.ctaUrl } : undefined,
     links: body.links,
     refs: body.refs,

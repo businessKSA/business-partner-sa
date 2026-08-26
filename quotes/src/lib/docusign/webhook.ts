@@ -8,19 +8,100 @@ import { hmac, safeEqual } from '../tokens';
 import { logEvent, audit } from '../timeline';
 import { DOC_STATUS, ENVELOPE_STATUS_LABEL } from '../enums';
 import { notifyEvent, composeClientMail } from '../send';
+import { fmtDateTime } from '../money';
 import { sendMail } from '../mailer';
 import { storage } from '../storage';
 import { downloadSignedDocuments } from './service';
 import { queue, JOB } from '../queue';
 
+/** الموقّع كما يصفه DocuSign داخل recipients.signers. */
+interface ConnectSigner {
+  recipientId?: string;
+  name?: string;
+  email?: string;
+  status?: string;
+  sentDateTime?: string;
+  deliveredDateTime?: string;
+  signedDateTime?: string;
+  declinedDateTime?: string;
+  ipAddress?: string;
+  userAgentString?: string;
+  clientUserId?: string;
+}
+
 export interface ConnectEvent {
   event?: string;
   data?: {
     envelopeId?: string;
-    envelopeSummary?: { status?: string; recipients?: unknown };
+    envelopeSummary?: {
+      status?: string;
+      recipients?: { signers?: ConnectSigner[] };
+    };
   };
   envelopeId?: string;
   status?: string;
+}
+
+function asDate(v: string | undefined): Date | null {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * يحفظ أثر كل موقّع على حدة.
+ *
+ * `recipients` مطلوبة أصلاً في eventNotification وتصل مع كل حدث، وكانت
+ * تُرمى في lastEventRaw ولا تُقرأ. الحفظ تراكمي: الحدث اللاحق لا يمحو
+ * تاريخاً أثبته حدث سابق — DocuSign قد يرسل الحقل فارغاً في حدث تالٍ.
+ */
+export async function recordSigners(envelopeDbId: string, payload: ConnectEvent): Promise<number> {
+  const signers = payload.data?.envelopeSummary?.recipients?.signers ?? [];
+  let saved = 0;
+
+  for (const s of signers) {
+    const recipientId = String(s.recipientId ?? '').trim();
+    if (!recipientId || !s.email) continue;
+
+    // الترتيب في القالب: «1» العميل و«2» بزنس بارتنر
+    const role = recipientId === '2' ? 'bp' : 'client';
+    const fresh = {
+      sentAt: asDate(s.sentDateTime),
+      deliveredAt: asDate(s.deliveredDateTime),
+      signedAt: asDate(s.signedDateTime),
+      declinedAt: asDate(s.declinedDateTime),
+      ipAddress: s.ipAddress || null,
+      userAgent: s.userAgentString ? s.userAgentString.slice(0, 500) : null,
+    };
+    // لا يُكتب فوق قيمة موجودة بقيمة فارغة
+    const keep = <T>(next: T | null, prev: T | null | undefined): T | null =>
+      next ?? (prev ?? null);
+
+    const existing = await prisma.signature.findUnique({
+      where: { envelopeDbId_recipientId: { envelopeDbId, recipientId } },
+    });
+
+    const data = {
+      role,
+      name: s.name || existing?.name || s.email,
+      email: s.email,
+      status: (s.status || existing?.status || 'sent').toLowerCase(),
+      sentAt: keep(fresh.sentAt, existing?.sentAt),
+      deliveredAt: keep(fresh.deliveredAt, existing?.deliveredAt),
+      signedAt: keep(fresh.signedAt, existing?.signedAt),
+      declinedAt: keep(fresh.declinedAt, existing?.declinedAt),
+      ipAddress: keep(fresh.ipAddress, existing?.ipAddress),
+      userAgent: keep(fresh.userAgent, existing?.userAgent),
+    };
+
+    await prisma.signature.upsert({
+      where: { envelopeDbId_recipientId: { envelopeDbId, recipientId } },
+      create: { envelopeDbId, recipientId, ...data },
+      update: data,
+    });
+    saved += 1;
+  }
+  return saved;
 }
 
 /**
@@ -83,6 +164,12 @@ export async function applyEnvelopeStatus(
       lastEventRaw: raw ? JSON.stringify(raw).slice(0, 8000) : null,
     },
   });
+
+  // أثر الموقّعين يُحفظ عند كل حدث لا عند الإتمام وحده، فحدث «وقّع الأول»
+  // هو الوحيد الذي يحمل توقيته، ولا يعود إن انتُظر به إلى النهاية.
+  if (raw) {
+    await recordSigners(env.id, raw as ConnectEvent).catch(() => 0);
+  }
 
   const label = ENVELOPE_STATUS_LABEL[status] ?? { ar: status, en: status };
   const doc = env.document;
@@ -170,11 +257,26 @@ export async function applyEnvelopeStatus(
 export async function emailSignedCopies(envelopeDbId: string) {
   const env = await prisma.envelope.findUniqueOrThrow({
     where: { id: envelopeDbId },
-    include: { document: { include: { client: true } } },
+    include: {
+      document: { include: { client: true } },
+      signatures: { orderBy: { recipientId: 'asc' } },
+    },
   });
   if (!env.signedPdfPath) return;
   const doc = env.document;
   const portal = `${process.env.APP_URL || 'http://localhost:3000'}/portal/contracts`;
+
+  // من وقّع، بأي بريد، ومتى بالضبط — هذا ما يُسأل عنه عند أي نزاع، فيصل
+  // في الرسالة نفسها لا في مرفق يحتاج فتحاً. التوقيت بـUTC بلا تحويل:
+  // منطقة زمنية محلية تجعل الطرفين يقرآن ساعتين مختلفتين للحدث نفسه.
+  const signedParties = env.signatures.filter((s) => s.signedAt);
+  const partyTable = signedParties.length
+    ? {
+        heading: 'أطراف التوقيع',
+        columns: ['الطرف', 'البريد الإلكتروني', 'وقت التوقيع'],
+        rows: signedParties.map((s) => [s.name, s.email, fmtDateTime(s.signedAt, 'ar')]),
+      }
+    : undefined;
 
   const s = storage();
   const attachments = [
@@ -204,15 +306,24 @@ export async function emailSignedCopies(envelopeDbId: string) {
       {
         // نسخة الطرف الآخر تفتح البوابة أيضاً، ومرفقاتها هي نفسها
         ctaUrl: isClient ? portal : undefined,
+        table: partyTable,
         refs: [
           { label: 'رقم العقد', value: doc.number },
           { label: 'الطرف المتعاقد', value: nameAr },
           { label: 'حالة التوقيع', value: 'موقّع من الطرفين' },
+          { label: 'معرّف الظرف', value: env.envelopeId },
+        ],
+        extraNotes: [
+          'شهادة الإتمام المرفقة تحمل الأثر الكامل لكل حدث: من أرسل ومن وقّع ومتى ومن أي عنوان.',
         ],
         enRows: [
           { label: 'Agreement number', value: doc.number },
           { label: 'Party', value: nameEn },
           { label: 'Signature status', value: 'Signed by both parties' },
+          ...signedParties.map((s) => ({
+            label: `Signed by ${s.name}`,
+            value: `${s.email} — ${fmtDateTime(s.signedAt, 'en')}`,
+          })),
         ],
         enUrl: isClient ? portal : undefined,
       },
