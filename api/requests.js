@@ -1108,6 +1108,8 @@ async function recordOrderInDb(req, b, ref) {
 // لا تُرسل بريداً: اللوحة لها قوالبها ومُرسِلها، وإرسالان يعنيان رسالتين
 // للعميل عن فاتورة واحدة.
 const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
+// عنوان لوحة العروض — للاتجاه المعاكس: الموقع يسألها عن عروض العميل وعقوده.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "").trim().replace(/\/+$/, "");
 
 function bridgeAuthorized(req) {
   if (!PANEL_BRIDGE_TOKEN) return false;
@@ -1329,6 +1331,48 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // عروض الأسعار والعقود والمطالبات من لوحة العروض — داخل صفحة الحساب.
+  //
+  // كانت اللوحة عالماً منفصلاً: العميل يفتح /ar/account فيرى طلبه ومحفظته،
+  // ولا يرى عرض السعر المرسل له ولا العقد الذي وقّعه، لأن ذاك كله خلف بوابة
+  // ثانية لا يصلها إلا برابط في بريد. فمن أضاع البريد أضاع العرض.
+  //
+  // الهوية هنا من الجلسة وحدها — البريد الذي تحقّق منه الموقع برمز — ولا
+  // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
+  if ((q.action || "") === "my-documents") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_URL || !PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    if (!email) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(12000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
+      // وحده يقول إنه لم يستطع القراءة الآن.
+      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
     }
   }
 
