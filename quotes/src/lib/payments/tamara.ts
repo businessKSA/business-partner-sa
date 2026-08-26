@@ -291,6 +291,80 @@ export function tamaraTokenValid(presented: string | null): boolean {
   return diff === 0;
 }
 
+/**
+ * فحص حيّ للمفتاح بلا أثر.
+ *
+ * طلبية بمعرّف لا وجود له: 401 يعني مفتاحاً خاطئاً، و404 يعني أن المفتاح
+ * صحيح والحساب يردّ — وهو المطلوب إثباته. لا يُنشئ شيئاً ولا يحرّك مالاً.
+ */
+export async function pingTamara(): Promise<{
+  reachable: boolean;
+  authorised: boolean;
+  httpStatus?: number;
+  detail?: string;
+}> {
+  const token = process.env.TAMARA_API_TOKEN;
+  if (!token) return { reachable: false, authorised: false, detail: 'TAMARA_API_TOKEN غير معرّف' };
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch(`${baseUrl()}/orders/00000000-0000-0000-0000-000000000000`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      signal: ctrl.signal,
+    });
+    if (res.status === 401 || res.status === 403) {
+      return { reachable: true, authorised: false, httpStatus: res.status, detail: 'المفتاح مرفوض' };
+    }
+    return {
+      reachable: true,
+      authorised: true,
+      httpStatus: res.status,
+      detail: res.status === 404 ? 'المفتاح مقبول والحساب يردّ' : `رد بحالة ${res.status}`,
+    };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { reachable: false, authorised: false, detail: msg };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** الأحداث التي نعالجها فعلاً — تسجيل غيرها ضجيج لا يُقرأ. */
+export const TAMARA_EVENTS = [
+  'order_approved',
+  'order_declined',
+  'order_expired',
+  'order_canceled',
+] as const;
+
+export async function listTamaraWebhooks(): Promise<
+  { ok: true; data: unknown } | { ok: false; error: string }
+> {
+  const res = await call<unknown>('/webhooks', { method: 'GET' });
+  return res.ok ? { ok: true, data: res.data } : { ok: false, error: res.error };
+}
+
+/**
+ * يسجّل رابط الإشعار لدى تمارا.
+ *
+ * الرابط يُمرَّر أيضاً في كل جلسة سداد (`merchant_url.notification`)، لكن
+ * التسجيل هو ما تعتمد عليه تمارا رسمياً، و`order_approved` إلزامي عندها.
+ */
+export async function registerTamaraWebhook(
+  url: string,
+): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
+  if (!/^https:\/\//i.test(url)) {
+    return { ok: false, error: 'رابط الإشعار يجب أن يكون https' };
+  }
+  const res = await call<{ webhook_id?: string; id?: string }>('/webhooks', {
+    method: 'POST',
+    body: { url, events: [...TAMARA_EVENTS], headers: {} },
+  });
+  return res.ok ? { ok: true, id: res.data?.webhook_id ?? res.data?.id } : { ok: false, error: res.error };
+}
+
 export function tamaraStatus(): {
   mode: TamaraMode;
   configured: boolean;

@@ -1,23 +1,44 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
-import { tamaraStatus, tamaraEligible, tamaraFee } from '@/lib/payments/tamara';
+import {
+  tamaraStatus,
+  tamaraEligible,
+  tamaraFee,
+  pingTamara,
+  listTamaraWebhooks,
+  registerTamaraWebhook,
+  TAMARA_EVENTS,
+} from '@/lib/payments/tamara';
 
 export const dynamic = 'force-dynamic';
 
+function notificationUrl(req: Request): string {
+  const base = process.env.APP_URL || new URL(req.url).origin;
+  return `${base.replace(/\/$/, '')}/api/payments/tamara`;
+}
+
 /**
- * فحص إعداد تمارا دون تحريك مال.
+ * فحص إعداد تمارا.
  *
- * يجيب: هل المفاتيح معرّفة؟ وأي بيئة؟ وما تكلفة القبول على مبالغ نموذجية؟
- * وهل تمرّ عهدة من الحارس؟ — الأخيرة هي التي يجب أن ترجع «لا» دائماً.
+ * GET  — لا يحرّك مالاً ولا يغيّر إعداداً: يعرض المفاتيح المعرّفة، ويتحقّق
+ *        من المفتاح بنداء لطلبية لا وجود لها، ويسرد روابط الإشعار المسجّلة،
+ *        ويبيّن أن العهدة ترجع «غير مؤهّلة».
+ * POST — يسجّل رابط الإشعار لدى تمارا. خطوة صريحة بطلب لا تقع تلقائياً.
  */
-export async function GET() {
+export async function GET(req: Request) {
   await requireAdmin();
 
   const st = tamaraStatus();
   const sample = [1000, 5000, 10000, 28175];
+  const live = st.configured ? await pingTamara() : null;
+  const hooks = live?.authorised ? await listTamaraWebhooks() : null;
 
   return NextResponse.json({
     الإعداد: st,
+    'رابط الإشعار المتوقّع': notificationUrl(req),
+    'الفحص الحيّ': live ?? 'المفتاح غير معرّف',
+    'روابط الإشعار المسجّلة': hooks ?? 'لم تُقرأ — المفتاح غير مقبول أو غير معرّف',
+    'الأحداث التي نعالجها': TAMARA_EVENTS,
     'تكلفة القبول': sample.map((total) => ({
       المبلغ: total,
       'خصم تمارا': tamaraFee(total),
@@ -44,10 +65,21 @@ export async function GET() {
         total: 5000, isGovFeeDeposit: false, depositKind: null, status: 'PAID',
       }),
     },
-    'الخطوات المتبقية': [
-      'سجّل رابط الإشعار لدى تمارا: {APP_URL}/api/payments/tamara — وفعّل حدث order_approved على الأقل',
-      'ضع TAMARA_API_TOKEN و TAMARA_NOTIFICATION_TOKEN',
-      'ابدأ بـ TAMARA_MODE=sandbox وأتمم عملية واحدة كاملة قبل live',
-    ],
+  });
+}
+
+export async function POST(req: Request) {
+  await requireAdmin();
+
+  const url = notificationUrl(req);
+  const res = await registerTamaraWebhook(url);
+  if (!res.ok) {
+    return NextResponse.json({ ok: false, الرابط: url, الخطأ: res.error }, { status: 502 });
+  }
+  return NextResponse.json({
+    ok: true,
+    'سُجّل رابط الإشعار': url,
+    المعرّف: res.id ?? null,
+    الأحداث: TAMARA_EVENTS,
   });
 }
