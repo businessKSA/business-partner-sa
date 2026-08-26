@@ -11,7 +11,9 @@ export interface Attachment {
 export interface MailInput {
   to: string;
   subject: string;
+  /** النسخة النصية — إلزامية دائماً، فبعض البرامج لا تعرض HTML أصلاً. */
   text: string;
+  html?: string;
   attachments?: Attachment[];
   replyTo?: string;
 }
@@ -43,6 +45,7 @@ async function sendSmtp(m: MailInput): Promise<MailResult> {
     to: m.to,
     subject: m.subject,
     text: m.text,
+    html: m.html,
     replyTo: m.replyTo,
     attachments: m.attachments?.map((a) => ({
       filename: a.filename,
@@ -64,6 +67,7 @@ async function sendResend(m: MailInput): Promise<MailResult> {
       to: [m.to],
       subject: m.subject,
       text: m.text,
+      html: m.html,
       reply_to: m.replyTo,
       attachments: m.attachments?.map((a) => ({
         filename: a.filename,

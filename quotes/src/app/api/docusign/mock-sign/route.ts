@@ -73,18 +73,51 @@ export async function POST(req: Request) {
   const env = await prisma.envelope.findUnique({ where: { id } });
   if (!env) return NextResponse.json({ error: 'ظرف غير موجود' }, { status: 404 });
 
-  const raw = env.lastEventRaw ? (JSON.parse(env.lastEventRaw) as { signed?: string[] }) : { signed: [] };
-  const signed = new Set(raw.signed ?? []);
+  // من وقّع حتى الآن يُقرأ من صفوف التوقيع نفسها لا من حقل جانبي، فالمحاكاة
+  // تمر بالمسار الذي يمر به الحدث الحقيقي بالضبط
+  const prior = await prisma.signature.findMany({ where: { envelopeDbId: id } });
+  const signed = new Set(prior.filter((s) => s.signedAt).map((s) => s.role));
   signed.add(who);
 
-  await prisma.envelope.update({
-    where: { id },
-    data: { lastEventRaw: JSON.stringify({ signed: [...signed] }) },
-  });
+  const now = new Date().toISOString();
+  const at = (role: string) => (role === who ? now : prior.find((s) => s.role === role)?.signedAt?.toISOString());
+
+  // الشكل نفسه الذي يرسله DocuSign Connect مع eventData.includeData=['recipients']
+  const payload = {
+    event: signed.has('client') && signed.has('bp') ? 'envelope-completed' : 'envelope-delivered',
+    data: {
+      envelopeId: env.envelopeId,
+      envelopeSummary: {
+        recipients: {
+          signers: [
+            {
+              recipientId: '1',
+              name: env.clientName,
+              email: env.clientEmail,
+              status: signed.has('client') ? 'completed' : 'sent',
+              signedDateTime: at('client'),
+              ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined,
+              userAgentString: req.headers.get('user-agent') || undefined,
+            },
+            {
+              recipientId: '2',
+              name: env.bpName,
+              email: env.bpEmail,
+              status: signed.has('bp') ? 'completed' : 'sent',
+              signedDateTime: at('bp'),
+              ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined,
+              userAgentString: req.headers.get('user-agent') || undefined,
+            },
+          ],
+        },
+      },
+      mock: true,
+    },
+  };
 
   // العميل وقّع أولاً => delivered ؛ وقّع الطرفان => completed
   const next = signed.has('client') && signed.has('bp') ? 'completed' : 'delivered';
-  await applyEnvelopeStatus(env.envelopeId, next, { mock: true, signed: [...signed] });
+  await applyEnvelopeStatus(env.envelopeId, next, payload);
 
   const base = process.env.APP_URL || new URL(req.url).origin;
   return NextResponse.redirect(returnUrl.startsWith('http') ? returnUrl : `${base}${returnUrl}`, 303);

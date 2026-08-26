@@ -131,6 +131,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/live-catalog",
+      "destination": "https://bp-quotes-three.vercel.app/api/catalog"
+    },
+    {
+      "source": "/api/daftra-invoice",
+      "destination": "/api/requests?__route=daftra-invoice"
+    },
+    {
       "source": "/api/suppliers",
       "destination": "/api/requests?__route=suppliers"
     },

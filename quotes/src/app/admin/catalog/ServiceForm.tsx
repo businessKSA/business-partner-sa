@@ -22,6 +22,10 @@ type S = {
   attachGovFees: boolean;
   validityDays: number | null;
   active: boolean;
+  paymentMethods: string;
+  notionPageId: string | null;
+  siteSlug: string | null;
+  govPlatform: string | null;
 };
 
 export default function ServiceForm({ service }: { service: S | null }) {
@@ -109,6 +113,37 @@ export default function ServiceForm({ service }: { service: S | null }) {
           </label>
         </div>
       </div>
+
+      <h3 style={{ marginTop: 18 }}>الربط والسداد</h3>
+      <p className="sub">
+        هذه الحقول تبني خريطة الكتالوج: من هنا يعرف النظام صفحة الخدمة على الموقع
+        وصفّها في نوشن، وبأي وسيلة تُسدَّد.
+      </p>
+      <div className="grid c2">
+        <div>
+          <label htmlFor="siteSlug">مسار صفحة الخدمة على الموقع</label>
+          <input id="siteSlug" name="siteSlug" defaultValue={v?.siteSlug ?? ''} dir="ltr" placeholder="/services/bp-ai-03" />
+        </div>
+        <div>
+          <label htmlFor="notionPageId">معرّف صفحة الخدمة في نوشن</label>
+          <input id="notionPageId" name="notionPageId" defaultValue={v?.notionPageId ?? ''} dir="ltr" placeholder="3a6d108dee5c81eda844ebc814a071af" />
+        </div>
+        <div>
+          <label htmlFor="govPlatform">الجهة الحكومية</label>
+          <input id="govPlatform" name="govPlatform" defaultValue={v?.govPlatform ?? ''} placeholder="قوى" />
+        </div>
+        <div>
+          <label htmlFor="paymentMethods">وسائل السداد (فارغ = كل المفعّل)</label>
+          <input
+            id="paymentMethods"
+            name="paymentMethods"
+            defaultValue={v?.paymentMethods ?? ''}
+            dir="ltr"
+            placeholder="creditcard,stcpay,banktransfer"
+          />
+        </div>
+      </div>
+
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ'}</button>
         {v ? <a className="btn ghost" href="/admin/catalog">إلغاء التعديل</a> : null}

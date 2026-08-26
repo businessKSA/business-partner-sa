@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { fmtMoney } from '@/lib/money';
 import { COMPANY } from '@config/company';
+import { gatewayMethods } from '@/lib/payment-methods';
 import MoyasarForm from './MoyasarForm';
 
 export const dynamic = 'force-dynamic';
@@ -19,12 +20,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
 
   const key = process.env.MOYASAR_PUBLISHABLE_KEY;
   const base = process.env.APP_URL || 'http://localhost:3000';
-  // مدى وفيزا وماستركارد كلها تمر عبر creditcard في نموذج ميسر — بطاقة مدى
-  // تُعرَف من رقمها ولا تحتاج طريقة منفصلة. آبل باي وSTC Pay طريقتان مستقلتان،
-  // وآبل باي تحديداً لا تعمل قبل توثيق النطاق لدى ميسر، فتبقى خلف مفتاح.
-  const methods = ['creditcard'];
-  if (process.env.MOYASAR_STC_PAY !== '0') methods.push('stcpay');
-  if (process.env.MOYASAR_APPLE_PAY === '1') methods.push('applepay');
+  // القائمة من تعريف واحد يشترك فيه النموذج وخريطة الكتالوج (lib/payment-methods).
+  const methods = gatewayMethods();
 
   return (
     <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
