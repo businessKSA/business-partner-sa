@@ -594,7 +594,10 @@ async function syncWhatsappLeads() {
     if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) props["Email"] = { email: email.slice(0, 160) };
     try {
       const existing = await findConvPage(ref);
-      if (!existing) props["Next Follow Up"] = { date: { start: plusDaysISO(1) } };
+      // A brand-new WhatsApp contact needs a FIRST contact — today, not
+      // tomorrow: due now + human-required puts them straight into
+      // «متابعات اليوم» and the half-hour reminders.
+      if (!existing) { props["Next Follow Up"] = { date: { start: plusDaysISO(0) } }; props["Human Required"] = { checkbox: true }; }
       const r = await fetch(existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages", {
         method: existing ? "PATCH" : "POST",
         headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -3019,7 +3022,7 @@ export default async function handler(req, res) {
       if (nameEn) patch.name_en = nameEn;
       if (crNum) patch.cr_number = crNum;
       const rows = await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", body: patch });
-      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity: "organizations", entity_id: String(orgId) });
+      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity_type: "organization", entity_id: String(orgId) });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, organization: (rows && rows[0]) || null }));
     } catch {

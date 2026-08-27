@@ -367,7 +367,9 @@ export default async function handler(req, res) {
     "Candidate Name": { title: [{ text: { content: name } }] },
     "Phone": { phone_number: phone },
     "City": { rich_text: rt(city) },
-    "Target Role": { rich_text: rt(field) },
+    // The ATS database's Target Role property is a select, not rich text —
+    // a select name must be non-empty, comma-free and at most 100 chars.
+    ...(field ? { "Target Role": { select: { name: String(field).replace(/,/g, "،").slice(0, 90) } } } : {}),
     "Experience Years": { number: expYears },
     "Skills": { rich_text: rt([field, linkedin].filter(Boolean).join(" · ")) },
     "Source": { select: { name: "الموقع" } },
