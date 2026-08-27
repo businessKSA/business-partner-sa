@@ -252,6 +252,38 @@ const qaPrompt = (formName, beforeAfter) => `You are the QA agent. A form "${for
 Check: every planned value actually appears; no placeholder/underscore runs remain where a value was planned; checkbox intents applied; dates are ${new Date().toISOString().slice(0, 10)} only where completion/signature dates were intended; names and numbers copied exactly (no truncation/translation).
 ${beforeAfter}`;
 
+/* ------------------------------------------------------------- vault sync */
+// Mirror every stored file to the ops vault (n8n → per-client Google Drive
+// folder + per-client Notion page with one row per file). Best-effort with a
+// hard timeout: a sync failure never touches the client's own flow — the
+// Supabase vault stays the source of truth, Notion/Drive are the ops mirror.
+async function vaultSync(request, kind, file, storageKey) {
+  const url = (process.env.DOC_AGENT_SYNC_URL || "").trim();
+  if (!url) return;
+  try {
+    let orgName = null;
+    if (request.organization_id) {
+      const orgs = await sb(`organizations?id=eq.${request.organization_id}&select=name_ar,name_en&limit=1`);
+      orgName = orgs[0] ? (orgs[0].name_ar || orgs[0].name_en) : null;
+    }
+    await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-doc-agent-key": (process.env.DOC_AGENT_HOOK_KEY || "").trim() },
+      body: JSON.stringify({
+        kind,                                    // upload | output | package
+        org_id: request.organization_id || null,
+        org_name: orgName,
+        contact: request.contact || null,
+        channel: request.channel,
+        ref: request.ref,
+        file,                                    // {name, mime, role, doc_kind, size}
+        download_url: await storageSign(storageKey, 3600),
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch (e) { console.error("doc-agent vault-sync", String(e.message || e).slice(0, 160)); }
+}
+
 /* ------------------------------------------------------------ data access */
 const reqByRef = async (ref, orgId) =>
   (await sb(`doc_agent_requests?ref=eq.${encodeURIComponent(ref)}&organization_id=eq.${orgId}&limit=1`))[0] || null;
@@ -384,6 +416,7 @@ async function classifyUpload(request, buf, base64, mime, fileName, uploadedBy) 
     await setReq(request.id, { checklist: list });
   }
   await audit({ organization_id: request.organization_id, actor_user_id: uploadedBy || null, action: "doc_agent.file_classified", entity_type: "doc_agent_file", entity_id: fileRow.id, after: { role, doc_kind: fileRow.doc_kind, facts_added: merge.added } });
+  await vaultSync(request, "upload", { name: fileRow.file_name, mime, role, doc_kind: fileRow.doc_kind, size: buf.length }, key);
   return { fileRow, cls, merge, role };
 }
 
@@ -419,6 +452,7 @@ async function generateOutputs(request, channel) {
         qa_status: qa ? (qa.pass ? "passed" : "failed") : "waived", qa_findings: qa ? (qa.findings || []) : undefined,
       }],
     });
+    await vaultSync(request, "output", { name: deliveryName, mime, role: "filled_output", doc_kind: form.doc_kind || "form", size: outBuf.length }, outKey);
     return orows[0];
   };
 
@@ -436,9 +470,6 @@ async function generateOutputs(request, channel) {
       const { xml: filledXml, applied } = docxApply(xml, ops, colorHex);
       entries.set("word/document.xml", Buffer.from(filledXml, "utf8"));
       const outBuf = zip(entries);
-      const vno = nextVersion(deliveryName);
-      const outKey = `${request.organization_id}/doc-agent/${request.id}/out/v${vno}-${deliveryName.replace(/[^\w.\-]+/g, "_")}.docx`;
-      await storagePut(outKey, outBuf, DOCX_MIME);
       // QA: the plan vs the final text, judged by a second pass.
       let qa = { pass: true, findings: [] };
       try {
@@ -446,17 +477,9 @@ async function generateOutputs(request, channel) {
         const q = await askModel(qaPrompt(form.file_name, `PLANNED OPS:\n${JSON.stringify(applied).slice(0, 8000)}\n\nFINAL TEXT:\n${clip(after, 30000)}`), 2000);
         if (q.ok && typeof q.data.pass === "boolean") qa = q.data;
       } catch {}
-      const orows = await sb("doc_agent_outputs", {
-        method: "POST",
-        body: [{
-          request_id: request.id, source_form_file_id: form.id, kind: "filled_form",
-          delivery_name: `${deliveryName}.docx`, storage_key: outKey, mime: DOCX_MIME, size_bytes: outBuf.length,
-          version_no: vno,
-          fill_summary: { applied: applied.length, planned: plan.data.ops.length, unfilled: plan.data.unfilled || [] },
-          qa_status: qa.pass ? "passed" : "failed", qa_findings: qa.findings || [],
-        }],
-      });
-      outputs.push({ form: form.file_name, ok: true, output_id: orows[0].id, applied: applied.length, unfilled: (plan.data.unfilled || []).length, qa: qa.pass ? "passed" : "failed" });
+      const saved = await saveOutput(form, `${deliveryName}.docx`, outBuf, DOCX_MIME,
+        { applied: applied.length, planned: plan.data.ops.length, unfilled: plan.data.unfilled || [] }, qa);
+      outputs.push({ form: form.file_name, ok: true, output_id: saved.id, applied: applied.length, unfilled: (plan.data.unfilled || []).length, qa: qa.pass ? "passed" : "failed" });
     } else if (form.mime === XLSX_MIME) {
       // Excel forms: values go into the sheet itself as inline strings in the
       // agent's ink; layout, formulas and every untouched cell stay identical.
@@ -560,6 +583,7 @@ async function packageOutputs(request) {
   await storagePut(key, buf, "application/zip");
   await setReq(request.id, { package_storage_key: key, status: "DELIVERED", delivered_at: new Date().toISOString() });
   await sb("doc_agent_outputs", { method: "POST", prefer: "return=minimal", body: [{ request_id: request.id, kind: "package_zip", delivery_name: "Client Submission Package.zip", storage_key: key, mime: "application/zip", size_bytes: buf.length, version_no: 1 + outs.filter((o) => o.kind === "package_zip").length, qa_status: "waived" }] });
+  await vaultSync(request, "package", { name: `Client Submission Package — ${request.ref}.zip`, mime: "application/zip", role: "package", doc_kind: "package", size: buf.length }, key);
   return { ok: true, key, files: entries.length };
 }
 

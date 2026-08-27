@@ -156,6 +156,7 @@ strings بخط أزرق يُضاف إلى `styles.xml` — الصيغ والدم
 |---|---|
 | AI Gateway / Intake / Classification / Extraction / Reconciliation / Form Understanding / Field Mapping / Gap Analysis / Conversation Manager / Checkbox Engine / Naming & Packaging | **منفَّذة داخل `_docagent.js`** — استدعاء واحد أرخص وأسرع من 11 سيراً متزامناً على Vercel |
 | WhatsApp Channel | ✅ `doc-agent-whatsapp.workflow.js` |
+| Vault Mirror (Drive + نوشن لكل عميل) | ✅ `doc-agent-vault-sync.workflow.js` — يستقبل من `vaultSync()` في المحرك |
 | Stamp Engine (إزالة خلفية الختم وتركيبه) | n8n — مرحلة قادمة |
 | Document Editor | ✅ AcroForm أصلياً في `_pdfform.js`؛ الرسم فوق الممسوح مرحلة n8n قادمة |
 | Visual QA (فتح كل صفحة بصرياً) | n8n — مرحلة قادمة |

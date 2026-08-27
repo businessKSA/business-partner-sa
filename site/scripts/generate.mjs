@@ -7634,6 +7634,11 @@ function buildAccount() {
             ${docsWizard()}
           </div>
           <div class="dash-card" style="margin-top:16px">
+            <h3 style="margin:0 0 6px">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</h3>
+            <p style="margin:0 0 10px;color:var(--muted)">${L("Upload documents that contain your data and forms that need filling — the agent reads, extracts, fills Word/Excel/PDF in place and packages everything. Your files stay in your private vault, tied to this account only.", "ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويجهّز الحزمة. ملفاتك في خزنتك الخاصة المرتبطة بحسابك هذا فقط.")}</p>
+            <a class="btn btn-primary" href="${u("/ai-document-agent")}">🗂️ ${L("Open the Document Agent", "افتح وكيل المستندات")}</a>
+          </div>
+          <div class="dash-card" style="margin-top:16px">
             <h3 style="margin:0 0 6px">${L("Files attached to your orders", "الملفات المرفقة بطلباتك")}</h3>
             <div id="all-uploads"><p class="dash-empty">${L("No order attachments yet — you can also attach files when placing an order.", "لا توجد مرفقات طلبات بعد — يمكنك أيضاً إرفاق ملفات عند تقديم طلب.")}</p></div>
             <a class="btn btn-ghost" href="${u("/compliance-agent")}" style="margin-top:12px">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a>
