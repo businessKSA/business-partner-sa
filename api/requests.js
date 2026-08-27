@@ -398,6 +398,9 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
 // to the owner on WhatsApp + e-mail, with the same list shown at the top of
 // /admin as «متابعات اليوم».
 const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00eadf";
+// دفتر المالية الداخلي — إيرادات ومصروفات (قاعدة نوشن يحررها المالك من نوشن
+// أو من لوحة /admin؛ لوحة «المالية» تقرأ منها مباشرة).
+const FINANCE_DB = process.env.NOTION_FINANCE_DB || "ee216ff23a9a4165acb0c4e6603f495f";
 // The owner's WhatsApp — same number published on the site as the advisor
 // line. Digits only, and overridable without a deploy.
 const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
@@ -1553,6 +1556,75 @@ export default async function handler(req, res) {
     }
   }
 
+  // «المالية» — القيود المالية للاثني عشر شهراً الأخيرة مجمّعة شهرياً
+  // وبالفئات، مع مؤشرات من الـ CRM (عملاء الشهر الجدد وصفقات Won).
+  if ((q.action || "") === "panel-finance") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    try {
+      const from = new Date(Date.now() - 370 * 864e5).toISOString().slice(0, 10);
+      let raw = [], cursor = null;
+      for (let i = 0; i < 5; i++) {
+        const data = await notionQuery(FINANCE_DB, {
+          page_size: 100,
+          ...(cursor ? { start_cursor: cursor } : {}),
+          filter: { property: "التاريخ", date: { on_or_after: from } },
+          sorts: [{ property: "التاريخ", direction: "descending" }],
+        });
+        raw = raw.concat(data.results || []);
+        if (!data.has_more) break;
+        cursor = data.next_cursor;
+      }
+      const entries = raw.map((pg) => {
+        const p = pg.properties || {};
+        return {
+          id: pg.id,
+          title: propAny(p["البيان"]),
+          type: propAny(p["النوع"]) === "إيراد" ? "إيراد" : "مصروف",
+          amount: p["المبلغ"] && typeof p["المبلغ"].number === "number" ? p["المبلغ"].number : 0,
+          date: propAny(p["التاريخ"]).slice(0, 10),
+          cat: propAny(p["الفئة"]),
+          method: propAny(p["طريقة الدفع"]),
+          ref: propAny(p["رقم المرجع"]),
+          note: propAny(p["ملاحظات"]),
+        };
+      }).filter((e) => e.amount > 0 && e.date);
+      const monthKey = new Date().toISOString().slice(0, 7);
+      const yearKey = monthKey.slice(0, 4);
+      const monthly = {}, byCat = {};
+      let mRev = 0, mExp = 0, yRev = 0, yExp = 0;
+      for (const e of entries) {
+        const mk = e.date.slice(0, 7);
+        monthly[mk] = monthly[mk] || { rev: 0, exp: 0 };
+        if (e.type === "إيراد") monthly[mk].rev += e.amount; else monthly[mk].exp += e.amount;
+        if (mk === monthKey) { if (e.type === "إيراد") mRev += e.amount; else mExp += e.amount; }
+        if (mk.slice(0, 4) === yearKey) { if (e.type === "إيراد") yRev += e.amount; else yExp += e.amount; }
+        if (e.type === "مصروف" && mk.slice(0, 4) === yearKey) byCat[e.cat || "أخرى"] = (byCat[e.cat || "أخرى"] || 0) + e.amount;
+      }
+      // CRM pulse for the KPI row — bounded windows, best effort.
+      let newMonth = 0, wonYear = 0;
+      try {
+        const nm = await notionQuery(CRM_DB, { page_size: 100, filter: { timestamp: "created_time", created_time: { on_or_after: monthKey + "-01" } } });
+        newMonth = (nm.results || []).length + (nm.has_more ? 100 : 0);
+        const wq = await notionQuery(CRM_DB, { page_size: 100, filter: { and: [ { property: "Stage", select: { equals: "Won" } }, { timestamp: "last_edited_time", last_edited_time: { on_or_after: yearKey + "-01-01" } } ] } });
+        wonYear = (wq.results || []).length + (wq.has_more ? 100 : 0);
+      } catch (eK) { console.error("finance kpi crm", String(eK).slice(0, 120)); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        entries: entries.slice(0, 100),
+        monthly, byCat,
+        totals: { mRev, mExp, mNet: mRev - mExp, yRev, yExp, yNet: yRev - yExp },
+        kpi: { newMonth, wonYear },
+      }));
+    } catch (e) {
+      console.error("panel-finance failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "finance_failed" }));
+    }
+  }
+
   // Daily CRM sweep, called by the n8n schedule — no human in the loop.
   // Keyless like escrow-sweep, and safe to be: it only (1) mirrors the
   // WhatsApp leads database into the master pipeline (idempotent upserts keyed
@@ -2099,6 +2171,41 @@ export default async function handler(req, res) {
     // «سي آر إم أكتف»: the متابعات اليوم rows in /admin write straight back to
     // the master pipeline — mark contacted, add a note, or snooze — so the
     // half-hour WhatsApp reminders stop the moment the work is actually done.
+    // قيد مالي جديد — إيراد أو مصروف — يُكتب مباشرة في دفتر نوشن.
+    if (b.action === "panel-finance-add") {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+      const kind = b.kind === "إيراد" ? "إيراد" : "مصروف";
+      const amount = Math.abs(Number(b.amount) || 0);
+      const title = String(b.title || "").trim().slice(0, 150);
+      if (!amount || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(String(b.date || "")) ? String(b.date) : new Date().toISOString().slice(0, 10);
+      const props = {
+        "البيان": { title: [{ text: { content: title } }] },
+        "النوع": { select: { name: kind } },
+        "المبلغ": { number: amount },
+        "التاريخ": { date: { start: date } },
+      };
+      if (b.cat) props["الفئة"] = { select: { name: String(b.cat).slice(0, 60) } };
+      if (b.method) props["طريقة الدفع"] = { select: { name: String(b.method).slice(0, 40) } };
+      if (b.ref) props["رقم المرجع"] = { rich_text: [{ text: { content: String(b.ref).slice(0, 80) } }] };
+      if (b.note) props["ملاحظات"] = { rich_text: [{ text: { content: String(b.note).slice(0, 500) } }] };
+      try {
+        const r = await fetch("https://api.notion.com/v1/pages", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ parent: { database_id: FINANCE_DB }, properties: props }),
+        });
+        if (!r.ok) { console.error("finance add error", r.status, (await r.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "finance_failed" })); }
+        audit({ action: "finance.add", actor_label: "panel", after: { kind, amount, title: title.slice(0, 60) } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        console.error("finance add exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "finance_failed" }));
+      }
+    }
+
     if (b.action === "panel-followup-update") {
       if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
       const pid = String(b.id || "").replace(/[^a-fA-F0-9-]/g, "").slice(0, 40);

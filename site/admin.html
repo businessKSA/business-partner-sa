@@ -366,6 +366,7 @@
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
         <button data-v="notion">📇 نوشن — مباشر</button>
+        <button data-v="finance">💰 المالية</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button class="grp" id="grpContent"><span>📝</span><span>محتوى الموقع</span><span class="caret">▾</span></button>
         <div class="sub" id="subContent"></div>
@@ -395,6 +396,7 @@
       <div class="tabs" id="navMob">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
+        <button data-v="finance">💰 المالية</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
@@ -622,6 +624,61 @@
           <div class="tbl-wrap"><table>
             <thead id="ntHead"></thead>
             <tbody id="ntBody"><tr><td class="empty">جاري التحميل…</td></tr></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ Finance: revenues, expenses, KPIs ============ -->
+      <section class="view" id="view-finance">
+        <div class="pagehead">
+          <h2>💰 المالية — إيرادات ومصروفات ومؤشرات</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="finStamp"></span>
+          <button class="refresh" id="finRefresh">↻ تحديث</button>
+          <div class="sub">دفتر داخلي يقرأ ويكتب في قاعدة «💰 المالية» في نوشن — سجّل أي إيراد أو مصروف من هنا أو من نوشن نفسه، والأرقام والمؤشرات تتحدث فوراً.</div>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="k">📈 إيراد هذا الشهر</div><div class="v" id="finMRev">—</div><div class="d">﷼ قبل الضريبة</div></div>
+          <div class="tile"><div class="k">📉 مصروفات الشهر</div><div class="v" id="finMExp">—</div><div class="d">﷼</div></div>
+          <div class="tile"><div class="k">💵 صافي الشهر</div><div class="v" id="finMNet">—</div><div class="d">إيراد − مصروف</div></div>
+          <div class="tile"><div class="k">🗓 إيراد السنة</div><div class="v" id="finYRev">—</div><div class="d">منذ يناير</div></div>
+          <div class="tile"><div class="k">🏦 صافي السنة</div><div class="v" id="finYNet">—</div><div class="d">إيراد − مصروف</div></div>
+          <div class="tile"><div class="k">🆕 عملاء جدد بالشهر</div><div class="v" id="finNewM">—</div><div class="d">من الـ CRM</div></div>
+          <div class="tile"><div class="k">🏆 صفقات Won بالسنة</div><div class="v" id="finWonY">—</div><div class="d">من الـ CRM</div></div>
+        </div>
+        <div class="panel" style="margin-bottom:18px">
+          <div class="panel-head"><h3>📊 آخر ١٢ شهراً</h3></div>
+          <div id="finMonths" style="padding:8px 18px 16px;font-size:12.5px">جاري التحميل…</div>
+        </div>
+        <div class="panel" style="margin-bottom:18px">
+          <div class="panel-head"><h3>➕ قيد جديد</h3></div>
+          <div style="padding:8px 18px 16px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+              <label style="font-size:12px;color:#475569">النوع
+                <select id="finKind" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><option value="إيراد">📈 إيراد</option><option value="مصروف">📉 مصروف</option></select></label>
+              <label style="font-size:12px;color:#475569">المبلغ ﷼ *<input id="finAmount" type="number" min="0" step="0.01" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">البيان *<input id="finTitle" type="text" placeholder="مثال: تأسيس شركة — عميل X" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">الفئة
+                <select id="finCat" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px">
+                  <option>خدمات حكومية</option><option>تأسيس شركات</option><option>اشتراكات وعقود</option><option>B10X</option>
+                  <option>تسويق وإعلانات</option><option>رواتب وأجور</option><option>إيجارات ومكاتب</option><option>تقنية وبرمجيات</option>
+                  <option>رسوم حكومية مدفوعة</option><option>عمولات موردين</option><option selected>أخرى</option>
+                </select></label>
+              <label style="font-size:12px;color:#475569">طريقة الدفع
+                <select id="finMethod" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><option>تحويل بنكي</option><option>مدى/بطاقة</option><option>نقدي</option><option>المحفظة</option><option>أخرى</option></select></label>
+              <label style="font-size:12px;color:#475569">التاريخ<input id="finDate" type="date" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">رقم المرجع<input id="finRef" type="text" placeholder="اختياري" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+            </div>
+            <label style="font-size:12px;color:#475569;display:block;margin-top:8px">ملاحظات<input id="finNote" type="text" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+            <button class="actbtn" id="finAdd" style="margin-top:10px;background:#047857;color:#fff;border-color:#047857">➕ حفظ القيد في نوشن</button>
+            <span id="finAddMsg" style="font-size:12px;margin-inline-start:8px"></span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>🧾 آخر القيود</h3><button class="actbtn" id="finCsv">📥 تصدير CSV</button></div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>التاريخ</th><th>النوع</th><th>البيان</th><th>الفئة</th><th>المبلغ ﷼</th><th>الدفع</th><th>المرجع</th></tr></thead>
+            <tbody id="finBody"><tr><td class="empty" colspan="7">جاري التحميل…</td></tr></tbody>
           </table></div>
         </div>
       </section>
@@ -1862,7 +1919,7 @@
         // ask "where are you?" is one more thing to explain.
         var active = document.querySelector('.view.on');
         var lbl = { 'view-overview':'نظرة عامة', 'view-leads':'الطلبات والموافقات', 'view-suppliers':'الشركاء',
-                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر' };
+                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر', 'view-finance':'المالية' };
         $('aiCtx').textContent = 'أنت في: ' + ((active && lbl[active.id]) || 'اللوحة');
         try { $('aiInput').focus(); } catch (e) {}
       }
@@ -1992,7 +2049,91 @@
 
     // ---- navigation ----
     var supLoaded = false, discLoaded = false, toolJump = false, contentJump = false;
+    // ===== المالية: قراءة وكتابة دفتر نوشن + مؤشرات =====
+    var finLoaded = false, finRows = [];
+    function finMoney(n){ return (Math.round(n) === n ? n : n.toFixed(2)).toLocaleString('en-US'); }
+    function finLoad(){
+      $('finStamp').textContent = '…';
+      fetch(API_URL + '?action=panel-finance' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){ $('finStamp').textContent = out && out.error === 'crm_not_configured' ? 'يحتاج ربط نوشن' : 'تعذّر التحميل'; return; }
+          finRows = out.entries || [];
+          var t = out.totals || {};
+          $('finMRev').textContent = finMoney(t.mRev || 0);
+          $('finMExp').textContent = finMoney(t.mExp || 0);
+          $('finMNet').textContent = finMoney(t.mNet || 0);
+          $('finMNet').style.color = (t.mNet || 0) >= 0 ? '#047857' : '#b91c1c';
+          $('finYRev').textContent = finMoney(t.yRev || 0);
+          $('finYNet').textContent = finMoney(t.yNet || 0);
+          $('finYNet').style.color = (t.yNet || 0) >= 0 ? '#047857' : '#b91c1c';
+          $('finNewM').textContent = (out.kpi && out.kpi.newMonth) || 0;
+          $('finWonY').textContent = (out.kpi && out.kpi.wonYear) || 0;
+          // last-12-months bars — pure CSS, widest bar = biggest month
+          var keys = [];
+          var d0 = new Date();
+          for (var i = 11; i >= 0; i--){ var d = new Date(d0.getFullYear(), d0.getMonth() - i, 1); keys.push(d.toISOString().slice(0, 7)); }
+          var mx = 1;
+          keys.forEach(function(k){ var m = (out.monthly || {})[k]; if (m) mx = Math.max(mx, m.rev, m.exp); });
+          $('finMonths').innerHTML = keys.map(function(k){
+            var m = (out.monthly || {})[k] || { rev: 0, exp: 0 };
+            var net = m.rev - m.exp;
+            return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
+              + '<span style="width:58px;color:#64748b;direction:ltr;text-align:left">' + k + '</span>'
+              + '<div style="flex:1"><div style="background:#04785722;border-radius:4px;height:9px;position:relative"><div style="background:#047857;height:9px;border-radius:4px;width:' + Math.round(100 * m.rev / mx) + '%"></div></div>'
+              + '<div style="background:#b91c1c22;border-radius:4px;height:9px;margin-top:2px"><div style="background:#b91c1c;height:9px;border-radius:4px;width:' + Math.round(100 * m.exp / mx) + '%"></div></div></div>'
+              + '<span style="width:170px;font-size:11.5px;color:#475569">📈 ' + finMoney(m.rev) + ' · 📉 ' + finMoney(m.exp) + ' · <b style="color:' + (net >= 0 ? '#047857' : '#b91c1c') + '">' + finMoney(net) + '</b></span>'
+              + '</div>';
+          }).join('') + '<div style="color:#94a3b8;font-size:11px;margin-top:6px">الأخضر إيراد، الأحمر مصروف — الأرقام: إيراد · مصروف · صافي</div>';
+          $('finBody').innerHTML = finRows.length ? finRows.map(function(e2){
+            return '<tr><td style="white-space:nowrap;direction:ltr">' + esc(e2.date) + '</td>'
+              + '<td>' + (e2.type === 'إيراد' ? '<span style="color:#047857;font-weight:700">📈 إيراد</span>' : '<span style="color:#b91c1c;font-weight:700">📉 مصروف</span>') + '</td>'
+              + '<td>' + esc(e2.title || '—') + '</td><td>' + esc(e2.cat || '—') + '</td>'
+              + '<td style="font-weight:700;direction:ltr">' + finMoney(e2.amount) + '</td>'
+              + '<td>' + esc(e2.method || '—') + '</td><td style="direction:ltr">' + esc(e2.ref || '—') + '</td></tr>';
+          }).join('') : '<tr><td class="empty" colspan="7">لا قيود بعد — أضف أول قيد من الأعلى، أو من قاعدة «💰 المالية» في نوشن.</td></tr>';
+          $('finStamp').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+        })
+        .catch(function(){ $('finStamp').textContent = 'تعذّر التحميل'; });
+    }
+    function finInit(){
+      $('finRefresh').onclick = finLoad;
+      $('finAdd').onclick = function(){
+        var amount = +($('finAmount').value || 0), title = $('finTitle').value.trim();
+        var msg = $('finAddMsg');
+        if (!amount || amount <= 0 || !title){ msg.style.color = '#b91c1c'; msg.textContent = 'أدخل المبلغ والبيان.'; return; }
+        var btn = this; btn.disabled = true; msg.style.color = '#64748b'; msg.textContent = 'جاري الحفظ…';
+        fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({
+          action:'panel-finance-add', key: accessKey, ticket: accessTicket,
+          kind: $('finKind').value, amount: amount, title: title,
+          cat: $('finCat').value, method: $('finMethod').value,
+          date: $('finDate').value, ref: $('finRef').value.trim(), note: $('finNote').value.trim(),
+        }) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            btn.disabled = false;
+            if (!out || !out.ok){ msg.style.color = '#b91c1c'; msg.textContent = 'تعذّر الحفظ — أعد المحاولة.'; return; }
+            msg.style.color = '#047857'; msg.textContent = '✓ حُفظ في نوشن';
+            $('finAmount').value = ''; $('finTitle').value = ''; $('finRef').value = ''; $('finNote').value = '';
+            finLoad();
+          })
+          .catch(function(){ btn.disabled = false; msg.style.color = '#b91c1c'; msg.textContent = 'تعذّر الاتصال.'; });
+      };
+      $('finCsv').onclick = function(){
+        if (!finRows.length){ alert('لا قيود للتصدير.'); return; }
+        var esc2 = function(v){ return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+        var lines = [['التاريخ','النوع','البيان','الفئة','المبلغ','طريقة الدفع','المرجع','ملاحظات'].join(',')]
+          .concat(finRows.map(function(e2){ return [e2.date, e2.type, e2.title, e2.cat, e2.amount, e2.method, e2.ref, e2.note].map(esc2).join(','); }));
+        var blob = new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'bp-finance-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      finLoad();
+    }
     function switchView(v){
+      if (v === 'finance' && !finLoaded){ finLoaded = true; finInit(); }
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
       if (v === 'notion' && !NT.loaded){ NT.loaded = true; ntInit();
         $('ntRefresh').onclick = function(){ if (NT.src) ntLoad(NT.src); };
