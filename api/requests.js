@@ -3587,7 +3587,7 @@ export default async function handler(req, res) {
     const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
     const monthsNum = Number(b.months);
     const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
-    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const CH = { bank: "بنك العميل", bnpl: "تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);

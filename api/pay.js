@@ -26,7 +26,7 @@
 import crypto from "node:crypto";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
-import { tabbyConfigured, tamaraConfigured, createTabbySession, createTamaraSession, verifyTabbyPayment, verifyTamaraOrder } from "./_bnpl.js";
+import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
@@ -678,9 +678,9 @@ export default async function handler(req, res) {
       applePay: PAY_METHODS.includes("applepay")
         ? { country: "SA", label: APPLE_PAY_LABEL, validate_merchant_url: APPLE_PAY_VALIDATE_URL }
         : null,
-      // Installments (BNPL): each provider flips on the day its keys land in
-      // Vercel — until then the checkout shows its button as «قريباً».
-      bnpl: { tabby: tabbyConfigured(), tamara: tamaraConfigured() },
+      // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
+      // until then the checkout shows its button as «قريباً».
+      bnpl: { tamara: tamaraConfigured() },
     }));
   }
 
@@ -952,13 +952,15 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, handled: true, recorded: !!(marked && marked.recorded), ...(invoicing ? { invoice: invoicing } : {}) }));
   }
 
-  // ---- BNPL (Tabby / Tamara): create a hosted-checkout session -------------
+  // ---- BNPL (Tamara): create a hosted-checkout session ---------------------
   // The basket is re-priced from the catalog server-side — the browser names
-  // items, never amounts — and the buyer is redirected to the provider's page.
+  // items, never amounts — and the buyer is redirected to Tamara's page.
+  //
+  // `provider` بقي في المسار والردّ رغم أن المزوّد واحد: الروابط العائدة
+  // (`?bnpl=tamara`) قد تكون في يد عميل الآن، وتغيير شكلها يكسر عودته.
   if (b.action === "bnpl-checkout") {
-    const provider = b.provider === "tamara" ? "tamara" : "tabby";
-    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
-    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const provider = "tamara";
+    if (!tamaraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
     const order = (b.order && typeof b.order === "object") ? b.order : {};
     const rawItems = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
       .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
@@ -1000,9 +1002,7 @@ export default async function handler(req, res) {
       notification: `${SELF_BASE}/api/pay`,
     };
     try {
-      const sess = provider === "tamara"
-        ? await createTamaraSession({ order: { ...order, ref }, totalSar, items, urls })
-        : await createTabbySession({ order: { ...order, ref }, totalSar, items, urls });
+      const sess = await createTamaraSession({ order: { ...order, ref }, totalSar, items, urls });
       if (!sess.ok) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: sess.rejected ? "rejected" : (sess.error || "session_failed"), reason: sess.reason || "" }));
@@ -1020,12 +1020,11 @@ export default async function handler(req, res) {
   // The verified amount feeds the exact same sealed pipeline the card path
   // uses, so activation + CRM + tax invoice all run with no owner click.
   if (b.action === "bnpl-verify") {
-    const provider = b.provider === "tamara" ? "tamara" : "tabby";
-    const enabled = provider === "tamara" ? tamaraConfigured() : tabbyConfigured();
-    if (!enabled) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const provider = "tamara";
+    if (!tamaraConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
     let v = null;
     try {
-      v = provider === "tamara" ? await verifyTamaraOrder(b.id) : await verifyTabbyPayment(b.id);
+      v = await verifyTamaraOrder(b.id);
     } catch (e) {
       console.error("bnpl verify failed", provider, String(e.message || e), String(e.detail || "").slice(0, 300));
       res.statusCode = 502;
@@ -1048,7 +1047,7 @@ export default async function handler(req, res) {
     }
     if (!v.captured) {
       await sendMail(OWNER_EMAIL, `⚠️ دفعة أقساط (${provider}) مؤكدة لكن لم تُقبض — أكمل القبض يدوياً`,
-        `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الموافقة تمت والعميل أنهى الدفع، لكن نداء القبض (capture) لم يكتمل. ادخل لوحة ${provider === "tamara" ? "تمارا" : "تابي"} واقبض العملية يدوياً.</p><p>المعرف: <b style="direction:ltr;display:inline-block">${esc(String(v.id))}</b> · المبلغ: <b>${v.amountSar} ﷼</b>${v.captureError ? `<br>الخطأ: ${esc(v.captureError)}` : ""}</p></div>`).catch(() => {});
+        `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الموافقة تمت والعميل أنهى الدفع، لكن نداء القبض (capture) لم يكتمل. ادخل لوحة تمارا واقبض العملية يدوياً.</p><p>المعرف: <b style="direction:ltr;display:inline-block">${esc(String(v.id))}</b> · المبلغ: <b>${v.amountSar} ﷼</b>${v.captureError ? `<br>الخطأ: ${esc(v.captureError)}` : ""}</p></div>`).catch(() => {});
     }
     res.statusCode = 200;
     return res.end(JSON.stringify({

@@ -3988,7 +3988,7 @@ var BP = window.BP = window.BP || {};
   var receiptInput = document.getElementById("co-receipt");
   var bnplBox = document.getElementById("bnpl-box");
   var onlineReady = false;      // Moyasar mounted successfully
-  var bnplCfg = { tabby: false, tamara: false };   // flips when /api/pay says the keys are in
+  var bnplCfg = { tamara: false };   // flips when /api/pay says the key is in
   function payMethod() {
     var r = document.querySelector('input[name="paymethod"]:checked');
     var v = r ? r.value : "online";
@@ -4007,11 +4007,11 @@ var BP = window.BP = window.BP || {};
     if (onlineNote) onlineNote.hidden = (m !== "online");
     if (typeof gate === "function") gate();
   }
-  // ---- installments (Tabby / Tamara) ----
-  // The buttons exist from day one; each one is «قريباً» until /api/pay says
-  // that provider's keys are configured, then it goes live with no code change.
+  // ---- installments (Tamara) ----
+  // The button exists from day one; it reads «قريباً» until /api/pay says the
+  // key is configured, then it goes live with no code change.
   function bnplButtons() {
-    ["tabby", "tamara"].forEach(function (prov) {
+    ["tamara"].forEach(function (prov) {
       var btn = document.getElementById("bnpl-" + prov);
       if (!btn) return;
       var on = !!bnplCfg[prov];
@@ -4061,8 +4061,7 @@ var BP = window.BP = window.BP || {};
       })
       .catch(function () { if (btn) btn.disabled = false; });
   }
-  var tb = document.getElementById("bnpl-tabby"), tm = document.getElementById("bnpl-tamara");
-  if (tb) tb.addEventListener("click", function () { bnplGo("tabby"); });
+  var tm = document.getElementById("bnpl-tamara");
   if (tm) tm.addEventListener("click", function () { bnplGo("tamara"); });
   bnplButtons();
   if (payChoice) {
@@ -4072,8 +4071,8 @@ var BP = window.BP = window.BP || {};
 
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
-      // Installment providers ride the same config: each button goes live the
-      // day its keys are configured, independently of the card gateway.
+      // Tamara rides the same config: the button goes live the day its key is
+      // configured, independently of the card gateway.
       if (cfg && cfg.bnpl) { bnplCfg = cfg.bnpl; bnplButtons(); }
       // No gateway configured: online is not an option, and offering it would
       // be a dead end. Bank transfer becomes the only choice, silently.
@@ -4198,8 +4197,8 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("input", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
   document.addEventListener("change", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
 
-  // back from 3-D Secure (?id=) or from a Tabby/Tamara approval page
-  // (?bnpl=tabby&payment_id= / ?bnpl=tamara&orderId=) → verify server-side.
+  // back from 3-D Secure (?id=) or from a Tamara approval page
+  // (?bnpl=tamara&orderId=) → verify server-side.
   // Both paths end in the same renderer: one payment, one story.
   var params = new URLSearchParams(location.search);
   var payId = params.get("id");
@@ -4209,7 +4208,7 @@ var BP = window.BP = window.BP || {};
   if (payId) {
     verifyBody = { id: payId };
   } else if (bnplProv && (params.get("bnpl_status") || "success") === "success" && bnplId) {
-    verifyBody = { action: "bnpl-verify", provider: bnplProv === "tamara" ? "tamara" : "tabby", id: bnplId };
+    verifyBody = { action: "bnpl-verify", provider: "tamara", id: bnplId };
   } else if (bnplProv && params.get("bnpl_status") && params.get("bnpl_status") !== "success") {
     var cel = document.getElementById("checkout-success");
     if (cel) {
