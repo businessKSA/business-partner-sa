@@ -133,10 +133,22 @@
       <div class="ss-pane" id="pane-team">
         <p class="ss-pane-lead">محادثة واحدة — وفريقك التنفيذي كامل وراها. باهر يستلم طلبك والمتخصصون ينفذون خلف الكواليس، وأي إجراء ملزم ينتظر موافقتك. ✏️ وتقدر تغيّر اسمه لأي اسم يعجبك.</p>
         <div class="ss-agents" id="ss-agents" hidden></div>
-        <style>#ss-agents[hidden]{display:none}#pane-team .ss-panel .ss-log{min-height:420px;max-height:560px}</style>
         <div class="ss-panel">
-          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="غيّر اسم الموظف" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ غيّر الاسم</button><span class="ss-live">● مباشر</span></div>
+          <div class="ss-panel-head">
+            <span class="ss-pavatar" id="ph-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i class="ss-ponline" aria-hidden="true"></i></span>
+            <span class="e" id="ph-e" hidden>👑</span>
+            <div><b id="ph-n"></b><span id="ph-r"></span></div>
+            <button id="ss-rename" type="button" title="غيّر اسم الموظف">✏️ غيّر الاسم</button>
+            <span class="ss-live">● متصل الآن</span>
+          </div>
           <div class="ss-log" id="ss-log"></div>
+          <div class="ss-teamline" id="ss-teamline" hidden><span class="dots"><i></i><i></i><i></i></span><span id="ss-teamline-t"></span></div>
+          <div class="ss-chips" id="ss-chips">
+            <button type="button">جهّز لي عرض سعر</button>
+            <button type="button">افحص التزاماتي الحكومية</button>
+            <button type="button">اكتب لي منشوراً إعلانياً</button>
+            <button type="button">لخّص آخر أعمال الفريق</button>
+          </div>
           <form class="ss-form" id="ss-form">
             <input id="ss-input" type="text" autocomplete="off" placeholder="اكتب طلبك هنا…" aria-label="اكتب طلبك">
             <button class="btn btn-primary" type="submit">إرسال</button>
@@ -203,6 +215,93 @@
           .ss-compdash{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
           #ss-compdash-frame{display:block;width:100%;height:calc(100vh - 180px);min-height:760px;border:0;background:#fff}
           @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
+        </style>
+        <style>
+          /* ===== Premium glass theme for the portal ===== */
+          #ss-agents[hidden]{display:none}
+          #ss-gate .wrap>.ss-access, #ss-dash>.wrap{
+            background:
+              radial-gradient(900px 420px at 85% -10%, rgba(94,72,214,.35) 0%, transparent 60%),
+              radial-gradient(700px 380px at -10% 110%, rgba(15,158,153,.22) 0%, transparent 55%),
+              linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
+            border:1px solid rgba(255,255,255,.09); border-radius:26px;
+            box-shadow:0 30px 80px rgba(8,10,40,.35);
+          }
+          #ss-dash>.wrap{padding:26px 24px 30px}
+          #ss-gate .wrap>.ss-access{box-shadow:0 30px 80px rgba(8,10,40,.28)}
+          /* gate */
+          #ss-gate .ss-access{border-radius:26px}
+          #ss-gate .ss-access h2{color:#fff}
+          #ss-gate .ss-access>p{color:rgba(255,255,255,.72)}
+          #ss-gate .ss-gate-links a{color:rgba(255,255,255,.75)}
+          #ss-gate .ss-code-fallback summary{color:rgba(255,255,255,.6)}
+          #ss-gate .ss-demo-hint{color:rgba(255,255,255,.55)}
+          #ss-gate .ss-demo-hint code{background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:1px 7px}
+          #ss-gate .ss-access-form input{
+            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);color:#fff;
+            letter-spacing:.35em;font-weight:700;text-transform:uppercase;transition:border-color .2s, box-shadow .2s}
+          #ss-gate .ss-access-form input::placeholder{letter-spacing:normal;text-transform:none;color:rgba(255,255,255,.45);font-weight:400}
+          #ss-gate .ss-access-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.18)}
+          #ss-gate .btn-ghost{border-color:rgba(255,255,255,.25);color:#fff}
+          /* dash header */
+          #ss-dash .ss-dash-head h2{color:#fff}
+          #ss-dash .ss-dash-head p{color:rgba(255,255,255,.66)}
+          #ss-dash .ss-logout{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
+          #ss-dash .ss-logout:hover{background:rgba(255,255,255,.16)}
+          /* tabs → glass pills */
+          #ss-dash .ss-tabs{border-bottom:0;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:6px;width:max-content;max-width:100%;overflow-x:auto}
+          #ss-dash .ss-tab{border:0;border-radius:11px;padding:9px 16px;color:rgba(255,255,255,.62);white-space:nowrap}
+          #ss-dash .ss-tab.active{background:rgba(255,255,255,.14);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+          #ss-dash .ss-pane-lead{color:rgba(255,255,255,.68)}
+          #ss-dash .ss-secure{color:rgba(255,255,255,.5)}
+          /* chat panel glass */
+          #pane-team .ss-panel{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);border-radius:22px;box-shadow:0 18px 50px rgba(5,8,35,.35)}
+          #pane-team .ss-panel-head{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
+          #pane-team .ss-panel-head b{color:#fff}
+          #pane-team .ss-panel-head>div span{color:rgba(255,255,255,.6)}
+          #ss-rename{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:9px;cursor:pointer;font:inherit;font-size:.8rem;padding:5px 10px;margin-inline-start:10px;color:#fff}
+          .ss-live{color:#2ee6c8}
+          .ss-pavatar{position:relative;width:46px;height:46px;flex:none}
+          .ss-pavatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+          .ss-ponline{position:absolute;bottom:1px;inset-inline-end:1px;width:11px;height:11px;border-radius:50%;background:#2ee6c8;border:2px solid #131048;animation:sspulse 2s infinite}
+          @keyframes sspulse{0%,100%{box-shadow:0 0 0 0 rgba(46,230,200,.5)}50%{box-shadow:0 0 0 5px rgba(46,230,200,0)}}
+          #pane-team .ss-panel .ss-log{min-height:430px;max-height:600px;padding:16px 14px}
+          /* bubbles */
+          #pane-team .ss-msg{position:relative;max-width:78%;padding:11px 14px 7px;border-radius:18px;border:0;animation:ssmsg .28s ease;white-space:normal}
+          @keyframes ssmsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+          #pane-team .ss-msg .tx{white-space:pre-wrap;line-height:1.8}
+          #pane-team .ss-msg .tx ul{margin:4px 0;padding-inline-start:20px;white-space:normal}
+          #pane-team .ss-msg .tx b.h{display:block;margin-top:4px}
+          #pane-team .ss-msg.bot{background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px;margin-inline-start:34px}
+          #pane-team .ss-msg.bot:not(.typing)::before{content:'';position:absolute;inset-inline-start:-34px;bottom:0;width:26px;height:26px;border-radius:50%;background:url('/assets/img/baher.jpg') center/cover;border:1.5px solid rgba(255,255,255,.35)}
+          #pane-team .ss-msg.me{background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
+          #pane-team .ss-msg .meta{display:block;text-align:end;font-size:.66rem;opacity:.65;margin-top:2px}
+          #pane-team .ss-msg .meta .tick{font-style:normal;opacity:.55}
+          #pane-team .ss-msg .meta .tick.ok{color:#7dffe9;opacity:1}
+          /* typing + teamline */
+          .dots{display:inline-flex;gap:4px;align-items:center}
+          .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.75);animation:ssdot 1.2s infinite}
+          .dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+          @keyframes ssdot{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+          #pane-team .ss-msg.typing{padding:14px 18px}
+          .ss-teamline{display:flex;gap:10px;align-items:center;padding:8px 16px;font-size:.8rem;color:#9ef3e4;background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
+          /* welcome */
+          .ss-welcome{align-self:center;text-align:center;max-width:520px;margin:auto;padding:18px 10px;color:#fff}
+          .ss-welcome .wv{font-size:2.2rem;margin-bottom:6px}
+          .ss-welcome b{font-size:1.05rem}
+          .ss-welcome p{color:rgba(255,255,255,.68);font-size:.88rem;line-height:1.9;margin:8px 0 4px}
+          .ss-welcome .last{display:inline-block;font-size:.78rem;color:#8ceedd;background:rgba(18,179,165,.12);border-radius:999px;padding:4px 14px;min-height:1em;margin-top:6px}
+          .ss-welcome .last:empty{display:none}
+          /* chips */
+          .ss-chips{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap}
+          .ss-chips button{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);border-radius:999px;padding:7px 14px;font:inherit;font-size:.8rem;cursor:pointer;transition:background .2s}
+          .ss-chips button:hover{background:rgba(255,255,255,.16)}
+          /* input */
+          #pane-team .ss-form{background:transparent;border-top:0;padding:12px 14px 14px}
+          #pane-team .ss-form input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:14px}
+          #pane-team .ss-form input::placeholder{color:rgba(255,255,255,.45)}
+          #pane-team .ss-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
+          @media(max-width:640px){#ss-dash>.wrap{padding:16px 12px 20px;border-radius:18px}#pane-team .ss-msg{max-width:88%}}
         </style>
       </div>
     </div>
@@ -639,10 +738,83 @@
     function chatKey(s){ var c=getClient(); return CHAT_PREFIX+((c&&c.code)||'anon')+'_'+s; }
     function loadChat(s){try{return JSON.parse(localStorage.getItem(chatKey(s))||'[]');}catch(e){return[];}}
     function saveChat(s,h){try{localStorage.setItem(chatKey(s),JSON.stringify(h.slice(-80)));}catch(e){}}
-    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent="ابدأ محادثتك مع "+dispName(cur)+' 👋';log.appendChild(em);return;}
-      chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
+    function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function mdLite(t){
+      var lines=esc(t).split('\n'),out=[],inList=false;
+      lines.forEach(function(ln){
+        var li=ln.match(/^\s*(?:[-•*]|\d+[.)])\s+(.*)$/);
+        if(li){ if(!inList){out.push('<ul>');inList=true;} out.push('<li>'+li[1]+'</li>'); return; }
+        if(inList){out.push('</ul>');inList=false;}
+        var h=ln.match(/^\s*#{1,4}\s+(.*)$/); if(h){out.push('<b class="h">'+h[1]+'</b>'); return; }
+        out.push(ln);
+      });
+      if(inList)out.push('</ul>');
+      return out.join('\n').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\n{2,}/g,'\n\n');
+    }
+    function fmtTime(ts){var d=ts?new Date(ts):new Date();var h=d.getHours(),m=('0'+d.getMinutes()).slice(-2);return h+':'+m;}
+    function bubble(m){
+      var d=document.createElement('div');d.className='ss-msg '+m.cls;
+      var tx=document.createElement('div');tx.className='tx';
+      if(m.cls==='bot')tx.innerHTML=mdLite(m.text); else tx.textContent=m.text;
+      var meta=document.createElement('span');meta.className='meta';
+      meta.innerHTML=fmtTime(m.ts)+(m.cls==='me'?' <i class="tick'+(m.sent?' ok':'')+'">✓✓</i>':'');
+      d.appendChild(tx);d.appendChild(meta);return d;
+    }
+    function welcomeNode(){
+      var c=getClient()||{};var w=document.createElement('div');w.className='ss-welcome';
+      var who=cur?dispName(cur):"باهر";
+      w.innerHTML='<div class="wv">👋</div><b>'+"حياك الله "+esc(c.name||'')+'</b><p>'+"أنا "+esc(who)+" — مستشار أعمالك. فريقك التنفيذي كامل خلف هذي المحادثة: اطلب أي شيء وننفذه، وأي إجراء ملزم ينتظر موافقتك."+'</p><span class="last" id="ss-lastact"></span>';
+      return w;
+    }
+    function fillLastAct(){
+      var el=document.getElementById('ss-lastact');if(!el)return;var c=getClient()||{};
+      if(c.demo){el.textContent="آخر ما اشتغلنا عليه: خطتك التسويقية الربعية — نكمل عليها؟";return;}
+      fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){if(d&&d.ok&&d.recent&&d.recent.length){el.textContent="آخر ما اشتغلنا عليه: "+'«'+d.recent[0].t+'»';}})
+        .catch(function(){});
+    }
+    function renderChat(){log.innerHTML='';
+      if(!chatHist.length){log.appendChild(welcomeNode());fillLastAct();return;}
+      chatHist.forEach(function(m){log.appendChild(bubble(m));});log.scrollTop=log.scrollHeight;}
+    var TEAM_GUESS=[
+      [/تسويق|إعلان|منشور|محتوى|سوشال|حملة|هوية|marketing|ad|post|campaign/i,'farah','📣'],
+      [/نطاق|امتثال|قوى|تأمينات|مقيم|مدد|مخالف|رخصة عمل|إقامة|compliance|nitaqat|qiwa|gosi/i,'mishari','🛡️'],
+      [/سعر|عرض|باقة|اشتراك|quote|price|proposal/i,'badr','💼'],
+      [/توظيف|موظف|راتب|إجازة|عقد عمل|وصف وظيفي|hr|hiring|salary/i,'nasser','👥'],
+      [/موقع|تطبيق|أتمتة|ربط|نظام|تقني|website|app|automation|api/i,'mohammed','💻'],
+      [/فاتورة|ميزانية|ضريبة|زكاة|تدفق|مالي|invoice|budget|vat|tax/i,'abdulrahman','💰'],
+      [/عقد(?! عمل)|تأسيس|ترخيص|قانوني|contract|legal|license/i,'abdulaziz','⚖️'],
+      [/مورد|شراء|توريد|مناقصة|supplier|procure/i,'ahmed','🛒'],
+      [/خطة|استراتيجي|أهداف|رؤية|okr|plan|strategy/i,'strategy','🧠'],
+      [/إيميل|بريد|تذكير|اجتماع|لخص|ملخص|email|meeting|summar/i,'malak','🗂️']
+    ];
+    function guessTeam(m){
+      for(var i=0;i<TEAM_GUESS.length;i++)if(TEAM_GUESS[i][0].test(m)){
+        for(var j=0;j<AGENTS.length;j++)if(AGENTS[j].slug===TEAM_GUESS[i][1])return {n:dispName(AGENTS[j]),e:TEAM_GUESS[i][2],f:(TEAM_GUESS[i][1]==='farah'||TEAM_GUESS[i][1]==='malak')};
+      }
+      return null;
+    }
+    var tlTimers=[];
+    function teamline(on,msg){
+      var tl=document.getElementById('ss-teamline');if(!tl)return;
+      if(!on){tl.hidden=true;tlTimers.forEach(clearTimeout);tlTimers=[];return;}
+      tl.hidden=false;document.getElementById('ss-teamline-t').textContent=msg;
+    }
+    function startTeamline(m){
+      var who=guessTeam(m);var lead=cur?dispName(cur):"باهر";
+      teamline(true,lead+" يقرأ طلبك…");
+      tlTimers.push(setTimeout(function(){teamline(true,lead+" يوجّه المتخصص المناسب…");},2600));
+      tlTimers.push(setTimeout(function(){
+        teamline(true, who?(who.e+' '+who.n+(who.f?" تشتغل على طلبك الآن…":" يشتغل على طلبك الآن…")):"الفريق يشتغل على طلبك…");
+      },5200));
+      tlTimers.push(setTimeout(function(){teamline(true,lead+" يراجع النتيجة ويجهزها لك…");},16000));
+    }
     function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
-      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
+      var pe=document.getElementById('ph-e'),pa=document.getElementById('ph-av');
+      if(pe){pe.textContent=a.e;pe.hidden=(a.slug==='khaled');}
+      if(pa)pa.hidden=(a.slug!=='khaled');
+      document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
       chatHist=loadChat(a.slug);renderChat();input.disabled=false;document.querySelector('#ss-form button').disabled=false;input.focus();}
     function buildAgents(){var box=document.getElementById('ss-agents');box.innerHTML='';
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
@@ -678,15 +850,33 @@
     function push(text,cls){var em=log.querySelector('.empty');if(em)em.remove();var d=document.createElement('div');d.className='ss-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
     var form=document.getElementById('ss-form');
     form.addEventListener('submit',function(e){e.preventDefault();if(!cur)return;var m=(input.value||'').trim();if(!m||busy)return;busy=true;
-      var agent=cur,href=chatHist;input.value='';push(m,'me');href.push({text:m,cls:'me'});saveChat(agent.slug,href);
-      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
+      var agent=cur,href=chatHist;input.value='';
+      var w=log.querySelector('.ss-welcome');if(w)w.remove();
+      var mine={text:m,cls:'me',ts:Date.now()};var mineEl=bubble(mine);log.appendChild(mineEl);log.scrollTop=log.scrollHeight;
+      href.push(mine);saveChat(agent.slug,href);
+      var th=document.createElement('div');th.className='ss-msg bot typing';th.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';log.appendChild(th);log.scrollTop=log.scrollHeight;
+      startTeamline(m);
+      var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
       var c=getClient()||{code:'demo123'};
       var url=N8N+'/ss-chat', payload={code:c.code,agent:agent.slug,message:m};
       if(c.demo)payload.names=getNames();
+      function finish(rep){
+        teamline(false);
+        var bm={text:rep,cls:'bot',ts:Date.now()};
+        var nb=bubble(bm);log.replaceChild(nb,th);log.scrollTop=log.scrollHeight;
+        mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
+        href.push(bm);saveChat(agent.slug,href);
+      }
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
-        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
-        .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
+        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
+        .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
         .then(function(){busy=false;});
+    });
+    var chipsBox=document.getElementById('ss-chips');
+    if(chipsBox)chipsBox.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b||busy)return;
+      input.value=b.textContent.trim();
+      if(typeof form.requestSubmit==='function')form.requestSubmit();else form.dispatchEvent(new Event('submit',{cancelable:true}));
     });
 
     // ---------- compliance: jump to Mishari ----------
