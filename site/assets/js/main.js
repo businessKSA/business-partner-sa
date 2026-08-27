@@ -6,10 +6,36 @@
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".nav");
   if (toggle && nav) {
-    toggle.addEventListener("click", function () {
+    var closeNav = function () {
+      if (!nav.classList.contains("open")) return;
+      nav.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("nav-open");
+      nav.querySelectorAll(".nav-group.open").forEach(function (g) {
+        g.classList.remove("open");
+        var d = g.querySelector(".nav-drop");
+        if (d) d.setAttribute("aria-expanded", "false");
+      });
+    };
+    toggle.addEventListener("click", function (e) {
+      e.stopPropagation();
       var isOpen = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", isOpen);
       document.body.classList.toggle("nav-open", isOpen);
+    });
+    // Tapping a real link inside the menu navigates AND dismisses the menu;
+    // dropdown toggles (.nav-drop) only expand their section and keep it open.
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest("a[href]")) closeNav();
+    });
+    // A tap anywhere outside the open menu dismisses it.
+    document.addEventListener("click", function (e) {
+      if (!nav.classList.contains("open")) return;
+      if (e.target.closest(".nav") || e.target.closest(".nav-toggle")) return;
+      closeNav();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeNav();
     });
   }
 
