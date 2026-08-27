@@ -1,0 +1,1727 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  نظام تخطيط موارد المؤسسات (ERP) — Business Partner
+//
+//  ثلاثة مبادئ تحكم هذا المخطط، وكل جدول فيه يخضع لها:
+//
+//  ١. العزل قبل الميزة. كل جدول يخص منشأة يحمل `tenantId`، ولا يُكتفى
+//     بالترشيح في الكود: سياسات RLS في Postgres (sql/rls.sql) تمنع تسرّب
+//     صفٍّ واحد بين منشأتين حتى لو أخطأ استعلام. الاشتراك يُباع على هذا
+//     الأساس، فالخطأ فيه ليس عطلاً بل خرقاً.
+//
+//  ٢. المال Decimal لا Float. كل مبلغ Decimal(18,6) وكل كمية Decimal(18,6).
+//     Float يفقد القروش عند الجمع، وميزانٌ لا يتزن بفارق هللة ميزانٌ ساقط.
+//
+//  ٣. لا حركة بلا قيد. كل حدث مالي — فاتورة، سند، حركة مخزون، مسيّر رواتب —
+//     يولّد قيد يومية مزدوجاً متزناً. دفتر الأستاذ هو الحقيقة الوحيدة،
+//     وبقية الجداول مستندات تشير إليه عبر `journalEntryId`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════ المنصة: المنشآت والاشتراكات ═══
+
+/// المنشأة المشتركة في النظام. هي حدّ العزل: كل صف في كل جدول أدناه يخصّ
+/// منشأة واحدة، ولا يراه غيرها.
+model Tenant {
+  id   String @id @default(cuid())
+  /// المعرّف في الرابط: erp.businesspartner.sa/t/{slug}
+  slug String @unique
+
+  nameAr String
+  nameEn String?
+
+  /// السجل التجاري والرقم الضريبي — إلزاميان لفوترة زاتكا
+  crNumber  String?
+  vatNumber String?
+  /// الرقم الموحّد للمنشأة
+  unifiedNumber String?
+
+  // العنوان الوطني — زاتكا تشترط تفاصيله في الفاتورة الإلكترونية
+  street       String?
+  buildingNo   String?
+  district     String?
+  city         String?
+  postalCode   String?
+  additionalNo String?
+  countryCode  String  @default("SA")
+
+  phone String?
+  email String?
+  logoPath String?
+
+  /// عملة الدفاتر. كل التقارير تُعرض بها.
+  baseCurrency String @default("SAR")
+  /// شهر بداية السنة المالية (١ = يناير)
+  fiscalYearStartMonth Int @default(1)
+  /// TRIAL | ACTIVE | SUSPENDED | CANCELLED
+  status String @default("TRIAL")
+
+  settings Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships    Membership[]
+  roles          Role[]
+  accounts       Account[]
+  fiscalYears    FiscalYear[]
+  journalEntries JournalEntry[]
+  costCenters    CostCenter[]
+  taxCodes       TaxCode[]
+  partners       Partner[]
+  items          Item[]
+  warehouses     Warehouse[]
+  stockMoves     StockMove[]
+  salesInvoices  SalesInvoice[]
+  purchaseOrders PurchaseOrder[]
+  vendorBills    VendorBill[]
+  payments       Payment[]
+  bankAccounts   BankAccount[]
+  employees      Employee[]
+  departments    Department[]
+  payrollRuns    PayrollRun[]
+  leaveRequests  LeaveRequest[]
+  leaveTypes     LeaveType[]
+  attendances    Attendance[]
+  projects       Project[]
+  tasks          ProjectTask[]
+  timesheets     Timesheet[]
+  numberSeries   NumberSeries[]
+  auditLogs      AuditLog[]
+  subscriptions  Subscription[]
+  zatcaConfig    ZatcaConfig?
+  currencies     ExchangeRate[]
+  uoms           Uom[]
+  itemCategories ItemCategory[]
+  positions      Position[]
+  goodsReceipts  GoodsReceipt[]
+
+  @@index([status])
+}
+
+/// باقة اشتراك تبيعها للعملاء. تعيش خارج عزل المنشآت لأنها ملك المنصة.
+model Plan {
+  id     String @id @default(cuid())
+  code   String @unique
+  nameAr String
+  nameEn String
+
+  monthlyPrice Decimal @default(0) @db.Decimal(18, 6)
+  yearlyPrice  Decimal @default(0) @db.Decimal(18, 6)
+
+  maxUsers      Int  @default(5)
+  maxInvoices   Int  @default(500)
+  /// الموديولات المتاحة في الباقة: ["ACCOUNTING","SALES","HR",...]
+  modules       Json @default("[]")
+
+  active    Boolean  @default(true)
+  sortOrder Int      @default(100)
+  createdAt DateTime @default(now())
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  planId   String
+  plan     Plan   @relation(fields: [planId], references: [id])
+
+  /// TRIALING | ACTIVE | PAST_DUE | CANCELLED
+  status String @default("TRIALING")
+  /// MONTHLY | YEARLY
+  cycle  String @default("MONTHLY")
+
+  startedAt   DateTime  @default(now())
+  currentPeriodEnd DateTime
+  cancelledAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ══════════════════════════════════════════ الهوية والصلاحيات ═══════════════
+
+/// المستخدم عالمي: الحساب الواحد قد يكون عضواً في عدة منشآت (محاسب يخدم
+/// عملاء كثيرين). لذلك لا يحمل `tenantId` — العضوية هي التي تحمله.
+model User {
+  id    String @id @default(cuid())
+  email String @unique
+  name  String
+
+  passwordHash String?
+  /// PLATFORM_ADMIN لمالك المنصة (أنت) — يرى لوحة المنصة لا دفاتر العملاء
+  platformRole String? 
+
+  phone      String?
+  locale     String    @default("ar")
+  active     Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+  sessions    Session[]
+  magicLinks  MagicLink[]
+
+  @@index([email])
+}
+
+model Membership {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  roleId   String
+  role     Role   @relation(fields: [roleId], references: [id])
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tenantId])
+  @@index([tenantId])
+}
+
+model Role {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String
+  /// أدوار النظام لا تُحذف ولا تُعدّل صلاحياتها الجوهرية
+  isSystem Boolean @default(false)
+
+  /// رموز الصلاحيات: ["accounting.journal.post","sales.invoice.create",...]
+  permissions Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+model Session {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// المنشأة النشطة في هذه الجلسة
+  tenantId String?
+
+  tokenHash String   @unique
+  expiresAt DateTime
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MagicLink {
+  id     String  @id @default(cuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  email     String
+  tokenHash String    @unique
+  purpose   String    @default("LOGIN")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+// ═══════════════════════════════════════════ النواة المحاسبية ═══════════════
+
+/// ASSET أصول | LIABILITY خصوم | EQUITY حقوق ملكية | REVENUE إيرادات
+/// | EXPENSE مصروفات
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+/// شجرة الحسابات. الحساب الأب (`isGroup`) لا يُرحَّل عليه — يجمع أبناءه فقط،
+/// وهذه القاعدة تُفرض في محرك الترحيل لا في الواجهة.
+model Account {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String
+
+  type AccountType
+  /// تصنيف فرعي للتقارير: CASH | BANK | RECEIVABLE | INVENTORY | FIXED_ASSET
+  /// | PAYABLE | VAT_INPUT | VAT_OUTPUT | ACCRUAL | CAPITAL | RETAINED_EARNINGS
+  /// | SALES | OTHER_INCOME | COGS | PAYROLL | OPERATING | DEPRECIATION
+  subtype String?
+
+  parentId String?
+  parent   Account?  @relation("AccountTree", fields: [parentId], references: [id])
+  children Account[] @relation("AccountTree")
+
+  /// حساب تجميعي: يُعرض في الشجرة ولا يقبل قيداً
+  isGroup Boolean @default(false)
+  /// يقبل قيداً يدوياً من المستخدم (حسابات النظام تُقفل ضد اليدوي)
+  allowManual Boolean @default(true)
+  /// حسابات النظام (الذمم، ضريبة المخرجات...) لا تُحذف
+  isSystem Boolean @default(false)
+
+  /// عملة الحساب إن كان بعملة أجنبية ثابتة (حساب بنك بالدولار مثلاً)
+  currency String?
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines          JournalLine[]
+  bankAccounts   BankAccount[]
+  taxCodesInput  TaxCode[]     @relation("TaxInputAccount")
+  taxCodesOutput TaxCode[]     @relation("TaxOutputAccount")
+
+  @@unique([tenantId, code])
+  @@index([tenantId, type])
+  @@index([parentId])
+}
+
+model FiscalYear {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name      String
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  /// OPEN | CLOSED
+  status    String   @default("OPEN")
+  closedAt  DateTime?
+  closedBy  String?
+
+  createdAt DateTime @default(now())
+
+  periods FiscalPeriod[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+}
+
+/// الفترة المحاسبية (شهر عادةً). القيد لا يُرحَّل في فترة مقفلة — هذا ما
+/// يحمي أرقاماً أُقرَّت وقُدِّمت للزكاة من تعديل لاحق صامت.
+model FiscalPeriod {
+  id           String     @id @default(cuid())
+  fiscalYearId String
+  fiscalYear   FiscalYear @relation(fields: [fiscalYearId], references: [id], onDelete: Cascade)
+  tenantId     String
+
+  number    Int
+  name      String
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  /// OPEN | CLOSED | LOCKED
+  status    String   @default("OPEN")
+  closedAt  DateTime?
+
+  entries JournalEntry[]
+
+  @@unique([fiscalYearId, number])
+  @@index([tenantId, startDate])
+}
+
+/// مركز التكلفة — بُعد تحليلي ثانٍ للقيد (فرع، قسم، نشاط).
+model CostCenter {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String
+  parentId String?
+  parent   CostCenter?  @relation("CostCenterTree", fields: [parentId], references: [id])
+  children CostCenter[] @relation("CostCenterTree")
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  lines JournalLine[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+/// قيد اليومية. لا يوجد في النظام مسار آخر لتغيير رصيد حساب.
+model JournalEntry {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number String
+  date   DateTime @db.Date
+
+  periodId String?
+  period   FiscalPeriod? @relation(fields: [periodId], references: [id])
+
+  /// MANUAL يدوي | SALES_INVOICE | VENDOR_BILL | PAYMENT | STOCK_MOVE
+  /// | PAYROLL | OPENING افتتاحي | CLOSING إقفال | FX فروق عملة | ADJUSTMENT
+  sourceType String  @default("MANUAL")
+  sourceId   String?
+
+  memoAr String?
+  memoEn String?
+  ref    String?
+
+  /// DRAFT مسودة | POSTED مرحَّل | REVERSED معكوس
+  /// المرحَّل لا يُعدَّل ولا يُحذف — يُعكس بقيد مضاد، وهذا شرط أي تدقيق.
+  status String @default("DRAFT")
+
+  currency String  @default("SAR")
+
+  /// إجمالي المدين = إجمالي الدائن دائماً في القيد المرحَّل
+  totalDebit  Decimal @default(0) @db.Decimal(18, 6)
+  totalCredit Decimal @default(0) @db.Decimal(18, 6)
+
+  postedAt DateTime?
+  postedBy String?
+
+  /// القيد الذي يعكسه هذا القيد
+  reversalOfId String?       @unique
+  reversalOf   JournalEntry? @relation("Reversal", fields: [reversalOfId], references: [id])
+  reversedBy   JournalEntry? @relation("Reversal")
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines JournalLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, date])
+  @@index([tenantId, status])
+  @@index([sourceType, sourceId])
+}
+
+model JournalLine {
+  id       String       @id @default(cuid())
+  entryId  String
+  entry    JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  tenantId String
+
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  debit  Decimal @default(0) @db.Decimal(18, 6)
+  credit Decimal @default(0) @db.Decimal(18, 6)
+
+  descAr String?
+  descEn String?
+
+  costCenterId String?
+  costCenter   CostCenter? @relation(fields: [costCenterId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  /// الطرف المقابل — يجعل أعمار الذمم ممكناً بلا جداول موازية
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+
+  employeeId String?
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+
+  /// وسم ضريبي على السطر — منه يُبنى إقرار ضريبة القيمة المضافة
+  taxCodeId String?
+  taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
+  /// الوعاء الخاضع الذي حُسبت عليه الضريبة في هذا السطر
+  taxBase   Decimal? @db.Decimal(18, 6)
+
+  /// المبلغ بالعملة الأجنبية وسعر الصرف وقت القيد
+  currency Decimal? @db.Decimal(18, 6)
+  fxRate   Decimal? @db.Decimal(18, 9)
+
+  sortOrder Int @default(0)
+
+  @@index([entryId])
+  @@index([tenantId, accountId])
+  @@index([partnerId])
+  @@index([projectId])
+  @@index([taxCodeId])
+}
+
+/// رمز ضريبي. النسبة تُخزَّن مع كل رمز لأن تغيير النسبة الوطنية لاحقاً يجب
+/// ألّا يعيد حساب فواتير صدرت بنسبة قديمة.
+model TaxCode {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String
+
+  rate Decimal @db.Decimal(9, 6)
+  /// STANDARD أساسية | ZERO صفرية | EXEMPT معفاة | OUT_OF_SCOPE خارج النطاق
+  /// | REVERSE_CHARGE احتساب عكسي
+  kind String @default("STANDARD")
+
+  /// رمز فئة الضريبة في UBL لزاتكا: S | Z | E | O
+  zatcaCategory String @default("S")
+  /// سبب الإعفاء — تشترطه زاتكا مع الفئات Z و E و O
+  exemptionReasonCode String?
+  exemptionReasonAr   String?
+  exemptionReasonEn   String?
+
+  /// حساب ضريبة المدخلات (مشتريات) وحساب ضريبة المخرجات (مبيعات)
+  inputAccountId  String?
+  inputAccount    Account? @relation("TaxInputAccount", fields: [inputAccountId], references: [id])
+  outputAccountId String?
+  outputAccount   Account? @relation("TaxOutputAccount", fields: [outputAccountId], references: [id])
+
+  active    Boolean  @default(true)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  lines             JournalLine[]
+  salesLines        SalesInvoiceLine[]
+  billLines         VendorBillLine[]
+  poLines           PurchaseOrderLine[]
+  items             Item[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+model ExchangeRate {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  currency String
+  date     DateTime @db.Date
+  /// كم وحدة من عملة الدفاتر تساوي وحدة واحدة من هذه العملة
+  rate     Decimal  @db.Decimal(18, 9)
+
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, currency, date])
+  @@index([tenantId, currency])
+}
+
+/// عدّاد الترقيم لكل (منشأة، نوع مستند، سنة). الترقيم متسلسل بلا فجوات —
+/// وهو شرط نظامي في الفواتير الضريبية لا تفصيل شكلي.
+model NumberSeries {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// JOURNAL | SALES_INVOICE | CREDIT_NOTE | VENDOR_BILL | PO | PAYMENT_IN ...
+  docType String
+  year    Int
+  prefix  String @default("")
+  padding Int    @default(4)
+  value   Int    @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, docType, year])
+}
+
+/// سجل تدقيق بسلسلة تجزئة: كل صف يحمل تجزئة الصف السابق، فالتلاعب بصف
+/// قديم يكسر السلسلة كلها ويُكشف.
+model AuditLog {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  seq        BigInt   @default(autoincrement())
+  action     String
+  entityType String
+  entityId   String
+  actorId    String?
+  actorEmail String?
+  amount     Decimal? @db.Decimal(18, 6)
+  payload    Json?
+  ip         String?
+
+  prevHash String
+  hash     String
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, createdAt])
+}
+
+// ═══════════════════════════════════ الأطراف: عملاء وموردون ═════════════════
+
+/// طرف واحد قد يكون عميلاً ومورداً معاً — وهذا شائع. جدولان منفصلان يجبران
+/// على ازدواج البيانات وتضارب الأرصدة، فوحّدناهما بعلَمين.
+model Partner {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+
+  isCustomer Boolean @default(true)
+  isVendor   Boolean @default(false)
+
+  /// COMPANY منشأة | INDIVIDUAL فرد
+  entityKind String @default("COMPANY")
+
+  crNumber  String?
+  vatNumber String?
+  /// نوع المعرّف البديل حين لا يوجد رقم ضريبي (تشترطه زاتكا):
+  /// CRN سجل تجاري | MOM رخصة وزارة العمل | MLS رخصة بلدية | SAG رقم ٧٠٠
+  /// | NAT هوية وطنية | GCC هوية خليجية | IQA إقامة | PAS جواز | OTH أخرى
+  otherIdType   String?
+  otherIdValue  String?
+
+  street       String?
+  buildingNo   String?
+  district     String?
+  city         String?
+  postalCode   String?
+  additionalNo String?
+  countryCode  String  @default("SA")
+
+  email String?
+  phone String?
+  contactName String?
+
+  /// مهلة السداد بالأيام
+  paymentTermDays Int     @default(0)
+  creditLimit     Decimal @default(0) @db.Decimal(18, 6)
+  currency        String  @default("SAR")
+
+  /// حسابا الذمم المدينة والدائنة الخاصان بهذا الطرف إن خالف الافتراضي
+  arAccountId String?
+  apAccountId String?
+
+  notes  String?
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  journalLines   JournalLine[]
+  salesInvoices  SalesInvoice[]
+  purchaseOrders PurchaseOrder[]
+  vendorBills    VendorBill[]
+  payments       Payment[]
+  projects       Project[]
+  goodsReceipts  GoodsReceipt[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isCustomer])
+  @@index([tenantId, isVendor])
+  @@index([vatNumber])
+}
+
+// ═════════════════════════════════════════════ المبيعات ═════════════════════
+
+/// STANDARD فاتورة ضريبية (بين المنشآت) | SIMPLIFIED فاتورة ضريبية مبسطة
+/// (للمستهلك) — التمييز يحدد مسار زاتكا: الإجازة قبل الإصدار للأولى،
+/// والإبلاغ خلال ٢٤ ساعة للثانية.
+enum InvoiceKind {
+  STANDARD
+  SIMPLIFIED
+}
+
+model SalesInvoice {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number String
+  /// INVOICE فاتورة | CREDIT_NOTE إشعار دائن | DEBIT_NOTE إشعار مدين
+  docType String      @default("INVOICE")
+  kind    InvoiceKind @default(STANDARD)
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  issueDate DateTime  @db.Date
+  dueDate   DateTime? @db.Date
+  /// وقت الإصدار الفعلي — زاتكا تطلب الطابع الزمني لا التاريخ وحده
+  issueTime DateTime  @default(now())
+
+  currency String  @default("SAR")
+  fxRate   Decimal @default(1) @db.Decimal(18, 9)
+
+  subtotal       Decimal @default(0) @db.Decimal(18, 6)
+  discountTotal  Decimal @default(0) @db.Decimal(18, 6)
+  taxableAmount  Decimal @default(0) @db.Decimal(18, 6)
+  vatTotal       Decimal @default(0) @db.Decimal(18, 6)
+  total          Decimal @default(0) @db.Decimal(18, 6)
+  paidAmount     Decimal @default(0) @db.Decimal(18, 6)
+
+  /// DRAFT | POSTED | PARTIALLY_PAID | PAID | CANCELLED
+  status String @default("DRAFT")
+
+  /// الفاتورة الأصلية التي يعدّلها الإشعار الدائن/المدين
+  originalInvoiceId String?
+  originalInvoice   SalesInvoice?  @relation("InvoiceCorrection", fields: [originalInvoiceId], references: [id])
+  corrections       SalesInvoice[] @relation("InvoiceCorrection")
+  /// سبب الإشعار — تشترطه زاتكا
+  correctionReason  String?
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  costCenterId String?
+
+  notesAr String?
+  notesEn String?
+  poRef   String?
+
+  journalEntryId String? @unique
+
+  postedAt DateTime?
+  postedBy String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines       SalesInvoiceLine[]
+  zatca       ZatcaDocument?
+  allocations PaymentAllocation[]
+  stockMoves  StockMove[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([tenantId, issueDate])
+  @@index([partnerId])
+}
+
+model SalesInvoiceLine {
+  id        String       @id @default(cuid())
+  invoiceId String
+  invoice   SalesInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tenantId  String
+
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id])
+
+  descAr String
+  descEn String?
+
+  qty       Decimal @default(1) @db.Decimal(18, 6)
+  uomCode   String  @default("PCE")
+  unitPrice Decimal @default(0) @db.Decimal(18, 6)
+  /// خصم السطر بالقيمة لا بالنسبة — النسبة تُحوَّل عند الإدخال، فالقيمة
+  /// هي ما يظهر في XML زاتكا
+  discount  Decimal @default(0) @db.Decimal(18, 6)
+
+  taxCodeId String?
+  taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
+  taxRate   Decimal  @default(0) @db.Decimal(9, 6)
+
+  lineNet Decimal @default(0) @db.Decimal(18, 6)
+  lineVat Decimal @default(0) @db.Decimal(18, 6)
+  lineTotal Decimal @default(0) @db.Decimal(18, 6)
+
+  /// حساب الإيراد المُرحَّل عليه هذا السطر
+  revenueAccountId String?
+
+  sortOrder Int @default(0)
+
+  @@index([invoiceId])
+  @@index([tenantId])
+}
+
+/// أثر الفاتورة لدى هيئة الزكاة والضريبة والدخل: التوقيع والتجزئة والحالة.
+/// منفصل عن الفاتورة لأن الفاتورة قد تُنشأ ولا تُبلَّغ بعد، ولأن إعادة
+/// المحاولة يجب ألّا تمسّ المستند المالي.
+model ZatcaDocument {
+  id        String       @id @default(cuid())
+  invoiceId String       @unique
+  invoice   SalesInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tenantId  String
+
+  /// المعرّف الفريد للفاتورة (UUID) كما يظهر في UBL
+  uuid String @unique
+  /// عدّاد الفاتورة داخل السلسلة — يبدأ من ١ ولا ينقطع
+  icv  Int
+  /// تجزئة الفاتورة السابقة (Previous Invoice Hash) — أول فاتورة تأخذ
+  /// تجزئة السلسلة الابتدائية المعرّفة في المواصفة
+  pih  String
+  /// تجزئة هذه الفاتورة (SHA-256 بترميز Base64)
+  hash String
+
+  /// XML بصيغة UBL 2.1 كما وُقِّع وأُرسل — يُحفظ حرفياً لأنه هو المستند
+  /// النظامي، وإعادة توليده لاحقاً قد تنتج بايتات مختلفة
+  xml String?
+  /// رمز الاستجابة السريعة بصيغة TLV مُرمَّزاً Base64
+  qr  String?
+
+  /// التوقيع الرقمي وبصمة الشهادة
+  signature       String?
+  certHash        String?
+  signedPropsHash String?
+
+  /// NOT_SENT لم تُرسل | CLEARED مُجازة | REPORTED مُبلَّغة
+  /// | FAILED فشلت | WARNING قُبلت بملاحظات
+  status String @default("NOT_SENT")
+  /// مسار زاتكا: CLEARANCE إجازة (للفاتورة الضريبية) | REPORTING إبلاغ (للمبسطة)
+  mode   String
+
+  requestPayload  Json?
+  responsePayload Json?
+  warnings        Json?
+  errors          Json?
+
+  attempts    Int       @default(0)
+  submittedAt DateTime?
+  clearedAt   DateTime?
+  /// XML المُجاز العائد من زاتكا — هو النسخة التي تُسلَّم للعميل
+  clearedXml  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([tenantId, icv])
+}
+
+/// بيانات ربط المنشأة بزاتكا: الشهادة والسرّ ورقم الجهاز.
+/// سرّ الإنتاج يُخزَّن مشفّراً بمفتاح التطبيق لا نصاً صريحاً.
+model ZatcaConfig {
+  id       String @id @default(cuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// SANDBOX | SIMULATION | PRODUCTION
+  environment String @default("SANDBOX")
+
+  /// اسم الجهاز/الحل كما سُجِّل في فاتورة
+  solutionName String @default("BP-ERP")
+  /// رقم الجهاز التسلسلي — جزء من اسم الشهادة
+  egsSerial    String?
+  /// رقم موقع الفرع (١٠ أرقام) كما تشترطه زاتكا
+  branchNumber String?
+
+  csr            String?
+  privateKeyEnc  String?
+  /// شهادة الامتثال ورمزها السري (المرحلة الأولى من الربط)
+  complianceCertEnc   String?
+  complianceSecretEnc String?
+  /// شهادة الإنتاج ورمزها السري (بعد اجتياز اختبارات الامتثال)
+  productionCertEnc   String?
+  productionSecretEnc String?
+
+  /// آخر تجزئة في السلسلة — تُقرأ لتوليد الفاتورة التالية
+  lastIcv  Int    @default(0)
+  lastHash String @default("NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==")
+
+  onboardedAt DateTime?
+  lastError   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ═════════════════════════════════════════════ المشتريات ════════════════════
+
+model PurchaseOrder {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number    String
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  orderDate    DateTime  @db.Date
+  expectedDate DateTime? @db.Date
+
+  currency String  @default("SAR")
+  fxRate   Decimal @default(1) @db.Decimal(18, 9)
+
+  subtotal Decimal @default(0) @db.Decimal(18, 6)
+  vatTotal Decimal @default(0) @db.Decimal(18, 6)
+  total    Decimal @default(0) @db.Decimal(18, 6)
+
+  /// DRAFT | APPROVED | PARTIALLY_RECEIVED | RECEIVED | BILLED | CANCELLED
+  status String @default("DRAFT")
+
+  warehouseId String?
+  warehouse   Warehouse? @relation(fields: [warehouseId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  notesAr String?
+  approvedAt DateTime?
+  approvedBy String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines    PurchaseOrderLine[]
+  receipts GoodsReceipt[]
+  bills    VendorBill[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([partnerId])
+}
+
+model PurchaseOrderLine {
+  id      String        @id @default(cuid())
+  orderId String
+  order   PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  tenantId String
+
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id])
+
+  descAr String
+  qty       Decimal @default(1) @db.Decimal(18, 6)
+  uomCode   String  @default("PCE")
+  unitPrice Decimal @default(0) @db.Decimal(18, 6)
+  discount  Decimal @default(0) @db.Decimal(18, 6)
+
+  taxCodeId String?
+  taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
+  taxRate   Decimal  @default(0) @db.Decimal(9, 6)
+
+  lineNet   Decimal @default(0) @db.Decimal(18, 6)
+  lineVat   Decimal @default(0) @db.Decimal(18, 6)
+  lineTotal Decimal @default(0) @db.Decimal(18, 6)
+
+  /// الكمية المستلمة فعلاً — الفرق عن `qty` هو المعلّق
+  receivedQty Decimal @default(0) @db.Decimal(18, 6)
+  billedQty   Decimal @default(0) @db.Decimal(18, 6)
+
+  expenseAccountId String?
+  sortOrder Int @default(0)
+
+  @@index([orderId])
+  @@index([tenantId])
+}
+
+/// إشعار استلام بضاعة. يفصل الاستلام الفعلي عن الفاتورة — فالبضاعة قد تصل
+/// قبل الفاتورة، وقيد «بضاعة مستلمة لم تُفوتر» يجب أن يُثبت لحظة الاستلام.
+model GoodsReceipt {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number  String
+  orderId String?
+  order   PurchaseOrder? @relation(fields: [orderId], references: [id])
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  receiptDate DateTime @db.Date
+  /// DRAFT | POSTED | CANCELLED
+  status      String   @default("DRAFT")
+
+  journalEntryId String? @unique
+  notesAr String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines      GoodsReceiptLine[]
+  stockMoves StockMove[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+}
+
+model GoodsReceiptLine {
+  id        String       @id @default(cuid())
+  receiptId String
+  receipt   GoodsReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  tenantId  String
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+
+  qty      Decimal @default(0) @db.Decimal(18, 6)
+  unitCost Decimal @default(0) @db.Decimal(18, 6)
+
+  sortOrder Int @default(0)
+
+  @@index([receiptId])
+  @@index([tenantId])
+}
+
+model VendorBill {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number String
+  /// رقم فاتورة المورّد كما وردت — غير رقمنا الداخلي
+  vendorRef String?
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  orderId String?
+  order   PurchaseOrder? @relation(fields: [orderId], references: [id])
+
+  issueDate DateTime  @db.Date
+  dueDate   DateTime? @db.Date
+
+  currency String  @default("SAR")
+  fxRate   Decimal @default(1) @db.Decimal(18, 9)
+
+  subtotal      Decimal @default(0) @db.Decimal(18, 6)
+  discountTotal Decimal @default(0) @db.Decimal(18, 6)
+  vatTotal      Decimal @default(0) @db.Decimal(18, 6)
+  total         Decimal @default(0) @db.Decimal(18, 6)
+  paidAmount    Decimal @default(0) @db.Decimal(18, 6)
+
+  /// DRAFT | POSTED | PARTIALLY_PAID | PAID | CANCELLED
+  status String @default("DRAFT")
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  costCenterId String?
+
+  journalEntryId String? @unique
+  notesAr String?
+
+  postedAt DateTime?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines       VendorBillLine[]
+  allocations PaymentAllocation[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([partnerId])
+}
+
+model VendorBillLine {
+  id       String     @id @default(cuid())
+  billId   String
+  bill     VendorBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  tenantId String
+
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id])
+
+  descAr String
+  qty       Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice Decimal @default(0) @db.Decimal(18, 6)
+  discount  Decimal @default(0) @db.Decimal(18, 6)
+
+  taxCodeId String?
+  taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
+  taxRate   Decimal  @default(0) @db.Decimal(9, 6)
+
+  lineNet   Decimal @default(0) @db.Decimal(18, 6)
+  lineVat   Decimal @default(0) @db.Decimal(18, 6)
+  lineTotal Decimal @default(0) @db.Decimal(18, 6)
+
+  expenseAccountId String?
+  sortOrder Int @default(0)
+
+  @@index([billId])
+  @@index([tenantId])
+}
+
+// ══════════════════════════════════ الخزينة والمدفوعات ══════════════════════
+
+model BankAccount {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  nameAr String
+  nameEn String?
+  bankName String?
+  iban     String?
+  accountNumber String?
+  currency String @default("SAR")
+
+  /// حساب دفتر الأستاذ المقابل لهذا الحساب البنكي
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  /// CASH صندوق | BANK بنك
+  kind   String  @default("BANK")
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  payments Payment[]
+
+  @@index([tenantId])
+}
+
+/// سند قبض أو صرف. التخصيص على الفواتير منفصل في `PaymentAllocation` لأن
+/// الدفعة الواحدة قد تُسدَّد على عدة فواتير، والفاتورة الواحدة قد تُسدَّد
+/// على دفعات.
+model Payment {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number String
+  /// IN قبض | OUT صرف
+  direction String
+
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+
+  paymentDate DateTime @db.Date
+  amount      Decimal  @db.Decimal(18, 6)
+  currency    String   @default("SAR")
+  fxRate      Decimal  @default(1) @db.Decimal(18, 9)
+
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
+
+  /// CASH | TRANSFER | MADA | VISA | CHEQUE | APPLE_PAY | OTHER
+  method String @default("TRANSFER")
+  ref    String?
+
+  /// DRAFT | POSTED | CANCELLED
+  status String @default("DRAFT")
+
+  /// المبلغ غير المخصّص بعد على فواتير — دفعة مقدمة
+  unallocated Decimal @default(0) @db.Decimal(18, 6)
+
+  journalEntryId String? @unique
+  notesAr String?
+
+  postedAt DateTime?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations PaymentAllocation[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([partnerId])
+}
+
+model PaymentAllocation {
+  id        String  @id @default(cuid())
+  paymentId String
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  tenantId  String
+
+  salesInvoiceId String?
+  salesInvoice   SalesInvoice? @relation(fields: [salesInvoiceId], references: [id])
+
+  vendorBillId String?
+  vendorBill   VendorBill? @relation(fields: [vendorBillId], references: [id])
+
+  amount Decimal @db.Decimal(18, 6)
+
+  createdAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([salesInvoiceId])
+  @@index([vendorBillId])
+}
+
+// ═════════════════════════════════════════════ المخزون ══════════════════════
+
+model Uom {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// رمز الوحدة بمعيار UN/ECE Rec 20 — تشترطه زاتكا في UBL
+  code   String
+  nameAr String
+  nameEn String
+
+  createdAt DateTime @default(now())
+  items     Item[]
+
+  @@unique([tenantId, code])
+}
+
+model ItemCategory {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+  parentId String?
+  parent   ItemCategory?  @relation("CatTree", fields: [parentId], references: [id])
+  children ItemCategory[] @relation("CatTree")
+
+  createdAt DateTime @default(now())
+  items     Item[]
+
+  @@unique([tenantId, code])
+}
+
+/// STOCK صنف مخزني | SERVICE خدمة | CONSUMABLE مستهلك لا يُتابع رصيده
+enum ItemKind {
+  STOCK
+  SERVICE
+  CONSUMABLE
+}
+
+model Item {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  sku    String
+  nameAr String
+  nameEn String?
+  descAr String?
+  barcode String?
+
+  kind ItemKind @default(STOCK)
+
+  categoryId String?
+  category   ItemCategory? @relation(fields: [categoryId], references: [id])
+
+  uomId String?
+  uom   Uom?    @relation(fields: [uomId], references: [id])
+  uomCode String @default("PCE")
+
+  salesPrice    Decimal @default(0) @db.Decimal(18, 6)
+  purchasePrice Decimal @default(0) @db.Decimal(18, 6)
+
+  /// تكلفة المتوسط المرجّح الجارية — تتحدّث مع كل استلام
+  avgCost   Decimal @default(0) @db.Decimal(18, 6)
+  /// الرصيد الكلي عبر كل المستودعات. مشتق من الحركات ومحفوظ للسرعة،
+  /// ويُعاد احتسابه في تقرير التسوية.
+  onHand    Decimal @default(0) @db.Decimal(18, 6)
+  /// حد إعادة الطلب — تنبيه لا منع
+  reorderPoint Decimal @default(0) @db.Decimal(18, 6)
+
+  taxCodeId String?
+  taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
+
+  /// حسابات الترحيل. الخدمة لا تحمل حساب مخزون.
+  inventoryAccountId String?
+  incomeAccountId    String?
+  expenseAccountId   String?
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  salesLines   SalesInvoiceLine[]
+  poLines      PurchaseOrderLine[]
+  billLines    VendorBillLine[]
+  receiptLines GoodsReceiptLine[]
+  stockMoves   StockMove[]
+  stockLevels  StockLevel[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, kind])
+  @@index([barcode])
+}
+
+model Warehouse {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+  city   String?
+  address String?
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  stockMoves     StockMove[]
+  stockLevels    StockLevel[]
+  purchaseOrders PurchaseOrder[]
+  goodsReceipts  GoodsReceipt[]
+
+  @@unique([tenantId, code])
+}
+
+/// رصيد الصنف في مستودع. مشتق من الحركات ومحفوظ لتفادي جمع ملايين السطور
+/// عند كل شاشة؛ التسوية تكشف أي انحراف.
+model StockLevel {
+  id          String    @id @default(cuid())
+  tenantId    String
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  qty Decimal @default(0) @db.Decimal(18, 6)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([itemId, warehouseId])
+  @@index([tenantId])
+}
+
+/// حركة مخزون واحدة. الكمية موجبة للوارد وسالبة للصادر، فالرصيد جمعٌ بسيط
+/// ولا حاجة لعمودَي «وارد» و«صادر» يتناقضان.
+model StockMove {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  moveDate DateTime @db.Date
+
+  /// موجب = وارد، سالب = صادر
+  qty      Decimal @db.Decimal(18, 6)
+  /// تكلفة الوحدة المطبَّقة على هذه الحركة (للصادر: المتوسط وقت الصرف)
+  unitCost Decimal @default(0) @db.Decimal(18, 6)
+  /// قيمة الحركة = qty × unitCost — تُخزَّن لأن المتوسط يتغيّر لاحقاً
+  value    Decimal @default(0) @db.Decimal(18, 6)
+
+  /// PURCHASE استلام شراء | SALE صرف بيع | ADJUSTMENT تسوية
+  /// | TRANSFER_IN | TRANSFER_OUT | OPENING رصيد افتتاحي | RETURN مرتجع
+  reason String
+
+  goodsReceiptId String?
+  goodsReceipt   GoodsReceipt? @relation(fields: [goodsReceiptId], references: [id])
+  salesInvoiceId String?
+  salesInvoice   SalesInvoice? @relation(fields: [salesInvoiceId], references: [id])
+
+  journalEntryId String?
+  notesAr String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, itemId, moveDate])
+  @@index([tenantId, warehouseId])
+  @@index([goodsReceiptId])
+  @@index([salesInvoiceId])
+}
+
+// ══════════════════════════════ الموارد البشرية والرواتب ════════════════════
+
+model Department {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+  parentId String?
+  parent   Department?  @relation("DeptTree", fields: [parentId], references: [id])
+  children Department[] @relation("DeptTree")
+
+  /// مركز التكلفة الذي تُرحَّل عليه رواتب هذا القسم
+  costCenterId String?
+
+  createdAt DateTime @default(now())
+  employees Employee[]
+
+  @@unique([tenantId, code])
+}
+
+model Position {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+
+  createdAt DateTime @default(now())
+  employees Employee[]
+
+  @@unique([tenantId, code])
+}
+
+model Employee {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+
+  /// الهوية الوطنية للسعودي أو رقم الإقامة للمقيم — يحدد معاملة التأمينات
+  nationalId  String?
+  nationality String  @default("SA")
+  /// هل الموظف سعودي؟ يُشتق من الجنسية ويُخزَّن لأن حساب التأمينات يعتمد عليه
+  isSaudi     Boolean @default(false)
+
+  birthDate DateTime? @db.Date
+  gender    String?
+  email     String?
+  phone     String?
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  positionId   String?
+  position     Position?   @relation(fields: [positionId], references: [id])
+
+  hireDate     DateTime  @db.Date
+  /// FIXED محدد المدة | UNLIMITED غير محدد المدة
+  contractType String    @default("FIXED")
+  contractEndDate DateTime? @db.Date
+
+  /// الأجر الأساسي وبدلاته الشهرية
+  basicSalary        Decimal @default(0) @db.Decimal(18, 6)
+  housingAllowance   Decimal @default(0) @db.Decimal(18, 6)
+  transportAllowance Decimal @default(0) @db.Decimal(18, 6)
+  otherAllowance     Decimal @default(0) @db.Decimal(18, 6)
+
+  /// يخضع لاشتراك التأمينات الاجتماعية
+  gosiSubject Boolean @default(true)
+  gosiNumber  String?
+
+  bankName String?
+  iban     String?
+
+  /// ACTIVE | ON_LEAVE | SUSPENDED | TERMINATED
+  status String @default("ACTIVE")
+  /// سبب انتهاء الخدمة: RESIGNATION استقالة | TERMINATION إنهاء من صاحب العمل
+  /// | CONTRACT_END انتهاء العقد | RETIREMENT تقاعد — يغيّر حساب المكافأة
+  endReason      String?
+  terminationDate DateTime? @db.Date
+
+  /// رصيد الإجازة السنوية بالأيام
+  annualLeaveDays Int @default(21)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payslips      Payslip[]
+  leaveRequests LeaveRequest[]
+  attendances   Attendance[]
+  timesheets    Timesheet[]
+  journalLines  JournalLine[]
+  tasks         ProjectTask[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+  @@index([nationalId])
+}
+
+model LeaveType {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+
+  /// مدفوعة الأجر
+  paid          Boolean @default(true)
+  /// الرصيد السنوي بالأيام (٠ = بلا سقف)
+  annualDays    Int     @default(0)
+  /// تُخصم من رصيد الإجازة السنوية
+  deductsAnnual Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  requests  LeaveRequest[]
+
+  @@unique([tenantId, code])
+}
+
+model LeaveRequest {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  leaveTypeId String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  days      Decimal  @db.Decimal(9, 2)
+
+  reason String?
+  /// PENDING | APPROVED | REJECTED | CANCELLED
+  status String @default("PENDING")
+
+  approvedBy String?
+  approvedAt DateTime?
+  rejectReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, employeeId])
+  @@index([tenantId, status])
+}
+
+model Attendance {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  date     DateTime  @db.Date
+  checkIn  DateTime?
+  checkOut DateTime?
+
+  workedHours    Decimal @default(0) @db.Decimal(9, 2)
+  overtimeHours  Decimal @default(0) @db.Decimal(9, 2)
+  /// PRESENT | ABSENT | LEAVE | HOLIDAY | WEEKEND
+  status String @default("PRESENT")
+  notes  String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([employeeId, date])
+  @@index([tenantId, date])
+}
+
+/// مسيّر رواتب شهري. الترحيل يولّد قيداً واحداً بمجاميع المسيّر، والقسائم
+/// تفصيله.
+model PayrollRun {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number String
+  year   Int
+  month  Int
+
+  periodStart DateTime @db.Date
+  periodEnd   DateTime @db.Date
+  payDate     DateTime @db.Date
+
+  /// DRAFT | APPROVED | POSTED | PAID | CANCELLED
+  status String @default("DRAFT")
+
+  totalGross       Decimal @default(0) @db.Decimal(18, 6)
+  totalDeductions  Decimal @default(0) @db.Decimal(18, 6)
+  totalGosiEmp     Decimal @default(0) @db.Decimal(18, 6)
+  totalGosiEmployer Decimal @default(0) @db.Decimal(18, 6)
+  totalNet         Decimal @default(0) @db.Decimal(18, 6)
+
+  journalEntryId String? @unique
+
+  approvedAt DateTime?
+  postedAt   DateTime?
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  payslips Payslip[]
+
+  @@unique([tenantId, year, month])
+  @@index([tenantId, status])
+}
+
+model Payslip {
+  id       String     @id @default(cuid())
+  runId    String
+  run      PayrollRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  tenantId String
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  basicSalary        Decimal @default(0) @db.Decimal(18, 6)
+  housingAllowance   Decimal @default(0) @db.Decimal(18, 6)
+  transportAllowance Decimal @default(0) @db.Decimal(18, 6)
+  otherAllowance     Decimal @default(0) @db.Decimal(18, 6)
+  overtimeAmount     Decimal @default(0) @db.Decimal(18, 6)
+  bonus              Decimal @default(0) @db.Decimal(18, 6)
+
+  gross Decimal @default(0) @db.Decimal(18, 6)
+
+  /// حصة الموظف من التأمينات — تُخصم من أجره
+  gosiEmployee Decimal @default(0) @db.Decimal(18, 6)
+  /// حصة صاحب العمل — تكلفة على المنشأة لا خصم على الموظف
+  gosiEmployer Decimal @default(0) @db.Decimal(18, 6)
+
+  /// خصم الغياب والتأخير والسلف
+  absenceDeduction Decimal @default(0) @db.Decimal(18, 6)
+  loanDeduction    Decimal @default(0) @db.Decimal(18, 6)
+  otherDeduction   Decimal @default(0) @db.Decimal(18, 6)
+
+  totalDeductions Decimal @default(0) @db.Decimal(18, 6)
+  net             Decimal @default(0) @db.Decimal(18, 6)
+
+  /// أيام العمل الفعلية وأيام الغياب في الشهر
+  workedDays  Decimal @default(30) @db.Decimal(9, 2)
+  absentDays  Decimal @default(0) @db.Decimal(9, 2)
+  overtimeHours Decimal @default(0) @db.Decimal(9, 2)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([runId, employeeId])
+  @@index([tenantId, employeeId])
+}
+
+// ══════════════════════════════════════ المشاريع والوقت ═════════════════════
+
+model Project {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+  descAr String?
+
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+
+  managerId String?
+
+  startDate DateTime? @db.Date
+  endDate   DateTime? @db.Date
+
+  /// الميزانية المعتمدة والسعر المتفق عليه
+  budget         Decimal @default(0) @db.Decimal(18, 6)
+  contractValue  Decimal @default(0) @db.Decimal(18, 6)
+
+  /// PLANNED | ACTIVE | ON_HOLD | COMPLETED | CANCELLED
+  status String @default("PLANNED")
+  /// يُفوتر بالساعة لا بسعر ثابت
+  billableByHour Boolean @default(false)
+  hourlyRate     Decimal @default(0) @db.Decimal(18, 6)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks          ProjectTask[]
+  timesheets     Timesheet[]
+  journalLines   JournalLine[]
+  salesInvoices  SalesInvoice[]
+  vendorBills    VendorBill[]
+  purchaseOrders PurchaseOrder[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+}
+
+model ProjectTask {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title  String
+  descAr String?
+
+  assigneeId String?
+  assignee   Employee? @relation(fields: [assigneeId], references: [id])
+
+  parentId String?
+  parent   ProjectTask?  @relation("TaskTree", fields: [parentId], references: [id])
+  children ProjectTask[] @relation("TaskTree")
+
+  /// TODO | IN_PROGRESS | REVIEW | DONE | CANCELLED
+  status   String @default("TODO")
+  /// LOW | NORMAL | HIGH | URGENT
+  priority String @default("NORMAL")
+
+  estimatedHours Decimal @default(0) @db.Decimal(9, 2)
+  startDate DateTime? @db.Date
+  dueDate   DateTime? @db.Date
+  completedAt DateTime?
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  timesheets Timesheet[]
+
+  @@index([tenantId, projectId])
+  @@index([tenantId, status])
+  @@index([assigneeId])
+}
+
+model Timesheet {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  taskId String?
+  task   ProjectTask? @relation(fields: [taskId], references: [id])
+
+  date  DateTime @db.Date
+  hours Decimal  @db.Decimal(9, 2)
+  descAr String?
+
+  /// قابلة للفوترة على العميل
+  billable Boolean @default(true)
+  /// سعر الساعة المطبَّق — يُثبَّت لحظة التسجيل
+  rate     Decimal @default(0) @db.Decimal(18, 6)
+  /// فُوترت ضمن فاتورة
+  invoiced Boolean @default(false)
+
+  /// DRAFT | SUBMITTED | APPROVED | REJECTED
+  status String @default("DRAFT")
+  approvedBy String?
+  approvedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, employeeId, date])
+  @@index([tenantId, projectId])
+}
