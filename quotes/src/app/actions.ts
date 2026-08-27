@@ -14,7 +14,8 @@ import { generateQuoteAndContract, promoteAgentServiceToCatalog } from '@/lib/ag
 import { createSupplier, createSupplyRequest, addSupplierBid, selectBid, createSupplyAgreement, createFundingInvoice, addMilestones, approveMilestone, payMilestone } from '@/lib/suppliers';
 import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
-import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/storage';
+import { storage, fileKey, clientFolderPath, slugify, type ClientFolder } from '@/lib/storage';
+import { submitRfpBid, declineRfp } from '@/lib/sourcing';
 import { logEvent, audit } from '@/lib/timeline';
 import { round2, fmtMoney, fmtDate } from '@/lib/money';
 import { notifyCatalogChanged } from '@/lib/catalog-sync';
@@ -772,6 +773,53 @@ export async function actionAcceptQuote(_prev: State, fd: FormData): Promise<Sta
     );
     revalidatePath(`/d/${token}`);
     return { ok: 'شكراً لك. سُجّل قبولك للعرض وسنتواصل معك لاستكمال التعاقد.' };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+// ------------------------------------------------- عروض الموردين (RFP)
+/**
+ * يستقبل عرض مورد من صفحته العامة.
+ *
+ * بلا `requireAdmin` عمداً: المورد ليس مدير النظام ولا مستخدماً فيه. وحارسها
+ * الرمز — طويل، لطلب واحد ومورد واحد، ينتهي بمدة، ويُستهلك بردٍّ واحد. ولا
+ * يُقرأ من النموذج معرّف طلب ولا مورد: كلاهما يُشتقّ من الرمز، فلا يقدّم أحد
+ * عرضاً باسم غيره ولو عرف رقم الطلب.
+ */
+export async function actionSubmitRfpBid(_prev: State, fd: FormData): Promise<State> {
+  const token = s(fd, 'token');
+  if (!token) return { error: 'رابط غير معروف' };
+
+  if (s(fd, 'decline') === '1') {
+    try {
+      await declineRfp(token);
+      return { ok: 'شكراً لإفادتكم. سجّلنا اعتذاركم عن هذا الطلب.' };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
+  const amount = Number(s(fd, 'amount'));
+  if (!(amount > 0)) return { error: 'أدخل مبلغ العرض' };
+
+  const file = fd.get('file') as File | null;
+  let filePath: string | null = null;
+  try {
+    if (file && file.size) {
+      if (file.size > 20 * 1024 * 1024) return { error: 'الحد الأقصى لحجم الملف 20 ميجابايت' };
+      const key = `suppliers/bids/${Date.now()}-${slugify(file.name)}`;
+      await storage().put(key, Buffer.from(await file.arrayBuffer()), file.type);
+      filePath = key;
+    }
+    await submitRfpBid({
+      token,
+      amount,
+      deliveryAr: s(fd, 'deliveryAr') || null,
+      notesAr: s(fd, 'notesAr') || null,
+      filePath,
+    });
+    return { ok: 'استلمنا عرضكم. شكراً لكم، وسنوافيكم بالنتيجة.' };
   } catch (e) {
     return { error: e instanceof Error ? e.message : String(e) };
   }

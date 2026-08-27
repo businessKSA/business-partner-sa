@@ -24,7 +24,7 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { handleDocAgent } from "./_docagent.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -1121,6 +1121,60 @@ function bridgeAuthorized(req) {
   return diff === 0;
 }
 
+/* ---- قراءة عرض مورد للوحة العروض -------------------------------------
+ * اللوحة تحتاج أن تقرأ ملف عرض المورد (PDF أو صورة) وتستخرج بنوده. ومفاتيح
+ * نماذج الرؤية معرَّفة هنا وحدها منذ شهور — Gemini ثم Anthropic ثم OpenAI —
+ * فنسخها إلى مشروع ثانٍ يعني مفتاحين لكل مزوّد ونسختين تتفارقان.
+ *
+ * لا يُخزَّن هنا شيء: البايتات تُقرأ وتُعاد البنود وتُهمل. والحفظ في اللوحة
+ * حيث الملف أصلاً.
+ */
+async function handleSupplierQuoteRead(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+
+  const b = await readBody(req);
+  const base64 = String(b.base64 || "");
+  const mime = String(b.mime || "");
+  if (!base64) return send(400, { ok: false, error: "no_file" });
+  if (!DOC_MIME_OK.test(mime)) return send(400, { ok: false, error: "bad_type" });
+
+  const prompt = `أنت تقرأ عرض سعر من مورد سعودي وتستخرج بنوده كما هي.
+
+استخرج ما يظهر فعلاً في المستند فقط. لا تخمّن ولا تُكمل ناقصاً.
+
+أعِد JSON فقط بلا شرح وبلا علامات تنسيق، بهذا الشكل:
+{
+  "currency": "SAR",
+  "vatIncluded": true أو false — هل الأسعار الظاهرة شاملة ضريبة القيمة المضافة,
+  "total": الإجمالي كما يظهر رقماً,
+  "lines": [
+    { "nameAr": "اسم البند", "descAr": "وصفه إن وُجد", "qty": الكمية رقماً, "unitAr": "الوحدة", "unitPrice": سعر الوحدة رقماً }
+  ]
+}
+
+قواعد مهمة:
+- الأسعار أرقام بلا فواصل ولا رمز عملة.
+- إن لم تظهر كمية فاجعلها 1.
+- لا تُدرج في أسماء البنود ولا أوصافها: اسم المورد، أرقام سجله أو ترخيصه أو
+  رقمه الضريبي، بياناته البنكية، ولا شروط ضمانه — نحن نستخرج ما بيع وكم، لا
+  من باعه ولا بأي شروط.`;
+
+  const out = await readDocumentRaw(base64, mime, prompt, 3000);
+  if (!out.ok) return send(502, { ok: false, error: out.error });
+
+  let parsed = null;
+  try {
+    const t = String(out.data).replace(/^```(json)?|```$/gm, "").trim();
+    parsed = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+  } catch {
+    // النص الخام يُعاد حتى حين يتعذّر تفسيره: مراجع بشري يقرؤه أفضل من لا شيء.
+    return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed: null });
+  }
+  return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed });
+}
+
 async function handleDaftraInvoice(req, res) {
   const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
   if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
@@ -1229,6 +1283,7 @@ export default async function handler(req, res) {
   // entirely once delegated.
   // الفاتورة الضريبية للوحة العروض — تُصدَر من الشيفرة المجرَّبة نفسها لا من نسخة ثانية.
   if ((q.__route || "") === "daftra-invoice") return handleDaftraInvoice(req, res);
+  if ((q.__route || "") === "supplier-quote-read") return handleSupplierQuoteRead(req, res);
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.

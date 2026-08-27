@@ -139,6 +139,10 @@
       "destination": "/api/requests?__route=daftra-invoice"
     },
     {
+      "source": "/api/supplier-quote-read",
+      "destination": "/api/requests?__route=supplier-quote-read"
+    },
+    {
       "source": "/api/suppliers",
       "destination": "/api/requests?__route=suppliers"
     },

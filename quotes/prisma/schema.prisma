@@ -532,11 +532,55 @@ model Supplier {
   notes      String?
   active     Boolean @default(true)
 
+  // تصنيفات التوجيه: أكواد مفصولة بفواصل — «مساحات-عمل,سكن-عمال».
+  // النشاط الحرّ (activityAr) يوصف للبشر ولا يُوجَّه به: طلب يمضي إلى من
+  // «نشاطه يذكر العقار» يمضي إلى من ذكرها عرضاً وإلى من يعمل بها سواءً.
+  categories String?
+  city       String?
+  // صفّه في قاعدة موردي نوشن — المزامنة تطابق به لا بالاسم.
+  notionPageId String? @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   bids  SupplierBid[]
+  rfps  SupplierRfp[]
   files FileAsset[]
+
+  @@index([active])
+}
+
+/**
+ * طلب عرض سعر مُرسَل إلى مورد بعينه.
+ *
+ * لولا هذا الجدول لما عُرف من سُئل ومتى: «أرسلنا للموردين» جملة لا تُراجَع،
+ * ومن لم يردّ لا يُذكَّر لأن أحداً لا يعرف أنه لم يردّ. ولكل صف رمزه الذي
+ * يفتح به المورد صفحة ردّه — بلا حساب ولا كلمة مرور، فالمورد ليس مستخدماً
+ * في النظام ولن يسجّل فيه ليقدّم سعراً.
+ */
+model SupplierRfp {
+  id              String        @id @default(cuid())
+  supplyRequestId String
+  supplyRequest   SupplyRequest @relation(fields: [supplyRequestId], references: [id], onDelete: Cascade)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  token String @unique
+
+  sentAt      DateTime?
+  openedAt    DateTime?
+  respondedAt DateTime?
+  declinedAt  DateTime?
+  expiresAt   DateTime?
+
+  bidId String?      @unique
+  bid   SupplierBid? @relation("RfpBid", fields: [bidId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([supplyRequestId, supplierId])
+  @@index([supplyRequestId])
 }
 
 model SupplyRequest {
@@ -553,8 +597,29 @@ model SupplyRequest {
   // DRAFT | QUOTING | SELECTED | AGREEMENT | FUNDED | IN_PROGRESS | COMPLETED | CANCELLED
   status String @default("DRAFT")
 
-  // نسبة/رسوم تنسيق بزنس بارتنر
+  // نسبة/رسوم تنسيق بزنس بارتنر — في الوضع الثلاثي تُعرض سطراً مستقلاً
   coordinationFee Float @default(0)
+
+  /**
+   * TRIPARTITE — اتفاقية ثلاثية شفافة: العميل يرى المورد واسمه وسجله،
+   *              والأتعاب سطر مستقل، والمال أمانة في محفظة تُصرف بمراحل.
+   * RESALE      — بزنس بارتنر هي المتعاقد: تشتري من المورد وتبيع للعميل
+   *              بسعر واحد يشمل الهامش، ولا يظهر المورد في مستند العميل.
+   *
+   * الوضعان لا يُدمجان: في الثلاثي المال يمرّ ولا يُملَك فلا ربح فيه، وفي
+   * إعادة البيع المبلغ كله إيراد لنا وتكلفة المورد مصروف. خلطهما يخلط
+   * الدفاتر ويجعل الفاتورة الضريبية تقول ما لم يحدث.
+   */
+  mode String @default("TRIPARTITE")
+
+  /** هامش إعادة البيع نسبةً من عرض المورد. 0.10 = عشرة بالمئة. */
+  markupPct Float @default(0.10)
+
+  /** رمز الخدمة التي جاء منها الطلب — به تُختار فئات الموردين. */
+  serviceCode String?
+
+  /** ما كتبه العميل في نموذج الطلب، كما كتبه. */
+  intakeAr String?
 
   selectedBidId String?      @unique
   selectedBid   SupplierBid? @relation("SelectedBid", fields: [selectedBidId], references: [id])
@@ -563,6 +628,7 @@ model SupplyRequest {
   updatedAt DateTime @updatedAt
 
   bids       SupplierBid[] @relation("RequestBids")
+  rfps       SupplierRfp[]
   milestones Milestone[]
   documents  Document[]
   files      FileAsset[]
@@ -584,13 +650,19 @@ model SupplierBid {
   deliveryEn String?
   notesAr    String?
   notesEn    String?
+  /** أصل مستند المورد كما رفعه — يُحفظ ولا يُرسل للعميل. */
   filePath   String?
+  /** النص المستخرج من مستند المورد، خاماً قبل التنقية. */
+  extractedRaw String?
+  /** البنود المستخرجة بعد التنقية، JSON — منها يُبنى عرض العميل. */
+  extractedJson String?
   // RECEIVED | SHORTLISTED | SELECTED | REJECTED
   status     String  @default("RECEIVED")
 
   createdAt DateTime @default(now())
 
   selectedFor SupplyRequest? @relation("SelectedBid")
+  rfp         SupplierRfp?   @relation("RfpBid")
 
   @@index([supplyRequestId])
 }
