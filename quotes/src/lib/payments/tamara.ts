@@ -45,11 +45,23 @@ export function tamaraEnabled(): boolean {
  * الحد الأعلى لمبلغ يُسدَّد عبر تمارا.
  *
  * لتمارا حدودها على المستهلك، ولنا سبب مستقل: الخصم نسبة، فكلما كبر المبلغ
- * كبرت التكلفة بلا مقابل. عشرة آلاف افتراضاً، ويُرفع من متغير بيئة عند الحاجة.
+ * كبرت التكلفة بلا مقابل — خمسون ألفاً تكلّف نحو ٣٤٩٦ ريالاً. يُضبط من متغير
+ * بيئة، فالحد قرار تجاري يتغيّر بلا نشر.
  */
 export function tamaraMaxAmount(): number {
-  const v = Number(process.env.TAMARA_MAX_AMOUNT || 10000);
-  return Number.isFinite(v) && v > 0 ? v : 10000;
+  const v = Number(process.env.TAMARA_MAX_AMOUNT || 50000);
+  return Number.isFinite(v) && v > 0 ? v : 50000;
+}
+
+/**
+ * عدد الأقساط المطلوب من تمارا.
+ *
+ * الخطة مرهونة باتفاقية التاجر: طلب خطة غير مفعّلة على الحساب يُرفض من تمارا
+ * لا منّا، فيبقى العدد متغيّر بيئة يُرفع يوم تُفعَّل الخطة الأطول.
+ */
+export function tamaraInstalments(): number {
+  const v = Math.trunc(Number(process.env.TAMARA_INSTALMENTS || 12));
+  return Number.isFinite(v) && v >= 2 && v <= 24 ? v : 12;
 }
 
 export function tamaraMinAmount(): number {
@@ -236,6 +248,7 @@ export async function createTamaraCheckout(
       notification: input.notificationUrl,
     },
     payment_type: 'PAY_BY_INSTALMENTS',
+    instalments: tamaraInstalments(),
     locale: 'ar_SA',
     platform: COMPANY.website,
     is_mobile: false,
@@ -308,6 +321,65 @@ export function tamaraTokenValid(presented: string | null): boolean {
     diff |= expected.charCodeAt(i) ^ presented.charCodeAt(i);
   }
   return diff === 0;
+}
+
+/**
+ * شكل المفتاح — لا قيمته.
+ *
+ * «مرفوض» جواب صحيح لا يكفي: مفتاح انتهت صلاحيته، ومفتاح من النوع الخطأ
+ * (العام أو التنبيه بدل مفتاح الربط)، ومفتاح حساب آخر — كلها تُرى من الخارج
+ * `401` واحدة، فيدور صاحبها على مفاتيح جديدة بلا دليل يوجّهه.
+ *
+ * مفتاح تمارا للربط رمز JWT: ثلاثة أجزاء بنقطتين، وحمولته الوسطى تُقرأ بلا
+ * سرّ — فيها `exp`. فتُقرأ ويُقال متى انتهى. ولا يخرج من هنا حرف من المفتاح
+ * ولا من توقيعه: طول وتواريخ فقط.
+ */
+export function tamaraTokenShape(): {
+  set: boolean;
+  looksLikeJwt: boolean;
+  length: number;
+  issuedAt?: string;
+  expiresAt?: string;
+  expired?: boolean;
+  ملاحظة: string;
+} {
+  const token = (process.env.TAMARA_API_TOKEN || '').trim();
+  if (!token) return { set: false, looksLikeJwt: false, length: 0, ملاحظة: 'المتغير غير مضبوط' };
+
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    return {
+      set: true,
+      looksLikeJwt: false,
+      length: token.length,
+      ملاحظة: 'ليس رمز JWT — الأرجح أنه المفتاح العام أو مفتاح التنبيه، لا مفتاح الربط API',
+    };
+  }
+
+  let payload: { exp?: number; iat?: number } = {};
+  try {
+    payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+  } catch {
+    return { set: true, looksLikeJwt: true, length: token.length, ملاحظة: 'حمولة الرمز غير مقروءة' };
+  }
+
+  const exp = typeof payload.exp === 'number' ? new Date(payload.exp * 1000) : null;
+  const iat = typeof payload.iat === 'number' ? new Date(payload.iat * 1000) : null;
+  const expired = exp ? exp.getTime() < Date.now() : false;
+
+  return {
+    set: true,
+    looksLikeJwt: true,
+    length: token.length,
+    issuedAt: iat?.toISOString(),
+    expiresAt: exp?.toISOString(),
+    expired,
+    ملاحظة: !exp
+      ? 'رمز بلا تاريخ انتهاء'
+      : expired
+        ? 'انتهت صلاحية الرمز — أنشئ مفتاح ربط جديد من بوابة تمارا'
+        : 'الرمز سارٍ — فإن رُفض فهو من حساب آخر أو أُبطل',
+  };
 }
 
 /**
@@ -392,6 +464,7 @@ export function tamaraStatus(): {
   baseUrl: string;
   minAmount: number;
   maxAmount: number;
+  instalments: number;
   mdr: string;
   fixedFee: number;
 } {
@@ -403,6 +476,7 @@ export function tamaraStatus(): {
     baseUrl: baseUrl(),
     minAmount: tamaraMinAmount(),
     maxAmount: tamaraMaxAmount(),
+    instalments: tamaraInstalments(),
     mdr: `${(TAMARA_MDR * 100).toFixed(2)}%`,
     fixedFee: TAMARA_FIXED_FEE,
   };
