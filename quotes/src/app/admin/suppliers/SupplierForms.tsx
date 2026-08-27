@@ -1,6 +1,7 @@
 'use client';
 import { useActionState } from 'react';
-import { actionCreateSupplier, actionCreateSupplyRequest } from '@/app/actions';
+import { actionCreateSupplier, actionCreateSupplyRequest, actionSyncSuppliers } from '@/app/actions';
+import { SUPPLIER_CATEGORIES } from '@/lib/categories';
 
 export default function SupplierForms({
   clients,
@@ -11,8 +12,28 @@ export default function SupplierForms({
 }) {
   const [sup, supAction, supPending] = useActionState(actionCreateSupplier, {});
   const [req, reqAction, reqPending] = useActionState(actionCreateSupplyRequest, {});
+  const [syn, synAction, synPending] = useActionState(actionSyncSuppliers, {});
 
   return (
+    <>
+    <form className="card" action={synAction} style={{ marginBottom: 14 }}>
+      <h2>سحب الموردين من نوشن</h2>
+      <p className="sub">
+        نوشن مصدر الحقيقة لبيانات الموردين واتفاقياتهم. وهذا السحب ينسخ منها ما تحتاجه
+        اللوحة وحده — الاسم والبريد والتصنيف والمدينة — ولا يحذف مورداً غاب عن نوشن،
+        بل يعطّل من وُسم فيها «موقوف».
+      </p>
+      <label htmlFor="databaseId">معرّف قاعدة نوشن (فارغ = المضبوطة في البيئة)</label>
+      <input id="databaseId" name="databaseId" dir="ltr" placeholder="6de1ba8b56cc458eaede603f734eb4ae" />
+      <div className="row" style={{ marginTop: 12 }}>
+        <button className="btn" type="submit" disabled={synPending}>
+          {synPending ? 'جارٍ السحب' : 'اسحب الآن'}
+        </button>
+      </div>
+      {syn.error ? <div className="notice bad">{syn.error}</div> : null}
+      {syn.ok ? <div className="notice ok">{syn.ok}</div> : null}
+    </form>
+
     <div className="grid c2">
       <form className="card" action={supAction}>
         <h2>تسجيل مورد</h2>
@@ -25,7 +46,24 @@ export default function SupplierForms({
           <div><label htmlFor="s_iban">الآيبان</label><input id="s_iban" name="iban" dir="ltr" /></div>
           <div><label htmlFor="s_email">البريد</label><input id="s_email" name="email" type="email" dir="ltr" /></div>
           <div><label htmlFor="s_phone">الجوال</label><input id="s_phone" name="phone" dir="ltr" /></div>
+          <div><label htmlFor="s_city">المدينة</label><input id="s_city" name="city" placeholder="الرياض" /></div>
         </div>
+
+        {/* التصنيف صناديق اختيار لا نصّ حرّ: الطلب يمضي إلى من تُطابق فئتُه
+            فئةَ الخدمة، ومن كتب فئته بحرفٍ مختلف لا يصله شيء ولا يعرف لماذا. */}
+        <label style={{ marginTop: 10 }}>التصنيفات — إليها تُوجَّه طلبات العروض</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {Object.entries(SUPPLIER_CATEGORIES).map(([c, label]) => (
+            <label key={c} style={{ display: 'flex', gap: 6, alignItems: 'center', fontWeight: 400 }}>
+              <input type="checkbox" name="categories" value={c} style={{ width: 'auto' }} />
+              {label}
+            </label>
+          ))}
+        </div>
+
+        <p className="muted" style={{ marginTop: 8, fontSize: 12 }}>
+          بلا بريد لا يصل المورد طلب عرض — الإرسال بريدٌ لا مكالمة.
+        </p>
         <div className="row" style={{ marginTop: 12 }}>
           <button className="btn" type="submit" disabled={supPending}>{supPending ? 'جارٍ الحفظ' : 'تسجيل المورد'}</button>
         </div>
@@ -56,5 +94,6 @@ export default function SupplierForms({
         {req.error ? <div className="notice bad">{req.error}</div> : null}
       </form>
     </div>
+    </>
   );
 }

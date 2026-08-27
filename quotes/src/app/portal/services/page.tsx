@@ -29,6 +29,7 @@ export default async function PortalServicesPage({
       id: true, code: true, category: true, nameAr: true, nameEn: true,
       descAr: true, unitPrice: true, unitAr: true, minQty: true,
       openPrice: true, attachGovFees: true, deliveryAr: true,
+      sourcingCategory: true,
     },
   });
 
