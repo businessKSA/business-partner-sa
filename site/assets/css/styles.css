@@ -1618,3 +1618,7 @@ textarea.adv-in { resize: vertical; }
 .jss-list{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:8px}
 .jss-list li{position:relative;padding-inline-start:24px;font-size:.9rem;line-height:1.6}
 .jss-list li::before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:#047857;font-weight:700}
+/* Wide result tables inside owner panels scroll on their own rather than
+   pushing the page sideways on a phone. */
+.mini-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mini-table-wrap .mini-table{min-width:520px}

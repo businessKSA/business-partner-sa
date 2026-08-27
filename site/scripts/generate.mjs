@@ -8271,6 +8271,30 @@ function buildJobSearchAdmin() {
         <p class="emp-note" id="js-run-msg" style="min-height:18px;margin:10px 0 0"></p>
       </div>
 
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("Send past applicants their own copy", "أرسل للمتقدمين السابقين نسختهم")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy, oldest-first, one batch at a time. Nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته، دفعة واحدة في كل مرة. ولا أحد يصله البريد مرتين.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="js-bf-limit" class="ap-filter" style="min-width:110px">
+              <option value="10">${L("10", "١٠")}</option>
+              <option value="25" selected>${L("25", "٢٥")}</option>
+              <option value="50">${L("50", "٥٠")}</option>
+              <option value="100">${L("100", "١٠٠")}</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="js-bf-dry">${L("Preview only", "معاينة فقط")}</button>
+            <button class="btn btn-primary btn-sm" id="js-bf-run">✉️ ${L("Send this batch", "أرسل هذه الدفعة")}</button>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.86rem">
+          <input type="checkbox" id="js-bf-nocv"> ${L("Include applicants who have no ATS CV yet (they get a status update only)", "أدرج من ليس لديه سيرة ATS بعد (تصله رسالة متابعة فقط)")}
+        </label>
+        <p class="emp-note" id="js-bf-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-bf-out" style="margin-top:8px"></div>
+      </div>
+
       <div class="dash-panel-head"><h2>${L("Subscribers", "المشتركون")}</h2><p>${L("Activating a subscriber starts the search and emails them. Record each instalment as it lands — the salary plan stops itself at one month's salary.", "تفعيل المشترك يبدأ البحث ويرسل له بريداً. سجّل كل دفعة عند استلامها — باقة الراتب تتوقف تلقائياً عند راتب شهر واحد.")}</p></div>
       <div id="js-list"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
     </div>
