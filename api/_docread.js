@@ -59,7 +59,7 @@ function parseJson(text) {
   try { return JSON.parse(raw.slice(start, end + 1)); } catch { return null; }
 }
 
-async function readWithGemini(base64, mime) {
+async function readWithGemini(base64, mime, prompt, maxTokens) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
   const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -67,8 +67,8 @@ async function readWithGemini(base64, mime) {
     method: "POST",
     headers: { "x-goog-api-key": key, "content-type": "application/json" },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data: base64 } }, { text: PROMPT }] }],
-      generationConfig: { maxOutputTokens: 900, temperature: 0, responseMimeType: "application/json" },
+      contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }] }],
+      generationConfig: { maxOutputTokens: maxTokens || 900, temperature: 0, responseMimeType: "application/json" },
     }),
   });
   if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -77,7 +77,7 @@ async function readWithGemini(base64, mime) {
   return parseJson(parts.map((p) => p.text || "").join(""));
 }
 
-async function readWithAnthropic(base64, mime) {
+async function readWithAnthropic(base64, mime, prompt, maxTokens) {
   const key = envFrom(ANTHROPIC_KEYS);
   if (!key) throw new Error("no_key");
   const isPdf = /pdf/i.test(mime);
@@ -89,8 +89,8 @@ async function readWithAnthropic(base64, mime) {
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: 900,
-      messages: [{ role: "user", content: [block, { type: "text", text: PROMPT }] }],
+      max_tokens: maxTokens || 900,
+      messages: [{ role: "user", content: [block, { type: "text", text: prompt || PROMPT }] }],
     }),
   });
   if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -98,7 +98,7 @@ async function readWithAnthropic(base64, mime) {
   return parseJson((data.content || []).map((c) => c.text || "").join(""));
 }
 
-async function readWithOpenAI(base64, mime) {
+async function readWithOpenAI(base64, mime, prompt, maxTokens) {
   const key = envFrom(OPENAI_KEYS);
   if (!key) throw new Error("no_key");
   if (/pdf/i.test(mime)) throw new Error("pdf_unsupported");
@@ -107,10 +107,10 @@ async function readWithOpenAI(base64, mime) {
     headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini",
-      max_tokens: 900,
+      max_tokens: maxTokens || 900,
       temperature: 0,
       response_format: { type: "json_object" },
-      messages: [{ role: "user", content: [{ type: "text", text: PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
+      messages: [{ role: "user", content: [{ type: "text", text: prompt || PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
     }),
   });
   if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -155,6 +155,78 @@ function clean(raw) {
     contactPhone: txt(raw && raw.contactPhone, 40).replace(/[^\d+]/g, ""),
     confidence: ["high", "medium", "low"].includes(raw && raw.confidence) ? raw.confidence : "medium",
   };
+}
+
+// Same provider chain, caller-supplied prompt, no invoice-specific clean().
+// The AI Document Agent (api/_docagent.js) uses this for classification,
+// arbitrary-form field mapping and fill planning — tasks whose schema is not
+// the fixed invoice schema above.
+export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
+  if (!base64) return { ok: false, error: "no_file" };
+  if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
+  if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
+  const providers = [
+    ["gemini", (b, m) => readWithGemini(b, m, prompt, maxTokens)],
+    ["anthropic", (b, m) => readWithAnthropic(b, m, prompt, maxTokens)],
+    ["openai", (b, m) => readWithOpenAI(b, m, prompt, maxTokens)],
+  ];
+  for (const [name, call] of providers) {
+    try {
+      const raw = await call(base64, mime);
+      if (raw) return { ok: true, data: raw, provider: name };
+    } catch (e) {
+      const msg = String(e.message || e);
+      if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread raw", name, msg.slice(0, 160));
+    }
+  }
+  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
+}
+
+// Text-only model call over the same provider chain (no attachment) — used by
+// the doc agent for reconciliation, gap analysis and fill planning where the
+// inputs are already extracted text, not bytes.
+export async function askModel(prompt, maxTokens) {
+  const gk = envFrom(GEMINI_KEYS);
+  if (gk) {
+    try {
+      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST",
+        headers: { "x-goog-api-key": gk, "content-type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: maxTokens || 2000, temperature: 0, responseMimeType: "application/json" },
+        }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const parts = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+        const parsed = parseJson(parts.map((p) => p.text || "").join(""));
+        if (parsed) return { ok: true, data: parsed, provider: "gemini" };
+      }
+    } catch (e) { console.error("askModel gemini", String(e.message || e).slice(0, 160)); }
+  }
+  const ak = envFrom(ANTHROPIC_KEYS);
+  if (ak) {
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": ak, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
+          max_tokens: maxTokens || 2000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const parsed = parseJson((data.content || []).map((c) => c.text || "").join(""));
+        if (parsed) return { ok: true, data: parsed, provider: "anthropic" };
+      }
+    } catch (e) { console.error("askModel anthropic", String(e.message || e).slice(0, 160)); }
+  }
+  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured" };
 }
 
 /**
