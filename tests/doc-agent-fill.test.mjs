@@ -231,3 +231,18 @@ test("the blanks a form reports are exactly the cells the filler writes into", (
   for (const op of ops) assert.equal(after.get(`${op.sheet}!${op.ref}`), op.text);
   assert.equal(after.get("Vendor Form!B2"), "Registered Legal Name:", "labels untouched");
 });
+
+/* --------------------------------------------- legal declaration guard -- */
+import { declarationUnlocked } from "../api/_docagent.js";
+
+test("a confirmation unlocks its own declaration and no other", () => {
+  const confirmed = [{ fact_key: "declarations.pep_status", value: "Not a PEP" }];
+  assert.equal(declarationUnlocked("Are you a PEP?", "No", confirmed, true), true, "the confirmed subject is fillable");
+  assert.equal(declarationUnlocked("Anti-Bribery (ABAC) declaration", "No", confirmed, true), false,
+    "confirming PEP must not sign the bribery declaration");
+  assert.equal(declarationUnlocked("Any sanctions against you?", "No", confirmed, true), false);
+  assert.equal(declarationUnlocked("Are you a PEP?", "No", [], true), false, "nothing is signed without a confirmation");
+  assert.equal(declarationUnlocked("Company name", "Work Force Trading", [], false), true, "ordinary fields are unaffected");
+  assert.equal(declarationUnlocked("Declaration", "I confirm", confirmed, true), false,
+    "a sensitive field with no identifiable subject is refused, not guessed");
+});
