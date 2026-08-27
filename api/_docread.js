@@ -51,30 +51,87 @@ const PROMPT = `أنت مساعد يقرأ مستندات سعودية رسمي�
 انتبه: الرقم الضريبي في السعودية 15 خانة ويبدأ وينتهي بالرقم 3. رقم السجل التجاري عادة 10 خانات. لا تخلط بينهما.
 التواريخ: إن ظهر التاريخ ميلادياً وهجرياً معاً فأعد الميلادي في issueDate/expiryDate. وإن ظهر هجرياً فقط فلا تحوّله بنفسك — ضعه نصاً في الحقل الهجري واترك الميلادي فارغاً.`;
 
-function parseJson(text) {
+// Close a JSON document that was cut off mid-flight (the model hit its output
+// cap). A fill plan of 60 operations truncated at 55 is worth 55 filled fields;
+// throwing it away is what made the agent look dead. Trailing partial tokens
+// are dropped, then every open string/array/object is closed.
+function repairJson(raw) {
+  let inStr = false, esc = false, lastSafe = -1;
+  const stack = [];
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') { inStr = false; if (stack.length) lastSafe = i; }
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{" || c === "[") stack.push(c === "{" ? "}" : "]");
+    else if (c === "}" || c === "]") { stack.pop(); lastSafe = i; }
+    else if (c === "," || /\d/.test(c) || c === "e" || c === "l") lastSafe = i; // number/true/false/null tails
+  }
+  if (!stack.length) return null;
+  let out = raw.slice(0, lastSafe + 1).replace(/,\s*$/, "");
+  // a key whose value never arrived ("foo": or a value cut mid-string) cannot
+  // be closed — drop the dangling pair, keeping every complete one before it
+  out = out.replace(/,\s*"[^"]*"\s*:?\s*$/, "").replace(/\{\s*"[^"]*"\s*:?\s*$/, "{");
+  for (let i = stack.length - 1; i >= 0; i--) out += stack[i];
+  try { return JSON.parse(out); } catch { return null; }
+}
+
+export function parseJson(text) {
   const raw = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
   const start = raw.indexOf("{");
+  if (start === -1) return null;
   const end = raw.lastIndexOf("}");
-  if (start === -1 || end === -1) return null;
-  try { return JSON.parse(raw.slice(start, end + 1)); } catch { return null; }
+  if (end > start) {
+    try { return JSON.parse(raw.slice(start, end + 1)); } catch {}
+  }
+  return repairJson(raw.slice(start));
+}
+
+// Gemini 2.5 models think by default and charge that thinking to the SAME
+// output budget as the answer — a 4k cap can be spent entirely on thoughts,
+// returning an empty candidate. Every call here is structured extraction, so
+// thinking is switched off explicitly; models that reject the field are
+// retried once without it.
+async function geminiCall(key, model, parts, maxTokens, timeoutMs) {
+  const body = (withThinking) => JSON.stringify({
+    contents: [{ role: "user", parts }],
+    generationConfig: {
+      maxOutputTokens: maxTokens || 2000,
+      temperature: 0,
+      responseMimeType: "application/json",
+      ...(withThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    },
+  });
+  const send = (withThinking) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    method: "POST",
+    headers: { "x-goog-api-key": key, "content-type": "application/json" },
+    body: body(withThinking),
+    signal: AbortSignal.timeout(timeoutMs || 45000),
+  });
+  let r = await send(true);
+  if (r.status === 400) {
+    const t = await r.text();
+    if (/thinking/i.test(t)) r = await send(false);
+    else throw new Error(`gemini 400: ${t.slice(0, 200)}`);
+  }
+  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const data = await r.json();
+  const cand = (data && data.candidates && data.candidates[0]) || {};
+  const text = (((cand.content || {}).parts) || []).map((p) => p.text || "").join("");
+  if (!text) throw new Error(`gemini empty (${cand.finishReason || "no_candidate"})`);
+  return { text, truncated: cand.finishReason === "MAX_TOKENS" };
 }
 
 async function readWithGemini(base64, mime, prompt, maxTokens) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
   const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": key, "content-type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 900, temperature: 0, responseMimeType: "application/json" },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  const parts = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
-  return parseJson(parts.map((p) => p.text || "").join(""));
+  const { text } = await geminiCall(key, model, [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }], maxTokens || 900);
+  return parseJson(text);
 }
 
 async function readWithAnthropic(base64, mime, prompt, maxTokens) {
@@ -188,24 +245,15 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
 // inputs are already extracted text, not bytes.
 export async function askModel(prompt, maxTokens) {
   const gk = envFrom(GEMINI_KEYS);
+  const errs = [];
   if (gk) {
     try {
       const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-        method: "POST",
-        headers: { "x-goog-api-key": gk, "content-type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: maxTokens || 2000, temperature: 0, responseMimeType: "application/json" },
-        }),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        const parts = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
-        const parsed = parseJson(parts.map((p) => p.text || "").join(""));
-        if (parsed) return { ok: true, data: parsed, provider: "gemini" };
-      }
-    } catch (e) { console.error("askModel gemini", String(e.message || e).slice(0, 160)); }
+      const { text, truncated } = await geminiCall(gk, model, [{ text: prompt }], maxTokens || 2000);
+      const parsed = parseJson(text);
+      if (parsed) return { ok: true, data: parsed, provider: "gemini", truncated };
+      errs.push(`gemini: unparsable${truncated ? " (hit output cap)" : ""}`);
+    } catch (e) { const m = String(e.message || e); console.error("askModel gemini", m.slice(0, 160)); errs.push(`gemini: ${m.slice(0, 90)}`); }
   }
   const ak = envFrom(ANTHROPIC_KEYS);
   if (ak) {
@@ -218,15 +266,17 @@ export async function askModel(prompt, maxTokens) {
           max_tokens: maxTokens || 2000,
           messages: [{ role: "user", content: prompt }],
         }),
+        signal: AbortSignal.timeout(45000),
       });
       if (r.ok) {
         const data = await r.json();
         const parsed = parseJson((data.content || []).map((c) => c.text || "").join(""));
-        if (parsed) return { ok: true, data: parsed, provider: "anthropic" };
-      }
-    } catch (e) { console.error("askModel anthropic", String(e.message || e).slice(0, 160)); }
+        if (parsed) return { ok: true, data: parsed, provider: "anthropic", truncated: data.stop_reason === "max_tokens" };
+        errs.push("anthropic: unparsable");
+      } else errs.push(`anthropic ${r.status}`);
+    } catch (e) { const m = String(e.message || e); console.error("askModel anthropic", m.slice(0, 160)); errs.push(`anthropic: ${m.slice(0, 90)}`); }
   }
-  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured" };
+  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
 }
 
 /**
