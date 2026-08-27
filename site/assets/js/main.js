@@ -3404,11 +3404,11 @@ var BP = window.BP = window.BP || {};
         done.innerHTML = "✅ <strong>" + T("We received your quote request", "استلمنا طلبك لعرض السعر") + (ref ? " — " + ref : "") + "</strong><br>" +
           T("Your advisor Baher will prepare a price tailored to your case and contact you shortly on your number/email.", "بيجهّز لك مستشارك باهر عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.") +
           '<div class="adv-ticket-acts"><button type="button" class="adv-primary" id="adv-ticket-more">' + T("New request", "طلب جديد") + '</button>' +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
         var more = $("adv-ticket-more"); if (more) more.addEventListener("click", goHome);
       }).catch(function () {
         go.disabled = false; go.textContent = "💬 " + T("Request a price quote", "اطلب عرض السعر");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
@@ -3487,10 +3487,10 @@ var BP = window.BP = window.BP || {};
           T("Your advisor Baher will confirm shortly.", "بيأكّد لك مستشارك باهر قريباً.") +
           '<div class="adv-ticket-acts">' +
           (cal ? '<a class="adv-primary" target="_blank" rel="noopener" href="' + cal + '">📅 ' + T("Add to Google Calendar", "أضِف إلى تقويم Google") + "</a>" : "") +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
       }).catch(function () {
         go.disabled = false; go.textContent = "✅ " + T("Confirm appointment", "أكّد الموعد");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
