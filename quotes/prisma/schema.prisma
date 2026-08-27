@@ -176,6 +176,15 @@ model Service {
   notesAr        String?
   notesEn        String?
 
+  /**
+   * فئة الموردين التي تُنفَّذ منها هذه الخدمة — workspace | housing | ...
+   *
+   * وجودها يحوّل طلب العميل من إصدار عرض فوري إلى طلب توريد بإعادة بيع:
+   * نستدرج عروض موردي الفئة ثم نبيع بسعرٍ واحد باسمنا. وفراغها يعني خدمة
+   * ننفّذها نحن بسعر الكتالوج.
+   */
+  sourcingCategory String?
+
   // ملحق الرسوم الحكومية المقدّرة يُدرج تلقائياً في عرض/عقد هذه الخدمة
   attachGovFees Boolean @default(false)
   govFeeGroup   String?

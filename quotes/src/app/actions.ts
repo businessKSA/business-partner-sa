@@ -15,10 +15,11 @@ import { createSupplier, createSupplyRequest, addSupplierBid, selectBid, createS
 import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
 import { storage, fileKey, clientFolderPath, slugify, type ClientFolder } from '@/lib/storage';
-import { submitRfpBid, declineRfp } from '@/lib/sourcing';
+import { submitRfpBid, declineRfp, dispatchRfps, extractBidDocument, buildResaleQuote, createSourcingRequest, suppliersForCategory } from '@/lib/sourcing';
 import { logEvent, audit } from '@/lib/timeline';
 import { round2, fmtMoney, fmtDate } from '@/lib/money';
 import { notifyCatalogChanged } from '@/lib/catalog-sync';
+import { syncSuppliersFromNotion } from '@/lib/notion-suppliers';
 import { createTamaraCheckout, tamaraEligible } from '@/lib/payments/tamara';
 
 type State = { error?: string; ok?: string; link?: string };
@@ -408,6 +409,82 @@ export async function actionUpdateOwnProfile(_prev: State, fd: FormData): Promis
  * يُراجَع حين يكون الرقم في العرض هو الرقم المعلن على الموقع. وإن كانت مفتوحة
  * السعر فلا رقم بعد، فيبقى المستند مسودة ويصلك أنت لتسعّره.
  */
+/**
+ * طلب خدمة تُنفَّذ عبر موردين — يفتح طلب توريد ويستدرج العروض.
+ *
+ * ما يراه العميل: طلبٌ وصل وعرضٌ سيصله. وما يجري خلفه: طلبات عروض تمضي إلى
+ * موردي الفئة، ثم نبيع بسعرٍ واحد باسمنا. ولا يظهر له من ذلك شيء — لا في
+ * الشاشة ولا في مستنده ولا في خطّه الزمني.
+ *
+ * والإرسال التلقائي محدود بثمانية موردين: الطلب يُفتح من متصفح العميل وهو
+ * ينتظر، وإرسال خمسين بريداً في نداءٍ واحد يقطع عليه الاتصال قبل أن يعرف
+ * أن طلبه وصل. والبقية تُرسَل من شاشة الطلب بضغطة.
+ */
+const AUTO_RFP_CAP = 8;
+
+export async function actionRequestSourcing(_prev: State, fd: FormData): Promise<State> {
+  const clientId = await requireClient();
+  const serviceId = s(fd, 'serviceId');
+  if (!serviceId) return { error: 'اختر الخدمة أولاً.' };
+
+  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+  if (!service || !service.active) return { error: 'هذه الخدمة غير متاحة حالياً.' };
+  if (!service.sourcingCategory) return { error: 'هذه الخدمة لا تُطلب من هنا.' };
+
+  const details = s(fd, 'detailsAr');
+  if (details.length < 10) return { error: 'اكتب تفاصيل طلبك حتى نُعدّ لك عرضاً دقيقاً.' };
+
+  // ما كتبه العميل أولاً وكما كتبه، ثم ما اختاره من الحقول تحته. فلو تغيّرت
+  // الحقول يوماً بقي نصّه سليماً في أعلى الطلب.
+  const intakeAr = [
+    details,
+    '',
+    ...[
+      ['المدينة', s(fd, 'cityAr')],
+      ['الكمية أو المساحة', s(fd, 'sizeAr')],
+      ['الميزانية التقريبية', s(fd, 'budgetAr')],
+      ['موعد الحاجة', s(fd, 'neededAr')],
+    ]
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k}: ${v}`),
+  ]
+    .join('\n')
+    .trim();
+
+  try {
+    const req = await createSourcingRequest({
+      clientId,
+      titleAr: service.nameAr,
+      titleEn: service.nameEn,
+      intakeAr,
+      serviceCode: service.code,
+    });
+
+    const suppliers = await suppliersForCategory(service.sourcingCategory);
+    let sent = 0;
+    if (suppliers.length) {
+      const res = await dispatchRfps(req.id, suppliers.slice(0, AUTO_RFP_CAP).map((x) => x.id), 'auto');
+      sent = res.sent;
+    }
+
+    await notifyEvent(
+      'طلب توريد',
+      req.number,
+      service.nameAr,
+      sent
+        ? `أُرسل طلب العرض تلقائياً إلى ${sent} مورد. تابع العروض واختر منها.`
+        : `لا مورد مفعّل في فئة ${service.sourcingCategory} — أرسل الطلب يدوياً من صفحته.`,
+      `${process.env.APP_URL || ''}/admin/supply/${req.id}`,
+    );
+
+    return {
+      ok: `وصلنا طلبك برقم ${req.number}. نُعدّ لك أفضل عرض ويصلك على بريدك.`,
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 export async function actionRequestQuote(_prev: State, fd: FormData): Promise<State> {
   const clientId = await requireClient();
   const serviceId = s(fd, 'serviceId');
@@ -495,6 +572,7 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
     deliveryEn: s(fd, 'deliveryEn'),
     attachGovFees: fd.get('attachGovFees') === 'on',
     govFeeGroup: fd.get('attachGovFees') === 'on' ? 'foreign-investment' : null,
+    sourcingCategory: s(fd, 'sourcingCategory') || null,
     validityDays: n(fd, 'validityDays') || null,
     active: fd.get('active') === 'on',
     // روابط المصادر الأخرى — تُحرَّر هنا فتصير خريطة الكتالوج كاملة.
@@ -907,6 +985,10 @@ export async function actionCreateSupplier(_prev: State, fd: FormData): Promise<
       bankName: s(fd, 'bankName') || null,
       email: s(fd, 'email') || null,
       phone: s(fd, 'phone') ? normalizePhone(s(fd, 'phone')) : null,
+      // التصنيفات تصل من الشاشة كصناديق اختيار — تُخزَّن نصاً مفصولاً بفواصل
+      // كما تكتبها مزامنة نوشن، فيقرأ الطرفان الحقل نفسه.
+      categories: fd.getAll('categories').map((x) => String(x)).filter(Boolean).join(',') || null,
+      city: s(fd, 'city') || null,
     });
   } catch (e) {
     return { error: e instanceof Error ? e.message : String(e) };
@@ -998,6 +1080,53 @@ export async function actionPayMilestone(milestoneId: string, requestId: string)
   const admin = await requireAdmin();
   await payMilestone(milestoneId, admin);
   revalidatePath(`/admin/supply/${requestId}`);
+}
+
+// ------------------------------------------------------ التوريد بإعادة البيع
+/** يرسل طلب العرض لمن اخترتَه من الموردين، ويعيد ما وصل وما تعذّر. */
+export async function actionDispatchRfps(_prev: State, fd: FormData): Promise<State> {
+  const admin = await requireAdmin();
+  const id = s(fd, 'supplyRequestId');
+  const supplierIds = fd.getAll('supplierIds').map((x) => String(x)).filter(Boolean);
+  if (!supplierIds.length) return { error: 'اختر مورداً واحداً على الأقل' };
+
+  let res: Awaited<ReturnType<typeof dispatchRfps>>;
+  try {
+    res = await dispatchRfps(id, supplierIds, admin);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+  revalidatePath(`/admin/supply/${id}`);
+
+  // الفشل يُقال بعدده لا يُبتلع: مورد لم يصله الطلب ينتظره أحدٌ بلا سبب.
+  if (!res.sent) return { error: `تعذّر الإرسال إلى ${res.failed.length} مورد — راجع بريدهم` };
+  return {
+    ok: `أُرسل طلب العرض إلى ${res.sent} مورد${res.failed.length ? ` وتعذّر إلى ${res.failed.length}` : ''}`,
+  };
+}
+
+/** يسحب قاعدة الموردين من نوشن إلى اللوحة. */
+export async function actionSyncSuppliers(_prev: State, fd: FormData): Promise<State> {
+  const admin = await requireAdmin();
+  const res = await syncSuppliersFromNotion(s(fd, 'databaseId') || undefined, admin);
+  if (!res.ok) return { error: res.error };
+  revalidatePath('/admin/suppliers');
+  return { ok: `قُرئ ${res.total} مورداً من نوشن — ${res.created} جديد و${res.updated} محدَّث` };
+}
+
+/** يقرأ ملف عرض المورد ويستخرج بنوده. */
+export async function actionExtractBid(bidId: string, requestId: string) {
+  await requireAdmin();
+  const res = await extractBidDocument(bidId);
+  revalidatePath(`/admin/supply/${requestId}`);
+  if (!res.ok) throw new Error(res.error);
+}
+
+/** يبني عرض السعر باسمنا من عرض المورد المختار ويفتحه للمراجعة قبل الإرسال. */
+export async function actionBuildResaleQuote(requestId: string) {
+  const admin = await requireAdmin();
+  const doc = await buildResaleQuote(requestId, admin);
+  redirect(`/admin/documents/${doc.id}`);
 }
 
 // -------------------------------------------------------- الفواتير والمحفظة

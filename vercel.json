@@ -143,6 +143,10 @@
       "destination": "/api/requests?__route=supplier-quote-read"
     },
     {
+      "source": "/api/notion-suppliers",
+      "destination": "/api/requests?__route=notion-suppliers"
+    },
+    {
       "source": "/api/suppliers",
       "destination": "/api/requests?__route=suppliers"
     },

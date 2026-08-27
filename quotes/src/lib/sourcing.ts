@@ -38,21 +38,8 @@ import { renderMailHtml, renderMailText, sanitizeMailDoc } from './mail-layout';
 /** مدة صلاحية رابط المورد. بعدها لا يُفتح ولا يُقبل ردّ. */
 export const RFP_TTL_DAYS = 14;
 
-/** أسماء الفئات كما تُكتب في نوشن وفي حقل categories. */
-export const SUPPLIER_CATEGORIES: Record<string, string> = {
-  workspace: 'مساحات العمل والمكاتب',
-  housing: 'سكن العمال والإسكان',
-  realestate: 'العقارات',
-  fitout: 'التشطيب والمقاولات',
-  logistics: 'النقل والخدمات اللوجستية',
-  it: 'تقنية المعلومات والتجهيزات',
-  marketing: 'التسويق والإنتاج',
-  other: 'أخرى',
-};
-
-export function categoryLabel(code: string): string {
-  return SUPPLIER_CATEGORIES[code] || code;
-}
+/** أسماء الفئات كما تُكتب في نوشن وفي حقل categories — في categories.ts ليقرأها المتصفح. */
+export { SUPPLIER_CATEGORIES, categoryLabel } from './categories';
 
 function parseCategories(raw: string | null | undefined): string[] {
   return String(raw || '')
@@ -148,6 +135,33 @@ export async function prepareRfps(supplyRequestId: string, supplierIds: string[]
     );
   }
   return out;
+}
+
+/**
+ * نطاق العمل كما يراه المورد.
+ *
+ * نصّ العميل يمضي كما كتبه إلا من وسيلة اتصال: كثيرٌ يكتب «كلّمني على
+ * ٠٥…» في وصف طلبه، فلو مضى السطر كما هو لصار كلّ ما نحميه من إخفاء اسم
+ * العميل عبثاً — المورد يتصل به مباشرةً ونحن من أعطاه الرقم.
+ */
+export function scopeForSupplier(req: {
+  intakeAr?: string | null;
+  scopeAr?: string | null;
+  titleAr: string;
+}): string {
+  const raw = req.intakeAr || req.scopeAr || req.titleAr;
+  return String(raw)
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '[محجوب]')
+    // الأرقام العربية والهندية معاً: من كتب ٠٥٠ لا يُترك لأن النمط لاتيني.
+    // والعدّ شرط: «ميزانية 200 000 ريال» سلسلة أرقام وفراغات كالهاتف، وحجبها
+    // يمحو ما جاء المورد ليسعّر عليه. وتسعة أرقام فأكثر هاتف لا ميزانية.
+    .replace(/[+٠-٩۰-۹0-9][٠-٩۰-۹0-9\s()-]{6,}/g, (m) => {
+      if ((m.match(/[٠-٩۰-۹0-9]/g) || []).length < 9) return m;
+      // الفراغ الأخير يُعاد كما كان: بلعُه يلصق السطور ببعضها فيصير النطاق
+      // فقرةً واحدة يقرؤها المورد بصعوبة.
+      return '[محجوب]' + (m.match(/\s+$/)?.[0] ?? '');
+    })
+    .trim();
 }
 
 /** يفتح رمز المورد صفحته — ما لم يكن منتهياً أو مردوداً عليه. */
@@ -354,7 +368,7 @@ export async function dispatchRfps(
       refsHeading: 'نطاق العمل المطلوب',
       refs: [
         { label: 'رقم الطلب', value: req.number },
-        { label: 'الوصف', value: req.intakeAr || req.scopeAr || req.titleAr },
+        { label: 'الوصف', value: scopeForSupplier(req) },
       ],
       cta: { label: 'قدّم عرضك', url: rfpUrl(rfp.token) },
       notes: [

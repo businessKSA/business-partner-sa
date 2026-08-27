@@ -1175,6 +1175,86 @@ async function handleSupplierQuoteRead(req, res) {
   return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed });
 }
 
+/* ---- قاعدة موردي نوشن للوحة العروض -----------------------------------
+ * اللوحة توجّه طلبات عروض الأسعار إلى موردين مصنَّفين، وقاعدتهم في نوشن.
+ * والمفتاح هنا وحده، فالقراءة من هنا: مفتاح واحد يُدوَّر، لا اثنان.
+ *
+ * الاستخراج بالنوع لا بالاسم: قواعد الموردين في نوشن أكثر من واحدة وأسماء
+ * أعمدتها تختلف — «نوع المورد» في قاعدة العقار، و«التصنيف» في غيرها. فما
+ * يُعتمد هو نوع العمود: العنوان اسمٌ، وحقل البريد بريدٌ، والقائمة المتعددة
+ * تصنيف. وتسميةٌ تتغيّر لا تكسر المزامنة.
+ *
+ * ولا تُترجم القيم هنا: العربية كما كتبها صاحبها تعبر إلى اللوحة، وهي التي
+ * تعرف أكوادها فتربطها. ومن ترجم في الطرفين اختلفت ترجمتاه.
+ */
+const NOTION_SUPPLIER_ROUTE_DB = process.env.NOTION_SOURCING_SUPPLIERS_DB || "";
+
+function notionPropOf(props, types, nameHints = []) {
+  const entries = Object.entries(props || {});
+  for (const hint of nameHints) {
+    const hit = entries.find(([k, v]) => k.includes(hint) && types.includes(v?.type));
+    if (hit) return hit[1];
+  }
+  const any = entries.find(([, v]) => types.includes(v?.type));
+  return any ? any[1] : null;
+}
+
+const notionPlain = (p) => {
+  if (!p) return "";
+  if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "rich_text") return (p.rich_text || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "email") return String(p.email || "").trim();
+  if (p.type === "phone_number") return String(p.phone_number || "").trim();
+  if (p.type === "select") return String(p.select?.name || "").trim();
+  if (p.type === "status") return String(p.status?.name || "").trim();
+  return "";
+};
+
+async function handleNotionSuppliers(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "notion_not_configured" });
+
+  const b = await readBody(req);
+  const db = String(b.databaseId || NOTION_SUPPLIER_ROUTE_DB || "").replace(/-/g, "").trim();
+  if (!/^[0-9a-f]{32}$/i.test(db)) return send(400, { ok: false, error: "bad_database_id" });
+
+  const rows = [];
+  let cursor;
+  // نوشن يعيد مئةً في الصفحة، والقاعدة قد تفوقها. وخمس صفحات سقفٌ يمنع
+  // نداءً لا ينتهي إن دار المؤشّر، ويكفي خمسمئة مورد.
+  for (let page = 0; page < 5; page++) {
+    const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) }),
+    });
+    if (!r.ok) return send(502, { ok: false, error: `notion_${r.status}`, detail: (await r.text()).slice(0, 300) });
+    const data = await r.json();
+    for (const pg of data.results || []) {
+      const props = pg.properties || {};
+      const name = notionPlain(notionPropOf(props, ["title"]));
+      if (!name) continue;
+      const multi = notionPropOf(props, ["multi_select"], ["نوع المورد", "التصنيف", "الفئة", "Category", "Type"]);
+      rows.push({
+        notionPageId: String(pg.id || "").replace(/-/g, ""),
+        nameAr: name,
+        email: notionPlain(notionPropOf(props, ["email"], ["البريد", "Email"])).toLowerCase(),
+        phone: notionPlain(notionPropOf(props, ["phone_number"], ["الجوال", "الهاتف", "Phone"])),
+        city: notionPlain(notionPropOf(props, ["select"], ["المدينة", "City"])),
+        priority: notionPlain(notionPropOf(props, ["select"], ["الأولوية", "Priority"])),
+        // القيم كما هي بالعربية — اللوحة تربطها بأكوادها.
+        types: (multi?.multi_select || []).map((o) => String(o.name || "").trim()).filter(Boolean),
+        notes: notionPlain(notionPropOf(props, ["rich_text"], ["ملاحظات", "الأحياء", "Notes"])),
+      });
+    }
+    if (!data.has_more || !data.next_cursor) break;
+    cursor = data.next_cursor;
+  }
+  return send(200, { ok: true, database: db, count: rows.length, suppliers: rows });
+}
+
 async function handleDaftraInvoice(req, res) {
   const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
   if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
@@ -1284,6 +1364,7 @@ export default async function handler(req, res) {
   // الفاتورة الضريبية للوحة العروض — تُصدَر من الشيفرة المجرَّبة نفسها لا من نسخة ثانية.
   if ((q.__route || "") === "daftra-invoice") return handleDaftraInvoice(req, res);
   if ((q.__route || "") === "supplier-quote-read") return handleSupplierQuoteRead(req, res);
+  if ((q.__route || "") === "notion-suppliers") return handleNotionSuppliers(req, res);
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.

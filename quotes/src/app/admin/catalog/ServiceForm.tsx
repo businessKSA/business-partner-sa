@@ -1,6 +1,7 @@
 'use client';
 import { useActionState } from 'react';
 import { actionSaveService } from '@/app/actions';
+import { SUPPLIER_CATEGORIES } from '@/lib/categories';
 
 type S = {
   id: string;
@@ -20,6 +21,7 @@ type S = {
   deliveryAr: string;
   deliveryEn: string;
   attachGovFees: boolean;
+  sourcingCategory: string | null;
   validityDays: number | null;
   active: boolean;
   paymentMethods: string;
@@ -93,6 +95,19 @@ export default function ServiceForm({ service }: { service: S | null }) {
         <div>
           <label htmlFor="unitEn">وحدة التسعير بالإنجليزي</label>
           <input id="unitEn" name="unitEn" defaultValue={v?.unitEn ?? 'service'} dir="ltr" />
+        </div>
+        <div>
+          <label htmlFor="sourcingCategory">تُنفَّذ عبر موردي فئة (فارغ = ننفّذها نحن)</label>
+          <select id="sourcingCategory" name="sourcingCategory" defaultValue={v?.sourcingCategory ?? ''}>
+            <option value="">لا — خدمة من خدماتنا بسعر الكتالوج</option>
+            {Object.entries(SUPPLIER_CATEGORIES).map(([c, label]) => (
+              <option key={c} value={c}>{label}</option>
+            ))}
+          </select>
+          <p className="muted" style={{ fontSize: 12 }}>
+            باختيار فئة يتحوّل طلب العميل لهذه الخدمة إلى طلب توريد: يكتب تفاصيله، ويمضي
+            طلب العرض إلى موردي الفئة، ويُبنى عرضه باسمنا من العرض المختار.
+          </p>
         </div>
         <div>
           <label htmlFor="validityDays">صلاحية العرض بالأيام (فارغ = 30)</label>

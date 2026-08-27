@@ -5,7 +5,7 @@ import { actionSubmitRfpBid } from '@/app/actions';
 export default function BidForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState(actionSubmitRfpBid, {});
 
-  if (state.ok) return <div className="notice good" style={{ marginTop: 16 }}>{state.ok}</div>;
+  if (state.ok) return <div className="notice ok" style={{ marginTop: 16 }}>{state.ok}</div>;
 
   return (
     <>

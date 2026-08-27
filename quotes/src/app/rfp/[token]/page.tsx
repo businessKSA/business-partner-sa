@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { openRfp } from '@/lib/sourcing';
+import { openRfp, scopeForSupplier } from '@/lib/sourcing';
 import { COMPANY } from '@config/company';
 import BidForm from './BidForm';
 
@@ -36,7 +36,7 @@ export default async function RfpPage({ params }: { params: Promise<{ token: str
       <section className="card">
         <h2 style={{ fontSize: 16, marginTop: 0 }}>نطاق العمل المطلوب</h2>
         <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9 }}>
-          {req.intakeAr || req.scopeAr || req.titleAr}
+          {scopeForSupplier(req)}
         </p>
       </section>
 
@@ -45,7 +45,7 @@ export default async function RfpPage({ params }: { params: Promise<{ token: str
           انتهت صلاحية هذا الرابط. تواصل معنا إن كنت ما زلت ترغب في التقديم.
         </div>
       ) : rfp.bidId ? (
-        <div className="notice good" style={{ marginTop: 16 }}>
+        <div className="notice ok" style={{ marginTop: 16 }}>
           استلمنا عرضكم لهذا الطلب، وسنوافيكم بالنتيجة. شكراً لكم.
         </div>
       ) : (
