@@ -1,0 +1,397 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>السماسرة والإحالات — لوحة المتابعة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0B1B5A;--bg:#F5F6FA;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--blue:#1F4ED8;--red:#b91c1c;--green:#16a34a;--amber:#c2410c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wrap{max-width:1380px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{color:var(--navy);font-size:1.35rem;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
+.bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+input,select,textarea,button{font-family:inherit;font-size:.92rem;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;background:#fff;color:inherit}
+button{cursor:pointer;background:var(--navy);color:#fff;border:0}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+button.ok{background:var(--green)}button.no{background:var(--red)}
+button:disabled{opacity:.5;cursor:default}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:0 6px 22px rgba(11,27,90,.05);margin-bottom:1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin-bottom:1rem}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:.9rem;text-align:center}
+.kpi b{display:block;font-size:1.3rem;color:var(--navy)}
+.kpi span{color:var(--muted);font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th,td{padding:.5rem .55rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
+tr:hover td{background:#fafbff}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;padding:.1rem .6rem;border-radius:999px;font-size:.76rem;font-weight:600;color:#fff}
+.note{color:var(--muted);font-size:.85rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem}
+label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.25rem}
+.hide{display:none}
+.msg{min-height:1.2rem;font-size:.85rem}
+</style>
+</head>
+<body><div class="wrap">
+<h1>برنامج السماسرة والإحالات</h1>
+<p class="sub">كل رقم هنا يأتي من كشف العمولات في قاعدة البيانات — اللوحة تعرض وتعتمد، ولا تحسب بنفسها.</p>
+
+<div class="bar">
+  <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
+  <button id="save">دخول</button>
+  <button class="ghost" id="reload">تحديث</button>
+  <span class="note">نفس مفتاح <a href="/admin">/admin</a> — يُلتقط تلقائياً إن سبق دخولك هناك.</span>
+</div>
+<p class="msg" id="err" style="color:var(--red)"></p>
+
+<div id="app" class="hide">
+  <div class="cards" id="kpis"></div>
+  <div class="tabs">
+    <button class="on" data-t="refs">الإحالات</button>
+    <button data-t="brokers">السماسرة</button>
+    <button data-t="money">العمولات</button>
+    <button data-t="payouts">الصرف</button>
+    <button data-t="plans">نماذج العمولة</button>
+  </div>
+
+  <div class="card" data-p="refs">
+    <div class="row" style="margin-bottom:.7rem">
+      <select id="f-status"><option value="">كل المراحل</option></select>
+      <input id="f-q" placeholder="ابحث باسم الشركة أو المرجع" style="flex:1;min-width:200px"/>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th>المرجع</th><th>الشركة</th><th>جهة الاتصال</th><th>السمسار</th><th>المرحلة</th><th>قيمة الصفقة</th><th>إجراء</th><th>أُرسلت</th>
+    </tr></thead><tbody id="t-refs"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="brokers">
+    <div class="scroll"><table><thead><tr>
+      <th>الاسم</th><th>الكود</th><th>التواصل</th><th>نموذج العمولة</th><th>الحالة</th><th>الآيبان</th><th>إجراء</th>
+    </tr></thead><tbody id="t-brokers"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="money">
+    <div class="row" style="margin-bottom:.7rem">
+      <select id="f-money"><option value="">كل العمولات</option><option value="pending">بانتظار الاعتماد</option><option value="approved">معتمدة</option><option value="paid">مصروفة</option><option value="void">ملغاة</option></select>
+      <span class="note">الاعتماد لا يصرف المبلغ — الصرف من تبويب «الصرف».</span>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th>الإحالة</th><th>السمسار</th><th>النوع</th><th>الفترة</th><th>الأساس</th><th>النسبة</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th>
+    </tr></thead><tbody id="t-money"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="payouts">
+    <div class="grid2" style="margin-bottom:.8rem">
+      <div><label class="f">السمسار</label><select id="p-broker"></select></div>
+      <div><label class="f">مرجع التحويل البنكي</label><input id="p-ref" placeholder="رقم عملية التحويل"/></div>
+      <div><label class="f">الحالة</label><select id="p-status"><option value="paid">مدفوع الآن</option><option value="pending">مجدول (لم يُحوَّل بعد)</option></select></div>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th style="width:32px"></th><th>الإحالة</th><th>النوع</th><th>الفترة</th><th>المبلغ</th>
+    </tr></thead><tbody id="t-payable"></tbody></table></div>
+    <div class="row" style="margin-top:.8rem">
+      <b id="p-total">الإجمالي المحدد: 0 ريال</b>
+      <button id="p-go">سجّل الصرف</button>
+      <span class="msg" id="p-msg"></span>
+    </div>
+    <h3 style="margin:1.4rem 0 .5rem;font-size:1rem;color:var(--navy)">عمليات الصرف السابقة</h3>
+    <div class="scroll"><table><thead><tr><th>التاريخ</th><th>السمسار</th><th>المبلغ</th><th>المرجع</th><th>الحالة</th></tr></thead><tbody id="t-payouts"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="plans">
+    <div class="scroll" style="margin-bottom:1rem"><table><thead><tr>
+      <th>المفتاح</th><th>الاسم</th><th>النموذج</th><th>الوصف</th><th>افتراضي</th><th>نشط</th><th></th>
+    </tr></thead><tbody id="t-plans"></tbody></table></div>
+    <h3 style="margin:.4rem 0 .6rem;font-size:1rem;color:var(--navy)">إضافة أو تعديل نموذج</h3>
+    <p class="note" style="margin-bottom:.7rem">تعديل نموذج لا يمسّ إحالة سابقة: كل إحالة تحمل نسخة من شروطها لحظة إرسالها.</p>
+    <div class="grid2">
+      <div><label class="f">المفتاح (بالإنجليزية، بلا مسافات)</label><input id="pl-key" placeholder="first-invoice-10"/></div>
+      <div><label class="f">الاسم بالعربية</label><input id="pl-name-ar" placeholder="نسبة ١٠٪ من أول فاتورة"/></div>
+      <div><label class="f">الاسم بالإنجليزية</label><input id="pl-name-en"/></div>
+      <div><label class="f">النموذج</label><select id="pl-model">
+        <option value="first_invoice_pct">نسبة من أول فاتورة</option>
+        <option value="recurring_pct">نسبة متكررة</option>
+        <option value="flat">مبلغ ثابت</option>
+        <option value="tiered">شرائح حسب حجم الصفقة</option>
+      </select></div>
+      <div id="w-rate"><label class="f">النسبة ٪</label><input id="pl-rate" type="number" step="0.1" value="10"/></div>
+      <div id="w-flat" class="hide"><label class="f">المبلغ الثابت</label><input id="pl-flat" type="number" step="1" value="500"/></div>
+      <div id="w-months" class="hide"><label class="f">عدد الأشهر (٠ = بلا سقف)</label><input id="pl-months" type="number" step="1" value="0"/></div>
+      <div><label class="f">مكافأة ثابتة تُضاف على أول عمولة</label><input id="pl-bonus" type="number" step="1" value="0"/></div>
+      <div><label class="f">حد أدنى لقيمة الصفقة</label><input id="pl-min" type="number" step="1" value="0"/></div>
+      <div><label class="f">سقف العمولة للإحالة (فارغ = بلا سقف)</label><input id="pl-max" type="number" step="1"/></div>
+      <div><label class="f">مدة الأحقية (أيام)</label><input id="pl-days" type="number" step="1" value="90"/></div>
+    </div>
+    <div id="w-tiers" class="hide" style="margin-top:.8rem">
+      <label class="f">الشرائح — «حتى» فارغة تعني الشريحة المفتوحة الأعلى</label>
+      <div id="tiers"></div>
+      <button class="ghost" id="tier-add" style="margin-top:.4rem">+ شريحة</button>
+    </div>
+    <div class="row" style="margin-top:.9rem">
+      <label class="note"><input type="checkbox" id="pl-default"/> اجعله النموذج الافتراضي للحسابات الجديدة</label>
+      <label class="note"><input type="checkbox" id="pl-active" checked/> نشط</label>
+      <button id="pl-save">احفظ النموذج</button>
+      <span class="msg" id="pl-msg"></span>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function(){
+  var API='/api/requests?__route=referrals';
+  var key=localStorage.getItem('bp_admin_key')||'';
+  var D={brokers:[],referrals:[],commissions:[],payouts:[],plans:[]};
+  var STATUS={new:['جديدة','#64748b'],contacted:['تم التواصل','#1F4ED8'],qualified:['مؤهلة','#7c3aed'],proposal:['عرض سعر','#c2410c'],won:['صفقة مغلقة','#16a34a'],lost:['خسارة','#b91c1c'],duplicate:['مكررة','#b45309'],expired:['منتهية','#6b7280']};
+  var MONEY={pending:['بانتظار الاعتماد','#c2410c'],approved:['معتمدة','#1F4ED8'],paid:['مصروفة','#16a34a'],void:['ملغاة','#6b7280']};
+  var KIND={first_invoice:'أول فاتورة',recurring:'متكررة',flat:'ثابتة',tier:'شريحة',bonus:'مكافأة',adjustment:'تسوية'};
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function pill(map,k){var m=map[k]||[k,'#64748b'];return '<span class="pill" style="background:'+m[1]+'">'+esc(m[0])+'</span>';}
+  function money(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('en-US')+' ريال';}
+  function day(s){return s?String(s).slice(0,10):'—';}
+  function get(a,extra){return fetch(API+'&action='+a+'&key='+encodeURIComponent(key)+(extra||'')).then(function(r){return r.json();});}
+  function post(body){body.key=key;return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+
+  $('k').value=key;
+  $('save').onclick=function(){key=$('k').value.trim();localStorage.setItem('bp_admin_key',key);load();};
+  $('reload').onclick=load;
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(b){
+    b.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(x){x.classList.toggle('on',x===b);});
+      Array.prototype.forEach.call(document.querySelectorAll('[data-p]'),function(p){p.classList.toggle('hide',p.getAttribute('data-p')!==b.getAttribute('data-t'));});
+    };
+  });
+
+  function load(){
+    $('err').textContent='';
+    get('admin').then(function(d){
+      if(!d||!d.ok){$('err').textContent=d&&d.error==='forbidden'?'المفتاح غير صحيح.':(d&&d.message)||'تعذّر التحميل.';return;}
+      D=d;$('app').classList.remove('hide');
+      renderKpis();renderRefs();renderBrokers();renderMoney();renderPayouts();renderPlans();
+    }).catch(function(){$('err').textContent='خطأ في الاتصال.';});
+  }
+
+  function sum(list){return list.reduce(function(s,c){return s+(Number(c.amount)||0);},0);}
+  function renderKpis(){
+    var won=D.referrals.filter(function(r){return r.status==='won';});
+    var open=D.referrals.filter(function(r){return ['new','contacted','qualified','proposal'].indexOf(r.status)>=0;});
+    var pend=D.commissions.filter(function(c){return c.status==='pending';});
+    var appr=D.commissions.filter(function(c){return c.status==='approved';});
+    var paid=D.commissions.filter(function(c){return c.status==='paid';});
+    var cards=[['إحالات',D.referrals.length],['قيد العمل',open.length],['صفقات مغلقة',won.length],['سماسرة',D.brokers.length],
+      ['بانتظار الاعتماد',money(sum(pend))],['معتمدة للصرف',money(sum(appr))],['مصروفة',money(sum(paid))],
+      ['قيمة الصفقات المغلقة',money(won.reduce(function(s,r){return s+(Number(r.dealValue)||0);},0))]];
+    $('kpis').innerHTML=cards.map(function(c){return '<div class="kpi"><b>'+esc(String(c[1]))+'</b><span>'+esc(c[0])+'</span></div>';}).join('');
+  }
+
+  if(!$('f-status').dataset.filled){
+    $('f-status').innerHTML='<option value="">كل المراحل</option>'+Object.keys(STATUS).map(function(k){return '<option value="'+k+'">'+STATUS[k][0]+'</option>';}).join('');
+    $('f-status').dataset.filled='1';
+  }
+  $('f-status').onchange=renderRefs;
+  $('f-q').oninput=renderRefs;
+
+  function renderRefs(){
+    var st=$('f-status').value, q=$('f-q').value.trim().toLowerCase();
+    var rows=D.referrals.filter(function(r){
+      if(st&&r.status!==st)return false;
+      if(q&&(r.company||'').toLowerCase().indexOf(q)<0&&(r.ref||'').toLowerCase().indexOf(q)<0)return false;
+      return true;
+    });
+    $('t-refs').innerHTML=rows.map(function(r){
+      var opts=Object.keys(STATUS).map(function(k){return '<option value="'+k+'"'+(k===r.status?' selected':'')+'>'+STATUS[k][0]+'</option>';}).join('');
+      return '<tr data-id="'+esc(r.id)+'"><td><b>'+esc(r.ref)+'</b></td>'+
+        '<td>'+esc(r.company)+(r.url?'<br><a class="note" href="'+esc(r.url)+'" target="_blank" rel="noopener">الموقع</a>':'')+'</td>'+
+        '<td>'+esc(r.contact||'—')+'<br><span class="note">'+esc(r.contactEmail||r.contactPhone||'')+'</span></td>'+
+        '<td>'+esc(r.brokerName||'—')+(r.brokerId?'':'<br><span class="note">بدون حساب</span>')+'</td>'+
+        '<td>'+pill(STATUS,r.status)+'<br><select class="s-status" style="margin-top:.25rem">'+opts+'</select></td>'+
+        '<td><input class="s-deal" type="number" step="1" value="'+(Number(r.dealValue)||0)+'" style="width:110px"/></td>'+
+        '<td><button class="s-save">حفظ</button>'+(r.status==='won'?' <button class="ghost s-period" title="أضف فترة عمولة متكررة">+ فترة</button>':'')+'</td>'+
+        '<td class="note">'+day(r.createdAt)+'</td></tr>';
+    }).join('')||'<tr><td colspan="8" class="note">لا توجد إحالات مطابقة.</td></tr>';
+
+    Array.prototype.forEach.call($('t-refs').querySelectorAll('.s-save'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'referral-status',id:tr.dataset.id,status:tr.querySelector('.s-status').value,dealValue:tr.querySelector('.s-deal').value})
+          .then(function(d){
+            btn.disabled=false;
+            if(!d||!d.ok){alert((d&&d.message)||'تعذّر الحفظ.');return;}
+            if(d.commission)alert('سُجّلت عمولة بمبلغ '+money(d.commission.amount)+' بانتظار الاعتماد.');
+            load();
+          });
+      };
+    });
+    Array.prototype.forEach.call($('t-refs').querySelectorAll('.s-period'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        var period=prompt('الفترة (YYYY-MM):',new Date().toISOString().slice(0,7));
+        if(!period)return;
+        var amount=prompt('قيمة الفاتورة المدفوعة في هذه الفترة:',tr.querySelector('.s-deal').value||'0');
+        if(amount===null)return;
+        post({type:'commission-add',referralId:tr.dataset.id,period:period,amount:amount}).then(function(d){
+          if(!d||!d.ok){alert((d&&d.message)||'تعذّر التسجيل.');return;}
+          load();
+        });
+      };
+    });
+  }
+
+  function renderBrokers(){
+    $('t-brokers').innerHTML=D.brokers.map(function(b){
+      var plans=D.plans.map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===b.planId?' selected':'')+'>'+esc(p.name_ar)+'</option>';}).join('');
+      var sts=['active','pending','suspended'].map(function(s){return '<option value="'+s+'"'+(s===b.status?' selected':'')+'>'+({active:'نشط',pending:'قيد المراجعة',suspended:'موقوف'})[s]+'</option>';}).join('');
+      var mine=D.referrals.filter(function(r){return r.brokerId===b.id;}).length;
+      return '<tr data-id="'+esc(b.id)+'"><td><b>'+esc(b.name)+'</b><br><span class="note">'+mine+' إحالة · '+esc(b.kind==='company'?'منشأة':'فرد')+'</span></td>'+
+        '<td><code>'+esc(b.code)+'</code></td>'+
+        '<td class="note">'+esc(b.email)+'<br>'+esc(b.phone||'')+'</td>'+
+        '<td><select class="b-plan"><option value="">—</option>'+plans+'</select></td>'+
+        '<td><select class="b-status">'+sts+'</select></td>'+
+        '<td class="note" style="direction:ltr;text-align:left">'+esc(b.iban||'— لا يوجد')+'</td>'+
+        '<td><button class="b-save">حفظ</button></td></tr>';
+    }).join('')||'<tr><td colspan="7" class="note">لا يوجد سماسرة بعد.</td></tr>';
+    Array.prototype.forEach.call($('t-brokers').querySelectorAll('.b-save'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'broker-status',id:tr.dataset.id,status:tr.querySelector('.b-status').value,planId:tr.querySelector('.b-plan').value})
+          .then(function(d){btn.disabled=false;if(!d||!d.ok){alert((d&&d.message)||'تعذّر الحفظ.');return;}load();});
+      };
+    });
+    $('p-broker').innerHTML=D.brokers.map(function(b){return '<option value="'+esc(b.id)+'">'+esc(b.name)+' — '+esc(b.code)+'</option>';}).join('');
+    $('p-broker').onchange=renderPayable;
+  }
+
+  $('f-money').onchange=renderMoney;
+  function renderMoney(){
+    var f=$('f-money').value;
+    var rows=D.commissions.filter(function(c){return !f||c.status===f;});
+    $('t-money').innerHTML=rows.map(function(c){
+      var r=D.referrals.filter(function(x){return x.id===c.referralId;})[0]||{};
+      var act=c.status==='pending'?'<button class="ok m-do" data-do="approve">اعتماد</button> <button class="no m-do" data-do="void">إلغاء</button>'
+        :c.status==='approved'?'<button class="ghost m-do" data-do="reopen">إرجاع للمراجعة</button>'
+        :c.status==='void'?'<button class="ghost m-do" data-do="reopen">إعادة تفعيل</button>':'<span class="note">—</span>';
+      return '<tr data-id="'+esc(c.id)+'"><td><b>'+esc(r.ref||'')+'</b><br><span class="note">'+esc(r.company||'')+'</span></td>'+
+        '<td>'+esc(c.brokerName||'—')+'</td><td>'+esc(KIND[c.kind]||c.kind)+'</td><td>'+esc(c.period||'—')+'</td>'+
+        '<td>'+(c.basis?money(c.basis):'—')+'</td><td>'+(c.rate?c.rate+'%':'—')+'</td><td><b>'+money(c.amount)+'</b></td>'+
+        '<td>'+pill(MONEY,c.status)+'</td><td>'+act+'</td></tr>';
+    }).join('')||'<tr><td colspan="9" class="note">لا توجد عمولات.</td></tr>';
+    Array.prototype.forEach.call($('t-money').querySelectorAll('.m-do'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'commission-decision',id:tr.dataset.id,decision:btn.getAttribute('data-do')})
+          .then(function(d){btn.disabled=false;if(!d||!d.ok){alert((d&&d.message)||'تعذّر التنفيذ.');return;}load();});
+      };
+    });
+  }
+
+  function renderPayable(){
+    var bid=$('p-broker').value;
+    var rows=D.commissions.filter(function(c){return c.brokerId===bid&&c.status==='approved';});
+    $('t-payable').innerHTML=rows.map(function(c){
+      var r=D.referrals.filter(function(x){return x.id===c.referralId;})[0]||{};
+      return '<tr><td><input type="checkbox" class="pay" value="'+esc(c.id)+'" data-amount="'+(Number(c.amount)||0)+'" checked/></td>'+
+        '<td><b>'+esc(r.ref||'')+'</b> '+esc(r.company||'')+'</td><td>'+esc(KIND[c.kind]||c.kind)+'</td><td>'+esc(c.period||'—')+'</td><td><b>'+money(c.amount)+'</b></td></tr>';
+    }).join('')||'<tr><td colspan="5" class="note">لا توجد عمولات معتمدة لهذا السمسار.</td></tr>';
+    Array.prototype.forEach.call($('t-payable').querySelectorAll('.pay'),function(c){c.onchange=total;});
+    total();
+  }
+  function total(){
+    var s=0;
+    Array.prototype.forEach.call(document.querySelectorAll('.pay:checked'),function(c){s+=Number(c.getAttribute('data-amount'))||0;});
+    $('p-total').textContent='الإجمالي المحدد: '+money(s);
+  }
+  $('p-go').onclick=function(){
+    var ids=Array.prototype.map.call(document.querySelectorAll('.pay:checked'),function(c){return c.value;});
+    if(!ids.length){$('p-msg').textContent='حدّد عمولة واحدة على الأقل.';return;}
+    $('p-go').disabled=true;
+    post({type:'payout',brokerId:$('p-broker').value,ids:ids,reference:$('p-ref').value.trim(),status:$('p-status').value})
+      .then(function(d){
+        $('p-go').disabled=false;
+        if(!d||!d.ok){$('p-msg').style.color='var(--red)';$('p-msg').textContent=(d&&d.message)||'تعذّر التسجيل.';return;}
+        $('p-msg').style.color='var(--green)';
+        $('p-msg').textContent='سُجّل صرف '+money(d.amount)+' عن '+d.count+' عمولة.';
+        $('p-ref').value='';
+        load();
+      });
+  };
+  function renderPayouts(){
+    $('t-payouts').innerHTML=D.payouts.map(function(p){
+      return '<tr><td>'+day(p.paidAt||p.createdAt)+'</td><td>'+esc(p.brokerName||'')+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.reference||'—')+'</td><td>'+pill(MONEY,p.status==='paid'?'paid':'approved')+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" class="note">لا توجد عمليات صرف.</td></tr>';
+    renderPayable();
+  }
+
+  /* ------------------------------------------------------------- plans -- */
+  function tierRow(t){
+    var d=document.createElement('div');
+    d.className='row';
+    d.style.marginBottom='.35rem';
+    d.innerHTML='<input class="t-upto" type="number" step="1" placeholder="حتى (فارغ = الأعلى)" value="'+(t&&t.upTo!=null?t.upTo:'')+'" style="width:180px"/>'+
+      '<input class="t-rate" type="number" step="0.1" placeholder="النسبة ٪" value="'+(t?t.rate:'')+'" style="width:120px"/>'+
+      '<button class="ghost t-del">حذف</button>';
+    d.querySelector('.t-del').onclick=function(){d.remove();};
+    return d;
+  }
+  $('tier-add').onclick=function(){$('tiers').appendChild(tierRow(null));};
+  $('pl-model').onchange=function(){
+    var m=this.value;
+    $('w-rate').classList.toggle('hide',m==='flat'||m==='tiered');
+    $('w-flat').classList.toggle('hide',m!=='flat');
+    $('w-months').classList.toggle('hide',m!=='recurring_pct');
+    $('w-tiers').classList.toggle('hide',m!=='tiered');
+  };
+  function renderPlans(){
+    $('t-plans').innerHTML=D.plans.map(function(p){
+      return '<tr><td><code>'+esc(p.key)+'</code></td><td>'+esc(p.name_ar)+'</td><td class="note">'+esc(p.model)+'</td>'+
+        '<td class="note">'+esc(p.sentenceAr||'')+'</td><td>'+(p.is_default?'✅':'')+'</td><td>'+(p.active?'✅':'—')+'</td>'+
+        '<td><button class="ghost pl-edit" data-key="'+esc(p.key)+'">تعديل</button></td></tr>';
+    }).join('')||'<tr><td colspan="7" class="note">لا توجد نماذج — أضف واحداً بالأسفل.</td></tr>';
+    Array.prototype.forEach.call($('t-plans').querySelectorAll('.pl-edit'),function(btn){
+      btn.onclick=function(){
+        var p=D.plans.filter(function(x){return x.key===btn.getAttribute('data-key');})[0];
+        if(!p)return;
+        $('pl-key').value=p.key;$('pl-name-ar').value=p.name_ar||'';$('pl-name-en').value=p.name_en||'';
+        $('pl-model').value=p.model;$('pl-rate').value=p.rate;$('pl-flat').value=p.flat_amount;
+        $('pl-months').value=p.recurring_months;$('pl-bonus').value=p.bonus_flat;$('pl-min').value=p.min_deal_value;
+        $('pl-max').value=p.max_amount==null?'':p.max_amount;$('pl-days').value=p.attribution_days;
+        $('pl-default').checked=!!p.is_default;$('pl-active').checked=!!p.active;
+        $('tiers').innerHTML='';
+        (p.tiers||[]).forEach(function(t){$('tiers').appendChild(tierRow(t));});
+        $('pl-model').onchange();
+        window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+      };
+    });
+  }
+  $('pl-save').onclick=function(){
+    var tiers=Array.prototype.map.call($('tiers').children,function(d){
+      var up=d.querySelector('.t-upto').value.trim();
+      return {upTo:up===''?null:Number(up),rate:Number(d.querySelector('.t-rate').value)||0};
+    });
+    $('pl-save').disabled=true;
+    post({type:'plan-save',planKey:$('pl-key').value.trim(),nameAr:$('pl-name-ar').value.trim(),nameEn:$('pl-name-en').value.trim(),
+      model:$('pl-model').value,rate:$('pl-rate').value,flatAmount:$('pl-flat').value,recurringMonths:$('pl-months').value,
+      bonusFlat:$('pl-bonus').value,minDealValue:$('pl-min').value,maxAmount:$('pl-max').value,attributionDays:$('pl-days').value,
+      tiers:tiers,isDefault:$('pl-default').checked,active:$('pl-active').checked})
+      .then(function(d){
+        $('pl-save').disabled=false;
+        $('pl-msg').style.color=d&&d.ok?'var(--green)':'var(--red)';
+        $('pl-msg').textContent=d&&d.ok?'تم الحفظ.':((d&&d.message)||'تعذّر الحفظ.');
+        if(d&&d.ok)load();
+      });
+  };
+
+  if(key)load();
+})();
+</script>
+</body></html>

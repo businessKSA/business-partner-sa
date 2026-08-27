@@ -10708,6 +10708,405 @@ if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "
 let pageCount = 0;
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
+/* ============================================================================
+   برنامج السماسرة والإحالات — Brokers & Referrals
+   Three public surfaces over api/_referrals.js:
+     /brokers        — what the programme pays and how it works
+     /referral       — the referral form itself (with or without an account)
+     /broker-portal  — the broker's own panel: link, pipeline, commissions
+   The owner's panel is /brokers-admin, built standalone further down.
+   Behaviour lives in site/assets/js/main.js (#rf-form and #bp-portal), the
+   same split every other portal page on this site uses.
+   ========================================================================== */
+
+// The commission ladder shown on /brokers. These are the seeded plans in
+// db/schema.sql — the page also fetches the live table on load, so an owner
+// who edits a rate in the panel sees it here without a deploy; this copy is
+// what a visitor with a blocked API call still reads.
+const COMMISSION_MODELS_COPY = [
+  {
+    icon: "💸", en: "% of the first invoice", ar: "نسبة من أول فاتورة",
+    enDesc: "The simplest model: a share of what the referred client pays on their first invoice, once it clears.",
+    arDesc: "الأبسط: نسبة من قيمة أول فاتورة يسددها العميل المُحال، تُستحق بمجرد تحصيلها.",
+  },
+  {
+    icon: "🔁", en: "Recurring % for the life of the subscription", ar: "نسبة متكررة طوال الاشتراك",
+    enDesc: "A smaller share of every paid invoice, for as long as the client stays with us. It rewards quality, not volume.",
+    arDesc: "نسبة أقل من كل فاتورة مدفوعة ما دام العميل معنا. تكافئ جودة العميل لا عدد الإحالات.",
+  },
+  {
+    icon: "🎯", en: "A flat amount per closed deal", ar: "مبلغ ثابت لكل صفقة",
+    enDesc: "One fixed amount when the deal closes, whatever its size — the easiest to explain and to audit.",
+    arDesc: "مبلغ واحد عند إغلاق الصفقة مهما كان حجمها — الأسهل شرحاً والأسهل تدقيقاً.",
+  },
+  {
+    icon: "📈", en: "Tiered by deal size", ar: "شرائح حسب حجم الصفقة",
+    enDesc: "The bigger the deal you bring, the higher your rate — the ladder is published in your portal.",
+    arDesc: "كلما كبرت الصفقة ارتفعت نسبتك — وسُلّم الشرائح معروض في بوابتك.",
+  },
+];
+
+const REFERRAL_SERVICES = [
+  ["Government platform management (Qiwa, GOSI, Muqeem, Mudad)", "إدارة المنصات الحكومية (قوى، التأمينات، مقيم، مدد)"],
+  ["Company formation & licensing", "التأسيس والتراخيص"],
+  ["Recruitment & hiring", "التوظيف والاستقدام"],
+  ["Payroll & compliance", "الرواتب والامتثال"],
+  ["Accounting, VAT & ZATCA", "المحاسبة والضريبة والفوترة"],
+  ["Something else — advise them", "شيء آخر — قدّموا لهم المشورة"],
+];
+
+const COMPANY_SIZES = [
+  ["1-10 employees", "١–١٠ موظفين"],
+  ["11-50 employees", "١١–٥٠ موظفاً"],
+  ["51-100 employees", "٥١–١٠٠ موظف"],
+  ["100-500 employees", "١٠٠–٥٠٠ موظف"],
+  ["More than 500 employees", "أكثر من ٥٠٠ موظف"],
+];
+
+const REFERRAL_RELATIONSHIPS = [
+  ["A personal relationship / a friend", "علاقة شخصية / صديق"],
+  ["A current or former client of mine", "عميل حالي أو سابق لي"],
+  ["A former colleague or employer", "زميل عمل أو جهة عملت بها"],
+  ["Professional network / an event", "شبكة مهنية أو فعالية"],
+  ["Other", "أخرى"],
+];
+
+/* ------------------------------------------------------- /brokers landing -- */
+function buildBrokerProgram() {
+  const step = (n, t, d) => `<div class="dash-card" style="text-align:center">
+    <div style="width:44px;height:44px;border-radius:50%;background:#EEF2FF;color:#0B1B5A;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">${n}</div>
+    <h3 style="margin:0 0 8px;font-size:1.05rem">${t}</h3><p class="emp-note" style="margin:0">${d}</p></div>`;
+
+  const body = `
+  <section class="hero"><div class="container hero-inner" style="max-width:820px;text-align:center">
+    <span class="eyebrow">${L("Referral programme", "برنامج السماسرة والإحالات")}</span>
+    <h1>${L("You know the company. We do the paperwork. You take a commission.", "أنت تعرف الشركة، ونحن ننجز الإجراءات، ولك عمولتك.")}</h1>
+    <p class="lead">${L("Refer any company that needs government platform management, formation, hiring or compliance — and earn a commission the moment they become a paying client. Every stage is visible to you, and every riyal is on a ledger you can read.", "أحِل إلينا أي منشأة تحتاج إدارة منصات حكومية أو تأسيساً أو توظيفاً أو امتثالاً — واكسب عمولتك بمجرد أن تصبح عميلاً يدفع. كل مرحلة ظاهرة أمامك، وكل ريال مسجَّل في كشف تقرأه بنفسك.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/referral")}">${L("Refer a company now", "أحِل شركة الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/broker-portal")}">${L("Open the broker portal", "بوابة السماسرة")}</a>
+    </div>
+    <p class="emp-note" style="margin-top:14px">${L("Free to join · No targets · No exclusivity", "الانضمام مجاني · بلا مستهدفات · بلا حصرية")}</p>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف يعمل")}</span><h2>${L("Four steps, and you can watch all of them", "أربع خطوات، وكلها مرئية أمامك")}</h2></div>
+    <div class="grid grid-4" style="gap:18px">
+      ${step(1, L("Create your account", "أنشئ حسابك"), L("A minute, an e-mail address, and you get your own referral code and link.", "دقيقة وبريد إلكتروني، وتحصل على كود ورابط إحالة خاصين بك."))}
+      ${step(2, L("Send us the company", "أرسل لنا الشركة"), L("Fill the referral form — or just share your link and let them fill it.", "املأ نموذج الإحالة — أو شارك رابطك ودعهم يملأونه."))}
+      ${step(3, L("We take it from there", "نتولى نحن الباقي"), L("Our team contacts them within two working days. You see every stage move in your portal.", "يتواصل فريقنا معهم خلال يومي عمل، وترى كل انتقال في بوابتك."))}
+      ${step(4, L("You get paid", "تستلم عمولتك"), L("The deal closes, the commission is calculated on your agreed model and transferred to your IBAN.", "تُغلق الصفقة، وتُحتسب العمولة على النموذج المتفق عليه وتُحوَّل إلى آيبانك."))}
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Commission models", "نماذج العمولة")}</span>
+      <h2>${L("Four ways to be paid — your account is set to one of them", "أربع طرق للاحتساب — وحسابك مضبوط على واحدة منها")}</h2>
+      <p>${L("Whatever model applies to you is locked onto every referral the moment you send it. A rate change later never rewrites a commission you had already earned.", "أي نموذج ينطبق عليك يُثبَّت على الإحالة لحظة إرسالها. أي تعديل لاحق على النسب لا يمس عمولة استحققتها من قبل.")}</p>
+    </div>
+    <div class="grid grid-2" style="gap:18px" id="bp-plans">
+      ${COMMISSION_MODELS_COPY.map((m) => `<div class="dash-card">
+        <div style="font-size:1.6rem;margin-bottom:8px">${m.icon}</div>
+        <h3 style="margin:0 0 6px;font-size:1.05rem">${L(m.en, m.ar)}</h3>
+        <p class="emp-note" style="margin:0">${L(m.enDesc, m.arDesc)}</p></div>`).join("")}
+    </div>
+    <p class="emp-note" style="text-align:center;margin-top:18px" id="bp-plans-live" hidden></p>
+  </div></section>
+
+  <section class="section" id="rules"><div class="container" style="max-width:820px">
+    <div class="section-head"><span class="eyebrow">${L("The rules, in plain words", "القواعد بلا لبس")}</span><h2>${L("What counts, and what doesn't", "ما الذي يُحتسب وما الذي لا يُحتسب")}</h2></div>
+    <div class="dash-card">
+      <ul style="line-height:2;margin:0;padding-inline-start:20px">
+        <li>${L("<b>First valid referral wins.</b> If a company was already referred, or is already a client or an open lead of ours, a later referral of it earns nothing — and we tell you straight away.", "<b>أول إحالة صحيحة هي المعتمدة.</b> إذا كانت الشركة مُحالة مسبقاً أو عميلاً حالياً أو فرصة مفتوحة لدينا، فالإحالة اللاحقة لا تُحتسب — ونخبرك بذلك فوراً.")}</li>
+        <li>${L("<b>Attribution lasts 90 days by default.</b> If the company doesn't sign within the window, the referral expires — you can always refer them again afterwards.", "<b>مدة الأحقية ٩٠ يوماً افتراضياً.</b> إن لم تتعاقد الشركة خلالها انتهت الإحالة — ويمكنك إحالتها من جديد بعد ذلك.")}</li>
+        <li>${L("<b>Commission is earned on collection, not on signature.</b> It is calculated once the client actually pays, which is also when we can pay you.", "<b>العمولة تُستحق بالتحصيل لا بالتوقيع.</b> تُحتسب عندما يسدد العميل فعلياً، وعندها نستطيع صرفها لك.")}</li>
+        <li>${L("<b>You represent yourself, not us.</b> Don't promise prices, timelines or approvals on our behalf — send them to us and we'll quote properly.", "<b>أنت تمثّل نفسك لا تمثّلنا.</b> لا تَعِد بأسعار أو مدد أو موافقات نيابة عنا — أرسلهم إلينا ونحن نقدّم العرض الصحيح.")}</li>
+        <li>${L("<b>Referral, not spam.</b> Refer companies you actually know or have a real reason to introduce. Bulk-scraped lists are rejected and repeat offences close the account.", "<b>إحالة لا إزعاج.</b> أحِل شركات تعرفها فعلاً أو لديك سبب حقيقي لتقديمها. القوائم المسحوبة آلياً تُرفض، وتكرارها يغلق الحساب.")}</li>
+        <li>${L("<b>A payout needs a valid Saudi IBAN in your own name</b> (or your company's), plus your ID number for the transfer voucher.", "<b>الصرف يحتاج آيباناً سعودياً صحيحاً باسمك</b> (أو باسم منشأتك) ورقم هويتك لسند الصرف.")}</li>
+      </ul>
+    </div>
+    <div style="text-align:center;margin-top:26px">
+      <a class="btn btn-primary btn-lg" href="${u("/broker-portal")}">${L("Create your broker account", "أنشئ حساب السمسار")}</a>
+      <p class="emp-note" style="margin-top:10px">${L("Already have one?", "لديك حساب؟")} <a href="${u("/broker-portal")}">${L("Sign in", "سجّل الدخول")}</a> · ${L("Just want to refer one company?", "تبي تحيل شركة واحدة فقط؟")} <a href="${u("/referral")}">${L("Use the form", "استخدم النموذج")}</a></p>
+    </div>
+  </div></section>`;
+
+  return page({
+    title: Lraw("Referral & broker programme — Business Partner", "برنامج السماسرة والإحالات — بيزنس بارتنر"),
+    desc: Lraw("Refer a company to Business Partner and earn a commission when they become a client. Four commission models, a transparent pipeline and a ledger you can read.", "أحِل شركة إلى بيزنس بارتنر واكسب عمولة عندما تصبح عميلاً. أربعة نماذج للعمولة، ومسار واضح، وكشف عمولات تقرأه بنفسك."),
+    active: "/brokers", path: "/brokers", body,
+  });
+}
+
+/* --------------------------------------------------- /referral — the form -- */
+function buildReferralForm() {
+  const fld = (id, label, opts = {}) => `<div class="field">
+    <label for="${id}">${label}${opts.req ? ' <span style="color:#B91C1C">*</span>' : ""}</label>
+    ${opts.textarea
+      ? `<textarea id="${id}" rows="${opts.rows || 4}" placeholder="${opts.ph || ""}"${opts.req ? " required" : ""}></textarea>`
+      : opts.select
+        ? `<select id="${id}"${opts.req ? " required" : ""}><option value="">${Lraw("Choose", "اختر")}</option>${opts.select.map((o) => `<option value="${esc(Lraw(o[0], o[1]))}">${esc(Lraw(o[0], o[1]))}</option>`).join("")}</select>`
+        : `<input id="${id}" type="${opts.type || "text"}" placeholder="${opts.ph || ""}"${opts.req ? " required" : ""}${opts.auto ? ` autocomplete="${opts.auto}"` : ""}>`}
+  </div>`;
+
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:720px">
+    <span class="eyebrow">${L("Referral form", "نموذج الإحالة")}</span>
+    <h1>${L("Refer a company to Business Partner", "أحِل شركة إلى بيزنس بارتنر")}</h1>
+    <p class="lead">${L("Tell us who they are and why they need us. We contact them within two working days, and you can follow every stage — and your commission — in the broker portal.", "أخبرنا من هم ولماذا يحتاجوننا. نتواصل معهم خلال يومي عمل، وتقدر تتابع كل مرحلة — وعمولتك — من بوابة السماسرة.")}</p>
+    <p class="emp-note" id="rf-welcome" hidden style="background:#EEF2FF;border-radius:12px;padding:10px 14px;display:inline-block"></p>
+  </div></section>
+
+  <section class="section"><div class="container" style="max-width:820px">
+    <form id="rf-form" novalidate>
+      <div class="section-head" style="text-align:start;margin-bottom:14px"><h2 style="font-size:1.2rem">${L("Your details", "تفاصيل المُحيل")}</h2>
+        <p class="emp-note" style="margin:0">${L("So we know who to credit — and who to pay.", "لنعرف لمن تُنسب الإحالة، ولمن تُصرف العمولة.")}</p></div>
+      <div class="dash-card">
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-name", L("Full name", "الاسم الكامل"), { req: true, auto: "name" })}
+          ${fld("rf-email", L("E-mail address", "عنوان البريد الإلكتروني"), { req: true, type: "email", auto: "email" })}
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-phone", L("Mobile number", "رقم الجوال"), { req: true, type: "tel", ph: "05XXXXXXXX", auto: "tel" })}
+          ${fld("rf-landline", L("Landline (optional)", "رقم الهاتف الثابت (اختياري)"), { type: "tel" })}
+        </div>
+        ${fld("rf-city", L("City", "المدينة"), { req: true, ph: Lraw("Riyadh, Saudi Arabia", "الرياض، السعودية") })}
+      </div>
+
+      <div class="section-head" style="text-align:start;margin:28px 0 14px"><h2 style="font-size:1.2rem">${L("The referred company", "تفاصيل الشركة المُحال إليها")}</h2>
+        <p class="emp-note" style="margin:0">${L("The more precise this is, the faster we reach the right person.", "كلما دقّت هذه البيانات وصلنا للشخص الصحيح أسرع.")}</p></div>
+      <div class="dash-card">
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-company", L("Company name", "اسم الشركة"), { req: true, auto: "organization" })}
+          ${fld("rf-url", L("Company website / social link", "رابط موقع الشركة أو وسائل التواصل"), { req: true, ph: "https://" })}
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-contact", L("Contact person at the company", "اسم شخص الاتصال في الشركة"), { req: true })}
+          ${fld("rf-title", L("Their job title", "المسمى الوظيفي لشخص الاتصال"), { req: true, ph: Lraw("CEO, HR Manager, Owner…", "الرئيس التنفيذي، مدير الموارد البشرية، المالك…") })}
+        </div>
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-contact-email", L("Their e-mail", "البريد الإلكتروني لشخص الاتصال"), { type: "email" })}
+          ${fld("rf-contact-phone", L("Their mobile", "رقم جوال شخص الاتصال"), { type: "tel", ph: "05XXXXXXXX" })}
+        </div>
+        <p class="emp-note" style="margin:-6px 0 14px">${L("Give us at least one of the two — we can't introduce ourselves to a company we can't reach.", "أعطنا واحداً منهما على الأقل — لا نستطيع تقديم أنفسنا لشركة لا نصل إليها.")}</p>
+        <div class="grid grid-2" style="gap:0 20px">
+          ${fld("rf-contact-landline", L("Their landline (optional)", "الهاتف الثابت لشخص الاتصال (اختياري)"), { type: "tel" })}
+          ${fld("rf-size", L("Company size (employees)", "حجم الشركة (عدد الموظفين)"), { req: true, select: COMPANY_SIZES })}
+        </div>
+
+        <div class="field">
+          <label>${L("How do you know this company?", "كيف تعرف هذه الشركة؟")} <span style="color:#B91C1C">*</span></label>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${REFERRAL_RELATIONSHIPS.map((r, i) => `<label style="display:flex;align-items:center;gap:10px;font-weight:400;cursor:pointer">
+              <input type="radio" name="rf-rel" value="${esc(Lraw(r[0], r[1]))}"${i === 0 ? " checked" : ""} style="width:auto;margin:0">
+              <span>${L(r[0], r[1])}</span></label>`).join("")}
+          </div>
+        </div>
+
+        <div class="field">
+          <label>${L("What might they need from us?", "ما الذي قد يحتاجونه منا؟")}</label>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            ${REFERRAL_SERVICES.map((s, i) => `<label style="display:flex;align-items:center;gap:8px;font-weight:400;cursor:pointer;background:#F5F6FA;border-radius:10px;padding:8px 12px">
+              <input type="checkbox" class="rf-svc" value="${esc(Lraw(s[0], s[1]))}" id="rf-svc-${i}" style="width:auto;margin:0">
+              <span>${L(s[0], s[1])}</span></label>`).join("")}
+          </div>
+        </div>
+
+        ${fld("rf-why", L("Why do you think this company needs our solutions?", "لماذا تعتقد أن هذه الشركة بحاجة إلى حلولنا؟"), { req: true, textarea: true, rows: 4, ph: Lraw("e.g. they're opening a branch and have no one handling Qiwa and GOSI.", "مثال: يفتحون فرعاً جديداً وليس لديهم من يدير قوى والتأمينات.") })}
+      </div>
+
+      <label style="display:flex;gap:10px;align-items:flex-start;margin:18px 2px;font-weight:400;cursor:pointer">
+        <input type="checkbox" id="rf-consent" style="width:auto;margin-top:5px" required>
+        <span class="emp-note" style="margin:0">${L("I actually know this company or have a genuine reason to introduce them, and I accept the referral programme rules.", "أُقرّ بأنني أعرف هذه الشركة فعلاً أو لدي سبب حقيقي لتقديمها، وأوافق على قواعد برنامج الإحالة.")} <a href="${u("/brokers")}#rules" target="_blank">${L("Read the rules", "اقرأ القواعد")}</a></span>
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="rf-submit">${L("Send the referral", "أرسل الإحالة")}</button>
+      <p class="emp-note" id="rf-msg" style="text-align:center;min-height:20px;margin-top:12px"></p>
+    </form>
+
+    <div id="rf-done" hidden class="dash-card" style="text-align:center;padding:34px">
+      <div style="font-size:2.4rem">✅</div>
+      <h2 style="margin:10px 0 6px">${L("Referral received", "استلمنا إحالتك")}</h2>
+      <p class="emp-note" id="rf-done-msg" style="margin:0 0 6px"></p>
+      <p style="font-size:1.3rem;font-weight:700;letter-spacing:1px;color:#0B1B5A" id="rf-done-ref"></p>
+      <p class="emp-note" id="rf-done-plan" style="margin:0 0 18px"></p>
+      <a class="btn btn-primary" href="${u("/broker-portal")}">${L("Follow it in the broker portal", "تابعها من بوابة السماسرة")}</a>
+      <p style="margin-top:14px"><a href="#" id="rf-again">${L("Refer another company", "أحِل شركة أخرى")}</a></p>
+    </div>
+  </div></section>`;
+
+  return page({
+    title: Lraw("Refer a company — Business Partner", "أحِل شركة — بيزنس بارتنر"),
+    desc: Lraw("Refer a company that needs government platform management, formation, hiring or compliance, and earn a commission when they become a client.", "أحِل شركة تحتاج إدارة منصات حكومية أو تأسيساً أو توظيفاً أو امتثالاً، واكسب عمولة عندما تصبح عميلاً."),
+    active: "/brokers", path: "/referral", body,
+  });
+}
+
+/* ------------------------------------------- /broker-portal — the panel --- */
+function buildBrokerPortal() {
+  const stat = (id, label) => `<div class="dash-card" style="text-align:center;padding:16px">
+    <div style="font-size:1.5rem;font-weight:700;color:#0B1B5A" id="${id}">—</div>
+    <div class="emp-note" style="margin:4px 0 0">${label}</div></div>`;
+
+  const body = `
+  <section class="hero hero--sm"><div class="container hero-inner" style="max-width:640px">
+    <span class="eyebrow">${L("Broker portal", "بوابة السماسرة")}</span>
+    <h1 id="bp-title">${L("Your referrals and your commissions", "إحالاتك وعمولاتك")}</h1>
+    <p class="lead" id="bp-sub">${L("Sign in — or create an account in a minute and get your referral link straight away.", "سجّل الدخول — أو أنشئ حساباً خلال دقيقة واحصل على رابط إحالتك فوراً.")}</p>
+  </div></section>
+
+  <section class="section"><div class="container" id="bp-portal" style="max-width:1040px">
+    <!-- ---------------------------------------------------------- sign in -->
+    <div id="bp-auth" style="max-width:440px;margin:0 auto">
+      <div class="auth-tabs">
+        <button type="button" id="bp-tab-in" class="is-active">${L("Sign in", "تسجيل الدخول")}</button>
+        <button type="button" id="bp-tab-up">${L("Create an account", "إنشاء حساب")}</button>
+      </div>
+      <form id="bp-auth-form" novalidate>
+        <div class="field" id="bp-f-name" hidden><label for="bp-name">${L("Full name", "الاسم الكامل")}</label><input id="bp-name" type="text" autocomplete="name"></div>
+        <div class="field"><label for="bp-email">${L("E-mail", "البريد الإلكتروني")}</label><input id="bp-email" type="email" required autocomplete="email"></div>
+        <div class="field" id="bp-f-phone" hidden><label for="bp-phone">${L("Mobile", "رقم الجوال")}</label><input id="bp-phone" type="tel" placeholder="05XXXXXXXX" autocomplete="tel"></div>
+        <div class="field" id="bp-f-city" hidden><label for="bp-city">${L("City", "المدينة")}</label><input id="bp-city" type="text"></div>
+        <div class="field" id="bp-f-pass"><label for="bp-password">${L("Password", "كلمة المرور")}</label><input id="bp-password" type="password" autocomplete="current-password"></div>
+        <div class="field" id="bp-f-code" hidden><label for="bp-code">${L("Access code", "رمز الوصول")}</label><input id="bp-code" type="text" placeholder="BP-BK-XXXXXXXXXX" style="text-align:center;letter-spacing:1px"></div>
+        <div class="field" id="bp-f-otp" hidden><label for="bp-otp">${L("Code sent to your e-mail", "الرمز المرسل إلى بريدك")}</label><input id="bp-otp" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;letter-spacing:8px;font-size:1.3rem;font-weight:700" autocomplete="one-time-code"></div>
+        <label id="bp-f-agree" hidden style="display:flex;gap:10px;align-items:flex-start;margin:6px 2px 14px;font-weight:400;cursor:pointer">
+          <input type="checkbox" id="bp-agree" style="width:auto;margin-top:5px">
+          <span class="emp-note" style="margin:0">${L("I accept the referral programme rules.", "أوافق على قواعد برنامج الإحالة.")} <a href="${u("/brokers")}" target="_blank">${L("Read them", "اقرأها")}</a></span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="bp-auth-btn">${L("Sign in", "دخول")}</button>
+        <p class="emp-note" id="bp-auth-msg" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
+      </form>
+      <p class="emp-note" style="text-align:center;margin-top:2px">
+        <a href="#" id="bp-use-email">${L("Forgot your password? E-mail me a code", "نسيت كلمة المرور؟ أرسل رمزاً إلى بريدي")}</a> ·
+        <a href="#" id="bp-use-code">${L("Use an access code", "استخدم رمز وصول")}</a></p>
+    </div>
+
+    <!-- ------------------------------------------------------------- app -->
+    <div id="bp-app" hidden>
+      <div class="dash-card" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:1.15rem" id="bp-hello"></h2>
+          <p class="emp-note" style="margin:0" id="bp-plan"></p>
+        </div>
+        <button type="button" class="btn btn-ghost" id="bp-logout">${L("Sign out", "خروج")}</button>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <label class="emp-note" style="display:block;margin-bottom:6px">${L("Your referral link — anyone who opens it lands on the form already attributed to you", "رابط الإحالة الخاص بك — كل من يفتحه تُنسب إحالته إليك")}</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="bp-link" type="text" readonly style="flex:1;min-width:240px;direction:ltr;text-align:left">
+          <button type="button" class="btn btn-primary" id="bp-copy">${L("Copy", "نسخ")}</button>
+          <a class="btn btn-ghost" id="bp-share" href="#" target="_blank" rel="noopener">${L("Share on WhatsApp", "شارك عبر واتساب")}</a>
+        </div>
+      </div>
+
+      <div class="grid grid-4" style="gap:14px;margin-bottom:20px">
+        ${stat("bp-s-total", L("Referrals", "إحالات"))}
+        ${stat("bp-s-won", L("Closed deals", "صفقات مغلقة"))}
+        ${stat("bp-s-pending", L("Awaiting approval", "بانتظار الاعتماد"))}
+        ${stat("bp-s-paid", L("Paid to you", "مصروفة لك"))}
+      </div>
+
+      <div class="auth-tabs" style="margin-bottom:16px">
+        <button type="button" class="bp-tab is-active" data-tab="refs">${L("My referrals", "إحالاتي")}</button>
+        <button type="button" class="bp-tab" data-tab="new">${L("New referral", "إحالة جديدة")}</button>
+        <button type="button" class="bp-tab" data-tab="money">${L("Commissions", "العمولات")}</button>
+        <button type="button" class="bp-tab" data-tab="profile">${L("Payout details", "بيانات الصرف")}</button>
+      </div>
+
+      <div class="bp-pane" data-pane="refs">
+        <div class="dash-card" style="overflow-x:auto"><table class="mini-table" id="bp-refs"><thead><tr>
+          <th>${L("Reference", "المرجع")}</th><th>${L("Company", "الشركة")}</th><th>${L("Stage", "المرحلة")}</th>
+          <th>${L("Deal value", "قيمة الصفقة")}</th><th>${L("Your commission", "عمولتك")}</th><th>${L("Sent", "أُرسلت")}</th>
+        </tr></thead><tbody></tbody></table>
+        <p class="emp-note" id="bp-refs-empty" hidden style="text-align:center;padding:20px 0">${L("No referrals yet — send your first one from the tab above.", "لا توجد إحالات بعد — أرسل أول إحالة من التبويب أعلاه.")}</p></div>
+      </div>
+
+      <div class="bp-pane" data-pane="new" hidden>
+        <div class="dash-card">
+          <p class="emp-note" style="margin-top:0">${L("The short version of the public form — your own details are already known.", "النسخة المختصرة من النموذج العام — بياناتك معروفة لدينا أصلاً.")}</p>
+          <form id="bp-new-form" novalidate>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-n-company">${L("Company name", "اسم الشركة")} *</label><input id="bp-n-company" type="text" required></div>
+              <div class="field"><label for="bp-n-url">${L("Website / social link", "الموقع أو رابط التواصل")}</label><input id="bp-n-url" type="text" placeholder="https://"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-n-contact">${L("Contact person", "شخص الاتصال")}</label><input id="bp-n-contact" type="text"></div>
+              <div class="field"><label for="bp-n-title">${L("Job title", "المسمى الوظيفي")}</label><input id="bp-n-title" type="text"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-n-email">${L("Their e-mail", "بريدهم الإلكتروني")}</label><input id="bp-n-email" type="email"></div>
+              <div class="field"><label for="bp-n-phone">${L("Their mobile", "جوالهم")}</label><input id="bp-n-phone" type="tel" placeholder="05XXXXXXXX"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-n-size">${L("Company size", "حجم الشركة")}</label><select id="bp-n-size"><option value="">${L("Choose", "اختر")}</option>${COMPANY_SIZES.map((s) => `<option value="${esc(Lraw(s[0], s[1]))}">${esc(Lraw(s[0], s[1]))}</option>`).join("")}</select></div>
+              <div class="field"><label for="bp-n-rel">${L("How do you know them?", "كيف تعرفهم؟")}</label><select id="bp-n-rel">${REFERRAL_RELATIONSHIPS.map((r) => `<option value="${esc(Lraw(r[0], r[1]))}">${esc(Lraw(r[0], r[1]))}</option>`).join("")}</select></div>
+            </div>
+            <div class="field"><label for="bp-n-why">${L("Why do they need us?", "لماذا يحتاجوننا؟")} *</label><textarea id="bp-n-why" rows="3" required></textarea></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="bp-n-submit">${L("Send the referral", "أرسل الإحالة")}</button>
+            <p class="emp-note" id="bp-n-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+          </form>
+        </div>
+      </div>
+
+      <div class="bp-pane" data-pane="money" hidden>
+        <div class="dash-card" style="overflow-x:auto">
+          <table class="mini-table" id="bp-comms"><thead><tr>
+            <th>${L("Referral", "الإحالة")}</th><th>${L("Type", "النوع")}</th><th>${L("Period", "الفترة")}</th>
+            <th>${L("Basis", "الأساس")}</th><th>${L("Rate", "النسبة")}</th><th>${L("Amount", "المبلغ")}</th><th>${L("Status", "الحالة")}</th>
+          </tr></thead><tbody></tbody></table>
+          <p class="emp-note" id="bp-comms-empty" hidden style="text-align:center;padding:20px 0">${L("Nothing earned yet. A commission appears here the moment a referral of yours closes.", "لا توجد عمولات بعد. تظهر العمولة هنا لحظة إغلاق إحدى إحالاتك.")}</p>
+        </div>
+        <div class="dash-card" style="margin-top:16px;overflow-x:auto">
+          <h3 style="margin:0 0 10px;font-size:1rem">${L("Payouts", "عمليات الصرف")}</h3>
+          <table class="mini-table" id="bp-payouts"><thead><tr>
+            <th>${L("Date", "التاريخ")}</th><th>${L("Amount", "المبلغ")}</th><th>${L("Reference", "مرجع التحويل")}</th><th>${L("Status", "الحالة")}</th>
+          </tr></thead><tbody></tbody></table>
+          <p class="emp-note" id="bp-payouts-empty" hidden style="text-align:center;padding:14px 0">${L("No payout has been made yet.", "لم يتم أي صرف بعد.")}</p>
+        </div>
+      </div>
+
+      <div class="bp-pane" data-pane="profile" hidden>
+        <div class="dash-card">
+          <p class="emp-note" style="margin-top:0">${L("We can only transfer a commission to a Saudi IBAN in your own name — or your company's, if you're referring as a business.", "لا نستطيع تحويل العمولة إلا إلى آيبان سعودي باسمك — أو باسم منشأتك إن كنت تُحيل كمنشأة.")}</p>
+          <form id="bp-profile-form" novalidate>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-p-name">${L("Full name", "الاسم الكامل")}</label><input id="bp-p-name" type="text"></div>
+              <div class="field"><label for="bp-p-phone">${L("Mobile", "الجوال")}</label><input id="bp-p-phone" type="tel"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-p-city">${L("City", "المدينة")}</label><input id="bp-p-city" type="text"></div>
+              <div class="field"><label for="bp-p-kind">${L("Referring as", "تُحيل بصفتك")}</label>
+                <select id="bp-p-kind"><option value="individual">${L("An individual", "فرد")}</option><option value="company">${L("A company", "منشأة")}</option></select></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px" id="bp-p-company-wrap" hidden>
+              <div class="field"><label for="bp-p-company">${L("Company name", "اسم المنشأة")}</label><input id="bp-p-company" type="text"></div>
+              <div class="field"><label for="bp-p-cr">${L("CR number", "رقم السجل التجاري")}</label><input id="bp-p-cr" type="text" inputmode="numeric"></div>
+            </div>
+            <div class="grid grid-2" style="gap:0 20px">
+              <div class="field"><label for="bp-p-id">${L("ID / Iqama number", "رقم الهوية أو الإقامة")}</label><input id="bp-p-id" type="text" inputmode="numeric"></div>
+              <div class="field"><label for="bp-p-bank">${L("Bank name", "اسم البنك")}</label><input id="bp-p-bank" type="text"></div>
+            </div>
+            <div class="field"><label for="bp-p-iban">${L("IBAN", "الآيبان")}</label>
+              <input id="bp-p-iban" type="text" placeholder="SA0000000000000000000000" style="direction:ltr;text-align:left;letter-spacing:1px">
+              <p class="emp-note" style="margin:6px 0 0" id="bp-p-iban-note"></p></div>
+            <div class="field"><label for="bp-p-pass">${L("New password (optional)", "كلمة مرور جديدة (اختياري)")}</label><input id="bp-p-pass" type="password" autocomplete="new-password"></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="bp-p-save">${L("Save", "احفظ")}</button>
+            <p class="emp-note" id="bp-p-msg" style="text-align:center;min-height:18px;margin-top:10px"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div></section>`;
+
+  return page({
+    title: Lraw("Broker portal — Business Partner", "بوابة السماسرة — بيزنس بارتنر"),
+    desc: Lraw("Brokers sign in to send referrals, follow every stage and track their commissions.", "دخول السماسرة لإرسال الإحالات ومتابعة مراحلها وتتبّع العمولات."),
+    active: "/brokers", path: "/broker-portal", body, noindex: true,
+  });
+}
+
 function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
@@ -10755,6 +11154,11 @@ function writeFullSite(pre) {
   write(`${pre}recruitment-agencies.html`, buildRecruitmentAgencies());
   write(`${pre}job-search-service.html`, buildJobSearchService());
   write(`${pre}agency-portal.html`, buildAgencyPortal());
+  // برنامج السماسرة والإحالات — the public programme page, the referral form
+  // and the broker's own portal. The owner's panel is standalone (noindex).
+  write(`${pre}brokers.html`, buildBrokerProgram());
+  write(`${pre}referral.html`, buildReferralForm());
+  write(`${pre}broker-portal.html`, buildBrokerPortal());
   write(`${pre}job.html`, buildPostingPage());
   write(`${pre}employer-dashboard.html`, buildEmployerDashboard());
   write(`${pre}portal/index.html`, buildPortalHome());
@@ -10789,7 +11193,7 @@ function writeFullSite(pre) {
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
   write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
   WORKSHOP_JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 18 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
+  pageCount += 21 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {
@@ -10948,6 +11352,414 @@ a{color:var(--blue)}
 }
 write("doc-agent-admin.html", buildDocAgentAdmin());
 
+// لوحة المالك لبرنامج السماسرة والإحالات (/brokers-admin) — standalone, noindex.
+// Auth: the same bp_admin_key the /admin panel stores, so opening it from
+// there needs no second sign-in. Everything it shows and every number it
+// writes goes through /api/referrals (api/_referrals.js) — the panel never
+// computes a commission itself, it only asks the engine and records what it
+// is told, which is why a rate change can never be "applied in the browser".
+function buildBrokersAdmin() {
+  return `<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>السماسرة والإحالات — لوحة المتابعة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0B1B5A;--bg:#F5F6FA;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--blue:#1F4ED8;--red:#b91c1c;--green:#16a34a;--amber:#c2410c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wrap{max-width:1380px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{color:var(--navy);font-size:1.35rem;margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
+.bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+input,select,textarea,button{font-family:inherit;font-size:.92rem;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;background:#fff;color:inherit}
+button{cursor:pointer;background:var(--navy);color:#fff;border:0}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+button.ok{background:var(--green)}button.no{background:var(--red)}
+button:disabled{opacity:.5;cursor:default}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:0 6px 22px rgba(11,27,90,.05);margin-bottom:1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin-bottom:1rem}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:.9rem;text-align:center}
+.kpi b{display:block;font-size:1.3rem;color:var(--navy)}
+.kpi span{color:var(--muted);font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th,td{padding:.5rem .55rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
+tr:hover td{background:#fafbff}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;padding:.1rem .6rem;border-radius:999px;font-size:.76rem;font-weight:600;color:#fff}
+.note{color:var(--muted);font-size:.85rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem}
+label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.25rem}
+.hide{display:none}
+.msg{min-height:1.2rem;font-size:.85rem}
+</style>
+</head>
+<body><div class="wrap">
+<h1>برنامج السماسرة والإحالات</h1>
+<p class="sub">كل رقم هنا يأتي من كشف العمولات في قاعدة البيانات — اللوحة تعرض وتعتمد، ولا تحسب بنفسها.</p>
+
+<div class="bar">
+  <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
+  <button id="save">دخول</button>
+  <button class="ghost" id="reload">تحديث</button>
+  <span class="note">نفس مفتاح <a href="/admin">/admin</a> — يُلتقط تلقائياً إن سبق دخولك هناك.</span>
+</div>
+<p class="msg" id="err" style="color:var(--red)"></p>
+
+<div id="app" class="hide">
+  <div class="cards" id="kpis"></div>
+  <div class="tabs">
+    <button class="on" data-t="refs">الإحالات</button>
+    <button data-t="brokers">السماسرة</button>
+    <button data-t="money">العمولات</button>
+    <button data-t="payouts">الصرف</button>
+    <button data-t="plans">نماذج العمولة</button>
+  </div>
+
+  <div class="card" data-p="refs">
+    <div class="row" style="margin-bottom:.7rem">
+      <select id="f-status"><option value="">كل المراحل</option></select>
+      <input id="f-q" placeholder="ابحث باسم الشركة أو المرجع" style="flex:1;min-width:200px"/>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th>المرجع</th><th>الشركة</th><th>جهة الاتصال</th><th>السمسار</th><th>المرحلة</th><th>قيمة الصفقة</th><th>إجراء</th><th>أُرسلت</th>
+    </tr></thead><tbody id="t-refs"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="brokers">
+    <div class="scroll"><table><thead><tr>
+      <th>الاسم</th><th>الكود</th><th>التواصل</th><th>نموذج العمولة</th><th>الحالة</th><th>الآيبان</th><th>إجراء</th>
+    </tr></thead><tbody id="t-brokers"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="money">
+    <div class="row" style="margin-bottom:.7rem">
+      <select id="f-money"><option value="">كل العمولات</option><option value="pending">بانتظار الاعتماد</option><option value="approved">معتمدة</option><option value="paid">مصروفة</option><option value="void">ملغاة</option></select>
+      <span class="note">الاعتماد لا يصرف المبلغ — الصرف من تبويب «الصرف».</span>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th>الإحالة</th><th>السمسار</th><th>النوع</th><th>الفترة</th><th>الأساس</th><th>النسبة</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th>
+    </tr></thead><tbody id="t-money"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="payouts">
+    <div class="grid2" style="margin-bottom:.8rem">
+      <div><label class="f">السمسار</label><select id="p-broker"></select></div>
+      <div><label class="f">مرجع التحويل البنكي</label><input id="p-ref" placeholder="رقم عملية التحويل"/></div>
+      <div><label class="f">الحالة</label><select id="p-status"><option value="paid">مدفوع الآن</option><option value="pending">مجدول (لم يُحوَّل بعد)</option></select></div>
+    </div>
+    <div class="scroll"><table><thead><tr>
+      <th style="width:32px"></th><th>الإحالة</th><th>النوع</th><th>الفترة</th><th>المبلغ</th>
+    </tr></thead><tbody id="t-payable"></tbody></table></div>
+    <div class="row" style="margin-top:.8rem">
+      <b id="p-total">الإجمالي المحدد: 0 ريال</b>
+      <button id="p-go">سجّل الصرف</button>
+      <span class="msg" id="p-msg"></span>
+    </div>
+    <h3 style="margin:1.4rem 0 .5rem;font-size:1rem;color:var(--navy)">عمليات الصرف السابقة</h3>
+    <div class="scroll"><table><thead><tr><th>التاريخ</th><th>السمسار</th><th>المبلغ</th><th>المرجع</th><th>الحالة</th></tr></thead><tbody id="t-payouts"></tbody></table></div>
+  </div>
+
+  <div class="card hide" data-p="plans">
+    <div class="scroll" style="margin-bottom:1rem"><table><thead><tr>
+      <th>المفتاح</th><th>الاسم</th><th>النموذج</th><th>الوصف</th><th>افتراضي</th><th>نشط</th><th></th>
+    </tr></thead><tbody id="t-plans"></tbody></table></div>
+    <h3 style="margin:.4rem 0 .6rem;font-size:1rem;color:var(--navy)">إضافة أو تعديل نموذج</h3>
+    <p class="note" style="margin-bottom:.7rem">تعديل نموذج لا يمسّ إحالة سابقة: كل إحالة تحمل نسخة من شروطها لحظة إرسالها.</p>
+    <div class="grid2">
+      <div><label class="f">المفتاح (بالإنجليزية، بلا مسافات)</label><input id="pl-key" placeholder="first-invoice-10"/></div>
+      <div><label class="f">الاسم بالعربية</label><input id="pl-name-ar" placeholder="نسبة ١٠٪ من أول فاتورة"/></div>
+      <div><label class="f">الاسم بالإنجليزية</label><input id="pl-name-en"/></div>
+      <div><label class="f">النموذج</label><select id="pl-model">
+        <option value="first_invoice_pct">نسبة من أول فاتورة</option>
+        <option value="recurring_pct">نسبة متكررة</option>
+        <option value="flat">مبلغ ثابت</option>
+        <option value="tiered">شرائح حسب حجم الصفقة</option>
+      </select></div>
+      <div id="w-rate"><label class="f">النسبة ٪</label><input id="pl-rate" type="number" step="0.1" value="10"/></div>
+      <div id="w-flat" class="hide"><label class="f">المبلغ الثابت</label><input id="pl-flat" type="number" step="1" value="500"/></div>
+      <div id="w-months" class="hide"><label class="f">عدد الأشهر (٠ = بلا سقف)</label><input id="pl-months" type="number" step="1" value="0"/></div>
+      <div><label class="f">مكافأة ثابتة تُضاف على أول عمولة</label><input id="pl-bonus" type="number" step="1" value="0"/></div>
+      <div><label class="f">حد أدنى لقيمة الصفقة</label><input id="pl-min" type="number" step="1" value="0"/></div>
+      <div><label class="f">سقف العمولة للإحالة (فارغ = بلا سقف)</label><input id="pl-max" type="number" step="1"/></div>
+      <div><label class="f">مدة الأحقية (أيام)</label><input id="pl-days" type="number" step="1" value="90"/></div>
+    </div>
+    <div id="w-tiers" class="hide" style="margin-top:.8rem">
+      <label class="f">الشرائح — «حتى» فارغة تعني الشريحة المفتوحة الأعلى</label>
+      <div id="tiers"></div>
+      <button class="ghost" id="tier-add" style="margin-top:.4rem">+ شريحة</button>
+    </div>
+    <div class="row" style="margin-top:.9rem">
+      <label class="note"><input type="checkbox" id="pl-default"/> اجعله النموذج الافتراضي للحسابات الجديدة</label>
+      <label class="note"><input type="checkbox" id="pl-active" checked/> نشط</label>
+      <button id="pl-save">احفظ النموذج</button>
+      <span class="msg" id="pl-msg"></span>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function(){
+  var API='/api/requests?__route=referrals';
+  var key=localStorage.getItem('bp_admin_key')||'';
+  var D={brokers:[],referrals:[],commissions:[],payouts:[],plans:[]};
+  var STATUS={new:['جديدة','#64748b'],contacted:['تم التواصل','#1F4ED8'],qualified:['مؤهلة','#7c3aed'],proposal:['عرض سعر','#c2410c'],won:['صفقة مغلقة','#16a34a'],lost:['خسارة','#b91c1c'],duplicate:['مكررة','#b45309'],expired:['منتهية','#6b7280']};
+  var MONEY={pending:['بانتظار الاعتماد','#c2410c'],approved:['معتمدة','#1F4ED8'],paid:['مصروفة','#16a34a'],void:['ملغاة','#6b7280']};
+  var KIND={first_invoice:'أول فاتورة',recurring:'متكررة',flat:'ثابتة',tier:'شريحة',bonus:'مكافأة',adjustment:'تسوية'};
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function pill(map,k){var m=map[k]||[k,'#64748b'];return '<span class="pill" style="background:'+m[1]+'">'+esc(m[0])+'</span>';}
+  function money(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('en-US')+' ريال';}
+  function day(s){return s?String(s).slice(0,10):'—';}
+  function get(a,extra){return fetch(API+'&action='+a+'&key='+encodeURIComponent(key)+(extra||'')).then(function(r){return r.json();});}
+  function post(body){body.key=key;return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+
+  $('k').value=key;
+  $('save').onclick=function(){key=$('k').value.trim();localStorage.setItem('bp_admin_key',key);load();};
+  $('reload').onclick=load;
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(b){
+    b.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(x){x.classList.toggle('on',x===b);});
+      Array.prototype.forEach.call(document.querySelectorAll('[data-p]'),function(p){p.classList.toggle('hide',p.getAttribute('data-p')!==b.getAttribute('data-t'));});
+    };
+  });
+
+  function load(){
+    $('err').textContent='';
+    get('admin').then(function(d){
+      if(!d||!d.ok){$('err').textContent=d&&d.error==='forbidden'?'المفتاح غير صحيح.':(d&&d.message)||'تعذّر التحميل.';return;}
+      D=d;$('app').classList.remove('hide');
+      renderKpis();renderRefs();renderBrokers();renderMoney();renderPayouts();renderPlans();
+    }).catch(function(){$('err').textContent='خطأ في الاتصال.';});
+  }
+
+  function sum(list){return list.reduce(function(s,c){return s+(Number(c.amount)||0);},0);}
+  function renderKpis(){
+    var won=D.referrals.filter(function(r){return r.status==='won';});
+    var open=D.referrals.filter(function(r){return ['new','contacted','qualified','proposal'].indexOf(r.status)>=0;});
+    var pend=D.commissions.filter(function(c){return c.status==='pending';});
+    var appr=D.commissions.filter(function(c){return c.status==='approved';});
+    var paid=D.commissions.filter(function(c){return c.status==='paid';});
+    var cards=[['إحالات',D.referrals.length],['قيد العمل',open.length],['صفقات مغلقة',won.length],['سماسرة',D.brokers.length],
+      ['بانتظار الاعتماد',money(sum(pend))],['معتمدة للصرف',money(sum(appr))],['مصروفة',money(sum(paid))],
+      ['قيمة الصفقات المغلقة',money(won.reduce(function(s,r){return s+(Number(r.dealValue)||0);},0))]];
+    $('kpis').innerHTML=cards.map(function(c){return '<div class="kpi"><b>'+esc(String(c[1]))+'</b><span>'+esc(c[0])+'</span></div>';}).join('');
+  }
+
+  if(!$('f-status').dataset.filled){
+    $('f-status').innerHTML='<option value="">كل المراحل</option>'+Object.keys(STATUS).map(function(k){return '<option value="'+k+'">'+STATUS[k][0]+'</option>';}).join('');
+    $('f-status').dataset.filled='1';
+  }
+  $('f-status').onchange=renderRefs;
+  $('f-q').oninput=renderRefs;
+
+  function renderRefs(){
+    var st=$('f-status').value, q=$('f-q').value.trim().toLowerCase();
+    var rows=D.referrals.filter(function(r){
+      if(st&&r.status!==st)return false;
+      if(q&&(r.company||'').toLowerCase().indexOf(q)<0&&(r.ref||'').toLowerCase().indexOf(q)<0)return false;
+      return true;
+    });
+    $('t-refs').innerHTML=rows.map(function(r){
+      var opts=Object.keys(STATUS).map(function(k){return '<option value="'+k+'"'+(k===r.status?' selected':'')+'>'+STATUS[k][0]+'</option>';}).join('');
+      return '<tr data-id="'+esc(r.id)+'"><td><b>'+esc(r.ref)+'</b></td>'+
+        '<td>'+esc(r.company)+(r.url?'<br><a class="note" href="'+esc(r.url)+'" target="_blank" rel="noopener">الموقع</a>':'')+'</td>'+
+        '<td>'+esc(r.contact||'—')+'<br><span class="note">'+esc(r.contactEmail||r.contactPhone||'')+'</span></td>'+
+        '<td>'+esc(r.brokerName||'—')+(r.brokerId?'':'<br><span class="note">بدون حساب</span>')+'</td>'+
+        '<td>'+pill(STATUS,r.status)+'<br><select class="s-status" style="margin-top:.25rem">'+opts+'</select></td>'+
+        '<td><input class="s-deal" type="number" step="1" value="'+(Number(r.dealValue)||0)+'" style="width:110px"/></td>'+
+        '<td><button class="s-save">حفظ</button>'+(r.status==='won'?' <button class="ghost s-period" title="أضف فترة عمولة متكررة">+ فترة</button>':'')+'</td>'+
+        '<td class="note">'+day(r.createdAt)+'</td></tr>';
+    }).join('')||'<tr><td colspan="8" class="note">لا توجد إحالات مطابقة.</td></tr>';
+
+    Array.prototype.forEach.call($('t-refs').querySelectorAll('.s-save'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'referral-status',id:tr.dataset.id,status:tr.querySelector('.s-status').value,dealValue:tr.querySelector('.s-deal').value})
+          .then(function(d){
+            btn.disabled=false;
+            if(!d||!d.ok){alert((d&&d.message)||'تعذّر الحفظ.');return;}
+            if(d.commission)alert('سُجّلت عمولة بمبلغ '+money(d.commission.amount)+' بانتظار الاعتماد.');
+            load();
+          });
+      };
+    });
+    Array.prototype.forEach.call($('t-refs').querySelectorAll('.s-period'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        var period=prompt('الفترة (YYYY-MM):',new Date().toISOString().slice(0,7));
+        if(!period)return;
+        var amount=prompt('قيمة الفاتورة المدفوعة في هذه الفترة:',tr.querySelector('.s-deal').value||'0');
+        if(amount===null)return;
+        post({type:'commission-add',referralId:tr.dataset.id,period:period,amount:amount}).then(function(d){
+          if(!d||!d.ok){alert((d&&d.message)||'تعذّر التسجيل.');return;}
+          load();
+        });
+      };
+    });
+  }
+
+  function renderBrokers(){
+    $('t-brokers').innerHTML=D.brokers.map(function(b){
+      var plans=D.plans.map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===b.planId?' selected':'')+'>'+esc(p.name_ar)+'</option>';}).join('');
+      var sts=['active','pending','suspended'].map(function(s){return '<option value="'+s+'"'+(s===b.status?' selected':'')+'>'+({active:'نشط',pending:'قيد المراجعة',suspended:'موقوف'})[s]+'</option>';}).join('');
+      var mine=D.referrals.filter(function(r){return r.brokerId===b.id;}).length;
+      return '<tr data-id="'+esc(b.id)+'"><td><b>'+esc(b.name)+'</b><br><span class="note">'+mine+' إحالة · '+esc(b.kind==='company'?'منشأة':'فرد')+'</span></td>'+
+        '<td><code>'+esc(b.code)+'</code></td>'+
+        '<td class="note">'+esc(b.email)+'<br>'+esc(b.phone||'')+'</td>'+
+        '<td><select class="b-plan"><option value="">—</option>'+plans+'</select></td>'+
+        '<td><select class="b-status">'+sts+'</select></td>'+
+        '<td class="note" style="direction:ltr;text-align:left">'+esc(b.iban||'— لا يوجد')+'</td>'+
+        '<td><button class="b-save">حفظ</button></td></tr>';
+    }).join('')||'<tr><td colspan="7" class="note">لا يوجد سماسرة بعد.</td></tr>';
+    Array.prototype.forEach.call($('t-brokers').querySelectorAll('.b-save'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'broker-status',id:tr.dataset.id,status:tr.querySelector('.b-status').value,planId:tr.querySelector('.b-plan').value})
+          .then(function(d){btn.disabled=false;if(!d||!d.ok){alert((d&&d.message)||'تعذّر الحفظ.');return;}load();});
+      };
+    });
+    $('p-broker').innerHTML=D.brokers.map(function(b){return '<option value="'+esc(b.id)+'">'+esc(b.name)+' — '+esc(b.code)+'</option>';}).join('');
+    $('p-broker').onchange=renderPayable;
+  }
+
+  $('f-money').onchange=renderMoney;
+  function renderMoney(){
+    var f=$('f-money').value;
+    var rows=D.commissions.filter(function(c){return !f||c.status===f;});
+    $('t-money').innerHTML=rows.map(function(c){
+      var r=D.referrals.filter(function(x){return x.id===c.referralId;})[0]||{};
+      var act=c.status==='pending'?'<button class="ok m-do" data-do="approve">اعتماد</button> <button class="no m-do" data-do="void">إلغاء</button>'
+        :c.status==='approved'?'<button class="ghost m-do" data-do="reopen">إرجاع للمراجعة</button>'
+        :c.status==='void'?'<button class="ghost m-do" data-do="reopen">إعادة تفعيل</button>':'<span class="note">—</span>';
+      return '<tr data-id="'+esc(c.id)+'"><td><b>'+esc(r.ref||'')+'</b><br><span class="note">'+esc(r.company||'')+'</span></td>'+
+        '<td>'+esc(c.brokerName||'—')+'</td><td>'+esc(KIND[c.kind]||c.kind)+'</td><td>'+esc(c.period||'—')+'</td>'+
+        '<td>'+(c.basis?money(c.basis):'—')+'</td><td>'+(c.rate?c.rate+'%':'—')+'</td><td><b>'+money(c.amount)+'</b></td>'+
+        '<td>'+pill(MONEY,c.status)+'</td><td>'+act+'</td></tr>';
+    }).join('')||'<tr><td colspan="9" class="note">لا توجد عمولات.</td></tr>';
+    Array.prototype.forEach.call($('t-money').querySelectorAll('.m-do'),function(btn){
+      btn.onclick=function(){
+        var tr=btn.closest('tr');
+        btn.disabled=true;
+        post({type:'commission-decision',id:tr.dataset.id,decision:btn.getAttribute('data-do')})
+          .then(function(d){btn.disabled=false;if(!d||!d.ok){alert((d&&d.message)||'تعذّر التنفيذ.');return;}load();});
+      };
+    });
+  }
+
+  function renderPayable(){
+    var bid=$('p-broker').value;
+    var rows=D.commissions.filter(function(c){return c.brokerId===bid&&c.status==='approved';});
+    $('t-payable').innerHTML=rows.map(function(c){
+      var r=D.referrals.filter(function(x){return x.id===c.referralId;})[0]||{};
+      return '<tr><td><input type="checkbox" class="pay" value="'+esc(c.id)+'" data-amount="'+(Number(c.amount)||0)+'" checked/></td>'+
+        '<td><b>'+esc(r.ref||'')+'</b> '+esc(r.company||'')+'</td><td>'+esc(KIND[c.kind]||c.kind)+'</td><td>'+esc(c.period||'—')+'</td><td><b>'+money(c.amount)+'</b></td></tr>';
+    }).join('')||'<tr><td colspan="5" class="note">لا توجد عمولات معتمدة لهذا السمسار.</td></tr>';
+    Array.prototype.forEach.call($('t-payable').querySelectorAll('.pay'),function(c){c.onchange=total;});
+    total();
+  }
+  function total(){
+    var s=0;
+    Array.prototype.forEach.call(document.querySelectorAll('.pay:checked'),function(c){s+=Number(c.getAttribute('data-amount'))||0;});
+    $('p-total').textContent='الإجمالي المحدد: '+money(s);
+  }
+  $('p-go').onclick=function(){
+    var ids=Array.prototype.map.call(document.querySelectorAll('.pay:checked'),function(c){return c.value;});
+    if(!ids.length){$('p-msg').textContent='حدّد عمولة واحدة على الأقل.';return;}
+    $('p-go').disabled=true;
+    post({type:'payout',brokerId:$('p-broker').value,ids:ids,reference:$('p-ref').value.trim(),status:$('p-status').value})
+      .then(function(d){
+        $('p-go').disabled=false;
+        if(!d||!d.ok){$('p-msg').style.color='var(--red)';$('p-msg').textContent=(d&&d.message)||'تعذّر التسجيل.';return;}
+        $('p-msg').style.color='var(--green)';
+        $('p-msg').textContent='سُجّل صرف '+money(d.amount)+' عن '+d.count+' عمولة.';
+        $('p-ref').value='';
+        load();
+      });
+  };
+  function renderPayouts(){
+    $('t-payouts').innerHTML=D.payouts.map(function(p){
+      return '<tr><td>'+day(p.paidAt||p.createdAt)+'</td><td>'+esc(p.brokerName||'')+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.reference||'—')+'</td><td>'+pill(MONEY,p.status==='paid'?'paid':'approved')+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" class="note">لا توجد عمليات صرف.</td></tr>';
+    renderPayable();
+  }
+
+  /* ------------------------------------------------------------- plans -- */
+  function tierRow(t){
+    var d=document.createElement('div');
+    d.className='row';
+    d.style.marginBottom='.35rem';
+    d.innerHTML='<input class="t-upto" type="number" step="1" placeholder="حتى (فارغ = الأعلى)" value="'+(t&&t.upTo!=null?t.upTo:'')+'" style="width:180px"/>'+
+      '<input class="t-rate" type="number" step="0.1" placeholder="النسبة ٪" value="'+(t?t.rate:'')+'" style="width:120px"/>'+
+      '<button class="ghost t-del">حذف</button>';
+    d.querySelector('.t-del').onclick=function(){d.remove();};
+    return d;
+  }
+  $('tier-add').onclick=function(){$('tiers').appendChild(tierRow(null));};
+  $('pl-model').onchange=function(){
+    var m=this.value;
+    $('w-rate').classList.toggle('hide',m==='flat'||m==='tiered');
+    $('w-flat').classList.toggle('hide',m!=='flat');
+    $('w-months').classList.toggle('hide',m!=='recurring_pct');
+    $('w-tiers').classList.toggle('hide',m!=='tiered');
+  };
+  function renderPlans(){
+    $('t-plans').innerHTML=D.plans.map(function(p){
+      return '<tr><td><code>'+esc(p.key)+'</code></td><td>'+esc(p.name_ar)+'</td><td class="note">'+esc(p.model)+'</td>'+
+        '<td class="note">'+esc(p.sentenceAr||'')+'</td><td>'+(p.is_default?'✅':'')+'</td><td>'+(p.active?'✅':'—')+'</td>'+
+        '<td><button class="ghost pl-edit" data-key="'+esc(p.key)+'">تعديل</button></td></tr>';
+    }).join('')||'<tr><td colspan="7" class="note">لا توجد نماذج — أضف واحداً بالأسفل.</td></tr>';
+    Array.prototype.forEach.call($('t-plans').querySelectorAll('.pl-edit'),function(btn){
+      btn.onclick=function(){
+        var p=D.plans.filter(function(x){return x.key===btn.getAttribute('data-key');})[0];
+        if(!p)return;
+        $('pl-key').value=p.key;$('pl-name-ar').value=p.name_ar||'';$('pl-name-en').value=p.name_en||'';
+        $('pl-model').value=p.model;$('pl-rate').value=p.rate;$('pl-flat').value=p.flat_amount;
+        $('pl-months').value=p.recurring_months;$('pl-bonus').value=p.bonus_flat;$('pl-min').value=p.min_deal_value;
+        $('pl-max').value=p.max_amount==null?'':p.max_amount;$('pl-days').value=p.attribution_days;
+        $('pl-default').checked=!!p.is_default;$('pl-active').checked=!!p.active;
+        $('tiers').innerHTML='';
+        (p.tiers||[]).forEach(function(t){$('tiers').appendChild(tierRow(t));});
+        $('pl-model').onchange();
+        window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+      };
+    });
+  }
+  $('pl-save').onclick=function(){
+    var tiers=Array.prototype.map.call($('tiers').children,function(d){
+      var up=d.querySelector('.t-upto').value.trim();
+      return {upTo:up===''?null:Number(up),rate:Number(d.querySelector('.t-rate').value)||0};
+    });
+    $('pl-save').disabled=true;
+    post({type:'plan-save',planKey:$('pl-key').value.trim(),nameAr:$('pl-name-ar').value.trim(),nameEn:$('pl-name-en').value.trim(),
+      model:$('pl-model').value,rate:$('pl-rate').value,flatAmount:$('pl-flat').value,recurringMonths:$('pl-months').value,
+      bonusFlat:$('pl-bonus').value,minDealValue:$('pl-min').value,maxAmount:$('pl-max').value,attributionDays:$('pl-days').value,
+      tiers:tiers,isDefault:$('pl-default').checked,active:$('pl-active').checked})
+      .then(function(d){
+        $('pl-save').disabled=false;
+        $('pl-msg').style.color=d&&d.ok?'var(--green)':'var(--red)';
+        $('pl-msg').textContent=d&&d.ok?'تم الحفظ.':((d&&d.message)||'تعذّر الحفظ.');
+        if(d&&d.ok)load();
+      });
+  };
+
+  if(key)load();
+})();
+</script>
+</body></html>`;
+}
+
+write("brokers-admin.html", buildBrokersAdmin());
+
 // Client Operations Center — the new /account (approved design). One bilingual
 // standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
 // buildAccount() output for en+ar; extra languages keep the legacy page until
@@ -10986,7 +11798,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal", "/brokers", "/referral"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

@@ -697,3 +697,229 @@ create policy doc_agent_files_read on doc_agent_files for select using (request_
 create policy doc_agent_facts_read on doc_agent_facts for select using (organization_id in (select current_org_ids()));
 create policy doc_agent_messages_read on doc_agent_messages for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
 create policy doc_agent_outputs_read on doc_agent_outputs for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+
+-- ============================================================================
+-- برنامج السماسرة والإحالات — Brokers & Referrals
+--
+-- A broker (سمسار / مُحيل) refers a company to Business Partner and earns a
+-- commission when that company becomes a paying client. Three moving parts:
+--   * brokers            — the partner account (auth, payout details, plan)
+--   * referrals          — one referred company per row, with its pipeline
+--                          stage and the commission plan LOCKED at referral
+--                          time so a later plan change never rewrites what a
+--                          broker was promised
+--   * referral_commissions — the money ledger: one row per earned amount,
+--                          approved by the owner before it can be paid
+--
+-- Money follows the same rule as the rest of this schema: a balance is
+-- DERIVED from the ledger, never stored as a writable field. `brokers` has no
+-- balance column on purpose.
+--
+-- These tables are NOT tenant-scoped (a broker is external to every client
+-- organization), so RLS is enabled with no permissive policy: only the
+-- service_role key used by the Vercel functions can read or write them.
+-- ============================================================================
+
+-- Commission plans. Every model the business uses lives here rather than in
+-- code, so rates change from the owner panel and never in a deploy.
+--   first_invoice_pct — rate% of the first paid invoice
+--   recurring_pct     — rate% of every paid invoice, for recurring_months
+--                       months (0 = for as long as the client stays)
+--   flat              — a fixed amount once the deal closes
+--   tiered            — rate by deal size, from the `tiers` ladder
+-- `bonus_flat` is added on top of the first commission of any model, which is
+-- how a hybrid ("500 ريال + 5%") is expressed without a fifth model.
+create table if not exists commission_plans (
+  id uuid primary key default gen_random_uuid(),
+  key text not null unique,                  -- e.g. 'default-10-first'
+  name_ar text not null,
+  name_en text,
+  model text not null check (model in ('first_invoice_pct','recurring_pct','flat','tiered')),
+  rate numeric(6,3) not null default 0,      -- percent, e.g. 10.000 = 10%
+  flat_amount numeric(12,2) not null default 0,
+  bonus_flat numeric(12,2) not null default 0,
+  tiers jsonb not null default '[]'::jsonb,  -- [{"upTo":10000,"rate":5},{"upTo":null,"rate":8}]
+  recurring_months int not null default 0,   -- recurring_pct only; 0 = unlimited
+  min_deal_value numeric(12,2) not null default 0,
+  max_amount numeric(12,2),                  -- optional cap per referral
+  currency text not null default 'SAR',
+  attribution_days int not null default 90,  -- referral expires unclaimed after this
+  active boolean not null default true,
+  is_default boolean not null default false,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create unique index if not exists commission_plans_default_idx on commission_plans(is_default) where is_default;
+
+create table if not exists brokers (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,                 -- BP-RF-XXXXXXXX — the public referral code
+  full_name text not null,
+  email text not null unique,
+  phone text,
+  landline text,
+  city text,
+  kind text not null default 'individual' check (kind in ('individual','company')),
+  company_name text,
+  company_cr text,
+  id_number text,                            -- هوية/إقامة — needed for a payout voucher
+  -- Payout details. Only the last four IBAN digits are ever returned to a
+  -- browser; the full value stays server-side for the transfer voucher.
+  iban text,
+  bank_name text,
+  payout_method text not null default 'bank' check (payout_method in ('bank','wallet','credit')),
+  -- Auth: scrypt "salt:hash" like the supplier/agency portals, plus a bearer
+  -- access code stored as a sha256 hash (shown to the broker exactly once).
+  password_hash text,
+  access_code_hash text,
+  plan_id uuid references commission_plans(id) on delete set null,
+  status text not null default 'active' check (status in ('active','pending','suspended')),
+  agreement_version text,
+  agreement_accepted_at timestamptz,
+  notion_page_id text,
+  notes text,
+  last_login_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists brokers_status_idx on brokers(status);
+
+create table if not exists referrals (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,                  -- BP-R-000123 — quoted to the broker
+  broker_id uuid references brokers(id) on delete set null,
+  -- Referrer snapshot: a referral submitted from the public form by someone
+  -- without an account still keeps who sent it, so the account can claim it
+  -- later by e-mail match.
+  referrer_name text,
+  referrer_email text,
+  referrer_phone text,
+  referrer_landline text,
+  referrer_city text,
+  -- The referred company.
+  company_name text not null,
+  company_url text,
+  contact_name text,
+  contact_email text,
+  contact_phone text,
+  contact_landline text,
+  contact_title text,
+  company_size text,
+  relationship text,                         -- كيف تعرف هذه الشركة
+  why_need text,                             -- لماذا تحتاج خدماتنا
+  services_interest text[],
+  -- Normalised company identity, used to reject a second referral of a
+  -- company someone already sent (first valid referral wins).
+  dedupe_key text,
+  status text not null default 'new' check (status in
+    ('new','contacted','qualified','proposal','won','lost','duplicate','expired')),
+  lost_reason text,
+  -- Conversion links, filled once the referred company becomes a client.
+  organization_id uuid references organizations(id) on delete set null,
+  order_ref text,
+  deal_value numeric(12,2) not null default 0,
+  currency text not null default 'SAR',
+  -- The plan is COPIED here at referral time, never read live from the plan
+  -- row: a rate cut next quarter must not retroactively shrink a commission
+  -- already earned on an open referral.
+  plan_id uuid references commission_plans(id) on delete set null,
+  plan_snapshot jsonb not null default '{}'::jsonb,
+  source text not null default 'form' check (source in ('form','portal','link','manual','import')),
+  utm jsonb,
+  notion_page_id text,
+  expires_at timestamptz,
+  first_contact_at timestamptz,
+  closed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists referrals_broker_idx on referrals(broker_id, created_at desc);
+create index if not exists referrals_status_idx on referrals(status);
+create unique index if not exists referrals_dedupe_idx on referrals(dedupe_key)
+  where dedupe_key is not null and status <> 'duplicate';
+
+-- The money ledger. One row per earned amount; a recurring plan adds one row
+-- per period. Nothing is payable until the owner approves it.
+create table if not exists referral_commissions (
+  id uuid primary key default gen_random_uuid(),
+  referral_id uuid not null references referrals(id) on delete cascade,
+  broker_id uuid references brokers(id) on delete set null,
+  kind text not null default 'first_invoice' check (kind in
+    ('first_invoice','recurring','flat','tier','bonus','adjustment')),
+  period text,                               -- 'YYYY-MM' for a recurring row
+  basis_amount numeric(12,2) not null default 0,
+  rate numeric(6,3) not null default 0,
+  amount numeric(12,2) not null,
+  currency text not null default 'SAR',
+  status text not null default 'pending' check (status in ('pending','approved','paid','void')),
+  invoice_ref text,
+  payment_id uuid references payments(id) on delete set null,
+  payout_id uuid,
+  approved_by text,
+  approved_at timestamptz,
+  paid_at timestamptz,
+  notes text,
+  created_at timestamptz not null default now(),
+  unique (referral_id, kind, period)
+);
+create index if not exists referral_commissions_broker_idx on referral_commissions(broker_id, status);
+
+-- A payout batch: one bank transfer covering any number of approved rows.
+create table if not exists broker_payouts (
+  id uuid primary key default gen_random_uuid(),
+  broker_id uuid not null references brokers(id) on delete cascade,
+  amount numeric(12,2) not null,
+  currency text not null default 'SAR',
+  method text not null default 'bank',
+  iban_last4 text,
+  reference text,                            -- bank transfer reference
+  status text not null default 'pending' check (status in ('pending','paid','failed','cancelled')),
+  invoice_ref text,                          -- the broker's own invoice, when they issue one
+  notes text,
+  created_at timestamptz not null default now(),
+  paid_at timestamptz
+);
+create index if not exists broker_payouts_broker_idx on broker_payouts(broker_id, created_at desc);
+
+-- Append-only trail: every stage move, approval and payout, with who did it.
+create table if not exists referral_events (
+  id uuid primary key default gen_random_uuid(),
+  referral_id uuid references referrals(id) on delete cascade,
+  broker_id uuid references brokers(id) on delete set null,
+  kind text not null,                        -- created/status/commission/payout/note/email
+  from_value text,
+  to_value text,
+  actor text,                                -- 'owner' | 'broker' | 'system'
+  detail jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists referral_events_referral_idx on referral_events(referral_id, created_at desc);
+
+alter table commission_plans enable row level security;
+alter table brokers enable row level security;
+alter table referrals enable row level security;
+alter table referral_commissions enable row level security;
+alter table broker_payouts enable row level security;
+alter table referral_events enable row level security;
+-- No policies on purpose: a broker is not a member of any client
+-- organization, so current_org_ids() cannot express who may read these rows.
+-- The Vercel functions reach them with the service_role key (which bypasses
+-- RLS) and authorise each request themselves — broker access code, or the
+-- owner panel key. The anon key gets nothing.
+
+-- Seed the four commission models so the owner panel opens with a working
+-- ladder rather than an empty table. Rates are the starting point the owner
+-- edits, not a contractual promise.
+insert into commission_plans (key, name_ar, name_en, model, rate, flat_amount, tiers, recurring_months, is_default, notes)
+values
+  ('first-invoice-10', 'نسبة ١٠٪ من أول فاتورة', '10% of the first invoice', 'first_invoice_pct', 10, 0, '[]'::jsonb, 0, true,
+   'النموذج الافتراضي: تُحتسب مرة واحدة عند سداد أول فاتورة للعميل المُحال.'),
+  ('recurring-5', 'نسبة ٥٪ متكررة طوال الاشتراك', '5% recurring for the life of the subscription', 'recurring_pct', 5, 0, '[]'::jsonb, 0, false,
+   'تُحتسب على كل فاتورة مدفوعة ما دام العميل مشتركاً (recurring_months=0 يعني بلا سقف زمني).'),
+  ('flat-500', 'مبلغ ثابت ٥٠٠ ريال لكل صفقة', 'Flat 500 SAR per closed deal', 'flat', 0, 500, '[]'::jsonb, 0, false,
+   'مبلغ واحد عند إغلاق الصفقة مهما كان حجمها.'),
+  ('tiered-standard', 'شرائح حسب حجم الصفقة', 'Tiered by deal size', 'tiered', 0, 0,
+   '[{"upTo":10000,"rate":5},{"upTo":50000,"rate":8},{"upTo":null,"rate":12}]'::jsonb, 0, false,
+   'حتى ١٠ آلاف ٥٪، وحتى ٥٠ ألفاً ٨٪، وما فوقها ١٢٪.')
+on conflict (key) do nothing;

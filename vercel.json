@@ -155,6 +155,10 @@
       "destination": "/api/requests?__route=doc-agent"
     },
     {
+      "source": "/api/referrals",
+      "destination": "/api/requests?__route=referrals"
+    },
+    {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
       "destination": "/assets/data/revenue-command-center"
     },
