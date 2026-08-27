@@ -46,6 +46,9 @@ const MAX_UPLOAD = 3 * 1024 * 1024;
 const FILL_HEX = { blue: "1F4ED8", black: "000000", original: "" };
 // Fact keys that are legal/sensitive declarations: the model may PROPOSE them,
 // the code refuses to store them as anything but CLIENT_CONFIRMED.
+// The subjects a legal declaration can be ABOUT — used to match a client's
+// confirmation to the exact field it unlocks, never to a neighbouring one.
+const SENSITIVE_SUBJECT = /pep|sanction|conflict|bribery|abac|criminal|tax_enforcement|enforcement|consent|source_of_funds|source_of_wealth|funds|wealth/gi;
 const SENSITIVE_KEY = /(pep|sanction|conflict_of_interest|bribery|criminal|tax_enforcement|consent|source_of_funds|source_of_wealth|declaration)/i;
 const STATUSES = ["NEW","UPLOADING","ANALYZING","EXTRACTING","MAPPING","WAITING_FOR_CLIENT","READY_TO_GENERATE","GENERATING","QA","READY","DELIVERED","REVISION","COMPLETED"];
 const FILE_ROLES = ["source","target_form","supporting","signature_asset","stamp_asset","requirement","unknown"];
@@ -507,6 +510,29 @@ async function classifyUpload(request, buf, base64, mime, fileName, uploadedBy) 
 // against a 60-second function ceiling means a request that fills four forms
 // times out and the client sees nothing — so the caller loops instead, and
 // every request stays comfortably inside the limit.
+/**
+ * May this value be written into this field? A client who confirmed "not a PEP"
+ * has NOT thereby confirmed the bribery, sanctions or tax-enforcement
+ * declarations — so each sensitive field is unlocked only by a confirmation
+ * whose own subject matches it, and a sensitive field with no identifiable
+ * subject is refused rather than guessed.
+ * @param {string} label  the form field's label
+ * @param {string} text   the value the plan wants to write
+ * @param {Array<{fact_key:string,value:string}>} confirmed  CLIENT_CONFIRMED declarations
+ * @param {boolean} flagged  the field was marked sensitive at classification
+ */
+export function declarationUnlocked(label, text, confirmed, flagged) {
+  const subjectsOf = (s) => [...new Set((String(s || "").toLowerCase().match(SENSITIVE_SUBJECT) || []).map((x) => x.toLowerCase()))];
+  const subject = [...subjectsOf(label), ...subjectsOf(text)];
+  const sensitive = !!flagged || SENSITIVE_KEY.test(String(text || "")) || SENSITIVE_KEY.test(String(label || "")) || subject.length > 0;
+  if (!sensitive) return true;
+  if (!(confirmed || []).length || !subject.length) return false;
+  return confirmed.some((f) => {
+    const ok = [...subjectsOf(f.fact_key), ...subjectsOf(f.value)];
+    return ok.some((c) => subject.includes(c));
+  });
+}
+
 async function generateOutputs(request, channel, onlyFormId) {
   await setReq(request.id, { status: "GENERATING" });
   const files = await sb(`doc_agent_files?request_id=eq.${request.id}&select=id,role,doc_kind,file_name,mime,storage_key,field_map`);
@@ -522,11 +548,10 @@ async function generateOutputs(request, channel, onlyFormId) {
   const nextVersion = (name) => existing.filter((o) => o.delivery_name === name).reduce((m, o) => Math.max(m, o.version_no), 0) + 1;
   // Sensitive ops require a confirmed declaration backing them — same guard
   // for every format: the model may plan them, the code drops them.
-  const confirmedDecl = new Set(usable.filter((f) => f.status === "CLIENT_CONFIRMED").map((f) => f.fact_key));
+  const confirmedDecl = usable.filter((f) => f.status === "CLIENT_CONFIRMED" && SENSITIVE_KEY.test(f.fact_key));
   const sensitiveOk = (form, fieldId, text) => {
     const field = ((form.field_map && form.field_map.fields) || []).find((x) => fieldId && x.id === fieldId);
-    const sensitiveTouch = (field && field.sensitive) || SENSITIVE_KEY.test(String(text || ""));
-    return !sensitiveTouch || confirmedDecl.size > 0;
+    return declarationUnlocked(field && field.label, text, confirmedDecl, field && field.sensitive);
   };
   const saveOutput = async (form, deliveryName, outBuf, mime, fillSummary, qa) => {
     const vno = nextVersion(deliveryName);
@@ -841,6 +866,8 @@ export async function handleDocAgent(req, res) {
       let note = ar ? `استلمت «${fileName}» وصنّفته: ${roleName}.` : `Received "${fileName}" — classified as: ${roleName}.`;
       if (merge.added) note += ar ? ` أضفت ${merge.added} معلومة إلى ملفك.` : ` Added ${merge.added} facts to your profile.`;
       if (merge.conflicts.length) note += ar ? ` لاحظت تعارضاً في: ${merge.conflicts.map((c) => c.key).join("، ")} — سأسألك عنه.` : ` Found conflicts in: ${merge.conflicts.map((c) => c.key).join(", ")}.`;
+      const readErr = fileRow.extracted && fileRow.extracted.model_error;
+      if (readErr) note += ar ? ` (تعذّرت قراءته آلياً: ${clip(readErr, 90)} — أخبرني ما هو ولن أخمّن)` : ` (could not be read automatically: ${clip(readErr, 90)})`;
       if (fileRow.expiry_status === "EXPIRED") note += ar ? " هذا المستند منتهي الصلاحية — سأكمل الطلب، والرجاء رفع نسخة محدثة قبل التقديم النهائي." : " This document is expired — I will continue, please upload a current copy before final submission.";
       await addMsg(request.id, "agent", "web", note);
       return j(res, 200, { ok: true, file: { id: fileRow.id, role, doc_kind: fileRow.doc_kind, expiry_status: fileRow.expiry_status }, facts_added: merge.added, conflicts: merge.conflicts, gap, note });
