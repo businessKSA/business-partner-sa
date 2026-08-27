@@ -720,6 +720,7 @@
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
         papersEmpty: 'لا يوجد عرض أو عقد باسمك حتى الآن. أول عرض يُرسل إليك يظهر هنا مباشرة.',
+        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها.',
         papersQuotes: 'عروض الأسعار', papersContracts: 'العقود', papersInvoices: 'مطالبات السداد',
         papersNote: 'الأسعار المعروضة غير شاملة ضريبة القيمة المضافة 15%، والرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.',
         papersOpen: 'افتح المستند', papersPay: 'سدّد الآن', papersNoneQ: 'لا عروض', papersNoneC: 'لا عقود', papersNoneI: 'لا مطالبات',
@@ -835,6 +836,7 @@
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
         papersEmpty: 'No quotation or contract in your name yet. The first one sent to you appears here.',
+        papersOff: 'This section is not connected to the quotations panel yet. It does not mean you have none — it means this page cannot read them.',
         papersQuotes: 'Quotations', papersContracts: 'Contracts', papersInvoices: 'Payment requests',
         papersNote: 'All prices are exclusive of 15% value added tax. Government fees are always excluded and are paid directly to the competent authorities at actual cost.',
         papersOpen: 'Open document', papersPay: 'Pay now', papersNoneQ: 'No quotations', papersNoneC: 'No contracts', papersNoneI: 'No payment requests',
@@ -2107,6 +2109,14 @@
       if (!q.length && !c.length && !v.length){
         ph.style.display = ''; main.style.display = 'none';
         if (badge) badge.style.display = 'none';
+        // «القسم غير مربوط» و«لا عرض باسمك» كانا يقولان الجملة نفسها. والفرق
+        // بينهما كل شيء: الأول عطل إعداد يُصلح بمتغيّر بيئة، والثاني حقيقة
+        // عن حساب العميل. من رآهما سواءً ظنّ النظام فارغاً وهو غير موصول.
+        var em = ph.querySelector('p span');
+        if (em){
+          em.removeAttribute('data-t');
+          em.textContent = (p.configured === false) ? t('papersOff') : t('papersEmpty');
+        }
         return;
       }
       ph.style.display = 'none'; main.style.display = '';
