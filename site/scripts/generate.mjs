@@ -2674,6 +2674,7 @@ function buildDocAgent() {
     outputs: Lraw("Your deliverables", "مخرجاتك"),
     download: Lraw("Download", "تحميل"),
     failed: Lraw("Something went wrong — try again or talk to us on WhatsApp.", "صار خطأ — أعد المحاولة أو كلمنا واتساب."),
+    tooBig: Lraw("This file is larger than 3 MB — the upload limit. Compress or split it, then send it again.", "هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى."),
     noForms: Lraw("I don't have a form to fill yet — tell me which uploaded file is the form, e.g. “fill the file X”.", "ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X»."),
     readyMsg: Lraw("Done — your filled files are ready, download them from the links above or from “Your deliverables”.", "تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك»."),
     facts: Lraw("facts extracted", "معلومة مستخرجة"),
@@ -2838,6 +2839,7 @@ function buildDocAgent() {
         if(i>=files.length){refresh();return;}
         var f=files[i];
         el('me','📎 '+f.name);
+        if(f.size>3*1024*1024){el('bot',T.tooBig);next(i+1);return;}
         var note=el('sys',T.uploading);
         var rd=new FileReader();
         rd.onload=function(){
@@ -2846,35 +2848,35 @@ function buildDocAgent() {
           var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
           post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
             note.remove();
-            el('bot',d.ok?d.note:T.failed);
+            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:T.failed));
             next(i+1);
           }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
         };
         rd.readAsDataURL(f);
       })(0);
     });
-    function runGenerate(){
-      if(!ref)return;var note=el('sys',T.generating);
-      post({action:'generate',ref:ref}).then(function(d){
+    function runGenerate(formId,seen){
+      if(!ref)return;var note=el('sys',T.generating);seen=seen||0;
+      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
         note.remove();
-        if(d.ok){
-          var okCount=0;
-          (d.outputs||[]).forEach(function(o){
-            if(o.ok&&o.output_id){
-              okCount++;
-              get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-                if(!l.url)return;
-                var row=el('bot','⬇️ ');
-                var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-                a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-                row.appendChild(a);
-                if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-              });
-            } else if(!o.ok){el('sys','⚠ '+o.form);}
-          });
-          if(okCount)el('bot',T.readyMsg);
-        }
-        else el('bot',d.error==='no_target_forms'?T.noForms:T.failed);
+        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(T.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
+        var done=0;
+        (d.outputs||[]).forEach(function(o){
+          if(o.ok&&o.output_id){
+            done++;
+            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
+              if(!l.url)return;
+              var row=el('bot','⬇️ ');
+              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
+              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
+              row.appendChild(a);
+              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
+            });
+          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
+        });
+        var rest=d.remaining||[];
+        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
+        if(done||seen)el('bot',T.readyMsg);
         refresh();
       }).catch(function(){note.remove();el('sys',T.failed);});
     }

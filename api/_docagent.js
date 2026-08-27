@@ -28,7 +28,7 @@ import {
 import { readDocumentRaw, askModel, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { zip, unzip } from "./_zip.js";
-import { xlsxCells, xlsxApply } from "./_xlsx.js";
+import { xlsxCells, xlsxApply, xlsxBlanks } from "./_xlsx.js";
 import { pdfFields, pdfFill } from "./_pdfform.js";
 
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -38,7 +38,11 @@ const AGENT_MIME_OK = new RegExp(
   DOCX_MIME.replace(/[./]/g, "\\$&") + "|" +
   XLSX_MIME.replace(/[./]/g, "\\$&") + ")$", "i"
 );
-const MAX_UPLOAD = 8 * 1024 * 1024;
+// Vercel caps a serverless request body at 4.5 MB, and base64 inflates a file
+// by 4/3 — so anything over ~3 MB never reaches this code at all: the platform
+// rejects it and the client sees an opaque failure. The cap belongs here, with
+// a message that says what to do.
+const MAX_UPLOAD = 3 * 1024 * 1024;
 const FILL_HEX = { blue: "1F4ED8", black: "000000", original: "" };
 // Fact keys that are legal/sensitive declarations: the model may PROPOSE them,
 // the code refuses to store them as anything but CLIENT_CONFIRMED.
@@ -90,6 +94,7 @@ export function docxNodes(xml) {
   return nodes;
 }
 const CHECKBOX_EMPTY = /[☐□◻❏⬜]/;
+const PLACEHOLDER = /_{3,}|\.{4,}|-{5,}|\u2026{2,}/;
 // Apply fill ops from last node to first so earlier offsets stay valid.
 // op: {node, op:"append"|"replace"|"check", text}
 export function docxApply(xml, ops, colorHex) {
@@ -395,49 +400,95 @@ async function setTargetForm(request, namePart) {
 }
 
 /* ------------------------------------------------------------- the phases */
+/* ------------------------------------------------- structure signals ---- */
+// What the language model CANNOT see. An empty spreadsheet cell does not exist
+// in the file at all, and an empty Word run carries no text — so a blank form
+// reaching the model looked like a short list of labels, i.e. a "source
+// document". That one blind spot is why uploaded forms came back classified as
+// sources and the request sat at "0 forms to fill". These signals are computed
+// from the file's own structure, never guessed, and they outrank the model.
+export function formSignals(buf, mime) {
+  try {
+    if (mime === XLSX_MIME) {
+      const blanks = xlsxBlanks(buf);
+      return { kind: "xlsx", score: blanks.length, fields: 0, blanks,
+        lines: blanks.map((b) => `${b.sheet}!${b.ref} "${b.label}" → اكتب في: ${[b.next, b.prev, b.below].filter(Boolean).join(" أو ")}`) };
+    }
+    if (/pdf$/i.test(mime)) {
+      const f = pdfFields(buf);
+      return { kind: "pdf", score: f.length ? 99 : 0, fields: f.length, blanks: [],
+        lines: f.map((x) => `field "${x.name}" (${x.type})`) };
+    }
+    if (mime === DOCX_MIME) {
+      const nodes = docxNodes(docxText(buf).xml);
+      const lines = [];
+      nodes.forEach((n, i) => {
+        const t = n.text;
+        const labelNoAnswer = /[:：؟?]\s*$/.test(t) && !(nodes[i + 1] && nodes[i + 1].text.trim());
+        if (PLACEHOLDER.test(t) || CHECKBOX_EMPTY.test(t) || labelNoAnswer) lines.push(`[${i}] ${clip(t, 60)}`);
+      });
+      return { kind: "docx", score: lines.length, fields: 0, blanks: [], lines: lines.slice(0, 300) };
+    }
+  } catch (e) { console.error("formSignals", String(e.message || e).slice(0, 120)); }
+  return { kind: "other", score: 0, fields: 0, blanks: [], lines: [] };
+}
+const signalBlock = (sig) => !sig.lines.length ? "(none detected)" :
+  `${sig.fields ? `${sig.fields} fillable PDF form fields` : `${sig.score} blanks awaiting an answer`}:\n${sig.lines.slice(0, 120).join("\n")}`;
+
 // Addressed cell view of a workbook for the model: "[Sheet!B7] label text".
 const xlsxCellList = (buf, max = 900) =>
   xlsxCells(buf).slice(0, max).map((c) => `[${c.sheet}!${c.ref}] ${c.text}`).join("\n");
 
 async function classifyUpload(request, buf, base64, mime, fileName, uploadedBy) {
-  // Office files cannot go to the vision APIs — read their text and classify
-  // via askModel; images and PDFs go to the vision providers as before.
-  let cls = null;
-  if (mime === DOCX_MIME) {
+  // Structure first, model second: the blanks are read from the file itself,
+  // then handed to the model so it judges with them in view.
+  const sig = formSignals(buf, mime);
+  const hint = `\n\nSTRUCTURE SIGNALS — read from the file itself, not guessed. TRUST THEM:\n${signalBlock(sig)}\n` +
+    `If blanks or fillable fields are listed above, this document IS a "target_form" no matter how much information it also carries. FILE NAME: ${fileName}`;
+  let cls = null, why = "";
+  if (mime === DOCX_MIME || mime === XLSX_MIME) {
     let text = "";
-    try { text = numberedNodes(docxText(buf).xml, 1200); } catch { text = ""; }
-    const r = await askModel(`${CLASSIFY_PROMPT}\n\nDOCUMENT (DOCX text nodes, numbered):\n${clip(text, 60000)}`, 4000);
-    cls = r.ok ? r.data : null;
-  } else if (mime === XLSX_MIME) {
-    let text = "";
-    try { text = xlsxCellList(buf, 1200); } catch { text = ""; }
-    const r = await askModel(`${CLASSIFY_PROMPT}\n\nDOCUMENT (XLSX cells, addressed as [Sheet!Ref]):\n${clip(text, 60000)}`, 4000);
-    cls = r.ok ? r.data : null;
+    try { text = mime === DOCX_MIME ? numberedNodes(docxText(buf).xml, 1200) : xlsxCellList(buf, 1200); } catch { text = ""; }
+    const label = mime === DOCX_MIME ? "DOCX text nodes, numbered" : "XLSX non-empty cells, addressed as [Sheet!Ref] (EMPTY CELLS ARE NOT LISTED)";
+    const r = await askModel(`${CLASSIFY_PROMPT}${hint}\n\nDOCUMENT (${label}):\n${clip(text, 60000)}`, 6000);
+    cls = r.ok ? r.data : null; why = r.ok ? "" : (r.detail || r.error || "model_failed");
   } else if (DOC_MIME_OK.test(mime) && buf.length <= MAX_DOC_BYTES) {
-    const r = await readDocumentRaw(base64, mime, CLASSIFY_PROMPT, 4000);
-    cls = r.ok ? r.data : null;
+    const r = await readDocumentRaw(base64, mime, CLASSIFY_PROMPT + hint, 6000);
+    cls = r.ok ? r.data : null; why = r.ok ? "" : (r.error || "model_failed");
+  } else if (!DOC_MIME_OK.test(mime)) {
+    why = "unsupported_type";
   }
   cls = cls || {};
-  const role = ["source","target_form","supporting","signature_asset","stamp_asset","requirement","unknown"].includes(cls.role) ? cls.role : "unknown";
+  let role = FILE_ROLES.includes(cls.role) ? cls.role : "unknown";
+  // The signals outrank the model's guess: a file with real blanks is a form.
+  const structural = sig.fields > 0 || sig.score >= 3;
+  if (structural && (role === "source" || role === "unknown" || role === "supporting")) role = "target_form";
+
   const key = `${request.organization_id}/doc-agent/${request.id}/${Date.now()}-${fileName.replace(/[^\w.\-]+/g, "_")}`;
   await storagePut(key, buf, mime);
-  const fieldMap = role === "target_form" && Array.isArray(cls.fields)
-    ? { fields: cls.fields.slice(0, 200).map((f, i) => ({
-        id: clip(f.id, 12) || `f${i + 1}`, label: clip(f.label, 200), kind: clip(f.kind, 20) || "text",
-        section: clip(f.section, 120), required: !!f.required,
-        sensitive: !!f.sensitive || SENSITIVE_KEY.test(String(f.label)),
-      })) }
+  const modelFields = Array.isArray(cls.fields) ? cls.fields.slice(0, 200).map((f, i) => ({
+    id: clip(f.id, 12) || `f${i + 1}`, label: clip(f.label, 200), kind: clip(f.kind, 20) || "text",
+    section: clip(f.section, 120), required: !!f.required,
+    sensitive: !!f.sensitive || SENSITIVE_KEY.test(String(f.label)),
+  })) : [];
+  // A form's blanks travel with it: the fill step then writes into known cells
+  // and known PDF fields instead of re-deriving them from prose.
+  const fieldMap = role === "target_form"
+    ? { fields: modelFields, blanks: sig.blanks, signal_lines: sig.lines.slice(0, 300), signal_kind: sig.kind }
     : null;
+  const note = why
+    ? `تعذّر تحليل الملف بالنموذج (${clip(why, 120)})${structural ? " — صُنّف نموذجاً للتعبئة من بنية الملف." : ""}`
+    : clip(cls.summary, 300) || null;
   const rows = await sb("doc_agent_files", {
     method: "POST",
     body: [{
-      request_id: request.id, role, doc_kind: clip(cls.doc_kind, 40) || null,
+      request_id: request.id, role, doc_kind: clip(cls.doc_kind, 40) || (structural ? "form" : null),
       file_name: clip(fileName, 200), mime, size_bytes: buf.length, storage_key: key,
       language: clip(cls.language, 8) || null,
       expiry_status: expiryStatus(cls.expiry_date), expiry_date: isoDate(cls.expiry_date),
       field_map: fieldMap,
-      extracted: { doc_date: isoDate(cls.doc_date), summary: clip(cls.summary, 300) },
-      analysis_note: clip(cls.summary, 300) || null,
+      extracted: { doc_date: isoDate(cls.doc_date), summary: clip(cls.summary, 300), model_error: why || undefined, blanks: sig.score },
+      analysis_note: note,
     }],
   });
   const fileRow = rows[0];
@@ -452,14 +503,20 @@ async function classifyUpload(request, buf, base64, mime, fileName, uploadedBy) 
   return { fileRow, cls, merge, role };
 }
 
-async function generateOutputs(request, channel) {
+// Fills ONE form per call by default. Two model calls per form (plan + QA)
+// against a 60-second function ceiling means a request that fills four forms
+// times out and the client sees nothing — so the caller loops instead, and
+// every request stays comfortably inside the limit.
+async function generateOutputs(request, channel, onlyFormId) {
   await setReq(request.id, { status: "GENERATING" });
   const files = await sb(`doc_agent_files?request_id=eq.${request.id}&select=id,role,doc_kind,file_name,mime,storage_key,field_map`);
   const facts = await sb(`doc_agent_facts?request_id=eq.${request.id}&select=fact_key,value,status,confidence&order=fact_key`);
   const usable = facts.filter((f) => f.status === "VERIFIED" || f.status === "CLIENT_CONFIRMED");
   const factsList = usable.map((f) => `${f.fact_key} = ${f.value} [${f.status}]`).join("\n") || "(none)";
   const colorHex = FILL_HEX[request.fill_color] ?? FILL_HEX.blue;
-  const forms = files.filter((f) => f.role === "target_form");
+  const allForms = files.filter((f) => f.role === "target_form");
+  const forms = onlyFormId ? allForms.filter((f) => f.id === onlyFormId) : allForms.slice(0, 1);
+  const remaining = allForms.filter((f) => !forms.some((x) => x.id === f.id)).map((f) => ({ id: f.id, name: f.file_name }));
   const outputs = [];
   const existing = await sb(`doc_agent_outputs?request_id=eq.${request.id}&select=delivery_name,version_no`);
   const nextVersion = (name) => existing.filter((o) => o.delivery_name === name).reduce((m, o) => Math.max(m, o.version_no), 0) + 1;
@@ -490,14 +547,21 @@ async function generateOutputs(request, channel) {
 
   for (const form of forms) {
     const deliveryName = clip(form.file_name.replace(/\.(docx|pdf|xlsx|png|jpe?g|webp)$/i, ""), 120) || "Form";
-    const mappingHints = JSON.stringify((form.field_map && form.field_map.fields) || []);
+    const fm = form.field_map || {};
+    const mappingHints = JSON.stringify(fm.fields || []) +
+      ((fm.signal_lines && fm.signal_lines.length)
+        ? `\n\nBLANKS FOUND IN THE FILE ITSELF (deterministic — fill exactly these):\n${fm.signal_lines.slice(0, 200).join("\n")}`
+        : "");
     let fillablePdf = null;
     if (form.mime === DOCX_MIME) {
       const buf = await storageGet(form.storage_key);
       const { entries, xml } = docxText(buf);
       const plan = await askModel(fillPrompt(form.file_name, numberedNodes(xml), factsList, mappingHints), 8000);
-      if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
+      if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed", detail: plan.detail || plan.error }); continue; }
+      // A salvaged (truncated) plan can end in an operation that lost its text;
+      // writing an empty run would silently blank a field, so it is dropped.
       const ops = plan.data.ops.filter((o) => Number.isInteger(o.node) && ["append","replace","check"].includes(o.op))
+        .filter((o) => o.op === "check" || String(o.text == null ? "" : o.text).trim())
         .filter((o) => sensitiveOk(form, o.field_id, o.text));
       const { xml: filledXml, applied } = docxApply(xml, ops, colorHex);
       entries.set("word/document.xml", Buffer.from(filledXml, "utf8"));
@@ -519,7 +583,7 @@ async function generateOutputs(request, channel) {
       let cellsList = "";
       try { cellsList = xlsxCellList(buf); } catch { outputs.push({ form: form.file_name, ok: false, error: "bad_xlsx" }); continue; }
       const plan = await askModel(xlsxFillPrompt(form.file_name, cellsList, factsList, mappingHints), 8000);
-      if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
+      if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed", detail: plan.detail || plan.error }); continue; }
       const ops = plan.data.ops
         .filter((o) => o && o.ref && o.text != null)
         .slice(0, 300)
@@ -543,7 +607,7 @@ async function generateOutputs(request, channel) {
       const { buf, fields } = fillablePdf;
       const fieldsList = fields.map((f) => `- "${f.name}" (${f.type})`).join("\n");
       const plan = await askModel(pdfFillPrompt(form.file_name, fieldsList, factsList, mappingHints), 8000);
-      if (!plan.ok || !Array.isArray(plan.data.values)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
+      if (!plan.ok || !Array.isArray(plan.data.values)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed", detail: plan.detail || plan.error }); continue; }
       const values = {};
       for (const v of plan.data.values.slice(0, 300)) {
         if (!v || !v.field || !fields.some((f) => f.name === v.field)) continue;
@@ -576,8 +640,8 @@ async function generateOutputs(request, channel) {
     }
   }
 
-  // Ownership chart when the facts carry ownership rows.
-  const owners = usable.filter((f) => /^ownership\[\d+\]\.owner_name/.test(f.fact_key));
+  // Ownership chart when the facts carry ownership rows (last pass only).
+  const owners = remaining.length ? [] : usable.filter((f) => /^ownership\[\d+\]\.owner_name/.test(f.fact_key));
   if (owners.length) {
     const shares = usable.filter((f) => /^ownership\[\d+\]\.share_pct/.test(f.fact_key));
     const company = (usable.find((f) => f.fact_key === "company.name_en") || usable.find((f) => f.fact_key === "company.name_ar") || {}).value || "Company";
@@ -594,10 +658,10 @@ async function generateOutputs(request, channel) {
   }
 
   const anyFailed = outputs.some((o) => o.ok && o.qa === "failed");
-  await setReq(request.id, { status: anyFailed ? "QA" : "READY" });
+  await setReq(request.id, { status: remaining.length ? "GENERATING" : (anyFailed ? "QA" : "READY") });
   await audit({ organization_id: request.organization_id, action: "doc_agent.generated", entity_type: "doc_agent_request", entity_id: request.id, after: { outputs: outputs.length, qa_failed: anyFailed } });
   await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "الوكيل الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
-  return outputs;
+  return { outputs, remaining };
 }
 
 async function packageOutputs(request) {
@@ -685,8 +749,8 @@ export async function handleDocAgent(req, res) {
         return j(res, 200, { ok: true });
       }
       if (adminAction === "admin-generate") {
-        const outputs = await generateOutputs(request, "consultant");
-        return j(res, 200, { ok: true, outputs });
+        const r = await generateOutputs(request, "consultant", clip(preBody.form_id, 60) || null);
+        return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining });
       }
       return j(res, 400, { ok: false, error: "bad_action" });
     } catch (e) {
@@ -761,7 +825,7 @@ export async function handleDocAgent(req, res) {
       if (!AGENT_MIME_OK.test(mime)) return j(res, 400, { ok: false, error: "bad_type" });
       const buf = Buffer.from(base64, "base64");
       if (!buf.length) return j(res, 400, { ok: false, error: "no_file" });
-      if (buf.length > MAX_UPLOAD) return j(res, 413, { ok: false, error: "too_large" });
+      if (buf.length > MAX_UPLOAD) return j(res, 413, { ok: false, error: "too_large", limit_mb: 3 });
       await setReq(request.id, { status: "ANALYZING" });
       const { fileRow, merge, role } = await classifyUpload(request, buf, base64, mime, fileName, userId);
       const gap = await gapSummary(request.id);
@@ -846,8 +910,8 @@ export async function handleDocAgent(req, res) {
     if (action === "generate") {
       const formsCount = (await sb(`doc_agent_files?request_id=eq.${request.id}&role=eq.target_form&select=id&limit=1`)).length;
       if (!formsCount) return j(res, 400, { ok: false, error: "no_target_forms" });
-      const outputs = await generateOutputs(request, "web");
-      return j(res, 200, { ok: true, outputs });
+      const r = await generateOutputs(request, "web", clip(b.form_id, 60) || null);
+      return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining });
     }
 
     if (action === "package") {

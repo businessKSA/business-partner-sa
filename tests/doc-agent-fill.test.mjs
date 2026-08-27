@@ -165,3 +165,69 @@ test("pdf without any fields reports none (fill-sheet fallback)", () => {
   const flat = Buffer.from("%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\ntrailer\n<< /Size 3 /Root 1 0 R >>\nstartxref\n9\n%%EOF\n", "latin1");
   assert.deepEqual(pdfFields(flat), []);
 });
+
+/* ------------------------------------------- classification structure -- */
+// The defect these cover: empty cells and empty runs do not exist in the file,
+// so a blank form reaching the model looked like a list of labels and came
+// back classified "source" — leaving the request at "0 forms to fill".
+import { xlsxBlanks } from "../api/_xlsx.js";
+import { formSignals } from "../api/_docagent.js";
+import { parseJson } from "../api/_docread.js";
+
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+test("xlsxBlanks finds a form's unanswered labels and skips answered ones", () => {
+  const blanks = xlsxBlanks(makeXlsx());
+  const byRef = new Map(blanks.map((b) => [`${b.sheet}!${b.ref}`, b]));
+  assert.ok(byRef.has("Vendor Form!B2"), "legal-name label is a blank");
+  assert.equal(byRef.get("Vendor Form!B2").next, "C2");
+  assert.ok(byRef.has("Vendor Form!B3"), "CR label is a blank");
+  assert.equal(byRef.get("Vendor Form!B6").next, null, "City already answered in C6 — not offered to the right");
+});
+
+test("formSignals flags a blank workbook as a form, and plain data as not", () => {
+  const form = formSignals(makeXlsx(), XLSX_MIME);
+  assert.equal(form.kind, "xlsx");
+  assert.ok(form.score >= 3, `blank form must score >= 3, got ${form.score}`);
+  assert.ok(form.lines[0].includes("اكتب في"), "each blank names the cell to write into");
+
+  const valuesOnly = Buffer.from(`${XML}<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Work Force Trading</t></is></c><c r="B1" t="inlineStr"><is><t>1010757593</t></is></c></row></sheetData></worksheet>`);
+  const dataOnly = zip(new Map([...unzip(makeXlsx())].map(([k, v]) => [k, k.startsWith("xl/worksheets/") ? valuesOnly : v])));
+  assert.equal(formSignals(dataOnly, XLSX_MIME).score, 0, "a sheet of values is not a form");
+});
+
+test("formSignals reads a fillable PDF as definitive", () => {
+  const sig = formSignals(buildPdf("classic"), "application/pdf");
+  assert.equal(sig.fields, 2);
+  assert.ok(sig.score > 3, "AcroForm fields settle the classification");
+});
+
+test("parseJson salvages a plan the model cut short", () => {
+  assert.equal(parseJson('{"ops":[{"node":1,"op":"append","text":"a"},{"node":2,"op":"append","text":"b"}]}').ops.length, 2);
+  // truncated mid-value: the completed operations must survive
+  const cut = parseJson('{"ops":[{"node":1,"op":"append","text":"a"},{"node":2,"op":"append","text":"شركة قوة الع');
+  assert.ok(cut, "a cut-off plan still parses");
+  assert.equal(cut.ops[0].text, "a", "the completed operation survives intact");
+  assert.equal(cut.ops.filter((o) => o.text != null).length, 1, "the operation whose value was cut carries no text — the engine drops it");
+  assert.equal(parseJson("not json at all"), null);
+});
+
+test("the blanks a form reports are exactly the cells the filler writes into", () => {
+  // The contract between detection and filling: whatever xlsxBlanks names as
+  // the place to write, xlsxApply must accept and land the value there —
+  // otherwise the model is left guessing cell refs, which is how forms came
+  // back empty.
+  const book = makeXlsx();
+  const blanks = xlsxBlanks(book).filter((b) => b.next);
+  const answers = { "Registered Legal Name:": "شركة قوة العمل", "CR Number:": "1010757593" };
+  const ops = blanks
+    .filter((b) => answers[b.label])
+    .map((b) => ({ sheet: b.sheet, ref: b.next, text: answers[b.label] }));
+  assert.equal(ops.length, 2, "both answerable blanks produced an operation");
+
+  const { buf, applied } = xlsxApply(book, ops, "1F4ED8");
+  assert.equal(applied.length, 2);
+  const after = new Map(xlsxCells(buf).map((c) => [`${c.sheet}!${c.ref}`, c.text]));
+  for (const op of ops) assert.equal(after.get(`${op.sheet}!${op.ref}`), op.text);
+  assert.equal(after.get("Vendor Form!B2"), "Registered Legal Name:", "labels untouched");
+});
