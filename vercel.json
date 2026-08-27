@@ -294,7 +294,7 @@
     },
     {
       "path": "/api/candidate?action=backfill&limit=25",
-      "schedule": "0 * * * *"
+      "schedule": "0 3 * * *"
     }
   ]
 }
