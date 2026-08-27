@@ -467,6 +467,7 @@ function channelOf({ ref, source, order, title }) {
   if (!r) { const m = t.match(/\(([A-Z]{2,4}-[A-Za-z0-9-]+)\)\s*$/); if (m) r = m[1]; }
   if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
   if (s === "إدخال يدوي") return { key: "manual", label: "إدخال يدوي", icon: "📞", color: "#0F766E" };
+  if (s === "B10X" || s === "Ask B10X" || r.startsWith("B10X")) return { key: "b10x", label: "B10X", icon: "🚀", color: "#9A3412" };
   if (r.startsWith("SP-") || /تسجيل مورّ?د/.test(t)) return { key: "supplier", label: "تسجيل مورّد", icon: "🏭", color: "#92400E" };
   if (r.startsWith("BPI-") || /طلب تقسيط/.test(t)) return { key: "installment", label: "طلب تقسيط", icon: "💳", color: "#BE185D" };
   if (r.startsWith("DL-")) return { key: "deal", label: "صفقة", icon: "🤝", color: "#166534" };
@@ -3949,6 +3950,78 @@ export default async function handler(req, res) {
   // contact first, then picked a service (main window → sub-service). Creates a
   // CRM ticket, emails the team + owner, fires the WhatsApp lead pipe, and shows
   // up in the BP Inbox tagged «تذكرة». One ticket = one CRM page (ref BPT-…).
+  // ---- B10X Faster™ — flagship product ----
+  // Deterministic engine classification for Ask B10X (no AI dependency: a
+  // wrong-but-visible engine label beats a request lost in a model hiccup).
+  const b10xEngineOf = (text) => {
+    const t = String(text || "");
+    const M = [
+      ["الحكومة والامتثال 🏛️", /قوى|قوي|تأمينات|مقيم|مدد|بلدي|زكاة|ضريب|أبشر|اعتماد|ناجز|امتثال|تجديد|حكوم|سلامة|فسح|سابر/i],
+      ["الانتقال والسكن 🧳", /سكن|شقة|فيلا|كمباوند|مدرسة|مدارس|انتقال|عائلة|مطار|فندق|relocat|housing|school|apartment/i],
+      ["العقارات والمقار 🏢", /مكتب|مستودع|مصنع|معرض|أرض|عقار|warehouse|office|showroom|factory/i],
+      ["الموظفون والتوظيف 👥", /موظف|توظيف|استقدام|تأشير|عقد عمل|راتب|recruit|hire|visa|staff/i],
+      ["الموردون والشراكات 🔗", /مورد|توريد|موزع|وكيل|packaging|rfq|supplier|distributor|vendor/i],
+      ["العملاء والمبيعات 📈", /عميل|عملاء|مبيعات|اجتماعات|بايبلاين|عرض سعر|client|sales|pipeline|meeting/i],
+      ["النمو والصفقات 🚀", /استحواذ|اندماج|توسع|شراء شركة|بيع شركة|شريك|acquisition|m&a|merger|expand|franchise/i],
+      ["التأسيس 🏗️", /تأسيس|سجل تجاري|رخصة استثمار|فرع أجنبي|misa|license|formation|branch/i],
+      ["الهوية والحضور الرقمي 🎨", /موقع|هوية|شعار|لوقو|بروفايل|سوشال|لينكد|website|logo|brand|instagram/i],
+      ["استكشاف السوق 🧭", /دراسة|استكشاف|سوق|منافس|market|research|competitor/i],
+    ];
+    for (const [label, re] of M) if (re.test(t)) return label;
+    return "طلب عام 📨";
+  };
+
+  // Public «Start B10X» application from /b10x — a flagship lead with its own
+  // channel, confirmed to the applicant and routed to the team.
+  if (b.type === "b10x-apply") {
+    const name = String(b.name || "").trim().slice(0, 120);
+    const company = String(b.company || "").trim().slice(0, 160);
+    const country = String(b.country || "").trim().slice(0, 80);
+    const sector = String(b.sector || "").trim().slice(0, 120);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const message = String(b.message || "").trim().slice(0, 1500);
+    if (!name || !company || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "B10X-" + Date.now().toString().slice(-6);
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">🚀 طلب B10X جديد — ${esc(company)}</h2><table>${row("المرجع", ref) + row("الاسم", name) + row("الشركة", company) + row("الدولة", country || "—") + row("القطاع", sector || "—") + row("الجوال", phone) + row("البريد", email) + row("الهدف", message || "—")}</table><p>عميل Flagship محتمل (تفعيل 50,000 + اشتراك B10X 365) — تواصل خلال يوم عمل.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">استلمنا طلب B10X الخاص بك ✅</h2><p>مرحباً ${esc(name)}، سجلنا اهتمام <b>${esc(company)}</b> بمنظومة <b>B10X Faster™ — Saudi Landing OS</b> برقم مرجع <b>${ref}</b>. سيتواصل معك مختص B10X خلال يوم عمل بخطة دخولك للسوق السعودي.</p><p><a href="${MKT_SITE_BASE}/consultation" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أو احجز استشارتك المجانية الآن</a></p><p style="color:#666;margin-top:18px">Business Partner · Riyadh · businesspartner.sa</p></div>`;
+    await Promise.all([
+      crmLead({ title: `🚀 B10X — ${company} (${name})`, phone, email, notes: `قناة: B10X · الدولة: ${country || "—"} · القطاع: ${sector || "—"}${message ? "\nالهدف: " + message : ""}`, ref, orderStatus: "قيد المراجعة", leadSource: "B10X" }),
+      sendEmail(TEAM_EMAIL, `🚀 طلب B10X جديد — ${company} (${ref})`, oHtml),
+      sendEmail(email, `استلمنا طلب B10X — ${ref}`, cHtml),
+      addToAudience(email, name),
+      forwardLead({ source: "b10x", ref, name, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // «Ask B10X» from inside the client portal: free text → classified service
+  // request with a tracking reference, assigned to the account manager flow.
+  // Session-gated: only a logged-in client can file one, under their identity.
+  if (b.type === "b10x-request") {
+    let sess = null;
+    try { sess = await getSession(req); } catch {}
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const text = String(b.text || "").trim().slice(0, 1200);
+    if (text.length < 5) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const engine = b10xEngineOf(text);
+    const ref = "B10XR-" + Date.now().toString().slice(-6);
+    const email = (sess.user && sess.user.email) || "";
+    const name = (sess.user && sess.user.full_name) || "";
+    const org = (sess.organization && (sess.organization.name_ar || sess.organization.name_en)) || "";
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">🚀 Ask B10X — ${esc(engine)}</h2><table>${row("المرجع", ref) + row("العميل", name) + row("المنشأة", org || "—") + row("البريد", email)}</table><p style="background:#F4F6FB;border-radius:8px;padding:12px 16px">${esc(text)}</p><p>أسندها لمدير الحساب وتابع التنفيذ من CRM.</p></div>`;
+    await Promise.all([
+      crmLead({ title: `🚀 طلب B10X — ${engine} — ${org || name || email}`, phone: "", email, notes: `قناة: Ask B10X · المحرك: ${engine} · المنشأة: ${org || "—"} · البريد: ${email}\nالطلب: ${text}`, ref, orderStatus: "قيد المراجعة", leadSource: "Ask B10X" }),
+      sendEmail(TEAM_EMAIL, `🚀 Ask B10X — ${engine} (${ref})`, oHtml),
+      sess.organization && sess.organization.id
+        ? notify({ organization_id: sess.organization.id, event: "b10x_request", channel: "inapp", title: `استلمنا طلبك ${ref} (${engine}) — سيتابعه مدير حسابك`, idempotency_key: `b10x:${ref}` }).catch(() => {})
+        : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, engine }));
+  }
+
   if (b.type === "support-ticket") {
     const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
     const c = b.contact && typeof b.contact === "object" ? b.contact : {};

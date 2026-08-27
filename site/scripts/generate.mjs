@@ -987,6 +987,20 @@ function buildHome() {
     </div>
   </div></section>
 
+  <!-- B10X flagship — the clearest, most prominent product on the homepage -->
+  <section class="section" style="padding-top:26px;padding-bottom:26px"><div class="container">
+    <a href="${u("/b10x")}" style="display:block;text-decoration:none;background:linear-gradient(120deg,#0B1B5A 0%,#13246e 55%,#1d2f8a 100%);border-radius:18px;padding:26px 28px;color:#fff;box-shadow:0 14px 40px rgba(11,27,90,.28)">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:18px;justify-content:space-between">
+        <div style="min-width:260px;flex:1">
+          <span style="display:inline-block;background:rgba(255,255,255,.16);border-radius:99px;padding:4px 14px;font-size:.78rem;letter-spacing:.06em;font-weight:700">B10X Faster™ — Saudi Landing OS</span>
+          <h2 style="color:#fff;margin:10px 0 6px;font-size:1.5rem">${L("From Landing in Saudi to Landing Your First Client.", "من أول وصول إلى السعودية إلى أول عميل.")}</h2>
+          <p style="color:rgba(255,255,255,.85);margin:0;font-size:.95rem">${L("Formation, relocation, housing, government, employees, suppliers and an always-on sales pipeline — one B10X Account Manager. Explore → Land → Establish → Relocate → Operate → Hire → Sell → Source → Scale.", "التأسيس، الانتقال، السكن، الحكومة، الموظفون، الموردون وبايبلاين مبيعات دائم — بمدير حساب B10X واحد. استكشف ← ادخل ← أسّس ← انتقل ← شغّل ← وظّف ← بِع ← ورّد ← انمُ.")}</p>
+        </div>
+        <span class="btn btn-white btn-lg" style="white-space:nowrap">${L("Discover B10X →", "اكتشف B10X ←")}</span>
+      </div>
+    </a>
+  </div></section>
+
   <section class="section section--navy trust-band"><div class="container">
     <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.trustEyebrow, h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${L("Numbers we're proud of", h.stats.title)}</h2></div>
     <div class="stats">${stats}</div>
@@ -10646,6 +10660,208 @@ function buildSharedServicesPortal() {
   });
 }
 
+/* ---------- B10X Faster™ — Saudi Landing OS (flagship product page) ---------- */
+// One product that packages market entry, formation, relocation, government,
+// workforce, real estate, digital presence, suppliers and an always-on sales
+// pipeline behind a single B10X Account Manager. Existing pages (revenue-os,
+// deals, mahfol-makfol, hr, workspaces, compliance-agent, suppliers) become
+// the engines' deep links — nothing is duplicated or removed.
+function buildB10X() {
+  const step = (ic, en, ar, de, da) => `<article class="path-card" style="text-align:center"><div class="card-icon" style="margin-inline:auto">${ic}</div><h3 style="font-size:1.02rem">${L(en, ar)}</h3><p class="muted" style="font-size:.85rem">${L(de, da)}</p></article>`;
+  const engine = (ic, name, en, ar, items, href, cta) => `<article class="path-card"><div class="card-icon">${ic}</div><h3>${name}</h3><p class="muted"><b>${L(en, ar)}</b></p><ul class="clean-list">${items.map(([e2, a2]) => `<li>${L(e2, a2)}</li>`).join("")}</ul>${href ? `<a class="btn" href="${href.startsWith("#") ? href : u(href)}">${cta || L("Learn more", "التفاصيل")}</a>` : ""}</article>`;
+  const chip = (en, ar) => `<span class="sector-chip">${L(en, ar)}</span>`;
+  const bl = (en, ar) => `<li>${L(en, ar)}</li>`;
+
+  const body = `
+  <section class="hero dot-bg"><div class="container hero-inner">
+    <span class="eyebrow">B10X Faster™ — Saudi Landing OS</span>
+    <h1>${L("From Landing in Saudi to Landing Your First Client.", "من أول وصول إلى السعودية إلى أول عميل.")}</h1>
+    <p class="lead" style="font-weight:700;color:var(--navy, #0B1B5A)">${L("Build Toward Your First SAR 1 Million.", "وابنِ طريقك نحو أول مليون ريال.")}</p>
+    <p class="lead">${L("Company formation, relocation, housing, government operations, employees, offices, suppliers, digital presence and an always-on sales pipeline — managed through one B10X Account Manager.", "التأسيس، الانتقال، السكن، العمليات الحكومية، الموظفون، المكاتب، الموردون، الحضور الرقمي وبايبلاين المبيعات — كلها من خلال مدير حساب B10X واحد.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a><a class="btn btn-ghost btn-lg" href="${u("/consultation")}">${L("Plan My Saudi Landing", "خطط لدخول السعودية")}</a></div>
+    <div class="proof"><span>${L("One Partner", "شريك واحد")}</span><span>${L("One Account Manager", "مدير حساب واحد")}</span><span>${L("One Operating System", "منظومة تشغيل واحدة")}</span><span>10X Faster</span></div>
+  </div></section>
+
+  <nav class="section-nav"><div class="container chip-row">
+    <a class="sector-chip" href="#journey">${L("The journey", "الرحلة")}</a>
+    <a class="sector-chip" href="#engines">${L("10 Engines", "المحركات العشرة")}</a>
+    <a class="sector-chip" href="#manager">${L("Account Manager", "مدير الحساب")}</a>
+    <a class="sector-chip" href="#relocation">${L("Relocation", "الانتقال")}</a>
+    <a class="sector-chip" href="#revenue">${L("Revenue", "الإيرادات")}</a>
+    <a class="sector-chip" href="#mission">${L("Discovery Mission", "رحلة المستثمر")}</a>
+    <a class="sector-chip" href="#pricing">${L("Pricing", "التسعير")}</a>
+    <a class="sector-chip" href="#b10x-apply">${L("Apply", "قدّم طلبك")}</a>
+  </div></nav>
+
+  <section class="trust-strip"><div class="container">
+    <p>${L("We don't just set up your company. We land it, run it and grow it.", "لا نؤسس شركتك فقط — نساعدك على الدخول والاستقرار والتشغيل والنمو.")}</p>
+  </div></section>
+
+  <section class="section dot-bg" id="journey"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("One journey, end to end", "رحلة واحدة من أول قرار")}</span><h2>${L("Explore. Land. Establish. Relocate. Operate. Hire. Sell. Source. Scale.", "استكشف. ادخل. أسّس. انتقل. شغّل. وظّف. بِع. ورّد. انمُ.")}</h2><p>${L("Saudi market entry, relocation, operations and growth — as a service.", "دخول السوق والانتقال والتشغيل والنمو — كخدمة واحدة.")}</p></div>
+    <div class="grid grid-3">
+      ${step("🧭", "Explore", "استكشف", "Understand the Saudi market.", "افهم السوق السعودي قبل أي قرار.")}
+      ${step("🛬", "Land", "ادخل", "Enter the market with a plan.", "ادخل السوق بخطة واضحة.")}
+      ${step("🏗️", "Establish", "أسّس", "Set up your company.", "أسّس كيانك النظامي.")}
+      ${step("🧳", "Relocate", "انتقل", "Move the investor, managers and team.", "انقل المستثمر والمدير والفريق.")}
+      ${step("⚙️", "Operate", "شغّل", "Run the company day to day.", "شغّل الشركة يوماً بيوم.")}
+      ${step("👥", "Hire", "وظّف", "Build the team.", "ابنِ الفريق.")}
+      ${step("📈", "Sell", "بِع", "Build your client pipeline.", "ابنِ بايبلاين عملائك.")}
+      ${step("🔗", "Source", "ورّد", "Build your supplier network.", "ابنِ شبكة مورديك.")}
+      ${step("🚀", "Scale", "انمُ", "Grow the company.", "نمِّ الشركة وتوسّع.")}
+    </div>
+  </div></section>
+
+  <section class="section" id="manager"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("The most important element", "أهم عنصر في المنتج")}</span><h2>${L("One Account Manager. 10X Execution Power.", "موظف واحد بقوة فريق كامل.")}</h2><p>${L("Every client gets a dedicated B10X Account Manager — your single point of contact for everything.", "كل عميل يحصل على مدير حساب B10X مخصص — نقطة اتصالك الوحيدة لكل شيء.")}</p></div>
+    <div class="chip-row" style="justify-content:center">
+      ${[["Government Specialists", "متخصصو الحكومة"], ["HR", "الموارد البشرية"], ["Recruitment", "التوظيف"], ["Business Development", "تطوير الأعمال"], ["Procurement", "المشتريات"], ["Supplier Sourcing", "توريد الموردين"], ["Real Estate", "العقارات"], ["Relocation", "الانتقال"], ["Marketing", "التسويق"], ["Technology", "التقنية"], ["Automation", "الأتمتة"], ["AI Agents", "وكلاء الذكاء الاصطناعي"], ["Administrative Support", "الدعم الإداري"], ["Finance Coordination", "التنسيق المالي"], ["Corporate Services", "الخدمات المؤسسية"]].map(([e2, a2]) => chip(e2, a2)).join("")}
+    </div>
+    <div class="callout" style="margin-top:22px"><span class="ico">💬</span><p><b>Ask B10X</b> — ${L("inside your client portal: type what you need — “I need an apartment for the GM”, “I need 5 employees”, “I have a Qiwa issue” — and it becomes a tracked service request assigned to your Account Manager.", "داخل بوابة العميل: اكتب ما تحتاجه — «أحتاج شقة للمدير العام»، «أحتاج ٥ موظفين»، «عندي مشكلة في قوى» — ويتحول تلقائياً إلى طلب خدمة برقم متابعة يُسند لمدير حسابك.")}</p></div>
+  </div></section>
+
+  <section class="section section--navy" id="engines"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("The product", "المنتج")}</span><h2 style="color:#fff">${L("10 Engines. One Operating System.", "١٠ محركات. منظومة تشغيل واحدة.")}</h2></div>
+    <div class="grid grid-2">
+      ${engine("🧭", "B10X Explore", "Market exploration", "استكشاف السوق", [["Market entry assessment & sector research", "تقييم دخول السوق وبحث القطاع"], ["Competitor, customer & supplier mapping", "خرائط المنافسين والعملاء والموردين"], ["Regulatory mapping & target cities", "الخريطة التنظيمية والمدن المستهدفة"], ["Cost & workforce assessment", "تقييم التكاليف والقوى العاملة"]], "/mahfol-makfol")}
+      ${engine("🏗️", "B10X Establish", "Formation", "التأسيس", [["Investment license & foreign investor setup", "رخصة الاستثمار وتأسيس المستثمر الأجنبي"], ["LLC / foreign branch / RHQ", "شركة ذ.م.م / فرع أجنبي / مقر إقليمي"], ["CR, articles, GM appointment", "السجل التجاري وعقد التأسيس وتعيين المدير"], ["Attestation & translation coordination", "تنسيق التصديق والترجمة"]], "/services")}
+      ${engine("🏛️", "B10X Government", "Government & compliance", "الحكومة والامتثال", [["Qiwa, GOSI, Mudad, Muqeem, Absher", "قوى والتأمينات ومدد ومقيم وأبشر"], ["Baladi, Ejar, ZATCA, Etimad, Najiz", "بلدي وإيجار والزكاة واعتماد وناجز"], ["Compliance center: licenses, expiries, renewals", "مركز امتثال: الرخص والانتهاءات والتجديدات"], ["Sector platforms (SFDA, Saber, Fasah…)", "منصات القطاع (الغذاء والدواء، سابر، فسح…)"]], "/compliance-agent")}
+      ${engine("🧳", "B10X Relocation", "Relocation & settling-in", "الانتقال والاستقرار", [["Investor, executives, employees & family", "المستثمر والتنفيذيون والموظفون والعائلة"], ["Executive & workforce housing", "سكن تنفيذي وسكن عمالة"], ["Schools, healthcare, transport, banking", "المدارس والرعاية والتنقل والبنوك"], ["Arrival to departure, end to end", "من الوصول حتى المغادرة"]], "#relocation")}
+      ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
+      ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
+      ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/revenue-os")}
+      ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
+      ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
+    </div>
+  </div></section>
+
+  <section class="section dot-bg" id="relocation"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Relocation</span><h2>${L("We don't just relocate your business. We relocate the people behind it.", "لا ننقل شركتك فقط — نساعد الأشخاص خلفها على الانتقال والاستقرار.")}</h2></div>
+    <div class="grid grid-3">
+      <div class="card feature"><h3>🛫 ${L("Pre-arrival", "قبل الوصول")}</h3><p>${L("Needs assessment, city & area selection, housing and school requirements, commute and arrival planning.", "تقييم الاحتياج، اختيار المدينة والأحياء، متطلبات السكن والمدارس، وخطة الوصول.")}</p></div>
+      <div class="card feature"><h3>🛬 ${L("Arrival", "عند الوصول")}</h3><p>${L("Airport reception, executive car, temporary residence, SIM, orientation and Account Manager introduction.", "استقبال المطار، سيارة تنفيذية، سكن مؤقت، شريحة اتصال، وجولة تعريفية مع مدير حسابك.")}</p></div>
+      <div class="card feature"><h3>🏠 ${L("Executive housing", "السكن التنفيذي")}</h3><p>${L("Apartment, villa, compound or serviced residence — matched to budget, office, family and lifestyle.", "شقة، فيلا، كمباوند أو سكن مخدوم — حسب الميزانية والمكتب والعائلة ونمط الحياة.")}</p></div>
+      <div class="card feature"><h3>🏘️ ${L("Workforce housing", "سكن العمالة")}</h3><p>${L("Licensed group housing with maintenance, utilities, transport and catering coordination.", "سكن جماعي نظامي مع تنسيق الصيانة والخدمات والنقل والإعاشة.")}</p></div>
+      <div class="card feature"><h3>🏫 ${L("Family & schools", "العائلة والمدارس")}</h3><p>${L("International school search (British, American, IB) by budget, age and location — shortlist, visits, applications. Admission is not guaranteed.", "بحث المدارس الدولية (بريطاني، أمريكي، IB) حسب الميزانية والعمر والموقع — ترشيح وزيارات وتقديم. القبول غير مضمون.")}</p></div>
+      <div class="card feature"><h3>🚗 ${L("Transport, banking & settling-in", "التنقل والبنوك والاستقرار")}</h3><p>${L("Chauffeur/leasing coordination, bank appointment support, city orientation — through departure and exit support.", "تنسيق السائق والتأجير، ودعم موعد البنك، وجولات التعرف على المدينة — وحتى دعم المغادرة والإنهاء.")}</p></div>
+    </div>
+    <div class="callout" style="margin-top:18px"><span class="ico">ℹ️</span><p>${L("Flights, hotels, rent, school fees and all third-party costs are separate unless priced explicitly.", "الطيران والفنادق والإيجارات ورسوم المدارس وكل تكاليف الأطراف الثالثة منفصلة ما لم تُسعَّر صراحة.")}</p></div>
+  </div></section>
+
+  <section class="section" id="revenue"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Selling never stops", "مبيعاتك لا تتوقف")}</span><h2>${L("Your pipeline never sleeps.", "بايبلاينك لا ينام.")}</h2><p>${L("You don't enter Saudi without a pipeline. All year: research → prospect → outreach → follow-up → meeting → proposal → negotiation → win → repeat.", "لا تدخل السعودية بدون بايبلاين. طوال السنة: بحث ← استهداف ← تواصل ← متابعة ← اجتماع ← عرض ← تفاوض ← فوز ← تكرار.")}</p></div>
+    <div class="grid grid-2">
+      <div class="card"><h3>🏁 ${L("First Client Milestones", "معالم أول عميل")}</h3><ul class="clean-list">
+        ${bl("ICP defined → target accounts built", "تحديد العميل المثالي ← بناء الحسابات المستهدفة")}
+        ${bl("First outreach → first reply → first meeting", "أول تواصل ← أول رد ← أول اجتماع")}
+        ${bl("First qualified opportunity → first proposal", "أول فرصة مؤهلة ← أول عرض سعر")}
+        ${bl("First negotiation → FIRST CLIENT 🎉", "أول تفاوض ← أول عميل 🎉")}
+      </ul><p class="mini">${L("Tracked monthly: accounts researched, decision makers, outreach, replies, meetings, proposals, pipeline value, won revenue.", "تُتابع شهرياً: الحسابات المبحوثة، صناع القرار، التواصل، الردود، الاجتماعات، العروض، قيمة البايبلاين، والإيراد المحقق.")}</p></div>
+      <div class="card" id="road1m"><h3>🎯 ${L("Road to SAR 1,000,000 — planning tool", "الطريق إلى ١٬٠٠٠٬٠٠٠ ريال — أداة تخطيط")}</h3>
+        <div class="grid grid-2" style="gap:10px">
+          <label style="font-size:.85rem">${L("Average contract value (SAR)", "متوسط قيمة العقد (﷼)")}<input id="r1acv" type="number" value="50000" min="1000" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+          <label style="font-size:.85rem">${L("Win rate %", "نسبة الفوز %")}<input id="r1win" type="number" value="20" min="1" max="90" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        </div>
+        <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
+        <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
+    </div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/revenue-os")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+  </div></section>
+
+  <section class="section dot-bg" id="mission"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>${L("An executive discovery mission inside Saudi Arabia", "رحلة استكشافية تنفيذية داخل السعودية")}</h2><p>${L("Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.", "لقاءات حكومية وعملاء وموردون وبنوك وغرف تجارية وجولات عقارية — مصممة حسب قطاعك.")}</p></div>
+    <div class="chip-row" style="justify-content:center">${[["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Eastern Province", "الشرقية"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Aseer", "عسير"], ["Tabuk", "تبوك"], ["NEOM", "نيوم"], ["Jazan", "جازان"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+    <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>${L("Flights, hotels, transport and third-party costs are not included unless priced separately.", "الطيران والفنادق والنقل وتكاليف الأطراف الثالثة غير مشمولة إلا إذا سُعّرت منفصلة.")}</p></div>
+    <div class="center mt-32"><a class="btn" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
+  </div></section>
+
+  <section class="section" id="pricing"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Simple, serious pricing", "تسعير واضح وجاد")}</span><h2>${L("B10X Activation + B10X 365", "تفعيل B10X + عقد B10X 365")}</h2></div>
+    <div class="grid grid-2">
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X Activation</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 50,000 <span style="font-size:.9rem;font-weight:400">+ VAT · ${L("one time", "مرة واحدة")}</span></p>
+        <ul class="clean-list">${bl("Month 1 — Build: audit, structure, government map", "الشهر الأول — البناء: التدقيق والهيكلة والخريطة الحكومية")}${bl("Relocation plan, launch website, company profile", "خطة الانتقال، موقع الانطلاق، البروفايل")}${bl("CRM, ICP and supplier framework", "الـCRM وتعريف العميل المثالي وإطار الموردين")}</ul></div>
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X 365</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 10,000 <span style="font-size:.9rem;font-weight:400">/ ${L("month", "شهرياً")} + VAT · ${L("12-month partnership", "شراكة ١٢ شهراً")}</span></p>
+        <ul class="clean-list">${bl("Dedicated Account Manager + request management", "مدير حساب مخصص + إدارة الطلبات")}${bl("Government ops, compliance, HR & recruitment coordination", "العمليات الحكومية والامتثال وتنسيق الموارد والتوظيف")}${bl("Revenue pipeline, supplier sourcing, vendor registration (≤5/mo)", "بايبلاين الإيراد وتوريد الموردين وتسجيل الموردين (≤٥ شهرياً)")}${bl("Relocation & real-estate coordination, documents, renewals, AI shared services", "تنسيق الانتقال والعقار والمستندات والتجديدات وخدمات الذكاء المشتركة")}</ul></div>
+    </div>
+    <p class="center" style="margin-top:14px;font-weight:700">${L("First-year base fees: SAR 170,000 + VAT — before add-ons or success fees.", "إجمالي الأتعاب الأساسية للسنة الأولى: ١٧٠٬٠٠٠ ريال + الضريبة — قبل أي إضافات أو عمولات نجاح.")}</p>
+    <div class="callout"><span class="ico">⚖️</span><p><b>${L("Government, third-party and success fees apply separately.", "الرسوم الحكومية وتكاليف الأطراف الثالثة وعمولات النجاح تُحتسب منفصلة.")}</b> ${L("The retainer is managed under a Fair Usage Policy: some services are included management, some included coordination, some usage-limited, and larger scopes are priced as projects or success fees.", "الاشتراك يُدار وفق سياسة الاستخدام العادل: بعض الخدمات إدارة مشمولة، وبعضها تنسيق مشمول، وبعضها محدود الاستخدام، والنطاقات الأكبر تُسعّر كمشاريع أو عمولات نجاح.")}</p></div>
+    <div class="section-head" style="margin-top:26px"><h2 style="font-size:1.2rem">${L("Success fees & add-on marketplace", "عمولات النجاح وسوق الإضافات")}</h2></div>
+    <div class="chip-row" style="justify-content:center">${[["Customer acquisition %", "استقطاب العملاء %"], ["Supplier / commercial match", "مطابقة الموردين"], ["Distribution & partnership", "التوزيع والشراكات"], ["Recruitment fee", "رسوم التوظيف"], ["Real estate (per regulations)", "العقار (وفق الأنظمة)"], ["M&A mandate + success", "الاندماج والاستحواذ"], ["Advanced website / e-commerce", "موقع متقدم / متجر"], ["Custom portal / CRM / ERP", "بوابة / CRM / ERP مخصص"], ["AI agents & automation", "وكلاء ذكاء وأتمتة"], ["Paid advertising", "إعلانات ممولة"], ["Executive & volume hiring", "توظيف تنفيذي وبالجملة"], ["Large relocation projects", "مشاريع انتقال كبيرة"], ["Custom market research", "أبحاث سوق مخصصة"], ["New-city expansion", "التوسع لمدن جديدة"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+  </div></section>
+
+  <section class="section dot-bg"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Year one", "السنة الأولى")}</span><h2>${L("The annual timeline", "الجدول الزمني السنوي")}</h2></div>
+    <div class="grid grid-4">
+      <div class="card feature"><h3>${L("Month 1 — Build", "الشهر ١ — البناء")}</h3><p>${L("Audit, structure, government map, relocation plan, website, profile, CRM, ICP, supplier framework.", "تدقيق، هيكلة، خريطة حكومية، خطة انتقال، موقع، بروفايل، CRM، ICP، إطار موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 2–3 — Launch", "الشهران ٢–٣ — الانطلاق")}</h3><p>${L("Government activation, hiring, housing, office, outreach, meetings, vendor registrations.", "تفعيل حكومي، توظيف، سكن، مكتب، تواصل، اجتماعات، تسجيلات موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 4–6 — Traction", "الأشهر ٤–٦ — الانطلاقة")}</h3><p>${L("Sales pipeline, suppliers, partnerships, recruitment, first clients, compliance.", "بايبلاين مبيعات، موردون، شراكات، توظيف، أول عملاء، امتثال.")}</p></div>
+      <div class="card feature"><h3>${L("Months 7–12 — Scale", "الأشهر ٧–١٢ — النمو")}</h3><p>${L("New accounts, markets, cities, partnerships, procurement, technology, deals, expansion.", "حسابات وأسواق ومدن جديدة، شراكات، مشتريات، تقنية، صفقات، توسع.")}</p></div>
+    </div>
+  </div></section>
+
+  <section class="section" id="b10x-apply"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Start B10X", "ابدأ B10X")}</span><h2>${L("Tell us about your company", "أخبرنا عن شركتك")}</h2><p>${L("A B10X specialist replies within one business day with your landing plan.", "يرد عليك مختص B10X خلال يوم عمل بخطة دخولك.")}</p></div>
+    <form id="b10xForm" class="card" style="display:grid;gap:12px">
+      <div class="grid grid-2" style="gap:12px">
+        <label>${L("Your name *", "اسمك *")}<input name="name" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Company *", "الشركة *")}<input name="company" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Country", "الدولة")}<input name="country" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Sector", "القطاع")}<input name="sector" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Phone / WhatsApp *", "الجوال / واتساب *")}<input name="phone" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Email *", "البريد *")}<input name="email" type="email" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+      </div>
+      <label>${L("What do you want to achieve in Saudi?", "ماذا تريد أن تحقق في السعودية؟")}<textarea name="message" rows="3" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></textarea></label>
+      <button class="btn btn-primary btn-lg" type="submit">${L("Start B10X →", "ابدأ B10X ←")}</button>
+      <div id="b10xMsg" class="mini" style="display:none"></div>
+    </form>
+  </div></section>
+
+  <div class="cta-band"><h2>${L("Land in Saudi. Start Selling. Keep Growing.", "ادخل السعودية. ابدأ البيع. واستمر بالنمو.")}</h2><p>${L("One Partner. One Account Manager. One Operating System. 10X Faster.", "شريك واحد. مدير حساب واحد. منظومة واحدة. أسرع ١٠ مرات.")}</p><a class="btn btn-white btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a></div>`;
+
+  const script = `
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    function r1(){
+      var acv = Math.max(1, +($('r1acv').value || 0));
+      var win = Math.min(90, Math.max(1, +($('r1win').value || 0))) / 100;
+      var target = 1000000;
+      var wins = Math.ceil(target / acv);
+      var opps = Math.ceil(wins / win);
+      var meetings = opps * 2;
+      var pipeline = Math.ceil(target / win);
+      $('r1out').querySelector('p').textContent = ${JSON.stringify("")} +
+        '${Lraw("Wins needed", "الصفقات المطلوبة")}: ' + wins.toLocaleString('en') +
+        ' · ${Lraw("Qualified opportunities", "الفرص المؤهلة")}: ' + opps.toLocaleString('en') +
+        ' · ${Lraw("Meetings", "الاجتماعات")}: ~' + meetings.toLocaleString('en') +
+        ' · ${Lraw("Pipeline value", "قيمة البايبلاين")}: SAR ' + pipeline.toLocaleString('en');
+    }
+    if ($('r1acv')){ $('r1acv').oninput = r1; $('r1win').oninput = r1; r1(); }
+    var f = $('b10xForm');
+    if (f) f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var d = new FormData(f), o = { type: 'b10x-apply' };
+      d.forEach(function(v, k){ o[k] = String(v); });
+      var m = $('b10xMsg'); m.style.display = 'block'; m.textContent = '${Lraw("Sending…", "جاري الإرسال…")}';
+      fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
+        .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
+          else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966503793356", "تعذّر الإرسال — تواصل واتساب: 966503793356")}'; }
+        })
+        .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });
+    });
+  })();`;
+
+  return page({
+    title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | بيزنس بارتنر"),
+    desc: Lraw("Saudi market entry, relocation, operations and growth as a service — formation, housing, government, employees, suppliers and an always-on sales pipeline behind one B10X Account Manager.", "دخول السوق السعودي والانتقال والتشغيل والنمو كخدمة — التأسيس والسكن والحكومة والموظفون والموردون وبايبلاين مبيعات دائم خلف مدير حساب B10X واحد."),
+    active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`,
+  });
+}
+
 /* ---------- write ---------- */
 function write(rel, html) {
   const full = path.join(ROOT, rel);
@@ -10684,6 +10900,7 @@ function writeFullSite(pre) {
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}revenue-os.html`, buildRevenueOS());
+  write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
@@ -10845,7 +11062,11 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
+<<<<<<< HEAD
 const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+=======
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+>>>>>>> f24e2d3dd (B10X Faster™ — Saudi Landing OS: flagship product, tranche 1)
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

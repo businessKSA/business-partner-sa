@@ -2825,6 +2825,10 @@
         '<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid #E4E7F0">' +
           '<input id="acIn" type="text" placeholder="اسأل عن طلباتك أو محفظتك أو أي قسم…" style="flex:1;padding:10px 12px;border:1px solid #CBD5E1;border-radius:10px;font-family:inherit;font-size:13.5px;outline:none">' +
           '<button type="button" id="acGo" style="background:#0B1B5A;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-family:inherit;font-weight:700;cursor:pointer">إرسال</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;padding:0 16px 12px">' +
+          '<button type="button" id="acB10x" style="background:#9A3412;color:#fff;border:0;border-radius:10px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer">🚀 أرسل كطلب خدمة B10X</button>' +
+          '<span style="color:#94a3b8;font-size:11px">يتحول ما كتبته لطلب رسمي برقم متابعة يُسند لفريقك</span>' +
         '</div>';
       document.body.appendChild(fab);
       document.body.appendChild(dock);
@@ -2875,6 +2879,32 @@
       dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
       dock.querySelector('#acGo').onclick = function(){ ask(inp.value); };
       inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') ask(inp.value); });
+      // Ask B10X: free text → a tracked service request (type b10x-request,
+      // session-gated server-side) — classified into a B10X engine, assigned
+      // to the account team, confirmed here with its reference.
+      dock.querySelector('#acB10x').onclick = function(){
+        var btn = this;
+        var lastUser = null;
+        for (var i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'user'){ lastUser = msgs[i].content; break; }
+        var text = (inp.value || '').trim() || lastUser || '';
+        if (text.length < 5){ alert('اكتب طلبك أولاً في خانة الرسالة — مثال: أحتاج شقة للمدير العام في الرياض.'); return; }
+        btn.disabled = true; btn.textContent = 'جاري الإرسال…';
+        fetch('/api/requests', { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({ type: 'b10x-request', text: text }) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            btn.disabled = false; btn.textContent = '🚀 أرسل كطلب خدمة B10X';
+            if (out && out.ok){
+              inp.value = '';
+              msgs.push({ role: 'assistant', content: '✅ استلمنا طلبك برقم متابعة ' + out.ref + '\nالتصنيف: ' + (out.engine || '') + '\nسيتولاه مدير حسابك وستصلك التحديثات هنا وفي «التنبيهات».' });
+              render(false);
+            } else if (out && out.error === 'unauthorized'){
+              alert('سجّل دخولك للوحة أولاً لإرسال طلب B10X.');
+            } else {
+              alert('تعذّر الإرسال — جرّب ثانية أو تواصل واتساب: 966503793356');
+            }
+          })
+          .catch(function(){ btn.disabled = false; btn.textContent = '🚀 أرسل كطلب خدمة B10X'; alert('تعذّر الاتصال.'); });
+      };
     })();
 
     boot();
