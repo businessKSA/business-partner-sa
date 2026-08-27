@@ -7326,6 +7326,58 @@ var BP_EMP_BILLING = "monthly";
         });
     });
 
+    // Back-fill: send past applicants the copy they never got. Runs one bounded
+    // batch per click so the owner watches it go out rather than firing
+    // thousands of e-mails on a single press.
+    function backfill(dryRun) {
+      var msg = document.getElementById("js-bf-msg");
+      var out = document.getElementById("js-bf-out");
+      var runBtn = document.getElementById("js-bf-run");
+      var dryBtn = document.getElementById("js-bf-dry");
+      var limit = Number(document.getElementById("js-bf-limit").value) || 25;
+      var requireCv = !document.getElementById("js-bf-nocv").checked;
+      runBtn.disabled = dryBtn.disabled = true;
+      msg.style.color = "";
+      msg.textContent = dryRun
+        ? T("Checking who is next in line…", "نتحقق من التالين في الدور…")
+        : T("Sending — leave this page open until it finishes.", "جارٍ الإرسال — لا تغلق الصفحة حتى ينتهي.");
+      out.innerHTML = "";
+      fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "backfill-copies", key: KEY, limit: limit, dryRun: dryRun, requireCv: requireCv }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          runBtn.disabled = dryBtn.disabled = false;
+          if (!d || !d.ok) {
+            msg.style.color = "#B91C1C";
+            msg.textContent = T("That didn't run.", "لم تُنفّذ العملية.");
+            return;
+          }
+          if (!d.batch) {
+            msg.textContent = T("Nobody left in the queue — everyone has had their copy.", "لا أحد متبقٍ — الجميع وصلتهم نسختهم.");
+            return;
+          }
+          msg.textContent = dryRun
+            ? T("Next in line: ", "التالون في الدور: ") + d.batch + T(" people. Nothing was sent.", " أشخاص. لم يُرسل شيء.")
+            : d.sent + T(" of ", " من ") + d.batch + T(" sent. Press again for the next batch.", " أُرسلت. اضغط مرة أخرى للدفعة التالية.");
+          out.innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+            "<th>" + T("Name", "الاسم") + "</th><th>" + T("Email", "البريد") + "</th><th>" + T("ATS CV", "سيرة ATS") + "</th><th>" + T("Status", "الحالة") + "</th>" +
+            "</tr></thead><tbody>" + (d.results || []).map(function (r) {
+              var cv = (r.hasCv || r.hadCv) ? "✅" : "—";
+              var st = dryRun ? T("queued", "في الدور") : (r.sent ? T("sent ✓", "أُرسلت ✓") : T("failed", "فشلت"));
+              return "<tr><td>" + esc(r.name || "—") + "</td><td dir=\"ltr\">" + esc(r.to || "—") + "</td><td>" + cv + "</td><td>" + st + "</td></tr>";
+            }).join("") + "</tbody></table></div>";
+        })
+        .catch(function () {
+          runBtn.disabled = dryBtn.disabled = false;
+          msg.style.color = "#B91C1C";
+          msg.textContent = T("Network error.", "خطأ في الاتصال.");
+        });
+    }
+    document.getElementById("js-bf-dry").addEventListener("click", function () { backfill(true); });
+    document.getElementById("js-bf-run").addEventListener("click", function () { backfill(false); });
+
     document.addEventListener("click", function (e) {
       var act = e.target.closest ? e.target.closest("[data-js-act]") : null;
       if (act) {
