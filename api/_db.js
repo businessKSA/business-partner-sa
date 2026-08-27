@@ -94,6 +94,15 @@ export async function storagePut(path, buffer, contentType) {
   if (!r.ok) { console.error("storage put error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
   return path;
 }
+// Fetch an object's bytes back from the vault (service key, server-side only).
+// The document agent needs the original form bytes to fill them.
+export async function storageGet(path) {
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!r.ok) { console.error("storage get error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
+  return Buffer.from(await r.arrayBuffer());
+}
 // Short-lived signed download URL (default 10 minutes).
 export async function storageSign(path, expiresIn) {
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
