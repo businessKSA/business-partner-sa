@@ -2661,7 +2661,7 @@ function buildDocAgent() {
     [L("Upload everything at once", "ارفع كل شيء دفعة واحدة"), L("Documents that contain data, forms that need filling, your stamp, even a screenshot of the requirements email — the agent classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.")],
     [L("It reads, extracts and cross-checks", "يقرأ ويستخرج ويطابق"), L("Every value keeps its source, page, date and confidence. Conflicting values across documents become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.")],
     [L("It asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% of the form. I still need: expected annual volume, and are both owners not PEPs?” Legal declarations are never assumed.", "«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.")],
-    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Your forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذجك ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
+    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Word, Excel and fillable PDF forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذج Word وExcel وPDF القابلة للتعبئة ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
   ];
   const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
   const valueItems = [
@@ -2721,7 +2721,7 @@ function buildDocAgent() {
         <a class="btn btn-primary" href="${u("/account")}">${T.loginBtn}</a>
       </div>
       <form class="da-form" id="da-form" hidden>
-        <label class="da-attach" title="${L("Attach files", "أرفق ملفات")}"><input type="file" id="da-file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
+        <label class="da-attach" title="${L("Attach files", "أرفق ملفات")}"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
         <input id="da-input" autocomplete="off" placeholder="${esc(T.placeholder)}">
         <button class="btn btn-primary" type="submit">${T.send}</button>
       </form>
@@ -2853,7 +2853,9 @@ function buildDocAgent() {
         var rd=new FileReader();
         rd.onload=function(){
           var b64=String(rd.result).split(',')[1]||'';
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||'application/pdf'}).then(function(d){
+          var ext=(f.name.split('.').pop()||'').toLowerCase();
+          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
             note.remove();
             el('bot',d.ok?d.note:T.failed);
             next(i+1);

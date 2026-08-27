@@ -19,6 +19,8 @@
 | الـAPI | `POST/GET /api/doc-agent` → rewrite إلى `api/requests.js?__route=doc-agent` → `api/_docagent.js` | خطة Vercel محدودة بـ12 دالة؛ النمط نفسه المتبع مع `suppliers` و`agencies` |
 | القراءة الذكية | `api/_docread.js` — أضيف `readDocumentRaw()` (برومت مُعامَل) و`askModel()` (نص فقط) | سلسلة المزودين نفسها: Gemini ← Anthropic ← OpenAI |
 | تحرير DOCX والضغط | `api/_zip.js` — قارئ/كاتب ZIP على `node:zlib` بلا أي اعتمادية npm | الـDOCX ملف ZIP؛ نرقّع `word/document.xml` فقط |
+| تحرير XLSX | `api/_xlsx.js` — على `_zip.js` نفسه | خلايا inline string بخط أزرق؛ ما عداها لا يُمَس |
+| تعبئة PDF | `api/_pdfform.js` — AcroForm بتحديث تزايدي | `/V` بـUTF-16BE + NeedAppearances؛ يقرأ ObjStm |
 | التخزين | خزنة Supabase Storage القائمة (`documents` bucket) عبر `storagePut/storageGet/storageSign` | روابط موقّعة قصيرة العمر فقط، لا URL عام أبداً |
 | الجلسات | كوكي `bp_sid` نفسه عبر `getSession()` — نفس حساب `/account` | `organization_id` يؤخذ من الجلسة، لا من الطلب أبداً |
 | قاعدة البيانات | خمسة جداول جديدة في `db/schema.sql` (قسم مؤرخ 2026-08-27) مع RLS | انظر §3 |
@@ -95,9 +97,21 @@ NEW → UPLOADING → ANALYZING → EXTRACTING → MAPPING → WAITING_FOR_CLIEN
 `blue / black / original`. الخط والجداول والهوامش والهيدر والفوتر تبقى كما هي
 لأننا لا نلمس إلا عقد النص المستهدفة.
 
-النماذج غير القابلة للتحرير في مكانها بعد (PDF ممسوح، صور): يخرج لها **Fill
-Sheet** — ملف DOCX مرتب بكل حقل وقيمته بترتيب النموذج — إلى أن تصل مرحلة
-Document Editor في n8n (§7). لا شيء يُتجاهل بصمت.
+نموذج Excel يُعامل بالمبدأ نفسه (`api/_xlsx.js`): الخلايا تُعرض للنموذج
+اللغوي معنونة `[Sheet!Ref]`، وخطة العمليات `{sheet, ref, text}` تُكتب كـinline
+strings بخط أزرق يُضاف إلى `styles.xml` — الصيغ والدمج وكل خلية لم تُمَس تبقى
+حرفياً كما كانت، لأننا نرقّع عنصر `<c>` الواحد لا الورقة.
+
+وملف PDF القابل للتعبئة (AcroForm) يُعبَّأ أصلياً (`api/_pdfform.js`): الحقول
+تُكتشف حتى داخل Object Streams المضغوطة، والقيم تُكتب في `/V` بترميز UTF-16BE
+(آمن للعربية) مع رفع `NeedAppearances`، وكل ذلك **تحديثاً تزايدياً** يُلحق
+بنهاية الملف — بايتات النموذج الأصلي لا تُلمس إطلاقاً، وخانات الاختيار تُقلب
+إلى حالة `On` المعرفة في النموذج نفسه.
+
+النماذج غير القابلة للتحرير في مكانها (PDF ممسوح بلا حقول، صور): يخرج لها
+**Fill Sheet** — ملف DOCX مرتب بكل حقل وقيمته بترتيب النموذج — إلى أن تصل
+مرحلة Document Editor البصرية في n8n (§7). لا شيء يُتجاهل بصمت، ولا يُرسم
+شيء على ظن فوق مستند ممسوح.
 
 بعد التعبئة يمر كل مخرج بـ**QA نصي**: تمريرة ثانية تقارن الخطة بالنص النهائي
 (هل كل قيمة انكتبت؟ هل بقي placeholder؟ هل التواريخ في مكانها الصحيح فقط؟)
@@ -143,7 +157,7 @@ Document Editor في n8n (§7). لا شيء يُتجاهل بصمت.
 | AI Gateway / Intake / Classification / Extraction / Reconciliation / Form Understanding / Field Mapping / Gap Analysis / Conversation Manager / Checkbox Engine / Naming & Packaging | **منفَّذة داخل `_docagent.js`** — استدعاء واحد أرخص وأسرع من 11 سيراً متزامناً على Vercel |
 | WhatsApp Channel | ✅ `doc-agent-whatsapp.workflow.js` |
 | Stamp Engine (إزالة خلفية الختم وتركيبه) | n8n — مرحلة قادمة |
-| Document Editor (تعبئة PDF في مكانه) | n8n — مرحلة قادمة |
+| Document Editor | ✅ AcroForm أصلياً في `_pdfform.js`؛ الرسم فوق الممسوح مرحلة n8n قادمة |
 | Visual QA (فتح كل صفحة بصرياً) | n8n — مرحلة قادمة |
 | Signature Workflow (DocuSign) | n8n + `api/_docusign.js` — مرحلة قادمة |
 | Notification | القائم: `notify()` داخل التطبيق + `waSend()` في `_stage.js` |
@@ -182,7 +196,7 @@ Document Editor في n8n (§7). لا شيء يُتجاهل بصمت.
 | المرحلة | الحال |
 |---|---|
 | 1 Architecture · 2 Database · 3 Intake · 4 Extraction · 5 Mapping · 6 Conversation | ✅ في هذا الفرع |
-| 7 Document Editing | ✅ DOCX في مكانه؛ PDF عبر Fill Sheet مؤقتاً |
+| 7 Document Editing | ✅ DOCX وExcel وPDF (AcroForm) في مكانها؛ الممسوح عبر Fill Sheet |
 | 8 Stamp & Signature | البنية جاهزة (أعمدة + تصنيف الأصول)؛ التركيب مرحلة n8n |
 | 9 Visual QA | QA نصي ✅؛ البصري مرحلة n8n |
 | 10 Packaging | ✅ ZIP بأسماء التسليم وبنية Required/Supporting |
@@ -190,7 +204,7 @@ Document Editor في n8n (§7). لا شيء يُتجاهل بصمت.
 | 12 WhatsApp | ✅ مصدر السير + المدخل؛ يحتاج تفعيل الاعتمادات في n8n |
 | 13 Client Portal | الطلب يُستأنف بنفس الحساب؛ بطاقة داخل `/account` تحسين قادم |
 | 14 Consultant Dashboard | البيانات جاهزة عبر الـAPI؛ الواجهة مرحلة قادمة |
-| 15 End-to-End Testing | اختبارات وحدة لمحرك DOCX وZIP ✅؛ E2E مع مفاتيح حية بعد النشر |
+| 15 End-to-End Testing | اختبارات وحدة لمحركات DOCX وXLSX وPDF وZIP ✅ (`tests/`)؛ E2E مع مفاتيح حية بعد النشر |
 
 ## الخطوة التالية (تحتاج قرارك)
 

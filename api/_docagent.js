@@ -27,11 +27,15 @@ import {
 } from "./_db.js";
 import { readDocumentRaw, askModel, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { zip, unzip } from "./_zip.js";
+import { xlsxCells, xlsxApply } from "./_xlsx.js";
+import { pdfFields, pdfFill } from "./_pdfform.js";
 
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const AGENT_MIME_OK = new RegExp(
   "^(image\\/(jpeg|jpg|png|webp|heic|heif)|application\\/pdf|" +
-  DOCX_MIME.replace(/[./]/g, "\\$&") + ")$", "i"
+  DOCX_MIME.replace(/[./]/g, "\\$&") + "|" +
+  XLSX_MIME.replace(/[./]/g, "\\$&") + ")$", "i"
 );
 const MAX_UPLOAD = 8 * 1024 * 1024;
 const FILL_HEX = { blue: "1F4ED8", black: "000000", original: "" };
@@ -205,6 +209,44 @@ ${factsList}
 FIELD MAPPING HINTS:
 ${mapping}`;
 
+const xlsxFillPrompt = (formName, cellsList, factsList, mapping) => `You fill an Excel form WITHOUT redesigning it. Below are the non-empty cells of the workbook "${formName}" addressed as [Sheet!Ref], then the verified client facts.
+Return ONLY JSON: {"ops":[{"sheet":"Sheet name","ref":"C7","text":"value"}], "unfilled":[{"label":"…","reason":"missing|needs_confirmation"}]}
+Rules:
+- A label cell like "[Vendor Form!B7] CR Number:" is answered in the empty cell BESIDE or BELOW it — usually the next column (C7) in LTR sheets, the previous column in Arabic RTL sheets, or the row under a heading. Choose the ref accordingly; never overwrite a label.
+- Overwrite a cell only when it clearly holds a stale placeholder value for the same field.
+- Yes/No or checkbox-style cells: write the exact expected token the sheet uses (Yes, No, ✓, ×…).
+- Dates: completion/signature/declaration dates get today ${new Date().toISOString().slice(0, 10)}; NEVER touch document issue/expiry dates.
+- Never invent values. A field with no matching fact goes to "unfilled".
+- Legal declarations may only be filled when the mapping marks them CLIENT_CONFIRMED.
+- Keep official names exactly as the facts state them.
+
+WORKBOOK CELLS:
+${cellsList}
+
+FACTS (key = value [status]):
+${factsList}
+
+FIELD MAPPING HINTS:
+${mapping}`;
+
+const pdfFillPrompt = (formName, fieldsList, factsList, mapping) => `You fill a PDF form's named AcroForm fields. Below are the fields of "${formName}", then the verified client facts.
+Return ONLY JSON: {"values":[{"field":"exact field name","text":"value"} or {"field":"exact field name","check":true|false}], "unfilled":[{"label":"…","reason":"missing|needs_confirmation"}]}
+Rules:
+- "text" for text/choice fields, "check" for checkboxes. Use each field's name EXACTLY as listed.
+- Dates: completion/signature/declaration dates get today ${new Date().toISOString().slice(0, 10)}; NEVER invent document issue/expiry dates.
+- Never invent values. A field with no matching fact goes to "unfilled".
+- Legal declarations may only be filled when the mapping marks them CLIENT_CONFIRMED.
+- Keep official names exactly as the facts state them (Arabic stays Arabic, English stays English).
+
+PDF FIELDS:
+${fieldsList}
+
+FACTS (key = value [status]):
+${factsList}
+
+FIELD MAPPING HINTS:
+${mapping}`;
+
 const qaPrompt = (formName, beforeAfter) => `You are the QA agent. A form "${formName}" was auto-filled. Compare the fill plan with the final text and answer ONLY JSON:
 {"pass":true|false,"findings":[{"severity":"error|warn","issue":"…"}]}
 Check: every planned value actually appears; no placeholder/underscore runs remain where a value was planned; checkbox intents applied; dates are ${new Date().toISOString().slice(0, 10)} only where completion/signature dates were intended; names and numbers copied exactly (no truncation/translation).
@@ -289,13 +331,23 @@ const stateBlock = (request, gap, facts, msgs) => JSON.stringify({
 }, null, 1);
 
 /* ------------------------------------------------------------- the phases */
+// Addressed cell view of a workbook for the model: "[Sheet!B7] label text".
+const xlsxCellList = (buf, max = 900) =>
+  xlsxCells(buf).slice(0, max).map((c) => `[${c.sheet}!${c.ref}] ${c.text}`).join("\n");
+
 async function classifyUpload(request, buf, base64, mime, fileName, uploadedBy) {
-  // DOCX cannot go to the vision APIs — read its text and classify via askModel.
+  // Office files cannot go to the vision APIs — read their text and classify
+  // via askModel; images and PDFs go to the vision providers as before.
   let cls = null;
   if (mime === DOCX_MIME) {
     let text = "";
     try { text = numberedNodes(docxText(buf).xml, 1200); } catch { text = ""; }
     const r = await askModel(`${CLASSIFY_PROMPT}\n\nDOCUMENT (DOCX text nodes, numbered):\n${clip(text, 60000)}`, 4000);
+    cls = r.ok ? r.data : null;
+  } else if (mime === XLSX_MIME) {
+    let text = "";
+    try { text = xlsxCellList(buf, 1200); } catch { text = ""; }
+    const r = await askModel(`${CLASSIFY_PROMPT}\n\nDOCUMENT (XLSX cells, addressed as [Sheet!Ref]):\n${clip(text, 60000)}`, 4000);
     cls = r.ok ? r.data : null;
   } else if (DOC_MIME_OK.test(mime) && buf.length <= MAX_DOC_BYTES) {
     const r = await readDocumentRaw(base64, mime, CLASSIFY_PROMPT, 4000);
@@ -346,23 +398,41 @@ async function generateOutputs(request, channel) {
   const outputs = [];
   const existing = await sb(`doc_agent_outputs?request_id=eq.${request.id}&select=delivery_name,version_no`);
   const nextVersion = (name) => existing.filter((o) => o.delivery_name === name).reduce((m, o) => Math.max(m, o.version_no), 0) + 1;
+  // Sensitive ops require a confirmed declaration backing them — same guard
+  // for every format: the model may plan them, the code drops them.
+  const confirmedDecl = new Set(usable.filter((f) => f.status === "CLIENT_CONFIRMED").map((f) => f.fact_key));
+  const sensitiveOk = (form, fieldId, text) => {
+    const field = ((form.field_map && form.field_map.fields) || []).find((x) => fieldId && x.id === fieldId);
+    const sensitiveTouch = (field && field.sensitive) || SENSITIVE_KEY.test(String(text || ""));
+    return !sensitiveTouch || confirmedDecl.size > 0;
+  };
+  const saveOutput = async (form, deliveryName, outBuf, mime, fillSummary, qa) => {
+    const vno = nextVersion(deliveryName);
+    const outKey = `${request.organization_id}/doc-agent/${request.id}/out/v${vno}-${deliveryName.replace(/[^\w.\-]+/g, "_")}`;
+    await storagePut(outKey, outBuf, mime);
+    const orows = await sb("doc_agent_outputs", {
+      method: "POST",
+      body: [{
+        request_id: request.id, source_form_file_id: form.id, kind: "filled_form",
+        delivery_name: deliveryName, storage_key: outKey, mime, size_bytes: outBuf.length,
+        version_no: vno, fill_summary: fillSummary,
+        qa_status: qa ? (qa.pass ? "passed" : "failed") : "waived", qa_findings: qa ? (qa.findings || []) : undefined,
+      }],
+    });
+    return orows[0];
+  };
 
   for (const form of forms) {
     const deliveryName = clip(form.file_name.replace(/\.(docx|pdf|xlsx|png|jpe?g|webp)$/i, ""), 120) || "Form";
     const mappingHints = JSON.stringify((form.field_map && form.field_map.fields) || []);
+    let fillablePdf = null;
     if (form.mime === DOCX_MIME) {
       const buf = await storageGet(form.storage_key);
       const { entries, xml } = docxText(buf);
       const plan = await askModel(fillPrompt(form.file_name, numberedNodes(xml), factsList, mappingHints), 8000);
       if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
-      // Sensitive ops require a confirmed declaration backing them — drop the rest.
-      const confirmedDecl = new Set(usable.filter((f) => f.status === "CLIENT_CONFIRMED").map((f) => f.fact_key));
       const ops = plan.data.ops.filter((o) => Number.isInteger(o.node) && ["append","replace","check"].includes(o.op))
-        .filter((o) => {
-          const field = ((form.field_map && form.field_map.fields) || []).find((x) => o.field_id && x.id === o.field_id);
-          const sensitiveTouch = (field && field.sensitive) || SENSITIVE_KEY.test(String(o.text || ""));
-          return !sensitiveTouch || confirmedDecl.size > 0;
-        });
+        .filter((o) => sensitiveOk(form, o.field_id, o.text));
       const { xml: filledXml, applied } = docxApply(xml, ops, colorHex);
       entries.set("word/document.xml", Buffer.from(filledXml, "utf8"));
       const outBuf = zip(entries);
@@ -387,28 +457,67 @@ async function generateOutputs(request, channel) {
         }],
       });
       outputs.push({ form: form.file_name, ok: true, output_id: orows[0].id, applied: applied.length, unfilled: (plan.data.unfilled || []).length, qa: qa.pass ? "passed" : "failed" });
+    } else if (form.mime === XLSX_MIME) {
+      // Excel forms: values go into the sheet itself as inline strings in the
+      // agent's ink; layout, formulas and every untouched cell stay identical.
+      const buf = await storageGet(form.storage_key);
+      let cellsList = "";
+      try { cellsList = xlsxCellList(buf); } catch { outputs.push({ form: form.file_name, ok: false, error: "bad_xlsx" }); continue; }
+      const plan = await askModel(xlsxFillPrompt(form.file_name, cellsList, factsList, mappingHints), 8000);
+      if (!plan.ok || !Array.isArray(plan.data.ops)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
+      const ops = plan.data.ops
+        .filter((o) => o && o.ref && o.text != null)
+        .slice(0, 300)
+        .filter((o) => sensitiveOk(form, o.field_id, o.text));
+      const { buf: outBuf, applied } = xlsxApply(buf, ops, colorHex);
+      // Deterministic QA: every applied value must read back from its cell.
+      let qa = { pass: true, findings: [] };
+      try {
+        const after = xlsxCells(outBuf);
+        const missing = applied.filter((o) => !after.some((c) => c.ref === String(o.ref).toUpperCase() && c.text === clip(o.text, 500)));
+        qa = { pass: missing.length === 0, findings: missing.map((o) => ({ severity: "error", issue: `cell ${o.ref} did not take the value` })) };
+      } catch {}
+      const saved = await saveOutput(form, `${deliveryName}.xlsx`, outBuf, XLSX_MIME,
+        { applied: applied.length, planned: plan.data.ops.length, unfilled: plan.data.unfilled || [] }, qa);
+      outputs.push({ form: form.file_name, ok: true, output_id: saved.id, applied: applied.length, unfilled: (plan.data.unfilled || []).length, qa: qa.pass ? "passed" : "failed" });
+    } else if (/pdf$/i.test(form.mime) && (fillablePdf = await (async () => {
+      try { const b = await storageGet(form.storage_key); const f = pdfFields(b); return f.length ? { buf: b, fields: f } : null; } catch { return null; }
+    })())) {
+      // Fillable PDFs (AcroForm): write /V natively as an incremental update —
+      // the original bytes stay untouched underneath.
+      const { buf, fields } = fillablePdf;
+      const fieldsList = fields.map((f) => `- "${f.name}" (${f.type})`).join("\n");
+      const plan = await askModel(pdfFillPrompt(form.file_name, fieldsList, factsList, mappingHints), 8000);
+      if (!plan.ok || !Array.isArray(plan.data.values)) { outputs.push({ form: form.file_name, ok: false, error: "fill_plan_failed" }); continue; }
+      const values = {};
+      for (const v of plan.data.values.slice(0, 300)) {
+        if (!v || !v.field || !fields.some((f) => f.name === v.field)) continue;
+        if (!sensitiveOk(form, v.field_id, v.text != null ? v.text : v.field)) continue;
+        if (v.text != null) values[v.field] = { text: clip(v.text, 500) };
+        else if (typeof v.check === "boolean") values[v.field] = { check: v.check };
+      }
+      let outBuf, applied;
+      try { ({ buf: outBuf, applied } = pdfFill(buf, values, colorHex)); }
+      catch (e) { outputs.push({ form: form.file_name, ok: false, error: "pdf_fill_failed" }); continue; }
+      // Deterministic QA: every planned field must have been applied.
+      const planned = Object.keys(values);
+      const missed = planned.filter((n) => !applied.includes(n));
+      const qa = { pass: missed.length === 0 && planned.length > 0, findings: missed.map((n) => ({ severity: "error", issue: `field "${n}" was not filled` })) };
+      const saved = await saveOutput(form, `${deliveryName}.pdf`, outBuf, "application/pdf",
+        { applied: applied.length, planned: plan.data.values.length, unfilled: plan.data.unfilled || [] }, qa);
+      outputs.push({ form: form.file_name, ok: true, output_id: saved.id, applied: applied.length, unfilled: (plan.data.unfilled || []).length, qa: qa.pass ? "passed" : "failed" });
     } else {
-      // PDF / scanned forms: native in-place filling arrives with the n8n
-      // document-editor phase; until then the client gets a fill sheet with
-      // every answer laid out in form order — nothing is silently skipped.
+      // Scanned forms, images, and PDFs without AcroForm fields: the client
+      // gets a fill sheet with every answer laid out in form order — nothing
+      // is silently skipped, and nothing is drawn blindly onto a scan.
       const fields = (form.field_map && form.field_map.fields) || [];
       const map = await askModel(
         `Match form fields to facts. Return ONLY JSON {"rows":[["field label","value or —"]]}. Fields:\n${JSON.stringify(fields).slice(0, 20000)}\nFacts:\n${factsList}\nRules: never invent; sensitive/legal fields get the fact only if [CLIENT_CONFIRMED]; else "—".`,
         4000);
       const rows = map.ok && Array.isArray(map.data.rows) ? map.data.rows.slice(0, 200).map((r) => [clip(r[0], 200), clip(r[1], 500)]) : [];
       const outBuf = makeDocx(`Fill Sheet — ${form.file_name}`, rows);
-      const vno = nextVersion(`${deliveryName} — Fill Sheet`);
-      const outKey = `${request.organization_id}/doc-agent/${request.id}/out/v${vno}-fill-sheet-${deliveryName.replace(/[^\w.\-]+/g, "_")}.docx`;
-      await storagePut(outKey, outBuf, DOCX_MIME);
-      const orows = await sb("doc_agent_outputs", {
-        method: "POST",
-        body: [{
-          request_id: request.id, source_form_file_id: form.id, kind: "filled_form",
-          delivery_name: `${deliveryName} — Fill Sheet.docx`, storage_key: outKey, mime: DOCX_MIME, size_bytes: outBuf.length,
-          version_no: vno, fill_summary: { rows: rows.length, mode: "fill_sheet" }, qa_status: "waived",
-        }],
-      });
-      outputs.push({ form: form.file_name, ok: true, output_id: orows[0].id, mode: "fill_sheet", rows: rows.length });
+      const saved = await saveOutput(form, `${deliveryName} — Fill Sheet.docx`, outBuf, DOCX_MIME, { rows: rows.length, mode: "fill_sheet" }, null);
+      outputs.push({ form: form.file_name, ok: true, output_id: saved.id, mode: "fill_sheet", rows: rows.length });
     }
   }
 
