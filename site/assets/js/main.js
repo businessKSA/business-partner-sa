@@ -7361,7 +7361,7 @@ var BP_EMP_BILLING = "monthly";
       var runBtn = document.getElementById("js-bf-run");
       var dryBtn = document.getElementById("js-bf-dry");
       var limit = Number(document.getElementById("js-bf-limit").value) || 25;
-      var requireCv = !document.getElementById("js-bf-nocv").checked;
+      var requireCv = document.getElementById("js-bf-cvonly").checked;
       runBtn.disabled = dryBtn.disabled = true;
       msg.style.color = "";
       msg.textContent = dryRun
