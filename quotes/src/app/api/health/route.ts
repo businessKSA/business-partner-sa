@@ -59,6 +59,14 @@ export async function GET() {
       },
       appUrlSet: Boolean(process.env.APP_URL),
     },
-    { headers: { 'cache-control': 'no-store' } },
+    {
+      headers: {
+        'cache-control': 'no-store',
+        // لوحة تحكم الموقع تقرأ هذه النقطة من متصفح المدير لتعرض حالة هذه
+        // اللوحة إلى جانب حالة بقية الخدمات. النقطة بلا سرّ وبلا تسجيل دخول
+        // أصلاً، فالسماح بالقراءة عبر الأصول لا يكشف ما لم يكن مكشوفاً.
+        'access-control-allow-origin': '*',
+      },
+    },
   );
 }
