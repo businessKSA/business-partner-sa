@@ -333,7 +333,7 @@ const STAGE_OF = {
 const CLOSED = new Set(["مكتمل", "ملغي"]);
 const plusDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource, followUpDays }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -356,7 +356,8 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
     // Every open row carries a date, so nothing depends on being remembered.
-    "Next Follow Up": { date: { start: plusDaysISO(2) } },
+    // A deferred invoice sets its own date: the chase lands on the due day.
+    "Next Follow Up": { date: { start: plusDaysISO(Number.isFinite(Number(followUpDays)) ? Number(followUpDays) : 2) } },
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
@@ -1183,6 +1184,17 @@ async function catalogPrices() {
   _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
 }
+// The whole catalog (not just the price map) — the in-portal store lists
+// services from it, so the client never has to leave the portal to browse.
+let _catFull = null, _catFullAt = 0;
+async function catalogFull() {
+  if (_catFull && Date.now() - _catFullAt < 10 * 60 * 1000) return _catFull;
+  const r = await fetch(RAW_CATALOG_URL);
+  if (!r.ok) throw new Error("catalog_fetch_failed");
+  _catFull = await r.json();
+  _catFullAt = Date.now();
+  return _catFull;
+}
 // Published discount codes — validated server-side so a typed code can only
 // ever mean what the catalog says it means.
 let _catDiscounts = [];
@@ -1680,6 +1692,54 @@ export default async function handler(req, res) {
       console.error("panel-followups failed", String(e).slice(0, 200));
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+    }
+  }
+
+  // متجر لوحة العميل: الكتالوج كاملاً + رصيد المحفظة + حدود «ادفع لاحقاً»،
+  // بجلسة العميل نفسها — فلا يخرج رائد الأعمال من لوحته ليطلب خدمة.
+  if ((q.action || "") === "portal-store") {
+    res.setHeader("Cache-Control", "no-store");
+    const sess = await getSession(req).catch(() => null);
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const cat = await catalogFull();
+      const services = (cat.services || [])
+        .filter((s) => s.code)
+        .map((s) => ({
+          id: String(s.code).toLowerCase(),
+          name: s.nameAr || s.nameEn || s.code,
+          nameEn: s.nameEn || "",
+          cat: s.categoryAr || s.category || "أخرى",
+          amount: Number(s.amount) || 0,
+          days: s.days || s.duration || "",
+          gov: Number(s.govFees) || 0,
+        }));
+      const packages = (cat.packages || []).map((p) => ({
+        id: String(p.code || p.key || "").toLowerCase(),
+        name: p.nameAr || p.nameEn || p.code || p.key,
+        cat: "الباقات",
+        amount: Number(p.amount) || 0,
+      })).filter((p) => p.id);
+      let walletBalance = 0;
+      const orgId = sess.organization && sess.organization.id;
+      if (DB_ON && orgId) {
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`).catch(() => null);
+        walletBalance = (bal && bal[0] && Number(bal[0].balance)) || 0;
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        services: services.concat(packages),
+        walletBalance,
+        vatRate: 15,
+        payLaterDays: [7, 14, 30],
+        user: { name: (sess.user && sess.user.full_name) || "", email: (sess.user && sess.user.email) || "" },
+        org: sess.organization ? { name: sess.organization.name_ar || sess.organization.name_en || "" } : null,
+      }));
+    } catch (e) {
+      console.error("portal-store failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "store_failed" }));
     }
   }
 
@@ -3970,6 +4030,129 @@ export default async function handler(req, res) {
   // Wallet payment: the client asks us to pay a government fee / SADAD invoice
   // from their wallet balance. The team validates the balance in the CRM ledger
   // (top-ups minus payments), executes the payment, and completes the row.
+  // طلب من داخل لوحة العميل: يختار الخدمات ويدفع الآن (محفظة/بطاقة/تحويل)
+  // أو لاحقاً بفاتورة مؤجلة لها تاريخ استحقاق — بلا مغادرة اللوحة.
+  // التسعير من الكتالوج على الخادم: العميل لا يملك تحديد ما يدفعه.
+  if (b.type === "portal-order") {
+    const sess = await getSession(req).catch(() => null);
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    const name = String((sess.user && sess.user.full_name) || "").slice(0, 160) || email.split("@")[0];
+    const orgId = sess.organization && sess.organization.id;
+    const orgName = (sess.organization && (sess.organization.name_ar || sess.organization.name_en)) || "";
+    const PAY_MODES = { wallet: "المحفظة", later: "ادفع لاحقاً", card: "بطاقة إلكترونية", transfer: "تحويل بنكي" };
+    const pay = PAY_MODES[String(b.pay || "")] ? String(b.pay) : "later";
+    const dueDays = pay === "later" ? Math.min(60, Math.max(1, Number(b.dueDays) || 14)) : 0;
+    const wanted = (Array.isArray(b.items) ? b.items : []).slice(0, 30);
+    if (!wanted.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "empty_cart" })); }
+
+    let priceMap = null;
+    try { priceMap = await catalogPrices(); } catch { priceMap = null; }
+    if (!priceMap) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "catalog_unavailable" })); }
+    let subtotal = 0;
+    const lines = [];
+    for (const it of wanted) {
+      const key = catalogKey(String((it && it.id) || "").toLowerCase());
+      const qty = Math.max(1, Math.min(20, Number(it && it.qty) || 1));
+      const hit = key && priceMap[key];
+      if (!hit) continue;
+      subtotal += hit.amount * qty;
+      lines.push({ key, name: hit.name, qty, line: hit.amount * qty });
+    }
+    if (!lines.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_priced_items" })); }
+    const vat = Math.round(subtotal * 0.15 * 100) / 100;
+    const total = Math.round((subtotal + vat) * 100) / 100;
+    const ref = "BPO-" + Date.now().toString().slice(-6);
+    const itemsTxt = lines.map((l) => `${l.name}${l.qty > 1 ? " ×" + l.qty : ""}`).join("، ").slice(0, 800);
+    const dueISO = pay === "later" ? plusDaysISO(dueDays) : plusDaysISO(0);
+
+    // Paying from the wallet is the only mode that settles instantly — and
+    // only when the balance actually covers it. Everything else books the
+    // order and puts the money question on a dated follow-up.
+    let paid = false, walletAfter = null;
+    if (pay === "wallet") {
+      if (!DB_ON || !orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "wallet_unavailable" })); }
+      try {
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        const balance = (bal && bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < total) {
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: false, error: "insufficient_balance", balance, total, short: Math.round((total - balance) * 100) / 100 }));
+        }
+        await sb("wallet_transactions", {
+          method: "POST", prefer: "return=minimal",
+          body: [{ organization_id: orgId, type: "payment", amount: -total, note: `سداد طلب ${ref} — ${itemsTxt.slice(0, 120)}` }],
+        });
+        paid = true;
+        walletAfter = Math.round((balance - total) * 100) / 100;
+      } catch (e) {
+        console.error("portal-order wallet debit failed", String(e).slice(0, 160));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "wallet_failed" }));
+      }
+    }
+
+    if (DB_ON && orgId) {
+      try {
+        await sb("orders", {
+          method: "POST", prefer: "return=minimal",
+          body: [{
+            ref, organization_id: orgId, created_by: sess.user && sess.user.id,
+            status: paid ? "paid" : "awaiting_payment",
+            bp_fees: subtotal, gov_fees: 0, vat, total,
+          }],
+        });
+      } catch (e) { console.error("portal-order db insert failed", String(e).slice(0, 160)); }
+    }
+
+    const statusAr = paid ? "مدفوع" : "بانتظار الدفع";
+    const payAr = PAY_MODES[pay];
+    const notes = [
+      `طلب من لوحة العميل · ${payAr}`,
+      orgName ? `المنشأة: ${orgName}` : "",
+      `الخدمات: ${itemsTxt}`,
+      `الإجمالي: ${total} ﷼ (شامل ضريبة ${vat} ﷼)`,
+      pay === "later" ? `فاتورة مؤجلة — تاريخ الاستحقاق: ${dueISO} (${dueDays} يوماً)` : "",
+      paid ? `سُدد من المحفظة — الرصيد بعد السداد: ${walletAfter} ﷼` : "",
+    ].filter(Boolean).join("\n");
+
+    const ownerHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🛒 طلب جديد من لوحة العميل — ${esc(ref)}</h2><table>${row("العميل", name) + row("البريد", email) + (orgName ? row("المنشأة", orgName) : "") + row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼") + row("طريقة الدفع", payAr) + row("الحالة", statusAr) + (pay === "later" ? row("تاريخ الاستحقاق", dueISO) : "")}</table>${paid ? "<p style='color:#047857'><b>مدفوع من المحفظة — ابدأ التنفيذ.</b></p>" : "<p>الطلب في «متابعات اليوم» بلوحة التحكم بتاريخ استحقاقه.</p>"}</div>`;
+    const clientHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">${paid ? "تم استلام طلبك وسداده ✅" : "استلمنا طلبك ✅"}</h2><p>مرحباً ${esc(name)}، سجّلنا طلبك برقم <b>${esc(ref)}</b>.</p><table>${row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼ (شامل الضريبة)") + row("طريقة الدفع", payAr)}</table>${pay === "later" ? `<p style="background:#FEF3C7;padding:10px;border-radius:8px">🗓 <b>فاتورة مؤجلة:</b> تاريخ استحقاق السداد <b>${dueISO}</b>. نذكّرك قبلها، وتقدر تسدد في أي وقت من لوحتك.</p>` : ""}${paid ? `<p style="background:#D1FAE5;padding:10px;border-radius:8px">💳 سُدد من محفظتك. الرصيد المتبقي: <b>${walletAfter} ﷼</b></p>` : ""}<p><a href="${MKT_SITE_BASE}/account" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح لوحتك ←</a></p></div>`;
+
+    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }),
+    }).catch(() => {});
+
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼ (${payAr})`, ownerHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼`, ownerHtml) : Promise.resolve(),
+      isEmail(email) ? sendEmail(email, `${paid ? "تم سداد طلبك" : "استلمنا طلبك"} — ${ref}`, clientHtml) : Promise.resolve(),
+      crmLead({
+        title: `🛒 طلب لوحة — ${name}${orgName ? " (" + orgName + ")" : ""}`,
+        email, notes, ref, orderStatus: statusAr, total,
+        leadSource: "شراء خدمة",
+        followUpDays: pay === "later" ? dueDays : 1,
+      }),
+    ]);
+    if (orgId) {
+      notify({
+        organization_id: orgId, event: "order_created", channel: "inapp",
+        title: `${paid ? "سُدد طلبك" : "سُجّل طلبك"} ${ref} — ${total} ﷼${pay === "later" ? ` (الاستحقاق ${dueISO})` : ""}`,
+        idempotency_key: `portal_order:${ref}`,
+      }).catch(() => {});
+    }
+    audit({ action: "portal.order", actor_label: email, after: { ref, total, pay, paid } }).catch(() => {});
+
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, ref, total, vat, subtotal, paid, pay, payAr,
+      due: pay === "later" ? dueISO : null,
+      walletBalance: walletAfter,
+      payUrl: pay === "card" ? `${MKT_SITE_BASE}/pay?ref=${encodeURIComponent(ref)}&amount=${total}` : null,
+    }));
+  }
+
   if (b.type === "wallet-pay") {
     const name = String(b.name || "").trim().slice(0, 160);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
