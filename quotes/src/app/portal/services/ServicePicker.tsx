@@ -29,19 +29,30 @@ export default function ServicePicker({
 }) {
   const [state, action, pending] = useActionState(actionRequestQuote, {});
   const [q, setQ] = useState('');
+  const [cat, setCat] = useState('');
   // القادم من صفحة الخدمة في الموقع يصل ومعه رمزها، فيفتح على خدمته مباشرة
   // بدل أن يبحث عنها من جديد بين مئة خدمة.
   const [picked, setPicked] = useState<PortalService | null>(
     () => services.find((x) => x.code.toUpperCase() === preselectCode) ?? null,
   );
 
+  // التصنيفات بترتيب عددها: القسم الذي فيه أربعون خدمة يُفتح قبل الذي فيه واحدة.
+  const cats = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const s of services) n.set(s.category, (n.get(s.category) || 0) + 1);
+    return [...n.entries()].sort((a, b) => b[1] - a[1]);
+  }, [services]);
+
   const shown = useMemo(() => {
-    const t = q.trim();
-    if (!t) return services.slice(0, 40);
-    return services
-      .filter((s) => `${s.nameAr} ${s.nameEn} ${s.code} ${s.category}`.includes(t))
-      .slice(0, 40);
-  }, [q, services]);
+    // البحث كان حسّاساً لحالة الأحرف ويطابق النص كما كُتب، فمن كتب رمزاً
+    // بحروف صغيرة لم يجد خدمته وهي أمامه.
+    const t = q.trim().toLowerCase();
+    return services.filter((s) => {
+      if (cat && s.category !== cat) return false;
+      if (!t) return true;
+      return `${s.nameAr} ${s.nameEn} ${s.code} ${s.category}`.toLowerCase().includes(t);
+    });
+  }, [q, cat, services]);
 
   if (state.ok) {
     return (
@@ -64,8 +75,35 @@ export default function ServicePicker({
       <div className="card" style={{ marginBottom: 14 }}>
         <label htmlFor="q">ابحث في الخدمات</label>
         <input id="q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="اسم الخدمة أو رمزها" />
-        <p className="muted" style={{ marginTop: 6, fontSize: 12.5 }}>
-          {services.length} خدمة وباقة متاحة. تظهر أول 40 نتيجة.
+
+        {/* كانت الصفحة تعرض أربعين صفاً من مئة وستين وتقول ذلك في سطر صغير
+            تحت خانة البحث. فمن لم يقرأ السطر ظنّ أن ما ليس في الأربعين غير
+            موجود، ومن قرأه احتاج أن يعرف اسم خدمته ليكتبه — والكتالوج يُتصفَّح
+            قبل أن يُبحث فيه. التصنيفات تفتحه، ولا سقف بعدها. */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+          <button
+            type="button"
+            className={cat ? 'btn ghost sm' : 'btn sm'}
+            onClick={() => setCat('')}
+          >
+            الكل ({services.length})
+          </button>
+          {cats.map(([name, n]) => (
+            <button
+              key={name}
+              type="button"
+              className={cat === name ? 'btn sm' : 'btn ghost sm'}
+              onClick={() => setCat(cat === name ? '' : name)}
+            >
+              {name} ({n})
+            </button>
+          ))}
+        </div>
+
+        <p className="muted" style={{ marginTop: 10, fontSize: 12.5 }}>
+          {shown.length === services.length
+            ? `${services.length} خدمة وباقة — كلها معروضة.`
+            : `${shown.length} من ${services.length} خدمة.`}
         </p>
       </div>
 
