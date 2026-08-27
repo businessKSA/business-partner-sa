@@ -8275,7 +8275,7 @@ function buildJobSearchAdmin() {
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
             <h3 style="margin:0">${L("Send past applicants their own copy", "أرسل للمتقدمين السابقين نسختهم")}</h3>
-            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy, oldest-first, one batch at a time. Nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته، دفعة واحدة في كل مرة. ولا أحد يصله البريد مرتين.")}</p>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy and keeps going until the queue is empty; leave the page open. One mail per person, however many times they applied, and nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته ويكمل حتى ينتهي الطابور؛ اترك الصفحة مفتوحة. رسالة واحدة لكل شخص مهما تكرر تقديمه، ولا أحد يصله البريد مرتين.")}</p>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <select id="js-bf-limit" class="ap-filter" style="min-width:110px">
@@ -8285,7 +8285,8 @@ function buildJobSearchAdmin() {
               <option value="100">${L("100", "١٠٠")}</option>
             </select>
             <button class="btn btn-ghost btn-sm" id="js-bf-dry">${L("Preview only", "معاينة فقط")}</button>
-            <button class="btn btn-primary btn-sm" id="js-bf-run">✉️ ${L("Send this batch", "أرسل هذه الدفعة")}</button>
+            <button class="btn btn-primary btn-sm" id="js-bf-run">✉️ ${L("Send to everyone", "أرسل للجميع")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-bf-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
           </div>
         </div>
         <label style="display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.86rem">

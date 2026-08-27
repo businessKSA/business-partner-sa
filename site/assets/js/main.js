@@ -7352,57 +7352,80 @@ var BP_EMP_BILLING = "monthly";
         });
     });
 
-    // Back-fill: send past applicants the copy they never got. Runs one bounded
-    // batch per click so the owner watches it go out rather than firing
-    // thousands of e-mails on a single press.
-    function backfill(dryRun) {
-      var msg = document.getElementById("js-bf-msg");
-      var out = document.getElementById("js-bf-out");
-      var runBtn = document.getElementById("js-bf-run");
-      var dryBtn = document.getElementById("js-bf-dry");
-      var limit = Number(document.getElementById("js-bf-limit").value) || 25;
-      var requireCv = document.getElementById("js-bf-cvonly").checked;
-      runBtn.disabled = dryBtn.disabled = true;
-      msg.style.color = "";
-      msg.textContent = dryRun
-        ? T("Checking who is next in line…", "نتحقق من التالين في الدور…")
-        : T("Sending — leave this page open until it finishes.", "جارٍ الإرسال — لا تغلق الصفحة حتى ينتهي.");
-      out.innerHTML = "";
-      fetch("/api/candidate", {
+    // Back-fill: send past applicants the copy they never got. One request
+    // sends one bounded batch, so a full run is many requests — the button
+    // keeps firing them until the queue is empty rather than asking for fifty
+    // presses, and stops the moment the owner says so or an error comes back.
+    var bfStop = false, bfTotal = 0, bfBatches = 0;
+    function bfEl(id) { return document.getElementById(id); }
+
+    function bfRender(d, dryRun) {
+      bfEl("js-bf-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+        "<th>" + T("Name", "الاسم") + "</th><th>" + T("Email", "البريد") + "</th><th>" + T("ATS CV", "سيرة ATS") + "</th><th>" + T("Status", "الحالة") + "</th>" +
+        "</tr></thead><tbody>" + (d.results || []).map(function (r) {
+          var cv = (r.hasCv || r.hadCv) ? "✅" : "—";
+          var st = r.skipped === "duplicate" ? T("duplicate — skipped", "مكرر — تخطّيناه")
+            : dryRun ? T("queued", "في الدور")
+            : (r.sent ? T("sent ✓", "أُرسلت ✓") : T("failed", "فشلت"));
+          return "<tr><td>" + esc(r.name || "—") + "</td><td dir=\"ltr\">" + esc(r.to || "—") + "</td><td>" + cv + "</td><td>" + st + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    function bfBatch(dryRun) {
+      var limit = Number(bfEl("js-bf-limit").value) || 25;
+      var requireCv = bfEl("js-bf-cvonly").checked;
+      return fetch("/api/candidate", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ type: "backfill-copies", key: KEY, limit: limit, dryRun: dryRun, requireCv: requireCv }),
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          runBtn.disabled = dryBtn.disabled = false;
-          if (!d || !d.ok) {
-            msg.style.color = "#B91C1C";
-            msg.textContent = T("That didn't run.", "لم تُنفّذ العملية.");
-            return;
-          }
-          if (!d.batch) {
-            msg.textContent = T("Nobody left in the queue — everyone has had their copy.", "لا أحد متبقٍ — الجميع وصلتهم نسختهم.");
-            return;
-          }
-          msg.textContent = dryRun
-            ? T("Next in line: ", "التالون في الدور: ") + d.batch + T(" people. Nothing was sent.", " أشخاص. لم يُرسل شيء.")
-            : d.sent + T(" of ", " من ") + d.batch + T(" sent. Press again for the next batch.", " أُرسلت. اضغط مرة أخرى للدفعة التالية.");
-          out.innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
-            "<th>" + T("Name", "الاسم") + "</th><th>" + T("Email", "البريد") + "</th><th>" + T("ATS CV", "سيرة ATS") + "</th><th>" + T("Status", "الحالة") + "</th>" +
-            "</tr></thead><tbody>" + (d.results || []).map(function (r) {
-              var cv = (r.hasCv || r.hadCv) ? "✅" : "—";
-              var st = dryRun ? T("queued", "في الدور") : (r.sent ? T("sent ✓", "أُرسلت ✓") : T("failed", "فشلت"));
-              return "<tr><td>" + esc(r.name || "—") + "</td><td dir=\"ltr\">" + esc(r.to || "—") + "</td><td>" + cv + "</td><td>" + st + "</td></tr>";
-            }).join("") + "</tbody></table></div>";
-        })
-        .catch(function () {
-          runBtn.disabled = dryBtn.disabled = false;
-          msg.style.color = "#B91C1C";
-          msg.textContent = T("Network error.", "خطأ في الاتصال.");
-        });
+      }).then(function (r) { return r.json(); });
     }
-    document.getElementById("js-bf-dry").addEventListener("click", function () { backfill(true); });
-    document.getElementById("js-bf-run").addEventListener("click", function () { backfill(false); });
+
+    function bfFinish(text, isError) {
+      var msg = bfEl("js-bf-msg");
+      msg.style.color = isError ? "#B91C1C" : "";
+      msg.textContent = text;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = false;
+      bfEl("js-bf-run").textContent = "✉️ " + T("Send to everyone", "أرسل للجميع");
+      bfEl("js-bf-stop").hidden = true;
+    }
+
+    function bfLoop(dryRun) {
+      if (bfStop) return bfFinish(T("Stopped. ", "توقفنا. ") + bfTotal + T(" people were emailed — press again to carry on.", " شخصاً وصلتهم الرسالة — اضغط مرة أخرى للمتابعة."));
+      bfBatch(dryRun).then(function (d) {
+        if (!d || !d.ok) return bfFinish(d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.") : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        bfRender(d, dryRun);
+        if (dryRun) return bfFinish(T("Next in line: ", "التالون في الدور: ") + d.batch + T(" people. Nothing was sent.", " أشخاص. لم يُرسل شيء."));
+        bfTotal += d.sent; bfBatches++;
+        if (!d.batch) {
+          return bfFinish(bfTotal
+            ? T("Done — ", "تم — ") + bfTotal + T(" people emailed.", " شخصاً وصلتهم رسالتهم.")
+            : T("Nobody left in the queue — everyone has had their copy.", "لا أحد متبقٍ — الجميع وصلتهم نسختهم."));
+        }
+        bfEl("js-bf-msg").textContent = bfTotal + T(" sent so far. Keep this page open — it carries on by itself.", " أُرسلت حتى الآن. اترك الصفحة مفتوحة — تكمل لحالها.");
+        setTimeout(function () { bfLoop(false); }, 400);
+      }).catch(function () {
+        bfFinish(T("Network error after ", "خطأ في الاتصال بعد ") + bfTotal + T(" sent. Press again to carry on.", " رسالة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+
+    function backfill(dryRun) {
+      bfStop = false; bfTotal = 0; bfBatches = 0;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = true;
+      bfEl("js-bf-out").innerHTML = "";
+      bfEl("js-bf-msg").style.color = "";
+      bfEl("js-bf-msg").textContent = dryRun
+        ? T("Checking who is next in line…", "نتحقق من التالين في الدور…")
+        : T("Sending…", "جارٍ الإرسال…");
+      if (!dryRun) {
+        bfEl("js-bf-run").textContent = T("Sending…", "جارٍ الإرسال…");
+        bfEl("js-bf-stop").hidden = false;
+      }
+      bfLoop(dryRun);
+    }
+    bfEl("js-bf-dry").addEventListener("click", function () { backfill(true); });
+    bfEl("js-bf-run").addEventListener("click", function () { backfill(false); });
+    bfEl("js-bf-stop").addEventListener("click", function () { bfStop = true; this.disabled = true; });
+
 
     document.addEventListener("click", function (e) {
       var act = e.target.closest ? e.target.closest("[data-js-act]") : null;
