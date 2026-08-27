@@ -10237,10 +10237,14 @@ function buildSharedServicesPortal() {
             <span class="ss-pavatar" id="ph-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i class="ss-ponline" aria-hidden="true"></i></span>
             <span class="e" id="ph-e" hidden>👑</span>
             <div><b id="ph-n"></b><span id="ph-r"></span></div>
-            <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ ${L("Rename", "غيّر الاسم")}</button>
-            <span class="ss-live">● ${L("Online now", "متصل الآن")}</span>
+            <div class="ss-chat-actions">
+              <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ ${L("Rename", "غيّر الاسم")}</button>
+              <button id="ss-print" type="button" title="${Lraw("Save the conversation as PDF", "احفظ المحادثة PDF")}">📄 ${L("Save PDF", "حفظ PDF")}</button>
+              <span class="ss-live">● ${L("Online now", "متصل الآن")}</span>
+            </div>
           </div>
           <div class="ss-log" id="ss-log"></div>
+          <button id="ss-jump" type="button" title="${Lraw("Jump to latest", "انزل لآخر رسالة")}" aria-label="${Lraw("Jump to latest", "انزل لآخر رسالة")}">↓</button>
           <div class="ss-teamline" id="ss-teamline" hidden><span class="dots"><i></i><i></i><i></i></span><span id="ss-teamline-t"></span></div>
           <div class="ss-chips" id="ss-chips">
             <button type="button">${L("Prepare a quote for my client", "جهّز لي عرض سعر")}</button>
@@ -10249,7 +10253,7 @@ function buildSharedServicesPortal() {
             <button type="button">${L("Summarize the team's latest work", "لخّص آخر أعمال الفريق")}</button>
           </div>
           <form class="ss-form" id="ss-form">
-            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+            <textarea id="ss-input" rows="1" autocomplete="off" placeholder="${Lraw("Type your request here… (Shift+Enter for a new line)", "اكتب طلبك هنا… (Shift+Enter لسطر جديد)")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}"></textarea>
             <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
           </form>
         </div>
@@ -10400,7 +10404,56 @@ function buildSharedServicesPortal() {
           #pane-team .ss-form input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:14px}
           #pane-team .ss-form input::placeholder{color:rgba(255,255,255,.45)}
           #pane-team .ss-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
+          /* ===== glass treatment for the remaining tabs ===== */
+          #ss-dash .ss-svc a,
+          #ss-dash .ss-ktile, #ss-dash .ss-kcard,
+          #ss-dash .ss-cc, #ss-dash .ss-comp-main, #ss-dash .ss-comp-links a{
+            background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+            backdrop-filter:blur(12px);box-shadow:0 10px 28px rgba(5,8,35,.22)}
+          #ss-dash .ss-svc a b, #ss-dash .ss-kcard>b, #ss-dash .ss-cc-t h3,
+          #ss-dash .ss-comp-links a b, #ss-dash .ss-krows .c{color:#fff}
+          #ss-dash .ss-svc a span, #ss-dash .ss-cc-t .u, #ss-dash .ss-comp-links a span,
+          #ss-dash .ss-ktile .l, #ss-dash .ss-kempty{color:rgba(255,255,255,.62)}
+          #ss-dash .ss-ktile .n{color:#fff}
+          #ss-dash .ss-krows>div{color:rgba(255,255,255,.82);border-bottom-color:rgba(255,255,255,.1)}
+          #ss-dash .ss-svc a:hover, #ss-dash .ss-comp-links a:hover{
+            background:rgba(255,255,255,.11);border-color:rgba(46,230,200,.5);transform:translateY(-2px);
+            box-shadow:0 16px 34px rgba(5,8,35,.3)}
+          #ss-dash .ss-cc-ic{background:rgba(255,255,255,.1)}
+          #ss-dash .ss-cc-state{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+          #ss-dash .ss-cc-state.on{background:rgba(46,230,200,.18);color:#7dffe9}
+          #ss-dash .ss-plat-chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff}
+          #ss-dash .ss-plat-head{color:rgba(255,255,255,.7)}
+          #ss-dash .ss-comp-lead b{color:#fff}
+          #ss-dash .ss-comp-lead p{color:rgba(255,255,255,.66)}
+          #ss-dash .ss-compdash{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+          #ss-dash .ss-note-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff}
+          /* chat extras: copy button, jump-to-latest, print */
+          #pane-team .ss-msg .copy{position:absolute;top:6px;inset-inline-end:8px;opacity:0;transition:opacity .15s;
+            background:rgba(255,255,255,.14);border:0;border-radius:7px;color:#fff;font:inherit;font-size:.68rem;
+            padding:2px 8px;cursor:pointer}
+          #pane-team .ss-msg.bot:hover .copy{opacity:1}
+          #ss-jump{position:absolute;inset-inline-end:16px;bottom:96px;z-index:4;width:38px;height:38px;border-radius:50%;
+            border:1px solid rgba(255,255,255,.2);background:rgba(20,24,70,.9);color:#fff;cursor:pointer;font-size:1rem;
+            box-shadow:0 8px 20px rgba(0,0,0,.35);display:none}
+          #ss-jump.show{display:block}
+          #pane-team .ss-panel{position:relative}
+          .ss-chat-actions{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
+          .ss-chat-actions button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+            border-radius:9px;color:#fff;font:inherit;font-size:.78rem;padding:5px 10px;cursor:pointer}
+          .ss-chat-actions button:hover{background:rgba(255,255,255,.16)}
+          #pane-team .ss-form textarea{flex:1;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+            color:#fff;border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
+          #pane-team .ss-form textarea::placeholder{color:rgba(255,255,255,.45)}
+          #pane-team .ss-form textarea:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
           @media(max-width:640px){#ss-dash>.wrap{padding:16px 12px 20px;border-radius:18px}#pane-team .ss-msg{max-width:88%}}
+          @media print{
+            body>*:not(main),nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,.advisor-fab,.wa-fab{display:none!important}
+            #ss-dash>.wrap,#pane-team .ss-panel{background:#fff!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+            #pane-team .ss-msg{max-width:100%!important;break-inside:avoid;border:1px solid #ddd!important;color:#111!important;background:#fafafa!important}
+            #pane-team .ss-msg.me{background:#eef7f6!important;color:#111!important}
+            #pane-team .ss-panel .ss-log{max-height:none!important;overflow:visible!important}
+          }
         </style>
       </div>
     </div>
@@ -10697,7 +10750,17 @@ function buildSharedServicesPortal() {
       if(m.cls==='bot')tx.innerHTML=mdLite(m.text); else tx.textContent=m.text;
       var meta=document.createElement('span');meta.className='meta';
       meta.innerHTML=fmtTime(m.ts)+(m.cls==='me'?' <i class="tick'+(m.sent?' ok':'')+'">✓✓</i>':'');
-      d.appendChild(tx);d.appendChild(meta);return d;
+      d.appendChild(tx);d.appendChild(meta);
+      if(m.cls==='bot'){
+        var cp=document.createElement('button');cp.type='button';cp.className='copy';cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};
+        cp.onclick=function(){var t=m.text||'';
+          function done(){cp.textContent=${JSON.stringify(Lraw("Copied ✓", "نُسخ ✓"))};setTimeout(function(){cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};},1600);}
+          if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+          else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+        };
+        d.appendChild(cp);
+      }
+      return d;
     }
     function welcomeNode(){
       var c=getClient()||{};var w=document.createElement('div');w.className='ss-welcome';
@@ -10811,12 +10874,29 @@ function buildSharedServicesPortal() {
         .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
         .then(function(){busy=false;});
     });
+    function submitChat(){ if(typeof form.requestSubmit==='function')form.requestSubmit(); else form.dispatchEvent(new Event('submit',{cancelable:true})); }
     var chipsBox=document.getElementById('ss-chips');
     if(chipsBox)chipsBox.addEventListener('click',function(e){
       var b=e.target.closest('button');if(!b||busy)return;
-      input.value=b.textContent.trim();
-      if(typeof form.requestSubmit==='function')form.requestSubmit();else form.dispatchEvent(new Event('submit',{cancelable:true}));
+      input.value=b.textContent.trim(); submitChat();
     });
+    // Enter sends, Shift+Enter newline; textarea grows with content
+    function autoGrow(){ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,140)+'px'; }
+    input.addEventListener('input',autoGrow);
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();submitChat();setTimeout(autoGrow,0);}
+    });
+    // jump-to-latest
+    var jump=document.getElementById('ss-jump');
+    if(jump){
+      log.addEventListener('scroll',function(){
+        var far=(log.scrollHeight-log.scrollTop-log.clientHeight)>140;
+        jump.classList.toggle('show',far);
+      });
+      jump.onclick=function(){log.scrollTo({top:log.scrollHeight,behavior:'smooth'});jump.classList.remove('show');};
+    }
+    var pr=document.getElementById('ss-print');
+    if(pr)pr.onclick=function(){window.print();};
 
     // ---------- compliance: jump to Mishari ----------
     var cc=document.getElementById('ss-comp-chat');
