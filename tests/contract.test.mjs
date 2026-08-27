@@ -5,9 +5,13 @@
 // clause is exactly the kind of change that silently produces two "سابعاً" in
 // a signed document. Both are pinned here.
 //
-// Run: node api/contract.test.mjs   (no dependencies, no browser)
-import { contractHtml } from "./_docusign.js";
-import { parseSubsFromNotes } from "./_suppliers.js";
+// Run: npm test   (no dependencies, no browser)
+//
+// It lives in tests/, NOT api/: Vercel turns every non-underscore file under
+// api/ into a serverless function, and the plan caps a deployment at 12 — which
+// api/ is exactly at. A test file there fails the whole deploy.
+import { contractHtml } from "../api/_docusign.js";
+import { parseSubsFromNotes } from "../api/_suppliers.js";
 
 const fail = [];
 const ok = (c, m) => { console.log((c ? "  ok   " : "  FAIL ") + m); if (!c) fail.push(m); };
