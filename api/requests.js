@@ -545,14 +545,16 @@ async function collectFollowups(limit) {
 // first), bucketed so the panel can lane them — «due» needs contact now,
 // «followed» has a future follow-up booked, «fresh» is active with nothing
 // scheduled, «done» is Won/Lost. The due-only digest keeps collectFollowups.
-async function collectBoard(limit) {
-  if (!NOTION_TOKEN) return [];
+async function collectBoard(limit, cursor) {
+  if (!NOTION_TOKEN) return { items: [], next: null };
   const today = new Date().toISOString().slice(0, 10);
-  const data = await notionQuery(CRM_DB, {
+  const q = {
     page_size: Math.min(Math.max(Number(limit) || 100, 1), 100),
     sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
-  });
-  return (data.results || []).map((pg) => {
+  };
+  if (cursor) q.start_cursor = String(cursor).slice(0, 200);
+  const data = await notionQuery(CRM_DB, q);
+  const items = (data.results || []).map((pg) => {
     const f = followupRow(pg);
     f.bucket = (f.stage === "Won" || f.stage === "Lost") ? "done"
       : (f.human || f.order === "بانتظار الدفع" || (f.due && f.due <= today)) ? "due"
@@ -560,6 +562,7 @@ async function collectBoard(limit) {
       : "fresh";
     return f;
   });
+  return { items, next: data.has_more ? data.next_cursor : null };
 }
 
 // Mirror fresh WhatsApp-qualification rows into the master pipeline, keyed by
@@ -1536,9 +1539,9 @@ export default async function handler(req, res) {
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
     try {
       if ((q.scope || "") === "all") {
-        const followups = await collectBoard(q.limit);
+        const board = await collectBoard(q.limit, q.cursor);
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, followups, due: followups.filter((f) => f.bucket === "due").length }));
+        return res.end(JSON.stringify({ ok: true, followups: board.items, next: board.next, due: board.items.filter((f) => f.bucket === "due").length }));
       }
       const followups = await collectFollowups(q.limit);
       res.statusCode = 200;

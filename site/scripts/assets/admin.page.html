@@ -460,6 +460,7 @@
             <button class="actbtn" id="fupAddSubmit" style="margin-top:8px;background:#047857;color:#fff;border-color:#047857">➕ إنشاء السجل</button>
           </div>
           <div id="fupList" style="padding:4px 18px 14px;font-size:13.5px">جاري التحميل…</div>
+          <div id="fupMoreBar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 18px 14px"></div>
         </div>
 
         <div class="tiles">
@@ -1389,6 +1390,9 @@
         .catch(function(){ alert('تعذّر الاتصال — أعد المحاولة.'); if (btn){ btn.disabled = false; } });
     }
     var fupRows = [];          // all board rows (every bucket)
+    var fupBase = [];          // first page — replaced by every live refresh
+    var fupMore = [];          // older archive pages loaded via «تحميل أقدم» — never dropped
+    var fupNext = null;        // Notion cursor for the next (older) archive page
     var fupSeen = null;        // ids seen in the previous poll → highlight newcomers
     var fupStatus = 'due';     // active status lane
     var fupChan = 'all';       // active channel tab
@@ -1425,6 +1429,51 @@
       var order = ['all'].concat(ckeys);
       for (var t2 = 0; t2 < ctabs.length; t2++) (function(idx){ ctabs[idx].onclick = function(){ fupChan = order[idx]; renderFupTabs(); renderFupList(); }; })(t2);
     }
+    // First page + every archive page loaded so far, deduped by Notion id —
+    // the live refresh replaces only the first page, the archive stays.
+    function mergeFupPages(){
+      var seen = {}, all = [];
+      fupBase.concat(fupMore).forEach(function(f){ if (!seen[f.id]){ seen[f.id] = 1; all.push(f); } });
+      fupRows = all;
+    }
+    function renderFupMoreBar(){
+      var bar = $('fupMoreBar'); if (!bar) return;
+      var html = '';
+      if (fupNext) html += '<button type="button" class="actbtn" id="fupMoreBtn">⬇️ تحميل أقدم (الأرشيف)</button>';
+      html += '<button type="button" class="actbtn" id="fupCsvBtn">📥 تصدير CSV للتسويق</button>';
+      html += '<span style="color:#94a3b8;font-size:11.5px">محمّل ' + fupRows.length + ' عميل — لا يُحذف أي عميل: المنتهون يبقون في «✅ منتهي» وفي نوشن للأبد.</span>';
+      bar.innerHTML = html;
+      var mb = $('fupMoreBtn');
+      if (mb) mb.onclick = function(){
+        mb.disabled = true; mb.textContent = '…جاري التحميل';
+        fetch(API_URL + '?action=panel-followups&scope=all&limit=100&cursor=' + encodeURIComponent(fupNext) + authQS(), { cache:'no-store' })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            if (out && out.ok){ fupMore = fupMore.concat(out.followups || []); fupNext = out.next || null; mergeFupPages(); renderFupTabs(); renderFupList(); renderFupMoreBar(); }
+            else { mb.disabled = false; mb.textContent = '⬇️ تحميل أقدم (الأرشيف)'; }
+          })
+          .catch(function(){ mb.disabled = false; mb.textContent = '⬇️ تحميل أقدم (الأرشيف)'; });
+      };
+      var cb = $('fupCsvBtn');
+      if (cb) cb.onclick = function(){
+        var lane = fupRows.filter(function(f){
+          if (fupStatus !== 'all' && f.bucket !== fupStatus) return false;
+          if (fupChan !== 'all' && (f.channel && f.channel.key) !== fupChan) return false;
+          return true;
+        });
+        if (!lane.length){ alert('لا عملاء في القائمة المعروضة حالياً.'); return; }
+        var esc2 = function(v){ v = String(v == null ? '' : v); return '"' + v.replace(/"/g, '""') + '"'; };
+        var head = ['الاسم','الجوال','البريد','القناة','المرحلة','حالة الطلب','رقم المرجع','وصل','آخر نشاط','المتابعة'];
+        var lines = [head.join(',')].concat(lane.map(function(f){
+          return [f.title, f.phone, f.email, (f.channel && f.channel.label) || '', f.stage, f.order, f.ref, f.created, f.last, f.due].map(esc2).join(',');
+        }));
+        var blob = new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'bp-crm-' + fupStatus + '-' + fupChan + '-' + new Date().toISOString().slice(0,10) + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+    }
     function loadFollowups(){
       fetch(API_URL + '?action=panel-followups&scope=all&limit=100' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
@@ -1433,13 +1482,16 @@
             $('fupCount').textContent = out && out.error === 'crm_not_configured' ? 'يحتاج ربط نوشن' : 'تعذّر التحميل';
             return;
           }
-          fupRows = out.followups || [];
+          fupBase = out.followups || [];
+          if (!fupMore.length || !fupNext) fupNext = out.next || null;
+          mergeFupPages();
           var due = fupRows.filter(function(f){ return f.bucket === 'due'; }).length;
           $('fupCount').textContent = due ? due + ' عميل يحتاج تواصلك' : 'كل العملاء متابَعون ✓';
           var lv = $('fupLive'); if (lv) lv.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;animation:fupPulse 1.6s infinite"></span> مباشر · ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
           try { document.title = (due ? '(' + due + ') ' : '') + 'لوحة تحكم الموقع — Business Partner'; } catch (eT) {}
           renderFupTabs();
           renderFupList();
+          renderFupMoreBar();
         })
         .catch(function(){ $('fupCount').textContent = 'تعذّر التحميل'; });
     }
