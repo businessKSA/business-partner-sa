@@ -8289,8 +8289,9 @@ function buildJobSearchAdmin() {
           </div>
         </div>
         <label style="display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.86rem">
-          <input type="checkbox" id="js-bf-nocv"> ${L("Include applicants who have no ATS CV yet (they get a status update only)", "أدرج من ليس لديه سيرة ATS بعد (تصله رسالة متابعة فقط)")}
+          <input type="checkbox" id="js-bf-cvonly"> ${L("Only people whose ATS CV is ready (everyone else waits)", "من لديه سيرة ATS جاهزة فقط (والباقي ينتظر)")}
         </label>
+        <p class="emp-note" style="margin:6px 0 0">${L("Left unticked, everyone gets their mail: those with a CV get it in full, the rest get where their application stands and what's open.", "بدون تحديد، الجميع يستلمون بريدهم: من عنده سيرة تصله كاملة، والباقي تصله حالة طلبه والوظائف المفتوحة.")}</p>
         <p class="emp-note" id="js-bf-msg" style="min-height:18px;margin:10px 0 0"></p>
         <div id="js-bf-out" style="margin-top:8px"></div>
       </div>

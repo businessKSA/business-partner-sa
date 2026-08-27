@@ -291,6 +291,10 @@
     {
       "path": "/api/requests?__route=jobhunt&action=run&limit=15",
       "schedule": "0 5 * * 1"
+    },
+    {
+      "path": "/api/candidate?action=backfill&limit=25",
+      "schedule": "0 * * * *"
     }
   ]
 }

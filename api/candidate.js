@@ -363,6 +363,8 @@ async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
 }
 
 const OWNER_KEY = envFrom(["PANEL_KEY", "LEADS_KEY"]);
+const CRON_SECRET = (process.env.CRON_SECRET || "").trim();
+const cronOk = (req) => !!CRON_SECRET && String((req.headers && req.headers.authorization) || "") === `Bearer ${CRON_SECRET}`;
 const SENT_FLAG = "أُرسلت نسخة المرشح";
 const SENT_DATE = "تاريخ إرسال نسخة المرشح";
 
@@ -374,15 +376,16 @@ const SENT_DATE = "تاريخ إرسال نسخة المرشح";
 // Scoped to people who actually applied through the site (Source = الموقع).
 // The imported/sourced rows are people who never gave us their address for
 // this, so mailing them would be unsolicited, not a service.
-async function backfillCandidateCopies(b, res) {
+async function backfillCandidateCopies(b, res, req) {
   const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
-  if (!OWNER_KEY || String(b.key || "").trim() !== OWNER_KEY) return send(403, { ok: false, error: "forbidden" });
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  if (!authed) return send(403, { ok: false, error: "forbidden" });
   if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
   const dryRun = b.dryRun === true || b.dryRun === "true";
-  const limit = Math.min(Math.max(Number(b.limit) || 25, 1), 100);
-  // Default to the people the CV pipeline actually produced something for —
-  // a bare "we got your application" months later is noise, not a service.
-  const requireCv = b.requireCv !== false && b.requireCv !== "false";
+  // 30 is what fits in the 60s budget at the send rate below, not a UI choice:
+  // each person costs a mail call, a pause, and one or more Notion writes.
+  const limit = Math.min(Math.max(Number(b.limit) || 25, 1), 30);
+  const requireCv = b.requireCv === true || b.requireCv === "true";
 
   const filter = {
     and: [
@@ -400,6 +403,7 @@ async function backfillCandidateCopies(b, res) {
   const rows = ((await q.json()).results) || [];
 
   const results = [];
+  const seen = new Set();
   for (const row of rows) {
     const props = row.properties || {};
     const to = txt(props["Email"]);
@@ -413,16 +417,29 @@ async function backfillCandidateCopies(b, res) {
     const jobTitle = jobStamp.replace(/\s*\([^)]*\)\s*$/, "").trim();
     if (!isEmail(to)) { results.push({ id: row.id, name, skipped: "no_email" }); continue; }
 
+    // 1,876 rows carry only 1,456 distinct addresses — people reapply, and a
+    // row is not a person. Sending per row would mail the same person up to
+    // four times, so a batch never mails one address twice...
+    const key = to.toLowerCase();
+    if (seen.has(key)) { results.push({ id: row.id, name, to, skipped: "duplicate" }); continue; }
+    seen.add(key);
+
     if (dryRun) { results.push({ id: row.id, name, to, hasCv: !!atsCv, hasSummary: !!summary, jobTitle }); continue; }
     const ok = await sendCandidateCopy(to, name, { jobTitle, ref: "CV-" + row.id.slice(-6), summary, atsCv });
     if (ok) {
-      await notion("pages/" + row.id, "PATCH", {
-        properties: { [SENT_FLAG]: { checkbox: true }, [SENT_DATE]: { date: { start: new Date().toISOString().slice(0, 10) } } },
+      // ...and every other row for that address is flagged too, so the next
+      // batch doesn't pick the duplicates up again.
+      const dupes = await notion("databases/" + DB_ID + "/query", "POST", {
+        page_size: 20, filter: { property: "Email", email: { equals: to } },
       });
+      const ids = dupes.ok ? (((await dupes.json()).results) || []).map((r) => r.id) : [row.id];
+      const stamp = { [SENT_FLAG]: { checkbox: true }, [SENT_DATE]: { date: { start: new Date().toISOString().slice(0, 10) } } };
+      for (const id of ids.length ? ids : [row.id]) await notion("pages/" + id, "PATCH", { properties: stamp });
     }
     results.push({ id: row.id, name, to, sent: !!ok, hadCv: !!atsCv });
-    // Gentle on the mail provider's rate limit; a batch of 25 costs ~5s.
-    await new Promise((r) => setTimeout(r, 200));
+    // Resend allows 2 requests a second by default; 600ms keeps a margin under
+    // it, so a full batch is well inside the 60s function budget.
+    await new Promise((r) => setTimeout(r, 600));
   }
 
   const sent = results.filter((r) => r.sent).length;
@@ -434,6 +451,16 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const url = new URL(req.url, "http://x");
+    // Cron drains the back-fill queue on a schedule; the owner panel can also
+    // drive it by hand. Same handler, same batch limits, same de-duplication.
+    if (url.searchParams.get("action") === "backfill") {
+      return backfillCandidateCopies({
+        key: url.searchParams.get("key") || "",
+        limit: url.searchParams.get("limit") || 25,
+        requireCv: url.searchParams.get("requireCv") || false,
+        dryRun: url.searchParams.get("dryRun") || false,
+      }, res, req);
+    }
     const checkPhone = clip(url.searchParams.get("phone"), 40);
     const checkEmail = clip(url.searchParams.get("email"), 160).toLowerCase();
     // Self-view: a candidate looks up their own record by the same
@@ -490,7 +517,7 @@ export default async function handler(req, res) {
   const b = await readBody(req);
 
   // Owner-only maintenance action, not part of the public application flow.
-  if (b.type === "backfill-copies") return backfillCandidateCopies(b, res);
+  if (b.type === "backfill-copies") return backfillCandidateCopies(b, res, req);
 
   const name = clip(b.name, 160);
   const phone = clip(b.phone, 40);
