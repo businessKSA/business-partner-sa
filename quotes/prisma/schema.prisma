@@ -182,6 +182,19 @@ model Service {
   // صلاحية العرض بالأيام إن اختلفت عن الافتراضي (قوى = 15)
   validityDays  Int?
 
+  // وسائل السداد المسموحة لهذه الخدمة، مفصولة بفواصل.
+  // فارغة = كل الوسائل المفعّلة في النظام.
+  paymentMethods String @default("")
+
+  // روابط الخدمة في المصادر الأخرى — تُملأ من المزامنة وتُعرض في خريطة الكتالوج.
+  notionPageId String? // معرّف صفحة الخدمة في كتالوج نوشن الرسمي
+  siteSlug     String? // مسار صفحة الخدمة على الموقع التعريفي
+  govPlatform  String? // الجهة الحكومية كما هي معلنة على الموقع وفي نوشن
+
+  // أثر آخر مزامنة: من أين جاء آخر تعديل ومتى.
+  syncSource String? // panel | notion | site
+  syncedAt   DateTime?
+
   active    Boolean  @default(true)
   aiCreated Boolean  @default(false) // أُضيفت عبر الوكيل الذكي بعد الاعتماد
   sortOrder Int      @default(100)
@@ -314,7 +327,7 @@ model DocumentItem {
 
 // ------------------------------------------------------------- سجل الإرسال
 model Delivery {
-  id String @id @default(cuid())
+  id         String    @id @default(cuid())
   // الإرسال يخص مستنداً أو فاتورة — أحدهما لا كلاهما
   documentId String?
   document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -327,10 +340,10 @@ model Delivery {
   subject    String?
   body       String?
   // QUEUED | SENT | FAILED | PREPARED
-  status     String   @default("SENT")
+  status     String    @default("SENT")
   error      String?
   meta       String? // JSON
-  sentAt     DateTime @default(now())
+  sentAt     DateTime  @default(now())
   actor      String?
 
   @@index([documentId])
@@ -368,10 +381,47 @@ model Envelope {
   certPath      String?
   lastEventRaw  String? // JSON آخر تحديث من Connect
 
+  signatures Signature[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([documentId])
+}
+
+/// أثر التوقيع لكل طرف على حدة.
+///
+/// DocuSign يرسل `recipients` مع كل حدث (مطلوبة في eventData)، وكانت تُرمى
+/// كاملةً في `lastEventRaw` ولا تُقرأ — فلم يكن في النظام جواب للسؤال الذي
+/// يُسأل عند كل نزاع: مَن وقّع، بأي بريد، ومتى بالضبط. هنا صار محفوظاً صفاً
+/// لكل موقّع، وهو ما يظهر في رسالة الإتمام وفي اللوحة.
+model Signature {
+  id           String   @id @default(cuid())
+  envelopeDbId String
+  envelope     Envelope @relation(fields: [envelopeDbId], references: [id], onDelete: Cascade)
+
+  /// recipientId كما يعرّفه DocuSign — «1» العميل و«2» بزنس بارتنر
+  recipientId String
+  role        String // client | bp
+  name        String
+  email       String
+  /// sent | delivered | completed | declined | autoresponded
+  status      String
+
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  signedAt    DateTime?
+  declinedAt  DateTime?
+
+  /// من أين وُقّع — كما ترسله المنصة، وقد لا ترسله
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([envelopeDbId, recipientId])
+  @@index([envelopeDbId])
 }
 
 // ------------------------------------------------- الفواتير والدفع الإلكتروني
@@ -411,6 +461,22 @@ model Invoice {
   // نوع الإيداع: GOV_FEE (عهدة رسوم حكومية) | SUPPLY (قيمة توريد) | null = أتعاب
   depositKind     String?
 
+  // الفاتورة الضريبية المعتمدة تصدر من الدفترة، لا من هنا. `number` أعلاه رقم
+  // مطالبة السداد في هذه اللوحة؛ والرقم الضريبي هو `daftraNumber` — تسلسل واحد
+  // للمنشأة كما تشترط هيئة الزكاة والضريبة، لا تسلسلان.
+  /// معرّف الطلبية لدى تمارا — يُكتب عند فتح جلسة السداد قبل الدفع، فهو
+  /// الرابط الوحيد بين إشعار تمارا وهذه الفاتورة.
+  tamaraOrderId String?
+  /// approved | authorised | captured | declined | expired | canceled
+  tamaraStatus  String?
+  tamaraError   String?
+
+  daftraId       String?
+  daftraNumber   String?
+  daftraPdfUrl   String? // رابط الفاتورة في الدفترة حين لا يُسلَّم الملف
+  daftraIssuedAt DateTime?
+  daftraError    String? // آخر سبب تعذّر، ليُرى في اللوحة بدل أن يُبتلع
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -418,6 +484,7 @@ model Invoice {
 
   @@index([clientId])
   @@index([status])
+  @@index([tamaraOrderId])
 }
 
 // --------------------------------------------------------- محفظة العميل

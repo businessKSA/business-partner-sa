@@ -14,6 +14,7 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
 const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex").slice(0, 10);
 const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
+const LIVE_V = assetV("assets/js/live-prices.js");
 const REVOS_CSS_V = assetV("assets/css/revenue-os-page.css");
 const REVOS_JS_V = assetV("assets/js/revenue-os-v1.js");
 
@@ -128,6 +129,109 @@ const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 // this site — a hardcoded absolute link here used to land compliance clients
 // in the specialized-team portal with a code it didn't recognize.)
 const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
+// بوابة العميل: عرض سعر رسمي وعقد وفاتورة ضريبية. مسار موازٍ للسلة — السلة
+// شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل إلى نطاق
+// فرعي من businesspartner.sa دون تعديل الشيفرة.
+const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+const portalQuoteUrl = (code) =>
+  `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
+
+// كود الباقة مكتوب صراحةً في بيانات الموقع (BP-PKG-LAUNCH)، فيُطابَق به.
+// والرجوع إلى PKG-<key> للصفوف التي لم يُكتب لها كود بعد.
+const pkgCode = (t) => String(t.code || `PKG-${String(t.key || "").toUpperCase()}`).toUpperCase();
+
+// الباقة تحمل كود نوشن (BP-PKG-LAUNCH) بينما تحمله اللوحة بكودها القديم
+// (PKG-SILVER)، فلا يجد أحدهما الآخر. الجسر هنا صريح ومقروء، ويصير بلا أثر
+// يوم تُوحَّد الأكواد في اللوحة.
+const PKG_ALIAS = {
+  "BP-PKG-LAUNCH": "PKG-SILVER",
+  "BP-PKG-GROWTH": "PKG-GOLD",
+  "BP-PKG-SCALE": "PKG-PLATINUM",
+  "BP-PKG-ENTERPRISE": "PKG-DIAMOND",
+  "BP-PKG-FORM-FOREIGN": "PKG-FOREIGN-FORMATION",
+  "BP-PKG-FORM-SAUDI": "PKG-SAUDI-GULF-FORMATION",
+  "BP-PKG-LEGAL-STRAT": "PKG-STRATEGIC",
+  "BP-PKG-LEGAL-COMP": "PKG-COMPREHENSIVE",
+  "BP-PKG-LEGAL-ADV": "PKG-ADVANCED",
+  "BP-PKG-LEGAL-BASIC": "PKG-BASIC-LEGAL",
+  "BP-PKG-SVC-STARTER": "PKG-S"
+};
+const panelRow = (code) =>
+  PANEL_PRICES.get(code) || PANEL_PRICES.get(PKG_ALIAS[code] || "");
+
+// أسعار اللوحة تسود على ملفات الموقع. تُطبَّق قبل أي عرض، فتصل كل بطاقة وكل
+// صفحة تفصيل والحاسبة والسلة بالرقم نفسه بدل تصحيح كل موضع طباعة وحده.
+// مفعّل افتراضياً بقرار المالك (٢٥ أغسطس ٢٠٢٦): السعر يُعدَّل في اللوحة وحدها.
+// وتعذُّر الوصول لا يُفشِل البناء — يُطبع تحذير ويُنشر الموقع بأسعار ملفاته.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL !== "0";
+const PANEL_PRICES = new Map();
+if (CATALOG_FROM_PANEL) {
+  try {
+    const r = await fetch(`${CLIENT_PORTAL_URL}/api/catalog`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const live = await r.json();
+    for (const row of live.services || []) PANEL_PRICES.set(String(row.code).toUpperCase(), row);
+    console.log(`أسعار اللوحة: ${PANEL_PRICES.size} خدمة.`);
+  } catch (e) {
+    console.warn(`تعذّر سحب أسعار اللوحة (${e.message}) — البناء يكمل بأسعار ملفات الموقع.`);
+  }
+}
+
+// وحدات اللوحة كُتبت بصيغ متفاوتة («شهر» و«شهرياً») وتُقرأ في جملة سعر، فتُوحَّد.
+const UNIT_AR = { "شهر": "شهرياً", "سنة": "سنوياً", "شهري": "شهرياً" };
+
+function panelLabel(row, fallback) {
+  if (row.openPrice || !(row.unitPrice > 0)) return fallback;
+  const n = new Intl.NumberFormat("en-US").format(row.unitPrice);
+  const raw = String(row.unitAr || "").trim();
+  const unit = UNIT_AR[raw] || raw;
+  return unit && unit !== "خدمة" ? `${n} ﷼ / ${unit}` : `${n} ﷼`;
+}
+
+// نص سعر الباقة يحمل الرقم داخله، فلا يكفي تعديل amount: الزائر يقرأ النص.
+// يُستبدل الرقم وحده ويبقى ما حوله كما كُتب، وتُنزع «تبدأ من» لأن السعر ثابت.
+function repriceLabel(label, amount) {
+  if (!label) return label;
+  const n = new Intl.NumberFormat("en-US").format(amount);
+  return String(label)
+    .replace(/^\s*(تبدأ من|يبدأ من|ابتداءً من)\s*/u, "")
+    .replace(/^\s*Starting from\s*/i, "")
+    .replace(/[\d][\d,\.]*/, n);
+}
+
+let repriced = 0;
+for (const svc of services) {
+  const row = PANEL_PRICES.get(String(svc.code || "").toUpperCase());
+  if (!row) continue;
+  const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+  if ((svc.price && svc.price.amount) === amount) continue;
+  svc.price = {
+    label: panelLabel(row, (svc.price && svc.price.label) || ""),
+    amount,
+    note: (svc.price && svc.price.note) || null,
+    noteEn: (svc.price && svc.price.noteEn) || null,
+  };
+  repriced++;
+}
+for (const g of site.packages.groups || []) {
+  for (const t of g.tiers || []) {
+    const row = panelRow(pkgCode(t));
+    if (!row) continue;
+    const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+    if (t.amount === amount) continue;
+    t.amount = amount;
+    if (amount != null) {
+      t.price = repriceLabel(t.price, amount);
+      t.priceEn = repriceLabel(t.priceEn, amount);
+    }
+    repriced++;
+  }
+}
+if (repriced) console.log(`عُدِّل سعر ${repriced} صفاً من اللوحة.`);
+
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -371,7 +475,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
+function cartBtns({ id, code, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -382,7 +486,8 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
   const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
+  const bp = code ? ` data-bp-code="${esc(String(code).toUpperCase())}"` : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}${bp}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -660,7 +765,7 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     // (guided desk: services → quote, book a consultation, and live chat)
     // alongside the green WhatsApp button.
     advisorWidget() +
-    `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
+    `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
 
@@ -1211,7 +1316,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1289,9 +1394,11 @@ function buildServiceDetail(s) {
     <aside class="svc-aside">
       <div class="order-box">
         ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored price-amt">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+          ? `<div class="price-tailored price-amt" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
-        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
@@ -1299,7 +1406,9 @@ function buildServiceDetail(s) {
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
+          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
+        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
         <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
@@ -1900,7 +2009,7 @@ function buildPackages() {
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
         <div class="pk-name">${name}</div>
-        ${SHOW_PACKAGE_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
+        ${SHOW_PACKAGE_PRICES ? `<div class="pk-price" data-bp-price="${esc(pkgCode(t))}" data-bp-keep-unit="1"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
@@ -1916,11 +2025,12 @@ function buildPackages() {
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
       <div class="pk-name">${name}</div>
-      ${SHOW_PACKAGE_PRICES && t.price ? `<div class="pk-price">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
+      ${SHOW_PACKAGE_PRICES && t.price ? `<div class="pk-price" data-bp-price="${esc(pkgCode(t))}">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), code: pkgCode(t), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
       ${SHOW_PACKAGE_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
+      <a class="btn btn-ghost" href="${portalQuoteUrl(pkgCode(t))}" style="width:100%"><span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
     </div>`;
   };
   const tabs = groups
@@ -2519,6 +2629,252 @@ function buildComplianceAgent() {
     active: "/compliance-agent",
     path: "/compliance-agent",
     body,
+  });
+}
+
+// الوكيل الذكي للمستندات — AI Document Agent. Chat-first: the client uploads
+// source documents (CR, AOA, IDs, bank letters…) and forms that need filling
+// (vendor/AML/KYC/NDA…); the agent classifies, extracts facts with provenance,
+// asks only for what is missing, fills the forms (agent-added data in blue),
+// and packages the final submission ZIP. Backend: /api/doc-agent →
+// api/requests.js?__route=doc-agent → api/_docagent.js. Session = the same
+// bp_sid account cookie as the rest of the portal.
+function buildDocAgent() {
+  const docTypes = ["سجل تجاري","عقد تأسيس","شهادة ضريبية","IBAN","هوية / إقامة","جواز سفر","عنوان وطني","رخص","عقود","كشوف حساب","Vendor Forms","AML / KYC","NDA","نماذج بنكية","نماذج حكومية","استبيانات"];
+  const docTypesEn = ["Commercial Registration","Articles of Association","Tax Certificate","IBAN","National ID / Iqama","Passport","National Address","Licenses","Contracts","Bank Statements","Vendor Forms","AML / KYC","NDA","Bank Forms","Government Forms","Questionnaires"];
+  const chips = docTypes.map((p, i) => `<span class="hero-badge">${L(docTypesEn[i], p)}</span>`).join("");
+  const steps = [
+    [L("Upload everything at once", "ارفع كل شيء دفعة واحدة"), L("Documents that contain data, forms that need filling, your stamp, even a screenshot of the requirements email — the agent classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.")],
+    [L("It reads, extracts and cross-checks", "يقرأ ويستخرج ويطابق"), L("Every value keeps its source, page, date and confidence. Conflicting values across documents become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.")],
+    [L("It asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% of the form. I still need: expected annual volume, and are both owners not PEPs?” Legal declarations are never assumed.", "«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.")],
+    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Your forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذجك ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
+  ];
+  const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+  const valueItems = [
+    [L("One unified client profile", "ملف بيانات موحّد"), L("CR + AOA + VAT + bank + IDs merge into one profile; the next request reuses it — upload only the new form.", "السجل + عقد التأسيس + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه — ارفع الفورم الجديد فقط.")],
+    [L("Any language, both directions", "أي لغة، وبالاتجاهين"), L("Reads an Arabic CR and fills an English vendor form (or the reverse). Official names are never translated.", "يقرأ سجلاً عربياً ويعبّئ نموذجاً إنجليزياً (أو العكس). الأسماء الرسمية لا تُترجم أبداً.")],
+    [L("UBO & ownership math", "الملاك وUBO"), L("Computes ownership percentages from the AOA and fills UBO sections, with an ownership chart on demand.", "يحسب نسب الملكية من عقد التأسيس ويعبّئ أقسام UBO، مع مخطط ملكية عند الطلب.")],
+    [L("Expiry check on every document", "فحص صلاحية كل مستند"), L("Expired documents are flagged and the request continues — you are asked for a fresh copy before final submission.", "المستند المنتهي يُعلَّم ويستمر الطلب — ويُطلب منك نسخة محدثة قبل التقديم النهائي.")],
+    [L("Natural-language edits", "تعديلات بلغة طبيعية"), L("“Make Section 9 all No”, “today's date”, “add the stamp” — the agent applies them to the right fields only.", "«Section 9 كله No»، «خلي تاريخ اليوم»، «حط الختم» — الوكيل يطبقها على الحقول الصحيحة فقط.")],
+    [L("QA before delivery", "مراجعة جودة قبل التسليم"), L("A second pass verifies every planned value landed, checkboxes are right and no placeholders remain.", "مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.")],
+  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
+
+  const T = {
+    hello: Lraw("Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.", "ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص."),
+    start: Lraw("Start now", "ابدأ الآن"),
+    login: Lraw("Sign in first — your documents live in your private vault. One code to your email and you are in.", "سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة. رمز واحد على بريدك وتدخل."),
+    loginBtn: Lraw("Sign in / create account", "تسجيل الدخول / إنشاء حساب"),
+    placeholder: Lraw("Write here… e.g. “Section 9 all No” or “what is still missing?”", "اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»"),
+    send: Lraw("Send", "إرسال"),
+    uploading: Lraw("Uploading & reading…", "جارٍ الرفع والقراءة…"),
+    generate: Lraw("Fill the forms", "عبّئ النماذج"),
+    pack: Lraw("Prepare the final package", "جهّز الحزمة النهائية"),
+    generating: Lraw("Filling the forms — a QA pass runs before anything reaches you…", "جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…"),
+    packing: Lraw("Packing everything into one ZIP…", "جارٍ ضغط كل شيء في ملف واحد…"),
+    outputs: Lraw("Your deliverables", "مخرجاتك"),
+    download: Lraw("Download", "تحميل"),
+    failed: Lraw("Something went wrong — try again or talk to us on WhatsApp.", "صار خطأ — أعد المحاولة أو كلمنا واتساب."),
+    facts: Lraw("facts extracted", "معلومة مستخرجة"),
+    forms: Lraw("forms detected", "نموذج للتعبئة"),
+    newReq: Lraw("New request", "طلب جديد"),
+  };
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</span>
+    <h1>${L("Upload your documents. We finish the rest.", "ارفع مستنداتك. ونحن نكمل الباقي.")}</h1>
+    <p class="lead">${L("The smart agent reads your documents, extracts the data, fills your forms, finds what is missing, places the stamp when needed, and hands you the final package — your signature is the only thing left.", "الوكيل الذكي يقرأ مستنداتك، يستخرج المعلومات، يعبّئ النماذج، يكتشف النواقص، يضع الختم عند الحاجة، ويرتّب لك الحزمة النهائية — وما يبقى عليك إلا توقيعك.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#agent">${L("Start now", "ابدأ الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
+    </div>
+    <div class="hero-badges">${chips}</div>
+  </div></section>
+
+  <section id="agent" class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Chat-first", "محادثة أولاً")}</span><h2>${L("No long forms — a conversation and your files", "بدون نماذج طويلة — محادثة وملفاتك")}</h2></div>
+    <div class="da-shell">
+      <div class="da-head">
+        <b>${L("AI Document Agent", "الوكيل الذكي للمستندات")}</b>
+        <span class="da-chip" id="da-status">—</span>
+        <span class="da-chip" id="da-progress" hidden></span>
+        <button class="btn btn-ghost" id="da-new" hidden style="margin-inline-start:auto;padding:.3rem .8rem">${T.newReq}</button>
+      </div>
+      <div class="da-msgs" id="da-msgs"><div class="da-msg bot">${esc(T.hello)}</div></div>
+      <div class="da-outputs" id="da-outputs" hidden><b>${T.outputs}</b><ul id="da-outputs-list"></ul></div>
+      <div class="da-gate" id="da-gate" hidden>
+        <p>${esc(T.login)}</p>
+        <a class="btn btn-primary" href="${u("/account")}">${T.loginBtn}</a>
+      </div>
+      <form class="da-form" id="da-form" hidden>
+        <label class="da-attach" title="${L("Attach files", "أرفق ملفات")}"><input type="file" id="da-file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
+        <input id="da-input" autocomplete="off" placeholder="${esc(T.placeholder)}">
+        <button class="btn btn-primary" type="submit">${T.send}</button>
+      </form>
+      <div class="da-actions" id="da-actions" hidden>
+        <button class="btn btn-ghost" id="da-generate">🖊️ ${T.generate}</button>
+        <button class="btn btn-ghost" id="da-package">📦 ${T.pack}</button>
+      </div>
+      <div class="da-start" id="da-start" hidden><button class="btn btn-primary btn-lg" id="da-begin">${T.start}</button></div>
+    </div>
+    <p class="da-note">${L("Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.", "تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.")}</p>
+  </div></section>
+
+  <section id="how" class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف يعمل؟")}</span><h2>${L("Information sources → understanding → matching → filled documents", "مصادر معلومات → فهم → مطابقة → مستندات معبّأة")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">🔏</span><p>${L("The agent never fabricates a signature and never assumes legal declarations (PEP, sanctions, conflicts of interest…). It asks, records your explicit confirmation with its channel and time, and leaves the signature to you.", "الوكيل لا يصنع توقيعاً ولا يفترض الإقرارات القانونية (PEP، العقوبات، تضارب المصالح…). يسألك، يسجّل تأكيدك الصريح بقناته ووقته، ويترك التوقيع لك.")}</p></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What makes it different?", "وش يميزه؟")}</h3>
+      <ul class="value-list">${valueItems}</ul>
+    </div>
+  </div></section>
+
+  <style>
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .value-list b{color:var(--navy)}
+    .da-shell{max-width:820px;margin:0 auto;background:var(--white);border:1px solid var(--gray-line);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
+    .da-head{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--gray-line);background:var(--gray-bg)}
+    .da-chip{font-size:.78rem;background:var(--white);border:1px solid var(--gray-line);border-radius:99px;padding:.15rem .7rem;color:var(--text-soft)}
+    .da-msgs{padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;min-height:220px;max-height:420px;overflow-y:auto}
+    .da-msg{max-width:85%;padding:.6rem .9rem;border-radius:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+    .da-msg.bot{background:var(--gray-bg);border:1px solid var(--gray-line);align-self:flex-start}
+    .da-msg.me{background:var(--navy);color:var(--white);align-self:flex-end}
+    .da-msg.sys{background:#EEF4FF;border:1px dashed #B9CDF3;color:var(--navy);font-size:.85rem;align-self:center}
+    .da-form{display:flex;gap:.5rem;padding: .8rem 1.1rem;border-top:1px solid var(--gray-line)}
+    .da-form input[type=text],.da-form #da-input{flex:1;border:1px solid var(--gray-line);border-radius:10px;padding:.6rem .8rem;font:inherit}
+    .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.2rem}
+    .da-attach input{display:none}
+    .da-actions{display:flex;gap:.6rem;flex-wrap:wrap;padding:0 1.1rem .9rem}
+    .da-start{padding:1rem;text-align:center}
+    .da-gate{padding:1.2rem;text-align:center;border-top:1px solid var(--gray-line)}
+    .da-outputs{padding:.6rem 1.1rem;border-top:1px solid var(--gray-line);font-size:.9rem}
+    .da-outputs ul{list-style:none;margin:.4rem 0 0;padding:0;display:grid;gap:.35rem}
+    .da-outputs li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+    .da-outputs .qa-passed{color:var(--wa)} .da-outputs .qa-failed{color:#C0392B}
+    .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
+  </style>`;
+
+  const script = `<script>
+  (function(){
+    var API='/api/doc-agent';
+    var $=function(id){return document.getElementById(id);};
+    if(!$('da-msgs'))return;
+    var ref='';
+    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
+    var T=${JSON.stringify(T)};
+    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
+    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
+    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
+    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
+    function setStatus(s){$('da-status').textContent=s||'—';}
+    function renderState(s){
+      if(!s||!s.ok)return;
+      setStatus(s.request.status);
+      var facts=(s.facts||[]).length, forms=(s.gap&&s.gap.forms)||0;
+      var p=$('da-progress');
+      if(facts||forms){p.hidden=false;p.textContent=facts+' '+T.facts+' · '+forms+' '+T.forms;}
+      var outs=(s.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
+      show('da-outputs',outs.length>0);
+      var ul=$('da-outputs-list');ul.innerHTML='';
+      outs.forEach(function(o){
+        var li=document.createElement('li');
+        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
+        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
+        var a=document.createElement('a');a.href='#';a.textContent=T.download;a.className='btn btn-ghost';a.style.padding='.15rem .7rem';
+        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
+        li.appendChild(a);ul.appendChild(li);
+      });
+      show('da-actions',forms>0||outs.length>0);
+    }
+    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
+    function activate(){show('da-form',true);show('da-actions',false);show('da-start',false);show('da-new',true);refresh();}
+    function begin(){
+      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
+        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
+        else el('sys',T.failed);
+      });
+    }
+    // Boot: are we signed in, and is there a request to resume?
+    get('?action=list').then(function(d){
+      if(d.__code===401){show('da-gate',true);return;}
+      if(!d.ok){show('da-gate',true);return;}
+      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
+      var match=null;
+      open.forEach(function(r){if(r.ref===ref)match=r;});
+      if(!match&&open.length)match=open[0];
+      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
+        get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){
+          if(s.ok){(s.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(s);}
+          activate();
+        });
+      } else { show('da-start',true); }
+    }).catch(function(){show('da-gate',true);});
+    $('da-begin')&&($('da-begin').onclick=begin);
+    $('da-new')&&($('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',T.hello);begin();});
+    $('da-form').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      var v=$('da-input').value.trim();if(!v||!ref)return;
+      $('da-input').value='';el('me',v);
+      var typing=el('sys','…');
+      post({action:'chat',ref:ref,message:v}).then(function(d){
+        typing.remove();
+        el('bot',d.ok?d.reply:T.failed);
+        refresh();
+      }).catch(function(){typing.remove();el('sys',T.failed);});
+    });
+    $('da-file').addEventListener('change',function(){
+      var files=Array.prototype.slice.call(this.files||[]);this.value='';
+      if(!ref||!files.length)return;
+      (function next(i){
+        if(i>=files.length){refresh();return;}
+        var f=files[i];
+        el('me','📎 '+f.name);
+        var note=el('sys',T.uploading);
+        var rd=new FileReader();
+        rd.onload=function(){
+          var b64=String(rd.result).split(',')[1]||'';
+          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||'application/pdf'}).then(function(d){
+            note.remove();
+            el('bot',d.ok?d.note:T.failed);
+            next(i+1);
+          }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
+        };
+        rd.readAsDataURL(f);
+      })(0);
+    });
+    $('da-generate').onclick=function(){
+      if(!ref)return;var note=el('sys',T.generating);
+      post({action:'generate',ref:ref}).then(function(d){
+        note.remove();
+        if(d.ok){(d.outputs||[]).forEach(function(o){el('sys',(o.ok?'✓ ':'⚠ ')+o.form+(o.unfilled?(' — '+o.unfilled+' ?'):''));});}
+        else el('sys',T.failed);
+        refresh();
+      }).catch(function(){note.remove();el('sys',T.failed);});
+    };
+    $('da-package').onclick=function(){
+      if(!ref)return;var note=el('sys',T.packing);
+      post({action:'package',ref:ref}).then(function(d){
+        note.remove();
+        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',T.failed);
+        refresh();
+      }).catch(function(){note.remove();el('sys',T.failed);});
+    };
+  })();
+  </script>`;
+
+  return page({
+    title: Lraw("AI Document Agent — Business Partner", "الوكيل الذكي للمستندات — بيزنس بارتنر"),
+    desc: Lraw("Upload your documents and the forms you need filled — the AI agent reads, extracts, fills, stamps and packages everything.", "ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة."),
+    active: "/ai-document-agent",
+    path: "/ai-document-agent",
+    body,
+    script,
   });
 }
 
@@ -5916,27 +6272,27 @@ function buildContact() {
 }
 
 // Installments: we arrange financing for government-service fees through the
-// client's bank, BNPL providers (Tabby/Tamara) or e-wallets. The page collects
+// client's bank, Tamara or e-wallets. The page collects
 // a structured request; the actual financing approval happens with the
 // provider — we coordinate it. ?amount= prefills the calculator (checkout links here).
 function buildInstallments() {
   const months = [3, 6, 12];
   const channels = [
     ["🏦", L("Your bank", "عن طريق بنكك"), L("Personal finance or installment POS through the major Saudi banks — we prepare the file and quotation your bank asks for.", "تمويل شخصي أو تقسيط نقاط بيع عبر البنوك السعودية الرئيسية — نجهّز لك الملف وعرض السعر الذي يطلبه بنكك.")],
-    ["🟣", L("Tabby / Tamara", "تابي / تمارا"), L("Split the fees into 4+ payments through BNPL providers, subject to their approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر مزودي الدفع الآجل، حسب موافقتهم وحدودهم.")],
+    ["🟣", L("Tamara", "تمارا"), L("Split the fees into 4+ payments through Tamara, subject to its approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر تمارا، حسب موافقتها وحدودها.")],
     ["📱", L("E-wallets", "المحافظ الإلكترونية"), L("STC Pay and similar wallets for scheduled partial payments combined with your Business Partner wallet.", "STC Pay والمحافظ المشابهة لدفعات جزئية مجدولة بالتكامل مع محفظتك في بيزنس بارتنر.")],
   ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p></div>`).join("");
   const steps = [
     [1, L("Pick the service & amount", "حدد الخدمة والمبلغ"), L("Choose the government service or SADAD invoice you want to split.", "اختر الخدمة الحكومية أو فاتورة سداد التي تريد تقسيطها.")],
     [2, L("Pick the plan", "اختر خطة التقسيط"), L("3, 6 or 12 months — see the estimated monthly instalment instantly.", "3 أو 6 أو 12 شهراً — وشاهد القسط الشهري التقديري فوراً.")],
-    [3, L("We arrange the financing", "نرتب لك التمويل"), L("We coordinate with your bank / Tabby / Tamara and prepare every document they need.", "ننسق مع بنكك / تابي / تمارا ونجهّز كل مستند يطلبونه.")],
+    [3, L("We arrange the financing", "نرتب لك التمويل"), L("We coordinate with your bank or Tamara and prepare every document they need.", "ننسق مع بنكك أو تمارا ونجهّز كل مستند يطلبونه.")],
     [4, L("Approve & we execute", "وافق وننفذ"), L("Once approved, we pay the fees on your behalf and follow the service through to issuance.", "بعد الموافقة نسدد الرسوم نيابة عنك ونتابع الخدمة حتى الإصدار.")],
   ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Beta service · for establishments ⚡", "خدمة تحت التجربة · للمنشآت ⚡")}</span>
     <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
-    <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
+    <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Contact us", "تواصل معنا", "btn-ghost")}</div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("For SMEs — not individuals", "للمنشآت الصغيرة والمتوسطة — لا للأفراد")}</span>
@@ -5979,7 +6335,7 @@ function buildInstallments() {
           <div class="field"><label for="inst-months">${L("Duration", "مدة التقسيط")}</label><select id="inst-months">${months.map((m) => `<option value="${m}">${m} ${L("months", "أشهر")}</option>`).join("")}</select></div>
           <div class="field"><label for="inst-channel">${L("Preferred channel", "القناة المفضلة")}</label><select id="inst-channel">
             <option value="bank">${Lraw("My bank", "بنكي")}</option>
-            <option value="bnpl">${Lraw("Tabby / Tamara", "تابي / تمارا")}</option>
+            <option value="bnpl">${Lraw("Tamara", "تمارا")}</option>
             <option value="wallet">${Lraw("E-wallet", "محفظة إلكترونية")}</option>
             <option value="any">${Lraw("Best available offer", "أفضل عرض متاح")}</option>
           </select></div>
@@ -5991,7 +6347,7 @@ function buildInstallments() {
       </form>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tabby/Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تابي/تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
+  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
 }
 
 // Estrdad (استرداد) — Monsha'at's government-fee refund initiative
@@ -6891,14 +7247,11 @@ function buildCheckout() {
           <div class="tax-choice" id="pay-choice">
             <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>${L("Pay online", "الدفع الإلكتروني")}</strong><small>${L("mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.", "مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.")}</small></span></label>
             <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>${L("Bank transfer", "تحويل بنكي")}</strong><small>${L("Transfer to our account and upload the receipt — we verify it and activate your order.", "حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.")}</small></span></label>
-            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tabby or Tamara", "قسّطها — تابي أو تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#3BEDC0;color:#292929;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tabby</span><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
+            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tamara", "قسّطها — تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
           </div>
           <div id="bnpl-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay in installments", "الدفع بالأقساط")}</strong></div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
-              <button type="button" id="bnpl-tabby" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #3BEDC0;background:#3BEDC0;color:#292929;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
-                <span style="font-size:1.05rem;direction:ltr">tabby</span><span style="font-weight:600;font-size:.85rem">${L("· 4 payments, no fees", "· ٤ دفعات بلا رسوم")}</span>
-              </button>
               <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
                 <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">${L("· split it your way", "· قسّمها على راحتك")}</span>
               </button>
@@ -10350,6 +10703,7 @@ function writeFullSite(pre) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  write(`${pre}ai-document-agent.html`, buildDocAgent());
   write(`${pre}data.html`, buildDataPortal());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
@@ -10491,7 +10845,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

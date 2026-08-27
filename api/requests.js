@@ -25,7 +25,8 @@ import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+import { handleDocAgent } from "./_docagent.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -1133,6 +1134,125 @@ async function recordOrderInDb(req, b, ref) {
   });
 }
 
+// ---- جسر لوحة العروض: الفاتورة الضريبية تصدر من هنا وحدها ----
+//
+// لوحة العروض (bp-quotes) تُصدر مطالبات سداد بترقيمها الخاص، والفاتورة
+// الضريبية المعتمدة تصدر من الدفترة. لو أصدرت اللوحة فواتيرها في الدفترة
+// بشيفرة موازية لصار للمنشأة تسلسلان لأرقام الفواتير — وهو ما لا تقبله هيئة
+// الزكاة والضريبة. فالنقطة هنا تنادي الشيفرة المجرَّبة نفسها التي ينادي بها
+// الموقع منذ شهور: مصدر واحد، وتسلسل واحد.
+//
+// لا تُرسل بريداً: اللوحة لها قوالبها ومُرسِلها، وإرسالان يعنيان رسالتين
+// للعميل عن فاتورة واحدة.
+const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
+// عنوان لوحة العروض — للاتجاه المعاكس: الموقع يسألها عن عروض العميل وعقوده.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "").trim().replace(/\/+$/, "");
+
+function bridgeAuthorized(req) {
+  if (!PANEL_BRIDGE_TOKEN) return false;
+  const given = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+  if (given.length !== PANEL_BRIDGE_TOKEN.length) return false;
+  let diff = 0;
+  for (let i = 0; i < PANEL_BRIDGE_TOKEN.length; i++) diff |= given.charCodeAt(i) ^ PANEL_BRIDGE_TOKEN.charCodeAt(i);
+  return diff === 0;
+}
+
+async function handleDaftraInvoice(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+  if (!daftraConfigured()) return send(503, { ok: false, error: "daftra_not_configured" });
+
+  const b = await readBody(req);
+  const items = (Array.isArray(b.items) ? b.items : []).slice(0, 60)
+    .map((it) => ({
+      name: String(it.name || "").slice(0, 140),
+      quantity: Math.max(1, Math.min(999, Number(it.quantity) || 1)),
+      unitPrice: Math.round(Number(it.unitPrice || 0) * 100) / 100,
+    }))
+    .filter((it) => it.name && it.unitPrice > 0);
+  if (!items.length) return send(400, { ok: false, error: "no_priced_items" });
+
+  const who = {
+    name: String(b.buyer?.name || "").slice(0, 200),
+    email: String(b.buyer?.email || "").toLowerCase(),
+    phone: String(b.buyer?.phone || "").slice(0, 20),
+    city: String(b.buyer?.city || "").slice(0, 60),
+    taxNumber: String(b.buyer?.taxNumber || "").replace(/\D/g, ""),
+    address: b.buyer?.address || null,
+    isCompany: !!b.buyer?.isCompany,
+    contact: String(b.buyer?.contact || "").slice(0, 120),
+  };
+  if (!who.name || !isEmail(who.email)) return send(400, { ok: false, error: "missing_buyer" });
+
+  // المبلغ المحصَّل يُقارَن بمجموع البنود قبل الإصدار: فاتورة لا تطابق ما
+  // دُفع فعلاً أسوأ من غياب الفاتورة. التسامح ريال واحد لفروق التقريب.
+  const rate = Number(daftraVatRate()) || 15;
+  const net = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
+  const expected = Math.round(net * (1 + rate / 100) * 100);
+  const paidHalalas = Number(b.paidHalalas || 0);
+  if (paidHalalas > 0 && Math.abs(expected - paidHalalas) > 100) {
+    return send(409, { ok: false, error: "amount_mismatch", expected, paid: paidHalalas });
+  }
+
+  const { client } = await daftraFindOrCreateClient(who);
+  if (!client || !client.id) return send(502, { ok: false, error: "client_failed" });
+
+  const notes = [
+    b.ref ? `مرجع المستند: ${b.ref}` : "",
+    b.sourceNumber ? `مطالبة السداد في لوحة العروض: ${b.sourceNumber}` : "",
+    "صادرة من لوحة العروض",
+    who.isCompany && who.taxNumber ? `الرقم الضريبي: ${who.taxNumber}` : "",
+    who.isCompany && who.address ? `العنوان الوطني: ${nationalAddressLine(who.address)}` : "",
+    who.contact ? `الشخص المسؤول: ${who.contact}` : "",
+  ].filter(Boolean).join("\n");
+
+  let inv;
+  try {
+    inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: String(b.ref || "") });
+  } catch (e) {
+    return send(502, { ok: false, error: "invoice_failed", detail: String(e.message || e).slice(0, 300) });
+  }
+
+  // فشل تقييد السداد لا يُبطل الفاتورة — تبقى صادرة، ويُبلَّغ المنادي ليعرضه.
+  let paymentRecorded = false;
+  let paymentError = "";
+  if (paidHalalas > 0) {
+    try {
+      await daftraRecordPayment({
+        invoiceId: inv.id,
+        amount: inv.total,
+        transactionId: String(b.payId || ""),
+        method: String(b.method || "Moyasar"),
+      });
+      paymentRecorded = true;
+    } catch (e) {
+      paymentError = String(e.message || e).slice(0, 200);
+    }
+  }
+
+  let pdf = null;
+  try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
+  let publicUrl = "";
+  if (!pdf) {
+    try { publicUrl = (await daftraPublicInvoiceLink(inv.id, inv.publicUrl || inv.url || "")).url || ""; } catch { publicUrl = ""; }
+  }
+
+  return send(200, {
+    ok: true,
+    id: inv.id,
+    number: inv.number,
+    net: inv.net,
+    vat: inv.vat,
+    total: inv.total,
+    vatRate: rate,
+    paymentRecorded,
+    paymentError,
+    pdfBase64: pdf ? pdf.base64 : "",
+    publicUrl,
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1143,6 +1263,8 @@ export default async function handler(req, res) {
   // own file: the plan caps serverless functions at 12 and this repo is at the
   // cap. The supplier portal lives in ./_suppliers.js and owns the request
   // entirely once delegated.
+  // الفاتورة الضريبية للوحة العروض — تُصدَر من الشيفرة المجرَّبة نفسها لا من نسخة ثانية.
+  if ((q.__route || "") === "daftra-invoice") return handleDaftraInvoice(req, res);
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.
@@ -1150,6 +1272,9 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
+  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
+  if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1246,6 +1371,48 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // عروض الأسعار والعقود والمطالبات من لوحة العروض — داخل صفحة الحساب.
+  //
+  // كانت اللوحة عالماً منفصلاً: العميل يفتح /ar/account فيرى طلبه ومحفظته،
+  // ولا يرى عرض السعر المرسل له ولا العقد الذي وقّعه، لأن ذاك كله خلف بوابة
+  // ثانية لا يصلها إلا برابط في بريد. فمن أضاع البريد أضاع العرض.
+  //
+  // الهوية هنا من الجلسة وحدها — البريد الذي تحقّق منه الموقع برمز — ولا
+  // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
+  if ((q.action || "") === "my-documents") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_URL || !PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    if (!email) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(12000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
+      // وحده يقول إنه لم يستطع القراءة الآن.
+      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
     }
   }
 
@@ -3552,7 +3719,7 @@ export default async function handler(req, res) {
     const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
     const monthsNum = Number(b.months);
     const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
-    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const CH = { bank: "بنك العميل", bnpl: "تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);

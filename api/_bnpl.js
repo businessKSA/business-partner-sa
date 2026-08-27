@@ -1,23 +1,20 @@
-// Tabby + Tamara (buy-now-pay-later) — env-gated exactly like Moyasar: the
-// checkout shows the installment buttons as «قريباً» until the keys land in
-// Vercel, then they go live with no code change. Underscore-prefixed so
-// Vercel treats this as a module, not a 13th serverless function.
+// Tamara (buy-now-pay-later) — env-gated exactly like Moyasar: the checkout
+// shows the installment button as «قريباً» until the key lands in Vercel, then
+// it goes live with no code change. Underscore-prefixed so Vercel treats this
+// as a module, not a 13th serverless function.
 //
-// Env vars (add them the day the merchant subscription is approved):
-//   TABBY_SECRET_KEY      sk_...            (Tabby → API keys)
-//   TABBY_MERCHANT_CODE   your store code from Tabby onboarding
-//   TABBY_API_BASE        optional, default https://api.tabby.ai
+// كانت هنا تابي أيضاً، مكتوبة كاملة وخلف مفاتيح لم تُضبط قط — لا اتفاقية
+// موقّعة معها. وشيفرة مسار دفع لا تعمل أسوأ من غيابها: تُقرأ كأنها خيار قائم،
+// وتُصان كأنها حيّة، ولا يكتشف أحد أنها معطّلة إلا عند أول عميل يضغطها.
+//
+// Env vars:
 //   TAMARA_API_TOKEN      the long-lived API token from Tamara partners portal
 //   TAMARA_API_BASE       optional, default https://api.tamara.co
 //                         (sandbox: https://api-sandbox.tamara.co)
 
-const TABBY_SK = (process.env.TABBY_SECRET_KEY || "").trim();
-const TABBY_MERCHANT = (process.env.TABBY_MERCHANT_CODE || "").trim();
-const TABBY_BASE = (process.env.TABBY_API_BASE || "https://api.tabby.ai").trim().replace(/\/$/, "");
 const TAMARA_TOKEN = (process.env.TAMARA_API_TOKEN || "").trim();
 const TAMARA_BASE = (process.env.TAMARA_API_BASE || "https://api.tamara.co").trim().replace(/\/$/, "");
 
-export const tabbyConfigured = () => !!(TABBY_SK && TABBY_MERCHANT);
 export const tamaraConfigured = () => !!TAMARA_TOKEN;
 
 const two = (n) => (Math.round(Number(n) * 100) / 100).toFixed(2);
@@ -36,63 +33,6 @@ async function call(url, token, body, method = "POST") {
     throw e;
   }
   return j || {};
-}
-
-// ---- Tabby ------------------------------------------------------------------
-// Hosted checkout: create a session, send the buyer to web_url; Tabby returns
-// them to `urls.success` with ?payment_id=... appended. A successful payment
-// lands AUTHORIZED and must be captured to actually move the money.
-export async function createTabbySession({ order, totalSar, items, urls }) {
-  const j = await call(`${TABBY_BASE}/api/v2/checkout`, TABBY_SK, {
-    payment: {
-      amount: two(totalSar),
-      currency: "SAR",
-      description: `Business Partner order ${order.ref || ""}`.trim(),
-      buyer: {
-        phone: String(order.phone || "").slice(0, 30),
-        email: String(order.email || "").slice(0, 120),
-        name: String(order.name || "").slice(0, 100),
-      },
-      order: {
-        reference_id: String(order.ref || "").slice(0, 40),
-        items: (items || []).slice(0, 20).map((it) => ({
-          title: String(it.name || it.id || "خدمة").slice(0, 120),
-          quantity: Math.max(1, Number(it.qty) || 1),
-          unit_price: two(it.unit),
-          category: "services",
-        })),
-      },
-    },
-    lang: "ar",
-    merchant_code: TABBY_MERCHANT,
-    merchant_urls: { success: urls.success, cancel: urls.cancel, failure: urls.failure },
-  });
-  if (j.status === "rejected") {
-    const why = ((j.configuration || {}).products || {}).installments;
-    return { ok: false, rejected: true, reason: (why && why.rejection_reason) || "rejected" };
-  }
-  const web = (((j.configuration || {}).available_products || {}).installments || [])[0];
-  if (!web || !web.web_url) return { ok: false, error: "no_checkout_url" };
-  return { ok: true, url: web.web_url, paymentId: (j.payment && j.payment.id) || "" };
-}
-
-export async function verifyTabbyPayment(paymentId) {
-  const id = String(paymentId || "").trim();
-  if (!/^[a-zA-Z0-9_-]{8,80}$/.test(id)) return { paid: false, error: "bad_id" };
-  const p = await call(`${TABBY_BASE}/api/v2/payments/${id}`, TABBY_SK, undefined, "GET");
-  const status = String(p.status || "").toUpperCase();
-  const amountSar = Number(p.amount) || 0;
-  if (status === "CLOSED") return { paid: true, amountSar, id, captured: true };
-  if (status !== "AUTHORIZED") return { paid: false, status, id };
-  // Authorized money is a promise; the capture is the payment.
-  try {
-    await call(`${TABBY_BASE}/api/v2/payments/${id}/captures`, TABBY_SK, { amount: two(amountSar) });
-    return { paid: true, amountSar, id, captured: true };
-  } catch (e) {
-    // The authorization is real even if our capture call hiccuped — report it
-    // paid-but-uncaptured so a person finishes the capture, never a re-charge.
-    return { paid: true, amountSar, id, captured: false, captureError: String(e.detail || e.message || "").slice(0, 200) };
-  }
 }
 
 // ---- Tamara -----------------------------------------------------------------

@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin, requireClient, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
 import { createClient, updateClient, normalizePhone } from '@/lib/clients';
 import { createQuote, generateContractFromQuote, approveDocument, acceptDocument, autoIssueEligible, type ItemInput } from '@/lib/documents';
-import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl } from '@/lib/send';
+import { prepareWhatsApp, queueDocumentBuild, queueDocumentEmail, notifyEvent, publicUrl, payUrl, composeClientMail, vatTotals, sendQuoteRequestAck } from '@/lib/send';
 import { sendForSignature } from '@/lib/docusign/service';
 import { createInvoicesForContract, createInvoice, markInvoicePaid, walletSpend } from '@/lib/billing';
 import { generateQuoteAndContract, promoteAgentServiceToCatalog } from '@/lib/agent';
@@ -15,8 +15,10 @@ import { createSupplier, createSupplyRequest, addSupplierBid, selectBid, createS
 import { sendMail } from '@/lib/mailer';
 import { loadTemplate, render } from '@/lib/templates';
 import { storage, fileKey, clientFolderPath, type ClientFolder } from '@/lib/storage';
-import { logEvent } from '@/lib/timeline';
-import { round2, fmtMoney } from '@/lib/money';
+import { logEvent, audit } from '@/lib/timeline';
+import { round2, fmtMoney, fmtDate } from '@/lib/money';
+import { notifyCatalogChanged } from '@/lib/catalog-sync';
+import { createTamaraCheckout, tamaraEligible } from '@/lib/payments/tamara';
 
 type State = { error?: string; ok?: string; link?: string };
 
@@ -66,8 +68,9 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
   if (invoice.status === 'PAID') return { error: 'الفاتورة مسددة — لا داعي لإرسال رابط سداد' };
 
   const link = payUrl(invoice.payToken);
+  const clientNameAr = invoice.client.companyAr || invoice.client.nameAr;
   const vars = {
-    clientName: invoice.client.companyAr || invoice.client.nameAr,
+    clientName: clientNameAr,
     number: invoice.number,
     title: invoice.titleAr,
     amount: fmtMoney(invoice.amountExclVat),
@@ -76,15 +79,33 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
     link,
   };
 
-  const tpl = loadTemplate<{
-    email: Record<string, { subject: { ar: string; en: string }; bodyAr: string; bodyEn: string }>;
-    whatsapp: Record<string, { ar: string; en: string }>;
-  }>('messages.json');
+  const tpl = loadTemplate<{ whatsapp: Record<string, { ar: string; en: string }> }>('messages.json');
+
+  const composed = composeClientMail('invoice', vars, {
+    items: [{ name: invoice.titleAr, amount: `${fmtMoney(invoice.amountExclVat)} ريال` }],
+    totals: vatTotals(invoice.amountExclVat, invoice.vatAmount, invoice.total, 'الإجمالي المستحق'),
+    ctaUrl: link,
+    refs: [
+      { label: 'رقم الفاتورة', value: invoice.number },
+      { label: 'العميل', value: clientNameAr },
+      ...(invoice.dueDate ? [{ label: 'تاريخ الاستحقاق', value: fmtDate(invoice.dueDate, 'ar') }] : []),
+    ],
+    govFeesNote: !invoice.isGovFeeDeposit && !invoice.depositKind,
+    signature: true,
+    enRows: [
+      { label: 'Invoice number', value: invoice.number },
+      { label: 'Amount excluding VAT', value: `SAR ${fmtMoney(invoice.amountExclVat)}` },
+      { label: 'Value added tax 15%', value: `SAR ${fmtMoney(invoice.vatAmount)}` },
+      { label: 'Total due', value: `SAR ${fmtMoney(invoice.total)}` },
+    ],
+    enUrl: link,
+  });
 
   const mail = await sendMail({
     to: invoice.client.email,
-    subject: render(tpl.email.invoice.subject.ar, vars),
-    text: render(tpl.email.invoice.bodyAr, vars),
+    subject: composed.subject,
+    text: composed.text,
+    html: composed.html,
   });
 
   await prisma.delivery.create({
@@ -93,8 +114,10 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
       channel: 'EMAIL',
       toName: invoice.client.nameAr,
       toAddress: invoice.client.email,
-      body: render(tpl.email.invoice.bodyAr, vars),
+      subject: composed.subject,
+      body: composed.text,
       status: mail.ok ? 'SENT' : 'FAILED',
+      error: mail.error ?? null,
       actor,
     },
   });
@@ -117,6 +140,94 @@ export async function actionSendInvoiceLink(_prev: State, fd: FormData): Promise
     ok: `أُرسل رابط السداد إلى ${invoice.client.email}`,
     link: `https://wa.me/${phone}?text=${encodeURIComponent(wa)}`,
   };
+}
+
+/**
+ * يفتح جلسة تقسيط لدى تمارا ويعيد رابطها.
+ *
+ * يُفتح برمز الفاتورة وحده كصفحة السداد نفسها — من يملك الرابط يملك السداد،
+ * ولا شيء هنا يكشف بيانات غير المبلغ الذي في الصفحة أصلاً.
+ */
+export async function actionStartTamara(_prev: State, fd: FormData): Promise<State> {
+  const payToken = s(fd, 'payToken');
+  if (!payToken) return { error: 'رابط غير صالح' };
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { payToken },
+    include: { client: true },
+  });
+  if (!invoice) return { error: 'الفاتورة غير موجودة' };
+
+  const fit = tamaraEligible({
+    total: invoice.total,
+    isGovFeeDeposit: invoice.isGovFeeDeposit,
+    depositKind: invoice.depositKind,
+    status: invoice.status,
+  });
+  if (!fit.ok) return { error: fit.reasonAr || 'التقسيط غير متاح لهذه الفاتورة' };
+
+  const base = process.env.APP_URL || 'http://localhost:3000';
+  const ret = (outcome: string) =>
+    `${base}/api/payments/tamara?pay=${encodeURIComponent(payToken)}&outcome=${outcome}`;
+
+  const created = await createTamaraCheckout({
+    invoiceNumber: invoice.number,
+    invoiceId: invoice.id,
+    titleAr: invoice.titleAr,
+    titleEn: invoice.titleEn,
+    amountExclVat: invoice.amountExclVat,
+    vatAmount: invoice.vatAmount,
+    total: invoice.total,
+    clientName: invoice.client.companyEn || invoice.client.nameEn || invoice.client.nameAr,
+    clientEmail: invoice.client.email,
+    clientPhone: normalizePhone(invoice.client.phone),
+    successUrl: ret('success'),
+    failureUrl: ret('failure'),
+    cancelUrl: ret('cancel'),
+    notificationUrl: `${base}/api/payments/tamara`,
+  });
+
+  if (!created.ok) {
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { tamaraError: created.error.slice(0, 500) },
+    });
+    await logEvent({
+      entityType: 'invoice',
+      entityId: invoice.id,
+      clientId: invoice.clientId,
+      code: 'TAMARA_SESSION_FAILED',
+      titleAr: `تعذّر فتح جلسة تمارا للفاتورة ${invoice.number}: ${created.error}`,
+      titleEn: `Could not open Tamara session for invoice ${invoice.number}: ${created.error}`,
+      actor: 'client',
+      actorKind: 'payment',
+      clientVisible: false,
+    });
+    return { error: 'تعذّر فتح صفحة التقسيط الآن. جرّب البطاقة أو التحويل البنكي.' };
+  }
+
+  // معرّف الطلبية يُحفظ قبل مغادرة العميل — هو الرابط الوحيد بين الإشعار وهذه الفاتورة
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      tamaraOrderId: created.data.orderId,
+      tamaraStatus: created.data.status,
+      tamaraError: null,
+    },
+  });
+
+  await logEvent({
+    entityType: 'invoice',
+    entityId: invoice.id,
+    clientId: invoice.clientId,
+    code: 'TAMARA_SESSION_OPENED',
+    titleAr: `فُتحت جلسة تقسيط تمارا للفاتورة ${invoice.number}`,
+    titleEn: `Tamara instalment session opened for invoice ${invoice.number}`,
+    actor: 'client',
+    actorKind: 'payment',
+  });
+
+  return { link: created.data.checkoutUrl };
 }
 
 // ------------------------------------------------------------------- الدخول
@@ -155,13 +266,23 @@ export async function requestClientLink(_prev: State, fd: FormData): Promise<Sta
   if (!client) return generic;
 
   const link = await createMagicLink(email, 'CLIENT', client.id);
-  const tpl = loadTemplate<{ email: Record<string, { subject: { ar: string; en: string }; bodyEn?: string; bodyAr?: string }> }>('messages.json');
-  const b = tpl.email.portalInvite;
-  const vars = { clientName: client.companyAr || client.nameAr, link, validMinutes: MAGIC_LINK_TTL_MIN };
+  const composed = composeClientMail(
+    'portalInvite',
+    { clientName: client.companyAr || client.nameAr, link, validMinutes: MAGIC_LINK_TTL_MIN },
+    {
+      ctaUrl: link,
+      enRows: [
+        { label: 'Link validity', value: `${MAGIC_LINK_TTL_MIN} minutes` },
+        { label: 'Password', value: 'Not required — the link opens the portal directly' },
+      ],
+      enUrl: link,
+    },
+  );
   await sendMail({
     to: email,
-    subject: render(b.subject.en, vars),
-    text: `${render(b.bodyEn || '', vars)}\n\n${'-'.repeat(56)}\n\n${render(b.bodyAr || '', vars)}`,
+    subject: composed.subject,
+    text: composed.text,
+    html: composed.html,
   });
   return { ...generic, link: process.env.DEV_SHOW_MAGIC_LINK === '1' ? link : undefined };
 }
@@ -330,8 +451,10 @@ export async function actionRequestQuote(_prev: State, fd: FormData): Promise<St
         'الخدمة مفتوحة السعر — يحتاج العرض تسعيراً منك قبل إرساله.',
         `${process.env.APP_URL || ''}/admin/documents/${doc.id}`,
       );
+      // العميل يخرج بيده برقم يسأل به، لا بجملة على الشاشة وحدها
+      await sendQuoteRequestAck(doc.id, service.nameAr).catch(() => {});
       return {
-        ok: 'وصلنا طلبك. هذه الخدمة تُسعَّر حسب الحالة، وسيصلك العرض بعد إعداده.',
+        ok: `وصلنا طلبك برقم ${doc.number}، ووصلك إشعار الاستلام على بريدك. هذه الخدمة تُسعَّر حسب الحالة، وسيصلك العرض بعد إعداده.`,
       };
     }
 
@@ -373,6 +496,13 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
     govFeeGroup: fd.get('attachGovFees') === 'on' ? 'foreign-investment' : null,
     validityDays: n(fd, 'validityDays') || null,
     active: fd.get('active') === 'on',
+    // روابط المصادر الأخرى — تُحرَّر هنا فتصير خريطة الكتالوج كاملة.
+    paymentMethods: s(fd, 'paymentMethods'),
+    notionPageId: s(fd, 'notionPageId') || null,
+    siteSlug: s(fd, 'siteSlug') || null,
+    govPlatform: s(fd, 'govPlatform') || null,
+    syncSource: 'panel',
+    syncedAt: new Date(),
   };
   if (!data.code || !data.nameAr || !data.nameEn) return { error: 'الكود والاسم بالعربي والإنجليزي حقول مطلوبة' };
   try {
@@ -381,8 +511,134 @@ export async function actionSaveService(_prev: State, fd: FormData): Promise<Sta
   } catch (e) {
     return { error: e instanceof Error ? e.message : String(e) };
   }
+  // إشعار n8n ليحدّث صف نوشن ويعيد نشر الموقع. لا يُفشِل الحفظ عند تعذّره —
+  // السعر استقرّ في مخزن الحقيقة، وتراجعُه لأن سير عمل خارجي متوقف أسوأ.
+  const hook = await notifyCatalogChanged({ codes: [data.code], source: 'panel', actor: 'admin' });
   revalidatePath('/admin/catalog');
-  return { ok: 'حُفظت الخدمة' };
+  revalidatePath('/admin/catalog/map');
+  return { ok: hook.sent ? 'حُفظت الخدمة وأُبلغت المصادر الأخرى' : 'حُفظت الخدمة' };
+}
+
+/**
+ * تثبيت الأسعار المعلنة: كل خدمة عليها رقم فعلي يتوقف عندها «السعر المفتوح».
+ *
+ * كانت خدمات «يبدأ من» تُستورد كسعر مفتوح، فيصل طلب العميل إلى المالك ليسعّره
+ * رغم أن الرقم منشور على الموقع أصلاً. بقرار المالك (٢٥ أغسطس ٢٠٢٦) صار الرقم
+ * المنشور سعراً نهائياً، والزيادة — إن وُجدت — بنداً مستقلاً في العرض.
+ *
+ * لا يلمس خدمة بلا رقم: تلك تبقى مفتوحة لأن لا سعر لها يُثبَّت.
+ */
+export async function actionFixOpenPrices(): Promise<State> {
+  await requireAdmin();
+  // خدمة بلا رقم لكنها ليست «سعراً مفتوحاً» بيانات متناقضة: لا سعر لها تُصدره
+  // ولا هي معلَّمة بأنك تسعّرها. تُفتح هنا فتصل إليك بدل أن تسقط في الفراغ.
+  const contradictory = await prisma.service.updateMany({
+    where: { openPrice: false, unitPrice: { lte: 0 } },
+    data: { openPrice: true, syncSource: 'panel', syncedAt: new Date() },
+  });
+
+  const targets = await prisma.service.findMany({
+    where: { openPrice: true, unitPrice: { gt: 0 } },
+    select: { id: true, code: true, unitPrice: true },
+  });
+  const opened = contradictory.count ? ` وفُتح سعر ${contradictory.count} خدمة بلا رقم.` : '';
+  if (!targets.length) {
+    return { ok: `لا توجد أسعار معلّقة — كل خدمة مسعّرة صارت ثابتة.${opened}` };
+  }
+
+  await prisma.service.updateMany({
+    where: { id: { in: targets.map((t) => t.id) } },
+    data: { openPrice: false, syncSource: 'panel', syncedAt: new Date() },
+  });
+  await audit({
+    action: 'CATALOG_PRICES_FIXED',
+    entityType: 'Service',
+    entityId: 'catalog',
+    actor: 'admin',
+    payload: { count: targets.length, codes: targets.map((t) => t.code) },
+  });
+  await notifyCatalogChanged({
+    codes: targets.map((t) => t.code),
+    source: 'panel',
+    actor: 'admin',
+  });
+  revalidatePath('/admin/catalog');
+  revalidatePath('/admin/catalog/map');
+  return { ok: `ثُبِّت سعر ${targets.length} خدمة: ${targets.map((t) => t.code).join('، ')}.${opened}` };
+}
+
+/**
+ * اعتماد أسعار الموقع المنشورة في اللوحة — مرة واحدة، بقرار المالك.
+ *
+ * كانت اللوحة تحمل لتسع باقات سعراً أعلى ٢٥٪ من المنشور على الموقع، لأن ملف
+ * الموقع كان يحمل قائمتَي أسعار وأُخذت القديمة. قرار المالك (٢٥ أغسطس ٢٠٢٦):
+ * **الرقم المنشور على الموقع هو الصحيح.** هذا الإجراء يجعل اللوحة تطابقه،
+ * وبعدها تصير اللوحة هي المصدر ويقرأ منها الموقع.
+ *
+ * لا يُغيّر إلا ما اختلف فعلاً، ويعيد قائمة كل تعديل بالرقمين — فلا يُبتلع شيء.
+ * والخدمات التي لا وجود لها في الموقع لا تُمسّ.
+ */
+export async function actionAdoptSitePrices(): Promise<State> {
+  await requireAdmin();
+  const base = (process.env.SITE_URL || 'https://businesspartner.sa').replace(/\/+$/, '');
+
+  type SiteRow = { code?: string; key?: string; amount?: number | null; pricingModel?: string };
+  let cat: { services?: SiteRow[]; packages?: SiteRow[] };
+  try {
+    const res = await fetch(`${base}/assets/data/catalog.json`, {
+      headers: { accept: 'application/json' },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    cat = await res.json();
+  } catch (e) {
+    return { error: `تعذّر قراءة كتالوج الموقع من ${base}: ${e instanceof Error ? e.message : String(e)}` };
+  }
+
+  const published = new Map<string, number>();
+  for (const r of cat.services || []) {
+    const code = String(r.code || '').trim().toUpperCase();
+    if (code && Number(r.amount) > 0) published.set(code, round2(Number(r.amount)));
+  }
+  for (const r of cat.packages || []) {
+    const key = String(r.key || '').trim().toUpperCase();
+    if (key && Number(r.amount) > 0) published.set(`PKG-${key}`, round2(Number(r.amount)));
+  }
+  if (!published.size) return { error: 'كتالوج الموقع لم يُرجع أي سعر — لم يُغيَّر شيء.' };
+
+  const rows = await prisma.service.findMany({
+    where: { code: { in: [...published.keys()] } },
+    select: { id: true, code: true, unitPrice: true },
+  });
+
+  const changes = rows
+    .map((r) => ({ ...r, to: published.get(r.code)! }))
+    .filter((r) => Math.abs(r.unitPrice - r.to) > 0.005);
+
+  if (!changes.length) {
+    return { ok: `اللوحة مطابقة للموقع بالفعل — ${rows.length} خدمة مقارَنة، بلا فرق.` };
+  }
+
+  for (const c of changes) {
+    await prisma.service.update({
+      where: { id: c.id },
+      data: { unitPrice: c.to, syncSource: 'site', syncedAt: new Date() },
+    });
+  }
+  await audit({
+    action: 'CATALOG_ADOPTED_SITE_PRICES',
+    entityType: 'Service',
+    entityId: 'catalog',
+    actor: 'admin',
+    payload: { source: base, changes: changes.map((c) => ({ code: c.code, from: c.unitPrice, to: c.to })) },
+  });
+  await notifyCatalogChanged({ codes: changes.map((c) => c.code), source: 'panel', actor: 'admin' });
+  revalidatePath('/admin/catalog');
+  revalidatePath('/admin/catalog/map');
+
+  const list = changes.map((c) => `${c.code}: ${fmtMoney(c.unitPrice)} ← ${fmtMoney(c.to)}`).join('، ');
+  return { ok: `اعتُمد سعر الموقع في ${changes.length} خدمة — ${list}` };
 }
 
 export async function actionToggleService(id: string, active: boolean) {

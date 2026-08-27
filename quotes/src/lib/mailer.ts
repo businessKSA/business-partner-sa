@@ -11,7 +11,9 @@ export interface Attachment {
 export interface MailInput {
   to: string;
   subject: string;
+  /** النسخة النصية — إلزامية دائماً، فبعض البرامج لا تعرض HTML أصلاً. */
   text: string;
+  html?: string;
   attachments?: Attachment[];
   replyTo?: string;
 }
@@ -43,6 +45,7 @@ async function sendSmtp(m: MailInput): Promise<MailResult> {
     to: m.to,
     subject: m.subject,
     text: m.text,
+    html: m.html,
     replyTo: m.replyTo,
     attachments: m.attachments?.map((a) => ({
       filename: a.filename,
@@ -64,6 +67,7 @@ async function sendResend(m: MailInput): Promise<MailResult> {
       to: [m.to],
       subject: m.subject,
       text: m.text,
+      html: m.html,
       reply_to: m.replyTo,
       attachments: m.attachments?.map((a) => ({
         filename: a.filename,
@@ -90,7 +94,12 @@ export async function sendMail(m: MailInput): Promise<MailResult> {
     );
     return { ok: true, provider: 'log', id: `log-${Date.now()}` };
   } catch (e) {
-    return { ok: false, provider, error: e instanceof Error ? e.message : String(e) };
+    const error = e instanceof Error ? e.message : String(e);
+    // الفشل يُكتب في السجل دائماً. كان يُعاد في كائن النتيجة وحده، ومن لا
+    // يفحص النتيجة يظن أن الرسالة وصلت — وهذا ما حدث في شاشة الدخول: قالت
+    // «سيصلك الرابط» والإرسال فاشل، فبقي السبب غير مرئي في أي شاشة.
+    console.error(`[MAIL] تعذّر الإرسال عبر ${provider} إلى ${m.to}: ${error}`);
+    return { ok: false, provider, error };
   }
 }
 

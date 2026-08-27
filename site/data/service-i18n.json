@@ -466,5 +466,101 @@
   "BP-VENDOR-02": {
     "ar": "متابعة مورد",
     "en": "Vendor Follow-up"
+  },
+  "BP-AI-03": {
+    "en": "Compliance & obligations agent",
+    "ar": "وكيل الامتثال والالتزام"
+  },
+  "BP-AI-SMART-EMPLOYEE": {
+    "en": "Specialist smart employee",
+    "ar": "الموظف الذكي المتخصص"
+  },
+  "BP-AI-04": {
+    "en": "Shared services team",
+    "ar": "فريق الخدمات المشتركة"
+  },
+  "AI-GEN": {
+    "en": "Artificial Intelligence Automation — Bespoke Service",
+    "ar": "الأتمتة بالذكاء الاصطناعي — خدمة حسب الطلب"
+  },
+  "CF-GEN": {
+    "en": "Company Formation — Bespoke Service",
+    "ar": "تأسيس الشركات — خدمة حسب الطلب"
+  },
+  "GOV-GEN": {
+    "en": "Government Transactions — Bespoke Service",
+    "ar": "المعاملات الحكومية — خدمة حسب الطلب"
+  },
+  "GR-GEN": {
+    "en": "Government Relations Representative",
+    "ar": "مندوب العلاقات الحكومية"
+  },
+  "HR-GEN": {
+    "en": "Human Resources — Bespoke Service",
+    "ar": "الموارد البشرية — خدمة حسب الطلب"
+  },
+  "PR-GEN": {
+    "en": "Premium Residency — Bespoke Service",
+    "ar": "الإقامة المميزة — خدمة حسب الطلب"
+  },
+  "RE-GEN": {
+    "en": "Real Estate — Bespoke Service",
+    "ar": "العقارات — خدمة حسب الطلب"
+  },
+  "REC-GEN": {
+    "en": "Recruitment and Manpower — Bespoke Service",
+    "ar": "التوظيف والاستقدام — خدمة حسب الطلب"
+  },
+  "SBC-GEN": {
+    "en": "Shared Services — Bespoke Service",
+    "ar": "الخدمات المشتركة — خدمة حسب الطلب"
+  },
+  "SUP-GEN": {
+    "en": "Support and Advisory — Bespoke Service",
+    "ar": "الدعم والاستشارات — خدمة حسب الطلب"
+  },
+  "TR-GEN": {
+    "en": "Tourism — Bespoke Service",
+    "ar": "السياحة — خدمة حسب الطلب"
+  },
+  "CV-10": {
+    "en": "Candidate CV Sourcing",
+    "ar": "توفير سير ذاتية لمرشحين"
+  },
+  "MA-BRK": {
+    "en": "Mergers and Acquisitions Brokerage",
+    "ar": "وساطة اندماج واستحواذ"
+  },
+  "FI-100": {
+    "en": "Foreign Investment Setup — 100% Foreign Owned Company",
+    "ar": "تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي"
+  },
+  "QW-EST": {
+    "en": "Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development",
+    "ar": "مهمة منصة قوى وفتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية"
+  },
+  "REV-LAUNCH": {
+    "en": "Business Development — Revenue Operating System — Launch Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق"
+  },
+  "REV-START": {
+    "en": "Business Development — Revenue Operating System — Starter Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية"
+  },
+  "REV-GROWTH": {
+    "en": "Business Development — Revenue Operating System — Growth Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو"
+  },
+  "REV-PRO": {
+    "en": "Business Development — Revenue Operating System — Professional Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية"
+  },
+  "REV-TEAM": {
+    "en": "Business Development — Revenue Operating System — Dedicated Team Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص"
+  },
+  "REV-ENT": {
+    "en": "Business Development — Revenue Operating System — Enterprise Package",
+    "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى"
   }
 }

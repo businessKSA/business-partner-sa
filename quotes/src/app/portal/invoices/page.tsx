@@ -31,12 +31,21 @@ export default async function PortalInvoices() {
       <div className="card">
         <table>
           <thead>
-            <tr><th>الرقم</th><th>البيان</th><th className="num">الإجمالي</th><th>الحالة</th><th className="num">التاريخ</th><th /></tr>
+            <tr><th>المطالبة</th><th>الفاتورة الضريبية</th><th>البيان</th><th className="num">الإجمالي</th><th>الحالة</th><th className="num">التاريخ</th><th /></tr>
           </thead>
           <tbody>
             {invoices.map((i) => (
               <tr key={i.id}>
                 <td className="mono">{i.number}</td>
+                {/* رقمان لا رقم: الأول مطالبة هذه اللوحة، والثاني الفاتورة
+                    الضريبية من الدفترة بتسلسل المنشأة الواحد. */}
+                <td className="mono">
+                  {i.daftraNumber ? (
+                    i.daftraPdfUrl
+                      ? <a href={i.daftraPdfUrl} target="_blank" rel="noreferrer">{i.daftraNumber}</a>
+                      : i.daftraNumber
+                  ) : <span className="muted">—</span>}
+                </td>
                 <td>
                   {i.titleAr}
                   {i.isGovFeeDeposit ? <div className="muted" style={{ fontSize: 12 }}>عهدة — لا ضريبة عليها</div> : null}
@@ -53,7 +62,7 @@ export default async function PortalInvoices() {
                 </td>
               </tr>
             ))}
-            {!invoices.length ? <tr><td colSpan={6} className="muted">لا فواتير بعد.</td></tr> : null}
+            {!invoices.length ? <tr><td colSpan={7} className="muted">لا فواتير بعد.</td></tr> : null}
           </tbody>
         </table>
       </div>

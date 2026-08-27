@@ -10,7 +10,8 @@ import { nextInvoiceNumber } from './numbering';
 import { publicToken } from './tokens';
 import { logEvent, audit } from './timeline';
 import { DOC_STATUS } from './enums';
-import { notifyEvent } from './send';
+import { notifyEvent, sendPaymentReceipt } from './send';
+import { issueTaxInvoice, daftraLive } from './daftra';
 
 export interface InvoiceInput {
   clientId: string;
@@ -219,7 +220,100 @@ export async function markInvoicePaid(
     );
   }
 
+  // الفاتورة الضريبية المعتمدة تصدر من الدفترة عبر جسر الموقع. تُستدعى بعد
+  // تثبيت السداد لا قبله، ولا تُفشِل السداد إن تعذّرت — المال حُصِّل والحركة
+  // قُيِّدت، وإبطال ذلك لأن نظام محاسبة لم يستجب يجعل الحال أسوأ.
+  await issueTaxInvoiceFor(paid.id).catch(() => {});
+
+  // إيصال العميل بعد محاولة الإصدار لا قبلها، حتى يحمل رقم الفاتورة الضريبية
+  // ورابط نسختها إن صدرت. وإن لم تصدر بعد فالإيصال يقول ذلك ولا يَعِد بما لم يتم.
+  await sendPaymentReceipt(paid.id).catch(() => {});
+
   return paid;
+}
+
+/**
+ * إصدار الفاتورة الضريبية لفاتورة مدفوعة في هذه اللوحة.
+ *
+ * تُتخطّى عهدة الرسوم الحكومية وقيمة التوريد: كلاهما إيداع في محفظة العميل
+ * لا إيراد، ولا ضريبة عليه — فاتورة ضريبية له تُبلّغ عن إيراد لم يتحقّق.
+ *
+ * صالحة للاستدعاء مرتين على الفاتورة نفسها: الصادرة فعلاً تُترك كما هي.
+ */
+export async function issueTaxInvoiceFor(invoiceId: string): Promise<void> {
+  if (!daftraLive()) return;
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { client: true },
+  });
+  if (!invoice || invoice.status !== 'PAID') return;
+  if (invoice.daftraNumber) return;
+  if (invoice.isGovFeeDeposit || invoice.depositKind) return;
+
+  const c = invoice.client;
+  const result = await issueTaxInvoice({
+    buyer: {
+      name: c.companyAr || c.nameAr,
+      email: c.email,
+      phone: c.phone,
+      city: c.city || '',
+      taxNumber: c.vatNumber || '',
+      isCompany: Boolean(c.companyAr || c.crNumber || c.vatNumber),
+      contact: c.companyAr ? c.nameAr : '',
+      address: c.addressAr ? { address: c.addressAr, city: c.city || '' } : null,
+    },
+    items: [{ name: invoice.titleAr, quantity: 1, unitPrice: invoice.amountExclVat }],
+    paidHalalas: Math.round(invoice.total * 100),
+    payId: invoice.providerRef || '',
+    method: invoice.method || invoice.provider || 'Moyasar',
+    ref: invoice.number,
+    sourceNumber: invoice.number,
+  });
+
+  if (!result.ok) {
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { daftraError: `${result.error}${result.detail ? ` — ${result.detail}` : ''}`.slice(0, 400) },
+    });
+    await audit({
+      action: 'TAX_INVOICE_FAILED',
+      entityType: 'invoice',
+      entityId: invoice.id,
+      actor: 'system',
+      payload: { error: result.error, detail: result.detail, expected: result.expected, paid: result.paid },
+    });
+    return;
+  }
+
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      daftraId: String(result.id),
+      daftraNumber: String(result.number),
+      daftraPdfUrl: result.publicUrl || null,
+      daftraIssuedAt: new Date(),
+      daftraError: null,
+    },
+  });
+  await audit({
+    action: 'TAX_INVOICE_ISSUED',
+    entityType: 'invoice',
+    entityId: invoice.id,
+    actor: 'system',
+    amount: result.total,
+    payload: { daftraNumber: result.number, paymentRecorded: result.paymentRecorded, paymentError: result.paymentError },
+  });
+  await logEvent({
+    entityType: 'invoice',
+    entityId: invoice.id,
+    clientId: invoice.clientId,
+    code: 'TAX_INVOICE',
+    titleAr: `صدرت الفاتورة الضريبية ${result.number} من الدفترة`,
+    titleEn: `Tax invoice ${result.number} issued from Daftra`,
+    actor: 'system',
+    actorKind: 'system',
+  });
 }
 
 // ---------------------------------------------------------------- المحفظة

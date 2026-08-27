@@ -80,6 +80,10 @@
   <url><loc>https://businesspartner.sa/ar/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/fr/compliance-agent</loc></url>
   <url><loc>https://businesspartner.sa/zh/compliance-agent</loc></url>
+  <url><loc>https://businesspartner.sa/ai-document-agent</loc></url>
+  <url><loc>https://businesspartner.sa/ar/ai-document-agent</loc></url>
+  <url><loc>https://businesspartner.sa/fr/ai-document-agent</loc></url>
+  <url><loc>https://businesspartner.sa/zh/ai-document-agent</loc></url>
   <url><loc>https://businesspartner.sa/saudi-arabia</loc></url>
   <url><loc>https://businesspartner.sa/ar/saudi-arabia</loc></url>
   <url><loc>https://businesspartner.sa/fr/saudi-arabia</loc></url>
@@ -764,6 +768,102 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-vendor-02</loc></url>
   <url><loc>https://businesspartner.sa/fr/services/bp-vendor-02</loc></url>
   <url><loc>https://businesspartner.sa/zh/services/bp-vendor-02</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-ai-03</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-ai-03</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/bp-ai-03</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/bp-ai-03</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-ai-smart-employee</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-ai-smart-employee</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/bp-ai-smart-employee</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/bp-ai-smart-employee</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-ai-04</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-ai-04</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/bp-ai-04</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/bp-ai-04</loc></url>
+  <url><loc>https://businesspartner.sa/services/ai-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/ai-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/ai-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/ai-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/cf-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/cf-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/cf-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/cf-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/gov-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/gov-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/gov-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/gov-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/gr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/gr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/gr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/gr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/hr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/hr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/hr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/hr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/pr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/pr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/pr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/pr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/re-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/re-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/re-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/re-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/rec-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rec-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rec-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rec-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/sbc-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/sbc-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/sbc-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/sbc-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/sup-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/sup-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/sup-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/sup-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/tr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/tr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/tr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/tr-gen</loc></url>
+  <url><loc>https://businesspartner.sa/services/cv-10</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/cv-10</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/cv-10</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/cv-10</loc></url>
+  <url><loc>https://businesspartner.sa/services/ma-brk</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/ma-brk</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/ma-brk</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/ma-brk</loc></url>
+  <url><loc>https://businesspartner.sa/services/fi-100</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/fi-100</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/fi-100</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/fi-100</loc></url>
+  <url><loc>https://businesspartner.sa/services/qw-est</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/qw-est</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/qw-est</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/qw-est</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-launch</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-launch</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-launch</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-launch</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-start</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-start</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-start</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-start</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-growth</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-growth</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-growth</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-growth</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-pro</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-pro</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-pro</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-pro</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-team</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-team</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-team</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-team</loc></url>
+  <url><loc>https://businesspartner.sa/services/rev-ent</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/rev-ent</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/rev-ent</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/rev-ent</loc></url>
   <url><loc>https://businesspartner.sa/jobs/hr-operations-specialist</loc></url>
   <url><loc>https://businesspartner.sa/ar/jobs/hr-operations-specialist</loc></url>
   <url><loc>https://businesspartner.sa/fr/jobs/hr-operations-specialist</loc></url>
