@@ -10195,7 +10195,7 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-tabs" role="tablist">
-        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <button class="ss-tab active" data-tab="team" type="button">💬 ${L("Chat", "المحادثة")}</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 ${L("Services", "الخدمات")}</button>
         <button class="ss-tab" data-tab="stats" type="button">📊 ${L("Reports", "التقارير")}</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
@@ -10203,8 +10203,9 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field. ✏️ You can rename any of them to whatever you like — the new name sticks, and the agent itself adopts it.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله. ✏️ وتقدر تغيّر اسم أي موظف لأي اسم يعجبك — الاسم الجديد يثبت لك، والموظف نفسه يتبنّاه ويتعامل به.")}</p>
-        <div class="ss-agents" id="ss-agents"></div>
+        <p class="ss-pane-lead">${L("One conversation — your whole executive team. Baher takes your request and the specialists execute behind the scenes; anything binding waits for your approval. ✏️ You can rename him to whatever you like.", "محادثة واحدة — وفريقك التنفيذي كامل وراها. باهر يستلم طلبك والمتخصصون ينفذون خلف الكواليس، وأي إجراء ملزم ينتظر موافقتك. ✏️ وتقدر تغيّر اسمه لأي اسم يعجبك.")}</p>
+        <div class="ss-agents" id="ss-agents" hidden></div>
+        <style>#ss-agents[hidden]{display:none}#pane-team .ss-panel .ss-log{min-height:420px;max-height:560px}</style>
         <div class="ss-panel">
           <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ ${L("Rename", "غيّر الاسم")}</button><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
           <div class="ss-log" id="ss-log"></div>
@@ -10216,7 +10217,7 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Chat tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب المحادثة «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
           <a href="${u("/services")}"><span class="e">🗂️</span><b>${L(`All services (${services.length})`, `كل الخدمات (${services.length})`)}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>

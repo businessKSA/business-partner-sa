@@ -123,7 +123,7 @@
       </div>
 
       <div class="ss-tabs" role="tablist">
-        <button class="ss-tab active" data-tab="team" type="button">👥 团队</button>
+        <button class="ss-tab active" data-tab="team" type="button">💬 Chat</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 服务</button>
         <button class="ss-tab" data-tab="stats" type="button">📊 报告</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 连接器</button>
@@ -131,8 +131,9 @@
       </div>
 
       <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">挑选一位专才直接对接——每位都是各自领域的专家。✏️ 您可以把他们中的任何一位改成您喜欢的名字——新名字会保留，助手本人也会沿用。</p>
-        <div class="ss-agents" id="ss-agents"></div>
+        <p class="ss-pane-lead">One conversation — your whole executive team. Baher takes your request and the specialists execute behind the scenes; anything binding waits for your approval. ✏️ You can rename him to whatever you like.</p>
+        <div class="ss-agents" id="ss-agents" hidden></div>
+        <style>#ss-agents[hidden]{display:none}#pane-team .ss-panel .ss-log{min-height:420px;max-height:560px}</style>
         <div class="ss-panel">
           <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="重命名该助手" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ 重命名</button><span class="ss-live">● 在线</span></div>
           <div class="ss-log" id="ss-log"></div>
@@ -144,7 +145,7 @@
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">Business Partner 的全部服务集于一处——可直接打开任一服务，或在「团队」标签页直接告诉巴希尔，由他执行并在需要时呈报您批准。</p>
+        <p class="ss-pane-lead">All Business Partner services in one place — open any service directly, or just tell Baher in the Chat tab and he executes and escalates for your approval.</p>
         <div class="ss-svc">
           <a href="/zh/services"><span class="e">🗂️</span><b>All services (140)</b><span>政府与商业服务——任一项均可申请专属报价。</span></a>
           <a href="/zh/packages"><span class="e">📦</span><b>套餐</b><span>打包服务，起步价格清晰。</span></a>
