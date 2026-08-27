@@ -327,7 +327,7 @@
     if(!$('da-msgs'))return;
     var ref='';
     try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var T={"hello":"ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.","start":"ابدأ الآن","login":"سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة. رمز واحد على بريدك وتدخل.","loginBtn":"تسجيل الدخول / إنشاء حساب","placeholder":"اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»","send":"إرسال","uploading":"جارٍ الرفع والقراءة…","generate":"عبّئ النماذج","pack":"جهّز الحزمة النهائية","generating":"جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…","packing":"جارٍ ضغط كل شيء في ملف واحد…","outputs":"مخرجاتك","download":"تحميل","failed":"صار خطأ — أعد المحاولة أو كلمنا واتساب.","facts":"معلومة مستخرجة","forms":"نموذج للتعبئة","newReq":"طلب جديد"};
+    var T={"hello":"ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.","start":"ابدأ الآن","login":"سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة. رمز واحد على بريدك وتدخل.","loginBtn":"تسجيل الدخول / إنشاء حساب","placeholder":"اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»","send":"إرسال","uploading":"جارٍ الرفع والقراءة…","generate":"عبّئ النماذج","pack":"جهّز الحزمة النهائية","generating":"جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…","packing":"جارٍ ضغط كل شيء في ملف واحد…","outputs":"مخرجاتك","download":"تحميل","failed":"صار خطأ — أعد المحاولة أو كلمنا واتساب.","noForms":"ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X».","readyMsg":"تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».","facts":"معلومة مستخرجة","forms":"نموذج للتعبئة","newReq":"طلب جديد"};
     function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
     function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
     function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
@@ -385,6 +385,7 @@
       post({action:'chat',ref:ref,message:v}).then(function(d){
         typing.remove();
         el('bot',d.ok?d.reply:T.failed);
+        if(d.ok&&d.generate_now)runGenerate();
         refresh();
       }).catch(function(){typing.remove();el('sys',T.failed);});
     });
@@ -410,15 +411,32 @@
         rd.readAsDataURL(f);
       })(0);
     });
-    $('da-generate').onclick=function(){
+    function runGenerate(){
       if(!ref)return;var note=el('sys',T.generating);
       post({action:'generate',ref:ref}).then(function(d){
         note.remove();
-        if(d.ok){(d.outputs||[]).forEach(function(o){el('sys',(o.ok?'✓ ':'⚠ ')+o.form+(o.unfilled?(' — '+o.unfilled+' ?'):''));});}
-        else el('sys',T.failed);
+        if(d.ok){
+          var okCount=0;
+          (d.outputs||[]).forEach(function(o){
+            if(o.ok&&o.output_id){
+              okCount++;
+              get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
+                if(!l.url)return;
+                var row=el('bot','⬇️ ');
+                var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
+                a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
+                row.appendChild(a);
+                if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
+              });
+            } else if(!o.ok){el('sys','⚠ '+o.form);}
+          });
+          if(okCount)el('bot',T.readyMsg);
+        }
+        else el('bot',d.error==='no_target_forms'?T.noForms:T.failed);
         refresh();
       }).catch(function(){note.remove();el('sys',T.failed);});
-    };
+    }
+    $('da-generate').onclick=runGenerate;
     $('da-package').onclick=function(){
       if(!ref)return;var note=el('sys',T.packing);
       post({action:'package',ref:ref}).then(function(d){

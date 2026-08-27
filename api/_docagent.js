@@ -26,6 +26,7 @@ import {
   storagePut, storageGet, storageSign, sha256,
 } from "./_db.js";
 import { readDocumentRaw, askModel, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { zip, unzip } from "./_zip.js";
 import { xlsxCells, xlsxApply } from "./_xlsx.js";
 import { pdfFields, pdfFill } from "./_pdfform.js";
@@ -43,6 +44,19 @@ const FILL_HEX = { blue: "1F4ED8", black: "000000", original: "" };
 // the code refuses to store them as anything but CLIENT_CONFIRMED.
 const SENSITIVE_KEY = /(pep|sanction|conflict_of_interest|bribery|criminal|tax_enforcement|consent|source_of_funds|source_of_wealth|declaration)/i;
 const STATUSES = ["NEW","UPLOADING","ANALYZING","EXTRACTING","MAPPING","WAITING_FOR_CLIENT","READY_TO_GENERATE","GENERATING","QA","READY","DELIVERED","REVISION","COMPLETED"];
+const FILE_ROLES = ["source","target_form","supporting","signature_asset","stamp_asset","requirement","unknown"];
+
+// Owner/consultant access for the /doc-agent-admin panel: the same key or
+// نفاذ ticket the rest of the admin surface uses (see api/requests.js).
+const PANEL_KEYS = new Set(
+  [(process.env.PANEL_KEY || "").trim(), (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim()].filter(Boolean)
+);
+const adminOk = (src) => {
+  const key = String((src && src.key) || "").trim();
+  const ticket = String((src && src.ticket) || "").trim();
+  if (ownerTicketOk(ticket)) return true;
+  return !panelRequiresNafath() && PANEL_KEYS.size > 0 && PANEL_KEYS.has(key);
+};
 
 /* ----------------------------------------------------------- tiny helpers */
 const j = (res, code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
@@ -174,6 +188,9 @@ const chatSystem = (state) => `أنت «الوكيل الذكي للمستندا
 - أوامر التحرير الطبيعية ("خلي كل الإجابات Yes"، "Section 9 كله No"، "حط تاريخ اليوم"، "غيّر الإيميل"، "النسبة 39.5%") حوّلها إلى actions.
 - "تاريخ اليوم" يعني تاريخ تعبئة/توقيع النموذج فقط — لا تغيّر تواريخ إصدار المستندات الرسمية.
 - المستند المنتهي: نبّه العميل وأكمل الطلب، واطلب نسخة محدثة قبل التقديم النهائي.
+- اختصر: رد قصير مباشر، لا تكرر ما قلته في رسائل سابقة، ولا تعد سرد الحقائق أو النسب إذا سبق ذكرها. اجمع كل الناقص في رسالة واحدة.
+- لا تَعِد أبداً بأن ملفاً "سيصلك خلال لحظات" أو أنك "سترسله" — أنت لا ترسل ملفات من الرد. عندما يطلب العميل التعبئة أو الملف: أعد action من نوع ready_to_generate، وقل جملة واحدة مثل «بدأت التعبئة الآن — روابط التحميل ستظهر هنا خلال أقل من دقيقة».
+- انتبه لعدد النماذج في gap.forms: إذا كان صفراً فلا يمكن توليد شيء — لا تَعِد بالتعبئة، بل اعرض أسماء الملفات المرفوعة واسأل: «أي ملف تريدني أعبيه؟»، وعندما يحدده العميل أعد action من نوع set_target_form باسم الملف (يعيد تصنيفه نموذجاً للتعبئة).
 
 أعد JSON فقط:
 {"reply":"نص ردك للعميل بلغته",
@@ -183,7 +200,8 @@ const chatSystem = (state) => `أنت «الوكيل الذكي للمستندا
   ,{"type":"resolve_conflict","key":"…","value":"القيمة المعتمدة"}
   ,{"type":"set_fill_color","color":"blue|black|original"}
   ,{"type":"set_signature_mode","mode":"leave_blank|typed_electronic|external_esign"}
-  ,{"type":"ready_to_generate"} // عندما يطلب العميل التعبئة/التوليد وكل الضروري مكتمل
+  ,{"type":"set_target_form","file":"اسم الملف (أو جزء مميز منه) كما في files"} // العميل حدد أن هذا الملف هو النموذج المطلوب تعبئته
+  ,{"type":"ready_to_generate"} // عندما يطلب العميل التعبئة/التوليد وكل الضروري مكتمل ويوجد نموذج واحد على الأقل
  ]}
 
 حالة الطلب الحالية:
@@ -354,13 +372,27 @@ async function gapSummary(requestId) {
   };
 }
 
-const stateBlock = (request, gap, facts, msgs) => JSON.stringify({
+const stateBlock = (request, gap, facts, msgs, files) => JSON.stringify({
   ref: request.ref, status: request.status, fill_color: request.fill_color,
   signature_mode: request.signature_mode, checklist: request.checklist,
   gap,
+  files: (files || []).map((f) => `${f.file_name} [${f.role}/${f.doc_kind || "?"}]`),
   facts: facts.map((f) => `${f.fact_key} = ${f.value} [${f.status}/${f.confidence}]`),
   recent: msgs.map((m) => `${m.author}: ${clip(m.body, 300)}`),
 }, null, 1);
+
+// Chat asked to reclassify an uploaded file as the form to fill: match by
+// (partial, case-insensitive) name within THIS request only.
+async function setTargetForm(request, namePart) {
+  const files = await sb(`doc_agent_files?request_id=eq.${request.id}&select=id,file_name,role`);
+  const needle = String(namePart || "").trim().toLowerCase();
+  if (!needle) return null;
+  const hit = files.find((f) => f.file_name.toLowerCase() === needle) ||
+    files.find((f) => f.file_name.toLowerCase().includes(needle));
+  if (!hit) return null;
+  await sb(`doc_agent_files?id=eq.${hit.id}`, { method: "PATCH", prefer: "return=minimal", body: { role: "target_form" } });
+  return hit.file_name;
+}
 
 /* ------------------------------------------------------------- the phases */
 // Addressed cell view of a workbook for the model: "[Sheet!B7] label text".
@@ -598,6 +630,71 @@ export async function handleDocAgent(req, res) {
     return whatsappIntake(req, res);
   }
 
+  // ---- owner/consultant panel (/doc-agent-admin) --------------------------
+  // Same key/نفاذ ticket as the rest of /admin. Read-and-repair surface:
+  // see every request, its files/facts/outputs, message the client as the
+  // consultant, fix a misclassified file, and re-run generation.
+  const q0 = req.query || {};
+  const preBody = req.method === "POST" ? await readBody(req) : null;
+  const adminAction = String((req.method === "GET" ? q0.action : preBody && preBody.action) || "");
+  if (adminAction.startsWith("admin-")) {
+    if (!adminOk(req.method === "GET" ? q0 : preBody)) return j(res, 401, { ok: false, error: "unauthorized" });
+    try {
+      if (adminAction === "admin-list") {
+        const rows = await sb(
+          "doc_agent_requests?select=ref,status,channel,contact,locale,created_at,updated_at,organization_id," +
+          "organizations(name_ar,name_en)&order=updated_at.desc&limit=40"
+        );
+        return j(res, 200, { ok: true, requests: rows.map((r) => ({
+          ref: r.ref, status: r.status, channel: r.channel, contact: r.contact,
+          org: r.organizations ? (r.organizations.name_ar || r.organizations.name_en) : null,
+          organization_id: r.organization_id, created_at: r.created_at, updated_at: r.updated_at,
+        })) });
+      }
+      const request = adminAction === "admin-link" ? null :
+        (await sb(`doc_agent_requests?ref=eq.${encodeURIComponent(String((req.method === "GET" ? q0.ref : preBody.ref) || ""))}&limit=1`))[0];
+      if (adminAction !== "admin-link" && !request) return j(res, 404, { ok: false, error: "not_found" });
+      if (adminAction === "admin-state") {
+        const [files, facts, msgs, outs, gap] = await Promise.all([
+          sb(`doc_agent_files?request_id=eq.${request.id}&select=id,role,doc_kind,file_name,mime,language,expiry_status,expiry_date,analysis_note,created_at&order=created_at`),
+          sb(`doc_agent_facts?request_id=eq.${request.id}&select=fact_group,fact_key,value,status,confidence&order=fact_key&limit=250`),
+          sb(`doc_agent_messages?request_id=eq.${request.id}&select=author,channel,body,created_at&order=created_at.desc&limit=100`),
+          sb(`doc_agent_outputs?request_id=eq.${request.id}&select=id,kind,delivery_name,version_no,qa_status,qa_findings,fill_summary,created_at&order=created_at`),
+          gapSummary(request.id),
+        ]);
+        return j(res, 200, { ok: true, request: { ref: request.ref, status: request.status, channel: request.channel, organization_id: request.organization_id, fill_color: request.fill_color, signature_mode: request.signature_mode, checklist: request.checklist }, files, facts, messages: msgs.reverse(), outputs: outs, gap });
+      }
+      if (adminAction === "admin-link") {
+        const table = String(q0.table) === "files" ? "doc_agent_files" : "doc_agent_outputs";
+        const rows = await sb(`${table}?id=eq.${encodeURIComponent(String(q0.id || ""))}&select=storage_key`);
+        if (!rows.length) return j(res, 404, { ok: false, error: "not_found" });
+        return j(res, 200, { ok: true, url: await storageSign(rows[0].storage_key, 600) });
+      }
+      if (adminAction === "admin-message") {
+        const text = clip(preBody.message, 4000);
+        if (!text) return j(res, 400, { ok: false, error: "no_message" });
+        await addMsg(request.id, "consultant", "consultant", text);
+        await audit({ organization_id: request.organization_id, actor_label: "consultant", action: "doc_agent.consultant_message", entity_type: "doc_agent_request", entity_id: request.id });
+        return j(res, 200, { ok: true });
+      }
+      if (adminAction === "admin-set-role") {
+        if (!FILE_ROLES.includes(String(preBody.role))) return j(res, 400, { ok: false, error: "invalid_fields" });
+        await sb(`doc_agent_files?id=eq.${encodeURIComponent(String(preBody.file_id || ""))}&request_id=eq.${request.id}`, {
+          method: "PATCH", prefer: "return=minimal", body: { role: String(preBody.role) },
+        });
+        return j(res, 200, { ok: true });
+      }
+      if (adminAction === "admin-generate") {
+        const outputs = await generateOutputs(request, "consultant");
+        return j(res, 200, { ok: true, outputs });
+      }
+      return j(res, 400, { ok: false, error: "bad_action" });
+    } catch (e) {
+      console.error("doc-agent admin", String(e.message || e).slice(0, 200));
+      return j(res, 502, { ok: false, error: "internal" });
+    }
+  }
+
   let sess = null;
   try { sess = await getSession(req); } catch { return j(res, 502, { ok: false, error: "db_failed" }); }
   if (!sess) return j(res, 401, { ok: false, error: "unauthorized" });
@@ -636,7 +733,7 @@ export async function handleDocAgent(req, res) {
     }
 
     if (req.method !== "POST") return j(res, 405, { ok: false, error: "method_not_allowed" });
-    const b = await readBody(req);
+    const b = preBody || {};
     const action = String(b.action || "");
 
     if (action === "start") {
@@ -689,12 +786,13 @@ export async function handleDocAgent(req, res) {
       const text = clip(b.message, 4000);
       if (!text) return j(res, 400, { ok: false, error: "no_message" });
       await addMsg(request.id, "client", "web", text);
-      const [facts, msgs, gap] = await Promise.all([
+      const [facts, msgs, gap, reqFiles] = await Promise.all([
         sb(`doc_agent_facts?request_id=eq.${request.id}&select=fact_key,value,status,confidence&order=fact_key&limit=150`),
         sb(`doc_agent_messages?request_id=eq.${request.id}&select=author,body&order=created_at.desc&limit=12`),
         gapSummary(request.id),
+        sb(`doc_agent_files?request_id=eq.${request.id}&select=file_name,role,doc_kind&order=created_at`),
       ]);
-      const sys = chatSystem(stateBlock(request, gap, facts, msgs.reverse()));
+      const sys = chatSystem(stateBlock(request, gap, facts, msgs.reverse(), reqFiles));
       const r = await askModel(`${sys}\n\nرسالة العميل الآن:\n${text}`, 3000);
       if (!r.ok) return j(res, 502, { ok: false, error: "upstream_error" });
       const reply = clip(r.data.reply, 6000) || "…";
@@ -719,14 +817,21 @@ export async function handleDocAgent(req, res) {
             await setReq(request.id, { fill_color: a.color }); applied.push(a);
           } else if (a.type === "set_signature_mode" && ["leave_blank","typed_electronic","external_esign"].includes(a.mode)) {
             await setReq(request.id, { signature_mode: a.mode }); applied.push(a);
+          } else if (a.type === "set_target_form" && a.file) {
+            const hit = await setTargetForm(request, String(a.file));
+            if (hit) applied.push({ ...a, file: hit });
           } else if (a.type === "ready_to_generate") {
             await setReq(request.id, { status: "READY_TO_GENERATE" }); applied.push(a);
           }
         } catch (e) { console.error("doc-agent action", a.type, String(e.message || e).slice(0, 120)); }
       }
       await addMsg(request.id, "agent", "web", reply, { actions: applied });
-      const newStatus = applied.some((a) => a.type === "ready_to_generate") ? "READY_TO_GENERATE" : undefined;
-      return j(res, 200, { ok: true, reply, actions: applied, ...(newStatus ? { status: newStatus } : {}) });
+      // The promise is kept by the machine, not the model: when the model says
+      // "generate", the page immediately runs the generate call and renders
+      // download links in the chat — generate_now is that signal.
+      const wantsGenerate = applied.some((a) => a.type === "ready_to_generate");
+      const generateNow = wantsGenerate && (gap.forms > 0 || applied.some((a) => a.type === "set_target_form"));
+      return j(res, 200, { ok: true, reply, actions: applied, generate_now: generateNow, ...(wantsGenerate ? { status: "READY_TO_GENERATE" } : {}) });
     }
 
     if (action === "set-option") {
@@ -739,6 +844,8 @@ export async function handleDocAgent(req, res) {
     }
 
     if (action === "generate") {
+      const formsCount = (await sb(`doc_agent_files?request_id=eq.${request.id}&role=eq.target_form&select=id&limit=1`)).length;
+      if (!formsCount) return j(res, 400, { ok: false, error: "no_target_forms" });
       const outputs = await generateOutputs(request, "web");
       return j(res, 200, { ok: true, outputs });
     }
@@ -801,12 +908,13 @@ async function whatsappIntake(req, res) {
     // Reply through the same orchestrator when there is a message to answer.
     let reply = null;
     if (b.message) {
-      const [facts, msgs, gap] = await Promise.all([
+      const [facts, msgs, gap, reqFiles] = await Promise.all([
         sb(`doc_agent_facts?request_id=eq.${request.id}&select=fact_key,value,status,confidence&limit=150`),
         sb(`doc_agent_messages?request_id=eq.${request.id}&select=author,body&order=created_at.desc&limit=12`),
         gapSummary(request.id),
+        sb(`doc_agent_files?request_id=eq.${request.id}&select=file_name,role,doc_kind&order=created_at`),
       ]);
-      const r = await askModel(`${chatSystem(stateBlock(request, gap, facts, msgs.reverse()))}\n\nرسالة العميل الآن (واتساب):\n${clip(b.message, 4000)}`, 3000);
+      const r = await askModel(`${chatSystem(stateBlock(request, gap, facts, msgs.reverse(), reqFiles))}\n\nرسالة العميل الآن (واتساب):\n${clip(b.message, 4000)}`, 3000);
       if (r.ok) { reply = clip(r.data.reply, 4000); await addMsg(request.id, "agent", "whatsapp", reply); }
     }
     return j(res, 200, { ok: true, ref: request.ref, uploaded, reply });

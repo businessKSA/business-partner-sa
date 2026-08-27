@@ -327,7 +327,7 @@
     if(!$('da-msgs'))return;
     var ref='';
     try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var T={"hello":"Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.","start":"立即开始","login":"Sign in first — your documents live in your private vault. One code to your email and you are in.","loginBtn":"Sign in / create account","placeholder":"Write here… e.g. “Section 9 all No” or “what is still missing?”","send":"发送","uploading":"Uploading & reading…","generate":"Fill the forms","pack":"Prepare the final package","generating":"Filling the forms — a QA pass runs before anything reaches you…","packing":"Packing everything into one ZIP…","outputs":"Your deliverables","download":"Download","failed":"Something went wrong — try again or talk to us on WhatsApp.","facts":"facts extracted","forms":"forms detected","newReq":"New request"};
+    var T={"hello":"Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.","start":"立即开始","login":"Sign in first — your documents live in your private vault. One code to your email and you are in.","loginBtn":"Sign in / create account","placeholder":"Write here… e.g. “Section 9 all No” or “what is still missing?”","send":"发送","uploading":"Uploading & reading…","generate":"Fill the forms","pack":"Prepare the final package","generating":"Filling the forms — a QA pass runs before anything reaches you…","packing":"Packing everything into one ZIP…","outputs":"Your deliverables","download":"Download","failed":"Something went wrong — try again or talk to us on WhatsApp.","noForms":"I don't have a form to fill yet — tell me which uploaded file is the form, e.g. “fill the file X”.","readyMsg":"Done — your filled files are ready, download them from the links above or from “Your deliverables”.","facts":"facts extracted","forms":"forms detected","newReq":"New request"};
     function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
     function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
     function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
@@ -385,6 +385,7 @@
       post({action:'chat',ref:ref,message:v}).then(function(d){
         typing.remove();
         el('bot',d.ok?d.reply:T.failed);
+        if(d.ok&&d.generate_now)runGenerate();
         refresh();
       }).catch(function(){typing.remove();el('sys',T.failed);});
     });
@@ -410,15 +411,32 @@
         rd.readAsDataURL(f);
       })(0);
     });
-    $('da-generate').onclick=function(){
+    function runGenerate(){
       if(!ref)return;var note=el('sys',T.generating);
       post({action:'generate',ref:ref}).then(function(d){
         note.remove();
-        if(d.ok){(d.outputs||[]).forEach(function(o){el('sys',(o.ok?'✓ ':'⚠ ')+o.form+(o.unfilled?(' — '+o.unfilled+' ?'):''));});}
-        else el('sys',T.failed);
+        if(d.ok){
+          var okCount=0;
+          (d.outputs||[]).forEach(function(o){
+            if(o.ok&&o.output_id){
+              okCount++;
+              get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
+                if(!l.url)return;
+                var row=el('bot','⬇️ ');
+                var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
+                a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
+                row.appendChild(a);
+                if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
+              });
+            } else if(!o.ok){el('sys','⚠ '+o.form);}
+          });
+          if(okCount)el('bot',T.readyMsg);
+        }
+        else el('bot',d.error==='no_target_forms'?T.noForms:T.failed);
         refresh();
       }).catch(function(){note.remove();el('sys',T.failed);});
-    };
+    }
+    $('da-generate').onclick=runGenerate;
     $('da-package').onclick=function(){
       if(!ref)return;var note=el('sys',T.packing);
       post({action:'package',ref:ref}).then(function(d){
