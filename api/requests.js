@@ -400,7 +400,7 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
 const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00eadf";
 // The owner's WhatsApp — same number published on the site as the advisor
 // line. Digits only, and overridable without a deploy.
-const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966503793356").replace(/\D/g, "");
+const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
 
 // Databases the in-panel Notion viewer may read AND write. Notion refuses to
 // be iframed, so /admin gets a live API-backed mirror instead: these are the
@@ -541,6 +541,27 @@ async function collectFollowups(limit) {
   return (data.results || []).map(followupRow);
 }
 
+// The full live board: every recent pipeline row (most recently edited
+// first), bucketed so the panel can lane them — «due» needs contact now,
+// «followed» has a future follow-up booked, «fresh» is active with nothing
+// scheduled, «done» is Won/Lost. The due-only digest keeps collectFollowups.
+async function collectBoard(limit) {
+  if (!NOTION_TOKEN) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  const data = await notionQuery(CRM_DB, {
+    page_size: Math.min(Math.max(Number(limit) || 100, 1), 100),
+    sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
+  });
+  return (data.results || []).map((pg) => {
+    const f = followupRow(pg);
+    f.bucket = (f.stage === "Won" || f.stage === "Lost") ? "done"
+      : (f.human || f.order === "بانتظار الدفع" || (f.due && f.due <= today)) ? "due"
+      : f.due ? "followed"
+      : "fresh";
+    return f;
+  });
+}
+
 // Mirror fresh WhatsApp-qualification rows into the master pipeline, keyed by
 // «رقم المرجع» = WA-<digits>. Create sets a next-day follow-up; update never
 // clobbers a follow-up date the owner set by hand.
@@ -555,6 +576,7 @@ async function syncWhatsappLeads() {
   const since = new Date(Date.now() - 3 * 864e5).toISOString();
   const today = new Date().toISOString().slice(0, 10);
   let synced = 0, skipped = 0;
+  const freshLeads = [];
   const data = await notionQuery(WA_CRM_DB, {
     page_size: 50,
     filter: { timestamp: "last_edited_time", last_edited_time: { on_or_after: since } },
@@ -601,10 +623,30 @@ async function syncWhatsappLeads() {
         headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
         body: JSON.stringify(existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props }),
       });
-      if (r.ok) synced++; else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
+      if (r.ok) { synced++; if (!existing) freshLeads.push({ name, phone, ref, svc, lastMsg }); }
+      else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
     } catch (e) { skipped++; console.error("wa sync exception", String(e).slice(0, 150)); }
   }
-  return { synced, skipped };
+  // A brand-new WhatsApp contact pings the owner the moment the sync sees it
+  // — email + the live n8n WhatsApp hook (the same one tickets and
+  // consultations use) — instead of waiting for tomorrow's digest.
+  for (const f of freshLeads.slice(0, 6)) {
+    const who = f.name || f.phone;
+    try {
+      fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
+          transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
+          url: `${MKT_SITE_BASE}/admin`,
+        }),
+      }).catch(() => {});
+      const html = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#128C7E">📱 عميل واتساب جديد — ${esc(who)}</h2><p><b>الجوال:</b> <a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="direction:ltr;display:inline-block">${esc(f.phone)}</a></p>${f.svc ? `<p><b>الخدمة المطلوبة:</b> ${esc(f.svc)}</p>` : ""}${f.lastMsg ? `<p><b>آخر رسالة:</b> ${esc(String(f.lastMsg).slice(0, 300))}</p>` : ""}<p><b>المرجع:</b> ${esc(f.ref)} — العميل الآن في «متابعات اليوم» بلوحة التحكم.</p></div>`;
+      await sendEmail(TEAM_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
+      if (OWNER_EMAIL !== TEAM_EMAIL) await sendEmail(OWNER_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
+    } catch (e) { console.error("wa fresh notify failed", String(e).slice(0, 120)); }
+  }
+  return { synced, skipped, fresh: freshLeads.length };
 }
 
 // ---- Website advisor ("باهر") conversations ----
@@ -1493,6 +1535,11 @@ export default async function handler(req, res) {
     if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
     try {
+      if ((q.scope || "") === "all") {
+        const followups = await collectBoard(q.limit);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, followups, due: followups.filter((f) => f.bucket === "due").length }));
+      }
       const followups = await collectFollowups(q.limit);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, followups }));
