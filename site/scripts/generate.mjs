@@ -10668,7 +10668,7 @@ function buildSharedServicesPortal() {
 // the engines' deep links — nothing is duplicated or removed.
 function buildB10X() {
   const step = (ic, en, ar, de, da) => `<article class="path-card" style="text-align:center"><div class="card-icon" style="margin-inline:auto">${ic}</div><h3 style="font-size:1.02rem">${L(en, ar)}</h3><p class="muted" style="font-size:.85rem">${L(de, da)}</p></article>`;
-  const engine = (ic, name, en, ar, items, href, cta) => `<article class="path-card"><div class="card-icon">${ic}</div><h3>${name}</h3><p class="muted"><b>${L(en, ar)}</b></p><ul class="clean-list">${items.map(([e2, a2]) => `<li>${L(e2, a2)}</li>`).join("")}</ul>${href ? `<a class="btn" href="${href.startsWith("#") ? href : u(href)}">${cta || L("Learn more", "التفاصيل")}</a>` : ""}</article>`;
+  const engine = (ic, name, en, ar, items, href, cta) => `<article class="path-card"><div class="card-icon">${ic}</div><h3>${name}</h3><p class="muted"><b>${L(en, ar)}</b></p><ul class="clean-list">${items.map(([e2, a2]) => `<li>${L(e2, a2)}</li>`).join("")}</ul>${href ? `<a class="btn btn-ghost b10x-more" href="${href.startsWith("#") ? href : u(href)}">${cta || L("Learn more", "التفاصيل")}</a>` : ""}</article>`;
   const chip = (en, ar) => `<span class="sector-chip">${L(en, ar)}</span>`;
   const bl = (en, ar) => `<li>${L(en, ar)}</li>`;
 
@@ -10773,7 +10773,7 @@ function buildB10X() {
     <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>${L("An executive discovery mission inside Saudi Arabia", "رحلة استكشافية تنفيذية داخل السعودية")}</h2><p>${L("Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.", "لقاءات حكومية وعملاء وموردون وبنوك وغرف تجارية وجولات عقارية — مصممة حسب قطاعك.")}</p></div>
     <div class="chip-row" style="justify-content:center">${[["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Eastern Province", "الشرقية"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Aseer", "عسير"], ["Tabuk", "تبوك"], ["NEOM", "نيوم"], ["Jazan", "جازان"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
     <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>${L("Flights, hotels, transport and third-party costs are not included unless priced separately.", "الطيران والفنادق والنقل وتكاليف الأطراف الثالثة غير مشمولة إلا إذا سُعّرت منفصلة.")}</p></div>
-    <div class="center mt-32"><a class="btn" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
   </div></section>
 
   <section class="section" id="pricing"><div class="container">
@@ -10855,10 +10855,34 @@ function buildB10X() {
     });
   })();`;
 
+  // Classes below exist only on this page — styles.css doesn't define them.
+  const b10xCss = `<style>
+    .dot-bg{background-image:radial-gradient(rgba(11,27,90,.07) 1px,transparent 1px);background-size:22px 22px}
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px}
+    .sector-chip{display:inline-block;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;box-shadow:0 1px 3px rgba(11,27,90,.06)}
+    a.sector-chip:hover{border-color:var(--navy);color:var(--navy)}
+    .section-nav{background:#f3f5fb;border-block:1px solid #e5eaf4;padding:14px 0}
+    .section-nav .chip-row{justify-content:center}
+    .trust-strip{background:var(--navy);padding:20px 0;text-align:center}
+    .trust-strip p{color:#fff;margin:0;font-size:1.08rem;font-weight:700}
+    .proof{display:flex;flex-wrap:wrap;gap:10px 12px;justify-content:center;margin-top:20px}
+    .proof span{background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:6px 15px;font-weight:700;font-size:.88rem}
+    .path-card{background:#fff;border:1px solid #e5eaf4;border-radius:14px;padding:22px;box-shadow:0 6px 18px rgba(11,27,90,.06)}
+    .path-card h3{margin:10px 0 6px}
+    .muted{color:#5b6478}
+    .clean-list{list-style:none;padding:0;margin:10px 0}
+    .clean-list li{position:relative;padding-inline-start:22px;margin:7px 0;font-size:.92rem;color:#334155}
+    .clean-list li::before{content:"\\2713";position:absolute;inset-inline-start:0;color:#0F766E;font-weight:700}
+    .b10x-more{margin-top:12px;padding:9px 20px;font-size:.9rem}
+    .section--navy .section-head p{color:rgba(255,255,255,.85)}
+    #b10xForm label{font-size:.9rem;font-weight:600;color:var(--navy)}
+    @media (max-width:640px){.section-nav .chip-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}}
+  </style>`;
+
   return page({
     title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | بيزنس بارتنر"),
     desc: Lraw("Saudi market entry, relocation, operations and growth as a service — formation, housing, government, employees, suppliers and an always-on sales pipeline behind one B10X Account Manager.", "دخول السوق السعودي والانتقال والتشغيل والنمو كخدمة — التأسيس والسكن والحكومة والموظفون والموردون وبايبلاين مبيعات دائم خلف مدير حساب B10X واحد."),
-    active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`,
+    active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`, extraHead: b10xCss,
   });
 }
 

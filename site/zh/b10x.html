@@ -24,7 +24,28 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-</head>
+<style>
+    .dot-bg{background-image:radial-gradient(rgba(11,27,90,.07) 1px,transparent 1px);background-size:22px 22px}
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px}
+    .sector-chip{display:inline-block;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;box-shadow:0 1px 3px rgba(11,27,90,.06)}
+    a.sector-chip:hover{border-color:var(--navy);color:var(--navy)}
+    .section-nav{background:#f3f5fb;border-block:1px solid #e5eaf4;padding:14px 0}
+    .section-nav .chip-row{justify-content:center}
+    .trust-strip{background:var(--navy);padding:20px 0;text-align:center}
+    .trust-strip p{color:#fff;margin:0;font-size:1.08rem;font-weight:700}
+    .proof{display:flex;flex-wrap:wrap;gap:10px 12px;justify-content:center;margin-top:20px}
+    .proof span{background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:6px 15px;font-weight:700;font-size:.88rem}
+    .path-card{background:#fff;border:1px solid #e5eaf4;border-radius:14px;padding:22px;box-shadow:0 6px 18px rgba(11,27,90,.06)}
+    .path-card h3{margin:10px 0 6px}
+    .muted{color:#5b6478}
+    .clean-list{list-style:none;padding:0;margin:10px 0}
+    .clean-list li{position:relative;padding-inline-start:22px;margin:7px 0;font-size:.92rem;color:#334155}
+    .clean-list li::before{content:"\2713";position:absolute;inset-inline-start:0;color:#0F766E;font-weight:700}
+    .b10x-more{margin-top:12px;padding:9px 20px;font-size:.9rem}
+    .section--navy .section-head p{color:rgba(255,255,255,.85)}
+    #b10xForm label{font-size:.9rem;font-weight:600;color:var(--navy)}
+    @media (max-width:640px){.section-nav .chip-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}}
+  </style></head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/zh/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation"><a href="/zh/">首页</a><a href="/zh/about">关于我们</a><div class="nav-group">
@@ -131,16 +152,16 @@
   <section class="section section--navy" id="engines"><div class="container">
     <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">The product</span><h2 style="color:#fff">10 Engines. One Operating System.</h2></div>
     <div class="grid grid-2">
-      <article class="path-card"><div class="card-icon">🧭</div><h3>B10X Explore</h3><p class="muted"><b>Market exploration</b></p><ul class="clean-list"><li>Market entry assessment &amp; sector research</li><li>Competitor, customer &amp; supplier mapping</li><li>Regulatory mapping &amp; target cities</li><li>Cost &amp; workforce assessment</li></ul><a class="btn" href="/zh/mahfol-makfol">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🏗️</div><h3>B10X Establish</h3><p class="muted"><b>Formation</b></p><ul class="clean-list"><li>Investment license &amp; foreign investor setup</li><li>LLC / foreign branch / RHQ</li><li>CR, articles, GM appointment</li><li>Attestation &amp; translation coordination</li></ul><a class="btn" href="/zh/services">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🏛️</div><h3>B10X Government</h3><p class="muted"><b>Government &amp; compliance</b></p><ul class="clean-list"><li>Qiwa, GOSI, Mudad, Muqeem, Absher</li><li>Baladi, Ejar, ZATCA, Etimad, Najiz</li><li>Compliance center: licenses, expiries, renewals</li><li>Sector platforms (SFDA, Saber, Fasah…)</li></ul><a class="btn" href="/zh/compliance-agent">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🧳</div><h3>B10X Relocation</h3><p class="muted"><b>Relocation &amp; settling-in</b></p><ul class="clean-list"><li>Investor, executives, employees &amp; family</li><li>Executive &amp; workforce housing</li><li>Schools, healthcare, transport, banking</li><li>Arrival to departure, end to end</li></ul><a class="btn" href="#relocation">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🏢</div><h3>B10X Locate</h3><p class="muted"><b>Real estate &amp; premises</b></p><ul class="clean-list"><li>Office, HQ, retail &amp; showroom search</li><li>Warehouse, factory &amp; industrial land</li><li>Shortlist → viewing → negotiation → move-in</li></ul><a class="btn" href="/zh/workspaces">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">👥</div><h3>B10X Workforce</h3><p class="muted"><b>People &amp; hiring</b></p><ul class="clean-list"><li>HR setup, contracts &amp; policies</li><li>Saudi &amp; international recruitment</li><li>Visas, work permits &amp; transfers</li></ul><a class="btn" href="/zh/hr">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🧭</div><h3>B10X Explore</h3><p class="muted"><b>Market exploration</b></p><ul class="clean-list"><li>Market entry assessment &amp; sector research</li><li>Competitor, customer &amp; supplier mapping</li><li>Regulatory mapping &amp; target cities</li><li>Cost &amp; workforce assessment</li></ul><a class="btn btn-ghost b10x-more" href="/zh/mahfol-makfol">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🏗️</div><h3>B10X Establish</h3><p class="muted"><b>Formation</b></p><ul class="clean-list"><li>Investment license &amp; foreign investor setup</li><li>LLC / foreign branch / RHQ</li><li>CR, articles, GM appointment</li><li>Attestation &amp; translation coordination</li></ul><a class="btn btn-ghost b10x-more" href="/zh/services">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🏛️</div><h3>B10X Government</h3><p class="muted"><b>Government &amp; compliance</b></p><ul class="clean-list"><li>Qiwa, GOSI, Mudad, Muqeem, Absher</li><li>Baladi, Ejar, ZATCA, Etimad, Najiz</li><li>Compliance center: licenses, expiries, renewals</li><li>Sector platforms (SFDA, Saber, Fasah…)</li></ul><a class="btn btn-ghost b10x-more" href="/zh/compliance-agent">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🧳</div><h3>B10X Relocation</h3><p class="muted"><b>Relocation &amp; settling-in</b></p><ul class="clean-list"><li>Investor, executives, employees &amp; family</li><li>Executive &amp; workforce housing</li><li>Schools, healthcare, transport, banking</li><li>Arrival to departure, end to end</li></ul><a class="btn btn-ghost b10x-more" href="#relocation">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🏢</div><h3>B10X Locate</h3><p class="muted"><b>Real estate &amp; premises</b></p><ul class="clean-list"><li>Office, HQ, retail &amp; showroom search</li><li>Warehouse, factory &amp; industrial land</li><li>Shortlist → viewing → negotiation → move-in</li></ul><a class="btn btn-ghost b10x-more" href="/zh/workspaces">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">👥</div><h3>B10X Workforce</h3><p class="muted"><b>People &amp; hiring</b></p><ul class="clean-list"><li>HR setup, contracts &amp; policies</li><li>Saudi &amp; international recruitment</li><li>Visas, work permits &amp; transfers</li></ul><a class="btn btn-ghost b10x-more" href="/zh/hr">了解更多</a></article>
       <article class="path-card"><div class="card-icon">🎨</div><h3>B10X Brand & Digital</h3><p class="muted"><b>Identity &amp; digital presence</b></p><ul class="clean-list"><li>Digital Market Entry Kit: identity, profile, deck</li><li>Launch website (AR/EN) with lead form</li><li>Social channels setup (LinkedIn, X, Instagram…)</li><li>Advanced tech as priced add-ons</li></ul></article>
-      <article class="path-card"><div class="card-icon">📈</div><h3>B10X Revenue</h3><p class="muted"><b>Clients &amp; sales</b></p><ul class="clean-list"><li>Always-On Revenue Engine — pipeline before landing</li><li>ICP, target accounts, outreach, meetings</li><li>Proposals, negotiations, deals, revenue</li></ul><a class="btn" href="/zh/revenue-os">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🔗</div><h3>B10X Source</h3><p class="muted"><b>Suppliers &amp; partnerships</b></p><ul class="clean-list"><li>Supplier sourcing, RFQs &amp; comparisons</li><li>Distributors, agents &amp; strategic partners</li><li>Vendor registration — up to 5/month included</li></ul><a class="btn" href="/zh/suppliers">了解更多</a></article>
-      <article class="path-card"><div class="card-icon">🚀</div><h3>B10X Scale</h3><p class="muted"><b>Growth &amp; deals</b></p><ul class="clean-list"><li>New cities, lines &amp; partnerships</li><li>Acquisition search &amp; M&amp;A coordination</li><li>B10X Deals — separate mandate per deal</li></ul><a class="btn" href="/zh/deals">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">📈</div><h3>B10X Revenue</h3><p class="muted"><b>Clients &amp; sales</b></p><ul class="clean-list"><li>Always-On Revenue Engine — pipeline before landing</li><li>ICP, target accounts, outreach, meetings</li><li>Proposals, negotiations, deals, revenue</li></ul><a class="btn btn-ghost b10x-more" href="/zh/revenue-os">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🔗</div><h3>B10X Source</h3><p class="muted"><b>Suppliers &amp; partnerships</b></p><ul class="clean-list"><li>Supplier sourcing, RFQs &amp; comparisons</li><li>Distributors, agents &amp; strategic partners</li><li>Vendor registration — up to 5/month included</li></ul><a class="btn btn-ghost b10x-more" href="/zh/suppliers">了解更多</a></article>
+      <article class="path-card"><div class="card-icon">🚀</div><h3>B10X Scale</h3><p class="muted"><b>Growth &amp; deals</b></p><ul class="clean-list"><li>New cities, lines &amp; partnerships</li><li>Acquisition search &amp; M&amp;A coordination</li><li>B10X Deals — separate mandate per deal</li></ul><a class="btn btn-ghost b10x-more" href="/zh/deals">了解更多</a></article>
     </div>
   </div></section>
 
@@ -181,7 +202,7 @@
     <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>An executive discovery mission inside Saudi Arabia</h2><p>Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.</p></div>
     <div class="chip-row" style="justify-content:center"><span class="sector-chip">利雅得</span><span class="sector-chip">吉达</span><span class="sector-chip">东部省</span><span class="sector-chip">麦加</span><span class="sector-chip">麦地那</span><span class="sector-chip">Aseer</span><span class="sector-chip">Tabuk</span><span class="sector-chip">NEOM</span><span class="sector-chip">Jazan</span></div>
     <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>Flights, hotels, transport and third-party costs are not included unless priced separately.</p></div>
-    <div class="center mt-32"><a class="btn" href="/zh/mahfol-makfol/trips">Design my mission →</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="/zh/mahfol-makfol/trips">Design my mission →</a></div>
   </div></section>
 
   <section class="section" id="pricing"><div class="container">
