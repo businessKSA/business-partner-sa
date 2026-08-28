@@ -5,6 +5,7 @@
  * ترحيلٌ على حساب تجميعي، ترحيلٌ في فترة أُقرَّت، وفاتورةٌ رُحِّلت مرّتين
  * لأن الزر ضُغط مرّتين.
  */
+import './setup.ts';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { prisma, withTenant } from '../src/lib/db.ts';

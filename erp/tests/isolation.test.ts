@@ -5,6 +5,7 @@
  * بلا شرط منشأة، ونتوقّع ألّا ترى شيئاً. إن رأت، فالنظام غير صالح للبيع
  * وهذا الاختبار هو الذي يمنع شحنه.
  */
+import './setup.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { prisma, withTenant, withoutTenant, currentTenant } from '../src/lib/db.ts';
