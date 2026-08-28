@@ -18,7 +18,7 @@
     "health": "tsx scripts/health-check.ts",
     "e2e": "node e2e/smoke.mjs",
     "seed:once": "tsx prisma/seed-if-empty.ts",
-    "vercel-build": "prisma generate && prisma db push --skip-generate && tsx scripts/apply-rls.ts && tsx prisma/seed-if-empty.ts && next build"
+    "vercel-build": "node scripts/vercel-build.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
