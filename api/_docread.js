@@ -51,33 +51,90 @@ const PROMPT = `أنت مساعد يقرأ مستندات سعودية رسمي�
 انتبه: الرقم الضريبي في السعودية 15 خانة ويبدأ وينتهي بالرقم 3. رقم السجل التجاري عادة 10 خانات. لا تخلط بينهما.
 التواريخ: إن ظهر التاريخ ميلادياً وهجرياً معاً فأعد الميلادي في issueDate/expiryDate. وإن ظهر هجرياً فقط فلا تحوّله بنفسك — ضعه نصاً في الحقل الهجري واترك الميلادي فارغاً.`;
 
-function parseJson(text) {
-  const raw = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-  if (start === -1 || end === -1) return null;
-  try { return JSON.parse(raw.slice(start, end + 1)); } catch { return null; }
+// Close a JSON document that was cut off mid-flight (the model hit its output
+// cap). A fill plan of 60 operations truncated at 55 is worth 55 filled fields;
+// throwing it away is what made the agent look dead. Trailing partial tokens
+// are dropped, then every open string/array/object is closed.
+function repairJson(raw) {
+  let inStr = false, esc = false, lastSafe = -1;
+  const stack = [];
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') { inStr = false; if (stack.length) lastSafe = i; }
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{" || c === "[") stack.push(c === "{" ? "}" : "]");
+    else if (c === "}" || c === "]") { stack.pop(); lastSafe = i; }
+    else if (c === "," || /\d/.test(c) || c === "e" || c === "l") lastSafe = i; // number/true/false/null tails
+  }
+  if (!stack.length) return null;
+  let out = raw.slice(0, lastSafe + 1).replace(/,\s*$/, "");
+  // a key whose value never arrived ("foo": or a value cut mid-string) cannot
+  // be closed — drop the dangling pair, keeping every complete one before it
+  out = out.replace(/,\s*"[^"]*"\s*:?\s*$/, "").replace(/\{\s*"[^"]*"\s*:?\s*$/, "{");
+  for (let i = stack.length - 1; i >= 0; i--) out += stack[i];
+  try { return JSON.parse(out); } catch { return null; }
 }
 
-async function readWithGemini(base64, mime) {
+export function parseJson(text) {
+  const raw = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const start = raw.indexOf("{");
+  if (start === -1) return null;
+  const end = raw.lastIndexOf("}");
+  if (end > start) {
+    try { return JSON.parse(raw.slice(start, end + 1)); } catch {}
+  }
+  return repairJson(raw.slice(start));
+}
+
+// Gemini 2.5 models think by default and charge that thinking to the SAME
+// output budget as the answer — a 4k cap can be spent entirely on thoughts,
+// returning an empty candidate. Every call here is structured extraction, so
+// thinking is switched off explicitly; models that reject the field are
+// retried once without it.
+async function geminiCall(key, model, parts, maxTokens, timeoutMs) {
+  const body = (withThinking) => JSON.stringify({
+    contents: [{ role: "user", parts }],
+    generationConfig: {
+      maxOutputTokens: maxTokens || 2000,
+      temperature: 0,
+      responseMimeType: "application/json",
+      ...(withThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    },
+  });
+  const send = (withThinking) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    method: "POST",
+    headers: { "x-goog-api-key": key, "content-type": "application/json" },
+    body: body(withThinking),
+    signal: AbortSignal.timeout(timeoutMs || 45000),
+  });
+  let r = await send(true);
+  if (r.status === 400) {
+    const t = await r.text();
+    if (/thinking/i.test(t)) r = await send(false);
+    else throw new Error(`gemini 400: ${t.slice(0, 200)}`);
+  }
+  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const data = await r.json();
+  const cand = (data && data.candidates && data.candidates[0]) || {};
+  const text = (((cand.content || {}).parts) || []).map((p) => p.text || "").join("");
+  if (!text) throw new Error(`gemini empty (${cand.finishReason || "no_candidate"})`);
+  return { text, truncated: cand.finishReason === "MAX_TOKENS" };
+}
+
+async function readWithGemini(base64, mime, prompt, maxTokens) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
   const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": key, "content-type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data: base64 } }, { text: PROMPT }] }],
-      generationConfig: { maxOutputTokens: 900, temperature: 0, responseMimeType: "application/json" },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  const parts = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
-  return parseJson(parts.map((p) => p.text || "").join(""));
+  const { text } = await geminiCall(key, model, [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }], maxTokens || 900);
+  return parseJson(text);
 }
 
-async function readWithAnthropic(base64, mime) {
+async function readWithAnthropic(base64, mime, prompt, maxTokens) {
   const key = envFrom(ANTHROPIC_KEYS);
   if (!key) throw new Error("no_key");
   const isPdf = /pdf/i.test(mime);
@@ -89,8 +146,8 @@ async function readWithAnthropic(base64, mime) {
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: 900,
-      messages: [{ role: "user", content: [block, { type: "text", text: PROMPT }] }],
+      max_tokens: maxTokens || 900,
+      messages: [{ role: "user", content: [block, { type: "text", text: prompt || PROMPT }] }],
     }),
   });
   if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -98,7 +155,7 @@ async function readWithAnthropic(base64, mime) {
   return parseJson((data.content || []).map((c) => c.text || "").join(""));
 }
 
-async function readWithOpenAI(base64, mime) {
+async function readWithOpenAI(base64, mime, prompt, maxTokens) {
   const key = envFrom(OPENAI_KEYS);
   if (!key) throw new Error("no_key");
   if (/pdf/i.test(mime)) throw new Error("pdf_unsupported");
@@ -107,10 +164,10 @@ async function readWithOpenAI(base64, mime) {
     headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini",
-      max_tokens: 900,
+      max_tokens: maxTokens || 900,
       temperature: 0,
       response_format: { type: "json_object" },
-      messages: [{ role: "user", content: [{ type: "text", text: PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
+      messages: [{ role: "user", content: [{ type: "text", text: prompt || PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
     }),
   });
   if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -155,6 +212,71 @@ function clean(raw) {
     contactPhone: txt(raw && raw.contactPhone, 40).replace(/[^\d+]/g, ""),
     confidence: ["high", "medium", "low"].includes(raw && raw.confidence) ? raw.confidence : "medium",
   };
+}
+
+// Same provider chain, caller-supplied prompt, no invoice-specific clean().
+// The AI Document Agent (api/_docagent.js) uses this for classification,
+// arbitrary-form field mapping and fill planning — tasks whose schema is not
+// the fixed invoice schema above.
+export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
+  if (!base64) return { ok: false, error: "no_file" };
+  if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
+  if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
+  const providers = [
+    ["gemini", (b, m) => readWithGemini(b, m, prompt, maxTokens)],
+    ["anthropic", (b, m) => readWithAnthropic(b, m, prompt, maxTokens)],
+    ["openai", (b, m) => readWithOpenAI(b, m, prompt, maxTokens)],
+  ];
+  for (const [name, call] of providers) {
+    try {
+      const raw = await call(base64, mime);
+      if (raw) return { ok: true, data: raw, provider: name };
+    } catch (e) {
+      const msg = String(e.message || e);
+      if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread raw", name, msg.slice(0, 160));
+    }
+  }
+  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
+}
+
+// Text-only model call over the same provider chain (no attachment) — used by
+// the doc agent for reconciliation, gap analysis and fill planning where the
+// inputs are already extracted text, not bytes.
+export async function askModel(prompt, maxTokens) {
+  const gk = envFrom(GEMINI_KEYS);
+  const errs = [];
+  if (gk) {
+    try {
+      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const { text, truncated } = await geminiCall(gk, model, [{ text: prompt }], maxTokens || 2000);
+      const parsed = parseJson(text);
+      if (parsed) return { ok: true, data: parsed, provider: "gemini", truncated };
+      errs.push(`gemini: unparsable${truncated ? " (hit output cap)" : ""}`);
+    } catch (e) { const m = String(e.message || e); console.error("askModel gemini", m.slice(0, 160)); errs.push(`gemini: ${m.slice(0, 90)}`); }
+  }
+  const ak = envFrom(ANTHROPIC_KEYS);
+  if (ak) {
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": ak, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
+          max_tokens: maxTokens || 2000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const parsed = parseJson((data.content || []).map((c) => c.text || "").join(""));
+        if (parsed) return { ok: true, data: parsed, provider: "anthropic", truncated: data.stop_reason === "max_tokens" };
+        errs.push("anthropic: unparsable");
+      } else errs.push(`anthropic ${r.status}`);
+    } catch (e) { const m = String(e.message || e); console.error("askModel anthropic", m.slice(0, 160)); errs.push(`anthropic: ${m.slice(0, 90)}`); }
+  }
+  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
 }
 
 /**

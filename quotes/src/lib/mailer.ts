@@ -94,7 +94,12 @@ export async function sendMail(m: MailInput): Promise<MailResult> {
     );
     return { ok: true, provider: 'log', id: `log-${Date.now()}` };
   } catch (e) {
-    return { ok: false, provider, error: e instanceof Error ? e.message : String(e) };
+    const error = e instanceof Error ? e.message : String(e);
+    // الفشل يُكتب في السجل دائماً. كان يُعاد في كائن النتيجة وحده، ومن لا
+    // يفحص النتيجة يظن أن الرسالة وصلت — وهذا ما حدث في شاشة الدخول: قالت
+    // «سيصلك الرابط» والإرسال فاشل، فبقي السبب غير مرئي في أي شاشة.
+    console.error(`[MAIL] تعذّر الإرسال عبر ${provider} إلى ${m.to}: ${error}`);
+    return { ok: false, provider, error };
   }
 }
 

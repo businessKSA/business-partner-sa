@@ -5,6 +5,7 @@ import {
   tamaraEligible,
   tamaraFee,
   pingTamara,
+  tamaraTokenShape,
   listTamaraWebhooks,
   registerTamaraWebhook,
   TAMARA_EVENTS,
@@ -33,7 +34,7 @@ export async function GET(req: Request) {
   }
 
   const st = tamaraStatus();
-  const sample = [1000, 5000, 10000, 28175];
+  const sample = [1000, 5000, 10000, 28175, st.maxAmount];
   const live = st.configured ? await pingTamara() : null;
   const hooks = live?.authorised ? await listTamaraWebhooks() : null;
 
@@ -41,6 +42,9 @@ export async function GET(req: Request) {
     الإعداد: st,
     'رابط الإشعار المتوقّع': notificationUrl(req),
     'الفحص الحيّ': live ?? 'المفتاح غير معرّف',
+    // «مرفوض» لا يقول أي رفض: منتهٍ، أم من النوع الخطأ، أم من حساب آخر.
+    // هذه الأسطر تفرّق بينها بلا كشف حرف من المفتاح.
+    'شكل المفتاح': tamaraTokenShape(),
     'روابط الإشعار المسجّلة': hooks ?? 'لم تُقرأ — المفتاح غير مقبول أو غير معرّف',
     'الأحداث التي نعالجها': TAMARA_EVENTS,
     'تكلفة القبول': sample.map((total) => ({

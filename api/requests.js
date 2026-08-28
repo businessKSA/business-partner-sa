@@ -24,7 +24,8 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { handleDocAgent } from "./_docagent.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -1108,6 +1109,18 @@ async function recordOrderInDb(req, b, ref) {
 // لا تُرسل بريداً: اللوحة لها قوالبها ومُرسِلها، وإرسالان يعنيان رسالتين
 // للعميل عن فاتورة واحدة.
 const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
+// عنوان لوحة العروض — للاتجاه المعاكس: الموقع يسألها عن عروض العميل وعقوده.
+//
+// له افتراضٌ لأن عنوانها ليس سرّاً ولا مجهولاً: هو مكتوب في vercel.json
+// تمريرةً للكتالوج، وفي لوحة التحكم رابطاً ظاهراً. وحين كان بلا افتراض،
+// قالت صفحة الحساب لصاحبها «هذا القسم غير مربوط» وكل شيء عنده مضبوط —
+// السرّ المشترك موضوع، والجسر يعمل في اتجاهه الآخر — إلا سطرٌ في Vercel
+// لم يُكتب. فمتغيّر بيئة لقيمةٍ واحدة معروفة يمنع التشغيل ولا يحمي شيئاً.
+//
+// والمتغيّر يبقى ليغلب الافتراض في بيئة تجربة أو عند تغيّر العنوان.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app")
+  .trim()
+  .replace(/\/+$/, "");
 
 function bridgeAuthorized(req) {
   if (!PANEL_BRIDGE_TOKEN) return false;
@@ -1116,6 +1129,140 @@ function bridgeAuthorized(req) {
   let diff = 0;
   for (let i = 0; i < PANEL_BRIDGE_TOKEN.length; i++) diff |= given.charCodeAt(i) ^ PANEL_BRIDGE_TOKEN.charCodeAt(i);
   return diff === 0;
+}
+
+/* ---- قراءة عرض مورد للوحة العروض -------------------------------------
+ * اللوحة تحتاج أن تقرأ ملف عرض المورد (PDF أو صورة) وتستخرج بنوده. ومفاتيح
+ * نماذج الرؤية معرَّفة هنا وحدها منذ شهور — Gemini ثم Anthropic ثم OpenAI —
+ * فنسخها إلى مشروع ثانٍ يعني مفتاحين لكل مزوّد ونسختين تتفارقان.
+ *
+ * لا يُخزَّن هنا شيء: البايتات تُقرأ وتُعاد البنود وتُهمل. والحفظ في اللوحة
+ * حيث الملف أصلاً.
+ */
+async function handleSupplierQuoteRead(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+
+  const b = await readBody(req);
+  const base64 = String(b.base64 || "");
+  const mime = String(b.mime || "");
+  if (!base64) return send(400, { ok: false, error: "no_file" });
+  if (!DOC_MIME_OK.test(mime)) return send(400, { ok: false, error: "bad_type" });
+
+  const prompt = `أنت تقرأ عرض سعر من مورد سعودي وتستخرج بنوده كما هي.
+
+استخرج ما يظهر فعلاً في المستند فقط. لا تخمّن ولا تُكمل ناقصاً.
+
+أعِد JSON فقط بلا شرح وبلا علامات تنسيق، بهذا الشكل:
+{
+  "currency": "SAR",
+  "vatIncluded": true أو false — هل الأسعار الظاهرة شاملة ضريبة القيمة المضافة,
+  "total": الإجمالي كما يظهر رقماً,
+  "lines": [
+    { "nameAr": "اسم البند", "descAr": "وصفه إن وُجد", "qty": الكمية رقماً, "unitAr": "الوحدة", "unitPrice": سعر الوحدة رقماً }
+  ]
+}
+
+قواعد مهمة:
+- الأسعار أرقام بلا فواصل ولا رمز عملة.
+- إن لم تظهر كمية فاجعلها 1.
+- لا تُدرج في أسماء البنود ولا أوصافها: اسم المورد، أرقام سجله أو ترخيصه أو
+  رقمه الضريبي، بياناته البنكية، ولا شروط ضمانه — نحن نستخرج ما بيع وكم، لا
+  من باعه ولا بأي شروط.`;
+
+  const out = await readDocumentRaw(base64, mime, prompt, 3000);
+  if (!out.ok) return send(502, { ok: false, error: out.error });
+
+  let parsed = null;
+  try {
+    const t = String(out.data).replace(/^```(json)?|```$/gm, "").trim();
+    parsed = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+  } catch {
+    // النص الخام يُعاد حتى حين يتعذّر تفسيره: مراجع بشري يقرؤه أفضل من لا شيء.
+    return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed: null });
+  }
+  return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed });
+}
+
+/* ---- قاعدة موردي نوشن للوحة العروض -----------------------------------
+ * اللوحة توجّه طلبات عروض الأسعار إلى موردين مصنَّفين، وقاعدتهم في نوشن.
+ * والمفتاح هنا وحده، فالقراءة من هنا: مفتاح واحد يُدوَّر، لا اثنان.
+ *
+ * الاستخراج بالنوع لا بالاسم: قواعد الموردين في نوشن أكثر من واحدة وأسماء
+ * أعمدتها تختلف — «نوع المورد» في قاعدة العقار، و«التصنيف» في غيرها. فما
+ * يُعتمد هو نوع العمود: العنوان اسمٌ، وحقل البريد بريدٌ، والقائمة المتعددة
+ * تصنيف. وتسميةٌ تتغيّر لا تكسر المزامنة.
+ *
+ * ولا تُترجم القيم هنا: العربية كما كتبها صاحبها تعبر إلى اللوحة، وهي التي
+ * تعرف أكوادها فتربطها. ومن ترجم في الطرفين اختلفت ترجمتاه.
+ */
+const NOTION_SUPPLIER_ROUTE_DB = process.env.NOTION_SOURCING_SUPPLIERS_DB || "";
+
+function notionPropOf(props, types, nameHints = []) {
+  const entries = Object.entries(props || {});
+  for (const hint of nameHints) {
+    const hit = entries.find(([k, v]) => k.includes(hint) && types.includes(v?.type));
+    if (hit) return hit[1];
+  }
+  const any = entries.find(([, v]) => types.includes(v?.type));
+  return any ? any[1] : null;
+}
+
+const notionPlain = (p) => {
+  if (!p) return "";
+  if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "rich_text") return (p.rich_text || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "email") return String(p.email || "").trim();
+  if (p.type === "phone_number") return String(p.phone_number || "").trim();
+  if (p.type === "select") return String(p.select?.name || "").trim();
+  if (p.type === "status") return String(p.status?.name || "").trim();
+  return "";
+};
+
+async function handleNotionSuppliers(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "notion_not_configured" });
+
+  const b = await readBody(req);
+  const db = String(b.databaseId || NOTION_SUPPLIER_ROUTE_DB || "").replace(/-/g, "").trim();
+  if (!/^[0-9a-f]{32}$/i.test(db)) return send(400, { ok: false, error: "bad_database_id" });
+
+  const rows = [];
+  let cursor;
+  // نوشن يعيد مئةً في الصفحة، والقاعدة قد تفوقها. وخمس صفحات سقفٌ يمنع
+  // نداءً لا ينتهي إن دار المؤشّر، ويكفي خمسمئة مورد.
+  for (let page = 0; page < 5; page++) {
+    const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) }),
+    });
+    if (!r.ok) return send(502, { ok: false, error: `notion_${r.status}`, detail: (await r.text()).slice(0, 300) });
+    const data = await r.json();
+    for (const pg of data.results || []) {
+      const props = pg.properties || {};
+      const name = notionPlain(notionPropOf(props, ["title"]));
+      if (!name) continue;
+      const multi = notionPropOf(props, ["multi_select"], ["نوع المورد", "التصنيف", "الفئة", "Category", "Type"]);
+      rows.push({
+        notionPageId: String(pg.id || "").replace(/-/g, ""),
+        nameAr: name,
+        email: notionPlain(notionPropOf(props, ["email"], ["البريد", "Email"])).toLowerCase(),
+        phone: notionPlain(notionPropOf(props, ["phone_number"], ["الجوال", "الهاتف", "Phone"])),
+        city: notionPlain(notionPropOf(props, ["select"], ["المدينة", "City"])),
+        priority: notionPlain(notionPropOf(props, ["select"], ["الأولوية", "Priority"])),
+        // القيم كما هي بالعربية — اللوحة تربطها بأكوادها.
+        types: (multi?.multi_select || []).map((o) => String(o.name || "").trim()).filter(Boolean),
+        notes: notionPlain(notionPropOf(props, ["rich_text"], ["ملاحظات", "الأحياء", "Notes"])),
+      });
+    }
+    if (!data.has_more || !data.next_cursor) break;
+    cursor = data.next_cursor;
+  }
+  return send(200, { ok: true, database: db, count: rows.length, suppliers: rows });
 }
 
 async function handleDaftraInvoice(req, res) {
@@ -1226,6 +1373,8 @@ export default async function handler(req, res) {
   // entirely once delegated.
   // الفاتورة الضريبية للوحة العروض — تُصدَر من الشيفرة المجرَّبة نفسها لا من نسخة ثانية.
   if ((q.__route || "") === "daftra-invoice") return handleDaftraInvoice(req, res);
+  if ((q.__route || "") === "supplier-quote-read") return handleSupplierQuoteRead(req, res);
+  if ((q.__route || "") === "notion-suppliers") return handleNotionSuppliers(req, res);
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.
@@ -1233,6 +1382,9 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
+  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
+  if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1329,6 +1481,91 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // عروض الأسعار والعقود والمطالبات من لوحة العروض — داخل صفحة الحساب.
+  //
+  // كانت اللوحة عالماً منفصلاً: العميل يفتح /ar/account فيرى طلبه ومحفظته،
+  // ولا يرى عرض السعر المرسل له ولا العقد الذي وقّعه، لأن ذاك كله خلف بوابة
+  // ثانية لا يصلها إلا برابط في بريد. فمن أضاع البريد أضاع العرض.
+  //
+  // الهوية هنا من الجلسة وحدها — البريد الذي تحقّق منه الموقع برمز — ولا
+  // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
+  if ((q.action || "") === "my-documents") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    if (!email) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(12000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
+      // وحده يقول إنه لم يستطع القراءة الآن.
+      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+    }
+  }
+
+  // ---- لوحة العروض داخل لوحة الموقع (للمالك) ------------------------------
+  //
+  // المالك يدير عمله من هنا، وبابُ لوحة العروض رابطٌ سحري يصل بريد ADMIN_EMAIL
+  // وحده. فمن لم يكن ذلك بريده وقف خارج نظامه هو، ومن أراد أن يرى شيئاً سجّل
+  // نفسه عميلاً — فرأى ما يراه العميل لا ما يملكه المالك.
+  //
+  // النداء يمضي من خادم الموقع إلى خادم اللوحة بالسرّ المشترك، فلا يصل السرّ
+  // متصفحاً ولا صفحة. والحارس هنا هو حارس بقية اللوحة: مفتاح المالك أو تذكرة
+  // نفاذ.
+  if ((q.action || "") === "panel-quotes") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        configured: false,
+        ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع بالقيمة نفسها الموضوعة في اللوحة، ثم أعد النشر",
+      }));
+    }
+    // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
+    const want = String(q.want || "overview") === "login" ? "login" : "overview";
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/owner`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ action: want }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      console.error("panel-quotes bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
     }
   }
 
@@ -2999,7 +3236,7 @@ export default async function handler(req, res) {
       if (nameEn) patch.name_en = nameEn;
       if (crNum) patch.cr_number = crNum;
       const rows = await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", body: patch });
-      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity: "organizations", entity_id: String(orgId) });
+      audit({ actor_user_id: sess.user && sess.user.id, action: "org.update", entity_type: "organization", entity_id: String(orgId) });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, organization: (rows && rows[0]) || null }));
     } catch {
@@ -3543,7 +3780,7 @@ export default async function handler(req, res) {
     const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
     const monthsNum = Number(b.months);
     const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
-    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const CH = { bank: "بنك العميل", bnpl: "تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);

@@ -14,7 +14,7 @@
       "maxDuration": 60
     },
     "api/requests.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "redirects": [
@@ -139,6 +139,14 @@
       "destination": "/api/requests?__route=daftra-invoice"
     },
     {
+      "source": "/api/supplier-quote-read",
+      "destination": "/api/requests?__route=supplier-quote-read"
+    },
+    {
+      "source": "/api/notion-suppliers",
+      "destination": "/api/requests?__route=notion-suppliers"
+    },
+    {
       "source": "/api/suppliers",
       "destination": "/api/requests?__route=suppliers"
     },
@@ -149,6 +157,10 @@
     {
       "source": "/api/jobhunt",
       "destination": "/api/requests?__route=jobhunt"
+    },
+    {
+      "source": "/api/doc-agent",
+      "destination": "/api/requests?__route=doc-agent"
     },
     {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",

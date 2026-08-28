@@ -279,6 +279,7 @@
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
         <button data-v="wallet"><span>◍</span><span data-t="navWallet">المحفظة</span></button>
         <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
+        <button data-v="papers"><span>⌗</span><span data-t="navPapers">عروض الأسعار والعقود</span><span class="b w" id="sbPapers" style="display:none;background:var(--warn)"></span></button>
         <button data-v="documents"><span>⌸</span><span data-t="navDocuments">المستندات</span></button>
         <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
@@ -520,8 +521,26 @@
             <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="apprHistTitle">قرارات سابقة</h3></div><div id="apprHist" style="padding:6px 16px 12px"></div></div>
           </div>
         </section>
+        <!-- عروض الأسعار والعقود الصادرة من لوحة العروض. كانت خلف بوابة
+             ثانية لا يصلها العميل إلا برابط في بريد قديم؛ فمن أضاع البريد
+             أضاع العرض. صارت هنا، في المكان الذي يفتحه أصلاً. -->
+        <section class="view" id="view-papers">
+          <div class="pagehead"><h2 data-t="navPapers">عروض الأسعار والعقود</h2><div class="sub" data-t="papersSub">العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.</div></div>
+          <div class="ph" id="papersPh"><div class="ic">⌗</div><b data-t="navPapers">عروض الأسعار والعقود</b><p><span data-t="papersEmpty">لا يوجد عرض أو عقد باسمك حتى الآن. أول عرض يُرسل إليك يظهر هنا مباشرة.</span></p></div>
+          <div id="papersMain" style="display:none">
+            <div class="panel"><div class="phead"><h3 data-t="papersQuotes">عروض الأسعار</h3></div><div id="papersQuotesList" style="padding:6px 16px 12px"></div></div>
+            <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="papersContracts">العقود</h3></div><div id="papersContractsList" style="padding:6px 16px 12px"></div></div>
+            <div class="panel" style="margin-top:14px"><div class="phead"><h3 data-t="papersInvoices">مطالبات السداد</h3></div><div id="papersInvoicesList" style="padding:6px 16px 12px"></div></div>
+            <div class="note" style="margin-top:12px" data-t="papersNote">الأسعار المعروضة غير شاملة ضريبة القيمة المضافة 15%، والرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.</div>
+          </div>
+        </section>
         <section class="view" id="view-documents">
           <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
+          <div class="card c12" style="margin-bottom:14px">
+            <h4 data-t="docAgentTitle">الوكيل الذكي للمستندات</h4>
+            <div class="note" style="display:block;margin:6px 0 10px" data-t="docAgentSub">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.</div>
+            <a class="btn sm" href="/ai-document-agent" id="docAgentLink" data-t="docAgentOpen">🗂️ افتح وكيل المستندات</a>
+          </div>
           <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="docMain" style="display:none">
             <div class="card c12">
@@ -642,6 +661,7 @@
             <div class="rowline" data-mv="payments"><span>◫</span><span class="t" data-t="navPayments">المدفوعات والفواتير</span><span class="m">›</span></div>
             <div class="rowline" data-mv="wallet"><span>◍</span><span class="t" data-t="navWallet">المحفظة</span><span class="m">›</span></div>
             <div class="rowline" data-mv="approvals"><span>✓</span><span class="t" data-t="navApprovals">الموافقات</span><span class="m">›</span></div>
+            <div class="rowline" data-mv="papers"><span>⌗</span><span class="t" data-t="navPapers">عروض الأسعار والعقود</span><span class="m">›</span></div>
             <div class="rowline" data-mv="documents"><span>⌸</span><span class="t" data-t="navDocuments">المستندات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="team"><span>﴾﴿</span><span class="t" data-t="navTeam">الموظفون والفريق</span><span class="m">›</span></div>
             <div class="rowline" data-mv="reports"><span>◔</span><span class="t" data-t="navReports">التقارير والتحليلات</span><span class="m">›</span></div>
@@ -697,6 +717,14 @@
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
         navHome: 'الرئيسية', navServices: 'خدماتي وبواباتي', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
+        navPapers: 'عروض الأسعار والعقود',
+        papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
+        papersEmpty: 'لا يوجد عرض أو عقد باسمك حتى الآن. أول عرض يُرسل إليك يظهر هنا مباشرة.',
+        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها.',
+        papersQuotes: 'عروض الأسعار', papersContracts: 'العقود', papersInvoices: 'مطالبات السداد',
+        papersNote: 'الأسعار المعروضة غير شاملة ضريبة القيمة المضافة 15%، والرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.',
+        papersOpen: 'افتح المستند', papersPay: 'سدّد الآن', papersNoneQ: 'لا عروض', papersNoneC: 'لا عقود', papersNoneI: 'لا مطالبات',
+        papersDown: 'تعذّرت قراءة العروض والعقود الآن. بقية حسابك تعمل، وسنعيد المحاولة عند التحديث.',
         navDocuments: 'المستندات', navTeam: 'الموظفون والفريق', navReports: 'التقارير والتحليلات',
         navTickets: 'التذاكر والدعم', navAlerts: 'التنبيهات', navSettings: 'الإعدادات',
         bnServices: 'الخدمات', moreTitle: 'المزيد',
@@ -752,6 +780,9 @@
         apprNeedComment: 'اكتب سبب الرفض أولاً.', apprApproved: 'تمت الموافقة', apprRejected: 'مرفوض',
         apprAmount: 'المبلغ', apprDeadline: 'المهلة',
         docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
+        docAgentTitle: 'الوكيل الذكي للمستندات',
+        docAgentSub: 'ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.',
+        docAgentOpen: '🗂️ افتح وكيل المستندات',
         docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
@@ -802,6 +833,14 @@
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
         navHome: 'Home', navServices: 'My Services and Portals', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
+        navPapers: 'Quotations and Contracts',
+        papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
+        papersEmpty: 'No quotation or contract in your name yet. The first one sent to you appears here.',
+        papersOff: 'This section is not connected to the quotations panel yet. It does not mean you have none — it means this page cannot read them.',
+        papersQuotes: 'Quotations', papersContracts: 'Contracts', papersInvoices: 'Payment requests',
+        papersNote: 'All prices are exclusive of 15% value added tax. Government fees are always excluded and are paid directly to the competent authorities at actual cost.',
+        papersOpen: 'Open document', papersPay: 'Pay now', papersNoneQ: 'No quotations', papersNoneC: 'No contracts', papersNoneI: 'No payment requests',
+        papersDown: 'Quotations and contracts could not be read right now. The rest of your account works, and we will retry on refresh.',
         navDocuments: 'Documents', navTeam: 'Employees and Team', navReports: 'Reports and Analytics',
         navTickets: 'Tickets and Support', navAlerts: 'Notifications', navSettings: 'Settings',
         bnServices: 'Services', moreTitle: 'More',
@@ -857,6 +896,9 @@
         apprNeedComment: 'Write the rejection reason first.', apprApproved: 'Approved', apprRejected: 'Rejected',
         apprAmount: 'Amount', apprDeadline: 'Deadline',
         docSub: 'Your document vault — versioned archives with short-lived signed download links.',
+        docAgentTitle: 'AI Document Agent',
+        docAgentSub: 'Upload documents that contain your data and forms that need filling — the agent reads, extracts and fills Word, Excel and PDF in place. Your files stay in your private vault, tied to this account only.',
+        docAgentOpen: '🗂️ Open the Document Agent',
         docTitlePh: 'Document name (e.g. Commercial Registration)',
         docCatCr: 'Commercial registration', docCatVat: 'VAT certificate', docCatContract: 'Contract', docCatId: 'ID / Iqama', docCatOther: 'Other',
         docSubmit: 'Upload', docListTitle: 'My documents', docNone: 'No documents yet — upload the first one above.',
@@ -1691,6 +1733,7 @@
       renderTasks();
       renderOrders();
       renderQuotes();
+      renderPapers();
       renderPayments();
       renderTeam();
       renderReports();
@@ -1700,7 +1743,7 @@
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','services','company','tasks','orders','payments','wallet','approvals','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','services','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       for (var i = 0; i < VIEWS.length; i++){
@@ -1711,7 +1754,7 @@
       for (var j = 0; j < sbs.length; j++) sbs[j].classList.toggle('on', sbs[j].getAttribute('data-v') === v);
       var bns = document.querySelectorAll('#bnav button');
       var bnavMatch = v;
-      if (['payments','wallet','approvals','documents','team','reports','tickets','alerts','settings'].indexOf(v) !== -1) bnavMatch = 'more';
+      if (['payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings'].indexOf(v) !== -1) bnavMatch = 'more';
       for (var k = 0; k < bns.length; k++) bns[k].classList.toggle('on', bns[k].getAttribute('data-v') === bnavMatch);
       var s = $('topSearch'); if (s && s.value){ s.value = ''; }
       filterSearch();
@@ -1988,6 +2031,107 @@
     function mapDbStatus(s){
       var m = { payment_pending: 'بانتظار الدفع', payment_verification: 'قيد المراجعة', paid: 'مؤكد - قيد التنفيذ', provisioning: 'مؤكد - قيد التنفيذ', action_required: 'مؤكد - قيد التنفيذ', active: 'مكتمل', cancelled: 'ملغي', expired: 'ملغي', suspended: 'قيد المراجعة' };
       return m[s] || 'قيد المراجعة';
+    }
+
+    // ---------------- عروض الأسعار والعقود (لوحة العروض) ----------------
+    // العرض والعقد يصدران من لوحة العروض بترقيمها، وكان العميل لا يراهما إلا
+    // في بريد. الجسر هنا يقرأهما بهوية الجلسة نفسها — بلا تسجيل دخول ثانٍ —
+    // ويعرضهما في القسم الذي يفتحه أصلاً. الروابط هي روابط المستند نفسها
+    // المرسلة في البريد، فالقرار يُتخذ من الصفحة مباشرة.
+    function fetchPapers(){
+      fetch('/api/requests?action=my-documents', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          state.papers = (out && out.ok) ? out : { ok: false };
+          renderPapers();
+        })
+        .catch(function(){ state.papers = { ok: false }; renderPapers(); });
+    }
+
+    // الحالات كما تخرج من اللوحة. المسودة لا تصل هنا أصلاً.
+    var PAPER_ST = {
+      APPROVED:   ['بانتظار الإرسال', 'Awaiting sending',  'info'],
+      SENT:       ['بانتظار قرارك',   'Awaiting your decision', 'warn'],
+      ACCEPTED:   ['مقبول',           'Accepted',          'ok'],
+      SIGNING:    ['قيد التوقيع',     'Signing in progress', 'warn'],
+      SIGNED:     ['موقّع',           'Signed',            'ok'],
+      IN_PROGRESS:['قيد التنفيذ',     'In progress',       'info'],
+      REJECTED:   ['مرفوض',           'Declined',          'warn'],
+      EXPIRED:    ['منتهي الصلاحية',  'Expired',           'warn'],
+      DUE:        ['مستحق',           'Due',               'warn'],
+      PAID:       ['مسدَّد',           'Paid',              'ok'],
+      CANCELLED:  ['ملغى',            'Cancelled',         'warn']
+    };
+    function paperMoney(v, cur){
+      var n = Number(v) || 0;
+      // ﷼ كما في بقية الصفحة — رمز العملة لا يتغيّر بين قسم وقسم.
+      var sym = (!cur || cur === 'SAR') ? '﷼' : esc(cur);
+      return n.toLocaleString(state.lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en') + ' ' + sym;
+    }
+    function paperRows(list, emptyKey, actionKey){
+      var en = state.lang === 'en';
+      if (!list || !list.length) return '<div class="emptyline">' + esc(t(emptyKey)) + '</div>';
+      var h = '';
+      for (var i = 0; i < list.length; i++){
+        var d = list[i];
+        var st = PAPER_ST[d.status] || [d.status, d.status, 'plain'];
+        // العرض المنتظر قرارَك: تاريخ انتهاء الصلاحية هو ما يهمّ، لا الإصدار.
+        var when = (d.status === 'SENT' && d.validUntil)
+          ? (en ? 'valid to ' : 'حتى ') + dts(d.validUntil)
+          : dts(d.decidedAt || d.paidAt || d.dueDate || d.issuedAt || '');
+        // رقم المستند لاتيني دائماً: BP-FI-2026-001 ينكسر وسط سطر عربي.
+        h += '<div class="rowline" data-srch>' +
+          '<span class="badge ' + st[2] + '">' + esc(en ? st[1] : st[0]) + '</span>' +
+          '<span class="t">' + esc(en ? (d.titleEn || d.titleAr) : (d.titleAr || d.titleEn)) + '</span>' +
+          '<span class="m ref" style="direction:ltr;unicode-bidi:isolate">' + esc(d.number) + '</span>' +
+          '<span class="m">' + paperMoney(d.total, d.currency) + '</span>' +
+          '<span class="m">' + when + '</span>' +
+          (d.url ? '<a class="btn sm" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(t(actionKey)) + '</a>' : '') +
+          '</div>';
+      }
+      return h;
+    }
+    function renderPapers(){
+      var p = state.papers;
+      var ph = $('papersPh'), main = $('papersMain'), badge = $('sbPapers');
+      if (!ph || !main) return;
+      if (!p){ return; }
+      if (p.ok === false){
+        ph.style.display = ''; main.style.display = 'none';
+        var msg = ph.querySelector('p span');
+        // تعذّر القراءة ليس «لا يوجد»: الفرق بينهما هو الفرق بين عميل يطمئن
+        // وعميل يظن أن عرضه ضاع.
+        if (msg){ msg.removeAttribute('data-t'); msg.textContent = t('papersDown'); }
+        if (badge) badge.style.display = 'none';
+        return;
+      }
+      var q = p.quotes || [], c = p.contracts || [], v = p.invoices || [];
+      if (!q.length && !c.length && !v.length){
+        ph.style.display = ''; main.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+        // «القسم غير مربوط» و«لا عرض باسمك» كانا يقولان الجملة نفسها. والفرق
+        // بينهما كل شيء: الأول عطل إعداد يُصلح بمتغيّر بيئة، والثاني حقيقة
+        // عن حساب العميل. من رآهما سواءً ظنّ النظام فارغاً وهو غير موصول.
+        var em = ph.querySelector('p span');
+        if (em){
+          em.removeAttribute('data-t');
+          em.textContent = (p.configured === false) ? t('papersOff') : t('papersEmpty');
+        }
+        return;
+      }
+      ph.style.display = 'none'; main.style.display = '';
+      $('papersQuotesList').innerHTML = paperRows(q, 'papersNoneQ', 'papersOpen');
+      $('papersContractsList').innerHTML = paperRows(c, 'papersNoneC', 'papersOpen');
+      $('papersInvoicesList').innerHTML = paperRows(v, 'papersNoneI', 'papersPay');
+      // الشارة تعدّ ما ينتظر قراراً وحده — عرض مُرسل أو مطالبة مستحقة.
+      var waiting = 0, i;
+      for (i = 0; i < q.length; i++) if (q[i].status === 'SENT') waiting++;
+      for (i = 0; i < v.length; i++) if (v[i].status === 'DUE') waiting++;
+      if (badge){
+        badge.style.display = waiting ? '' : 'none';
+        badge.textContent = String(waiting);
+      }
+      filterSearch();
     }
 
     // ---------------- P4: operations (notifications / tickets / documents / approvals / tasks) ----------------
@@ -2563,6 +2707,7 @@
       renderAll();
       fetchServerOrders();
       fetchOverview();
+      fetchPapers();
       fetchOps();
       loadEscrows();
     }

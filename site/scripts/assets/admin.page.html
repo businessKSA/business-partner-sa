@@ -462,6 +462,7 @@
           <div style="padding:0 18px;color:#64748b;font-size:12.5px">مكان واحد لكل التواصل: الرد من BP Inbox، والسجل الكامل في CRM الموحّد، والمتابعات أعلى هذه الصفحة.</div>
           <div class="tools" style="padding:12px 18px 16px">
             <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox — الرد على العملاء</h4><p>محادثات واتساب ومستشار الموقع والتذاكر — الرد المباشر بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="/doc-agent-admin" target="_blank" rel="noopener"><span class="ico">🗂️</span><h4>وكيل المستندات — المتابعة والتدخل</h4><p>كل طلبات تعبئة المستندات: الملفات وتصنيفها، المخرجات وجودتها، مراسلة العميل، وإعادة التوليد عند الخلل.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="https://www.notion.so/d9a342be24774be3b4095d439d21fc90" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM الموحّد — Sales Pipeline</h4><p>القاعدة الرئيسية الوحيدة: كل طلبات الموقع والواتساب والاستشارات والتذاكر تصب فيها.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="#" data-goto="leads"><span class="ico">📥</span><h4>الطلبات والموافقات</h4><p>تغيير حالة الطلبات، التفعيل، وإشعار العميل — داخل اللوحة.</p><span class="go">فتح ←</span></a>
           </div>
@@ -715,7 +716,7 @@
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
-
+        </div>
 
           <div class="panel" data-tool="health" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
@@ -724,6 +725,38 @@
             </p>
             <button class="actbtn" id="hlRun">🩺 افحص الآن</button>
             <div class="dbody" id="hlMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <!-- لوحة العروض تعيش في نشرة أخرى (bp-quotes) بمتغيرات بيئتها هي.
+               فكان سؤال «هل بريدها مضبوط؟ هل جسرها موصول؟» يحتاج فتح تبويب
+               وتسجيل دخول ثانٍ، وأحياناً بريداً هو نفسه المعطَّل. نقطة الحالة
+               عندها بلا تسجيل دخول وبلا سرّ واحد، فتُقرأ من هنا مباشرة. -->
+          <div class="panel" data-tool="quotes" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">📑 لوحة عروض الأسعار والعقود</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              لوحة منفصلة لها متغيرات بيئتها. هذا الفحص يسأل نقطة الحالة عندها: هل البريد يُرسل فعلاً،
+              وهل تمارا مضبوطة، وهل الجسر مع الموقع موصول. قيم منطقية فقط — لا يظهر مفتاح ولا جزء منه.
+              <b>تنبيه:</b> متغيرات Vercel تُلتقط لحظة البناء، فما يُضاف بعد بدء البناء لا تراه تلك النشرة
+              حتى يُعاد النشر.
+            </p>
+            <button class="actbtn" id="qpRun">📑 افحص لوحة العروض</button>
+            <a class="actbtn" id="qpOpen" href="#" target="_blank" rel="noopener" style="background:var(--navy);color:#fff">↗ افتح اللوحة</a>
+            <div class="dbody" id="qpMsg" style="display:none;margin-top:10px"></div>
+
+            <!-- المالك يدير عمله من هنا، وباب لوحة العروض كان رابطاً سحرياً
+                 يصل بريد ADMIN_EMAIL وحده. فمن لم يكن ذلك بريده وقف خارج
+                 نظامه هو، ومن أراد أن يرى شيئاً سجّل نفسه عميلاً — فرأى ما
+                 يراه العميل لا ما يملكه المالك. -->
+            <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+            <h4 style="color:var(--navy);margin-bottom:4px">👑 دخول المالك وكل ما في اللوحة</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              «افتح كمالك» يصنع لك جلسة مدير في لوحة العروض مباشرةً — بلا انتظار بريد وبلا تسجيلك عميلاً.
+              و«اعرض الكل» يقرأ عروض وعقود وفواتير وطلبات توريد كل العملاء هنا، دون انتقال.
+              السرّ لا يمرّ في متصفحك: النداء من خادم الموقع إلى خادم اللوحة.
+            </p>
+            <button class="actbtn" id="qpOwner" style="background:var(--navy);color:#fff">👑 افتح اللوحة كمالك</button>
+            <button class="actbtn" id="qpAll">📋 اعرض كل العروض والعقود</button>
+            <div class="dbody" id="qpAllMsg" style="display:none;margin-top:10px"></div>
           </div>
 
           <div class="panel" data-tool="etimad" style="margin-bottom:22px;padding:18px">
@@ -854,6 +887,8 @@
           <a class="tool" href="/ar/portal/dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">👥</span><h4>بوابة الاستقدام HR</h4><p>لوحة عملاء بوابة الاستقدام والتوظيف hr.businesspartner.sa.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/revenue-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📈</span><h4>لوحة Revenue OS — البايبلاين</h4><p>الفرص والـPipeline والإيرادات والتحصيل — ما يراه مشترك Revenue OS في لوحته.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/account" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📄</span><h4>بوابة العملاء</h4><p>تتبع الطلبات والمستندات — ما يراه العميل بعد شراء أي خدمة.</p><span class="go">فتح ←</span></a>
+          <a class="tool" id="qpAdminCard" href="#" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">📑</span><h4>لوحة عروض الأسعار والعقود</h4><p>إصدار العروض وتحويلها لعقود، التوقيع الإلكتروني، مطالبات السداد، وملفات العملاء. حالتها تُقرأ من أداة «لوحة العروض» في الأدوات.</p><span class="go">فتح ←</span></a>
+          <a class="tool" id="qpPortalCard" href="#" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🗂️</span><h4>بوابة العميل — العروض والعقود</h4><p>ما يراه العميل من عروضه وعقوده ومطالباته. ويظهر له أيضاً داخل «حسابي» على الموقع.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة Sales Pipeline الكاملة: العملاء، الصفقات، الحالات، والمرفقات.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://businesspartnerai.app.n8n.cloud" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">⚙️</span><h4>n8n — الأتمتة</h4><p>سيناريوهات الوكلاء وواتساب — التوكنات، الاعتمادات، وسجل التشغيل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://vercel.com" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">▲</span><h4>Vercel — الاستضافة</h4><p>نشر الموقع، السجلات، ومتغيرات البيئة (المفاتيح والتوكنات).</p><span class="go">فتح ←</span></a>
@@ -1455,7 +1490,8 @@
       { s:'escrow',     i:'🛡️', n:'الضمانات والمحافظ',        d:'أرصدة الموردين وحركات الضمان' },
       { s:'workorder',  i:'➕', n:'أمر عمل جديد',             d:'أنشئ أمر عمل وأسنده لشريك' },
       { s:'docusign',   i:'✍️', n:'العقود والتوقيع',           d:'إرسال عقد للتوقيع الإلكتروني ومتابعته' },
-      { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' }
+      { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' },
+      { s:'quotes',     i:'📑', n:'لوحة العروض والعقود',      d:'حالة إعدادها وجسرها مع الموقع — وفتحها' }
     ];
 
     /* ---------------- one thing per screen --------------------------------
@@ -2137,6 +2173,151 @@
           (r.channels.missing && r.channels.missing.length ? '<div style="color:#b45309;margin-top:4px">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.channels.missing.join(' · ')) + '</span></div>' : '') +
           '</div>' : '');
       });
+    };
+
+    /* ---- لوحة العروض والعقود (bp-quotes) ----------------------------------
+     * عنوانها ثابت هنا كما تثبت عناوين بقية الخدمات في هذه الصفحة. والفحص
+     * يقرأ نقطة حالتها عبر الأصول — لا تحمل النقطة سرّاً، فليس في القراءة
+     * ما يُكشف؛ وبديلها تبويب ثانٍ وتسجيل دخول بالبريد الذي قد يكون هو
+     * نفسه المعطَّل.
+     */
+    var QUOTES_PANEL = 'https://bp-quotes-three.vercel.app';
+    (function(){
+      var pairs = [['qpAdminCard','/admin'], ['qpPortalCard','/portal'], ['qpOpen','/admin']];
+      for (var i = 0; i < pairs.length; i++){
+        var el = $(pairs[i][0]);
+        if (el) el.href = QUOTES_PANEL + pairs[i][1];
+      }
+    })();
+
+    $('qpRun').onclick = function(){
+      var btn = this, m = $('qpMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أسأل لوحة العروض…';
+      fetch(QUOTES_PANEL + '/api/health', { cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(h){
+          btn.disabled = false;
+          var mail = h['البريد'] || {}, tam = h['تمارا'] || {}, daf = h['الدفترة'] || {}, br = h['الجسر'] || {};
+          function kv(label, ok, val, note){
+            return '<span class="kv"><i>' + (ok ? '✅' : '⛔') + ' ' + esc(label) + ':</i>' +
+              '<span style="direction:ltr;display:inline-block">' + esc(val) + '</span>' +
+              (note ? ' <span style="color:var(--soft);font-size:11.5px">— ' + esc(note) + '</span>' : '') + '</span>';
+          }
+          m.innerHTML =
+            kv('البريد', !!(mail.sends && mail.configured), mail.provider || '—', mail['ملاحظة'] || '') +
+            kv('المُرسِل MAIL_FROM', !!mail.fromSet, mail.fromSet ? 'مضبوط' : 'غير مضبوط',
+               'الإرسال يُرفض إن كان نطاق المُرسِل غير موثّق عند مزوّد البريد') +
+            // «المفتاح موجود» لا يكفي: بلا رمز الإشعار لا يمكن التحقق من صحة
+            // ما ترسله تمارا، فالطلبية تُعتمد على كلام غير موثَّق.
+            kv('تمارا', !!(tam.configured && tam.notificationTokenSet), tam.mode || '—',
+               tam.configured && !tam.notificationTokenSet ? 'المفتاح مضبوط ورمز الإشعار ناقص' : '') +
+            kv('الدفترة', !!daf.live, daf.mode || '—', daf.configured && !daf.live ? 'مهيّأة ولم تُفتح بعد' : '') +
+            kv('الجسر مع الموقع', !!(br.tokenSet && br.siteUrlSet), br.tokenSet && br.siteUrlSet ? 'موصول' : 'ناقص',
+               br.tokenSet ? (br.siteUrlSet ? '' : 'SITE_API_URL غير مضبوط') : 'PANEL_BRIDGE_TOKEN غير مضبوط') +
+            kv('عنوان اللوحة APP_URL', !!h.appUrlSet, h.appUrlSet ? 'مضبوط' : 'غير مضبوط',
+               'منه تُبنى روابط المستندات التي تصل العميل');
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          // 404 حالةٌ لها معنى واحد: النقطة لم تُنشَر بعد على تلك اللوحة.
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر قراءة حالة لوحة العروض (' + esc(String(e.message || e)) + ').</span>' +
+            '<div style="color:var(--soft);font-size:12px;margin-top:6px">إن كان الرد 404 فنقطة الحالة لم تُنشر بعد على اللوحة. افتح اللوحة مباشرة من الزر أعلاه.</div>';
+        });
+    };
+
+    /* ---- دخول المالك وجرد اللوحة كاملاً --------------------------------
+     * الرابط يُطلب لحظة الضغط ولا يُخزَّن: جلسة مدير تُصنع مرة وتُستهلك مرة،
+     * وحفظها في الصفحة يجعل تبويباً منسيّاً باباً مفتوحاً.
+     */
+    $('qpOwner').onclick = function(){
+      var btn = this, m = $('qpAllMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أجهّز جلسة المالك…';
+      fetch(API_URL + '?action=panel-quotes&want=login' + authQS(), { cache: 'no-store' })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){
+          btn.disabled = false;
+          var j = res.j || {};
+          if (j.configured === false){
+            m.innerHTML = '<span style="color:#b45309">الجسر غير مضبوط.</span>' +
+              '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة'] || '') + '</div>';
+            return;
+          }
+          if (!res.ok || !j.ok || !j.url){
+            m.innerHTML = '<span style="color:#b91c1c">تعذّر: ' + esc(j.error || 'خطأ') + '</span>' +
+              (j['ملاحظة'] ? '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة']) + '</div>' : '');
+            return;
+          }
+          // النافذة تُفتح من داخل معالج الضغط قد يمنعها المتصفح لأن الردّ
+          // جاء متأخراً — فيُعرض الرابط أيضاً ليُفتح باليد.
+          var w = window.open(j.url, '_blank', 'noopener');
+          m.innerHTML = (w ? '✅ فُتحت اللوحة بجلسة مالك.' : '✅ الرابط جاهز — المتصفح منع الفتح التلقائي.') +
+            ' <a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:700">افتح يدوياً</a>' +
+            '<div style="color:var(--soft);font-size:12px;margin-top:6px">رابط لمرة واحدة ينتهي خلال 30 دقيقة.</div>';
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال (' + esc(String(e.message || e)) + ').</span>';
+        });
+    };
+
+    $('qpAll').onclick = function(){
+      var btn = this, m = $('qpAllMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أقرأ اللوحة…';
+      fetch(API_URL + '?action=panel-quotes' + authQS(), { cache: 'no-store' })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){
+          btn.disabled = false;
+          var j = res.j || {};
+          if (j.configured === false){
+            m.innerHTML = '<span style="color:#b45309">الجسر غير مضبوط.</span>' +
+              '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة'] || '') + '</div>';
+            return;
+          }
+          if (!res.ok || !j.ok){
+            m.innerHTML = '<span style="color:#b91c1c">تعذّر: ' + esc(j.error || 'خطأ') + '</span>';
+            return;
+          }
+          var c = j['عدّادات'] || {};
+          function money(n){ return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+          function row(cells){ return '<tr>' + cells.map(function(x){ return '<td style="padding:6px 8px;border-bottom:1px solid var(--line);font-size:12.5px">' + x + '</td>'; }).join('') + '</tr>'; }
+          function table(head, rows, empty){
+            if (!rows.length) return '<div style="color:var(--soft);font-size:12.5px;margin:6px 0 14px">' + esc(empty) + '</div>';
+            return '<div style="overflow-x:auto;margin:6px 0 14px"><table style="width:100%;border-collapse:collapse">' +
+              '<thead><tr>' + head.map(function(h){ return '<th style="text-align:right;padding:6px 8px;border-bottom:2px solid var(--line);font-size:12px;color:var(--soft)">' + esc(h) + '</th>'; }).join('') + '</tr></thead>' +
+              '<tbody>' + rows.join('') + '</tbody></table></div>';
+          }
+          function link(url, text){ return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600">' + esc(text) + '</a>'; }
+
+          var docs = (j.documents || []).map(function(d){
+            return row([link(d.adminUrl, d.number), esc(d.client), esc(d.titleAr || ''),
+              '<span style="direction:ltr;display:inline-block">' + money(d.total) + ' ﷼</span>', esc(d.status)]);
+          });
+          var invs = (j.invoices || []).map(function(v){
+            return row([link(v.adminUrl, v.number), esc(v.client), esc(v.titleAr || ''),
+              '<span style="direction:ltr;display:inline-block">' + money(v.total) + ' ﷼</span>', esc(v.status)]);
+          });
+          var sup = (j.supply || []).map(function(s){
+            return row([link(s.adminUrl, s.number), esc(s.client), esc(s.titleAr || ''),
+              esc(s.mode === 'RESALE' ? 'إعادة بيع' : 'ثلاثي'), esc(s.bids + ' عرض / ' + s.rfps + ' طلب')]);
+          });
+
+          m.innerHTML =
+            '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px">' +
+              '<span class="kv"><i>العملاء:</i> ' + esc(String(c['العملاء'] || 0)) + '</span>' +
+              '<span class="kv"><i>غير المسدَّد:</i> <span style="direction:ltr;display:inline-block">' + money(c['غيرالمسددة']) + ' ﷼</span></span>' +
+            '</div>' +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">العروض والعقود</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الإجمالي', 'الحالة'], docs, 'لا مستندات بعد.') +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">الفواتير</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الإجمالي', 'الحالة'], invs, 'لا فواتير بعد.') +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">طلبات التوريد</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الوضع', 'العروض'], sup, 'لا طلبات توريد بعد.') +
+            '<div style="color:var(--soft);font-size:11.5px">الإجماليات غير شاملة ضريبة القيمة المضافة، والرسوم الحكومية مستثناة.</div>';
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال (' + esc(String(e.message || e)) + ').</span>';
+        });
     };
 
     // ---- can Daftra send its own invoice ----

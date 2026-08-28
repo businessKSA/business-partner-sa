@@ -14,7 +14,6 @@ export type PaymentMethodKey =
   | 'stcpay'
   | 'applepay'
   | 'banktransfer'
-  | 'tabby'
   | 'tamara';
 
 export type PaymentMethodInfo = {
@@ -31,7 +30,6 @@ export const PAYMENT_METHODS: Record<PaymentMethodKey, PaymentMethodInfo> = {
   creditcard: { key: 'creditcard', ar: 'مدى · فيزا · ماستركارد', en: 'mada · Visa · Mastercard', automatic: true, gateway: true },
   stcpay: { key: 'stcpay', ar: 'STC Pay', en: 'STC Pay', automatic: true, gateway: true },
   applepay: { key: 'applepay', ar: 'Apple Pay', en: 'Apple Pay', automatic: true, gateway: true },
-  tabby: { key: 'tabby', ar: 'تابي — تقسيط', en: 'Tabby — instalments', automatic: true, gateway: false },
   tamara: { key: 'tamara', ar: 'تمارا — تقسيط', en: 'Tamara — instalments', automatic: true, gateway: false },
   banktransfer: { key: 'banktransfer', ar: 'تحويل بنكي', en: 'Bank transfer', automatic: false, gateway: false },
 };
@@ -44,7 +42,6 @@ export function enabledPaymentMethods(): PaymentMethodKey[] {
   const out: PaymentMethodKey[] = ['creditcard'];
   if (ON(process.env.MOYASAR_STC_PAY, true)) out.push('stcpay');
   if (ON(process.env.MOYASAR_APPLE_PAY, false)) out.push('applepay');
-  if (ON(process.env.PAY_TABBY, false)) out.push('tabby');
   if (ON(process.env.PAY_TAMARA, false)) out.push('tamara');
   out.push('banktransfer');
   return out;
