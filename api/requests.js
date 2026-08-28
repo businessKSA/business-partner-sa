@@ -243,6 +243,18 @@ async function listLeads(limit) {
 // Website advisor conversations → flat message list for the BP Inbox monitor.
 // Each CRM page (Lead Source = «مستشار الموقع») is one thread keyed by its ref;
 // Notes carries the meta line + labelled transcript we parse back into bubbles.
+// One Saudi number, one spelling: 05…, +966…, 00966… and 9665… all collapse to
+// 9665XXXXXXXX so a customer is recognised as themselves.
+function canonicalPhone(raw) {
+  let d = String(raw || "").replace(/[^0-9]/g, "");
+  if (!d) return "";
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("966")) return d;
+  if (d.startsWith("0")) d = d.slice(1);
+  if (d.length === 9 && d.startsWith("5")) return "966" + d;
+  return d;
+}
+
 async function listConversations(limit) {
   if (!NOTION_TOKEN) return [];
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
@@ -271,22 +283,38 @@ async function listConversations(limit) {
     const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
     const email = emailM ? emailM[1] : "";
     const crm = `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`;
-    const base = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    // A ticket happened when it was filed; last_edited_time is when the row was
+    // last touched by a sync, which is identical across a bulk write and made
+    // every ticket in the inbox claim the same minute. Advisor chats are
+    // upserted as they grow, so there last_edited_time really is the last line.
+    const created = new Date(pg.created_time || pg.last_edited_time || Date.now()).getTime();
+    const edited = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    const base = isTicket ? created : edited;
+    // One customer is one conversation. Keying threads by the ticket reference
+    // split a client across as many threads as they had tickets — three from
+    // the same person read as three strangers with one message each. Website
+    // threads stay under their own key so a read-only ticket never merges into
+    // a repliable WhatsApp thread.
+    // 0566552055 and +966566552055 are the same customer; keying on the raw
+    // string would still split them into two threads.
+    const identity = canonicalPhone(phone) || email.toLowerCase() || ref;
+    const threadKey = "WEB-" + identity;
     const source = isTicket ? "تذكرة" : "المستشار";
     if (isTicket) {
       // A ticket is a single record — render it as one summary message.
       const body = notes.split("\n").filter((l) => /^(الخدمة|تفاصيل):/.test(l)).join(" · ") || notes;
-      out.push({ phone: ref, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
+      out.push({ phone: threadKey, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
       continue;
     }
     const lines = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l));
     lines.forEach((line, i) => {
       const isBot = line.startsWith("🤖");
       const text = line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim();
-      out.push({ phone: ref, source, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
+      out.push({ phone: threadKey, source, ref, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
     });
-    if (!lines.length) out.push({ phone: ref, source, name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
+    if (!lines.length) out.push({ phone: threadKey, source, ref, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
   }
+  out.sort((a, b) => new Date(a.time) - new Date(b.time));
   return out;
 }
 
