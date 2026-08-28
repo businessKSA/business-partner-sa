@@ -13,7 +13,7 @@ import './setup.ts';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { createVerify, createSign, X509Certificate, generateKeyPairSync, createPrivateKey } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -28,6 +28,21 @@ import { encryptSecret, decryptSecret } from '../src/lib/crypto.ts';
 
 let certBase64: string;
 let privateKeyPem: string;
+
+/**
+ * هل `xmllint` متاح؟
+ *
+ * نستعمله محلّلاً **مستقلاً** عن كودنا: أن يقبل مولّدُنا مخرجاته لا يعني
+ * شيئاً، وأن يقبلها محلّلٌ كتبه غيرنا يعني الكثير.
+ *
+ * وغيابه يُعامَل معاملتين: على جهاز مطوّر يُتخطّى الاختبار مع رسالة تقول
+ * ماذا يُثبَّت — إذ لا معنى لتعطيل مجموعةٍ كاملة لأداةٍ نظامية ناقصة. أما
+ * في التكامل المستمر فغيابه إخفاقٌ صريح، لأن تخطّيه هناك يعني أن التحقّق
+ * المستقلّ لم يجرِ حيث يُعتمد عليه، ولا شيء يقول ذلك.
+ */
+function xmllintAvailable(): boolean {
+  return spawnSync('xmllint', ['--version'], { stdio: 'ignore' }).error === undefined;
+}
 
 /** شهادة موقَّعة ذاتياً على secp256k1 — تكفي للتحقق من بنية التوقيع. */
 before(() => {
@@ -96,7 +111,18 @@ function sampleInvoice(overrides: Record<string, unknown> = {}) {
   } as never);
 }
 
-test('XML المولَّد سليم البنية ويُحلَّل بمحلّل مستقل', () => {
+test('XML المولَّد سليم البنية ويُحلَّل بمحلّل مستقل', (t) => {
+  if (!xmllintAvailable()) {
+    if (process.env.CI) {
+      throw new Error(
+        'xmllint غير مثبَّت في بيئة التكامل المستمر. التحقّق المستقلّ من XML ' +
+          'لا يجوز أن يُتخطّى هنا — ثبّته: apt-get install -y libxml2-utils',
+      );
+    }
+    t.skip('xmllint غير مثبَّت — ثبّته للتحقّق المستقلّ: apt-get install libxml2-utils');
+    return;
+  }
+
   const xml = serializeDocument(sampleInvoice());
 
   const dir = mkdtempSync(join(tmpdir(), 'ubl-'));

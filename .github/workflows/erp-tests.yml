@@ -59,6 +59,12 @@ jobs:
           cache: npm
           cache-dependency-path: erp/package-lock.json
 
+      - name: تثبيت xmllint
+        # محلّل XML مستقلّ عن كودنا. اختبارُ زاتكا يستعمله للتحقّق من بنية
+        # الفاتورة: أن يقبل مولّدُنا مخرجاته لا يعني شيئاً، وأن يقبلها
+        # محلّلٌ كتبه غيرنا يعني الكثير. وغيابه في CI إخفاقٌ صريح لا تخطٍّ.
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libxml2-utils
+
       - name: تهيئة قاعدة البيانات بدورٍ لا يتخطّى العزل
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d postgres <<'SQL'
