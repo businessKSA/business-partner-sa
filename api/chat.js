@@ -21,6 +21,7 @@ import { sb, DB_ON, getSession } from "./_db.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
+import { priceSheetText } from "./_catalog.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -314,7 +315,13 @@ export default async function handler(req, res) {
       (snap ? `\nلقطة من لوحته الآن (طلبات/حالات): ${snap}` : "");
   }
 
-  const system = isAdmin ? ADMIN_INSTRUCTIONS : isAccount ? accountSystem : SYSTEM_INSTRUCTIONS;
+  // Prices are edited on the site, not in this prompt. Appending the live
+  // sheet is what stops the advisor quoting a figure the website no longer
+  // shows; it degrades to the static knowledge base if the catalog is
+  // unreachable, so a price outage never becomes an answering outage.
+  const priceSheet = await priceSheetText();
+  const base = isAdmin ? ADMIN_INSTRUCTIONS : isAccount ? accountSystem : SYSTEM_INSTRUCTIONS;
+  const system = priceSheet ? base + "\n\n" + priceSheet : base;
   // The n8n fallback is the customer-facing باهر agent with its own hardwired
   // persona — it cannot play the admin or in-portal role, so both skip it.
   const adminChain = (isAdmin || isAccount) ? chain.filter((p) => p.name !== "baher-n8n") : chain;

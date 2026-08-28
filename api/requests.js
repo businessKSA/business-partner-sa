@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from "./_db.js";
 
+import { loadCatalog } from "./_catalog.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -924,89 +925,6 @@ const CONTENT_FILES = {
   "ecosystem": "site/data/ecosystem.json",
   "service-i18n": "site/data/service-i18n.json",
 };
-
-// ---------------------------------------------------------------------------
-// Live catalog loader (services + packages) for action=catalog.
-//
-// Reads the site's own data files so the WhatsApp agent and the website can
-// never disagree on a price. Falls back to fetching the published copies if
-// the bundled files aren't readable in the serverless runtime.
-// ---------------------------------------------------------------------------
-const CATALOG_TTL_MS = 5 * 60 * 1000;
-let _catalogCache = null;
-
-const SITE_BASE_FOR_DATA = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
-
-async function readSiteData(name) {
-  // 1) bundled file (fast, no network)
-  try {
-    const { readFileSync } = await import("node:fs");
-    const { fileURLToPath } = await import("node:url");
-    const { dirname, join } = await import("node:path");
-    const here = dirname(fileURLToPath(import.meta.url));
-    return JSON.parse(readFileSync(join(here, "..", "site", "data", name), "utf8"));
-  } catch {}
-  // 2) the published copy (same content the pages read)
-  const r = await fetch(`${SITE_BASE_FOR_DATA}/data/${name}`, { cache: "no-store" });
-  if (!r.ok) throw new Error("catalog_fetch_failed");
-  return r.json();
-}
-
-async function loadCatalog() {
-  if (_catalogCache && Date.now() - _catalogCache.at < CATALOG_TTL_MS) return _catalogCache.data;
-
-  const [rawServices, site, i18n] = await Promise.all([
-    readSiteData("services.json"),
-    readSiteData("site.json").catch(() => ({})),
-    // Arabic service names live in their own file; without it the agent would
-    // quote an Arabic customer an English service name.
-    readSiteData("service-i18n.json").catch(() => ({})),
-  ]);
-
-  const list = Array.isArray(rawServices) ? rawServices : (rawServices.services || []);
-  const services = list.map((s) => ({
-    code: s.code || "",
-    nameAr: (i18n[s.code] && i18n[s.code].ar) || s.nameAr || s.name || "",
-    nameEn: (i18n[s.code] && i18n[s.code].en) || s.nameEn || s.name || "",
-    category: s.category || "",
-    categoryAr: s.categoryAr || "",
-    govPlatform: s.govPlatform || "",
-    pricingModel: s.pricingModel || "",
-    // The published figure, exactly as the site prints it.
-    price: (s.price && (s.price.amount ?? null)) ?? null,
-    priceLabel: (s.price && s.price.label) || "",
-    // Government fees are charged on top wherever the catalog says so — the
-    // agent must state this instead of quoting the fee as a total.
-    govFeesSeparate: !!s.govFeesSeparate,
-    requiresProposal: !!s.requiresProposal,
-    url: s.slug ? `${SITE_BASE_FOR_DATA}/ar/services/${s.slug}` : `${SITE_BASE_FOR_DATA}/ar/services`,
-  }));
-
-  const groups = (site.packages && site.packages.groups) || [];
-  const packages = [];
-  for (const g of groups) {
-    for (const t of (g.tiers || [])) {
-      packages.push({
-        group: g.key || "",
-        groupAr: g.ar || "",
-        key: t.key || "",
-        nameAr: t.nameAr || t.name || "",
-        nameEn: t.nameEn || t.name || "",
-        forAr: t.for || "",
-        forEn: t.forEn || "",
-        amount: t.amount ?? null,
-        priceAr: t.price || "",
-        priceEn: t.priceEn || "",
-        features: t.features || [],
-        url: `${SITE_BASE_FOR_DATA}/ar/packages#pkg-${g.key || ""}`,
-      });
-    }
-  }
-
-  const data = { services, packages, updated: new Date().toISOString() };
-  _catalogCache = { at: Date.now(), data };
-  return data;
-}
 
 // Flip a CRM lead's حالة الطلب by its BP-xxxxxx reference.
 async function setLeadStatus(ref, status) {
