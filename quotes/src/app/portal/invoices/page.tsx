@@ -11,6 +11,7 @@ export default async function PortalInvoices() {
   const invoices = await prisma.invoice.findMany({
     where: { clientId },
     orderBy: { createdAt: 'desc' },
+    include: { zatcaRecord: { select: { number: true } } },
   });
   const due = invoices.filter((i) => i.status === 'DUE');
 
@@ -38,9 +39,12 @@ export default async function PortalInvoices() {
               <tr key={i.id}>
                 <td className="mono">{i.number}</td>
                 {/* رقمان لا رقم: الأول مطالبة هذه اللوحة، والثاني الفاتورة
-                    الضريبية من الدفترة بتسلسل المنشأة الواحد. */}
+                    الضريبية بتسلسل المنشأة الواحد — تصدر داخلياً، أو من
+                    الدفترة في الفواتير القديمة. */}
                 <td className="mono">
-                  {i.daftraNumber ? (
+                  {i.zatcaRecord ? (
+                    <Link href={`/portal/invoices/${i.id}/tax`}>{i.zatcaRecord.number}</Link>
+                  ) : i.daftraNumber ? (
                     i.daftraPdfUrl
                       ? <a href={i.daftraPdfUrl} target="_blank" rel="noreferrer">{i.daftraNumber}</a>
                       : i.daftraNumber

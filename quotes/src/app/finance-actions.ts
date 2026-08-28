@@ -8,7 +8,7 @@ import { prisma } from '@/lib/db';
 import { round2 } from '@/lib/money';
 import { createExpense, createRevenue, createPayrollRun } from '@/lib/finance';
 import { COST_CENTER, PAY_METHOD } from '@/lib/finance-enums';
-import { issueTaxDocument, retryReport } from '@/lib/zatca/issue';
+import { issueTaxDocument, retryReport, issueCreditNote } from '@/lib/zatca/issue';
 
 type State = { error?: string; ok?: string };
 
@@ -141,7 +141,9 @@ export async function actionIssueTaxInvoice(invoiceId: string): Promise<State> {
   if (!invoice) return { error: 'الفاتورة غير موجودة' };
   if (invoice.zatcaRecord) return { error: `صدرت بالفعل: ${invoice.zatcaRecord.number}` };
   if (invoice.status !== 'PAID') return { error: 'تصدر الفاتورة الضريبية بعد السداد' };
-  if (invoice.isGovFeeDeposit) return { error: 'العهدة ليست إيراداً — لا فاتورة ضريبية لها' };
+  if (invoice.isGovFeeDeposit || invoice.depositKind) {
+    return { error: 'العهدة ليست إيراداً — لا فاتورة ضريبية لها' };
+  }
 
   const res = await issueTaxDocument({
     invoiceId: invoice.id,
@@ -165,6 +167,27 @@ export async function actionIssueTaxInvoice(invoiceId: string): Promise<State> {
   revalidatePath('/admin/invoices');
   revalidatePath('/admin/finance/zatca');
   return { ok: `صدرت الفاتورة الضريبية ${res.number}` };
+}
+
+/** إشعار دائن يخفّض فاتورة ضريبية صدرت — إلغاء أو استرداد أو تصحيح. */
+export async function actionIssueCreditNote(_prev: State, fd: FormData): Promise<State> {
+  const actor = await requireAdmin();
+  const recordId = s(fd, 'recordId');
+  const reason = s(fd, 'reason');
+  const amountRaw = s(fd, 'amountExclVat');
+  if (!recordId) return { error: 'حدد الفاتورة الأصل' };
+
+  const res = await issueCreditNote({
+    recordId,
+    // فارغ = رد كامل المتبقي
+    amountExclVat: amountRaw ? round2(Number(amountRaw)) : null,
+    reason,
+    actor,
+  });
+  if (!res.ok) return { error: res.error || 'تعذّر إصدار الإشعار' };
+
+  revalidatePath('/admin/finance/zatca');
+  return { ok: `صدر الإشعار الدائن ${res.number}` };
 }
 
 /** إعادة الإبلاغ عن سجل فشل إبلاغه للهيئة. */

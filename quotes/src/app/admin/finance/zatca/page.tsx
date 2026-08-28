@@ -4,6 +4,7 @@ import { fmtMoney, fmtDateTime } from '@/lib/money';
 import { ZATCA_STATUS_LABEL } from '@/lib/finance-enums';
 import { sellerProfile, zatcaPhase2Ready, zatcaEnv } from '@/lib/zatca/config';
 import { RetryButton } from './RetryButton';
+import { CreditNoteForm } from './CreditNoteForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +17,22 @@ export default async function ZatcaPage() {
     prisma.counter.findUnique({ where: { id: 'ZATCA:ICV' } }),
   ]);
   const failed = records.filter((r) => r.status === 'FAILED' || r.status === 'REJECTED');
+
+  // ما بقي قابلاً للرد على كل فاتورة = صافيها ناقص ما ردّته إشعاراتها
+  const creditedByRef = new Map<string, number>();
+  for (const r of records) {
+    if (r.typeCode === '381' && r.billingRef) {
+      creditedByRef.set(r.billingRef, (creditedByRef.get(r.billingRef) || 0) + r.netAmount);
+    }
+  }
+  const creditable = records
+    .filter((r) => r.typeCode === '388')
+    .map((r) => ({
+      id: r.id,
+      remaining: Math.round((r.netAmount - (creditedByRef.get(r.number) || 0)) * 100) / 100,
+      label: `${r.number} — ${r.buyerName || 'عميل نقدي'} — ${fmtMoney(r.total)} ريال`,
+    }))
+    .filter((r) => r.remaining > 0);
 
   return (
     <>
@@ -55,7 +72,9 @@ export default async function ZatcaPage() {
         </div>
       ) : null}
 
-      <div className="card">
+      {creditable.length ? <CreditNoteForm invoices={creditable} /> : null}
+
+      <div className="card" style={{ marginTop: 14 }}>
         <table>
           <thead>
             <tr>
@@ -80,13 +99,17 @@ export default async function ZatcaPage() {
                   <td className="num">{r.icv}</td>
                   <td>
                     <b>{r.number}</b>
-                    {r.invoiceId ? (
-                      <div className="sub"><a href={`/admin/invoices/${r.invoiceId}/tax`}>عرض / طباعة</a></div>
-                    ) : null}
+                    <div className="sub">
+                      {r.invoiceId ? (
+                        <><a href={`/admin/invoices/${r.invoiceId}/tax`}>عرض</a>{' · '}</>
+                      ) : null}
+                      <a href={`/admin/finance/zatca/${r.id}/xml`}>XML</a>
+                    </div>
                   </td>
                   <td>
                     {r.docType === 'STANDARD' ? 'معيارية' : 'مبسطة'}
                     {r.typeCode === '381' ? ' — إشعار دائن' : r.typeCode === '383' ? ' — إشعار مدين' : ''}
+                    {r.billingRef ? <div className="sub">عن {r.billingRef}</div> : null}
                   </td>
                   <td>{r.buyerName || '—'}</td>
                   <td className="num">{fmtMoney(r.total)}</td>

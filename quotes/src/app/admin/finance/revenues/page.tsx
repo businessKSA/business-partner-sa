@@ -16,7 +16,7 @@ export default async function RevenuesPage({
   const [entries, paidInvoices] = await Promise.all([
     prisma.revenueEntry.findMany({ orderBy: { date: 'desc' }, take: 100 }),
     prisma.invoice.findMany({
-      where: { status: 'PAID', isGovFeeDeposit: false },
+      where: { status: 'PAID', isGovFeeDeposit: false, depositKind: null },
       orderBy: { paidAt: 'desc' },
       include: { client: true, zatcaRecord: { select: { number: true, status: true } } },
       take: 100,

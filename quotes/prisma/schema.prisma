@@ -875,10 +875,12 @@ model ZatcaRecord {
   icv    Int    @unique
 
   // SIMPLIFIED (b2c) | STANDARD (b2b)
-  docType  String   @default("SIMPLIFIED")
+  docType    String   @default("SIMPLIFIED")
   // 388 فاتورة | 381 إشعار دائن | 383 إشعار مدين
-  typeCode String   @default("388")
-  issueAt  DateTime
+  typeCode   String   @default("388")
+  // رقم الفاتورة الأصل — إلزامي للإشعارات، فارغ للفاتورة
+  billingRef String?
+  issueAt    DateTime
 
   sellerName String
   sellerVat  String

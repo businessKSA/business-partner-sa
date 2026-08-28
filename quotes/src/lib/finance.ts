@@ -212,8 +212,17 @@ export interface FinanceSummary extends PeriodTotals {
 /** ملخص فترة: من الفواتير المدفوعة + الإيرادات اليدوية − المصاريف. */
 export async function financeSummary(from: Date, to: Date): Promise<FinanceSummary> {
   const [paidInvoices, revenues, expenses] = await Promise.all([
+    // العهدة بنوعيها ليست إيراداً: رسوم حكومية أو قيمة توريد تمرّ عبر محفظة
+    // العميل وتُصرف بإيصالاتها. الشرطان معاً لأن الإيداع اليدوي قد يحمل
+    // depositKind دون isGovFeeDeposit — وهي نفس القاعدة التي يطبّقها
+    // issueTaxInvoiceFor في billing.ts.
     prisma.invoice.findMany({
-      where: { status: 'PAID', isGovFeeDeposit: false, paidAt: { gte: from, lt: to } },
+      where: {
+        status: 'PAID',
+        isGovFeeDeposit: false,
+        depositKind: null,
+        paidAt: { gte: from, lt: to },
+      },
       select: { amountExclVat: true, vatAmount: true },
     }),
     prisma.revenueEntry.findMany({

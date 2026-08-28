@@ -175,6 +175,7 @@ export async function issueTaxDocument(input: IssueInput): Promise<IssueResult> 
           invoiceId: input.invoiceId ?? null,
           number, uuid, icv: icvRow.value,
           docType, typeCode,
+          billingRef: input.billingReference ?? null,
           issueAt: new Date(),
           sellerName: seller.name, sellerVat: seller.vatNumber,
           buyerName: input.buyer?.name ?? null,
@@ -241,6 +242,61 @@ export async function issueTaxDocument(input: IssueInput): Promise<IssueResult> 
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
+}
+
+/**
+ * إشعار دائن (381) يُخفّض فاتورة ضريبية صدرت — إلغاء أو استرداد أو تصحيح.
+ *
+ * الفاتورة الصادرة لا تُعدَّل ولا تُحذف أبداً: النظام يشترط تصحيحها بمستند
+ * مستقل يشير إليها. والإشعار يأخذ رقمه من التسلسل نفسه ويدخل السلسلة كأي
+ * مستند، فتبقى تجزئة الفواتير متصلة.
+ *
+ * يُسمح بإشعارات جزئية متعددة، ويُمنع تجاوز مجموعها صافي الفاتورة الأصل —
+ * إشعار يردّ أكثر مما حُصِّل يعني إقراراً ضريبياً خاطئاً.
+ */
+export async function issueCreditNote(input: {
+  recordId: string;
+  /** الصافي المراد ردّه غير شامل الضريبة — الافتراضي كامل المتبقي */
+  amountExclVat?: number | null;
+  reason: string;
+  actor?: string;
+}): Promise<IssueResult> {
+  const original = await prisma.zatcaRecord.findUnique({ where: { id: input.recordId } });
+  if (!original) return { ok: false, error: 'السجل غير موجود' };
+  if (original.typeCode !== '388') return { ok: false, error: 'الإشعار يصدر مقابل فاتورة لا مقابل إشعار' };
+  if (!input.reason.trim()) return { ok: false, error: 'اذكر سبب الإشعار — تشترطه اللائحة' };
+
+  const priorCredits = await prisma.zatcaRecord.findMany({
+    where: { billingRef: original.number, typeCode: '381' },
+    select: { netAmount: true },
+  });
+  const alreadyCredited = round2(priorCredits.reduce((s, r) => s + r.netAmount, 0));
+  const remaining = round2(original.netAmount - alreadyCredited);
+  if (remaining <= 0) return { ok: false, error: 'رُدّت قيمة الفاتورة كاملة بإشعارات سابقة' };
+
+  const amount = round2(input.amountExclVat ?? remaining);
+  if (!(amount > 0)) return { ok: false, error: 'أدخل مبلغاً أكبر من صفر' };
+  if (amount > remaining) {
+    return { ok: false, error: `المتبقي القابل للرد ${remaining.toFixed(2)} ريال فقط` };
+  }
+
+  // نسبة الضريبة تُشتق من الفاتورة الأصل لا من الإعداد الحالي: إشعار على
+  // فاتورة قديمة يجب أن يحمل نسبتها هي.
+  const vatPercent = original.netAmount > 0
+    ? Math.round((original.vatAmount / original.netAmount) * 100)
+    : 0;
+
+  return issueTaxDocument({
+    invoiceId: null,
+    buyer: original.buyerName
+      ? { name: original.buyerName, vatNumber: original.buyerVat }
+      : null,
+    lines: [{ nameAr: `رد قيمة — ${input.reason.trim()}`, quantity: 1, unitPrice: amount, vatPercent }],
+    typeCode: '381',
+    billingReference: original.number,
+    instructionNote: input.reason.trim(),
+    actor: input.actor,
+  });
 }
 
 /** إعادة إبلاغ سجل فشل إبلاغه — نفس الـXML الموقَّع، لا إصدار جديد. */
