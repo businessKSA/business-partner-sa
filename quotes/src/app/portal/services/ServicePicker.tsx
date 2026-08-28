@@ -1,6 +1,6 @@
 'use client';
 import { useActionState, useMemo, useState } from 'react';
-import { actionRequestQuote } from '@/app/actions';
+import { actionRequestQuote, actionRequestSourcing } from '@/app/actions';
 
 export interface PortalService {
   id: string;
@@ -15,6 +15,8 @@ export interface PortalService {
   openPrice: boolean;
   attachGovFees: boolean;
   deliveryAr: string;
+  /** خدمة تُنفَّذ عبر موردين: تُطلب بنموذج تفاصيل لا بكمية. */
+  sourcingCategory: string | null;
 }
 
 const money = (n: number) =>
@@ -28,6 +30,7 @@ export default function ServicePicker({
   preselectCode?: string;
 }) {
   const [state, action, pending] = useActionState(actionRequestQuote, {});
+  const [src, srcAction, srcPending] = useActionState(actionRequestSourcing, {});
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
   // القادم من صفحة الخدمة في الموقع يصل ومعه رمزها، فيفتح على خدمته مباشرة
@@ -54,10 +57,11 @@ export default function ServicePicker({
     });
   }, [q, cat, services]);
 
-  if (state.ok) {
+  const done = state.ok || src.ok;
+  if (done) {
     return (
       <div className="card">
-        <div className="notice good">{state.ok}</div>
+        <div className="notice ok">{done}</div>
         {state.link ? (
           <p style={{ marginTop: 10 }}>
             <a className="btn" href={state.link}>افتح عرض السعر الآن</a>
@@ -125,7 +129,13 @@ export default function ServicePicker({
                   <div className="muted" style={{ fontSize: 12.5 }}>{s.category} — {s.code}</div>
                 </td>
                 <td className="num">
-                  {s.openPrice ? <span className="muted">حسب الحالة</span> : `${money(s.unitPrice)} / ${s.unitAr}`}
+                  {s.sourcingCategory ? (
+                    <span className="muted">حسب طلبك</span>
+                  ) : s.openPrice ? (
+                    <span className="muted">حسب الحالة</span>
+                  ) : (
+                    `${money(s.unitPrice)} / ${s.unitAr}`
+                  )}
                 </td>
                 <td style={{ fontSize: 12.5 }}>{s.deliveryAr || '—'}</td>
                 <td className="num">
@@ -140,7 +150,57 @@ export default function ServicePicker({
         </table>
       </div>
 
-      {picked ? (
+      {/* الخدمة التي تُنفَّذ عبر موردين تُطلب بتفاصيلها لا بكميتها: من يريد
+          مساحة عمل لا يعرف «كم خدمة» يطلب، ويعرف كم موظفاً وفي أي حيّ ومتى.
+          والنموذج يسأله ما يُسعَّر عليه فعلاً. */}
+      {picked?.sourcingCategory ? (
+        <form className="card" action={srcAction} style={{ marginTop: 14 }} key={picked.id}>
+          <h2>{picked.nameAr}</h2>
+          {picked.descAr ? <p className="sub">{picked.descAr}</p> : null}
+          <input type="hidden" name="serviceId" value={picked.id} />
+
+          <label htmlFor="detailsAr">تفاصيل طلبك</label>
+          <textarea
+            id="detailsAr"
+            name="detailsAr"
+            rows={5}
+            required
+            placeholder="اكتب ما تحتاجه بالتفصيل: الغرض، والمواصفات المطلوبة، وأي شرط يهمّك"
+          />
+
+          <div className="grid c2" style={{ marginTop: 12 }}>
+            <div>
+              <label htmlFor="cityAr">المدينة أو الحيّ</label>
+              <input id="cityAr" name="cityAr" placeholder="الرياض — حي العليا" />
+            </div>
+            <div>
+              <label htmlFor="sizeAr">الكمية أو المساحة</label>
+              <input id="sizeAr" name="sizeAr" placeholder="مثال: 12 موظفاً — أو 300 متر" />
+            </div>
+            <div>
+              <label htmlFor="budgetAr">الميزانية التقريبية (اختياري)</label>
+              <input id="budgetAr" name="budgetAr" placeholder="بالريال سنوياً أو شهرياً" />
+            </div>
+            <div>
+              <label htmlFor="neededAr">موعد الحاجة</label>
+              <input id="neededAr" name="neededAr" placeholder="مثال: خلال شهر" />
+            </div>
+          </div>
+
+          <div className="notice" style={{ marginTop: 12 }}>
+            نُعدّ لك العرض بعد دراسة طلبك ويصلك على بريدك. الأسعار غير شاملة ضريبة القيمة
+            المضافة، والرسوم الحكومية إن وُجدت مستثناة وتُحصَّل بقيمتها الفعلية.
+          </div>
+
+          <div className="row" style={{ marginTop: 14 }}>
+            <button className="btn" type="submit" disabled={srcPending}>
+              {srcPending ? 'جارٍ الإرسال' : 'أرسل الطلب'}
+            </button>
+            <button className="btn ghost" type="button" onClick={() => setPicked(null)}>إلغاء</button>
+          </div>
+          {src.error ? <div className="notice bad">{src.error}</div> : null}
+        </form>
+      ) : picked ? (
         <form className="card" action={action} style={{ marginTop: 14 }}>
           <h2>{picked.nameAr}</h2>
           {picked.descAr ? <p className="sub">{picked.descAr}</p> : null}
