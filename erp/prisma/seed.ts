@@ -21,13 +21,46 @@ import { postGoodsReceipt, issueStockForInvoice } from '../src/lib/inventory/cos
 import { nextNumber } from '../src/lib/accounting/numbering.ts';
 
 const SLUG = 'business-partner';
-const ADMIN_EMAIL = 'admin@businesspartner.sa';
-const ADMIN_PASSWORD = 'BP-erp-2026';
+
+/**
+ * حساب مالك المنصة.
+ *
+ * الثابتان أدناه للتطوير المحلي وحده. وحين تُزرع القاعدة في نشرةٍ لها
+ * عنوانٌ على الشبكة، تُقرأ القيم من البيئة — لأن كلمة سرٍّ مكتوبة في
+ * المستودع تعني أن كل من قرأ المستودع يملك لوحة المنصة، ولوحةُ المنصة
+ * تُنشئ منشآت العملاء وتحذفها.
+ *
+ * ولا افتراضَ صامتاً للسرّ في الإنتاج: `assertSafeSeedCredentials` أدناه
+ * يرفض الزرع بالثابت المعروف متى وُجد `VERCEL` أو `SEED_REQUIRE_ENV`.
+ */
+const ADMIN_EMAIL = process.env.SEED_OWNER_EMAIL?.trim() || 'admin@businesspartner.sa';
+const ADMIN_PASSWORD = process.env.SEED_OWNER_PASSWORD?.trim() || 'BP-erp-2026';
+const ACCOUNTANT_EMAIL =
+  process.env.SEED_ACCOUNTANT_EMAIL?.trim() || 'accountant@businesspartner.sa';
+
+/** يمنع نشر لوحة المنصة بكلمة سرٍّ يعرفها كل من قرأ المستودع. */
+function assertSafeSeedCredentials() {
+  const managed = process.env.VERCEL || process.env.SEED_REQUIRE_ENV;
+  if (!managed) return;
+
+  const missing = !process.env.SEED_OWNER_EMAIL || !process.env.SEED_OWNER_PASSWORD;
+  if (missing) {
+    throw new Error(
+      'الزرع في بيئةٍ منشورة يشترط SEED_OWNER_EMAIL و SEED_OWNER_PASSWORD. ' +
+        'الثابت المكتوب في المستودع يفتح لوحة المنصة لكل من قرأه، ' +
+        'ولوحةُ المنصة تُنشئ منشآت العملاء وتحذفها.',
+    );
+  }
+  if (process.env.SEED_OWNER_PASSWORD === 'BP-erp-2026') {
+    throw new Error('SEED_OWNER_PASSWORD هي كلمة السر المكتوبة في المستودع. غيّرها.');
+  }
+}
 
 const Y = new Date().getUTCFullYear();
 const day = (m: number, dd: number) => new Date(Date.UTC(Y, m - 1, dd));
 
 async function main() {
+  assertSafeSeedCredentials();
   console.log('▸ حذف البيانات التجريبية السابقة…');
   await purgeTenantBySlug(SLUG);
 
@@ -68,8 +101,8 @@ async function main() {
 
     // محاسب بصلاحيات أضيق — ليُرى أثر الأدوار في الواجهة
     const accountant = await tx.user.upsert({
-      where: { email: 'accountant@businesspartner.sa' },
-      create: { email: 'accountant@businesspartner.sa', name: 'المحاسب', passwordHash },
+      where: { email: ACCOUNTANT_EMAIL },
+      create: { email: ACCOUNTANT_EMAIL, name: 'المحاسب', passwordHash },
       update: { passwordHash },
     });
     const accRole = await tx.role.findFirstOrThrow({
@@ -497,7 +530,11 @@ async function main() {
   console.log('\n✓ اكتملت البذور.\n');
   console.log(`  الرابط        http://localhost:3100`);
   console.log(`  البريد        ${ADMIN_EMAIL}`);
-  console.log(`  كلمة المرور   ${ADMIN_PASSWORD}`);
+  console.log(
+    process.env.SEED_OWNER_PASSWORD
+      ? '  كلمة المرور   (من متغيّر البيئة SEED_OWNER_PASSWORD)'
+      : `  كلمة المرور   ${ADMIN_PASSWORD}`,
+  );
   console.log(`  محاسب         accountant@businesspartner.sa (نفس كلمة المرور)\n`);
 }
 
