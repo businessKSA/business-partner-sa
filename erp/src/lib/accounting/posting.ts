@@ -41,6 +41,17 @@ export type LineInput = {
 
   taxCodeId?: string | null;
   taxBase?: Num;
+
+  /**
+   * المبلغ بالعملة الأجنبية وسعر صرفه وقت القيد.
+   *
+   * يُحفظان مع السطر لا يُشتقّان لاحقاً: الرصيد بالعملة الأجنبية ثابت،
+   * وقيمته بعملة الدفاتر تتغيّر مع السعر — فمن يعيد اشتقاق المبلغ الأجنبي
+   * من قيمة الدفاتر بسعر اليوم يقرأ الماضي بسعر الحاضر. وبدونهما لا يمكن
+   * إعادة التقييم أصلاً، لأنها تحتاج معرفة كم عملةً أجنبية في الحساب.
+   */
+  foreignAmount?: Num;
+  fxRate?: Num;
 };
 
 export type EntryInput = {
@@ -210,6 +221,14 @@ export async function postEntry(tx: Tx, tenantId: string, input: EntryInput) {
           employeeId: l.employeeId ?? null,
           taxCodeId: l.taxCodeId ?? null,
           taxBase: l.taxBase !== undefined && l.taxBase !== null ? money(l.taxBase).toFixed(6) : null,
+          // المبلغ الأجنبي يوقَّع بإشارة اتجاه السطر، فيصير مجموعه على الحساب
+          // هو الرصيد بالعملة الأجنبية مباشرةً — بلا حاجة إلى قراءة الاتجاه
+          // مرّةً أخرى عند إعادة التقييم.
+          currency:
+            l.foreignAmount !== undefined && l.foreignAmount !== null
+              ? (l.debit.greaterThan(0) ? d(l.foreignAmount) : d(l.foreignAmount).negated()).toFixed(6)
+              : null,
+          fxRate: l.fxRate !== undefined && l.fxRate !== null ? d(l.fxRate).toFixed(9) : null,
           sortOrder: idx,
         })),
       },
@@ -289,6 +308,10 @@ export async function reverseEntry(
           employeeId: l.employeeId,
           taxCodeId: l.taxCodeId,
           taxBase: l.taxBase ? d(l.taxBase).negated().toFixed(6) : null,
+          // المبلغ الأجنبي يُقلب مع اتجاه السطر، وإلا بقي رصيد العملة
+          // الأجنبية قائماً بعد عكس قيدٍ أزال قيمته بعملة الدفاتر.
+          currency: l.currency ? d(l.currency).negated().toFixed(6) : null,
+          fxRate: l.fxRate,
           sortOrder: idx,
         })),
       },

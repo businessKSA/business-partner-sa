@@ -24,7 +24,10 @@ export type DocType =
   | 'PAYMENT_IN'
   | 'PAYMENT_OUT'
   | 'PAYROLL_RUN'
-  | 'PROJECT';
+  | 'PROJECT'
+  | 'DEPRECIATION'
+  | 'FX_REVALUATION'
+  | 'BANK_STATEMENT';
 
 /** البادئة الافتراضية لكل نوع. تُعدَّل من إعدادات المنشأة. */
 const PREFIX: Record<DocType, string> = {
@@ -39,6 +42,9 @@ const PREFIX: Record<DocType, string> = {
   PAYMENT_OUT: 'PAY',
   PAYROLL_RUN: 'PR',
   PROJECT: 'PRJ',
+  DEPRECIATION: 'DEP',
+  FX_REVALUATION: 'FXR',
+  BANK_STATEMENT: 'STM',
 };
 
 /**

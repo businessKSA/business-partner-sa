@@ -40,8 +40,8 @@ model Tenant {
   nameEn String?
 
   /// السجل التجاري والرقم الضريبي — إلزاميان لفوترة زاتكا
-  crNumber  String?
-  vatNumber String?
+  crNumber      String?
+  vatNumber     String?
   /// الرقم الموحّد للمنشأة
   unifiedNumber String?
 
@@ -54,56 +54,61 @@ model Tenant {
   additionalNo String?
   countryCode  String  @default("SA")
 
-  phone String?
-  email String?
+  phone    String?
+  email    String?
   logoPath String?
 
   /// عملة الدفاتر. كل التقارير تُعرض بها.
-  baseCurrency String @default("SAR")
+  baseCurrency         String @default("SAR")
   /// شهر بداية السنة المالية (١ = يناير)
-  fiscalYearStartMonth Int @default(1)
+  fiscalYearStartMonth Int    @default(1)
   /// TRIAL | ACTIVE | SUSPENDED | CANCELLED
-  status String @default("TRIAL")
+  status               String @default("TRIAL")
 
   settings Json @default("{}")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  memberships    Membership[]
-  roles          Role[]
-  accounts       Account[]
-  fiscalYears    FiscalYear[]
-  journalEntries JournalEntry[]
-  costCenters    CostCenter[]
-  taxCodes       TaxCode[]
-  partners       Partner[]
-  items          Item[]
-  warehouses     Warehouse[]
-  stockMoves     StockMove[]
-  salesInvoices  SalesInvoice[]
-  purchaseOrders PurchaseOrder[]
-  vendorBills    VendorBill[]
-  payments       Payment[]
-  bankAccounts   BankAccount[]
-  employees      Employee[]
-  departments    Department[]
-  payrollRuns    PayrollRun[]
-  leaveRequests  LeaveRequest[]
-  leaveTypes     LeaveType[]
-  attendances    Attendance[]
-  projects       Project[]
-  tasks          ProjectTask[]
-  timesheets     Timesheet[]
-  numberSeries   NumberSeries[]
-  auditLogs      AuditLog[]
-  subscriptions  Subscription[]
-  zatcaConfig    ZatcaConfig?
-  currencies     ExchangeRate[]
-  uoms           Uom[]
-  itemCategories ItemCategory[]
-  positions      Position[]
-  goodsReceipts  GoodsReceipt[]
+  memberships      Membership[]
+  roles            Role[]
+  accounts         Account[]
+  fiscalYears      FiscalYear[]
+  journalEntries   JournalEntry[]
+  costCenters      CostCenter[]
+  taxCodes         TaxCode[]
+  partners         Partner[]
+  items            Item[]
+  warehouses       Warehouse[]
+  stockMoves       StockMove[]
+  salesInvoices    SalesInvoice[]
+  purchaseOrders   PurchaseOrder[]
+  vendorBills      VendorBill[]
+  payments         Payment[]
+  bankAccounts     BankAccount[]
+  employees        Employee[]
+  departments      Department[]
+  payrollRuns      PayrollRun[]
+  leaveRequests    LeaveRequest[]
+  leaveTypes       LeaveType[]
+  attendances      Attendance[]
+  projects         Project[]
+  tasks            ProjectTask[]
+  timesheets       Timesheet[]
+  numberSeries     NumberSeries[]
+  auditLogs        AuditLog[]
+  subscriptions    Subscription[]
+  zatcaConfig      ZatcaConfig?
+  currencies       ExchangeRate[]
+  uoms             Uom[]
+  itemCategories   ItemCategory[]
+  positions        Position[]
+  goodsReceipts    GoodsReceipt[]
+  fixedAssets      FixedAsset[]
+  depreciationRuns DepreciationRun[]
+  yearEndClosings  YearEndClosing[]
+  fxRevaluations   FxRevaluation[]
+  bankStatements   BankStatement[]
 
   @@index([status])
 }
@@ -118,10 +123,10 @@ model Plan {
   monthlyPrice Decimal @default(0) @db.Decimal(18, 6)
   yearlyPrice  Decimal @default(0) @db.Decimal(18, 6)
 
-  maxUsers      Int  @default(5)
-  maxInvoices   Int  @default(500)
+  maxUsers    Int  @default(5)
+  maxInvoices Int  @default(500)
   /// الموديولات المتاحة في الباقة: ["ACCOUNTING","SALES","HR",...]
-  modules       Json @default("[]")
+  modules     Json @default("[]")
 
   active    Boolean  @default(true)
   sortOrder Int      @default(100)
@@ -142,9 +147,9 @@ model Subscription {
   /// MONTHLY | YEARLY
   cycle  String @default("MONTHLY")
 
-  startedAt   DateTime  @default(now())
+  startedAt        DateTime  @default(now())
   currentPeriodEnd DateTime
-  cancelledAt DateTime?
+  cancelledAt      DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,11 +169,11 @@ model User {
 
   passwordHash String?
   /// PLATFORM_ADMIN لمالك المنصة (أنت) — يرى لوحة المنصة لا دفاتر العملاء
-  platformRole String? 
+  platformRole String?
 
-  phone      String?
-  locale     String    @default("ar")
-  active     Boolean   @default(true)
+  phone       String?
+  locale      String    @default("ar")
+  active      Boolean   @default(true)
   lastLoginAt DateTime?
 
   createdAt DateTime @default(now())
@@ -202,9 +207,9 @@ model Role {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  code   String
-  nameAr String
-  nameEn String
+  code     String
+  nameAr   String
+  nameEn   String
   /// أدوار النظام لا تُحذف ولا تُعدّل صلاحياتها الجوهرية
   isSystem Boolean @default(false)
 
@@ -275,7 +280,7 @@ model Account {
   nameAr String
   nameEn String
 
-  type AccountType
+  type    AccountType
   /// تصنيف فرعي للتقارير: CASH | BANK | RECEIVABLE | INVENTORY | FIXED_ASSET
   /// | PAYABLE | VAT_INPUT | VAT_OUTPUT | ACCRUAL | CAPITAL | RETAINED_EARNINGS
   /// | SALES | OTHER_INCOME | COGS | PAYROLL | OPERATING | DEPRECIATION
@@ -286,11 +291,11 @@ model Account {
   children Account[] @relation("AccountTree")
 
   /// حساب تجميعي: يُعرض في الشجرة ولا يقبل قيداً
-  isGroup Boolean @default(false)
+  isGroup     Boolean @default(false)
   /// يقبل قيداً يدوياً من المستخدم (حسابات النظام تُقفل ضد اليدوي)
   allowManual Boolean @default(true)
   /// حسابات النظام (الذمم، ضريبة المخرجات...) لا تُحذف
-  isSystem Boolean @default(false)
+  isSystem    Boolean @default(false)
 
   /// عملة الحساب إن كان بعملة أجنبية ثابتة (حساب بنك بالدولار مثلاً)
   currency String?
@@ -316,16 +321,18 @@ model FiscalYear {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   name      String
-  startDate DateTime @db.Date
-  endDate   DateTime @db.Date
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
   /// OPEN | CLOSED
-  status    String   @default("OPEN")
+  status    String    @default("OPEN")
   closedAt  DateTime?
   closedBy  String?
 
   createdAt DateTime @default(now())
 
   periods FiscalPeriod[]
+  /// إقفال هذه السنة إن أُقفلت — يبقى محفوظاً ولو رُجع عنه
+  closing YearEndClosing?
 
   @@unique([tenantId, name])
   @@index([tenantId])
@@ -341,10 +348,10 @@ model FiscalPeriod {
 
   number    Int
   name      String
-  startDate DateTime @db.Date
-  endDate   DateTime @db.Date
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
   /// OPEN | CLOSED | LOCKED
-  status    String   @default("OPEN")
+  status    String    @default("OPEN")
   closedAt  DateTime?
 
   entries JournalEntry[]
@@ -359,9 +366,9 @@ model CostCenter {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  code   String
-  nameAr String
-  nameEn String
+  code     String
+  nameAr   String
+  nameEn   String
   parentId String?
   parent   CostCenter?  @relation("CostCenterTree", fields: [parentId], references: [id])
   children CostCenter[] @relation("CostCenterTree")
@@ -400,7 +407,7 @@ model JournalEntry {
   /// المرحَّل لا يُعدَّل ولا يُحذف — يُعكس بقيد مضاد، وهذا شرط أي تدقيق.
   status String @default("DRAFT")
 
-  currency String  @default("SAR")
+  currency String @default("SAR")
 
   /// إجمالي المدين = إجمالي الدائن دائماً في القيد المرحَّل
   totalDebit  Decimal @default(0) @db.Decimal(18, 6)
@@ -487,10 +494,10 @@ model TaxCode {
   rate Decimal @db.Decimal(9, 6)
   /// STANDARD أساسية | ZERO صفرية | EXEMPT معفاة | OUT_OF_SCOPE خارج النطاق
   /// | REVERSE_CHARGE احتساب عكسي
-  kind String @default("STANDARD")
+  kind String  @default("STANDARD")
 
   /// رمز فئة الضريبة في UBL لزاتكا: S | Z | E | O
-  zatcaCategory String @default("S")
+  zatcaCategory       String  @default("S")
   /// سبب الإعفاء — تشترطه زاتكا مع الفئات Z و E و O
   exemptionReasonCode String?
   exemptionReasonAr   String?
@@ -506,11 +513,11 @@ model TaxCode {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  lines             JournalLine[]
-  salesLines        SalesInvoiceLine[]
-  billLines         VendorBillLine[]
-  poLines           PurchaseOrderLine[]
-  items             Item[]
+  lines      JournalLine[]
+  salesLines SalesInvoiceLine[]
+  billLines  VendorBillLine[]
+  poLines    PurchaseOrderLine[]
+  items      Item[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -596,13 +603,13 @@ model Partner {
   /// COMPANY منشأة | INDIVIDUAL فرد
   entityKind String @default("COMPANY")
 
-  crNumber  String?
-  vatNumber String?
+  crNumber     String?
+  vatNumber    String?
   /// نوع المعرّف البديل حين لا يوجد رقم ضريبي (تشترطه زاتكا):
   /// CRN سجل تجاري | MOM رخصة وزارة العمل | MLS رخصة بلدية | SAG رقم ٧٠٠
   /// | NAT هوية وطنية | GCC هوية خليجية | IQA إقامة | PAS جواز | OTH أخرى
-  otherIdType   String?
-  otherIdValue  String?
+  otherIdType  String?
+  otherIdValue String?
 
   street       String?
   buildingNo   String?
@@ -612,8 +619,8 @@ model Partner {
   additionalNo String?
   countryCode  String  @default("SA")
 
-  email String?
-  phone String?
+  email       String?
+  phone       String?
   contactName String?
 
   /// مهلة السداد بالأيام
@@ -660,7 +667,7 @@ model SalesInvoice {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  number String
+  number  String
   /// INVOICE فاتورة | CREDIT_NOTE إشعار دائن | DEBIT_NOTE إشعار مدين
   docType String      @default("INVOICE")
   kind    InvoiceKind @default(STANDARD)
@@ -676,12 +683,12 @@ model SalesInvoice {
   currency String  @default("SAR")
   fxRate   Decimal @default(1) @db.Decimal(18, 9)
 
-  subtotal       Decimal @default(0) @db.Decimal(18, 6)
-  discountTotal  Decimal @default(0) @db.Decimal(18, 6)
-  taxableAmount  Decimal @default(0) @db.Decimal(18, 6)
-  vatTotal       Decimal @default(0) @db.Decimal(18, 6)
-  total          Decimal @default(0) @db.Decimal(18, 6)
-  paidAmount     Decimal @default(0) @db.Decimal(18, 6)
+  subtotal      Decimal @default(0) @db.Decimal(18, 6)
+  discountTotal Decimal @default(0) @db.Decimal(18, 6)
+  taxableAmount Decimal @default(0) @db.Decimal(18, 6)
+  vatTotal      Decimal @default(0) @db.Decimal(18, 6)
+  total         Decimal @default(0) @db.Decimal(18, 6)
+  paidAmount    Decimal @default(0) @db.Decimal(18, 6)
 
   /// DRAFT | POSTED | PARTIALLY_PAID | PAID | CANCELLED
   status String @default("DRAFT")
@@ -745,8 +752,8 @@ model SalesInvoiceLine {
   taxCode   TaxCode? @relation(fields: [taxCodeId], references: [id])
   taxRate   Decimal  @default(0) @db.Decimal(9, 6)
 
-  lineNet Decimal @default(0) @db.Decimal(18, 6)
-  lineVat Decimal @default(0) @db.Decimal(18, 6)
+  lineNet   Decimal @default(0) @db.Decimal(18, 6)
+  lineVat   Decimal @default(0) @db.Decimal(18, 6)
   lineTotal Decimal @default(0) @db.Decimal(18, 6)
 
   /// حساب الإيراد المُرحَّل عليه هذا السطر
@@ -823,14 +830,14 @@ model ZatcaConfig {
   environment String @default("SANDBOX")
 
   /// اسم الجهاز/الحل كما سُجِّل في فاتورة
-  solutionName String @default("BP-ERP")
+  solutionName String  @default("BP-ERP")
   /// رقم الجهاز التسلسلي — جزء من اسم الشهادة
   egsSerial    String?
   /// رقم موقع الفرع (١٠ أرقام) كما تشترطه زاتكا
   branchNumber String?
 
-  csr            String?
-  privateKeyEnc  String?
+  csr                 String?
+  privateKeyEnc       String?
   /// شهادة الامتثال ورمزها السري (المرحلة الأولى من الربط)
   complianceCertEnc   String?
   complianceSecretEnc String?
@@ -879,7 +886,7 @@ model PurchaseOrder {
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
 
-  notesAr String?
+  notesAr    String?
   approvedAt DateTime?
   approvedBy String?
 
@@ -897,15 +904,15 @@ model PurchaseOrder {
 }
 
 model PurchaseOrderLine {
-  id      String        @id @default(cuid())
-  orderId String
-  order   PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id       String        @id @default(cuid())
+  orderId  String
+  order    PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   tenantId String
 
   itemId String?
   item   Item?   @relation(fields: [itemId], references: [id])
 
-  descAr String
+  descAr    String
   qty       Decimal @default(1) @db.Decimal(18, 6)
   uomCode   String  @default("PCE")
   unitPrice Decimal @default(0) @db.Decimal(18, 6)
@@ -924,7 +931,7 @@ model PurchaseOrderLine {
   billedQty   Decimal @default(0) @db.Decimal(18, 6)
 
   expenseAccountId String?
-  sortOrder Int @default(0)
+  sortOrder        Int     @default(0)
 
   @@index([orderId])
   @@index([tenantId])
@@ -952,7 +959,7 @@ model GoodsReceipt {
   status      String   @default("DRAFT")
 
   journalEntryId String? @unique
-  notesAr String?
+  notesAr        String?
 
   createdBy String?
   createdAt DateTime @default(now())
@@ -988,7 +995,7 @@ model VendorBill {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  number String
+  number    String
   /// رقم فاتورة المورّد كما وردت — غير رقمنا الداخلي
   vendorRef String?
 
@@ -1013,17 +1020,17 @@ model VendorBill {
   /// DRAFT | POSTED | PARTIALLY_PAID | PAID | CANCELLED
   status String @default("DRAFT")
 
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [id])
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id])
   costCenterId String?
 
   journalEntryId String? @unique
-  notesAr String?
+  notesAr        String?
 
-  postedAt DateTime?
+  postedAt  DateTime?
   createdBy String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   lines       VendorBillLine[]
   allocations PaymentAllocation[]
@@ -1042,7 +1049,7 @@ model VendorBillLine {
   itemId String?
   item   Item?   @relation(fields: [itemId], references: [id])
 
-  descAr String
+  descAr    String
   qty       Decimal @default(1) @db.Decimal(18, 6)
   unitPrice Decimal @default(0) @db.Decimal(18, 6)
   discount  Decimal @default(0) @db.Decimal(18, 6)
@@ -1056,7 +1063,7 @@ model VendorBillLine {
   lineTotal Decimal @default(0) @db.Decimal(18, 6)
 
   expenseAccountId String?
-  sortOrder Int @default(0)
+  sortOrder        Int     @default(0)
 
   @@index([billId])
   @@index([tenantId])
@@ -1069,12 +1076,12 @@ model BankAccount {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  nameAr String
-  nameEn String?
-  bankName String?
-  iban     String?
+  nameAr        String
+  nameEn        String?
+  bankName      String?
+  iban          String?
   accountNumber String?
-  currency String @default("SAR")
+  currency      String  @default("SAR")
 
   /// حساب دفتر الأستاذ المقابل لهذا الحساب البنكي
   accountId String
@@ -1086,7 +1093,8 @@ model BankAccount {
 
   createdAt DateTime @default(now())
 
-  payments Payment[]
+  payments       Payment[]
+  bankStatements BankStatement[]
 
   @@index([tenantId])
 }
@@ -1099,7 +1107,7 @@ model Payment {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  number String
+  number    String
   /// IN قبض | OUT صرف
   direction String
 
@@ -1115,7 +1123,7 @@ model Payment {
   bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
 
   /// CASH | TRANSFER | MADA | VISA | CHEQUE | APPLE_PAY | OTHER
-  method String @default("TRANSFER")
+  method String  @default("TRANSFER")
   ref    String?
 
   /// DRAFT | POSTED | CANCELLED
@@ -1125,12 +1133,12 @@ model Payment {
   unallocated Decimal @default(0) @db.Decimal(18, 6)
 
   journalEntryId String? @unique
-  notesAr String?
+  notesAr        String?
 
-  postedAt DateTime?
+  postedAt  DateTime?
   createdBy String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   allocations PaymentAllocation[]
 
@@ -1183,9 +1191,9 @@ model ItemCategory {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  code   String
-  nameAr String
-  nameEn String?
+  code     String
+  nameAr   String
+  nameEn   String?
   parentId String?
   parent   ItemCategory?  @relation("CatTree", fields: [parentId], references: [id])
   children ItemCategory[] @relation("CatTree")
@@ -1208,10 +1216,10 @@ model Item {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  sku    String
-  nameAr String
-  nameEn String?
-  descAr String?
+  sku     String
+  nameAr  String
+  nameEn  String?
+  descAr  String?
   barcode String?
 
   kind ItemKind @default(STOCK)
@@ -1219,18 +1227,18 @@ model Item {
   categoryId String?
   category   ItemCategory? @relation(fields: [categoryId], references: [id])
 
-  uomId String?
-  uom   Uom?    @relation(fields: [uomId], references: [id])
-  uomCode String @default("PCE")
+  uomId   String?
+  uom     Uom?    @relation(fields: [uomId], references: [id])
+  uomCode String  @default("PCE")
 
   salesPrice    Decimal @default(0) @db.Decimal(18, 6)
   purchasePrice Decimal @default(0) @db.Decimal(18, 6)
 
   /// تكلفة المتوسط المرجّح الجارية — تتحدّث مع كل استلام
-  avgCost   Decimal @default(0) @db.Decimal(18, 6)
+  avgCost      Decimal @default(0) @db.Decimal(18, 6)
   /// الرصيد الكلي عبر كل المستودعات. مشتق من الحركات ومحفوظ للسرعة،
   /// ويُعاد احتسابه في تقرير التسوية.
-  onHand    Decimal @default(0) @db.Decimal(18, 6)
+  onHand       Decimal @default(0) @db.Decimal(18, 6)
   /// حد إعادة الطلب — تنبيه لا منع
   reorderPoint Decimal @default(0) @db.Decimal(18, 6)
 
@@ -1263,12 +1271,12 @@ model Warehouse {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  code   String
-  nameAr String
-  nameEn String?
-  city   String?
+  code    String
+  nameAr  String
+  nameEn  String?
+  city    String?
   address String?
-  active Boolean @default(true)
+  active  Boolean @default(true)
 
   createdAt DateTime @default(now())
 
@@ -1330,7 +1338,7 @@ model StockMove {
   salesInvoice   SalesInvoice? @relation(fields: [salesInvoiceId], references: [id])
 
   journalEntryId String?
-  notesAr String?
+  notesAr        String?
 
   createdBy String?
   createdAt DateTime @default(now())
@@ -1348,9 +1356,9 @@ model Department {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  code   String
-  nameAr String
-  nameEn String?
+  code     String
+  nameAr   String
+  nameEn   String?
   parentId String?
   parent   Department?  @relation("DeptTree", fields: [parentId], references: [id])
   children Department[] @relation("DeptTree")
@@ -1358,7 +1366,7 @@ model Department {
   /// مركز التكلفة الذي تُرحَّل عليه رواتب هذا القسم
   costCenterId String?
 
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
   employees Employee[]
 
   @@unique([tenantId, code])
@@ -1373,7 +1381,7 @@ model Position {
   nameAr String
   nameEn String?
 
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
   employees Employee[]
 
   @@unique([tenantId, code])
@@ -1404,9 +1412,9 @@ model Employee {
   positionId   String?
   position     Position?   @relation(fields: [positionId], references: [id])
 
-  hireDate     DateTime  @db.Date
+  hireDate        DateTime  @db.Date
   /// FIXED محدد المدة | UNLIMITED غير محدد المدة
-  contractType String    @default("FIXED")
+  contractType    String    @default("FIXED")
   contractEndDate DateTime? @db.Date
 
   /// الأجر الأساسي وبدلاته الشهرية
@@ -1423,10 +1431,10 @@ model Employee {
   iban     String?
 
   /// ACTIVE | ON_LEAVE | SUSPENDED | TERMINATED
-  status String @default("ACTIVE")
+  status          String    @default("ACTIVE")
   /// سبب انتهاء الخدمة: RESIGNATION استقالة | TERMINATION إنهاء من صاحب العمل
   /// | CONTRACT_END انتهاء العقد | RETIREMENT تقاعد — يغيّر حساب المكافأة
-  endReason      String?
+  endReason       String?
   terminationDate DateTime? @db.Date
 
   /// رصيد الإجازة السنوية بالأيام
@@ -1463,7 +1471,7 @@ model LeaveType {
   /// تُخصم من رصيد الإجازة السنوية
   deductsAnnual Boolean @default(false)
 
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
   requests  LeaveRequest[]
 
   @@unique([tenantId, code])
@@ -1486,10 +1494,10 @@ model LeaveRequest {
 
   reason String?
   /// PENDING | APPROVED | REJECTED | CANCELLED
-  status String @default("PENDING")
+  status String  @default("PENDING")
 
-  approvedBy String?
-  approvedAt DateTime?
+  approvedBy   String?
+  approvedAt   DateTime?
   rejectReason String?
 
   createdAt DateTime @default(now())
@@ -1511,11 +1519,11 @@ model Attendance {
   checkIn  DateTime?
   checkOut DateTime?
 
-  workedHours    Decimal @default(0) @db.Decimal(9, 2)
-  overtimeHours  Decimal @default(0) @db.Decimal(9, 2)
+  workedHours   Decimal @default(0) @db.Decimal(9, 2)
+  overtimeHours Decimal @default(0) @db.Decimal(9, 2)
   /// PRESENT | ABSENT | LEAVE | HOLIDAY | WEEKEND
-  status String @default("PRESENT")
-  notes  String?
+  status        String  @default("PRESENT")
+  notes         String?
 
   createdAt DateTime @default(now())
 
@@ -1541,19 +1549,19 @@ model PayrollRun {
   /// DRAFT | APPROVED | POSTED | PAID | CANCELLED
   status String @default("DRAFT")
 
-  totalGross       Decimal @default(0) @db.Decimal(18, 6)
-  totalDeductions  Decimal @default(0) @db.Decimal(18, 6)
-  totalGosiEmp     Decimal @default(0) @db.Decimal(18, 6)
+  totalGross        Decimal @default(0) @db.Decimal(18, 6)
+  totalDeductions   Decimal @default(0) @db.Decimal(18, 6)
+  totalGosiEmp      Decimal @default(0) @db.Decimal(18, 6)
   totalGosiEmployer Decimal @default(0) @db.Decimal(18, 6)
-  totalNet         Decimal @default(0) @db.Decimal(18, 6)
+  totalNet          Decimal @default(0) @db.Decimal(18, 6)
 
   journalEntryId String? @unique
 
   approvedAt DateTime?
   postedAt   DateTime?
   createdBy  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   payslips Payslip[]
 
@@ -1593,8 +1601,8 @@ model Payslip {
   net             Decimal @default(0) @db.Decimal(18, 6)
 
   /// أيام العمل الفعلية وأيام الغياب في الشهر
-  workedDays  Decimal @default(30) @db.Decimal(9, 2)
-  absentDays  Decimal @default(0) @db.Decimal(9, 2)
+  workedDays    Decimal @default(30) @db.Decimal(9, 2)
+  absentDays    Decimal @default(0) @db.Decimal(9, 2)
   overtimeHours Decimal @default(0) @db.Decimal(9, 2)
 
   notes String?
@@ -1626,11 +1634,11 @@ model Project {
   endDate   DateTime? @db.Date
 
   /// الميزانية المعتمدة والسعر المتفق عليه
-  budget         Decimal @default(0) @db.Decimal(18, 6)
-  contractValue  Decimal @default(0) @db.Decimal(18, 6)
+  budget        Decimal @default(0) @db.Decimal(18, 6)
+  contractValue Decimal @default(0) @db.Decimal(18, 6)
 
   /// PLANNED | ACTIVE | ON_HOLD | COMPLETED | CANCELLED
-  status String @default("PLANNED")
+  status         String  @default("PLANNED")
   /// يُفوتر بالساعة لا بسعر ثابت
   billableByHour Boolean @default(false)
   hourlyRate     Decimal @default(0) @db.Decimal(18, 6)
@@ -1672,10 +1680,10 @@ model ProjectTask {
   /// LOW | NORMAL | HIGH | URGENT
   priority String @default("NORMAL")
 
-  estimatedHours Decimal @default(0) @db.Decimal(9, 2)
-  startDate DateTime? @db.Date
-  dueDate   DateTime? @db.Date
-  completedAt DateTime?
+  estimatedHours Decimal   @default(0) @db.Decimal(9, 2)
+  startDate      DateTime? @db.Date
+  dueDate        DateTime? @db.Date
+  completedAt    DateTime?
 
   sortOrder Int @default(0)
 
@@ -1703,8 +1711,8 @@ model Timesheet {
   taskId String?
   task   ProjectTask? @relation(fields: [taskId], references: [id])
 
-  date  DateTime @db.Date
-  hours Decimal  @db.Decimal(9, 2)
+  date   DateTime @db.Date
+  hours  Decimal  @db.Decimal(9, 2)
   descAr String?
 
   /// قابلة للفوترة على العميل
@@ -1715,7 +1723,7 @@ model Timesheet {
   invoiced Boolean @default(false)
 
   /// DRAFT | SUBMITTED | APPROVED | REJECTED
-  status String @default("DRAFT")
+  status     String    @default("DRAFT")
   approvedBy String?
   approvedAt DateTime?
 
@@ -1724,4 +1732,311 @@ model Timesheet {
 
   @@index([tenantId, employeeId, date])
   @@index([tenantId, projectId])
+}
+
+// ═══════════════════════════════════ الأصول الثابتة والاستهلاك ══════════════
+
+/// STRAIGHT_LINE القسط الثابت | DECLINING_BALANCE القسط المتناقص
+/// | UNITS_OF_PRODUCTION وحدات الإنتاج
+enum DepreciationMethod {
+  STRAIGHT_LINE
+  DECLINING_BALANCE
+  UNITS_OF_PRODUCTION
+}
+
+/// الأصل الثابت.
+///
+/// قيمته الدفترية = التكلفة − مجمَّع الاستهلاك، وكلاهما محفوظ هنا ومُرحَّل
+/// في الأستاذ. لماذا يُحفظ ما هو مشتقّ؟ لأن الاستهلاك يُحسب شهرياً على
+/// الرصيد المتبقّي في طريقة القسط المتناقص، وإعادة اشتقاقه من الدفتر في كل
+/// تشغيل يجعل كل شهر يعيد قراءة تاريخ الأصل كلّه. والتسوية تكشف أي انحراف.
+model FixedAsset {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  code   String
+  nameAr String
+  nameEn String?
+  descAr String?
+
+  categoryAr   String?
+  serialNumber String?
+  location     String?
+
+  /// تاريخ الشراء وتاريخ بدء الاستهلاك — قد يختلفان (أصل اشتُري ولم يُشغَّل)
+  purchaseDate  DateTime @db.Date
+  inServiceDate DateTime @db.Date
+
+  /// التكلفة التاريخية بلا ضريبة
+  cost             Decimal @db.Decimal(18, 6)
+  /// القيمة التخريدية المتوقَّعة في نهاية العمر
+  salvageValue     Decimal @default(0) @db.Decimal(18, 6)
+  /// العمر الإنتاجي بالأشهر
+  usefulLifeMonths Int
+
+  method          DepreciationMethod @default(STRAIGHT_LINE)
+  /// معامل التناقص (٢ = القسط المتناقص المضاعف). للطريقة المتناقصة فقط.
+  decliningFactor Decimal            @default(2) @db.Decimal(9, 4)
+
+  /// إجمالي وحدات الإنتاج المتوقَّعة — لطريقة وحدات الإنتاج
+  totalUnits Decimal? @db.Decimal(18, 6)
+  unitsUsed  Decimal  @default(0) @db.Decimal(18, 6)
+
+  /// مجمَّع الاستهلاك حتى تاريخه
+  accumulated       Decimal   @default(0) @db.Decimal(18, 6)
+  /// آخر شهر استُهلك فيه — يمنع الاستهلاك مرّتين للشهر نفسه
+  lastDepreciatedOn DateTime? @db.Date
+
+  /// حسابات الترحيل: الأصل، ومجمَّع الاستهلاك، ومصروف الاستهلاك
+  assetAccountId       String?
+  accumulatedAccountId String?
+  expenseAccountId     String?
+
+  costCenterId String?
+  projectId    String?
+
+  /// ACTIVE قيد الاستخدام | FULLY_DEPRECIATED مستهلك بالكامل
+  /// | DISPOSED مستبعَد | SOLD مُباع
+  status String @default("ACTIVE")
+
+  disposalDate     DateTime? @db.Date
+  disposalProceeds Decimal?  @db.Decimal(18, 6)
+  disposalNote     String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries DepreciationEntry[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+}
+
+/// سطر استهلاك شهري لأصل. سجلٌّ لكل شهر ولكل أصل، فيُقرأ تاريخ الأصل كاملاً
+/// ويُمنع تكرار الشهر بقيد التفرّد.
+model DepreciationEntry {
+  id       String     @id @default(cuid())
+  tenantId String
+  assetId  String
+  asset    FixedAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  runId String?
+  run   DepreciationRun? @relation(fields: [runId], references: [id])
+
+  /// أول يوم من الشهر المستهلَك — مفتاح التفرّد
+  period DateTime @db.Date
+
+  amount         Decimal @db.Decimal(18, 6)
+  /// القيمة الدفترية بعد هذا القسط
+  bookValueAfter Decimal @db.Decimal(18, 6)
+
+  journalEntryId String?
+  createdAt      DateTime @default(now())
+
+  @@unique([assetId, period])
+  @@index([tenantId, period])
+}
+
+/// تشغيل استهلاك شهري يشمل كل الأصول المستحقّة — قيدٌ واحد بمجاميعه.
+model DepreciationRun {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number  String
+  year    Int
+  month   Int
+  runDate DateTime @db.Date
+
+  /// DRAFT | POSTED | CANCELLED
+  status String @default("DRAFT")
+
+  assetCount  Int     @default(0)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  journalEntryId String? @unique
+
+  postedAt  DateTime?
+  createdBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  entries DepreciationEntry[]
+
+  @@unique([tenantId, year, month])
+  @@index([tenantId, status])
+}
+
+// ══════════════════════════════════════ الإقفال السنوي ══════════════════════
+
+/// إقفال سنة مالية.
+///
+/// يغلق حسابات الإيرادات والمصروفات في الأرباح المبقاة، ثم يقفل فترات السنة
+/// قفلاً نهائياً. ويُحفظ سجلّه لأن الإقفال يُعكس أحياناً — تُكتشف فاتورة
+/// متأخّرة بعد الإقفال — فيجب أن يُعرف ما فُعل بالضبط ليُرجَع عنه.
+model YearEndClosing {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  fiscalYearId String     @unique
+  fiscalYear   FiscalYear @relation(fields: [fiscalYearId], references: [id], onDelete: Cascade)
+
+  closingDate DateTime @db.Date
+
+  /// صافي ربح السنة المُقفَل
+  netProfit      Decimal @db.Decimal(18, 6)
+  /// عدد الحسابات المُقفَلة
+  accountsClosed Int     @default(0)
+
+  /// قيد الإقفال، وقيد العكس إن رُجع عن الإقفال
+  closingEntryId  String? @unique
+  reversalEntryId String? @unique
+
+  /// POSTED مُقفَلة | REVERSED رُجع عنها
+  status String @default("POSTED")
+
+  closedBy   String?
+  reversedAt DateTime?
+  reversedBy String?
+  note       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+// ═══════════════════════════════ إعادة تقييم العملات ════════════════════════
+
+/// إعادة تقييم أرصدة العملات الأجنبية في نهاية الفترة.
+///
+/// الرصيد بالعملة الأجنبية ثابت، وقيمته بعملة الدفاتر تتغيّر مع سعر الصرف.
+/// الفرق غير محقَّق حتى يُسدَّد، لكن المعايير توجب إظهاره في القوائم — فيُقيَّد
+/// ربحاً أو خسارة غير محقَّقة، ويُعكس في أول اليوم التالي كي لا يتراكم.
+model FxRevaluation {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  number        String
+  valuationDate DateTime @db.Date
+
+  /// DRAFT | POSTED | REVERSED
+  status String @default("DRAFT")
+
+  /// صافي الفرق: موجب ربحٌ غير محقَّق، سالب خسارة
+  netDifference Decimal @default(0) @db.Decimal(18, 6)
+  accountCount  Int     @default(0)
+
+  journalEntryId  String? @unique
+  reversalEntryId String? @unique
+
+  /// هل يُعكس تلقائياً في اليوم التالي؟ الافتراضي نعم — وإلا تراكمت الفروق
+  autoReverse Boolean @default(true)
+
+  postedAt  DateTime?
+  createdBy String?
+  createdAt DateTime  @default(now())
+
+  lines FxRevaluationLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+}
+
+model FxRevaluationLine {
+  id            String        @id @default(cuid())
+  revaluationId String
+  revaluation   FxRevaluation @relation(fields: [revaluationId], references: [id], onDelete: Cascade)
+  tenantId      String
+
+  accountId String
+  currency  String
+
+  /// الرصيد بالعملة الأجنبية
+  foreignBalance Decimal @db.Decimal(18, 6)
+  /// قيمته الدفترية الحالية بعملة الدفاتر
+  bookValue      Decimal @db.Decimal(18, 6)
+  /// سعر الصرف المستعمل في إعادة التقييم
+  rate           Decimal @db.Decimal(18, 9)
+  /// القيمة بعد إعادة التقييم
+  revaluedValue  Decimal @db.Decimal(18, 6)
+  /// الفرق = المُعاد تقييمه − الدفتري
+  difference     Decimal @db.Decimal(18, 6)
+
+  @@index([revaluationId])
+  @@index([tenantId])
+}
+
+// ═══════════════════════════════════ التسوية البنكية ════════════════════════
+
+/// كشف حساب بنكي مستورد.
+model BankStatement {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  reference String?
+  fromDate  DateTime @db.Date
+  toDate    DateTime @db.Date
+
+  /// الرصيد الافتتاحي والختامي كما في الكشف — بهما تُثبت صحة الاستيراد
+  openingBalance Decimal @db.Decimal(18, 6)
+  closingBalance Decimal @db.Decimal(18, 6)
+
+  /// IMPORTED مستورد | RECONCILING قيد التسوية | RECONCILED مُسوّى
+  status String @default("IMPORTED")
+
+  reconciledAt DateTime?
+  reconciledBy String?
+
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines BankStatementLine[]
+
+  @@index([tenantId, bankAccountId])
+  @@index([tenantId, status])
+}
+
+/// سطر في كشف الحساب. يُطابَق بسطر واحد من الدفتر أو يبقى معلّقاً.
+model BankStatementLine {
+  id          String        @id @default(cuid())
+  statementId String
+  statement   BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  tenantId    String
+
+  valueDate DateTime @db.Date
+  descRaw   String
+  reference String?
+
+  /// موجب وارد، سالب صادر — كما في الكشف
+  amount         Decimal  @db.Decimal(18, 6)
+  /// الرصيد الجاري كما في الكشف، إن ورد
+  runningBalance Decimal? @db.Decimal(18, 6)
+
+  /// UNMATCHED غير مطابق | MATCHED مطابق | IGNORED مستبعَد
+  status String @default("UNMATCHED")
+
+  /// سطر الدفتر المطابق
+  journalLineId String?   @unique
+  /// درجة ثقة المطابقة الآلية من ١٠٠ — دون العتبة تحتاج تأكيداً بشرياً
+  matchScore    Int?
+  matchedBy     String?
+  matchedAt     DateTime?
+
+  /// قيد تسوية أُنشئ لهذا السطر حين لا يوجد ما يقابله (رسوم بنكية مثلاً)
+  adjustmentEntryId String?
+
+  sortOrder Int @default(0)
+
+  @@index([statementId, status])
+  @@index([tenantId])
 }
