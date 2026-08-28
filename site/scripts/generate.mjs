@@ -11310,7 +11310,7 @@ function buildB10X() {
         .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
         .then(function(out){
           if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
-          else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966503793356", "تعذّر الإرسال — تواصل واتساب: 966503793356")}'; }
+          else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966530540231", "تعذّر الإرسال — تواصل واتساب: 966530540231")}'; }
         })
         .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });
     });

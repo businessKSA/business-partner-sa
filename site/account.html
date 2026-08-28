@@ -209,7 +209,7 @@
       .qa{grid-template-columns:repeat(3,1fr)}
     }
   </style>
-<script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>
+</head>
 <body>
 
   <!-- ================= GATE ================= -->
@@ -3116,7 +3116,7 @@
             var reply = out && out.reply;
             if (!reply) reply = out && out.error === 'unauthorized'
               ? 'سجّل دخولك للوحة أولاً حتى أقدر أساعدك ببياناتك.'
-              : 'تعذّر الرد الآن — جرّب مرة ثانية، أو واتساب مستشارك: 966503793356';
+              : 'تعذّر الرد الآن — جرّب مرة ثانية، أو واتساب مستشارك: 966530540231';
             msgs.push({ role: 'assistant', content: String(reply) });
             render(false);
           })
@@ -3151,7 +3151,7 @@
             } else if (out && out.error === 'unauthorized'){
               alert('سجّل دخولك للوحة أولاً لإرسال طلب B10X.');
             } else {
-              alert('تعذّر الإرسال — جرّب ثانية أو تواصل واتساب: 966503793356');
+              alert('تعذّر الإرسال — جرّب ثانية أو تواصل واتساب: 966530540231');
             }
           })
           .catch(function(){ btn.disabled = false; btn.textContent = '🚀 أرسل كطلب خدمة B10X'; alert('تعذّر الاتصال.'); });
