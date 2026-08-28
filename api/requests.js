@@ -298,7 +298,9 @@ async function listConversations(limit) {
     // 0566552055 and +966566552055 are the same customer; keying on the raw
     // string would still split them into two threads.
     const identity = canonicalPhone(phone) || email.toLowerCase() || ref;
-    const threadKey = "WEB-" + identity;
+    // An advisor reference is already "WEB-<sid>"; prefixing again produced the
+    // nonsense key "WEB-WEB-<sid>" for visitors who left no contact details.
+    const threadKey = identity.startsWith("WEB-") ? identity : "WEB-" + identity;
     const source = isTicket ? "تذكرة" : "المستشار";
     if (isTicket) {
       // A ticket is a single record — render it as one summary message.
