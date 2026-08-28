@@ -10194,6 +10194,11 @@ function buildSharedServicesPortal() {
         <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في بيزنس بارتنر — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
+        <div class="ss-trust">
+          <span><b>12</b>${L("specialists in one chat", "متخصصاً في محادثة واحدة")}</span>
+          <span><b>24/7</b>${L("always on", "بلا توقف")}</span>
+          <span><b>🔒</b>${L("nothing binding without your approval", "لا التزام بدون موافقتك")}</span>
+        </div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
           <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
@@ -10238,8 +10243,8 @@ function buildSharedServicesPortal() {
             <span class="e" id="ph-e" hidden>👑</span>
             <div><b id="ph-n"></b><span id="ph-r"></span></div>
             <div class="ss-chat-actions">
-              <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ ${L("Rename", "غيّر الاسم")}</button>
-              <button id="ss-print" type="button" title="${Lraw("Save the conversation as PDF", "احفظ المحادثة PDF")}">📄 ${L("Save PDF", "حفظ PDF")}</button>
+              <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ <span class="lbl">${L("Rename", "غيّر الاسم")}</span></button>
+              <button id="ss-print" type="button" title="${Lraw("Save the conversation as PDF", "احفظ المحادثة PDF")}">📄 <span class="lbl">${L("Save PDF", "حفظ PDF")}</span></button>
               <span class="ss-live">● ${L("Online now", "متصل الآن")}</span>
             </div>
           </div>
@@ -10253,7 +10258,7 @@ function buildSharedServicesPortal() {
             <button type="button">${L("Summarize the team's latest work", "لخّص آخر أعمال الفريق")}</button>
           </div>
           <form class="ss-form" id="ss-form">
-            <textarea id="ss-input" rows="1" autocomplete="off" placeholder="${Lraw("Type your request here… (Shift+Enter for a new line)", "اكتب طلبك هنا… (Shift+Enter لسطر جديد)")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}"></textarea>
+            <textarea id="ss-input" rows="1" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" title="${Lraw("Enter sends · Shift+Enter for a new line", "Enter يرسل · Shift+Enter لسطر جديد")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}"></textarea>
             <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
           </form>
         </div>
@@ -10340,6 +10345,10 @@ function buildSharedServicesPortal() {
           #ss-gate .ss-code-fallback summary{color:rgba(255,255,255,.6)}
           #ss-gate .ss-demo-hint{color:rgba(255,255,255,.55)}
           #ss-gate .ss-demo-hint code{background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:1px 7px}
+          .ss-trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px auto 4px;max-width:460px}
+          .ss-trust span{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+            border-radius:13px;padding:10px 8px;font-size:.72rem;color:rgba(255,255,255,.66);line-height:1.5}
+          .ss-trust b{display:block;font-size:1.02rem;color:#2ee6c8;margin-bottom:2px}
           #ss-gate .ss-access-form input{
             background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);color:#fff;
             letter-spacing:.35em;font-weight:700;text-transform:uppercase;transition:border-color .2s, box-shadow .2s}
@@ -10446,7 +10455,43 @@ function buildSharedServicesPortal() {
             color:#fff;border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
           #pane-team .ss-form textarea::placeholder{color:rgba(255,255,255,.45)}
           #pane-team .ss-form textarea:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
-          @media(max-width:640px){#ss-dash>.wrap{padding:16px 12px 20px;border-radius:18px}#pane-team .ss-msg{max-width:88%}}
+          /* the portal IS a chat with Baher — the floating "ask Baher" bubble is
+             redundant here, and on phones both bubbles cover the composer */
+          body:has(#ss-dash:not([hidden])) .advisor-fab,
+          body:has(#ss-dash:not([hidden])) .advisor-panel{display:none!important}
+          /* ===== phones ===== */
+          @media(max-width:640px){
+            #ss-dash>.wrap{padding:14px 12px 18px;border-radius:18px}
+            #ss-dash .ss-dash-head{gap:10px;margin-bottom:12px}
+            #ss-dash .ss-dash-head h2{font-size:1.08rem;margin-bottom:2px}
+            #ss-dash .ss-dash-head p{display:none}            /* long blurb: desktop only */
+            #ss-dash .ss-dash-head>div{min-width:0;flex:1 1 100%}
+            #ss-dash .ss-logout{font-size:.76rem;padding:6px 10px}
+            #ss-dash .ss-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+              scrollbar-width:none;width:100%;border-radius:14px}
+            #ss-dash .ss-tabs::-webkit-scrollbar{display:none}
+            #ss-dash .ss-tab{padding:8px 13px;font-size:.86rem}
+            #pane-team .ss-pane-lead{display:none}          /* the chat explains itself */
+            #pane-team .ss-panel .ss-log{min-height:52vh;max-height:58vh;padding:12px 10px}
+            #pane-team .ss-msg{max-width:90%;padding:10px 12px 6px}
+            #pane-team .ss-panel-head{padding:10px 12px;gap:9px}
+            .ss-pavatar,.ss-pavatar img{width:38px;height:38px}
+            .ss-chat-actions{gap:6px}
+            .ss-chat-actions button{font-size:.9rem;padding:5px 9px;line-height:1}
+            .ss-chat-actions button .lbl{display:none}   /* icons only on phones */
+            .ss-live{font-size:.68rem}
+            .ss-chips{gap:6px;padding:8px 10px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+            .ss-chips::-webkit-scrollbar{display:none}
+            .ss-chips button{white-space:nowrap;font-size:.76rem;padding:6px 12px}
+            #pane-team .ss-form{padding:10px}
+            #pane-team .ss-form textarea{padding:10px 12px}
+            #pane-team .ss-form button{padding:10px 14px}
+            #ss-jump{bottom:112px;inset-inline-end:12px}
+            .wa-fab{display:none!important}                  /* it sits on the composer */
+            .ss-welcome{padding:12px 6px}
+            .ss-welcome .wv{font-size:1.8rem}
+            .ss-welcome p{font-size:.84rem;line-height:1.8}
+          }
           @media print{
             body>*:not(main),nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,.advisor-fab,.wa-fab{display:none!important}
             #ss-dash>.wrap,#pane-team .ss-panel{background:#fff!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
