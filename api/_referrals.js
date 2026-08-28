@@ -46,8 +46,13 @@ import { DB_ON, sb } from "./_db.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const NOTION_VERSION = "2022-06-28";
-const BROKERS_DB = (process.env.NOTION_BROKERS_DB || "").trim();
-const REFERRALS_DB = (process.env.NOTION_REFERRALS_DB || "").trim();
+// The two mirror databases live under Notion's "👥 CRM" page, beside the
+// Sales Pipeline the team already works in. Ids are workspace object ids, not
+// secrets — hardcoding the fallback (as the agency registry does) means the
+// mirror works on a fresh deploy with no extra env setup, while the env vars
+// still win if the databases are ever moved or rebuilt.
+const BROKERS_DB = (process.env.NOTION_BROKERS_DB || "b3605a8e8c8e4e7fb64e046c987daefd").trim();
+const REFERRALS_DB = (process.env.NOTION_REFERRALS_DB || "e61b236d1ae54fe683bffaec8ba01e86").trim();
 const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const NOTIFY = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
@@ -303,8 +308,9 @@ const rt = (v) => (v ? [{ text: { content: clip(v, 1900) } }] : []);
 // Mirror a referral into Notion. Best effort by design: the caller does not
 // await a failure into the response, and a missing NOTION_REFERRALS_DB simply
 // turns the mirror off rather than erroring on every submission.
-async function mirrorReferral(row, brokerName) {
+async function mirrorReferral(row, broker) {
   if (!NOTION_TOKEN || !REFERRALS_DB) return "";
+  const brokerName = broker && typeof broker === "object" ? broker.full_name : broker;
   const p = {
     "الشركة المُحالة": { title: rt(row.company_name) },
     "المرجع": { rich_text: rt(row.ref) },
@@ -320,12 +326,20 @@ async function mirrorReferral(row, brokerName) {
     "طبيعة العلاقة": { rich_text: rt(row.relationship) },
     "سبب الترشيح": { rich_text: rt(row.why_need) },
     "الحالة": { select: { name: STATUS_AR[row.status] || "جديدة" } },
+    "قيمة الصفقة": { number: Number(row.deal_value) || null },
+    // The join between the two systems, in both directions: the Notion
+    // relation points at the broker's own mirror row, and the Supabase id
+    // makes any Notion row traceable back to the ledger that governs it.
+    "معرّف Supabase": { rich_text: rt(row.id) },
   };
+  if (broker && typeof broker === "object" && broker.notion_page_id) {
+    p["السمسار"] = { relation: [{ id: broker.notion_page_id }] };
+  }
   const r = await notion("pages", "POST", { parent: { database_id: REFERRALS_DB }, properties: p });
   return r.ok && r.json ? r.json.id : "";
 }
 
-async function mirrorBroker(row) {
+async function mirrorBroker(row, plan) {
   if (!NOTION_TOKEN || !BROKERS_DB) return "";
   const r = await notion("pages", "POST", {
     parent: { database_id: BROKERS_DB },
@@ -336,15 +350,32 @@ async function mirrorBroker(row) {
       "الجوال": { phone_number: row.phone || null },
       "المدينة": { rich_text: rt(row.city) },
       "الصفة": { select: { name: row.kind === "company" ? "منشأة" : "فرد" } },
-      "الحالة": { select: { name: row.status === "suspended" ? "موقوف" : "نشط" } },
+      "الحالة": { select: { name: row.status === "suspended" ? "موقوف" : row.status === "pending" ? "قيد المراجعة" : "نشط" } },
+      "نموذج العمولة": { rich_text: rt(plan ? planSentence(plan, "ar") : "") },
+      "رابط الإحالة": { url: row.code ? `${SITE}/ar/referral?r=${encodeURIComponent(row.code)}` : null },
+      "معرّف Supabase": { rich_text: rt(row.id) },
     },
   });
   return r.ok && r.json ? r.json.id : "";
 }
 
-async function updateMirrorStatus(pageId, status) {
+// Attach an already-mirrored referral to its broker's mirror row. Used when an
+// account is created after the referrals were sent: the rows exist on both
+// sides already, only the join between them is missing.
+async function linkMirrorToBroker(referralPageId, brokerPageId) {
+  if (!NOTION_TOKEN || !referralPageId || !brokerPageId) return;
+  await notion(`pages/${referralPageId}`, "PATCH", { properties: { "السمسار": { relation: [{ id: brokerPageId }] } } });
+}
+
+// A stage move in the owner panel carries the money with it, so the mirror
+// never shows a closed deal with an empty value. The commission written here
+// is a read-only echo: the binding ledger is referral_commissions in Postgres.
+async function updateMirrorStatus(pageId, status, extra = {}) {
   if (!NOTION_TOKEN || !pageId) return;
-  await notion(`pages/${pageId}`, "PATCH", { properties: { "الحالة": { select: { name: STATUS_AR[status] || "جديدة" } } } });
+  const properties = { "الحالة": { select: { name: STATUS_AR[status] || "جديدة" } } };
+  if (extra.dealValue != null) properties["قيمة الصفقة"] = { number: Number(extra.dealValue) || null };
+  if (extra.commission != null) properties["العمولة المستحقة"] = { number: Number(extra.commission) || null };
+  await notion(`pages/${pageId}`, "PATCH", { properties });
 }
 
 async function sendEmail(to, subject, html) {
@@ -630,7 +661,7 @@ export async function handleReferrals(req, res) {
     // safe, so a dead Notion token or mail provider must not fail the form.
     Promise.all([
       logEvent({ referral_id: row.id, broker_id: broker ? broker.id : null, kind: "created", to_value: row.status, actor: broker ? "broker" : "system", detail: { source: payload.source } }),
-      mirrorReferral(row, broker ? broker.full_name : referrerName).then((pid) => (pid ? sb(`referrals?id=eq.${enc(row.id)}`, { method: "PATCH", body: { notion_page_id: pid }, prefer: "return=minimal" }) : null)),
+      mirrorReferral(row, broker || referrerName).then((pid) => (pid ? sb(`referrals?id=eq.${enc(row.id)}`, { method: "PATCH", body: { notion_page_id: pid }, prefer: "return=minimal" }) : null)),
       sendEmail(NOTIFY, `إحالة جديدة ${row.ref} — ${companyName}`, wrap(`<h2 style="color:#0B1B5A">إحالة جديدة</h2>
         <p><b>المرجع:</b> ${esc(row.ref)}${row.status === "duplicate" ? " — <span style=\"color:#b91c1c\">مكررة</span>" : ""}</p>
         <p><b>الشركة:</b> ${esc(companyName)} — ${esc(payload.company_url || "بدون رابط")} · ${esc(payload.company_size)}</p>
@@ -685,13 +716,20 @@ export async function handleReferrals(req, res) {
 
     // Any referral this person already sent by e-mail, before they had an
     // account, becomes theirs the moment the account exists.
-    const claimed = await sb(`referrals?referrer_email=eq.${enc(email)}&broker_id=is.null&select=id`, { method: "GET" }).catch(() => []);
+    const claimed = await sb(`referrals?referrer_email=eq.${enc(email)}&broker_id=is.null&select=id,notion_page_id`).catch(() => []);
     if (claimed && claimed.length) {
       await sb(`referrals?referrer_email=eq.${enc(email)}&broker_id=is.null`, { method: "PATCH", body: { broker_id: broker.id }, prefer: "return=minimal" }).catch(() => {});
     }
 
     Promise.all([
-      mirrorBroker(broker).then((pid) => (pid ? sb(`brokers?id=eq.${enc(broker.id)}`, { method: "PATCH", body: { notion_page_id: pid }, prefer: "return=minimal" }) : null)),
+      // Mirror the broker first, then use the page it created to join every
+      // referral just claimed — otherwise those rows would sit in Notion with
+      // an owner in Postgres and no owner on screen.
+      mirrorBroker(broker, plan).then(async (pid) => {
+        if (!pid) return;
+        await sb(`brokers?id=eq.${enc(broker.id)}`, { method: "PATCH", body: { notion_page_id: pid }, prefer: "return=minimal" });
+        for (const r of claimed || []) await linkMirrorToBroker(r.notion_page_id, pid);
+      }),
       sendEmail(email, "حسابك في برنامج السماسرة جاهز ✅", wrap(`<h2 style="color:#0B1B5A">أهلاً ${esc(name)} 👋</h2>
         <p>حسابك في برنامج السماسرة والإحالات جاهز الآن.</p>
         <p><b>كود الإحالة الخاص بك:</b></p>
@@ -846,7 +884,7 @@ export async function handleReferrals(req, res) {
     }
 
     logEvent({ referral_id: after.id, broker_id: after.broker_id || null, kind: "status", from_value: r.status, to_value: status, actor: "owner", detail: { dealValue: after.deal_value, commission } });
-    updateMirrorStatus(r.notion_page_id, status).catch(() => {});
+    updateMirrorStatus(r.notion_page_id, status, { dealValue: after.deal_value, commission: commission ? commission.amount : null }).catch(() => {});
 
     // Tell the broker their own news — good or bad, in their own words.
     if (after.broker_id && ["contacted", "qualified", "won", "lost"].includes(status)) {
