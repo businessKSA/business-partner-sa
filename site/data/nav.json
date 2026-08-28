@@ -433,6 +433,16 @@
           "ar": "بوابة الموظفين الأذكياء"
         },
         {
+          "href": "/brokers",
+          "en": "Referral & brokers",
+          "ar": "برنامج السماسرة والإحالات"
+        },
+        {
+          "href": "/broker-portal",
+          "en": "Broker portal — sign in",
+          "ar": "بوابة السماسرة — دخول"
+        },
+        {
           "href": "/employer-join",
           "en": "Employers — join",
           "ar": "أصحاب العمل — انضم"
