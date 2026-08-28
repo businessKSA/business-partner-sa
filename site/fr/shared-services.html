@@ -104,6 +104,96 @@
     </div>
   </section>
 
+  <section class="ss-showcase">
+    <div class="wrap">
+      <div class="sc-grid">
+        <div class="sc-copy">
+          <span class="eyebrow">See it working</span>
+          <h2>One chat. A whole executive team behind it.</h2>
+          <p>You write your request the way you'd say it. Baher receives it, briefs the right specialist, and the work comes back finished — while you watch the team move, live.</p>
+          <ul class="sc-list">
+            <li>Your company file is learned once — the whole team knows your business</li>
+            <li>Every task and conversation logged in your own isolated workspace</li>
+            <li>Nothing binding — a payment, a signature, a government submission — happens without your approval</li>
+          </ul>
+          <a class="btn btn-primary" href="/fr/shared-services/dashboard">🔑 Open the portal</a>
+        </div>
+
+        <div class="sc-mock" aria-hidden="true">
+          <div class="sc-head">
+            <span class="sc-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i></i></span>
+            <div><b>Baher</b><span>Conseiller d'affaires</span></div>
+            <span class="sc-live">● Online now</span>
+          </div>
+          <div class="sc-log">
+            <div class="sc-msg me">I need a marketing plan for my store<span>10:24 ✓✓</span></div>
+            <div class="sc-msg bot b1"><b>On it.</b> Farah is preparing the plan now.<span>10:24</span></div>
+            <div class="sc-msg bot b2">Ready — audience analysis, 3 ad drafts and a monthly calendar. Shall I send them?<span>10:25</span></div>
+          </div>
+          <div class="sc-team"><span class="sc-dots"><i></i><i></i><i></i></span>📣 Farah is working on your request…</div>
+          <div class="sc-form"><span>Saisissez votre demande ici…</span><b>Envoyer</b></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      .ss-showcase{padding:44px 0 8px}
+      .ss-showcase .wrap{
+        background:
+          radial-gradient(760px 380px at 88% -12%, rgba(94,72,214,.4) 0%, transparent 60%),
+          radial-gradient(620px 340px at -8% 108%, rgba(15,158,153,.26) 0%, transparent 55%),
+          linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
+        border:1px solid rgba(255,255,255,.09);border-radius:26px;padding:34px 30px;
+        box-shadow:0 30px 80px rgba(8,10,40,.32)}
+      .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+      .sc-copy .eyebrow{background:rgba(46,230,200,.14);color:#7dffe9;border:0}
+      .sc-copy h2{color:#fff;margin:10px 0 12px;line-height:1.35}
+      .sc-copy>p{color:rgba(255,255,255,.7);line-height:1.9;margin:0 0 16px}
+      .sc-list{list-style:none;padding:0;margin:0 0 20px}
+      .sc-list li{position:relative;color:rgba(255,255,255,.78);font-size:.9rem;line-height:1.8;
+        padding-inline-start:26px;margin-bottom:9px}
+      .sc-list li::before{content:'✓';position:absolute;inset-inline-start:0;color:#2ee6c8;font-weight:800}
+      /* mock */
+      .sc-mock{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+        backdrop-filter:blur(16px);box-shadow:0 18px 50px rgba(5,8,35,.4);overflow:hidden}
+      .sc-head{display:flex;gap:11px;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);
+        border-bottom:1px solid rgba(255,255,255,.1)}
+      .sc-av{position:relative;width:42px;height:42px;flex:none}
+      .sc-av img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35)}
+      .sc-av i{position:absolute;bottom:0;inset-inline-end:0;width:10px;height:10px;border-radius:50%;
+        background:#2ee6c8;border:2px solid #131048}
+      .sc-head b{display:block;color:#fff;font-size:.95rem}
+      .sc-head>div span{display:block;font-size:.75rem;color:rgba(255,255,255,.6)}
+      .sc-live{margin-inline-start:auto;font-size:.7rem;font-weight:700;color:#2ee6c8;white-space:nowrap}
+      .sc-log{display:flex;flex-direction:column;gap:10px;padding:16px 14px;min-height:230px}
+      .sc-msg{max-width:82%;padding:10px 13px 6px;border-radius:16px;font-size:.86rem;line-height:1.75;position:relative}
+      .sc-msg span{display:block;text-align:end;font-size:.64rem;opacity:.6;margin-top:2px}
+      .sc-msg.me{align-self:flex-end;background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
+      .sc-msg.bot{align-self:flex-start;background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px}
+      .sc-msg.bot b{color:#fff}
+      .sc-msg.b1{animation:scIn .5s ease .3s both}
+      .sc-msg.b2{animation:scIn .5s ease 1.5s both}
+      @keyframes scIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+      .sc-team{display:flex;gap:9px;align-items:center;padding:8px 16px;font-size:.78rem;color:#9ef3e4;
+        background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
+      .sc-dots{display:inline-flex;gap:4px}
+      .sc-dots i{width:6px;height:6px;border-radius:50%;background:#9ef3e4;animation:scDot 1.2s infinite}
+      .sc-dots i:nth-child(2){animation-delay:.18s}.sc-dots i:nth-child(3){animation-delay:.36s}
+      @keyframes scDot{0%,60%,100%{opacity:.35}30%{opacity:1;transform:translateY(-3px)}}
+      .sc-form{display:flex;gap:9px;align-items:center;padding:12px 14px}
+      .sc-form span{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+        border-radius:14px;padding:10px 13px;font-size:.84rem;color:rgba(255,255,255,.45)}
+      .sc-form b{background:var(--brand,#0b1b5a);color:#fff;border-radius:12px;padding:10px 18px;font-size:.85rem}
+      @media(prefers-reduced-motion:reduce){.sc-msg.b1,.sc-msg.b2{animation:none}.sc-dots i{animation:none}}
+      @media(max-width:900px){
+        .sc-grid{grid-template-columns:1fr;gap:24px}
+        .sc-mock{order:-1}          /* show the product before the pitch */
+        .ss-showcase .wrap{padding:24px 16px;border-radius:20px}
+        .sc-copy h2{font-size:1.35rem}
+        .sc-log{min-height:0}
+      }
+    </style>
+  </section>
+
   <section class="ss-sec">
     <div class="wrap">
       <div class="sec-head"><h2>Comment fonctionne le service</h2><p>Une seule demande formulée simplement — l'équipe s'occupe du reste.</p></div>
