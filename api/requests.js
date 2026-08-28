@@ -1111,7 +1111,17 @@ async function recordOrderInDb(req, b, ref) {
 // للعميل عن فاتورة واحدة.
 const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
 // عنوان لوحة العروض — للاتجاه المعاكس: الموقع يسألها عن عروض العميل وعقوده.
-const PANEL_URL = (process.env.QUOTES_PANEL_URL || "").trim().replace(/\/+$/, "");
+//
+// له افتراضٌ لأن عنوانها ليس سرّاً ولا مجهولاً: هو مكتوب في vercel.json
+// تمريرةً للكتالوج، وفي لوحة التحكم رابطاً ظاهراً. وحين كان بلا افتراض،
+// قالت صفحة الحساب لصاحبها «هذا القسم غير مربوط» وكل شيء عنده مضبوط —
+// السرّ المشترك موضوع، والجسر يعمل في اتجاهه الآخر — إلا سطرٌ في Vercel
+// لم يُكتب. فمتغيّر بيئة لقيمةٍ واحدة معروفة يمنع التشغيل ولا يحمي شيئاً.
+//
+// والمتغيّر يبقى ليغلب الافتراض في بيئة تجربة أو عند تغيّر العنوان.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app")
+  .trim()
+  .replace(/\/+$/, "");
 
 function bridgeAuthorized(req) {
   if (!PANEL_BRIDGE_TOKEN) return false;
@@ -1489,7 +1499,7 @@ export default async function handler(req, res) {
   // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
   if ((q.action || "") === "my-documents") {
     res.setHeader("Cache-Control", "no-store");
-    if (!PANEL_URL || !PANEL_BRIDGE_TOKEN) {
+    if (!PANEL_BRIDGE_TOKEN) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
     }
@@ -1533,12 +1543,12 @@ export default async function handler(req, res) {
   if ((q.action || "") === "panel-quotes") {
     res.setHeader("Cache-Control", "no-store");
     if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-    if (!PANEL_URL || !PANEL_BRIDGE_TOKEN) {
+    if (!PANEL_BRIDGE_TOKEN) {
       res.statusCode = 200;
       return res.end(JSON.stringify({
         ok: true,
         configured: false,
-        ملاحظة: "اضبط QUOTES_PANEL_URL و PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع ثم أعد النشر",
+        ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع بالقيمة نفسها الموضوعة في اللوحة، ثم أعد النشر",
       }));
     }
     // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
