@@ -24,7 +24,58 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=8a57349554">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-</head>
+<style>
+/* Homepage-only: the hero becomes two columns (copy + start box) and the
+   quick-buy strip sits directly under it. Both collapse to one column early
+   enough that the box never squeezes the headline. */
+/* .hero-inner caps itself at 820px; the split hero needs the full container
+   width back — but only back to var(--maxw), never max-width:none, or the box
+   escapes the gutter and sits flush against the viewport edge.
+   The buttons and badges are their own grid child so that when the hero
+   stacks on mobile the start box lands directly under the headline instead of
+   being pushed a screen and a half down, below every CTA it replaces. */
+.hero-inner--split{max-width:var(--maxw);display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);column-gap:48px;row-gap:30px;align-items:start}
+.hero-inner--split .hero-copy{max-width:700px;grid-column:1;grid-row:1}
+.hero-inner--split .hero-start{grid-column:2;grid-row:1 / span 2;align-self:center}
+.hero-inner--split .hero-extra{grid-column:1;grid-row:2}
+.hero-inner--split .hero-badges{margin-top:26px}
+.hero-start{background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:18px;padding:26px 24px 22px;
+  box-shadow:0 18px 46px rgba(11,27,90,.13)}
+.hs-title{margin:0 0 6px;font-size:1.35rem;color:var(--navy)}
+.hs-sub{margin:0 0 18px;color:var(--text-soft);font-size:.95rem;line-height:1.6}
+.hs-label{display:block;font-weight:700;font-size:.88rem;color:var(--navy);margin:0 0 6px}
+.hs-field{width:100%;box-sizing:border-box;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;
+  font:inherit;font-size:.97rem;background:#fff;color:inherit}
+.hs-field:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,27,90,.12)}
+.hs-go{width:100%;justify-content:center}
+.hs-msg{margin:12px 0 0;font-size:.92rem;line-height:1.6;min-height:0}
+.hs-msg.err{color:#b91c1c}
+.hs-msg.ok{color:#166534}
+.hs-alt{margin:12px 0 0;font-size:.88rem;color:var(--text-soft);text-align:center}
+.hs-alt a{color:var(--navy);font-weight:600}
+.qb-sec .quick-head{margin-bottom:22px}
+.qb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.qb-card{display:flex;flex-direction:column;background:#fff;border:1px solid rgba(11,27,90,.1);border-radius:16px;
+  padding:20px;box-shadow:0 6px 20px rgba(11,27,90,.06)}
+.qb-cat{font-size:.76rem;font-weight:700;letter-spacing:.02em;color:var(--navy);opacity:.7;margin-bottom:8px}
+.qb-card h3{margin:0 0 10px;font-size:1.05rem;line-height:1.5}
+.qb-card .price-amt{font-size:1.35rem;font-weight:800;color:var(--navy);margin-bottom:12px}
+.qb-note{margin:0 0 12px;font-size:.85rem;color:var(--text-soft)}
+.qb-actions{margin-top:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.qb-more{font-size:.88rem;font-weight:600;color:var(--navy)}
+/* Centred, not start-aligned: at the end of the section the floating advisor
+   widget sits over the bottom corner and was clipping this line. */
+.qb-foot{margin:18px 0 0;font-size:.86rem;color:var(--text-soft);text-align:center}
+@media (max-width:1080px){.qb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:960px){
+  .hero-inner--split{grid-template-columns:1fr;row-gap:26px}
+  .hero-inner--split .hero-copy,
+  .hero-inner--split .hero-start,
+  .hero-inner--split .hero-extra{grid-column:1;grid-row:auto;max-width:none}
+}
+@media (max-width:640px){.qb-grid{grid-template-columns:1fr}}
+</style></head>
 <body><header class="site-header"><div class="container header-inner">
   <a class="logo" href="/zh/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="nav" aria-label="Main navigation"><a href="/zh/" class="active">首页</a><a href="/zh/about">关于我们</a><div class="nav-group">
@@ -81,16 +132,99 @@
     <button class="nav-toggle" aria-label="菜单" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">携手成就您的成功</p>
-    <h1>沙特阿拉伯全方位业务运营伙伴</h1>
-    <p class="lead">从公司注册、外商投资到执照办理、人力资源和政府合规——我们清晰高效地为您办妥每一步，直至最终签发。</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="/zh/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>预约免费咨询</span></a><a class="btn btn-ghost btn-lg" href="/zh/services">浏览服务</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>24/7 即时回复</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>90+ 项政府服务</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>收费透明</span>
+  <section class="hero"><div class="container hero-inner hero-inner--split">
+    <div class="hero-copy">
+      <p class="hero-tagline">携手成就您的成功</p>
+      <h1>沙特阿拉伯全方位业务运营伙伴</h1>
+      <p class="lead">从公司注册、外商投资到执照办理、人力资源和政府合规——我们清晰高效地为您办妥每一步，直至最终签发。</p>
     </div>
+    <aside class="hero-start" id="heroStart">
+    <h2 class="hs-title">立即开始</h2>
+    <p class="hs-sub">选择所需服务并留下手机号——我们会回复您并开始准备文件。</p>
+    <label class="hs-label" for="hsSvc">您需要哪项服务？</label>
+    <select class="hs-field" id="hsSvc">
+      <option value="">请选择服务…</option>
+      <optgroup label="最热门服务"><option value="BP-SBC-02">New Commercial Registration Issuance</option><option value="BP-FI-02">Foreign Investment License Issuance</option><option value="BP-QIWA-02">Employee Sponsorship Transfer</option><option value="BP-ZATCA-01">VAT &amp; Zakat Registration</option><option value="BP-MUQEEM-03">Iqama Renewal</option><option value="BP-BALADY-01">Municipal License Issuance</option></optgroup>
+      <optgroup label="公司注册"><option value="BP-CHAMBER-01">Chamber of Commerce membership</option><option value="BP-PL-0066">Pre-incorporation consultation</option><option value="BP-SBC-01">Saudi Company Formation</option><option value="BP-SBC-02">New Commercial Registration Issuance</option><option value="BP-SBC-03">AoA Issuance &amp; Notarization (new company)</option><option value="BP-SBC-04">Commercial Registration Issuance</option><option value="BP-SBC-05">Company Name Reservation</option><option value="BP-SBC-06">Company Account on Absher Business</option><option value="BP-SBC-07">Opening a Branch for an Existing Company</option><option value="BP-SBC-08">Company Liquidation (CR cancellation &amp; closure)</option><option value="BP-SBC-09">CR Cancellation Certificate Issuance</option><option value="BP-SBC-10">Amending AoA / Partners' Resolutions</option><option value="BP-SBC-11">Commercial Registration Amendment</option><option value="BP-SBC-12">Trade Name Reservation</option><option value="BP-SBC-13">Commercial Registration Cancellation</option><option value="BP-SBC-14">Legal Form Transformation</option><option value="BP-SBC-15">AoA Drafting &amp; Notarization Support</option><option value="BP-SBC-16">Factory setup &amp; industrial licensing services</option><option value="BP-SBC-17">Commercial Statement Request</option><option value="BP-SBC-18">Converting an Establishment into a Company</option><option value="BP-SBC-19">Commercial Registration Renewal</option><option value="BP-SBC-20">Detailed CR Extract Issuance</option><option value="CF-GEN">Company Formation — Bespoke Service</option></optgroup><optgroup label="外商投资"><option value="BP-FI-01">Foreign Investor Company Formation</option><option value="BP-FI-02">Foreign Investment License Issuance</option><option value="BP-FI-03">100%-owned foreign company formation (foreign branch)</option><option value="BP-FI-04">Joint-Venture Company Formation</option><option value="BP-FI-05">Entrepreneur-License Company Formation</option><option value="BP-FI-06">Foreign Company Branch Registration</option><option value="BP-FI-07">Foreign Investor Entry</option><option value="FI-100">Foreign Investment Setup — 100% Foreign Owned Company</option></optgroup><optgroup label="高端居留"><option value="BP-PR-01">Premium Residency service (procedures + application)</option><option value="BP-PR-02">Premium Residency Consultation</option><option value="PR-GEN">Premium Residency — Bespoke Service</option></optgroup><optgroup label="政府事务关系"><option value="BP-ABSHER-01">Absher Business Setup</option><option value="BP-BALADY-01">Municipal License Issuance</option><option value="BP-BALADY-02">E-cleaning contract (municipal requirement)</option><option value="BP-GOSI-01">GOSI Registration</option><option value="BP-GOSI-02">Add a Saudi Employee in GOSI</option><option value="BP-GOSI-03">GOSI Certificate Issuance</option><option value="BP-GR-01">Contractor Classification Certificate</option><option value="BP-MOD-01">Civil Defense Permit &amp; Safety Certificate</option><option value="BP-MOD-02">Technical Safety Report</option><option value="BP-MUDAD-01">Mudad WPS Setup</option><option value="BP-MUQEEM-01">Exit &amp; Re-entry Visa Issuance</option><option value="BP-QIWA-01">Qiwa Setup &amp; Onboarding</option><option value="BP-QIWA-02">Employee Sponsorship Transfer</option><option value="BP-QIWA-03">Employee Profession Change</option><option value="BP-QIWA-04">Adding an Authorized Representative</option><option value="BP-SAIP-01">New trademark registration</option><option value="BP-SUBL-01">National Address Registration</option><option value="BP-ZATCA-01">VAT &amp; Zakat Registration</option><option value="BP-ZATCA-02">VAT Number Issuance</option><option value="BP-ZATCA-03">Annual Zakat Return Filing</option><option value="BP-ZATCA-04">ZATCA VAT Registration</option><option value="BP-ZATCA-05">VAT Return Filing</option><option value="BP-PL-0076">Industrial License Issuance for Establishment</option><option value="BP-PL-0077">Industrial License Renewal</option><option value="BP-PL-0078">Industrial License Amendment</option><option value="BP-PL-0079">Industrial License Ownership Transfer</option><option value="BP-PL-0080">Labor Endorsement Request</option><option value="BP-PL-0081">Customs Exemption for Materials, Machinery, and Spare Parts</option><option value="BP-PL-0082">Certificate of Origin Issuance</option><option value="BP-PL-0083">Chemical Clearance Request</option><option value="BP-PL-0084">Customs Tariff Items Upgrade</option><option value="BP-PL-0085">Mining Reconnaissance License</option><option value="BP-PL-0086">Industrial Survey</option><option value="BP-PL-0087">Security Consulting Permit</option><option value="GOV-GEN">Government Transactions — Bespoke Service</option><option value="GR-GEN">Government Relations Representative</option></optgroup><optgroup label="人力资源服务"><option value="BP-HR-01">Employee Health Certificate Issuance</option><option value="BP-HR-02">Establishment File Opening at MHRSD</option><option value="BP-HR-03">HR &amp; Employee Management Services</option><option value="BP-MUDAD-02">Mudad Wage Protection File Upload</option><option value="BP-MUDAD-03">Wage Protection System Notes Resolution</option><option value="BP-MUQEEM-02">New Iqama Issuance</option><option value="BP-MUQEEM-03">Iqama Renewal</option><option value="BP-MUQEEM-04">Family Visit Visa Issuance</option><option value="BP-HOUSING-01">Worker housing — licensed collective housing</option><option value="BP-HOUSING-02">Worker transport — housing to work sites</option><option value="HR-GEN">Human Resources — Bespoke Service</option><option value="QW-EST">Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development</option></optgroup><optgroup label="招聘与人才引进"><option value="BP-REC-01">Recruitment Services &amp; Work Visa Issuance</option><option value="BP-REC-02">Work Visa Issuance</option><option value="BP-REC-03">Outsourced Employment &amp; Contracting (PEO/EOR)</option><option value="BP-REC-04">Executive Search</option><option value="BP-REC-05">Local Recruitment</option><option value="BP-REC-06">Bulk Recruitment</option><option value="REC-GEN">Recruitment and Manpower — Bespoke Service</option><option value="CV-10">Candidate CV Sourcing</option></optgroup><optgroup label="业务支持"><option value="BP-BS-01">Digital Marketing &amp; Advertising</option><option value="BP-PL-0019">Franchise Law compliance &amp; registration</option><option value="BP-PL-0035">Muqeem Account Management</option><option value="BP-PL-0050">VIP Transaction Processing</option><option value="BP-PL-0051">Corporate Bank Account Opening</option><option value="BP-PL-0052">Internal Company Regulations (Governance)</option><option value="BP-PL-0053">Company Restructuring &amp; Organization</option><option value="BP-PL-0054">Corporate Legal Representation</option><option value="BP-PL-0055">Corporate Law Consultation</option><option value="BP-PL-0056">General Business &amp; Investment Consultation</option><option value="BP-PL-0057">Economic feasibility study preparation</option><option value="BP-PL-0058">Business Plan &amp; Strategy Development</option><option value="BP-PL-0059">Financial Advisor (Accounting &amp; Bookkeeping)</option><option value="BP-PL-0060">Audit &amp; Tax Review</option><option value="BP-PL-0063">Public Relations &amp; Corporate Communications</option><option value="BP-DIAG-01">Diagnostic Report</option><option value="BP-GUIDE-01">General Industry Guide</option><option value="BP-GUIDE-02">Custom Guide</option><option value="BP-PL-0088">Commercial Agency Registration</option><option value="BP-PL-0089">Commercial Agency Registration Amendment</option><option value="BP-PL-0090">Commercial Agency Registration Renewal</option><option value="BP-PL-0091">Commercial Agency Registration Cancellation</option><option value="BP-PL-0092">Discount License Issuance</option><option value="BP-PL-0093">Precious Stones and Precious Metals Licenses</option><option value="BP-SUB-01">Updates Subscription</option><option value="BP-VENDOR-01">Vendor Qualification</option><option value="BP-VENDOR-02">Vendor Follow-up</option><option value="SBC-GEN">Shared Services — Bespoke Service</option><option value="SUP-GEN">Support and Advisory — Bespoke Service</option><option value="TR-GEN">Tourism — Bespoke Service</option><option value="MA-BRK">Mergers and Acquisitions Brokerage</option><option value="REV-LAUNCH">Business Development — Revenue Operating System — Launch Package</option><option value="REV-START">Business Development — Revenue Operating System — Starter Package</option><option value="REV-GROWTH">Business Development — Revenue Operating System — Growth Package</option><option value="REV-PRO">Business Development — Revenue Operating System — Professional Package</option><option value="REV-TEAM">Business Development — Revenue Operating System — Dedicated Team Package</option><option value="REV-ENT">Business Development — Revenue Operating System — Enterprise Package</option></optgroup><optgroup label="房地产"><option value="BP-RE-01">Private Office</option><option value="BP-RE-02">Coworking Space</option><option value="BP-RE-03">Virtual Office with National Address</option><option value="BP-RE-04">Dedicated Desk</option><option value="BP-RE-05">Office Search Service</option><option value="BP-RE-06">Foreign Property Ownership</option><option value="RE-GEN">Real Estate — Bespoke Service</option></optgroup><optgroup label="AI &amp; Automation"><option value="BP-AI-01">AI Business Partner Enterprise</option><option value="BP-AI-02">AI Agent Setup</option><option value="BP-AI-03">Compliance &amp; obligations agent</option><option value="BP-AI-SMART-EMPLOYEE">Specialist smart employee</option><option value="BP-AI-04">Shared services team</option><option value="AI-GEN">Artificial Intelligence Automation — Bespoke Service</option></optgroup>
+      <option value="other">其他 / 尚不确定</option>
+    </select>
+    <label class="hs-label" for="hsPhone">手机号码</label>
+    <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
+    <button type="button" class="btn btn-primary btn-lg hs-go" id="hsGo">立即开始</button>
+    <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
+    <p class="hs-alt">或 <a href="/zh/consultation">预约免费咨询</a> — 免费，无需承诺。</p>
+  </aside>
+    <div class="hero-extra">
+      <div class="hero-actions"><a class="btn btn-primary btn-lg" href="/zh/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>预约免费咨询</span></a><a class="btn btn-ghost btn-lg" href="/zh/services">浏览服务</a></div>
+      <div class="hero-badges">
+        <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>24/7 即时回复</span>
+        <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>90+ 项政府服务</span>
+        <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>收费透明</span>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section section--gray qb-sec"><div class="container">
+    <div class="quick-head">
+      <div><span class="eyebrow">最热门服务</span><h2>立即购买服务</h2></div>
+      <a class="btn btn-ghost" href="/zh/services">全部服务 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
+    </div>
+    <div class="qb-grid"><article class="qb-card">
+      <span class="qb-cat">公司注册</span>
+      <h3>New Commercial Registration Issuance</h3>
+      <div class="price-amt">250 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-sbc-02" data-name-en="إصدار سجل تجاري جديد" data-name-ar="إصدار سجل تجاري جديد" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-sbc-02">详情</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">外商投资</span>
+      <h3>Foreign Investment License Issuance</h3>
+      <div class="price-amt">10,000 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-fi-02" data-name-en="استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)" data-name-ar="استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)" data-amount="10000" data-price="" data-kind="service" data-bp-code="BP-FI-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-fi-02">详情</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">政府事务关系</span>
+      <h3>Employee Sponsorship Transfer</h3>
+      <div class="price-amt">1,000 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-qiwa-02" data-name-en="نقل كفالة عامل (نقل خدمة)" data-name-ar="نقل كفالة عامل (نقل خدمة)" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-QIWA-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-qiwa-02">详情</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">政府事务关系</span>
+      <h3>VAT &amp; Zakat Registration</h3>
+      <div class="price-amt">500 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-zatca-01" data-name-en="التسجيل في الزكاة والضريبة (VAT &amp; Zakat)" data-name-ar="التسجيل في الزكاة والضريبة (VAT &amp; Zakat)" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-ZATCA-01"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-zatca-01">详情</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">人力资源服务</span>
+      <h3>Iqama Renewal</h3>
+      <div class="price-amt">300 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-muqeem-03" data-name-en="تجديد إقامة (هوية مقيم)" data-name-ar="تجديد إقامة (هوية مقيم)" data-amount="300" data-price="" data-kind="service" data-bp-code="BP-MUQEEM-03"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-muqeem-03">详情</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">政府事务关系</span>
+      <h3>Municipal License Issuance</h3>
+      <div class="price-amt">1,000 ﷼</div>
+      <p class="qb-note" data-guest-note>登录后显示价格</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" data-id="bp-balady-01" data-name-en="إصدار رخصة بلدية (مقر تجاري)" data-name-ar="إصدار رخصة بلدية (مقر تجاري)" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-BALADY-01"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>加入购物车</span></button>
+        <a class="qb-more" href="/zh/services/bp-balady-01">详情</a>
+      </div>
+    </article></div>
+    <p class="qb-foot">政府规费单独计算，付款前会全额告知。</p>
   </div></section>
 
   <!-- B10X flagship — the clearest, most prominent product on the homepage -->
@@ -327,4 +461,42 @@
         <button type="submit" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=c36dc662bb"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+  </section><script src="/assets/js/main.js?v=c36dc662bb"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><script>
+(function () {
+  var go = document.getElementById("hsGo"), svc = document.getElementById("hsSvc"),
+      ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
+  if (!go || !svc || !ph || !msg) return;
+  function say(text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); }
+  // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
+  function normPhone(v) {
+    var d = String(v || "").replace(/[^\d]/g, "").replace(/^00/, "");
+    if (/^9665\d{8}$/.test(d)) return d;
+    if (/^05\d{8}$/.test(d)) return "966" + d.slice(1);
+    if (/^5\d{8}$/.test(d)) return "966" + d;
+    return "";
+  }
+  go.addEventListener("click", function () {
+    if (!svc.value) { say("请选择服务。", "err"); svc.focus(); return; }
+    var phone = normPhone(ph.value);
+    if (!phone) { say("请输入有效的沙特手机号码（05XXXXXXXX）。", "err"); ph.focus(); return; }
+    var picked = svc.options[svc.selectedIndex];
+    go.disabled = true;
+    say("发送中…", "");
+    fetch("/api/requests", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "quick-start", code: svc.value, service: picked ? picked.text : svc.value, phone: phone, lang: document.documentElement.lang || "ar" })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error("failed");
+        say("已收到 ✓ 我们的团队会尽快与您联系。参考编号：" + d.ref, "ok");
+        ph.value = ""; svc.selectedIndex = 0;
+      })
+      .catch(function () {
+        say("发送失败——请改为预约咨询。", "err");
+      })
+      .then(function () { go.disabled = false; });
+  });
+  ph.addEventListener("keydown", function (e) { if (e.key === "Enter") go.click(); });
+})();
+</script></body></html>

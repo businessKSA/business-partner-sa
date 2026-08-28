@@ -432,7 +432,7 @@
       e.preventDefault();
       var d = new FormData(f), o = { type: 'b10x-apply' };
       d.forEach(function(v, k){ o[k] = String(v); });
-      var m = $('b10xMsg'); m.style.display = 'block'; m.textContent = 'Sending…';
+      var m = $('b10xMsg'); m.style.display = 'block'; m.textContent = 'Envoi en cours…';
       fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
         .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
         .then(function(out){

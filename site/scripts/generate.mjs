@@ -917,8 +917,180 @@ function serviceQuickFacts(s, ov) {
 }
 
 /* ---------- pages ---------- */
+/* ---------- homepage conversion block ---------- */
+// The hero filled only its left half and the page carried no purchasable item
+// above the fold: a visitor who arrived ready to buy had to guess their way
+// into /services. These two blocks give them a path in one screen — tell us
+// what you need (lead → CRM), or buy one of the six most-requested services
+// outright.
+//
+// The six codes are real catalog entries (site/data/services.json); their
+// prices come from the same source every other page reads, so nothing here can
+// drift from what checkout charges.
+const HOME_QUICK_CODES = ["BP-SBC-02", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", "BP-MUQEEM-03", "BP-BALADY-01"];
+
+// «ابدأ الآن» — one dropdown, one phone field, one button. Deliberately asks
+// for nothing else: every extra field costs conversions, and the team can get
+// the rest on the call.
+function heroStartBox() {
+  const quick = HOME_QUICK_CODES.map((c) => services.find((s) => s.code === c)).filter(Boolean);
+  const opt = (s) => `<option value="${esc(s.code)}">${esc(sName(s))}</option>`;
+  const groups = categories
+    .map((c) => {
+      const inCat = services.filter((s) => s.category === c.key);
+      if (!inCat.length) return "";
+      return `<optgroup label="${esc(catLabel(c.key))}">${inCat.map(opt).join("")}</optgroup>`;
+    })
+    .join("");
+  return `<aside class="hero-start" id="heroStart">
+    <h2 class="hs-title">${L("Start now", "ابدأ الآن")}</h2>
+    <p class="hs-sub">${L("Pick your service, leave your mobile — we reply and prepare your documents.", "اختر خدمتك واترك رقم جوالك — نتواصل معك ونبدأ بتجهيز مستنداتك.")}</p>
+    <label class="hs-label" for="hsSvc">${L("Which service do you need?", "أي خدمة تحتاج؟")}</label>
+    <select class="hs-field" id="hsSvc">
+      <option value="">${L("Choose a service…", "اختر الخدمة…")}</option>
+      <optgroup label="${L("Most requested", "الأكثر طلباً")}">${quick.map(opt).join("")}</optgroup>
+      ${groups}
+      <option value="other">${L("Something else / not sure", "شيء آخر / لست متأكداً")}</option>
+    </select>
+    <label class="hs-label" for="hsPhone">${L("Mobile number", "رقم الجوال")}</label>
+    <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
+    <button type="button" class="btn btn-primary btn-lg hs-go" id="hsGo">${L("Start now", "ابدأ الآن")}</button>
+    <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
+    <p class="hs-alt">${L("Or", "أو")} <a href="${u("/consultation")}">${L("book a free consultation", "احجز استشارة مجانية")}</a> — ${L("no cost, no commitment.", "بدون تكلفة أو التزام.")}</p>
+  </aside>`;
+}
+
+// The six most-requested services, buyable from the homepage. Prices ride the
+// existing owner policy: .price-amt is hidden while SHOW_PRICES is false and
+// appears automatically once a client is signed in, so this strip never leaks
+// a price the rest of the site is withholding.
+function homeQuickBuy() {
+  const cards = HOME_QUICK_CODES.map((code) => {
+    const s = services.find((x) => x.code === code);
+    if (!s || s.price.amount == null) return "";
+    const data = `data-id="${esc(s.slug)}" data-name-en="${esc(s.name)}" data-name-ar="${esc(sNameArOf(s))}" data-amount="${s.price.amount}" data-price="${esc(localizeLabel(s.price.label || ""))}" data-kind="service" data-bp-code="${esc(s.code)}"`;
+    return `<article class="qb-card">
+      <span class="qb-cat">${esc(catLabel(s.category))}</span>
+      <h3>${esc(sName(s))}</h3>
+      <div class="price-amt">${esc(localizeLabel(s.price.label || ""))}</div>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <div class="qb-actions">
+        <button type="button" class="btn btn-primary add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف للسلة")}</span></button>
+        <a class="qb-more" href="${u("/services/" + s.slug)}">${L("Details", "التفاصيل")}</a>
+      </div>
+    </article>`;
+  }).join("");
+  return `<section class="section section--gray qb-sec"><div class="container">
+    <div class="quick-head">
+      <div><span class="eyebrow">${L("Most requested", "الأكثر طلباً")}</span><h2>${L("Buy a service right now", "خدمات تشتريها الآن")}</h2></div>
+      <a class="btn btn-ghost" href="${u("/services")}">${L("All services", "كل الخدمات")} ${I.arrow}</a>
+    </div>
+    <div class="qb-grid">${cards}</div>
+    <p class="qb-foot">${L("Government fees are separate and disclosed before you pay.", "الرسوم الحكومية منفصلة ومعلنة قبل الدفع.")}</p>
+  </div></section>`;
+}
+
+const homeStartCss = `<style>
+/* Homepage-only: the hero becomes two columns (copy + start box) and the
+   quick-buy strip sits directly under it. Both collapse to one column early
+   enough that the box never squeezes the headline. */
+/* .hero-inner caps itself at 820px; the split hero needs the full container
+   width back — but only back to var(--maxw), never max-width:none, or the box
+   escapes the gutter and sits flush against the viewport edge.
+   The buttons and badges are their own grid child so that when the hero
+   stacks on mobile the start box lands directly under the headline instead of
+   being pushed a screen and a half down, below every CTA it replaces. */
+.hero-inner--split{max-width:var(--maxw);display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);column-gap:48px;row-gap:30px;align-items:start}
+.hero-inner--split .hero-copy{max-width:700px;grid-column:1;grid-row:1}
+.hero-inner--split .hero-start{grid-column:2;grid-row:1 / span 2;align-self:center}
+.hero-inner--split .hero-extra{grid-column:1;grid-row:2}
+.hero-inner--split .hero-badges{margin-top:26px}
+.hero-start{background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:18px;padding:26px 24px 22px;
+  box-shadow:0 18px 46px rgba(11,27,90,.13)}
+.hs-title{margin:0 0 6px;font-size:1.35rem;color:var(--navy)}
+.hs-sub{margin:0 0 18px;color:var(--text-soft);font-size:.95rem;line-height:1.6}
+.hs-label{display:block;font-weight:700;font-size:.88rem;color:var(--navy);margin:0 0 6px}
+.hs-field{width:100%;box-sizing:border-box;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;
+  font:inherit;font-size:.97rem;background:#fff;color:inherit}
+.hs-field:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,27,90,.12)}
+.hs-go{width:100%;justify-content:center}
+.hs-msg{margin:12px 0 0;font-size:.92rem;line-height:1.6;min-height:0}
+.hs-msg.err{color:#b91c1c}
+.hs-msg.ok{color:#166534}
+.hs-alt{margin:12px 0 0;font-size:.88rem;color:var(--text-soft);text-align:center}
+.hs-alt a{color:var(--navy);font-weight:600}
+.qb-sec .quick-head{margin-bottom:22px}
+.qb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.qb-card{display:flex;flex-direction:column;background:#fff;border:1px solid rgba(11,27,90,.1);border-radius:16px;
+  padding:20px;box-shadow:0 6px 20px rgba(11,27,90,.06)}
+.qb-cat{font-size:.76rem;font-weight:700;letter-spacing:.02em;color:var(--navy);opacity:.7;margin-bottom:8px}
+.qb-card h3{margin:0 0 10px;font-size:1.05rem;line-height:1.5}
+.qb-card .price-amt{font-size:1.35rem;font-weight:800;color:var(--navy);margin-bottom:12px}
+.qb-note{margin:0 0 12px;font-size:.85rem;color:var(--text-soft)}
+.qb-actions{margin-top:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.qb-more{font-size:.88rem;font-weight:600;color:var(--navy)}
+/* Centred, not start-aligned: at the end of the section the floating advisor
+   widget sits over the bottom corner and was clipping this line. */
+.qb-foot{margin:18px 0 0;font-size:.86rem;color:var(--text-soft);text-align:center}
+@media (max-width:1080px){.qb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:960px){
+  .hero-inner--split{grid-template-columns:1fr;row-gap:26px}
+  .hero-inner--split .hero-copy,
+  .hero-inner--split .hero-start,
+  .hero-inner--split .hero-extra{grid-column:1;grid-row:auto;max-width:none}
+}
+@media (max-width:640px){.qb-grid{grid-template-columns:1fr}}
+</style>`;
+
+// Sends the hero box to /api/requests as a "quick-start" lead. Kept inline and
+// tiny so it works on the first paint, before main.js has parsed.
+function heroStartScript() {
+  const T = (en, ar) => JSON.stringify(Lraw(en, ar));
+  return `<script>
+(function () {
+  var go = document.getElementById("hsGo"), svc = document.getElementById("hsSvc"),
+      ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
+  if (!go || !svc || !ph || !msg) return;
+  function say(text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); }
+  // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
+  function normPhone(v) {
+    var d = String(v || "").replace(/[^\\d]/g, "").replace(/^00/, "");
+    if (/^9665\\d{8}$/.test(d)) return d;
+    if (/^05\\d{8}$/.test(d)) return "966" + d.slice(1);
+    if (/^5\\d{8}$/.test(d)) return "966" + d;
+    return "";
+  }
+  go.addEventListener("click", function () {
+    if (!svc.value) { say(${T("Please choose a service.", "من فضلك اختر الخدمة.")}, "err"); svc.focus(); return; }
+    var phone = normPhone(ph.value);
+    if (!phone) { say(${T("Enter a valid Saudi mobile number (05XXXXXXXX).", "أدخل رقم جوال سعودي صحيح (05XXXXXXXX).")}, "err"); ph.focus(); return; }
+    var picked = svc.options[svc.selectedIndex];
+    go.disabled = true;
+    say(${T("Sending…", "جاري الإرسال…")}, "");
+    fetch("/api/requests", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "quick-start", code: svc.value, service: picked ? picked.text : svc.value, phone: phone, lang: document.documentElement.lang || "ar" })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error("failed");
+        say(${T("Received ✓ Our team will call you shortly. Reference: ", "وصلنا طلبك ✓ سيتواصل معك فريقنا قريباً. رقم المرجع: ")} + d.ref, "ok");
+        ph.value = ""; svc.selectedIndex = 0;
+      })
+      .catch(function () {
+        say(${T("Sending failed — please book a consultation instead.", "تعذّر الإرسال — يمكنك حجز استشارة بدلاً من ذلك.")}, "err");
+      })
+      .then(function () { go.disabled = false; });
+  });
+  ph.addEventListener("keydown", function (e) { if (e.key === "Enter") go.click(); });
+})();
+</script>`;
+}
+
 function buildHome() {
   const h = site.home;
+
   // Parallel English content (index-aligned with the Arabic data in site.json).
   const EN = {
     heroTitle: "One operating partner for every business requirement in Saudi Arabia",
@@ -975,17 +1147,24 @@ function buildHome() {
     .join("");
 
   const body = `
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
-    <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
-    <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a><a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
-      <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
-      <span class="hero-badge">${I.check}${L("Transparent fees", "أتعاب شفافة")}</span>
+  <section class="hero"><div class="container hero-inner hero-inner--split">
+    <div class="hero-copy">
+      <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
+      <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
+      <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
+    </div>
+    ${heroStartBox()}
+    <div class="hero-extra">
+      <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a><a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
+      <div class="hero-badges">
+        <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
+        <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
+        <span class="hero-badge">${I.check}${L("Transparent fees", "أتعاب شفافة")}</span>
+      </div>
     </div>
   </div></section>
+
+  ${homeQuickBuy()}
 
   <!-- B10X flagship — the clearest, most prominent product on the homepage -->
   <section class="section" style="padding-top:26px;padding-bottom:26px"><div class="container">
@@ -1059,7 +1238,11 @@ function buildHome() {
     <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p><a class="btn btn-white btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
   </div></section>`;
 
-  return page({ title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"), desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio), active: "/", body });
+  return page({
+    title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"),
+    desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio),
+    active: "/", body, extraHead: homeStartCss, script: heroStartScript(),
+  });
 }
 
 function buildAbout() {

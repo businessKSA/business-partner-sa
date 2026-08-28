@@ -4867,6 +4867,35 @@ export default async function handler(req, res) {
 
   // Revenue OS diagnosis-session lead from /revenue-os — lands in the CRM and
   // notifies the team + owner immediately (this form used to be a demo stub).
+  // Homepage hero «ابدأ الآن» — the shortest path from landing to a lead:
+  // a service and a mobile number, nothing else. Every extra required field
+  // costs conversions here, so name/email stay optional and the team collects
+  // the rest on the call. Lands in the CRM like any other website lead and
+  // fires the owner's instant email + WhatsApp alert.
+  if (b.type === "quick-start") {
+    const service = String(b.service || "").trim().slice(0, 200);
+    const code = String(b.code || "").trim().slice(0, 40);
+    const phone = String(b.phone || "").replace(/[^\d+]/g, "").slice(0, 20);
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!service || !/^(\+?966|0)?5\d{8}$/.test(phone.replace(/^\+/, ""))) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
+    }
+    const ref = "QS-" + Date.now().toString().slice(-6);
+    const notes = `طلب سريع من الصفحة الرئيسية · الخدمة: ${service}${code && code !== "other" ? ` (${code})` : ""}`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب سريع من الموقع — ${ref}</h2><table>${row("الخدمة المطلوبة", service) + row("رمز الخدمة", code || "—") + row("الجوال", phone) + (name ? row("الاسم", name) : "") + (email ? row("البريد", email) : "")}</table><p style="color:#b91c1c;font-weight:700">اتصل بالعميل اليوم — الطلب مسجّل في «Sales Pipeline» برقم ${ref}.</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `⚡ طلب سريع ${ref} — ${service}`, oHtml),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `⚡ طلب سريع ${ref} — ${service}`, oHtml) : Promise.resolve(),
+      crmLead({ title: `طلب سريع — ${service}`, phone, email, notes, ref, leadSource: "نموذج الموقع", followUpDays: 1 }),
+      isEmail(email) ? addToAudience(email, name) : Promise.resolve(),
+      forwardLead({ source: "quick-start", ref, name, phone, email, notes, service, code }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   if (b.type === "revenue-lead") {
     const name = String(b.name || "").trim().slice(0, 160);
     const company = String(b.company || "").trim().slice(0, 200);
