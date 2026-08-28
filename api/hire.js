@@ -69,6 +69,9 @@ const PROVIDERS = [
 ];
 const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
 
+export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
+export const aiAvailable = () => available().length > 0;
+
 async function ai(prompt, maxTokens) {
   const errs = [];
   for (const p of available()) {
@@ -127,6 +130,43 @@ function buildPrompt(b) {
     }
     return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 12000)}`;
   }
+  // Rewrites a CV so it survives applicant-tracking software and reads well in
+  // English, and scores it before and after. The rules exist because the
+  // tempting version of this feature — inventing a better candidate — would
+  // put a person's name on claims they never made, and send them into
+  // interviews they cannot answer for.
+  if (b.task === "cv-boost") {
+    const cv = String(b.cvText || "").slice(0, 14000);
+    const target = String(b.targetRole || "").slice(0, 200);
+    return `You are an expert CV writer and an ATS (applicant tracking system) analyst.
+
+Below is a candidate's CV, in whatever language and shape they wrote it.
+
+TASK
+1. Detect the language it is written in.
+2. Rewrite it as an excellent, ATS-friendly CV **in English**. If the original is Arabic, this is also a translation.
+3. If the original was NOT English, also give the same improved CV in the original language.
+4. Score the ORIGINAL and the REWRITE, 0-100, on how well an ATS and a recruiter would read them.
+5. List what you actually improved.
+
+ABSOLUTE RULES — a violation makes the whole output useless:
+- Invent NOTHING. No employer, job title, date, degree, certificate, tool or skill that is not in the original.
+- Do not inflate seniority, do not extend dates, do not turn a duty into an achievement that was never claimed.
+- Numbers may only appear if the candidate gave them. Never estimate a metric.
+- If something is missing (no dates, no education), leave it out and name it in "missing" — do not paper over it.
+- You improve WORDING, STRUCTURE, ORDER and KEYWORDS. You never improve the FACTS.
+
+The rewrite should: lead with a short professional summary; use standard section headings (Summary, Skills, Work Experience, Education, Certifications, Languages); put the most relevant experience first; start bullets with strong action verbs; surface real keywords a recruiter would search for${target ? ` (target role: ${target})` : ""}; drop photos, tables, columns and graphics that ATS software cannot read.
+
+Scoring must be honest: score_before reflects the original as written. score_after reflects the rewrite. If the original was already strong, the gain is small — say so rather than manufacturing a jump.
+
+Return ONLY this JSON, no code fences, no commentary:
+{"source_language":"Arabic|English|other","cv_english":"<full rewritten CV in markdown>","cv_original_language":"<same CV in the original language, or empty string if the original was English>","score_before":0-100,"score_after":0-100,"improvements":["...","..."],"missing":["..."],"target_role_guess":"..."}
+
+CV:
+---
+${cv}`;
+  }
   if (b.task === "jobdesc") {
     const title = String(b.title || "").slice(0, 200);
     const field = String(b.field || "").slice(0, 100);
@@ -145,11 +185,11 @@ export default async function handler(req, res) {
   if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
 
   const b = await readBody(req);
-  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate"].includes(b.task) ? b.task : "";
+  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate", "cv-boost"].includes(b.task) ? b.task : "";
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
   try {
-    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : 900);
+    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : task === "cv-boost" ? 6000 : 900);
     if (task === "match") {
       let ranked = [];
       try {

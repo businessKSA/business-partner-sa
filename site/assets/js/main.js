@@ -7422,6 +7422,58 @@ var BP_EMP_BILLING = "monthly";
       }
       bfLoop(dryRun);
     }
+    // CV rewriting: one AI call per candidate, so batches are small and the
+    // loop is what makes it finish. Same shape as the back-fill drain.
+    var cvStop = false, cvDone = 0, cvRows = [];
+    function cvFinish(text, isError) {
+      var m = bfEl("js-cv-msg");
+      m.style.color = isError ? "#B91C1C" : "";
+      m.textContent = text;
+      bfEl("js-cv-run").disabled = false;
+      bfEl("js-cv-run").textContent = "✨ " + T("Improve pending CVs", "حسّن السير المعلّقة");
+      bfEl("js-cv-stop").hidden = true;
+      bfEl("js-cv-stop").disabled = false;
+    }
+    function cvLoop() {
+      if (cvStop) return cvFinish(T("Stopped after ", "توقفنا بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."));
+      fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "boost-cvs", key: KEY, limit: 5 }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) {
+          return cvFinish(d && d.error === "ai_not_configured"
+            ? T("No AI provider is configured.", "لا يوجد مزوّد ذكاء اصطناعي مهيّأ.")
+            : d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.")
+            : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        }
+        cvDone += d.done;
+        cvRows = cvRows.concat(d.results || []);
+        bfEl("js-cv-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+          "<th>" + T("Name", "الاسم") + "</th><th>" + T("Original", "الأصل") + "</th><th>" + T("Score", "الدرجة") + "</th>" +
+          "</tr></thead><tbody>" + cvRows.slice(-40).map(function (r) {
+            var score = (r.before != null && r.after != null) ? r.before + " → <b style=\"color:#047857\">" + r.after + "</b>" : "—";
+            return "<tr><td>" + esc(r.name || "—") + "</td><td>" + esc(r.lang || "—") + "</td><td>" + (r.ok ? score : T("failed", "فشلت")) + "</td></tr>";
+          }).join("") + "</tbody></table></div>";
+        if (!d.batch) return cvFinish(cvDone
+          ? T("Done — ", "تم — ") + cvDone + T(" CVs rewritten and scored.", " سيرة أُعيدت صياغتها وحُسبت درجتها.")
+          : T("No CVs waiting.", "لا توجد سير تنتظر."));
+        bfEl("js-cv-msg").textContent = cvDone + T(" done so far. Keep this page open.", " أُنجزت حتى الآن. اترك الصفحة مفتوحة.");
+        setTimeout(cvLoop, 400);
+      }).catch(function () {
+        cvFinish(T("Network error after ", "خطأ في الاتصال بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+    bfEl("js-cv-run").addEventListener("click", function () {
+      cvStop = false; cvDone = 0; cvRows = [];
+      this.disabled = true; this.textContent = T("Working…", "جارٍ العمل…");
+      bfEl("js-cv-stop").hidden = false;
+      bfEl("js-cv-out").innerHTML = "";
+      bfEl("js-cv-msg").style.color = "";
+      bfEl("js-cv-msg").textContent = T("Rewriting — each CV takes a few seconds.", "جارٍ إعادة الصياغة — كل سيرة تأخذ ثوانٍ.");
+      cvLoop();
+    });
+    bfEl("js-cv-stop").addEventListener("click", function () { cvStop = true; this.disabled = true; });
+
     bfEl("js-bf-dry").addEventListener("click", function () { backfill(true); });
     bfEl("js-bf-run").addEventListener("click", function () { backfill(false); });
     bfEl("js-bf-stop").addEventListener("click", function () { bfStop = true; this.disabled = true; });

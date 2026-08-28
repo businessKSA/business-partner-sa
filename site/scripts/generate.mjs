@@ -8484,6 +8484,21 @@ function buildJobSearchAdmin() {
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
+            <h3 style="margin:0">${L("Rewrite and score CVs", "حسّن السير الذاتية واحسب درجتها")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Rewrites each CV so hiring software can read it, translates it into English when it isn't, and scores it before and after. Wording, structure and keywords only — no fact, date or employer is ever changed.", "يعيد صياغة كل سيرة لتقرأها برامج التوظيف، ويترجمها للإنجليزية إن لم تكن كذلك، ويحسب درجتها قبل وبعد. الصياغة والترتيب والكلمات المفتاحية فقط — لا تُغيَّر أي معلومة أو تاريخ أو جهة عمل.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-primary btn-sm" id="js-cv-run">✨ ${L("Improve pending CVs", "حسّن السير المعلّقة")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-cv-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="js-cv-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-cv-out" style="margin-top:8px"></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
             <h3 style="margin:0">${L("Send past applicants their own copy", "أرسل للمتقدمين السابقين نسختهم")}</h3>
             <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy and keeps going until the queue is empty; leave the page open. One mail per person, however many times they applied, and nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته ويكمل حتى ينتهي الطابور؛ اترك الصفحة مفتوحة. رسالة واحدة لكل شخص مهما تكرر تقديمه، ولا أحد يصله البريد مرتين.")}</p>
           </div>
