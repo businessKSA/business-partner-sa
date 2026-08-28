@@ -73,6 +73,149 @@ for (const [label, listUrl] of [
   check(res?.status() === 200 && !!title, `تفصيل ${label}`, title ?? `HTTP ${res?.status()}`);
 }
 
+/**
+ * يشغّل الأصولَ الثابتة والعملاتِ والتسويةَ البنكية على منشأةٍ بكر.
+ * يُنادى من داخل دورة البيع أدناه، فالمنشأة تُحذف بعده.
+ */
+async function runNewModules(p) {
+  const Y = new Date().getUTCFullYear();
+
+  // ١. أصل ثابت: يُضاف، ثم يُولَّد مسيّر استهلاكه ويُرحَّل
+  await p.goto(`${BASE}/assets`, { waitUntil: 'domcontentloaded' });
+  await p.click('.content button:has-text("إضافة أصل")');
+  await p.fill('#nameAr', 'خادم اختبار آلي');
+  await p.fill('#categoryAr', 'أجهزة');
+  await p.fill('#purchaseDate', `${Y}-01-15`);
+  await p.fill('#inServiceDate', `${Y}-01-15`);
+  await p.fill('#cost', '48000');
+  await p.fill('#salvageValue', '0');
+  await p.fill('#usefulLifeMonths', '48');
+  await p.click('.content form button[type=submit]');
+  await p.waitForTimeout(2500);
+
+  await p.goto(`${BASE}/assets`, { waitUntil: 'domcontentloaded' });
+  check(
+    (await p.locator('tbody tr', { hasText: 'خادم اختبار آلي' }).count()) === 1,
+    'إضافة أصل ثابت من الواجهة',
+  );
+
+  // ٤٨٬٠٠٠ على ٤٨ شهراً = ١٬٠٠٠ شهرياً
+  await p.goto(`${BASE}/assets/depreciation`, { waitUntil: 'domcontentloaded' });
+  await p.selectOption('#month', '2');
+  await p.fill('#year', String(Y));
+  await p.click('.content form button[type=submit]');
+  await p.waitForTimeout(3000);
+
+  const amount = await p
+    .locator('tbody tr', { hasText: 'خادم اختبار آلي' }).first()
+    .locator('td').nth(3).textContent().catch(() => null);
+  check(
+    amount?.replace(/[^\d.]/g, '') === '1000.00',
+    'قسط الاستهلاك يُحسب صحيحاً في المسيّر',
+    amount ?? 'لا سطر',
+  );
+
+  await p.click('button:has-text("ترحيل")');
+  await p.waitForTimeout(3000);
+  await p.goto(`${BASE}/assets/depreciation`, { waitUntil: 'domcontentloaded' });
+  check(
+    (await p.locator('.badge', { hasText: 'مرحَّل' }).count()) > 0,
+    'ترحيل مسيّر الاستهلاك من الواجهة',
+  );
+
+  await p.goto(`${BASE}/assets`, { waitUntil: 'domcontentloaded' });
+  const accum = await p
+    .locator('tbody tr', { hasText: 'خادم اختبار آلي' })
+    .locator('td').nth(7).textContent().catch(() => null);
+  check(
+    accum?.replace(/[^\d.]/g, '') === '1000.00',
+    'المجمَّع يظهر في سجل الأصول بعد الترحيل',
+    accum ?? 'لا قيمة',
+  );
+
+  // ٢. سعر صرف يُدخَل من شاشة العملات
+  await p.goto(`${BASE}/accounting/fx`, { waitUntil: 'domcontentloaded' });
+  await p.fill('#currency', 'usd');
+  await p.fill('#rate', '3.75');
+  await p.click('.content form button[type=submit]');
+  await p.waitForTimeout(2500);
+  await p.goto(`${BASE}/accounting/fx`, { waitUntil: 'domcontentloaded' });
+  check(
+    (await p.locator('tbody tr', { hasText: 'USD' }).count()) > 0,
+    'حفظ سعر صرف من الواجهة — والرمز يُرفع حرفه',
+  );
+
+  // ٣. التسوية البنكية كاملةً: استيراد، فقيدُ تسوية، فقفل
+  await p.goto(`${BASE}/treasury/reconciliation`, { waitUntil: 'domcontentloaded' });
+  await p.click('.content button:has-text("استيراد كشف حساب")');
+
+  // كشفٌ من سطرٍ واحد لا يقابله شيء في الدفتر: رسومٌ بنكية. الافتتاحي صفر
+  // والختامي −٧٥ = ٠ + (−٧٥)، فيتزن ويُقبل. والقوسان صيغةُ سالبٍ مقصودة.
+  const csv = [
+    'التاريخ,الوصف,المرجع,المبلغ,الرصيد',
+    `${Y}-02-27,رسوم خدمات بنكية,,(75.00),-75.00`,
+  ].join('\n');
+
+  await p.selectOption('#bankAccountId', { index: 0 });
+  await p.fill('#reference', `E2E-${Y}-02`);
+  await p.fill('#fromDate', `${Y}-02-01`);
+  await p.fill('#toDate', `${Y}-02-28`);
+  await p.fill('#openingBalance', '0');
+  await p.fill('#closingBalance', '-75');
+  await p.fill('#csv', csv);
+  await p.click('.content form button[type=submit]');
+  await p.waitForTimeout(3000);
+
+  await p.goto(`${BASE}/treasury/reconciliation`, { waitUntil: 'domcontentloaded' });
+  const stmtRow = p.locator('tbody tr', { hasText: `E2E-${Y}-02` });
+  check((await stmtRow.count()) === 1, 'استيراد كشف حساب من الواجهة');
+
+  const href = await stmtRow.locator('a').getAttribute('href');
+  await p.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
+
+  // القفل ممنوع ما دام السطر بلا تفسير — والزر معطَّل لا مخفيّ
+  check(
+    await p.locator('button:has-text("قفل التسوية")').isDisabled(),
+    'القفل ممنوع ما دام في الكشف سطرٌ بلا تفسير',
+  );
+
+  await p.click('button:has-text("قيد تسوية")');
+  // الحساب يُختار بنصّه لا برمزه: الرموز تُعاد ترقيمها في شجرة كل منشأة.
+  const chargesValue = await p.$eval(
+    'select[name=counterAccountId]',
+    (sel) => [...sel.options].find((o) => o.textContent.includes('المصروفات البنكية'))?.value,
+  );
+  check(!!chargesValue, 'حساب المصروفات البنكية مقترَحٌ في قائمة قيد التسوية');
+  await p.selectOption('select[name=counterAccountId]', chargesValue);
+  await p.click('button:has-text("ترحيل القيد")');
+  await p.waitForTimeout(3000);
+
+  await p.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
+  check(
+    (await p.locator('.badge', { hasText: 'مطابَق' }).count()) > 0,
+    'قيد التسوية يُرحَّل ويطابق السطر بنفسه',
+  );
+  check(
+    !(await p.locator('button:has-text("قفل التسوية")').isDisabled()),
+    'القفل يُتاح بعد تفسير كل بند',
+  );
+
+  await p.click('button:has-text("قفل التسوية")');
+  await p.waitForTimeout(3000);
+  await p.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
+  check(
+    (await p.locator('.topbar .badge', { hasText: 'مُسوّى' }).count()) > 0,
+    'قفل التسوية البنكية من الواجهة',
+  );
+
+  // ٤. الدفتر ما زال سليماً بعد قيود الموديولات الجديدة
+  await p.goto(`${BASE}/admin/audit`, { waitUntil: 'domcontentloaded' });
+  check(
+    !(await p.textContent('body')).includes('قيد غير متوازن'),
+    'فحص السلامة لا يجد قيداً غير متوازن بعد قيود الموديولات الجديدة',
+  );
+}
+
 // ── ٣. الدورة التي يُباع بها النظام ───────────────────────────────────
 await page.goto(`${BASE}/platform/tenants`, { waitUntil: 'domcontentloaded' });
 check(
@@ -125,6 +268,18 @@ if (created) {
     'لوحة المنصة محجوبة عن مالك المنشأة',
     new URL(client.url()).pathname,
   );
+
+  // ── الموديولات الجديدة تُشغَّل من الواجهة، داخل هذه المنشأة بالذات ──
+  //
+  // صفحةٌ تُعرض ليست صفحةً تعمل. ما يلي يُدخل بيانات حقيقية عبر النماذج
+  // نفسها التي يستعملها المحاسب، لأن ما بين إجراء الخادم والنموذج —
+  // أسماءُ الحقول، ومربّعُ اختيارٍ لا يُرسَل حين لا يُؤشَّر — لا يمسكه إلا
+  // متصفّحٌ حقيقي.
+  //
+  // ولماذا هنا لا على منشأة العرض؟ لأن المنشأة تُحذف بعد قليل، فيبدأ كل
+  // تشغيلٍ من صفر. اختبارُ دخانٍ لا ينجح إلا على قاعدةٍ بكر يفشل في ثاني
+  // مرّة، ولا يُشغّله أحدٌ بعدها.
+  await runNewModules(client);
 
   // تنظيف: حذف منشأة الاختبار من لوحة المنصة نفسها.
   // الصف يُستهدف بوسم `data-tenant-slug` لا بترتيبه: صفوف التأكيد والخطأ

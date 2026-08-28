@@ -29,6 +29,8 @@ const GROUPS: Group[] = [
       { href: '/accounting/balance-sheet', label: 'المركز المالي', icon: '▣', perm: 'accounting.report.read' },
       { href: '/accounting/vat', label: 'إقرار ضريبة القيمة المضافة', icon: '٪', perm: 'accounting.vat.read' },
       { href: '/accounting/periods', label: 'الفترات المالية', icon: '⧗', perm: 'accounting.report.read' },
+      { href: '/accounting/closing', label: 'الإقفال السنوي', icon: '🔒', perm: 'accounting.report.read' },
+      { href: '/accounting/fx', label: 'العملات وفروق التقييم', icon: '💱', perm: 'accounting.report.read' },
     ],
   },
   {
@@ -47,6 +49,7 @@ const GROUPS: Group[] = [
       { href: '/purchasing/vendors', label: 'الموردون', icon: '🏢', perm: 'purchase.partner.read' },
       { href: '/treasury/payments', label: 'سندات القبض والصرف', icon: '💳', perm: 'treasury.payment.read' },
       { href: '/treasury/banks', label: 'الحسابات البنكية', icon: '🏦', perm: 'treasury.payment.read' },
+      { href: '/treasury/reconciliation', label: 'التسوية البنكية', icon: '⇋', perm: 'treasury.statement.read' },
     ],
   },
   {
@@ -55,6 +58,13 @@ const GROUPS: Group[] = [
       { href: '/inventory/items', label: 'الأصناف', icon: '📦', perm: 'inventory.item.read' },
       { href: '/inventory/valuation', label: 'قيمة المخزون', icon: '💰', perm: 'inventory.item.read' },
       { href: '/inventory/moves', label: 'حركات المخزون', icon: '⇄', perm: 'inventory.move.read' },
+    ],
+  },
+  {
+    title: 'الأصول الثابتة',
+    items: [
+      { href: '/assets', label: 'سجل الأصول', icon: '🏗', perm: 'assets.asset.read' },
+      { href: '/assets/depreciation', label: 'مسيّرات الاستهلاك', icon: '📉', perm: 'assets.asset.read' },
     ],
   },
   {
@@ -90,8 +100,24 @@ function allowed(permissions: string[], perm?: string): boolean {
   return permissions.includes(`${perm.split('.')[0]}.*`);
 }
 
+const ALL_HREFS = GROUPS.flatMap((g) => g.items.map((i) => i.href));
+
+/**
+ * البند المضاء هو **أطول** بادئةٍ تطابق المسار.
+ *
+ * والطولُ هو المهم: `/assets` و`/assets/depreciation` كلاهما بادئةٌ للثاني،
+ * فمطابقةُ البادئة وحدها تُضيء البندين معاً. ولهذا لا يحتاج أيُّ بندٍ إلى
+ * استثناءٍ مكتوبٍ باسمه — تُضاف صفحةٌ فرعية فيعمل الأمر من تلقائه.
+ */
+function activeHref(pathname: string): string | undefined {
+  return ALL_HREFS
+    .filter((h) => pathname === h || pathname.startsWith(`${h}/`))
+    .sort((a, b) => b.length - a.length)[0];
+}
+
 export function Nav({ permissions }: { permissions: string[] }) {
   const pathname = usePathname();
+  const current = activeHref(pathname);
 
   return (
     <nav className="nav">
@@ -103,12 +129,7 @@ export function Nav({ permissions }: { permissions: string[] }) {
           <div className="nav-group" key={group.title}>
             <h4>{group.title}</h4>
             {items.map((item) => {
-              // المطابقة بالبادئة ليُضاء البند وأنت في صفحةٍ فرعية منه،
-              // مع استثناء الجذر حتى لا يبقى مضاءً في كل مكان.
-              const active =
-                pathname === item.href ||
-                (item.href !== '/dashboard' && item.href !== '/projects' && pathname.startsWith(`${item.href}/`)) ||
-                (item.href === '/projects' && pathname === '/projects');
+              const active = item.href === current;
               return (
                 <Link key={item.href} href={item.href} className={active ? 'active' : ''}>
                   <span className="ico">{item.icon}</span>

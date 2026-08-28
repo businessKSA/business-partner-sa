@@ -22,6 +22,10 @@ export const PERMISSIONS = {
   'accounting.period.close': { ar: 'قفل وفتح الفترات', en: 'Close/reopen periods' },
   'accounting.report.read': { ar: 'عرض التقارير المالية', en: 'View financial reports' },
   'accounting.vat.read': { ar: 'عرض إقرار ضريبة القيمة المضافة', en: 'View VAT return' },
+  'accounting.closing.run': { ar: 'إقفال السنة المالية', en: 'Close fiscal year' },
+  'accounting.closing.reverse': { ar: 'الرجوع عن الإقفال', en: 'Reverse year-end closing' },
+  'accounting.fx.write': { ar: 'إدخال أسعار الصرف', en: 'Enter exchange rates' },
+  'accounting.fx.revalue': { ar: 'ترحيل إعادة تقييم العملات', en: 'Post FX revaluation' },
 
   // ── المبيعات
   'sales.partner.read': { ar: 'عرض العملاء', en: 'View customers' },
@@ -48,6 +52,17 @@ export const PERMISSIONS = {
   'treasury.payment.create': { ar: 'إنشاء سند قبض أو صرف', en: 'Create payment' },
   'treasury.payment.post': { ar: 'ترحيل سند', en: 'Post payment' },
   'treasury.bank.write': { ar: 'إدارة الحسابات البنكية', en: 'Manage bank accounts' },
+  'treasury.statement.read': { ar: 'عرض كشوف الحساب والتسويات', en: 'View bank statements' },
+  'treasury.statement.import': { ar: 'استيراد كشف حساب بنكي', en: 'Import bank statement' },
+  'treasury.statement.match': { ar: 'مطابقة سطور الكشف', en: 'Match statement lines' },
+  'treasury.statement.finalize': { ar: 'قفل التسوية البنكية', en: 'Finalize reconciliation' },
+
+  // ── الأصول الثابتة
+  'assets.asset.read': { ar: 'عرض سجل الأصول', en: 'View asset register' },
+  'assets.asset.write': { ar: 'إضافة وتعديل الأصول', en: 'Manage fixed assets' },
+  'assets.asset.dispose': { ar: 'استبعاد أصل', en: 'Dispose of an asset' },
+  'assets.depreciation.run': { ar: 'توليد مسيّر الاستهلاك', en: 'Generate depreciation run' },
+  'assets.depreciation.post': { ar: 'ترحيل مسيّر الاستهلاك', en: 'Post depreciation run' },
 
   // ── المخزون
   'inventory.item.read': { ar: 'عرض الأصناف', en: 'View items' },
@@ -103,7 +118,15 @@ export function requirePermission(granted: string[], required: Permission | stri
   }
 }
 
-/** الأدوار الجاهزة لكل منشأة جديدة. تُنسخ ثم تملكها المنشأة وتعدّلها. */
+/**
+ * الأدوار الجاهزة لكل منشأة جديدة. تُنسخ ثم تملكها المنشأة وتعدّلها.
+ *
+ * وانتبه: النسخُ يقع مرّةً عند التجهيز. فصلاحيةٌ جديدة داخل موديول قائم
+ * تصل إلى المنشآت القائمة تلقائياً عبر نجمته (`accounting.*`)، أمّا
+ * **موديولٌ جديد بأكمله** — كالأصول الثابتة هنا — فلا تصل نجمتُه إلا
+ * لمن جُهّز بعد إضافتها. مالكُ المنشأة يملك `*` فيراها، ومن عداه يحتاج
+ * أن تُضاف نجمة الموديول إلى دوره يدوياً من شاشة الأدوار.
+ */
 export const SYSTEM_ROLES: {
   code: string; nameAr: string; nameEn: string; permissions: string[];
 }[] = [
@@ -113,7 +136,7 @@ export const SYSTEM_ROLES: {
   },
   {
     code: 'ACCOUNTANT', nameAr: 'محاسب', nameEn: 'Accountant',
-    permissions: ['accounting.*', 'sales.*', 'purchase.*', 'treasury.*', 'inventory.item.read', 'inventory.move.read', 'hr.payroll.read', 'projects.project.read', 'admin.audit.read'],
+    permissions: ['accounting.*', 'sales.*', 'purchase.*', 'treasury.*', 'assets.*', 'inventory.item.read', 'inventory.move.read', 'hr.payroll.read', 'projects.project.read', 'admin.audit.read'],
   },
   {
     code: 'SALES', nameAr: 'موظف مبيعات', nameEn: 'Sales',
@@ -125,7 +148,7 @@ export const SYSTEM_ROLES: {
   },
   {
     code: 'WAREHOUSE', nameAr: 'أمين مستودع', nameEn: 'Warehouse Keeper',
-    permissions: ['inventory.*', 'purchase.receipt.write', 'purchase.order.read'],
+    permissions: ['inventory.*', 'purchase.receipt.write', 'purchase.order.read', 'assets.asset.read'],
   },
   {
     code: 'VIEWER', nameAr: 'مطّلع', nameEn: 'Viewer',

@@ -66,6 +66,17 @@ const STATUS: Record<string, { ar: string; cls: string }> = {
   SUSPENDED: { ar: 'موقوف', cls: 'bad' },
   TERMINATED: { ar: 'منتهية خدمته', cls: 'mute' },
   ON_LEAVE: { ar: 'في إجازة', cls: 'warn' },
+  // الأصول الثابتة
+  FULLY_DEPRECIATED: { ar: 'مستهلَك بالكامل', cls: 'warn' },
+  DISPOSED: { ar: 'مستبعَد', cls: 'mute' },
+  SOLD: { ar: 'مُباع', cls: 'mute' },
+  // التسوية البنكية
+  IMPORTED: { ar: 'مستورد', cls: 'mute' },
+  RECONCILING: { ar: 'قيد التسوية', cls: 'info' },
+  RECONCILED: { ar: 'مُسوّى', cls: 'ok' },
+  UNMATCHED: { ar: 'غير مطابَق', cls: 'warn' },
+  MATCHED: { ar: 'مطابَق', cls: 'ok' },
+  IGNORED: { ar: 'مستبعَد', cls: 'mute' },
 };
 
 export function Status({ value }: { value: string }) {
