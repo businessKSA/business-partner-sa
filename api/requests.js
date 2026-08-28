@@ -1516,6 +1516,49 @@ export default async function handler(req, res) {
     }
   }
 
+  // ---- لوحة العروض داخل لوحة الموقع (للمالك) ------------------------------
+  //
+  // المالك يدير عمله من هنا، وبابُ لوحة العروض رابطٌ سحري يصل بريد ADMIN_EMAIL
+  // وحده. فمن لم يكن ذلك بريده وقف خارج نظامه هو، ومن أراد أن يرى شيئاً سجّل
+  // نفسه عميلاً — فرأى ما يراه العميل لا ما يملكه المالك.
+  //
+  // النداء يمضي من خادم الموقع إلى خادم اللوحة بالسرّ المشترك، فلا يصل السرّ
+  // متصفحاً ولا صفحة. والحارس هنا هو حارس بقية اللوحة: مفتاح المالك أو تذكرة
+  // نفاذ.
+  if ((q.action || "") === "panel-quotes") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!PANEL_URL || !PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        configured: false,
+        ملاحظة: "اضبط QUOTES_PANEL_URL و PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع ثم أعد النشر",
+      }));
+    }
+    // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
+    const want = String(q.want || "overview") === "login" ? "login" : "overview";
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/owner`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ action: want }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      console.error("panel-quotes bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+    }
+  }
+
   // First-party analytics feed for the /admin overview: daily series, top
   // pages, top clicked CTAs, referrers, and the latest client-side errors.
   if ((q.action || "") === "panel-analytics") {
