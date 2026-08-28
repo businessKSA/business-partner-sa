@@ -8953,19 +8953,27 @@ var BP_EMP_BILLING = "monthly";
 
   /* --------------------------------------------------------------- app -- */
   var broker = null;
+
+  // One place paints the header, called both by a fresh sign-in (which has the
+  // broker in hand) and by load() (which fetches it). Painting only on sign-in
+  // left the greeting and the commission line blank for anyone returning with
+  // a stored session — the common case, since the session outlives the tab.
+  function paintHeader() {
+    if (!broker) return;
+    $("bp-hello").textContent = T("Hello ", "أهلاً ") + (broker.name || "");
+    $("bp-plan").textContent = broker.plan
+      ? T("Your commission: ", "عمولتك: ") + (T(broker.plan.sentenceEn, broker.plan.sentenceAr) || "")
+      : T("Your commission model is being set — we'll confirm it shortly.", "نموذج عمولتك قيد الضبط — سنؤكده قريباً.");
+    $("bp-link").value = broker.link || "";
+    $("bp-share").href = "https://wa.me/?text=" + encodeURIComponent(T("Business Partner handles government platforms, formation, hiring and compliance in Saudi Arabia. Start here: ", "بيزنس بارتنر يدير المنصات الحكومية والتأسيس والتوظيف والامتثال في السعودية. ابدأ من هنا: ") + (broker.link || ""));
+    fillProfile(broker);
+  }
+
   function open(b) {
     broker = b || broker;
     $("bp-auth").hidden = true;
     $("bp-app").hidden = false;
-    if (broker) {
-      $("bp-hello").textContent = T("Hello ", "أهلاً ") + (broker.name || "");
-      $("bp-plan").textContent = broker.plan
-        ? T("Your commission: ", "عمولتك: ") + (T(broker.plan.sentenceEn, broker.plan.sentenceAr) || "")
-        : T("Your commission model is being set — we'll confirm it shortly.", "نموذج عمولتك قيد الضبط — سنؤكده قريباً.");
-      $("bp-link").value = broker.link || "";
-      $("bp-share").href = "https://wa.me/?text=" + encodeURIComponent(T("Business Partner handles government platforms, formation, hiring and compliance in Saudi Arabia. Start here: ", "بيزنس بارتنر يدير المنصات الحكومية والتأسيس والتوظيف والامتثال في السعودية. ابدأ من هنا: ") + (broker.link || ""));
-      fillProfile(broker);
-    }
+    paintHeader();
     load();
   }
 
@@ -8991,7 +8999,7 @@ var BP_EMP_BILLING = "monthly";
     get("me").then(function (d) {
       if (d && d.ok) {
         broker = d.broker;
-        if (broker) { $("bp-link").value = broker.link || ""; fillProfile(broker); }
+        paintHeader();
         var t = d.totals || {};
         $("bp-s-pending").textContent = money(t.pending, t.currency);
         $("bp-s-paid").textContent = money(t.paid, t.currency);
