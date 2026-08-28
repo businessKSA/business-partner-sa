@@ -1,0 +1,29 @@
+name: Tamara production smoke test
+
+on:
+  push:
+    branches:
+      - claude/bpic-marketing-site-jvrnga
+    paths:
+      - .github/workflows/tamara-smoke.yml
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for production deployment
+        run: sleep 20
+      - name: Create Tamara checkout session without paying
+        shell: bash
+        run: |
+          set -euo pipefail
+          body='{"action":"bnpl-checkout","provider":"tamara","lang":"ar","order":{"ref":"BP-TAMARA-SMOKE","name":"Tamara Test","email":"tamara-test@businesspartner.sa","phone":"0500000000","items":[{"id":"BP-AI-03","qty":1}]}}'
+          out=$(curl --fail-with-body --silent --show-error \
+            -H 'content-type: application/json' \
+            --data "$body" \
+            https://www.businesspartner.sa/api/pay)
+          echo "$out"
+          echo "$out" | grep -q '"ok":true'
+          echo "$out" | grep -q '"provider":"tamara"'
+          echo "$out" | grep -q '"url":"https://'
