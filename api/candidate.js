@@ -16,6 +16,10 @@
 
 // Accept the token under any of these env-var names (people name it differently
 // in Vercel — be forgiving so a mis-named key never silently disables intake).
+// The AI provider chain lives in hire.js (gemini → groq → openai → anthropic
+// failover); reusing it directly avoids an HTTP hop to our own function.
+import { aiText, aiAvailable } from "./hire.js";
+
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -235,6 +239,38 @@ const txt = (p) => {
 // the generator only ever emits headings, list items, bold and blank lines.
 const n8nAi = (r) => (r && r.ok && r.data && r.data.ai) || {};
 
+function buildCvBoostPrompt(cv, targetRole) {
+  const target = String(targetRole || "").slice(0, 200);
+  return `You are an expert CV writer and an ATS (applicant tracking system) analyst.
+
+Below is a candidate's CV, in whatever language and shape they wrote it.
+
+TASK
+1. Detect the language it is written in.
+2. Rewrite it as an excellent, ATS-friendly CV **in English**. If the original is Arabic, this is also a translation.
+3. If the original was NOT English, also give the same improved CV in the original language.
+4. Score the ORIGINAL and the REWRITE, 0-100, on how well an ATS and a recruiter would read them.
+5. List what you actually improved.
+
+ABSOLUTE RULES — a violation makes the whole output useless:
+- Invent NOTHING. No employer, job title, date, degree, certificate, tool or skill that is not in the original.
+- Do not inflate seniority, do not extend dates, do not turn a duty into an achievement that was never claimed.
+- Numbers may only appear if the candidate gave them. Never estimate a metric.
+- If something is missing (no dates, no education), leave it out and name it in "missing" — do not paper over it.
+- You improve WORDING, STRUCTURE, ORDER and KEYWORDS. You never improve the FACTS.
+
+The rewrite should: lead with a short professional summary; use standard section headings (Summary, Skills, Work Experience, Education, Certifications, Languages); put the most relevant experience first; start bullets with strong action verbs; surface real keywords a recruiter would search for${target ? ` (target role: ${target})` : ""}; drop photos, tables, columns and graphics that ATS software cannot read.
+
+Scoring must be honest: score_before reflects the original as written. score_after reflects the rewrite. If the original was already strong, the gain is small — say so rather than manufacturing a jump.
+
+Return ONLY this JSON, no code fences, no commentary:
+{"source_language":"Arabic|English|other","cv_english":"<full rewritten CV in markdown>","cv_original_language":"<same CV in the original language, or empty string if the original was English>","score_before":0-100,"score_after":0-100,"improvements":["...","..."],"missing":["..."],"target_role_guess":"..."}
+
+CV:
+---
+${String(cv || "").slice(0, 14000)}`;
+}
+
 export function cvMarkdownToHtml(md) {
   const e = (x) => String(x || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   const inline = (x) => e(x).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
@@ -293,9 +329,26 @@ export async function sendCandidateCopy(to, name, opts) {
       <p style="margin:0;line-height:1.8">${e(o.summary)}</p>
     </div>` : "";
 
+  const bo = o.boost || null;
+  const gainBlock = bo && bo.before != null && bo.after != null && bo.after > bo.before
+    ? `<div style="background:#ecfdf5;border-radius:12px;padding:14px 16px;margin:18px 0">
+        <h3 style="color:#047857;margin:0 0 6px;font-size:15px">${T("How readable your CV is to hiring software", "مدى وضوح سيرتك لبرامج التوظيف")}</h3>
+        <p style="margin:0 0 8px;line-height:1.8;font-size:15px">${T("Before", "قبل")}: <b>${bo.before}/100</b> → ${T("after", "بعد")}: <b style="color:#047857">${bo.after}/100</b></p>
+        ${bo.improvements.length ? `<p style="margin:0 0 4px;font-size:13px;color:#5A6478">${T("What we changed:", "ما غيّرناه:")}</p><ul style="margin:0;padding-inline-start:20px;line-height:1.8;font-size:13px">${bo.improvements.slice(0, 5).map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}
+        <p style="margin:8px 0 0;font-size:12px;color:#5A6478">${T("We only changed the wording and the layout — none of your facts, dates or employers were altered.", "غيّرنا الصياغة والترتيب فقط — لم نغيّر أي معلومة أو تاريخ أو جهة عمل.")}</p>
+      </div>` : "";
+  const missingBlock = bo && bo.missing && bo.missing.length
+    ? `<div style="background:#fffbeb;border-radius:12px;padding:14px 16px;margin:18px 0">
+        <h3 style="color:#92400e;margin:0 0 6px;font-size:15px">${T("Add these and your CV gets stronger", "أضف هذه ليصير ملفك أقوى")}</h3>
+        <ul style="margin:0;padding-inline-start:20px;line-height:1.8;font-size:13px">${bo.missing.slice(0, 6).map((x) => `<li>${e(x)}</li>`).join("")}</ul>
+        <p style="margin:8px 0 0;font-size:12px;color:#5A6478">${T("Reply to this email with them and we'll update your profile.", "ردّ على هذه الرسالة بها ونحدّث ملفك.")}</p>
+      </div>` : "";
+
   const cvBlock = o.atsCv ? `<div style="border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin:18px 0">
       <p style="margin:0 0 2px;color:#5A6478;font-size:12px">${T("Yours to keep and send anywhere", "نسخة لك، استخدمها كيفما شئت")}</p>
-      <h3 style="color:#0B1B5A;margin:0 0 10px;font-size:17px">${T("Your CV, rewritten for applicant tracking systems", "سيرتك الذاتية بصيغة تقرأها أنظمة التوظيف (ATS)")}</h3>
+      <h3 style="color:#0B1B5A;margin:0 0 10px;font-size:17px">${bo && bo.lang === "Arabic"
+        ? T("Your CV, rewritten in English for applicant tracking systems", "سيرتك الذاتية بالإنجليزية بصيغة تقرأها أنظمة التوظيف (ATS)")
+        : T("Your CV, rewritten for applicant tracking systems", "سيرتك الذاتية بصيغة تقرأها أنظمة التوظيف (ATS)")}</h3>
       <p style="margin:0 0 14px;line-height:1.8;color:#5A6478;font-size:13px">${T(
         "Most employers filter CVs with software before a person ever reads them. This version is structured the way that software expects — copy it into a document and use it for any application, not only ours.",
         "أغلب أصحاب العمل يفرزون السير الذاتية ببرامج قبل أن يقرأها إنسان. هذه النسخة مرتّبة بالشكل الذي تتوقعه تلك البرامج — انسخها في ملف واستخدمها في أي تقديم، وليس لدينا فقط.")}</p>
@@ -323,7 +376,7 @@ export async function sendCandidateCopy(to, name, opts) {
     ? T("Your ATS-ready CV — Business Partner", "سيرتك الذاتية بصيغة ATS جاهزة — Business Partner")
     : T("We received your application — Business Partner", "استلمنا طلبك — Business Partner");
   try {
-    return await sendMail(to, subject, head + summaryBlock + cvBlock + foot);
+    return await sendMail(to, subject, head + summaryBlock + gainBlock + cvBlock + missingBlock + foot);
   } catch (err) {
     console.error("candidate copy failed", String(err).slice(0, 200));
     return false;
@@ -363,6 +416,57 @@ async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
 }
 
 const OWNER_KEY = envFrom(["PANEL_KEY", "LEADS_KEY"]);
+
+// Rewrites a CV so applicant-tracking software can read it, translates it into
+// English when it wasn't, and scores it before and after. What it must never do
+// is invent a better candidate — the prompt forbids adding an employer, a date,
+// a degree or a metric the person didn't claim, because a CV that wins an
+// interview the candidate can't answer for has helped nobody. The score rises
+// because the same facts are finally legible, not because they changed.
+export async function boostCv(cvText, targetRole) {
+  const text = String(cvText || "").trim();
+  if (text.length < 120 || !aiAvailable()) return null;
+  let raw;
+  try {
+    raw = await aiText(buildCvBoostPrompt(text, targetRole), 6000);
+  } catch (e) {
+    console.error("cv boost ai failed", String(e).slice(0, 200));
+    return null;
+  }
+  const body = String(raw || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+  const start = body.indexOf("{"), end = body.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  let d;
+  try { d = JSON.parse(body.slice(start, end + 1)); } catch { return null; }
+  const clamp = (v) => { const n = Number(v); return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : null; };
+  const cvEn = String(d.cv_english || "").trim();
+  if (cvEn.length < 100) return null;
+  return {
+    lang: ["Arabic", "English"].includes(d.source_language) ? d.source_language : "other",
+    cvEn,
+    cvNative: String(d.cv_original_language || "").trim(),
+    before: clamp(d.score_before),
+    after: clamp(d.score_after),
+    improvements: Array.isArray(d.improvements) ? d.improvements.map(String).slice(0, 12) : [],
+    missing: Array.isArray(d.missing) ? d.missing.map(String).slice(0, 12) : [],
+    targetRole: String(d.target_role_guess || "").slice(0, 200),
+  };
+}
+
+// Maps a boost result onto the Notion properties, so the inline path and the
+// catch-up path write exactly the same shape.
+function applyCvBoost(props, boost) {
+  if (!boost) { props["حالة تحسين السيرة"] = { select: { name: "فشل" } }; return props; }
+  props["السيرة المحسّنة (EN)"] = { rich_text: rtChunks(boost.cvEn) };
+  if (boost.cvNative) props["السيرة المحسّنة (لغة المرشح)"] = { rich_text: rtChunks(boost.cvNative) };
+  props["لغة السيرة الأصلية"] = { select: { name: boost.lang } };
+  if (boost.before != null) props["الدرجة قبل التحسين"] = { number: boost.before };
+  if (boost.after != null) props["الدرجة بعد التحسين"] = { number: boost.after };
+  if (boost.improvements.length) props["تحسينات السيرة"] = { rich_text: rt(boost.improvements.map((x, i) => `${i + 1}. ${x}`).join("\n")) };
+  if (boost.missing.length) props["نواقص السيرة"] = { rich_text: rt(boost.missing.join(" · ")) };
+  props["حالة تحسين السيرة"] = { select: { name: "تم" } };
+  return props;
+}
 const CRON_SECRET = (process.env.CRON_SECRET || "").trim();
 const cronOk = (req) => !!CRON_SECRET && String((req.headers && req.headers.authorization) || "") === `Bearer ${CRON_SECRET}`;
 const SENT_FLAG = "أُرسلت نسخة المرشح";
@@ -446,6 +550,48 @@ async function backfillCandidateCopies(b, res, req) {
   return send(200, { ok: true, dryRun, batch: rows.length, sent, results });
 }
 
+// Catch-up pass for rows the inline attempt had no time for, and for anyone
+// whose CV predates this feature. One bounded batch per call, same shape as the
+// back-fill: the panel drives it, the flag on the row is what tracks progress.
+async function boostPendingCvs(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  if (!authed) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  if (!aiAvailable()) return send(503, { ok: false, error: "ai_not_configured" });
+  // A rewrite is one AI call of several seconds, so the batch is small — the
+  // panel loops it the same way it loops the back-fill.
+  const limit = Math.min(Math.max(Number(b.limit) || 5, 1), 8);
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit,
+    filter: {
+      and: [
+        { property: "ATS CV Text", rich_text: { is_not_empty: true } },
+        { or: [
+          { property: "حالة تحسين السيرة", select: { is_empty: true } },
+          { property: "حالة تحسين السيرة", select: { equals: "لم يبدأ" } },
+        ] },
+      ],
+    },
+    sorts: [{ timestamp: "created_time", direction: "descending" }],
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const rows = ((await q.json()).results) || [];
+
+  const results = [];
+  for (const row of rows) {
+    const props = row.properties || {};
+    const name = txt(props["Candidate Name"]);
+    const cvText = (props["ATS CV Text"] && props["ATS CV Text"].rich_text || []).map((t) => t.plain_text).join("");
+    const boost = await boostCv(cvText, txt(props["Target Role"]));
+    const patch = applyCvBoost({}, boost);
+    await notion("pages/" + row.id, "PATCH", { properties: patch });
+    results.push({ id: row.id, name, ok: !!boost, before: boost && boost.before, after: boost && boost.after, lang: boost && boost.lang });
+  }
+  return send(200, { ok: true, batch: rows.length, done: results.filter((r) => r.ok).length, results });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -453,6 +599,9 @@ export default async function handler(req, res) {
     const url = new URL(req.url, "http://x");
     // Cron drains the back-fill queue on a schedule; the owner panel can also
     // drive it by hand. Same handler, same batch limits, same de-duplication.
+    if (url.searchParams.get("action") === "boost-cvs") {
+      return boostPendingCvs({ key: url.searchParams.get("key") || "", limit: url.searchParams.get("limit") || 5 }, res, req);
+    }
     if (url.searchParams.get("action") === "backfill") {
       return backfillCandidateCopies({
         key: url.searchParams.get("key") || "",
@@ -514,10 +663,12 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
   }
 
+  const startedAt = Date.now();
   const b = await readBody(req);
 
   // Owner-only maintenance action, not part of the public application flow.
   if (b.type === "backfill-copies") return backfillCandidateCopies(b, res, req);
+  if (b.type === "boost-cvs") return boostPendingCvs(b, res, req);
 
   const name = clip(b.name, 160);
   const phone = clip(b.phone, 40);
@@ -642,6 +793,20 @@ export default async function handler(req, res) {
     // applyN8nEnrichment may raise this to an AI-informed stage below.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
     applyN8nEnrichment(props, n8n, true);
+    // n8n has already spent most of the budget, so the rewrite only runs inline
+    // when there is real time left; otherwise the row is queued and the catch-up
+    // pass picks it up. Either way the candidate's mail carries the best CV we
+    // have at the moment it is sent.
+    const cvText = n8nAi(n8n).ats_cv_markdown || "";
+    let boost = null;
+    if (cvText && Date.now() - startedAt < 30000) {
+      boost = await boostCv(cvText, field);
+      applyCvBoost(props, boost);
+    } else if (cvText) {
+      props["حالة تحسين السيرة"] = { select: { name: "لم يبدأ" } };
+    } else {
+      props["حالة تحسين السيرة"] = { select: { name: "لا توجد سيرة" } };
+    }
     const r = await notion("pages", "POST", { parent: { database_id: DB_ID }, properties: props });
     if (!r.ok) {
       console.error("Notion create error", r.status, (await r.text()).slice(0, 400));
@@ -656,7 +821,9 @@ export default async function handler(req, res) {
     // still a confirmation they applied — which is more than they used to get.
     await sendCandidateCopy(email, name, {
       jobTitle, ref, lang: b.lang,
-      summary: n8nAi(n8n).candidate_summary, atsCv: n8nAi(n8n).ats_cv_markdown,
+      summary: n8nAi(n8n).candidate_summary,
+      atsCv: (boost && boost.cvEn) || cvText,
+      boost,
     });
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, updated: false, n8n }));
