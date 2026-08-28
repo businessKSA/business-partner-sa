@@ -20,6 +20,20 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * المخطّط الذي تسكنه جداول النظام، يُقرأ من `?schema=` في رابط الاتصال.
+ *
+ * ولا يُثبَّت على `public`: النظام قد يسكن مخطّطاً مستقلاً داخل قاعدةٍ
+ * تشاركها تطبيقات أخرى. وتثبيتُه كان سيجعل السكربت يقرأ جداول `public`
+ * فلا يجد فيها `tenantId`، فيطبّق العزل على **لا شيء** ويعلن النجاح —
+ * وهو بالضبط نوع الصمت الذي يحرسه هذا الملف.
+ */
+const SCHEMA = (() => {
+  const url = process.env.DATABASE_URL ?? '';
+  const m = /[?&]schema=([^&]+)/.exec(url);
+  return m ? decodeURIComponent(m[1]) : 'public';
+})();
+
 /** جداول لا تخضع لعزل المنشأة رغم حملها العمود، ولكلٍّ سببه. */
 const EXCLUDED = new Set<string>([
   // الجلسة تُقرأ بالتوكن قبل أن تُعرف المنشأة، و`tenantId` فيها هي المنشأة
@@ -32,12 +46,21 @@ const PLATFORM_TABLES = ['User', 'MagicLink', 'Plan'];
 
 async function main() {
   await assertRoleCannotBypass();
+  console.log(`  المخطّط: ${SCHEMA}`);
 
   const rows = await prisma.$queryRaw<{ table_name: string }[]>`
     SELECT table_name FROM information_schema.columns
-    WHERE table_schema = 'public' AND column_name = 'tenantId'
+    WHERE table_schema = ${SCHEMA} AND column_name = 'tenantId'
     ORDER BY table_name
   `;
+
+  if (!rows.length) {
+    throw new Error(
+      `لا جدول واحد يحمل «tenantId» في المخطّط «${SCHEMA}». ` +
+        `إمّا أن الجداول لم تُنشأ بعد، وإمّا أن الرابط يشير إلى مخطّطٍ آخر. ` +
+        `تطبيقُ العزل على لا شيء ثم إعلانُ النجاح أسوأ من الفشل.`,
+    );
+  }
 
   const tables = rows.map((r) => r.table_name).filter((t) => !EXCLUDED.has(t));
 
@@ -87,13 +110,16 @@ async function assertRoleCannotBypass() {
 
 async function applyPolicy(table: string, column: string) {
   const q = (sql: string) => prisma.$executeRawUnsafe(sql);
+  // الاسم يُؤهَّل بمخطّطه ولا يُترك لـ`search_path`: مخطّطان فيهما جدولٌ
+  // بالاسم نفسه يجعلان غير المؤهَّل يصيب أحدهما بحسب ترتيب المسار.
+  const t = `"${SCHEMA}"."${table}"`;
 
-  await q(`ALTER TABLE "${table}" ENABLE ROW LEVEL SECURITY`);
+  await q(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`);
   // FORCE ضروري: بدونه يتخطّى مالكُ الجدول السياسةَ، وPrisma يتصل بالمالك.
-  await q(`ALTER TABLE "${table}" FORCE ROW LEVEL SECURITY`);
-  await q(`DROP POLICY IF EXISTS tenant_isolation ON "${table}"`);
+  await q(`ALTER TABLE ${t} FORCE ROW LEVEL SECURITY`);
+  await q(`DROP POLICY IF EXISTS tenant_isolation ON ${t}`);
   await q(`
-    CREATE POLICY tenant_isolation ON "${table}"
+    CREATE POLICY tenant_isolation ON ${t}
     USING (
       ${column} = current_setting('app.tenant_id', true)
       OR current_setting('app.bypass_rls', true) = 'on'
@@ -107,10 +133,13 @@ async function applyPolicy(table: string, column: string) {
 
 /** تحقّق فعلي: نعدّ الجداول التي صارت محمية ونقارنها بالمتوقّع. */
 async function verify(expected: number) {
+  // الربط بالمخطّط لا بالاسم وحده: جدولان متشابها الاسم في مخطّطين
+  // يُحسبان مرّتين، فيبدو العدد صحيحاً وبعضُ الجداول بلا حماية.
   const [{ count }] = await prisma.$queryRaw<{ count: bigint }[]>`
-    SELECT count(*) FROM pg_tables t
-    JOIN pg_class c ON c.relname = t.tablename
-    WHERE t.schemaname = 'public' AND c.relrowsecurity AND c.relforcerowsecurity
+    SELECT count(*) FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = ${SCHEMA} AND c.relkind = 'r'
+      AND c.relrowsecurity AND c.relforcerowsecurity
   `;
   if (Number(count) !== expected) {
     throw new Error(`العزل ناقص: ${count} جدولاً محمياً والمتوقّع ${expected}`);
