@@ -26,6 +26,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="sidebar-foot">
           <div style={{ fontWeight: 600, color: 'var(--text)' }}>{session.name}</div>
           <div className="small">{session.roleName}</div>
+          {session.isPlatformAdmin ? (
+            <Link href="/platform/tenants" className="small" style={{ display: 'block', marginTop: 4 }}>
+              ← لوحة المنصة
+            </Link>
+          ) : null}
           <form action={doSignOut} style={{ marginTop: 8 }}>
             <button className="btn sm" type="submit">تسجيل الخروج</button>
           </form>

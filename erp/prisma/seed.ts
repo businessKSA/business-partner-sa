@@ -480,6 +480,20 @@ async function main() {
     });
   }, { timeout: 600_000 });
 
+  console.log('▸ ربط المنشأة بباقة اشتراك…');
+  await withoutTenant('بذور: ربط المنشأة التجريبية بباقة', async (tx) => {
+    const plan = await tx.plan.findUnique({ where: { code: 'ENTERPRISE' } });
+    if (!plan) return; // الباقات تُبذَر بأمر مستقل — غيابها لا يمنع بقية البذور
+    await tx.subscription.create({
+      data: {
+        tenantId: tenant.id, planId: plan.id,
+        status: 'ACTIVE', cycle: 'YEARLY',
+        currentPeriodEnd: new Date(Date.UTC(Y + 1, 0, 1)),
+      },
+    });
+    await tx.tenant.update({ where: { id: tenant.id }, data: { status: 'ACTIVE' } });
+  });
+
   console.log('\n✓ اكتملت البذور.\n');
   console.log(`  الرابط        http://localhost:3100`);
   console.log(`  البريد        ${ADMIN_EMAIL}`);
