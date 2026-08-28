@@ -1,0 +1,85 @@
+# اختبارات نظام تخطيط موارد المؤسسات.
+#
+# تُشغَّل على قاعدة بيانات حقيقية لا على بديلٍ في الذاكرة: نصف ما تثبته
+# هذه الاختبارات — عزل الصفوف، وقيود المفاتيح، وذرّية العدّادات — لا وجود
+# له إلا في Postgres، ومن يختبرها على SQLite يختبر شيئاً آخر.
+#
+# ولاحظ الخطوة التي تُنشئ الدور: NOSUPERUSER NOBYPASSRLS عن قصد. حاوية
+# Postgres تعطي دوراً سوبريوزر افتراضاً، والسوبريوزر يتخطّى سياسات العزل
+# إعفاءً تاماً — فلو شغّلنا الاختبارات به لمرّت اختبارات العزل التسعة وهي
+# لا تختبر شيئاً.
+
+name: ERP Tests
+
+on:
+  push:
+    branches: [master]
+    paths: ['erp/**', '.github/workflows/erp-tests.yml']
+  pull_request:
+    paths: ['erp/**', '.github/workflows/erp-tests.yml']
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: erp
+
+jobs:
+  test:
+    name: الاختبارات وفحص الأنواع والبناء
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://erp:erp@localhost:5432/erp
+      DIRECT_DATABASE_URL: postgresql://erp:erp@localhost:5432/erp
+      APP_URL: http://localhost:3100
+      SESSION_SECRET: ci-only-session-secret-at-least-32-chars
+      ENCRYPTION_KEY: ci-only-encryption-key-at-least-32-chars
+      ZATCA_ENV: SANDBOX
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: erp/package-lock.json
+
+      - name: تهيئة قاعدة البيانات بدورٍ لا يتخطّى العزل
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres <<'SQL'
+          CREATE ROLE erp WITH LOGIN PASSWORD 'erp' NOSUPERUSER NOBYPASSRLS;
+          CREATE DATABASE erp OWNER erp;
+          SQL
+
+      - name: تثبيت الحزم
+        run: npm ci
+
+      - name: توليد عميل Prisma
+        run: npx prisma generate
+
+      - name: المخطط وسياسات العزل
+        run: npm run db:push
+
+      - name: فحص الأنواع
+        run: npm run typecheck
+
+      - name: الاختبارات
+        run: npm test
+
+      - name: البناء
+        run: npm run build
