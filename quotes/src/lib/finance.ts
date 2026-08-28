@@ -211,7 +211,7 @@ export interface FinanceSummary extends PeriodTotals {
 
 /** ملخص فترة: من الفواتير المدفوعة + الإيرادات اليدوية − المصاريف. */
 export async function financeSummary(from: Date, to: Date): Promise<FinanceSummary> {
-  const [paidInvoices, revenues, expenses] = await Promise.all([
+  const [paidInvoices, revenues, expenses, taxDocs] = await Promise.all([
     // العهدة بنوعيها ليست إيراداً: رسوم حكومية أو قيمة توريد تمرّ عبر محفظة
     // العميل وتُصرف بإيصالاتها. الشرطان معاً لأن الإيداع اليدوي قد يحمل
     // depositKind دون isGovFeeDeposit — وهي نفس القاعدة التي يطبّقها
@@ -233,6 +233,16 @@ export async function financeSummary(from: Date, to: Date): Promise<FinanceSumma
       where: { date: { gte: from, lt: to } },
       select: { amountExclVat: true, vatAmount: true, costCenter: true, vendorVat: true },
     }),
+    // المستندات الضريبية التي لا تقابلها فاتورة في اللوحة:
+    //   إشعار دائن (381) يخفّض الإيراد وضريبة المخرجات — بغيره يطالبك
+    //     الإقرار بضريبة على مبلغ ردَدته.
+    //   إشعار مدين (383) يرفعهما.
+    //   فاتورة (388) بلا ارتباط = بيع نقدي مباشر، يُحتسب إيراداً هنا لأنه
+    //     لا يمرّ على جدول الفواتير. أما المرتبطة فمحسوبة أعلاه ولا تُكرَّر.
+    prisma.zatcaRecord.findMany({
+      where: { issueAt: { gte: from, lt: to } },
+      select: { typeCode: true, invoiceId: true, netAmount: true, vatAmount: true },
+    }),
   ]);
 
   let revenueNet = 0;
@@ -253,6 +263,14 @@ export async function financeSummary(from: Date, to: Date): Promise<FinanceSumma
     revenueNet += r.amountExclVat;
     revenueVat += r.vatAmount;
     center(r.costCenter).revenue += r.amountExclVat;
+  }
+  for (const t of taxDocs) {
+    const sign = t.typeCode === '381' ? -1 : 1;
+    // الفاتورة المرتبطة محسوبة من جدول الفواتير — لا تُحتسب مرتين
+    if (t.typeCode === '388' && t.invoiceId) continue;
+    revenueNet += sign * t.netAmount;
+    revenueVat += sign * t.vatAmount;
+    center('SALES').revenue += sign * t.netAmount;
   }
   let expenseNet = 0;
   let expenseVat = 0;
