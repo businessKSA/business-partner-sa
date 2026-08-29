@@ -1,0 +1,40 @@
+name: Apply clean conversational homepage
+
+on:
+  push:
+    branches:
+      - claude/bpic-marketing-site-jvrnga
+    paths:
+      - .github/workflows/apply-home-clean.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/bpic-marketing-site-jvrnga
+      - name: Add clean homepage post-build step
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          p = Path('vercel.json')
+          data = json.loads(p.read_text())
+          step = 'node site/scripts/home-clean-interface.mjs'
+          cmd = data.get('buildCommand', '')
+          if step not in cmd:
+              data['buildCommand'] = cmd + ' && ' + step
+              p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+      - name: Commit build configuration
+        run: |
+          if git diff --quiet -- vercel.json; then exit 0; fi
+          git config user.name "businessKSA"
+          git config user.email "business@businesspartnerksa.com"
+          git add vercel.json
+          git commit -m "Make conversational storefront the only homepage interface"
+          git push origin HEAD:claude/bpic-marketing-site-jvrnga
