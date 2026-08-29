@@ -2437,10 +2437,12 @@ function buildGovernmentCostCalculator() {
           <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
         </tr></thead><tbody id="cc-tbody"></tbody></table></div>
       </div>
+      ${calcLeadCapture('gc', 'government-cost', 'cc-fees-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. الرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
   <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('gc', 'government-cost', 'cc-fees-result').script}
   <script>
   (function(){
     var isAr = window.BP_CC_LANG === "ar";
@@ -2506,6 +2508,7 @@ function buildProfessionChecker() {
       <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
       <div class="cc-prof-chips" id="cc-prof-chips"></div>
       <div id="cc-prof-results"></div>
+      ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
@@ -2534,7 +2537,8 @@ function buildProfessionChecker() {
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
   })();
-  </script>`;
+  </script>
+  ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').script}`;
   return page({
     title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
     desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
@@ -3325,6 +3329,79 @@ function buildTeamAgent(agent) {
   });
 }
 
+// Lead capture shown *under* a calculator result.
+//
+// The six calculators are the highest-intent traffic on the site — somebody working out
+// an end-of-service settlement has a live HR problem right now — and until this existed
+// every one of those visitors left anonymous. The pipeline reflected that: 52
+// opportunities, none attributed to a calculator.
+//
+// It never gates the result. Gating a free calculator behind an email would damage the
+// one channel that is already converting; the offer only appears once the visitor has
+// what they came for. The rendered result is posted along with the contact details so
+// whoever follows up can see the actual numbers.
+// revealOn: "hidden" watches the result box being un-hidden (five of the six
+// calculators). "content" watches it gaining children — the profession checker renders
+// matches straight into an always-visible div, so there is no hidden flag to observe.
+function calcLeadCapture(prefix, service, resultId, revealOn = "hidden") {
+  const id = (k) => `${prefix}-cap-${k}`;
+  const markup = `
+      <div class="cc-capture" id="${id("box")}" hidden>
+        <div class="cc-capture-head">
+          <strong>${L("Want this in writing?", "تبغى النتيجة مكتوبة؟")}</strong>
+          <span>${L("We email you the full breakdown plus a free review of your case.", "نرسل لك التفصيل كاملاً مع مراجعة مجانية لحالتك.")}</span>
+        </div>
+        <div class="cc-capture-row">
+          <input id="${id("name")}" type="text" autocomplete="name" placeholder="${L("Name", "الاسم")}">
+          <input id="${id("email")}" type="email" autocomplete="email" placeholder="${L("Email", "البريد الإلكتروني")}">
+          <input id="${id("phone")}" type="tel" autocomplete="tel" placeholder="${L("Mobile (optional)", "الجوال (اختياري)")}">
+          <button class="btn btn-primary" id="${id("send")}">${L("Send it to me", "أرسلها لي")}</button>
+        </div>
+        <p class="cc-capture-note" id="${id("msg")}" hidden></p>
+      </div>`;
+
+  const script = `<script>(function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var $=function(i){return document.getElementById(i);};
+    var box=$(${JSON.stringify(id("box"))}),res=$(${JSON.stringify(resultId)});
+    if(!box||!res)return;
+    // Reveal the offer only once the visitor actually has a result.
+    var mode=${JSON.stringify(revealOn)};
+    if(mode==="content"){
+      new MutationObserver(function(){
+        // Any rendered answer counts, including "no localization decision found" —
+        // that page already tells the visitor to contact us to confirm, which makes it
+        // the highest-intent moment on the tool, not a dead end.
+        if(res.children.length)box.hidden=false;
+      }).observe(res,{childList:true,subtree:true});
+    } else {
+      new MutationObserver(function(){if(!res.hidden)box.hidden=false;})
+        .observe(res,{attributes:true,attributeFilter:["hidden"]});
+    }
+    var msg=$(${JSON.stringify(id("msg"))});
+    var show=function(t,ok){msg.hidden=false;msg.textContent=t;msg.style.color=ok?"#137a3e":"#b3261e";};
+    $(${JSON.stringify(id("send"))}).addEventListener("click",function(){
+      var v=function(i){var e=$(i);return e?e.value.trim():"";};
+      var name=v(${JSON.stringify(id("name"))}),email=v(${JSON.stringify(id("email"))}),phone=v(${JSON.stringify(id("phone"))});
+      if(!email||email.indexOf("@")<1){show(isAr?"اكتب بريداً صحيحاً.":"Enter a valid email.",false);return;}
+      var fd=new FormData();
+      fd.append("name",name||(isAr?"زائر الحاسبة":"Calculator visitor"));
+      fd.append("email",email);
+      fd.append("whatsapp",phone);
+      fd.append("service",${JSON.stringify(service)});
+      fd.append("source","website-calculator-"+${JSON.stringify(service)});
+      fd.append("notes",(isAr?"نتيجة الحاسبة: ":"Calculator result: ")+(res.innerText||"").replace(/\s+/g," ").slice(0,600));
+      var b=$(${JSON.stringify(id("send"))});b.disabled=true;
+      fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd})
+        .then(function(r){if(!r.ok)throw 0;show(isAr?"تم — تصلك النتيجة والمراجعة خلال يوم عمل.":"Done — you'll get the breakdown and review within one working day.",true);})
+        .catch(function(){show(isAr?"تعذّر الإرسال. جرّب مرة أخرى أو راسلنا واتساب.":"Sending failed — try again or message us on WhatsApp.",false);})
+        .finally(function(){b.disabled=false;});
+    });
+  })();</script>`;
+
+  return { markup, script };
+}
+
 function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -3350,10 +3427,12 @@ function buildEndOfServiceCalculator() {
         </div>
         <div class="cc-advice ok" id="lc-eos-note"></div>
       </div>
+      ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Individual cases may vary by contract terms. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -3406,10 +3485,12 @@ function buildAnnualLeaveCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('lv', 'annual-leave', 'lv-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lv', 'annual-leave', 'lv-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -3455,10 +3536,12 @@ function buildOvertimeCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('ot', 'overtime', 'ot-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('ot', 'overtime', 'ot-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -3511,10 +3594,12 @@ function buildGosiCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('gs', 'gosi', 'gs-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on GOSI regulations for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على لوائح التأمينات لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('gs', 'gosi', 'gs-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
