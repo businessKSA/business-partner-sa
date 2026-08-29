@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo \"no dependencies\"",
-  "buildCommand": "node site/scripts/generate.mjs && node site/scripts/home-conversational.mjs && node site/scripts/home-clean-interface.mjs",
+  "buildCommand": "node site/scripts/generate.mjs && node site/scripts/home-conversational.mjs && node site/scripts/home-clean-interface.mjs && node site/scripts/home-chat-enhance.mjs",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
