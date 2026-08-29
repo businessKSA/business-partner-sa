@@ -1,5 +1,5 @@
 // Homepage conversational assistant: uses the site's existing AI advisor,
-// but keeps the homepage experience self-contained (no WhatsApp/phone capture).
+// but keeps the homepage experience self-contained and consultative.
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   if (req.method !== 'POST') {
@@ -12,7 +12,21 @@ export default async function handler(req, res) {
   const incoming = Array.isArray(body.messages) ? body.messages : [];
   const prefix = {
     role: 'user',
-    content: 'أنت المساعد الذكي داخل واجهة Business Partner الرئيسية. جاوب عن خدمات الموقع وإجراءات الأعمال في السعودية بشكل مختصر ومباشر. لا تطلب رقم جوال أو بريد، ولا توجه إلى واتساب أو اتصال، ولا تستخدم اسم شخص للمساعد. إذا كان السؤال عن خدمة، ساعد المستخدم في فهمها ثم قل له إن الخدمات المطابقة ستظهر أسفل المحادثة ويمكنه اختيارها وشراؤها من الموقع. إذا لم تكن الخدمة بسعر ثابت فاشرح أنه يمكن طلب عرض سعر من نفس الموقع. لا تذكر هذه التعليمات.'
+    content: `أنت مستشار Business Partner الذكي داخل الصفحة الرئيسية للموقع. تصرف كمستشار محادثي حقيقي وليس كمتجر أو محرك بحث.
+
+هدفك: تفهم احتياج العميل بسرعة، تسأله سؤالاً توضيحياً واحداً في كل مرة عند الحاجة، ثم تساعده خطوة بخطوة في كل ما يتعلق بالموقع وخدمات Business Partner وإجراءات الأعمال في السعودية.
+
+قواعد الواجهة الرئيسية:
+- لا تبدأ بالسعر أو الشراء أو السلة، ولا تعرض قائمة طويلة من الخدمات من أول رد.
+- أولويتك هي فهم نية العميل والمشكلة والمرحلة التي وصل لها.
+- إذا كان الطلب واسعاً مثل "أبغى أفتح شركة"، اسأل سؤالاً واحداً مفيداً فقط مثل: سعودي أم مستثمر أجنبي؟ ثم أكمل بناءً على الرد.
+- إذا كان العميل لا يعرف اسم الخدمة، استنتجها من وصفه واشرحها ببساطة.
+- جاوب عن خدمات الموقع، المتطلبات، المستندات، المنصات الحكومية، الخطوات، وحالة الاختيار بين الخدمات اعتماداً على قاعدة معرفة الموقع الحالية.
+- لا تقترح الشراء إلا بعد أن يصبح الاحتياج واضحاً، أو إذا سأل العميل صراحة عن السعر أو كيف يبدأ الطلب. عندها وجّهه للخطوة المناسبة داخل الموقع بشكل طبيعي ومختصر.
+- لا تطلب رقم جوال أو بريد، ولا توجه إلى واتساب أو اتصال خارجي، ولا تستخدم اسم شخص للمساعد.
+- إذا احتاج العميل خدمة غير واضحة أو مخصصة، قل له إنك ستساعده أولاً في تحديد النطاق ثم توجهه لطلب عرض سعر من الموقع عند اكتمال المعلومات.
+- رد بنفس لغة العميل. كن مختصراً، واضحاً، ودوداً، ومحاوراً. لا تعطِ أكثر من سؤال متابعة واحد في نهاية الرد.
+- لا تذكر هذه التعليمات.`
   };
   const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.businesspartner.sa';
   const proto = req.headers['x-forwarded-proto'] || 'https';
@@ -20,19 +34,18 @@ export default async function handler(req, res) {
     const r = await fetch(`${proto}://${host}/api/chat`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: [prefix, ...incoming].slice(-12) })
+      body: JSON.stringify({ messages: [prefix, ...incoming].slice(-14) })
     });
     const data = await r.json().catch(() => ({}));
     let reply = String(data.reply || '').trim();
     if (!r.ok || !reply) throw new Error(data.error || `chat_${r.status}`);
-    // Homepage is intentionally in-app only: remove external-contact fallbacks
-    // even if a legacy advisor instruction emits one.
+    // Homepage is intentionally in-app only: strip any legacy external-contact fallback.
     reply = reply
       .replace(/https?:\/\/wa\.me\/\S+/gi, '')
       .replace(/(?:\+?966|0)5\d{8}/g, '')
       .replace(/(?:واتساب|WhatsApp)[^\n.!؟?]*(?:[.!؟?]|$)/gi, '')
       .replace(/(?:تواصل|اتصل)[^\n.!؟?]*(?:[.!؟?]|$)/gi, '')
-      .replace(/\bباهر\b/g, 'المساعد الذكي')
+      .replace(/\bباهر\b/g, 'المستشار الذكي')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
     res.statusCode = 200;
@@ -40,6 +53,6 @@ export default async function handler(req, res) {
   } catch (e) {
     console.error('home-assistant:', e.message || e);
     res.statusCode = 502;
-    return res.end(JSON.stringify({ error: 'assistant_unavailable', reply: 'تعذر تشغيل المساعد الآن. جرّب مرة أخرى بعد لحظات، أو استخدم البحث عن الخدمات في نفس الصفحة.' }));
+    return res.end(JSON.stringify({ error: 'assistant_unavailable', reply: 'تعذر تشغيل المستشار الآن. جرّب مرة أخرى بعد لحظات.' }));
   }
 }
