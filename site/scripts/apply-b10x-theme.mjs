@@ -6,14 +6,14 @@ const files=[];
 function walk(dir){for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const st=fs.statSync(p);if(st.isDirectory())walk(p);else if(name.endsWith('.html'))files.push(p)}}
 walk(ROOT);
 
-const LINK='<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829">';
+const LINK='<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829c">';
 
 const arHome=`<section class="b10x-home" id="b10x-home">
   <div class="container b10x-home-grid">
     <div>
       <span class="b10x-kicker"><i></i> Business Partner 4.0 · AI Native</span>
       <h1>كل ما تحتاجه لأعمالك في السعودية. <span>اسأل B10X.</span></h1>
-      <p class="b10x-lead">مستشارك التشغيلي الذكي يفهم احتياجك، يشرح الخدمات، يحدد الخطوات، يساعدك في اختيار الباقة أو الخدمة المناسبة، ويقودك من السؤال إلى الطلب والتنفيذ — مع بقاء السلة، الدفع، لوحة العميل ولوحة الشركاء كما هي.</p>
+      <p class="b10x-lead">مستشار B10X يفهم احتياجك، يشرح الخدمات، يحدد الخطوات، يساعدك في اختيار الباقة أو الخدمة المناسبة، ويقودك من السؤال إلى الطلب والتنفيذ — مع بقاء السلة، الدفع، لوحة العميل ولوحة الشركاء كما هي.</p>
       <div class="b10x-actions">
         <a class="primary" href="/ar/services">استعرض الخدمات</a>
         <a class="ghost" href="/ar/packages">الباقات</a>
@@ -23,7 +23,7 @@ const arHome=`<section class="b10x-home" id="b10x-home">
     <div class="b10x-chat-shell">
       <div class="b10x-chat">
         <div class="b10x-chat-head">
-          <div class="b10x-chat-title"><span class="b10x-ai-dot">10X</span><span>B10X — مستشار Business Partner الذكي</span></div>
+          <div class="b10x-chat-title"><span class="b10x-ai-dot">10X</span><span>B10X — مستشار Business Partner</span></div>
           <span class="b10x-live">● Online</span>
         </div>
         <div class="b10x-chat-body" id="b10x-chat-body">
@@ -46,7 +46,7 @@ const arHome=`<section class="b10x-home" id="b10x-home">
 </section>
 <section class="b10x-cap-strip">
   <div class="container b10x-cap-grid">
-    <a class="b10x-cap flagship" href="/ar/ai-agents"><strong>B10X AI Operating Layer</strong><span>الوكلاء الذكيون + التنفيذ + النمو + الامتثال في تجربة واحدة.</span></a>
+    <a class="b10x-cap flagship" href="/ar/ai-agents"><strong>B10X AI Operating Layer</strong><span>AI + التنفيذ + النمو + الامتثال في تجربة واحدة.</span></a>
     <a class="b10x-cap" href="/ar/shared-services"><strong>Shared Services</strong><span>فريق خدمات مشتركة وتشغيل للشركات.</span></a>
     <a class="b10x-cap" href="/ar/compliance-agent"><strong>Compliance</strong><span>امتثال ومتابعة وتنبيهات تشغيلية.</span></a>
     <a class="b10x-cap" href="/ar/ai-document-agent"><strong>Document AI</strong><span>فهم المستندات وتجهيز المتطلبات.</span></a>
@@ -54,37 +54,42 @@ const arHome=`<section class="b10x-home" id="b10x-home">
   </div>
 </section>`;
 
-const enHome=`<section class="b10x-home" id="b10x-home"><div class="container b10x-home-grid"><div><span class="b10x-kicker"><i></i> Business Partner 4.0 · AI Native</span><h1>Run your business in Saudi Arabia. <span>Just ask B10X.</span></h1><p class="b10x-lead">One intelligent operating interface for company formation, compliance, HR, government operations, growth, suppliers, real estate and execution — while preserving your cart, checkout and portals.</p><div class="b10x-actions"><a class="primary" href="/services">Explore services</a><a class="ghost" href="/packages">Packages</a><a class="ghost" href="/account">Client portal</a></div></div><div class="b10x-chat-shell"><div class="b10x-chat"><div class="b10x-chat-head"><div class="b10x-chat-title"><span class="b10x-ai-dot">10X</span><span>B10X AI Advisor</span></div><span class="b10x-live">● Online</span></div><div class="b10x-chat-body" id="b10x-chat-body"><div class="b10x-msg ai">Tell me what you need in your own words. I can guide you across Business Partner services and next steps.</div></div><form class="b10x-compose" id="b10x-chat-form"><textarea id="b10x-chat-input" rows="1" placeholder="e.g. I want to set up a foreign company and hire 6 people..."></textarea><button class="b10x-send" type="submit">↑</button></form><div class="b10x-note">B10X routes you to the right Business Partner service and next action.</div></div></div></div></section>`;
+const enHome=`<section class="b10x-home" id="b10x-home"><div class="container b10x-home-grid"><div><span class="b10x-kicker"><i></i> Business Partner 4.0 · AI Native</span><h1>Run your business in Saudi Arabia. <span>Just ask B10X.</span></h1><p class="b10x-lead">One intelligent operating interface for company formation, compliance, HR, government operations, growth, suppliers, real estate and execution — while preserving your cart, checkout and portals.</p><div class="b10x-actions"><a class="primary" href="/services">Explore services</a><a class="ghost" href="/packages">Packages</a><a class="ghost" href="/account">Client portal</a></div></div><div class="b10x-chat-shell"><div class="b10x-chat"><div class="b10x-chat-head"><div class="b10x-chat-title"><span class="b10x-ai-dot">10X</span><span>B10X Advisor</span></div><span class="b10x-live">● Online</span></div><div class="b10x-chat-body" id="b10x-chat-body"><div class="b10x-msg ai">Tell me what you need in your own words. I can guide you across Business Partner services and next steps.</div></div><form class="b10x-compose" id="b10x-chat-form"><textarea id="b10x-chat-input" rows="1" placeholder="e.g. I want to set up a foreign company and hire 6 people..."></textarea><button class="b10x-send" type="submit">↑</button></form><div class="b10x-note">B10X routes you to the right Business Partner service and next action.</div></div></div></div></section>`;
 
 const CHAT_JS=`<script id="b10x-home-js">
 (function(){
-  function hideLegacy(){
-    document.querySelectorAll('a[href*="wa.me"],a[href*="whatsapp"]').forEach(function(el){
-      try{var s=getComputedStyle(el);if(s.position==='fixed'||el.closest('[class*="float"]'))el.style.setProperty('display','none','important')}catch(e){}
-    });
-    document.querySelectorAll('body *').forEach(function(el){
-      if(!el.textContent||el.children.length>6)return;
-      if((el.textContent.indexOf('اسأل باهر')>-1||el.textContent.indexOf("I'm Baher")>-1)&&getComputedStyle(el).position==='fixed')el.style.setProperty('display','none','important');
+  function hideLegacyAdvisor(){
+    document.querySelectorAll('[class*="advisor-fab"],[class*="advisor-widget"],[class*="floating-advisor"],#advisor-teaser,#advisor-panel').forEach(function(el){
+      el.style.setProperty('display','none','important');
     });
   }
-  hideLegacy();setTimeout(hideLegacy,800);
+  hideLegacyAdvisor();setTimeout(hideLegacyAdvisor,800);
   var form=document.getElementById('b10x-chat-form'),input=document.getElementById('b10x-chat-input'),body=document.getElementById('b10x-chat-body');
   if(!form||!input||!body)return;
   var history=[];
   function clean(t){
-    t=String(t||'').replace(/باهر/g,'B10X').replace(/مستشارك B10X/g,'B10X');
-    t=t.replace(/https?:\\/\\/wa\\.me\\/\\S+/g,'').replace(/https?:\\/\\/api\\.whatsapp\\.com\\/\\S+/g,'');
-    t=t.replace(/05\\d{8}/g,'');
-    return t.replace(/تواصل معنا على واتساب[^.\n]*/g,'يمكنك متابعة الطلب مباشرة من الموقع').trim();
+    t=String(t||'');
+    t=t.replace(/باهر/g,'B10X');
+    t=t.replace(/الوكيل الذكي/g,'B10X');
+    t=t.replace(/الوكلاء الذكيون/g,'B10X');
+    t=t.replace(/المساعد الذكي/g,'مستشار B10X');
+    return t.trim();
   }
   function add(text,role){var d=document.createElement('div');d.className='b10x-msg '+role;d.textContent=text;body.appendChild(d);body.scrollTop=body.scrollHeight;return d}
   async function ask(q){
-    if(!q)return;add(q,'user');history.push({role:'user',content:q});input.value='';
+    if(!q)return;
+    add(q,'user');history.push({role:'user',content:q});input.value='';
     var wait=add('B10X يفكر…','ai');
     try{
       var r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})});
-      var j=await r.json();wait.remove();var reply=clean(j.reply||'تعذر الرد الآن. جرّب مرة ثانية.');add(reply,'ai');history.push({role:'assistant',content:reply});
-    }catch(e){wait.textContent='تعذر الاتصال بالمستشار الآن. تقدر تكمل من الخدمات أو لوحة العميل.'}
+      var j=await r.json();
+      if(!r.ok) throw new Error(j&&j.error?j.error:'chat_failed');
+      wait.remove();
+      var reply=clean(j.reply||j.message||j.text||'تعذر الرد الآن. جرّب مرة ثانية.');
+      add(reply,'ai');history.push({role:'assistant',content:reply});
+    }catch(e){
+      wait.textContent='تعذر الاتصال بـ B10X الآن. جرّب مرة ثانية أو استخدم واتساب للتواصل مع الفريق.';
+    }
   }
   form.addEventListener('submit',function(e){e.preventDefault();ask(input.value.trim())});
   document.querySelectorAll('.b10x-chip').forEach(function(b){b.addEventListener('click',function(){ask(b.getAttribute('data-q')||b.textContent)})});
@@ -95,6 +100,7 @@ let changed=0;
 for(const file of files){
   let html=fs.readFileSync(file,'utf8');
   if(!html.includes('b10x-theme.css')) html=html.replace('</head>',LINK+'\n</head>');
+  else html=html.replace(/\/assets\/css\/b10x-theme\.css\?v=[^"']+/g,'/assets/css/b10x-theme.css?v=20260829c');
   const rel=path.relative(ROOT,file).replaceAll('\\','/');
   const isAr=rel==='ar/index.html';
   const isEn=rel==='index.html';
@@ -103,7 +109,8 @@ for(const file of files){
     const block=isAr?arHome:enHome;
     const endHeader=html.indexOf('</header>');
     if(endHeader>-1&&!html.includes('id="b10x-home"')) html=html.slice(0,endHeader+9)+block+html.slice(endHeader+9);
-    if(!html.includes('id="b10x-home-js"')) html=html.replace('</body>',CHAT_JS+'\n</body>');
+    if(html.includes('id="b10x-home-js"')) html=html.replace(/<script id="b10x-home-js">[\s\S]*?<\/script>/,CHAT_JS);
+    else html=html.replace('</body>',CHAT_JS+'\n</body>');
   }
   fs.writeFileSync(file,html);changed++;
 }
