@@ -18,23 +18,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: claude/bpic-marketing-site-jvrnga
-      - name: Add clean homepage post-build step
+      - name: Add homepage post-build steps
         shell: python
         run: |
           import json
           from pathlib import Path
           p = Path('vercel.json')
           data = json.loads(p.read_text())
-          step = 'node site/scripts/home-clean-interface.mjs'
           cmd = data.get('buildCommand', '')
-          if step not in cmd:
-              data['buildCommand'] = cmd + ' && ' + step
-              p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+          for step in [
+              'node site/scripts/home-clean-interface.mjs',
+              'node site/scripts/home-chat-enhance.mjs'
+          ]:
+              if step not in cmd:
+                  cmd += ' && ' + step
+          data['buildCommand'] = cmd
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
       - name: Commit build configuration
         run: |
           if git diff --quiet -- vercel.json; then exit 0; fi
           git config user.name "businessKSA"
           git config user.email "business@businesspartnerksa.com"
           git add vercel.json
-          git commit -m "Make conversational storefront the only homepage interface"
+          git commit -m "Make homepage a single AI chat interface"
           git push origin HEAD:claude/bpic-marketing-site-jvrnga
