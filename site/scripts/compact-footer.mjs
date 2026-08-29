@@ -16,47 +16,38 @@ walk(ROOT);
 const STYLE = `
 <style id="bp-compact-footer-css">
 .bp-compact-footer{background:#081747;color:#fff;border-top:1px solid rgba(255,255,255,.08)}
-.bp-compact-footer .bcf-wrap{max-width:1180px;margin:auto;padding:28px 24px 18px}
-.bp-compact-footer .bcf-top{display:grid;grid-template-columns:minmax(220px,1.1fr) minmax(0,2fr);gap:28px;align-items:center}
-.bp-compact-footer .bcf-brand img{width:168px;height:auto;filter:brightness(0) invert(1);opacity:.96}
-.bp-compact-footer .bcf-brand p{margin:10px 0 0;color:rgba(255,255,255,.72);font-size:.88rem;line-height:1.65;max-width:430px}
-.bp-compact-footer .bcf-links{display:flex;justify-content:flex-end;gap:10px 22px;flex-wrap:wrap}
-.bp-compact-footer .bcf-links a{color:#fff;text-decoration:none;font-size:.88rem;font-weight:600;opacity:.9}
-.bp-compact-footer .bcf-links a:hover{opacity:1;text-decoration:underline}
-.bp-compact-footer .bcf-bottom{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:22px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);font-size:.78rem;color:rgba(255,255,255,.62)}
-.bp-compact-footer .bcf-bottom a{color:inherit;text-decoration:none}
+.bp-compact-footer .bcf-wrap{max-width:1180px;margin:auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.bp-compact-footer .bcf-brand{display:flex;align-items:center;gap:14px;min-width:0}
+.bp-compact-footer .bcf-brand img{width:126px;height:auto;filter:brightness(0) invert(1);opacity:.96;display:block}
+.bp-compact-footer .bcf-copy{font-size:.72rem;color:rgba(255,255,255,.58);white-space:nowrap}
+.bp-compact-footer .bcf-links{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap}
+.bp-compact-footer .bcf-links a{color:rgba(255,255,255,.78);text-decoration:none;font-size:.76rem;font-weight:600}
+.bp-compact-footer .bcf-links a:hover{color:#fff}
 @media(max-width:760px){
- .bp-compact-footer .bcf-wrap{padding:22px 18px 16px}
- .bp-compact-footer .bcf-top{grid-template-columns:1fr;gap:18px}
- .bp-compact-footer .bcf-brand{text-align:center}
- .bp-compact-footer .bcf-brand p{margin:8px auto 0}
- .bp-compact-footer .bcf-links{justify-content:center;gap:10px 16px}
- .bp-compact-footer .bcf-bottom{flex-direction:column;text-align:center;gap:7px;margin-top:18px}
+ .bp-compact-footer .bcf-wrap{padding:12px 16px;flex-direction:column;gap:9px;text-align:center}
+ .bp-compact-footer .bcf-brand{flex-direction:column;gap:6px}
+ .bp-compact-footer .bcf-brand img{width:112px}
+ .bp-compact-footer .bcf-copy{white-space:normal;font-size:.68rem}
+ .bp-compact-footer .bcf-links{justify-content:center;gap:11px 14px}
+ .bp-compact-footer .bcf-links a{font-size:.72rem}
 }
 </style>`;
 
 function footer(ar){
   const p = ar ? '/ar' : '';
+  const home = p || '/';
   return `<footer class="bp-compact-footer">
   <div class="bcf-wrap">
-    <div class="bcf-top">
-      <div class="bcf-brand">
-        <a href="${p || '/'}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner"></a>
-        <p>${ar ? 'خدمات أعمال وحلول حكومية وتشغيلية مدعومة بالتقنية والذكاء الاصطناعي.' : 'Business services, government operations and execution powered by technology and AI.'}</p>
-      </div>
-      <nav class="bcf-links" aria-label="${ar ? 'روابط الفوتر' : 'Footer links'}">
-        <a href="${p}/services">${ar ? 'خدماتنا' : 'Services'}</a>
-        <a href="${p}/about">${ar ? 'من نحن' : 'About'}</a>
-        <a href="${p}/saudi-arabia">${ar ? 'مركز المعرفة' : 'Knowledge Center'}</a>
-        <a href="${p}/contact">${ar ? 'تواصل معنا' : 'Contact'}</a>
-        <a href="${p}/terms">${ar ? 'الشروط والأحكام' : 'Terms'}</a>
-        <a href="${p}/privacy">${ar ? 'الخصوصية' : 'Privacy'}</a>
-      </nav>
+    <div class="bcf-brand">
+      <a href="${home}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner"></a>
+      <span class="bcf-copy">© 2026 Business Partner · ${ar ? 'خدمات أعمال وحلول حكومية مدعومة بالذكاء الاصطناعي' : 'AI-powered business & government services'}</span>
     </div>
-    <div class="bcf-bottom">
-      <span>© 2026 Business Partner · ${ar ? 'جميع الحقوق محفوظة' : 'All rights reserved'}</span>
-      <a href="mailto:business@businesspartner.sa">business@businesspartner.sa</a>
-    </div>
+    <nav class="bcf-links" aria-label="${ar ? 'روابط الفوتر' : 'Footer links'}">
+      <a href="${p}/services">${ar ? 'الخدمات' : 'Services'}</a>
+      <a href="${p}/about">${ar ? 'من نحن' : 'About'}</a>
+      <a href="${p}/terms">${ar ? 'الشروط' : 'Terms'}</a>
+      <a href="${p}/privacy">${ar ? 'الخصوصية' : 'Privacy'}</a>
+    </nav>
   </div>
 </footer>`;
 }
@@ -68,7 +59,8 @@ for(const file of files){
   const ar=rel==='ar/index.html'||rel.startsWith('ar/');
   if(!html.includes('<footer')) continue;
   html=html.replace(/<footer\b[\s\S]*?<\/footer>/i, footer(ar));
+  html=html.replace(/<style id="bp-compact-footer-css">[\s\S]*?<\/style>/, STYLE.replace(/^\n|\n$/g,''));
   if(!html.includes('bp-compact-footer-css')) html=html.replace('</head>',STYLE+'</head>');
   fs.writeFileSync(file,html); changed++;
 }
-console.log(`Compact footer applied to ${changed} pages`);
+console.log(`Minimal footer applied to ${changed} pages`);
