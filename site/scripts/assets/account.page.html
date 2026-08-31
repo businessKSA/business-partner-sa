@@ -397,7 +397,7 @@
               <div id="homeServices"></div>
             </div>
             <div class="card c4 agentbox">
-              <h4 data-t="agentTitle">وكيل Business Partner الذكي</h4>
+              <h4 data-t="agentTitle">مستشار Business Partner الذكي</h4>
               <div class="hint" data-t="agentHint">اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.</div>
               <input id="agentInput" data-tp="agentPh" placeholder="اسأل عن خدماتك أو إجراءاتك…" />
               <button class="btn sm" id="agentSend" data-t="agentSend">إرسال عبر واتساب</button>
@@ -428,7 +428,7 @@
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
                 <a href="/ar/consultation" data-t="qaConsult">حجز استشارة</a>
-                <a href="/ar/compliance-dashboard" data-t="qaCompliance">وكيل الامتثال</a>
+                <a href="/ar/compliance-dashboard" data-t="qaCompliance">مستشار الامتثال</a>
               </div>
             </div>
           </div>
@@ -854,14 +854,14 @@
         notConnected: 'غير متصلة', noIntegration: 'التكامل غير متاح',
         govQiwa: 'قوى', govGosi: 'التأمينات الاجتماعية', govMuqeem: 'مقيم', govMudad: 'مدد',
         govZatca: 'الزكاة والضريبة', govBalady: 'بلدي', govAbsher: 'أبشر أعمال', govChamber: 'الغرفة التجارية',
-        agentTitle: 'وكيل Business Partner الذكي',
+        agentTitle: 'مستشار Business Partner الذكي',
         agentHint: 'اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.',
         agentPh: 'اسأل عن خدماتك أو إجراءاتك…',
         agentSend: 'إرسال عبر واتساب',
         agentPrefill: 'مرحباً، أنا عميل في مركز عمليات العميل — Business Partner. ',
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
-        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'وكيل الامتثال',
+        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'مستشار الامتثال',
         tasksSub: 'مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.',
         ordersSub: 'طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.',
         ordersTitle: 'سجل الطلبات',
@@ -883,7 +883,7 @@
         docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
         docAgentTitle: 'المستشار الذكي للمستندات',
         docAgentSub: 'ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.',
-        docAgentOpen: '🗂️ افتح وكيل المستندات',
+        docAgentOpen: '🗂️ افتح مستشار المستندات',
         docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
@@ -1033,6 +1033,7 @@
       lang: 'ar',
       user: null,          // {name,email}
       org: null,           // {name_ar,...}
+      bd: null,            // Business Development trial/subscription, from the server
       db: false,
       limited: false,
       orders: [],          // [{ref,title,status}] newest first
@@ -1127,6 +1128,9 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(d){
           var list = (d && d.ok && d.orders) || [];
+          // The server decides whether Business Development is on trial for this
+          // client (api/_trial.js) — the browser only renders the answer.
+          if (d && d.ok) state.bd = d.bd || null;
           if (list.length){
             var byRef = {};
             for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
@@ -1140,8 +1144,8 @@
                 state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
               }
             }
-            renderAll();
           }
+          renderAll();
         })
         .catch(function(){})
         .then(function(){ fetchStatuses(); });
@@ -1460,7 +1464,7 @@
             var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
             var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
             var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
-            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            var pkHref = pk.group === 'revenue-os' ? '/business-development' : (enP ? '/packages' : '/ar/packages');
             cards += '<div class="svc" data-srch>' +
               '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
               '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
@@ -1476,17 +1480,36 @@
         var portalBadge = en ? 'Portal' : 'بوابة';
         var openLbl = en ? 'Open portal' : 'افتح البوابة';
         var pl = [
-          { i: '🚀', n: en ? 'Revenue OS dashboard' : 'لوحة Revenue OS', u: '/revenue-dashboard' },
+          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/business-development-dashboard' },
           { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
           { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
           { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
         ];
+        // Business Development as a Service is included for 14 days with every
+        // account — no purchase. The card says which state they are in and how
+        // long is left, because a trial nobody is told about is not a trial.
+        var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
+          var isBd = pl[i].u === '/business-development-dashboard';
+          var badge = portalBadge, line = '', cta = openLbl;
+          if (isBd && bd && bd.state === 'trial'){
+            var dw = en ? (bd.days === 1 ? 'day' : 'days') : (bd.days === 1 ? 'يوم' : bd.days === 2 ? 'يومان' : bd.days <= 10 ? 'أيام' : 'يومًا');
+            badge = en ? 'Free trial' : 'تجربة مجانية';
+            line = en ? ('Included free — ' + bd.days + ' ' + dw + ' left') : ('مشمولة مجانًا — باقٍ ' + bd.days + ' ' + dw);
+            cta = en ? 'Open your trial' : 'افتح تجربتك';
+          } else if (isBd && bd && bd.state === 'expired'){
+            badge = en ? 'Trial ended' : 'انتهت التجربة';
+            line = en ? 'Your 14-day trial has ended — subscribe to reopen it.' : 'انتهت تجربتك (14 يومًا) — اشترك لإعادة فتحها.';
+          } else if (isBd && bd && bd.state === 'subscribed'){
+            badge = en ? 'Active' : 'مفعّلة';
+            line = en ? 'Your subscription is running.' : 'اشتراكك يعمل.';
+          }
           cards += '<div class="svc" data-srch>' +
-            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + esc(badge) + '</span></div>' +
+            (line ? '<div class="kv"><span>' + (en ? 'Status' : 'الحالة') + '</span><b>' + esc(line) + '</b></div>' : '') +
             '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
-            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + esc(cta) + '</a></div></div>';
         }
       }
       $('svcGrid').innerHTML = cards;
@@ -2950,7 +2973,7 @@
         employees: '/ar/portal',
         employer: '/employer-dashboard',
         shared: '/shared-services/dashboard',
-        revenue: '/revenue-dashboard'
+        revenue: '/business-development-dashboard'
       };
       var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
       if (!url) return false;
