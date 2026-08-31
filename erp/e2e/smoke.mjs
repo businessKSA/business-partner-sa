@@ -34,11 +34,14 @@ function check(ok, label, detail = '') {
 
 async function login(page, email, password) {
   await page.goto(`${BASE}/login`);
-  await page.fill('#email', email);
+  // الطريق الأول صار الرابط السحري، وكلمةُ المرور مطويّة خلف زر. الاختبار
+  // يستعملها عمداً: الرابط يحتاج بريداً يصل، وهذا ما لا يملكه اختبارُ دخان.
+  await page.click('button:has-text("الدخول بكلمة المرور")');
+  await page.fill('#pw-email', email);
   await page.fill('#password', password);
   await Promise.all([
     page.waitForURL('**/dashboard', { timeout: 30_000 }),
-    page.click('form button[type=submit]'),
+    page.click('.card form button[type=submit]:has-text("دخول بكلمة المرور")'),
   ]);
 }
 

@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db.ts';
 import { verifyPassword, createSession, currentSession } from '@/lib/auth.ts';
 import { withoutTenant } from '@/lib/db.ts';
+import { requestMagicLink } from '@/lib/magic-link.ts';
+import { PasswordFallback } from './password-fallback.tsx';
 
 /**
  * صفحة الدخول.
@@ -13,12 +15,32 @@ import { withoutTenant } from '@/lib/db.ts';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; sent?: string }>;
 }) {
   const session = await currentSession();
   if (session) redirect('/dashboard');
 
-  const { error } = await searchParams;
+  const { error, sent } = await searchParams;
+
+  /**
+   * طلب رابط الدخول.
+   *
+   * الوجهة واحدة مهما كانت النتيجة — `?sent=1` — ولا تُمرَّر أي إشارة
+   * تفرّق بين بريدٍ مسجَّل وآخر ليس كذلك. وإلّا صارت شاشة الدخول أداةَ
+   * استطلاعٍ تُعدّد موظّفي المنشأة لمن يجرّب الأسماء.
+   */
+  async function sendLink(formData: FormData) {
+    'use server';
+
+    const email = String(formData.get('email') ?? '').trim().toLowerCase();
+    const outcome = await requestMagicLink(email);
+
+    if (!outcome.sent) {
+      console.log(`↷ لم يُرسل رابط دخول إلى «${email}»: ${outcome.reason}`);
+    }
+
+    redirect('/login?sent=1');
+  }
 
   async function signIn(formData: FormData) {
     'use server';
@@ -78,23 +100,30 @@ export default async function LoginPage({
               </div>
             ) : null}
 
-            <form action={signIn}>
+            {sent === '1' ? (
+              <div className="alert ok">
+                <strong>راجِع بريدك</strong>
+                إن كان البريد مسجَّلاً فقد أُرسل إليه رابط دخول. يبقى صالحاً
+                ربع ساعة ويعمل مرّةً واحدة.
+              </div>
+            ) : null}
+
+            <form action={sendLink}>
               <div className="field">
                 <label htmlFor="email">البريد الإلكتروني</label>
                 <input id="email" name="email" type="email" required autoComplete="username"
                   dir="ltr" style={{ textAlign: 'left' }} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="password">كلمة المرور</label>
-                <input id="password" name="password" type="password" required
-                  autoComplete="current-password" dir="ltr" style={{ textAlign: 'left' }} />
+                <div className="help">
+                  يصلك رابط دخول بالبريد — بلا كلمة مرور.
+                </div>
               </div>
 
               <button className="btn primary" type="submit" style={{ width: '100%', justifyContent: 'center' }}>
-                دخول
+                أرسِل رابط الدخول
               </button>
             </form>
+
+            <PasswordFallback action={signIn} />
           </div>
         </div>
 
