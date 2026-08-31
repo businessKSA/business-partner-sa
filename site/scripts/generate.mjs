@@ -159,11 +159,12 @@ const PKG_ALIAS = {
 const panelRow = (code) =>
   PANEL_PRICES.get(code) || PANEL_PRICES.get(PKG_ALIAS[code] || "");
 
-// أسعار اللوحة تسود على ملفات الموقع. تُطبَّق قبل أي عرض، فتصل كل بطاقة وكل
-// صفحة تفصيل والحاسبة والسلة بالرقم نفسه بدل تصحيح كل موضع طباعة وحده.
-// مفعّل افتراضياً بقرار المالك (٢٥ أغسطس ٢٠٢٦): السعر يُعدَّل في اللوحة وحدها.
-// وتعذُّر الوصول لا يُفشِل البناء — يُطبع تحذير ويُنشر الموقع بأسعار ملفاته.
-const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL !== "0";
+// قرار المالك (٣١ أغسطس ٢٠٢٦) عكس قرار ٢٥ أغسطس: أسعار لوحة العميل — أي ملفات
+// الموقع نفسها التي يقرأها متجر اللوحة عبر catalog.json — هي المرجع على كل
+// الموقع وكل الجذور. سحب أسعار لوحة bp-quotes وقت البناء كان يجعل صفحات الموقع
+// المنشورة تخالف متجر لوحة العميل (١٣ خدمة اختلفت، مثل BP-SBC-02: ٨٥ مقابل
+// ٢٥٠). الآن السحب اختياري صراحةً (CATALOG_FROM_PANEL=1) ولا يعمل افتراضياً.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL === "1";
 const PANEL_PRICES = new Map();
 if (CATALOG_FROM_PANEL) {
   try {
@@ -520,7 +521,12 @@ function head(title, desc, path) {
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
 <link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice. */
+if(!s){if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3087,32 +3093,6 @@ function buildDocAgent() {
     [L("QA before delivery", "مراجعة جودة قبل التسليم"), L("A second pass verifies every planned value landed, checkboxes are right and no placeholders remain.", "مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.")],
   ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
 
-  const T = {
-    hello: Lraw("Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.", "ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص."),
-    start: Lraw("Start now", "ابدأ الآن"),
-    login: Lraw("Sign in first — your documents live in your own private vault, and nothing is saved before you do. Register and the 14-day free trial starts on the spot.", "سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة، ولا يُحفَظ شيء قبل ذلك. سجّل وتبدأ تجربتك المجانية 14 يوماً فوراً."),
-    loginBtn: Lraw("Sign in / create account — free 14-day trial", "تسجيل الدخول / إنشاء حساب — تجربة 14 يوم مجاناً"),
-    placeholder: Lraw("Write here… e.g. “Section 9 all No” or “what is still missing?”", "اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»"),
-    send: Lraw("Send", "إرسال"),
-    uploading: Lraw("Uploading & reading…", "جارٍ الرفع والقراءة…"),
-    generate: Lraw("Fill the forms", "عبّئ النماذج"),
-    pack: Lraw("Prepare the final package", "جهّز الحزمة النهائية"),
-    generating: Lraw("Filling the forms — a QA pass runs before anything reaches you…", "جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…"),
-    packing: Lraw("Packing everything into one ZIP…", "جارٍ ضغط كل شيء في ملف واحد…"),
-    outputs: Lraw("Your deliverables", "مخرجاتك"),
-    download: Lraw("Download", "تحميل"),
-    failed: Lraw("Something went wrong — try again or talk to us on WhatsApp.", "صار خطأ — أعد المحاولة أو كلمنا واتساب."),
-    tooBig: Lraw("This file is larger than 3 MB — the upload limit. Compress or split it, then send it again.", "هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى."),
-    noForms: Lraw("I don't have a form to fill yet — tell me which uploaded file is the form, e.g. “fill the file X”.", "ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X»."),
-    readyMsg: Lraw("Done — your filled files are ready, download them from the links above or from “Your deliverables”.", "تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك»."),
-    facts: Lraw("facts extracted", "معلومة مستخرجة"),
-    forms: Lraw("forms detected", "نموذج للتعبئة"),
-    newReq: Lraw("New request", "طلب جديد"),
-    trialLeft: Lraw("Free trial — {n} day(s) left", "تجربة مجانية — باقي {n} يوم"),
-    trialOver: Lraw("Your free trial has ended. Your previous deliverables stay downloadable — activate a subscription to fill new forms.", "انتهت فترتك التجريبية. مخرجاتك السابقة تبقى قابلة للتنزيل — فعّل الاشتراك لتعبئة نماذج جديدة."),
-    subscribed: Lraw("Active subscription", "اشتراك فعّال"),
-  };
-
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</span>
@@ -3125,32 +3105,18 @@ function buildDocAgent() {
     <div class="hero-badges">${chips}</div>
   </div></section>
 
+  <!-- Owner rule: this public page sells the agent; it never renders anyone's
+       conversation. The working chat lives inside the client portal, where the
+       session and its company scope the data. -->
   <section id="agent" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Chat-first", "محادثة أولاً")}</span><h2>${L("No long forms — a conversation and your files", "بدون نماذج طويلة — محادثة وملفاتك")}</h2></div>
-    <div class="da-shell">
-      <div class="da-head">
-        <b>${L("AI Document Agent", "الوكيل الذكي للمستندات")}</b>
-        <span class="da-chip" id="da-status">—</span>
-        <span class="da-chip" id="da-progress" hidden></span>
-        <button class="btn btn-ghost" id="da-new" hidden style="margin-inline-start:auto;padding:.3rem .8rem">${T.newReq}</button>
-      </div>
-      <div class="da-trial" id="da-trial" hidden></div>
-      <div class="da-msgs" id="da-msgs"><div class="da-msg bot">${esc(T.hello)}</div></div>
-      <div class="da-outputs" id="da-outputs" hidden><b>${T.outputs}</b><ul id="da-outputs-list"></ul></div>
-      <div class="da-gate" id="da-gate" hidden>
-        <p>${esc(T.login)}</p>
-        <a class="btn btn-primary" href="${u("/account")}">${T.loginBtn}</a>
-      </div>
-      <form class="da-form" id="da-form" hidden>
-        <label class="da-attach" title="${L("Attach files", "أرفق ملفات")}"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
-        <input id="da-input" autocomplete="off" placeholder="${esc(T.placeholder)}">
-        <button class="btn btn-primary" type="submit">${T.send}</button>
-      </form>
-      <div class="da-actions" id="da-actions" hidden>
-        <button class="btn btn-ghost" id="da-generate">🖊️ ${T.generate}</button>
-        <button class="btn btn-ghost" id="da-package">📦 ${T.pack}</button>
-      </div>
-      <div class="da-start" id="da-start" hidden><button class="btn btn-primary btn-lg" id="da-begin">${T.start}</button></div>
+    <div class="section-head"><span class="eyebrow">${L("Inside your client portal", "داخل لوحة العميل")}</span><h2>${L("Your documents and conversation live in your account only", "مستنداتك ومحادثتك في حسابك فقط")}</h2></div>
+    <div class="da-shell" style="padding:34px 26px;text-align:center">
+      <p style="max-width:560px;margin:0 auto 18px;color:var(--text-soft);line-height:1.8">${L(
+        "The Document Agent runs inside your client portal: every file, extracted value and conversation is tied to your company and visible to your account alone.",
+        "وكيل المستندات يعمل داخل لوحة العميل: كل ملف وقيمة مستخرجة ومحادثة مرتبطة بشركتك ولا يراها إلا حسابك.",
+      )}</p>
+      <a class="btn btn-primary btn-lg" href="${u("/account")}?view=docagent">${L("Open the agent from your client portal", "افتح الوكيل من لوحة العميل")}</a>
+      <p style="margin:14px 0 0;font-size:.9rem;color:var(--text-soft)">${L("No account yet? Signing in with a one-time email code creates one — and the 14-day free trial starts on your first upload.", "ما عندك حساب؟ تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً — والتجربة المجانية 14 يوماً تبدأ من أول ملف ترفعه.")}</p>
     </div>
     <p class="da-note">${L("Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.", "تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.")}</p>
   </div></section>
@@ -3173,183 +3139,10 @@ function buildDocAgent() {
     .value-list li{display:flex;gap:.6rem;align-items:flex-start}
     .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
     .value-list b{color:var(--navy)}
-    .da-shell{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891;max-width:880px;margin:0 auto;background:#fff;border:1px solid var(--da7-line);border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
-    .da-head{display:flex;align-items:center;gap:.6rem;padding:1rem 1.3rem;background:linear-gradient(135deg,#07163f,#123c91);color:#fff}
-    .da-head b{font-size:.95rem}
-    .da-chip{font-size:.72rem;font-weight:800;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.2rem .75rem;color:#fff}
-    .da-head .btn{background:#fff;color:#123b87;border:0;border-radius:10px;font-weight:900}
-    .da-msgs{padding:1.2rem;display:flex;flex-direction:column;gap:.55rem;min-height:240px;max-height:430px;overflow-y:auto;background:#fbfcfe}
-    .da-msg{max-width:86%;padding:.65rem .9rem;border-radius:14px;font-size:.88rem;line-height:1.85;white-space:pre-wrap;word-break:break-word}
-    .da-msg.bot{background:#f4f7fd;border:1px solid var(--da7-line);color:var(--da7-ink);align-self:flex-start;border-bottom-right-radius:5px}
-    .da-msg.me{background:linear-gradient(135deg,#0a255f,#3159d8);color:#fff;align-self:flex-end;border-bottom-left-radius:5px}
-    .da-msg.sys{align-self:center;background:#fff8e7;border:1px dashed #e6c98a;color:#7a5a12;font-size:.78rem}
-    .da-msg.bot a{color:#2148a8;font-weight:900;text-decoration:underline}
-    .da-form{display:flex;gap:.5rem;padding:.85rem 1.1rem;border-top:1px solid var(--da7-line);background:#fff}
-    .da-form input[type=text],.da-form #da-input{flex:1;min-width:0;border:1px solid var(--da7-line);border-radius:12px;padding:.7rem .85rem;font:inherit;font-size:.88rem;background:#fbfcfe}
-    .da-form input:focus{outline:0;border-color:var(--da7-blue);background:#fff}
-    .da-form .btn{border-radius:11px;font-weight:800}
-    .da-attach{cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1px solid var(--da7-line);border-radius:11px;padding:0 .8rem;background:#fff}
-    .da-attach:hover{border-color:var(--da7-blue);background:#f2f6ff}
-    .da-attach input{display:none}
-    .da-actions{display:flex;gap:.6rem;flex-wrap:wrap;padding:0 1.1rem 1rem;background:#fff}
-    .da-actions .btn{background:#eef3ff;color:#2148a8;border:0;border-radius:11px;font-weight:800}
-    .da-start{padding:1.2rem;text-align:center;background:#fff}
-    .da-gate{padding:1.4rem;text-align:center;border-top:1px solid var(--da7-line);background:#fff;color:var(--da7-muted);font-size:.88rem;line-height:1.9}
-    .da-outputs{padding:.75rem 1.1rem;border-top:1px solid var(--da7-line);font-size:.85rem;background:#fff}
-    .da-outputs b{color:var(--da7-navy)}
-    .da-outputs ul{list-style:none;margin:.45rem 0 0;padding:0;display:grid;gap:.35rem}
-    .da-outputs li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border-bottom:1px solid #eef1f6;padding-bottom:.35rem}
-    .da-outputs li:last-child{border-bottom:0}
-    .da-outputs .qa-passed{color:#127a4b;font-weight:800} .da-outputs .qa-failed{color:#C0392B;font-weight:800}
-    .da-trial{display:flex;gap:.6rem;align-items:center;padding:.6rem 1.2rem;font-size:.8rem;font-weight:800}
-    .da-trial.ok{background:#eef3ff;color:#2148a8;border-bottom:1px solid #d8e2fb}
-    .da-trial.end{background:#fdecea;color:#a32036;border-bottom:1px solid #f5cfcb}
+    .da-shell{max-width:880px;margin:0 auto;background:#fff;border:1px solid #e3e8f1;border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
+    .da-shell .btn-primary{background:linear-gradient(135deg,#0a255f,#3159d8);border:0;border-radius:12px;font-weight:900}
     .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
   </style>`;
-
-  const script = `<script>
-  (function(){
-    var API='/api/doc-agent';
-    var $=function(id){return document.getElementById(id);};
-    if(!$('da-msgs'))return;
-    var ref='';
-    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    // A cached ref belongs to one signed-in tenant only. Anything else — a signed-out
-    // visitor, a different client on the same browser — starts from an empty screen.
-    function purge(){try{localStorage.removeItem('bp_da_ref');localStorage.removeItem('bp_da_org');}catch(e){}ref='';var m=$('da-msgs');if(m)m.innerHTML='';}
-    var T=${JSON.stringify(T)};
-    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;if(d.error==='trial_ended')wall(d);return d;});});}
-    function wall(d){var n=$('da-trial');if(n){n.hidden=false;n.className='da-trial end';n.textContent=d.message||T.trialOver;}}
-    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
-    function setStatus(s){$('da-status').textContent=s||'—';}
-    function renderState(s){
-      if(!s||!s.ok)return;
-      setStatus(s.request.status);
-      var facts=(s.facts||[]).length, forms=(s.gap&&s.gap.forms)||0;
-      var p=$('da-progress');
-      if(facts||forms){p.hidden=false;p.textContent=facts+' '+T.facts+' · '+forms+' '+T.forms;}
-      var outs=(s.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
-      show('da-outputs',outs.length>0);
-      var ul=$('da-outputs-list');ul.innerHTML='';
-      outs.forEach(function(o){
-        var li=document.createElement('li');
-        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
-        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
-        var a=document.createElement('a');a.href='#';a.textContent=T.download;a.className='btn btn-ghost';a.style.padding='.15rem .7rem';
-        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
-        li.appendChild(a);ul.appendChild(li);
-      });
-      show('da-actions',forms>0||outs.length>0);
-    }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){renderState(s);if(s&&s.access)renderTrial(s.access);});}
-    function activate(){show('da-form',true);show('da-actions',false);show('da-start',false);show('da-new',true);refresh();}
-    function begin(){
-      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
-        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',d.error==='trial_ended'?d.message:T.failed);
-      });
-    }
-    // Boot: are we signed in, and is there a request to resume?
-    get('?action=list').then(function(d){
-      if(d.__code===401||d.__code===400||!d.ok){purge();show('da-gate',true);return;}
-      var who='';try{who=localStorage.getItem('bp_da_org')||'';}catch(e){}
-      if(d.org&&who&&who!==d.org)purge();
-      try{if(d.org)localStorage.setItem('bp_da_org',d.org);}catch(e){}
-      renderTrial(d.access);
-      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
-      var match=null;
-      open.forEach(function(r){if(r.ref===ref)match=r;});
-      if(!match&&open.length)match=open[0];
-      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
-        get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){
-          if(s.ok){(s.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(s);}
-          activate();
-        });
-      } else { show('da-start',true); }
-    }).catch(function(){purge();show('da-gate',true);});
-    $('da-begin')&&($('da-begin').onclick=begin);
-    $('da-new')&&($('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',T.hello);begin();});
-    function renderTrial(a){
-      var n=$('da-trial');if(!n)return;
-      if(!a){n.hidden=true;return;}
-      n.hidden=false;
-      if(a.entitled){n.className='da-trial ok';n.textContent=T.subscribed;return;}
-      if(a.allowed){n.className='da-trial ok';n.textContent=T.trialLeft.replace('{n}',a.days_left);return;}
-      n.className='da-trial end';n.textContent=T.trialOver;
-    }
-    $('da-form').addEventListener('submit',function(ev){
-      ev.preventDefault();
-      var v=$('da-input').value.trim();if(!v||!ref)return;
-      $('da-input').value='';el('me',v);
-      var typing=el('sys','…');
-      post({action:'chat',ref:ref,message:v}).then(function(d){
-        typing.remove();
-        el('bot',d.ok?d.reply:(d.error==='trial_ended'?d.message:T.failed));
-        if(d.ok&&d.generate_now)runGenerate();
-        refresh();
-      }).catch(function(){typing.remove();el('sys',T.failed);});
-    });
-    $('da-file').addEventListener('change',function(){
-      var files=Array.prototype.slice.call(this.files||[]);this.value='';
-      if(!ref||!files.length)return;
-      (function next(i){
-        if(i>=files.length){refresh();return;}
-        var f=files[i];
-        el('me','📎 '+f.name);
-        if(f.size>3*1024*1024){el('bot',T.tooBig);next(i+1);return;}
-        var note=el('sys',T.uploading);
-        var rd=new FileReader();
-        rd.onload=function(){
-          var b64=String(rd.result).split(',')[1]||'';
-          var ext=(f.name.split('.').pop()||'').toLowerCase();
-          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
-            note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:(d.error==='trial_ended'?d.message:T.failed)));
-            next(i+1);
-          }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
-        };
-        rd.readAsDataURL(f);
-      })(0);
-    });
-    function runGenerate(formId,seen){
-      if(!ref)return;var note=el('sys',T.generating);seen=seen||0;
-      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
-        note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(d.error==='trial_ended'?d.message:(T.failed+(d.detail?(' ('+d.detail+')'):''))));refresh();return;}
-        var done=0;
-        (d.outputs||[]).forEach(function(o){
-          if(o.ok&&o.output_id){
-            done++;
-            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-              if(!l.url)return;
-              var row=el('bot','⬇️ ');
-              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-              row.appendChild(a);
-              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-            });
-          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
-        });
-        var rest=d.remaining||[];
-        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
-        if(done||seen)el('bot',T.readyMsg);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    }
-    $('da-generate').onclick=runGenerate;
-    $('da-package').onclick=function(){
-      if(!ref)return;var note=el('sys',T.packing);
-      post({action:'package',ref:ref}).then(function(d){
-        note.remove();
-        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',T.failed);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    };
-  })();
-  </script>`;
 
   return page({
     title: Lraw("AI Document Agent — Business Partner", "الوكيل الذكي للمستندات — بيزنس بارتنر"),
@@ -3357,7 +3150,6 @@ function buildDocAgent() {
     active: "/ai-document-agent",
     path: "/ai-document-agent",
     body,
-    script,
   });
 }
 

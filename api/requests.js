@@ -2285,6 +2285,35 @@ export default async function handler(req, res) {
         const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
+      if (what === "violations") {
+        const items = await sb(`violations?organization_id=eq.${orgId}&select=id,authority,violation_number,title,amount,violation_date,objection_deadline,status,objection_note,objection_filed_at,created_at&order=created_at.desc&limit=60`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "compliance-access") {
+        // الامتثال متاح لكل حساب مسجّل: المشترك النشط بلا حدود، وغيره تجربة
+        // مجانية 14 يوماً تبدأ من إنشاء حساب الشركة.
+        let active = false;
+        const accEmail = (sess.user && sess.user.email) || "";
+        if (NOTION_TOKEN && accEmail) {
+          try {
+            const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+              body: JSON.stringify({ page_size: 1, filter: { and: [{ property: "البريد", email: { equals: accEmail } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] } }),
+            });
+            if (r.ok) active = ((await r.json()).results || []).length > 0;
+          } catch {}
+        }
+        let daysLeft = 0, endsAt = null;
+        if (!active) {
+          const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
+          const created = orgs[0] && orgs[0].created_at ? new Date(orgs[0].created_at).getTime() : Date.now();
+          const ends = created + 14 * 86400000;
+          endsAt = new Date(ends).toISOString().slice(0, 10);
+          daysLeft = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
+        }
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, active, trial: !active, days_left: daysLeft, ends_at: endsAt }));
+      }
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_what" }));
     } catch {
       res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
@@ -2478,6 +2507,34 @@ export default async function handler(req, res) {
       if (b.action === "ops-task-done") {
         const tid = String(b.id || "");
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-violation-add") {
+        const authority = String(b.authority || "").trim().slice(0, 80);
+        const title = String(b.title || "").trim().slice(0, 300);
+        const number = String(b.number || "").trim().slice(0, 80);
+        const amount = Number(b.amount);
+        const vdate = /^\d{4}-\d{2}-\d{2}$/.test(String(b.date || "")) ? b.date : null;
+        const deadline = /^\d{4}-\d{2}-\d{2}$/.test(String(b.deadline || "")) ? b.deadline : null;
+        if (!authority || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const v = await sb("violations", { method: "POST", body: [{ organization_id: orgId, authority, violation_number: number || null, title, amount: isFinite(amount) && amount > 0 ? amount : null, violation_date: vdate, objection_deadline: deadline, created_by: userId }] });
+        await notify({ organization_id: orgId, event: "violation_added", channel: "inapp", title: `سُجّلت مخالفة «${title}» — تقدر تقدّم اعتراضاً عليها من قسم الامتثال`, idempotency_key: `violation_add:${v[0].id}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "violation.created", entity_type: "violation", entity_id: v[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, id: v[0].id }));
+      }
+      if (b.action === "ops-violation-object") {
+        const vid = String(b.id || "");
+        const note = String(b.note || "").trim().slice(0, 2000);
+        if (!vid || !note) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const rows = await sb(`violations?id=eq.${vid}&organization_id=eq.${orgId}&select=id,authority,title,violation_number,amount,status&limit=1`);
+        if (!rows.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        if (rows[0].status === "قيد الاعتراض") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+        // الاعتراض يتحول فوراً إلى مهمة تنفيذ عند فريق BP — لا محادثات جانبية.
+        const t = await sb("tasks", { method: "POST", body: [{ organization_id: orgId, title: ("اعتراض على مخالفة: " + rows[0].title).slice(0, 200), details: `الجهة: ${rows[0].authority}${rows[0].violation_number ? " · رقم المخالفة: " + rows[0].violation_number : ""}${rows[0].amount ? " · المبلغ: " + rows[0].amount + " ريال" : ""}\nمبررات العميل: ${note}`, assignee: "bp", status: "open", urgency: "high" }] });
+        await sb(`violations?id=eq.${vid}`, { method: "PATCH", prefer: "return=minimal", body: { status: "قيد الاعتراض", objection_note: note, objection_filed_at: new Date().toISOString(), objection_task_id: t[0].id, updated_at: new Date().toISOString() } });
+        await notify({ organization_id: orgId, event: "objection_filed", channel: "inapp", title: `قُدّم اعتراضك على «${rows[0].title}» — فريق بيزنس بارتنر باشر المعالجة`, idempotency_key: `objection:${vid}` });
+        await sendEmail(TEAM_EMAIL, `⚖️ اعتراض جديد على مخالفة — ${rows[0].authority}`, `<div dir="rtl" style="font-family:Arial"><h3 style="color:#0B1B5A">اعتراض على مخالفة</h3><p><b>العميل:</b> ${esc(email)}</p><p><b>الجهة:</b> ${esc(rows[0].authority)}</p><p><b>المخالفة:</b> ${esc(rows[0].title)}${rows[0].violation_number ? " (رقم " + esc(rows[0].violation_number) + ")" : ""}</p>${rows[0].amount ? `<p><b>المبلغ:</b> ${esc(String(rows[0].amount))} ريال</p>` : ""}<p><b>مبررات العميل:</b> ${esc(note)}</p><p>نفّذ الاعتراض لدى الجهة ثم حدّث حالة المخالفة من /admin.</p></div>`);
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "violation.objection_filed", entity_type: "violation", entity_id: vid });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
       }
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));

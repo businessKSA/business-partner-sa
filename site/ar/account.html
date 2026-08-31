@@ -11,14 +11,19 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
-      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0;
-      --text:#1F2430; --soft:#6a7085; --muted:#9aa0b4;
-      --ok:#16a34a; --ok-bg:#dcfce7; --ok-ink:#14532d;
+      /* Brand design system (owner, Aug 2026): navy #07163F, B10X blue #3159D8,
+         AI cyan #43D6F4, success mint #16B875, ground #F7F9FD. Same tokens as
+         the homepage and the admin command center, so the portal reads as the
+         same product. */
+      --navy:#07163f; --navy-700:#123b8e; --navy-900:#05102f;
+      --blue:#3159d8; --cyan:#43d6f4;
+      --bg:#F7F9FD; --surface:#fff; --line:#e5e9f2;
+      --text:#101a35; --soft:#68748d; --muted:#94a0b5;
+      --ok:#16b875; --ok-bg:#e6f9f1; --ok-ink:#0c6b46;
       --warn:#d97706; --warn-bg:#fef3c7; --warn-ink:#92400e;
       --bad:#dc2626; --bad-bg:#fee2e2; --bad-ink:#991b1b;
       --info-bg:#e0f2fe; --info-ink:#075985;
-      --r:14px; --shadow:0 6px 24px rgba(11,27,90,.07);
+      --r:16px; --shadow:0 10px 32px rgba(18,38,85,.06);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100dvh}
@@ -208,6 +213,21 @@
       .gov{grid-template-columns:repeat(2,1fr)}
       .qa{grid-template-columns:repeat(3,1fr)}
     }
+
+    /* ---- brand pass (Aug 2026): the portal wears the same design system as
+       the homepage and admin — token swap above does most of it; these rules
+       finish the chrome without touching any id or behavior. ---- */
+    .side{background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)}
+    .side nav button.on{background:#fff;color:#07163f;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+    .side nav button.on .b{background:var(--bad)}
+    .btn{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px}
+    .btn.sm{border-radius:9px}
+    .topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.92)}
+    .pagehead h2{letter-spacing:-.02em;font-size:1.22rem}
+    .card:hover,.panel:hover{border-color:#dbe3f2}
+    .stchip.on{background:var(--navy);border-color:var(--navy)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(49,89,216,.13)}
+
   </style>
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
 <script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -670,10 +690,49 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         </section>
         <section class="view" id="view-documents">
           <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
-          <div class="card c12" style="margin-bottom:14px">
-            <h4 data-t="docAgentTitle">الوكيل الذكي للمستندات</h4>
-            <div class="note" style="display:block;margin:6px 0 10px" data-t="docAgentSub">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.</div>
-            <a class="btn sm" href="/ai-document-agent" id="docAgentLink" data-t="docAgentOpen">🗂️ افتح وكيل المستندات</a>
+          <!-- The Document Agent workspace lives HERE, inside the signed-in
+               portal — the public /ai-document-agent page only markets it.
+               Every API call is scoped server-side to this session's company. -->
+          <style id="da-css">
+            .da-shell{background:#fff;border:1px solid #e5eaf3;border-radius:16px;overflow:hidden;margin-bottom:14px}
+            .da-head{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #e5eaf3;background:#f8faff;flex-wrap:wrap}
+            .da-head b{color:#07163f}
+            .da-chip{font-size:.74rem;background:#fff;border:1px solid #e5eaf3;border-radius:99px;padding:2px 10px;color:#68758f}
+            .da-msgs{padding:14px;display:flex;flex-direction:column;gap:8px;min-height:180px;max-height:380px;overflow-y:auto}
+            .da-msg{max-width:85%;padding:8px 12px;border-radius:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;font-size:.86rem}
+            .da-msg.bot{background:#f6f8fc;border:1px solid #e5eaf3;align-self:flex-start}
+            .da-msg.me{background:#07163f;color:#fff;align-self:flex-end}
+            .da-msg.sys{background:#eef4ff;border:1px dashed #b9cdf3;color:#07163f;font-size:.8rem;align-self:center}
+            .da-form{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #e5eaf3}
+            .da-form #da-input{flex:1;border:1px solid #dce3ef;border-radius:10px;padding:9px 12px;font:inherit}
+            .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.15rem}
+            .da-attach input{display:none}
+            .da-actions-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px}
+            .da-start{padding:14px;text-align:center}
+            .da-outputs{padding:8px 14px;border-top:1px solid #e5eaf3;font-size:.85rem}
+            .da-outputs ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
+            .da-outputs li{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+            .da-outputs .qa-passed{color:#16b875}.da-outputs .qa-failed{color:#c0392b}
+          </style>
+          <div class="da-shell" id="da-shell">
+            <div class="da-head">
+              <b>🗂️ الوكيل الذكي للمستندات</b>
+              <span class="da-chip" id="da-status">—</span>
+              <span class="da-chip" id="da-progress" hidden></span>
+              <button class="btn sm" id="da-new" hidden style="margin-inline-start:auto">طلب جديد</button>
+            </div>
+            <div class="da-msgs" id="da-msgs"><div class="da-msg bot">ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.</div></div>
+            <div class="da-outputs" id="da-outputs" hidden><b>مخرجاتك</b><ul id="da-outputs-list"></ul></div>
+            <form class="da-form" id="da-form" hidden>
+              <label class="da-attach" title="أرفق ملفات"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
+              <input id="da-input" autocomplete="off" placeholder="اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»">
+              <button class="btn sm" type="submit">إرسال</button>
+            </form>
+            <div class="da-actions-row" id="da-actions" hidden>
+              <button class="btn sm" id="da-generate" type="button">🖊️ عبّئ النماذج</button>
+              <button class="btn sm" id="da-package" type="button">📦 جهّز الحزمة النهائية</button>
+            </div>
+            <div class="da-start" id="da-start" hidden><button class="btn" id="da-begin" type="button">ابدأ طلب مستندات جديد</button></div>
           </div>
           <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="docMain" style="display:none">
@@ -3060,6 +3119,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
 
       var navBtns = document.querySelectorAll('#sideNav button, #bnav button');
       for (var i = 0; i < navBtns.length; i++) navBtns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
+      // Deep link: /account?view=documents opens that view directly (e.g. from
+      // the public Document Agent page).
+      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0) switchView(v0); } catch (e) {}
       var mvs = document.querySelectorAll('[data-mv]');
       for (var j = 0; j < mvs.length; j++){
         mvs[j].style.cursor = 'pointer';
@@ -3228,6 +3290,135 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
     })();
 
     boot();
+  </script>
+  <script>
+  /* الوكيل الذكي للمستندات — the same workspace that used to live on the public
+     page, now scoped to the portal. /api/doc-agent authenticates the session
+     cookie and filters everything by the active company server-side. */
+  (function(){
+    var API='/api/doc-agent';
+    var $=function(id){return document.getElementById(id);};
+    if(!$('da-msgs'))return;
+    var ref='';
+    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
+    var MS={failed:'صار خطأ — أعد المحاولة بعد لحظات.',tooBig:'هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى.',noForms:'ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X».',ready:'تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».',uploading:'جارٍ الرفع والقراءة…',generating:'جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…',packing:'جارٍ ضغط كل شيء في ملف واحد…',hello:'ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.',gate:'سجّل دخولك بجلسة كاملة لتفعيل وكيل المستندات — مستنداتك تبقى في خزنة شركتك وحدها.',facts:'معلومة مستخرجة',forms:'نموذج للتعبئة'};
+    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
+    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
+    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
+    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
+    function setStatus(st){$('da-status').textContent=st||'—';}
+    function renderState(st){
+      if(!st||!st.ok)return;
+      setStatus(st.request.status);
+      var facts=(st.facts||[]).length, forms=(st.gap&&st.gap.forms)||0;
+      var pr=$('da-progress');
+      if(facts||forms){pr.hidden=false;pr.textContent=facts+' '+MS.facts+' · '+forms+' '+MS.forms;}
+      var outs=(st.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
+      show('da-outputs',outs.length>0);
+      var ul=$('da-outputs-list');ul.innerHTML='';
+      outs.forEach(function(o){
+        var li=document.createElement('li');
+        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
+        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
+        var a=document.createElement('a');a.href='#';a.textContent='تحميل';a.className='btn sm';
+        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
+        li.appendChild(a);ul.appendChild(li);
+      });
+      show('da-actions',forms>0||outs.length>0);
+    }
+    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
+    function activate(){show('da-form',true);show('da-start',false);show('da-new',true);refresh();}
+    function begin(){
+      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
+        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
+        else el('sys',MS.failed);
+      });
+    }
+    get('?action=list').then(function(d){
+      if(d.__code===401||!d.ok){el('sys',MS.gate);return;}
+      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
+      var match=null;
+      open.forEach(function(r){if(r.ref===ref)match=r;});
+      if(!match&&open.length)match=open[0];
+      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
+        get('?action=state&ref='+encodeURIComponent(ref)).then(function(st){
+          if(st.ok){(st.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(st);}
+          activate();
+        });
+      } else { show('da-start',true); }
+    }).catch(function(){el('sys',MS.gate);});
+    $('da-begin').onclick=begin;
+    $('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',MS.hello);begin();};
+    $('da-form').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      var v=$('da-input').value.trim();if(!v||!ref)return;
+      $('da-input').value='';el('me',v);
+      var typing=el('sys','…');
+      post({action:'chat',ref:ref,message:v}).then(function(d){
+        typing.remove();
+        el('bot',d.ok?d.reply:MS.failed);
+        if(d.ok&&d.generate_now)runGenerate();
+        refresh();
+      }).catch(function(){typing.remove();el('sys',MS.failed);});
+    });
+    $('da-file').addEventListener('change',function(){
+      var files=Array.prototype.slice.call(this.files||[]);this.value='';
+      if(!ref||!files.length)return;
+      (function next(i){
+        if(i>=files.length){refresh();return;}
+        var f=files[i];
+        el('me','📎 '+f.name);
+        if(f.size>3*1024*1024){el('bot',MS.tooBig);next(i+1);return;}
+        var note=el('sys',MS.uploading);
+        var rd=new FileReader();
+        rd.onload=function(){
+          var b64=String(rd.result).split(',')[1]||'';
+          var ext=(f.name.split('.').pop()||'').toLowerCase();
+          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
+            note.remove();
+            el('bot',d.ok?d.note:(d.error==='too_large'?MS.tooBig:MS.failed));
+            next(i+1);
+          }).catch(function(){note.remove();el('sys',MS.failed);next(i+1);});
+        };
+        rd.readAsDataURL(f);
+      })(0);
+    });
+    function runGenerate(formId,seen){
+      if(!ref)return;var note=el('sys',MS.generating);seen=seen||0;
+      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
+        note.remove();
+        if(!d.ok){el('bot',d.error==='no_target_forms'?MS.noForms:(MS.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
+        var done=0;
+        (d.outputs||[]).forEach(function(o){
+          if(o.ok&&o.output_id){
+            done++;
+            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
+              if(!l.url)return;
+              var row=el('bot','⬇️ ');
+              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
+              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
+              row.appendChild(a);
+              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
+            });
+          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
+        });
+        var rest=d.remaining||[];
+        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
+        if(done||seen)el('bot',MS.ready);
+        refresh();
+      }).catch(function(){note.remove();el('sys',MS.failed);});
+    }
+    $('da-generate').onclick=function(){runGenerate();};
+    $('da-package').onclick=function(){
+      if(!ref)return;var note=el('sys',MS.packing);
+      post({action:'package',ref:ref}).then(function(d){
+        note.remove();
+        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',MS.failed);
+        refresh();
+      }).catch(function(){note.remove();el('sys',MS.failed);});
+    };
+  })();
   </script>
 
 <script id="bp-portal-trust-js">
