@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve('site');
-const targets = ['ar/index.html','index.html','ar/services.html','services.html'];
+// Homepage excluded on purpose: the «B10X هو كل خدمات Business Partner»
+// umbrella used to land above the hero. The homepage owns its own B10X
+// section, built in order by generate.mjs.
+const targets = ['ar/services.html','services.html'];
 
 const CSS = `<style id="bp-b10x-catalog-v2-css">
 :root{--b10x-navy:#071a4d;--b10x-blue:#155eef;--b10x-line:#e3e8f2;--b10x-muted:#667085;--b10x-bg:#f8faff}

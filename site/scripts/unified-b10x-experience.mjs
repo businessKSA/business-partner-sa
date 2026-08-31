@@ -2,8 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve('site');
+// The homepage is built entirely in generate.mjs (see buildHome). This layer
+// used to inject a B10X showcase after </header>, i.e. above the hero, which is
+// exactly the block that must not greet visitors — so it no longer targets it.
 const targets = [
-  ['ar/index.html','ar','home'],['index.html','en','home'],
   ['ar/services.html','ar','services'],['services.html','en','services'],
   ['ar/packages.html','ar','packages'],['packages.html','en','packages']
 ];

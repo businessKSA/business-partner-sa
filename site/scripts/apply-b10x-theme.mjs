@@ -101,17 +101,11 @@ for(const file of files){
   let html=fs.readFileSync(file,'utf8');
   if(!html.includes('b10x-theme.css')) html=html.replace('</head>',LINK+'\n</head>');
   else html=html.replace(/\/assets\/css\/b10x-theme\.css\?v=[^"']+/g,'/assets/css/b10x-theme.css?v=20260829c');
-  const rel=path.relative(ROOT,file).replaceAll('\\','/');
-  const isAr=rel==='ar/index.html';
-  const isEn=rel==='index.html';
-  if(isAr||isEn){
-    html=html.replace('<body','<body class="bp-b10x-home"');
-    const block=isAr?arHome:enHome;
-    const endHeader=html.indexOf('</header>');
-    if(endHeader>-1&&!html.includes('id="b10x-home"')) html=html.slice(0,endHeader+9)+block+html.slice(endHeader+9);
-    if(html.includes('id="b10x-home-js"')) html=html.replace(/<script id="b10x-home-js">[\s\S]*?<\/script>/,CHAT_JS);
-    else html=html.replace('</body>',CHAT_JS+'\n</body>');
-  }
+  // The homepage is not touched here any more. This layer used to insert a
+  // second hero + advisor (section.b10x-home) right after </header>, above the
+  // real homepage, and add a second <body class>. The homepage now ships its
+  // own hero and advisor in the correct order from generate.mjs (buildHome);
+  // only the shared b10x-theme.css link above still applies site-wide.
   fs.writeFileSync(file,html);changed++;
 }
 console.log(`B10X theme applied to ${changed} generated pages`);
