@@ -4010,22 +4010,43 @@ var BP = window.BP = window.BP || {};
   // ---- installments (Tamara) ----
   // The button exists from day one; it reads «قريباً» until /api/pay says the
   // key is configured, then it goes live with no code change.
+  // A provider that just failed for this buyer is not offered to them again in
+  // the same visit. Three of the four real installment attempts on record were
+  // the same two people retrying a button that answered the same error every
+  // time — the second click could never have worked, and asking for it costs
+  // the sale. Session-scoped on purpose: a new visit tries the provider again,
+  // so a provider that recovers comes back on its own with no deploy.
+  function bnplDown(prov) {
+    try { return sessionStorage.getItem("bp_bnpl_down_" + prov) === "1"; } catch (e) { return false; }
+  }
+  function markBnplDown(prov) {
+    try { sessionStorage.setItem("bp_bnpl_down_" + prov, "1"); } catch (e) {}
+  }
+
   function bnplButtons() {
     ["tamara"].forEach(function (prov) {
       var btn = document.getElementById("bnpl-" + prov);
       if (!btn) return;
-      var on = !!bnplCfg[prov];
+      var down = bnplDown(prov);
+      var on = !!bnplCfg[prov] && !down;
       btn.disabled = !on;
       btn.style.opacity = on ? "1" : ".45";
       btn.style.cursor = on ? "pointer" : "not-allowed";
+      // «قريباً» promises the method is coming; a provider that just answered
+      // an error is a different state and must not borrow that word.
+      var label = down
+        ? BP.t("unavailable", "غير متاح حالياً")
+        : BP.t("soon", "قريباً");
       var badge = btn.querySelector(".soon-badge");
-      if (!on && !badge) {
-        badge = document.createElement("span");
-        badge.className = "soon-badge";
-        badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
-        badge.textContent = BP.t("soon", "قريباً");
-        btn.appendChild(badge);
-      } else if (on && badge) badge.remove();
+      if (!on) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "soon-badge";
+          badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
+          btn.appendChild(badge);
+        }
+        badge.textContent = label;
+      } else if (badge) badge.remove();
     });
   }
   function bnplGo(prov) {
@@ -4049,6 +4070,13 @@ var BP = window.BP = window.BP || {};
       .then(function (r) { return r.json(); })
       .then(function (out) {
         if (out && out.ok && out.url) { location.href = out.url; return; }
+        // «rejected» is the provider judging this one order and says nothing
+        // about the next one; anything else means the provider could not be
+        // reached or errored, so stop offering it for this visit.
+        if (out && out.error && out.error !== "rejected" && out.error !== "quote_only_items") {
+          markBnplDown(prov);
+          bnplButtons();
+        }
         if (btn) btn.disabled = false;
         if (help) {
           help.style.color = "#b91c1c";

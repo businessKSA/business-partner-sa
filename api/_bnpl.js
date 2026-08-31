@@ -11,11 +11,21 @@
 //   TAMARA_API_TOKEN      the long-lived API token from Tamara partners portal
 //   TAMARA_API_BASE       optional, default https://api.tamara.co
 //                         (sandbox: https://api-sandbox.tamara.co)
+//   TAMARA_OFF            kill switch: any truthy value hides the installment
+//                         button without touching the token
+//
+// The kill switch exists because the failure that actually happened is not a
+// missing key: Tamara's own API answered 500 on three real checkouts in one
+// evening while the token was perfectly valid. Deleting the token to stop
+// offering a broken method loses it, and re-adding it later means hunting it
+// down again — so the way to take the button down in thirty seconds is a
+// variable that says «off», not the absence of a credential.
 
 const TAMARA_TOKEN = (process.env.TAMARA_API_TOKEN || "").trim();
 const TAMARA_BASE = (process.env.TAMARA_API_BASE || "https://api.tamara.co").trim().replace(/\/$/, "");
+const TAMARA_OFF = /^(1|true|yes|on|off)$/i.test((process.env.TAMARA_OFF || "").trim());
 
-export const tamaraConfigured = () => !!TAMARA_TOKEN;
+export const tamaraConfigured = () => !!TAMARA_TOKEN && !TAMARA_OFF;
 
 const two = (n) => (Math.round(Number(n) * 100) / 100).toFixed(2);
 
