@@ -4,7 +4,7 @@ import path from 'node:path';
 // المستشار الذكي للمستندات داخل بوابة العميل — لا صفحة منفصلة ولا شراء.
 // طبقة ما بعد البناء على نمط client-portal-v6: تحقن زر تنقّل وعرضاً كاملاً
 // بمفردات التصميم الجديد، فيستخدم العميل الخدمة من مكانه المعتاد. الوصول
-// مربوط بتجربة أربعة عشر يوماً تبدأ من أول استخدام (الخادم يقرّر، لا الواجهة).
+// مربوط بتجربة ثلاثين يوماً تبدأ من أول استخدام (الخادم يقرّر، لا الواجهة).
 const targets = ['site/ar/account.html', 'site/account.html']
   .map((p) => path.resolve(p)).filter((p) => fs.existsSync(p));
 if (!targets.length) process.exit(0);
@@ -81,7 +81,7 @@ function renderTrial(a){
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||30)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||30)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
     box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';

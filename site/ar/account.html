@@ -254,6 +254,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
 #orgSwitchPanel{display:block!important}.bp6-company-note{font-size:11px;color:var(--bp6-muted);margin-top:7px}.bp6-100{font-weight:800;color:#2b55bf}
 @media(max-width:980px){.bp6-grid{grid-template-columns:1fr}.bp6-kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.bp6-companybar{grid-template-columns:1fr}.bp6-kpis{grid-template-columns:1fr 1fr}.viewwrap{padding:14px 12px 80px!important}}
 </style>
+
 <style id="bp-docagent-v7-css">
 :root{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
 .da7{display:none}.da7.on{display:block}
@@ -3516,6 +3517,7 @@ function routeQuery(){var q=new URLSearchParams(location.search);var v=q.get('vi
 function boot(){injectNav();injectCompanyBar();injectComplianceView();wireViolationForm();removeWhatsappFlows();routeQuery();var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();</script>
+
 <script id="bp-docagent-v7-js">(function(){
 var API='/api/requests?__route=doc-agent';
 var ref='', access=null, busy=false;
@@ -3537,7 +3539,7 @@ function renderTrial(a){
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||30)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||30)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
     box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';

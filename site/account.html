@@ -245,7 +245,8 @@
 .bp-tour-backdrop{position:fixed;inset:0;background:rgba(4,12,38,.48);z-index:9997}.bp-tour-target{position:relative!important;z-index:9999!important;outline:3px solid #7aa2ff!important;outline-offset:4px!important;box-shadow:0 0 0 7px rgba(122,162,255,.18)!important}.bp-tour-card{position:fixed;z-index:10000;width:min(330px,calc(100vw - 28px));background:#fff;border-radius:15px;border:1px solid #e1e5ef;box-shadow:0 22px 60px rgba(4,12,38,.28);padding:15px;color:#1f2937}.bp-tour-card .n{font-size:9px;color:#7d8498;font-weight:800;margin-bottom:5px}.bp-tour-card h3{margin:0 0 6px;font-size:14px;color:#0B1B5A}.bp-tour-card p{margin:0;color:#667085;font-size:11px;line-height:1.75}.bp-tour-actions{display:flex;align-items:center;gap:7px;margin-top:13px}.bp-tour-actions button{border:1px solid #dce1ec;background:#fff;color:#0B1B5A;border-radius:8px;padding:6px 10px;font:700 10.5px inherit;cursor:pointer}.bp-tour-actions .next{background:#0B1B5A;color:#fff;border-color:#0B1B5A;margin-inline-start:auto}.bp-tour-actions .skip{border:0;color:#7d8498;background:transparent;padding-inline:3px}
 .bp-tour-toast{position:fixed;z-index:10010;left:50%;bottom:22px;transform:translateX(-50%);background:#101828;color:#fff;padding:9px 13px;border-radius:10px;font-size:10.5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
 @media(max-width:850px){.bp-rd-grid{grid-template-columns:repeat(2,1fr)}.bp-rd-body{grid-template-columns:1fr}.bp-rd-steps{grid-template-columns:repeat(3,1fr)}.bp-rd-step:after{display:none}}
-</style><style id="bp-docagent-v7-css">
+</style>
+<style id="bp-docagent-v7-css">
 :root{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
 .da7{display:none}.da7.on{display:block}
 .da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
@@ -3456,7 +3457,8 @@
   });
   window.__bpPurgeTenantState=purge;
 })();
-</script><script id="bp-docagent-v7-js">(function(){
+</script>
+<script id="bp-docagent-v7-js">(function(){
 var API='/api/requests?__route=doc-agent';
 var ref='', access=null, busy=false;
 function $(id){return document.getElementById(id)}
@@ -3477,7 +3479,7 @@ function renderTrial(a){
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||30)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||30)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
     box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
