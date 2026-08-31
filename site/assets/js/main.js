@@ -163,6 +163,8 @@ var BP = window.BP = window.BP || {};
     var a = btn.getAttribute("data-amount");
     var surA = btn.getAttribute("data-surcharge-amount");
     var surF = btn.getAttribute("data-surcharge-free");
+    var renews = btn.getAttribute("data-renews-at");
+    var comm = btn.getAttribute("data-commission");
     return {
       id: btn.getAttribute("data-id"),
       nameEn: btn.getAttribute("data-name-en") || "",
@@ -173,6 +175,14 @@ var BP = window.BP = window.BP || {};
       qty: 1,
       surchargeAmount: surA ? Number(surA) : null,
       surchargeFreeCount: surF ? Number(surF) : null,
+      // A price already published on a public marketing page stays visible in
+      // the cart whatever the hide-prices setting says — see priceShown().
+      pricePublic: btn.getAttribute("data-price-public") ? 1 : 0,
+      // Monthly subscriptions (Business Development packages). Read here so the
+      // whole site has ONE cart path; this page used to ship a second one.
+      billingPeriod: btn.getAttribute("data-billing") || "",
+      renewsAt: renews ? Number(renews) : null,
+      commissionPercent: comm ? Number(comm) : 0,
     };
   }
 

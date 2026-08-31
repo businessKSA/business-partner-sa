@@ -890,6 +890,7 @@
       lang: 'ar',
       user: null,          // {name,email}
       org: null,           // {name_ar,...}
+      bd: null,            // Business Development trial/subscription, from the server
       db: false,
       limited: false,
       orders: [],          // [{ref,title,status}] newest first
@@ -984,6 +985,9 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(d){
           var list = (d && d.ok && d.orders) || [];
+          // The server decides whether Business Development is on trial for this
+          // client (api/_trial.js) — the browser only renders the answer.
+          if (d && d.ok) state.bd = d.bd || null;
           if (list.length){
             var byRef = {};
             for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
@@ -997,8 +1001,8 @@
                 state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
               }
             }
-            renderAll();
           }
+          renderAll();
         })
         .catch(function(){})
         .then(function(){ fetchStatuses(); });
@@ -1339,11 +1343,30 @@
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
           { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
         ];
+        // Business Development as a Service is included for 14 days with every
+        // account — no purchase. The card says which state they are in and how
+        // long is left, because a trial nobody is told about is not a trial.
+        var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
+          var isBd = pl[i].u === '/business-development-dashboard';
+          var badge = portalBadge, line = '', cta = openLbl;
+          if (isBd && bd && bd.state === 'trial'){
+            var dw = en ? (bd.days === 1 ? 'day' : 'days') : (bd.days === 1 ? 'يوم' : bd.days === 2 ? 'يومان' : bd.days <= 10 ? 'أيام' : 'يومًا');
+            badge = en ? 'Free trial' : 'تجربة مجانية';
+            line = en ? ('Included free — ' + bd.days + ' ' + dw + ' left') : ('مشمولة مجانًا — باقٍ ' + bd.days + ' ' + dw);
+            cta = en ? 'Open your trial' : 'افتح تجربتك';
+          } else if (isBd && bd && bd.state === 'expired'){
+            badge = en ? 'Trial ended' : 'انتهت التجربة';
+            line = en ? 'Your 14-day trial has ended — subscribe to reopen it.' : 'انتهت تجربتك (14 يومًا) — اشترك لإعادة فتحها.';
+          } else if (isBd && bd && bd.state === 'subscribed'){
+            badge = en ? 'Active' : 'مفعّلة';
+            line = en ? 'Your subscription is running.' : 'اشتراكك يعمل.';
+          }
           cards += '<div class="svc" data-srch>' +
-            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + esc(badge) + '</span></div>' +
+            (line ? '<div class="kv"><span>' + (en ? 'Status' : 'الحالة') + '</span><b>' + esc(line) + '</b></div>' : '') +
             '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
-            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + esc(cta) + '</a></div></div>';
         }
       }
       $('svcGrid').innerHTML = cards;

@@ -17,6 +17,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
+import { bdTrial, isPaidBdOrder } from "./_trial.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -1513,7 +1514,7 @@ export default async function handler(req, res) {
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
     const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
-    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [] })); }
+    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [], bd: bdTrial(sess.organization, false) })); }
     try {
       const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
         method: "POST",
@@ -1550,8 +1551,16 @@ export default async function handler(req, res) {
         // Orders and Revenue OS requests only: web-chat threads (WEB-<sid>)
         // also carry the email in Notes but are conversations, not orders.
         .filter((o) => o.ref && /^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(o.ref));
+      // Whether this client may use Business Development as a Service, decided
+      // here rather than in the dashboard: the trial clock is the organization's
+      // registration date, and a browser that computes its own eligibility can
+      // simply clear storage for another fortnight.
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, orders }));
+      return res.end(JSON.stringify({
+        ok: true,
+        orders,
+        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder)),
+      }));
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));

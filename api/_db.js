@@ -57,7 +57,9 @@ export async function getSession(req) {
   const s = rows[0];
   let org = null;
   if (s.organization_id) {
-    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness&limit=1`);
+    // created_at is the anchor for the 14-day Business Development trial —
+    // see api/_trial.js. It has to come from the row, not the browser.
+    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness,created_at&limit=1`);
     org = orgs[0] || null;
   }
   return { sessionId: s.id, user: s.users, organization: org, expiresAt: s.expires_at };
