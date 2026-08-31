@@ -91,6 +91,8 @@ const DEMO_CODES = {
 // capped number of real messages per agent before prompting to subscribe.
 // BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
 const TRIAL_CODES = new Set(["TRIAL"]);
+// Shared Services: free trial length (days) for every registered client.
+const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 14) || 14;
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -1515,7 +1517,7 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
-  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // Same reason for /api/doc-agent — المستشار الذكي للمستندات lives in
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
@@ -1691,15 +1693,20 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(12000),
       });
       const j = await r.json().catch(() => null);
+      // ٤٠١ ليست عطلاً عابراً بل سرّان مختلفان: الموقع يرسل قيمته واللوحة
+      // تقارنها بقيمتها. وقولها «تعذّرت القراءة، سنعيد المحاولة» يجعل صاحبها
+      // يحدّث الصفحة أبداً بلا فائدة، فتُميَّز عمّا سواها.
+      if (r.status === 401) throw new Error("panel_token_mismatch");
       if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
     } catch (e) {
       // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
       // وحده يقول إنه لم يستطع القراءة الآن.
-      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      const why = String(e.message || e).slice(0, 200);
+      console.error("my-documents bridge failed", why);
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+      return res.end(JSON.stringify({ ok: false, error: why === "panel_token_mismatch" ? why : "panel_unreachable" }));
     }
   }
 
@@ -1733,6 +1740,16 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(15000),
       });
       const j = await r.json().catch(() => null);
+      if (r.status === 401) {
+        // السرّان مختلفان. والمالك هو من يملك إصلاحه، فيُقال له بالاسم أين
+        // وكيف — لا «تعذّر» يتركه يعيد المحاولة على جدار.
+        res.statusCode = 502;
+        return res.end(JSON.stringify({
+          ok: false,
+          error: "panel_token_mismatch",
+          ملاحظة: "PANEL_BRIDGE_TOKEN في هذا المشروع لا يطابق قيمته في مشروع اللوحة. انسخ القيمة من bp-quotes إلى مشروع الموقع ثم أعد النشر.",
+        }));
+      }
       if (!r.ok || !j || j.ok !== true) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));
@@ -2531,6 +2548,29 @@ export default async function handler(req, res) {
         const tid = String(b.id || "");
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      // Shared Services free trial — every registered client gets SS_TRIAL_DAYS
+      // days from the moment their organization was created, with no purchase
+      // and nothing to activate. Derived from organizations.created_at so there
+      // is no extra state to provision, migrate or keep in sync.
+      if (b.action === "ops-ss-trial") {
+        const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,created_at&limit=1`);
+        const org = orgs[0] || null;
+        if (!org) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const started = new Date(org.created_at || Date.now());
+        const ends = new Date(started.getTime() + SS_TRIAL_DAYS * 86400000);
+        const msLeft = ends.getTime() - Date.now();
+        const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          name: org.name_ar || org.name_en || "",
+          startedAt: started.toISOString(),
+          endsAt: ends.toISOString(),
+          daysLeft,
+          active: msLeft > 0,
+          totalDays: SS_TRIAL_DAYS,
+        }));
       }
       if (b.action === "ops-violation-add") {
         const authority = String(b.authority || "").trim().slice(0, 80);

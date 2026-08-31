@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent de conformité — Business Partner</title>
-<meta name="description" content="Abonnez-vous et obtenez une équipe de conformité virtuelle qui surveille votre société au quotidien et vous alerte avant les infractions.">
-<meta property="og:title" content="Agent de conformité — Business Partner">
-<meta property="og:description" content="Abonnez-vous et obtenez une équipe de conformité virtuelle qui surveille votre société au quotidien et vous alerte avant les infractions.">
+<title>Compliance Advisor — Business Partner</title>
+<meta name="description" content="Your government platforms under constant watch: Qiwa, Muqeem, GOSI, Mudad and Nitaqat — deadlines, violations and obligations detected and handled, your role is approval only.">
+<meta property="og:title" content="Compliance Advisor — Business Partner">
+<meta property="og:description" content="Your government platforms under constant watch: Qiwa, Muqeem, GOSI, Mudad and Nitaqat — deadlines, violations and obligations detected and handled, your role is approval only.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="fr_FR">
@@ -29,7 +29,65 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
+<style>
+.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
+.adv section{padding:64px 0}
+.adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.adv-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.adv-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.adv-hero h1{max-width:860px;margin:16px auto 12px;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.045em;color:var(--n)}
+.adv-hero .lead{max-width:760px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1rem}
+.adv-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px auto 0;max-width:860px}
+.adv-chips span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.73rem;font-weight:800}
+.adv-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.adv-head{max-width:760px;margin:0 auto 28px;text-align:center}
+.adv-head h2{margin:0;color:var(--n);font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.04em;line-height:1.15}
+.adv-head p{margin:10px 0 0;color:var(--mut);line-height:1.8;font-size:.93rem}
+.adv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.adv-feature{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff}
+.adv-feature b{display:block;color:#172854;font-size:.9rem;margin-bottom:7px}
+.adv-feature p{margin:0;color:#778198;font-size:.78rem;line-height:1.75}
+.adv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-step{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
+.adv-step i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.8rem;margin-bottom:12px}
+.adv-step b{display:block;color:#172854;font-size:.83rem;margin-bottom:5px}
+.adv-step p{margin:0;color:#778198;font-size:.72rem;line-height:1.7}
+.adv-sub{background:var(--soft)}
+.adv-subbox{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 18px 46px rgba(11,27,90,.1)}
+.adv-subbox h3{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.adv-subbox .price-amt{font-size:2rem;font-weight:850;color:var(--n);margin:10px 0 2px}
+.adv-subbox .adv-per{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+.adv-subbox .qb-note{margin:0 0 14px;font-size:.85rem;color:var(--mut)}
+.adv-subbox ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;text-align:start}
+.adv-subbox li{font-size:.83rem;color:#536077}
+.adv-subbox li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:8px}
+.adv-subbox .buy-row{justify-content:center;display:flex}
+.adv-subbox .adv-note{margin:14px 0 0;font-size:.75rem;color:var(--mut)}
+.adv-faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.adv-faq details{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px 18px}
+.adv-faq summary{cursor:pointer;font-weight:800;color:var(--n);font-size:.9rem}
+.adv-faq p{margin:10px 0 0;color:var(--mut);font-size:.85rem;line-height:1.8}
+.adv-cta{background:linear-gradient(145deg,var(--n),#123b8e);color:#fff;text-align:center}
+.adv-cta h2{margin:0 0 8px;color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.04em}
+.adv-cta p{margin:0 auto 20px;max-width:620px;color:rgba(255,255,255,.72);line-height:1.8;font-size:.92rem}
+.adv-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.adv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff;transition:.2s}
+.adv-card:hover{border-color:#b7c4e8;box-shadow:0 14px 38px rgba(20,49,125,.09)}
+.adv-card small{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.6rem;font-weight:900;margin-bottom:14px}
+.adv-card h3{margin:0 0 6px;color:#142653;font-size:1.02rem}
+.adv-card .tg{margin:0 0 10px;color:#778198;font-size:.76rem;line-height:1.65}
+.adv-card ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.adv-card li{font-size:.73rem;color:#536077}
+.adv-card li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.adv-card .price-amt{font-size:1.05rem;font-weight:850;color:var(--n);margin:0 0 4px}
+.adv-card .qb-note{margin:0 0 10px;font-size:.72rem;color:var(--mut)}
+.adv-card .adv-acts{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adv-card .adv-acts .buy-row{display:contents}
+.adv-more{font-size:.8rem;font-weight:800;color:var(--b);text-decoration:none}
+@media(max-width:980px){.adv-grid,.adv-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adv-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.adv .wrap{width:min(100% - 26px,1100px)}.adv section{padding:48px 0}.adv-grid,.adv-hub-grid,.adv-steps{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
 <style id="bp-public-v4-css">
 :root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
 body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
@@ -140,57 +198,55 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
 @media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
 </style>
 </head>
-<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-ai"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/fr/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/fr/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/fr/services/category/company-formation">Company Formation</a><a href="/fr/services/category/foreign-investment">Foreign Investment</a><a href="/fr/services/category/premium-residency">Premium Residency</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/fr/services/category/government-relations">Government Services</a><a href="/fr/compliance-agent">Compliance & Violations</a><a href="/fr/services/category/hr-services">HR Services</a><a href="/fr/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/fr/workspaces">Workspaces</a><a href="/fr/worker-housing">Worker Housing</a><a href="/fr/services">Relocation</a><a href="/fr/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/fr/#bp-consultant">B10X</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/business-development">Business Development</a><a href="/fr/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/fr/suppliers">Partner Registration</a><a href="/fr/partner-dashboard">Partner Portal</a><a href="/fr/careers">Jobs</a></div></div></details><a href="/fr/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/fr/ai-agents">All AI Advisors</a><a href="/fr/compliance-agent">Compliance Advisor</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/shared-services">Shared Services</a></div></details><a href="/fr/about">About</a><a href="/fr/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>Français</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/fr/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/fr/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/fr/consultation">Get started</a></div></div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">Agent de conformité</span>
-    <h1>Une équipe de conformité et d'exploitation gouvernementale qui veille quotidiennement sur votre établissement</h1>
-    <p class="lead">Abonnez-vous et obtenez un service de conformité virtuel qui surveille votre société, vous alerte avant les infractions et les échéances et prépare chaque démarche gouvernementale pour votre validation — sans que vous ayez jamais à vous connecter vous-même à un portail gouvernemental.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="/fr/account">S'abonner maintenant</a>
-      <a class="btn btn-ghost btn-lg" href="/ar/compliance-dashboard">🔐 Déjà abonné ? Connectez-vous</a>
-    </div>
-    <div class="hero-badges"><span class="hero-badge">Qiwa</span><span class="hero-badge">Muqeem</span><span class="hero-badge">GOSI</span><span class="hero-badge">Mudad</span><span class="hero-badge">Nitaqat</span><span class="hero-badge">CR</span><span class="hero-badge">Saudi Business Center</span><span class="hero-badge">ZATCA</span><span class="hero-badge">Chamber</span><span class="hero-badge">Adresse nationale</span><span class="hero-badge">Balady</span><span class="hero-badge">Défense civile</span><span class="hero-badge">Ejar</span><span class="hero-badge">MISA</span></div>
-  </div></section>
-
-  <section id="intake" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">Comment s'abonner</span><h2>Quatre étapes de l'inscription à l'ouverture de votre tableau de bord</h2></div>
-    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>S'inscrire / se connecter</h3><p>Créez votre compte sur le site — le même compte que pour tous les autres services.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>Ajoutez l'abonnement à votre panier</h3><p>Then pay online (mada / Visa) or by bank transfer.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>Payment is confirmed</h3><p>Pay online and your access code is emailed to you instantly — a bank transfer is confirmed first.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>Ouvrez votre tableau de bord</h3><p>Connectez-vous à votre tableau de bord de conformité avec votre e-mail et votre code d'accès — le dossier de votre établissement, les alertes et le dépôt de documents s'y trouvent.</p></div></div></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Comment ça marche</span><h2>Quatre étapes — de l'enregistrement de votre établissement à une alerte quotidienne et une action prête en attente de votre validation</h2></div>
-    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>Abonnez-vous et enregistrez votre établissement</h3><p>Registre de commerce, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licences — image, PDF ou Excel.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>L'agent lit et analyse</h3><p>Il extrait automatiquement les dates, les chiffres et les statuts et constitue votre dossier de conformité.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>Surveillance quotidienne</h3><p>Il calcule les délais et les risques, et vous alerte avant toute expiration ou infraction par WhatsApp et par e-mail.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>Chaque action nécessite votre validation</h3><p>Il prépare le renouvellement ou l'action et vous la soumet — rien de gouvernemental ne s'exécute sans votre validation.</p></div></div></div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">💰</span><p>La conformité rapporte désormais littéralement : l'initiative Estrdad de Monsha'at rembourse aux PME leurs frais gouvernementaux jusqu'en 2028 — mais uniquement tant que votre registre de commerce, vos certificats, vos licences et votre Nitaqat restent conformes. L'agent vous maintient dans la bande éligible. <a href="/fr/estrdad">En savoir plus sur le remboursement des frais ←</a></p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">Que suit l'agent pour vous ?</h3>
-      <ul class="value-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Les certificats et leurs dates d'expiration:</b> Zakat, impôts, chambre de commerce, GOSI, saoudisation, protection des salaires, IBAN.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Effectif et titres de séjour:</b> Permis de travail (Qiwa), titres de séjour (Muqeem), protection des salaires (Mudad).</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Nitaqat et saoudisation:</b> Votre bande attendue et le nombre de Saoudiens nécessaire pour l'atteindre ou passer au niveau supérieur.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Licences et emplacement:</b> Licence municipale (Balady), Défense civile, contrat de bail certifié.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Investisseurs étrangers:</b> Licence d'investissement (MISA) et ses échéances.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>Alertes:</b> Rapport quotidien + une alerte avant les infractions et avant toute expiration.</span></li></ul>
+<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-ai"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/fr/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/fr/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/fr/services/category/company-formation">Company Formation</a><a href="/fr/services/category/foreign-investment">Foreign Investment</a><a href="/fr/services/category/premium-residency">Premium Residency</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/fr/services/category/government-relations">Government Services</a><a href="/fr/compliance-agent">Compliance & Violations</a><a href="/fr/services/category/hr-services">HR Services</a><a href="/fr/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/fr/workspaces">Workspaces</a><a href="/fr/worker-housing">Worker Housing</a><a href="/fr/services">Relocation</a><a href="/fr/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/fr/#bp-consultant">B10X</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/business-development">Business Development</a><a href="/fr/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/fr/suppliers">Partner Registration</a><a href="/fr/partner-dashboard">Partner Portal</a><a href="/fr/careers">Jobs</a></div></div></details><a href="/fr/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/fr/ai-agents">All AI Advisors</a><a href="/fr/compliance-agent">Compliance Advisor</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/shared-services">Shared Services</a></div></details><a href="/fr/about">About</a><a href="/fr/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>Français</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/fr/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/fr/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/fr/consultation">Get started</a></div></div></header><main><div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> Compliance Advisor · works 24/7</span>
+    <h1>Your government platforms, under constant watch.</h1>
+    <p class="lead">Every establishment lives across Qiwa, Muqeem, GOSI, Mudad and Nitaqat — and every one of them has deadlines that cost real money when missed. The Compliance Advisor watches them all, tells you what needs action before it becomes a violation, and prepares the paperwork. Your role: approve and pay.</p>
+    <div class="adv-chips"><span>قوى</span><span>مقيم</span><span>GOSI</span><span>مدد</span><span>نطاقات</span><span>Balady</span><span>ZATCA</span></div>
+    <div class="adv-hero-actions">
+      <a class="btn btn-primary btn-lg" href="#subscribe">S'abonner maintenant</a>
+      <a class="btn btn-ghost btn-lg" href="#how">Comment ça marche</a>
     </div>
   </div></section>
 
-  <section id="pricing" class="section" style="padding-top:0"><div class="container">
-    <div class="price-box">
-      <div>
-      <div class="text-soft">Abonnement conformité — surveillance et alertes quotidiennes. Les frais gouvernementaux liés aux démarches sont en sus et ne s'exécutent qu'avec votre validation.</div></div>
+  <section><div class="wrap">
+    <div class="adv-head"><h2>What it does for you</h2><p>For establishments that want permanent compliance without a full-time employee chasing portals.</p></div>
+    <div class="adv-grid"><div class="adv-feature"><b>Surveillance continue</b><p>Qiwa, Muqeem, GOSI, Mudad and Nitaqat checked around the clock — nothing waits for someone to remember to log in.</p></div><div class="adv-feature"><b>Deadlines before they bite</b><p>Expiries, renewals and obligations surface as clear tasks with the cost and the deadline — before the fine, not after.</p></div><div class="adv-feature"><b>Violations handled properly</b><p>When a violation appears we review it, study objection eligibility, prepare the evidence and file — then track it to the result.</p></div><div class="adv-feature"><b>Self-executing paperwork</b><p>The advisor prepares documents and submissions itself; a human from our team steps in where the platforms require one.</p></div><div class="adv-feature"><b>Approval-only workload for you</b><p>Every step comes to you as an approval with its cost — nothing executes without your yes.</p></div><div class="adv-feature"><b>Periodic compliance reports</b><p>A clear report of your establishment's compliance state, inside your client portal.</p></div></div>
+  </div></section>
+
+  <section id="how" style="background:var(--soft)"><div class="wrap">
+    <div class="adv-head"><h2>Comment ça marche</h2></div>
+    <div class="adv-steps"><div class="adv-step"><i>1</i><b>Connecter</b><p>We link your establishment's platforms inside your client portal.</p></div><div class="adv-step"><i>2</i><b>Watch</b><p>The advisor monitors deadlines, obligations and violations continuously.</p></div><div class="adv-step"><i>3</i><b>Alert &amp; prepare</b><p>What needs action arrives as a task with cost and deadline, documents ready.</p></div><div class="adv-step"><i>4</i><b>Approve &amp; track</b><p>You approve, we execute, and you track everything to completion in your portal.</p></div></div>
+  </div></section>
+
+  <section id="subscribe"><div class="wrap">
+    <div class="adv-head"><h2>Your subscription</h2></div>
+    <div class="adv-subbox"><h3>Compliance Advisor subscription</h3>
+      <div class="price-amt">250 ﷼ / monthly</div>
+      <p class="adv-per">Monthly subscription — cancel any time.</p>
+      <p class="qb-note" data-guest-note>Prix affiché après connexion</p>
+      <ul><li>Continuous monitoring of Qiwa, Muqeem, GOSI, Mudad and Nitaqat</li><li>Deadline, renewal and obligation alerts with cost before every step</li><li>Violation review, objection-eligibility study and filing</li><li>Document preparation and submission</li><li>Periodic compliance reports in your client portal</li></ul>
       <div class="buy-row">
-    <button type="button" class="btn btn-primary add-cart" data-id="agent-Compliance-Agent" data-name-en="Compliance &amp; obligations agent" data-name-ar="وكيل الامتثال والالتزام" data-amount="250" data-price="" data-kind="agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Ajouter au panier</span></button>
+    <button type="button" class="btn btn-primary add-cart" data-id="agent-Compliance-Agent" data-name-en="Compliance &amp; obligations agent" data-name-ar="مستشار الامتثال والالتزام" data-amount="250" data-price="" data-kind="agent" data-bp-code="BP-AI-03"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Ajouter au panier</span></button>
   </div>
-    </div>
+      <p class="adv-note">Activated inside your client portal after checkout; government fees, where relevant, stay separate and disclosed.</p></div>
   </div></section>
 
-  <style>
-    .text-soft{color:var(--text-soft)}
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
-    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
-    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
-    .price-box .buy-row{margin-inline-start:auto}
-  </style></main><footer class="site-footer"><div class="container">
+  <section class="adv-sub"><div class="wrap">
+    <div class="adv-head"><h2>Common questions</h2></div>
+    <div class="adv-faq"><details><summary>Does it replace my government-relations officer?</summary><p>For routine monitoring and follow-up, yes — and where a step legally requires a human, our operations team executes it as part of the flow.</p></details><details><summary>Can it cancel violations?</summary><p>No one can promise that. What we do: review the violation, study objection eligibility, prepare the strongest file, submit, and follow it to the result.</p></details><details><summary>Where do I see its work?</summary><p>Everything lives in your client portal: tasks, approvals, documents and reports — scoped to your company alone.</p></details></div>
+  </div></section>
+
+  <section class="adv-cta"><div class="wrap">
+    <h2>Not sure it fits your case?</h2>
+    <p>Tell the B10X smart advisor what you need, or book a free consultation — no cost, no commitment.</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="/fr/#bp-consultant">Talk to the smart advisor</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="/fr/consultation">Réserver une consultation gratuite</a>
+    </div>
+  </div></section>
+  </div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>Abonnez-vous à notre newsletter</h3>

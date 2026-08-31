@@ -409,6 +409,18 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         <section class="view on" id="view-home">
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
+            <!-- الخدمات المشتركة: متاحة لكل عميل مسجّل بفترة تجريبية مجانية -->
+            <div class="card c6" id="ssCard" style="display:none;background:linear-gradient(135deg,#EEF0FF,#F8F9FF);border-color:#d9ddfb">
+              <h4>🤝 <span>فريقك التنفيذي الذكي — الخدمات المشتركة</span><a class="more" href="/ar/shared-services/dashboard">افتح البوابة ←</a></h4>
+              <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                <img src="/assets/img/baher.jpg" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 12px rgba(11,27,90,.12)">
+                <div style="flex:1;min-width:200px">
+                  <div style="font-size:12.5px;color:#3d4560;line-height:1.75">محادثة واحدة مع باهر — و١٢ متخصصاً ينفّذون خلف الكواليس: حكومي وامتثال، موارد بشرية، مالية، قانوني، تسويق ومشتريات.</div>
+                  <div id="ssTrialMeta" style="font-size:11px;font-weight:700;color:#5C66F2;margin-top:5px"></div>
+                </div>
+                <a class="btn" id="ssOpenBtn" href="/ar/shared-services/dashboard" style="background:#5C66F2;color:#fff;border:0;border-radius:12px;padding:10px 20px;font-size:12.5px;font-weight:700;white-space:nowrap">ابدأ المحادثة</a>
+              </div>
+            </div>
             <div class="card c6 warnbar">
               <h4><span data-t="urgentTasks">المهام العاجلة</span><button class="more" data-goto="tasks" data-t="allTasks">كل المهام ←</button></h4>
               <div id="homeTasks"></div>
@@ -450,7 +462,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
               <div id="homeServices"></div>
             </div>
             <div class="card c4 agentbox">
-              <h4 data-t="agentTitle">وكيل Business Partner الذكي</h4>
+              <h4 data-t="agentTitle">مستشار Business Partner الذكي</h4>
               <div class="hint" data-t="agentHint">اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.</div>
               <input id="agentInput" data-tp="agentPh" placeholder="اسأل عن خدماتك أو إجراءاتك…" />
               <button class="btn sm" id="agentSend" data-t="agentSend">إرسال عبر واتساب</button>
@@ -481,7 +493,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
                 <a href="/ar/consultation" data-t="qaConsult">حجز استشارة</a>
-                <a href="/ar/compliance-dashboard" data-t="qaCompliance">وكيل الامتثال</a>
+                <a href="/ar/compliance-dashboard" data-t="qaCompliance">مستشار الامتثال</a>
               </div>
             </div>
           </div>
@@ -690,49 +702,10 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         </section>
         <section class="view" id="view-documents">
           <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
-          <!-- The Document Agent workspace lives HERE, inside the signed-in
-               portal — the public /ai-document-agent page only markets it.
-               Every API call is scoped server-side to this session's company. -->
-          <style id="da-css">
-            .da-shell{background:#fff;border:1px solid #e5eaf3;border-radius:16px;overflow:hidden;margin-bottom:14px}
-            .da-head{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #e5eaf3;background:#f8faff;flex-wrap:wrap}
-            .da-head b{color:#07163f}
-            .da-chip{font-size:.74rem;background:#fff;border:1px solid #e5eaf3;border-radius:99px;padding:2px 10px;color:#68758f}
-            .da-msgs{padding:14px;display:flex;flex-direction:column;gap:8px;min-height:180px;max-height:380px;overflow-y:auto}
-            .da-msg{max-width:85%;padding:8px 12px;border-radius:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;font-size:.86rem}
-            .da-msg.bot{background:#f6f8fc;border:1px solid #e5eaf3;align-self:flex-start}
-            .da-msg.me{background:#07163f;color:#fff;align-self:flex-end}
-            .da-msg.sys{background:#eef4ff;border:1px dashed #b9cdf3;color:#07163f;font-size:.8rem;align-self:center}
-            .da-form{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #e5eaf3}
-            .da-form #da-input{flex:1;border:1px solid #dce3ef;border-radius:10px;padding:9px 12px;font:inherit}
-            .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.15rem}
-            .da-attach input{display:none}
-            .da-actions-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px}
-            .da-start{padding:14px;text-align:center}
-            .da-outputs{padding:8px 14px;border-top:1px solid #e5eaf3;font-size:.85rem}
-            .da-outputs ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
-            .da-outputs li{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-            .da-outputs .qa-passed{color:#16b875}.da-outputs .qa-failed{color:#c0392b}
-          </style>
-          <div class="da-shell" id="da-shell">
-            <div class="da-head">
-              <b>🗂️ الوكيل الذكي للمستندات</b>
-              <span class="da-chip" id="da-status">—</span>
-              <span class="da-chip" id="da-progress" hidden></span>
-              <button class="btn sm" id="da-new" hidden style="margin-inline-start:auto">طلب جديد</button>
-            </div>
-            <div class="da-msgs" id="da-msgs"><div class="da-msg bot">ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.</div></div>
-            <div class="da-outputs" id="da-outputs" hidden><b>مخرجاتك</b><ul id="da-outputs-list"></ul></div>
-            <form class="da-form" id="da-form" hidden>
-              <label class="da-attach" title="أرفق ملفات"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
-              <input id="da-input" autocomplete="off" placeholder="اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»">
-              <button class="btn sm" type="submit">إرسال</button>
-            </form>
-            <div class="da-actions-row" id="da-actions" hidden>
-              <button class="btn sm" id="da-generate" type="button">🖊️ عبّئ النماذج</button>
-              <button class="btn sm" id="da-package" type="button">📦 جهّز الحزمة النهائية</button>
-            </div>
-            <div class="da-start" id="da-start" hidden><button class="btn" id="da-begin" type="button">ابدأ طلب مستندات جديد</button></div>
+          <div class="card c12" style="margin-bottom:14px">
+            <h4>المستشار الذكي للمستندات</h4>
+            <div class="note" style="display:block;margin:6px 0 10px">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — المستشار يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنة شركتك وحدها.</div>
+            <button class="btn sm" type="button" onclick="var b=document.querySelector('#sideNav [data-v=\'docagent\']');if(b)b.click()">🗂️ افتح مستشار المستندات</button>
           </div>
           <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="docMain" style="display:none">
@@ -913,7 +886,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
         papersEmpty: 'لا يوجد عرض أو عقد باسمك حتى الآن. أول عرض يُرسل إليك يظهر هنا مباشرة.',
-        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها.',
+        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد، والربط بيدنا لا بيدك. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها الآن.',
         papersQuotes: 'عروض الأسعار', papersContracts: 'العقود', papersInvoices: 'مطالبات السداد',
         papersNote: 'الأسعار المعروضة غير شاملة ضريبة القيمة المضافة 15%، والرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.',
         papersOpen: 'افتح المستند', papersPay: 'سدّد الآن', papersNoneQ: 'لا عروض', papersNoneC: 'لا عقود', papersNoneI: 'لا مطالبات',
@@ -946,14 +919,14 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         notConnected: 'غير متصلة', noIntegration: 'التكامل غير متاح',
         govQiwa: 'قوى', govGosi: 'التأمينات الاجتماعية', govMuqeem: 'مقيم', govMudad: 'مدد',
         govZatca: 'الزكاة والضريبة', govBalady: 'بلدي', govAbsher: 'أبشر أعمال', govChamber: 'الغرفة التجارية',
-        agentTitle: 'وكيل Business Partner الذكي',
+        agentTitle: 'مستشار Business Partner الذكي',
         agentHint: 'اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.',
         agentPh: 'اسأل عن خدماتك أو إجراءاتك…',
         agentSend: 'إرسال عبر واتساب',
         agentPrefill: 'مرحباً، أنا عميل في مركز عمليات العميل — Business Partner. ',
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
-        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'وكيل الامتثال',
+        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'مستشار الامتثال',
         tasksSub: 'مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.',
         ordersSub: 'طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.',
         ordersTitle: 'سجل الطلبات',
@@ -973,9 +946,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         apprNeedComment: 'اكتب سبب الرفض أولاً.', apprApproved: 'تمت الموافقة', apprRejected: 'مرفوض',
         apprAmount: 'المبلغ', apprDeadline: 'المهلة',
         docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
-        docAgentTitle: 'الوكيل الذكي للمستندات',
+        docAgentTitle: 'المستشار الذكي للمستندات',
         docAgentSub: 'ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.',
-        docAgentOpen: '🗂️ افتح وكيل المستندات',
+        docAgentOpen: '🗂️ افتح مستشار المستندات',
         docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
@@ -1029,7 +1002,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
         papersEmpty: 'No quotation or contract in your name yet. The first one sent to you appears here.',
-        papersOff: 'This section is not connected to the quotations panel yet. It does not mean you have none — it means this page cannot read them.',
+        papersOff: 'This section is not connected to the quotations panel yet, and connecting it is on us. It does not mean you have none — it means this page cannot read them right now.',
         papersQuotes: 'Quotations', papersContracts: 'Contracts', papersInvoices: 'Payment requests',
         papersNote: 'All prices are exclusive of 15% value added tax. Government fees are always excluded and are paid directly to the competent authorities at actual cost.',
         papersOpen: 'Open document', papersPay: 'Pay now', papersNoneQ: 'No quotations', papersNoneC: 'No contracts', papersNoneI: 'No payment requests',
@@ -2420,7 +2393,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       fetch('/api/requests?action=my-documents', { credentials: 'same-origin', cache: 'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
-          state.papers = (out && out.ok) ? out : { ok: false };
+          // سبب الفشل يُحفظ لا يُطرح: عطل الإعداد ورسالته تختلف عن تعثّر
+          // اتصال، والواجهة لا تفرّق بينهما إن لم يصلها السبب.
+          state.papers = (out && out.ok) ? out : { ok: false, error: (out && out.error) || '' };
           renderPapers();
         })
         .catch(function(){ state.papers = { ok: false }; renderPapers(); });
@@ -2479,7 +2454,13 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         var msg = ph.querySelector('p span');
         // تعذّر القراءة ليس «لا يوجد»: الفرق بينهما هو الفرق بين عميل يطمئن
         // وعميل يظن أن عرضه ضاع.
-        if (msg){ msg.removeAttribute('data-t'); msg.textContent = t('papersDown'); }
+        // وعطل الإعداد ليس تعذّراً عابراً: «سنعيد المحاولة عند التحديث» تجعل
+        // صاحبها يحدّث الصفحة أبداً بلا أن يتغيّر شيء، لأن ما ينقص سرٌّ في
+        // الإعدادات لا اتصالٌ تعثّر.
+        if (msg){
+          msg.removeAttribute('data-t');
+          msg.textContent = (p.error === 'panel_token_mismatch') ? t('papersOff') : t('papersDown');
+        }
         if (badge) badge.style.display = 'none';
         return;
       }
@@ -3065,11 +3046,31 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
       return true;
     }
+    // الخدمات المشتركة: كل عميل مسجّل يحصل على فترة تجريبية مجانية بدون شراء.
+    // نقرأ حالتها من الخادم (تُشتق من تاريخ تسجيل المنشأة) ونُظهر البطاقة.
+    function ssTrialCard(){
+      var card = $('ssCard'); if (!card) return;
+      opsPost({ action: 'ops-ss-trial' }).then(function(d){
+        if (!d || !d.ok) return;
+        var meta = $('ssTrialMeta'), btn = $('ssOpenBtn');
+        if (d.active){
+          var n = d.daysLeft, total = d.totalDays || 14;
+          var head = n === 1 ? 'يوم واحد متبقٍ' : n === 2 ? 'يومان متبقيان'
+            : (n >= 3 && n <= 10) ? (n + ' أيام متبقية') : (n + ' يوماً متبقياً');
+          if (meta) meta.textContent = '🎁 تجربة مجانية — ' + head + ' من ' + total + ' يوماً · بدون أي شراء';
+        } else {
+          if (meta) { meta.textContent = 'انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي.'; meta.style.color = '#b3261e'; }
+          if (btn) { btn.textContent = 'اشترك الآن'; btn.href = '/ar/shared-services#ss-subscribe'; }
+        }
+        card.style.display = '';
+      }).catch(function(){});
+    }
     function enterApp(){
       // Bridge to the site-wide cart/checkout (main.js reads bp_session from
       // localStorage): without this marker, /checkout bounces back here and
       // the purchase loop never completes.
       try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      try { ssTrialCard(); } catch(e){}
       // Seed the checkout's company prefill from the account's organization.
       try {
         if (state.org && (state.org.name_ar || state.org.name_en)) {
@@ -3144,7 +3145,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       for (var i = 0; i < navBtns.length; i++) navBtns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
       // Deep link: /account?view=documents opens that view directly (e.g. from
       // the public Document Agent page).
-      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0) switchView(v0); } catch (e) {}
+      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0 && v0 !== 'docagent') switchView(v0); } catch (e) {}
       var mvs = document.querySelectorAll('[data-mv]');
       for (var j = 0; j < mvs.length; j++){
         mvs[j].style.cursor = 'pointer';
@@ -3314,135 +3315,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
 
     boot();
   </script>
-  <script>
-  /* الوكيل الذكي للمستندات — the same workspace that used to live on the public
-     page, now scoped to the portal. /api/doc-agent authenticates the session
-     cookie and filters everything by the active company server-side. */
-  (function(){
-    var API='/api/doc-agent';
-    var $=function(id){return document.getElementById(id);};
-    if(!$('da-msgs'))return;
-    var ref='';
-    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var MS={failed:'صار خطأ — أعد المحاولة بعد لحظات.',tooBig:'هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى.',noForms:'ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X».',ready:'تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».',uploading:'جارٍ الرفع والقراءة…',generating:'جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…',packing:'جارٍ ضغط كل شيء في ملف واحد…',hello:'ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.',gate:'سجّل دخولك بجلسة كاملة لتفعيل وكيل المستندات — مستنداتك تبقى في خزنة شركتك وحدها.',facts:'معلومة مستخرجة',forms:'نموذج للتعبئة'};
-    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
-    function setStatus(st){$('da-status').textContent=st||'—';}
-    function renderState(st){
-      if(!st||!st.ok)return;
-      setStatus(st.request.status);
-      var facts=(st.facts||[]).length, forms=(st.gap&&st.gap.forms)||0;
-      var pr=$('da-progress');
-      if(facts||forms){pr.hidden=false;pr.textContent=facts+' '+MS.facts+' · '+forms+' '+MS.forms;}
-      var outs=(st.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
-      show('da-outputs',outs.length>0);
-      var ul=$('da-outputs-list');ul.innerHTML='';
-      outs.forEach(function(o){
-        var li=document.createElement('li');
-        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
-        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
-        var a=document.createElement('a');a.href='#';a.textContent='تحميل';a.className='btn sm';
-        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
-        li.appendChild(a);ul.appendChild(li);
-      });
-      show('da-actions',forms>0||outs.length>0);
-    }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
-    function activate(){show('da-form',true);show('da-start',false);show('da-new',true);refresh();}
-    function begin(){
-      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
-        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',MS.failed);
-      });
-    }
-    get('?action=list').then(function(d){
-      if(d.__code===401||!d.ok){el('sys',MS.gate);return;}
-      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
-      var match=null;
-      open.forEach(function(r){if(r.ref===ref)match=r;});
-      if(!match&&open.length)match=open[0];
-      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
-        get('?action=state&ref='+encodeURIComponent(ref)).then(function(st){
-          if(st.ok){(st.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(st);}
-          activate();
-        });
-      } else { show('da-start',true); }
-    }).catch(function(){el('sys',MS.gate);});
-    $('da-begin').onclick=begin;
-    $('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',MS.hello);begin();};
-    $('da-form').addEventListener('submit',function(ev){
-      ev.preventDefault();
-      var v=$('da-input').value.trim();if(!v||!ref)return;
-      $('da-input').value='';el('me',v);
-      var typing=el('sys','…');
-      post({action:'chat',ref:ref,message:v}).then(function(d){
-        typing.remove();
-        el('bot',d.ok?d.reply:MS.failed);
-        if(d.ok&&d.generate_now)runGenerate();
-        refresh();
-      }).catch(function(){typing.remove();el('sys',MS.failed);});
-    });
-    $('da-file').addEventListener('change',function(){
-      var files=Array.prototype.slice.call(this.files||[]);this.value='';
-      if(!ref||!files.length)return;
-      (function next(i){
-        if(i>=files.length){refresh();return;}
-        var f=files[i];
-        el('me','📎 '+f.name);
-        if(f.size>3*1024*1024){el('bot',MS.tooBig);next(i+1);return;}
-        var note=el('sys',MS.uploading);
-        var rd=new FileReader();
-        rd.onload=function(){
-          var b64=String(rd.result).split(',')[1]||'';
-          var ext=(f.name.split('.').pop()||'').toLowerCase();
-          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
-            note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?MS.tooBig:MS.failed));
-            next(i+1);
-          }).catch(function(){note.remove();el('sys',MS.failed);next(i+1);});
-        };
-        rd.readAsDataURL(f);
-      })(0);
-    });
-    function runGenerate(formId,seen){
-      if(!ref)return;var note=el('sys',MS.generating);seen=seen||0;
-      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
-        note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?MS.noForms:(MS.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
-        var done=0;
-        (d.outputs||[]).forEach(function(o){
-          if(o.ok&&o.output_id){
-            done++;
-            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-              if(!l.url)return;
-              var row=el('bot','⬇️ ');
-              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-              row.appendChild(a);
-              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-            });
-          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
-        });
-        var rest=d.remaining||[];
-        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
-        if(done||seen)el('bot',MS.ready);
-        refresh();
-      }).catch(function(){note.remove();el('sys',MS.failed);});
-    }
-    $('da-generate').onclick=function(){runGenerate();};
-    $('da-package').onclick=function(){
-      if(!ref)return;var note=el('sys',MS.packing);
-      post({action:'package',ref:ref}).then(function(d){
-        note.remove();
-        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',MS.failed);
-        refresh();
-      }).catch(function(){note.remove();el('sys',MS.failed);});
-    };
-  })();
-  </script>
+  
 
 <script id="bp-portal-trust-js">
 (function(){
@@ -3521,17 +3394,52 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
 </script><script id="bp-client-portal-v6-js">(function(){
 function byId(id){return document.getElementById(id)}
 function clickView(v){var b=document.querySelector('#sideNav [data-v="'+v+'"]');if(b)b.click()}
-function injectNav(){var nav=document.getElementById('sideNav');if(!nav||nav.querySelector('[data-v="compliance-v6"]'))return;var company=nav.querySelector('[data-v="company"]');var b=document.createElement('button');b.setAttribute('data-v','compliance-v6');b.innerHTML='<span>✓</span><span>الامتثال والتجديدات</span>';if(company)company.insertAdjacentElement('afterend',b);else nav.appendChild(b);b.onclick=function(){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});document.querySelectorAll('#sideNav button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');var v=byId('view-compliance-v6');if(v)v.classList.add('on');loadCompliance();window.scrollTo(0,0)} }
+function injectNav(){var nav=document.getElementById('sideNav');if(!nav||nav.querySelector('[data-v="compliance-v6"]'))return;var company=nav.querySelector('[data-v="company"]');var b=document.createElement('button');b.setAttribute('data-v','compliance-v6');b.innerHTML='<span>✓</span><span>الامتثال والمخالفات</span>';if(company)company.insertAdjacentElement('afterend',b);else nav.appendChild(b);b.onclick=function(){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});document.querySelectorAll('#sideNav button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');var v=byId('view-compliance-v6');if(v)v.classList.add('on');loadCompliance();window.scrollTo(0,0)} }
 function injectCompanyBar(){var wrap=document.querySelector('.viewwrap');if(!wrap||byId('bp6-companybar'))return;var d=document.createElement('div');d.id='bp6-companybar';d.className='bp6-companybar';d.innerHTML='<div><h3>مساحة الشركة النشطة</h3><p>كل الطلبات والمستندات والامتثال أدناه تخص الشركة المختارة فقط.</p><div class="bp6-company-note">يمكنك إدارة حتى <span class="bp6-100">100 شركة</span> من نفس الحساب.</div></div><div class="bp6-company-actions"><span class="bp6-pill" id="bp6CompanyName">الشركة الحالية</span><button class="btn sm ghost" id="bp6Switch">تبديل الشركة</button><button class="btn sm" id="bp6Add">＋ إضافة شركة</button></div>';wrap.insertAdjacentElement('afterbegin',d);byId('bp6Switch').onclick=function(){clickView('company');setTimeout(function(){var p=byId('orgPick');if(p)p.focus()},80)};byId('bp6Add').onclick=function(){clickView('company');setTimeout(function(){var a=byId('orgAdd');if(a)a.click()},80)};syncCompanyName()}
 function syncCompanyName(){var n=byId('topOrgName'),t=byId('bp6CompanyName');if(n&&t)t.textContent=n.textContent||'الشركة الحالية'}
-function injectComplianceView(){var host=document.querySelector('.viewwrap');if(!host||byId('view-compliance-v6'))return;var s=document.createElement('section');s.className='view bp6-compliance';s.id='view-compliance-v6';s.innerHTML='<div class="pagehead"><h2>الامتثال والتجديدات</h2><div class="sub">المستندات، الاستحقاقات، التجديدات وطلبات المعالجة للشركة النشطة — من داخل بوابة العميل.</div></div><div class="bp6-kpis"><div class="bp6-kpi red"><b id="bp6Expired">—</b><span>مستندات منتهية</span></div><div class="bp6-kpi amber"><b id="bp6Soon">—</b><span>تنتهي خلال 30 يوم</span></div><div class="bp6-kpi green"><b id="bp6Valid">—</b><span>مستندات سارية</span></div><div class="bp6-kpi"><b id="bp6Tasks">—</b><span>إجراءات مطلوبة</span></div></div><div class="bp6-grid"><div class="bp6-box"><h3>ماذا تحتاج أن تفعل الآن؟</h3><div id="bp6Actions"><div class="bp6-empty">جارٍ تحميل بيانات الشركة…</div></div></div><div class="bp6-box bp6-ai"><h3>مستشار الامتثال B10X</h3><p>يربط المستندات والاستحقاقات والطلبات بالشركة الحالية. التجديد أو الاعتراض أو المعالجة يتحول إلى Request داخل حسابك بدل محادثة واتساب.</p><a href="/ar/compliance-agent">افتح مستشار الامتثال</a></div></div><div class="bp6-box" style="margin-top:14px"><h3>مستندات الشركة</h3><div id="bp6Docs"><div class="bp6-empty">جارٍ التحميل…</div></div></div>';host.appendChild(s)}
+function injectComplianceView(){var host=document.querySelector('.viewwrap');if(!host||byId('view-compliance-v6'))return;var s=document.createElement('section');s.className='view bp6-compliance';s.id='view-compliance-v6';s.innerHTML='<div class="pagehead"><h2>الامتثال والمخالفات</h2><div class="sub">المستندات، الاستحقاقات، المخالفات والاعتراضات للشركة النشطة — كل شيء من داخل بوابة العميل.</div></div><div id="bp6Access"></div><div class="bp6-kpis"><div class="bp6-kpi red"><b id="bp6Expired">—</b><span>مستندات منتهية</span></div><div class="bp6-kpi amber"><b id="bp6Soon">—</b><span>تنتهي خلال 30 يوم</span></div><div class="bp6-kpi green"><b id="bp6Valid">—</b><span>مستندات سارية</span></div><div class="bp6-kpi red"><b id="bp6Viol">—</b><span>مخالفات قائمة</span></div><div class="bp6-kpi"><b id="bp6Tasks">—</b><span>إجراءات مطلوبة</span></div></div><div id="bp6Gated"><div class="bp6-grid"><div class="bp6-box"><h3>ماذا تحتاج أن تفعل الآن؟</h3><div id="bp6Actions"><div class="bp6-empty">جارٍ تحميل بيانات الشركة…</div></div></div><div class="bp6-box bp6-ai"><h3>مستشار الامتثال B10X</h3><p>يربط المستندات والاستحقاقات والمخالفات بالشركة الحالية. التجديد أو الاعتراض أو المعالجة يتحول إلى طلب تنفيذ عند فريقنا — بدون ما تدخل أي منصة حكومية بنفسك.</p><a href="/ar/compliance-agent">افتح مستشار الامتثال</a></div></div><div class="bp6-box" style="margin-top:14px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">⚖️ المخالفات والاعتراضات</h3><button class="btn sm" id="bp6VAddBtn">＋ سجّل مخالفة</button></div><div id="bp6VForm" style="display:none;margin-top:12px;background:#f6f8ff;border:1px solid #e2e8ff;border-radius:12px;padding:12px"></div><div id="bp6Violations" style="margin-top:10px"><div class="bp6-empty">جارٍ التحميل…</div></div></div><div class="bp6-box" style="margin-top:14px"><h3>مستندات الشركة</h3><div id="bp6Docs"><div class="bp6-empty">جارٍ التحميل…</div></div></div></div>';host.appendChild(s)}
 function openRenew(title){clickView('store');setTimeout(function(){var q=byId('stSearch');if(q){q.value='تجديد '+(title||'');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}},250)}
 function openDocs(){clickView('documents')}
-function loadCompliance(){Promise.all([fetch('/api/requests?action=my-ops&what=documents',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}),fetch('/api/requests?action=my-ops&what=tasks',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()})]).then(function(all){var docs=(all[0]&&all[0].items)||[],tasks=(all[1]&&all[1].items)||[];var now=Date.now(),expired=0,soon=0,valid=0,acts=[];docs.forEach(function(d){if(!d.expiry_date){valid++;return}var days=Math.ceil((new Date(d.expiry_date).getTime()-now)/86400000);if(days<0){expired++;acts.push({title:d.title||'مستند',meta:'منتهي منذ '+Math.abs(days)+' يوم',kind:'renew'})}else if(days<=30){soon++;acts.push({title:d.title||'مستند',meta:'ينتهي خلال '+days+' يوم',kind:'renew'})}else valid++});tasks.filter(function(t){return !/done|closed|completed/i.test(String(t.status||''))}).slice(0,6).forEach(function(t){acts.push({title:t.title||'إجراء مطلوب',meta:t.due_at?'موعد: '+String(t.due_at).slice(0,10):'مطلوب من الشركة',kind:'task'})});byId('bp6Expired').textContent=expired;byId('bp6Soon').textContent=soon;byId('bp6Valid').textContent=valid;byId('bp6Tasks').textContent=tasks.length;var box=byId('bp6Actions');box.innerHTML=acts.length?acts.slice(0,8).map(function(a,i){return '<div class="bp6-action"><div><strong>'+escapeHtml(a.title)+'</strong><small>'+escapeHtml(a.meta)+'</small></div><button data-bp6="'+i+'">'+(a.kind==='renew'?'طلب تجديد':'عرض')+'</button></div>'}).join(''):'<div class="bp6-empty">لا توجد إجراءات عاجلة الآن.</div>';box.querySelectorAll('[data-bp6]').forEach(function(b){b.onclick=function(){var a=acts[+b.getAttribute('data-bp6')];if(a.kind==='renew')openRenew(a.title);else clickView('tasks')}});var db=byId('bp6Docs');db.innerHTML=docs.length?docs.slice(0,12).map(function(d){var exp=d.expiry_date?String(d.expiry_date).slice(0,10):'بدون تاريخ انتهاء';return '<div class="bp6-action"><div><strong>'+escapeHtml(d.title||'مستند')+'</strong><small>'+escapeHtml(exp)+'</small></div><button data-docopen>عرض المستندات</button></div>'}).join(''):'<div class="bp6-empty">لا توجد مستندات بعد. ارفع مستندات الشركة لتفعيل المتابعة.</div>';db.querySelectorAll('[data-docopen]').forEach(function(b){b.onclick=openDocs})}).catch(function(){var a=byId('bp6Actions');if(a)a.innerHTML='<div class="bp6-empty">تعذر تحميل بيانات الامتثال الآن.</div>'})}
+function loadCompliance(){Promise.all([
+fetch('/api/requests?action=my-ops&what=documents',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return{}}),
+fetch('/api/requests?action=my-ops&what=tasks',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return{}}),
+fetch('/api/requests?action=my-ops&what=violations',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return{}}),
+fetch('/api/requests?action=my-ops&what=compliance-access',{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return{}})
+]).then(function(all){var docs=(all[0]&&all[0].items)||[],tasks=(all[1]&&all[1].items)||[],viols=(all[2]&&all[2].items)||[],acc=all[3]||{};
+renderAccess(acc);
+if(acc&&acc.trial&&acc.days_left===0){var g=byId('bp6Gated');if(g)g.style.display='none';return}
+var now=Date.now(),expired=0,soon=0,valid=0,acts=[];docs.forEach(function(d){if(!d.expiry_date){valid++;return}var days=Math.ceil((new Date(d.expiry_date).getTime()-now)/86400000);if(days<0){expired++;acts.push({title:d.title||'مستند',meta:'منتهي منذ '+Math.abs(days)+' يوم',kind:'renew'})}else if(days<=30){soon++;acts.push({title:d.title||'مستند',meta:'ينتهي خلال '+days+' يوم',kind:'renew'})}else valid++});
+tasks.filter(function(t){return !/done|closed|completed/i.test(String(t.status||''))}).slice(0,6).forEach(function(t){acts.push({title:t.title||'إجراء مطلوب',meta:t.due_at?'موعد: '+String(t.due_at).slice(0,10):'مطلوب من الشركة',kind:'task'})});
+byId('bp6Expired').textContent=expired;byId('bp6Soon').textContent=soon;byId('bp6Valid').textContent=valid;byId('bp6Tasks').textContent=tasks.length;
+byId('bp6Viol').textContent=viols.filter(function(v){return ['جديدة','قيد الاعتراض','مرفوض الاعتراض'].indexOf(String(v.status||''))!==-1}).length;
+var box=byId('bp6Actions');box.innerHTML=acts.length?acts.slice(0,8).map(function(a,i){return '<div class="bp6-action"><div><strong>'+escapeHtml(a.title)+'</strong><small>'+escapeHtml(a.meta)+'</small></div><button data-bp6="'+i+'">'+(a.kind==='renew'?'طلب تجديد':'عرض')+'</button></div>'}).join(''):'<div class="bp6-empty">لا توجد إجراءات عاجلة الآن.</div>';
+box.querySelectorAll('[data-bp6]').forEach(function(b){b.onclick=function(){var a=acts[+b.getAttribute('data-bp6')];if(a.kind==='renew')openRenew(a.title);else clickView('tasks')}});
+renderViolations(viols);
+var db=byId('bp6Docs');db.innerHTML=docs.length?docs.slice(0,12).map(function(d){var exp=d.expiry_date?String(d.expiry_date).slice(0,10):'بدون تاريخ انتهاء';return '<div class="bp6-action"><div><strong>'+escapeHtml(d.title||'مستند')+'</strong><small>'+escapeHtml(exp)+'</small></div><button data-docopen>عرض المستندات</button></div>'}).join(''):'<div class="bp6-empty">لا توجد مستندات بعد. ارفع مستندات الشركة لتفعيل المتابعة.</div>';
+db.querySelectorAll('[data-docopen]').forEach(function(b){b.onclick=openDocs})
+}).catch(function(){var a=byId('bp6Actions');if(a)a.innerHTML='<div class="bp6-empty">تعذر تحميل بيانات الامتثال الآن.</div>'})}
+function renderAccess(acc){var el=byId('bp6Access');if(!el)return;
+if(acc&&acc.active){el.innerHTML='<div style="background:#e9f7ef;border:1px solid #bfe6cd;color:#0e6b3c;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-weight:700;font-size:13px">✓ اشتراكك في مستشار الامتثال نشط — كل الميزات مفتوحة بلا حدود.</div>';return}
+if(acc&&acc.trial&&acc.days_left>0){el.innerHTML='<div style="background:#fff8e6;border:1px solid #f2e2ae;color:#8a6d1b;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>🎁 تجربة مجانية — باقي '+acc.days_left+' يوم من 14.</b><span>كل ميزات الامتثال والمخالفات مفتوحة لك الآن.</span><a href="/ar/compliance-agent#pricing" style="margin-inline-start:auto;background:#0B1B5A;color:#fff;border-radius:999px;padding:6px 14px;text-decoration:none;font-weight:800;font-size:12px">فعّل الاشتراك</a></div>';return}
+if(acc&&acc.trial){el.innerHTML='<div style="background:#fff;border:1px solid #e4e7f0;border-radius:16px;padding:28px;text-align:center;margin-bottom:12px"><div style="font-size:34px">🔒</div><h3 style="color:#0B1B5A;margin:8px 0 4px">انتهت تجربتك المجانية (14 يوماً)</h3><p style="color:#5a6285;font-size:13px;max-width:52ch;margin:0 auto 14px">أعجبتك متابعة الامتثال والمخالفات؟ فعّل اشتراكك ويرجع كل شيء فوراً — مستنداتك ومخالفاتك محفوظة كما هي.</p><a href="/ar/compliance-agent#pricing" style="background:#0B1B5A;color:#fff;border-radius:999px;padding:10px 22px;text-decoration:none;font-weight:800;font-size:13px">اشترك الآن</a> <a href="/ar/account?view=tickets" style="color:#0B1B5A;font-weight:700;font-size:13px;margin-inline-start:10px">أو كلّم فريقنا</a></div>';return}
+el.innerHTML=''}
+function violStatusChip(st){var m={'جديدة':['#fff4e0','#9a6b0d','🟡 جديدة — تقدر تعترض'],'قيد الاعتراض':['#e8f0ff','#2853c5','⏳ قيد الاعتراض'],'مقبول الاعتراض':['#e9f7ef','#0e6b3c','✅ قُبل الاعتراض'],'مرفوض الاعتراض':['#fdecea','#b3372b','❌ رُفض الاعتراض'],'مدفوعة':['#eef1f6','#5a6285','💳 مدفوعة'],'ملغاة':['#eef1f6','#5a6285','⚪ ملغاة']};var c=m[st]||m['جديدة'];return '<span style="background:'+c[0]+';color:'+c[1]+';border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;white-space:nowrap">'+c[2]+'</span>'}
+function renderViolations(viols){var el=byId('bp6Violations');if(!el)return;
+if(!viols.length){el.innerHTML='<div class="bp6-empty">لا توجد مخالفات مسجّلة — إن وصلتك مخالفة من أي جهة حكومية سجّلها هنا وفريقنا يعترض عليها نيابة عنك.</div>';return}
+el.innerHTML=viols.map(function(v){var meta=[];if(v.violation_number)meta.push('رقم: '+escapeHtml(v.violation_number));if(v.amount)meta.push('المبلغ: '+Number(v.amount).toLocaleString('ar-SA')+' ريال');if(v.violation_date)meta.push('تاريخها: '+String(v.violation_date).slice(0,10));if(v.objection_deadline)meta.push('آخر يوم للاعتراض: '+String(v.objection_deadline).slice(0,10));
+var canObject=['جديدة','مرفوض الاعتراض'].indexOf(String(v.status||''))!==-1;
+return '<div class="bp6-action" style="align-items:flex-start"><div style="min-width:0"><strong>'+escapeHtml(v.authority||'جهة')+' — '+escapeHtml(v.title||'مخالفة')+'</strong><small>'+meta.join(' · ')+'</small><div style="margin-top:6px">'+violStatusChip(String(v.status||'جديدة'))+'</div></div>'+(canObject?'<button data-vobj="'+escapeHtml(v.id)+'">⚖️ قدّم اعتراض</button>':'')+'</div>'}).join('');
+el.querySelectorAll('[data-vobj]').forEach(function(b){b.onclick=function(){var note=prompt('اكتب مبررات الاعتراض (ماذا حدث ولماذا المخالفة غير صحيحة؟):');if(!note||!note.trim())return;b.disabled=true;b.textContent='...جارٍ الإرسال';
+fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'ops-violation-object',id:b.getAttribute('data-vobj'),note:note.trim()})}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok){alert('قُدّم الاعتراض ✅ فريقنا يباشر التنفيذ لدى الجهة ويوافيك بالنتيجة هنا.');loadCompliance()}else{alert('تعذر تقديم الاعتراض — حاول مجدداً.');b.disabled=false;b.textContent='⚖️ قدّم اعتراض'}}).catch(function(){alert('تعذر الاتصال — حاول مجدداً.');b.disabled=false;b.textContent='⚖️ قدّم اعتراض'})}})}
+function wireViolationForm(){var btn=byId('bp6VAddBtn');if(!btn||btn._wired)return;btn._wired=true;var f=byId('bp6VForm');
+btn.onclick=function(){if(f.style.display==='none'){f.style.display='block';f.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px"><select id="bpvAuth" style="padding:8px;border:1px solid #dfe4f2;border-radius:8px"><option>بلدي</option><option>قوى / الموارد البشرية</option><option>زاتكا (الزكاة والضريبة)</option><option>الدفاع المدني</option><option>التأمينات (GOSI)</option><option>وزارة التجارة</option><option>المرور</option><option>أخرى</option></select><input id="bpvNum" placeholder="رقم المخالفة (اختياري)" style="padding:8px;border:1px solid #dfe4f2;border-radius:8px"><input id="bpvAmt" type="number" placeholder="المبلغ بالريال (اختياري)" style="padding:8px;border:1px solid #dfe4f2;border-radius:8px"><input id="bpvDate" type="date" title="تاريخ المخالفة" style="padding:8px;border:1px solid #dfe4f2;border-radius:8px"><input id="bpvDead" type="date" title="آخر يوم للاعتراض" style="padding:8px;border:1px solid #dfe4f2;border-radius:8px"></div><input id="bpvTitle" placeholder="وصف المخالفة كما ورد في الإشعار" style="width:100%;margin-top:8px;padding:8px;border:1px solid #dfe4f2;border-radius:8px"><div style="margin-top:8px;display:flex;gap:8px"><button class="btn sm" id="bpvSave">حفظ المخالفة</button><button class="btn sm ghost" id="bpvCancel">إلغاء</button></div>';
+byId('bpvCancel').onclick=function(){f.style.display='none'};
+byId('bpvSave').onclick=function(){var title=(byId('bpvTitle').value||'').trim();if(!title){alert('اكتب وصف المخالفة');return}var sv=byId('bpvSave');sv.disabled=true;sv.textContent='...جارٍ الحفظ';
+fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'ops-violation-add',authority:byId('bpvAuth').value,number:byId('bpvNum').value,amount:byId('bpvAmt').value,date:byId('bpvDate').value,deadline:byId('bpvDead').value,title:title})}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok){f.style.display='none';loadCompliance()}else{alert('تعذر الحفظ — حاول مجدداً')}sv.disabled=false;sv.textContent='حفظ المخالفة'}).catch(function(){alert('تعذر الاتصال');sv.disabled=false;sv.textContent='حفظ المخالفة'})}}else f.style.display='none'}}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function removeWhatsappFlows(){document.querySelectorAll('a[href*="wa.me"],a[href*="whatsapp"]').forEach(function(a){if(a.closest('#gate'))return;a.setAttribute('href','/ar/account?view=tickets');a.removeAttribute('target');a.textContent='افتح تذكرة داخل بوابة العميل'});var ph=byId('tkPh');if(ph){var a=ph.querySelector('a');if(a){a.href='#';a.onclick=function(e){e.preventDefault();var m=byId('tkMain');if(m)m.style.display='block';ph.style.display='none'};a.textContent='فتح تذكرة داخل البوابة'}}}
 function routeQuery(){var q=new URLSearchParams(location.search);var v=q.get('view');if(v==='store')clickView('store');if(v==='documents')clickView('documents');if(v==='compliance'){var b=document.querySelector('[data-v="compliance-v6"]');if(b)b.click()}}
-function boot(){injectNav();injectCompanyBar();injectComplianceView();removeWhatsappFlows();routeQuery();var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
+function boot(){injectNav();injectCompanyBar();injectComplianceView();wireViolationForm();removeWhatsappFlows();routeQuery();var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();</script>
 <script id="bp-docagent-v7-js">(function(){
@@ -3551,14 +3459,14 @@ function wall(d){say('sys',d&&d.message?d.message:'انتهت فترتك الت�
 function renderTrial(a){
   access=a||access; if(!access)return;
   var box=$('da7Trial'); if(!box)return;
-  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>الوكيل الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
+  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>المستشار الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
-    box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه الوكيل يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
+    box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
   }
 }
 function tag(role){
@@ -3675,11 +3583,11 @@ function fresh(){
 }
 
 function view(){
-  return '<div class="pagehead"><h2>الوكيل الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
+  return '<div class="pagehead"><h2>المستشار الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
   '<div class="da7-trial" id="da7Trial"></div>'+
   '<div class="da7-stats" id="da7Stats"></div>'+
   '<div class="da7-grid">'+
-    '<div class="da7-box"><h3>محادثة الوكيل</h3><p class="hint">اكتب بلغتك: «عبّي ملف كذا»، «Section 9 كله No»، «حط تاريخ اليوم»، «وش الناقص؟».</p>'+
+    '<div class="da7-box"><h3>محادثة المستشار</h3><p class="hint">اكتب بلغتك: «عبّي ملف كذا»، «Section 9 كله No»، «حط تاريخ اليوم»، «وش الناقص؟».</p>'+
       '<div class="da7-log" id="da7Log"></div>'+
       '<div class="da7-row"><button class="da7-btn clip" id="da7Clip" title="أرفق ملفات">📎</button>'+
       '<input type="text" id="da7Input" placeholder="اكتب هنا…" autocomplete="off">'+
@@ -3687,7 +3595,7 @@ function view(){
       '<input type="file" id="da7File" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp" hidden>'+
     '</div>'+
     '<div>'+
-      '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
+      '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — المستشار يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
         '<div class="da7-drop" id="da7Drop">اسحب الملفات هنا أو اضغط للاختيار<br><small>PDF · Word · Excel · صور</small></div>'+
         '<div class="da7-files" id="da7Files"><div class="da7-empty">لم تُرفع ملفات بعد.</div></div></div>'+
       '<div class="da7-box" style="margin-top:14px"><h3>مخرجاتك</h3><p class="hint">النماذج المعبّأة والحزمة النهائية — بروابط تنزيل موقّعة قصيرة العمر.</p>'+
@@ -3717,7 +3625,7 @@ function mount(){
 function nav(){
   var n=document.getElementById('sideNav'); if(!n||n.querySelector('[data-v="docagent"]'))return;
   var b=document.createElement('button'); b.setAttribute('data-v','docagent');
-  b.innerHTML='<span>🗂️</span><span>وكيل المستندات</span>';
+  b.innerHTML='<span>🗂️</span><span>مستشار المستندات</span>';
   var after=n.querySelector('[data-v="documents"]')||n.querySelector('[data-v="company"]');
   if(after)after.insertAdjacentElement('afterend',b); else n.appendChild(b);
   b.onclick=function(){

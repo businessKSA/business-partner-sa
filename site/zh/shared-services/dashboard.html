@@ -121,13 +121,24 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
         <button class="ss-logout" id="ss-logout" type="button">退出登录</button>
       </div>
 
+      <div class="ss-browser">
+        <div class="ss-browser-top">
+          <span class="ss-browser-dots"><i></i><i></i><i></i></span>
+          <span class="ss-browser-url">🔒 businesspartner.sa/shared-services/dashboard</span>
+        </div>
+        <div class="ss-browser-body">
       <div class="ss-tabs" role="tablist">
+        <div class="ss-side-id">
+          <img src="/assets/img/baher.jpg" alt="" loading="lazy">
+          <div><b>巴希尔</b><span>Business Advisor</span></div>
+        </div>
         <button class="ss-tab active" data-tab="team" type="button">💬 Chat</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 服务</button>
         <button class="ss-tab" data-tab="stats" type="button">📊 报告</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 连接器</button>
         <button class="ss-tab" data-tab="comp" type="button">🛡️ 合规</button>
       </div>
+      <div class="ss-panes">
 
       <div class="ss-pane" id="pane-team">
         <p class="ss-pane-lead">One conversation — your whole executive team. Baher takes your request and the specialists execute behind the scenes; anything binding waits for your approval. ✏️ You can rename him to whatever you like.</p>
@@ -220,182 +231,197 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
           @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
         </style>
         <style>
-          /* ===== Premium glass theme for the portal ===== */
+          /* ===== Portal in the new site design language =====
+             Light surfaces, navy + violet accents, and the product framed in
+             a browser window — the same shell the new site uses. */
           #ss-agents[hidden]{display:none}
-          #ss-gate .wrap>.ss-access, #ss-dash>.wrap{
-            background:
-              radial-gradient(900px 420px at 85% -10%, rgba(94,72,214,.35) 0%, transparent 60%),
-              radial-gradient(700px 380px at -10% 110%, rgba(15,158,153,.22) 0%, transparent 55%),
-              linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
-            border:1px solid rgba(255,255,255,.09); border-radius:26px;
-            box-shadow:0 30px 80px rgba(8,10,40,.35);
-          }
-          #ss-dash>.wrap{padding:26px 24px 30px}
-          #ss-gate .wrap>.ss-access{box-shadow:0 30px 80px rgba(8,10,40,.28)}
-          /* gate */
-          #ss-gate .ss-access{border-radius:26px}
-          #ss-gate .ss-access h2{color:#fff}
-          #ss-gate .ss-access>p{color:rgba(255,255,255,.72)}
-          #ss-gate .ss-gate-links a{color:rgba(255,255,255,.75)}
-          #ss-gate .ss-code-fallback summary{color:rgba(255,255,255,.6)}
-          #ss-gate .ss-demo-hint{color:rgba(255,255,255,.55)}
-          #ss-gate .ss-demo-hint code{background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:1px 7px}
-          .ss-trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px auto 4px;max-width:460px}
-          .ss-trust span{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-            border-radius:13px;padding:10px 8px;font-size:.72rem;color:rgba(255,255,255,.66);line-height:1.5}
-          .ss-trust b{display:block;font-size:1.02rem;color:#2ee6c8;margin-bottom:2px}
+          #ss-gate .wrap>.ss-access{
+            background:#fff;border:1px solid #E5E8F1;border-radius:28px;
+            box-shadow:0 24px 70px rgba(11,27,90,.12)}
+          #ss-gate .ss-access h2{color:#0B1B5A}
+          #ss-gate .ss-access>p{color:#687087}
           #ss-gate .ss-access-form input{
-            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);color:#fff;
-            letter-spacing:.35em;font-weight:700;text-transform:uppercase;transition:border-color .2s, box-shadow .2s}
-          #ss-gate .ss-access-form input::placeholder{letter-spacing:normal;text-transform:none;color:rgba(255,255,255,.45);font-weight:400}
-          #ss-gate .ss-access-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.18)}
-          #ss-gate .btn-ghost{border-color:rgba(255,255,255,.25);color:#fff}
-          /* dash header */
-          #ss-dash .ss-dash-head h2{color:#fff}
-          #ss-dash .ss-dash-head p{color:rgba(255,255,255,.66)}
-          #ss-dash .ss-logout{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
-          #ss-dash .ss-logout:hover{background:rgba(255,255,255,.16)}
-          /* tabs → glass pills */
-          #ss-dash .ss-tabs{border-bottom:0;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:6px;width:max-content;max-width:100%;overflow-x:auto}
-          #ss-dash .ss-tab{border:0;border-radius:11px;padding:9px 16px;color:rgba(255,255,255,.62);white-space:nowrap}
-          #ss-dash .ss-tab.active{background:rgba(255,255,255,.14);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
-          #ss-dash .ss-pane-lead{color:rgba(255,255,255,.68)}
-          #ss-dash .ss-secure{color:rgba(255,255,255,.5)}
-          /* chat panel glass */
-          #pane-team .ss-panel{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);border-radius:22px;box-shadow:0 18px 50px rgba(5,8,35,.35)}
-          #pane-team .ss-panel-head{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
-          #pane-team .ss-panel-head b{color:#fff}
-          #pane-team .ss-panel-head>div span{color:rgba(255,255,255,.6)}
-          #ss-rename{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:9px;cursor:pointer;font:inherit;font-size:.8rem;padding:5px 10px;margin-inline-start:10px;color:#fff}
-          .ss-live{color:#2ee6c8}
+            background:#fff;border:2px solid #E5E8F1;color:#141827;border-radius:14px;
+            letter-spacing:.32em;font-weight:700;text-transform:uppercase;transition:border-color .2s,box-shadow .2s}
+          #ss-gate .ss-access-form input::placeholder{letter-spacing:normal;text-transform:none;color:#98a0b3;font-weight:400}
+          #ss-gate .ss-access-form input:focus{outline:none;border-color:#5C66F2;box-shadow:0 0 0 4px rgba(92,102,242,.15)}
+          .ss-trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px auto 4px;max-width:470px}
+          .ss-trust span{flex:1;min-width:124px;background:#F6F7FB;border:1px solid #E5E8F1;border-radius:15px;
+            padding:11px 9px;font-size:.72rem;color:#687087;line-height:1.5}
+          .ss-trust b{display:block;font-size:1.02rem;color:#5C66F2;margin-bottom:2px}
+
+          /* ---- browser shell ---- */
+          #ss-dash .ss-browser{background:#fff;border:1px solid rgba(11,27,90,.11);border-radius:26px;
+            box-shadow:0 30px 85px rgba(11,27,90,.16);overflow:hidden}
+          .ss-browser-top{height:46px;display:flex;align-items:center;gap:12px;padding:0 16px;
+            border-bottom:1px solid #E5E8F1;background:#fff}
+          .ss-browser-dots{display:flex;gap:7px;flex:none}
+          .ss-browser-dots i{width:9px;height:9px;border-radius:50%;background:#d8dbe5}
+          .ss-browser-dots i:first-child{background:#8b93ff}
+          .ss-browser-url{flex:1;background:#F6F7FB;border:1px solid #E5E8F1;border-radius:999px;
+            padding:5px 14px;font-size:11.5px;color:#8890a5;text-align:center;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .ss-browser-body{display:grid;grid-template-columns:214px 1fr;min-height:560px;background:#FAFBFE}
+
+          /* ---- sidebar (the tabs) ---- */
+          #ss-dash .ss-tabs{display:flex;flex-direction:column;gap:3px;flex-wrap:nowrap;
+            border-bottom:0;border-inline-end:1px solid #E5E8F1;background:#fff;
+            padding:14px 11px;margin:0;border-radius:0;width:auto;overflow:visible}
+          #ss-dash .ss-tab{border:0;border-radius:11px;padding:10px 12px;text-align:start;
+            color:#6b7284;font-size:12.8px;font-weight:700;white-space:nowrap;transition:background .15s,color .15s}
+          #ss-dash .ss-tab:hover{background:#F3F4FE;color:#142C86}
+          #ss-dash .ss-tab.active{background:#EEF0FF;color:#5C66F2}
+          .ss-side-id{display:flex;gap:10px;align-items:center;padding:4px 6px 14px;margin-bottom:8px;
+            border-bottom:1px solid #E5E8F1}
+          .ss-side-id img{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;
+            border:2px solid #EEF0FF}
+          .ss-side-id b{display:block;color:#0B1B5A;font-size:13px;line-height:1.3}
+          .ss-side-id span{display:block;color:#8890a5;font-size:10.5px}
+          .ss-panes{padding:20px 22px 24px;min-width:0}
+
+          /* ---- content ---- */
+          #ss-dash .ss-dash-head h2{color:#0B1B5A}
+          #ss-dash .ss-dash-head p{color:#687087}
+          #ss-dash .ss-logout{background:#fff;border:1px solid #E5E8F1;color:#0B1B5A;border-radius:999px;font-weight:700}
+          #ss-dash .ss-logout:hover{background:#F3F4FE;border-color:#c9cdf7}
+          #ss-dash .ss-pane-lead{color:#687087}
+          #ss-dash .ss-secure{color:#8890a5}
+          #ss-dash .ss-svc a,#ss-dash .ss-ktile,#ss-dash .ss-kcard,
+          #ss-dash .ss-cc,#ss-dash .ss-comp-main,#ss-dash .ss-comp-links a{
+            background:#fff;border:1px solid #E5E8F1;border-radius:18px;box-shadow:0 12px 36px rgba(11,27,90,.06)}
+          #ss-dash .ss-svc a:hover,#ss-dash .ss-comp-links a:hover{
+            border-color:#5C66F2;transform:translateY(-2px);box-shadow:0 18px 44px rgba(92,102,242,.16)}
+          #ss-dash .ss-svc a b,#ss-dash .ss-kcard>b,#ss-dash .ss-cc-t h3,
+          #ss-dash .ss-comp-links a b,#ss-dash .ss-krows .c,#ss-dash .ss-ktile .n{color:#0B1B5A}
+          #ss-dash .ss-cc-ic{background:#F0F1FF}
+          #ss-dash .ss-plat-chip{background:#F6F7FB;border-color:#E5E8F1;color:#0B1B5A}
+          #ss-dash .ss-compdash{background:#fff;border:1px solid #E5E8F1;border-radius:18px}
+
+          /* ---- chat ---- */
+          #pane-team .ss-panel{position:relative;background:#fff;border:1px solid #E5E8F1;border-radius:22px;
+            box-shadow:0 12px 36px rgba(11,27,90,.07)}
+          #pane-team .ss-panel-head{background:#fff;border-bottom:1px solid #E5E8F1;border-radius:22px 22px 0 0}
+          #pane-team .ss-panel-head b{color:#0B1B5A}
+          #pane-team .ss-panel-head>div span{color:#8890a5}
+          .ss-chat-actions{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
+          .ss-chat-actions button{background:#fff;border:1px solid #E5E8F1;border-radius:10px;color:#0B1B5A;
+            font:inherit;font-size:.78rem;padding:5px 10px;cursor:pointer}
+          .ss-chat-actions button:hover{background:#F3F4FE;border-color:#c9cdf7}
+          .ss-live{color:#26C783;font-weight:700;font-size:.74rem;white-space:nowrap}
           .ss-pavatar{position:relative;width:46px;height:46px;flex:none}
-          .ss-pavatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35);box-shadow:0 4px 14px rgba(0,0,0,.35)}
-          .ss-ponline{position:absolute;bottom:1px;inset-inline-end:1px;width:11px;height:11px;border-radius:50%;background:#2ee6c8;border:2px solid #131048;animation:sspulse 2s infinite}
-          @keyframes sspulse{0%,100%{box-shadow:0 0 0 0 rgba(46,230,200,.5)}50%{box-shadow:0 0 0 5px rgba(46,230,200,0)}}
-          #pane-team .ss-panel .ss-log{min-height:430px;max-height:600px;padding:16px 14px}
-          /* bubbles */
-          #pane-team .ss-msg{position:relative;max-width:78%;padding:11px 14px 7px;border-radius:18px;border:0;animation:ssmsg .28s ease;white-space:normal}
+          .ss-pavatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #EEF0FF}
+          .ss-ponline{position:absolute;bottom:1px;inset-inline-end:1px;width:11px;height:11px;border-radius:50%;
+            background:#26C783;border:2px solid #fff;animation:sspulse 2s infinite}
+          @keyframes sspulse{0%,100%{box-shadow:0 0 0 0 rgba(38,199,131,.5)}50%{box-shadow:0 0 0 5px rgba(38,199,131,0)}}
+          #pane-team .ss-panel .ss-log{min-height:420px;max-height:560px;padding:16px 14px;background:#FAFBFE}
+          #pane-team .ss-msg{position:relative;max-width:78%;padding:11px 14px 7px;border-radius:18px;border:0;
+            animation:ssmsg .28s ease;white-space:normal}
           @keyframes ssmsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
           #pane-team .ss-msg .tx{white-space:pre-wrap;line-height:1.8}
           #pane-team .ss-msg .tx ul{margin:4px 0;padding-inline-start:20px;white-space:normal}
           #pane-team .ss-msg .tx b.h{display:block;margin-top:4px}
-          #pane-team .ss-msg.bot{background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px;margin-inline-start:34px}
-          #pane-team .ss-msg.bot:not(.typing)::before{content:'';position:absolute;inset-inline-start:-34px;bottom:0;width:26px;height:26px;border-radius:50%;background:url('/assets/img/baher.jpg') center/cover;border:1.5px solid rgba(255,255,255,.35)}
-          #pane-team .ss-msg.me{background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
-          #pane-team .ss-msg .meta{display:block;text-align:end;font-size:.66rem;opacity:.65;margin-top:2px}
-          #pane-team .ss-msg .meta .tick{font-style:normal;opacity:.55}
-          #pane-team .ss-msg .meta .tick.ok{color:#7dffe9;opacity:1}
-          /* typing + teamline */
+          #pane-team .ss-msg.bot{background:#fff;border:1px solid #E5E8F1;color:#141827;
+            border-end-start-radius:6px;margin-inline-start:34px;box-shadow:0 4px 14px rgba(11,27,90,.04)}
+          #pane-team .ss-msg.bot:not(.typing)::before{content:'';position:absolute;inset-inline-start:-34px;bottom:0;
+            width:26px;height:26px;border-radius:50%;background:url('/assets/img/baher.jpg') center/cover;
+            border:1.5px solid #EEF0FF}
+          #pane-team .ss-msg.me{background:linear-gradient(135deg,#142C86,#5C66F2);color:#fff;border-end-end-radius:6px}
+          #pane-team .ss-msg .meta{display:block;text-align:end;font-size:.66rem;opacity:.6;margin-top:2px}
+          #pane-team .ss-msg.bot .meta{color:#8890a5;opacity:1}
+          #pane-team .ss-msg .meta .tick{font-style:normal;opacity:.6}
+          #pane-team .ss-msg .meta .tick.ok{color:#9df3d0;opacity:1}
+          #pane-team .ss-msg .copy{position:absolute;top:6px;inset-inline-end:8px;opacity:0;transition:opacity .15s;
+            background:#F3F4FE;border:1px solid #E5E8F1;border-radius:7px;color:#5C66F2;font:inherit;font-size:.68rem;
+            padding:2px 8px;cursor:pointer}
+          #pane-team .ss-msg.bot:hover .copy{opacity:1}
           .dots{display:inline-flex;gap:4px;align-items:center}
-          .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.75);animation:ssdot 1.2s infinite}
+          .dots i{width:7px;height:7px;border-radius:50%;background:#a9b0c9;animation:ssdot 1.2s infinite}
           .dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
           @keyframes ssdot{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
           #pane-team .ss-msg.typing{padding:14px 18px}
-          .ss-teamline{display:flex;gap:10px;align-items:center;padding:8px 16px;font-size:.8rem;color:#9ef3e4;background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
-          /* welcome */
-          .ss-welcome{align-self:center;text-align:center;max-width:520px;margin:auto;padding:18px 10px;color:#fff}
+          .ss-teamline{display:flex;gap:10px;align-items:center;padding:9px 16px;font-size:.8rem;color:#5C66F2;
+            background:#EEF0FF;border-top:1px solid #E5E8F1}
+          .ss-teamline .dots i{background:#5C66F2}
+          .ss-welcome{align-self:center;text-align:center;max-width:520px;margin:auto;padding:18px 10px;color:#141827}
           .ss-welcome .wv{font-size:2.2rem;margin-bottom:6px}
-          .ss-welcome b{font-size:1.05rem}
-          .ss-welcome p{color:rgba(255,255,255,.68);font-size:.88rem;line-height:1.9;margin:8px 0 4px}
-          .ss-welcome .last{display:inline-block;font-size:.78rem;color:#8ceedd;background:rgba(18,179,165,.12);border-radius:999px;padding:4px 14px;min-height:1em;margin-top:6px}
+          .ss-welcome b{font-size:1.05rem;color:#0B1B5A}
+          .ss-welcome p{color:#687087;font-size:.88rem;line-height:1.9;margin:8px 0 4px}
+          .ss-welcome .last{display:inline-block;font-size:.78rem;color:#5C66F2;background:#EEF0FF;
+            border-radius:999px;padding:4px 14px;min-height:1em;margin-top:6px}
           .ss-welcome .last:empty{display:none}
-          /* chips */
-          .ss-chips{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap}
-          .ss-chips button{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);border-radius:999px;padding:7px 14px;font:inherit;font-size:.8rem;cursor:pointer;transition:background .2s}
-          .ss-chips button:hover{background:rgba(255,255,255,.16)}
-          /* input */
-          #pane-team .ss-form{background:transparent;border-top:0;padding:12px 14px 14px}
-          #pane-team .ss-form input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:14px}
-          #pane-team .ss-form input::placeholder{color:rgba(255,255,255,.45)}
-          #pane-team .ss-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
-          /* ===== glass treatment for the remaining tabs ===== */
-          #ss-dash .ss-svc a,
-          #ss-dash .ss-ktile, #ss-dash .ss-kcard,
-          #ss-dash .ss-cc, #ss-dash .ss-comp-main, #ss-dash .ss-comp-links a{
-            background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-            backdrop-filter:blur(12px);box-shadow:0 10px 28px rgba(5,8,35,.22)}
-          #ss-dash .ss-svc a b, #ss-dash .ss-kcard>b, #ss-dash .ss-cc-t h3,
-          #ss-dash .ss-comp-links a b, #ss-dash .ss-krows .c{color:#fff}
-          #ss-dash .ss-svc a span, #ss-dash .ss-cc-t .u, #ss-dash .ss-comp-links a span,
-          #ss-dash .ss-ktile .l, #ss-dash .ss-kempty{color:rgba(255,255,255,.62)}
-          #ss-dash .ss-ktile .n{color:#fff}
-          #ss-dash .ss-krows>div{color:rgba(255,255,255,.82);border-bottom-color:rgba(255,255,255,.1)}
-          #ss-dash .ss-svc a:hover, #ss-dash .ss-comp-links a:hover{
-            background:rgba(255,255,255,.11);border-color:rgba(46,230,200,.5);transform:translateY(-2px);
-            box-shadow:0 16px 34px rgba(5,8,35,.3)}
-          #ss-dash .ss-cc-ic{background:rgba(255,255,255,.1)}
-          #ss-dash .ss-cc-state{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
-          #ss-dash .ss-cc-state.on{background:rgba(46,230,200,.18);color:#7dffe9}
-          #ss-dash .ss-plat-chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff}
-          #ss-dash .ss-plat-head{color:rgba(255,255,255,.7)}
-          #ss-dash .ss-comp-lead b{color:#fff}
-          #ss-dash .ss-comp-lead p{color:rgba(255,255,255,.66)}
-          #ss-dash .ss-compdash{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-          #ss-dash .ss-note-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff}
-          /* chat extras: copy button, jump-to-latest, print */
-          #pane-team .ss-msg .copy{position:absolute;top:6px;inset-inline-end:8px;opacity:0;transition:opacity .15s;
-            background:rgba(255,255,255,.14);border:0;border-radius:7px;color:#fff;font:inherit;font-size:.68rem;
-            padding:2px 8px;cursor:pointer}
-          #pane-team .ss-msg.bot:hover .copy{opacity:1}
-          #ss-jump{position:absolute;inset-inline-end:16px;bottom:96px;z-index:4;width:38px;height:38px;border-radius:50%;
-            border:1px solid rgba(255,255,255,.2);background:rgba(20,24,70,.9);color:#fff;cursor:pointer;font-size:1rem;
-            box-shadow:0 8px 20px rgba(0,0,0,.35);display:none}
+          .ss-chips{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap;background:#fff}
+          .ss-chips button{background:#fff;border:1px solid #E5E8F1;color:#4b5470;border-radius:999px;
+            padding:7px 14px;font:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+          .ss-chips button:hover{background:#F3F4FE;border-color:#c9cdf7;color:#142C86}
+          #pane-team .ss-form{background:#fff;border-top:0;padding:12px 14px 14px;border-radius:0 0 22px 22px}
+          #pane-team .ss-form textarea{flex:1;border:1px solid #E5E8F1;background:#fff;color:#141827;
+            border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
+          #pane-team .ss-form textarea::placeholder{color:#98a0b3}
+          #pane-team .ss-form textarea:focus{outline:none;border-color:#5C66F2;box-shadow:0 0 0 4px rgba(92,102,242,.14)}
+          #ss-jump{position:absolute;inset-inline-end:16px;bottom:100px;z-index:4;width:38px;height:38px;
+            border-radius:50%;border:1px solid #E5E8F1;background:#fff;color:#5C66F2;cursor:pointer;font-size:1rem;
+            box-shadow:0 8px 20px rgba(11,27,90,.12);display:none}
           #ss-jump.show{display:block}
-          #pane-team .ss-panel{position:relative}
-          .ss-chat-actions{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
-          .ss-chat-actions button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
-            border-radius:9px;color:#fff;font:inherit;font-size:.78rem;padding:5px 10px;cursor:pointer}
-          .ss-chat-actions button:hover{background:rgba(255,255,255,.16)}
-          #pane-team .ss-form textarea{flex:1;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
-            color:#fff;border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
-          #pane-team .ss-form textarea::placeholder{color:rgba(255,255,255,.45)}
-          #pane-team .ss-form textarea:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
-          /* the portal IS a chat with Baher — the floating "ask Baher" bubble is
-             redundant here, and on phones both bubbles cover the composer */
+
+          #ss-trial-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+            background:linear-gradient(135deg,#EEF0FF,#F6F7FB);border:1px solid #d9ddfb;
+            border-radius:16px;padding:12px 16px;margin:0 0 16px}
+          #ss-trial-bar b{color:#5C66F2;font-size:.92rem;white-space:nowrap}
+          #ss-trial-bar span{color:#4b5470;font-size:.85rem;flex:1;min-width:180px}
+          #ss-trial-bar .btn{padding:8px 18px;font-size:.84rem;white-space:nowrap}
+          /* the portal IS a chat with Baher — the floating bubble is redundant here */
           body:has(#ss-dash:not([hidden])) .advisor-fab,
           body:has(#ss-dash:not([hidden])) .advisor-panel{display:none!important}
+
           /* ===== phones ===== */
+          @media(max-width:860px){
+            .ss-browser-body{grid-template-columns:1fr}
+            #ss-dash .ss-tabs{flex-direction:row;overflow-x:auto;border-inline-end:0;border-bottom:1px solid #E5E8F1;
+              padding:9px 10px;scrollbar-width:none}
+            #ss-dash .ss-tabs::-webkit-scrollbar{display:none}
+            .ss-side-id{display:none}
+            .ss-panes{padding:14px 12px 18px}
+          }
           @media(max-width:640px){
-            #ss-dash>.wrap{padding:14px 12px 18px;border-radius:18px}
             #ss-dash .ss-dash-head{gap:10px;margin-bottom:12px}
             #ss-dash .ss-dash-head h2{font-size:1.08rem;margin-bottom:2px}
-            #ss-dash .ss-dash-head p{display:none}            /* long blurb: desktop only */
+            #ss-dash .ss-dash-head p{display:none}
             #ss-dash .ss-dash-head>div{min-width:0;flex:1 1 100%}
             #ss-dash .ss-logout{font-size:.76rem;padding:6px 10px}
-            #ss-dash .ss-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
-              scrollbar-width:none;width:100%;border-radius:14px}
-            #ss-dash .ss-tabs::-webkit-scrollbar{display:none}
-            #ss-dash .ss-tab{padding:8px 13px;font-size:.86rem}
-            #pane-team .ss-pane-lead{display:none}          /* the chat explains itself */
-            #pane-team .ss-panel .ss-log{min-height:52vh;max-height:58vh;padding:12px 10px}
+            .ss-browser-top{height:40px;padding:0 12px}
+            .ss-browser-url{font-size:10.5px}
+            .ss-browser-body{min-height:0}
+            #pane-team .ss-pane-lead{display:none}
+            #pane-team .ss-panel .ss-log{min-height:50vh;max-height:56vh;padding:12px 10px}
             #pane-team .ss-msg{max-width:90%;padding:10px 12px 6px}
             #pane-team .ss-panel-head{padding:10px 12px;gap:9px}
             .ss-pavatar,.ss-pavatar img{width:38px;height:38px}
             .ss-chat-actions{gap:6px}
             .ss-chat-actions button{font-size:.9rem;padding:5px 9px;line-height:1}
-            .ss-chat-actions button .lbl{display:none}   /* icons only on phones */
-            .ss-live{font-size:.68rem}
+            .ss-chat-actions button .lbl{display:none}
             .ss-chips{gap:6px;padding:8px 10px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
             .ss-chips::-webkit-scrollbar{display:none}
             .ss-chips button{white-space:nowrap;font-size:.76rem;padding:6px 12px}
             #pane-team .ss-form{padding:10px}
-            #pane-team .ss-form textarea{padding:10px 12px}
-            #pane-team .ss-form button{padding:10px 14px}
             #ss-jump{bottom:112px;inset-inline-end:12px}
-            .wa-fab{display:none!important}                  /* it sits on the composer */
+            .wa-fab{display:none!important}
             .ss-welcome{padding:12px 6px}
             .ss-welcome .wv{font-size:1.8rem}
             .ss-welcome p{font-size:.84rem;line-height:1.8}
           }
           @media print{
-            body>*:not(main),nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,.advisor-fab,.wa-fab{display:none!important}
-            #ss-dash>.wrap,#pane-team .ss-panel{background:#fff!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
-            #pane-team .ss-msg{max-width:100%!important;break-inside:avoid;border:1px solid #ddd!important;color:#111!important;background:#fafafa!important}
-            #pane-team .ss-msg.me{background:#eef7f6!important;color:#111!important}
+            nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,
+            .advisor-fab,.wa-fab,.ss-browser-top{display:none!important}
+            #ss-dash .ss-browser{border:0!important;box-shadow:none!important}
+            .ss-browser-body{grid-template-columns:1fr!important}
+            #pane-team .ss-msg{max-width:100%!important;break-inside:avoid}
             #pane-team .ss-panel .ss-log{max-height:none!important;overflow:visible!important}
           }
         </style>
       </div>
+        </div><!-- /.ss-panes -->
+        </div><!-- /.ss-browser-body -->
+      </div><!-- /.ss-browser -->
     </div>
   </section>
 
@@ -987,8 +1013,49 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
         .catch(function(){})
         .then(function(){ if(then)then(); });
     }
+    // ---------- free trial: every registered client, no purchase ----------
+    // The account API derives the window from the organization's own signup
+    // date, so a client who just registered simply finds the portal open.
+    // Arabic counts its days by rule: 1 يوم, 2 يومان, 3–10 أيام, 11+ يوماً.
+    function leftText(t){
+      var n=t.daysLeft, total=t.totalDays||14;
+      
+      return n+' '+(n===1?'day':'days')+' left of your '+total+'-day free trial';
+      
+    }
+    function trialRibbon(t){
+      if(!t)return;
+      var head=document.querySelector('#ss-dash .ss-dash-head');
+      if(!head||document.getElementById('ss-trial-bar'))return;
+      var d=document.createElement('div');d.id='ss-trial-bar';
+      d.innerHTML='<b>🎁 '+"Free trial"+'</b>'
+        +'<span>'+(t.daysLeft>0?leftText(t):"Your trial has ended")+'</span>'
+        +'<a class="btn btn-primary" href="/zh/shared-services#ss-subscribe">'+"订阅"+'</a>';
+      head.insertAdjacentElement('afterend',d);
+    }
+    function tryTrial(gl){
+      fetch('/api/requests',{method:'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'ops-ss-trial'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.active){
+            // Trial conversations run in preview mode: real answers from the
+            // team, but no private workspace until the client subscribes.
+            setClient({code:'demo123',demo:true,name:d.name||"客户",names:{},
+              trial:{daysLeft:d.daysLeft,endsAt:d.endsAt,totalDays:d.totalDays}});
+            openService(); trialRibbon(getClient().trial);
+          } else if(gl){
+            gl.textContent=(d&&d.ok&&!d.active)
+              ? "Your free trial has ended — subscribe to keep your executive team."
+              : "登录您的 Business Partner 账户，团队门户将自动打开——无需任何访问码。";
+          }
+        })
+        .catch(function(){
+          if(gl)gl.textContent="登录您的 Business Partner 账户，团队门户将自动打开——无需任何访问码。";
+        });
+    }
     var boot=getClient();
-    if(boot){ hydrate(boot,openService); }
+    if(boot){ hydrate(boot,function(){ openService(); trialRibbon(boot.trial); }); }
     else {
       var gl=document.getElementById('ss-gate-lead');
       fetch('/api/requests?action=sso-open&portal=shared',{credentials:'same-origin',cache:'no-store'})
@@ -997,10 +1064,8 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
           if(d&&d.ok&&d.seed&&d.seed.bp_ss_client_v1){
             try{ localStorage.setItem('bp_ss_client_v1',d.seed.bp_ss_client_v1); }catch(e){}
             hydrate(getClient(),openService);
-          } else if(gl){
-            gl.textContent="登录您的 Business Partner 账户，团队门户将自动打开——无需任何访问码。";
-          }
+          } else { tryTrial(gl); }
         })
-        .catch(function(){});
+        .catch(function(){ tryTrial(gl); });
     }
   })();</script></body></html>
