@@ -827,13 +827,8 @@ async function generateOutputs(request, channel, onlyFormId) {
   const anyFailed = outputs.some((o) => o.ok && o.qa === "failed");
   await setReq(request.id, { status: remaining.length ? "GENERATING" : (anyFailed ? "QA" : "READY") });
   await audit({ organization_id: request.organization_id, action: "doc_agent.generated", entity_type: "doc_agent_request", entity_id: request.id, after: { outputs: outputs.length, qa_failed: anyFailed } });
-<<<<<<< HEAD
-  await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "الوكيل الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
-  return { outputs, remaining, signed: [...new Set(signed)] };
-=======
   await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "المستشار الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
-  return { outputs, remaining };
->>>>>>> origin/claude/bpic-marketing-site-jvrnga
+  return { outputs, remaining, signed: [...new Set(signed)] };
 }
 
 async function packageOutputs(request) {
