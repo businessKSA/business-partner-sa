@@ -50,7 +50,7 @@ const arHome=`<section class="b10x-home" id="b10x-home">
     <a class="b10x-cap" href="/ar/shared-services"><strong>Shared Services</strong><span>فريق خدمات مشتركة وتشغيل للشركات.</span></a>
     <a class="b10x-cap" href="/ar/compliance-agent"><strong>Compliance</strong><span>امتثال ومتابعة وتنبيهات تشغيلية.</span></a>
     <a class="b10x-cap" href="/ar/ai-document-agent"><strong>Document AI</strong><span>فهم المستندات وتجهيز المتطلبات.</span></a>
-    <a class="b10x-cap" href="/ar/revenue-os"><strong>BD as a Service</strong><span>عملاء، موردون، Pipeline واجتماعات.</span></a>
+    <a class="b10x-cap" href="/ar/business-development"><strong>BD as a Service</strong><span>عملاء، موردون، Pipeline واجتماعات.</span></a>
   </div>
 </section>`;
 

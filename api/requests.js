@@ -17,7 +17,8 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
+import { bdTrial, isPaidBdOrder } from "./_trial.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -90,6 +91,8 @@ const DEMO_CODES = {
 // capped number of real messages per agent before prompting to subscribe.
 // BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
 const TRIAL_CODES = new Set(["TRIAL"]);
+// Shared Services: free trial length (days) for every registered client.
+const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 30) || 30;
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -224,6 +227,10 @@ async function listLeads(limit) {
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
       total,
+      // Monthly subscriptions recorded on the order, parsed back out of the
+      // note so /admin can show the renewal price and the agreed commission
+      // without the owner re-reading a paragraph to find them.
+      subscriptions: parseSubsFromNotes(notes),
       hasReceipt: receiptFiles.length > 0,
       details: detailsM ? detailsM[1].trim().slice(0, 140) : "",
       // Everything the owner needs to actually read a request without leaving
@@ -1510,7 +1517,7 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
-  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // Same reason for /api/doc-agent — المستشار الذكي للمستندات lives in
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
@@ -1686,15 +1693,20 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(12000),
       });
       const j = await r.json().catch(() => null);
+      // ٤٠١ ليست عطلاً عابراً بل سرّان مختلفان: الموقع يرسل قيمته واللوحة
+      // تقارنها بقيمتها. وقولها «تعذّرت القراءة، سنعيد المحاولة» يجعل صاحبها
+      // يحدّث الصفحة أبداً بلا فائدة، فتُميَّز عمّا سواها.
+      if (r.status === 401) throw new Error("panel_token_mismatch");
       if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
     } catch (e) {
       // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
       // وحده يقول إنه لم يستطع القراءة الآن.
-      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      const why = String(e.message || e).slice(0, 200);
+      console.error("my-documents bridge failed", why);
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+      return res.end(JSON.stringify({ ok: false, error: why === "panel_token_mismatch" ? why : "panel_unreachable" }));
     }
   }
 
@@ -1728,6 +1740,16 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(15000),
       });
       const j = await r.json().catch(() => null);
+      if (r.status === 401) {
+        // السرّان مختلفان. والمالك هو من يملك إصلاحه، فيُقال له بالاسم أين
+        // وكيف — لا «تعذّر» يتركه يعيد المحاولة على جدار.
+        res.statusCode = 502;
+        return res.end(JSON.stringify({
+          ok: false,
+          error: "panel_token_mismatch",
+          ملاحظة: "PANEL_BRIDGE_TOKEN في هذا المشروع لا يطابق قيمته في مشروع اللوحة. انسخ القيمة من bp-quotes إلى مشروع الموقع ثم أعد النشر.",
+        }));
+      }
       if (!r.ok || !j || j.ok !== true) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));
@@ -2123,7 +2145,7 @@ export default async function handler(req, res) {
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
     const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
-    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [] })); }
+    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [], bd: bdTrial(sess.organization, false) })); }
     try {
       const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
         method: "POST",
@@ -2145,13 +2167,31 @@ export default async function handler(req, res) {
           const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
           const totalProp = p["إجمالي الطلب"];
           const total = totalProp && typeof totalProp.number === "number" ? totalProp.number : null;
-          return { ref, title, status, total, at: String(pg.created_time || "").slice(0, 10) };
+          // The opportunity title is generic ("طلب/شراء خدمة — <name>"), so what
+          // the client actually bought lives only in the note. Without this the
+          // client's own dashboard cannot tell a Revenue OS subscription from a
+          // one-off service and its subscription banner can never flip.
+          const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+          const itemsM = notes.match(/طلب\s*·\s*([^·]+)/);
+          return {
+            ref, title, status, total, at: String(pg.created_time || "").slice(0, 10),
+            items: itemsM ? itemsM[1].trim().slice(0, 300) : "",
+            subscriptions: parseSubsFromNotes(notes),
+          };
         })
         // Orders and Revenue OS requests only: web-chat threads (WEB-<sid>)
         // also carry the email in Notes but are conversations, not orders.
         .filter((o) => o.ref && /^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(o.ref));
+      // Whether this client may use Business Development as a Service, decided
+      // here rather than in the dashboard: the trial clock is the organization's
+      // registration date, and a browser that computes its own eligibility can
+      // simply clear storage for another fortnight.
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, orders }));
+      return res.end(JSON.stringify({
+        ok: true,
+        orders,
+        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder)),
+      }));
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -2291,7 +2331,7 @@ export default async function handler(req, res) {
       }
       if (what === "compliance-access") {
         // الامتثال متاح لكل حساب مسجّل: المشترك النشط بلا حدود، وغيره تجربة
-        // مجانية 14 يوماً تبدأ من إنشاء حساب الشركة.
+        // مجانية 30 يوماً تبدأ من إنشاء حساب الشركة.
         let active = false;
         const accEmail = (sess.user && sess.user.email) || "";
         if (NOTION_TOKEN && accEmail) {
@@ -2308,7 +2348,7 @@ export default async function handler(req, res) {
         if (!active) {
           const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
           const created = orgs[0] && orgs[0].created_at ? new Date(orgs[0].created_at).getTime() : Date.now();
-          const ends = created + 14 * 86400000;
+          const ends = created + 30 * 86400000;
           endsAt = new Date(ends).toISOString().slice(0, 10);
           daysLeft = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
         }
@@ -2508,6 +2548,29 @@ export default async function handler(req, res) {
         const tid = String(b.id || "");
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      // Shared Services free trial — every registered client gets SS_TRIAL_DAYS
+      // days from the moment their organization was created, with no purchase
+      // and nothing to activate. Derived from organizations.created_at so there
+      // is no extra state to provision, migrate or keep in sync.
+      if (b.action === "ops-ss-trial") {
+        const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,created_at&limit=1`);
+        const org = orgs[0] || null;
+        if (!org) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const started = new Date(org.created_at || Date.now());
+        const ends = new Date(started.getTime() + SS_TRIAL_DAYS * 86400000);
+        const msLeft = ends.getTime() - Date.now();
+        const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          name: org.name_ar || org.name_en || "",
+          startedAt: started.toISOString(),
+          endsAt: ends.toISOString(),
+          daysLeft,
+          active: msLeft > 0,
+          totalDays: SS_TRIAL_DAYS,
+        }));
       }
       if (b.action === "ops-violation-add") {
         const authority = String(b.authority || "").trim().slice(0, 80);
@@ -4146,7 +4209,25 @@ export default async function handler(req, res) {
       : "";
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
     const discNote = orderDisc ? `<p style="color:#047857">🎟️ كود خصم مطبق: <b>${esc(orderDisc.code)}</b>${discCut ? ` (−${discCut} ﷼ قبل الضريبة)` : ""}</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    // Monthly subscriptions (Revenue OS packages). The renewal price and the
+    // success-fee percentage were shown to the buyer and accepted by them at
+    // checkout; recording them on the order is what makes them enforceable and
+    // what stops the team from looking a percentage up later. Values are
+    // re-clamped here — the browser may display terms, it may not decide them.
+    const subs = (Array.isArray(b.subscriptions) ? b.subscriptions : []).slice(0, 10).map((s) => ({
+      id: String((s && s.id) || "").slice(0, 60),
+      name: String((s && s.name) || "").slice(0, 160),
+      firstAmount: Math.max(0, Math.min(1e6, Number(s && s.firstAmount) || 0)),
+      renewsAt: Math.max(0, Math.min(1e6, Number(s && s.renewsAt) || 0)),
+      commissionPercent: Math.max(0, Math.min(50, Number(s && s.commissionPercent) || 0)),
+    })).filter((s) => s.id);
+    const subsNotesText = subs.length
+      ? " · اشتراك شهري: " + subs.map((s) => `${s.name || s.id} (يتجدد ${s.renewsAt} ﷼/شهر · عمولة ${s.commissionPercent}%)`).join(" ، ")
+      : "";
+    const subsNote = subs.length
+      ? `<p style="background:#FFFBF2;border:1px solid #E7D9B8;padding:10px 12px;border-radius:8px">🔁 <strong>اشتراك شهري — وافق عليه العميل عند الدفع</strong><br>${subs.map((s) => `${esc(s.name || s.id)}: أول دفعة <strong>${s.firstAmount} ﷼</strong> · يتجدد بـ <strong>${s.renewsAt} ﷼ شهرياً</strong> · عمولة نجاح <strong>${s.commissionPercent}%</strong> على الإيراد المحصّل`).join("<br>")}<br><span style="color:#7C530E">التجديد ليس آلياً — أضف تذكير التجديد يدوياً بعد اعتماد الطلب.</span></p>`
+      : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${subsNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     // The establishment the buyer typed at checkout. It was only ever used for
     // the subscription approval emails, so an order placed for a company was
@@ -4171,7 +4252,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${subsNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

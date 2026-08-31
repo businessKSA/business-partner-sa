@@ -31,7 +31,7 @@ function labels(prefix){
       ['الشركات والتأسيس',[['تأسيس الشركات','/services/category/company-formation'],['الاستثمار الأجنبي','/services/category/foreign-investment'],['الإقامة المميزة','/services/category/premium-residency'],['القانونية والعقود','/packages#pkg-legal']]],
       ['التشغيل والامتثال',[['الخدمات الحكومية','/services/category/government-relations'],['الامتثال والمخالفات','/compliance-agent'],['الموارد البشرية','/services/category/hr-services'],['التوظيف والاستقدام','/services/category/recruitment']]],
       ['المكان والانتقال',[['مساحات الأعمال','/workspaces'],['سكن العمالة','/worker-housing'],['الانتقال والاستقرار','/services'],['التموين والضيافة','/farina']]],
-      ['النمو والذكاء الاصطناعي',[['B10X','/#bp-consultant'],['مستشار المستندات','/ai-document-agent'],['تطوير الأعمال','/revenue-os'],['كل الخدمات','/services']]],
+      ['النمو والذكاء الاصطناعي',[['B10X','/#bp-consultant'],['مستشار المستندات','/ai-document-agent'],['تطوير الأعمال','/business-development'],['كل الخدمات','/services']]],
       ['الشركاء والموردون',[['تسجيل الشركاء','/suppliers'],['بوابة الشركاء','/partner-dashboard'],['الوظائف','/careers']]]
     ]
   };
@@ -41,7 +41,7 @@ function labels(prefix){
       ['Company & Setup',[['Company Formation','/services/category/company-formation'],['Foreign Investment','/services/category/foreign-investment'],['Premium Residency','/services/category/premium-residency'],['Legal Packages','/packages#pkg-legal']]],
       ['Operations & Compliance',[['Government Services','/services/category/government-relations'],['Compliance & Violations','/compliance-agent'],['HR Services','/services/category/hr-services'],['Recruitment','/services/category/recruitment']]],
       ['Workplace & Relocation',[['Workspaces','/workspaces'],['Worker Housing','/worker-housing'],['Relocation','/services'],['Corporate Hospitality','/farina']]],
-      ['Growth & AI',[['B10X','/#bp-consultant'],['Document AI','/ai-document-agent'],['Business Development','/revenue-os'],['All Services','/services']]],
+      ['Growth & AI',[['B10X','/#bp-consultant'],['Document AI','/ai-document-agent'],['Business Development','/business-development'],['All Services','/services']]],
       ['Partners & Suppliers',[['Partner Registration','/suppliers'],['Partner Portal','/partner-dashboard'],['Jobs','/careers']]]
     ]
   };

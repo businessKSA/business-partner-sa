@@ -166,6 +166,13 @@ var BP = window.BP = window.BP || {};
   function write(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} updateBadge(); }
   BP.cart = { read: read, write: write };
 
+  // "Hide prices from visitors" is a policy about the service catalogue. A
+  // Business-development package quotes its own price on a public marketing
+  // page, so hiding it one click later in the cart just looks broken. Items
+  // carrying pricePublic keep their amount whatever the page setting says.
+  function priceShown(i) { return !!(i && i.amount && (PRICES_ON || i.pricePublic)); }
+  function allPublicPriced() { var c = read(); return c.length > 0 && c.every(priceShown); }
+
   function count() { return read().reduce(function (n, i) { return n + (i.qty || 1); }, 0); }
   function subtotal() { return read().reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0); }
   function hasQuoteItems() { return read().some(function (i) { return !i.amount; }); }
@@ -182,6 +189,8 @@ var BP = window.BP = window.BP || {};
     var a = btn.getAttribute("data-amount");
     var surA = btn.getAttribute("data-surcharge-amount");
     var surF = btn.getAttribute("data-surcharge-free");
+    var renews = btn.getAttribute("data-renews-at");
+    var comm = btn.getAttribute("data-commission");
     return {
       id: btn.getAttribute("data-id"),
       nameEn: btn.getAttribute("data-name-en") || "",
@@ -192,6 +201,14 @@ var BP = window.BP = window.BP || {};
       qty: 1,
       surchargeAmount: surA ? Number(surA) : null,
       surchargeFreeCount: surF ? Number(surF) : null,
+      // A price already published on a public marketing page stays visible in
+      // the cart whatever the hide-prices setting says — see priceShown().
+      pricePublic: btn.getAttribute("data-price-public") ? 1 : 0,
+      // Monthly subscriptions (Business Development packages). Read here so the
+      // whole site has ONE cart path; this page used to ship a second one.
+      billingPeriod: btn.getAttribute("data-billing") || "",
+      renewsAt: renews ? Number(renews) : null,
+      commissionPercent: comm ? Number(comm) : 0,
     };
   }
 
@@ -231,9 +248,9 @@ var BP = window.BP = window.BP || {};
     else {
       if (empty) empty.hidden = true;
       wrap.innerHTML = c.map(function (i, idx) {
-        var priceTxt = (PRICES_ON && i.amount) ? BP.money(i.amount) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
+        var priceTxt = priceShown(i) ? BP.money(i.amount) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
         return '<div class="cart-item">' +
-          '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span></div>' +
+          '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span>' + renewNote(i) + '</div>' +
           '<div class="ci-qty"><button type="button" class="ci-dec" data-i="' + idx + '">−</button><span>' + (i.qty || 1) + '</span><button type="button" class="ci-inc" data-i="' + idx + '">+</button></div>' +
           '<div class="ci-price">' + esc(priceTxt) + '</div>' +
           '<button type="button" class="ci-del" data-i="' + idx + '" aria-label="remove">✕</button>' +
@@ -257,6 +274,17 @@ var BP = window.BP = window.BP || {};
         if (note) note.hidden = true;
       }
     }
+  }
+
+  // A monthly subscription must say so wherever it is shown. Silence here is
+  // how a client ends up surprised by a second charge they never agreed to.
+  function renewNote(i) {
+    if (!i || i.billingPeriod !== "monthly") return "";
+    var txt = i.renewsAt && i.renewsAt !== i.amount
+      ? BP.t("Monthly subscription — renews at " + BP.money(i.renewsAt) + "/month",
+             "اشتراك شهري — يتجدد بـ " + BP.money(i.renewsAt) + " شهريًا")
+      : BP.t("Monthly subscription — renews every month", "اشتراك شهري — يتجدد كل شهر");
+    return '<span class="ci-renew">' + esc(txt) + "</span>";
   }
 
   function kindLabel(k) {
@@ -349,7 +377,7 @@ var BP = window.BP = window.BP || {};
 
   function renderTotals(subId, vatId, totId) {
     function set0(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
-    if (!PRICES_ON) {
+    if (!PRICES_ON && !allPublicPriced()) {
       var q0 = BP.t("Quoted on review", "يُسعّر عند المراجعة");
       set0(subId, q0); set0(vatId, "—"); set0(totId, q0);
       return;
@@ -1685,6 +1713,42 @@ var BP = window.BP = window.BP || {};
     }
     togglePkgBox();
 
+    // ---- subscription + commission terms -------------------------------
+    // A monthly package carries commercial terms (renewal price, success-fee
+    // percentage) that the pricing page prints but the order never captured.
+    // Nothing binds a percentage the client was never shown at the moment of
+    // paying, so the terms are restated here and accepted explicitly.
+    function subsInCart() {
+      return BP.cart.read().filter(function (i) { return i.billingPeriod === "monthly"; });
+    }
+    function subEsc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function subName(i) { return (BP.lang === "ar" ? i.nameAr : i.nameEn) || i.nameAr || i.nameEn || i.id; }
+    (function renderSubTerms() {
+      var subs = subsInCart();
+      var host = document.getElementById("co-items") || document.getElementById("checkout-items");
+      if (!subs.length || !host || document.getElementById("co-subs-terms")) return;
+      var box = document.createElement("div");
+      box.id = "co-subs-terms";
+      box.className = "sub-terms";
+      var rows = subs.map(function (i) {
+        var renew = i.renewsAt && i.renewsAt !== i.amount
+          ? BP.t("then " + BP.money(i.renewsAt) + " per month", "ثم " + BP.money(i.renewsAt) + " شهريًا")
+          : BP.t("renews at the same price every month", "يتجدد بنفس السعر كل شهر");
+        var fee = i.commissionPercent
+          ? BP.t("Success fee " + i.commissionPercent + "% on revenue you actually collect from opportunities we generate.",
+                 "عمولة نجاح " + i.commissionPercent + "% على الإيراد الذي تحصّله فعليًا من الفرص التي نولّدها.")
+          : BP.t("No commission — a fixed monthly price.", "بدون عمولة — سعر شهري ثابت.");
+        return "<li><b>" + subEsc(subName(i)) + "</b><span>" + subEsc(renew) + "</span><span>" + subEsc(fee) + "</span></li>";
+      }).join("");
+      box.innerHTML =
+        "<h4>" + BP.t("Subscription terms", "شروط الاشتراك") + "</h4><ul>" + rows + "</ul>" +
+        '<label class="sub-accept"><input type="checkbox" id="co-subs-accept"> ' +
+        BP.t("I understand this is a monthly subscription, that it renews until I cancel, and I accept the success fee stated above.",
+             "أفهم أن هذا اشتراك شهري يتجدد حتى ألغيه، وأوافق على عمولة النجاح الموضحة أعلاه.") +
+        "</label>";
+      host.parentNode.insertBefore(box, host.nextSibling);
+    })();
+
     // Pre-fill from the company profile saved earlier in the account dashboard, if any.
     try {
       var savedCompany = JSON.parse(localStorage.getItem("bp_company") || "{}");
@@ -1728,6 +1792,12 @@ var BP = window.BP = window.BP || {};
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
       if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+      var subsAccept = document.getElementById("co-subs-accept");
+      if (subsAccept && !subsAccept.checked) {
+        alert(BP.t("Please accept the subscription terms (monthly renewal and the success fee) before submitting.", "الرجاء الموافقة على شروط الاشتراك (التجديد الشهري وعمولة النجاح) قبل الإرسال."));
+        subsAccept.focus();
+        return;
+      }
       var pkgVisible = pkgBox && !pkgBox.hidden;
       var companyName = entityEl ? entityEl.value.trim() : "";
       var crNumber = crEl ? crEl.value.trim() : "";
@@ -1845,6 +1915,19 @@ var BP = window.BP = window.BP || {};
               type: "order", ref: ref, name: name, phone: phone, email: email,
               items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
               itemsData: cart.map(function (i) { return { id: i.id || "", qty: i.qty || 1, price: i.amount || 0 }; }),
+              // Commercial terms the client accepted at this exact moment, so
+              // the CRM, the admin panel and any later dispute all read the same
+              // numbers the pricing page printed — not a percentage from memory.
+              subscriptions: cart.filter(function (i) { return i.billingPeriod === "monthly"; })
+                .map(function (i) {
+                  return {
+                    id: i.id || "", name: i.nameAr || i.nameEn || i.id,
+                    billingPeriod: "monthly", firstAmount: i.amount || 0,
+                    renewsAt: i.renewsAt || i.amount || 0,
+                    commissionPercent: i.commissionPercent || 0,
+                    acceptedAt: new Date().toISOString(),
+                  };
+                }),
               total: total,
               agents: employeeSlugs,
               compliance: boughtCompliance,
@@ -5947,11 +6030,17 @@ var BP_EMP_BILLING = "monthly";
       if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
       // validate=1 answers from the Employers DB alone — no full pool scan
       // just to learn whether a code is active.
-      fetch("/api/candidates?validate=1&code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
+      // With no code the server still answers for the signed-in portal
+      // session, so any client-portal account opens the dashboard during
+      // the 30-day platform trial.
+      fetch("/api/candidates?validate=1" + (code ? "&code=" + encodeURIComponent(code) : ""), { credentials: "same-origin" }).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
-      CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
+      // A portal-trial unlock hands back its own derived "org:…" code — the
+      // server re-derives it from the session on every call, so storing it
+      // only serves as a "try the session first next visit" marker.
+      CODE = (data && data.portal && data.code) || code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", CODE);
       PLAN = (data && data.plan) || "";
       setUnlocked(true);
       // Demo mode's candidates are the fixed sample set — no need to hit the
@@ -5983,8 +6072,14 @@ var BP_EMP_BILLING = "monthly";
     // must always be an explicit, one-time click so a stale localStorage
     // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); } }); }
-    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    function lockedBoot() { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else lockedBoot(); }); }
+    else {
+      if (isDemoCode(saved)) writeLS("bp_emp_code", "");
+      // No saved code — before showing the lock, ask the server whether a
+      // signed-in client-portal session unlocks the dashboard (30-day trial).
+      validate("", function (ok, data) { if (ok && data && data.portal) enter(data.code || "", data); else lockedBoot(); });
+    }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {

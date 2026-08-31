@@ -77,6 +77,8 @@
     .gsearch:focus{border-color:var(--navy);background:#fff}
     .top-ico{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;background:#fff;font-weight:700;color:var(--navy);flex-shrink:0}
     .top-ico:hover{background:var(--bg)}
+    .top-ico.wide{width:auto;padding:0 11px;gap:6px;font-size:11.5px;text-decoration:none;white-space:nowrap}
+    @media (max-width:700px){.top-ico.wide span{display:none}.top-ico.wide{width:30px;padding:0}}
     .top-ico .dot{position:absolute;top:-6px;inset-inline-end:-6px;min-width:15px;height:15px;background:var(--bad);border-radius:99px;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px}
     .userchip{display:flex;gap:8px;align-items:center;font-size:11.5px}
     .userchip .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
@@ -295,6 +297,8 @@
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
         <button data-v="store"><span>🛒</span><span data-t="navStore">اطلب خدمة</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
+        <button data-v="advisors"><span>✦</span><span data-t="navAdvisors">المستشارون الأذكياء</span></button>
+        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
@@ -309,7 +313,6 @@
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
-      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -318,6 +321,8 @@
       <div class="topbar">
         <span class="orgsel" id="topOrg" title="">🏢 <span id="topOrgName">—</span></span>
         <input class="gsearch" id="topSearch" type="search" data-tp="searchPh" placeholder="بحث في هذه الصفحة: طلب، خدمة، مهمة…" />
+        <button class="top-ico wide" id="assistBtn" title="المساعد">🤖 <span id="assistBtnLbl">المساعد</span></button>
+        <a class="top-ico wide" id="backToSite" href="/ar" title="العودة إلى الموقع">🌐 <span id="backToSiteLbl">العودة إلى الموقع</span></a>
         <button class="top-ico" id="langBtn" title="ع/E">ع/E</button>
         <button class="top-ico" id="bellBtn" title="">🔔<span class="dot" id="bellDot" style="display:none"></span></button>
         <span class="userchip"><span class="av" id="ucAv">؟</span><span class="meta"><b id="ucName">—</b><span id="ucRole" data-t="roleOwner">مالك المنشأة</span></span></span>
@@ -344,6 +349,18 @@
         <section class="view on" id="view-home">
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
+            <!-- الخدمات المشتركة: متاحة لكل عميل مسجّل بفترة تجريبية مجانية -->
+            <div class="card c6" id="ssCard" style="display:none;background:linear-gradient(135deg,#EEF0FF,#F8F9FF);border-color:#d9ddfb">
+              <h4>🤝 <span>فريقك التنفيذي الذكي — الخدمات المشتركة</span><a class="more" href="/ar/shared-services/dashboard">افتح البوابة ←</a></h4>
+              <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                <img src="/assets/img/baher.jpg" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 12px rgba(11,27,90,.12)">
+                <div style="flex:1;min-width:200px">
+                  <div style="font-size:12.5px;color:#3d4560;line-height:1.75">محادثة واحدة مع باهر — و١٢ متخصصاً ينفّذون خلف الكواليس: حكومي وامتثال، موارد بشرية، مالية، قانوني، تسويق ومشتريات.</div>
+                  <div id="ssTrialMeta" style="font-size:11px;font-weight:700;color:#5C66F2;margin-top:5px"></div>
+                </div>
+                <a class="btn" id="ssOpenBtn" href="/ar/shared-services/dashboard" style="background:#5C66F2;color:#fff;border:0;border-radius:12px;padding:10px 20px;font-size:12.5px;font-weight:700;white-space:nowrap">ابدأ المحادثة</a>
+              </div>
+            </div>
             <div class="card c6 warnbar">
               <h4><span data-t="urgentTasks">المهام العاجلة</span><button class="more" data-goto="tasks" data-t="allTasks">كل المهام ←</button></h4>
               <div id="homeTasks"></div>
@@ -385,7 +402,7 @@
               <div id="homeServices"></div>
             </div>
             <div class="card c4 agentbox">
-              <h4 data-t="agentTitle">وكيل Business Partner الذكي</h4>
+              <h4 data-t="agentTitle">مستشار Business Partner الذكي</h4>
               <div class="hint" data-t="agentHint">اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.</div>
               <input id="agentInput" data-tp="agentPh" placeholder="اسأل عن خدماتك أو إجراءاتك…" />
               <button class="btn sm" id="agentSend" data-t="agentSend">إرسال عبر واتساب</button>
@@ -416,7 +433,7 @@
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
                 <a href="/ar/consultation" data-t="qaConsult">حجز استشارة</a>
-                <a href="/ar/compliance-dashboard" data-t="qaCompliance">وكيل الامتثال</a>
+                <a href="/ar/compliance-dashboard" data-t="qaCompliance">مستشار الامتثال</a>
               </div>
             </div>
           </div>
@@ -495,6 +512,18 @@
           <div class="svc-tabs" id="svcTabs"></div>
           <div class="svc-grid" id="svcGrid"></div>
           <div class="emptyline" id="svcEmpty" style="display:none"></div>
+        </section>
+
+        <!-- ===== advisors hub: every smart advisor, ready to use ===== -->
+        <section class="view" id="view-advisors">
+          <div class="pagehead"><h2 id="advHubTitle">المستشارون الأذكياء</h2><div class="sub" id="advHubLead">كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).</div></div>
+          <div id="advHubGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        </section>
+
+        <!-- ===== hiring board, embedded for every client ===== -->
+        <section class="view" id="view-hiring">
+          <div class="pagehead"><h2 id="hiringTitle">لوحة التوظيف</h2><div class="sub" id="hiringLead">انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك — مفتوحة لك تلقائياً بحسابك. <a id="hiringNewTab" href="/ar/employer-dashboard" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
         </section>
 
         <!-- ===== tasks ===== -->
@@ -625,49 +654,10 @@
         </section>
         <section class="view" id="view-documents">
           <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
-          <!-- The Document Agent workspace lives HERE, inside the signed-in
-               portal — the public /ai-document-agent page only markets it.
-               Every API call is scoped server-side to this session's company. -->
-          <style id="da-css">
-            .da-shell{background:#fff;border:1px solid #e5eaf3;border-radius:16px;overflow:hidden;margin-bottom:14px}
-            .da-head{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #e5eaf3;background:#f8faff;flex-wrap:wrap}
-            .da-head b{color:#07163f}
-            .da-chip{font-size:.74rem;background:#fff;border:1px solid #e5eaf3;border-radius:99px;padding:2px 10px;color:#68758f}
-            .da-msgs{padding:14px;display:flex;flex-direction:column;gap:8px;min-height:180px;max-height:380px;overflow-y:auto}
-            .da-msg{max-width:85%;padding:8px 12px;border-radius:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;font-size:.86rem}
-            .da-msg.bot{background:#f6f8fc;border:1px solid #e5eaf3;align-self:flex-start}
-            .da-msg.me{background:#07163f;color:#fff;align-self:flex-end}
-            .da-msg.sys{background:#eef4ff;border:1px dashed #b9cdf3;color:#07163f;font-size:.8rem;align-self:center}
-            .da-form{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #e5eaf3}
-            .da-form #da-input{flex:1;border:1px solid #dce3ef;border-radius:10px;padding:9px 12px;font:inherit}
-            .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.15rem}
-            .da-attach input{display:none}
-            .da-actions-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px}
-            .da-start{padding:14px;text-align:center}
-            .da-outputs{padding:8px 14px;border-top:1px solid #e5eaf3;font-size:.85rem}
-            .da-outputs ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
-            .da-outputs li{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-            .da-outputs .qa-passed{color:#16b875}.da-outputs .qa-failed{color:#c0392b}
-          </style>
-          <div class="da-shell" id="da-shell">
-            <div class="da-head">
-              <b>🗂️ الوكيل الذكي للمستندات</b>
-              <span class="da-chip" id="da-status">—</span>
-              <span class="da-chip" id="da-progress" hidden></span>
-              <button class="btn sm" id="da-new" hidden style="margin-inline-start:auto">طلب جديد</button>
-            </div>
-            <div class="da-msgs" id="da-msgs"><div class="da-msg bot">ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.</div></div>
-            <div class="da-outputs" id="da-outputs" hidden><b>مخرجاتك</b><ul id="da-outputs-list"></ul></div>
-            <form class="da-form" id="da-form" hidden>
-              <label class="da-attach" title="أرفق ملفات"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
-              <input id="da-input" autocomplete="off" placeholder="اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»">
-              <button class="btn sm" type="submit">إرسال</button>
-            </form>
-            <div class="da-actions-row" id="da-actions" hidden>
-              <button class="btn sm" id="da-generate" type="button">🖊️ عبّئ النماذج</button>
-              <button class="btn sm" id="da-package" type="button">📦 جهّز الحزمة النهائية</button>
-            </div>
-            <div class="da-start" id="da-start" hidden><button class="btn" id="da-begin" type="button">ابدأ طلب مستندات جديد</button></div>
+          <div class="card c12" style="margin-bottom:14px">
+            <h4>المستشار الذكي للمستندات</h4>
+            <div class="note" style="display:block;margin:6px 0 10px">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — المستشار يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنة شركتك وحدها.</div>
+            <button class="btn sm" type="button" onclick="var b=document.querySelector('#sideNav [data-v=\'docagent\']');if(b)b.click()">🗂️ افتح مستشار المستندات</button>
           </div>
           <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="docMain" style="display:none">
@@ -843,12 +833,12 @@
         waMsg: 'تعذّر إرسال رمز التحقق عبر البريد حالياً.',
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
-        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navTasks: 'المهام', navOrders: 'الطلبات',
+        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navAdvisors: 'المستشارون الأذكياء', navHiring: 'لوحة التوظيف', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
         papersEmpty: 'لا يوجد عرض أو عقد باسمك حتى الآن. أول عرض يُرسل إليك يظهر هنا مباشرة.',
-        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها.',
+        papersOff: 'هذا القسم غير مربوط بلوحة العروض بعد، والربط بيدنا لا بيدك. لا يعني ذلك أن لا عروض لك — بل أن الصفحة لا تستطيع قراءتها الآن.',
         papersQuotes: 'عروض الأسعار', papersContracts: 'العقود', papersInvoices: 'مطالبات السداد',
         papersNote: 'الأسعار المعروضة غير شاملة ضريبة القيمة المضافة 15%، والرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.',
         papersOpen: 'افتح المستند', papersPay: 'سدّد الآن', papersNoneQ: 'لا عروض', papersNoneC: 'لا عقود', papersNoneI: 'لا مطالبات',
@@ -881,14 +871,14 @@
         notConnected: 'غير متصلة', noIntegration: 'التكامل غير متاح',
         govQiwa: 'قوى', govGosi: 'التأمينات الاجتماعية', govMuqeem: 'مقيم', govMudad: 'مدد',
         govZatca: 'الزكاة والضريبة', govBalady: 'بلدي', govAbsher: 'أبشر أعمال', govChamber: 'الغرفة التجارية',
-        agentTitle: 'وكيل Business Partner الذكي',
+        agentTitle: 'مستشار Business Partner الذكي',
         agentHint: 'اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.',
         agentPh: 'اسأل عن خدماتك أو إجراءاتك…',
         agentSend: 'إرسال عبر واتساب',
         agentPrefill: 'مرحباً، أنا عميل في مركز عمليات العميل — Business Partner. ',
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
-        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'وكيل الامتثال',
+        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'مستشار الامتثال',
         tasksSub: 'مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.',
         ordersSub: 'طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.',
         ordersTitle: 'سجل الطلبات',
@@ -908,9 +898,9 @@
         apprNeedComment: 'اكتب سبب الرفض أولاً.', apprApproved: 'تمت الموافقة', apprRejected: 'مرفوض',
         apprAmount: 'المبلغ', apprDeadline: 'المهلة',
         docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
-        docAgentTitle: 'الوكيل الذكي للمستندات',
+        docAgentTitle: 'المستشار الذكي للمستندات',
         docAgentSub: 'ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.',
-        docAgentOpen: '🗂️ افتح وكيل المستندات',
+        docAgentOpen: '🗂️ افتح مستشار المستندات',
         docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
@@ -959,12 +949,12 @@
         waMsg: 'We could not send the verification email right now.',
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
-        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navTasks: 'Tasks', navOrders: 'Orders',
+        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navAdvisors: 'Smart advisors', navHiring: 'Hiring dashboard', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
         papersEmpty: 'No quotation or contract in your name yet. The first one sent to you appears here.',
-        papersOff: 'This section is not connected to the quotations panel yet. It does not mean you have none — it means this page cannot read them.',
+        papersOff: 'This section is not connected to the quotations panel yet, and connecting it is on us. It does not mean you have none — it means this page cannot read them right now.',
         papersQuotes: 'Quotations', papersContracts: 'Contracts', papersInvoices: 'Payment requests',
         papersNote: 'All prices are exclusive of 15% value added tax. Government fees are always excluded and are paid directly to the competent authorities at actual cost.',
         papersOpen: 'Open document', papersPay: 'Pay now', papersNoneQ: 'No quotations', papersNoneC: 'No contracts', papersNoneI: 'No payment requests',
@@ -1060,6 +1050,7 @@
       lang: 'ar',
       user: null,          // {name,email}
       org: null,           // {name_ar,...}
+      bd: null,            // Business Development trial/subscription, from the server
       db: false,
       limited: false,
       orders: [],          // [{ref,title,status}] newest first
@@ -1154,6 +1145,9 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(d){
           var list = (d && d.ok && d.orders) || [];
+          // The server decides whether Business Development is on trial for this
+          // client (api/_trial.js) — the browser only renders the answer.
+          if (d && d.ok) state.bd = d.bd || null;
           if (list.length){
             var byRef = {};
             for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
@@ -1167,8 +1161,8 @@
                 state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
               }
             }
-            renderAll();
           }
+          renderAll();
         })
         .catch(function(){})
         .then(function(){ fetchStatuses(); });
@@ -1487,7 +1481,7 @@
             var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
             var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
             var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
-            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            var pkHref = pk.group === 'revenue-os' ? '/business-development' : (enP ? '/packages' : '/ar/packages');
             cards += '<div class="svc" data-srch>' +
               '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
               '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
@@ -1503,17 +1497,41 @@
         var portalBadge = en ? 'Portal' : 'بوابة';
         var openLbl = en ? 'Open portal' : 'افتح البوابة';
         var pl = [
-          { i: '🚀', n: en ? 'Revenue OS dashboard' : 'لوحة Revenue OS', u: '/revenue-dashboard' },
+          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/business-development-dashboard' },
           { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
           { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
           { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
         ];
+        // Business Development as a Service is included free with every account
+        // — no purchase. The card says which state they are in and how long is
+        // left, because a trial nobody is told about is not a trial. The length
+        // comes from the server (bd.totalDays, api/_trial.js), never a number
+        // typed in here: two places holding it is how copy starts lying.
+        var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
+          var isBd = pl[i].u === '/business-development-dashboard';
+          var badge = portalBadge, line = '', cta = openLbl;
+          if (isBd && bd && bd.state === 'trial'){
+            var dw = en ? (bd.days === 1 ? 'day' : 'days') : (bd.days === 1 ? 'يوم' : bd.days === 2 ? 'يومان' : bd.days <= 10 ? 'أيام' : 'يومًا');
+            badge = en ? 'Free trial' : 'تجربة مجانية';
+            line = en ? ('Included free — ' + bd.days + ' ' + dw + ' left') : ('مشمولة مجانًا — باقٍ ' + bd.days + ' ' + dw);
+            cta = en ? 'Open your trial' : 'افتح تجربتك';
+          } else if (isBd && bd && bd.state === 'expired'){
+            badge = en ? 'Trial ended' : 'انتهت التجربة';
+            var td = bd.totalDays || 0;
+            line = en
+              ? ('Your ' + (td ? td + '-day ' : '') + 'trial has ended — subscribe to reopen it.')
+              : ('انتهت تجربتك' + (td ? ' (' + td + ' يومًا)' : '') + ' — اشترك لإعادة فتحها.');
+          } else if (isBd && bd && bd.state === 'subscribed'){
+            badge = en ? 'Active' : 'مفعّلة';
+            line = en ? 'Your subscription is running.' : 'اشتراكك يعمل.';
+          }
           cards += '<div class="svc" data-srch>' +
-            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + esc(badge) + '</span></div>' +
+            (line ? '<div class="kv"><span>' + (en ? 'Status' : 'الحالة') + '</span><b>' + esc(line) + '</b></div>' : '') +
             '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
-            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + esc(cta) + '</a></div></div>';
         }
       }
       $('svcGrid').innerHTML = cards;
@@ -1756,6 +1774,7 @@
       $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
       $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
       $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var abl = $('assistBtnLbl'); if (abl) abl.textContent = en ? 'Assistant' : 'المساعد';
       var org = (state.overview && state.overview.organization) || {};
       if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
       if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
@@ -1801,6 +1820,40 @@
         th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
       }
       $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    // Advisors hub — every smart advisor in one grid, each one openable now.
+    // All of them are covered by the 30-day platform trial, so the hub never
+    // shows a locked card to a signed-in client inside the trial window.
+    function renderAdvisors(){
+      var en = state.lang === 'en';
+      $('advHubTitle').textContent = en ? 'Smart advisors' : 'المستشارون الأذكياء';
+      $('advHubLead').textContent = en ? 'All your advisors in one place — ready to use now, free for your first 30 days.' : 'كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).';
+      var list = [
+        ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
+        ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your hiring pipeline.' : 'انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك.', 'hiring'],
+        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/business-development-dashboard'],
+        ['🤖', en ? 'Smart employee' : 'الموظف الذكي', en ? 'A 24/7 specialist — marketing, admin, sales or procurement. Open your smart-employees portal.' : 'متخصص يعمل 24/7 — تسويق، إداري، مبيعات أو مشتريات. افتح بوابة موظفيك الأذكياء.', '/ar/portal'],
+        ['🤝', en ? 'Shared services team' : 'فريق الخدمات المشتركة', en ? 'Your executive team dashboard — HR, finance, legal and government relations.' : 'لوحة فريقك التنفيذي — موارد بشرية ومالية وقانونية وعلاقات حكومية.', '/ar/shared-services/dashboard'],
+        ['💬', en ? 'Portal assistant' : 'مساعد لوحتك', en ? 'Knows your orders, wallet and every section — ask it anything.' : 'يعرف طلباتك ومحفظتك وكل أقسام اللوحة — اسأله أي شيء.', 'assistant']
+      ];
+      var h = '';
+      for (var i = 0; i < list.length; i++){
+        var a = list[i];
+        h += '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px">'
+          + '<div style="font-size:26px">' + a[0] + '</div><b style="color:var(--navy)">' + esc(a[1]) + '</b>'
+          + '<span style="font-size:12.5px;color:#5a6285;flex:1;line-height:1.8">' + esc(a[2]) + '</span>'
+          + '<button class="btn sm" data-adv="' + a[3] + '" style="align-self:flex-start">' + (en ? 'Open' : 'افتح المستشار') + '</button></div>';
+      }
+      $('advHubGrid').innerHTML = h;
+      var bs = $('advHubGrid').querySelectorAll('[data-adv]');
+      for (var j = 0; j < bs.length; j++) bs[j].onclick = function(){
+        var t = this.getAttribute('data-adv');
+        if (t === 'docagent'){ var db = document.querySelector('#sideNav [data-v="docagent"]'); if (db){ db.click(); return; } t = '/ar/account?view=docagent'; }
+        if (t === 'hiring'){ switchView('hiring'); return; }
+        if (t === 'assistant'){ var ab = $('assistBtn'); if (ab) ab.click(); return; }
+        location.href = t;
+      };
     }
     function renderTeam(){
       var en = state.lang === 'en';
@@ -2032,10 +2085,17 @@
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','store','services','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','store','services','advisors','hiring','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       if (v === 'store') stInit();
+      if (v === 'advisors') renderAdvisors();
+      if (v === 'hiring'){
+        // Lazy-load the embedded hiring board on first open; the portal
+        // session unlocks it server-side (30-day trial), no second login.
+        var hf = $('hiringFrame');
+        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard');
+      }
       for (var i = 0; i < VIEWS.length; i++){
         var el = $('view-' + VIEWS[i]);
         if (el) el.classList.toggle('on', VIEWS[i] === v);
@@ -2332,7 +2392,9 @@
       fetch('/api/requests?action=my-documents', { credentials: 'same-origin', cache: 'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
-          state.papers = (out && out.ok) ? out : { ok: false };
+          // سبب الفشل يُحفظ لا يُطرح: عطل الإعداد ورسالته تختلف عن تعثّر
+          // اتصال، والواجهة لا تفرّق بينهما إن لم يصلها السبب.
+          state.papers = (out && out.ok) ? out : { ok: false, error: (out && out.error) || '' };
           renderPapers();
         })
         .catch(function(){ state.papers = { ok: false }; renderPapers(); });
@@ -2391,7 +2453,13 @@
         var msg = ph.querySelector('p span');
         // تعذّر القراءة ليس «لا يوجد»: الفرق بينهما هو الفرق بين عميل يطمئن
         // وعميل يظن أن عرضه ضاع.
-        if (msg){ msg.removeAttribute('data-t'); msg.textContent = t('papersDown'); }
+        // وعطل الإعداد ليس تعذّراً عابراً: «سنعيد المحاولة عند التحديث» تجعل
+        // صاحبها يحدّث الصفحة أبداً بلا أن يتغيّر شيء، لأن ما ينقص سرٌّ في
+        // الإعدادات لا اتصالٌ تعثّر.
+        if (msg){
+          msg.removeAttribute('data-t');
+          msg.textContent = (p.error === 'panel_token_mismatch') ? t('papersOff') : t('papersDown');
+        }
         if (badge) badge.style.display = 'none';
         return;
       }
@@ -2969,7 +3037,7 @@
         employees: '/ar/portal',
         employer: '/employer-dashboard',
         shared: '/shared-services/dashboard',
-        revenue: '/revenue-dashboard'
+        revenue: '/business-development-dashboard'
       };
       var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
       if (!url) return false;
@@ -2977,11 +3045,31 @@
       if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
       return true;
     }
+    // الخدمات المشتركة: كل عميل مسجّل يحصل على فترة تجريبية مجانية بدون شراء.
+    // نقرأ حالتها من الخادم (تُشتق من تاريخ تسجيل المنشأة) ونُظهر البطاقة.
+    function ssTrialCard(){
+      var card = $('ssCard'); if (!card) return;
+      opsPost({ action: 'ops-ss-trial' }).then(function(d){
+        if (!d || !d.ok) return;
+        var meta = $('ssTrialMeta'), btn = $('ssOpenBtn');
+        if (d.active){
+          var n = d.daysLeft, total = d.totalDays || 14;
+          var head = n === 1 ? 'يوم واحد متبقٍ' : n === 2 ? 'يومان متبقيان'
+            : (n >= 3 && n <= 10) ? (n + ' أيام متبقية') : (n + ' يوماً متبقياً');
+          if (meta) meta.textContent = '🎁 تجربة مجانية — ' + head + ' من ' + total + ' يوماً · بدون أي شراء';
+        } else {
+          if (meta) { meta.textContent = 'انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي.'; meta.style.color = '#b3261e'; }
+          if (btn) { btn.textContent = 'اشترك الآن'; btn.href = '/ar/shared-services#ss-subscribe'; }
+        }
+        card.style.display = '';
+      }).catch(function(){});
+    }
     function enterApp(){
       // Bridge to the site-wide cart/checkout (main.js reads bp_session from
       // localStorage): without this marker, /checkout bounces back here and
       // the purchase loop never completes.
       try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      try { ssTrialCard(); } catch(e){}
       // Seed the checkout's company prefill from the account's organization.
       try {
         if (state.org && (state.org.name_ar || state.org.name_en)) {
@@ -3056,7 +3144,7 @@
       for (var i = 0; i < navBtns.length; i++) navBtns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
       // Deep link: /account?view=documents opens that view directly (e.g. from
       // the public Document Agent page).
-      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0) switchView(v0); } catch (e) {}
+      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0 && v0 !== 'docagent') switchView(v0); } catch (e) {}
       var mvs = document.querySelectorAll('[data-mv]');
       for (var j = 0; j < mvs.length; j++){
         mvs[j].style.cursor = 'pointer';
@@ -3194,6 +3282,9 @@
         try { inp.focus(); } catch (e) {}
       };
       dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
+      // The topbar «المساعد» button opens the same concierge dock as the fab.
+      var hdrAssist = document.getElementById('assistBtn');
+      if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };
       dock.querySelector('#acGo').onclick = function(){ ask(inp.value); };
       inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') ask(inp.value); });
       // Ask B10X: free text → a tracked service request (type b10x-request,
@@ -3226,134 +3317,6 @@
 
     boot();
   </script>
-  <script>
-  /* الوكيل الذكي للمستندات — the same workspace that used to live on the public
-     page, now scoped to the portal. /api/doc-agent authenticates the session
-     cookie and filters everything by the active company server-side. */
-  (function(){
-    var API='/api/doc-agent';
-    var $=function(id){return document.getElementById(id);};
-    if(!$('da-msgs'))return;
-    var ref='';
-    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var MS={failed:'صار خطأ — أعد المحاولة بعد لحظات.',tooBig:'هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى.',noForms:'ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X».',ready:'تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».',uploading:'جارٍ الرفع والقراءة…',generating:'جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…',packing:'جارٍ ضغط كل شيء في ملف واحد…',hello:'ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.',gate:'سجّل دخولك بجلسة كاملة لتفعيل وكيل المستندات — مستنداتك تبقى في خزنة شركتك وحدها.',facts:'معلومة مستخرجة',forms:'نموذج للتعبئة'};
-    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
-    function setStatus(st){$('da-status').textContent=st||'—';}
-    function renderState(st){
-      if(!st||!st.ok)return;
-      setStatus(st.request.status);
-      var facts=(st.facts||[]).length, forms=(st.gap&&st.gap.forms)||0;
-      var pr=$('da-progress');
-      if(facts||forms){pr.hidden=false;pr.textContent=facts+' '+MS.facts+' · '+forms+' '+MS.forms;}
-      var outs=(st.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
-      show('da-outputs',outs.length>0);
-      var ul=$('da-outputs-list');ul.innerHTML='';
-      outs.forEach(function(o){
-        var li=document.createElement('li');
-        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
-        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
-        var a=document.createElement('a');a.href='#';a.textContent='تحميل';a.className='btn sm';
-        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
-        li.appendChild(a);ul.appendChild(li);
-      });
-      show('da-actions',forms>0||outs.length>0);
-    }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
-    function activate(){show('da-form',true);show('da-start',false);show('da-new',true);refresh();}
-    function begin(){
-      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
-        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',MS.failed);
-      });
-    }
-    get('?action=list').then(function(d){
-      if(d.__code===401||!d.ok){el('sys',MS.gate);return;}
-      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
-      var match=null;
-      open.forEach(function(r){if(r.ref===ref)match=r;});
-      if(!match&&open.length)match=open[0];
-      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
-        get('?action=state&ref='+encodeURIComponent(ref)).then(function(st){
-          if(st.ok){(st.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(st);}
-          activate();
-        });
-      } else { show('da-start',true); }
-    }).catch(function(){el('sys',MS.gate);});
-    $('da-begin').onclick=begin;
-    $('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',MS.hello);begin();};
-    $('da-form').addEventListener('submit',function(ev){
-      ev.preventDefault();
-      var v=$('da-input').value.trim();if(!v||!ref)return;
-      $('da-input').value='';el('me',v);
-      var typing=el('sys','…');
-      post({action:'chat',ref:ref,message:v}).then(function(d){
-        typing.remove();
-        el('bot',d.ok?d.reply:MS.failed);
-        if(d.ok&&d.generate_now)runGenerate();
-        refresh();
-      }).catch(function(){typing.remove();el('sys',MS.failed);});
-    });
-    $('da-file').addEventListener('change',function(){
-      var files=Array.prototype.slice.call(this.files||[]);this.value='';
-      if(!ref||!files.length)return;
-      (function next(i){
-        if(i>=files.length){refresh();return;}
-        var f=files[i];
-        el('me','📎 '+f.name);
-        if(f.size>3*1024*1024){el('bot',MS.tooBig);next(i+1);return;}
-        var note=el('sys',MS.uploading);
-        var rd=new FileReader();
-        rd.onload=function(){
-          var b64=String(rd.result).split(',')[1]||'';
-          var ext=(f.name.split('.').pop()||'').toLowerCase();
-          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
-            note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?MS.tooBig:MS.failed));
-            next(i+1);
-          }).catch(function(){note.remove();el('sys',MS.failed);next(i+1);});
-        };
-        rd.readAsDataURL(f);
-      })(0);
-    });
-    function runGenerate(formId,seen){
-      if(!ref)return;var note=el('sys',MS.generating);seen=seen||0;
-      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
-        note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?MS.noForms:(MS.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
-        var done=0;
-        (d.outputs||[]).forEach(function(o){
-          if(o.ok&&o.output_id){
-            done++;
-            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-              if(!l.url)return;
-              var row=el('bot','⬇️ ');
-              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-              row.appendChild(a);
-              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-            });
-          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
-        });
-        var rest=d.remaining||[];
-        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
-        if(done||seen)el('bot',MS.ready);
-        refresh();
-      }).catch(function(){note.remove();el('sys',MS.failed);});
-    }
-    $('da-generate').onclick=function(){runGenerate();};
-    $('da-package').onclick=function(){
-      if(!ref)return;var note=el('sys',MS.packing);
-      post({action:'package',ref:ref}).then(function(d){
-        note.remove();
-        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',MS.failed);
-        refresh();
-      }).catch(function(){note.remove();el('sys',MS.failed);});
-    };
-  })();
-  </script>
+  
 </body>
 </html>

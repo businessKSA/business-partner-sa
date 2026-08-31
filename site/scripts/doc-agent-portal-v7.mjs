@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// الوكيل الذكي للمستندات داخل بوابة العميل — لا صفحة منفصلة ولا شراء.
+// المستشار الذكي للمستندات داخل بوابة العميل — لا صفحة منفصلة ولا شراء.
 // طبقة ما بعد البناء على نمط client-portal-v6: تحقن زر تنقّل وعرضاً كاملاً
 // بمفردات التصميم الجديد، فيستخدم العميل الخدمة من مكانه المعتاد. الوصول
 // مربوط بتجربة أربعة عشر يوماً تبدأ من أول استخدام (الخادم يقرّر، لا الواجهة).
@@ -77,14 +77,14 @@ function wall(d){say('sys',d&&d.message?d.message:'انتهت فترتك الت�
 function renderTrial(a){
   access=a||access; if(!access)return;
   var box=$('da7Trial'); if(!box)return;
-  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>الوكيل الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
+  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>المستشار الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
-    box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه الوكيل يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
+    box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
   }
 }
 function tag(role){
@@ -207,11 +207,11 @@ function fresh(){
 }
 
 function view(){
-  return '<div class="pagehead"><h2>الوكيل الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
+  return '<div class="pagehead"><h2>المستشار الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
   '<div class="da7-trial" id="da7Trial"></div>'+
   '<div class="da7-stats" id="da7Stats"></div>'+
   '<div class="da7-grid">'+
-    '<div class="da7-box"><h3>محادثة الوكيل</h3><p class="hint">اكتب بلغتك: «عبّي ملف كذا»، «Section 9 كله No»، «حط تاريخ اليوم»، «وش الناقص؟».</p>'+
+    '<div class="da7-box"><h3>محادثة المستشار</h3><p class="hint">اكتب بلغتك: «عبّي ملف كذا»، «Section 9 كله No»، «حط تاريخ اليوم»، «وش الناقص؟».</p>'+
       '<div class="da7-log" id="da7Log"></div>'+
       '<div class="da7-row"><button class="da7-btn clip" id="da7Clip" title="أرفق ملفات">📎</button>'+
       '<input type="text" id="da7Input" placeholder="اكتب هنا…" autocomplete="off">'+
@@ -219,7 +219,7 @@ function view(){
       '<input type="file" id="da7File" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp" hidden>'+
     '</div>'+
     '<div>'+
-      '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
+      '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — المستشار يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
         '<div class="da7-drop" id="da7Drop">اسحب الملفات هنا أو اضغط للاختيار<br><small>PDF · Word · Excel · صور</small></div>'+
         '<div class="da7-files" id="da7Files"><div class="da7-empty">لم تُرفع ملفات بعد.</div></div></div>'+
       '<div class="da7-box" style="margin-top:14px"><h3>توقيعك وختم منشأتك</h3>'+
@@ -270,7 +270,7 @@ function mount(){
 function nav(){
   var n=document.getElementById('sideNav'); if(!n||n.querySelector('[data-v="docagent"]'))return;
   var b=document.createElement('button'); b.setAttribute('data-v','docagent');
-  b.innerHTML='<span>🗂️</span><span>وكيل المستندات</span>';
+  b.innerHTML='<span>🗂️</span><span>مستشار المستندات</span>';
   var after=n.querySelector('[data-v="documents"]')||n.querySelector('[data-v="company"]');
   if(after)after.insertAdjacentElement('afterend',b); else n.appendChild(b);
   b.onclick=function(){
@@ -375,7 +375,7 @@ function open(){
       // not a registered client (or no establishment yet): nothing of theirs is
       // kept here, and any stale local pointer is dropped on the spot.
       purge();
-      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 14 يوماً.');
+      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 30 يوماً.');
       return;
     }
     if(a.ok)renderTrial(a.access);

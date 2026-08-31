@@ -1,4 +1,4 @@
-// الوكيل الذكي للمستندات — AI Document Agent engine.
+// المستشار الذكي للمستندات — AI Document Agent engine.
 //
 // The client uploads documents that CONTAIN information (CR, AOA, VAT, bank,
 // IDs…) and documents that NEED information (vendor forms, AML, KYC, NDA…).
@@ -188,7 +188,7 @@ const CLASSIFY_PROMPT = `You are the document-intake agent of Business Partner (
 }
 Classification guide: a document that mostly STATES information about an entity/person = "source". A document with blanks, questions, checkboxes or underscores awaiting answers = "target_form". A picture of a stamp = "stamp_asset"; of a handwritten signature = "signature_asset". An email/screenshot listing what must be submitted = "requirement". Extract only what is actually visible; never guess. Ownership percentages: if a capital and per-owner amounts are visible, include ownership[i].share_pct computed from them with confidence "MEDIUM".`;
 
-const chatSystem = (state) => `أنت «الوكيل الذكي للمستندات» في Business Partner — مساعد يقرأ مستندات العميل ويعبّئ نماذجه.
+const chatSystem = (state) => `أنت «المستشار الذكي للمستندات» في Business Partner — مساعد يقرأ مستندات العميل ويعبّئ نماذجه.
 أجب دائماً بلغة آخر رسالة من العميل (عربي، إنجليزي، أو أي لغة أخرى).
 قواعد صارمة:
 - الإقرارات القانونية (PEP، عقوبات، تضارب مصالح، رشوة، ملاحقة ضريبية، مصدر أموال، موافقات) لا تُفترض أبداً: اطلب تأكيداً صريحاً، وعند تأكيد العميل أعِد action من نوع confirm_declaration.
@@ -320,7 +320,7 @@ async function vaultSync(request, kind, file, storageKey) {
 // day it registered, so a client who joined months ago still gets the full
 // trial the day they open it. When the window closes, everything already
 // produced stays downloadable; only new work asks for a subscription.
-const TRIAL_DAYS = Math.max(1, Number(process.env.DOC_AGENT_TRIAL_DAYS || 14));
+const TRIAL_DAYS = Math.max(1, Number(process.env.DOC_AGENT_TRIAL_DAYS || 30));
 const DOC_AGENT_CODES = (process.env.DOC_AGENT_SERVICE_CODES || "bp-ai-doc-01,bp-doc-agent")
   .split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
 
@@ -827,8 +827,13 @@ async function generateOutputs(request, channel, onlyFormId) {
   const anyFailed = outputs.some((o) => o.ok && o.qa === "failed");
   await setReq(request.id, { status: remaining.length ? "GENERATING" : (anyFailed ? "QA" : "READY") });
   await audit({ organization_id: request.organization_id, action: "doc_agent.generated", entity_type: "doc_agent_request", entity_id: request.id, after: { outputs: outputs.length, qa_failed: anyFailed } });
+<<<<<<< HEAD
   await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "الوكيل الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
   return { outputs, remaining, signed: [...new Set(signed)] };
+=======
+  await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "المستشار الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
+  return { outputs, remaining };
+>>>>>>> origin/claude/bpic-marketing-site-jvrnga
 }
 
 async function packageOutputs(request) {
