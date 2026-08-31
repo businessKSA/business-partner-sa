@@ -1688,15 +1688,20 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(12000),
       });
       const j = await r.json().catch(() => null);
+      // ٤٠١ ليست عطلاً عابراً بل سرّان مختلفان: الموقع يرسل قيمته واللوحة
+      // تقارنها بقيمتها. وقولها «تعذّرت القراءة، سنعيد المحاولة» يجعل صاحبها
+      // يحدّث الصفحة أبداً بلا فائدة، فتُميَّز عمّا سواها.
+      if (r.status === 401) throw new Error("panel_token_mismatch");
       if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
     } catch (e) {
       // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
       // وحده يقول إنه لم يستطع القراءة الآن.
-      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      const why = String(e.message || e).slice(0, 200);
+      console.error("my-documents bridge failed", why);
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+      return res.end(JSON.stringify({ ok: false, error: why === "panel_token_mismatch" ? why : "panel_unreachable" }));
     }
   }
 
@@ -1730,6 +1735,16 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(15000),
       });
       const j = await r.json().catch(() => null);
+      if (r.status === 401) {
+        // السرّان مختلفان. والمالك هو من يملك إصلاحه، فيُقال له بالاسم أين
+        // وكيف — لا «تعذّر» يتركه يعيد المحاولة على جدار.
+        res.statusCode = 502;
+        return res.end(JSON.stringify({
+          ok: false,
+          error: "panel_token_mismatch",
+          ملاحظة: "PANEL_BRIDGE_TOKEN في هذا المشروع لا يطابق قيمته في مشروع اللوحة. انسخ القيمة من bp-quotes إلى مشروع الموقع ثم أعد النشر.",
+        }));
+      }
       if (!r.ok || !j || j.ok !== true) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));

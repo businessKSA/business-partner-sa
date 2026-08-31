@@ -8,8 +8,14 @@
 //   TAMARA_API_BASE       optional, default https://api.tamara.co
 //                         (sandbox: https://api-sandbox.tamara.co)
 //   TAMARA_OFF            kill switch: any truthy value hides the installment
-//                         button without touching the token, so a provider-side
-//                         outage stops costing us checkouts in thirty seconds.
+//                         button without touching the token
+//
+// The kill switch exists because the failure that actually happened is not a
+// missing key: Tamara's own API answered 500 on three real checkouts in one
+// evening while the token was perfectly valid. Deleting the token to stop
+// offering a broken method loses it, and re-adding it later means hunting it
+// down again — so the way to take the button down in thirty seconds is a
+// variable that says «off», not the absence of a credential.
 
 const TAMARA_TOKEN = (process.env.TAMARA_API_TOKEN || "").trim();
 const TAMARA_BASE = (process.env.TAMARA_API_BASE || "https://api.tamara.co").trim().replace(/\/$/, "");
