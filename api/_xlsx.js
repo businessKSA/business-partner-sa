@@ -87,6 +87,44 @@ export function xlsxCells(buf) {
   return cells;
 }
 
+const colName = (n) => { let s = ""; while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; };
+const LABELISH = /[:：؟?]\s*$|^\s*(اسم|رقم|تاريخ|عنوان|جوال|هاتف|بريد|نوع|قيمة|نسبة|الرقم|الاسم)\b|^\s*(name|number|no\.?|date|address|email|phone|type|amount|value|iban|vat|cr)\b/i;
+
+/**
+ * Every label cell that has an empty neighbour — i.e. every blank this form is
+ * asking someone to fill. Empty cells do not exist in the XLSX XML at all, so
+ * a blank form is invisible to a reader that only lists non-empty cells: it
+ * looks like a short list of labels, which is exactly why such forms were
+ * being classified as "source documents" instead of forms to fill.
+ * Returns [{sheet, label, ref, next, prev, below}] with the empty candidates.
+ */
+export function xlsxBlanks(buf, max = 300) {
+  const cells = xlsxCells(buf);
+  const bySheet = new Map();
+  for (const c of cells) {
+    if (!bySheet.has(c.sheet)) bySheet.set(c.sheet, new Set());
+    bySheet.get(c.sheet).add(c.ref.toUpperCase());
+  }
+  const out = [];
+  for (const c of cells) {
+    if (out.length >= max) break;
+    const p = parseRef(c.ref);
+    if (!p) continue;
+    const text = c.text.trim();
+    if (!text || text.length > 120 || !LABELISH.test(text)) continue;
+    const taken = bySheet.get(c.sheet);
+    const at = (colNo, row) => (colNo < 1 ? null : `${colName(colNo)}${row}`);
+    const free = (ref) => ref && !taken.has(ref);
+    const next = at(p.colNo + 1, p.row), prev = at(p.colNo - 1, p.row), below = at(p.colNo, p.row + 1);
+    if (!free(next) && !free(prev) && !free(below)) continue;
+    out.push({
+      sheet: c.sheet, label: text, ref: c.ref.toUpperCase(),
+      next: free(next) ? next : null, prev: free(prev) ? prev : null, below: free(below) ? below : null,
+    });
+  }
+  return out;
+}
+
 // Add (once) a font+cellXf for the agent's ink and return the xf index, or ""
 // when the workbook should keep its original styling.
 function ensureFillStyle(entries, colorHex) {

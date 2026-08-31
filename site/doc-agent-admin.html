@@ -1,0 +1,105 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>وكيل المستندات — لوحة المتابعة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0B1B5A;--bg:#F5F6FA;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--blue:#1F4ED8;--red:#b91c1c;--green:#16a34a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wrap{max-width:1280px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{color:var(--navy);font-size:1.35rem;margin-bottom:.8rem}
+.bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+input,select,textarea,button{font-family:inherit;font-size:.92rem;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;background:#fff}
+button{cursor:pointer;background:var(--navy);color:#fff;border:0}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:1rem}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:0 6px 22px rgba(11,27,90,.05)}
+.req{padding:.55rem .6rem;border-radius:10px;cursor:pointer;border-bottom:1px solid var(--line)}
+.req:hover,.req.on{background:#eef2ff}
+.req b{display:block;font-size:.92rem}
+.req small{color:var(--muted)}
+.chip{display:inline-block;background:#eef2ff;color:var(--navy);border-radius:999px;padding:.1rem .6rem;font-size:.78rem;margin:0 0 .3rem .3rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:.45rem .5rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+a{color:var(--blue)}
+.msg{border:1px solid var(--line);border-radius:10px;padding:.45rem .6rem;margin-bottom:.45rem;font-size:.88rem;white-space:pre-wrap}
+.msg.client{background:#f8fafc}.msg.agent{background:#eef2ff}.msg.consultant{background:#ecfdf5}
+.qa-passed{color:var(--green)}.qa-failed{color:var(--red)}
+#detail{display:none}
+.note{color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body><div class="wrap">
+<h1>🗂️ وكيل المستندات — لوحة المتابعة والتدخل</h1>
+<div class="bar">
+  <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
+  <button id="save">دخول</button>
+  <button class="ghost" id="reload">تحديث القائمة</button>
+  <span class="note">نفس مفتاح <a href="/admin">/admin</a> — يُلتقط تلقائياً إن سبق دخولك هناك.</span>
+</div>
+<div class="grid">
+  <div class="card"><h3 style="margin-bottom:.5rem">الطلبات</h3><div id="list" class="note">…</div></div>
+  <div class="card" id="detail"></div>
+</div>
+</div>
+<script>
+(function(){
+  var API='/api/requests?__route=doc-agent';
+  var key=localStorage.getItem('bp_admin_key')||'';
+  var ticket=localStorage.getItem('bp_admin_ticket')||'';
+  var cur='';
+  function auth(){return '&key='+encodeURIComponent(key)+(ticket?('&ticket='+encodeURIComponent(ticket)):'');}
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function get(a,extra){return fetch(API+'&action='+a+auth()+(extra||'')).then(function(r){return r.json();});}
+  function post(body){body.key=key;if(ticket)body.ticket=ticket;return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  $('k').value=key;
+  $('save').onclick=function(){key=$('k').value.trim();localStorage.setItem('bp_admin_key',key);load();};
+  $('reload').onclick=function(){load();};
+  function load(){
+    $('list').textContent='…';
+    get('admin-list').then(function(d){
+      if(!d.ok){$('list').textContent=d.error==='unauthorized'?'المفتاح غير صحيح.':'خطأ.';return;}
+      $('list').innerHTML=(d.requests||[]).map(function(r){
+        return '<div class="req" data-ref="'+esc(r.ref)+'"><b>'+esc(r.ref)+' — '+esc(r.org||r.contact||'بلا منشأة')+'</b><small>'+esc(r.status)+' · '+esc(r.channel)+' · '+esc((r.updated_at||'').slice(0,16).replace('T',' '))+'</small></div>';
+      }).join('')||'لا طلبات بعد.';
+      Array.prototype.forEach.call(document.querySelectorAll('.req'),function(n){n.onclick=function(){open(n.getAttribute('data-ref'));};});
+    }).catch(function(){$('list').textContent='خطأ شبكة.';});
+  }
+  function open(ref){
+    cur=ref;
+    Array.prototype.forEach.call(document.querySelectorAll('.req'),function(n){n.classList.toggle('on',n.getAttribute('data-ref')===ref);});
+    $('detail').style.display='block';$('detail').innerHTML='…';
+    get('admin-state','&ref='+encodeURIComponent(ref)).then(function(d){
+      if(!d.ok){$('detail').textContent='خطأ.';return;}
+      var h='<h3>'+esc(d.request.ref)+'</h3>';
+      h+='<div style="margin:.4rem 0 .8rem"><span class="chip">'+esc(d.request.status)+'</span><span class="chip">'+esc(d.request.channel)+'</span><span class="chip">نماذج: '+d.gap.forms+'</span><span class="chip">مصادر: '+d.gap.sources+'</span><span class="chip">حقائق: '+d.gap.facts+'</span>'+(d.gap.conflicts.length?('<span class="chip" style="background:#fee2e2;color:#b91c1c">تعارضات: '+d.gap.conflicts.length+'</span>'):'')+'</div>';
+      h+='<h4>الملفات</h4><table><tr><th>الملف</th><th>الدور</th><th>النوع</th><th>الصلاحية</th><th></th></tr>';
+      (d.files||[]).forEach(function(f){
+        h+='<tr><td>'+esc(f.file_name)+'</td><td><select data-role="'+esc(f.id)+'">'+['source','target_form','supporting','signature_asset','stamp_asset','requirement','unknown'].map(function(r){return '<option'+(r===f.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select></td><td>'+esc(f.doc_kind||'—')+'</td><td>'+esc(f.expiry_status)+'</td><td><a href="#" data-dl-file="'+esc(f.id)+'">تنزيل</a></td></tr>';
+      });
+      h+='</table>';
+      h+='<h4 style="margin-top:.8rem">المخرجات</h4>';
+      h+=(d.outputs||[]).length?('<table><tr><th>الملف</th><th>إصدار</th><th>QA</th><th></th></tr>'+(d.outputs||[]).map(function(o){return '<tr><td>'+esc(o.delivery_name)+'</td><td>v'+o.version_no+'</td><td class="qa-'+esc(o.qa_status)+'">'+esc(o.qa_status)+'</td><td><a href="#" data-dl-out="'+esc(o.id)+'">تنزيل</a></td></tr>';}).join('')+'</table>'):'<span class="note">لا مخرجات بعد.</span>';
+      h+='<div style="margin:.8rem 0"><button id="regen">🔁 أعد التوليد الآن</button></div>';
+      h+='<h4>المحادثة (آخر 100)</h4><div style="max-height:340px;overflow:auto;margin:.4rem 0">'+(d.messages||[]).map(function(m){return '<div class="msg '+esc(m.author)+'"><b>'+esc(m.author)+':</b> '+esc(m.body)+'</div>';}).join('')+'</div>';
+      h+='<div style="display:flex;gap:.5rem"><textarea id="cmsg" rows="2" style="flex:1" placeholder="رسالة للعميل باسم المستشار…"></textarea><button id="csend">إرسال</button></div>';
+      $('detail').innerHTML=h;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-role]'),function(sel){
+        sel.onchange=function(){post({action:'admin-set-role',ref:cur,file_id:sel.getAttribute('data-role'),role:sel.value}).then(function(r){if(!r.ok)alert('فشل تغيير الدور');});};
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-dl-out]'),function(a){a.onclick=function(ev){ev.preventDefault();get('admin-link','&id='+a.getAttribute('data-dl-out')+'&table=outputs').then(function(r){if(r.url)window.open(r.url,'_blank');});};});
+      Array.prototype.forEach.call(document.querySelectorAll('[data-dl-file]'),function(a){a.onclick=function(ev){ev.preventDefault();get('admin-link','&id='+a.getAttribute('data-dl-file')+'&table=files').then(function(r){if(r.url)window.open(r.url,'_blank');});};});
+      $('regen').onclick=function(){$('regen').disabled=true;$('regen').textContent='…';post({action:'admin-generate',ref:cur}).then(function(r){alert(r.ok?('تم — '+(r.outputs||[]).length+' مخرجات'):'فشل: '+(r.error||''));open(cur);});};
+      $('csend').onclick=function(){var v=$('cmsg').value.trim();if(!v)return;post({action:'admin-message',ref:cur,message:v}).then(function(r){if(r.ok){$('cmsg').value='';open(cur);}else alert('فشل الإرسال');});};
+    });
+  }
+  if(key)load();
+})();
+</script>
+</body></html>
