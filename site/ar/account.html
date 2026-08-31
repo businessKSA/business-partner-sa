@@ -11,14 +11,19 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
-      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0;
-      --text:#1F2430; --soft:#6a7085; --muted:#9aa0b4;
-      --ok:#16a34a; --ok-bg:#dcfce7; --ok-ink:#14532d;
+      /* Brand design system (owner, Aug 2026): navy #07163F, B10X blue #3159D8,
+         AI cyan #43D6F4, success mint #16B875, ground #F7F9FD. Same tokens as
+         the homepage and the admin command center, so the portal reads as the
+         same product. */
+      --navy:#07163f; --navy-700:#123b8e; --navy-900:#05102f;
+      --blue:#3159d8; --cyan:#43d6f4;
+      --bg:#F7F9FD; --surface:#fff; --line:#e5e9f2;
+      --text:#101a35; --soft:#68748d; --muted:#94a0b5;
+      --ok:#16b875; --ok-bg:#e6f9f1; --ok-ink:#0c6b46;
       --warn:#d97706; --warn-bg:#fef3c7; --warn-ink:#92400e;
       --bad:#dc2626; --bad-bg:#fee2e2; --bad-ink:#991b1b;
       --info-bg:#e0f2fe; --info-ink:#075985;
-      --r:14px; --shadow:0 6px 24px rgba(11,27,90,.07);
+      --r:16px; --shadow:0 10px 32px rgba(18,38,85,.06);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100dvh}
@@ -208,6 +213,21 @@
       .gov{grid-template-columns:repeat(2,1fr)}
       .qa{grid-template-columns:repeat(3,1fr)}
     }
+
+    /* ---- brand pass (Aug 2026): the portal wears the same design system as
+       the homepage and admin — token swap above does most of it; these rules
+       finish the chrome without touching any id or behavior. ---- */
+    .side{background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)}
+    .side nav button.on{background:#fff;color:#07163f;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+    .side nav button.on .b{background:var(--bad)}
+    .btn{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px}
+    .btn.sm{border-radius:9px}
+    .topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.92)}
+    .pagehead h2{letter-spacing:-.02em;font-size:1.22rem}
+    .card:hover,.panel:hover{border-color:#dbe3f2}
+    .stchip.on{background:var(--navy);border-color:var(--navy)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(49,89,216,.13)}
+
   </style>
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
 <script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script>
