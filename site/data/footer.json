@@ -92,6 +92,11 @@
           "href": "/compliance-agent",
           "en": "Compliance Agent",
           "ar": "وكيل الامتثال"
+        },
+        {
+          "href": "/ai-document-agent",
+          "en": "AI Document Agent",
+          "ar": "الوكيل الذكي للمستندات"
         }
       ]
     },

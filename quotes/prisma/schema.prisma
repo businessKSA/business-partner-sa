@@ -176,11 +176,33 @@ model Service {
   notesAr        String?
   notesEn        String?
 
+  /**
+   * فئة الموردين التي تُنفَّذ منها هذه الخدمة — workspace | housing | ...
+   *
+   * وجودها يحوّل طلب العميل من إصدار عرض فوري إلى طلب توريد بإعادة بيع:
+   * نستدرج عروض موردي الفئة ثم نبيع بسعرٍ واحد باسمنا. وفراغها يعني خدمة
+   * ننفّذها نحن بسعر الكتالوج.
+   */
+  sourcingCategory String?
+
   // ملحق الرسوم الحكومية المقدّرة يُدرج تلقائياً في عرض/عقد هذه الخدمة
   attachGovFees Boolean @default(false)
   govFeeGroup   String?
   // صلاحية العرض بالأيام إن اختلفت عن الافتراضي (قوى = 15)
   validityDays  Int?
+
+  // وسائل السداد المسموحة لهذه الخدمة، مفصولة بفواصل.
+  // فارغة = كل الوسائل المفعّلة في النظام.
+  paymentMethods String @default("")
+
+  // روابط الخدمة في المصادر الأخرى — تُملأ من المزامنة وتُعرض في خريطة الكتالوج.
+  notionPageId String? // معرّف صفحة الخدمة في كتالوج نوشن الرسمي
+  siteSlug     String? // مسار صفحة الخدمة على الموقع التعريفي
+  govPlatform  String? // الجهة الحكومية كما هي معلنة على الموقع وفي نوشن
+
+  // أثر آخر مزامنة: من أين جاء آخر تعديل ومتى.
+  syncSource String? // panel | notion | site
+  syncedAt   DateTime?
 
   active    Boolean  @default(true)
   aiCreated Boolean  @default(false) // أُضيفت عبر الوكيل الذكي بعد الاعتماد
@@ -314,7 +336,7 @@ model DocumentItem {
 
 // ------------------------------------------------------------- سجل الإرسال
 model Delivery {
-  id String @id @default(cuid())
+  id         String    @id @default(cuid())
   // الإرسال يخص مستنداً أو فاتورة — أحدهما لا كلاهما
   documentId String?
   document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -327,10 +349,10 @@ model Delivery {
   subject    String?
   body       String?
   // QUEUED | SENT | FAILED | PREPARED
-  status     String   @default("SENT")
+  status     String    @default("SENT")
   error      String?
   meta       String? // JSON
-  sentAt     DateTime @default(now())
+  sentAt     DateTime  @default(now())
   actor      String?
 
   @@index([documentId])
@@ -368,10 +390,47 @@ model Envelope {
   certPath      String?
   lastEventRaw  String? // JSON آخر تحديث من Connect
 
+  signatures Signature[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([documentId])
+}
+
+/// أثر التوقيع لكل طرف على حدة.
+///
+/// DocuSign يرسل `recipients` مع كل حدث (مطلوبة في eventData)، وكانت تُرمى
+/// كاملةً في `lastEventRaw` ولا تُقرأ — فلم يكن في النظام جواب للسؤال الذي
+/// يُسأل عند كل نزاع: مَن وقّع، بأي بريد، ومتى بالضبط. هنا صار محفوظاً صفاً
+/// لكل موقّع، وهو ما يظهر في رسالة الإتمام وفي اللوحة.
+model Signature {
+  id           String   @id @default(cuid())
+  envelopeDbId String
+  envelope     Envelope @relation(fields: [envelopeDbId], references: [id], onDelete: Cascade)
+
+  /// recipientId كما يعرّفه DocuSign — «1» العميل و«2» بزنس بارتنر
+  recipientId String
+  role        String // client | bp
+  name        String
+  email       String
+  /// sent | delivered | completed | declined | autoresponded
+  status      String
+
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  signedAt    DateTime?
+  declinedAt  DateTime?
+
+  /// من أين وُقّع — كما ترسله المنصة، وقد لا ترسله
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([envelopeDbId, recipientId])
+  @@index([envelopeDbId])
 }
 
 // ------------------------------------------------- الفواتير والدفع الإلكتروني
@@ -411,6 +470,22 @@ model Invoice {
   // نوع الإيداع: GOV_FEE (عهدة رسوم حكومية) | SUPPLY (قيمة توريد) | null = أتعاب
   depositKind     String?
 
+  // الفاتورة الضريبية المعتمدة تصدر من الدفترة، لا من هنا. `number` أعلاه رقم
+  // مطالبة السداد في هذه اللوحة؛ والرقم الضريبي هو `daftraNumber` — تسلسل واحد
+  // للمنشأة كما تشترط هيئة الزكاة والضريبة، لا تسلسلان.
+  /// معرّف الطلبية لدى تمارا — يُكتب عند فتح جلسة السداد قبل الدفع، فهو
+  /// الرابط الوحيد بين إشعار تمارا وهذه الفاتورة.
+  tamaraOrderId String?
+  /// approved | authorised | captured | declined | expired | canceled
+  tamaraStatus  String?
+  tamaraError   String?
+
+  daftraId       String?
+  daftraNumber   String?
+  daftraPdfUrl   String? // رابط الفاتورة في الدفترة حين لا يُسلَّم الملف
+  daftraIssuedAt DateTime?
+  daftraError    String? // آخر سبب تعذّر، ليُرى في اللوحة بدل أن يُبتلع
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -418,6 +493,7 @@ model Invoice {
 
   @@index([clientId])
   @@index([status])
+  @@index([tamaraOrderId])
 }
 
 // --------------------------------------------------------- محفظة العميل
@@ -465,11 +541,55 @@ model Supplier {
   notes      String?
   active     Boolean @default(true)
 
+  // تصنيفات التوجيه: أكواد مفصولة بفواصل — «مساحات-عمل,سكن-عمال».
+  // النشاط الحرّ (activityAr) يوصف للبشر ولا يُوجَّه به: طلب يمضي إلى من
+  // «نشاطه يذكر العقار» يمضي إلى من ذكرها عرضاً وإلى من يعمل بها سواءً.
+  categories String?
+  city       String?
+  // صفّه في قاعدة موردي نوشن — المزامنة تطابق به لا بالاسم.
+  notionPageId String? @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   bids  SupplierBid[]
+  rfps  SupplierRfp[]
   files FileAsset[]
+
+  @@index([active])
+}
+
+/**
+ * طلب عرض سعر مُرسَل إلى مورد بعينه.
+ *
+ * لولا هذا الجدول لما عُرف من سُئل ومتى: «أرسلنا للموردين» جملة لا تُراجَع،
+ * ومن لم يردّ لا يُذكَّر لأن أحداً لا يعرف أنه لم يردّ. ولكل صف رمزه الذي
+ * يفتح به المورد صفحة ردّه — بلا حساب ولا كلمة مرور، فالمورد ليس مستخدماً
+ * في النظام ولن يسجّل فيه ليقدّم سعراً.
+ */
+model SupplierRfp {
+  id              String        @id @default(cuid())
+  supplyRequestId String
+  supplyRequest   SupplyRequest @relation(fields: [supplyRequestId], references: [id], onDelete: Cascade)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  token String @unique
+
+  sentAt      DateTime?
+  openedAt    DateTime?
+  respondedAt DateTime?
+  declinedAt  DateTime?
+  expiresAt   DateTime?
+
+  bidId String?      @unique
+  bid   SupplierBid? @relation("RfpBid", fields: [bidId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([supplyRequestId, supplierId])
+  @@index([supplyRequestId])
 }
 
 model SupplyRequest {
@@ -486,8 +606,29 @@ model SupplyRequest {
   // DRAFT | QUOTING | SELECTED | AGREEMENT | FUNDED | IN_PROGRESS | COMPLETED | CANCELLED
   status String @default("DRAFT")
 
-  // نسبة/رسوم تنسيق بزنس بارتنر
+  // نسبة/رسوم تنسيق بزنس بارتنر — في الوضع الثلاثي تُعرض سطراً مستقلاً
   coordinationFee Float @default(0)
+
+  /**
+   * TRIPARTITE — اتفاقية ثلاثية شفافة: العميل يرى المورد واسمه وسجله،
+   *              والأتعاب سطر مستقل، والمال أمانة في محفظة تُصرف بمراحل.
+   * RESALE      — بزنس بارتنر هي المتعاقد: تشتري من المورد وتبيع للعميل
+   *              بسعر واحد يشمل الهامش، ولا يظهر المورد في مستند العميل.
+   *
+   * الوضعان لا يُدمجان: في الثلاثي المال يمرّ ولا يُملَك فلا ربح فيه، وفي
+   * إعادة البيع المبلغ كله إيراد لنا وتكلفة المورد مصروف. خلطهما يخلط
+   * الدفاتر ويجعل الفاتورة الضريبية تقول ما لم يحدث.
+   */
+  mode String @default("TRIPARTITE")
+
+  /** هامش إعادة البيع نسبةً من عرض المورد. 0.10 = عشرة بالمئة. */
+  markupPct Float @default(0.10)
+
+  /** رمز الخدمة التي جاء منها الطلب — به تُختار فئات الموردين. */
+  serviceCode String?
+
+  /** ما كتبه العميل في نموذج الطلب، كما كتبه. */
+  intakeAr String?
 
   selectedBidId String?      @unique
   selectedBid   SupplierBid? @relation("SelectedBid", fields: [selectedBidId], references: [id])
@@ -496,6 +637,7 @@ model SupplyRequest {
   updatedAt DateTime @updatedAt
 
   bids       SupplierBid[] @relation("RequestBids")
+  rfps       SupplierRfp[]
   milestones Milestone[]
   documents  Document[]
   files      FileAsset[]
@@ -517,13 +659,19 @@ model SupplierBid {
   deliveryEn String?
   notesAr    String?
   notesEn    String?
+  /** أصل مستند المورد كما رفعه — يُحفظ ولا يُرسل للعميل. */
   filePath   String?
+  /** النص المستخرج من مستند المورد، خاماً قبل التنقية. */
+  extractedRaw String?
+  /** البنود المستخرجة بعد التنقية، JSON — منها يُبنى عرض العميل. */
+  extractedJson String?
   // RECEIVED | SHORTLISTED | SELECTED | REJECTED
   status     String  @default("RECEIVED")
 
   createdAt DateTime @default(now())
 
   selectedFor SupplyRequest? @relation("SelectedBid")
+  rfp         SupplierRfp?   @relation("RfpBid")
 
   @@index([supplyRequestId])
 }

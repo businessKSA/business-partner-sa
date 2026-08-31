@@ -15,7 +15,7 @@ const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.joi
 const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
 const BDAAS_JS_V = assetV("assets/js/business-development.js");
-
+const LIVE_V = assetV("assets/js/live-prices.js");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -128,6 +128,110 @@ const WA_SUPPORT = site.whatsappSupport || site.whatsapp;
 // this site — a hardcoded absolute link here used to land compliance clients
 // in the specialized-team portal with a code it didn't recognize.)
 const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
+// بوابة العميل: عرض سعر رسمي وعقد وفاتورة ضريبية. مسار موازٍ للسلة — السلة
+// شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل إلى نطاق
+// فرعي من businesspartner.sa دون تعديل الشيفرة.
+const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+const portalQuoteUrl = (code) =>
+  `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
+
+// كود الباقة مكتوب صراحةً في بيانات الموقع (BP-PKG-LAUNCH)، فيُطابَق به.
+// والرجوع إلى PKG-<key> للصفوف التي لم يُكتب لها كود بعد.
+const pkgCode = (t) => String(t.code || `PKG-${String(t.key || "").toUpperCase()}`).toUpperCase();
+
+// الباقة تحمل كود نوشن (BP-PKG-LAUNCH) بينما تحمله اللوحة بكودها القديم
+// (PKG-SILVER)، فلا يجد أحدهما الآخر. الجسر هنا صريح ومقروء، ويصير بلا أثر
+// يوم تُوحَّد الأكواد في اللوحة.
+const PKG_ALIAS = {
+  "BP-PKG-LAUNCH": "PKG-SILVER",
+  "BP-PKG-GROWTH": "PKG-GOLD",
+  "BP-PKG-SCALE": "PKG-PLATINUM",
+  "BP-PKG-ENTERPRISE": "PKG-DIAMOND",
+  "BP-PKG-FORM-FOREIGN": "PKG-FOREIGN-FORMATION",
+  "BP-PKG-FORM-SAUDI": "PKG-SAUDI-GULF-FORMATION",
+  "BP-PKG-LEGAL-STRAT": "PKG-STRATEGIC",
+  "BP-PKG-LEGAL-COMP": "PKG-COMPREHENSIVE",
+  "BP-PKG-LEGAL-ADV": "PKG-ADVANCED",
+  "BP-PKG-LEGAL-BASIC": "PKG-BASIC-LEGAL",
+  "BP-PKG-SVC-STARTER": "PKG-S"
+};
+const panelRow = (code) =>
+  PANEL_PRICES.get(code) || PANEL_PRICES.get(PKG_ALIAS[code] || "");
+
+// قرار المالك (٣١ أغسطس ٢٠٢٦) عكس قرار ٢٥ أغسطس: أسعار لوحة العميل — أي ملفات
+// الموقع نفسها التي يقرأها متجر اللوحة عبر catalog.json — هي المرجع على كل
+// الموقع وكل الجذور. سحب أسعار لوحة bp-quotes وقت البناء كان يجعل صفحات الموقع
+// المنشورة تخالف متجر لوحة العميل (١٣ خدمة اختلفت، مثل BP-SBC-02: ٨٥ مقابل
+// ٢٥٠). الآن السحب اختياري صراحةً (CATALOG_FROM_PANEL=1) ولا يعمل افتراضياً.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL === "1";
+const PANEL_PRICES = new Map();
+if (CATALOG_FROM_PANEL) {
+  try {
+    const r = await fetch(`${CLIENT_PORTAL_URL}/api/catalog`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const live = await r.json();
+    for (const row of live.services || []) PANEL_PRICES.set(String(row.code).toUpperCase(), row);
+    console.log(`أسعار اللوحة: ${PANEL_PRICES.size} خدمة.`);
+  } catch (e) {
+    console.warn(`تعذّر سحب أسعار اللوحة (${e.message}) — البناء يكمل بأسعار ملفات الموقع.`);
+  }
+}
+
+// وحدات اللوحة كُتبت بصيغ متفاوتة («شهر» و«شهرياً») وتُقرأ في جملة سعر، فتُوحَّد.
+const UNIT_AR = { "شهر": "شهرياً", "سنة": "سنوياً", "شهري": "شهرياً" };
+
+function panelLabel(row, fallback) {
+  if (row.openPrice || !(row.unitPrice > 0)) return fallback;
+  const n = new Intl.NumberFormat("en-US").format(row.unitPrice);
+  const raw = String(row.unitAr || "").trim();
+  const unit = UNIT_AR[raw] || raw;
+  return unit && unit !== "خدمة" ? `${n} ﷼ / ${unit}` : `${n} ﷼`;
+}
+
+// نص سعر الباقة يحمل الرقم داخله، فلا يكفي تعديل amount: الزائر يقرأ النص.
+// يُستبدل الرقم وحده ويبقى ما حوله كما كُتب، وتُنزع «تبدأ من» لأن السعر ثابت.
+function repriceLabel(label, amount) {
+  if (!label) return label;
+  const n = new Intl.NumberFormat("en-US").format(amount);
+  return String(label)
+    .replace(/^\s*(تبدأ من|يبدأ من|ابتداءً من)\s*/u, "")
+    .replace(/^\s*Starting from\s*/i, "")
+    .replace(/[\d][\d,\.]*/, n);
+}
+
+let repriced = 0;
+for (const svc of services) {
+  const row = PANEL_PRICES.get(String(svc.code || "").toUpperCase());
+  if (!row) continue;
+  const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+  if ((svc.price && svc.price.amount) === amount) continue;
+  svc.price = {
+    label: panelLabel(row, (svc.price && svc.price.label) || ""),
+    amount,
+    note: (svc.price && svc.price.note) || null,
+    noteEn: (svc.price && svc.price.noteEn) || null,
+  };
+  repriced++;
+}
+for (const g of site.packages.groups || []) {
+  for (const t of g.tiers || []) {
+    const row = panelRow(pkgCode(t));
+    if (!row) continue;
+    const amount = row.openPrice || !(row.unitPrice > 0) ? null : row.unitPrice;
+    if (t.amount === amount) continue;
+    t.amount = amount;
+    if (amount != null) {
+      t.price = repriceLabel(t.price, amount);
+      t.priceEn = repriceLabel(t.priceEn, amount);
+    }
+    repriced++;
+  }
+}
+if (repriced) console.log(`عُدِّل سعر ${repriced} صفاً من اللوحة.`);
+
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ---------- SVG icons ---------- */
@@ -371,7 +475,7 @@ const parseAmount = (str) => {
 const KIND_TOPIC = { package: "other", agent: "ai", misa: "misa", service: "other" };
 // Priced items → "Add to cart". Price-less items → "Book a consultation" (there is
 // no price to pay online, so we route the client to a booking + simple form).
-function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
+function cartBtns({ id, code, nameEn, nameAr, amount, priceLabel, kind = "service", ghost = false, surchargeAmount, surchargeFreeCount }) {
   if (amount == null) {
     const topic = KIND_TOPIC[kind] || "other";
     const about = encodeURIComponent(LANG === "ar" ? nameAr : (nameEn || nameAr));
@@ -382,7 +486,8 @@ function cartBtns({ id, nameEn, nameAr, amount, priceLabel, kind = "service", gh
   // Keep data-id ASCII (ids may be built from Arabic names) and localize the shown price label.
   const safeId = /[^\x00-\x7F]/.test(String(id)) ? asciiId(kind, id) : id;
   const surData = surchargeAmount != null ? ` data-surcharge-amount="${surchargeAmount}" data-surcharge-free="${surchargeFreeCount || 0}"` : "";
-  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}`;
+  const bp = code ? ` data-bp-code="${esc(String(code).toUpperCase())}"` : "";
+  const data = `data-id="${esc(safeId)}" data-name-en="${esc(nameEn || nameAr)}" data-name-ar="${esc(nameAr)}" data-amount="${amount}" data-price="${esc(localizeLabel(priceLabel || ""))}" data-kind="${esc(kind)}"${surData}${bp}`;
   return `<div class="buy-row">
     <button type="button" class="btn ${ghost ? "btn-ghost" : "btn-primary"} add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف إلى السلة")}</span></button>
   </div>`;
@@ -415,7 +520,12 @@ function head(title, desc, path) {
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
 <link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice. */
+if(!s){if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -648,10 +758,13 @@ function advisorWidget() {
   </section>`;
 }
 
-function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "" }) {
+function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "", bodyClass = "" }) {
   const p = path || active || "/";
   return (
-    head(title, desc, p).replace("</head>", extraHead + "</head>").replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>") +
+    head(title, desc, p)
+      .replace("</head>", extraHead + "</head>")
+      .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
+      .replace("<body>", bodyClass ? `<body class="${bodyClass}">` : "<body>") +
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
@@ -660,7 +773,7 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     // (guided desk: services → quote, book a consultation, and live chat)
     // alongside the green WhatsApp button.
     advisorWidget() +
-    `<script src="/assets/js/main.js?v=${JS_V}"></script>${script}</body></html>`
+    `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
 
@@ -812,135 +925,560 @@ function serviceQuickFacts(s, ov) {
 }
 
 /* ---------- pages ---------- */
+/* ---------- homepage conversion block ---------- */
+// The hero filled only its left half and the page carried no purchasable item
+// above the fold: a visitor who arrived ready to buy had to guess their way
+// into /services. These two blocks give them a path in one screen — tell us
+// what you need (lead → CRM), or buy one of the six most-requested services
+// outright.
+//
+// The six codes are real catalog entries (site/data/services.json); their
+// prices come from the same source every other page reads, so nothing here can
+// drift from what checkout charges.
+const HOME_QUICK_CODES = ["BP-SBC-02", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", "BP-MUQEEM-03", "BP-BALADY-01"];
+
+/* ============================================================================
+   Homepage — single source.
+
+   Everything the homepage renders is built here, in document order. There used
+   to be seven post-build scripts (home-clarity, home-hierarchy-v2,
+   home-positioning-v3, home-final-layout, home-brand-v5, home-b10x-sales,
+   home-order-guard-v7) that injected a second homepage after </header>, hid the
+   generated one with `display:none`, and then raced each other with
+   insertAdjacentElement + setTimeout to settle the section order. The visible
+   symptom was a B10X block flashing above the hero on every load. Order is
+   now decided once, here, by the order of the sections in `body` — there is
+   nothing left to re-sort at runtime.
+
+   Design tokens are the brand set: navy #07163F, B10X blue #3159D8, AI cyan
+   #43D6F4, success mint #16B875, background #F7F9FD.
+   ========================================================================== */
+
+const homeCss = `<style>
+.bph{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.bph *{box-sizing:border-box}
+.bph a{text-decoration:none}
+.bph .bph-wrap{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.bph section{padding:70px 0}
+.bph .bph-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.bph .bph-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.bph .bph-head{max-width:820px;margin:0 auto 30px;text-align:center}
+.bph .bph-head h2{margin:0;color:var(--n);font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.08;letter-spacing:-.045em}
+.bph .bph-head p{margin:12px 0 0;color:var(--mut);line-height:1.85;font-size:.95rem}
+.bph .bph-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--n);font-weight:800;font-size:.88rem;cursor:pointer}
+.bph .bph-btn.primary{border:0;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;box-shadow:0 13px 30px rgba(36,75,184,.18)}
+.bph .bph-btn.white{background:#fff;color:#0a286c;border:0}
+.bph .bph-btn.ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff}
+
+/* 1 — hero */
+.bph .bph-hero{padding:56px 0 30px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.bph .bph-hero h1{max-width:1000px;margin:17px auto 14px;font-size:clamp(2.4rem,4.4vw,4.1rem);line-height:1.03;letter-spacing:-.05em;color:var(--n)}
+.bph .bph-hero h1 span{background:linear-gradient(100deg,var(--b),#647eff 52%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bph .bph-hero p.bph-lead{max-width:900px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1.02rem}
+.bph .bph-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px auto 0;max-width:1020px}
+.bph .bph-chips a{padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.75rem;font-weight:800;box-shadow:0 5px 16px rgba(9,30,78,.04)}
+.bph .bph-chips a:hover{border-color:#9fb2ef}
+.bph .bph-proofline{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:17px auto 0;color:#7c879c;font-size:.7rem;font-weight:750}
+.bph .bph-proofline b{color:var(--b)}
+.bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
+.bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+
+/* 2 — chat: the control plane, large and centred */
+.bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
+.bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
+.bph .bph-chat{border-radius:28px;background:#fff;overflow:hidden}
+.bph .bph-chat-head{height:54px;padding:0 16px;border-bottom:1px solid #edf0f5;display:flex;align-items:center;justify-content:space-between}
+.bph .bph-chat-title{display:flex;align-items:center;gap:9px;color:var(--n);font-size:.79rem;font-weight:900}
+.bph .bph-chat-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-size:.6rem}
+.bph .bph-chat-live{font-size:.62rem;color:#0f8e57;background:#eaf9f2;padding:5px 9px;border-radius:999px;font-weight:800}
+.bph .bph-chat-body{padding:16px;min-height:240px;max-height:330px;overflow:auto;background:linear-gradient(180deg,#fbfcff,var(--soft))}
+.bph .bph-msg{max-width:88%;padding:11px 13px;border-radius:14px;margin-bottom:9px;font-size:.79rem;line-height:1.7;white-space:pre-wrap}
+.bph .bph-msg.ai{background:#fff;border:1px solid #e6eaf2;color:#34415c}
+.bph .bph-msg.user{margin-inline-start:auto;background:linear-gradient(135deg,var(--n),var(--b));color:#fff}
+.bph .bph-chat-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
+.bph .bph-chat-chips button{border:1px solid #dfe5f0;background:#fff;color:#36559d;border-radius:999px;padding:7px 11px;font-size:.68rem;cursor:pointer;font-weight:800}
+.bph .bph-chat-chips button:hover{border-color:#9fb2ef}
+.bph .bph-compose{display:flex;align-items:center;gap:9px;padding:12px;border-top:1px solid #e9edf4}
+.bph .bph-compose textarea{flex:1;resize:none;min-height:48px;max-height:110px;border:1px solid #dfe5ef;border-radius:13px;padding:12px;outline:none;background:#fbfcff;font:inherit;font-size:.85rem}
+.bph .bph-compose button{width:48px;height:48px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;cursor:pointer;font-weight:900;font-size:1.1rem}
+.bph .bph-chat-note{text-align:center;color:#929bad;font-size:.63rem;padding:0 14px 12px}
+
+/* 3 — B10X sales */
+.bph .bph-b10x{padding:68px 0;background:radial-gradient(circle at 88% 8%,rgba(67,214,244,.17),transparent 25%),linear-gradient(145deg,var(--n),#123b8e);color:#fff;position:relative;overflow:hidden}
+.bph .bph-b10x:before{content:'B10X';position:absolute;inset-inline-start:-18px;bottom:-72px;font-size:15rem;line-height:1;font-weight:950;letter-spacing:-.09em;color:rgba(255,255,255,.025);pointer-events:none}
+.bph .bph-b10x .bph-wrap{position:relative;z-index:1}
+.bph .bph-b10x-intro{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:end;margin-bottom:26px}
+.bph .bph-b10x .bph-eyebrow{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;font-size:.66rem;font-weight:900;color:#aeefff}
+.bph .bph-b10x h2{font-size:clamp(2.4rem,4.6vw,4.5rem);line-height:1;letter-spacing:-.055em;margin:13px 0 0;color:#fff}
+.bph .bph-b10x-intro p{margin:0;color:rgba(255,255,255,.7);font-size:.94rem;line-height:1.9;max-width:660px}
+.bph .bph-promise{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:22px 0 26px}
+.bph .bph-promise div{padding:13px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);border-radius:16px}
+.bph .bph-promise b{display:block;font-size:.78rem}
+.bph .bph-promise span{display:block;margin-top:4px;color:rgba(255,255,255,.55);font-size:.63rem;line-height:1.55}
+.bph .bph-b10x-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.bph .bph-panel{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);border-radius:24px;padding:20px}
+.bph .bph-panel h3{margin:0 0 14px;font-size:1rem;color:#fff}
+.bph .bph-caps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bph .bph-cap{padding:12px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075)}
+.bph .bph-cap b{display:block;font-size:.75rem}
+.bph .bph-cap span{display:block;font-size:.63rem;line-height:1.6;color:rgba(255,255,255,.57);margin-top:4px}
+.bph .bph-request{background:#fff;color:#17254d;border-radius:20px;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.14)}
+.bph .bph-request-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.bph .bph-request-top strong{font-size:.9rem}
+.bph .bph-badge{font-size:.58rem;padding:5px 9px;border-radius:999px;background:#eaf8f1;color:#108657;font-weight:850}
+.bph .bph-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #edf0f5;font-size:.69rem;color:#657087}
+.bph .bph-row:last-child{border-bottom:0}
+.bph .bph-row b{color:#1d2b50;text-align:end}
+/* Latin left-to-right chain: in an RTL page a plain flex row renders it
+   Track → … → Ask, i.e. backwards. */
+.bph .bph-flow{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin:26px 0 20px;direction:ltr}
+.bph .bph-flow span{font-size:.67rem;font-weight:850;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+.bph .bph-flow i{font-style:normal;color:#7ee7ff}
+.bph .bph-b10x-cta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+
+/* 4 — services */
+.bph .bph-services{padding:58px 0 66px;background:#fff}
+.bph .bph-ai-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}
+.bph .bph-ai-card{display:block;border-radius:20px;padding:17px 18px;border:1px solid #dfe5f0;background:linear-gradient(145deg,#fff,#f8faff);min-height:130px;position:relative;overflow:hidden}
+.bph .bph-ai-card:hover{box-shadow:0 14px 38px rgba(20,49,125,.09);border-color:#afc0f0}
+.bph .bph-ai-card:after{content:'AI';position:absolute;inset-inline-start:13px;bottom:-13px;font-size:3.3rem;font-weight:950;color:rgba(40,83,198,.035)}
+.bph .bph-ai-card small{display:inline-flex;padding:5px 8px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.59rem;font-weight:900;margin-bottom:16px}
+.bph .bph-ai-card strong{display:block;color:#142653;font-size:.87rem;margin-bottom:6px}
+.bph .bph-ai-card span{display:block;color:#778198;font-size:.69rem;line-height:1.7}
+.bph .bph-label{font-size:.7rem;font-weight:900;color:#6f7b92;margin:26px 2px 12px;letter-spacing:.04em}
+.bph .bph-cap-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bph .bph-capcard{display:block;min-height:152px;border-radius:20px;padding:17px;border:1px solid var(--line);background:#fff}
+.bph .bph-capcard:hover{border-color:#b7c4e8;box-shadow:0 12px 34px rgba(15,39,103,.08)}
+.bph .bph-capcard i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.72rem;margin-bottom:16px}
+.bph .bph-capcard strong{display:block;font-size:.83rem;color:#172854;margin-bottom:6px}
+.bph .bph-capcard span{display:block;font-size:.68rem;line-height:1.7;color:#778198}
+
+/* 5 — start now + buy now */
+.bph .bph-start{padding:62px 0;background:var(--soft)}
+.bph .bph-start-grid{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.15fr);gap:26px;align-items:start}
+.bph .hero-start{background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:20px;padding:26px 24px 22px;box-shadow:0 18px 46px rgba(11,27,90,.13)}
+.bph .hs-title{margin:0 0 6px;font-size:1.35rem;color:var(--n)}
+.bph .hs-sub{margin:0 0 18px;color:var(--mut);font-size:.92rem;line-height:1.65}
+.bph .hs-label{display:block;font-weight:700;font-size:.85rem;color:var(--n);margin:0 0 6px}
+.bph .hs-field{width:100%;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;font:inherit;font-size:.93rem;background:#fff;color:inherit}
+.bph .hs-field:focus{outline:none;border-color:var(--b);box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+.bph .hs-go{width:100%}
+.bph .hs-msg{margin:12px 0 0;font-size:.88rem;line-height:1.6}
+.bph .hs-msg.err{color:#b91c1c}
+.bph .hs-msg.ok{color:#166534}
+.bph .hs-alt{margin:12px 0 0;font-size:.83rem;color:var(--mut);text-align:center}
+.bph .hs-alt a{color:var(--b);font-weight:700}
+.bph .qb-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.bph .qb-head h2{margin:6px 0 0;color:var(--n);font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.04em}
+.bph .qb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bph .qb-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 6px 20px rgba(11,27,90,.05)}
+.bph .qb-cat{font-size:.63rem;font-weight:800;color:#6f7b92;margin-bottom:7px}
+.bph .qb-card h3{margin:0 0 9px;font-size:.87rem;line-height:1.55;color:#172854}
+.bph .qb-card .price-amt{font-size:1.15rem;font-weight:850;color:var(--n);margin-bottom:10px}
+.bph .qb-note{margin:0 0 10px;font-size:.7rem;color:var(--mut)}
+.bph .qb-actions{margin-top:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bph .qb-actions .add-cart{font-size:.76rem;padding:9px 13px;border-radius:11px}
+.bph .qb-more{font-size:.73rem;font-weight:800;color:var(--b)}
+.bph .qb-foot{margin:16px 0 0;font-size:.72rem;color:var(--mut);text-align:center}
+
+/* 6 — packages */
+.bph .bph-packages{padding:62px 0;background:#fff}
+.bph .bph-pkg-grid{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:11px;align-items:stretch}
+.bph .bph-pkg{border:1px solid var(--line);border-radius:22px;padding:20px;background:#fff;display:flex;flex-direction:column}
+.bph .bph-pkg h3{margin:0 0 7px;color:var(--n)}
+.bph .bph-pkg p{margin:0;color:var(--mut);font-size:.72rem;line-height:1.65;min-height:44px}
+.bph .bph-pkg ul{list-style:none;padding:0;margin:16px 0 20px;display:grid;gap:8px}
+.bph .bph-pkg li{font-size:.7rem;color:#536077}
+.bph .bph-pkg li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.bph .bph-pkg .bph-btn{margin-top:auto;text-align:center}
+.bph .bph-pkg.b10x{position:relative;overflow:hidden;border:0;color:#fff;background:radial-gradient(circle at 90% 5%,rgba(67,214,244,.18),transparent 28%),linear-gradient(145deg,var(--n),#153f96);box-shadow:0 20px 55px rgba(24,57,145,.19)}
+.bph .bph-pkg.b10x:before{content:'B10X';position:absolute;inset-inline-start:-5px;bottom:-25px;font-size:5.5rem;font-weight:950;letter-spacing:-.08em;color:rgba(255,255,255,.045)}
+.bph .bph-pkg.b10x h3{color:#fff;font-size:1.45rem}
+.bph .bph-pkg.b10x p,.bph .bph-pkg.b10x li{color:rgba(255,255,255,.74)}
+.bph .bph-pkg.b10x li:before{color:#56e2b0}
+.bph .bph-pkg.b10x .bph-btn{position:relative;z-index:1}
+
+/* 7 — client portal proof */
+.bph .bph-proof{padding:62px 0 72px;background:var(--soft)}
+.bph .bph-proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bph .bph-proof-card{border:1px solid var(--line);border-radius:22px;padding:22px;background:#fff;box-shadow:0 8px 28px rgba(10,28,78,.05)}
+.bph .bph-proof-card.dark{background:linear-gradient(145deg,var(--n),#123984);color:#fff;border:0}
+.bph .bph-proof-card h3{margin:0 0 14px;color:var(--n)}
+.bph .bph-proof-card.dark h3{color:#fff}
+.bph .bph-mini{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:.73rem;color:#5d687d}
+.bph .bph-proof-card.dark .bph-mini{border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.72)}
+.bph .bph-status{font-size:.59rem;padding:4px 8px;border-radius:999px;background:#eaf8f1;color:#118657;font-weight:800}
+.bph .bph-proof-card.dark .bph-status{background:rgba(255,255,255,.12);color:#fff}
+.bph .bph-proof-card .bph-btn{margin-top:16px}
+
+/* The homepage carries its own full-width advisor; the floating one duplicates it. */
+body.bph-page .advisor-fab,body.bph-page .advisor-panel,body.bph-page .advisor-teaser{display:none!important}
+/* Compact footer — the homepage ends on a CTA, not on a sitemap. */
+body.bph-page .site-footer .newsletter-band,body.bph-page .site-footer .footer-grid{display:none!important}
+body.bph-page .site-footer{padding:0!important}
+body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!important;border:0!important}
+
+@media(max-width:1080px){
+  .bph .bph-ai-row,.bph .bph-cap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-pkg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-start-grid{grid-template-columns:1fr}
+}
+@media(max-width:980px){
+  .bph .bph-b10x-intro,.bph .bph-b10x-grid,.bph .bph-proof-grid{grid-template-columns:1fr}
+  .bph .bph-promise{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:640px){
+  .bph .bph-wrap{width:min(100% - 26px,1180px)}
+  .bph section{padding:50px 0}
+  .bph .bph-hero{padding:38px 0 20px}
+  .bph .bph-hero h1{font-size:2.55rem}
+  .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
+  .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
+  .bph .bph-b10x h2{font-size:2.6rem}
+}
+</style>`;
+
+// Sends the «ابدأ الآن» box to /api/requests as a "quick-start" lead, and runs
+// the homepage advisor against /api/chat. Kept inline and dependency-free so
+// both work on first paint, before main.js has parsed.
+function homeScript() {
+  const T = (en, ar) => JSON.stringify(Lraw(en, ar));
+  return `<script>
+(function () {
+  var go = document.getElementById("hsGo"), svc = document.getElementById("hsSvc"),
+      ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
+  if (go && svc && ph && msg) {
+    var say = function (text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); };
+    // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
+    var normPhone = function (v) {
+      var d = String(v || "").replace(/[^\\d]/g, "").replace(/^00/, "");
+      if (/^9665\\d{8}$/.test(d)) return d;
+      if (/^05\\d{8}$/.test(d)) return "966" + d.slice(1);
+      if (/^5\\d{8}$/.test(d)) return "966" + d;
+      return "";
+    };
+    go.addEventListener("click", function () {
+      if (!svc.value) { say(${T("Please choose a service.", "من فضلك اختر الخدمة.")}, "err"); svc.focus(); return; }
+      var phone = normPhone(ph.value);
+      if (!phone) { say(${T("Enter a valid Saudi mobile number (05XXXXXXXX).", "أدخل رقم جوال سعودي صحيح (05XXXXXXXX).")}, "err"); ph.focus(); return; }
+      var picked = svc.options[svc.selectedIndex];
+      go.disabled = true;
+      say(${T("Sending…", "جاري الإرسال…")}, "");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "quick-start", code: svc.value, service: picked ? picked.text : svc.value, phone: phone, lang: document.documentElement.lang || "ar" })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error("failed");
+          say(${T("Received ✓ Our team will call you shortly. Reference: ", "وصلنا طلبك ✓ سيتواصل معك فريقنا قريباً. رقم المرجع: ")} + d.ref, "ok");
+          ph.value = ""; svc.selectedIndex = 0;
+        })
+        .catch(function () {
+          say(${T("Sending failed — please book a consultation instead.", "تعذّر الإرسال — يمكنك حجز استشارة بدلاً من ذلك.")}, "err");
+        })
+        .then(function () { go.disabled = false; });
+    });
+    ph.addEventListener("keydown", function (e) { if (e.key === "Enter") go.click(); });
+  }
+
+  var form = document.getElementById("bphChatForm"), input = document.getElementById("bphChatInput"),
+      body = document.getElementById("bphChatBody");
+  if (!form || !input || !body) return;
+  var history = [];
+  function add(text, role) {
+    var d = document.createElement("div");
+    d.className = "bph-msg " + role; d.textContent = text;
+    body.appendChild(d); body.scrollTop = body.scrollHeight; return d;
+  }
+  function ask(q) {
+    if (!q) return;
+    add(q, "user"); history.push({ role: "user", content: q }); input.value = "";
+    var wait = add(${T("Thinking…", "المستشار يفكر…")}, "ai");
+    fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        wait.remove();
+        var reply = String(j.reply || j.message || ${T("No reply right now — please try again.", "تعذر الرد الآن. جرّب مرة ثانية.")});
+        add(reply, "ai"); history.push({ role: "assistant", content: reply });
+      })
+      .catch(function () { wait.textContent = ${T("Could not reach the advisor. Please try again shortly.", "تعذر الاتصال بالمستشار الآن. جرّب مرة ثانية بعد لحظات.")}; });
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value.trim()); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(input.value.trim()); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-chat-q]"), function (b) {
+    b.addEventListener("click", function () { ask(b.getAttribute("data-chat-q")); });
+  });
+})();
+</script>`;
+}
+
+// «ابدأ الآن» — one dropdown, one phone field, one button. Deliberately asks
+// for nothing else: every extra field costs conversions, and the team can get
+// the rest on the call.
+function heroStartBox() {
+  const quick = HOME_QUICK_CODES.map((c) => services.find((s) => s.code === c)).filter(Boolean);
+  const opt = (s) => `<option value="${esc(s.code)}">${esc(sName(s))}</option>`;
+  const groups = categories
+    .map((c) => {
+      const inCat = services.filter((s) => s.category === c.key);
+      if (!inCat.length) return "";
+      return `<optgroup label="${esc(catLabel(c.key))}">${inCat.map(opt).join("")}</optgroup>`;
+    })
+    .join("");
+  return `<aside class="hero-start" id="heroStart">
+    <h2 class="hs-title">${L("Start now", "ابدأ الآن")}</h2>
+    <p class="hs-sub">${L("Pick your service, leave your mobile — we reply and prepare your documents.", "اختر خدمتك واترك رقم جوالك — نتواصل معك ونبدأ بتجهيز مستنداتك.")}</p>
+    <label class="hs-label" for="hsSvc">${L("Which service do you need?", "أي خدمة تحتاج؟")}</label>
+    <select class="hs-field" id="hsSvc">
+      <option value="">${L("Choose a service…", "اختر الخدمة…")}</option>
+      <optgroup label="${L("Most requested", "الأكثر طلباً")}">${quick.map(opt).join("")}</optgroup>
+      ${groups}
+      <option value="other">${L("Something else / not sure", "شيء آخر / لست متأكداً")}</option>
+    </select>
+    <label class="hs-label" for="hsPhone">${L("Mobile number", "رقم الجوال")}</label>
+    <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
+    <button type="button" class="bph-btn primary hs-go" id="hsGo">${L("Start now", "ابدأ الآن")}</button>
+    <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
+    <p class="hs-alt">${L("Or", "أو")} <a href="${u("/consultation")}">${L("book a free consultation", "احجز استشارة مجانية")}</a> — ${L("no cost, no commitment.", "بدون تكلفة أو التزام.")}</p>
+  </aside>`;
+}
+
+// The six most-requested services, buyable from the homepage. Prices ride the
+// existing owner policy: .price-amt is hidden while SHOW_PRICES is false and
+// appears automatically once a client is signed in, so this strip never leaks
+// a price the rest of the site is withholding.
+function homeQuickBuy() {
+  const cards = HOME_QUICK_CODES.map((code) => {
+    const s = services.find((x) => x.code === code);
+    if (!s || s.price.amount == null) return "";
+    const data = `data-id="${esc(s.slug)}" data-name-en="${esc(s.name)}" data-name-ar="${esc(sNameArOf(s))}" data-amount="${s.price.amount}" data-price="${esc(localizeLabel(s.price.label || ""))}" data-kind="service" data-bp-code="${esc(s.code)}"`;
+    return `<article class="qb-card">
+      <span class="qb-cat">${esc(catLabel(s.category))}</span>
+      <h3>${esc(sName(s))}</h3>
+      <div class="price-amt">${esc(localizeLabel(s.price.label || ""))}</div>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف للسلة")}</span></button>
+        <a class="qb-more" href="${u("/services/" + s.slug)}">${L("Details", "التفاصيل")}</a>
+      </div>
+    </article>`;
+  }).join("");
+  return `<div>
+    <div class="qb-head">
+      <div><span class="bph-kicker"><i></i> ${L("Most requested", "الأكثر طلباً")}</span>
+        <h2>${L("Buy a service right now", "خدمات تشتريها الآن")}</h2></div>
+      <a class="bph-btn" href="${u("/services")}">${L("All services", "كل الخدمات")}</a>
+    </div>
+    <div class="qb-grid">${cards}</div>
+    <p class="qb-foot">${L("Government fees are separate and disclosed before you pay.", "الرسوم الحكومية منفصلة ومعلنة قبل الدفع.")}</p>
+  </div>`;
+}
+
 function buildHome() {
-  const h = site.home;
-  // Parallel English content (index-aligned with the Arabic data in site.json).
-  const EN = {
-    heroTitle: "One operating partner for every business requirement in Saudi Arabia",
-    heroSubtitle: "From company formation and foreign investment to licensing, HR and government compliance — we get it done clearly and quickly, and follow it through to issuance.",
-    heroCta: "Start now", heroCtaSecondary: "Browse services",
-    why: { title: "Why Business Partner", items: [
-      { title: "24/7 smart agent", text: "Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically." },
-      { title: "Fast execution", text: "Ready-made tracks and precise knowledge of the regulations save time — we start as soon as your documents are complete." },
-      { title: "Full transparency", text: "Clear fees, with government fees separate and disclosed. You know what you pay and why before you begin." },
-    ]},
-    coreTitle: "Our core services", coreSubtitle: "90+ services classified per the official catalog — covering your business journey from formation to operation.",
-    cards: [
-      { title: "Company Formation", text: "CR registration, LLC formation, entity conversions, and more." },
-      { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
-      { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
-      { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
-      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
-      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
-    ],
-    allServices: "All services", packagesDetails: "Package details",
-    agentEyebrow: "The killer feature", agentTitle: "The killer feature: the instant smart agent",
-    agentText: "Instead of waiting for office hours, the smart agent replies instantly, any time — it understands your case, recognises your client type (individual/business, Saudi/Gulf/foreign), gives you the right requirements and documents, and starts preparing your request immediately. When a human decision is needed, it hands you to our team at once.",
-    agentBullets: ["Instant reply 24/7, no waiting", "Identifies the right service and track for your case", "Prepares your document list automatically", "Hands you to a human expert when needed"],
-    agentCta: "Try the smart agent now", agentLearn: "Meet the agents system",
-    bubbleYou: "You", bubbleQ: "I want to set up a foreign company — what documents do I need?",
-    bubbleAgent: "Smart agent · now", bubbleA: "Sure! I need the parent company's attested Commercial Registration, financial statements, and a board resolution. Shall I prepare the full list for you?",
-    trustEyebrow: "Trust in numbers",
-    stats: [
-      { label: "Clients served" }, { label: "Years of experience in the Saudi market" },
-      { label: "Services in the official catalog" }, { label: "Government authorities we deal with" },
-    ],
-    whyEyebrow: "Why us", servicesEyebrow: "Services", packagesEyebrow: "Packages", reviewsEyebrow: "Client reviews",
-    reviewsItems: [
-      { text: "They completed my company formation quickly and every step was clear from the start.", name: "Client — retail sector", role: "Company formation" },
-      { text: "The smart agent answered me at night and prepared my document list right away.", name: "Client — investor", role: "Foreign investment" },
-      { text: "Clear fees with no surprises, and they followed through until the license was issued.", name: "Client — industrial sector", role: "Industrial license" },
-    ],
-    finalTitle: "Ready to start?", finalText: "Send us your enquiry now — the smart agent replies instantly and sets your next step.", finalCta: "Start now",
-  };
+  /* ---- 1. Hero: Business Partner first. B10X is the layer inside it, never
+       the thing that greets you. ---- */
+  const chips = [
+    [L("Company Setup", "تأسيس الشركات"), catUrl("Company Formation")],
+    [L("Government Services", "الخدمات الحكومية"), catUrl("Government Relations")],
+    [L("HR & Workforce", "الموارد البشرية"), catUrl("HR Services")],
+    [L("Compliance & Violations", "الامتثال والمخالفات"), u("/compliance-agent")],
+    [L("Offices & Housing", "المكاتب والسكن"), u("/workspaces")],
+    [L("Business Development", "تطوير الأعمال"), u("/business-development")],
+  ].map(([t, href]) => `<a href="${href}">${t}</a>`).join("");
 
-  const whyCards = h.why.items
-    .map((it, i) => `<div class="card feature"><div class="card-icon">${I[it.icon] || I.check}</div>
-      <h3>${L(EN.why.items[i].title, it.title)}</h3><p>${L(EN.why.items[i].text, it.text)}</p></div>`)
-    .join("");
-  const svcQuickLinks = h.coreServices.cards
-    .map((c, i) => `<a class="quick-link" href="${catUrl(c.category)}"><span class="q-icon">${I.building}</span><span>${L(EN.cards[i].title, c.title)}</span></a>`)
-    .join("");
-  const pkgQuickLinks = site.packages.tiers
-    .map((t) => `<a class="quick-link" href="${u("/packages")}"><span class="q-icon">📦</span><span>${L(t.nameEn || t.nameAr, t.nameAr)}</span></a>`)
-    .join("");
-  const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
-  const quotes = h.testimonials.items
-    .map((q, i) => `<div class="quote"><p>${L(EN.reviewsItems[i].text, q.text)}</p><div class="who">${L(EN.reviewsItems[i].name, q.name)}</div><div class="role">${L(EN.reviewsItems[i].role, q.role)}</div></div>`)
-    .join("");
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
-    <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
-    <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a><a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
-      <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
-      <span class="hero-badge">${I.check}${L("Transparent fees", "أتعاب شفافة")}</span>
+  const hero = `<section class="bph-hero"><div class="bph-wrap">
+    <span class="bph-kicker"><i></i> ${L("Business Partner · Company Setup & Operations in Saudi Arabia", "Business Partner · تأسيس وتشغيل الشركات في السعودية")}</span>
+    <h1>${/* Lraw, not L: the <span> is the gradient accent, not text to escape. */ Lraw(
+      "Set up your company. Run it. <span>Grow in Saudi Arabia.</span>",
+      "نؤسس شركتك. نشغّلها. <span>ونساعدك تنمو في السعودية.</span>",
+    )}</h1>
+    <p class="bph-lead">${L("Business Partner brings company setup, government operations, HR, compliance, offices, housing and business development into one operating experience — AI powered, human executed.", "Business Partner تجمع تأسيس الشركات، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن، وتطوير الأعمال في تجربة تشغيل واحدة — بذكاء اصطناعي وتنفيذ بشري.")}</p>
+    <div class="bph-chips">${chips}</div>
+    <div class="bph-proofline"><b>B10X</b><i></i><span>${L("24/7 smart advisor", "مستشار ذكي 24/7")}</span><i></i><span>${L("Human operations team", "فريق تنفيذ بشري")}</span><i></i><span>${L("Client Portal + SLA", "لوحة عميل + SLA")}</span></div>
+    <div class="bph-hero-actions">
+      <a class="bph-btn primary" href="#bp-consultant">${L("Start with the smart advisor", "ابدأ مع المستشار الذكي")}</a>
+      <a class="bph-btn" href="#bp-services">${L("Explore services", "استعرض خدماتنا")}</a>
     </div>
-  </div></section>
-
-  <section class="section section--navy trust-band"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.trustEyebrow, h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${L("Numbers we're proud of", h.stats.title)}</h2></div>
-    <div class="stats">${stats}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Who we are", "من نحن")}</span><h2>${L("Your operating partner in Saudi Arabia", "شريكك التشغيلي في السعودية")}</h2><p>${L("We handle your government procedures, extract your records and run your platforms — so you focus on growing your business, backed by 15+ years in the Saudi market.", "نتولّى إجراءاتك الحكومية، ونستخرج سجلاتك، وندير منصّاتك — لتتفرّغ لنمو أعمالك، بخبرة تتجاوز 15 عاماً في السوق السعودي.")}</p></div>
-    <div class="grid grid-3">
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🏛️</div><h3>${L("15+ authorities", "+15 جهة حكومية")}</h3><p>${L("We deal with the official authorities on your behalf.", "نتعامل مع الجهات الرسمية نيابةً عنك.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🗂️</div><h3>${L("90+ services", "+90 خدمة")}</h3><p>${L("A full official catalog covering formation to daily operations.", "كتالوج رسمي شامل يغطي رحلتك من التأسيس للتشغيل.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🖥️</div><h3>${L("Platform management", "إدارة المنصّات")}</h3><p>${L("Qiwa, GOSI, Muqeem, Mudad, Absher and more — managed for you.", "قوى، التأمينات، مقيم، مدد، أبشر وغيرها — نديرها عنك.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🤖</div><h3>${L("Smart agent 24/7", "وكيل ذكي 24/7")}</h3><p>${L("Instant replies and automatic document prep any time.", "رد فوري وتجهيز مستنداتك تلقائياً في أي وقت.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">⚡</div><h3>${L("Fast execution", "تنفيذ سريع")}</h3><p>${L("Ready-made tracks and precise knowledge of the regulations.", "مسارات جاهزة ومعرفة دقيقة بالأنظمة.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🛡️</div><h3>${L("Full transparency", "شفافية كاملة")}</h3><p>${L("Clear fees, with government fees disclosed separately.", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة.")}</p></div>
-    </div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نعمل")}</span><h2>${L("How we get your records & licences done", "كيف نُنجز سجلاتك وتراخيصك")}</h2><p>${L("A clear path from your first message to issuance — we handle the paperwork and follow it through.", "مسار واضح من أول رسالة حتى الإصدار — نتولّى الإجراءات ونتابعها حتى تُنجز.")}</p></div>
-    <div class="home-steps">
-      <div class="hstep"><span class="hstep-n">1</span><h3>${L("Consult", "تواصل واستشارة")}</h3><p>${L("Tell us what you need — we identify the right service for your case.", "أخبرنا باحتياجك — نحدد الخدمة المناسبة لحالتك.")}</p></div>
-      <div class="hstep"><span class="hstep-n">2</span><h3>${L("Prepare documents", "تجهيز المستندات")}</h3><p>${L("We prepare and review your document list with you.", "نجهّز قائمة مستنداتك ونراجعها معك.")}</p></div>
-      <div class="hstep"><span class="hstep-n">3</span><h3>${L("Submit & follow up", "الرفع والمتابعة")}</h3><p>${L("We submit to the relevant authority and follow up until issuance.", "نرفع طلبك على الجهة المختصة ونتابعه حتى الإصدار.")}</p></div>
-      <div class="hstep"><span class="hstep-n">4</span><h3>${L("Delivery & support", "التسليم والدعم")}</h3><p>${L("We hand over your record/licence ready, with ongoing support.", "نسلّمك سجلك/رخصتك جاهزة، مع دعم مستمر بعدها.")}</p></div>
-    </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/consultation")}">${L("Start now", "ابدأ الآن")}</a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.whyEyebrow, "لماذا نحن")}</span><h2>${L(EN.why.title, h.why.title)}</h2></div>
-    <div class="grid grid-3">${whyCards}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">${L(EN.servicesEyebrow, "الخدمات")}</span><h2>${L(EN.coreTitle, h.coreServices.title)}</h2></div>
-      <a class="btn btn-primary" href="${u("/services")}">${L(EN.allServices, "كل الخدمات")} ${I.arrow}</a>
-    </div>
-    <div class="quick-links">${svcQuickLinks}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">${L(EN.packagesEyebrow, "الباقات")}</span><h2>${L(site.packages.titleEn || site.packages.title, site.packages.title)}</h2></div>
-      <a class="btn btn-primary" href="${u("/packages")}">${L("View packages", "استعرض الباقات")} ${I.arrow}</a>
-    </div>
-    <div class="quick-links">${pkgQuickLinks}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2></div>
-    <div class="grid grid-3">${quotes}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p><a class="btn btn-white btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
   </div></section>`;
 
-  return page({ title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"), desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio), active: "/", body });
+  /* ---- 2. The advisor: the control plane, directly under the headline. ---- */
+  const chatChips = [
+    [L("Company formation", "تأسيس شركة"), L("I want to set up a company in Saudi Arabia", "أبغى أفتح شركة في السعودية")],
+    [L("Foreign investor", "مستثمر أجنبي"), L("I am a foreign investor and want a MISA licence", "أنا مستثمر أجنبي وأبغى ترخيص وزارة الاستثمار")],
+    [L("Employees & workforce", "موظفين وقوى"), L("I need help with employees and workforce services", "أحتاج مساعدة في الموظفين وخدمات القوى العاملة")],
+    [L("Compliance", "امتثال"), L("I have a compliance or government platform issue", "عندي موضوع امتثال أو منصة حكومية")],
+    [L("Object to a violation", "اعتراض على مخالفة"), L("I received a violation and want to review the objection path", "وصلتني مخالفة وأبغى أراجع مسار الاعتراض")],
+    [L("Get a quote", "عرض سعر"), L("I want a quote for a service", "أبغى عرض سعر لخدمة")],
+  ].map(([label, q]) => `<button type="button" data-chat-q="${esc(q)}">${label}</button>`).join("");
+
+  const chat = `<section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Tell us what you need. B10X finds the path.", "قل لنا ماذا تحتاج. B10X يحدد لك الطريق.")}</h2>
+      <p>${L("You do not need to know the service name. Just describe what you need — the smart advisor identifies the service, the requirements and the next step.", "لا تحتاج تعرف اسم الخدمة. اشرح المطلوب فقط — والمستشار الذكي يحدد الخدمة والمتطلبات والخطوة التالية.")}</p>
+    </div>
+    <div class="bph-chat-shell"><div class="bph-chat">
+      <div class="bph-chat-head">
+        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>${L("B10X — Business Partner smart advisor", "B10X — المستشار الذكي من Business Partner")}</span></div>
+        <span class="bph-chat-live">● Online</span>
+      </div>
+      <div class="bph-chat-body" id="bphChatBody">
+        <div class="bph-msg ai">${L("Hi 👋 Tell me what you need or what you are stuck on, and I will help you find the right path.", "أهلًا 👋 قل لي وش تحتاج أو وش المشكلة اللي تواجهك، وأنا أساعدك أحدد المسار المناسب.")}</div>
+        <div class="bph-chat-chips">${chatChips}</div>
+      </div>
+      <form class="bph-compose" id="bphChatForm">
+        <textarea id="bphChatInput" rows="1" placeholder="${L("e.g. I have a foreign company and want to start in Riyadh…", "اكتب مثلاً: عندي شركة أجنبية وأبغى أبدأ في الرياض…")}"></textarea>
+        <button type="submit" aria-label="${L("Send", "إرسال")}">↑</button>
+      </form>
+      <div class="bph-chat-note">${L("The advisor helps you inside the site; move to a request or the client portal whenever you are ready.", "المستشار يساعدك داخل الموقع، ويمكنك الانتقال للطلب أو لوحة العميل عند الحاجة.")}</div>
+    </div></div>
+  </div></section>`;
+
+  /* ---- 3. B10X: what it is, what it includes, how it works. ---- */
+  const promise = [
+    ["24/7 Smart Advisor", L("Understands your goal and routes the next action.", "مستشار ذكي يفهم احتياجك ويوجهك فورًا.")],
+    ["Client Portal", L("Requests, documents, SLA and a clear next action.", "طلبات، مستندات، SLA وخطوة تالية واضحة.")],
+    ["Document AI", L("Reads and checks documents inside your company workspace.", "قراءة وفحص المستندات داخل مساحة شركتك.")],
+    ["Compliance", L("Obligations, alerts, violations and renewals.", "التزامات، تنبيهات، مخالفات وتجديدات.")],
+    ["Government Ops", L("Real execution by the Business Partner team.", "تنفيذ فعلي عبر فريق Business Partner.")],
+    ["Growth", L("Customers, suppliers, partners and pipeline.", "عملاء، موردون، شركاء وفرص نمو.")],
+  ].map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join("");
+
+  const caps = [
+    [L("Company setup & operations", "تأسيس وتشغيل الشركات"), L("From formation and foreign investment to licensing and daily operations.", "من التأسيس والاستثمار الأجنبي إلى التراخيص والتشغيل اليومي.")],
+    [L("HR & workforce", "الموارد البشرية"), L("Employees, Qiwa, sponsorship transfer, recruitment and hiring.", "موظفين، قوى، نقل خدمات، توظيف واستقدام.")],
+    [L("Compliance & violations", "الامتثال والمخالفات"), L("Obligation monitoring, objection paths and remediation.", "مراقبة الالتزامات ومسارات الاعتراض والمعالجة.")],
+    [L("Offices, housing & relocation", "المكاتب والسكن والانتقال"), L("Offices, worker housing, executive housing and relocation.", "مكاتب، سكن عمالة، سكن تنفيذي وRelocation.")],
+    [L("Legal & contracts", "القانونية والعقود"), L("Contracts and legal reviews tied to running the company.", "عقود ومراجعات قانونية مرتبطة بتشغيل الشركة.")],
+    [L("Business development", "تطوير الأعمال"), L("Pipeline, customers, suppliers, partners and market opportunities.", "Pipeline، عملاء، موردون، شركاء وفرص سوق.")],
+  ].map(([b, s]) => `<div class="bph-cap"><b>${b}</b><span>${s}</span></div>`).join("");
+
+  const b10x = `<section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
+    <div class="bph-b10x-intro">
+      <div><span class="bph-eyebrow">B10X by Business Partner</span>
+        <h2>${L("Every service. One operating layer.", "كل خدماتك. طبقة تشغيل واحدة.")}</h2></div>
+      <p>${L("B10X is how you use Business Partner end to end: ask, we understand the need, we identify the service and requirements, you approve, then execution starts and you track everything from your account — no chasing messages across providers.", "B10X هو طريقة استخدام Business Partner بالكامل: تسأل، نفهم المطلوب، نحدد الخدمة والمتطلبات، تعتمد، ثم يبدأ التنفيذ وتتابع كل شيء من حسابك — بدون مطاردة الرسائل أو الضياع بين عدة مزودين.")}</p>
+    </div>
+    <div class="bph-promise">${promise}</div>
+    <div class="bph-b10x-grid">
+      <div class="bph-panel"><h3>${L("What B10X covers", "ماذا يشمل B10X؟")}</h3><div class="bph-caps">${caps}</div></div>
+      <div class="bph-request">
+        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
+        <div class="bph-row"><span>${L("Authority", "الجهة")}</span><b>${L("Ministry of Investment", "وزارة الاستثمار")}</b></div>
+        <div class="bph-row"><span>Next Action</span><b>${L("Upload audited financial statements", "رفع القوائم المالية المدققة")}</b></div>
+        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
+        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
+        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
+      </div>
+    </div>
+    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
+    <div class="bph-b10x-cta">
+      <a class="bph-btn white" href="${u("/b10x")}">${L("Explore B10X in detail", "اكتشف B10X بالتفصيل")}</a>
+      <a class="bph-btn ghost" href="#bp-consultant">${L("Start with the smart advisor", "ابدأ مع المستشار الذكي")}</a>
+    </div>
+  </div></section>`;
+
+  /* ---- 4. Services: advisors first, then the eight business areas. 140
+       services live behind these, never as 140 cards on the homepage. ---- */
+  const advisors = [
+    ["B10X", L("Smart Advisor", "المستشار الذكي"), L("Available 24/7 to understand your goal and route the next action.", "متاح 24/7 لفهم المطلوب وتحديد الخدمة والخطوة التالية."), "#bp-consultant"],
+    ["AI", L("Compliance Advisor", "مستشار الامتثال"), L("Tracks obligations, violations, deadlines and remediation paths.", "يراقب الالتزامات والمخالفات والمواعيد ومسارات المعالجة."), u("/compliance-agent")],
+    ["AI", L("Document Advisor", "مستشار المستندات"), L("Reads your files, extracts data and checks requirements inside your account.", "يقرأ الملفات ويستخرج البيانات ويتحقق من المتطلبات داخل حسابك."), u("/ai-document-agent")],
+    ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/business-development")],
+  ].map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
+
+  const areas = [
+    ["01", L("Company setup & investment", "تأسيس الشركات والاستثمار"), L("Local and foreign setup, licensing, registration and post-formation.", "تأسيس محلي وأجنبي، التراخيص، التسجيل وما بعد التأسيس."), catUrl("Company Formation")],
+    ["02", L("Government services & licensing", "الخدمات الحكومية والتراخيص"), L("Qiwa, GOSI, Balady, ZATCA and other business platforms.", "قوى، التأمينات، بلدي، الزكاة والضريبة وغيرها من منصات الأعمال."), catUrl("Government Relations")],
+    ["03", L("HR & workforce", "الموارد البشرية والقوى العاملة"), L("HR operations, sponsorship transfer, recruitment and workforce.", "HR Operations، نقل خدمات، توظيف، استقدام وتشغيل القوى العاملة."), catUrl("HR Services")],
+    ["04", L("Compliance & violations", "الامتثال والمخالفات"), L("Obligations, alerts, violations, objection paths and remediation.", "متابعة الالتزامات، التنبيهات، المخالفات ومسارات الاعتراض والمعالجة."), u("/compliance-agent")],
+    ["05", L("Offices & real estate", "المكاتب والعقار"), L("Offices, workspaces, real-estate search and workplace operations.", "مكاتب، مساحات عمل، بحث عقاري وحلول تشغيل المكان."), u("/workspaces")],
+    ["06", L("Housing & relocation", "السكن والانتقال"), L("Worker housing, executive housing, relocation and support services.", "سكن العمالة، السكن التنفيذي، Relocation والخدمات المساندة."), u("/worker-housing")],
+    ["07", L("Legal & contracts", "القانونية والعقود"), L("Contracts, agreements and legal reviews tied to operations.", "عقود واتفاقيات ومراجعات قانونية مرتبطة بتشغيل الشركة."), u("/packages") + "#pkg-legal"],
+    ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/business-development")],
+  ].map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
+
+  const svc = `<section class="bph-services" id="bp-services"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Everything your company needs, in one place.", "كل ما تحتاجه شركتك في مكان واحد.")}</h2>
+      <p>${L("Choose a business area, or use one of the smart advisors to reach the right workflow directly.", "اختر المجال، أو استخدم أحد المستشارين الأذكياء للوصول مباشرة للمسار المناسب.")}</p>
+    </div>
+    <div class="bph-ai-row">${advisors}</div>
+    <div class="bph-label">${L("Business Partner service areas", "مجالات خدمات Business Partner")}</div>
+    <div class="bph-cap-grid">${areas}</div>
+  </div></section>`;
+
+  /* ---- 5. Start now / buy now: the two direct entry points. ---- */
+  const start = `<section class="bph-start" id="bp-start"><div class="bph-wrap">
+    <div class="bph-start-grid">${heroStartBox()}${homeQuickBuy()}</div>
+  </div></section>`;
+
+  /* ---- 6. Packages: the four real families, no Micro/Small/Medium/Large. ---- */
+  const packages = `<section class="bph-packages" id="bp-packages"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Choose how you want to work with us.", "اختر طريقة العمل المناسبة لشركتك.")}</h2>
+      <p>${L("Start with B10X, or pick from the service, formation and legal package families.", "ابدأ بـB10X أو اختر من باقات الخدمات والتأسيس والدعم القانوني.")}</p>
+    </div>
+    <div class="bph-pkg-grid">
+      <div class="bph-pkg b10x"><h3>B10X</h3>
+        <p>${L("The intelligent operating layer that connects you to every Business Partner service from one place.", "طبقة التشغيل الذكية التي تربطك بكل خدمات Business Partner من مكان واحد.")}</p>
+        <ul>
+          <li>${L("24/7 smart advisor", "المستشار الذكي 24/7")}</li>
+          <li>${L("Client Portal, requests and SLA tracking", "Client Portal ومتابعة الطلبات وSLA")}</li>
+          <li>${L("Document AI and document vault", "Document AI وخزنة المستندات")}</li>
+          <li>${L("Compliance & Violations Center", "Compliance & Violations Center")}</li>
+          <li>${L("Human execution coordination", "تنسيق التنفيذ مع فريق Business Partner")}</li>
+        </ul>
+        <a class="bph-btn white" href="${u("/b10x")}">${L("Start with B10X", "ابدأ مع B10X")}</a></div>
+      <div class="bph-pkg"><h3>${L("Service packages", "باقات الخدمات")}</h3>
+        <p>${L("Government and operational services bundled around how your company runs.", "تشغيل ومتابعة الخدمات الحكومية والتشغيلية حسب احتياج شركتك.")}</p>
+        <ul><li>${L("Multiple services and requests", "طلبات وخدمات متعددة")}</li><li>${L("Tracking and alerts", "متابعة وتنبيهات")}</li><li>${L("One unified client workspace", "لوحة عميل موحدة")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-management">${L("Explore packages", "استعرض الباقات")}</a></div>
+      <div class="bph-pkg"><h3>${L("Company formation", "تأسيس الشركات")}</h3>
+        <p>${L("Formation tracks for local and foreign companies, and everything after.", "مسارات تأسيس وتجهيز الشركات المحلية والأجنبية وما بعد التأسيس.")}</p>
+        <ul><li>${L("Formation and licensing", "التأسيس والتراخيص")}</li><li>${L("Documents and requirements", "المستندات والمتطلبات")}</li><li>${L("Post-formation operations", "ما بعد التأسيس والتشغيل")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-formation">${L("Explore packages", "استعرض الباقات")}</a></div>
+      <div class="bph-pkg"><h3>${L("Legal packages", "الباقات القانونية")}</h3>
+        <p>${L("Contracts, reviews and legal support tied to running and growing the company.", "دعم قانوني وعقود ومراجعات مرتبطة بتشغيل ونمو الشركة.")}</p>
+        <ul><li>${L("Contracts and agreements", "عقود واتفاقيات")}</li><li>${L("Legal reviews", "مراجعات قانونية")}</li><li>${L("Scope-based support", "دعم حسب نطاق الباقة")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-legal">${L("Explore packages", "استعرض الباقات")}</a></div>
+    </div>
+  </div></section>`;
+
+  /* ---- 7. Product proof: the Client Portal is the product, not a footnote. ---- */
+  const proof = `<section class="bph-proof"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Everything tracked from one workspace.", "كل شيء تتابعه من لوحة واحدة.")}</h2>
+      <p>${L("Once work starts you never chase messages again. Requests, quotes, documents, payments and execution status all live in your account.", "بعد بدء العمل، لا تحتاج تطارد الرسائل. الطلبات والعروض والمستندات والمدفوعات وحالة التنفيذ كلها في حسابك.")}</p>
+    </div>
+    <div class="bph-proof-grid">
+      <div class="bph-proof-card"><h3>${L("Client Portal", "لوحة العميل")}</h3>
+        <div class="bph-mini"><span>${L("Active requests", "طلبات نشطة")}</span><span class="bph-status">${L("In progress", "قيد التنفيذ")}</span></div>
+        <div class="bph-mini"><span>${L("Quotes", "عروض الأسعار")}</span><span>3</span></div>
+        <div class="bph-mini"><span>${L("Documents", "المستندات")}</span><span>12</span></div>
+        <div class="bph-mini"><span>${L("Payments & invoices", "المدفوعات والفواتير")}</span><span>${L("Up to date", "محدّثة")}</span></div>
+        <a class="bph-btn" href="${u("/account")}">${L("Open the client portal", "فتح لوحة العميل")}</a></div>
+      <div class="bph-proof-card dark"><h3>Business Partner Workspace</h3>
+        <div class="bph-mini"><span>B10X</span><span class="bph-status">Active</span></div>
+        <div class="bph-mini"><span>Compliance</span><span>${L("Monitoring", "قيد المراقبة")}</span></div>
+        <div class="bph-mini"><span>${L("Multi-company", "شركات متعددة")}</span><span>${L("Switch anytime", "تنقّل بين شركاتك")}</span></div>
+        <div class="bph-mini"><span>Documents & SLA</span><span>${L("Connected", "مرتبطة")}</span></div>
+        <a class="bph-btn white" href="${u("/account")}">${L("See your experience after sign-in", "شاهد تجربتك بعد الدخول")}</a></div>
+    </div>
+  </div></section>`;
+
+  const body = `<div class="bph">${hero}${chat}${b10x}${svc}${start}${packages}${proof}</div>`;
+
+  return page({
+    title: Lraw("Business Partner — Saudi business setup & operations", "بيزنس بارتنر — تأسيس وتشغيل الأعمال في السعودية"),
+    desc: Lraw(
+      "Business Partner sets up, operates and grows your company in Saudi Arabia: formation, government services, HR, compliance, offices, housing and business development — AI powered, human executed.",
+      "بيزنس بارتنر تؤسس شركتك وتشغّلها وتساعدك على النمو في السعودية: التأسيس، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن وتطوير الأعمال.",
+    ),
+    active: "/", body, bodyClass: "bph-page", extraHead: homeCss, script: homeScript(),
+  });
 }
 
 function buildAbout() {
@@ -1211,7 +1749,7 @@ function buildServiceCategory(cat) {
         <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
         <h3>${esc(sName(s))}</h3>
         <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft">${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
       </a>`;
     })
     .join("");
@@ -1289,9 +1827,11 @@ function buildServiceDetail(s) {
     <aside class="svc-aside">
       <div class="order-box">
         ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored price-amt">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
+          ? `<div class="price-tailored price-amt" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
         ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
-        ${cartBtns({ id: "svc-" + s.slug, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
+        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
         <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
           : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
         <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
@@ -1299,7 +1839,9 @@ function buildServiceDetail(s) {
           ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
           : s.category === "Tourism"
           ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Request a quote / consultation", "اطلب عرضاً / استشارة")}</span></a>`}`}
+          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
+        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
+        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
         <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
         <ul class="order-facts">${facts.join("")}</ul>
       </div>
@@ -1915,7 +2457,7 @@ function buildPackages() {
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
         <div class="pk-name">${name}</div>
-        ${SHOW_PACKAGE_PRICES ? `<div class="pk-price"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
+        ${SHOW_PACKAGE_PRICES ? `<div class="pk-price" data-bp-price="${esc(pkgCode(t))}" data-bp-keep-unit="1"><span class="emp-price emp-price-m">${fmt(t.amount)} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span></span><span class="emp-price emp-price-y" hidden>${fmt(yearly)} <span class="pk-per">${L("SAR / yr", "ريال / سنوياً")}</span></span></div>` : ""}
         <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
         ${feats}
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
@@ -1931,11 +2473,12 @@ function buildPackages() {
     }
     return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
       <div class="pk-name">${name}</div>
-      ${SHOW_PACKAGE_PRICES && t.price ? `<div class="pk-price">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
+      ${SHOW_PACKAGE_PRICES && t.price ? `<div class="pk-price" data-bp-price="${esc(pkgCode(t))}">${L(localizeLabel(Lraw(t.priceEn || t.price, t.price)), localizeLabel(t.price))}</div>` : ""}
       <p class="pk-for">${L(t.forEn || t.for, t.for)}</p>
       ${feats}
-      ${cartBtns({ id: "pkg-" + (t.key || t.name), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
+      ${cartBtns({ id: "pkg-" + (t.key || t.name), code: pkgCode(t), nameEn: t.nameEn || t.name || t.nameAr, nameAr: t.nameAr, amount: t.amount != null ? t.amount : null, priceLabel: Lraw(t.priceEn || t.price, t.price) || Lraw("Contact us for pricing", "تواصل معنا للتسعير"), kind: "package", ghost: !t.highlight, surchargeAmount: t.surchargeAmount, surchargeFreeCount: t.surchargeFreeCount })}
       ${SHOW_PACKAGE_PRICES && (t.surcharge || t.surchargeEn) ? `<p class="pk-surcharge">${L(t.surchargeEn || t.surcharge, t.surcharge)}</p>` : ""}
+      <a class="btn btn-ghost" href="${portalQuoteUrl(pkgCode(t))}" style="width:100%"><span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
     </div>`;
   };
   const tabs = groups
@@ -2533,6 +3076,93 @@ function buildComplianceAgent() {
     desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
     active: "/compliance-agent",
     path: "/compliance-agent",
+    body,
+  });
+}
+
+// الوكيل الذكي للمستندات — AI Document Agent. Chat-first: the client uploads
+// source documents (CR, AOA, IDs, bank letters…) and forms that need filling
+// (vendor/AML/KYC/NDA…); the agent classifies, extracts facts with provenance,
+// asks only for what is missing, fills the forms (agent-added data in blue),
+// and packages the final submission ZIP. Backend: /api/doc-agent →
+// api/requests.js?__route=doc-agent → api/_docagent.js. Session = the same
+// bp_sid account cookie as the rest of the portal.
+function buildDocAgent() {
+  const docTypes = ["سجل تجاري","عقد تأسيس","شهادة ضريبية","IBAN","هوية / إقامة","جواز سفر","عنوان وطني","رخص","عقود","كشوف حساب","Vendor Forms","AML / KYC","NDA","نماذج بنكية","نماذج حكومية","استبيانات"];
+  const docTypesEn = ["Commercial Registration","Articles of Association","Tax Certificate","IBAN","National ID / Iqama","Passport","National Address","Licenses","Contracts","Bank Statements","Vendor Forms","AML / KYC","NDA","Bank Forms","Government Forms","Questionnaires"];
+  const chips = docTypes.map((p, i) => `<span class="hero-badge">${L(docTypesEn[i], p)}</span>`).join("");
+  const steps = [
+    [L("Upload everything at once", "ارفع كل شيء دفعة واحدة"), L("Documents that contain data, forms that need filling, your stamp, even a screenshot of the requirements email — the agent classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.")],
+    [L("It reads, extracts and cross-checks", "يقرأ ويستخرج ويطابق"), L("Every value keeps its source, page, date and confidence. Conflicting values across documents become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.")],
+    [L("It asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% of the form. I still need: expected annual volume, and are both owners not PEPs?” Legal declarations are never assumed.", "«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.")],
+    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Word, Excel and fillable PDF forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذج Word وExcel وPDF القابلة للتعبئة ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
+  ];
+  const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+  const valueItems = [
+    [L("One unified client profile", "ملف بيانات موحّد"), L("CR + AOA + VAT + bank + IDs merge into one profile; the next request reuses it — upload only the new form.", "السجل + عقد التأسيس + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه — ارفع الفورم الجديد فقط.")],
+    [L("Any language, both directions", "أي لغة، وبالاتجاهين"), L("Reads an Arabic CR and fills an English vendor form (or the reverse). Official names are never translated.", "يقرأ سجلاً عربياً ويعبّئ نموذجاً إنجليزياً (أو العكس). الأسماء الرسمية لا تُترجم أبداً.")],
+    [L("UBO & ownership math", "الملاك وUBO"), L("Computes ownership percentages from the AOA and fills UBO sections, with an ownership chart on demand.", "يحسب نسب الملكية من عقد التأسيس ويعبّئ أقسام UBO، مع مخطط ملكية عند الطلب.")],
+    [L("Expiry check on every document", "فحص صلاحية كل مستند"), L("Expired documents are flagged and the request continues — you are asked for a fresh copy before final submission.", "المستند المنتهي يُعلَّم ويستمر الطلب — ويُطلب منك نسخة محدثة قبل التقديم النهائي.")],
+    [L("Natural-language edits", "تعديلات بلغة طبيعية"), L("“Make Section 9 all No”, “today's date”, “add the stamp” — the agent applies them to the right fields only.", "«Section 9 كله No»، «خلي تاريخ اليوم»، «حط الختم» — الوكيل يطبقها على الحقول الصحيحة فقط.")],
+    [L("QA before delivery", "مراجعة جودة قبل التسليم"), L("A second pass verifies every planned value landed, checkboxes are right and no placeholders remain.", "مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.")],
+  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</span>
+    <h1>${L("Upload your documents. We finish the rest.", "ارفع مستنداتك. ونحن نكمل الباقي.")}</h1>
+    <p class="lead">${L("The smart agent reads your documents, extracts the data, fills your forms, finds what is missing, places the stamp when needed, and hands you the final package — your signature is the only thing left.", "الوكيل الذكي يقرأ مستنداتك، يستخرج المعلومات، يعبّئ النماذج، يكتشف النواقص، يضع الختم عند الحاجة، ويرتّب لك الحزمة النهائية — وما يبقى عليك إلا توقيعك.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#agent">${L("Start now", "ابدأ الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
+    </div>
+    <div class="hero-badges">${chips}</div>
+  </div></section>
+
+  <!-- Owner rule: this public page sells the agent; it never renders anyone's
+       conversation. The working chat lives inside the client portal, where the
+       session and its company scope the data. -->
+  <section id="agent" class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Inside your client portal", "داخل لوحة العميل")}</span><h2>${L("Your documents and conversation live in your account only", "مستنداتك ومحادثتك في حسابك فقط")}</h2></div>
+    <div class="da-shell" style="padding:34px 26px;text-align:center">
+      <p style="max-width:560px;margin:0 auto 18px;color:var(--text-soft);line-height:1.8">${L(
+        "The Document Agent runs inside your client portal: every file, extracted value and conversation is tied to your company and visible to your account alone.",
+        "وكيل المستندات يعمل داخل لوحة العميل: كل ملف وقيمة مستخرجة ومحادثة مرتبطة بشركتك ولا يراها إلا حسابك.",
+      )}</p>
+      <a class="btn btn-primary btn-lg" href="${u("/account")}?view=docagent">${L("Open the agent from your client portal", "افتح الوكيل من لوحة العميل")}</a>
+      <p style="margin:14px 0 0;font-size:.9rem;color:var(--text-soft)">${L("No account yet? Signing in with a one-time email code creates one — and the 14-day free trial starts on your first upload.", "ما عندك حساب؟ تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً — والتجربة المجانية 14 يوماً تبدأ من أول ملف ترفعه.")}</p>
+    </div>
+    <p class="da-note">${L("Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.", "تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.")}</p>
+  </div></section>
+
+  <section id="how" class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف يعمل؟")}</span><h2>${L("Information sources → understanding → matching → filled documents", "مصادر معلومات → فهم → مطابقة → مستندات معبّأة")}</h2></div>
+    <div class="steps-grid">${stepsHtml}</div>
+    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">🔏</span><p>${L("The agent never fabricates a signature and never assumes legal declarations (PEP, sanctions, conflicts of interest…). It asks, records your explicit confirmation with its channel and time, and leaves the signature to you.", "الوكيل لا يصنع توقيعاً ولا يفترض الإقرارات القانونية (PEP، العقوبات، تضارب المصالح…). يسألك، يسجّل تأكيدك الصريح بقناته ووقته، ويترك التوقيع لك.")}</p></div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="order-box">
+      <h3 style="margin-bottom:1rem">${L("What makes it different?", "وش يميزه؟")}</h3>
+      <ul class="value-list">${valueItems}</ul>
+    </div>
+  </div></section>
+
+  <style>
+    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
+    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
+    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
+    .value-list b{color:var(--navy)}
+    .da-shell{max-width:880px;margin:0 auto;background:#fff;border:1px solid #e3e8f1;border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
+    .da-shell .btn-primary{background:linear-gradient(135deg,#0a255f,#3159d8);border:0;border-radius:12px;font-weight:900}
+    .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
+  </style>`;
+
+  return page({
+    title: Lraw("AI Document Agent — Business Partner", "الوكيل الذكي للمستندات — بيزنس بارتنر"),
+    desc: Lraw("Upload your documents and the forms you need filled — the AI agent reads, extracts, fills, stamps and packages everything.", "ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة."),
+    active: "/ai-document-agent",
+    path: "/ai-document-agent",
     body,
   });
 }
@@ -5931,27 +6561,27 @@ function buildContact() {
 }
 
 // Installments: we arrange financing for government-service fees through the
-// client's bank, BNPL providers (Tabby/Tamara) or e-wallets. The page collects
+// client's bank, Tamara or e-wallets. The page collects
 // a structured request; the actual financing approval happens with the
 // provider — we coordinate it. ?amount= prefills the calculator (checkout links here).
 function buildInstallments() {
   const months = [3, 6, 12];
   const channels = [
     ["🏦", L("Your bank", "عن طريق بنكك"), L("Personal finance or installment POS through the major Saudi banks — we prepare the file and quotation your bank asks for.", "تمويل شخصي أو تقسيط نقاط بيع عبر البنوك السعودية الرئيسية — نجهّز لك الملف وعرض السعر الذي يطلبه بنكك.")],
-    ["🟣", L("Tabby / Tamara", "تابي / تمارا"), L("Split the fees into 4+ payments through BNPL providers, subject to their approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر مزودي الدفع الآجل، حسب موافقتهم وحدودهم.")],
+    ["🟣", L("Tamara", "تمارا"), L("Split the fees into 4+ payments through Tamara, subject to its approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر تمارا، حسب موافقتها وحدودها.")],
     ["📱", L("E-wallets", "المحافظ الإلكترونية"), L("STC Pay and similar wallets for scheduled partial payments combined with your Business Partner wallet.", "STC Pay والمحافظ المشابهة لدفعات جزئية مجدولة بالتكامل مع محفظتك في بيزنس بارتنر.")],
   ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p></div>`).join("");
   const steps = [
     [1, L("Pick the service & amount", "حدد الخدمة والمبلغ"), L("Choose the government service or SADAD invoice you want to split.", "اختر الخدمة الحكومية أو فاتورة سداد التي تريد تقسيطها.")],
     [2, L("Pick the plan", "اختر خطة التقسيط"), L("3, 6 or 12 months — see the estimated monthly instalment instantly.", "3 أو 6 أو 12 شهراً — وشاهد القسط الشهري التقديري فوراً.")],
-    [3, L("We arrange the financing", "نرتب لك التمويل"), L("We coordinate with your bank / Tabby / Tamara and prepare every document they need.", "ننسق مع بنكك / تابي / تمارا ونجهّز كل مستند يطلبونه.")],
+    [3, L("We arrange the financing", "نرتب لك التمويل"), L("We coordinate with your bank or Tamara and prepare every document they need.", "ننسق مع بنكك أو تمارا ونجهّز كل مستند يطلبونه.")],
     [4, L("Approve & we execute", "وافق وننفذ"), L("Once approved, we pay the fees on your behalf and follow the service through to issuance.", "بعد الموافقة نسدد الرسوم نيابة عنك ونتابع الخدمة حتى الإصدار.")],
   ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Beta service · for establishments ⚡", "خدمة تحت التجربة · للمنشآت ⚡")}</span>
     <h1>${L("Pay government fees in instalments", "قسّط رسوم خدماتك الحكومية")}</h1>
-    <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tabby/Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تابي/تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
+    <p class="lead">${L("Don't let a big government fee block your growth — we split it through your bank, Tamara or e-wallets, pay it for you, and follow the service to issuance.", "لا تدع رسوماً حكومية كبيرة توقف نموك — نقسّطها لك عبر بنكك أو تمارا أو المحافظ الإلكترونية، نسددها عنك، ونتابع خدمتك حتى الإصدار.")}</p>
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#inst-form">${L("Request an instalment plan", "اطلب خطة تقسيط")}</a>${waBtn2("Contact us", "تواصل معنا", "btn-ghost")}</div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("For SMEs — not individuals", "للمنشآت الصغيرة والمتوسطة — لا للأفراد")}</span>
@@ -5994,7 +6624,7 @@ function buildInstallments() {
           <div class="field"><label for="inst-months">${L("Duration", "مدة التقسيط")}</label><select id="inst-months">${months.map((m) => `<option value="${m}">${m} ${L("months", "أشهر")}</option>`).join("")}</select></div>
           <div class="field"><label for="inst-channel">${L("Preferred channel", "القناة المفضلة")}</label><select id="inst-channel">
             <option value="bank">${Lraw("My bank", "بنكي")}</option>
-            <option value="bnpl">${Lraw("Tabby / Tamara", "تابي / تمارا")}</option>
+            <option value="bnpl">${Lraw("Tamara", "تمارا")}</option>
             <option value="wallet">${Lraw("E-wallet", "محفظة إلكترونية")}</option>
             <option value="any">${Lraw("Best available offer", "أفضل عرض متاح")}</option>
           </select></div>
@@ -6006,7 +6636,7 @@ function buildInstallments() {
       </form>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tabby/Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تابي/تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
+  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
 }
 
 // Estrdad (استرداد) — Monsha'at's government-fee refund initiative
@@ -6906,14 +7536,11 @@ function buildCheckout() {
           <div class="tax-choice" id="pay-choice">
             <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>${L("Pay online", "الدفع الإلكتروني")}</strong><small>${L("mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.", "مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.")}</small></span></label>
             <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>${L("Bank transfer", "تحويل بنكي")}</strong><small>${L("Transfer to our account and upload the receipt — we verify it and activate your order.", "حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.")}</small></span></label>
-            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tabby or Tamara", "قسّطها — تابي أو تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#3BEDC0;color:#292929;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tabby</span><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
+            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>${L("Installments — Tamara", "قسّطها — تمارا")} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>${L("Split into 4 interest-free payments — instant activation once approved.", "قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.")}</small></span></label>
           </div>
           <div id="bnpl-box" class="bank-box" hidden>
             <div class="bank-head">${I.shield}<strong>${L("Pay in installments", "الدفع بالأقساط")}</strong></div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
-              <button type="button" id="bnpl-tabby" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #3BEDC0;background:#3BEDC0;color:#292929;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
-                <span style="font-size:1.05rem;direction:ltr">tabby</span><span style="font-weight:600;font-size:.85rem">${L("· 4 payments, no fees", "· ٤ دفعات بلا رسوم")}</span>
-              </button>
               <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
                 <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">${L("· split it your way", "· قسّمها على راحتك")}</span>
               </button>
@@ -7292,6 +7919,11 @@ function buildAccount() {
           <div class="dash-panel-head"><h2>${L("Company documents", "مستندات المنشأة")}</h2><p>${L("Attach your establishment's documents so our team has your full file ready. Everything here is optional — add what you have now and complete the rest later.", "أرفق مستندات منشأتك ليكون ملفك كاملاً لدى فريقنا. كل ما هنا اختياري — أضف ما لديك الآن وأكمل الباقي لاحقاً.")}</p></div>
           <div class="dash-card">
             ${docsWizard()}
+          </div>
+          <div class="dash-card" style="margin-top:16px">
+            <h3 style="margin:0 0 6px">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</h3>
+            <p style="margin:0 0 10px;color:var(--muted)">${L("Upload documents that contain your data and forms that need filling — the agent reads, extracts, fills Word/Excel/PDF in place and packages everything. Your files stay in your private vault, tied to this account only.", "ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويجهّز الحزمة. ملفاتك في خزنتك الخاصة المرتبطة بحسابك هذا فقط.")}</p>
+            <a class="btn btn-primary" href="${u("/ai-document-agent")}">🗂️ ${L("Open the Document Agent", "افتح وكيل المستندات")}</a>
           </div>
           <div class="dash-card" style="margin-top:16px">
             <h3 style="margin:0 0 6px">${L("Files attached to your orders", "الملفات المرفقة بطلباتك")}</h3>
@@ -7915,6 +8547,47 @@ function buildJobSearchAdmin() {
           </div>
         </div>
         <p class="emp-note" id="js-run-msg" style="min-height:18px;margin:10px 0 0"></p>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("Rewrite and score CVs", "حسّن السير الذاتية واحسب درجتها")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Rewrites each CV so hiring software can read it, translates it into English when it isn't, and scores it before and after. Wording, structure and keywords only — no fact, date or employer is ever changed.", "يعيد صياغة كل سيرة لتقرأها برامج التوظيف، ويترجمها للإنجليزية إن لم تكن كذلك، ويحسب درجتها قبل وبعد. الصياغة والترتيب والكلمات المفتاحية فقط — لا تُغيَّر أي معلومة أو تاريخ أو جهة عمل.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-primary btn-sm" id="js-cv-run">✨ ${L("Improve pending CVs", "حسّن السير المعلّقة")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-cv-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="js-cv-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-cv-out" style="margin-top:8px"></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("Send past applicants their own copy", "أرسل للمتقدمين السابقين نسختهم")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy and keeps going until the queue is empty; leave the page open. One mail per person, however many times they applied, and nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته ويكمل حتى ينتهي الطابور؛ اترك الصفحة مفتوحة. رسالة واحدة لكل شخص مهما تكرر تقديمه، ولا أحد يصله البريد مرتين.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="js-bf-limit" class="ap-filter" style="min-width:110px">
+              <option value="10">${L("10", "١٠")}</option>
+              <option value="25" selected>${L("25", "٢٥")}</option>
+              <option value="50">${L("50", "٥٠")}</option>
+              <option value="100">${L("100", "١٠٠")}</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="js-bf-dry">${L("Preview only", "معاينة فقط")}</button>
+            <button class="btn btn-primary btn-sm" id="js-bf-run">✉️ ${L("Send to everyone", "أرسل للجميع")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-bf-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.86rem">
+          <input type="checkbox" id="js-bf-cvonly"> ${L("Only people whose ATS CV is ready (everyone else waits)", "من لديه سيرة ATS جاهزة فقط (والباقي ينتظر)")}
+        </label>
+        <p class="emp-note" style="margin:6px 0 0">${L("Left unticked, everyone gets their mail: those with a CV get it in full, the rest get where their application stands and what's open.", "بدون تحديد، الجميع يستلمون بريدهم: من عنده سيرة تصله كاملة، والباقي تصله حالة طلبه والوظائف المفتوحة.")}</p>
+        <p class="emp-note" id="js-bf-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-bf-out" style="margin-top:8px"></div>
       </div>
 
       <div class="dash-panel-head"><h2>${L("Subscribers", "المشتركون")}</h2><p>${L("Activating a subscriber starts the search and emails them. Record each instalment as it lands — the salary plan stops itself at one month's salary.", "تفعيل المشترك يبدأ البحث ويرسل له بريداً. سجّل كل دفعة عند استلامها — باقة الراتب تتوقف تلقائياً عند راتب شهر واحد.")}</p></div>
@@ -9324,6 +9997,96 @@ function buildSharedServices() {
     </div>
   </section>
 
+  <section class="ss-showcase">
+    <div class="wrap">
+      <div class="sc-grid">
+        <div class="sc-copy">
+          <span class="eyebrow">${L("See it working", "شاهده يعمل")}</span>
+          <h2>${L("One chat. A whole executive team behind it.", "محادثة واحدة. وفريق تنفيذي كامل وراءها.")}</h2>
+          <p>${L("You write your request the way you'd say it. Baher receives it, briefs the right specialist, and the work comes back finished — while you watch the team move, live.", "تكتب طلبك بالطريقة التي تقولها بها. باهر يستلمه، يوجّه المتخصص المناسب، ويعود لك الشغل جاهزاً — وأنت تشاهد الفريق يتحرك مباشرة.")}</p>
+          <ul class="sc-list">
+            <li>${L("Your company file is learned once — the whole team knows your business", "ملف شركتك يُتعلّم مرة — والفريق كله يعرف نشاطك")}</li>
+            <li>${L("Every task and conversation logged in your own isolated workspace", "كل مهمة ومحادثة موثقة في مساحتك المعزولة")}</li>
+            <li>${L("Nothing binding — a payment, a signature, a government submission — happens without your approval", "لا شيء ملزم — دفع أو توقيع أو إجراء حكومي — يتم بدون موافقتك")}</li>
+          </ul>
+          <a class="btn btn-primary" href="${u("/shared-services/dashboard")}">🔑 ${L("Open the portal", "افتح البوابة")}</a>
+        </div>
+
+        <div class="sc-mock" aria-hidden="true">
+          <div class="sc-head">
+            <span class="sc-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i></i></span>
+            <div><b>${L("Baher", "باهر")}</b><span>${L("Business Advisor", "مستشار الأعمال")}</span></div>
+            <span class="sc-live">● ${L("Online now", "متصل الآن")}</span>
+          </div>
+          <div class="sc-log">
+            <div class="sc-msg me">${L("I need a marketing plan for my store", "ابغى خطة تسويق لمتجري")}<span>10:24 ✓✓</span></div>
+            <div class="sc-msg bot b1"><b>${L("On it.", "أبشر.")}</b> ${L("Farah is preparing the plan now.", "فرح تجهّز الخطة الآن.")}<span>10:24</span></div>
+            <div class="sc-msg bot b2">${L("Ready — audience analysis, 3 ad drafts and a monthly calendar. Shall I send them?", "جاهزة — تحليل الجمهور، ٣ مسودات إعلانات، وتقويم شهري. أرسلها لك؟")}<span>10:25</span></div>
+          </div>
+          <div class="sc-team"><span class="sc-dots"><i></i><i></i><i></i></span>${L("📣 Farah is working on your request…", "📣 فرح تشتغل على طلبك الآن…")}</div>
+          <div class="sc-form"><span>${L("Type your request here…", "اكتب طلبك هنا…")}</span><b>${L("Send", "إرسال")}</b></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      .ss-showcase{padding:44px 0 8px}
+      .ss-showcase .wrap{
+        background:
+          radial-gradient(760px 380px at 88% -12%, rgba(94,72,214,.4) 0%, transparent 60%),
+          radial-gradient(620px 340px at -8% 108%, rgba(15,158,153,.26) 0%, transparent 55%),
+          linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
+        border:1px solid rgba(255,255,255,.09);border-radius:26px;padding:34px 30px;
+        box-shadow:0 30px 80px rgba(8,10,40,.32)}
+      .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+      .sc-copy .eyebrow{background:rgba(46,230,200,.14);color:#7dffe9;border:0}
+      .sc-copy h2{color:#fff;margin:10px 0 12px;line-height:1.35}
+      .sc-copy>p{color:rgba(255,255,255,.7);line-height:1.9;margin:0 0 16px}
+      .sc-list{list-style:none;padding:0;margin:0 0 20px}
+      .sc-list li{position:relative;color:rgba(255,255,255,.78);font-size:.9rem;line-height:1.8;
+        padding-inline-start:26px;margin-bottom:9px}
+      .sc-list li::before{content:'✓';position:absolute;inset-inline-start:0;color:#2ee6c8;font-weight:800}
+      /* mock */
+      .sc-mock{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+        backdrop-filter:blur(16px);box-shadow:0 18px 50px rgba(5,8,35,.4);overflow:hidden}
+      .sc-head{display:flex;gap:11px;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);
+        border-bottom:1px solid rgba(255,255,255,.1)}
+      .sc-av{position:relative;width:42px;height:42px;flex:none}
+      .sc-av img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35)}
+      .sc-av i{position:absolute;bottom:0;inset-inline-end:0;width:10px;height:10px;border-radius:50%;
+        background:#2ee6c8;border:2px solid #131048}
+      .sc-head b{display:block;color:#fff;font-size:.95rem}
+      .sc-head>div span{display:block;font-size:.75rem;color:rgba(255,255,255,.6)}
+      .sc-live{margin-inline-start:auto;font-size:.7rem;font-weight:700;color:#2ee6c8;white-space:nowrap}
+      .sc-log{display:flex;flex-direction:column;gap:10px;padding:16px 14px;min-height:230px}
+      .sc-msg{max-width:82%;padding:10px 13px 6px;border-radius:16px;font-size:.86rem;line-height:1.75;position:relative}
+      .sc-msg span{display:block;text-align:end;font-size:.64rem;opacity:.6;margin-top:2px}
+      .sc-msg.me{align-self:flex-end;background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
+      .sc-msg.bot{align-self:flex-start;background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px}
+      .sc-msg.bot b{color:#fff}
+      .sc-msg.b1{animation:scIn .5s ease .3s both}
+      .sc-msg.b2{animation:scIn .5s ease 1.5s both}
+      @keyframes scIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+      .sc-team{display:flex;gap:9px;align-items:center;padding:8px 16px;font-size:.78rem;color:#9ef3e4;
+        background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
+      .sc-dots{display:inline-flex;gap:4px}
+      .sc-dots i{width:6px;height:6px;border-radius:50%;background:#9ef3e4;animation:scDot 1.2s infinite}
+      .sc-dots i:nth-child(2){animation-delay:.18s}.sc-dots i:nth-child(3){animation-delay:.36s}
+      @keyframes scDot{0%,60%,100%{opacity:.35}30%{opacity:1;transform:translateY(-3px)}}
+      .sc-form{display:flex;gap:9px;align-items:center;padding:12px 14px}
+      .sc-form span{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+        border-radius:14px;padding:10px 13px;font-size:.84rem;color:rgba(255,255,255,.45)}
+      .sc-form b{background:var(--brand,#0b1b5a);color:#fff;border-radius:12px;padding:10px 18px;font-size:.85rem}
+      @media(prefers-reduced-motion:reduce){.sc-msg.b1,.sc-msg.b2{animation:none}.sc-dots i{animation:none}}
+      @media(max-width:900px){
+        .sc-grid{grid-template-columns:1fr;gap:24px}
+        .sc-mock{order:-1}          /* show the product before the pitch */
+        .ss-showcase .wrap{padding:24px 16px;border-radius:20px}
+        .sc-copy h2{font-size:1.35rem}
+        .sc-log{min-height:0}
+      }
+    </style>
+  </section>
+
   <section class="ss-sec">
     <div class="wrap">
       <div class="sec-head"><h2>${L("How the service works", "كيف تعمل الخدمة")}</h2><p>${L("One request in plain language — the team takes it from there.", "طلب واحد بلغتك العادية — والفريق يتكفّل بالباقي.")}</p></div>
@@ -9787,6 +10550,11 @@ function buildSharedServicesPortal() {
         <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في بيزنس بارتنر — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
+        <div class="ss-trust">
+          <span><b>12</b>${L("specialists in one chat", "متخصصاً في محادثة واحدة")}</span>
+          <span><b>24/7</b>${L("always on", "بلا توقف")}</span>
+          <span><b>🔒</b>${L("nothing binding without your approval", "لا التزام بدون موافقتك")}</span>
+        </div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
           <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
@@ -9815,7 +10583,7 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-tabs" role="tablist">
-        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <button class="ss-tab active" data-tab="team" type="button">💬 ${L("Chat", "المحادثة")}</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 ${L("Services", "الخدمات")}</button>
         <button class="ss-tab" data-tab="stats" type="button">📊 ${L("Reports", "التقارير")}</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
@@ -9823,20 +10591,37 @@ function buildSharedServicesPortal() {
       </div>
 
       <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field. ✏️ You can rename any of them to whatever you like — the new name sticks, and the agent itself adopts it.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله. ✏️ وتقدر تغيّر اسم أي موظف لأي اسم يعجبك — الاسم الجديد يثبت لك، والموظف نفسه يتبنّاه ويتعامل به.")}</p>
-        <div class="ss-agents" id="ss-agents"></div>
+        <p class="ss-pane-lead">${L("One conversation — your whole executive team. Baher takes your request and the specialists execute behind the scenes; anything binding waits for your approval. ✏️ You can rename him to whatever you like.", "محادثة واحدة — وفريقك التنفيذي كامل وراها. باهر يستلم طلبك والمتخصصون ينفذون خلف الكواليس، وأي إجراء ملزم ينتظر موافقتك. ✏️ وتقدر تغيّر اسمه لأي اسم يعجبك.")}</p>
+        <div class="ss-agents" id="ss-agents" hidden></div>
         <div class="ss-panel">
-          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ ${L("Rename", "غيّر الاسم")}</button><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
+          <div class="ss-panel-head">
+            <span class="ss-pavatar" id="ph-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i class="ss-ponline" aria-hidden="true"></i></span>
+            <span class="e" id="ph-e" hidden>👑</span>
+            <div><b id="ph-n"></b><span id="ph-r"></span></div>
+            <div class="ss-chat-actions">
+              <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ <span class="lbl">${L("Rename", "غيّر الاسم")}</span></button>
+              <button id="ss-print" type="button" title="${Lraw("Save the conversation as PDF", "احفظ المحادثة PDF")}">📄 <span class="lbl">${L("Save PDF", "حفظ PDF")}</span></button>
+              <span class="ss-live">● ${L("Online now", "متصل الآن")}</span>
+            </div>
+          </div>
           <div class="ss-log" id="ss-log"></div>
+          <button id="ss-jump" type="button" title="${Lraw("Jump to latest", "انزل لآخر رسالة")}" aria-label="${Lraw("Jump to latest", "انزل لآخر رسالة")}">↓</button>
+          <div class="ss-teamline" id="ss-teamline" hidden><span class="dots"><i></i><i></i><i></i></span><span id="ss-teamline-t"></span></div>
+          <div class="ss-chips" id="ss-chips">
+            <button type="button">${L("Prepare a quote for my client", "جهّز لي عرض سعر")}</button>
+            <button type="button">${L("Check my government obligations", "افحص التزاماتي الحكومية")}</button>
+            <button type="button">${L("Write an ad post for my business", "اكتب لي منشوراً إعلانياً")}</button>
+            <button type="button">${L("Summarize the team's latest work", "لخّص آخر أعمال الفريق")}</button>
+          </div>
           <form class="ss-form" id="ss-form">
-            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+            <textarea id="ss-input" rows="1" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" title="${Lraw("Enter sends · Shift+Enter for a new line", "Enter يرسل · Shift+Enter لسطر جديد")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}"></textarea>
             <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
           </form>
         </div>
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Chat tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب المحادثة «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
           <a href="${u("/services")}"><span class="e">🗂️</span><b>${L(`All services (${services.length})`, `كل الخدمات (${services.length})`)}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
@@ -9894,6 +10679,182 @@ function buildSharedServicesPortal() {
           .ss-compdash{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
           #ss-compdash-frame{display:block;width:100%;height:calc(100vh - 180px);min-height:760px;border:0;background:#fff}
           @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
+        </style>
+        <style>
+          /* ===== Premium glass theme for the portal ===== */
+          #ss-agents[hidden]{display:none}
+          #ss-gate .wrap>.ss-access, #ss-dash>.wrap{
+            background:
+              radial-gradient(900px 420px at 85% -10%, rgba(94,72,214,.35) 0%, transparent 60%),
+              radial-gradient(700px 380px at -10% 110%, rgba(15,158,153,.22) 0%, transparent 55%),
+              linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
+            border:1px solid rgba(255,255,255,.09); border-radius:26px;
+            box-shadow:0 30px 80px rgba(8,10,40,.35);
+          }
+          #ss-dash>.wrap{padding:26px 24px 30px}
+          #ss-gate .wrap>.ss-access{box-shadow:0 30px 80px rgba(8,10,40,.28)}
+          /* gate */
+          #ss-gate .ss-access{border-radius:26px}
+          #ss-gate .ss-access h2{color:#fff}
+          #ss-gate .ss-access>p{color:rgba(255,255,255,.72)}
+          #ss-gate .ss-gate-links a{color:rgba(255,255,255,.75)}
+          #ss-gate .ss-code-fallback summary{color:rgba(255,255,255,.6)}
+          #ss-gate .ss-demo-hint{color:rgba(255,255,255,.55)}
+          #ss-gate .ss-demo-hint code{background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:1px 7px}
+          .ss-trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px auto 4px;max-width:460px}
+          .ss-trust span{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+            border-radius:13px;padding:10px 8px;font-size:.72rem;color:rgba(255,255,255,.66);line-height:1.5}
+          .ss-trust b{display:block;font-size:1.02rem;color:#2ee6c8;margin-bottom:2px}
+          #ss-gate .ss-access-form input{
+            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);color:#fff;
+            letter-spacing:.35em;font-weight:700;text-transform:uppercase;transition:border-color .2s, box-shadow .2s}
+          #ss-gate .ss-access-form input::placeholder{letter-spacing:normal;text-transform:none;color:rgba(255,255,255,.45);font-weight:400}
+          #ss-gate .ss-access-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.18)}
+          #ss-gate .btn-ghost{border-color:rgba(255,255,255,.25);color:#fff}
+          /* dash header */
+          #ss-dash .ss-dash-head h2{color:#fff}
+          #ss-dash .ss-dash-head p{color:rgba(255,255,255,.66)}
+          #ss-dash .ss-logout{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
+          #ss-dash .ss-logout:hover{background:rgba(255,255,255,.16)}
+          /* tabs → glass pills */
+          #ss-dash .ss-tabs{border-bottom:0;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:6px;width:max-content;max-width:100%;overflow-x:auto}
+          #ss-dash .ss-tab{border:0;border-radius:11px;padding:9px 16px;color:rgba(255,255,255,.62);white-space:nowrap}
+          #ss-dash .ss-tab.active{background:rgba(255,255,255,.14);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+          #ss-dash .ss-pane-lead{color:rgba(255,255,255,.68)}
+          #ss-dash .ss-secure{color:rgba(255,255,255,.5)}
+          /* chat panel glass */
+          #pane-team .ss-panel{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);border-radius:22px;box-shadow:0 18px 50px rgba(5,8,35,.35)}
+          #pane-team .ss-panel-head{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
+          #pane-team .ss-panel-head b{color:#fff}
+          #pane-team .ss-panel-head>div span{color:rgba(255,255,255,.6)}
+          #ss-rename{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:9px;cursor:pointer;font:inherit;font-size:.8rem;padding:5px 10px;margin-inline-start:10px;color:#fff}
+          .ss-live{color:#2ee6c8}
+          .ss-pavatar{position:relative;width:46px;height:46px;flex:none}
+          .ss-pavatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+          .ss-ponline{position:absolute;bottom:1px;inset-inline-end:1px;width:11px;height:11px;border-radius:50%;background:#2ee6c8;border:2px solid #131048;animation:sspulse 2s infinite}
+          @keyframes sspulse{0%,100%{box-shadow:0 0 0 0 rgba(46,230,200,.5)}50%{box-shadow:0 0 0 5px rgba(46,230,200,0)}}
+          #pane-team .ss-panel .ss-log{min-height:430px;max-height:600px;padding:16px 14px}
+          /* bubbles */
+          #pane-team .ss-msg{position:relative;max-width:78%;padding:11px 14px 7px;border-radius:18px;border:0;animation:ssmsg .28s ease;white-space:normal}
+          @keyframes ssmsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+          #pane-team .ss-msg .tx{white-space:pre-wrap;line-height:1.8}
+          #pane-team .ss-msg .tx ul{margin:4px 0;padding-inline-start:20px;white-space:normal}
+          #pane-team .ss-msg .tx b.h{display:block;margin-top:4px}
+          #pane-team .ss-msg.bot{background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px;margin-inline-start:34px}
+          #pane-team .ss-msg.bot:not(.typing)::before{content:'';position:absolute;inset-inline-start:-34px;bottom:0;width:26px;height:26px;border-radius:50%;background:url('/assets/img/baher.jpg') center/cover;border:1.5px solid rgba(255,255,255,.35)}
+          #pane-team .ss-msg.me{background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
+          #pane-team .ss-msg .meta{display:block;text-align:end;font-size:.66rem;opacity:.65;margin-top:2px}
+          #pane-team .ss-msg .meta .tick{font-style:normal;opacity:.55}
+          #pane-team .ss-msg .meta .tick.ok{color:#7dffe9;opacity:1}
+          /* typing + teamline */
+          .dots{display:inline-flex;gap:4px;align-items:center}
+          .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.75);animation:ssdot 1.2s infinite}
+          .dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+          @keyframes ssdot{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+          #pane-team .ss-msg.typing{padding:14px 18px}
+          .ss-teamline{display:flex;gap:10px;align-items:center;padding:8px 16px;font-size:.8rem;color:#9ef3e4;background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
+          /* welcome */
+          .ss-welcome{align-self:center;text-align:center;max-width:520px;margin:auto;padding:18px 10px;color:#fff}
+          .ss-welcome .wv{font-size:2.2rem;margin-bottom:6px}
+          .ss-welcome b{font-size:1.05rem}
+          .ss-welcome p{color:rgba(255,255,255,.68);font-size:.88rem;line-height:1.9;margin:8px 0 4px}
+          .ss-welcome .last{display:inline-block;font-size:.78rem;color:#8ceedd;background:rgba(18,179,165,.12);border-radius:999px;padding:4px 14px;min-height:1em;margin-top:6px}
+          .ss-welcome .last:empty{display:none}
+          /* chips */
+          .ss-chips{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap}
+          .ss-chips button{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);border-radius:999px;padding:7px 14px;font:inherit;font-size:.8rem;cursor:pointer;transition:background .2s}
+          .ss-chips button:hover{background:rgba(255,255,255,.16)}
+          /* input */
+          #pane-team .ss-form{background:transparent;border-top:0;padding:12px 14px 14px}
+          #pane-team .ss-form input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:14px}
+          #pane-team .ss-form input::placeholder{color:rgba(255,255,255,.45)}
+          #pane-team .ss-form input:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
+          /* ===== glass treatment for the remaining tabs ===== */
+          #ss-dash .ss-svc a,
+          #ss-dash .ss-ktile, #ss-dash .ss-kcard,
+          #ss-dash .ss-cc, #ss-dash .ss-comp-main, #ss-dash .ss-comp-links a{
+            background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+            backdrop-filter:blur(12px);box-shadow:0 10px 28px rgba(5,8,35,.22)}
+          #ss-dash .ss-svc a b, #ss-dash .ss-kcard>b, #ss-dash .ss-cc-t h3,
+          #ss-dash .ss-comp-links a b, #ss-dash .ss-krows .c{color:#fff}
+          #ss-dash .ss-svc a span, #ss-dash .ss-cc-t .u, #ss-dash .ss-comp-links a span,
+          #ss-dash .ss-ktile .l, #ss-dash .ss-kempty{color:rgba(255,255,255,.62)}
+          #ss-dash .ss-ktile .n{color:#fff}
+          #ss-dash .ss-krows>div{color:rgba(255,255,255,.82);border-bottom-color:rgba(255,255,255,.1)}
+          #ss-dash .ss-svc a:hover, #ss-dash .ss-comp-links a:hover{
+            background:rgba(255,255,255,.11);border-color:rgba(46,230,200,.5);transform:translateY(-2px);
+            box-shadow:0 16px 34px rgba(5,8,35,.3)}
+          #ss-dash .ss-cc-ic{background:rgba(255,255,255,.1)}
+          #ss-dash .ss-cc-state{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+          #ss-dash .ss-cc-state.on{background:rgba(46,230,200,.18);color:#7dffe9}
+          #ss-dash .ss-plat-chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff}
+          #ss-dash .ss-plat-head{color:rgba(255,255,255,.7)}
+          #ss-dash .ss-comp-lead b{color:#fff}
+          #ss-dash .ss-comp-lead p{color:rgba(255,255,255,.66)}
+          #ss-dash .ss-compdash{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+          #ss-dash .ss-note-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff}
+          /* chat extras: copy button, jump-to-latest, print */
+          #pane-team .ss-msg .copy{position:absolute;top:6px;inset-inline-end:8px;opacity:0;transition:opacity .15s;
+            background:rgba(255,255,255,.14);border:0;border-radius:7px;color:#fff;font:inherit;font-size:.68rem;
+            padding:2px 8px;cursor:pointer}
+          #pane-team .ss-msg.bot:hover .copy{opacity:1}
+          #ss-jump{position:absolute;inset-inline-end:16px;bottom:96px;z-index:4;width:38px;height:38px;border-radius:50%;
+            border:1px solid rgba(255,255,255,.2);background:rgba(20,24,70,.9);color:#fff;cursor:pointer;font-size:1rem;
+            box-shadow:0 8px 20px rgba(0,0,0,.35);display:none}
+          #ss-jump.show{display:block}
+          #pane-team .ss-panel{position:relative}
+          .ss-chat-actions{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
+          .ss-chat-actions button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+            border-radius:9px;color:#fff;font:inherit;font-size:.78rem;padding:5px 10px;cursor:pointer}
+          .ss-chat-actions button:hover{background:rgba(255,255,255,.16)}
+          #pane-team .ss-form textarea{flex:1;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+            color:#fff;border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
+          #pane-team .ss-form textarea::placeholder{color:rgba(255,255,255,.45)}
+          #pane-team .ss-form textarea:focus{outline:none;border-color:#19d3c5;box-shadow:0 0 0 4px rgba(25,211,197,.15)}
+          /* the portal IS a chat with Baher — the floating "ask Baher" bubble is
+             redundant here, and on phones both bubbles cover the composer */
+          body:has(#ss-dash:not([hidden])) .advisor-fab,
+          body:has(#ss-dash:not([hidden])) .advisor-panel{display:none!important}
+          /* ===== phones ===== */
+          @media(max-width:640px){
+            #ss-dash>.wrap{padding:14px 12px 18px;border-radius:18px}
+            #ss-dash .ss-dash-head{gap:10px;margin-bottom:12px}
+            #ss-dash .ss-dash-head h2{font-size:1.08rem;margin-bottom:2px}
+            #ss-dash .ss-dash-head p{display:none}            /* long blurb: desktop only */
+            #ss-dash .ss-dash-head>div{min-width:0;flex:1 1 100%}
+            #ss-dash .ss-logout{font-size:.76rem;padding:6px 10px}
+            #ss-dash .ss-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+              scrollbar-width:none;width:100%;border-radius:14px}
+            #ss-dash .ss-tabs::-webkit-scrollbar{display:none}
+            #ss-dash .ss-tab{padding:8px 13px;font-size:.86rem}
+            #pane-team .ss-pane-lead{display:none}          /* the chat explains itself */
+            #pane-team .ss-panel .ss-log{min-height:52vh;max-height:58vh;padding:12px 10px}
+            #pane-team .ss-msg{max-width:90%;padding:10px 12px 6px}
+            #pane-team .ss-panel-head{padding:10px 12px;gap:9px}
+            .ss-pavatar,.ss-pavatar img{width:38px;height:38px}
+            .ss-chat-actions{gap:6px}
+            .ss-chat-actions button{font-size:.9rem;padding:5px 9px;line-height:1}
+            .ss-chat-actions button .lbl{display:none}   /* icons only on phones */
+            .ss-live{font-size:.68rem}
+            .ss-chips{gap:6px;padding:8px 10px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+            .ss-chips::-webkit-scrollbar{display:none}
+            .ss-chips button{white-space:nowrap;font-size:.76rem;padding:6px 12px}
+            #pane-team .ss-form{padding:10px}
+            #pane-team .ss-form textarea{padding:10px 12px}
+            #pane-team .ss-form button{padding:10px 14px}
+            #ss-jump{bottom:112px;inset-inline-end:12px}
+            .wa-fab{display:none!important}                  /* it sits on the composer */
+            .ss-welcome{padding:12px 6px}
+            .ss-welcome .wv{font-size:1.8rem}
+            .ss-welcome p{font-size:.84rem;line-height:1.8}
+          }
+          @media print{
+            body>*:not(main),nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,.advisor-fab,.wa-fab{display:none!important}
+            #ss-dash>.wrap,#pane-team .ss-panel{background:#fff!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+            #pane-team .ss-msg{max-width:100%!important;break-inside:avoid;border:1px solid #ddd!important;color:#111!important;background:#fafafa!important}
+            #pane-team .ss-msg.me{background:#eef7f6!important;color:#111!important}
+            #pane-team .ss-panel .ss-log{max-height:none!important;overflow:visible!important}
+          }
         </style>
       </div>
     </div>
@@ -10170,10 +11131,93 @@ function buildSharedServicesPortal() {
     function chatKey(s){ var c=getClient(); return CHAT_PREFIX+((c&&c.code)||'anon')+'_'+s; }
     function loadChat(s){try{return JSON.parse(localStorage.getItem(chatKey(s))||'[]');}catch(e){return[];}}
     function saveChat(s,h){try{localStorage.setItem(chatKey(s),JSON.stringify(h.slice(-80)));}catch(e){}}
-    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent=${JSON.stringify(Lraw("Start your conversation with ", "ابدأ محادثتك مع "))}+dispName(cur)+' 👋';log.appendChild(em);return;}
-      chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
+    function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function mdLite(t){
+      var lines=esc(t).split('\\n'),out=[],inList=false;
+      lines.forEach(function(ln){
+        var li=ln.match(/^\\s*(?:[-•*]|\\d+[.)])\\s+(.*)$/);
+        if(li){ if(!inList){out.push('<ul>');inList=true;} out.push('<li>'+li[1]+'</li>'); return; }
+        if(inList){out.push('</ul>');inList=false;}
+        var h=ln.match(/^\\s*#{1,4}\\s+(.*)$/); if(h){out.push('<b class="h">'+h[1]+'</b>'); return; }
+        out.push(ln);
+      });
+      if(inList)out.push('</ul>');
+      return out.join('\\n').replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n{2,}/g,'\\n\\n');
+    }
+    function fmtTime(ts){var d=ts?new Date(ts):new Date();var h=d.getHours(),m=('0'+d.getMinutes()).slice(-2);return h+':'+m;}
+    function bubble(m){
+      var d=document.createElement('div');d.className='ss-msg '+m.cls;
+      var tx=document.createElement('div');tx.className='tx';
+      if(m.cls==='bot')tx.innerHTML=mdLite(m.text); else tx.textContent=m.text;
+      var meta=document.createElement('span');meta.className='meta';
+      meta.innerHTML=fmtTime(m.ts)+(m.cls==='me'?' <i class="tick'+(m.sent?' ok':'')+'">✓✓</i>':'');
+      d.appendChild(tx);d.appendChild(meta);
+      if(m.cls==='bot'){
+        var cp=document.createElement('button');cp.type='button';cp.className='copy';cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};
+        cp.onclick=function(){var t=m.text||'';
+          function done(){cp.textContent=${JSON.stringify(Lraw("Copied ✓", "نُسخ ✓"))};setTimeout(function(){cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};},1600);}
+          if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+          else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+        };
+        d.appendChild(cp);
+      }
+      return d;
+    }
+    function welcomeNode(){
+      var c=getClient()||{};var w=document.createElement('div');w.className='ss-welcome';
+      var who=cur?dispName(cur):${JSON.stringify(Lraw("Baher", "باهر"))};
+      w.innerHTML='<div class="wv">👋</div><b>'+${JSON.stringify(Lraw("Welcome ", "حياك الله "))}+esc(c.name||'')+'</b><p>'+${JSON.stringify(Lraw("I'm ", "أنا "))}+esc(who)+${JSON.stringify(Lraw(" — your business advisor. Your whole executive team is behind this chat: ask for anything and we execute; anything binding waits for your approval.", " — مستشار أعمالك. فريقك التنفيذي كامل خلف هذي المحادثة: اطلب أي شيء وننفذه، وأي إجراء ملزم ينتظر موافقتك."))}+'</p><span class="last" id="ss-lastact"></span>';
+      return w;
+    }
+    function fillLastAct(){
+      var el=document.getElementById('ss-lastact');if(!el)return;var c=getClient()||{};
+      if(c.demo){el.textContent=${JSON.stringify(Lraw("Last thing we worked on: your quarterly marketing plan — shall we continue?", "آخر ما اشتغلنا عليه: خطتك التسويقية الربعية — نكمل عليها؟"))};return;}
+      fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){if(d&&d.ok&&d.recent&&d.recent.length){el.textContent=${JSON.stringify(Lraw("Last thing we worked on: ", "آخر ما اشتغلنا عليه: "))}+'«'+d.recent[0].t+'»';}})
+        .catch(function(){});
+    }
+    function renderChat(){log.innerHTML='';
+      if(!chatHist.length){log.appendChild(welcomeNode());fillLastAct();return;}
+      chatHist.forEach(function(m){log.appendChild(bubble(m));});log.scrollTop=log.scrollHeight;}
+    var TEAM_GUESS=[
+      [/تسويق|إعلان|منشور|محتوى|سوشال|حملة|هوية|marketing|ad|post|campaign/i,'farah','📣'],
+      [/نطاق|امتثال|قوى|تأمينات|مقيم|مدد|مخالف|رخصة عمل|إقامة|compliance|nitaqat|qiwa|gosi/i,'mishari','🛡️'],
+      [/سعر|عرض|باقة|اشتراك|quote|price|proposal/i,'badr','💼'],
+      [/توظيف|موظف|راتب|إجازة|عقد عمل|وصف وظيفي|hr|hiring|salary/i,'nasser','👥'],
+      [/موقع|تطبيق|أتمتة|ربط|نظام|تقني|website|app|automation|api/i,'mohammed','💻'],
+      [/فاتورة|ميزانية|ضريبة|زكاة|تدفق|مالي|invoice|budget|vat|tax/i,'abdulrahman','💰'],
+      [/عقد(?! عمل)|تأسيس|ترخيص|قانوني|contract|legal|license/i,'abdulaziz','⚖️'],
+      [/مورد|شراء|توريد|مناقصة|supplier|procure/i,'ahmed','🛒'],
+      [/خطة|استراتيجي|أهداف|رؤية|okr|plan|strategy/i,'strategy','🧠'],
+      [/إيميل|بريد|تذكير|اجتماع|لخص|ملخص|email|meeting|summar/i,'malak','🗂️']
+    ];
+    function guessTeam(m){
+      for(var i=0;i<TEAM_GUESS.length;i++)if(TEAM_GUESS[i][0].test(m)){
+        for(var j=0;j<AGENTS.length;j++)if(AGENTS[j].slug===TEAM_GUESS[i][1])return {n:dispName(AGENTS[j]),e:TEAM_GUESS[i][2],f:(TEAM_GUESS[i][1]==='farah'||TEAM_GUESS[i][1]==='malak')};
+      }
+      return null;
+    }
+    var tlTimers=[];
+    function teamline(on,msg){
+      var tl=document.getElementById('ss-teamline');if(!tl)return;
+      if(!on){tl.hidden=true;tlTimers.forEach(clearTimeout);tlTimers=[];return;}
+      tl.hidden=false;document.getElementById('ss-teamline-t').textContent=msg;
+    }
+    function startTeamline(m){
+      var who=guessTeam(m);var lead=cur?dispName(cur):${JSON.stringify(Lraw("Baher", "باهر"))};
+      teamline(true,lead+${JSON.stringify(Lraw(" is reading your request…", " يقرأ طلبك…"))});
+      tlTimers.push(setTimeout(function(){teamline(true,lead+${JSON.stringify(Lraw(" is briefing the right specialist…", " يوجّه المتخصص المناسب…"))});},2600));
+      tlTimers.push(setTimeout(function(){
+        teamline(true, who?(who.e+' '+who.n+(who.f?${JSON.stringify(Lraw(" is working on it…", " تشتغل على طلبك الآن…"))}:${JSON.stringify(Lraw(" is working on it…", " يشتغل على طلبك الآن…"))})):${JSON.stringify(Lraw("The team is working on your request…", "الفريق يشتغل على طلبك…"))});
+      },5200));
+      tlTimers.push(setTimeout(function(){teamline(true,lead+${JSON.stringify(Lraw(" is reviewing and assembling the result…", " يراجع النتيجة ويجهزها لك…"))});},16000));
+    }
     function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
-      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
+      var pe=document.getElementById('ph-e'),pa=document.getElementById('ph-av');
+      if(pe){pe.textContent=a.e;pe.hidden=(a.slug==='khaled');}
+      if(pa)pa.hidden=(a.slug!=='khaled');
+      document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
       chatHist=loadChat(a.slug);renderChat();input.disabled=false;document.querySelector('#ss-form button').disabled=false;input.focus();}
     function buildAgents(){var box=document.getElementById('ss-agents');box.innerHTML='';
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
@@ -10209,16 +11253,51 @@ function buildSharedServicesPortal() {
     function push(text,cls){var em=log.querySelector('.empty');if(em)em.remove();var d=document.createElement('div');d.className='ss-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
     var form=document.getElementById('ss-form');
     form.addEventListener('submit',function(e){e.preventDefault();if(!cur)return;var m=(input.value||'').trim();if(!m||busy)return;busy=true;
-      var agent=cur,href=chatHist;input.value='';push(m,'me');href.push({text:m,cls:'me'});saveChat(agent.slug,href);
-      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
+      var agent=cur,href=chatHist;input.value='';
+      var w=log.querySelector('.ss-welcome');if(w)w.remove();
+      var mine={text:m,cls:'me',ts:Date.now()};var mineEl=bubble(mine);log.appendChild(mineEl);log.scrollTop=log.scrollHeight;
+      href.push(mine);saveChat(agent.slug,href);
+      var th=document.createElement('div');th.className='ss-msg bot typing';th.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';log.appendChild(th);log.scrollTop=log.scrollHeight;
+      startTeamline(m);
+      var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
       var c=getClient()||{code:'demo123'};
       var url=N8N+'/ss-chat', payload={code:c.code,agent:agent.slug,message:m};
       if(c.demo)payload.names=getNames();
+      function finish(rep){
+        teamline(false);
+        var bm={text:rep,cls:'bot',ts:Date.now()};
+        var nb=bubble(bm);log.replaceChild(nb,th);log.scrollTop=log.scrollHeight;
+        mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
+        href.push(bm);saveChat(agent.slug,href);
+      }
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
-        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
-        .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
+        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
+        .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
         .then(function(){busy=false;});
     });
+    function submitChat(){ if(typeof form.requestSubmit==='function')form.requestSubmit(); else form.dispatchEvent(new Event('submit',{cancelable:true})); }
+    var chipsBox=document.getElementById('ss-chips');
+    if(chipsBox)chipsBox.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b||busy)return;
+      input.value=b.textContent.trim(); submitChat();
+    });
+    // Enter sends, Shift+Enter newline; textarea grows with content
+    function autoGrow(){ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,140)+'px'; }
+    input.addEventListener('input',autoGrow);
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();submitChat();setTimeout(autoGrow,0);}
+    });
+    // jump-to-latest
+    var jump=document.getElementById('ss-jump');
+    if(jump){
+      log.addEventListener('scroll',function(){
+        var far=(log.scrollHeight-log.scrollTop-log.clientHeight)>140;
+        jump.classList.toggle('show',far);
+      });
+      jump.onclick=function(){log.scrollTo({top:log.scrollHeight,behavior:'smooth'});jump.classList.remove('show');};
+    }
+    var pr=document.getElementById('ss-print');
+    if(pr)pr.onclick=function(){window.print();};
 
     // ---------- compliance: jump to Mishari ----------
     var cc=document.getElementById('ss-comp-chat');
@@ -10308,6 +11387,232 @@ function buildSharedServicesPortal() {
   });
 }
 
+/* ---------- B10X Faster™ — Saudi Landing OS (flagship product page) ---------- */
+// One product that packages market entry, formation, relocation, government,
+// workforce, real estate, digital presence, suppliers and an always-on sales
+// pipeline behind a single B10X Account Manager. Existing pages (revenue-os,
+// deals, mahfol-makfol, hr, workspaces, compliance-agent, suppliers) become
+// the engines' deep links — nothing is duplicated or removed.
+function buildB10X() {
+  const step = (ic, en, ar, de, da) => `<article class="path-card" style="text-align:center"><div class="card-icon" style="margin-inline:auto">${ic}</div><h3 style="font-size:1.02rem">${L(en, ar)}</h3><p class="muted" style="font-size:.85rem">${L(de, da)}</p></article>`;
+  const engine = (ic, name, en, ar, items, href, cta) => `<article class="path-card"><div class="card-icon">${ic}</div><h3>${name}</h3><p class="muted"><b>${L(en, ar)}</b></p><ul class="clean-list">${items.map(([e2, a2]) => `<li>${L(e2, a2)}</li>`).join("")}</ul>${href ? `<a class="btn btn-ghost b10x-more" href="${href.startsWith("#") ? href : u(href)}">${cta || L("Learn more", "التفاصيل")}</a>` : ""}</article>`;
+  const chip = (en, ar) => `<span class="sector-chip">${L(en, ar)}</span>`;
+  const bl = (en, ar) => `<li>${L(en, ar)}</li>`;
+
+  const body = `
+  <section class="hero dot-bg"><div class="container hero-inner">
+    <span class="eyebrow">B10X Faster™ — Saudi Landing OS</span>
+    <h1>${L("From Landing in Saudi to Landing Your First Client.", "من أول وصول إلى السعودية إلى أول عميل.")}</h1>
+    <p class="lead" style="font-weight:700;color:var(--navy, #0B1B5A)">${L("Build Toward Your First SAR 1 Million.", "وابنِ طريقك نحو أول مليون ريال.")}</p>
+    <p class="lead">${L("Company formation, relocation, housing, government operations, employees, offices, suppliers, digital presence and an always-on sales pipeline — managed through one B10X Account Manager.", "التأسيس، الانتقال، السكن، العمليات الحكومية، الموظفون، المكاتب، الموردون، الحضور الرقمي وبايبلاين المبيعات — كلها من خلال مدير حساب B10X واحد.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a><a class="btn btn-ghost btn-lg" href="${u("/consultation")}">${L("Plan My Saudi Landing", "خطط لدخول السعودية")}</a></div>
+    <div class="proof"><span>${L("One Partner", "شريك واحد")}</span><span>${L("One Account Manager", "مدير حساب واحد")}</span><span>${L("One Operating System", "منظومة تشغيل واحدة")}</span><span>10X Faster</span></div>
+  </div></section>
+
+  <nav class="section-nav"><div class="container chip-row">
+    <a class="sector-chip" href="#journey">${L("The journey", "الرحلة")}</a>
+    <a class="sector-chip" href="#engines">${L("10 Engines", "المحركات العشرة")}</a>
+    <a class="sector-chip" href="#manager">${L("Account Manager", "مدير الحساب")}</a>
+    <a class="sector-chip" href="#relocation">${L("Relocation", "الانتقال")}</a>
+    <a class="sector-chip" href="#revenue">${L("Revenue", "الإيرادات")}</a>
+    <a class="sector-chip" href="#mission">${L("Discovery Mission", "رحلة المستثمر")}</a>
+    <a class="sector-chip" href="#pricing">${L("Pricing", "التسعير")}</a>
+    <a class="sector-chip" href="#b10x-apply">${L("Apply", "قدّم طلبك")}</a>
+  </div></nav>
+
+  <section class="trust-strip"><div class="container">
+    <p>${L("We don't just set up your company. We land it, run it and grow it.", "لا نؤسس شركتك فقط — نساعدك على الدخول والاستقرار والتشغيل والنمو.")}</p>
+  </div></section>
+
+  <section class="section dot-bg" id="journey"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("One journey, end to end", "رحلة واحدة من أول قرار")}</span><h2>${L("Explore. Land. Establish. Relocate. Operate. Hire. Sell. Source. Scale.", "استكشف. ادخل. أسّس. انتقل. شغّل. وظّف. بِع. ورّد. انمُ.")}</h2><p>${L("Saudi market entry, relocation, operations and growth — as a service.", "دخول السوق والانتقال والتشغيل والنمو — كخدمة واحدة.")}</p></div>
+    <div class="grid grid-3">
+      ${step("🧭", "Explore", "استكشف", "Understand the Saudi market.", "افهم السوق السعودي قبل أي قرار.")}
+      ${step("🛬", "Land", "ادخل", "Enter the market with a plan.", "ادخل السوق بخطة واضحة.")}
+      ${step("🏗️", "Establish", "أسّس", "Set up your company.", "أسّس كيانك النظامي.")}
+      ${step("🧳", "Relocate", "انتقل", "Move the investor, managers and team.", "انقل المستثمر والمدير والفريق.")}
+      ${step("⚙️", "Operate", "شغّل", "Run the company day to day.", "شغّل الشركة يوماً بيوم.")}
+      ${step("👥", "Hire", "وظّف", "Build the team.", "ابنِ الفريق.")}
+      ${step("📈", "Sell", "بِع", "Build your client pipeline.", "ابنِ بايبلاين عملائك.")}
+      ${step("🔗", "Source", "ورّد", "Build your supplier network.", "ابنِ شبكة مورديك.")}
+      ${step("🚀", "Scale", "انمُ", "Grow the company.", "نمِّ الشركة وتوسّع.")}
+    </div>
+  </div></section>
+
+  <section class="section" id="manager"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("The most important element", "أهم عنصر في المنتج")}</span><h2>${L("One Account Manager. 10X Execution Power.", "موظف واحد بقوة فريق كامل.")}</h2><p>${L("Every client gets a dedicated B10X Account Manager — your single point of contact for everything.", "كل عميل يحصل على مدير حساب B10X مخصص — نقطة اتصالك الوحيدة لكل شيء.")}</p></div>
+    <div class="chip-row" style="justify-content:center">
+      ${[["Government Specialists", "متخصصو الحكومة"], ["HR", "الموارد البشرية"], ["Recruitment", "التوظيف"], ["Business Development", "تطوير الأعمال"], ["Procurement", "المشتريات"], ["Supplier Sourcing", "توريد الموردين"], ["Real Estate", "العقارات"], ["Relocation", "الانتقال"], ["Marketing", "التسويق"], ["Technology", "التقنية"], ["Automation", "الأتمتة"], ["AI Agents", "وكلاء الذكاء الاصطناعي"], ["Administrative Support", "الدعم الإداري"], ["Finance Coordination", "التنسيق المالي"], ["Corporate Services", "الخدمات المؤسسية"]].map(([e2, a2]) => chip(e2, a2)).join("")}
+    </div>
+    <div class="callout" style="margin-top:22px"><span class="ico">💬</span><p><b>Ask B10X</b> — ${L("inside your client portal: type what you need — “I need an apartment for the GM”, “I need 5 employees”, “I have a Qiwa issue” — and it becomes a tracked service request assigned to your Account Manager.", "داخل بوابة العميل: اكتب ما تحتاجه — «أحتاج شقة للمدير العام»، «أحتاج ٥ موظفين»، «عندي مشكلة في قوى» — ويتحول تلقائياً إلى طلب خدمة برقم متابعة يُسند لمدير حسابك.")}</p></div>
+  </div></section>
+
+  <section class="section section--navy" id="engines"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("The product", "المنتج")}</span><h2 style="color:#fff">${L("10 Engines. One Operating System.", "١٠ محركات. منظومة تشغيل واحدة.")}</h2></div>
+    <div class="grid grid-2">
+      ${engine("🧭", "B10X Explore", "Market exploration", "استكشاف السوق", [["Market entry assessment & sector research", "تقييم دخول السوق وبحث القطاع"], ["Competitor, customer & supplier mapping", "خرائط المنافسين والعملاء والموردين"], ["Regulatory mapping & target cities", "الخريطة التنظيمية والمدن المستهدفة"], ["Cost & workforce assessment", "تقييم التكاليف والقوى العاملة"]], "/mahfol-makfol")}
+      ${engine("🏗️", "B10X Establish", "Formation", "التأسيس", [["Investment license & foreign investor setup", "رخصة الاستثمار وتأسيس المستثمر الأجنبي"], ["LLC / foreign branch / RHQ", "شركة ذ.م.م / فرع أجنبي / مقر إقليمي"], ["CR, articles, GM appointment", "السجل التجاري وعقد التأسيس وتعيين المدير"], ["Attestation & translation coordination", "تنسيق التصديق والترجمة"]], "/services")}
+      ${engine("🏛️", "B10X Government", "Government & compliance", "الحكومة والامتثال", [["Qiwa, GOSI, Mudad, Muqeem, Absher", "قوى والتأمينات ومدد ومقيم وأبشر"], ["Baladi, Ejar, ZATCA, Etimad, Najiz", "بلدي وإيجار والزكاة واعتماد وناجز"], ["Compliance center: licenses, expiries, renewals", "مركز امتثال: الرخص والانتهاءات والتجديدات"], ["Sector platforms (SFDA, Saber, Fasah…)", "منصات القطاع (الغذاء والدواء، سابر، فسح…)"]], "/compliance-agent")}
+      ${engine("🧳", "B10X Relocation", "Relocation & settling-in", "الانتقال والاستقرار", [["Investor, executives, employees & family", "المستثمر والتنفيذيون والموظفون والعائلة"], ["Executive & workforce housing", "سكن تنفيذي وسكن عمالة"], ["Schools, healthcare, transport, banking", "المدارس والرعاية والتنقل والبنوك"], ["Arrival to departure, end to end", "من الوصول حتى المغادرة"]], "#relocation")}
+      ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
+      ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
+      ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/business-development")}
+      ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
+      ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
+    </div>
+  </div></section>
+
+  <section class="section dot-bg" id="relocation"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Relocation</span><h2>${L("We don't just relocate your business. We relocate the people behind it.", "لا ننقل شركتك فقط — نساعد الأشخاص خلفها على الانتقال والاستقرار.")}</h2></div>
+    <div class="grid grid-3">
+      <div class="card feature"><h3>🛫 ${L("Pre-arrival", "قبل الوصول")}</h3><p>${L("Needs assessment, city & area selection, housing and school requirements, commute and arrival planning.", "تقييم الاحتياج، اختيار المدينة والأحياء، متطلبات السكن والمدارس، وخطة الوصول.")}</p></div>
+      <div class="card feature"><h3>🛬 ${L("Arrival", "عند الوصول")}</h3><p>${L("Airport reception, executive car, temporary residence, SIM, orientation and Account Manager introduction.", "استقبال المطار، سيارة تنفيذية، سكن مؤقت، شريحة اتصال، وجولة تعريفية مع مدير حسابك.")}</p></div>
+      <div class="card feature"><h3>🏠 ${L("Executive housing", "السكن التنفيذي")}</h3><p>${L("Apartment, villa, compound or serviced residence — matched to budget, office, family and lifestyle.", "شقة، فيلا، كمباوند أو سكن مخدوم — حسب الميزانية والمكتب والعائلة ونمط الحياة.")}</p></div>
+      <div class="card feature"><h3>🏘️ ${L("Workforce housing", "سكن العمالة")}</h3><p>${L("Licensed group housing with maintenance, utilities, transport and catering coordination.", "سكن جماعي نظامي مع تنسيق الصيانة والخدمات والنقل والإعاشة.")}</p></div>
+      <div class="card feature"><h3>🏫 ${L("Family & schools", "العائلة والمدارس")}</h3><p>${L("International school search (British, American, IB) by budget, age and location — shortlist, visits, applications. Admission is not guaranteed.", "بحث المدارس الدولية (بريطاني، أمريكي، IB) حسب الميزانية والعمر والموقع — ترشيح وزيارات وتقديم. القبول غير مضمون.")}</p></div>
+      <div class="card feature"><h3>🚗 ${L("Transport, banking & settling-in", "التنقل والبنوك والاستقرار")}</h3><p>${L("Chauffeur/leasing coordination, bank appointment support, city orientation — through departure and exit support.", "تنسيق السائق والتأجير، ودعم موعد البنك، وجولات التعرف على المدينة — وحتى دعم المغادرة والإنهاء.")}</p></div>
+    </div>
+    <div class="callout" style="margin-top:18px"><span class="ico">ℹ️</span><p>${L("Flights, hotels, rent, school fees and all third-party costs are separate unless priced explicitly.", "الطيران والفنادق والإيجارات ورسوم المدارس وكل تكاليف الأطراف الثالثة منفصلة ما لم تُسعَّر صراحة.")}</p></div>
+  </div></section>
+
+  <section class="section" id="revenue"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Selling never stops", "مبيعاتك لا تتوقف")}</span><h2>${L("Your pipeline never sleeps.", "بايبلاينك لا ينام.")}</h2><p>${L("You don't enter Saudi without a pipeline. All year: research → prospect → outreach → follow-up → meeting → proposal → negotiation → win → repeat.", "لا تدخل السعودية بدون بايبلاين. طوال السنة: بحث ← استهداف ← تواصل ← متابعة ← اجتماع ← عرض ← تفاوض ← فوز ← تكرار.")}</p></div>
+    <div class="grid grid-2">
+      <div class="card"><h3>🏁 ${L("First Client Milestones", "معالم أول عميل")}</h3><ul class="clean-list">
+        ${bl("ICP defined → target accounts built", "تحديد العميل المثالي ← بناء الحسابات المستهدفة")}
+        ${bl("First outreach → first reply → first meeting", "أول تواصل ← أول رد ← أول اجتماع")}
+        ${bl("First qualified opportunity → first proposal", "أول فرصة مؤهلة ← أول عرض سعر")}
+        ${bl("First negotiation → FIRST CLIENT 🎉", "أول تفاوض ← أول عميل 🎉")}
+      </ul><p class="mini">${L("Tracked monthly: accounts researched, decision makers, outreach, replies, meetings, proposals, pipeline value, won revenue.", "تُتابع شهرياً: الحسابات المبحوثة، صناع القرار، التواصل، الردود، الاجتماعات، العروض، قيمة البايبلاين، والإيراد المحقق.")}</p></div>
+      <div class="card" id="road1m"><h3>🎯 ${L("Road to SAR 1,000,000 — planning tool", "الطريق إلى ١٬٠٠٠٬٠٠٠ ريال — أداة تخطيط")}</h3>
+        <div class="grid grid-2" style="gap:10px">
+          <label style="font-size:.85rem">${L("Average contract value (SAR)", "متوسط قيمة العقد (﷼)")}<input id="r1acv" type="number" value="50000" min="1000" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+          <label style="font-size:.85rem">${L("Win rate %", "نسبة الفوز %")}<input id="r1win" type="number" value="20" min="1" max="90" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        </div>
+        <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
+        <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
+    </div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+  </div></section>
+
+  <section class="section dot-bg" id="mission"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>${L("An executive discovery mission inside Saudi Arabia", "رحلة استكشافية تنفيذية داخل السعودية")}</h2><p>${L("Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.", "لقاءات حكومية وعملاء وموردون وبنوك وغرف تجارية وجولات عقارية — مصممة حسب قطاعك.")}</p></div>
+    <div class="chip-row" style="justify-content:center">${[["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Eastern Province", "الشرقية"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Aseer", "عسير"], ["Tabuk", "تبوك"], ["NEOM", "نيوم"], ["Jazan", "جازان"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+    <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>${L("Flights, hotels, transport and third-party costs are not included unless priced separately.", "الطيران والفنادق والنقل وتكاليف الأطراف الثالثة غير مشمولة إلا إذا سُعّرت منفصلة.")}</p></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
+  </div></section>
+
+  <section class="section" id="pricing"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Simple, serious pricing", "تسعير واضح وجاد")}</span><h2>${L("B10X Activation + B10X 365", "تفعيل B10X + عقد B10X 365")}</h2></div>
+    <div class="grid grid-2">
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X Activation</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 50,000 <span style="font-size:.9rem;font-weight:400">+ VAT · ${L("one time", "مرة واحدة")}</span></p>
+        <ul class="clean-list">${bl("Month 1 — Build: audit, structure, government map", "الشهر الأول — البناء: التدقيق والهيكلة والخريطة الحكومية")}${bl("Relocation plan, launch website, company profile", "خطة الانتقال، موقع الانطلاق، البروفايل")}${bl("CRM, ICP and supplier framework", "الـCRM وتعريف العميل المثالي وإطار الموردين")}</ul></div>
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X 365</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 10,000 <span style="font-size:.9rem;font-weight:400">/ ${L("month", "شهرياً")} + VAT · ${L("12-month partnership", "شراكة ١٢ شهراً")}</span></p>
+        <ul class="clean-list">${bl("Dedicated Account Manager + request management", "مدير حساب مخصص + إدارة الطلبات")}${bl("Government ops, compliance, HR & recruitment coordination", "العمليات الحكومية والامتثال وتنسيق الموارد والتوظيف")}${bl("Revenue pipeline, supplier sourcing, vendor registration (≤5/mo)", "بايبلاين الإيراد وتوريد الموردين وتسجيل الموردين (≤٥ شهرياً)")}${bl("Relocation & real-estate coordination, documents, renewals, AI shared services", "تنسيق الانتقال والعقار والمستندات والتجديدات وخدمات الذكاء المشتركة")}</ul></div>
+    </div>
+    <p class="center" style="margin-top:14px;font-weight:700">${L("First-year base fees: SAR 170,000 + VAT — before add-ons or success fees.", "إجمالي الأتعاب الأساسية للسنة الأولى: ١٧٠٬٠٠٠ ريال + الضريبة — قبل أي إضافات أو عمولات نجاح.")}</p>
+    <div class="callout"><span class="ico">⚖️</span><p><b>${L("Government, third-party and success fees apply separately.", "الرسوم الحكومية وتكاليف الأطراف الثالثة وعمولات النجاح تُحتسب منفصلة.")}</b> ${L("The retainer is managed under a Fair Usage Policy: some services are included management, some included coordination, some usage-limited, and larger scopes are priced as projects or success fees.", "الاشتراك يُدار وفق سياسة الاستخدام العادل: بعض الخدمات إدارة مشمولة، وبعضها تنسيق مشمول، وبعضها محدود الاستخدام، والنطاقات الأكبر تُسعّر كمشاريع أو عمولات نجاح.")}</p></div>
+    <div class="section-head" style="margin-top:26px"><h2 style="font-size:1.2rem">${L("Success fees & add-on marketplace", "عمولات النجاح وسوق الإضافات")}</h2></div>
+    <div class="chip-row" style="justify-content:center">${[["Customer acquisition %", "استقطاب العملاء %"], ["Supplier / commercial match", "مطابقة الموردين"], ["Distribution & partnership", "التوزيع والشراكات"], ["Recruitment fee", "رسوم التوظيف"], ["Real estate (per regulations)", "العقار (وفق الأنظمة)"], ["M&A mandate + success", "الاندماج والاستحواذ"], ["Advanced website / e-commerce", "موقع متقدم / متجر"], ["Custom portal / CRM / ERP", "بوابة / CRM / ERP مخصص"], ["AI agents & automation", "وكلاء ذكاء وأتمتة"], ["Paid advertising", "إعلانات ممولة"], ["Executive & volume hiring", "توظيف تنفيذي وبالجملة"], ["Large relocation projects", "مشاريع انتقال كبيرة"], ["Custom market research", "أبحاث سوق مخصصة"], ["New-city expansion", "التوسع لمدن جديدة"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+  </div></section>
+
+  <section class="section dot-bg"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Year one", "السنة الأولى")}</span><h2>${L("The annual timeline", "الجدول الزمني السنوي")}</h2></div>
+    <div class="grid grid-4">
+      <div class="card feature"><h3>${L("Month 1 — Build", "الشهر ١ — البناء")}</h3><p>${L("Audit, structure, government map, relocation plan, website, profile, CRM, ICP, supplier framework.", "تدقيق، هيكلة، خريطة حكومية، خطة انتقال، موقع، بروفايل، CRM، ICP، إطار موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 2–3 — Launch", "الشهران ٢–٣ — الانطلاق")}</h3><p>${L("Government activation, hiring, housing, office, outreach, meetings, vendor registrations.", "تفعيل حكومي، توظيف، سكن، مكتب، تواصل، اجتماعات، تسجيلات موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 4–6 — Traction", "الأشهر ٤–٦ — الانطلاقة")}</h3><p>${L("Sales pipeline, suppliers, partnerships, recruitment, first clients, compliance.", "بايبلاين مبيعات، موردون، شراكات، توظيف، أول عملاء، امتثال.")}</p></div>
+      <div class="card feature"><h3>${L("Months 7–12 — Scale", "الأشهر ٧–١٢ — النمو")}</h3><p>${L("New accounts, markets, cities, partnerships, procurement, technology, deals, expansion.", "حسابات وأسواق ومدن جديدة، شراكات، مشتريات، تقنية، صفقات، توسع.")}</p></div>
+    </div>
+  </div></section>
+
+  <section class="section" id="b10x-apply"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Start B10X", "ابدأ B10X")}</span><h2>${L("Tell us about your company", "أخبرنا عن شركتك")}</h2><p>${L("A B10X specialist replies within one business day with your landing plan.", "يرد عليك مختص B10X خلال يوم عمل بخطة دخولك.")}</p></div>
+    <form id="b10xForm" class="card" style="display:grid;gap:12px">
+      <div class="grid grid-2" style="gap:12px">
+        <label>${L("Your name *", "اسمك *")}<input name="name" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Company *", "الشركة *")}<input name="company" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Country", "الدولة")}<input name="country" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Sector", "القطاع")}<input name="sector" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Phone / WhatsApp *", "الجوال / واتساب *")}<input name="phone" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Email *", "البريد *")}<input name="email" type="email" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+      </div>
+      <label>${L("What do you want to achieve in Saudi?", "ماذا تريد أن تحقق في السعودية؟")}<textarea name="message" rows="3" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></textarea></label>
+      <button class="btn btn-primary btn-lg" type="submit">${L("Start B10X →", "ابدأ B10X ←")}</button>
+      <div id="b10xMsg" class="mini" style="display:none"></div>
+    </form>
+  </div></section>
+
+  <div class="cta-band"><h2>${L("Land in Saudi. Start Selling. Keep Growing.", "ادخل السعودية. ابدأ البيع. واستمر بالنمو.")}</h2><p>${L("One Partner. One Account Manager. One Operating System. 10X Faster.", "شريك واحد. مدير حساب واحد. منظومة واحدة. أسرع ١٠ مرات.")}</p><a class="btn btn-white btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a></div>`;
+
+  const script = `
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    function r1(){
+      var acv = Math.max(1, +($('r1acv').value || 0));
+      var win = Math.min(90, Math.max(1, +($('r1win').value || 0))) / 100;
+      var target = 1000000;
+      var wins = Math.ceil(target / acv);
+      var opps = Math.ceil(wins / win);
+      var meetings = opps * 2;
+      var pipeline = Math.ceil(target / win);
+      $('r1out').querySelector('p').textContent = ${JSON.stringify("")} +
+        '${Lraw("Wins needed", "الصفقات المطلوبة")}: ' + wins.toLocaleString('en') +
+        ' · ${Lraw("Qualified opportunities", "الفرص المؤهلة")}: ' + opps.toLocaleString('en') +
+        ' · ${Lraw("Meetings", "الاجتماعات")}: ~' + meetings.toLocaleString('en') +
+        ' · ${Lraw("Pipeline value", "قيمة البايبلاين")}: SAR ' + pipeline.toLocaleString('en');
+    }
+    if ($('r1acv')){ $('r1acv').oninput = r1; $('r1win').oninput = r1; r1(); }
+    var f = $('b10xForm');
+    if (f) f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var d = new FormData(f), o = { type: 'b10x-apply' };
+      d.forEach(function(v, k){ o[k] = String(v); });
+      var m = $('b10xMsg'); m.style.display = 'block'; m.textContent = '${Lraw("Sending…", "جاري الإرسال…")}';
+      fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
+        .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
+          else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966530540231", "تعذّر الإرسال — تواصل واتساب: 966530540231")}'; }
+        })
+        .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });
+    });
+  })();`;
+
+  // Classes below exist only on this page — styles.css doesn't define them.
+  const b10xCss = `<style>
+    .dot-bg{background-image:radial-gradient(rgba(11,27,90,.07) 1px,transparent 1px);background-size:22px 22px}
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px}
+    .sector-chip{display:inline-block;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;box-shadow:0 1px 3px rgba(11,27,90,.06)}
+    a.sector-chip:hover{border-color:var(--navy);color:var(--navy)}
+    .section-nav{background:#f3f5fb;border-block:1px solid #e5eaf4;padding:14px 0}
+    .section-nav .chip-row{justify-content:center}
+    .trust-strip{background:var(--navy);padding:20px 0;text-align:center}
+    .trust-strip p{color:#fff;margin:0;font-size:1.08rem;font-weight:700}
+    .proof{display:flex;flex-wrap:wrap;gap:10px 12px;justify-content:center;margin-top:20px}
+    .proof span{background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:6px 15px;font-weight:700;font-size:.88rem}
+    .path-card{background:#fff;border:1px solid #e5eaf4;border-radius:14px;padding:22px;box-shadow:0 6px 18px rgba(11,27,90,.06)}
+    .path-card h3{margin:10px 0 6px}
+    .muted{color:#5b6478}
+    .clean-list{list-style:none;padding:0;margin:10px 0}
+    .clean-list li{position:relative;padding-inline-start:22px;margin:7px 0;font-size:.92rem;color:#334155}
+    .clean-list li::before{content:"\\2713";position:absolute;inset-inline-start:0;color:#0F766E;font-weight:700}
+    .b10x-more{margin-top:12px;padding:9px 20px;font-size:.9rem}
+    .section--navy .section-head p{color:rgba(255,255,255,.85)}
+    #b10xForm label{font-size:.9rem;font-weight:600;color:var(--navy)}
+    @media (max-width:640px){.section-nav .chip-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}}
+  </style>`;
+
+  return page({
+    title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | بيزنس بارتنر"),
+    desc: Lraw("Saudi market entry, relocation, operations and growth as a service — formation, housing, government, employees, suppliers and an always-on sales pipeline behind one B10X Account Manager.", "دخول السوق السعودي والانتقال والتشغيل والنمو كخدمة — التأسيس والسكن والحكومة والموظفون والموردون وبايبلاين مبيعات دائم خلف مدير حساب B10X واحد."),
+    active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`, extraHead: b10xCss,
+  });
+}
+
 /* ---------- write ---------- */
 function write(rel, html) {
   const full = path.join(ROOT, rel);
@@ -10346,6 +11651,7 @@ function writeFullSite(pre) {
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}business-development.html`, buildBdaas());
+  write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
@@ -10365,6 +11671,7 @@ function writeFullSite(pre) {
   write(`${pre}calculators/overtime.html`, buildOvertimeCalculator());
   write(`${pre}calculators/gosi.html`, buildGosiCalculator());
   write(`${pre}compliance-agent.html`, buildComplianceAgent());
+  write(`${pre}ai-document-agent.html`, buildDocAgent());
   write(`${pre}data.html`, buildDataPortal());
   TEAM_AGENTS.forEach((a) => write(`${pre}team/${a.slug}.html`, buildTeamAgent(a)));
   write(`${pre}saudi-arabia.html`, buildSaudi());
@@ -10468,6 +11775,118 @@ write("monitor.html", buildMonitor());
 // Owner-only unified control panel for the site (standalone page, noindex)
 write("admin.html", buildAdmin());
 
+// Owner/consultant panel for the AI Document Agent (noindex, standalone).
+// Auth: the same bp_admin_key / bp_admin_ticket localStorage the /admin panel
+// stores — opening it from /admin needs no re-login.
+function buildDocAgentAdmin() {
+  return `<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>وكيل المستندات — لوحة المتابعة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0B1B5A;--bg:#F5F6FA;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--blue:#1F4ED8;--red:#b91c1c;--green:#16a34a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wrap{max-width:1280px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{color:var(--navy);font-size:1.35rem;margin-bottom:.8rem}
+.bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+input,select,textarea,button{font-family:inherit;font-size:.92rem;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;background:#fff}
+button{cursor:pointer;background:var(--navy);color:#fff;border:0}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:1rem}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:0 6px 22px rgba(11,27,90,.05)}
+.req{padding:.55rem .6rem;border-radius:10px;cursor:pointer;border-bottom:1px solid var(--line)}
+.req:hover,.req.on{background:#eef2ff}
+.req b{display:block;font-size:.92rem}
+.req small{color:var(--muted)}
+.chip{display:inline-block;background:#eef2ff;color:var(--navy);border-radius:999px;padding:.1rem .6rem;font-size:.78rem;margin:0 0 .3rem .3rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:.45rem .5rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+a{color:var(--blue)}
+.msg{border:1px solid var(--line);border-radius:10px;padding:.45rem .6rem;margin-bottom:.45rem;font-size:.88rem;white-space:pre-wrap}
+.msg.client{background:#f8fafc}.msg.agent{background:#eef2ff}.msg.consultant{background:#ecfdf5}
+.qa-passed{color:var(--green)}.qa-failed{color:var(--red)}
+#detail{display:none}
+.note{color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body><div class="wrap">
+<h1>🗂️ وكيل المستندات — لوحة المتابعة والتدخل</h1>
+<div class="bar">
+  <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
+  <button id="save">دخول</button>
+  <button class="ghost" id="reload">تحديث القائمة</button>
+  <span class="note">نفس مفتاح <a href="/admin">/admin</a> — يُلتقط تلقائياً إن سبق دخولك هناك.</span>
+</div>
+<div class="grid">
+  <div class="card"><h3 style="margin-bottom:.5rem">الطلبات</h3><div id="list" class="note">…</div></div>
+  <div class="card" id="detail"></div>
+</div>
+</div>
+<script>
+(function(){
+  var API='/api/requests?__route=doc-agent';
+  var key=localStorage.getItem('bp_admin_key')||'';
+  var ticket=localStorage.getItem('bp_admin_ticket')||'';
+  var cur='';
+  function auth(){return '&key='+encodeURIComponent(key)+(ticket?('&ticket='+encodeURIComponent(ticket)):'');}
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function get(a,extra){return fetch(API+'&action='+a+auth()+(extra||'')).then(function(r){return r.json();});}
+  function post(body){body.key=key;if(ticket)body.ticket=ticket;return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  $('k').value=key;
+  $('save').onclick=function(){key=$('k').value.trim();localStorage.setItem('bp_admin_key',key);load();};
+  $('reload').onclick=function(){load();};
+  function load(){
+    $('list').textContent='…';
+    get('admin-list').then(function(d){
+      if(!d.ok){$('list').textContent=d.error==='unauthorized'?'المفتاح غير صحيح.':'خطأ.';return;}
+      $('list').innerHTML=(d.requests||[]).map(function(r){
+        return '<div class="req" data-ref="'+esc(r.ref)+'"><b>'+esc(r.ref)+' — '+esc(r.org||r.contact||'بلا منشأة')+'</b><small>'+esc(r.status)+' · '+esc(r.channel)+' · '+esc((r.updated_at||'').slice(0,16).replace('T',' '))+'</small></div>';
+      }).join('')||'لا طلبات بعد.';
+      Array.prototype.forEach.call(document.querySelectorAll('.req'),function(n){n.onclick=function(){open(n.getAttribute('data-ref'));};});
+    }).catch(function(){$('list').textContent='خطأ شبكة.';});
+  }
+  function open(ref){
+    cur=ref;
+    Array.prototype.forEach.call(document.querySelectorAll('.req'),function(n){n.classList.toggle('on',n.getAttribute('data-ref')===ref);});
+    $('detail').style.display='block';$('detail').innerHTML='…';
+    get('admin-state','&ref='+encodeURIComponent(ref)).then(function(d){
+      if(!d.ok){$('detail').textContent='خطأ.';return;}
+      var h='<h3>'+esc(d.request.ref)+'</h3>';
+      h+='<div style="margin:.4rem 0 .8rem"><span class="chip">'+esc(d.request.status)+'</span><span class="chip">'+esc(d.request.channel)+'</span><span class="chip">نماذج: '+d.gap.forms+'</span><span class="chip">مصادر: '+d.gap.sources+'</span><span class="chip">حقائق: '+d.gap.facts+'</span>'+(d.gap.conflicts.length?('<span class="chip" style="background:#fee2e2;color:#b91c1c">تعارضات: '+d.gap.conflicts.length+'</span>'):'')+'</div>';
+      h+='<h4>الملفات</h4><table><tr><th>الملف</th><th>الدور</th><th>النوع</th><th>الصلاحية</th><th></th></tr>';
+      (d.files||[]).forEach(function(f){
+        h+='<tr><td>'+esc(f.file_name)+'</td><td><select data-role="'+esc(f.id)+'">'+['source','target_form','supporting','signature_asset','stamp_asset','requirement','unknown'].map(function(r){return '<option'+(r===f.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select></td><td>'+esc(f.doc_kind||'—')+'</td><td>'+esc(f.expiry_status)+'</td><td><a href="#" data-dl-file="'+esc(f.id)+'">تنزيل</a></td></tr>';
+      });
+      h+='</table>';
+      h+='<h4 style="margin-top:.8rem">المخرجات</h4>';
+      h+=(d.outputs||[]).length?('<table><tr><th>الملف</th><th>إصدار</th><th>QA</th><th></th></tr>'+(d.outputs||[]).map(function(o){return '<tr><td>'+esc(o.delivery_name)+'</td><td>v'+o.version_no+'</td><td class="qa-'+esc(o.qa_status)+'">'+esc(o.qa_status)+'</td><td><a href="#" data-dl-out="'+esc(o.id)+'">تنزيل</a></td></tr>';}).join('')+'</table>'):'<span class="note">لا مخرجات بعد.</span>';
+      h+='<div style="margin:.8rem 0"><button id="regen">🔁 أعد التوليد الآن</button></div>';
+      h+='<h4>المحادثة (آخر 100)</h4><div style="max-height:340px;overflow:auto;margin:.4rem 0">'+(d.messages||[]).map(function(m){return '<div class="msg '+esc(m.author)+'"><b>'+esc(m.author)+':</b> '+esc(m.body)+'</div>';}).join('')+'</div>';
+      h+='<div style="display:flex;gap:.5rem"><textarea id="cmsg" rows="2" style="flex:1" placeholder="رسالة للعميل باسم المستشار…"></textarea><button id="csend">إرسال</button></div>';
+      $('detail').innerHTML=h;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-role]'),function(sel){
+        sel.onchange=function(){post({action:'admin-set-role',ref:cur,file_id:sel.getAttribute('data-role'),role:sel.value}).then(function(r){if(!r.ok)alert('فشل تغيير الدور');});};
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-dl-out]'),function(a){a.onclick=function(ev){ev.preventDefault();get('admin-link','&id='+a.getAttribute('data-dl-out')+'&table=outputs').then(function(r){if(r.url)window.open(r.url,'_blank');});};});
+      Array.prototype.forEach.call(document.querySelectorAll('[data-dl-file]'),function(a){a.onclick=function(ev){ev.preventDefault();get('admin-link','&id='+a.getAttribute('data-dl-file')+'&table=files').then(function(r){if(r.url)window.open(r.url,'_blank');});};});
+      $('regen').onclick=function(){$('regen').disabled=true;$('regen').textContent='…';post({action:'admin-generate',ref:cur}).then(function(r){alert(r.ok?('تم — '+(r.outputs||[]).length+' مخرجات'):'فشل: '+(r.error||''));open(cur);});};
+      $('csend').onclick=function(){var v=$('cmsg').value.trim();if(!v)return;post({action:'admin-message',ref:cur,message:v}).then(function(r){if(r.ok){$('cmsg').value='';open(cur);}else alert('فشل الإرسال');});};
+    });
+  }
+  if(key)load();
+})();
+</script>
+</body></html>`;
+}
+write("doc-agent-admin.html", buildDocAgentAdmin());
+
 // Client Operations Center — the new /account (approved design). One bilingual
 // standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
 // buildAccount() output for en+ar; extra languages keep the legacy page until
@@ -10506,7 +11925,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

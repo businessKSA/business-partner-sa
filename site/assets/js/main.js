@@ -6,10 +6,36 @@
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".nav");
   if (toggle && nav) {
-    toggle.addEventListener("click", function () {
+    var closeNav = function () {
+      if (!nav.classList.contains("open")) return;
+      nav.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("nav-open");
+      nav.querySelectorAll(".nav-group.open").forEach(function (g) {
+        g.classList.remove("open");
+        var d = g.querySelector(".nav-drop");
+        if (d) d.setAttribute("aria-expanded", "false");
+      });
+    };
+    toggle.addEventListener("click", function (e) {
+      e.stopPropagation();
       var isOpen = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", isOpen);
       document.body.classList.toggle("nav-open", isOpen);
+    });
+    // Tapping a real link inside the menu navigates AND dismisses the menu;
+    // dropdown toggles (.nav-drop) only expand their section and keep it open.
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest("a[href]")) closeNav();
+    });
+    // A tap anywhere outside the open menu dismisses it.
+    document.addEventListener("click", function (e) {
+      if (!nav.classList.contains("open")) return;
+      if (e.target.closest(".nav") || e.target.closest(".nav-toggle")) return;
+      closeNav();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeNav();
     });
   }
 
@@ -3487,11 +3513,11 @@ var BP = window.BP = window.BP || {};
         done.innerHTML = "✅ <strong>" + T("We received your quote request", "استلمنا طلبك لعرض السعر") + (ref ? " — " + ref : "") + "</strong><br>" +
           T("Your advisor Baher will prepare a price tailored to your case and contact you shortly on your number/email.", "بيجهّز لك مستشارك باهر عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.") +
           '<div class="adv-ticket-acts"><button type="button" class="adv-primary" id="adv-ticket-more">' + T("New request", "طلب جديد") + '</button>' +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
         var more = $("adv-ticket-more"); if (more) more.addEventListener("click", goHome);
       }).catch(function () {
         go.disabled = false; go.textContent = "💬 " + T("Request a price quote", "اطلب عرض السعر");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
@@ -3570,10 +3596,10 @@ var BP = window.BP = window.BP || {};
           T("Your advisor Baher will confirm shortly.", "بيأكّد لك مستشارك باهر قريباً.") +
           '<div class="adv-ticket-acts">' +
           (cal ? '<a class="adv-primary" target="_blank" rel="noopener" href="' + cal + '">📅 ' + T("Add to Google Calendar", "أضِف إلى تقويم Google") + "</a>" : "") +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
       }).catch(function () {
         go.disabled = false; go.textContent = "✅ " + T("Confirm appointment", "أكّد الموعد");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
@@ -4071,7 +4097,7 @@ var BP = window.BP = window.BP || {};
   var receiptInput = document.getElementById("co-receipt");
   var bnplBox = document.getElementById("bnpl-box");
   var onlineReady = false;      // Moyasar mounted successfully
-  var bnplCfg = { tabby: false, tamara: false };   // flips when /api/pay says the keys are in
+  var bnplCfg = { tamara: false };   // flips when /api/pay says the key is in
   function payMethod() {
     var r = document.querySelector('input[name="paymethod"]:checked');
     var v = r ? r.value : "online";
@@ -4090,14 +4116,24 @@ var BP = window.BP = window.BP || {};
     if (onlineNote) onlineNote.hidden = (m !== "online");
     if (typeof gate === "function") gate();
   }
-  // ---- installments (Tabby / Tamara) ----
-  // The buttons exist from day one; each one is «قريباً» until /api/pay says
-  // that provider's keys are configured, then it goes live with no code change.
+  // ---- installments (Tamara) ----
+  // The button exists from day one; it reads «قريباً» until /api/pay says the
+  // key is configured, then it goes live with no code change.
+  // A provider outage is the same dead end to the buyer as a missing key, so
+  // the first failed attempt takes the button down for the rest of the visit
+  // instead of inviting a second and a third try at the same wall.
+  function bnplDown(prov) {
+    try { return sessionStorage.getItem("bp_bnpl_down_" + prov) === "1"; } catch (e) { return false; }
+  }
+  function markBnplDown(prov) {
+    try { sessionStorage.setItem("bp_bnpl_down_" + prov, "1"); } catch (e) {}
+  }
   function bnplButtons() {
-    ["tabby", "tamara"].forEach(function (prov) {
+    ["tamara"].forEach(function (prov) {
       var btn = document.getElementById("bnpl-" + prov);
       if (!btn) return;
-      var on = !!bnplCfg[prov];
+      var down = bnplDown(prov);
+      var on = !!bnplCfg[prov] && !down;
       btn.disabled = !on;
       btn.style.opacity = on ? "1" : ".45";
       btn.style.cursor = on ? "pointer" : "not-allowed";
@@ -4106,13 +4142,13 @@ var BP = window.BP = window.BP || {};
         badge = document.createElement("span");
         badge.className = "soon-badge";
         badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
-        badge.textContent = BP.t("soon", "قريباً");
+        badge.textContent = down ? BP.t("unavailable", "غير متاح حالياً") : BP.t("soon", "قريباً");
         btn.appendChild(badge);
       } else if (on && badge) badge.remove();
     });
   }
   function bnplGo(prov) {
-    if (!bnplCfg[prov]) return;
+    if (!bnplCfg[prov] || bnplDown(prov)) return;
     var help = document.getElementById("bnpl-help");
     var terms = document.getElementById("co-terms");
     var gap = (terms && !terms.checked)
@@ -4133,6 +4169,13 @@ var BP = window.BP = window.BP || {};
       .then(function (out) {
         if (out && out.ok && out.url) { location.href = out.url; return; }
         if (btn) btn.disabled = false;
+        // «rejected» and «quote_only_items» are verdicts on this order — another
+        // cart may still pass. Anything else is the provider being down, and a
+        // second attempt would fail the same way, so the button steps aside.
+        if (out && out.error && out.error !== "rejected" && out.error !== "quote_only_items") {
+          markBnplDown(prov);
+          bnplButtons();
+        }
         if (help) {
           help.style.color = "#b91c1c";
           help.textContent = out && out.error === "quote_only_items"
@@ -4144,8 +4187,7 @@ var BP = window.BP = window.BP || {};
       })
       .catch(function () { if (btn) btn.disabled = false; });
   }
-  var tb = document.getElementById("bnpl-tabby"), tm = document.getElementById("bnpl-tamara");
-  if (tb) tb.addEventListener("click", function () { bnplGo("tabby"); });
+  var tm = document.getElementById("bnpl-tamara");
   if (tm) tm.addEventListener("click", function () { bnplGo("tamara"); });
   bnplButtons();
   if (payChoice) {
@@ -4155,8 +4197,8 @@ var BP = window.BP = window.BP || {};
 
   if (total > 0) {
     fetch("/api/pay").then(function (r) { return r.json(); }).then(function (cfg) {
-      // Installment providers ride the same config: each button goes live the
-      // day its keys are configured, independently of the card gateway.
+      // Tamara rides the same config: the button goes live the day its key is
+      // configured, independently of the card gateway.
       if (cfg && cfg.bnpl) { bnplCfg = cfg.bnpl; bnplButtons(); }
       // No gateway configured: online is not an option, and offering it would
       // be a dead end. Bank transfer becomes the only choice, silently.
@@ -4281,8 +4323,8 @@ var BP = window.BP = window.BP || {};
   document.addEventListener("input", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
   document.addEventListener("change", function (e) { if (e.target && e.target.closest && e.target.closest("#checkout-form, form")) gate(); });
 
-  // back from 3-D Secure (?id=) or from a Tabby/Tamara approval page
-  // (?bnpl=tabby&payment_id= / ?bnpl=tamara&orderId=) → verify server-side.
+  // back from 3-D Secure (?id=) or from a Tamara approval page
+  // (?bnpl=tamara&orderId=) → verify server-side.
   // Both paths end in the same renderer: one payment, one story.
   var params = new URLSearchParams(location.search);
   var payId = params.get("id");
@@ -4292,7 +4334,7 @@ var BP = window.BP = window.BP || {};
   if (payId) {
     verifyBody = { id: payId };
   } else if (bnplProv && (params.get("bnpl_status") || "success") === "success" && bnplId) {
-    verifyBody = { action: "bnpl-verify", provider: bnplProv === "tamara" ? "tamara" : "tabby", id: bnplId };
+    verifyBody = { action: "bnpl-verify", provider: "tamara", id: bnplId };
   } else if (bnplProv && params.get("bnpl_status") && params.get("bnpl_status") !== "success") {
     var cel = document.getElementById("checkout-success");
     if (cel) {
@@ -7409,6 +7451,133 @@ var BP_EMP_BILLING = "monthly";
           msg.style.color = "#B91C1C"; msg.textContent = T("Network error.", "خطأ في الاتصال.");
         });
     });
+
+    // Back-fill: send past applicants the copy they never got. One request
+    // sends one bounded batch, so a full run is many requests — the button
+    // keeps firing them until the queue is empty rather than asking for fifty
+    // presses, and stops the moment the owner says so or an error comes back.
+    var bfStop = false, bfTotal = 0, bfBatches = 0;
+    function bfEl(id) { return document.getElementById(id); }
+
+    function bfRender(d, dryRun) {
+      bfEl("js-bf-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+        "<th>" + T("Name", "الاسم") + "</th><th>" + T("Email", "البريد") + "</th><th>" + T("ATS CV", "سيرة ATS") + "</th><th>" + T("Status", "الحالة") + "</th>" +
+        "</tr></thead><tbody>" + (d.results || []).map(function (r) {
+          var cv = (r.hasCv || r.hadCv) ? "✅" : "—";
+          var st = r.skipped === "duplicate" ? T("duplicate — skipped", "مكرر — تخطّيناه")
+            : dryRun ? T("queued", "في الدور")
+            : (r.sent ? T("sent ✓", "أُرسلت ✓") : T("failed", "فشلت"));
+          return "<tr><td>" + esc(r.name || "—") + "</td><td dir=\"ltr\">" + esc(r.to || "—") + "</td><td>" + cv + "</td><td>" + st + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    function bfBatch(dryRun) {
+      var limit = Number(bfEl("js-bf-limit").value) || 25;
+      var requireCv = bfEl("js-bf-cvonly").checked;
+      return fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "backfill-copies", key: KEY, limit: limit, dryRun: dryRun, requireCv: requireCv }),
+      }).then(function (r) { return r.json(); });
+    }
+
+    function bfFinish(text, isError) {
+      var msg = bfEl("js-bf-msg");
+      msg.style.color = isError ? "#B91C1C" : "";
+      msg.textContent = text;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = false;
+      bfEl("js-bf-run").textContent = "✉️ " + T("Send to everyone", "أرسل للجميع");
+      bfEl("js-bf-stop").hidden = true;
+    }
+
+    function bfLoop(dryRun) {
+      if (bfStop) return bfFinish(T("Stopped. ", "توقفنا. ") + bfTotal + T(" people were emailed — press again to carry on.", " شخصاً وصلتهم الرسالة — اضغط مرة أخرى للمتابعة."));
+      bfBatch(dryRun).then(function (d) {
+        if (!d || !d.ok) return bfFinish(d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.") : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        bfRender(d, dryRun);
+        if (dryRun) return bfFinish(T("Next in line: ", "التالون في الدور: ") + d.batch + T(" people. Nothing was sent.", " أشخاص. لم يُرسل شيء."));
+        bfTotal += d.sent; bfBatches++;
+        if (!d.batch) {
+          return bfFinish(bfTotal
+            ? T("Done — ", "تم — ") + bfTotal + T(" people emailed.", " شخصاً وصلتهم رسالتهم.")
+            : T("Nobody left in the queue — everyone has had their copy.", "لا أحد متبقٍ — الجميع وصلتهم نسختهم."));
+        }
+        bfEl("js-bf-msg").textContent = bfTotal + T(" sent so far. Keep this page open — it carries on by itself.", " أُرسلت حتى الآن. اترك الصفحة مفتوحة — تكمل لحالها.");
+        setTimeout(function () { bfLoop(false); }, 400);
+      }).catch(function () {
+        bfFinish(T("Network error after ", "خطأ في الاتصال بعد ") + bfTotal + T(" sent. Press again to carry on.", " رسالة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+
+    function backfill(dryRun) {
+      bfStop = false; bfTotal = 0; bfBatches = 0;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = true;
+      bfEl("js-bf-out").innerHTML = "";
+      bfEl("js-bf-msg").style.color = "";
+      bfEl("js-bf-msg").textContent = dryRun
+        ? T("Checking who is next in line…", "نتحقق من التالين في الدور…")
+        : T("Sending…", "جارٍ الإرسال…");
+      if (!dryRun) {
+        bfEl("js-bf-run").textContent = T("Sending…", "جارٍ الإرسال…");
+        bfEl("js-bf-stop").hidden = false;
+      }
+      bfLoop(dryRun);
+    }
+    // CV rewriting: one AI call per candidate, so batches are small and the
+    // loop is what makes it finish. Same shape as the back-fill drain.
+    var cvStop = false, cvDone = 0, cvRows = [];
+    function cvFinish(text, isError) {
+      var m = bfEl("js-cv-msg");
+      m.style.color = isError ? "#B91C1C" : "";
+      m.textContent = text;
+      bfEl("js-cv-run").disabled = false;
+      bfEl("js-cv-run").textContent = "✨ " + T("Improve pending CVs", "حسّن السير المعلّقة");
+      bfEl("js-cv-stop").hidden = true;
+      bfEl("js-cv-stop").disabled = false;
+    }
+    function cvLoop() {
+      if (cvStop) return cvFinish(T("Stopped after ", "توقفنا بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."));
+      fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "boost-cvs", key: KEY, limit: 5 }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) {
+          return cvFinish(d && d.error === "ai_not_configured"
+            ? T("No AI provider is configured.", "لا يوجد مزوّد ذكاء اصطناعي مهيّأ.")
+            : d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.")
+            : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        }
+        cvDone += d.done;
+        cvRows = cvRows.concat(d.results || []);
+        bfEl("js-cv-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+          "<th>" + T("Name", "الاسم") + "</th><th>" + T("Original", "الأصل") + "</th><th>" + T("Score", "الدرجة") + "</th>" +
+          "</tr></thead><tbody>" + cvRows.slice(-40).map(function (r) {
+            var score = (r.before != null && r.after != null) ? r.before + " → <b style=\"color:#047857\">" + r.after + "</b>" : "—";
+            return "<tr><td>" + esc(r.name || "—") + "</td><td>" + esc(r.lang || "—") + "</td><td>" + (r.ok ? score : T("failed", "فشلت")) + "</td></tr>";
+          }).join("") + "</tbody></table></div>";
+        if (!d.batch) return cvFinish(cvDone
+          ? T("Done — ", "تم — ") + cvDone + T(" CVs rewritten and scored.", " سيرة أُعيدت صياغتها وحُسبت درجتها.")
+          : T("No CVs waiting.", "لا توجد سير تنتظر."));
+        bfEl("js-cv-msg").textContent = cvDone + T(" done so far. Keep this page open.", " أُنجزت حتى الآن. اترك الصفحة مفتوحة.");
+        setTimeout(cvLoop, 400);
+      }).catch(function () {
+        cvFinish(T("Network error after ", "خطأ في الاتصال بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+    bfEl("js-cv-run").addEventListener("click", function () {
+      cvStop = false; cvDone = 0; cvRows = [];
+      this.disabled = true; this.textContent = T("Working…", "جارٍ العمل…");
+      bfEl("js-cv-stop").hidden = false;
+      bfEl("js-cv-out").innerHTML = "";
+      bfEl("js-cv-msg").style.color = "";
+      bfEl("js-cv-msg").textContent = T("Rewriting — each CV takes a few seconds.", "جارٍ إعادة الصياغة — كل سيرة تأخذ ثوانٍ.");
+      cvLoop();
+    });
+    bfEl("js-cv-stop").addEventListener("click", function () { cvStop = true; this.disabled = true; });
+
+    bfEl("js-bf-dry").addEventListener("click", function () { backfill(true); });
+    bfEl("js-bf-run").addEventListener("click", function () { backfill(false); });
+    bfEl("js-bf-stop").addEventListener("click", function () { bfStop = true; this.disabled = true; });
+
 
     document.addEventListener("click", function (e) {
       var act = e.target.closest ? e.target.closest("[data-js-act]") : null;

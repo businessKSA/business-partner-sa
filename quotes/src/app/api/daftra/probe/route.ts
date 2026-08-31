@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
 import { currentAdmin } from '@/lib/auth';
-import { probeDaftra } from '@/lib/daftra';
+import { daftraStatus } from '@/lib/daftra';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 /**
- * فحص اتصال دفترة — قراءة فقط، محمي بجلسة المدير.
- * يُجرّب تركيبات جذر الواجهة وترويسة المفتاح ويُبلّغ أيّها قُبل،
- * حتى نضبط التكامل على العقد الحقيقي دون تخمين. لا يُظهر المفتاح.
+ * حالة جسر الفاتورة الضريبية — قراءة فقط، محمية بجلسة المدير.
+ *
+ * لم يعد فحصاً لاتصال الدفترة: اللوحة لا تنادي الدفترة أصلاً، بل تفوّض
+ * الموقع التعريفي. فما يُقال هنا: هل الجسر مُهيّأ، وهل هو مفتوح، وإلى أين.
+ * ولا يُظهر المفتاح.
  */
 export async function GET() {
   const admin = await currentAdmin();
-  if (!admin) {
-    return NextResponse.json({ error: 'يتطلب تسجيل دخول المدير.' }, { status: 401 });
-  }
-  const report = await probeDaftra();
-  return NextResponse.json(report, { status: report.configured ? 200 : 428 });
+  if (!admin) return NextResponse.json({ error: 'يتطلب تسجيل دخول المدير.' }, { status: 401 });
+  const s = daftraStatus();
+  return NextResponse.json(s, { status: s.configured ? 200 : 428 });
 }

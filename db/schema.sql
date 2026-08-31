@@ -565,3 +565,142 @@ alter table escrows add column if not exists supplier_note text;
 -- auto-refund deadline (supplier silence on an UNDELIVERED job = consent);
 -- delivered_at already anchors auto-release (client silence = acceptance).
 alter table escrows add column if not exists refund_requested_at timestamptz;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-27: الوكيل الذكي للمستندات (AI Document Agent).
+-- A request = one conversation-first case: the client uploads source documents
+-- (CR, AOA, IDs, bank letters…) and target forms (vendor/AML/KYC/NDA…); the
+-- agent classifies, extracts, reconciles across documents, maps form fields,
+-- asks only for what is missing, fills, stamps, QA-checks and packages.
+-- Every extracted value keeps its provenance (document, page, confidence,
+-- status) — nothing is ever assumed for legal declarations (PEP, sanctions…).
+-- Channel-agnostic: the same request continues across website, portal and
+-- WhatsApp through one conversation id.
+
+create table if not exists doc_agent_requests (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,                 -- DOC-###### (server-generated)
+  organization_id uuid references organizations(id) on delete cascade,
+  user_id uuid references users(id),
+  contact text,                             -- email/phone for pre-login WhatsApp cases
+  channel text not null default 'web' check (channel in ('web','portal','whatsapp','consultant')),
+  locale text not null default 'ar',
+  status text not null default 'NEW' check (status in
+    ('NEW','UPLOADING','ANALYZING','EXTRACTING','MAPPING','WAITING_FOR_CLIENT',
+     'READY_TO_GENERATE','GENERATING','QA','READY','DELIVERED','REVISION','COMPLETED')),
+  title text,
+  checklist jsonb not null default '[]',    -- requirement list parsed from emails/screenshots
+  fill_color text not null default 'blue' check (fill_color in ('blue','black','original')),
+  signature_mode text not null default 'leave_blank' check (signature_mode in
+    ('leave_blank','typed_electronic','external_esign')),
+  stamp_document_id uuid references documents(id),   -- transparent PNG stamp asset
+  qa_report jsonb,
+  package_storage_key text,                 -- final ZIP in the documents bucket
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  delivered_at timestamptz
+);
+create index if not exists doc_agent_requests_org_idx on doc_agent_requests(organization_id);
+create index if not exists doc_agent_requests_contact_idx on doc_agent_requests(contact);
+
+-- Every uploaded file, auto-classified. Bytes live in the documents vault
+-- (Supabase Storage, signed URLs only); rows here carry the agent's reading.
+create table if not exists doc_agent_files (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  document_id uuid references documents(id),         -- vault reuse across requests
+  role text not null default 'unknown' check (role in
+    ('source','target_form','supporting','signature_asset','stamp_asset','requirement','unknown')),
+  doc_kind text,                            -- cr/aoa/vat/bank/id/passport/license/form/…
+  file_name text not null,
+  mime text, size_bytes bigint, storage_key text not null,
+  pages int,
+  language text,                            -- dominant language detected (ar/en/…)
+  expiry_status text not null default 'UNKNOWN' check (expiry_status in
+    ('VALID','EXPIRING_SOON','EXPIRED','UNKNOWN')),
+  expiry_date date,
+  field_map jsonb,                          -- for target forms: detected fields/checkboxes/tables
+  extracted jsonb,                          -- for sources: raw extraction payload
+  analysis_note text,
+  created_at timestamptz not null default now()
+);
+create index if not exists doc_agent_files_req_idx on doc_agent_files(request_id);
+
+-- The unified client data profile: one row per fact, with provenance.
+-- Reconciliation rule: newest official source wins; conflicts are surfaced,
+-- never auto-resolved; legal declarations enter only as CLIENT_CONFIRMED.
+create table if not exists doc_agent_facts (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid references doc_agent_requests(id) on delete cascade,
+  organization_id uuid references organizations(id) on delete cascade,  -- vault-level reuse
+  fact_group text not null,                 -- company/people/ownership/banking/addresses/licenses/tax/employment/declarations
+  fact_key text not null,                   -- e.g. company.cr_number, people[0].name_en, banking.iban
+  value text,
+  value_lang text,                          -- keep official names untranslated per language
+  source_file_id uuid references doc_agent_files(id) on delete set null,
+  source_page int,
+  source_document_date date,
+  confidence text not null default 'MEDIUM' check (confidence in ('HIGH','MEDIUM','LOW')),
+  status text not null default 'INFERRED' check (status in
+    ('VERIFIED','CLIENT_CONFIRMED','INFERRED','CONFLICT','MISSING')),
+  conflict_with jsonb,                      -- [{value, source_file_id, document_date}] when CONFLICT
+  confirmed_via text,                       -- web/portal/whatsapp when CLIENT_CONFIRMED
+  confirmed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists doc_agent_facts_req_idx on doc_agent_facts(request_id);
+create index if not exists doc_agent_facts_org_key_idx on doc_agent_facts(organization_id, fact_key);
+
+-- Chat transcript for the request — the same thread whatever the channel,
+-- and the consultant dashboard's audit view of every question and answer.
+create table if not exists doc_agent_messages (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  author text not null check (author in ('client','agent','consultant','system')),
+  channel text not null default 'web' check (channel in ('web','portal','whatsapp','consultant')),
+  body text not null,
+  attachments uuid[],                       -- doc_agent_files ids
+  actions jsonb,                            -- structured effects applied (field edits, checkbox sets…)
+  created_at timestamptz not null default now()
+);
+create index if not exists doc_agent_messages_req_idx on doc_agent_messages(request_id, created_at);
+
+-- Generated deliverables: filled forms, ownership charts, the final package.
+-- version_no is append-only like document_versions — a REVISION never
+-- overwrites what was already delivered.
+create table if not exists doc_agent_outputs (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  source_form_file_id uuid references doc_agent_files(id) on delete set null,
+  kind text not null default 'filled_form' check (kind in
+    ('filled_form','ownership_chart','package_zip','other')),
+  delivery_name text not null,              -- client-facing name from the checklist, never FINAL_v2
+  storage_key text not null,
+  mime text, size_bytes bigint,
+  version_no int not null default 1,
+  fill_summary jsonb,                       -- fields filled + their fact ids (blue-data trace)
+  qa_status text not null default 'pending' check (qa_status in ('pending','passed','failed','waived')),
+  qa_findings jsonb,
+  created_at timestamptz not null default now(),
+  unique (request_id, delivery_name, version_no)
+);
+create index if not exists doc_agent_outputs_req_idx on doc_agent_outputs(request_id);
+
+alter table doc_agent_requests enable row level security;
+alter table doc_agent_files enable row level security;
+alter table doc_agent_facts enable row level security;
+alter table doc_agent_messages enable row level security;
+alter table doc_agent_outputs enable row level security;
+create policy doc_agent_requests_read on doc_agent_requests for select using (organization_id in (select current_org_ids()));
+create policy doc_agent_files_read on doc_agent_files for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+create policy doc_agent_facts_read on doc_agent_facts for select using (organization_id in (select current_org_ids()));
+create policy doc_agent_messages_read on doc_agent_messages for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+create policy doc_agent_outputs_read on doc_agent_outputs for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-28: الوكيل الذكي للمستندات — تجربة مجانية ١٤ يوماً لكل منشأة.
+-- الخدمة صارت داخل بوابة العميل بلا شراء: أول استخدام يبدأ العدّاد (لا تاريخ
+-- التسجيل — فالعميل القديم يستحق تجربته كاملة يوم يفتحها أول مرة)، وبعد
+-- انتهائها يبقى كل ما أُنتج محفوظاً ويُطلب الاشتراك للتوليد الجديد.
+alter table organizations add column if not exists doc_agent_trial_started_at timestamptz;

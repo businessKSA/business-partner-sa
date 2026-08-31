@@ -18,13 +18,18 @@ export default async function PortalServicesPage({
 }) {
   await guardClient();
   const { code } = await searchParams;
+  // المسعَّرة أولاً. الترتيب كان بالاسم، والأسماء اللاتينية تتصدّر الترتيب
+  // العربي — فصادف أن أوائل الصفحة أربع باقات «حسب الحالة»، فقرأها من فتحها
+  // «هذا الكتالوج بلا أسعار» وهو مئة وثلاث وعشرون سعراً منشوراً. والتنسيق
+  // المقصود (sortOrder) محفوظ داخل كل مجموعة.
   const services = await prisma.service.findMany({
     where: { active: true },
-    orderBy: [{ sortOrder: 'asc' }, { nameAr: 'asc' }],
+    orderBy: [{ openPrice: 'asc' }, { sortOrder: 'asc' }, { nameAr: 'asc' }],
     select: {
       id: true, code: true, category: true, nameAr: true, nameEn: true,
       descAr: true, unitPrice: true, unitAr: true, minQty: true,
       openPrice: true, attachGovFees: true, deliveryAr: true,
+      sourcingCategory: true,
     },
   });
 

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from "./_db.js";
 
+import { loadCatalog } from "./_catalog.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -25,8 +26,9 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
-import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { handleDocAgent } from "./_docagent.js";
+import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -246,6 +248,18 @@ async function listLeads(limit) {
 // Website advisor conversations → flat message list for the BP Inbox monitor.
 // Each CRM page (Lead Source = «مستشار الموقع») is one thread keyed by its ref;
 // Notes carries the meta line + labelled transcript we parse back into bubbles.
+// One Saudi number, one spelling: 05…, +966…, 00966… and 9665… all collapse to
+// 9665XXXXXXXX so a customer is recognised as themselves.
+function canonicalPhone(raw) {
+  let d = String(raw || "").replace(/[^0-9]/g, "");
+  if (!d) return "";
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("966")) return d;
+  if (d.startsWith("0")) d = d.slice(1);
+  if (d.length === 9 && d.startsWith("5")) return "966" + d;
+  return d;
+}
+
 async function listConversations(limit) {
   if (!NOTION_TOKEN) return [];
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
@@ -274,22 +288,40 @@ async function listConversations(limit) {
     const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
     const email = emailM ? emailM[1] : "";
     const crm = `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`;
-    const base = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    // A ticket happened when it was filed; last_edited_time is when the row was
+    // last touched by a sync, which is identical across a bulk write and made
+    // every ticket in the inbox claim the same minute. Advisor chats are
+    // upserted as they grow, so there last_edited_time really is the last line.
+    const created = new Date(pg.created_time || pg.last_edited_time || Date.now()).getTime();
+    const edited = new Date(pg.last_edited_time || pg.created_time || Date.now()).getTime();
+    const base = isTicket ? created : edited;
+    // One customer is one conversation. Keying threads by the ticket reference
+    // split a client across as many threads as they had tickets — three from
+    // the same person read as three strangers with one message each. Website
+    // threads stay under their own key so a read-only ticket never merges into
+    // a repliable WhatsApp thread.
+    // 0566552055 and +966566552055 are the same customer; keying on the raw
+    // string would still split them into two threads.
+    const identity = canonicalPhone(phone) || email.toLowerCase() || ref;
+    // An advisor reference is already "WEB-<sid>"; prefixing again produced the
+    // nonsense key "WEB-WEB-<sid>" for visitors who left no contact details.
+    const threadKey = identity.startsWith("WEB-") ? identity : "WEB-" + identity;
     const source = isTicket ? "تذكرة" : "المستشار";
     if (isTicket) {
       // A ticket is a single record — render it as one summary message.
       const body = notes.split("\n").filter((l) => /^(الخدمة|تفاصيل):/.test(l)).join(" · ") || notes;
-      out.push({ phone: ref, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
+      out.push({ phone: threadKey, source, ref, name: name || "عميل", contactPhone: phone, contactEmail: email, sender: "العميل", text: "🎫 " + body, time: new Date(base).toISOString(), crm });
       continue;
     }
     const lines = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l));
     lines.forEach((line, i) => {
       const isBot = line.startsWith("🤖");
       const text = line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim();
-      out.push({ phone: ref, source, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
+      out.push({ phone: threadKey, source, ref, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: isBot ? "الوكيل" : "العميل", text, time: new Date(base - (lines.length - i) * 1000).toISOString(), crm });
     });
-    if (!lines.length) out.push({ phone: ref, source, name: name || "زائر الموقع", sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
+    if (!lines.length) out.push({ phone: threadKey, source, ref, name: name || "زائر الموقع", contactPhone: phone, contactEmail: email, sender: "الوكيل", text: "—", time: new Date(base).toISOString(), crm });
   }
+  out.sort((a, b) => new Date(a.time) - new Date(b.time));
   return out;
 }
 
@@ -337,7 +369,7 @@ const STAGE_OF = {
 const CLOSED = new Set(["مكتمل", "ملغي"]);
 const plusDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
-async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource }) {
+async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, total, receiptUploadId, receiptName, uploads, leadSource, followUpDays }) {
   if (!NOTION_TOKEN) return;
   const today = new Date().toISOString().slice(0, 10);
   const agentsTag = Array.isArray(agents) && agents.length ? ` · AGENTS:${agents.join(",")}` : "";
@@ -360,7 +392,8 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     "Notes": { rich_text: [{ text: { content: `الجوال: ${phone} · البريد: ${email}${notes ? " · " + notes : ""}${agentsTag}`.slice(0, 1900) } }] },
     "Last Activity": { date: { start: today } },
     // Every open row carries a date, so nothing depends on being remembered.
-    "Next Follow Up": { date: { start: plusDaysISO(2) } },
+    // A deferred invoice sets its own date: the chase lands on the due day.
+    "Next Follow Up": { date: { start: plusDaysISO(Number.isFinite(Number(followUpDays)) ? Number(followUpDays) : 2) } },
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
@@ -402,9 +435,12 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
 // to the owner on WhatsApp + e-mail, with the same list shown at the top of
 // /admin as «متابعات اليوم».
 const WA_CRM_DB = process.env.NOTION_WA_CRM_DB || "b322a7ec23a94ceb875e52c07b00eadf";
+// دفتر المالية الداخلي — إيرادات ومصروفات (قاعدة نوشن يحررها المالك من نوشن
+// أو من لوحة /admin؛ لوحة «المالية» تقرأ منها مباشرة).
+const FINANCE_DB = process.env.NOTION_FINANCE_DB || "ee216ff23a9a4165acb0c4e6603f495f";
 // The owner's WhatsApp — same number published on the site as the advisor
 // line. Digits only, and overridable without a deploy.
-const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966503793356").replace(/\D/g, "");
+const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
 
 // Databases the in-panel Notion viewer may read AND write. Notion refuses to
 // be iframed, so /admin gets a live API-backed mirror instead: these are the
@@ -471,6 +507,7 @@ function channelOf({ ref, source, order, title }) {
   if (!r) { const m = t.match(/\(([A-Z]{2,4}-[A-Za-z0-9-]+)\)\s*$/); if (m) r = m[1]; }
   if (s === "WhatsApp" || r.startsWith("WA-")) return { key: "whatsapp", label: "واتساب", icon: "📱", color: "#128C7E" };
   if (s === "إدخال يدوي") return { key: "manual", label: "إدخال يدوي", icon: "📞", color: "#0F766E" };
+  if (s === "B10X" || s === "Ask B10X" || r.startsWith("B10X")) return { key: "b10x", label: "B10X", icon: "🚀", color: "#9A3412" };
   if (r.startsWith("SP-") || /تسجيل مورّ?د/.test(t)) return { key: "supplier", label: "تسجيل مورّد", icon: "🏭", color: "#92400E" };
   if (r.startsWith("BPI-") || /طلب تقسيط/.test(t)) return { key: "installment", label: "طلب تقسيط", icon: "💳", color: "#BE185D" };
   if (r.startsWith("DL-")) return { key: "deal", label: "صفقة", icon: "🤝", color: "#166534" };
@@ -544,6 +581,30 @@ async function collectFollowups(limit) {
   return (data.results || []).map(followupRow);
 }
 
+// The full live board: every recent pipeline row (most recently edited
+// first), bucketed so the panel can lane them — «due» needs contact now,
+// «followed» has a future follow-up booked, «fresh» is active with nothing
+// scheduled, «done» is Won/Lost. The due-only digest keeps collectFollowups.
+async function collectBoard(limit, cursor) {
+  if (!NOTION_TOKEN) return { items: [], next: null };
+  const today = new Date().toISOString().slice(0, 10);
+  const q = {
+    page_size: Math.min(Math.max(Number(limit) || 100, 1), 100),
+    sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
+  };
+  if (cursor) q.start_cursor = String(cursor).slice(0, 200);
+  const data = await notionQuery(CRM_DB, q);
+  const items = (data.results || []).map((pg) => {
+    const f = followupRow(pg);
+    f.bucket = (f.stage === "Won" || f.stage === "Lost") ? "done"
+      : (f.human || f.order === "بانتظار الدفع" || (f.due && f.due <= today)) ? "due"
+      : f.due ? "followed"
+      : "fresh";
+    return f;
+  });
+  return { items, next: data.has_more ? data.next_cursor : null };
+}
+
 // Mirror fresh WhatsApp-qualification rows into the master pipeline, keyed by
 // «رقم المرجع» = WA-<digits>. Create sets a next-day follow-up; update never
 // clobbers a follow-up date the owner set by hand.
@@ -558,6 +619,7 @@ async function syncWhatsappLeads() {
   const since = new Date(Date.now() - 3 * 864e5).toISOString();
   const today = new Date().toISOString().slice(0, 10);
   let synced = 0, skipped = 0;
+  const freshLeads = [];
   const data = await notionQuery(WA_CRM_DB, {
     page_size: 50,
     filter: { timestamp: "last_edited_time", last_edited_time: { on_or_after: since } },
@@ -604,10 +666,30 @@ async function syncWhatsappLeads() {
         headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
         body: JSON.stringify(existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props }),
       });
-      if (r.ok) synced++; else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
+      if (r.ok) { synced++; if (!existing) freshLeads.push({ name, phone, ref, svc, lastMsg }); }
+      else { skipped++; console.error("wa sync error", r.status, (await r.text()).slice(0, 200)); }
     } catch (e) { skipped++; console.error("wa sync exception", String(e).slice(0, 150)); }
   }
-  return { synced, skipped };
+  // A brand-new WhatsApp contact pings the owner the moment the sync sees it
+  // — email + the live n8n WhatsApp hook (the same one tickets and
+  // consultations use) — instead of waiting for tomorrow's digest.
+  for (const f of freshLeads.slice(0, 6)) {
+    const who = f.name || f.phone;
+    try {
+      fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
+          transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
+          url: `${MKT_SITE_BASE}/admin`,
+        }),
+      }).catch(() => {});
+      const html = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#128C7E">📱 عميل واتساب جديد — ${esc(who)}</h2><p><b>الجوال:</b> <a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="direction:ltr;display:inline-block">${esc(f.phone)}</a></p>${f.svc ? `<p><b>الخدمة المطلوبة:</b> ${esc(f.svc)}</p>` : ""}${f.lastMsg ? `<p><b>آخر رسالة:</b> ${esc(String(f.lastMsg).slice(0, 300))}</p>` : ""}<p><b>المرجع:</b> ${esc(f.ref)} — العميل الآن في «متابعات اليوم» بلوحة التحكم.</p></div>`;
+      await sendEmail(TEAM_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
+      if (OWNER_EMAIL !== TEAM_EMAIL) await sendEmail(OWNER_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
+    } catch (e) { console.error("wa fresh notify failed", String(e).slice(0, 120)); }
+  }
+  return { synced, skipped, fresh: freshLeads.length };
 }
 
 // ---- Website advisor ("باهر") conversations ----
@@ -1055,6 +1137,17 @@ async function catalogPrices() {
   _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
 }
+// The whole catalog (not just the price map) — the in-portal store lists
+// services from it, so the client never has to leave the portal to browse.
+let _catFull = null, _catFullAt = 0;
+async function catalogFull() {
+  if (_catFull && Date.now() - _catFullAt < 10 * 60 * 1000) return _catFull;
+  const r = await fetch(RAW_CATALOG_URL);
+  if (!r.ok) throw new Error("catalog_fetch_failed");
+  _catFull = await r.json();
+  _catFullAt = Date.now();
+  return _catFull;
+}
 // Published discount codes — validated server-side so a typed code can only
 // ever mean what the catalog says it means.
 let _catDiscounts = [];
@@ -1138,6 +1231,269 @@ async function recordOrderInDb(req, b, ref) {
   });
 }
 
+// ---- جسر لوحة العروض: الفاتورة الضريبية تصدر من هنا وحدها ----
+//
+// لوحة العروض (bp-quotes) تُصدر مطالبات سداد بترقيمها الخاص، والفاتورة
+// الضريبية المعتمدة تصدر من الدفترة. لو أصدرت اللوحة فواتيرها في الدفترة
+// بشيفرة موازية لصار للمنشأة تسلسلان لأرقام الفواتير — وهو ما لا تقبله هيئة
+// الزكاة والضريبة. فالنقطة هنا تنادي الشيفرة المجرَّبة نفسها التي ينادي بها
+// الموقع منذ شهور: مصدر واحد، وتسلسل واحد.
+//
+// لا تُرسل بريداً: اللوحة لها قوالبها ومُرسِلها، وإرسالان يعنيان رسالتين
+// للعميل عن فاتورة واحدة.
+const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
+// عنوان لوحة العروض — للاتجاه المعاكس: الموقع يسألها عن عروض العميل وعقوده.
+//
+// له افتراضٌ لأن عنوانها ليس سرّاً ولا مجهولاً: هو مكتوب في vercel.json
+// تمريرةً للكتالوج، وفي لوحة التحكم رابطاً ظاهراً. وحين كان بلا افتراض،
+// قالت صفحة الحساب لصاحبها «هذا القسم غير مربوط» وكل شيء عنده مضبوط —
+// السرّ المشترك موضوع، والجسر يعمل في اتجاهه الآخر — إلا سطرٌ في Vercel
+// لم يُكتب. فمتغيّر بيئة لقيمةٍ واحدة معروفة يمنع التشغيل ولا يحمي شيئاً.
+//
+// والمتغيّر يبقى ليغلب الافتراض في بيئة تجربة أو عند تغيّر العنوان.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app")
+  .trim()
+  .replace(/\/+$/, "");
+
+function bridgeAuthorized(req) {
+  if (!PANEL_BRIDGE_TOKEN) return false;
+  const given = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+  if (given.length !== PANEL_BRIDGE_TOKEN.length) return false;
+  let diff = 0;
+  for (let i = 0; i < PANEL_BRIDGE_TOKEN.length; i++) diff |= given.charCodeAt(i) ^ PANEL_BRIDGE_TOKEN.charCodeAt(i);
+  return diff === 0;
+}
+
+/* ---- قراءة عرض مورد للوحة العروض -------------------------------------
+ * اللوحة تحتاج أن تقرأ ملف عرض المورد (PDF أو صورة) وتستخرج بنوده. ومفاتيح
+ * نماذج الرؤية معرَّفة هنا وحدها منذ شهور — Gemini ثم Anthropic ثم OpenAI —
+ * فنسخها إلى مشروع ثانٍ يعني مفتاحين لكل مزوّد ونسختين تتفارقان.
+ *
+ * لا يُخزَّن هنا شيء: البايتات تُقرأ وتُعاد البنود وتُهمل. والحفظ في اللوحة
+ * حيث الملف أصلاً.
+ */
+async function handleSupplierQuoteRead(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+
+  const b = await readBody(req);
+  const base64 = String(b.base64 || "");
+  const mime = String(b.mime || "");
+  if (!base64) return send(400, { ok: false, error: "no_file" });
+  if (!DOC_MIME_OK.test(mime)) return send(400, { ok: false, error: "bad_type" });
+
+  const prompt = `أنت تقرأ عرض سعر من مورد سعودي وتستخرج بنوده كما هي.
+
+استخرج ما يظهر فعلاً في المستند فقط. لا تخمّن ولا تُكمل ناقصاً.
+
+أعِد JSON فقط بلا شرح وبلا علامات تنسيق، بهذا الشكل:
+{
+  "currency": "SAR",
+  "vatIncluded": true أو false — هل الأسعار الظاهرة شاملة ضريبة القيمة المضافة,
+  "total": الإجمالي كما يظهر رقماً,
+  "lines": [
+    { "nameAr": "اسم البند", "descAr": "وصفه إن وُجد", "qty": الكمية رقماً, "unitAr": "الوحدة", "unitPrice": سعر الوحدة رقماً }
+  ]
+}
+
+قواعد مهمة:
+- الأسعار أرقام بلا فواصل ولا رمز عملة.
+- إن لم تظهر كمية فاجعلها 1.
+- لا تُدرج في أسماء البنود ولا أوصافها: اسم المورد، أرقام سجله أو ترخيصه أو
+  رقمه الضريبي، بياناته البنكية، ولا شروط ضمانه — نحن نستخرج ما بيع وكم، لا
+  من باعه ولا بأي شروط.`;
+
+  const out = await readDocumentRaw(base64, mime, prompt, 3000);
+  if (!out.ok) return send(502, { ok: false, error: out.error });
+
+  let parsed = null;
+  try {
+    const t = String(out.data).replace(/^```(json)?|```$/gm, "").trim();
+    parsed = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+  } catch {
+    // النص الخام يُعاد حتى حين يتعذّر تفسيره: مراجع بشري يقرؤه أفضل من لا شيء.
+    return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed: null });
+  }
+  return send(200, { ok: true, provider: out.provider, raw: String(out.data).slice(0, 8000), parsed });
+}
+
+/* ---- قاعدة موردي نوشن للوحة العروض -----------------------------------
+ * اللوحة توجّه طلبات عروض الأسعار إلى موردين مصنَّفين، وقاعدتهم في نوشن.
+ * والمفتاح هنا وحده، فالقراءة من هنا: مفتاح واحد يُدوَّر، لا اثنان.
+ *
+ * الاستخراج بالنوع لا بالاسم: قواعد الموردين في نوشن أكثر من واحدة وأسماء
+ * أعمدتها تختلف — «نوع المورد» في قاعدة العقار، و«التصنيف» في غيرها. فما
+ * يُعتمد هو نوع العمود: العنوان اسمٌ، وحقل البريد بريدٌ، والقائمة المتعددة
+ * تصنيف. وتسميةٌ تتغيّر لا تكسر المزامنة.
+ *
+ * ولا تُترجم القيم هنا: العربية كما كتبها صاحبها تعبر إلى اللوحة، وهي التي
+ * تعرف أكوادها فتربطها. ومن ترجم في الطرفين اختلفت ترجمتاه.
+ */
+const NOTION_SUPPLIER_ROUTE_DB = process.env.NOTION_SOURCING_SUPPLIERS_DB || "";
+
+function notionPropOf(props, types, nameHints = []) {
+  const entries = Object.entries(props || {});
+  for (const hint of nameHints) {
+    const hit = entries.find(([k, v]) => k.includes(hint) && types.includes(v?.type));
+    if (hit) return hit[1];
+  }
+  const any = entries.find(([, v]) => types.includes(v?.type));
+  return any ? any[1] : null;
+}
+
+const notionPlain = (p) => {
+  if (!p) return "";
+  if (p.type === "title") return (p.title || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "rich_text") return (p.rich_text || []).map((t) => t.plain_text).join("").trim();
+  if (p.type === "email") return String(p.email || "").trim();
+  if (p.type === "phone_number") return String(p.phone_number || "").trim();
+  if (p.type === "select") return String(p.select?.name || "").trim();
+  if (p.type === "status") return String(p.status?.name || "").trim();
+  return "";
+};
+
+async function handleNotionSuppliers(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "notion_not_configured" });
+
+  const b = await readBody(req);
+  const db = String(b.databaseId || NOTION_SUPPLIER_ROUTE_DB || "").replace(/-/g, "").trim();
+  if (!/^[0-9a-f]{32}$/i.test(db)) return send(400, { ok: false, error: "bad_database_id" });
+
+  const rows = [];
+  let cursor;
+  // نوشن يعيد مئةً في الصفحة، والقاعدة قد تفوقها. وخمس صفحات سقفٌ يمنع
+  // نداءً لا ينتهي إن دار المؤشّر، ويكفي خمسمئة مورد.
+  for (let page = 0; page < 5; page++) {
+    const r = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) }),
+    });
+    if (!r.ok) return send(502, { ok: false, error: `notion_${r.status}`, detail: (await r.text()).slice(0, 300) });
+    const data = await r.json();
+    for (const pg of data.results || []) {
+      const props = pg.properties || {};
+      const name = notionPlain(notionPropOf(props, ["title"]));
+      if (!name) continue;
+      const multi = notionPropOf(props, ["multi_select"], ["نوع المورد", "التصنيف", "الفئة", "Category", "Type"]);
+      rows.push({
+        notionPageId: String(pg.id || "").replace(/-/g, ""),
+        nameAr: name,
+        email: notionPlain(notionPropOf(props, ["email"], ["البريد", "Email"])).toLowerCase(),
+        phone: notionPlain(notionPropOf(props, ["phone_number"], ["الجوال", "الهاتف", "Phone"])),
+        city: notionPlain(notionPropOf(props, ["select"], ["المدينة", "City"])),
+        priority: notionPlain(notionPropOf(props, ["select"], ["الأولوية", "Priority"])),
+        // القيم كما هي بالعربية — اللوحة تربطها بأكوادها.
+        types: (multi?.multi_select || []).map((o) => String(o.name || "").trim()).filter(Boolean),
+        notes: notionPlain(notionPropOf(props, ["rich_text"], ["ملاحظات", "الأحياء", "Notes"])),
+      });
+    }
+    if (!data.has_more || !data.next_cursor) break;
+    cursor = data.next_cursor;
+  }
+  return send(200, { ok: true, database: db, count: rows.length, suppliers: rows });
+}
+
+async function handleDaftraInvoice(req, res) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
+  if (!bridgeAuthorized(req)) return send(401, { ok: false, error: "unauthorized" });
+  if (!daftraConfigured()) return send(503, { ok: false, error: "daftra_not_configured" });
+
+  const b = await readBody(req);
+  const items = (Array.isArray(b.items) ? b.items : []).slice(0, 60)
+    .map((it) => ({
+      name: String(it.name || "").slice(0, 140),
+      quantity: Math.max(1, Math.min(999, Number(it.quantity) || 1)),
+      unitPrice: Math.round(Number(it.unitPrice || 0) * 100) / 100,
+    }))
+    .filter((it) => it.name && it.unitPrice > 0);
+  if (!items.length) return send(400, { ok: false, error: "no_priced_items" });
+
+  const who = {
+    name: String(b.buyer?.name || "").slice(0, 200),
+    email: String(b.buyer?.email || "").toLowerCase(),
+    phone: String(b.buyer?.phone || "").slice(0, 20),
+    city: String(b.buyer?.city || "").slice(0, 60),
+    taxNumber: String(b.buyer?.taxNumber || "").replace(/\D/g, ""),
+    address: b.buyer?.address || null,
+    isCompany: !!b.buyer?.isCompany,
+    contact: String(b.buyer?.contact || "").slice(0, 120),
+  };
+  if (!who.name || !isEmail(who.email)) return send(400, { ok: false, error: "missing_buyer" });
+
+  // المبلغ المحصَّل يُقارَن بمجموع البنود قبل الإصدار: فاتورة لا تطابق ما
+  // دُفع فعلاً أسوأ من غياب الفاتورة. التسامح ريال واحد لفروق التقريب.
+  const rate = Number(daftraVatRate()) || 15;
+  const net = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
+  const expected = Math.round(net * (1 + rate / 100) * 100);
+  const paidHalalas = Number(b.paidHalalas || 0);
+  if (paidHalalas > 0 && Math.abs(expected - paidHalalas) > 100) {
+    return send(409, { ok: false, error: "amount_mismatch", expected, paid: paidHalalas });
+  }
+
+  const { client } = await daftraFindOrCreateClient(who);
+  if (!client || !client.id) return send(502, { ok: false, error: "client_failed" });
+
+  const notes = [
+    b.ref ? `مرجع المستند: ${b.ref}` : "",
+    b.sourceNumber ? `مطالبة السداد في لوحة العروض: ${b.sourceNumber}` : "",
+    "صادرة من لوحة العروض",
+    who.isCompany && who.taxNumber ? `الرقم الضريبي: ${who.taxNumber}` : "",
+    who.isCompany && who.address ? `العنوان الوطني: ${nationalAddressLine(who.address)}` : "",
+    who.contact ? `الشخص المسؤول: ${who.contact}` : "",
+  ].filter(Boolean).join("\n");
+
+  let inv;
+  try {
+    inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: String(b.ref || "") });
+  } catch (e) {
+    return send(502, { ok: false, error: "invoice_failed", detail: String(e.message || e).slice(0, 300) });
+  }
+
+  // فشل تقييد السداد لا يُبطل الفاتورة — تبقى صادرة، ويُبلَّغ المنادي ليعرضه.
+  let paymentRecorded = false;
+  let paymentError = "";
+  if (paidHalalas > 0) {
+    try {
+      await daftraRecordPayment({
+        invoiceId: inv.id,
+        amount: inv.total,
+        transactionId: String(b.payId || ""),
+        method: String(b.method || "Moyasar"),
+      });
+      paymentRecorded = true;
+    } catch (e) {
+      paymentError = String(e.message || e).slice(0, 200);
+    }
+  }
+
+  let pdf = null;
+  try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
+  let publicUrl = "";
+  if (!pdf) {
+    try { publicUrl = (await daftraPublicInvoiceLink(inv.id, inv.publicUrl || inv.url || "")).url || ""; } catch { publicUrl = ""; }
+  }
+
+  return send(200, {
+    ok: true,
+    id: inv.id,
+    number: inv.number,
+    net: inv.net,
+    vat: inv.vat,
+    total: inv.total,
+    vatRate: rate,
+    paymentRecorded,
+    paymentError,
+    pdfBase64: pdf ? pdf.base64 : "",
+    publicUrl,
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1148,6 +1504,10 @@ export default async function handler(req, res) {
   // own file: the plan caps serverless functions at 12 and this repo is at the
   // cap. The supplier portal lives in ./_suppliers.js and owns the request
   // entirely once delegated.
+  // الفاتورة الضريبية للوحة العروض — تُصدَر من الشيفرة المجرَّبة نفسها لا من نسخة ثانية.
+  if ((q.__route || "") === "daftra-invoice") return handleDaftraInvoice(req, res);
+  if ((q.__route || "") === "supplier-quote-read") return handleSupplierQuoteRead(req, res);
+  if ((q.__route || "") === "notion-suppliers") return handleNotionSuppliers(req, res);
   if ((q.__route || "") === "suppliers") return handleSuppliers(req, res);
   // Same reason for /api/agencies — the overseas recruitment-agency registry
   // and portal live in ./_agencies.js.
@@ -1155,6 +1515,9 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
+  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
+  if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1197,6 +1560,50 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
+    }
+  }
+
+
+  // ---------------------------------------------------------------------
+  // Live service catalog — the single price source the WhatsApp agent reads.
+  //
+  // The agent used to carry prices as frozen text in its prompt, so a price
+  // edited on the site kept being quoted at its old value on WhatsApp. This
+  // serves the published catalog itself (the same site/data files the pages
+  // render from), so there is one number in one place.
+  //
+  // Public on purpose: every figure here is already printed on the website.
+  // GET /api/requests?action=catalog                 -> packages + all services
+  // GET /api/requests?action=catalog&q=سجل تجاري      -> matching services only
+  // GET /api/requests?action=catalog&code=BP-SBC-02  -> one service
+  // ---------------------------------------------------------------------
+  if ((q.action || "") === "catalog") {
+    res.setHeader("Cache-Control", "public, max-age=300");
+    try {
+      const cat = await loadCatalog();
+      const term = String(q.q || "").trim().toLowerCase();
+      const code = String(q.code || "").trim().toUpperCase();
+      let services = cat.services;
+      if (code) services = services.filter((s) => s.code === code);
+      else if (term) {
+        services = services.filter((s) =>
+          (s.nameAr + " " + s.nameEn + " " + s.category + " " + s.categoryAr + " " + s.code)
+            .toLowerCase().includes(term));
+      }
+      const limit = Math.min(Math.max(parseInt(q.limit, 10) || 40, 1), 200);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        currency: "SAR",
+        updated: cat.updated,
+        note: "أسعار الخدمات الفردية إرشادية وتُحسم بعرض سعر رسمي؛ أسعار الباقات معلنة كما هي.",
+        packages: cat.packages,
+        count: services.length,
+        services: services.slice(0, limit),
+      }));
+    } catch (e) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "catalog_unavailable" }));
     }
   }
 
@@ -1251,6 +1658,91 @@ export default async function handler(req, res) {
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
+    }
+  }
+
+  // عروض الأسعار والعقود والمطالبات من لوحة العروض — داخل صفحة الحساب.
+  //
+  // كانت اللوحة عالماً منفصلاً: العميل يفتح /ar/account فيرى طلبه ومحفظته،
+  // ولا يرى عرض السعر المرسل له ولا العقد الذي وقّعه، لأن ذاك كله خلف بوابة
+  // ثانية لا يصلها إلا برابط في بريد. فمن أضاع البريد أضاع العرض.
+  //
+  // الهوية هنا من الجلسة وحدها — البريد الذي تحقّق منه الموقع برمز — ولا
+  // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
+  if ((q.action || "") === "my-documents") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    if (!email) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(12000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
+      // وحده يقول إنه لم يستطع القراءة الآن.
+      console.error("my-documents bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
+    }
+  }
+
+  // ---- لوحة العروض داخل لوحة الموقع (للمالك) ------------------------------
+  //
+  // المالك يدير عمله من هنا، وبابُ لوحة العروض رابطٌ سحري يصل بريد ADMIN_EMAIL
+  // وحده. فمن لم يكن ذلك بريده وقف خارج نظامه هو، ومن أراد أن يرى شيئاً سجّل
+  // نفسه عميلاً — فرأى ما يراه العميل لا ما يملكه المالك.
+  //
+  // النداء يمضي من خادم الموقع إلى خادم اللوحة بالسرّ المشترك، فلا يصل السرّ
+  // متصفحاً ولا صفحة. والحارس هنا هو حارس بقية اللوحة: مفتاح المالك أو تذكرة
+  // نفاذ.
+  if ((q.action || "") === "panel-quotes") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        configured: false,
+        ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع بالقيمة نفسها الموضوعة في اللوحة، ثم أعد النشر",
+      }));
+    }
+    // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
+    const want = String(q.want || "overview") === "login" ? "login" : "overview";
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/owner`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ action: want }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.ok !== true) {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: (j && j.error) || `panel_http_${r.status}`, ملاحظة: (j && j["ملاحظة"]) || "" }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      console.error("panel-quotes bridge failed", String(e.message || e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "panel_unreachable" }));
     }
   }
 
@@ -1330,6 +1822,11 @@ export default async function handler(req, res) {
     if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
     try {
+      if ((q.scope || "") === "all") {
+        const board = await collectBoard(q.limit, q.cursor);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, followups: board.items, next: board.next, due: board.items.filter((f) => f.bucket === "due").length }));
+      }
       const followups = await collectFollowups(q.limit);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, followups }));
@@ -1337,6 +1834,123 @@ export default async function handler(req, res) {
       console.error("panel-followups failed", String(e).slice(0, 200));
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "crm_failed" }));
+    }
+  }
+
+  // متجر لوحة العميل: الكتالوج كاملاً + رصيد المحفظة + حدود «ادفع لاحقاً»،
+  // بجلسة العميل نفسها — فلا يخرج رائد الأعمال من لوحته ليطلب خدمة.
+  if ((q.action || "") === "portal-store") {
+    res.setHeader("Cache-Control", "no-store");
+    const sess = await getSession(req).catch(() => null);
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const cat = await catalogFull();
+      const services = (cat.services || [])
+        .filter((s) => s.code)
+        .map((s) => ({
+          id: String(s.code).toLowerCase(),
+          name: s.nameAr || s.nameEn || s.code,
+          nameEn: s.nameEn || "",
+          cat: s.categoryAr || s.category || "أخرى",
+          amount: Number(s.amount) || 0,
+          days: s.days || s.duration || "",
+          gov: Number(s.govFees) || 0,
+        }));
+      const packages = (cat.packages || []).map((p) => ({
+        id: String(p.code || p.key || "").toLowerCase(),
+        name: p.nameAr || p.nameEn || p.code || p.key,
+        cat: "الباقات",
+        amount: Number(p.amount) || 0,
+      })).filter((p) => p.id);
+      let walletBalance = 0;
+      const orgId = sess.organization && sess.organization.id;
+      if (DB_ON && orgId) {
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`).catch(() => null);
+        walletBalance = (bal && bal[0] && Number(bal[0].balance)) || 0;
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        services: services.concat(packages),
+        walletBalance,
+        vatRate: 15,
+        payLaterDays: [7, 14, 30],
+        user: { name: (sess.user && sess.user.full_name) || "", email: (sess.user && sess.user.email) || "" },
+        org: sess.organization ? { name: sess.organization.name_ar || sess.organization.name_en || "" } : null,
+      }));
+    } catch (e) {
+      console.error("portal-store failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "store_failed" }));
+    }
+  }
+
+  // «المالية» — القيود المالية للاثني عشر شهراً الأخيرة مجمّعة شهرياً
+  // وبالفئات، مع مؤشرات من الـ CRM (عملاء الشهر الجدد وصفقات Won).
+  if ((q.action || "") === "panel-finance") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+    try {
+      const from = new Date(Date.now() - 370 * 864e5).toISOString().slice(0, 10);
+      let raw = [], cursor = null;
+      for (let i = 0; i < 5; i++) {
+        const data = await notionQuery(FINANCE_DB, {
+          page_size: 100,
+          ...(cursor ? { start_cursor: cursor } : {}),
+          filter: { property: "التاريخ", date: { on_or_after: from } },
+          sorts: [{ property: "التاريخ", direction: "descending" }],
+        });
+        raw = raw.concat(data.results || []);
+        if (!data.has_more) break;
+        cursor = data.next_cursor;
+      }
+      const entries = raw.map((pg) => {
+        const p = pg.properties || {};
+        return {
+          id: pg.id,
+          title: propAny(p["البيان"]),
+          type: propAny(p["النوع"]) === "إيراد" ? "إيراد" : "مصروف",
+          amount: p["المبلغ"] && typeof p["المبلغ"].number === "number" ? p["المبلغ"].number : 0,
+          date: propAny(p["التاريخ"]).slice(0, 10),
+          cat: propAny(p["الفئة"]),
+          method: propAny(p["طريقة الدفع"]),
+          ref: propAny(p["رقم المرجع"]),
+          note: propAny(p["ملاحظات"]),
+        };
+      }).filter((e) => e.amount > 0 && e.date);
+      const monthKey = new Date().toISOString().slice(0, 7);
+      const yearKey = monthKey.slice(0, 4);
+      const monthly = {}, byCat = {};
+      let mRev = 0, mExp = 0, yRev = 0, yExp = 0;
+      for (const e of entries) {
+        const mk = e.date.slice(0, 7);
+        monthly[mk] = monthly[mk] || { rev: 0, exp: 0 };
+        if (e.type === "إيراد") monthly[mk].rev += e.amount; else monthly[mk].exp += e.amount;
+        if (mk === monthKey) { if (e.type === "إيراد") mRev += e.amount; else mExp += e.amount; }
+        if (mk.slice(0, 4) === yearKey) { if (e.type === "إيراد") yRev += e.amount; else yExp += e.amount; }
+        if (e.type === "مصروف" && mk.slice(0, 4) === yearKey) byCat[e.cat || "أخرى"] = (byCat[e.cat || "أخرى"] || 0) + e.amount;
+      }
+      // CRM pulse for the KPI row — bounded windows, best effort.
+      let newMonth = 0, wonYear = 0;
+      try {
+        const nm = await notionQuery(CRM_DB, { page_size: 100, filter: { timestamp: "created_time", created_time: { on_or_after: monthKey + "-01" } } });
+        newMonth = (nm.results || []).length + (nm.has_more ? 100 : 0);
+        const wq = await notionQuery(CRM_DB, { page_size: 100, filter: { and: [ { property: "Stage", select: { equals: "Won" } }, { timestamp: "last_edited_time", last_edited_time: { on_or_after: yearKey + "-01-01" } } ] } });
+        wonYear = (wq.results || []).length + (wq.has_more ? 100 : 0);
+      } catch (eK) { console.error("finance kpi crm", String(eK).slice(0, 120)); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        entries: entries.slice(0, 100),
+        monthly, byCat,
+        totals: { mRev, mExp, mNet: mRev - mExp, yRev, yExp, yNet: yRev - yExp },
+        kpi: { newMonth, wonYear },
+      }));
+    } catch (e) {
+      console.error("panel-finance failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "finance_failed" }));
     }
   }
 
@@ -1694,6 +2308,35 @@ export default async function handler(req, res) {
         const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
+      if (what === "violations") {
+        const items = await sb(`violations?organization_id=eq.${orgId}&select=id,authority,violation_number,title,amount,violation_date,objection_deadline,status,objection_note,objection_filed_at,created_at&order=created_at.desc&limit=60`);
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
+      }
+      if (what === "compliance-access") {
+        // الامتثال متاح لكل حساب مسجّل: المشترك النشط بلا حدود، وغيره تجربة
+        // مجانية 14 يوماً تبدأ من إنشاء حساب الشركة.
+        let active = false;
+        const accEmail = (sess.user && sess.user.email) || "";
+        if (NOTION_TOKEN && accEmail) {
+          try {
+            const r = await fetch(`https://api.notion.com/v1/databases/${COMPLIANCE_DB}/query`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+              body: JSON.stringify({ page_size: 1, filter: { and: [{ property: "البريد", email: { equals: accEmail } }, { property: "حالة الاشتراك", select: { equals: "نشط" } }] } }),
+            });
+            if (r.ok) active = ((await r.json()).results || []).length > 0;
+          } catch {}
+        }
+        let daysLeft = 0, endsAt = null;
+        if (!active) {
+          const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
+          const created = orgs[0] && orgs[0].created_at ? new Date(orgs[0].created_at).getTime() : Date.now();
+          const ends = created + 14 * 86400000;
+          endsAt = new Date(ends).toISOString().slice(0, 10);
+          daysLeft = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
+        }
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, active, trial: !active, days_left: daysLeft, ends_at: endsAt }));
+      }
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_what" }));
     } catch {
       res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
@@ -1889,6 +2532,34 @@ export default async function handler(req, res) {
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
       }
+      if (b.action === "ops-violation-add") {
+        const authority = String(b.authority || "").trim().slice(0, 80);
+        const title = String(b.title || "").trim().slice(0, 300);
+        const number = String(b.number || "").trim().slice(0, 80);
+        const amount = Number(b.amount);
+        const vdate = /^\d{4}-\d{2}-\d{2}$/.test(String(b.date || "")) ? b.date : null;
+        const deadline = /^\d{4}-\d{2}-\d{2}$/.test(String(b.deadline || "")) ? b.deadline : null;
+        if (!authority || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const v = await sb("violations", { method: "POST", body: [{ organization_id: orgId, authority, violation_number: number || null, title, amount: isFinite(amount) && amount > 0 ? amount : null, violation_date: vdate, objection_deadline: deadline, created_by: userId }] });
+        await notify({ organization_id: orgId, event: "violation_added", channel: "inapp", title: `سُجّلت مخالفة «${title}» — تقدر تقدّم اعتراضاً عليها من قسم الامتثال`, idempotency_key: `violation_add:${v[0].id}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "violation.created", entity_type: "violation", entity_id: v[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, id: v[0].id }));
+      }
+      if (b.action === "ops-violation-object") {
+        const vid = String(b.id || "");
+        const note = String(b.note || "").trim().slice(0, 2000);
+        if (!vid || !note) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const rows = await sb(`violations?id=eq.${vid}&organization_id=eq.${orgId}&select=id,authority,title,violation_number,amount,status&limit=1`);
+        if (!rows.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        if (rows[0].status === "قيد الاعتراض") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+        // الاعتراض يتحول فوراً إلى مهمة تنفيذ عند فريق BP — لا محادثات جانبية.
+        const t = await sb("tasks", { method: "POST", body: [{ organization_id: orgId, title: ("اعتراض على مخالفة: " + rows[0].title).slice(0, 200), details: `الجهة: ${rows[0].authority}${rows[0].violation_number ? " · رقم المخالفة: " + rows[0].violation_number : ""}${rows[0].amount ? " · المبلغ: " + rows[0].amount + " ريال" : ""}\nمبررات العميل: ${note}`, assignee: "bp", status: "open", urgency: "high" }] });
+        await sb(`violations?id=eq.${vid}`, { method: "PATCH", prefer: "return=minimal", body: { status: "قيد الاعتراض", objection_note: note, objection_filed_at: new Date().toISOString(), objection_task_id: t[0].id, updated_at: new Date().toISOString() } });
+        await notify({ organization_id: orgId, event: "objection_filed", channel: "inapp", title: `قُدّم اعتراضك على «${rows[0].title}» — فريق بيزنس بارتنر باشر المعالجة`, idempotency_key: `objection:${vid}` });
+        await sendEmail(TEAM_EMAIL, `⚖️ اعتراض جديد على مخالفة — ${rows[0].authority}`, `<div dir="rtl" style="font-family:Arial"><h3 style="color:#0B1B5A">اعتراض على مخالفة</h3><p><b>العميل:</b> ${esc(email)}</p><p><b>الجهة:</b> ${esc(rows[0].authority)}</p><p><b>المخالفة:</b> ${esc(rows[0].title)}${rows[0].violation_number ? " (رقم " + esc(rows[0].violation_number) + ")" : ""}</p>${rows[0].amount ? `<p><b>المبلغ:</b> ${esc(String(rows[0].amount))} ريال</p>` : ""}<p><b>مبررات العميل:</b> ${esc(note)}</p><p>نفّذ الاعتراض لدى الجهة ثم حدّث حالة المخالفة من /admin.</p></div>`);
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "violation.objection_filed", entity_type: "violation", entity_id: vid });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "unknown_action" }));
     } catch (e) {
       console.error("ops action failed", b.action, String(e).slice(0, 200));
@@ -1904,6 +2575,41 @@ export default async function handler(req, res) {
     // «سي آر إم أكتف»: the متابعات اليوم rows in /admin write straight back to
     // the master pipeline — mark contacted, add a note, or snooze — so the
     // half-hour WhatsApp reminders stop the moment the work is actually done.
+    // قيد مالي جديد — إيراد أو مصروف — يُكتب مباشرة في دفتر نوشن.
+    if (b.action === "panel-finance-add") {
+      if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
+      const kind = b.kind === "إيراد" ? "إيراد" : "مصروف";
+      const amount = Math.abs(Number(b.amount) || 0);
+      const title = String(b.title || "").trim().slice(0, 150);
+      if (!amount || !title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_request" })); }
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(String(b.date || "")) ? String(b.date) : new Date().toISOString().slice(0, 10);
+      const props = {
+        "البيان": { title: [{ text: { content: title } }] },
+        "النوع": { select: { name: kind } },
+        "المبلغ": { number: amount },
+        "التاريخ": { date: { start: date } },
+      };
+      if (b.cat) props["الفئة"] = { select: { name: String(b.cat).slice(0, 60) } };
+      if (b.method) props["طريقة الدفع"] = { select: { name: String(b.method).slice(0, 40) } };
+      if (b.ref) props["رقم المرجع"] = { rich_text: [{ text: { content: String(b.ref).slice(0, 80) } }] };
+      if (b.note) props["ملاحظات"] = { rich_text: [{ text: { content: String(b.note).slice(0, 500) } }] };
+      try {
+        const r = await fetch("https://api.notion.com/v1/pages", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify({ parent: { database_id: FINANCE_DB }, properties: props }),
+        });
+        if (!r.ok) { console.error("finance add error", r.status, (await r.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "finance_failed" })); }
+        audit({ action: "finance.add", actor_label: "panel", after: { kind, amount, title: title.slice(0, 60) } }).catch(() => {});
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true }));
+      } catch (e) {
+        console.error("finance add exception", String(e).slice(0, 150));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "finance_failed" }));
+      }
+    }
+
     if (b.action === "panel-followup-update") {
       if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "crm_not_configured" })); }
       const pid = String(b.id || "").replace(/[^a-fA-F0-9-]/g, "").slice(0, 40);
@@ -2999,6 +3705,15 @@ export default async function handler(req, res) {
     const crNum = String(b.cr || "").trim().slice(0, 40);
     if (!nameAr && !nameEn) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "name_required" })); }
     try {
+      // Hard product limit: at most 100 companies per user, enforced here on the
+      // server — the client-side form is not a security boundary. Counting
+      // memberships (not owned orgs) keeps the check simple and errs on the
+      // strict side; at the target scale the difference is irrelevant.
+      const mine = await sb(`organization_members?user_id=eq.${sess.user.id}&status=eq.active&select=organization_id&limit=101`);
+      if (mine.length >= 100) {
+        res.statusCode = 403;
+        return res.end(JSON.stringify({ ok: false, error: "org_limit_reached", limit: 100 }));
+      }
       const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: nameAr || nameEn, ...(nameEn ? { name_en: nameEn } : {}), ...(crNum ? { cr_number: crNum } : {}) }] });
       const orgId = orgs[0].id;
       await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: sess.user.id, role_id: "owner", status: "active" }] });
@@ -3559,6 +4274,129 @@ export default async function handler(req, res) {
   // Wallet payment: the client asks us to pay a government fee / SADAD invoice
   // from their wallet balance. The team validates the balance in the CRM ledger
   // (top-ups minus payments), executes the payment, and completes the row.
+  // طلب من داخل لوحة العميل: يختار الخدمات ويدفع الآن (محفظة/بطاقة/تحويل)
+  // أو لاحقاً بفاتورة مؤجلة لها تاريخ استحقاق — بلا مغادرة اللوحة.
+  // التسعير من الكتالوج على الخادم: العميل لا يملك تحديد ما يدفعه.
+  if (b.type === "portal-order") {
+    const sess = await getSession(req).catch(() => null);
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const email = String((sess.user && sess.user.email) || "").toLowerCase();
+    const name = String((sess.user && sess.user.full_name) || "").slice(0, 160) || email.split("@")[0];
+    const orgId = sess.organization && sess.organization.id;
+    const orgName = (sess.organization && (sess.organization.name_ar || sess.organization.name_en)) || "";
+    const PAY_MODES = { wallet: "المحفظة", later: "ادفع لاحقاً", card: "بطاقة إلكترونية", transfer: "تحويل بنكي" };
+    const pay = PAY_MODES[String(b.pay || "")] ? String(b.pay) : "later";
+    const dueDays = pay === "later" ? Math.min(60, Math.max(1, Number(b.dueDays) || 14)) : 0;
+    const wanted = (Array.isArray(b.items) ? b.items : []).slice(0, 30);
+    if (!wanted.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "empty_cart" })); }
+
+    let priceMap = null;
+    try { priceMap = await catalogPrices(); } catch { priceMap = null; }
+    if (!priceMap) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "catalog_unavailable" })); }
+    let subtotal = 0;
+    const lines = [];
+    for (const it of wanted) {
+      const key = catalogKey(String((it && it.id) || "").toLowerCase());
+      const qty = Math.max(1, Math.min(20, Number(it && it.qty) || 1));
+      const hit = key && priceMap[key];
+      if (!hit) continue;
+      subtotal += hit.amount * qty;
+      lines.push({ key, name: hit.name, qty, line: hit.amount * qty });
+    }
+    if (!lines.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_priced_items" })); }
+    const vat = Math.round(subtotal * 0.15 * 100) / 100;
+    const total = Math.round((subtotal + vat) * 100) / 100;
+    const ref = "BPO-" + Date.now().toString().slice(-6);
+    const itemsTxt = lines.map((l) => `${l.name}${l.qty > 1 ? " ×" + l.qty : ""}`).join("، ").slice(0, 800);
+    const dueISO = pay === "later" ? plusDaysISO(dueDays) : plusDaysISO(0);
+
+    // Paying from the wallet is the only mode that settles instantly — and
+    // only when the balance actually covers it. Everything else books the
+    // order and puts the money question on a dated follow-up.
+    let paid = false, walletAfter = null;
+    if (pay === "wallet") {
+      if (!DB_ON || !orgId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "wallet_unavailable" })); }
+      try {
+        const bal = await sb(`wallet_balances?organization_id=eq.${orgId}&select=balance`);
+        const balance = (bal && bal[0] && Number(bal[0].balance)) || 0;
+        if (balance < total) {
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: false, error: "insufficient_balance", balance, total, short: Math.round((total - balance) * 100) / 100 }));
+        }
+        await sb("wallet_transactions", {
+          method: "POST", prefer: "return=minimal",
+          body: [{ organization_id: orgId, type: "payment", amount: -total, note: `سداد طلب ${ref} — ${itemsTxt.slice(0, 120)}` }],
+        });
+        paid = true;
+        walletAfter = Math.round((balance - total) * 100) / 100;
+      } catch (e) {
+        console.error("portal-order wallet debit failed", String(e).slice(0, 160));
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "wallet_failed" }));
+      }
+    }
+
+    if (DB_ON && orgId) {
+      try {
+        await sb("orders", {
+          method: "POST", prefer: "return=minimal",
+          body: [{
+            ref, organization_id: orgId, created_by: sess.user && sess.user.id,
+            status: paid ? "paid" : "awaiting_payment",
+            bp_fees: subtotal, gov_fees: 0, vat, total,
+          }],
+        });
+      } catch (e) { console.error("portal-order db insert failed", String(e).slice(0, 160)); }
+    }
+
+    const statusAr = paid ? "مدفوع" : "بانتظار الدفع";
+    const payAr = PAY_MODES[pay];
+    const notes = [
+      `طلب من لوحة العميل · ${payAr}`,
+      orgName ? `المنشأة: ${orgName}` : "",
+      `الخدمات: ${itemsTxt}`,
+      `الإجمالي: ${total} ﷼ (شامل ضريبة ${vat} ﷼)`,
+      pay === "later" ? `فاتورة مؤجلة — تاريخ الاستحقاق: ${dueISO} (${dueDays} يوماً)` : "",
+      paid ? `سُدد من المحفظة — الرصيد بعد السداد: ${walletAfter} ﷼` : "",
+    ].filter(Boolean).join("\n");
+
+    const ownerHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🛒 طلب جديد من لوحة العميل — ${esc(ref)}</h2><table>${row("العميل", name) + row("البريد", email) + (orgName ? row("المنشأة", orgName) : "") + row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼") + row("طريقة الدفع", payAr) + row("الحالة", statusAr) + (pay === "later" ? row("تاريخ الاستحقاق", dueISO) : "")}</table>${paid ? "<p style='color:#047857'><b>مدفوع من المحفظة — ابدأ التنفيذ.</b></p>" : "<p>الطلب في «متابعات اليوم» بلوحة التحكم بتاريخ استحقاقه.</p>"}</div>`;
+    const clientHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">${paid ? "تم استلام طلبك وسداده ✅" : "استلمنا طلبك ✅"}</h2><p>مرحباً ${esc(name)}، سجّلنا طلبك برقم <b>${esc(ref)}</b>.</p><table>${row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼ (شامل الضريبة)") + row("طريقة الدفع", payAr)}</table>${pay === "later" ? `<p style="background:#FEF3C7;padding:10px;border-radius:8px">🗓 <b>فاتورة مؤجلة:</b> تاريخ استحقاق السداد <b>${dueISO}</b>. نذكّرك قبلها، وتقدر تسدد في أي وقت من لوحتك.</p>` : ""}${paid ? `<p style="background:#D1FAE5;padding:10px;border-radius:8px">💳 سُدد من محفظتك. الرصيد المتبقي: <b>${walletAfter} ﷼</b></p>` : ""}<p><a href="${MKT_SITE_BASE}/account" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح لوحتك ←</a></p></div>`;
+
+    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }),
+    }).catch(() => {});
+
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼ (${payAr})`, ownerHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼`, ownerHtml) : Promise.resolve(),
+      isEmail(email) ? sendEmail(email, `${paid ? "تم سداد طلبك" : "استلمنا طلبك"} — ${ref}`, clientHtml) : Promise.resolve(),
+      crmLead({
+        title: `🛒 طلب لوحة — ${name}${orgName ? " (" + orgName + ")" : ""}`,
+        email, notes, ref, orderStatus: statusAr, total,
+        leadSource: "شراء خدمة",
+        followUpDays: pay === "later" ? dueDays : 1,
+      }),
+    ]);
+    if (orgId) {
+      notify({
+        organization_id: orgId, event: "order_created", channel: "inapp",
+        title: `${paid ? "سُدد طلبك" : "سُجّل طلبك"} ${ref} — ${total} ﷼${pay === "later" ? ` (الاستحقاق ${dueISO})` : ""}`,
+        idempotency_key: `portal_order:${ref}`,
+      }).catch(() => {});
+    }
+    audit({ action: "portal.order", actor_label: email, after: { ref, total, pay, paid } }).catch(() => {});
+
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true, ref, total, vat, subtotal, paid, pay, payAr,
+      due: pay === "later" ? dueISO : null,
+      walletBalance: walletAfter,
+      payUrl: pay === "card" ? `${MKT_SITE_BASE}/pay?ref=${encodeURIComponent(ref)}&amount=${total}` : null,
+    }));
+  }
+
   if (b.type === "wallet-pay") {
     const name = String(b.name || "").trim().slice(0, 160);
     const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
@@ -3593,7 +4431,7 @@ export default async function handler(req, res) {
     const amount = Number.isFinite(amountNum) && amountNum > 0 ? amountNum : 0;
     const monthsNum = Number(b.months);
     const months = [3, 6, 12].includes(monthsNum) ? monthsNum : 6;
-    const CH = { bank: "بنك العميل", bnpl: "تابي / تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
+    const CH = { bank: "بنك العميل", bnpl: "تمارا", wallet: "محفظة إلكترونية", any: "أفضل عرض متاح" };
     const channel = CH[b.channel] || CH.any;
     if (!name || !phone || !isEmail(email) || !service || !amount) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const monthly = Math.ceil(amount / months);
@@ -3823,6 +4661,78 @@ export default async function handler(req, res) {
   // contact first, then picked a service (main window → sub-service). Creates a
   // CRM ticket, emails the team + owner, fires the WhatsApp lead pipe, and shows
   // up in the BP Inbox tagged «تذكرة». One ticket = one CRM page (ref BPT-…).
+  // ---- B10X Faster™ — flagship product ----
+  // Deterministic engine classification for Ask B10X (no AI dependency: a
+  // wrong-but-visible engine label beats a request lost in a model hiccup).
+  const b10xEngineOf = (text) => {
+    const t = String(text || "");
+    const M = [
+      ["الحكومة والامتثال 🏛️", /قوى|قوي|تأمينات|مقيم|مدد|بلدي|زكاة|ضريب|أبشر|اعتماد|ناجز|امتثال|تجديد|حكوم|سلامة|فسح|سابر/i],
+      ["الانتقال والسكن 🧳", /سكن|شقة|فيلا|كمباوند|مدرسة|مدارس|انتقال|عائلة|مطار|فندق|relocat|housing|school|apartment/i],
+      ["العقارات والمقار 🏢", /مكتب|مستودع|مصنع|معرض|أرض|عقار|warehouse|office|showroom|factory/i],
+      ["الموظفون والتوظيف 👥", /موظف|توظيف|استقدام|تأشير|عقد عمل|راتب|recruit|hire|visa|staff/i],
+      ["الموردون والشراكات 🔗", /مورد|توريد|موزع|وكيل|packaging|rfq|supplier|distributor|vendor/i],
+      ["العملاء والمبيعات 📈", /عميل|عملاء|مبيعات|اجتماعات|بايبلاين|عرض سعر|client|sales|pipeline|meeting/i],
+      ["النمو والصفقات 🚀", /استحواذ|اندماج|توسع|شراء شركة|بيع شركة|شريك|acquisition|m&a|merger|expand|franchise/i],
+      ["التأسيس 🏗️", /تأسيس|سجل تجاري|رخصة استثمار|فرع أجنبي|misa|license|formation|branch/i],
+      ["الهوية والحضور الرقمي 🎨", /موقع|هوية|شعار|لوقو|بروفايل|سوشال|لينكد|website|logo|brand|instagram/i],
+      ["استكشاف السوق 🧭", /دراسة|استكشاف|سوق|منافس|market|research|competitor/i],
+    ];
+    for (const [label, re] of M) if (re.test(t)) return label;
+    return "طلب عام 📨";
+  };
+
+  // Public «Start B10X» application from /b10x — a flagship lead with its own
+  // channel, confirmed to the applicant and routed to the team.
+  if (b.type === "b10x-apply") {
+    const name = String(b.name || "").trim().slice(0, 120);
+    const company = String(b.company || "").trim().slice(0, 160);
+    const country = String(b.country || "").trim().slice(0, 80);
+    const sector = String(b.sector || "").trim().slice(0, 120);
+    const phone = String(b.phone || "").trim().slice(0, 40);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    const message = String(b.message || "").trim().slice(0, 1500);
+    if (!name || !company || !phone || !isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const ref = "B10X-" + Date.now().toString().slice(-6);
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">🚀 طلب B10X جديد — ${esc(company)}</h2><table>${row("المرجع", ref) + row("الاسم", name) + row("الشركة", company) + row("الدولة", country || "—") + row("القطاع", sector || "—") + row("الجوال", phone) + row("البريد", email) + row("الهدف", message || "—")}</table><p>عميل Flagship محتمل (تفعيل 50,000 + اشتراك B10X 365) — تواصل خلال يوم عمل.</p></div>`;
+    const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">استلمنا طلب B10X الخاص بك ✅</h2><p>مرحباً ${esc(name)}، سجلنا اهتمام <b>${esc(company)}</b> بمنظومة <b>B10X Faster™ — Saudi Landing OS</b> برقم مرجع <b>${ref}</b>. سيتواصل معك مختص B10X خلال يوم عمل بخطة دخولك للسوق السعودي.</p><p><a href="${MKT_SITE_BASE}/consultation" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أو احجز استشارتك المجانية الآن</a></p><p style="color:#666;margin-top:18px">Business Partner · Riyadh · businesspartner.sa</p></div>`;
+    await Promise.all([
+      crmLead({ title: `🚀 B10X — ${company} (${name})`, phone, email, notes: `قناة: B10X · الدولة: ${country || "—"} · القطاع: ${sector || "—"}${message ? "\nالهدف: " + message : ""}`, ref, orderStatus: "قيد المراجعة", leadSource: "B10X" }),
+      sendEmail(TEAM_EMAIL, `🚀 طلب B10X جديد — ${company} (${ref})`, oHtml),
+      sendEmail(email, `استلمنا طلب B10X — ${ref}`, cHtml),
+      addToAudience(email, name),
+      forwardLead({ source: "b10x", ref, name, phone, email, items: company }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
+  // «Ask B10X» from inside the client portal: free text → classified service
+  // request with a tracking reference, assigned to the account manager flow.
+  // Session-gated: only a logged-in client can file one, under their identity.
+  if (b.type === "b10x-request") {
+    let sess = null;
+    try { sess = await getSession(req); } catch {}
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    const text = String(b.text || "").trim().slice(0, 1200);
+    if (text.length < 5) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+    const engine = b10xEngineOf(text);
+    const ref = "B10XR-" + Date.now().toString().slice(-6);
+    const email = (sess.user && sess.user.email) || "";
+    const name = (sess.user && sess.user.full_name) || "";
+    const org = (sess.organization && (sess.organization.name_ar || sess.organization.name_en)) || "";
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">🚀 Ask B10X — ${esc(engine)}</h2><table>${row("المرجع", ref) + row("العميل", name) + row("المنشأة", org || "—") + row("البريد", email)}</table><p style="background:#F4F6FB;border-radius:8px;padding:12px 16px">${esc(text)}</p><p>أسندها لمدير الحساب وتابع التنفيذ من CRM.</p></div>`;
+    await Promise.all([
+      crmLead({ title: `🚀 طلب B10X — ${engine} — ${org || name || email}`, phone: "", email, notes: `قناة: Ask B10X · المحرك: ${engine} · المنشأة: ${org || "—"} · البريد: ${email}\nالطلب: ${text}`, ref, orderStatus: "قيد المراجعة", leadSource: "Ask B10X" }),
+      sendEmail(TEAM_EMAIL, `🚀 Ask B10X — ${engine} (${ref})`, oHtml),
+      sess.organization && sess.organization.id
+        ? notify({ organization_id: sess.organization.id, event: "b10x_request", channel: "inapp", title: `استلمنا طلبك ${ref} (${engine}) — سيتابعه مدير حسابك`, idempotency_key: `b10x:${ref}` }).catch(() => {})
+        : Promise.resolve(),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref, engine }));
+  }
+
   if (b.type === "support-ticket") {
     const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
     const c = b.contact && typeof b.contact === "object" ? b.contact : {};
@@ -3861,7 +4771,7 @@ export default async function handler(req, res) {
     const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
     // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
     const bookUrl = `${MKT_SITE_BASE}/consultation`;
-    const waAdvisor = "https://wa.me/966503793356";
+    const waAdvisor = "https://wa.me/966530540231";
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
       <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
       <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
@@ -3913,7 +4823,7 @@ export default async function handler(req, res) {
       text: "استشارة Business Partner",
       dates: `${startG}/${endG}`,
       ctz: "Asia/Riyadh",
-      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966503793356`,
+      details: `استشارة مجانية مع فريق بزنس بارتنر.\nرقم المرجع: ${ref}\nمستشارك: باهر · wa.me/966530540231`,
       location: "Business Partner — Riyadh / Online",
     }).toString();
     const whenTxt = `${date} · ${time} ${Number(hh) >= 12 ? "م" : "ص"} (توقيت الرياض)`;
@@ -3934,7 +4844,7 @@ export default async function handler(req, res) {
       <h2 style="color:#0B1B5A">تم حجز استشارتك ✅</h2>
       <p>مرحباً ${esc(name)}، حجزنا لك استشارة مجانية بتاريخ <b>${esc(whenTxt)}</b> (رقم المرجع <b>${ref}</b>)، وبيأكّد لك مستشارك <b>باهر</b> قريباً.</p>
       <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
-      <p><a href="https://wa.me/966503793356" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
+      <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
       <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
     const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -3972,7 +4882,7 @@ export default async function handler(req, res) {
     if (notify) {
       const ref = "WEB-" + sid;
       const bookUrl = `${MKT_SITE_BASE}/consultation`;
-      const waAdvisor = "https://wa.me/966503793356"; // واتساب المستشار باهر
+      const waAdvisor = "https://wa.me/966530540231"; // واتساب المستشار باهر
       const transcript = messages.map((m) => (m.role === "assistant" ? "باهر: " : "الزائر: ") + m.content).join("\n").slice(-3500);
       // إشعار الشركة فقط (business@) — بلا نسخة على الإيميل الشخصي
       const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">عميل من «المستشار» يريد المتابعة 💬</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("المرجع", ref)}</table><h3 style="color:#0B1B5A">نص المحادثة</h3><pre style="white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:8px;font-family:inherit">${esc(transcript)}</pre><p>تابع العميل عبر واتساب أو البريد أعلاه — والمحادثة كاملة في شاشة «BP Inbox» تحت وسم «المستشار».</p></div>`;
@@ -4064,6 +4974,35 @@ export default async function handler(req, res) {
 
   // Revenue OS diagnosis-session lead from /revenue-os — lands in the CRM and
   // notifies the team + owner immediately (this form used to be a demo stub).
+  // Homepage hero «ابدأ الآن» — the shortest path from landing to a lead:
+  // a service and a mobile number, nothing else. Every extra required field
+  // costs conversions here, so name/email stay optional and the team collects
+  // the rest on the call. Lands in the CRM like any other website lead and
+  // fires the owner's instant email + WhatsApp alert.
+  if (b.type === "quick-start") {
+    const service = String(b.service || "").trim().slice(0, 200);
+    const code = String(b.code || "").trim().slice(0, 40);
+    const phone = String(b.phone || "").replace(/[^\d+]/g, "").slice(0, 20);
+    const name = String(b.name || "").trim().slice(0, 160);
+    const email = String(b.email || "").trim().toLowerCase().slice(0, 160);
+    if (!service || !/^(\+?966|0)?5\d{8}$/.test(phone.replace(/^\+/, ""))) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
+    }
+    const ref = "QS-" + Date.now().toString().slice(-6);
+    const notes = `طلب سريع من الصفحة الرئيسية · الخدمة: ${service}${code && code !== "other" ? ` (${code})` : ""}`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب سريع من الموقع — ${ref}</h2><table>${row("الخدمة المطلوبة", service) + row("رمز الخدمة", code || "—") + row("الجوال", phone) + (name ? row("الاسم", name) : "") + (email ? row("البريد", email) : "")}</table><p style="color:#b91c1c;font-weight:700">اتصل بالعميل اليوم — الطلب مسجّل في «Sales Pipeline» برقم ${ref}.</p></div>`;
+    await Promise.all([
+      sendEmail(TEAM_EMAIL, `⚡ طلب سريع ${ref} — ${service}`, oHtml),
+      OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `⚡ طلب سريع ${ref} — ${service}`, oHtml) : Promise.resolve(),
+      crmLead({ title: `طلب سريع — ${service}`, phone, email, notes, ref, leadSource: "نموذج الموقع", followUpDays: 1 }),
+      isEmail(email) ? addToAudience(email, name) : Promise.resolve(),
+      forwardLead({ source: "quick-start", ref, name, phone, email, notes, service, code }),
+    ]);
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, ref }));
+  }
+
   if (b.type === "revenue-lead") {
     const name = String(b.name || "").trim().slice(0, 160);
     const company = String(b.company || "").trim().slice(0, 200);

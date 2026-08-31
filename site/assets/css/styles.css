@@ -406,6 +406,16 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
 .hidden { display: none !important; }
 
 /* Responsive */
+/* Between the burger breakpoint and very wide screens the full nav plus the
+   labelled header buttons overflow the container — on a 1440 laptop the
+   partners button was pushed clean off the edge. The buttons keep their
+   icons and drop their labels here, which is ~250px back. */
+@media (max-width: 1460px) and (min-width: 1101px) {
+  .hdr-btn-t { display: none; }
+  .hdr-btn { padding: 0; width: 42px; justify-content: center; }
+  .nav { gap: 2px; }
+  .header-inner { gap: 12px; }
+}
 @media (max-width: 1280px) {
   .nav a { padding: 8px 9px; font-size: .9rem; }
   .header-cta .btn-ghost, .header-cta > .btn-primary { display: none; }
@@ -1629,3 +1639,7 @@ textarea.adv-in { resize: vertical; }
 .sub-terms li b { color: #3A3527; }
 .sub-accept { display: flex; gap: 9px; align-items: flex-start; margin-top: 12px; font-size: .86rem; line-height: 1.6; cursor: pointer; }
 .sub-accept input { margin-top: 4px; flex: 0 0 auto; }
+/* Wide result tables inside owner panels scroll on their own rather than
+   pushing the page sideways on a phone. */
+.mini-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mini-table-wrap .mini-table{min-width:520px}

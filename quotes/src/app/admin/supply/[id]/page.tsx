@@ -8,12 +8,20 @@ import { timelineFor } from '@/lib/timeline';
 import { Timeline, Kpi } from '@/components/ui';
 import { SUPPLY_STATUS_LABEL } from '@/lib/enums';
 import SupplyTools from './SupplyTools';
+import ResaleView from './ResaleView';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SupplyPage({ params }: { params: Promise<{ id: string }> }) {
   await guardAdmin();
   const { id } = await params;
+
+  // الوضعان شاشتان لا شاشة بشرطين: أدوات الأمانة والمراحل لا معنى لها في
+  // إعادة البيع، وتكلفة المورد وهامشنا لا معنى لهما في الثلاثي.
+  const head = await prisma.supplyRequest.findUnique({ where: { id }, select: { mode: true } });
+  if (!head) notFound();
+  if (head.mode === 'RESALE') return <ResaleView requestId={id} />;
+
   const req = await prisma.supplyRequest.findUnique({
     where: { id },
     include: {

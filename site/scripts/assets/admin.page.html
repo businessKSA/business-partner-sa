@@ -299,8 +299,26 @@
     .page-row .pu{font-size:12px;color:var(--muted);direction:ltr}
     .page-row a.actbtn{text-decoration:none}
 
+    /* ---- top header (desktop) ---- */
+    .admin-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;
+      margin:-6px 0 18px;padding:10px 14px;background:#fff;border:1px solid var(--line);
+      border-radius:14px;box-shadow:0 6px 20px rgba(18,38,85,.05);position:sticky;top:10px;z-index:30}
+    .atb-title{display:flex;align-items:baseline;gap:9px;min-width:0}
+    .atb-title strong{color:var(--navy);font-size:.95rem}
+    .atb-title span{color:var(--muted);font-size:.68rem;white-space:nowrap}
+    .atb-actions{display:flex;align-items:center;gap:8px}
+    .atb-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;
+      color:var(--navy);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none}
+    .atb-btn:hover{border-color:#b9c6e6}
+    .atb-btn[disabled]{opacity:.55;cursor:not-allowed}
+    .atb-btn small{font-size:9.5px;font-weight:800;color:#8a93a7;background:#f1f4fa;border-radius:999px;padding:2px 7px}
+    .atb-primary{border:0;background:linear-gradient(135deg,var(--navy),#3159d8);color:#fff}
+    /* The header owns «المساعد» on desktop; the floating button stays for mobile. */
+    @media (min-width: 861px){ #aiFab{display:none} }
+
     /* ---- mobile ---- */
     .mobilebar{display:none}
+    @media (max-width: 860px){ .admin-topbar{display:none} }
     @media (max-width: 860px){
       #app.on{flex-direction:column}
       .side{display:none}
@@ -315,6 +333,7 @@
       .main{padding:18px 14px 50px}
     }
   </style>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
 </head>
 <body>
   <div id="gate">
@@ -366,6 +385,7 @@
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات والموافقات</button>
         <button data-v="notion">📇 نوشن — مباشر</button>
+        <button data-v="finance">💰 المالية</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button class="grp" id="grpContent"><span>📝</span><span>محتوى الموقع</span><span class="caret">▾</span></button>
         <div class="sub" id="subContent"></div>
@@ -380,8 +400,9 @@
         <div class="sub" id="subSvc"></div>
       </nav>
       <div class="grow"></div>
+      <!-- «فتح الموقع» and «المساعد» moved to the top header (.admin-topbar);
+           the sidebar foot keeps sign-out only. -->
       <div class="foot">
-        <a href="/" target="_blank" rel="noopener">🌐 فتح الموقع</a>
         <button id="logoutBtn">🚪 تسجيل الخروج</button>
       </div>
     </aside>
@@ -395,6 +416,7 @@
       <div class="tabs" id="navMob">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
+        <button data-v="finance">💰 المالية</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
@@ -403,6 +425,19 @@
     </div>
 
     <main class="main">
+      <!-- Top header: language, assistant, open website. The language switch is
+           deliberately disabled — the admin is Arabic-only today, and a switch
+           that changes nothing would be a lie. Enable it only when a real
+           English admin exists. -->
+      <div class="admin-topbar">
+        <div class="atb-title"><strong>مركز التشغيل</strong><span>Business Partner · Operations</span></div>
+        <div class="atb-actions">
+          <button type="button" class="atb-btn" id="topLang" disabled
+                  title="واجهة اللوحة بالعربية حالياً — النسخة الإنجليزية قيد التجهيز">🌐 English <small>قريباً</small></button>
+          <button type="button" class="atb-btn" id="topAi">✨ المساعد</button>
+          <a class="atb-btn atb-primary" href="/" target="_blank" rel="noopener">↗ فتح الموقع</a>
+        </div>
+      </div>
       <!-- ============ overview ============ -->
       <section class="view on" id="view-overview">
         <div class="pagehead">
@@ -433,8 +468,14 @@
 
         <!-- follow-ups: the ONE list that keeps clients from being forgotten -->
         <div class="panel" id="fupPanel" style="margin-bottom:18px;border:1px solid #C7D2FE">
-          <div class="panel-head"><h3>📞 متابعات اليوم — حتى لا يضيع عميل</h3><button class="actbtn" id="fupAddToggle" style="background:#0B1B5A;color:#fff;border-color:#0B1B5A">➕ عميل جديد (اتصال مباشر)</button><span class="stamp" id="fupCount"></span></div>
-          <div style="padding:0 18px 4px;color:#64748b;font-size:12.5px">سي آر إم تفاعلي: اضغط «✅ تم التواصل» أو أضف ملاحظة أو أجّل — يُحفظ مباشرة في نوشن، ويتوقف تذكير الواتساب (كل ٣٠ دقيقة) عن هذا العميل فوراً.</div>
+          <div class="panel-head"><h3>📞 العملاء — لوحة حيّة</h3><span id="fupLive" style="font-size:11.5px;color:#047857;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;animation:fupPulse 1.6s infinite"></span> مباشر</span><button class="actbtn" id="fupAddToggle" style="background:#0B1B5A;color:#fff;border-color:#0B1B5A">➕ عميل جديد (اتصال مباشر)</button><span class="stamp" id="fupCount"></span></div>
+          <style>@keyframes fupPulse{0%,100%{opacity:1}50%{opacity:.3}}
+            .fuptab{border:1px solid #CBD5E1;background:#fff;color:#334155;border-radius:999px;padding:4px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap}
+            .fuptab.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
+            .fuptab .n{opacity:.75;font-size:11px}</style>
+          <div style="padding:0 18px 4px;color:#64748b;font-size:12.5px">تتحدّث تلقائياً كل دقيقة: كل من وصل من واتساب أو المستشار أو طلب/شراء خدمة أو استشارة يظهر هنا فور تسجيله — اضغط «✅ تم التواصل» أو أضف ملاحظة أو أجّل، يُحفظ مباشرة في نوشن ويتوقف تذكير الواتساب عن هذا العميل فوراً.</div>
+          <div id="fupStatusTabs" style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 18px 0"></div>
+          <div id="fupChanTabs" style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 18px 0"></div>
           <div id="fupAddForm" style="display:none;margin:8px 18px;padding:14px;border:1px dashed #C7D2FE;border-radius:10px;background:#F8FAFF">
             <div style="font-weight:700;color:#0B1B5A;margin-bottom:8px">➕ تسجيل عميل وصلك مباشرة (اتصال / زيارة) — يتولّد له رقم مرجع تلقائياً</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
@@ -454,6 +495,7 @@
             <button class="actbtn" id="fupAddSubmit" style="margin-top:8px;background:#047857;color:#fff;border-color:#047857">➕ إنشاء السجل</button>
           </div>
           <div id="fupList" style="padding:4px 18px 14px;font-size:13.5px">جاري التحميل…</div>
+          <div id="fupMoreBar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 18px 14px"></div>
         </div>
 
         <div class="tiles">
@@ -480,6 +522,7 @@
           <div style="padding:0 18px;color:#64748b;font-size:12.5px">مكان واحد لكل التواصل: الرد من BP Inbox، والسجل الكامل في CRM الموحّد، والمتابعات أعلى هذه الصفحة.</div>
           <div class="tools" style="padding:12px 18px 16px">
             <a class="tool" href="/monitor" target="_blank" rel="noopener"><span class="ico">💬</span><h4>BP Inbox — الرد على العملاء</h4><p>محادثات واتساب ومستشار الموقع والتذاكر — الرد المباشر بمساعدة الذكاء.</p><span class="go">فتح ←</span></a>
+            <a class="tool" href="/doc-agent-admin" target="_blank" rel="noopener"><span class="ico">🗂️</span><h4>وكيل المستندات — المتابعة والتدخل</h4><p>كل طلبات تعبئة المستندات: الملفات وتصنيفها، المخرجات وجودتها، مراسلة العميل، وإعادة التوليد عند الخلل.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="https://www.notion.so/d9a342be24774be3b4095d439d21fc90" target="_blank" rel="noopener"><span class="ico">📇</span><h4>CRM الموحّد — Sales Pipeline</h4><p>القاعدة الرئيسية الوحيدة: كل طلبات الموقع والواتساب والاستشارات والتذاكر تصب فيها.</p><span class="go">فتح ←</span></a>
             <a class="tool" href="#" data-goto="leads"><span class="ico">📥</span><h4>الطلبات والموافقات</h4><p>تغيير حالة الطلبات، التفعيل، وإشعار العميل — داخل اللوحة.</p><span class="go">فتح ←</span></a>
           </div>
@@ -615,6 +658,61 @@
           <div class="tbl-wrap"><table>
             <thead id="ntHead"></thead>
             <tbody id="ntBody"><tr><td class="empty">جاري التحميل…</td></tr></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ Finance: revenues, expenses, KPIs ============ -->
+      <section class="view" id="view-finance">
+        <div class="pagehead">
+          <h2>💰 المالية — إيرادات ومصروفات ومؤشرات</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="finStamp"></span>
+          <button class="refresh" id="finRefresh">↻ تحديث</button>
+          <div class="sub">دفتر داخلي يقرأ ويكتب في قاعدة «💰 المالية» في نوشن — سجّل أي إيراد أو مصروف من هنا أو من نوشن نفسه، والأرقام والمؤشرات تتحدث فوراً.</div>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="k">📈 إيراد هذا الشهر</div><div class="v" id="finMRev">—</div><div class="d">﷼ قبل الضريبة</div></div>
+          <div class="tile"><div class="k">📉 مصروفات الشهر</div><div class="v" id="finMExp">—</div><div class="d">﷼</div></div>
+          <div class="tile"><div class="k">💵 صافي الشهر</div><div class="v" id="finMNet">—</div><div class="d">إيراد − مصروف</div></div>
+          <div class="tile"><div class="k">🗓 إيراد السنة</div><div class="v" id="finYRev">—</div><div class="d">منذ يناير</div></div>
+          <div class="tile"><div class="k">🏦 صافي السنة</div><div class="v" id="finYNet">—</div><div class="d">إيراد − مصروف</div></div>
+          <div class="tile"><div class="k">🆕 عملاء جدد بالشهر</div><div class="v" id="finNewM">—</div><div class="d">من الـ CRM</div></div>
+          <div class="tile"><div class="k">🏆 صفقات Won بالسنة</div><div class="v" id="finWonY">—</div><div class="d">من الـ CRM</div></div>
+        </div>
+        <div class="panel" style="margin-bottom:18px">
+          <div class="panel-head"><h3>📊 آخر ١٢ شهراً</h3></div>
+          <div id="finMonths" style="padding:8px 18px 16px;font-size:12.5px">جاري التحميل…</div>
+        </div>
+        <div class="panel" style="margin-bottom:18px">
+          <div class="panel-head"><h3>➕ قيد جديد</h3></div>
+          <div style="padding:8px 18px 16px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+              <label style="font-size:12px;color:#475569">النوع
+                <select id="finKind" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><option value="إيراد">📈 إيراد</option><option value="مصروف">📉 مصروف</option></select></label>
+              <label style="font-size:12px;color:#475569">المبلغ ﷼ *<input id="finAmount" type="number" min="0" step="0.01" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">البيان *<input id="finTitle" type="text" placeholder="مثال: تأسيس شركة — عميل X" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">الفئة
+                <select id="finCat" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px">
+                  <option>خدمات حكومية</option><option>تأسيس شركات</option><option>اشتراكات وعقود</option><option>B10X</option>
+                  <option>تسويق وإعلانات</option><option>رواتب وأجور</option><option>إيجارات ومكاتب</option><option>تقنية وبرمجيات</option>
+                  <option>رسوم حكومية مدفوعة</option><option>عمولات موردين</option><option selected>أخرى</option>
+                </select></label>
+              <label style="font-size:12px;color:#475569">طريقة الدفع
+                <select id="finMethod" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"><option>تحويل بنكي</option><option>مدى/بطاقة</option><option>نقدي</option><option>المحفظة</option><option>أخرى</option></select></label>
+              <label style="font-size:12px;color:#475569">التاريخ<input id="finDate" type="date" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+              <label style="font-size:12px;color:#475569">رقم المرجع<input id="finRef" type="text" placeholder="اختياري" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+            </div>
+            <label style="font-size:12px;color:#475569;display:block;margin-top:8px">ملاحظات<input id="finNote" type="text" style="width:100%;padding:7px;border:1px solid #CBD5E1;border-radius:7px"></label>
+            <button class="actbtn" id="finAdd" style="margin-top:10px;background:#047857;color:#fff;border-color:#047857">➕ حفظ القيد في نوشن</button>
+            <span id="finAddMsg" style="font-size:12px;margin-inline-start:8px"></span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>🧾 آخر القيود</h3><button class="actbtn" id="finCsv">📥 تصدير CSV</button></div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>التاريخ</th><th>النوع</th><th>البيان</th><th>الفئة</th><th>المبلغ ﷼</th><th>الدفع</th><th>المرجع</th></tr></thead>
+            <tbody id="finBody"><tr><td class="empty" colspan="7">جاري التحميل…</td></tr></tbody>
           </table></div>
         </div>
       </section>
@@ -757,7 +855,7 @@
             </div>
             <div class="dbody" id="fxMsg" style="display:none;margin-top:10px"></div>
           </div>
-
+        </div>
 
           <div class="panel" data-tool="health" style="margin-bottom:22px;padding:18px">
             <h4 style="color:var(--navy);margin-bottom:4px">🩺 حالة الخدمات — ما هو موصول فعلاً</h4>
@@ -766,6 +864,38 @@
             </p>
             <button class="actbtn" id="hlRun">🩺 افحص الآن</button>
             <div class="dbody" id="hlMsg" style="display:none;margin-top:10px"></div>
+          </div>
+
+          <!-- لوحة العروض تعيش في نشرة أخرى (bp-quotes) بمتغيرات بيئتها هي.
+               فكان سؤال «هل بريدها مضبوط؟ هل جسرها موصول؟» يحتاج فتح تبويب
+               وتسجيل دخول ثانٍ، وأحياناً بريداً هو نفسه المعطَّل. نقطة الحالة
+               عندها بلا تسجيل دخول وبلا سرّ واحد، فتُقرأ من هنا مباشرة. -->
+          <div class="panel" data-tool="quotes" style="margin-bottom:22px;padding:18px">
+            <h4 style="color:var(--navy);margin-bottom:4px">📑 لوحة عروض الأسعار والعقود</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              لوحة منفصلة لها متغيرات بيئتها. هذا الفحص يسأل نقطة الحالة عندها: هل البريد يُرسل فعلاً،
+              وهل تمارا مضبوطة، وهل الجسر مع الموقع موصول. قيم منطقية فقط — لا يظهر مفتاح ولا جزء منه.
+              <b>تنبيه:</b> متغيرات Vercel تُلتقط لحظة البناء، فما يُضاف بعد بدء البناء لا تراه تلك النشرة
+              حتى يُعاد النشر.
+            </p>
+            <button class="actbtn" id="qpRun">📑 افحص لوحة العروض</button>
+            <a class="actbtn" id="qpOpen" href="#" target="_blank" rel="noopener" style="background:var(--navy);color:#fff">↗ افتح اللوحة</a>
+            <div class="dbody" id="qpMsg" style="display:none;margin-top:10px"></div>
+
+            <!-- المالك يدير عمله من هنا، وباب لوحة العروض كان رابطاً سحرياً
+                 يصل بريد ADMIN_EMAIL وحده. فمن لم يكن ذلك بريده وقف خارج
+                 نظامه هو، ومن أراد أن يرى شيئاً سجّل نفسه عميلاً — فرأى ما
+                 يراه العميل لا ما يملكه المالك. -->
+            <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+            <h4 style="color:var(--navy);margin-bottom:4px">👑 دخول المالك وكل ما في اللوحة</h4>
+            <p style="color:var(--soft);font-size:.85rem;line-height:1.8;margin-bottom:10px">
+              «افتح كمالك» يصنع لك جلسة مدير في لوحة العروض مباشرةً — بلا انتظار بريد وبلا تسجيلك عميلاً.
+              و«اعرض الكل» يقرأ عروض وعقود وفواتير وطلبات توريد كل العملاء هنا، دون انتقال.
+              السرّ لا يمرّ في متصفحك: النداء من خادم الموقع إلى خادم اللوحة.
+            </p>
+            <button class="actbtn" id="qpOwner" style="background:var(--navy);color:#fff">👑 افتح اللوحة كمالك</button>
+            <button class="actbtn" id="qpAll">📋 اعرض كل العروض والعقود</button>
+            <div class="dbody" id="qpAllMsg" style="display:none;margin-top:10px"></div>
           </div>
 
           <div class="panel" data-tool="etimad" style="margin-bottom:22px;padding:18px">
@@ -896,6 +1026,8 @@
           <a class="tool" href="/ar/portal/dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">👥</span><h4>بوابة الاستقدام HR</h4><p>لوحة عملاء بوابة الاستقدام والتوظيف hr.businesspartner.sa.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/business-development-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📈</span><h4>لوحة تطوير الأعمال كخدمة — البايبلاين</h4><p>الفرص والـPipeline والإيرادات والتحصيل — ما يراه مشترك تطوير الأعمال كخدمة في لوحته.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/account" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📄</span><h4>بوابة العملاء</h4><p>تتبع الطلبات والمستندات — ما يراه العميل بعد شراء أي خدمة.</p><span class="go">فتح ←</span></a>
+          <a class="tool" id="qpAdminCard" href="#" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">📑</span><h4>لوحة عروض الأسعار والعقود</h4><p>إصدار العروض وتحويلها لعقود، التوقيع الإلكتروني، مطالبات السداد، وملفات العملاء. حالتها تُقرأ من أداة «لوحة العروض» في الأدوات.</p><span class="go">فتح ←</span></a>
+          <a class="tool" id="qpPortalCard" href="#" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🗂️</span><h4>بوابة العميل — العروض والعقود</h4><p>ما يراه العميل من عروضه وعقوده ومطالباته. ويظهر له أيضاً داخل «حسابي» على الموقع.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">📇</span><h4>CRM — نوشن</h4><p>قاعدة Sales Pipeline الكاملة: العملاء، الصفقات، الحالات، والمرفقات.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://businesspartnerai.app.n8n.cloud" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">⚙️</span><h4>n8n — الأتمتة</h4><p>سيناريوهات الوكلاء وواتساب — التوكنات، الاعتمادات، وسجل التشغيل.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="https://vercel.com" target="_blank" rel="noopener"><span class="tag ext">خارجي</span><span class="ico">▲</span><h4>Vercel — الاستضافة</h4><p>نشر الموقع، السجلات، ومتغيرات البيئة (المفاتيح والتوكنات).</p><span class="go">فتح ←</span></a>
@@ -1363,24 +1495,128 @@
         })
         .catch(function(){ alert('تعذّر الاتصال — أعد المحاولة.'); if (btn){ btn.disabled = false; } });
     }
-    var fupRows = [];
+    var fupRows = [];          // all board rows (every bucket)
+    var fupBase = [];          // first page — replaced by every live refresh
+    var fupMore = [];          // older archive pages loaded via «تحميل أقدم» — never dropped
+    var fupNext = null;        // Notion cursor for the next (older) archive page
+    var fupSeen = null;        // ids seen in the previous poll → highlight newcomers
+    var fupStatus = 'due';     // active status lane
+    var fupChan = 'all';       // active channel tab
+    var FUP_LANES = [
+      { key:'due', label:'🔥 يحتاج تواصلك' },
+      { key:'fresh', label:'🆕 جديد بلا موعد' },
+      { key:'followed', label:'🕓 متابَع لاحقاً' },
+      { key:'done', label:'✅ منتهي' },
+      { key:'all', label:'الكل' }
+    ];
+    function fupChip(label, count, on){
+      return '<button type="button" class="fuptab' + (on ? ' on' : '') + '">' + label + ' <span class="n">(' + count + ')</span></button>';
+    }
+    function renderFupTabs(){
+      var byB = {}, byC = {}, chans = {};
+      fupRows.forEach(function(f){
+        byB[f.bucket] = (byB[f.bucket] || 0) + 1;
+        var c = f.channel || { key:'website', label:'الموقع', icon:'🌐' };
+        chans[c.key] = c;
+        if (fupStatus === 'all' || f.bucket === fupStatus) byC[c.key] = (byC[c.key] || 0) + 1;
+      });
+      $('fupStatusTabs').innerHTML = FUP_LANES.map(function(l){
+        var n = l.key === 'all' ? fupRows.length : (byB[l.key] || 0);
+        return fupChip(l.label, n, fupStatus === l.key);
+      }).join('');
+      var tabs = $('fupStatusTabs').querySelectorAll('.fuptab');
+      for (var t1 = 0; t1 < tabs.length; t1++) (function(idx){ tabs[idx].onclick = function(){ fupStatus = FUP_LANES[idx].key; renderFupTabs(); renderFupList(); }; })(t1);
+      var ckeys = Object.keys(chans);
+      var inScope = fupRows.filter(function(f){ return fupStatus === 'all' || f.bucket === fupStatus; }).length;
+      var chanHtml = fupChip('كل القنوات', inScope, fupChan === 'all');
+      ckeys.forEach(function(k){ chanHtml += fupChip(chans[k].icon + ' ' + chans[k].label, byC[k] || 0, fupChan === k); });
+      $('fupChanTabs').innerHTML = chanHtml;
+      var ctabs = $('fupChanTabs').querySelectorAll('.fuptab');
+      var order = ['all'].concat(ckeys);
+      for (var t2 = 0; t2 < ctabs.length; t2++) (function(idx){ ctabs[idx].onclick = function(){ fupChan = order[idx]; renderFupTabs(); renderFupList(); }; })(t2);
+    }
+    // First page + every archive page loaded so far, deduped by Notion id —
+    // the live refresh replaces only the first page, the archive stays.
+    function mergeFupPages(){
+      var seen = {}, all = [];
+      fupBase.concat(fupMore).forEach(function(f){ if (!seen[f.id]){ seen[f.id] = 1; all.push(f); } });
+      fupRows = all;
+    }
+    function renderFupMoreBar(){
+      var bar = $('fupMoreBar'); if (!bar) return;
+      var html = '';
+      if (fupNext) html += '<button type="button" class="actbtn" id="fupMoreBtn">⬇️ تحميل أقدم (الأرشيف)</button>';
+      html += '<button type="button" class="actbtn" id="fupCsvBtn">📥 تصدير CSV للتسويق</button>';
+      html += '<span style="color:#94a3b8;font-size:11.5px">محمّل ' + fupRows.length + ' عميل — لا يُحذف أي عميل: المنتهون يبقون في «✅ منتهي» وفي نوشن للأبد.</span>';
+      bar.innerHTML = html;
+      var mb = $('fupMoreBtn');
+      if (mb) mb.onclick = function(){
+        mb.disabled = true; mb.textContent = '…جاري التحميل';
+        fetch(API_URL + '?action=panel-followups&scope=all&limit=100&cursor=' + encodeURIComponent(fupNext) + authQS(), { cache:'no-store' })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            if (out && out.ok){ fupMore = fupMore.concat(out.followups || []); fupNext = out.next || null; mergeFupPages(); renderFupTabs(); renderFupList(); renderFupMoreBar(); }
+            else { mb.disabled = false; mb.textContent = '⬇️ تحميل أقدم (الأرشيف)'; }
+          })
+          .catch(function(){ mb.disabled = false; mb.textContent = '⬇️ تحميل أقدم (الأرشيف)'; });
+      };
+      var cb = $('fupCsvBtn');
+      if (cb) cb.onclick = function(){
+        var lane = fupRows.filter(function(f){
+          if (fupStatus !== 'all' && f.bucket !== fupStatus) return false;
+          if (fupChan !== 'all' && (f.channel && f.channel.key) !== fupChan) return false;
+          return true;
+        });
+        if (!lane.length){ alert('لا عملاء في القائمة المعروضة حالياً.'); return; }
+        var esc2 = function(v){ v = String(v == null ? '' : v); return '"' + v.replace(/"/g, '""') + '"'; };
+        var head = ['الاسم','الجوال','البريد','القناة','المرحلة','حالة الطلب','رقم المرجع','وصل','آخر نشاط','المتابعة'];
+        var lines = [head.join(',')].concat(lane.map(function(f){
+          return [f.title, f.phone, f.email, (f.channel && f.channel.label) || '', f.stage, f.order, f.ref, f.created, f.last, f.due].map(esc2).join(',');
+        }));
+        var blob = new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'bp-crm-' + fupStatus + '-' + fupChan + '-' + new Date().toISOString().slice(0,10) + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+    }
     function loadFollowups(){
-      fetch(API_URL + '?action=panel-followups' + authQS(), { cache:'no-store' })
+      fetch(API_URL + '?action=panel-followups&scope=all&limit=100' + authQS(), { cache:'no-store' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
         .then(function(out){
           if (!out || !out.ok){
             $('fupCount').textContent = out && out.error === 'crm_not_configured' ? 'يحتاج ربط نوشن' : 'تعذّر التحميل';
             return;
           }
-          var rows = out.followups || [];
-          fupRows = rows;
-          $('fupCount').textContent = rows.length ? rows.length + ' عميل يحتاج تواصلك' : '';
-          try { document.title = (rows.length ? '(' + rows.length + ') ' : '') + 'لوحة تحكم الموقع — Business Partner'; } catch (eT) {}
+          fupBase = out.followups || [];
+          if (!fupMore.length || !fupNext) fupNext = out.next || null;
+          mergeFupPages();
+          var due = fupRows.filter(function(f){ return f.bucket === 'due'; }).length;
+          $('fupCount').textContent = due ? due + ' عميل يحتاج تواصلك' : 'كل العملاء متابَعون ✓';
+          var lv = $('fupLive'); if (lv) lv.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;animation:fupPulse 1.6s infinite"></span> مباشر · ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+          try { document.title = (due ? '(' + due + ') ' : '') + 'لوحة تحكم الموقع — Business Partner'; } catch (eT) {}
+          renderFupTabs();
+          renderFupList();
+          renderFupMoreBar();
+        })
+        .catch(function(){ $('fupCount').textContent = 'تعذّر التحميل'; });
+    }
+    function renderFupList(){
+          var rows = fupRows.filter(function(f){
+            if (fupStatus !== 'all' && f.bucket !== fupStatus) return false;
+            if (fupChan !== 'all' && (f.channel && f.channel.key) !== fupChan) return false;
+            return true;
+          });
+          var prevSeen = fupSeen ? Object.assign({}, fupSeen) : null;
+          fupSeen = {};
+          fupRows.forEach(function(f){ fupSeen[f.id] = 1; });
           if (!rows.length){
-            $('fupList').innerHTML = '<div style="color:#047857;padding:10px 0">✓ لا متابعات معلّقة — كل العملاء متابَعون، والتذكيرات متوقفة.</div>';
+            $('fupList').innerHTML = '<div style="color:#047857;padding:10px 0">✓ لا شيء في هذه القائمة حالياً.</div>';
             return;
           }
           var todayISO = new Date().toISOString().slice(0, 10);
+          var fupIdx = {};
+          rows.forEach(function(f, i){ fupIdx[i] = fupRows.indexOf(f); });
           $('fupList').innerHTML = rows.map(function(f, i){
             var digits = String(f.phone || '').replace(/\D/g, '');
             if (digits.indexOf('05') === 0) digits = '966' + digits.slice(1);
@@ -1389,7 +1625,9 @@
             if (f.email) contact += ' <a href="mailto:' + esc(f.email) + '" style="background:#EEF2FF;color:#0B1B5A;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px">✉️</a>';
             var ch = f.channel || { icon:'🌐', label:'الموقع', color:'#334155' };
             var overdue = f.due && f.due <= todayISO;
-            return '<div style="border-bottom:1px dashed #E2E8F0;padding:10px 0">'
+            var isNew = prevSeen && !prevSeen[f.id];
+            return '<div style="border-bottom:1px dashed #E2E8F0;padding:10px 0' + (isNew ? ';background:#FEFCE8;border-radius:8px' : '') + '">'
+              + (isNew ? '<span style="background:#F59E0B;color:#fff;border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700">🔔 وصل الآن</span> ' : '')
               + '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">'
               + '<div style="min-width:230px">'
               + '<span style="background:' + ch.color + '14;color:' + ch.color + ';border:1px solid ' + ch.color + '33;border-radius:12px;padding:1px 9px;font-size:11px;margin-left:6px;white-space:nowrap">' + ch.icon + ' ' + esc(ch.label) + '</span>'
@@ -1408,28 +1646,31 @@
               + '<button class="actbtn" data-fsnooze="' + i + '" data-days="7">🗓 بعد أسبوع</button>'
               + '</div></div>';
           }).join('');
+          var fupView = rows;
           var dns = $('fupList').querySelectorAll('[data-fdone]');
           for (var d1 = 0; d1 < dns.length; d1++) dns[d1].onclick = function(){
-            var f = fupRows[+this.getAttribute('data-fdone')];
+            var f = fupView[+this.getAttribute('data-fdone')];
             var n = prompt('✅ تم التواصل مع «' + f.title + '».\nملاحظة تُحفظ في CRM (اختياري):', '');
             if (n === null) return;
             fupAct(f.id, { done: true, note: n }, this);
           };
           var nts = $('fupList').querySelectorAll('[data-fnote]');
           for (var n1 = 0; n1 < nts.length; n1++) nts[n1].onclick = function(){
-            var f = fupRows[+this.getAttribute('data-fnote')];
+            var f = fupView[+this.getAttribute('data-fnote')];
             var n = prompt('📝 ملاحظة على «' + f.title + '» — تُضاف لسجل العميل في نوشن:', '');
             if (n === null || !n.trim()) return;
             fupAct(f.id, { note: n }, this);
           };
           var szs = $('fupList').querySelectorAll('[data-fsnooze]');
           for (var s1 = 0; s1 < szs.length; s1++) szs[s1].onclick = function(){
-            var f = fupRows[+this.getAttribute('data-fsnooze')];
+            var f = fupView[+this.getAttribute('data-fsnooze')];
             fupAct(f.id, { snoozeDays: +this.getAttribute('data-days') }, this);
           };
-        })
-        .catch(function(){ $('fupCount').textContent = 'تعذّر التحميل'; });
     }
+    // Live board: refresh every 60s while the tab is visible, and refresh
+    // immediately when the owner returns to the tab.
+    setInterval(function(){ if (document.visibilityState === 'visible') loadFollowups(); }, 60000);
+    document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') loadFollowups(); });
 
     // ➕ direct-contact client: generates a typed reference (BPT/BC/BP) and a
     // full CRM record, exactly like leads that arrive through the channels.
@@ -1497,7 +1738,8 @@
       { s:'escrow',     i:'🛡️', n:'الضمانات والمحافظ',        d:'أرصدة الموردين وحركات الضمان' },
       { s:'workorder',  i:'➕', n:'أمر عمل جديد',             d:'أنشئ أمر عمل وأسنده لشريك' },
       { s:'docusign',   i:'✍️', n:'العقود والتوقيع',           d:'إرسال عقد للتوقيع الإلكتروني ومتابعته' },
-      { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' }
+      { s:'notify',     i:'🔔', n:'إشعارات العميل',           d:'تجربة كل خطوة على البوابة والبريد والواتساب' },
+      { s:'quotes',     i:'📑', n:'لوحة العروض والعقود',      d:'حالة إعدادها وجسرها مع الموقع — وفتحها' }
     ];
 
     /* ---------------- one thing per screen --------------------------------
@@ -1726,7 +1968,7 @@
         // ask "where are you?" is one more thing to explain.
         var active = document.querySelector('.view.on');
         var lbl = { 'view-overview':'نظرة عامة', 'view-leads':'الطلبات والموافقات', 'view-suppliers':'الشركاء',
-                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر' };
+                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر', 'view-finance':'المالية' };
         $('aiCtx').textContent = 'أنت في: ' + ((active && lbl[active.id]) || 'اللوحة');
         try { $('aiInput').focus(); } catch (e) {}
       }
@@ -1856,7 +2098,91 @@
 
     // ---- navigation ----
     var supLoaded = false, discLoaded = false, toolJump = false, contentJump = false;
+    // ===== المالية: قراءة وكتابة دفتر نوشن + مؤشرات =====
+    var finLoaded = false, finRows = [];
+    function finMoney(n){ return (Math.round(n) === n ? n : n.toFixed(2)).toLocaleString('en-US'); }
+    function finLoad(){
+      $('finStamp').textContent = '…';
+      fetch(API_URL + '?action=panel-finance' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){ $('finStamp').textContent = out && out.error === 'crm_not_configured' ? 'يحتاج ربط نوشن' : 'تعذّر التحميل'; return; }
+          finRows = out.entries || [];
+          var t = out.totals || {};
+          $('finMRev').textContent = finMoney(t.mRev || 0);
+          $('finMExp').textContent = finMoney(t.mExp || 0);
+          $('finMNet').textContent = finMoney(t.mNet || 0);
+          $('finMNet').style.color = (t.mNet || 0) >= 0 ? '#047857' : '#b91c1c';
+          $('finYRev').textContent = finMoney(t.yRev || 0);
+          $('finYNet').textContent = finMoney(t.yNet || 0);
+          $('finYNet').style.color = (t.yNet || 0) >= 0 ? '#047857' : '#b91c1c';
+          $('finNewM').textContent = (out.kpi && out.kpi.newMonth) || 0;
+          $('finWonY').textContent = (out.kpi && out.kpi.wonYear) || 0;
+          // last-12-months bars — pure CSS, widest bar = biggest month
+          var keys = [];
+          var d0 = new Date();
+          for (var i = 11; i >= 0; i--){ var d = new Date(d0.getFullYear(), d0.getMonth() - i, 1); keys.push(d.toISOString().slice(0, 7)); }
+          var mx = 1;
+          keys.forEach(function(k){ var m = (out.monthly || {})[k]; if (m) mx = Math.max(mx, m.rev, m.exp); });
+          $('finMonths').innerHTML = keys.map(function(k){
+            var m = (out.monthly || {})[k] || { rev: 0, exp: 0 };
+            var net = m.rev - m.exp;
+            return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
+              + '<span style="width:58px;color:#64748b;direction:ltr;text-align:left">' + k + '</span>'
+              + '<div style="flex:1"><div style="background:#04785722;border-radius:4px;height:9px;position:relative"><div style="background:#047857;height:9px;border-radius:4px;width:' + Math.round(100 * m.rev / mx) + '%"></div></div>'
+              + '<div style="background:#b91c1c22;border-radius:4px;height:9px;margin-top:2px"><div style="background:#b91c1c;height:9px;border-radius:4px;width:' + Math.round(100 * m.exp / mx) + '%"></div></div></div>'
+              + '<span style="width:170px;font-size:11.5px;color:#475569">📈 ' + finMoney(m.rev) + ' · 📉 ' + finMoney(m.exp) + ' · <b style="color:' + (net >= 0 ? '#047857' : '#b91c1c') + '">' + finMoney(net) + '</b></span>'
+              + '</div>';
+          }).join('') + '<div style="color:#94a3b8;font-size:11px;margin-top:6px">الأخضر إيراد، الأحمر مصروف — الأرقام: إيراد · مصروف · صافي</div>';
+          $('finBody').innerHTML = finRows.length ? finRows.map(function(e2){
+            return '<tr><td style="white-space:nowrap;direction:ltr">' + esc(e2.date) + '</td>'
+              + '<td>' + (e2.type === 'إيراد' ? '<span style="color:#047857;font-weight:700">📈 إيراد</span>' : '<span style="color:#b91c1c;font-weight:700">📉 مصروف</span>') + '</td>'
+              + '<td>' + esc(e2.title || '—') + '</td><td>' + esc(e2.cat || '—') + '</td>'
+              + '<td style="font-weight:700;direction:ltr">' + finMoney(e2.amount) + '</td>'
+              + '<td>' + esc(e2.method || '—') + '</td><td style="direction:ltr">' + esc(e2.ref || '—') + '</td></tr>';
+          }).join('') : '<tr><td class="empty" colspan="7">لا قيود بعد — أضف أول قيد من الأعلى، أو من قاعدة «💰 المالية» في نوشن.</td></tr>';
+          $('finStamp').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+        })
+        .catch(function(){ $('finStamp').textContent = 'تعذّر التحميل'; });
+    }
+    function finInit(){
+      $('finRefresh').onclick = finLoad;
+      $('finAdd').onclick = function(){
+        var amount = +($('finAmount').value || 0), title = $('finTitle').value.trim();
+        var msg = $('finAddMsg');
+        if (!amount || amount <= 0 || !title){ msg.style.color = '#b91c1c'; msg.textContent = 'أدخل المبلغ والبيان.'; return; }
+        var btn = this; btn.disabled = true; msg.style.color = '#64748b'; msg.textContent = 'جاري الحفظ…';
+        fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({
+          action:'panel-finance-add', key: accessKey, ticket: accessTicket,
+          kind: $('finKind').value, amount: amount, title: title,
+          cat: $('finCat').value, method: $('finMethod').value,
+          date: $('finDate').value, ref: $('finRef').value.trim(), note: $('finNote').value.trim(),
+        }) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            btn.disabled = false;
+            if (!out || !out.ok){ msg.style.color = '#b91c1c'; msg.textContent = 'تعذّر الحفظ — أعد المحاولة.'; return; }
+            msg.style.color = '#047857'; msg.textContent = '✓ حُفظ في نوشن';
+            $('finAmount').value = ''; $('finTitle').value = ''; $('finRef').value = ''; $('finNote').value = '';
+            finLoad();
+          })
+          .catch(function(){ btn.disabled = false; msg.style.color = '#b91c1c'; msg.textContent = 'تعذّر الاتصال.'; });
+      };
+      $('finCsv').onclick = function(){
+        if (!finRows.length){ alert('لا قيود للتصدير.'); return; }
+        var esc2 = function(v){ return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+        var lines = [['التاريخ','النوع','البيان','الفئة','المبلغ','طريقة الدفع','المرجع','ملاحظات'].join(',')]
+          .concat(finRows.map(function(e2){ return [e2.date, e2.type, e2.title, e2.cat, e2.amount, e2.method, e2.ref, e2.note].map(esc2).join(','); }));
+        var blob = new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'bp-finance-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      finLoad();
+    }
     function switchView(v){
+      if (v === 'finance' && !finLoaded){ finLoaded = true; finInit(); }
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
       if (v === 'notion' && !NT.loaded){ NT.loaded = true; ntInit();
         $('ntRefresh').onclick = function(){ if (NT.src) ntLoad(NT.src); };
@@ -1901,6 +2227,8 @@
       showToolIndex();
       $('navFind').addEventListener('input', function(){ filterNav(this.value); });
       $('aiFab').onclick = function(){ aiOpen(true); };
+      var topAi = document.getElementById('topAi');
+      if (topAi) topAi.onclick = function(){ aiOpen(true); };
       $('aiClose').onclick = function(){ aiOpen(false); };
       // Escape closes the dock — it floats over the work, so it needs a way out
       // that does not require aiming at a button.
@@ -2320,6 +2648,151 @@
           (r.channels.missing && r.channels.missing.length ? '<div style="color:#b45309;margin-top:4px">ينقص في Vercel: <span style="direction:ltr;display:inline-block">' + esc(r.channels.missing.join(' · ')) + '</span></div>' : '') +
           '</div>' : '');
       });
+    };
+
+    /* ---- لوحة العروض والعقود (bp-quotes) ----------------------------------
+     * عنوانها ثابت هنا كما تثبت عناوين بقية الخدمات في هذه الصفحة. والفحص
+     * يقرأ نقطة حالتها عبر الأصول — لا تحمل النقطة سرّاً، فليس في القراءة
+     * ما يُكشف؛ وبديلها تبويب ثانٍ وتسجيل دخول بالبريد الذي قد يكون هو
+     * نفسه المعطَّل.
+     */
+    var QUOTES_PANEL = 'https://bp-quotes-three.vercel.app';
+    (function(){
+      var pairs = [['qpAdminCard','/admin'], ['qpPortalCard','/portal'], ['qpOpen','/admin']];
+      for (var i = 0; i < pairs.length; i++){
+        var el = $(pairs[i][0]);
+        if (el) el.href = QUOTES_PANEL + pairs[i][1];
+      }
+    })();
+
+    $('qpRun').onclick = function(){
+      var btn = this, m = $('qpMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أسأل لوحة العروض…';
+      fetch(QUOTES_PANEL + '/api/health', { cache: 'no-store' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(h){
+          btn.disabled = false;
+          var mail = h['البريد'] || {}, tam = h['تمارا'] || {}, daf = h['الدفترة'] || {}, br = h['الجسر'] || {};
+          function kv(label, ok, val, note){
+            return '<span class="kv"><i>' + (ok ? '✅' : '⛔') + ' ' + esc(label) + ':</i>' +
+              '<span style="direction:ltr;display:inline-block">' + esc(val) + '</span>' +
+              (note ? ' <span style="color:var(--soft);font-size:11.5px">— ' + esc(note) + '</span>' : '') + '</span>';
+          }
+          m.innerHTML =
+            kv('البريد', !!(mail.sends && mail.configured), mail.provider || '—', mail['ملاحظة'] || '') +
+            kv('المُرسِل MAIL_FROM', !!mail.fromSet, mail.fromSet ? 'مضبوط' : 'غير مضبوط',
+               'الإرسال يُرفض إن كان نطاق المُرسِل غير موثّق عند مزوّد البريد') +
+            // «المفتاح موجود» لا يكفي: بلا رمز الإشعار لا يمكن التحقق من صحة
+            // ما ترسله تمارا، فالطلبية تُعتمد على كلام غير موثَّق.
+            kv('تمارا', !!(tam.configured && tam.notificationTokenSet), tam.mode || '—',
+               tam.configured && !tam.notificationTokenSet ? 'المفتاح مضبوط ورمز الإشعار ناقص' : '') +
+            kv('الدفترة', !!daf.live, daf.mode || '—', daf.configured && !daf.live ? 'مهيّأة ولم تُفتح بعد' : '') +
+            kv('الجسر مع الموقع', !!(br.tokenSet && br.siteUrlSet), br.tokenSet && br.siteUrlSet ? 'موصول' : 'ناقص',
+               br.tokenSet ? (br.siteUrlSet ? '' : 'SITE_API_URL غير مضبوط') : 'PANEL_BRIDGE_TOKEN غير مضبوط') +
+            kv('عنوان اللوحة APP_URL', !!h.appUrlSet, h.appUrlSet ? 'مضبوط' : 'غير مضبوط',
+               'منه تُبنى روابط المستندات التي تصل العميل');
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          // 404 حالةٌ لها معنى واحد: النقطة لم تُنشَر بعد على تلك اللوحة.
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر قراءة حالة لوحة العروض (' + esc(String(e.message || e)) + ').</span>' +
+            '<div style="color:var(--soft);font-size:12px;margin-top:6px">إن كان الرد 404 فنقطة الحالة لم تُنشر بعد على اللوحة. افتح اللوحة مباشرة من الزر أعلاه.</div>';
+        });
+    };
+
+    /* ---- دخول المالك وجرد اللوحة كاملاً --------------------------------
+     * الرابط يُطلب لحظة الضغط ولا يُخزَّن: جلسة مدير تُصنع مرة وتُستهلك مرة،
+     * وحفظها في الصفحة يجعل تبويباً منسيّاً باباً مفتوحاً.
+     */
+    $('qpOwner').onclick = function(){
+      var btn = this, m = $('qpAllMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أجهّز جلسة المالك…';
+      fetch(API_URL + '?action=panel-quotes&want=login' + authQS(), { cache: 'no-store' })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){
+          btn.disabled = false;
+          var j = res.j || {};
+          if (j.configured === false){
+            m.innerHTML = '<span style="color:#b45309">الجسر غير مضبوط.</span>' +
+              '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة'] || '') + '</div>';
+            return;
+          }
+          if (!res.ok || !j.ok || !j.url){
+            m.innerHTML = '<span style="color:#b91c1c">تعذّر: ' + esc(j.error || 'خطأ') + '</span>' +
+              (j['ملاحظة'] ? '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة']) + '</div>' : '');
+            return;
+          }
+          // النافذة تُفتح من داخل معالج الضغط قد يمنعها المتصفح لأن الردّ
+          // جاء متأخراً — فيُعرض الرابط أيضاً ليُفتح باليد.
+          var w = window.open(j.url, '_blank', 'noopener');
+          m.innerHTML = (w ? '✅ فُتحت اللوحة بجلسة مالك.' : '✅ الرابط جاهز — المتصفح منع الفتح التلقائي.') +
+            ' <a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:700">افتح يدوياً</a>' +
+            '<div style="color:var(--soft);font-size:12px;margin-top:6px">رابط لمرة واحدة ينتهي خلال 30 دقيقة.</div>';
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال (' + esc(String(e.message || e)) + ').</span>';
+        });
+    };
+
+    $('qpAll').onclick = function(){
+      var btn = this, m = $('qpAllMsg');
+      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أقرأ اللوحة…';
+      fetch(API_URL + '?action=panel-quotes' + authQS(), { cache: 'no-store' })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){
+          btn.disabled = false;
+          var j = res.j || {};
+          if (j.configured === false){
+            m.innerHTML = '<span style="color:#b45309">الجسر غير مضبوط.</span>' +
+              '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة'] || '') + '</div>';
+            return;
+          }
+          if (!res.ok || !j.ok){
+            m.innerHTML = '<span style="color:#b91c1c">تعذّر: ' + esc(j.error || 'خطأ') + '</span>';
+            return;
+          }
+          var c = j['عدّادات'] || {};
+          function money(n){ return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+          function row(cells){ return '<tr>' + cells.map(function(x){ return '<td style="padding:6px 8px;border-bottom:1px solid var(--line);font-size:12.5px">' + x + '</td>'; }).join('') + '</tr>'; }
+          function table(head, rows, empty){
+            if (!rows.length) return '<div style="color:var(--soft);font-size:12.5px;margin:6px 0 14px">' + esc(empty) + '</div>';
+            return '<div style="overflow-x:auto;margin:6px 0 14px"><table style="width:100%;border-collapse:collapse">' +
+              '<thead><tr>' + head.map(function(h){ return '<th style="text-align:right;padding:6px 8px;border-bottom:2px solid var(--line);font-size:12px;color:var(--soft)">' + esc(h) + '</th>'; }).join('') + '</tr></thead>' +
+              '<tbody>' + rows.join('') + '</tbody></table></div>';
+          }
+          function link(url, text){ return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600">' + esc(text) + '</a>'; }
+
+          var docs = (j.documents || []).map(function(d){
+            return row([link(d.adminUrl, d.number), esc(d.client), esc(d.titleAr || ''),
+              '<span style="direction:ltr;display:inline-block">' + money(d.total) + ' ﷼</span>', esc(d.status)]);
+          });
+          var invs = (j.invoices || []).map(function(v){
+            return row([link(v.adminUrl, v.number), esc(v.client), esc(v.titleAr || ''),
+              '<span style="direction:ltr;display:inline-block">' + money(v.total) + ' ﷼</span>', esc(v.status)]);
+          });
+          var sup = (j.supply || []).map(function(s){
+            return row([link(s.adminUrl, s.number), esc(s.client), esc(s.titleAr || ''),
+              esc(s.mode === 'RESALE' ? 'إعادة بيع' : 'ثلاثي'), esc(s.bids + ' عرض / ' + s.rfps + ' طلب')]);
+          });
+
+          m.innerHTML =
+            '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px">' +
+              '<span class="kv"><i>العملاء:</i> ' + esc(String(c['العملاء'] || 0)) + '</span>' +
+              '<span class="kv"><i>غير المسدَّد:</i> <span style="direction:ltr;display:inline-block">' + money(c['غيرالمسددة']) + ' ﷼</span></span>' +
+            '</div>' +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">العروض والعقود</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الإجمالي', 'الحالة'], docs, 'لا مستندات بعد.') +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">الفواتير</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الإجمالي', 'الحالة'], invs, 'لا فواتير بعد.') +
+            '<h5 style="color:var(--navy);margin:10px 0 2px">طلبات التوريد</h5>' +
+            table(['الرقم', 'العميل', 'العنوان', 'الوضع', 'العروض'], sup, 'لا طلبات توريد بعد.') +
+            '<div style="color:var(--soft);font-size:11.5px">الإجماليات غير شاملة ضريبة القيمة المضافة، والرسوم الحكومية مستثناة.</div>';
+        })
+        .catch(function(e){
+          btn.disabled = false;
+          m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال (' + esc(String(e.message || e)) + ').</span>';
+        });
     };
 
     // ---- can Daftra send its own invoice ----
@@ -4235,6 +4708,10 @@
       });
     }
   </script>
-<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="1"></script>
+<!-- data-toggle off: the EN dictionary covers ~29% of this panel's strings, so a
+     floating EN switch would promise a translation that mostly isn't there. The
+     topbar language button stays disabled («قريباً») until a real EN admin exists;
+     an owner who previously chose bp_lang=en still gets the partial layer. -->
+<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="0"></script>
 </body>
 </html>
