@@ -1,16 +1,16 @@
-// Business Development as a Service — the 14-day trial every registered client
+// Business Development as a Service — the 30-day trial every registered client
 // gets without buying anything.
 //
 // The clock is anchored to the organization's created_at, i.e. the moment they
 // registered in the client portal. That matters: anchoring it to anything the
 // browser holds (localStorage, a cookie, a first-visit stamp) means clearing
-// site data hands out a fresh fortnight forever, so the trial would never
-// actually end. The server owns the dates and the browser only renders them.
+// site data hands out a fresh month forever, so the trial would never actually
+// end. The server owns the dates and the browser only renders them.
 //
 // Underscore-prefixed on purpose: Vercel turns every other file in api/ into a
 // serverless function and the plan caps a deployment at 12. See api/README.md.
 
-export const BD_TRIAL_DAYS = 14;
+export const BD_TRIAL_DAYS = 30;
 
 const DAY = 86400000;
 
