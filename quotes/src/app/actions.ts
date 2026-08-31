@@ -50,8 +50,16 @@ export async function actionCreateInvoice(_prev: State, fd: FormData): Promise<S
       titleEn: s(fd, 'titleEn') || titleAr,
       amountExclVat: round2(amountExclVat),
       dueDate: dueRaw ? new Date(dueRaw) : null,
-      // العهدة ليست إيراداً ولا تخضع للضريبة — تُصرف للجهات أو للموردين بإيصالاتها
-      isGovFeeDeposit: kind === 'GOV_FEE',
+      // العهدة ليست إيراداً ولا تخضع للضريبة — تُصرف للجهات أو للموردين
+      // بإيصالاتها. والنوعان سواء في ذلك: رسوم حكومية أو قيمة توريد.
+      //
+      // كان هذا السطر يستثني GOV_FEE وحده، فتُحتسب ضريبة على عهدة التوريد
+      // رغم أن الخيار نفسه معنون «بلا ضريبة». وأثره ثلاثي: تُحصَّل ١٥٪ لا
+      // تقابلها فاتورة ضريبية أبداً (issueTaxInvoiceFor يتخطى كل ما يحمل
+      // depositKind)، ويُعدّ الإيداع أتعاباً في ملخص المحفظة بينما هو
+      // محسوب أصلاً كعهدة توريد، فيُحتسب مرتين. والمسار الآلي المقابل
+      // createFundingInvoice يعامله بلا ضريبة — فهذا هو السلوك الصحيح.
+      isGovFeeDeposit: kind === 'GOV_FEE' || kind === 'SUPPLY',
       depositKind: kind === 'GOV_FEE' || kind === 'SUPPLY' ? kind : null,
     },
     actor,
