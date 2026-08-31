@@ -13,6 +13,7 @@
 // Both classic xref tables and cross-reference streams are supported on the
 // appended update, matching whichever style the original file ends with.
 import zlib from "node:zlib";
+import { pdfImage } from "./_img.js";
 
 const latin = (buf) => buf.toString("latin1");
 
@@ -124,10 +125,13 @@ export function pdfFields(buf) {
     const flags = /\/Ff\s+(\d+)/.exec(o.body);
     const ff = flags ? Number(flags[1]) : 0;
     if (ft[1] === "Btn" && (ff & 0x10000)) continue; // pushbutton: nothing to fill
+    const rect = /\/Rect\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\]/.exec(o.body);
     fields.push({
       name, objId: o.id,
       type: ft[1] === "Tx" ? "text" : ft[1] === "Ch" ? "choice" : "checkbox",
       onState: ft[1] === "Btn" ? onStateOf(o.body) : null,
+      rect: rect ? rect.slice(1, 5).map(Number) : null,
+      pageRef: (/\/P\s+(\d+)\s+\d+\s+R/.exec(o.body) || [])[1] || null,
     });
   }
   return fields;
@@ -231,18 +235,37 @@ export function pdfFill(buf, values, colorHex) {
     updates.set(naTarget, { gen: naObj.gen, body });
   }
 
-  // ---- serialize the incremental update -----------------------------------
+  return serializeUpdate(buf, src, updates, rootM, startxrefM, applied);
+}
+
+/**
+ * Append `updates` (id → {gen, body}) to `buf` as a PDF incremental update,
+ * matching whichever cross-reference style the original file ends with.
+ * The original bytes are never rewritten — that is the guarantee the agent
+ * gives about a client's own form.
+ */
+export function serializeUpdate(buf, src, updates, rootM, startxrefM, applied) {
   const prevStart = Number(startxrefM[1]);
   const sizeM = lastMatch(/\/Size\s+(\d+)/, src);
   const prevSize = sizeM ? Number(sizeM[1]) : Math.max(...updates.keys()) + 1;
   const ids = [...updates.keys()].sort((a, b) => a - b);
-  let tail = src.endsWith("\n") ? "" : "\n";
+
+  // One growing byte list, so an object carrying a binary stream (an embedded
+  // signature image) never has to survive a latin1 round-trip.
+  const parts = [];
+  let at = buf.length;
+  const put = (b) => { const x = Buffer.isBuffer(b) ? b : Buffer.from(b, "latin1"); parts.push(x); at += x.length; };
+  if (!src.endsWith("\n")) put("\n");
+
   const offsets = new Map();
   for (const id of ids) {
     const u = updates.get(id);
-    offsets.set(id, buf.length + tail.length);
-    tail += `${id} ${u.gen} obj\n${u.body.trim()}\nendobj\n`;
+    offsets.set(id, at);
+    put(`${id} ${u.gen} obj\n${u.body.trim()}\n`);
+    if (u.stream) { put("stream\n"); put(u.stream); put("\nendstream\n"); }
+    put("endobj\n");
   }
+
   const runsOf = (list) => {
     const runs = [];
     for (const id of list) {
@@ -254,10 +277,10 @@ export function pdfFill(buf, values, colorHex) {
   };
   const rootRef = rootM[0].replace(/^\/Root\s+/, "");
   const usesClassicXref = /(^|[\r\n])\s*trailer\b/.test(src.slice(Math.max(0, prevStart - 2)));
+  const xrefAt = at;
 
   if (usesClassicXref) {
-    const xrefAt = buf.length + tail.length;
-    tail += "xref\n";
+    let tail = "xref\n";
     for (const [start, count] of runsOf(ids)) {
       tail += `${start} ${count}\n`;
       for (let i = 0; i < count; i++) {
@@ -266,24 +289,217 @@ export function pdfFill(buf, values, colorHex) {
       }
     }
     tail += `trailer\n<< /Size ${Math.max(prevSize, ids[ids.length - 1] + 1)} /Root ${rootRef} /Prev ${prevStart} >>\nstartxref\n${xrefAt}\n%%EOF\n`;
-  } else {
-    // The original ends in a cross-reference stream: the update must too.
-    const xrefId = Math.max(prevSize, ids[ids.length - 1] + 1);
-    const xrefAt = buf.length + tail.length;
-    const allIds = [...ids, xrefId];
-    const rows = [];
-    for (const id of allIds) {
-      const off = id === xrefId ? xrefAt : offsets.get(id);
-      const row = Buffer.alloc(7);
-      row[0] = 1; row.writeUInt32BE(off, 1); row.writeUInt16BE(0, 5);
-      rows.push(row);
-    }
-    const stream = zlib.deflateSync(Buffer.concat(rows));
-    const index = runsOf(allIds).map(([s, c]) => `${s} ${c}`).join(" ");
-    tail += `${xrefId} 0 obj\n<< /Type /XRef /Filter /FlateDecode /Length ${stream.length} /W [1 4 2] /Index [${index}] /Size ${xrefId + 1} /Root ${rootRef} /Prev ${prevStart} >>\nstream\n`;
-    const head = Buffer.from(tail, "latin1");
-    const foot = Buffer.from(`\nendstream\nendobj\nstartxref\n${xrefAt}\n%%EOF\n`, "latin1");
-    return { buf: Buffer.concat([buf, head, stream, foot]), applied };
+    put(tail);
+    return { buf: Buffer.concat([buf, ...parts]), applied };
   }
-  return { buf: Buffer.concat([buf, Buffer.from(tail, "latin1")]), applied };
+
+  // The original ends in a cross-reference stream: the update must too.
+  const xrefId = Math.max(prevSize, ids[ids.length - 1] + 1);
+  const allIds = [...ids, xrefId];
+  const rows = allIds.map((id) => {
+    const row = Buffer.alloc(7);
+    row[0] = 1; row.writeUInt32BE(id === xrefId ? xrefAt : offsets.get(id), 1); row.writeUInt16BE(0, 5);
+    return row;
+  });
+  const stream = zlib.deflateSync(Buffer.concat(rows));
+  const index = runsOf(allIds).map(([s2, c]) => `${s2} ${c}`).join(" ");
+  put(`${xrefId} 0 obj\n<< /Type /XRef /Filter /FlateDecode /Length ${stream.length} /W [1 4 2] /Index [${index}] /Size ${xrefId + 1} /Root ${rootRef} /Prev ${prevStart} >>\nstream\n`);
+  put(stream);
+  put(`\nendstream\nendobj\nstartxref\n${xrefAt}\n%%EOF\n`);
+  return { buf: Buffer.concat([buf, ...parts]), applied };
+}
+
+// ---------------------------------------------------------------------------
+// Signature and stamp images
+// ---------------------------------------------------------------------------
+
+/** Page object ids in document order, walked from the catalog's /Pages tree. */
+function pageIds(objs, rootId) {
+  const root = objs.get(rootId);
+  const pagesRef = root && /\/Pages\s+(\d+)\s+\d+\s+R/.exec(root.body);
+  const out = [];
+  const seen = new Set();
+  const walk = (id) => {
+    if (seen.has(id) || out.length > 500) return;
+    seen.add(id);
+    const o = objs.get(id);
+    if (!o) return;
+    if (/\/Type\s*\/Page\b/.test(o.body) && !/\/Type\s*\/Pages\b/.test(o.body)) { out.push(id); return; }
+    const kids = /\/Kids\s*\[([\s\S]*?)\]/.exec(o.body);
+    if (!kids) return;
+    for (const k of kids[1].matchAll(/(\d+)\s+\d+\s+R/g)) walk(Number(k[1]));
+  };
+  if (pagesRef) walk(Number(pagesRef[1]));
+  // Fall back to file order when the tree is unreadable (linearised oddities).
+  if (!out.length) {
+    for (const o of objs.values()) {
+      if (/\/Type\s*\/Page\b/.test(o.body) && !/\/Type\s*\/Pages\b/.test(o.body)) out.push(o.id);
+    }
+    out.sort((a, b) => a - b);
+  }
+  return out;
+}
+
+const pageMediaBox = (objs, id) => {
+  let cur = id, hops = 0;
+  while (cur && hops++ < 8) {
+    const o = objs.get(cur);
+    if (!o) break;
+    const mb = /\/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\]/.exec(o.body);
+    if (mb) return mb.slice(1, 5).map(Number);
+    const parent = /\/Parent\s+(\d+)\s+\d+\s+R/.exec(o.body);
+    cur = parent ? Number(parent[1]) : null;
+  }
+  return [0, 0, 595.28, 841.89]; // A4
+};
+
+/**
+ * Draw images onto a PDF as an incremental update.
+ *
+ * placements: [{ image: Buffer, page?: number (1-based), field?: string,
+ *                x?, y?, width?, height? }]
+ * A `field` places the image inside that AcroForm widget's rectangle; otherwise
+ * x/y are PDF user-space points from the bottom-left of the page. Aspect ratio
+ * is always preserved — a stretched signature reads as a forgery.
+ *
+ * Returns { buf, applied:[label] }.
+ */
+export function pdfStamp(buf, placements) {
+  const src = latin(buf);
+  const objs = scanObjects(src);
+  const rootM = lastMatch(/\/Root\s+(\d+)\s+\d+\s+R/, src);
+  const startxrefM = lastMatch(/startxref\s+(\d+)/, src);
+  if (!rootM || !startxrefM) throw new Error("pdf_no_trailer");
+
+  const pages = pageIds(objs, Number(rootM[1]));
+  if (!pages.length) throw new Error("pdf_no_pages");
+  const fields = pdfFields(buf);
+  const sizeM = lastMatch(/\/Size\s+(\d+)/, src);
+  let nextId = Math.max(sizeM ? Number(sizeM[1]) : 0, ...objs.keys()) + 1;
+
+  const updates = new Map();
+  const applied = [];
+  const perPage = new Map(); // pageId → { ops:[], xobjects:[[name,id]] }
+
+  for (const pl of placements) {
+    let img;
+    try { img = pdfImage(pl.image); } catch { continue; }
+
+    // Where does it go?
+    let pageId = null, box = null;
+    const f = pl.field && fields.find((x) => x.name === pl.field && x.rect);
+    if (f) {
+      if (f.pageRef && objs.has(Number(f.pageRef))) pageId = Number(f.pageRef);
+      const [x0, y0, x1, y1] = f.rect;
+      box = { x: Math.min(x0, x1), y: Math.min(y0, y1), w: Math.abs(x1 - x0), h: Math.abs(y1 - y0) };
+      // A widget with no /P: find the page whose /Annots names this widget.
+      if (!pageId) {
+        for (const id of pages) {
+          const o = objs.get(id);
+          if (o && new RegExp(`\\b${f.objId}\\s+\\d+\\s+R`).test(o.body)) { pageId = id; break; }
+        }
+      }
+    }
+    if (!pageId) {
+      const n = Math.min(Math.max(1, Number(pl.page) || 1), pages.length);
+      pageId = pages[n - 1];
+    }
+    const [mx0, my0, mx1, my1] = pageMediaBox(objs, pageId);
+    const pw = Math.abs(mx1 - mx0), ph = Math.abs(my1 - my0);
+    if (!box) {
+      const w = Number(pl.width) || 120;
+      box = { x: Number(pl.x) || 0, y: Number(pl.y) || 0, w, h: Number(pl.height) || w };
+    }
+
+    // Fit inside the box, keeping the image's own proportions.
+    const scale = Math.min(box.w / img.w, box.h / img.h);
+    const dw = img.w * scale, dh = img.h * scale;
+    const dx = mx0 + box.x + (box.w - dw) / 2;
+    const dy = my0 + box.y + (box.h - dh) / 2;
+    if (dw <= 0 || dh <= 0 || dx > mx0 + pw || dy > my0 + ph) continue;
+
+    // Image XObject (+ its soft mask, when the PNG carried alpha).
+    let smaskId = null;
+    if (img.smask) {
+      smaskId = nextId++;
+      updates.set(smaskId, {
+        gen: 0,
+        body: `<< /Type /XObject /Subtype /Image /Width ${img.w} /Height ${img.h} ` +
+              `/ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /FlateDecode /Length ${img.smask.length} >>`,
+        stream: img.smask,
+      });
+    }
+    const imgId = nextId++;
+    updates.set(imgId, {
+      gen: 0,
+      body: `<< /Type /XObject /Subtype /Image /Width ${img.w} /Height ${img.h} ` +
+            `/ColorSpace ${img.colorSpace} /BitsPerComponent ${img.bits} /Filter ${img.filter} ` +
+            (smaskId ? `/SMask ${smaskId} 0 R ` : "") + `/Length ${img.data.length} >>`,
+      stream: img.data,
+    });
+
+    const slot = perPage.get(pageId) || { ops: [], xobjects: [] };
+    const name = `BPSig${imgId}`;
+    slot.xobjects.push([name, imgId]);
+    slot.ops.push(`q ${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${dx.toFixed(2)} ${dy.toFixed(2)} cm /${name} Do Q`);
+    perPage.set(pageId, slot);
+    applied.push(pl.field || pl.label || `page${pages.indexOf(pageId) + 1}`);
+  }
+
+  if (!applied.length) return { buf, applied };
+
+  for (const [pageId, slot] of perPage) {
+    const page = objs.get(pageId);
+    if (!page) continue;
+    let body = updates.get(pageId) ? updates.get(pageId).body : page.body;
+
+    // 1. The drawing operators, as a new content stream appended to the page.
+    const content = Buffer.from("\n" + slot.ops.join("\n") + "\n", "latin1");
+    const contentId = nextId++;
+    updates.set(contentId, { gen: 0, body: `<< /Length ${content.length} >>`, stream: content });
+
+    const cm = /\/Contents\s+(\d+)\s+\d+\s+R/.exec(body);
+    const cArr = /\/Contents\s*\[([\s\S]*?)\]/.exec(body);
+    if (cArr) {
+      body = body.slice(0, cArr.index) + `/Contents [${cArr[1].trim()} ${contentId} 0 R]` +
+             body.slice(cArr.index + cArr[0].length);
+    } else if (cm) {
+      body = body.slice(0, cm.index) + `/Contents [${cm[1]} 0 R ${contentId} 0 R]` +
+             body.slice(cm.index + cm[0].length);
+    } else {
+      body = insertAfterDictOpen(body, `/Contents [${contentId} 0 R]`);
+    }
+
+    // 2. Name the XObjects in the page's resource dictionary. An inherited or
+    //    indirect /Resources is replaced by a page-local one that re-states it,
+    //    so a shared dict is never mutated under the other pages.
+    const entries = slot.xobjects.map(([n, id]) => `/${n} ${id} 0 R`).join(" ");
+    const resInline = /\/Resources\s*<</.exec(body);
+    const resRef = /\/Resources\s+(\d+)\s+\d+\s+R/.exec(body);
+    if (resInline) {
+      const xoInline = /\/XObject\s*<</.exec(body);
+      const xoRef = /\/XObject\s+(\d+)\s+\d+\s+R/.exec(body);
+      if (xoInline) {
+        body = body.slice(0, xoInline.index + xoInline[0].length) + " " + entries +
+               body.slice(xoInline.index + xoInline[0].length);
+      } else if (xoRef && objs.has(Number(xoRef[1]))) {
+        const xo = objs.get(Number(xoRef[1]));
+        const xb = updates.get(xo.id) ? updates.get(xo.id).body : xo.body;
+        updates.set(xo.id, { gen: xo.gen, body: insertAfterDictOpen(xb, entries) });
+      } else {
+        body = body.slice(0, resInline.index + resInline[0].length) + ` /XObject << ${entries} >>` +
+               body.slice(resInline.index + resInline[0].length);
+      }
+    } else if (resRef && objs.has(Number(resRef[1]))) {
+      const shared = objs.get(Number(resRef[1])).body.trim().replace(/^<<|>>$/g, "");
+      body = body.slice(0, resRef.index) + `/Resources << ${shared} /XObject << ${entries} >> >>` +
+             body.slice(resRef.index + resRef[0].length);
+    } else {
+      body = insertAfterDictOpen(body, `/Resources << /XObject << ${entries} >> >>`);
+    }
+
+    updates.set(pageId, { gen: page.gen, body });
+  }
+
+  return serializeUpdate(buf, src, updates, rootM, startxrefM, applied);
 }

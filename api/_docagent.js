@@ -29,7 +29,8 @@ import { readDocumentRaw, askModel, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docrea
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { zip, unzip } from "./_zip.js";
 import { xlsxCells, xlsxApply, xlsxBlanks } from "./_xlsx.js";
-import { pdfFields, pdfFill } from "./_pdfform.js";
+import { pdfFields, pdfFill, pdfStamp } from "./_pdfform.js";
+import { docxPlaceImages, xlsxPlaceImages } from "./_ooxmlimg.js";
 
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -222,6 +223,7 @@ Rules:
 - "replace": node N is a placeholder (underscores, dots, "___") — clear it and write the value.
 - "check": node N contains an empty checkbox glyph (☐ □ ◻) to tick. Only tick what the facts/mapping justify.
 - Dates: fields meaning completion/signature/declaration date get today's date ${new Date().toISOString().slice(0, 10)}; NEVER touch document issue/expiry dates printed in the form.
+- NEVER type anything into a field asking for a SIGNATURE or a STAMP/SEAL (an image goes there separately). A field asking for the signatory's NAME or the signature DATE is ordinary text and is filled normally.
 - Never invent values. A field with no matching fact goes to "unfilled".
 - Legal declarations may only be filled when the mapping marks them CLIENT_CONFIRMED.
 - Keep official names exactly as the facts state them (Arabic name in Arabic fields, English name in English fields when both exist).
@@ -242,6 +244,7 @@ Rules:
 - Overwrite a cell only when it clearly holds a stale placeholder value for the same field.
 - Yes/No or checkbox-style cells: write the exact expected token the sheet uses (Yes, No, ✓, ×…).
 - Dates: completion/signature/declaration dates get today ${new Date().toISOString().slice(0, 10)}; NEVER touch document issue/expiry dates.
+- NEVER type anything into a field asking for a SIGNATURE or a STAMP/SEAL (an image goes there separately). A field asking for the signatory's NAME or the signature DATE is ordinary text and is filled normally.
 - Never invent values. A field with no matching fact goes to "unfilled".
 - Legal declarations may only be filled when the mapping marks them CLIENT_CONFIRMED.
 - Keep official names exactly as the facts state them.
@@ -260,6 +263,7 @@ Return ONLY JSON: {"values":[{"field":"exact field name","text":"value"} or {"fi
 Rules:
 - "text" for text/choice fields, "check" for checkboxes. Use each field's name EXACTLY as listed.
 - Dates: completion/signature/declaration dates get today ${new Date().toISOString().slice(0, 10)}; NEVER invent document issue/expiry dates.
+- NEVER type anything into a field asking for a SIGNATURE or a STAMP/SEAL (an image goes there separately). A field asking for the signatory's NAME or the signature DATE is ordinary text and is filled normally.
 - Never invent values. A field with no matching fact goes to "unfilled".
 - Legal declarations may only be filled when the mapping marks them CLIENT_CONFIRMED.
 - Keep official names exactly as the facts state them (Arabic stays Arabic, English stays English).
@@ -573,6 +577,51 @@ export function declarationUnlocked(label, text, confirmed, flagged) {
   });
 }
 
+// --------------------------------------------------------------------------
+// The client's signature and the company stamp
+// --------------------------------------------------------------------------
+// Both are stored once on the organization and reused on every later request.
+// A signature is applied ONLY when the client has given explicit consent
+// (organizations.signature_consent_at) AND the request asks for it — the agent
+// never signs on its own initiative, which is the same rule that keeps it from
+// answering legal declarations.
+
+// A label that asks for a handwritten mark, not for a typed name or a date.
+const SIG_LABEL = /signature|signatory|sign\s*here|توقيع|التوقيع|يوقّع|يوقع/i;
+const STAMP_LABEL = /\bstamp\b|\bseal\b|ختم|الختم|خاتم/i;
+const NOT_A_MARK = /\bdate\b|تاريخ|\bname\b|\bprint(ed)?\b|الاسم|اسم\s|\btitle\b|المسمى|\bemail\b|بريد/i;
+const wantsMark = (label, re) => {
+  const t = String(label || "");
+  return re.test(t) && !NOT_A_MARK.test(t);
+};
+
+/** What the portal shows about the two saved marks — never the images themselves. */
+async function marksState(orgId) {
+  const rows = await sb(`organizations?id=eq.${orgId}` +
+    "&select=signature_storage_key,signature_consent_at,signature_updated_at,stamp_storage_key,stamp_updated_at&limit=1");
+  const o = rows[0] || {};
+  return {
+    signature: { saved: !!o.signature_storage_key, consented: !!o.signature_consent_at, updated_at: o.signature_updated_at || null },
+    stamp: { saved: !!o.stamp_storage_key, updated_at: o.stamp_updated_at || null },
+  };
+}
+
+async function signingAssets(request) {
+  if (!request.organization_id) return { signature: null, stamp: null };
+  const rows = await sb(`organizations?id=eq.${request.organization_id}` +
+    "&select=signature_storage_key,signature_mime,signature_consent_at,stamp_storage_key,stamp_mime&limit=1");
+  const org = rows[0] || {};
+  const out = { signature: null, stamp: null };
+  // Consent is a hard gate, not a preference: no timestamp, no signature.
+  if (request.signature_mode === "client_image" && org.signature_storage_key && org.signature_consent_at) {
+    try { out.signature = { buf: await storageGet(org.signature_storage_key), mime: org.signature_mime || "image/png" }; } catch {}
+  }
+  if (request.stamp_mode !== "off" && org.stamp_storage_key) {
+    try { out.stamp = { buf: await storageGet(org.stamp_storage_key), mime: org.stamp_mime || "image/png" }; } catch {}
+  }
+  return out;
+}
+
 async function generateOutputs(request, channel, onlyFormId) {
   await setReq(request.id, { status: "GENERATING" });
   const files = await sb(`doc_agent_files?request_id=eq.${request.id}&select=id,role,doc_kind,file_name,mime,storage_key,field_map`);
@@ -610,6 +659,10 @@ async function generateOutputs(request, channel, onlyFormId) {
     return orows[0];
   };
 
+  // Loaded once per generation pass, not once per form.
+  const signing = await signingAssets(request);
+  const signed = [];
+
   for (const form of forms) {
     const deliveryName = clip(form.file_name.replace(/\.(docx|pdf|xlsx|png|jpe?g|webp)$/i, ""), 120) || "Form";
     const fm = form.field_map || {};
@@ -629,7 +682,21 @@ async function generateOutputs(request, channel, onlyFormId) {
         .filter((o) => o.op === "check" || String(o.text == null ? "" : o.text).trim())
         .filter((o) => sensitiveOk(form, o.field_id, o.text));
       const { xml: filledXml, applied } = docxApply(xml, ops, colorHex);
-      entries.set("word/document.xml", Buffer.from(filledXml, "utf8"));
+      // The handwritten marks go in last, anchored to the line that asks for
+      // each one, so they sit where a person would have signed.
+      const marks = [];
+      for (const [asset, re, label, pt] of [[signing.signature, SIG_LABEL, "signature", 110], [signing.stamp, STAMP_LABEL, "stamp", 95]]) {
+        if (!asset) continue;
+        const node = docxNodes(filledXml).find((n) => wantsMark(n.text, re));
+        if (!node) continue;
+        marks.push({ image: asset.buf, mime: asset.mime, widthPt: pt, afterText: node.text.trim(), label });
+      }
+      let markedXml = filledXml;
+      if (marks.length) {
+        const r = docxPlaceImages(entries, filledXml, marks);
+        markedXml = r.xml; signed.push(...r.applied);
+      }
+      entries.set("word/document.xml", Buffer.from(markedXml, "utf8"));
       const outBuf = zip(entries);
       // QA: the plan vs the final text, judged by a second pass.
       let qa = { pass: true, findings: [] };
@@ -653,7 +720,25 @@ async function generateOutputs(request, channel, onlyFormId) {
         .filter((o) => o && o.ref && o.text != null)
         .slice(0, 300)
         .filter((o) => sensitiveOk(form, o.field_id, o.text));
-      const { buf: outBuf, applied } = xlsxApply(buf, ops, colorHex);
+      let { buf: outBuf, applied } = xlsxApply(buf, ops, colorHex);
+      // Anchor each mark to the cell beside the label that asks for it.
+      const xMarks = [];
+      for (const [asset, re, label, pt] of [[signing.signature, SIG_LABEL, "signature", 100], [signing.stamp, STAMP_LABEL, "stamp", 85]]) {
+        if (!asset) continue;
+        let cell = null;
+        try { cell = xlsxCells(outBuf).find((c) => wantsMark(c.text, re)); } catch {}
+        if (!cell) continue;
+        const m = /^([A-Z]+)(\d+)$/.exec(String(cell.ref || "").toUpperCase());
+        const beside = m ? `${m[1]}${Number(m[2]) + 1}` : "A1";
+        xMarks.push({ image: asset.buf, mime: asset.mime, widthPt: pt, ref: beside, sheetPath: cell.sheetPath, label });
+      }
+      if (xMarks.length) {
+        try {
+          const ent = unzip(outBuf);
+          const r = xlsxPlaceImages(ent, xMarks);
+          if (r.applied.length) { outBuf = zip(ent); signed.push(...r.applied); }
+        } catch {}
+      }
       // Deterministic QA: every applied value must read back from its cell.
       let qa = { pass: true, findings: [] };
       try {
@@ -683,6 +768,20 @@ async function generateOutputs(request, channel, onlyFormId) {
       let outBuf, applied;
       try { ({ buf: outBuf, applied } = pdfFill(buf, values, colorHex)); }
       catch (e) { outputs.push({ form: form.file_name, ok: false, error: "pdf_fill_failed" }); continue; }
+      // Marks are drawn into the widget rectangle the form itself defines, so
+      // they land exactly where the signature line is.
+      const pMarks = [];
+      for (const [asset, re, label] of [[signing.signature, SIG_LABEL, "signature"], [signing.stamp, STAMP_LABEL, "stamp"]]) {
+        if (!asset) continue;
+        const f = fields.find((x) => x.rect && wantsMark(x.name, re));
+        if (f) pMarks.push({ image: asset.buf, mime: asset.mime, field: f.name, label });
+      }
+      if (pMarks.length) {
+        try {
+          const r = pdfStamp(outBuf, pMarks);
+          if (r.applied.length) { outBuf = r.buf; signed.push(...pMarks.map((m) => m.label)); }
+        } catch {}
+      }
       // Deterministic QA: every planned field must have been applied.
       const planned = Object.keys(values);
       const missed = planned.filter((n) => !applied.includes(n));
@@ -722,11 +821,14 @@ async function generateOutputs(request, channel, onlyFormId) {
     await sb("doc_agent_outputs", { method: "POST", prefer: "return=minimal", body: [{ request_id: request.id, kind: "ownership_chart", delivery_name: "Ownership Structure.docx", storage_key: outKey, mime: DOCX_MIME, size_bytes: outBuf.length, version_no: vno, qa_status: "waived" }] });
   }
 
+  if (signed.length) {
+    await audit({ organization_id: request.organization_id, action: "doc_agent.marks_applied", entity_type: "doc_agent_request", entity_id: request.id, after: { marks: signed } });
+  }
   const anyFailed = outputs.some((o) => o.ok && o.qa === "failed");
   await setReq(request.id, { status: remaining.length ? "GENERATING" : (anyFailed ? "QA" : "READY") });
   await audit({ organization_id: request.organization_id, action: "doc_agent.generated", entity_type: "doc_agent_request", entity_id: request.id, after: { outputs: outputs.length, qa_failed: anyFailed } });
   await notify({ organization_id: request.organization_id, event: "doc_agent_ready", channel: "inapp", title: "الوكيل الذكي للمستندات: نماذجك جاهزة", body: `الطلب ${request.ref}`, idempotency_key: `doc_agent_ready:${request.id}:${Date.now()}` });
-  return { outputs, remaining };
+  return { outputs, remaining, signed: [...new Set(signed)] };
 }
 
 async function packageOutputs(request) {
@@ -815,7 +917,7 @@ export async function handleDocAgent(req, res) {
       }
       if (adminAction === "admin-generate") {
         const r = await generateOutputs(request, "consultant", clip(preBody.form_id, 60) || null);
-        return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining });
+        return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining, signed: r.signed || [] });
       }
       return j(res, 400, { ok: false, error: "bad_action" });
     } catch (e) {
@@ -844,10 +946,17 @@ export async function handleDocAgent(req, res) {
           sb(`doc_agent_outputs?request_id=eq.${request.id}&select=id,kind,delivery_name,version_no,qa_status,fill_summary,created_at&order=created_at`),
           gapSummary(request.id),
         ]);
-        return j(res, 200, { ok: true, request: { ref: request.ref, status: request.status, fill_color: request.fill_color, signature_mode: request.signature_mode, checklist: request.checklist, created_at: request.created_at }, files, facts, messages: msgs.reverse(), outputs: outs, gap, access: await accessState(orgId) });
+        return j(res, 200, { ok: true, request: { ref: request.ref, status: request.status, fill_color: request.fill_color, signature_mode: request.signature_mode, stamp_mode: request.stamp_mode, checklist: request.checklist, created_at: request.created_at }, files, facts, messages: msgs.reverse(), outputs: outs, gap, access: await accessState(orgId), marks: await marksState(orgId) });
       }
       if (q.action === "access") {
-        return j(res, 200, { ok: true, access: await accessState(orgId) });
+        return j(res, 200, { ok: true, access: await accessState(orgId), marks: await marksState(orgId) });
+      }
+      if (q.action === "mark-link") {
+        const kind = q.kind === "stamp" ? "stamp" : "signature";
+        const rows = await sb(`organizations?id=eq.${orgId}&select=${kind}_storage_key&limit=1`);
+        const key = rows[0] && rows[0][`${kind}_storage_key`];
+        if (!key) return j(res, 404, { ok: false, error: "not_found" });
+        return j(res, 200, { ok: true, url: await storageSign(key, 600) });
       }
       if (q.action === "list") {
         const rows = await sb(`doc_agent_requests?organization_id=eq.${orgId}&select=ref,status,title,created_at,updated_at&order=updated_at.desc&limit=20`);
@@ -870,6 +979,38 @@ export async function handleDocAgent(req, res) {
     if (req.method !== "POST") return j(res, 405, { ok: false, error: "method_not_allowed" });
     const b = preBody || {};
     const action = String(b.action || "");
+
+    // ---- the client's signature and the company stamp --------------------
+    // Stored on the organization, not the request: signed once, reused on every
+    // later document. Saving a signature requires an explicit consent flag from
+    // the client in the same call — the agent will not sign without it.
+    if (action === "set-mark") {
+      const kind = b.kind === "stamp" ? "stamp" : "signature";
+      const mime = String(b.fileType || "image/png");
+      if (!/^image\/(png|jpeg|jpg|webp)$/i.test(mime)) return j(res, 400, { ok: false, error: "bad_type" });
+      if (kind === "signature" && b.consent !== true) return j(res, 400, { ok: false, error: "consent_required" });
+      const raw = Buffer.from(String(b.fileBase64 || ""), "base64");
+      if (!raw.length) return j(res, 400, { ok: false, error: "empty" });
+      if (raw.length > 2_000_000) return j(res, 400, { ok: false, error: "too_large" });
+      const ext = /png/i.test(mime) ? "png" : /webp/i.test(mime) ? "webp" : "jpg";
+      const key = `${orgId}/doc-agent/marks/${kind}-${Date.now()}.${ext}`;
+      await storagePut(key, raw, mime);
+      const patch = kind === "signature"
+        ? { signature_storage_key: key, signature_mime: mime, signature_updated_at: new Date().toISOString(), signature_consent_at: new Date().toISOString() }
+        : { stamp_storage_key: key, stamp_mime: mime, stamp_updated_at: new Date().toISOString() };
+      await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", prefer: "return=minimal", body: patch });
+      await audit({ organization_id: orgId, actor_user_id: userId, action: `doc_agent.${kind}_saved`, entity_type: "organization", entity_id: orgId });
+      return j(res, 200, { ok: true, kind, marks: await marksState(orgId) });
+    }
+    if (action === "clear-mark") {
+      const kind = b.kind === "stamp" ? "stamp" : "signature";
+      const patch = kind === "signature"
+        ? { signature_storage_key: null, signature_mime: null, signature_consent_at: null, signature_updated_at: null }
+        : { stamp_storage_key: null, stamp_mime: null, stamp_updated_at: null };
+      await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", prefer: "return=minimal", body: patch });
+      await audit({ organization_id: orgId, actor_user_id: userId, action: `doc_agent.${kind}_cleared`, entity_type: "organization", entity_id: orgId });
+      return j(res, 200, { ok: true, kind, marks: await marksState(orgId) });
+    }
 
     if (action === "start") {
       const access = await accessState(orgId, { begin: true });
@@ -981,7 +1122,8 @@ export async function handleDocAgent(req, res) {
     if (action === "set-option") {
       const patch = {};
       if (FILL_HEX[b.fill_color] !== undefined) patch.fill_color = b.fill_color;
-      if (["leave_blank","typed_electronic","external_esign"].includes(b.signature_mode)) patch.signature_mode = b.signature_mode;
+      if (["leave_blank","typed_electronic","external_esign","client_image"].includes(b.signature_mode)) patch.signature_mode = b.signature_mode;
+      if (["auto","off"].includes(b.stamp_mode)) patch.stamp_mode = b.stamp_mode;
       if (!Object.keys(patch).length) return j(res, 400, { ok: false, error: "invalid_fields" });
       await setReq(request.id, patch);
       return j(res, 200, { ok: true });
@@ -991,7 +1133,7 @@ export async function handleDocAgent(req, res) {
       const formsCount = (await sb(`doc_agent_files?request_id=eq.${request.id}&role=eq.target_form&select=id&limit=1`)).length;
       if (!formsCount) return j(res, 400, { ok: false, error: "no_target_forms" });
       const r = await generateOutputs(request, "web", clip(b.form_id, 60) || null);
-      return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining });
+      return j(res, 200, { ok: true, outputs: r.outputs, remaining: r.remaining, signed: r.signed || [] });
     }
 
     if (action === "package") {
