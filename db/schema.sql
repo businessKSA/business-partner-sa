@@ -697,3 +697,10 @@ create policy doc_agent_files_read on doc_agent_files for select using (request_
 create policy doc_agent_facts_read on doc_agent_facts for select using (organization_id in (select current_org_ids()));
 create policy doc_agent_messages_read on doc_agent_messages for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
 create policy doc_agent_outputs_read on doc_agent_outputs for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-28: الوكيل الذكي للمستندات — تجربة مجانية ١٤ يوماً لكل منشأة.
+-- الخدمة صارت داخل بوابة العميل بلا شراء: أول استخدام يبدأ العدّاد (لا تاريخ
+-- التسجيل — فالعميل القديم يستحق تجربته كاملة يوم يفتحها أول مرة)، وبعد
+-- انتهائها يبقى كل ما أُنتج محفوظاً ويُطلب الاشتراك للتوليد الجديد.
+alter table organizations add column if not exists doc_agent_trial_started_at timestamptz;
