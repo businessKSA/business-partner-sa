@@ -299,8 +299,26 @@
     .page-row .pu{font-size:12px;color:var(--muted);direction:ltr}
     .page-row a.actbtn{text-decoration:none}
 
+    /* ---- top header (desktop) ---- */
+    .admin-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;
+      margin:-6px 0 18px;padding:10px 14px;background:#fff;border:1px solid var(--line);
+      border-radius:14px;box-shadow:0 6px 20px rgba(18,38,85,.05);position:sticky;top:10px;z-index:30}
+    .atb-title{display:flex;align-items:baseline;gap:9px;min-width:0}
+    .atb-title strong{color:var(--navy);font-size:.95rem}
+    .atb-title span{color:var(--muted);font-size:.68rem;white-space:nowrap}
+    .atb-actions{display:flex;align-items:center;gap:8px}
+    .atb-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;
+      color:var(--navy);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none}
+    .atb-btn:hover{border-color:#b9c6e6}
+    .atb-btn[disabled]{opacity:.55;cursor:not-allowed}
+    .atb-btn small{font-size:9.5px;font-weight:800;color:#8a93a7;background:#f1f4fa;border-radius:999px;padding:2px 7px}
+    .atb-primary{border:0;background:linear-gradient(135deg,var(--navy),#3159d8);color:#fff}
+    /* The header owns «المساعد» on desktop; the floating button stays for mobile. */
+    @media (min-width: 861px){ #aiFab{display:none} }
+
     /* ---- mobile ---- */
     .mobilebar{display:none}
+    @media (max-width: 860px){ .admin-topbar{display:none} }
     @media (max-width: 860px){
       #app.on{flex-direction:column}
       .side{display:none}
@@ -414,8 +432,9 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
         <div class="sub" id="subSvc"></div>
       </nav>
       <div class="grow"></div>
+      <!-- «فتح الموقع» and «المساعد» moved to the top header (.admin-topbar);
+           the sidebar foot keeps sign-out only. -->
       <div class="foot">
-        <a href="/" target="_blank" rel="noopener">🌐 فتح الموقع</a>
         <button id="logoutBtn">🚪 تسجيل الخروج</button>
       </div>
     </aside>
@@ -438,6 +457,19 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
     </div>
 
     <main class="main">
+      <!-- Top header: language, assistant, open website. The language switch is
+           deliberately disabled — the admin is Arabic-only today, and a switch
+           that changes nothing would be a lie. Enable it only when a real
+           English admin exists. -->
+      <div class="admin-topbar">
+        <div class="atb-title"><strong>مركز التشغيل</strong><span>Business Partner · Operations</span></div>
+        <div class="atb-actions">
+          <button type="button" class="atb-btn" id="topLang" disabled
+                  title="واجهة اللوحة بالعربية حالياً — النسخة الإنجليزية قيد التجهيز">🌐 English <small>قريباً</small></button>
+          <button type="button" class="atb-btn" id="topAi">✨ المساعد</button>
+          <a class="atb-btn atb-primary" href="/" target="_blank" rel="noopener">↗ فتح الموقع</a>
+        </div>
+      </div>
       <!-- ============ overview ============ -->
       <section class="view on" id="view-overview">
         <div class="pagehead">
@@ -2227,6 +2259,8 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
       showToolIndex();
       $('navFind').addEventListener('input', function(){ filterNav(this.value); });
       $('aiFab').onclick = function(){ aiOpen(true); };
+      var topAi = document.getElementById('topAi');
+      if (topAi) topAi.onclick = function(){ aiOpen(true); };
       $('aiClose').onclick = function(){ aiOpen(false); };
       // Escape closes the dock — it floats over the work, so it needs a way out
       // that does not require aiming at a button.
@@ -4691,7 +4725,11 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
       });
     }
   </script>
-<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="1"></script>
+<!-- data-toggle off: the EN dictionary covers ~29% of this panel's strings, so a
+     floating EN switch would promise a translation that mostly isn't there. The
+     topbar language button stays disabled («قريباً») until a real EN admin exists;
+     an owner who previously chose bp_lang=en still gets the partial layer. -->
+<script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="0"></script>
 <script id="bp-admin-v8-js">(function(){
 function el(t,c,h){var x=document.createElement(t);if(c)x.className=c;if(h!=null)x.innerHTML=h;return x}
 function goto(v){var b=document.querySelector('[data-v="'+v+'"]');if(b)b.click()}
