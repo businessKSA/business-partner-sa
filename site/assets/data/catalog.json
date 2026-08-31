@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-31T20:23:18.762Z",
+  "updatedAt": "2026-08-31T20:22:09.424Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -1274,7 +1274,7 @@
     },
     {
       "code": "BP-AI-02",
-      "nameAr": "إعداد الوكيل الذكي",
+      "nameAr": "إعداد المستشار الذكي",
       "nameEn": "AI Agent Setup",
       "category": "AI Automation",
       "categoryAr": "الأتمتة والذكاء الاصطناعي",

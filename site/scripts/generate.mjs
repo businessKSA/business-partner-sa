@@ -874,14 +874,14 @@ function featuresOf(s, ov) {
     if (dv.length) feats.push(...dv.slice(0, 4));
     feats.push("ننجز الإجراء نيابةً عنك من البداية حتى الإصدار");
     feats.push("أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة");
-    feats.push("دعم الوكيل الذكي على مدار الساعة");
+    feats.push("دعم المستشار الذكي على مدار الساعة");
     return feats.slice(0, 7);
   }
   if (ov && ov.featuresEn) return ov.featuresEn.map((f) => Lraw(f, f));
   return [
     Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
     Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
-    Lraw("Smart-agent support around the clock", "دعم الوكيل الذكي على مدار الساعة"),
+    Lraw("Smart-agent support around the clock", "دعم المستشار الذكي على مدار الساعة"),
   ];
 }
 function faqOf(s, ov) {
@@ -897,7 +897,7 @@ function faqOf(s, ov) {
     });
     faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
     if (s.govPlatform) faq.push({ q: "ما الجهة المختصة؟", a: `تُقدَّم الخدمة عبر ${govLabel(s.govPlatform)}، ونتولّى نحن التقديم والمتابعة معها.` });
-    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
+    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا، والمستشار الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
       q: Lraw("How much are the fees for this service?", ""),
@@ -1785,7 +1785,7 @@ function buildServiceDetail(s) {
   const feats = featuresOf(s, ov);
   const faq = faqOf(s, ov);
   const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد الوكيل الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
+    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد المستشار الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
     : "";
   const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
   const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
@@ -1823,7 +1823,7 @@ function buildServiceDetail(s) {
       <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
       <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
       <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "الوكيل الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
+      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "المستشار الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
@@ -2033,70 +2033,317 @@ function buildRevenueOS() {
   });
 }
 
+/* ---------- Smart advisors — one design, one buying mechanism ----------
+   Owner directive (31 Aug 2026): every smart advisor gets its own selling
+   page and subscription, all on the same design and the same cart mechanics.
+   Prices are read from services.json by SKU — never typed here — so the
+   advisor pages, the hub, the cart and the portal store always agree.
+   Naming policy: «المستشار الذكي» family (never «الوكيل الذكي»). */
+
+const svcByCode = (code) => services.find((s) => (s.code || "").toUpperCase() === String(code).toUpperCase()) || null;
+const advPrice = (code) => {
+  const s = svcByCode(code);
+  return s && s.price ? { amount: s.price.amount ?? null, label: s.price.label || "" } : { amount: null, label: "" };
+};
+
+const ADV_CSS = `<style>
+.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
+.adv section{padding:64px 0}
+.adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.adv-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.adv-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.adv-hero h1{max-width:860px;margin:16px auto 12px;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.045em;color:var(--n)}
+.adv-hero .lead{max-width:760px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1rem}
+.adv-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px auto 0;max-width:860px}
+.adv-chips span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.73rem;font-weight:800}
+.adv-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.adv-head{max-width:760px;margin:0 auto 28px;text-align:center}
+.adv-head h2{margin:0;color:var(--n);font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.04em;line-height:1.15}
+.adv-head p{margin:10px 0 0;color:var(--mut);line-height:1.8;font-size:.93rem}
+.adv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.adv-feature{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff}
+.adv-feature b{display:block;color:#172854;font-size:.9rem;margin-bottom:7px}
+.adv-feature p{margin:0;color:#778198;font-size:.78rem;line-height:1.75}
+.adv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-step{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
+.adv-step i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.8rem;margin-bottom:12px}
+.adv-step b{display:block;color:#172854;font-size:.83rem;margin-bottom:5px}
+.adv-step p{margin:0;color:#778198;font-size:.72rem;line-height:1.7}
+.adv-sub{background:var(--soft)}
+.adv-subbox{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 18px 46px rgba(11,27,90,.1)}
+.adv-subbox h3{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.adv-subbox .price-amt{font-size:2rem;font-weight:850;color:var(--n);margin:10px 0 2px}
+.adv-subbox .adv-per{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+.adv-subbox .qb-note{margin:0 0 14px;font-size:.85rem;color:var(--mut)}
+.adv-subbox ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;text-align:start}
+.adv-subbox li{font-size:.83rem;color:#536077}
+.adv-subbox li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:8px}
+.adv-subbox .buy-row{justify-content:center;display:flex}
+.adv-subbox .adv-note{margin:14px 0 0;font-size:.75rem;color:var(--mut)}
+.adv-faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.adv-faq details{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px 18px}
+.adv-faq summary{cursor:pointer;font-weight:800;color:var(--n);font-size:.9rem}
+.adv-faq p{margin:10px 0 0;color:var(--mut);font-size:.85rem;line-height:1.8}
+.adv-cta{background:linear-gradient(145deg,var(--n),#123b8e);color:#fff;text-align:center}
+.adv-cta h2{margin:0 0 8px;color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.04em}
+.adv-cta p{margin:0 auto 20px;max-width:620px;color:rgba(255,255,255,.72);line-height:1.8;font-size:.92rem}
+.adv-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.adv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff;transition:.2s}
+.adv-card:hover{border-color:#b7c4e8;box-shadow:0 14px 38px rgba(20,49,125,.09)}
+.adv-card small{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.6rem;font-weight:900;margin-bottom:14px}
+.adv-card h3{margin:0 0 6px;color:#142653;font-size:1.02rem}
+.adv-card .tg{margin:0 0 10px;color:#778198;font-size:.76rem;line-height:1.65}
+.adv-card ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.adv-card li{font-size:.73rem;color:#536077}
+.adv-card li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.adv-card .price-amt{font-size:1.05rem;font-weight:850;color:var(--n);margin:0 0 4px}
+.adv-card .qb-note{margin:0 0 10px;font-size:.72rem;color:var(--mut)}
+.adv-card .adv-acts{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adv-card .adv-acts .buy-row{display:contents}
+.adv-more{font-size:.8rem;font-weight:800;color:var(--b);text-decoration:none}
+@media(max-width:980px){.adv-grid,.adv-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adv-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.adv .wrap{width:min(100% - 26px,1100px)}.adv section{padding:48px 0}.adv-grid,.adv-hub-grid,.adv-steps{grid-template-columns:1fr}}
+</style>`;
+
+// One selling page per advisor: hero → who it's for → what it does → how it
+// works → the subscription (real SKU price + the same add-cart mechanism the
+// whole site uses) → FAQ → final CTA.
+function advisorPage(cfg) {
+  const chips = (cfg.chips || []).map((c) => `<span>${c}</span>`).join("");
+  const feats = (cfg.features || [])
+    .map(([t, d]) => `<div class="adv-feature"><b>${t}</b><p>${d}</p></div>`)
+    .join("");
+  const steps = (cfg.steps || [])
+    .map(([t, d], i) => `<div class="adv-step"><i>${i + 1}</i><b>${t}</b><p>${d}</p></div>`)
+    .join("");
+  const includes = (cfg.includes || []).map((x) => `<li>${x}</li>`).join("");
+  const faq = (cfg.faq || [])
+    .map(([q, aa]) => `<details><summary>${q}</summary><p>${aa}</p></details>`)
+    .join("");
+
+  // The subscription block. Three honest shapes:
+  //  - a real SKU → price + add-to-cart (guest price-hiding policy applies);
+  //  - a picker (smart employee): the generic SKU can't be fulfilled without a
+  //    specialty slug, so the button goes to the picker, price shown as-is;
+  //  - no SKU (document advisor) → the tool lives in the portal; no invented price.
+  let subBody = "";
+  const p = cfg.sku ? advPrice(cfg.sku) : { amount: null, label: "" };
+  if (cfg.sku && p.amount != null && !cfg.pickerHref) {
+    subBody = `
+      <div class="price-amt">${esc(localizeLabel(p.label))}</div>
+      <p class="adv-per">${L("Monthly subscription — cancel any time.", "اشتراك شهري — تقدر توقفه في أي وقت.")}</p>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <ul>${includes}</ul>
+      ${cartBtns({ id: cfg.cartId, code: cfg.sku, nameEn: cfg.nameEn, nameAr: cfg.nameAr, amount: p.amount, priceLabel: p.label, kind: "agent" })}
+      <p class="adv-note">${L("Activated inside your client portal after checkout; government fees, where relevant, stay separate and disclosed.", "يُفعَّل داخل لوحة العميل بعد إتمام الشراء؛ والرسوم الحكومية — حيث تنطبق — منفصلة ومعلنة.")}</p>`;
+  } else if (cfg.pickerHref) {
+    subBody = `
+      <div class="price-amt">${esc(localizeLabel(p.label))}</div>
+      <p class="adv-per">${L("Per specialist smart employee, monthly.", "لكل موظف ذكي متخصص، شهرياً.")}</p>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <ul>${includes}</ul>
+      <div class="buy-row"><a class="btn btn-primary" href="${u(cfg.pickerHref)}">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>
+      <p class="adv-note">${L("You choose the specialty first — the subscription activates for that exact employee.", "تختار التخصص أولاً — والاشتراك يتفعّل لهذا الموظف تحديداً.")}</p>`;
+  } else {
+    subBody = `
+      <ul>${includes}</ul>
+      <div class="buy-row" style="gap:9px;flex-wrap:wrap">
+        <a class="btn btn-primary" href="${u("/account")}?view=documents">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
+        <a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a>
+      </div>
+      <p class="adv-note">${L("Included with your client portal account — signing in with a one-time email code creates one.", "متاح مع حسابك في لوحة العميل — تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً.")}</p>`;
+  }
+
+  const body = `<div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> ${cfg.kicker}</span>
+    <h1>${cfg.title}</h1>
+    <p class="lead">${cfg.lead}</p>
+    <div class="adv-chips">${chips}</div>
+    <div class="adv-hero-actions">
+      <a class="btn btn-primary btn-lg" href="#subscribe">${cfg.heroCta || L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="adv-head"><h2>${cfg.featuresTitle || L("What it does for you", "وش يسوي لك؟")}</h2>${cfg.forWho ? `<p>${cfg.forWho}</p>` : ""}</div>
+    <div class="adv-grid">${feats}</div>
+  </div></section>
+
+  <section id="how" style="background:var(--soft)"><div class="wrap">
+    <div class="adv-head"><h2>${L("How it works", "كيف يعمل؟")}</h2></div>
+    <div class="adv-steps">${steps}</div>
+  </div></section>
+
+  <section id="subscribe"><div class="wrap">
+    <div class="adv-head"><h2>${cfg.subTitle || L("Your subscription", "اشتراكك")}</h2></div>
+    <div class="adv-subbox"><h3>${cfg.nameL}</h3>${subBody}</div>
+  </div></section>
+
+  ${faq ? `<section class="adv-sub"><div class="wrap">
+    <div class="adv-head"><h2>${L("Common questions", "أسئلة شائعة")}</h2></div>
+    <div class="adv-faq">${faq}</div>
+  </div></section>` : ""}
+
+  <section class="adv-cta"><div class="wrap">
+    <h2>${L("Not sure it fits your case?", "مو متأكد أنه يناسب حالتك؟")}</h2>
+    <p>${L("Tell the B10X smart advisor what you need, or book a free consultation — no cost, no commitment.", "قل للمستشار الذكي وش تحتاج، أو احجز استشارة مجانية — بدون تكلفة أو التزام.")}</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="${u("/")}#bp-consultant">${L("Talk to the smart advisor", "كلّم المستشار الذكي")}</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="${u("/consultation")}">${L("Book a free consultation", "احجز استشارة مجانية")}</a>
+    </div>
+  </div></section>
+  </div>`;
+
+  return page({ title: cfg.pageTitle, desc: cfg.pageDesc, active: cfg.active, path: cfg.path || cfg.active, body, extraHead: ADV_CSS });
+}
+
+/* ---------- الوكلاء الأذكياء — الصفحة الأم (/ai-agents) ----------
+   One hub, one design, one buying mechanism: every advisor as a card with its
+   real catalog price (or its honest CTA), linking to its own selling page. */
 function buildAiAgents() {
-  const a = site.aiAgents;
-  const steps = a.how.steps
-    .map(
-      (s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${L(s.titleEn || s.title, s.title)}</h3><p>${L(s.textEn || s.text, s.text)}</p></div></div>`
-    )
-    .join("");
-  const cards = a.agents
-    .map((g) => {
-      const name = L(g.nameEn || g.name, g.name);
-      const external = /^https?:\/\//.test(g.link || "");
-      const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
-      const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
-      // The smart-employees card must not sell a generic SKU: activation codes
-      // unlock specific employee slugs, so a slug-less "agent-..." purchase can
-      // never be fulfilled. Route that card to the employee picker instead.
-      const isPicker = g.link === "/connect";
-      // One SKU per product — the compliance page sells agent-Compliance-Agent,
-      // so the hub must use the same id or the same subscription becomes two
-      // different cart lines.
-      const cartId = g.link === "/compliance-agent" ? "agent-Compliance-Agent" : "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-");
-      const btns = isPicker
-        ? `<div class="buy-row"><a href="${u(g.link)}" class="btn btn-primary">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>`
-        : cartBtns({ id: cartId, nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
-      const tryBtn = g.link && !isPicker ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("Details", "التفاصيل")}</a>` : "";
-      const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
-      return `<div class="pkg${g.highlight ? " pop" : ""}">
-      <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
-      ${SHOW_PRICES ? `<div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>` : ""}
-      <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
-      <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${btnsWithTry}
-    </div>`;
-    })
-    .join("");
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("AI Agents", "الوكلاء الأذكياء")}</span>
-    <h1>${L(a.titleEn || a.title, a.title)}</h1>
-    <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("24/7 monitoring", "مراقبة 24/7")}</span>
-      <span class="hero-badge">${I.check}${L("Autonomous execution", "تنفيذ ذاتي")}</span>
-      <span class="hero-badge">${I.check}${L("Approval & payment only", "موافقة ودفع فقط")}</span>
+  const emp = advPrice("BP-AI-SMART-EMPLOYEE");
+  const comp = advPrice("BP-AI-03");
+  const shared = advPrice("BP-AI-04");
+  const rev = advPrice("REV-LAUNCH");
+
+  const guest = `<p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>`;
+  const from = (lbl) => `<div class="price-amt">${L("From", "يبدأ من")} ${esc(localizeLabel(lbl))}</div>`;
+
+  const cards = [
+    {
+      tag: "B10X", name: L("B10X Smart Advisor", "مستشار B10X الذكي"),
+      tg: L("The operating layer over everything: ask, it routes you to the right service, requirements and execution.", "طبقة التشغيل فوق كل شيء: اسأل، وهو يوصلك للخدمة الصحيحة والمتطلبات والتنفيذ."),
+      feats: [L("Understands your goal 24/7", "يفهم هدفك 24/7"), L("Routes to any of 140+ services", "يوجهك لأي خدمة من +140"), L("From question to tracked request", "من السؤال إلى طلب مُتابَع")],
+      price: "", acts: `<a class="btn btn-primary" href="${u("/b10x")}">${L("Explore B10X", "اكتشف B10X")}</a><a class="adv-more" href="${u("/")}#bp-consultant">${L("Try it now", "جرّبه الآن")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Compliance Advisor", "مستشار الامتثال"),
+      tg: L("Qiwa, Muqeem, GOSI, Mudad and Nitaqat under constant watch — your role is approval only.", "قوى ومقيم والتأمينات ومدد ونطاقات تحت مراقبة دائمة — ودورك الموافقة فقط."),
+      feats: [L("Deadlines before they become fines", "المهل قبل أن تصير غرامات"), L("Violation review & objection filing", "مراجعة المخالفات وتقديم الاعتراض"), L("Periodic compliance reports", "تقارير امتثال دورية")],
+      price: (comp.amount != null ? `<div class="price-amt">${esc(localizeLabel(comp.label))}</div>${guest}` : ""),
+      acts: `${cartBtns({ id: "agent-Compliance-Agent", code: "BP-AI-03", nameEn: "Compliance & obligations agent", nameAr: "مستشار الامتثال والالتزام", amount: comp.amount, priceLabel: comp.label, kind: "agent" })}<a class="adv-more" href="${u("/compliance-agent")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Specialist Smart Employee", "الموظف الذكي المتخصص"),
+      tg: L("A 24-hour specialist — marketing, admin, sales, tech or procurement — without the hiring cost.", "متخصص يعمل 24 ساعة — تسويق، إداري، مبيعات، تقني أو مشتريات — بدون تكلفة توظيف."),
+      feats: [L("12 specialties to pick from", "12 تخصصاً تختار منها"), L("Works inside your policies", "يعمل ضمن سياساتك"), L("Each specialty its own subscription", "كل تخصص اشتراك مستقل")],
+      price: (emp.amount != null ? `${from(emp.label)}${guest}` : ""),
+      acts: `<a class="btn btn-primary" href="${u("/connect")}">${L("Pick your employee", "اختر موظفك")}</a><a class="adv-more" href="${u("/smart-employee")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Document Advisor", "مستشار المستندات"),
+      tg: L("Reads your documents once, then fills any form — Word, Excel and PDF, in place, traceable to the source.", "يقرأ مستنداتك مرة واحدة ثم يعبّئ أي نموذج — Word وExcel وPDF في مكانها، وكل قيمة بمصدرها."),
+      feats: [L("Extraction with provenance", "استخراج بمصدر لكل قيمة"), L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Private to your company vault", "خاص بخزنة شركتك")],
+      price: "", acts: `<a class="btn btn-primary" href="${u("/account")}?view=documents">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Business Development Advisor", "مستشار تطوير الأعمال"),
+      tg: L("Customers, suppliers, partners and a pipeline that never sleeps — growth as an operating system.", "عملاء وموردون وشركاء وPipeline لا ينام — النمو كنظام تشغيل."),
+      feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
+      price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
+      acts: `<a class="btn btn-primary" href="${u("/revenue-os")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+    },
+    {
+      tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),
+      tg: L("The Compliance Advisor plus a full working team — one workspace for your platforms and your people.", "مستشار الامتثال مع فريق عمل كامل — لوحة واحدة لمنصاتك وفريقك."),
+      feats: [L("Compliance + execution in one", "امتثال وتنفيذ في واحد"), L("Available to companies & individuals", "متاح للمنشآت والأفراد"), L("Scales as you grow", "يتوسع مع نموك")],
+      price: (shared.amount != null ? `<div class="price-amt">${esc(localizeLabel(shared.label))}</div>${guest}` : ""),
+      acts: `${cartBtns({ id: "agent-Shared-services-team", code: "BP-AI-04", nameEn: "Shared services team", nameAr: "فريق الخدمات المشتركة", amount: shared.amount, priceLabel: shared.label, kind: "agent" })}<a class="adv-more" href="${u("/shared-services")}">${L("Details", "التفاصيل")}</a>`,
+    },
+  ].map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
+
+  const body = `<div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> ${L("The smart advisors", "المستشارون الأذكياء")}</span>
+    <h1>${L("A smart team that works 24/7 — and a human team behind it.", "فريق ذكي يعمل 24/7 — وخلفه فريق بشري.")}</h1>
+    <p class="lead">${L(
+      "Every advisor does one job extremely well: compliance, documents, growth, or a full specialist employee. Subscribe to one, or combine them — they all live in your client portal, and they all buy the same way.",
+      "كل مستشار يتقن مهمة واحدة تماماً: الامتثال، المستندات، النمو، أو موظف متخصص كامل. اشترك في واحد أو اجمعها — كلها تعيش في لوحة عميلك، وكلها تُشترى بنفس الطريقة.",
+    )}</p>
+  </div></section>
+  <section style="padding-top:20px"><div class="wrap">
+    <div class="adv-hub-grid">${cards}</div>
+    <p style="margin:18px 0 0;text-align:center;font-size:.8rem;color:#68748d">${L("Prices are our fees; government fees, where relevant, are separate and disclosed before you pay.", "الأسعار أتعابنا؛ والرسوم الحكومية — حيث تنطبق — منفصلة ومعلنة قبل الدفع.")}</p>
+  </div></section>
+  <section class="adv-cta"><div class="wrap">
+    <h2>${L("Not sure where to start?", "مو متأكد من وين تبدأ؟")}</h2>
+    <p>${L("Tell the B10X smart advisor what you need — it routes you to the right advisor and the right plan.", "قل للمستشار الذكي وش تحتاج — وهو يوجهك للمستشار الصحيح والخطة الصحيحة.")}</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="${u("/")}#bp-consultant">${L("Talk to the smart advisor", "كلّم المستشار الذكي")}</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="${u("/consultation")}">${L("Book a free consultation", "احجز استشارة مجانية")}</a>
     </div>
   </div></section>
+  </div>`;
 
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(a.how.eyebrowEn || a.how.eyebrow, a.how.eyebrow)}</span><h2>${L(a.how.titleEn || a.how.title, a.how.title)}</h2></div>
-    <div class="steps-grid">${steps}</div>
-  </div></section>
+  return page({
+    title: Lraw("Smart Advisors — Business Partner", "المستشارون الأذكياء — بيزنس بارتنر"),
+    desc: Lraw(
+      "Compliance, documents, growth and specialist smart employees — one design, one subscription mechanism, all inside your client portal.",
+      "الامتثال والمستندات والنمو وموظفون أذكياء متخصصون — تصميم واحد وآلية اشتراك واحدة، وكلها داخل لوحة العميل.",
+    ),
+    active: "/ai-agents", body, extraHead: ADV_CSS,
+  });
+}
 
-  <section class="section" id="agents"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
-    <div class="grid grid-3">${cards}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-primary" href="${u("/portal")}">🎁 ${L("Try the team free — 3 messages per employee", "جرّب الفريق مجاناً — 3 رسائل لكل موظف")}</a>
-      <a class="btn btn-ghost" href="${u("/portal")}">🔐 ${L("Already subscribed? Enter the portal", "مشترك بالفعل؟ ادخل البوابة")}</a>
-      <a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a>
-    </div>
-  </div></section>`;
-  return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
+/* ---------- الموظف الذكي المتخصص (/smart-employee) ----------
+   Sells the specialist smart-employee subscription. The buy button goes to the
+   picker (/connect): activation unlocks a specific specialty slug, so a
+   generic purchase can never be fulfilled — the price shown is the catalog's. */
+function buildSmartEmployeePage() {
+  return advisorPage({
+    active: "/smart-employee",
+    path: "/smart-employee",
+    pageTitle: Lraw("Specialist Smart Employee — Business Partner", "الموظف الذكي المتخصص — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "A specialist smart employee that works 24 hours inside your policies: marketing, admin, sales, tech or procurement — without the cost of hiring.",
+      "موظف ذكي متخصص يعمل 24 ساعة ضمن سياساتك: تسويق، إداري، مبيعات، تقني أو مشتريات — بدون تكلفة توظيف.",
+    ),
+    kicker: L("Specialist Smart Employee · 12 specialties", "الموظف الذكي المتخصص · 12 تخصصاً"),
+    title: L("A specialist employee that works 24 hours. Without the hiring cost.", "موظف متخصص يعمل 24 ساعة. بدون تكلفة توظيف."),
+    lead: L(
+      "Hiring a specialist costs a salary, GOSI, and months of ramp-up. The specialist smart employee starts today: you pick the specialty, it works around the clock inside your company's policies and under your supervision — and your team keeps the interesting work.",
+      "توظيف متخصص يكلفك راتباً وتأمينات وشهور تهيئة. الموظف الذكي المتخصص يبدأ اليوم: تختار التخصص، ويعمل على مدار الساعة ضمن سياسات شركتك وتحت إشرافك — ويبقى لفريقك الشغل الممتع.",
+    ),
+    chips: ["تسويق", "إداري", "مبيعات", "تقني", "مشتريات", "محتوى", "تقارير"],
+    forWho: L(
+      "For establishments that want a specialist's capacity without a specialist's payroll.",
+      "للمنشآت التي تريد قدرات متخصص بدون رواتب متخصص.",
+    ),
+    features: [
+      [L("Marketing employee", "موظف تسويق"), L("Content, campaigns and performance follow-up on a steady drumbeat.", "محتوى وحملات ومتابعة أداء بإيقاع ثابت لا يتوقف.")],
+      [L("Admin employee", "موظف إداري"), L("Task organisation, follow-ups and reports that actually arrive.", "تنظيم المهام والمتابعات والتقارير التي تصل فعلاً.")],
+      [L("Sales employee", "موظف مبيعات"), L("Client follow-up, replies and quotes — no lead goes cold.", "متابعة العملاء والردود والعروض — لا عميل محتمل يبرد.")],
+      [L("Tech / procurement employee", "موظف تقني أو مشتريات"), L("Operational tasks, vendors and orders handled methodically.", "مهام تشغيلية وموردون وطلبات تُدار بمنهجية.")],
+      [L("Inside your policies", "ضمن سياساتك"), L("Works 24 hours within your company's rules and under your supervision.", "يعمل 24 ساعة ضمن قواعد شركتك وتحت إشرافك.")],
+      [L("Grows with you", "يكبر معك"), L("Add specialties as you grow — each one is its own subscription you control.", "أضف تخصصات وأنت تكبر — كل تخصص اشتراك مستقل تتحكم فيه.")],
+    ],
+    steps: [
+      [L("Pick the specialty", "اختر التخصص"), L("12 specialties — choose what your business needs first.", "12 تخصصاً — اختر ما تحتاجه منشأتك أولاً.")],
+      [L("Set the policies", "اضبط السياسات"), L("Tone, limits and approvals: the employee works your way.", "النبرة والحدود والموافقات: الموظف يشتغل بطريقتك.")],
+      [L("It works", "يشتغل"), L("Around the clock, with output landing where you work.", "على مدار الساعة، ومخرجاته تصل حيث تعمل.")],
+      [L("You supervise", "تشرف"), L("Follow the output and adjust the policies any time.", "تتابع المخرجات وتعدّل السياسات في أي وقت.")],
+    ],
+    nameL: L("Specialist smart employee", "الموظف الذكي المتخصص"),
+    nameAr: "موظف ذكي متخصص",
+    nameEn: "Specialist smart employee",
+    sku: "BP-AI-SMART-EMPLOYEE",
+    pickerHref: "/connect",
+    includes: [
+      L("One specialist employee in the specialty you pick", "موظف متخصص واحد في التخصص الذي تختاره"),
+      L("Works 24 hours inside your policies", "يعمل 24 ساعة ضمن سياساتك"),
+      L("Supervision and output tracking from your portal", "إشراف ومتابعة مخرجات من لوحتك"),
+      L("Swap or add specialties as you grow", "بدّل أو أضف تخصصات وأنت تكبر"),
+    ],
+    faq: [
+      [L("Which specialties exist?", "وش التخصصات المتاحة؟"),
+       L("Twelve, across marketing, admin, sales, tech, procurement and more — the picker shows them all.", "اثنا عشر تخصصاً في التسويق والإدارة والمبيعات والتقنية والمشتريات وغيرها — صفحة الاختيار تعرضها كلها.")],
+      [L("Can I run more than one?", "أقدر أشغّل أكثر من واحد؟"),
+       L("Yes — each specialty is its own subscription, added or stopped independently.", "نعم — كل تخصص اشتراك مستقل، تضيفه أو توقفه وحده.")],
+    ],
+  });
 }
 
 function buildTaskForce() {
@@ -2979,177 +3226,119 @@ function buildProfessionChecker() {
 }
 
 
-// The paid Compliance Agent subscription product — full landing + pricing +
-// payment + intake, wrapped in the site's own header/footer/cart (unlike the
-// Payment reuses api/pay.js same-origin.
+/* ---------- مستشار الامتثال (/compliance-agent) ---------- */
 function buildComplianceAgent() {
-  const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
-  const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
-  const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
-  const steps = [
-    ["1", L("Subscribe and register your establishment", "تشترك وتسجّل منشأتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
-    ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
-    ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
-    ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
-  ];
-  const stepsHtml = steps.map(([n, t, d]) => `<div class="step"><div class="step-n">${n}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
-  const valueItems = [
-    [L("Certificates and their expiry dates", "الشهادات وتواريخ انتهائها"), L("Zakat, tax, chamber, GOSI, Saudization, wage protection, IBAN.", "الزكاة، الضريبة، الغرفة، التأمينات، التوطين، حماية الأجور، الآيبان.")],
-    [L("Workforce and residencies", "العمالة والإقامات"), L("Work permits (Qiwa), residencies (Muqeem), wage protection (Mudad).", "رخص العمل (قوى)، الإقامات (مقيم)، حماية الأجور (مدد).")],
-    [L("Nitaqat and Saudization", "النطاقات والسعودة"), L("Your expected band and how many Saudis you need to match or upgrade.", "نطاقك المتوقع وكم سعودي تحتاج للمطابقة أو الترقية.")],
-    [L("Licenses and location", "الرخص والموقع"), L("Municipal license (Balady), Civil Defense, a certified lease contract.", "الرخصة البلدية (بلدي)، الدفاع المدني، عقد إيجار موثّق.")],
-    [L("Foreign investors", "المستثمر الأجنبي"), L("Investment license (MISA) and its dates.", "رخصة الاستثمار (MISA) وتواريخها.")],
-    [L("Alerts", "التنبيهات"), L("Daily report + an alert before violations and before any expiry.", "تقرير يومي + منبّه قبل نزول المخالفات وقبل كل انتهاء.")],
-  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
-    <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
-    <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
-    </div>
-    <div class="hero-badges">${chips}</div>
-  </div></section>
-
-  <section id="intake" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
-    <div class="steps-grid">${[
-      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
-      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
-      [L("Payment is confirmed", "يتأكد الدفع"), L("Pay online and your access code is emailed to you instantly — a bank transfer is confirmed first.", "ادفع إلكترونياً ويصلك رمز الدخول على بريدك فوراً — والتحويل البنكي يُعتمد أولاً.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your compliance dashboard with your email and the access code — your establishment file, alerts and document upload are all there.", "ادخل لوحة الامتثال ببريدك ورمز الدخول — ملف منشأتك وتنبيهاتك ورفع مستنداتك كلها هناك.")],
-    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from registering your establishment to a daily alert and a ready action pending your approval", "أربع خطوات — من تسجيل منشأتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
-    <div class="steps-grid">${stepsHtml}</div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Compliance now literally pays back: Monsha'at's Estrdad initiative refunds SMEs their government fees through 2028 — but only while your CR, certificates, licenses and Nitaqat stay compliant. The agent keeps you inside the eligible band.", "امتثالك الآن يدفع لك حرفياً: مبادرة «استرداد» من منشآت تعيد للمنشآت رسومها الحكومية حتى 2028 — لكن فقط ما دام سجلك وشهاداتك وتراخيصك ونطاقاتك ممتثلة. الوكيل يبقيك داخل نطاق الاستحقاق.")} <a href="${u("/estrdad")}">${L("Learn about fee refunds ←", "اعرف عن استرداد الرسوم ←")}</a></p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
-      <ul class="value-list">${valueItems}</ul>
-    </div>
-  </div></section>
-
-  <section id="pricing" class="section" style="padding-top:0"><div class="container">
-    <div class="price-box">
-      <div>${SHOW_PRICES ? `<div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>` : ""}
-      <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
-      ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
-    </div>
-  </div></section>
-
-  <style>
-    .text-soft{color:var(--text-soft)}
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
-    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
-    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
-    .price-box .buy-row{margin-inline-start:auto}
-  </style>`;
-
-  return page({
-    title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
-    desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
+  return advisorPage({
     active: "/compliance-agent",
-    path: "/compliance-agent",
-    body,
+    pageTitle: Lraw("Compliance Advisor — Business Partner", "مستشار الامتثال — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "Your government platforms under constant watch: Qiwa, Muqeem, GOSI, Mudad and Nitaqat — deadlines, violations and obligations detected and handled, your role is approval only.",
+      "منصاتك الحكومية تحت المراقبة الدائمة: قوى، مقيم، التأمينات، مدد ونطاقات — رصد المهل والمخالفات والالتزامات ومعالجتها، ودورك الموافقة فقط.",
+    ),
+    kicker: L("Compliance Advisor · works 24/7", "مستشار الامتثال · يعمل 24/7"),
+    title: L("Your government platforms, under constant watch.", "منصاتك الحكومية تحت المراقبة الدائمة."),
+    lead: L(
+      "Every establishment lives across Qiwa, Muqeem, GOSI, Mudad and Nitaqat — and every one of them has deadlines that cost real money when missed. The Compliance Advisor watches them all, tells you what needs action before it becomes a violation, and prepares the paperwork. Your role: approve and pay.",
+      "كل منشأة تعيش موزعة بين قوى ومقيم والتأمينات ومدد ونطاقات — وكل منصة فيها مهل تتحول لمخالفات تكلف مالاً حقيقياً إذا فاتت. مستشار الامتثال يراقبها كلها، يخبرك بما يحتاج إجراء قبل أن يصبح مخالفة، ويجهّز المستندات. دورك: موافقة ودفع فقط.",
+    ),
+    chips: [
+      "قوى", "مقيم", L("GOSI", "التأمينات GOSI"), "مدد", "نطاقات", L("Balady", "بلدي"), "ZATCA",
+    ].map((x) => (typeof x === "string" ? x : x)),
+    forWho: L(
+      "For establishments that want permanent compliance without a full-time employee chasing portals.",
+      "للمنشآت التي تريد امتثالاً دائماً بدون موظف متفرغ يطارد البوابات.",
+    ),
+    features: [
+      [L("Continuous monitoring", "مراقبة مستمرة"), L("Qiwa, Muqeem, GOSI, Mudad and Nitaqat checked around the clock — nothing waits for someone to remember to log in.", "قوى ومقيم والتأمينات ومدد ونطاقات تُفحص على مدار الساعة — لا شيء ينتظر أحداً يتذكر أن يسجل الدخول.")],
+      [L("Deadlines before they bite", "المهل قبل أن تعضّ"), L("Expiries, renewals and obligations surface as clear tasks with the cost and the deadline — before the fine, not after.", "الانتهاءات والتجديدات والالتزامات تظهر كمهام واضحة بالتكلفة والمهلة — قبل الغرامة لا بعدها.")],
+      [L("Violations handled properly", "المخالفات تُعالج بمسارها الصحيح"), L("When a violation appears we review it, study objection eligibility, prepare the evidence and file — then track it to the result.", "عند ظهور مخالفة نراجعها، ندرس أهلية الاعتراض، نجهّز المستندات ونقدّم — ثم نتابعها حتى النتيجة.")],
+      [L("Self-executing paperwork", "تجهيز ذاتي للإجراءات"), L("The advisor prepares documents and submissions itself; a human from our team steps in where the platforms require one.", "المستشار يجهّز المستندات والرفع بنفسه؛ ويتدخل فريقنا البشري حيث تتطلب المنصات ذلك.")],
+      [L("Approval-only workload for you", "عبؤك أنت: الموافقة فقط"), L("Every step comes to you as an approval with its cost — nothing executes without your yes.", "كل خطوة تصلك كموافقة بتكلفتها — لا شيء يُنفَّذ بدون موافقتك.")],
+      [L("Periodic compliance reports", "تقارير امتثال دورية"), L("A clear report of your establishment's compliance state, inside your client portal.", "تقرير واضح عن حالة امتثال منشأتك، داخل لوحة العميل.")],
+    ],
+    steps: [
+      [L("Connect", "الربط"), L("We link your establishment's platforms inside your client portal.", "نربط منصات منشأتك داخل لوحة العميل.")],
+      [L("Watch", "المراقبة"), L("The advisor monitors deadlines, obligations and violations continuously.", "المستشار يراقب المهل والالتزامات والمخالفات باستمرار.")],
+      [L("Alert & prepare", "التنبيه والتجهيز"), L("What needs action arrives as a task with cost and deadline, documents ready.", "ما يحتاج إجراء يصلك كمهمة بتكلفتها ومهلتها، والمستندات جاهزة.")],
+      [L("Approve & track", "الموافقة والمتابعة"), L("You approve, we execute, and you track everything to completion in your portal.", "توافق، نُنفّذ، وتتابع كل شيء حتى الإنجاز من لوحتك.")],
+    ],
+    nameL: L("Compliance Advisor subscription", "اشتراك مستشار الامتثال"),
+    nameAr: "مستشار الامتثال والالتزام",
+    nameEn: "Compliance & obligations agent",
+    sku: "BP-AI-03",
+    cartId: "agent-Compliance-Agent",
+    includes: [
+      L("Continuous monitoring of Qiwa, Muqeem, GOSI, Mudad and Nitaqat", "مراقبة مستمرة لقوى ومقيم والتأمينات ومدد ونطاقات"),
+      L("Deadline, renewal and obligation alerts with cost before every step", "تنبيهات المهل والتجديدات والالتزامات بالتكلفة قبل كل خطوة"),
+      L("Violation review, objection-eligibility study and filing", "مراجعة المخالفات ودراسة أهلية الاعتراض وتقديمه"),
+      L("Document preparation and submission", "تجهيز المستندات ورفعها"),
+      L("Periodic compliance reports in your client portal", "تقارير امتثال دورية في لوحة العميل"),
+    ],
+    faq: [
+      [L("Does it replace my government-relations officer?", "هل يغني عن معقّب أو موظف علاقات حكومية؟"),
+       L("For routine monitoring and follow-up, yes — and where a step legally requires a human, our operations team executes it as part of the flow.", "في المراقبة والمتابعة الروتينية نعم — وحيث يتطلب الإجراء تدخلاً بشرياً نظاماً، يتولاه فريق التشغيل لدينا كجزء من المسار.")],
+      [L("Can it cancel violations?", "هل يلغي المخالفات؟"),
+       L("No one can promise that. What we do: review the violation, study objection eligibility, prepare the strongest file, submit, and follow it to the result.", "لا أحد يستطيع الوعد بذلك. ما نفعله: مراجعة المخالفة، دراسة أهلية الاعتراض، تجهيز أقوى ملف، التقديم، والمتابعة حتى النتيجة.")],
+      [L("Where do I see its work?", "وين أشوف شغله؟"),
+       L("Everything lives in your client portal: tasks, approvals, documents and reports — scoped to your company alone.", "كل شيء داخل لوحة العميل: المهام والموافقات والمستندات والتقارير — ولا يراها إلا حسابك وشركتك.")],
+    ],
   });
 }
 
-// الوكيل الذكي للمستندات — AI Document Agent. Chat-first: the client uploads
-// source documents (CR, AOA, IDs, bank letters…) and forms that need filling
-// (vendor/AML/KYC/NDA…); the agent classifies, extracts facts with provenance,
-// asks only for what is missing, fills the forms (agent-added data in blue),
-// and packages the final submission ZIP. Backend: /api/doc-agent →
-// api/requests.js?__route=doc-agent → api/_docagent.js. Session = the same
-// bp_sid account cookie as the rest of the portal.
+/* ---------- مستشار المستندات (/ai-document-agent) ----------
+   The workspace itself lives inside the client portal (/account?view=documents);
+   this public page sells it and never renders anyone's conversation. */
 function buildDocAgent() {
-  const docTypes = ["سجل تجاري","عقد تأسيس","شهادة ضريبية","IBAN","هوية / إقامة","جواز سفر","عنوان وطني","رخص","عقود","كشوف حساب","Vendor Forms","AML / KYC","NDA","نماذج بنكية","نماذج حكومية","استبيانات"];
-  const docTypesEn = ["Commercial Registration","Articles of Association","Tax Certificate","IBAN","National ID / Iqama","Passport","National Address","Licenses","Contracts","Bank Statements","Vendor Forms","AML / KYC","NDA","Bank Forms","Government Forms","Questionnaires"];
-  const chips = docTypes.map((p, i) => `<span class="hero-badge">${L(docTypesEn[i], p)}</span>`).join("");
-  const steps = [
-    [L("Upload everything at once", "ارفع كل شيء دفعة واحدة"), L("Documents that contain data, forms that need filling, your stamp, even a screenshot of the requirements email — the agent classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.")],
-    [L("It reads, extracts and cross-checks", "يقرأ ويستخرج ويطابق"), L("Every value keeps its source, page, date and confidence. Conflicting values across documents become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.")],
-    [L("It asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% of the form. I still need: expected annual volume, and are both owners not PEPs?” Legal declarations are never assumed.", "«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.")],
-    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Word, Excel and fillable PDF forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذج Word وExcel وPDF القابلة للتعبئة ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
-  ];
-  const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
-  const valueItems = [
-    [L("One unified client profile", "ملف بيانات موحّد"), L("CR + AOA + VAT + bank + IDs merge into one profile; the next request reuses it — upload only the new form.", "السجل + عقد التأسيس + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه — ارفع الفورم الجديد فقط.")],
-    [L("Any language, both directions", "أي لغة، وبالاتجاهين"), L("Reads an Arabic CR and fills an English vendor form (or the reverse). Official names are never translated.", "يقرأ سجلاً عربياً ويعبّئ نموذجاً إنجليزياً (أو العكس). الأسماء الرسمية لا تُترجم أبداً.")],
-    [L("UBO & ownership math", "الملاك وUBO"), L("Computes ownership percentages from the AOA and fills UBO sections, with an ownership chart on demand.", "يحسب نسب الملكية من عقد التأسيس ويعبّئ أقسام UBO، مع مخطط ملكية عند الطلب.")],
-    [L("Expiry check on every document", "فحص صلاحية كل مستند"), L("Expired documents are flagged and the request continues — you are asked for a fresh copy before final submission.", "المستند المنتهي يُعلَّم ويستمر الطلب — ويُطلب منك نسخة محدثة قبل التقديم النهائي.")],
-    [L("Natural-language edits", "تعديلات بلغة طبيعية"), L("“Make Section 9 all No”, “today's date”, “add the stamp” — the agent applies them to the right fields only.", "«Section 9 كله No»، «خلي تاريخ اليوم»، «حط الختم» — الوكيل يطبقها على الحقول الصحيحة فقط.")],
-    [L("QA before delivery", "مراجعة جودة قبل التسليم"), L("A second pass verifies every planned value landed, checkboxes are right and no placeholders remain.", "مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.")],
-  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</span>
-    <h1>${L("Upload your documents. We finish the rest.", "ارفع مستنداتك. ونحن نكمل الباقي.")}</h1>
-    <p class="lead">${L("The smart agent reads your documents, extracts the data, fills your forms, finds what is missing, places the stamp when needed, and hands you the final package — your signature is the only thing left.", "الوكيل الذكي يقرأ مستنداتك، يستخرج المعلومات، يعبّئ النماذج، يكتشف النواقص، يضع الختم عند الحاجة، ويرتّب لك الحزمة النهائية — وما يبقى عليك إلا توقيعك.")}</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#agent">${L("Start now", "ابدأ الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
-    </div>
-    <div class="hero-badges">${chips}</div>
-  </div></section>
-
-  <!-- Owner rule: this public page sells the agent; it never renders anyone's
-       conversation. The working chat lives inside the client portal, where the
-       session and its company scope the data. -->
-  <section id="agent" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Inside your client portal", "داخل لوحة العميل")}</span><h2>${L("Your documents and conversation live in your account only", "مستنداتك ومحادثتك في حسابك فقط")}</h2></div>
-    <div class="da-shell" style="padding:34px 26px;text-align:center">
-      <p style="max-width:560px;margin:0 auto 18px;color:var(--text-soft);line-height:1.8">${L(
-        "The Document Agent runs inside your client portal: every file, extracted value and conversation is tied to your company and visible to your account alone.",
-        "وكيل المستندات يعمل داخل لوحة العميل: كل ملف وقيمة مستخرجة ومحادثة مرتبطة بشركتك ولا يراها إلا حسابك.",
-      )}</p>
-      <a class="btn btn-primary btn-lg" href="${u("/account")}?view=docagent">${L("Open the agent from your client portal", "افتح الوكيل من لوحة العميل")}</a>
-      <p style="margin:14px 0 0;font-size:.9rem;color:var(--text-soft)">${L("No account yet? Signing in with a one-time email code creates one — and the 14-day free trial starts on your first upload.", "ما عندك حساب؟ تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً — والتجربة المجانية 14 يوماً تبدأ من أول ملف ترفعه.")}</p>
-    </div>
-    <p class="da-note">${L("Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.", "تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.")}</p>
-  </div></section>
-
-  <section id="how" class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف يعمل؟")}</span><h2>${L("Information sources → understanding → matching → filled documents", "مصادر معلومات → فهم → مطابقة → مستندات معبّأة")}</h2></div>
-    <div class="steps-grid">${stepsHtml}</div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">🔏</span><p>${L("The agent never fabricates a signature and never assumes legal declarations (PEP, sanctions, conflicts of interest…). It asks, records your explicit confirmation with its channel and time, and leaves the signature to you.", "الوكيل لا يصنع توقيعاً ولا يفترض الإقرارات القانونية (PEP، العقوبات، تضارب المصالح…). يسألك، يسجّل تأكيدك الصريح بقناته ووقته، ويترك التوقيع لك.")}</p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">${L("What makes it different?", "وش يميزه؟")}</h3>
-      <ul class="value-list">${valueItems}</ul>
-    </div>
-  </div></section>
-
-  <style>
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .da-shell{max-width:880px;margin:0 auto;background:#fff;border:1px solid #e3e8f1;border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
-    .da-shell .btn-primary{background:linear-gradient(135deg,#0a255f,#3159d8);border:0;border-radius:12px;font-weight:900}
-    .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
-  </style>`;
-
-  return page({
-    title: Lraw("AI Document Agent — Business Partner", "الوكيل الذكي للمستندات — بيزنس بارتنر"),
-    desc: Lraw("Upload your documents and the forms you need filled — the AI agent reads, extracts, fills, stamps and packages everything.", "ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة."),
+  return advisorPage({
     active: "/ai-document-agent",
-    path: "/ai-document-agent",
-    body,
+    pageTitle: Lraw("Document Advisor — Business Partner", "مستشار المستندات — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "Upload the documents that hold your data and the forms that need filling — the Document Advisor reads, extracts, fills Word, Excel and PDF in place, and hands you the final package.",
+      "ارفع المستندات التي تحمل بياناتك والنماذج المطلوب تعبئتها — مستشار المستندات يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويسلّمك الحزمة النهائية.",
+    ),
+    kicker: L("Document Advisor · inside your portal", "مستشار المستندات · داخل لوحة العميل"),
+    title: L("Upload your documents. It finishes the rest.", "ارفع مستنداتك. وهو يكمل الباقي."),
+    lead: L(
+      "Vendor forms, AML/KYC, bank forms, government questionnaires — filling them means copying the same company data for the hundredth time. The Document Advisor reads your CR, articles, IDs and statements once, then fills any form you throw at it — in place, with every value traceable to its source page.",
+      "نماذج الموردين، AML/KYC، النماذج البنكية، الاستبيانات الحكومية — تعبئتها تعني نسخ نفس بيانات شركتك للمرة المئة. مستشار المستندات يقرأ سجلك وعقد تأسيسك وهوياتك وكشوفك مرة واحدة، ثم يعبّئ أي نموذج ترميه عليه — في مكانه، وكل قيمة تتبَّع لمصدرها وصفحتها.",
+    ),
+    chips: ["سجل تجاري", "عقد تأسيس", "IBAN", "هوية / إقامة", "Vendor Forms", "AML / KYC", "NDA"],
+    forWho: L(
+      "For companies drowning in forms: banks, vendors, government portals and counterparties.",
+      "للشركات الغارقة في النماذج: بنوك وموردون وبوابات حكومية وأطراف تعاقد.",
+    ),
+    features: [
+      [L("Reads everything at once", "يقرأ كل شيء دفعة واحدة"), L("Documents with data, forms to fill, your stamp, even a screenshot of the requirements email — it classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — يصنّف كل ملف بنفسه.")],
+      [L("Extracts with provenance", "يستخرج بمصدر لكل قيمة"), L("Every value keeps its source, page, date and confidence. Conflicts become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والتعارضات تتحول لسؤال لك — لا تخمين صامت أبداً.")],
+      [L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Word, Excel and fillable PDFs come back filled — advisor-added data in blue, layout untouched, signature left for you.", "نماذج Word وExcel وPDF ترجع معبّأة — بيانات المستشار بالأزرق والتصميم كما هو، والتوقيع يبقى لك.")],
+      [L("Asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% — I still need the expected annual volume.” Legal declarations are never assumed.", "«عبّيت 87% — بقي قيمة التعامل السنوي.» والإقرارات القانونية لا تُفترض أبداً.")],
+      [L("One reusable company profile", "ملف شركة واحد يُعاد استخدامه"), L("CR + AOA + VAT + bank + IDs merge into one profile; your next request reuses it.", "السجل + العقد + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه.")],
+      [L("Private to your company", "خاص بشركتك وحدها"), L("Files stored encrypted in your vault; downloads via short-lived signed links; no other account ever sees them.", "الملفات مشفّرة في خزنتك؛ التحميل بروابط موقّعة قصيرة العمر؛ ولا يراها أي حساب آخر أبداً.")],
+    ],
+    steps: [
+      [L("Upload", "ارفع"), L("Drop in the data documents and the forms that need filling.", "أسقط مستندات البيانات والنماذج المطلوب تعبئتها.")],
+      [L("Review", "يراجع"), L("It reads, extracts, cross-checks and asks only for what is missing.", "يقرأ ويستخرج ويطابق ويسألك عن الناقص فقط.")],
+      [L("Fill", "يعبّئ"), L("Forms come back filled in place, with a QA pass before delivery.", "النماذج ترجع معبّأة في مكانها، وتمر بمراجعة جودة قبل التسليم.")],
+      [L("Package", "يسلّم"), L("Named per the checklist, zipped, signature left for you.", "مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
+    ],
+    nameL: L("Document Advisor", "مستشار المستندات"),
+    nameAr: "مستشار المستندات",
+    nameEn: "Document Advisor",
+    sku: null,
+    includes: [
+      L("Reads Arabic and English, fills in both directions", "يقرأ العربية والإنجليزية ويعبّئ بالاتجاهين"),
+      L("UBO and ownership math from your articles", "حساب الملاك وUBO من عقد التأسيس"),
+      L("Expiry check on every document", "فحص صلاحية كل مستند"),
+      L("Natural-language edits: “Section 9 all No”", "تعديلات بلغة طبيعية: «Section 9 كله No»"),
+      L("QA pass before anything reaches you", "مراجعة جودة قبل أن يصلك أي ملف"),
+    ],
+    subTitle: L("Where to use it", "وين تستخدمه؟"),
+    faq: [
+      [L("Why can't I chat with it here?", "ليش ما أقدر أحادثه هنا؟"),
+       L("Because your documents and conversations belong inside your account, scoped to your company — not on a public page. Open it from your client portal.", "لأن مستنداتك ومحادثاتك مكانها داخل حسابك ومرتبطة بشركتك — لا في صفحة عامة. افتحه من لوحة العميل.")],
+      [L("Does it sign for me?", "هل يوقّع عني؟"),
+       L("Never. It never fabricates a signature and never assumes legal declarations — it asks, records your explicit confirmation, and leaves the signature to you.", "أبداً. لا يصنع توقيعاً ولا يفترض الإقرارات القانونية — يسأل، يسجّل تأكيدك الصريح، ويترك التوقيع لك.")],
+    ],
   });
 }
 
@@ -4466,7 +4655,7 @@ function buildMahfolTrips() {
   </div></section>
 
   <section class="section"><div class="container" style="max-width:840px">
-    <div class="section-head"><span class="eyebrow">${L("Smart agent", "الوكيل الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Smart agent", "المستشار الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
     <div class="tr-agent" id="tr-agent">
       <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
       <div class="tr-agent-msgs" id="tr-msgs"></div>
@@ -7907,7 +8096,7 @@ function buildAccount() {
             ${docsWizard()}
           </div>
           <div class="dash-card" style="margin-top:16px">
-            <h3 style="margin:0 0 6px">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</h3>
+            <h3 style="margin:0 0 6px">${L("AI Document Agent", "المستشار الذكي للمستندات")}</h3>
             <p style="margin:0 0 10px;color:var(--muted)">${L("Upload documents that contain your data and forms that need filling — the agent reads, extracts, fills Word/Excel/PDF in place and packages everything. Your files stay in your private vault, tied to this account only.", "ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويجهّز الحزمة. ملفاتك في خزنتك الخاصة المرتبطة بحسابك هذا فقط.")}</p>
             <a class="btn btn-primary" href="${u("/ai-document-agent")}">🗂️ ${L("Open the Document Agent", "افتح وكيل المستندات")}</a>
           </div>
@@ -11708,6 +11897,7 @@ function writeFullSite(pre) {
   write(`${pre}revenue-os.html`, buildRevenueOS());
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
+  write(`${pre}smart-employee.html`, buildSmartEmployeePage());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
   write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
@@ -11980,7 +12170,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

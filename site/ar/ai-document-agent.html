@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>المستشار الذكي للمستندات — بيزنس بارتنر</title>
-<meta name="description" content="ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة.">
-<meta property="og:title" content="المستشار الذكي للمستندات — بيزنس بارتنر">
-<meta property="og:description" content="ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة.">
+<title>مستشار المستندات — بيزنس بارتنر</title>
+<meta name="description" content="ارفع المستندات التي تحمل بياناتك والنماذج المطلوب تعبئتها — مستشار المستندات يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويسلّمك الحزمة النهائية.">
+<meta property="og:title" content="مستشار المستندات — بيزنس بارتنر">
+<meta property="og:description" content="ارفع المستندات التي تحمل بياناتك والنماذج المطلوب تعبئتها — مستشار المستندات يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويسلّمك الحزمة النهائية.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -29,7 +29,65 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=8a57349554">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
+<style>
+.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
+.adv section{padding:64px 0}
+.adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.adv-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.adv-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.adv-hero h1{max-width:860px;margin:16px auto 12px;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.045em;color:var(--n)}
+.adv-hero .lead{max-width:760px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1rem}
+.adv-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px auto 0;max-width:860px}
+.adv-chips span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.73rem;font-weight:800}
+.adv-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.adv-head{max-width:760px;margin:0 auto 28px;text-align:center}
+.adv-head h2{margin:0;color:var(--n);font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.04em;line-height:1.15}
+.adv-head p{margin:10px 0 0;color:var(--mut);line-height:1.8;font-size:.93rem}
+.adv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.adv-feature{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff}
+.adv-feature b{display:block;color:#172854;font-size:.9rem;margin-bottom:7px}
+.adv-feature p{margin:0;color:#778198;font-size:.78rem;line-height:1.75}
+.adv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-step{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
+.adv-step i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.8rem;margin-bottom:12px}
+.adv-step b{display:block;color:#172854;font-size:.83rem;margin-bottom:5px}
+.adv-step p{margin:0;color:#778198;font-size:.72rem;line-height:1.7}
+.adv-sub{background:var(--soft)}
+.adv-subbox{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 18px 46px rgba(11,27,90,.1)}
+.adv-subbox h3{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.adv-subbox .price-amt{font-size:2rem;font-weight:850;color:var(--n);margin:10px 0 2px}
+.adv-subbox .adv-per{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+.adv-subbox .qb-note{margin:0 0 14px;font-size:.85rem;color:var(--mut)}
+.adv-subbox ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;text-align:start}
+.adv-subbox li{font-size:.83rem;color:#536077}
+.adv-subbox li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:8px}
+.adv-subbox .buy-row{justify-content:center;display:flex}
+.adv-subbox .adv-note{margin:14px 0 0;font-size:.75rem;color:var(--mut)}
+.adv-faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.adv-faq details{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px 18px}
+.adv-faq summary{cursor:pointer;font-weight:800;color:var(--n);font-size:.9rem}
+.adv-faq p{margin:10px 0 0;color:var(--mut);font-size:.85rem;line-height:1.8}
+.adv-cta{background:linear-gradient(145deg,var(--n),#123b8e);color:#fff;text-align:center}
+.adv-cta h2{margin:0 0 8px;color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.04em}
+.adv-cta p{margin:0 auto 20px;max-width:620px;color:rgba(255,255,255,.72);line-height:1.8;font-size:.92rem}
+.adv-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.adv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff;transition:.2s}
+.adv-card:hover{border-color:#b7c4e8;box-shadow:0 14px 38px rgba(20,49,125,.09)}
+.adv-card small{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.6rem;font-weight:900;margin-bottom:14px}
+.adv-card h3{margin:0 0 6px;color:#142653;font-size:1.02rem}
+.adv-card .tg{margin:0 0 10px;color:#778198;font-size:.76rem;line-height:1.65}
+.adv-card ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.adv-card li{font-size:.73rem;color:#536077}
+.adv-card li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.adv-card .price-amt{font-size:1.05rem;font-weight:850;color:var(--n);margin:0 0 4px}
+.adv-card .qb-note{margin:0 0 10px;font-size:.72rem;color:var(--mut)}
+.adv-card .adv-acts{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adv-card .adv-acts .buy-row{display:contents}
+.adv-more{font-size:.8rem;font-weight:800;color:var(--b);text-decoration:none}
+@media(max-width:980px){.adv-grid,.adv-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adv-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.adv .wrap{width:min(100% - 26px,1100px)}.adv section{padding:48px 0}.adv-grid,.adv-hub-grid,.adv-steps{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829bc">
 <style id="bp-public-v4-css">
 :root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
 body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
@@ -140,53 +198,53 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
 @media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
 </style>
 </head>
-<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-ai"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/services">الانتقال والاستقرار</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/#bp-consultant">B10X</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/revenue-os">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/consultation">ابدأ الآن</a></div></div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">المستشار الذكي للمستندات</span>
-    <h1>ارفع مستنداتك. ونحن نكمل الباقي.</h1>
-    <p class="lead">المستشار الذكي يقرأ مستنداتك، يستخرج المعلومات، يعبّئ النماذج، يكتشف النواقص، يضع الختم عند الحاجة، ويرتّب لك الحزمة النهائية — وما يبقى عليك إلا توقيعك.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#agent">ابدأ الآن</a>
+<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-ai"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/services">الانتقال والاستقرار</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/#bp-consultant">B10X</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/revenue-os">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/consultation">ابدأ الآن</a></div></div></header><main><div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> مستشار المستندات · داخل لوحة العميل</span>
+    <h1>ارفع مستنداتك. وهو يكمل الباقي.</h1>
+    <p class="lead">نماذج الموردين، AML/KYC، النماذج البنكية، الاستبيانات الحكومية — تعبئتها تعني نسخ نفس بيانات شركتك للمرة المئة. مستشار المستندات يقرأ سجلك وعقد تأسيسك وهوياتك وكشوفك مرة واحدة، ثم يعبّئ أي نموذج ترميه عليه — في مكانه، وكل قيمة تتبَّع لمصدرها وصفحتها.</p>
+    <div class="adv-chips"><span>سجل تجاري</span><span>عقد تأسيس</span><span>IBAN</span><span>هوية / إقامة</span><span>Vendor Forms</span><span>AML / KYC</span><span>NDA</span></div>
+    <div class="adv-hero-actions">
+      <a class="btn btn-primary btn-lg" href="#subscribe">اشترك الآن</a>
       <a class="btn btn-ghost btn-lg" href="#how">كيف يعمل؟</a>
     </div>
-    <div class="hero-badges"><span class="hero-badge">سجل تجاري</span><span class="hero-badge">عقد تأسيس</span><span class="hero-badge">شهادة ضريبية</span><span class="hero-badge">IBAN</span><span class="hero-badge">هوية / إقامة</span><span class="hero-badge">جواز سفر</span><span class="hero-badge">عنوان وطني</span><span class="hero-badge">رخص</span><span class="hero-badge">عقود</span><span class="hero-badge">كشوف حساب</span><span class="hero-badge">Vendor Forms</span><span class="hero-badge">AML / KYC</span><span class="hero-badge">NDA</span><span class="hero-badge">نماذج بنكية</span><span class="hero-badge">نماذج حكومية</span><span class="hero-badge">استبيانات</span></div>
   </div></section>
 
-  <!-- Owner rule: this public page sells the agent; it never renders anyone's
-       conversation. The working chat lives inside the client portal, where the
-       session and its company scope the data. -->
-  <section id="agent" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">داخل لوحة العميل</span><h2>مستنداتك ومحادثتك في حسابك فقط</h2></div>
-    <div class="da-shell" style="padding:34px 26px;text-align:center">
-      <p style="max-width:560px;margin:0 auto 18px;color:var(--text-soft);line-height:1.8">وكيل المستندات يعمل داخل لوحة العميل: كل ملف وقيمة مستخرجة ومحادثة مرتبطة بشركتك ولا يراها إلا حسابك.</p>
-      <a class="btn btn-primary btn-lg" href="/ar/account?view=docagent">افتح الوكيل من لوحة العميل</a>
-      <p style="margin:14px 0 0;font-size:.9rem;color:var(--text-soft)">ما عندك حساب؟ تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً — والتجربة المجانية 14 يوماً تبدأ من أول ملف ترفعه.</p>
+  <section><div class="wrap">
+    <div class="adv-head"><h2>وش يسوي لك؟</h2><p>للشركات الغارقة في النماذج: بنوك وموردون وبوابات حكومية وأطراف تعاقد.</p></div>
+    <div class="adv-grid"><div class="adv-feature"><b>يقرأ كل شيء دفعة واحدة</b><p>مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — يصنّف كل ملف بنفسه.</p></div><div class="adv-feature"><b>يستخرج بمصدر لكل قيمة</b><p>كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والتعارضات تتحول لسؤال لك — لا تخمين صامت أبداً.</p></div><div class="adv-feature"><b>يعبّئ النماذج في مكانها</b><p>نماذج Word وExcel وPDF ترجع معبّأة — بيانات المستشار بالأزرق والتصميم كما هو، والتوقيع يبقى لك.</p></div><div class="adv-feature"><b>يسألك عن الناقص فقط</b><p>«عبّيت 87% — بقي قيمة التعامل السنوي.» والإقرارات القانونية لا تُفترض أبداً.</p></div><div class="adv-feature"><b>ملف شركة واحد يُعاد استخدامه</b><p>السجل + العقد + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه.</p></div><div class="adv-feature"><b>خاص بشركتك وحدها</b><p>الملفات مشفّرة في خزنتك؛ التحميل بروابط موقّعة قصيرة العمر؛ ولا يراها أي حساب آخر أبداً.</p></div></div>
+  </div></section>
+
+  <section id="how" style="background:var(--soft)"><div class="wrap">
+    <div class="adv-head"><h2>كيف يعمل؟</h2></div>
+    <div class="adv-steps"><div class="adv-step"><i>1</i><b>ارفع</b><p>أسقط مستندات البيانات والنماذج المطلوب تعبئتها.</p></div><div class="adv-step"><i>2</i><b>يراجع</b><p>يقرأ ويستخرج ويطابق ويسألك عن الناقص فقط.</p></div><div class="adv-step"><i>3</i><b>يعبّئ</b><p>النماذج ترجع معبّأة في مكانها، وتمر بمراجعة جودة قبل التسليم.</p></div><div class="adv-step"><i>4</i><b>يسلّم</b><p>مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.</p></div></div>
+  </div></section>
+
+  <section id="subscribe"><div class="wrap">
+    <div class="adv-head"><h2>وين تستخدمه؟</h2></div>
+    <div class="adv-subbox"><h3>مستشار المستندات</h3>
+      <ul><li>يقرأ العربية والإنجليزية ويعبّئ بالاتجاهين</li><li>حساب الملاك وUBO من عقد التأسيس</li><li>فحص صلاحية كل مستند</li><li>تعديلات بلغة طبيعية: «Section 9 كله No»</li><li>مراجعة جودة قبل أن يصلك أي ملف</li></ul>
+      <div class="buy-row" style="gap:9px;flex-wrap:wrap">
+        <a class="btn btn-primary" href="/ar/account?view=documents">افتحه من لوحة العميل</a>
+        <a class="btn btn-ghost" href="/ar/consultation">احجز استشارة</a>
+      </div>
+      <p class="adv-note">متاح مع حسابك في لوحة العميل — تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً.</p></div>
+  </div></section>
+
+  <section class="adv-sub"><div class="wrap">
+    <div class="adv-head"><h2>أسئلة شائعة</h2></div>
+    <div class="adv-faq"><details><summary>ليش ما أقدر أحادثه هنا؟</summary><p>لأن مستنداتك ومحادثاتك مكانها داخل حسابك ومرتبطة بشركتك — لا في صفحة عامة. افتحه من لوحة العميل.</p></details><details><summary>هل يوقّع عني؟</summary><p>أبداً. لا يصنع توقيعاً ولا يفترض الإقرارات القانونية — يسأل، يسجّل تأكيدك الصريح، ويترك التوقيع لك.</p></details></div>
+  </div></section>
+
+  <section class="adv-cta"><div class="wrap">
+    <h2>مو متأكد أنه يناسب حالتك؟</h2>
+    <p>قل للمستشار الذكي وش تحتاج، أو احجز استشارة مجانية — بدون تكلفة أو التزام.</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="/ar/#bp-consultant">كلّم المستشار الذكي</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="/ar/consultation">احجز استشارة مجانية</a>
     </div>
-    <p class="da-note">تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.</p>
   </div></section>
-
-  <section id="how" class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">كيف يعمل؟</span><h2>مصادر معلومات → فهم → مطابقة → مستندات معبّأة</h2></div>
-    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>ارفع كل شيء دفعة واحدة</h3><p>مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>يقرأ ويستخرج ويطابق</h3><p>كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>يسألك عن الناقص فقط</h3><p>«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>نماذج معبّأة + الحزمة النهائية</h3><p>نماذج Word وExcel وPDF القابلة للتعبئة ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.</p></div></div></div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">🔏</span><p>الوكيل لا يصنع توقيعاً ولا يفترض الإقرارات القانونية (PEP، العقوبات، تضارب المصالح…). يسألك، يسجّل تأكيدك الصريح بقناته ووقته، ويترك التوقيع لك.</p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">وش يميزه؟</h3>
-      <ul class="value-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>ملف بيانات موحّد:</b> السجل + عقد التأسيس + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه — ارفع الفورم الجديد فقط.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>أي لغة، وبالاتجاهين:</b> يقرأ سجلاً عربياً ويعبّئ نموذجاً إنجليزياً (أو العكس). الأسماء الرسمية لا تُترجم أبداً.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>الملاك وUBO:</b> يحسب نسب الملكية من عقد التأسيس ويعبّئ أقسام UBO، مع مخطط ملكية عند الطلب.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>فحص صلاحية كل مستند:</b> المستند المنتهي يُعلَّم ويستمر الطلب — ويُطلب منك نسخة محدثة قبل التقديم النهائي.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>تعديلات بلغة طبيعية:</b> «Section 9 كله No»، «خلي تاريخ اليوم»، «حط الختم» — الوكيل يطبقها على الحقول الصحيحة فقط.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span><b>مراجعة جودة قبل التسليم:</b> مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.</span></li></ul>
-    </div>
-  </div></section>
-
-  <style>
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .da-shell{max-width:880px;margin:0 auto;background:#fff;border:1px solid #e3e8f1;border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
-    .da-shell .btn-primary{background:linear-gradient(135deg,#0a255f,#3159d8);border:0;border-radius:12px;font-weight:900}
-    .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
-  </style></main><footer class="site-footer"><div class="container">
+  </div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>اشترك في نشرتنا الإخبارية</h3>
