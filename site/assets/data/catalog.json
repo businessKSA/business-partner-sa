@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-31T20:29:59.394Z",
+  "updatedAt": "2026-08-31T20:45:17.892Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -1638,7 +1638,7 @@
     },
     {
       "code": "BP-AI-03",
-      "nameAr": "وكيل الامتثال والالتزام",
+      "nameAr": "مستشار الامتثال والالتزام",
       "nameEn": "Compliance & obligations agent",
       "category": "AI Automation",
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
