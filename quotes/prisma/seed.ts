@@ -165,7 +165,6 @@ const FULL_PRICED: S[] = [
 // ليطابق العرضُ ما اشتراه العميل من السلة.
 const REVENUE: S[] = [
   ['REV-START', 'أداء فقط', 'Performance Only', 0, 18, 'revos-starter', true],
-  ['REV-CONNECT-INTRO', 'Connect — أول شهر', 'Connect — First Month', 249, 12, 'revos-connect-intro', false],
   ['REV-CONNECT', 'Connect', 'Connect', 499, 12, 'revos-connect', false],
   ['REV-LAUNCH', 'Launch', 'Launch', 2500, 8, 'revos-launch', false],
   ['REV-GROWTH', 'Growth', 'Growth', 5000, 0, 'revos-growth', false],
@@ -176,7 +175,6 @@ const REVENUE: S[] = [
   const [code, ar, en, price, commission, siteCode, weClose] = r as
     [string, string, string, number, number, string, boolean];
   const isFrom = code === 'REV-ENT' || code === 'REV-TEAM';
-  const isIntro = code === 'REV-CONNECT-INTRO';
   const feeAr = commission
     ? `عمولة نجاح ${commission}% على الإيراد المحصّل فعلياً`
     : 'بدون أي عمولة — سعر شهري ثابت';
@@ -194,22 +192,18 @@ const REVENUE: S[] = [
     category: 'revenue-os',
     nameAr: `تطوير الأعمال كخدمة — باقة ${ar}`,
     nameEn: `Business Development as a Service — ${en}`,
-    descAr: `${isIntro ? 'سعر الشهر الأول' : 'رسوم شهرية'}${isFrom ? ' تبدأ من' : ''} ${price.toLocaleString('en-US')} ريال، و${feeAr}. ${closerAr}`,
-    descEn: `${isIntro ? 'First-month price' : 'Monthly fee'}${isFrom ? ' starting from' : ''} SAR ${price.toLocaleString('en-US')}, with ${feeEn}. ${closerEn}`,
+    descAr: `رسوم شهرية${isFrom ? ' تبدأ من' : ''} ${price.toLocaleString('en-US')} ريال، و${feeAr}. ${closerAr}`,
+    descEn: `Monthly fee${isFrom ? ' starting from' : ''} SAR ${price.toLocaleString('en-US')}, with ${feeEn}. ${closerEn}`,
     unitPrice: price,
     openPrice: isFrom,
     unitAr: 'شهر',
     unitEn: 'month',
-    paymentTermsAr: isIntro
-      ? 'سعر تعريفي للشهر الأول يُسدَّد مقدماً، ثم يتجدد الاشتراك بـ 499 ريال شهرياً؛ والعمولة على الإيراد المحصّل فعلياً وتُسدَّد خلال 15 يوماً من التحصيل'
-      : commission
-        ? 'الرسوم الشهرية مقدماً في بداية كل شهر؛ والعمولة على الإيراد المحصّل فعلياً وتُسدَّد خلال 15 يوماً من تاريخ التحصيل'
-        : 'الرسوم الشهرية مقدماً في بداية كل شهر؛ ولا تستحق أي عمولة على أي إيراد',
-    paymentTermsEn: isIntro
-      ? 'Introductory first-month price payable in advance, renewing at SAR 499 per month; the success fee is on revenue actually collected and payable within 15 days of collection'
-      : commission
-        ? 'Monthly fees in advance at the beginning of each month; the success fee is on revenue actually collected and payable within 15 days of collection'
-        : 'Monthly fees in advance at the beginning of each month; no commission is due on any revenue',
+    paymentTermsAr: commission
+      ? 'الرسوم الشهرية مقدماً في بداية كل شهر؛ والعمولة على الإيراد المحصّل فعلياً وتُسدَّد خلال 15 يوماً من تاريخ التحصيل'
+      : 'الرسوم الشهرية مقدماً في بداية كل شهر؛ ولا تستحق أي عمولة على أي إيراد',
+    paymentTermsEn: commission
+      ? 'Monthly fees in advance at the beginning of each month; the success fee is on revenue actually collected and payable within 15 days of collection'
+      : 'Monthly fees in advance at the beginning of each month; no commission is due on any revenue',
     deliveryAr: 'اشتراك شهري يتجدد تلقائياً حتى الإلغاء',
     deliveryEn: 'Monthly subscription renewing automatically until cancelled',
     notesAr: `كود الباقة في متجر الموقع: ${siteCode}. العمولة لا تُحتسب على عملاء الطرف الثاني القائمين قبل بدء الاشتراك، ولا على فرص لم يولّدها الطرف الأول — راجع بندَي عمولة النجاح والصفقات المشمولة في العقد.`,

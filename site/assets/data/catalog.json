@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-31T20:28:12.644Z",
+  "updatedAt": "2026-08-31T20:45:27.435Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -2389,28 +2389,6 @@
         "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
       ],
       "url": "https://businesspartner.sa/packages"
-    },
-    {
-      "group": "revenue-os",
-      "groupNameAr": "تطوير الأعمال كخدمة",
-      "groupNameEn": "Business Development as a Service",
-      "code": "revos-connect-intro",
-      "key": "revos-connect-intro",
-      "nameAr": "تطوير الأعمال كخدمة — باقة Connect (أول شهر)",
-      "nameEn": "BD as a Service — Connect (first month)",
-      "amount": 249,
-      "priceLabel": "249 ﷼ / شهريًا",
-      "billingPeriod": "monthly",
-      "commissionPercent": 12,
-      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
-      "closingByBusinessPartner": false,
-      "featuresAr": [
-        "قائمة شركات مستهدفة بالقطاع والمدينة",
-        "التقاط عملاء وحجز مواعيد على موقعك",
-        "لوحة عميل وتقرير شهري",
-        "عرض تعريفي: أول شهر 249 ﷼ ثم 499 ﷼ شهريًا"
-      ],
-      "url": "https://businesspartner.sa/business-development"
     },
     {
       "group": "revenue-os",

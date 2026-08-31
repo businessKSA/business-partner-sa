@@ -768,11 +768,11 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
+    // Owner decision (2026-08-31): the floating "Ask Baher" advisor is off the
+    // public site — the green WhatsApp button is the only floating action. This
+    // has been reversed once before, so advisorWidget() is kept intact below
+    // rather than deleted; restoring it is re-adding the call here.
     waFab() +
-    // Owner request (2026-08): restore the floating "Ask Baher" widget
-    // (guided desk: services → quote, book a consultation, and live chat)
-    // alongside the green WhatsApp button.
-    advisorWidget() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
@@ -1890,12 +1890,12 @@ function buildBdaas() {
     { name: "Starter", forUs: true, price: L("Performance only", "أداء فقط"), per: L("no monthly fee", "بدون رسوم شهرية"), commission: 18,
       items: [L("Runs as capacity allows", "تشغيل حسب التوفر"), L("Basic pipeline", "Pipeline أساسي"), L("Short results report", "تقرير نتائج مختصر")],
       cta: null },
-    { name: "Connect", forUs: false, amount: 249, renews: 499, commission: 12,
-      intro: L("First month 249 SAR, then 499", "أول شهر 249 ﷼ ثم 499"),
-      priceNum: 499,
+    // No introductory month: the 14-day trial is the offer that gets a client
+    // in, and a discounted first month on top of it only muddies the ladder.
+    { name: "Connect", forUs: false, amount: 499, commission: 12, priceNum: 499,
       items: [L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة"), L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك"), L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")],
-      code: "revos-connect-intro", nameEn: "BD as a Service — Connect (first month)", nameAr: "تطوير الأعمال كخدمة — باقة Connect (أول شهر)",
-      cta: L("Start Connect for 249", "ابدأ Connect بـ 249") },
+      code: "revos-connect", nameEn: "BD as a Service — Connect (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)",
+      cta: L("Subscribe to Connect", "اشترك في Connect") },
     { name: "Launch", forUs: false, amount: 2500, commission: 8, priceNum: 2500,
       items: [L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M"), L("A defined database", "قاعدة بيانات محددة"), L("Qualification and a monthly report", "تأهيل وتقرير شهري")],
       code: "revos-launch", nameEn: "BD as a Service — Launch (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)",
@@ -11997,11 +11997,8 @@ const catalogJson = {
     // (2026-08): ONE success-fee number, charged on collected revenue only, and
     // the rate buys our closing team — pay a monthly fee alone and the client
     // closes; pay a commission and we close with them. Codes match the cart item
-    // ids so the order API's server-side re-pricing can find them. The Connect
-    // intro month is its own code so 249 re-prices as 249, not as 499.
+    // ids so the order API's server-side re-pricing can find them.
     ...[
-      { code: "revos-connect-intro", nameAr: "تطوير الأعمال كخدمة — باقة Connect (أول شهر)", nameEn: "BD as a Service — Connect (first month)", amount: 249, commission: 12, closedByUs: false,
-        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري", "عرض تعريفي: أول شهر 249 ﷼ ثم 499 ﷼ شهريًا"] },
       { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
         featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
       { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
