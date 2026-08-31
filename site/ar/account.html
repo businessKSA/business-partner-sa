@@ -2732,7 +2732,10 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
               .then(function(r){ return r.json(); })
               .then(function(x){
                 if (x.ok && x.organization){ orgToLocal(x.organization); location.reload(); }
-                else add.disabled = false;
+                else {
+                  add.disabled = false;
+                  if (x && x.error === 'org_limit_reached') alert('وصلت للحد الأقصى (100 شركة لكل حساب). تواصل معنا إذا كنت تحتاج أكثر.');
+                }
               }).catch(function(){ add.disabled = false; });
           };
         }).catch(function(){});

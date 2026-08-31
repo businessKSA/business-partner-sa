@@ -3625,6 +3625,15 @@ export default async function handler(req, res) {
     const crNum = String(b.cr || "").trim().slice(0, 40);
     if (!nameAr && !nameEn) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "name_required" })); }
     try {
+      // Hard product limit: at most 100 companies per user, enforced here on the
+      // server — the client-side form is not a security boundary. Counting
+      // memberships (not owned orgs) keeps the check simple and errs on the
+      // strict side; at the target scale the difference is irrelevant.
+      const mine = await sb(`organization_members?user_id=eq.${sess.user.id}&status=eq.active&select=organization_id&limit=101`);
+      if (mine.length >= 100) {
+        res.statusCode = 403;
+        return res.end(JSON.stringify({ ok: false, error: "org_limit_reached", limit: 100 }));
+      }
       const orgs = await sb("organizations", { method: "POST", body: [{ name_ar: nameAr || nameEn, ...(nameEn ? { name_en: nameEn } : {}), ...(crNum ? { cr_number: crNum } : {}) }] });
       const orgId = orgs[0].id;
       await sb("organization_members", { method: "POST", prefer: "return=minimal", body: [{ organization_id: orgId, user_id: sess.user.id, role_id: "owner", status: "active" }] });
