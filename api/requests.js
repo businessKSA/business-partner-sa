@@ -90,6 +90,8 @@ const DEMO_CODES = {
 // capped number of real messages per agent before prompting to subscribe.
 // BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
 const TRIAL_CODES = new Set(["TRIAL"]);
+// Shared Services: free trial length (days) for every registered client.
+const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 14) || 14;
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -2508,6 +2510,29 @@ export default async function handler(req, res) {
         const tid = String(b.id || "");
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      // Shared Services free trial — every registered client gets SS_TRIAL_DAYS
+      // days from the moment their organization was created, with no purchase
+      // and nothing to activate. Derived from organizations.created_at so there
+      // is no extra state to provision, migrate or keep in sync.
+      if (b.action === "ops-ss-trial") {
+        const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,created_at&limit=1`);
+        const org = orgs[0] || null;
+        if (!org) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const started = new Date(org.created_at || Date.now());
+        const ends = new Date(started.getTime() + SS_TRIAL_DAYS * 86400000);
+        const msLeft = ends.getTime() - Date.now();
+        const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          name: org.name_ar || org.name_en || "",
+          startedAt: started.toISOString(),
+          endsAt: ends.toISOString(),
+          daysLeft,
+          active: msLeft > 0,
+          totalDays: SS_TRIAL_DAYS,
+        }));
       }
       if (b.action === "ops-violation-add") {
         const authority = String(b.authority || "").trim().slice(0, 80);
