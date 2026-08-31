@@ -3090,8 +3090,8 @@ function buildDocAgent() {
   const T = {
     hello: Lraw("Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.", "ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص."),
     start: Lraw("Start now", "ابدأ الآن"),
-    login: Lraw("Sign in first — your documents live in your private vault. One code to your email and you are in.", "سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة. رمز واحد على بريدك وتدخل."),
-    loginBtn: Lraw("Sign in / create account", "تسجيل الدخول / إنشاء حساب"),
+    login: Lraw("Sign in first — your documents live in your own private vault, and nothing is saved before you do. Register and the 14-day free trial starts on the spot.", "سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة، ولا يُحفَظ شيء قبل ذلك. سجّل وتبدأ تجربتك المجانية 14 يوماً فوراً."),
+    loginBtn: Lraw("Sign in / create account — free 14-day trial", "تسجيل الدخول / إنشاء حساب — تجربة 14 يوم مجاناً"),
     placeholder: Lraw("Write here… e.g. “Section 9 all No” or “what is still missing?”", "اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»"),
     send: Lraw("Send", "إرسال"),
     uploading: Lraw("Uploading & reading…", "جارٍ الرفع والقراءة…"),
@@ -3108,6 +3108,9 @@ function buildDocAgent() {
     facts: Lraw("facts extracted", "معلومة مستخرجة"),
     forms: Lraw("forms detected", "نموذج للتعبئة"),
     newReq: Lraw("New request", "طلب جديد"),
+    trialLeft: Lraw("Free trial — {n} day(s) left", "تجربة مجانية — باقي {n} يوم"),
+    trialOver: Lraw("Your free trial has ended. Your previous deliverables stay downloadable — activate a subscription to fill new forms.", "انتهت فترتك التجريبية. مخرجاتك السابقة تبقى قابلة للتنزيل — فعّل الاشتراك لتعبئة نماذج جديدة."),
+    subscribed: Lraw("Active subscription", "اشتراك فعّال"),
   };
 
   const body = `
@@ -3131,6 +3134,7 @@ function buildDocAgent() {
         <span class="da-chip" id="da-progress" hidden></span>
         <button class="btn btn-ghost" id="da-new" hidden style="margin-inline-start:auto;padding:.3rem .8rem">${T.newReq}</button>
       </div>
+      <div class="da-trial" id="da-trial" hidden></div>
       <div class="da-msgs" id="da-msgs"><div class="da-msg bot">${esc(T.hello)}</div></div>
       <div class="da-outputs" id="da-outputs" hidden><b>${T.outputs}</b><ul id="da-outputs-list"></ul></div>
       <div class="da-gate" id="da-gate" hidden>
@@ -3169,25 +3173,37 @@ function buildDocAgent() {
     .value-list li{display:flex;gap:.6rem;align-items:flex-start}
     .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
     .value-list b{color:var(--navy)}
-    .da-shell{max-width:820px;margin:0 auto;background:var(--white);border:1px solid var(--gray-line);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
-    .da-head{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--gray-line);background:var(--gray-bg)}
-    .da-chip{font-size:.78rem;background:var(--white);border:1px solid var(--gray-line);border-radius:99px;padding:.15rem .7rem;color:var(--text-soft)}
-    .da-msgs{padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;min-height:220px;max-height:420px;overflow-y:auto}
-    .da-msg{max-width:85%;padding:.6rem .9rem;border-radius:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-    .da-msg.bot{background:var(--gray-bg);border:1px solid var(--gray-line);align-self:flex-start}
-    .da-msg.me{background:var(--navy);color:var(--white);align-self:flex-end}
-    .da-msg.sys{background:#EEF4FF;border:1px dashed #B9CDF3;color:var(--navy);font-size:.85rem;align-self:center}
-    .da-form{display:flex;gap:.5rem;padding: .8rem 1.1rem;border-top:1px solid var(--gray-line)}
-    .da-form input[type=text],.da-form #da-input{flex:1;border:1px solid var(--gray-line);border-radius:10px;padding:.6rem .8rem;font:inherit}
-    .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.2rem}
+    .da-shell{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891;max-width:880px;margin:0 auto;background:#fff;border:1px solid var(--da7-line);border-radius:22px;box-shadow:0 14px 44px rgba(11,34,90,.07);overflow:hidden}
+    .da-head{display:flex;align-items:center;gap:.6rem;padding:1rem 1.3rem;background:linear-gradient(135deg,#07163f,#123c91);color:#fff}
+    .da-head b{font-size:.95rem}
+    .da-chip{font-size:.72rem;font-weight:800;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.2rem .75rem;color:#fff}
+    .da-head .btn{background:#fff;color:#123b87;border:0;border-radius:10px;font-weight:900}
+    .da-msgs{padding:1.2rem;display:flex;flex-direction:column;gap:.55rem;min-height:240px;max-height:430px;overflow-y:auto;background:#fbfcfe}
+    .da-msg{max-width:86%;padding:.65rem .9rem;border-radius:14px;font-size:.88rem;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+    .da-msg.bot{background:#f4f7fd;border:1px solid var(--da7-line);color:var(--da7-ink);align-self:flex-start;border-bottom-right-radius:5px}
+    .da-msg.me{background:linear-gradient(135deg,#0a255f,#3159d8);color:#fff;align-self:flex-end;border-bottom-left-radius:5px}
+    .da-msg.sys{align-self:center;background:#fff8e7;border:1px dashed #e6c98a;color:#7a5a12;font-size:.78rem}
+    .da-msg.bot a{color:#2148a8;font-weight:900;text-decoration:underline}
+    .da-form{display:flex;gap:.5rem;padding:.85rem 1.1rem;border-top:1px solid var(--da7-line);background:#fff}
+    .da-form input[type=text],.da-form #da-input{flex:1;min-width:0;border:1px solid var(--da7-line);border-radius:12px;padding:.7rem .85rem;font:inherit;font-size:.88rem;background:#fbfcfe}
+    .da-form input:focus{outline:0;border-color:var(--da7-blue);background:#fff}
+    .da-form .btn{border-radius:11px;font-weight:800}
+    .da-attach{cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1px solid var(--da7-line);border-radius:11px;padding:0 .8rem;background:#fff}
+    .da-attach:hover{border-color:var(--da7-blue);background:#f2f6ff}
     .da-attach input{display:none}
-    .da-actions{display:flex;gap:.6rem;flex-wrap:wrap;padding:0 1.1rem .9rem}
-    .da-start{padding:1rem;text-align:center}
-    .da-gate{padding:1.2rem;text-align:center;border-top:1px solid var(--gray-line)}
-    .da-outputs{padding:.6rem 1.1rem;border-top:1px solid var(--gray-line);font-size:.9rem}
-    .da-outputs ul{list-style:none;margin:.4rem 0 0;padding:0;display:grid;gap:.35rem}
-    .da-outputs li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
-    .da-outputs .qa-passed{color:var(--wa)} .da-outputs .qa-failed{color:#C0392B}
+    .da-actions{display:flex;gap:.6rem;flex-wrap:wrap;padding:0 1.1rem 1rem;background:#fff}
+    .da-actions .btn{background:#eef3ff;color:#2148a8;border:0;border-radius:11px;font-weight:800}
+    .da-start{padding:1.2rem;text-align:center;background:#fff}
+    .da-gate{padding:1.4rem;text-align:center;border-top:1px solid var(--da7-line);background:#fff;color:var(--da7-muted);font-size:.88rem;line-height:1.9}
+    .da-outputs{padding:.75rem 1.1rem;border-top:1px solid var(--da7-line);font-size:.85rem;background:#fff}
+    .da-outputs b{color:var(--da7-navy)}
+    .da-outputs ul{list-style:none;margin:.45rem 0 0;padding:0;display:grid;gap:.35rem}
+    .da-outputs li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border-bottom:1px solid #eef1f6;padding-bottom:.35rem}
+    .da-outputs li:last-child{border-bottom:0}
+    .da-outputs .qa-passed{color:#127a4b;font-weight:800} .da-outputs .qa-failed{color:#C0392B;font-weight:800}
+    .da-trial{display:flex;gap:.6rem;align-items:center;padding:.6rem 1.2rem;font-size:.8rem;font-weight:800}
+    .da-trial.ok{background:#eef3ff;color:#2148a8;border-bottom:1px solid #d8e2fb}
+    .da-trial.end{background:#fdecea;color:#a32036;border-bottom:1px solid #f5cfcb}
     .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
   </style>`;
 
@@ -3198,9 +3214,13 @@ function buildDocAgent() {
     if(!$('da-msgs'))return;
     var ref='';
     try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
+    // A cached ref belongs to one signed-in tenant only. Anything else — a signed-out
+    // visitor, a different client on the same browser — starts from an empty screen.
+    function purge(){try{localStorage.removeItem('bp_da_ref');localStorage.removeItem('bp_da_org');}catch(e){}ref='';var m=$('da-msgs');if(m)m.innerHTML='';}
     var T=${JSON.stringify(T)};
     function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
+    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;if(d.error==='trial_ended')wall(d);return d;});});}
+    function wall(d){var n=$('da-trial');if(n){n.hidden=false;n.className='da-trial end';n.textContent=d.message||T.trialOver;}}
     function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
     function show(id,on){var n=$(id);if(n)n.hidden=!on;}
     function setStatus(s){$('da-status').textContent=s||'—';}
@@ -3223,18 +3243,21 @@ function buildDocAgent() {
       });
       show('da-actions',forms>0||outs.length>0);
     }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
+    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){renderState(s);if(s&&s.access)renderTrial(s.access);});}
     function activate(){show('da-form',true);show('da-actions',false);show('da-start',false);show('da-new',true);refresh();}
     function begin(){
       post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
         if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',T.failed);
+        else el('sys',d.error==='trial_ended'?d.message:T.failed);
       });
     }
     // Boot: are we signed in, and is there a request to resume?
     get('?action=list').then(function(d){
-      if(d.__code===401){show('da-gate',true);return;}
-      if(!d.ok){show('da-gate',true);return;}
+      if(d.__code===401||d.__code===400||!d.ok){purge();show('da-gate',true);return;}
+      var who='';try{who=localStorage.getItem('bp_da_org')||'';}catch(e){}
+      if(d.org&&who&&who!==d.org)purge();
+      try{if(d.org)localStorage.setItem('bp_da_org',d.org);}catch(e){}
+      renderTrial(d.access);
       var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
       var match=null;
       open.forEach(function(r){if(r.ref===ref)match=r;});
@@ -3245,9 +3268,17 @@ function buildDocAgent() {
           activate();
         });
       } else { show('da-start',true); }
-    }).catch(function(){show('da-gate',true);});
+    }).catch(function(){purge();show('da-gate',true);});
     $('da-begin')&&($('da-begin').onclick=begin);
     $('da-new')&&($('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',T.hello);begin();});
+    function renderTrial(a){
+      var n=$('da-trial');if(!n)return;
+      if(!a){n.hidden=true;return;}
+      n.hidden=false;
+      if(a.entitled){n.className='da-trial ok';n.textContent=T.subscribed;return;}
+      if(a.allowed){n.className='da-trial ok';n.textContent=T.trialLeft.replace('{n}',a.days_left);return;}
+      n.className='da-trial end';n.textContent=T.trialOver;
+    }
     $('da-form').addEventListener('submit',function(ev){
       ev.preventDefault();
       var v=$('da-input').value.trim();if(!v||!ref)return;
@@ -3255,7 +3286,7 @@ function buildDocAgent() {
       var typing=el('sys','…');
       post({action:'chat',ref:ref,message:v}).then(function(d){
         typing.remove();
-        el('bot',d.ok?d.reply:T.failed);
+        el('bot',d.ok?d.reply:(d.error==='trial_ended'?d.message:T.failed));
         if(d.ok&&d.generate_now)runGenerate();
         refresh();
       }).catch(function(){typing.remove();el('sys',T.failed);});
@@ -3276,7 +3307,7 @@ function buildDocAgent() {
           var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
           post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
             note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:T.failed));
+            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:(d.error==='trial_ended'?d.message:T.failed)));
             next(i+1);
           }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
         };
@@ -3287,7 +3318,7 @@ function buildDocAgent() {
       if(!ref)return;var note=el('sys',T.generating);seen=seen||0;
       post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
         note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(T.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
+        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(d.error==='trial_ended'?d.message:(T.failed+(d.detail?(' ('+d.detail+')'):''))));refresh();return;}
         var done=0;
         (d.outputs||[]).forEach(function(o){
           if(o.ok&&o.output_id){

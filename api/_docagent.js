@@ -310,6 +310,46 @@ async function vaultSync(request, kind, file, storageKey) {
   } catch (e) { console.error("doc-agent vault-sync", String(e.message || e).slice(0, 160)); }
 }
 
+/* ------------------------------------------------------------ trial gate */
+// The agent lives inside the client portal with no purchase: every registered
+// establishment gets a free window, counted from its FIRST use — not from the
+// day it registered, so a client who joined months ago still gets the full
+// trial the day they open it. When the window closes, everything already
+// produced stays downloadable; only new work asks for a subscription.
+const TRIAL_DAYS = Math.max(1, Number(process.env.DOC_AGENT_TRIAL_DAYS || 14));
+const DOC_AGENT_CODES = (process.env.DOC_AGENT_SERVICE_CODES || "bp-ai-doc-01,bp-doc-agent")
+  .split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
+
+async function accessState(orgId, { begin } = {}) {
+  const rows = await sb(`organizations?id=eq.${orgId}&select=id,doc_agent_trial_started_at`);
+  const org = rows[0] || {};
+  let entitled = false;
+  try {
+    const ent = await sb(`service_entitlements?organization_id=eq.${orgId}&status=in.(provisioning,action_required,active)&select=id,services(code)`);
+    entitled = ent.some((e) => e.services && DOC_AGENT_CODES.includes(String(e.services.code || "").toLowerCase()));
+  } catch {}
+  let started = org.doc_agent_trial_started_at || null;
+  if (!started && begin && !entitled) {
+    started = new Date().toISOString();
+    try { await sb(`organizations?id=eq.${orgId}`, { method: "PATCH", prefer: "return=minimal", body: { doc_agent_trial_started_at: started } }); }
+    catch { started = null; }
+  }
+  const endsAt = started ? new Date(new Date(started).getTime() + TRIAL_DAYS * 86400000) : null;
+  const daysLeft = endsAt ? Math.max(0, Math.ceil((endsAt - Date.now()) / 86400000)) : TRIAL_DAYS;
+  const trialActive = !started || daysLeft > 0;
+  return {
+    entitled, trial_days: TRIAL_DAYS,
+    trial_started_at: started, trial_ends_at: endsAt ? endsAt.toISOString() : null,
+    days_left: entitled ? null : daysLeft,
+    never_started: !started,
+    allowed: entitled || trialActive,
+  };
+}
+const trialWall = (a) => ({
+  ok: false, error: "trial_ended", days_left: 0, trial_days: a.trial_days,
+  message: "انتهت فترتك التجريبية للوكيل الذكي للمستندات. مخرجاتك السابقة تبقى محفوظة وقابلة للتنزيل — للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.",
+});
+
 /* ------------------------------------------------------------ data access */
 const reqByRef = async (ref, orgId) =>
   (await sb(`doc_agent_requests?ref=eq.${encodeURIComponent(ref)}&organization_id=eq.${orgId}&limit=1`))[0] || null;
@@ -804,11 +844,17 @@ export async function handleDocAgent(req, res) {
           sb(`doc_agent_outputs?request_id=eq.${request.id}&select=id,kind,delivery_name,version_no,qa_status,fill_summary,created_at&order=created_at`),
           gapSummary(request.id),
         ]);
-        return j(res, 200, { ok: true, request: { ref: request.ref, status: request.status, fill_color: request.fill_color, signature_mode: request.signature_mode, checklist: request.checklist, created_at: request.created_at }, files, facts, messages: msgs.reverse(), outputs: outs, gap });
+        return j(res, 200, { ok: true, request: { ref: request.ref, status: request.status, fill_color: request.fill_color, signature_mode: request.signature_mode, checklist: request.checklist, created_at: request.created_at }, files, facts, messages: msgs.reverse(), outputs: outs, gap, access: await accessState(orgId) });
+      }
+      if (q.action === "access") {
+        return j(res, 200, { ok: true, access: await accessState(orgId) });
       }
       if (q.action === "list") {
         const rows = await sb(`doc_agent_requests?organization_id=eq.${orgId}&select=ref,status,title,created_at,updated_at&order=updated_at.desc&limit=20`);
-        return j(res, 200, { ok: true, requests: rows });
+        // `org` lets the browser bind any cached ref to the signed-in tenant and
+        // drop it the moment the identity changes — no conversation ever carries
+        // over from one client (or from a signed-out visitor) to another.
+        return j(res, 200, { ok: true, org: orgId, requests: rows, access: await accessState(orgId) });
       }
       if (q.action === "output-link" || q.action === "file-link") {
         const table = q.action === "output-link" ? "doc_agent_outputs" : "doc_agent_files";
@@ -826,6 +872,8 @@ export async function handleDocAgent(req, res) {
     const action = String(b.action || "");
 
     if (action === "start") {
+      const access = await accessState(orgId, { begin: true });
+      if (!access.allowed) return j(res, 402, trialWall(access));
       const ref = newRef();
       const rows = await sb("doc_agent_requests", {
         method: "POST",
@@ -842,6 +890,11 @@ export async function handleDocAgent(req, res) {
 
     const request = await reqByRef(String(b.ref || ""), orgId);
     if (!request) return j(res, 404, { ok: false, error: "not_found" });
+    // Reading, listing and downloading stay open forever; only new work asks.
+    if (["upload", "chat", "generate"].includes(action)) {
+      const access = await accessState(orgId, { begin: true });
+      if (!access.allowed) return j(res, 402, trialWall(access));
+    }
 
     if (action === "upload") {
       const base64 = String(b.fileBase64 || "").slice(0, 11_000_000);

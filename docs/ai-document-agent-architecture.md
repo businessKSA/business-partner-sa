@@ -203,7 +203,7 @@ strings بخط أزرق يُضاف إلى `styles.xml` — الصيغ والدم
 | 10 Packaging | ✅ ZIP بأسماء التسليم وبنية Required/Supporting |
 | 11 Website Chat | ✅ `/ai-document-agent` |
 | 12 WhatsApp | ✅ مصدر السير + المدخل؛ يحتاج تفعيل الاعتمادات في n8n |
-| 13 Client Portal | الطلب يُستأنف بنفس الحساب؛ بطاقة داخل `/account` تحسين قادم |
+| 13 Client Portal | ✅ عرض كامل داخل `/account` (`?view=docagent`) بتصميم الموقع الجديد + تجربة 14 يوماً |
 | 14 Consultant Dashboard | البيانات جاهزة عبر الـAPI؛ الواجهة مرحلة قادمة |
 | 15 End-to-End Testing | اختبارات وحدة لمحركات DOCX وXLSX وPDF وZIP ✅ (`tests/`)؛ E2E مع مفاتيح حية بعد النشر |
 
@@ -212,3 +212,24 @@ strings بخط أزرق يُضاف إلى `styles.xml` — الصيغ والدم
 1. تشغيل قسم SQL الجديد في Supabase (نسخ قسم 2026-08-27 من `db/schema.sql`).
 2. وضع `DOC_AGENT_HOOK_KEY` في Vercel وتفعيل سير واتساب في n8n.
 3. تحديد سعر الخدمة وكودها في كتالوج نوشن لتظهر في `/ai-agents` والسلة.
+
+## 12) الوصول: تجربة مجانية 14 يوماً داخل لوحة العميل
+
+الخدمة تظهر لكل منشأة مسجّلة في لوحة العميل **بدون شراء**. لا يوجد زر تفعيل: أول
+استدعاء لـ`start` أو `upload` أو `chat` أو `generate` يختم
+`organizations.doc_agent_trial_started_at`، ومن تلك اللحظة تبدأ 14 يوماً
+(`DOC_AGENT_TRIAL_DAYS` يغيّر المدة).
+
+- `GET /api/doc-agent?action=access` يرجع
+  `{ entitled, trial_days, trial_started_at, trial_ends_at, days_left, allowed }`.
+- الاشتراك المدفوع (`service_entitlements` بكود من `DOC_AGENT_SERVICE_CODES`،
+  افتراضياً `bp-ai-doc-01,bp-doc-agent`) يلغي جدار التجربة نهائياً.
+- بعد انتهاء التجربة: **القراءة والتنزيل تبقى مفتوحة للأبد** — يُمنع فقط عمل جديد
+  (رفع، محادثة، تعبئة) بردّ `402 trial_ended` مع رسالة عربية جاهزة للعرض.
+
+### عزل العميل في المتصفح
+
+الـAPI يرفض أي طلب بلا جلسة (`401`) أو بلا منشأة (`400`)، فلا يُحفَظ شيء لزائر غير
+مسجّل. وفوق ذلك يربط المتصفح المؤشّر المخزَّن محلياً (`bp_da_ref`) بهوية المنشأة
+(`bp_da_org`) العائدة من `?action=list`: أي اختلاف — تسجيل خروج، أو عميل آخر على
+نفس الجهاز — يمسح المؤشّر وسجل المحادثة قبل أي عرض.
