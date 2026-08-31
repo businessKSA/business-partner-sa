@@ -10987,6 +10987,12 @@ function buildSharedServicesPortal() {
             box-shadow:0 8px 20px rgba(11,27,90,.12);display:none}
           #ss-jump.show{display:block}
 
+          #ss-trial-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+            background:linear-gradient(135deg,#EEF0FF,#F6F7FB);border:1px solid #d9ddfb;
+            border-radius:16px;padding:12px 16px;margin:0 0 16px}
+          #ss-trial-bar b{color:#5C66F2;font-size:.92rem;white-space:nowrap}
+          #ss-trial-bar span{color:#4b5470;font-size:.85rem;flex:1;min-width:180px}
+          #ss-trial-bar .btn{padding:8px 18px;font-size:.84rem;white-space:nowrap}
           /* the portal IS a chat with Baher — the floating bubble is redundant here */
           body:has(#ss-dash:not([hidden])) .advisor-fab,
           body:has(#ss-dash:not([hidden])) .advisor-panel{display:none!important}
@@ -11546,8 +11552,53 @@ function buildSharedServicesPortal() {
         .catch(function(){})
         .then(function(){ if(then)then(); });
     }
+    // ---------- free trial: every registered client, no purchase ----------
+    // The account API derives the window from the organization's own signup
+    // date, so a client who just registered simply finds the portal open.
+    // Arabic counts its days by rule: 1 يوم, 2 يومان, 3–10 أيام, 11+ يوماً.
+    function leftText(t){
+      var n=t.daysLeft, total=t.totalDays||14;
+      ${LANG === "ar" ? `
+      var head = n===1?'يوم واحد متبقٍ' : n===2?'يومان متبقيان'
+        : (n>=3&&n<=10)?(n+' أيام متبقية') : (n+' يوماً متبقياً');
+      return head+' من تجربتك المجانية ('+total+' يوماً)';
+      ` : `
+      return n+' '+(n===1?'day':'days')+' left of your '+total+'-day free trial';
+      `}
+    }
+    function trialRibbon(t){
+      if(!t)return;
+      var head=document.querySelector('#ss-dash .ss-dash-head');
+      if(!head||document.getElementById('ss-trial-bar'))return;
+      var d=document.createElement('div');d.id='ss-trial-bar';
+      d.innerHTML='<b>🎁 '+${JSON.stringify(Lraw("Free trial", "تجربة مجانية"))}+'</b>'
+        +'<span>'+(t.daysLeft>0?leftText(t):${JSON.stringify(Lraw("Your trial has ended", "انتهت فترتك التجريبية"))})+'</span>'
+        +'<a class="btn btn-primary" href="${u('/shared-services')}#ss-subscribe">'+${JSON.stringify(Lraw("Subscribe", "اشترك الآن"))}+'</a>';
+      head.insertAdjacentElement('afterend',d);
+    }
+    function tryTrial(gl){
+      fetch('/api/requests',{method:'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'ops-ss-trial'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.active){
+            // Trial conversations run in preview mode: real answers from the
+            // team, but no private workspace until the client subscribes.
+            setClient({code:'demo123',demo:true,name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:{},
+              trial:{daysLeft:d.daysLeft,endsAt:d.endsAt,totalDays:d.totalDays}});
+            openService(); trialRibbon(getClient().trial);
+          } else if(gl){
+            gl.textContent=(d&&d.ok&&!d.active)
+              ? ${JSON.stringify(Lraw("Your free trial has ended — subscribe to keep your executive team.", "انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي."))}
+              : ${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
+          }
+        })
+        .catch(function(){
+          if(gl)gl.textContent=${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
+        });
+    }
     var boot=getClient();
-    if(boot){ hydrate(boot,openService); }
+    if(boot){ hydrate(boot,function(){ openService(); trialRibbon(boot.trial); }); }
     else {
       var gl=document.getElementById('ss-gate-lead');
       fetch('/api/requests?action=sso-open&portal=shared',{credentials:'same-origin',cache:'no-store'})
@@ -11556,11 +11607,9 @@ function buildSharedServicesPortal() {
           if(d&&d.ok&&d.seed&&d.seed.bp_ss_client_v1){
             try{ localStorage.setItem('bp_ss_client_v1',d.seed.bp_ss_client_v1); }catch(e){}
             hydrate(getClient(),openService);
-          } else if(gl){
-            gl.textContent=${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
-          }
+          } else { tryTrial(gl); }
         })
-        .catch(function(){});
+        .catch(function(){ tryTrial(gl); });
     }
   })();</script>`;
   return page({

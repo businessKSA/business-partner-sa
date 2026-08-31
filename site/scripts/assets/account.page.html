@@ -324,6 +324,18 @@
         <section class="view on" id="view-home">
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
+            <!-- الخدمات المشتركة: متاحة لكل عميل مسجّل بفترة تجريبية مجانية -->
+            <div class="card c6" id="ssCard" style="display:none;background:linear-gradient(135deg,#EEF0FF,#F8F9FF);border-color:#d9ddfb">
+              <h4>🤝 <span>فريقك التنفيذي الذكي — الخدمات المشتركة</span><a class="more" href="/ar/shared-services/dashboard">افتح البوابة ←</a></h4>
+              <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                <img src="/assets/img/baher.jpg" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 12px rgba(11,27,90,.12)">
+                <div style="flex:1;min-width:200px">
+                  <div style="font-size:12.5px;color:#3d4560;line-height:1.75">محادثة واحدة مع باهر — و١٢ متخصصاً ينفّذون خلف الكواليس: حكومي وامتثال، موارد بشرية، مالية، قانوني، تسويق ومشتريات.</div>
+                  <div id="ssTrialMeta" style="font-size:11px;font-weight:700;color:#5C66F2;margin-top:5px"></div>
+                </div>
+                <a class="btn" id="ssOpenBtn" href="/ar/shared-services/dashboard" style="background:#5C66F2;color:#fff;border:0;border-radius:12px;padding:10px 20px;font-size:12.5px;font-weight:700;white-space:nowrap">ابدأ المحادثة</a>
+              </div>
+            </div>
             <div class="card c6 warnbar">
               <h4><span data-t="urgentTasks">المهام العاجلة</span><button class="more" data-goto="tasks" data-t="allTasks">كل المهام ←</button></h4>
               <div id="homeTasks"></div>
@@ -2918,11 +2930,31 @@
       if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
       return true;
     }
+    // الخدمات المشتركة: كل عميل مسجّل يحصل على فترة تجريبية مجانية بدون شراء.
+    // نقرأ حالتها من الخادم (تُشتق من تاريخ تسجيل المنشأة) ونُظهر البطاقة.
+    function ssTrialCard(){
+      var card = $('ssCard'); if (!card) return;
+      opsPost({ action: 'ops-ss-trial' }).then(function(d){
+        if (!d || !d.ok) return;
+        var meta = $('ssTrialMeta'), btn = $('ssOpenBtn');
+        if (d.active){
+          var n = d.daysLeft, total = d.totalDays || 14;
+          var head = n === 1 ? 'يوم واحد متبقٍ' : n === 2 ? 'يومان متبقيان'
+            : (n >= 3 && n <= 10) ? (n + ' أيام متبقية') : (n + ' يوماً متبقياً');
+          if (meta) meta.textContent = '🎁 تجربة مجانية — ' + head + ' من ' + total + ' يوماً · بدون أي شراء';
+        } else {
+          if (meta) { meta.textContent = 'انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي.'; meta.style.color = '#b3261e'; }
+          if (btn) { btn.textContent = 'اشترك الآن'; btn.href = '/ar/shared-services#ss-subscribe'; }
+        }
+        card.style.display = '';
+      }).catch(function(){});
+    }
     function enterApp(){
       // Bridge to the site-wide cart/checkout (main.js reads bp_session from
       // localStorage): without this marker, /checkout bounces back here and
       // the purchase loop never completes.
       try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      try { ssTrialCard(); } catch(e){}
       // Seed the checkout's company prefill from the account's organization.
       try {
         if (state.org && (state.org.name_ar || state.org.name_en)) {
