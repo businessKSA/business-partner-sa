@@ -10873,7 +10873,7 @@ function buildSharedServicesPortal() {
 
       <div class="ss-pane" id="pane-comp" hidden>
         <div class="ss-compdash">
-          <iframe id="ss-compdash-frame" data-src="/ar/compliance-dashboard" loading="lazy" title="${Lraw("Compliance dashboard", "لوحة الامتثال")}"></iframe>
+          <iframe id="ss-compdash-frame" data-src="/ar/compliance-dashboard?embed=1" loading="lazy" title="${Lraw("Compliance dashboard", "لوحة الامتثال")}"></iframe>
         </div>
         <style>
           .ss-compdash{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,27,90,.07)}
