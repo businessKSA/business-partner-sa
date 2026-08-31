@@ -17,7 +17,12 @@
 <link rel="alternate" hreflang="fr" href="/fr/ai-document-agent">
 <link rel="alternate" hreflang="zh" href="/zh/ai-document-agent">
 <link rel="alternate" hreflang="x-default" href="/ai-document-agent">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice. */
+if(!s){if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,31 +97,15 @@
     <div class="hero-badges"><span class="hero-badge">Commercial Registration</span><span class="hero-badge">Articles of Association</span><span class="hero-badge">Tax Certificate</span><span class="hero-badge">IBAN</span><span class="hero-badge">National ID / Iqama</span><span class="hero-badge">Passport</span><span class="hero-badge">National Address</span><span class="hero-badge">Licenses</span><span class="hero-badge">Contracts</span><span class="hero-badge">Bank Statements</span><span class="hero-badge">Vendor Forms</span><span class="hero-badge">AML / KYC</span><span class="hero-badge">NDA</span><span class="hero-badge">Bank Forms</span><span class="hero-badge">Government Forms</span><span class="hero-badge">Questionnaires</span></div>
   </div></section>
 
+  <!-- Owner rule: this public page sells the agent; it never renders anyone's
+       conversation. The working chat lives inside the client portal, where the
+       session and its company scope the data. -->
   <section id="agent" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">Chat-first</span><h2>No long forms — a conversation and your files</h2></div>
-    <div class="da-shell">
-      <div class="da-head">
-        <b>AI Document Agent</b>
-        <span class="da-chip" id="da-status">—</span>
-        <span class="da-chip" id="da-progress" hidden></span>
-        <button class="btn btn-ghost" id="da-new" hidden style="margin-inline-start:auto;padding:.3rem .8rem">New request</button>
-      </div>
-      <div class="da-msgs" id="da-msgs"><div class="da-msg bot">Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.</div></div>
-      <div class="da-outputs" id="da-outputs" hidden><b>Your deliverables</b><ul id="da-outputs-list"></ul></div>
-      <div class="da-gate" id="da-gate" hidden>
-        <p>Sign in first — your documents live in your private vault. One code to your email and you are in.</p>
-        <a class="btn btn-primary" href="/account">Sign in / create account</a>
-      </div>
-      <form class="da-form" id="da-form" hidden>
-        <label class="da-attach" title="Attach files"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
-        <input id="da-input" autocomplete="off" placeholder="Write here… e.g. “Section 9 all No” or “what is still missing?”">
-        <button class="btn btn-primary" type="submit">Send</button>
-      </form>
-      <div class="da-actions" id="da-actions" hidden>
-        <button class="btn btn-ghost" id="da-generate">🖊️ Fill the forms</button>
-        <button class="btn btn-ghost" id="da-package">📦 Prepare the final package</button>
-      </div>
-      <div class="da-start" id="da-start" hidden><button class="btn btn-primary btn-lg" id="da-begin">Start now</button></div>
+    <div class="section-head"><span class="eyebrow">Inside your client portal</span><h2>Your documents and conversation live in your account only</h2></div>
+    <div class="da-shell" style="padding:34px 26px;text-align:center">
+      <p style="max-width:560px;margin:0 auto 18px;color:var(--text-soft);line-height:1.8">The Document Agent runs inside your client portal: every file, extracted value and conversation is tied to your company and visible to your account alone.</p>
+      <a class="btn btn-primary btn-lg" href="/account?view=documents">Open the agent from your client portal</a>
+      <p style="margin:14px 0 0;font-size:.9rem;color:var(--text-soft)">No account yet? Signing in with a one-time email code creates one.</p>
     </div>
     <p class="da-note">Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.</p>
   </div></section>
@@ -320,131 +309,4 @@
         <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
       </form>
     </div>
-  </section><script src="/assets/js/main.js?v=4a95ea5897"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><script>
-  (function(){
-    var API='/api/doc-agent';
-    var $=function(id){return document.getElementById(id);};
-    if(!$('da-msgs'))return;
-    var ref='';
-    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var T={"hello":"Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.","start":"Start now","login":"Sign in first — your documents live in your private vault. One code to your email and you are in.","loginBtn":"Sign in / create account","placeholder":"Write here… e.g. “Section 9 all No” or “what is still missing?”","send":"Send","uploading":"Uploading & reading…","generate":"Fill the forms","pack":"Prepare the final package","generating":"Filling the forms — a QA pass runs before anything reaches you…","packing":"Packing everything into one ZIP…","outputs":"Your deliverables","download":"Download","failed":"Something went wrong — try again or talk to us on WhatsApp.","tooBig":"This file is larger than 3 MB — the upload limit. Compress or split it, then send it again.","noForms":"I don't have a form to fill yet — tell me which uploaded file is the form, e.g. “fill the file X”.","readyMsg":"Done — your filled files are ready, download them from the links above or from “Your deliverables”.","facts":"facts extracted","forms":"forms detected","newReq":"New request"};
-    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
-    function setStatus(s){$('da-status').textContent=s||'—';}
-    function renderState(s){
-      if(!s||!s.ok)return;
-      setStatus(s.request.status);
-      var facts=(s.facts||[]).length, forms=(s.gap&&s.gap.forms)||0;
-      var p=$('da-progress');
-      if(facts||forms){p.hidden=false;p.textContent=facts+' '+T.facts+' · '+forms+' '+T.forms;}
-      var outs=(s.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
-      show('da-outputs',outs.length>0);
-      var ul=$('da-outputs-list');ul.innerHTML='';
-      outs.forEach(function(o){
-        var li=document.createElement('li');
-        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
-        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
-        var a=document.createElement('a');a.href='#';a.textContent=T.download;a.className='btn btn-ghost';a.style.padding='.15rem .7rem';
-        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
-        li.appendChild(a);ul.appendChild(li);
-      });
-      show('da-actions',forms>0||outs.length>0);
-    }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
-    function activate(){show('da-form',true);show('da-actions',false);show('da-start',false);show('da-new',true);refresh();}
-    function begin(){
-      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
-        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',T.failed);
-      });
-    }
-    // Boot: are we signed in, and is there a request to resume?
-    get('?action=list').then(function(d){
-      if(d.__code===401){show('da-gate',true);return;}
-      if(!d.ok){show('da-gate',true);return;}
-      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
-      var match=null;
-      open.forEach(function(r){if(r.ref===ref)match=r;});
-      if(!match&&open.length)match=open[0];
-      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
-        get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){
-          if(s.ok){(s.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(s);}
-          activate();
-        });
-      } else { show('da-start',true); }
-    }).catch(function(){show('da-gate',true);});
-    $('da-begin')&&($('da-begin').onclick=begin);
-    $('da-new')&&($('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',T.hello);begin();});
-    $('da-form').addEventListener('submit',function(ev){
-      ev.preventDefault();
-      var v=$('da-input').value.trim();if(!v||!ref)return;
-      $('da-input').value='';el('me',v);
-      var typing=el('sys','…');
-      post({action:'chat',ref:ref,message:v}).then(function(d){
-        typing.remove();
-        el('bot',d.ok?d.reply:T.failed);
-        if(d.ok&&d.generate_now)runGenerate();
-        refresh();
-      }).catch(function(){typing.remove();el('sys',T.failed);});
-    });
-    $('da-file').addEventListener('change',function(){
-      var files=Array.prototype.slice.call(this.files||[]);this.value='';
-      if(!ref||!files.length)return;
-      (function next(i){
-        if(i>=files.length){refresh();return;}
-        var f=files[i];
-        el('me','📎 '+f.name);
-        if(f.size>3*1024*1024){el('bot',T.tooBig);next(i+1);return;}
-        var note=el('sys',T.uploading);
-        var rd=new FileReader();
-        rd.onload=function(){
-          var b64=String(rd.result).split(',')[1]||'';
-          var ext=(f.name.split('.').pop()||'').toLowerCase();
-          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
-            note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:T.failed));
-            next(i+1);
-          }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
-        };
-        rd.readAsDataURL(f);
-      })(0);
-    });
-    function runGenerate(formId,seen){
-      if(!ref)return;var note=el('sys',T.generating);seen=seen||0;
-      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
-        note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(T.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
-        var done=0;
-        (d.outputs||[]).forEach(function(o){
-          if(o.ok&&o.output_id){
-            done++;
-            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-              if(!l.url)return;
-              var row=el('bot','⬇️ ');
-              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-              row.appendChild(a);
-              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-            });
-          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
-        });
-        var rest=d.remaining||[];
-        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
-        if(done||seen)el('bot',T.readyMsg);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    }
-    $('da-generate').onclick=runGenerate;
-    $('da-package').onclick=function(){
-      if(!ref)return;var note=el('sys',T.packing);
-      post({action:'package',ref:ref}).then(function(d){
-        note.remove();
-        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',T.failed);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    };
-  })();
-  </script></body></html>
+  </section><script src="/assets/js/main.js?v=4a95ea5897"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
