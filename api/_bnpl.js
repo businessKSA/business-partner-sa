@@ -7,11 +7,15 @@
 //   TAMARA_API_TOKEN      the long-lived API token from Tamara partners portal
 //   TAMARA_API_BASE       optional, default https://api.tamara.co
 //                         (sandbox: https://api-sandbox.tamara.co)
+//   TAMARA_OFF            kill switch: any truthy value hides the installment
+//                         button without touching the token, so a provider-side
+//                         outage stops costing us checkouts in thirty seconds.
 
 const TAMARA_TOKEN = (process.env.TAMARA_API_TOKEN || "").trim();
 const TAMARA_BASE = (process.env.TAMARA_API_BASE || "https://api.tamara.co").trim().replace(/\/$/, "");
+const TAMARA_OFF = /^(1|true|yes|on|off)$/i.test((process.env.TAMARA_OFF || "").trim());
 
-export const tamaraConfigured = () => !!TAMARA_TOKEN;
+export const tamaraConfigured = () => !!TAMARA_TOKEN && !TAMARA_OFF;
 
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 const two = (n) => round2(n).toFixed(2);

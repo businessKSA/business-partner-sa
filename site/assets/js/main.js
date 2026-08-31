@@ -4036,11 +4036,21 @@ var BP = window.BP = window.BP || {};
   // ---- installments (Tamara) ----
   // The button exists from day one; it reads «قريباً» until /api/pay says the
   // key is configured, then it goes live with no code change.
+  // A provider outage is the same dead end to the buyer as a missing key, so
+  // the first failed attempt takes the button down for the rest of the visit
+  // instead of inviting a second and a third try at the same wall.
+  function bnplDown(prov) {
+    try { return sessionStorage.getItem("bp_bnpl_down_" + prov) === "1"; } catch (e) { return false; }
+  }
+  function markBnplDown(prov) {
+    try { sessionStorage.setItem("bp_bnpl_down_" + prov, "1"); } catch (e) {}
+  }
   function bnplButtons() {
     ["tamara"].forEach(function (prov) {
       var btn = document.getElementById("bnpl-" + prov);
       if (!btn) return;
-      var on = !!bnplCfg[prov];
+      var down = bnplDown(prov);
+      var on = !!bnplCfg[prov] && !down;
       btn.disabled = !on;
       btn.style.opacity = on ? "1" : ".45";
       btn.style.cursor = on ? "pointer" : "not-allowed";
@@ -4049,13 +4059,13 @@ var BP = window.BP = window.BP || {};
         badge = document.createElement("span");
         badge.className = "soon-badge";
         badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
-        badge.textContent = BP.t("soon", "قريباً");
+        badge.textContent = down ? BP.t("unavailable", "غير متاح حالياً") : BP.t("soon", "قريباً");
         btn.appendChild(badge);
       } else if (on && badge) badge.remove();
     });
   }
   function bnplGo(prov) {
-    if (!bnplCfg[prov]) return;
+    if (!bnplCfg[prov] || bnplDown(prov)) return;
     var help = document.getElementById("bnpl-help");
     var terms = document.getElementById("co-terms");
     var gap = (terms && !terms.checked)
@@ -4076,6 +4086,13 @@ var BP = window.BP = window.BP || {};
       .then(function (out) {
         if (out && out.ok && out.url) { location.href = out.url; return; }
         if (btn) btn.disabled = false;
+        // «rejected» and «quote_only_items» are verdicts on this order — another
+        // cart may still pass. Anything else is the provider being down, and a
+        // second attempt would fail the same way, so the button steps aside.
+        if (out && out.error && out.error !== "rejected" && out.error !== "quote_only_items") {
+          markBnplDown(prov);
+          bnplButtons();
+        }
         if (help) {
           help.style.color = "#b91c1c";
           help.textContent = out && out.error === "quote_only_items"
