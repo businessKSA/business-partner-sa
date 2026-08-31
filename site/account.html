@@ -272,6 +272,13 @@
 .da7-btn.ghost{background:#eef3ff;color:#2148a8}
 .da7-btn.clip{background:#fff;border:1px solid var(--da7-line);color:var(--da7-navy);padding:11px 13px}
 .da7-btn[disabled]{opacity:.5;cursor:not-allowed}
+.da7-sig{border:1px solid var(--da7-line);border-radius:14px;padding:12px;background:#fbfcff}
+.da7-sig canvas{width:100%;height:150px;display:block;border:1.5px dashed #c3d2ee;border-radius:11px;background:#fff;touch-action:none;cursor:crosshair}
+.da7-consent{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;color:var(--da7-ink);line-height:1.75;cursor:pointer}
+.da7-consent input{margin-top:2px;flex:0 0 auto}
+.da7-mark{margin-top:9px;font-size:11.5px;color:var(--da7-muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.da7-mark.on{color:#127a4b;font-weight:800}
+.da7-mark img{height:34px;border:1px solid var(--da7-line);border-radius:7px;background:#fff;padding:2px}
 .da7-drop{border:1.5px dashed #c3d2ee;border-radius:15px;background:#fbfcff;padding:17px;text-align:center;color:var(--da7-muted);font-size:12px;cursor:pointer;transition:.15s}
 .da7-drop:hover,.da7-drop.over{border-color:var(--da7-blue);background:#f2f6ff;color:#2148a8}
 .da7-files{display:flex;flex-direction:column;gap:7px;margin-top:11px}
@@ -3487,6 +3494,7 @@ function tag(role){
 function renderState(d){
   if(!d||!d.ok)return;
   if(d.access)renderTrial(d.access);
+  if(d.marks)renderMarks(d.marks);
   var g=d.gap||{};
   $('da7Stats').innerHTML='<div class="da7-stat"><b>'+(g.forms||0)+'</b><span>نموذج للتعبئة</span></div>'+
     '<div class="da7-stat"><b>'+(g.sources||0)+'</b><span>مستند مصدر</span></div>'+
@@ -3567,6 +3575,11 @@ function fill(formId,seen){
       if(o.ok&&o.output_id){done++;get('&action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){if(l.url)link(o.form,l.url,o.unfilled?(o.unfilled+' حقل بانتظارك'):'')})}
       else if(!o.ok)say('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));
     });
+    if(d.signed&&d.signed.length){
+      var has=function(k){return d.signed.indexOf(k)!==-1};
+      say('sys',has('signature')&&has('stamp')?'وُضع توقيعك وختم منشأتك في مواضعهما.'
+        :has('signature')?'وُضع توقيعك في موضع التوقيع.':'وُضع ختم منشأتك في موضعه.');
+    }
     var rest=d.remaining||[];
     if(rest.length&&seen<12){fill(rest[0].id,seen+1);return}
     if(done||seen)say('bot','تم — ملفاتك المعبّأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».');
@@ -3605,6 +3618,26 @@ function view(){
       '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — المستشار يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
         '<div class="da7-drop" id="da7Drop">اسحب الملفات هنا أو اضغط للاختيار<br><small>PDF · Word · Excel · صور</small></div>'+
         '<div class="da7-files" id="da7Files"><div class="da7-empty">لم تُرفع ملفات بعد.</div></div></div>'+
+      '<div class="da7-box" style="margin-top:14px"><h3>توقيعك وختم منشأتك</h3>'+
+        '<p class="hint">وقّع بإصبعك أو بالفأرة مرة واحدة، ويُستخدم التوقيع نفسه في كل نموذج بعدها. يُطبَّق فقط على الحقول التي تطلب توقيعاً أو ختماً — ولا يُطبَّق أبداً بدون موافقتك الصريحة أدناه.</p>'+
+        '<div class="da7-sig"><canvas id="da7Pad" width="600" height="200"></canvas>'+
+          '<div class="da7-row" style="margin-top:8px;flex-wrap:wrap">'+
+            '<button class="da7-btn ghost" id="da7PadClear" type="button">مسح</button>'+
+            '<button class="da7-btn clip" id="da7SigUp" type="button">ارفع صورة توقيع</button>'+
+            '<button class="da7-btn" id="da7SigSave" type="button">احفظ التوقيع</button>'+
+          '</div>'+
+          '<label class="da7-consent"><input type="checkbox" id="da7Consent"> أوافق على استخدام هذا التوقيع لتوقيع مستنداتي التي يعبّئها المستشار.</label>'+
+          '<div class="da7-mark" id="da7SigState">لا يوجد توقيع محفوظ.</div>'+
+        '</div>'+
+        '<div class="da7-sig" style="margin-top:12px">'+
+          '<div class="da7-row" style="flex-wrap:wrap">'+
+            '<button class="da7-btn clip" id="da7StampUp" type="button">ارفع صورة الختم</button>'+
+            '<button class="da7-btn ghost" id="da7StampClear" type="button">احذف الختم</button>'+
+          '</div>'+
+          '<div class="da7-mark" id="da7StampState">لا يوجد ختم محفوظ.</div>'+
+        '</div>'+
+        '<input type="file" id="da7MarkFile" accept="image/png,image/jpeg,image/webp" hidden>'+
+      '</div>'+
       '<div class="da7-box" style="margin-top:14px"><h3>مخرجاتك</h3><p class="hint">النماذج المعبّأة والحزمة النهائية — بروابط تنزيل موقّعة قصيرة العمر.</p>'+
         '<div class="da7-files" id="da7Outs"><div class="da7-empty">لا مخرجات بعد.</div></div>'+
         '<div class="da7-row" style="margin-top:12px"><button class="da7-btn" id="da7Fill" disabled>عبّئ النماذج</button>'+
@@ -3617,6 +3650,7 @@ function mount(){
   var wrap=document.querySelector('.viewwrap'); if(!wrap||$('view-docagent'))return;
   var s=document.createElement('section'); s.className='view da7'; s.id='view-docagent'; s.innerHTML=view();
   wrap.appendChild(s);
+  padSetup();
   $('da7Send').onclick=send;
   $('da7Input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send()}});
   $('da7Clip').onclick=function(){$('da7File').click()};
@@ -3642,6 +3676,89 @@ function nav(){
     open(); window.scrollTo(0,0);
   };
 }
+// ---- the client's signature and the company stamp ------------------------
+// The pad writes a transparent PNG: black ink on nothing, so the signature sits
+// over the form's own ruled line instead of hiding it behind a white box.
+var padDrawn=false, markKind='signature';
+function padSetup(){
+  var c=$('da7Pad'); if(!c||c._on)return; c._on=1;
+  var g=c.getContext('2d'), drawing=false, last=null;
+  function fit(){
+    var r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    var data=padDrawn?c.toDataURL():null;
+    c.width=Math.max(300,Math.round(r.width*dpr)); c.height=Math.round(150*dpr);
+    g.scale(dpr,dpr); g.lineWidth=2.2; g.lineCap='round'; g.lineJoin='round'; g.strokeStyle='#101828';
+    if(data){var im=new Image();im.onload=function(){g.drawImage(im,0,0,r.width,150)};im.src=data}
+  }
+  fit(); window.addEventListener('resize',fit);
+  function at(e){
+    var r=c.getBoundingClientRect();
+    var t=(e.touches&&e.touches[0])||e;
+    return {x:t.clientX-r.left, y:t.clientY-r.top};
+  }
+  function down(e){e.preventDefault();drawing=true;last=at(e)}
+  function move(e){
+    if(!drawing)return; e.preventDefault();
+    var p=at(e); g.beginPath(); g.moveTo(last.x,last.y); g.lineTo(p.x,p.y); g.stroke();
+    last=p; padDrawn=true;
+  }
+  function up(){drawing=false}
+  c.addEventListener('mousedown',down); c.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+  c.addEventListener('touchstart',down,{passive:false});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',up);
+  $('da7PadClear').onclick=function(){g.clearRect(0,0,c.width,c.height);padDrawn=false};
+  $('da7SigSave').onclick=function(){
+    if(!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(!padDrawn){alert('ارسم توقيعك في المربع أولاً، أو ارفعه كصورة.');return}
+    saveMark('signature', c.toDataURL('image/png').split(',')[1], 'image/png');
+  };
+  $('da7SigUp').onclick=function(){markKind='signature';$('da7MarkFile').click()};
+  $('da7StampUp').onclick=function(){markKind='stamp';$('da7MarkFile').click()};
+  $('da7StampClear').onclick=function(){
+    post({action:'clear-mark',ref:ref||undefined,kind:'stamp'}).then(function(d){if(d.marks)renderMarks(d.marks)});
+  };
+  $('da7MarkFile').onchange=function(){
+    var f=(this.files||[])[0]; this.value='';
+    if(!f)return;
+    if(markKind==='signature'&&!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(f.size>2*1024*1024){alert('الصورة أكبر من 2 ميجابايت.');return}
+    var rd=new FileReader();
+    rd.onload=function(){saveMark(markKind,String(rd.result).split(',')[1],f.type||'image/png')};
+    rd.readAsDataURL(f);
+  };
+}
+function saveMark(kind,b64,mime){
+  post({action:'set-mark',kind:kind,fileBase64:b64,fileType:mime,consent:kind==='signature'?!!$('da7Consent').checked:undefined})
+    .then(function(d){
+      if(!d.ok){alert(d.error==='consent_required'?'فعّل الموافقة أولاً.':'تعذّر الحفظ — حاول مرة أخرى.');return}
+      renderMarks(d.marks);
+      say('sys',kind==='signature'?'حُفِظ توقيعك — سيُطبَّق على حقول التوقيع في النماذج القادمة.':'حُفِظ ختم منشأتك.');
+      if(kind==='signature'&&ref)post({action:'set-option',ref:ref,signature_mode:'client_image'});
+    });
+}
+function renderMarks(m){
+  if(!m)return;
+  var sg=$('da7SigState'), st=$('da7StampState');
+  if(sg){
+    sg.className='da7-mark'+(m.signature.saved?' on':'');
+    sg.textContent=m.signature.saved?'✓ توقيعك محفوظ ومُفعّل.':'لا يوجد توقيع محفوظ.';
+    if(m.signature.saved){
+      var c=$('da7Consent'); if(c)c.checked=true;
+      get('&action=mark-link&kind=signature').then(function(d){
+        if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='توقيعك'; sg.appendChild(i);
+      });
+    }
+  }
+  if(st){
+    st.className='da7-mark'+(m.stamp.saved?' on':'');
+    st.textContent=m.stamp.saved?'✓ ختم منشأتك محفوظ.':'لا يوجد ختم محفوظ.';
+    if(m.stamp.saved)get('&action=mark-link&kind=stamp').then(function(d){
+      if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='ختم المنشأة'; st.appendChild(i);
+    });
+  }
+}
 var opened=false;
 function purge(){
   try{localStorage.removeItem('bp_da_ref');localStorage.removeItem('bp_da_org')}catch(e){}
@@ -3658,6 +3775,7 @@ function open(){
       return;
     }
     if(a.ok)renderTrial(a.access);
+    if(a.marks)renderMarks(a.marks);
     get('&action=list').then(function(d){
       // A cached ref belongs to exactly one establishment. If the signed-in tenant
       // changed on this browser, the previous client's pointer and log go first.
