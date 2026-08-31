@@ -5816,6 +5816,7 @@ function buildEmployerDashboard() {
         <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
         <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
+        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل بيزنس بارتنر؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -11583,7 +11584,7 @@ function buildSharedServicesPortal() {
     // date, so a client who just registered simply finds the portal open.
     // Arabic counts its days by rule: 1 يوم, 2 يومان, 3–10 أيام, 11+ يوماً.
     function leftText(t){
-      var n=t.daysLeft, total=t.totalDays||14;
+      var n=t.daysLeft, total=t.totalDays||30;
       ${LANG === "ar" ? `
       var head = n===1?'يوم واحد متبقٍ' : n===2?'يومان متبقيان'
         : (n>=3&&n<=10)?(n+' أيام متبقية') : (n+' يوماً متبقياً');

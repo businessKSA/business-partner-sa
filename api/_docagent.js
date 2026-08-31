@@ -316,7 +316,7 @@ async function vaultSync(request, kind, file, storageKey) {
 // day it registered, so a client who joined months ago still gets the full
 // trial the day they open it. When the window closes, everything already
 // produced stays downloadable; only new work asks for a subscription.
-const TRIAL_DAYS = Math.max(1, Number(process.env.DOC_AGENT_TRIAL_DAYS || 14));
+const TRIAL_DAYS = Math.max(1, Number(process.env.DOC_AGENT_TRIAL_DAYS || 30));
 const DOC_AGENT_CODES = (process.env.DOC_AGENT_SERVICE_CODES || "bp-ai-doc-01,bp-doc-agent")
   .split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
 

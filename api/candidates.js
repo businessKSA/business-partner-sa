@@ -13,6 +13,8 @@
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
+import { getSession } from "./_db.js";
+import { bdTrial } from "./_trial.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -204,6 +206,23 @@ async function resolvePlan(code) {
 }
 
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+
+// Portal-session unlock — every signed-in client-portal account gets the
+// hiring dashboard during the 30-day platform trial (see api/_trial.js).
+// The effective employer code is derived from the session's organization id
+// on every request, never taken from the client: a supplied "org:…" code is
+// always ignored and re-derived here, so it cannot be forged to reach
+// another tenant's postings or the candidate pool.
+async function portalUnlock(req) {
+  try {
+    const sess = await getSession(req);
+    const org = sess && sess.organization;
+    if (!org || !org.id) return null;
+    const t = bdTrial(org, false);
+    if (t.state !== "trial") return null;
+    return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
+  } catch { return null; }
+}
 // Business Partner's own careers-page roles — static pages in the generator,
 // not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
 // applicant grouping lines up with these postings in the console.
@@ -218,8 +237,13 @@ const SITE_ROLES = [
 // that description via /api/hire (task:"match") on the client side.
 async function handlePostings(req, res) {
   const b = await readBody(req);
-  const code = String(b.code || "").trim();
-  const { unlocked, owner } = await resolvePlan(code);
+  let code = String(b.code || "").trim();
+  let unlocked = false, owner = false;
+  if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
+  if (!unlocked) {
+    const pu = await portalUnlock(req);
+    if (pu) { unlocked = true; owner = false; code = pu.code; }
+  }
   if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
 
   if (b.action === "create-posting") {
@@ -632,18 +656,26 @@ export default async function handler(req, res) {
   const qRes = (url.searchParams.get("res") || "").trim();
   const qRegion = (url.searchParams.get("region") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
-  const code = (url.searchParams.get("code") || "").trim();
+  let code = (url.searchParams.get("code") || "").trim();
   // Resume a previous, still-in-progress scan (see the time-budget note below)
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
-  const { unlocked, plan } = await resolvePlan(code);
+  let unlocked = false, plan = "";
+  if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
+  let portal = null;
+  if (!unlocked) {
+    portal = await portalUnlock(req);
+    if (portal) { unlocked = true; plan = portal.plan; code = portal.code; }
+  }
 
   // Lightweight code check (?validate=1&code=…) for the login page and the
   // dashboard's saved-code revalidation — one Employers-DB lookup instead of
   // paging the whole candidate pool just to learn whether a code is active.
+  // With no (or an "org:…") code it also answers for the portal session, so
+  // any signed-in client's dashboard opens itself during the platform trial.
   if (url.searchParams.get("validate") === "1") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan }));
+    return res.end(JSON.stringify({ ok: true, unlocked, plan, ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}) }));
   }
 
   // Per-job applicants for the employer console (?applicants=1&code=…).

@@ -6030,11 +6030,17 @@ var BP_EMP_BILLING = "monthly";
       if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
       // validate=1 answers from the Employers DB alone — no full pool scan
       // just to learn whether a code is active.
-      fetch("/api/candidates?validate=1&code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
+      // With no code the server still answers for the signed-in portal
+      // session, so any client-portal account opens the dashboard during
+      // the 30-day platform trial.
+      fetch("/api/candidates?validate=1" + (code ? "&code=" + encodeURIComponent(code) : ""), { credentials: "same-origin" }).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
-      CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
+      // A portal-trial unlock hands back its own derived "org:…" code — the
+      // server re-derives it from the session on every call, so storing it
+      // only serves as a "try the session first next visit" marker.
+      CODE = (data && data.portal && data.code) || code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", CODE);
       PLAN = (data && data.plan) || "";
       setUnlocked(true);
       // Demo mode's candidates are the fixed sample set — no need to hit the
@@ -6066,8 +6072,14 @@ var BP_EMP_BILLING = "monthly";
     // must always be an explicit, one-time click so a stale localStorage
     // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); } }); }
-    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    function lockedBoot() { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else lockedBoot(); }); }
+    else {
+      if (isDemoCode(saved)) writeLS("bp_emp_code", "");
+      // No saved code — before showing the lock, ask the server whether a
+      // signed-in client-portal session unlocks the dashboard (30-day trial).
+      validate("", function (ok, data) { if (ok && data && data.portal) enter(data.code || "", data); else lockedBoot(); });
+    }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {

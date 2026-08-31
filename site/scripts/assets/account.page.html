@@ -77,6 +77,8 @@
     .gsearch:focus{border-color:var(--navy);background:#fff}
     .top-ico{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;background:#fff;font-weight:700;color:var(--navy);flex-shrink:0}
     .top-ico:hover{background:var(--bg)}
+    .top-ico.wide{width:auto;padding:0 11px;gap:6px;font-size:11.5px;text-decoration:none;white-space:nowrap}
+    @media (max-width:700px){.top-ico.wide span{display:none}.top-ico.wide{width:30px;padding:0}}
     .top-ico .dot{position:absolute;top:-6px;inset-inline-end:-6px;min-width:15px;height:15px;background:var(--bad);border-radius:99px;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px}
     .userchip{display:flex;gap:8px;align-items:center;font-size:11.5px}
     .userchip .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
@@ -295,6 +297,8 @@
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
         <button data-v="store"><span>🛒</span><span data-t="navStore">اطلب خدمة</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
+        <button data-v="advisors"><span>✦</span><span data-t="navAdvisors">المستشارون الأذكياء</span></button>
+        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
@@ -309,7 +313,6 @@
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
-      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -318,6 +321,8 @@
       <div class="topbar">
         <span class="orgsel" id="topOrg" title="">🏢 <span id="topOrgName">—</span></span>
         <input class="gsearch" id="topSearch" type="search" data-tp="searchPh" placeholder="بحث في هذه الصفحة: طلب، خدمة، مهمة…" />
+        <button class="top-ico wide" id="assistBtn" title="المساعد">🤖 <span id="assistBtnLbl">المساعد</span></button>
+        <a class="top-ico wide" id="backToSite" href="/ar" title="العودة إلى الموقع">🌐 <span id="backToSiteLbl">العودة إلى الموقع</span></a>
         <button class="top-ico" id="langBtn" title="ع/E">ع/E</button>
         <button class="top-ico" id="bellBtn" title="">🔔<span class="dot" id="bellDot" style="display:none"></span></button>
         <span class="userchip"><span class="av" id="ucAv">؟</span><span class="meta"><b id="ucName">—</b><span id="ucRole" data-t="roleOwner">مالك المنشأة</span></span></span>
@@ -507,6 +512,18 @@
           <div class="svc-tabs" id="svcTabs"></div>
           <div class="svc-grid" id="svcGrid"></div>
           <div class="emptyline" id="svcEmpty" style="display:none"></div>
+        </section>
+
+        <!-- ===== advisors hub: every smart advisor, ready to use ===== -->
+        <section class="view" id="view-advisors">
+          <div class="pagehead"><h2 id="advHubTitle">المستشارون الأذكياء</h2><div class="sub" id="advHubLead">كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).</div></div>
+          <div id="advHubGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        </section>
+
+        <!-- ===== hiring board, embedded for every client ===== -->
+        <section class="view" id="view-hiring">
+          <div class="pagehead"><h2 id="hiringTitle">لوحة التوظيف</h2><div class="sub" id="hiringLead">انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك — مفتوحة لك تلقائياً بحسابك. <a id="hiringNewTab" href="/ar/employer-dashboard" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
         </section>
 
         <!-- ===== tasks ===== -->
@@ -816,7 +833,7 @@
         waMsg: 'تعذّر إرسال رمز التحقق عبر البريد حالياً.',
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
-        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navTasks: 'المهام', navOrders: 'الطلبات',
+        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navAdvisors: 'المستشارون الأذكياء', navHiring: 'لوحة التوظيف', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
@@ -932,7 +949,7 @@
         waMsg: 'We could not send the verification email right now.',
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
-        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navTasks: 'Tasks', navOrders: 'Orders',
+        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navAdvisors: 'Smart advisors', navHiring: 'Hiring dashboard', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
@@ -1757,6 +1774,7 @@
       $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
       $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
       $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var abl = $('assistBtnLbl'); if (abl) abl.textContent = en ? 'Assistant' : 'المساعد';
       var org = (state.overview && state.overview.organization) || {};
       if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
       if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
@@ -1802,6 +1820,40 @@
         th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
       }
       $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    // Advisors hub — every smart advisor in one grid, each one openable now.
+    // All of them are covered by the 30-day platform trial, so the hub never
+    // shows a locked card to a signed-in client inside the trial window.
+    function renderAdvisors(){
+      var en = state.lang === 'en';
+      $('advHubTitle').textContent = en ? 'Smart advisors' : 'المستشارون الأذكياء';
+      $('advHubLead').textContent = en ? 'All your advisors in one place — ready to use now, free for your first 30 days.' : 'كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).';
+      var list = [
+        ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
+        ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your hiring pipeline.' : 'انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك.', 'hiring'],
+        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/business-development-dashboard'],
+        ['🤖', en ? 'Smart employee' : 'الموظف الذكي', en ? 'A 24/7 specialist — marketing, admin, sales or procurement. Open your smart-employees portal.' : 'متخصص يعمل 24/7 — تسويق، إداري، مبيعات أو مشتريات. افتح بوابة موظفيك الأذكياء.', '/ar/portal'],
+        ['🤝', en ? 'Shared services team' : 'فريق الخدمات المشتركة', en ? 'Your executive team dashboard — HR, finance, legal and government relations.' : 'لوحة فريقك التنفيذي — موارد بشرية ومالية وقانونية وعلاقات حكومية.', '/ar/shared-services/dashboard'],
+        ['💬', en ? 'Portal assistant' : 'مساعد لوحتك', en ? 'Knows your orders, wallet and every section — ask it anything.' : 'يعرف طلباتك ومحفظتك وكل أقسام اللوحة — اسأله أي شيء.', 'assistant']
+      ];
+      var h = '';
+      for (var i = 0; i < list.length; i++){
+        var a = list[i];
+        h += '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px">'
+          + '<div style="font-size:26px">' + a[0] + '</div><b style="color:var(--navy)">' + esc(a[1]) + '</b>'
+          + '<span style="font-size:12.5px;color:#5a6285;flex:1;line-height:1.8">' + esc(a[2]) + '</span>'
+          + '<button class="btn sm" data-adv="' + a[3] + '" style="align-self:flex-start">' + (en ? 'Open' : 'افتح المستشار') + '</button></div>';
+      }
+      $('advHubGrid').innerHTML = h;
+      var bs = $('advHubGrid').querySelectorAll('[data-adv]');
+      for (var j = 0; j < bs.length; j++) bs[j].onclick = function(){
+        var t = this.getAttribute('data-adv');
+        if (t === 'docagent'){ var db = document.querySelector('#sideNav [data-v="docagent"]'); if (db){ db.click(); return; } t = '/ar/account?view=docagent'; }
+        if (t === 'hiring'){ switchView('hiring'); return; }
+        if (t === 'assistant'){ var ab = $('assistBtn'); if (ab) ab.click(); return; }
+        location.href = t;
+      };
     }
     function renderTeam(){
       var en = state.lang === 'en';
@@ -2033,10 +2085,17 @@
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','store','services','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','store','services','advisors','hiring','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       if (v === 'store') stInit();
+      if (v === 'advisors') renderAdvisors();
+      if (v === 'hiring'){
+        // Lazy-load the embedded hiring board on first open; the portal
+        // session unlocks it server-side (30-day trial), no second login.
+        var hf = $('hiringFrame');
+        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard');
+      }
       for (var i = 0; i < VIEWS.length; i++){
         var el = $('view-' + VIEWS[i]);
         if (el) el.classList.toggle('on', VIEWS[i] === v);
@@ -3223,6 +3282,9 @@
         try { inp.focus(); } catch (e) {}
       };
       dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
+      // The topbar «المساعد» button opens the same concierge dock as the fab.
+      var hdrAssist = document.getElementById('assistBtn');
+      if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };
       dock.querySelector('#acGo').onclick = function(){ ask(inp.value); };
       inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') ask(inp.value); });
       // Ask B10X: free text → a tracked service request (type b10x-request,

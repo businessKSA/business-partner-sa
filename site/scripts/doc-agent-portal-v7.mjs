@@ -258,7 +258,7 @@ function open(){
       // not a registered client (or no establishment yet): nothing of theirs is
       // kept here, and any stale local pointer is dropped on the spot.
       purge();
-      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 14 يوماً.');
+      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 30 يوماً.');
       return;
     }
     if(a.ok)renderTrial(a.access);
