@@ -559,6 +559,7 @@ body.nav-open .wa-fab, body.nav-open .advisor-fab { display: none; }
   padding: 16px 0; border-bottom: 1px solid var(--gray-line); }
 .ci-main { display: flex; flex-direction: column; gap: 3px; }
 .ci-kind { font-size: .8rem; color: var(--text-soft); }
+.ci-renew { display: block; font-size: .78rem; font-weight: 700; color: #92600A; background: #FFF7E6; border-radius: 999px; padding: 2px 9px; margin-top: 4px; width: fit-content; }
 .ci-qty { display: inline-flex; align-items: center; gap: 10px; }
 .ci-qty button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--gray-line); background: var(--white); cursor: pointer; color: var(--navy); font-size: 1rem; }
 .ci-price { font-weight: 700; color: var(--navy); white-space: nowrap; }
@@ -1628,6 +1629,16 @@ textarea.adv-in { resize: vertical; }
 .jss-list{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:8px}
 .jss-list li{position:relative;padding-inline-start:24px;font-size:.9rem;line-height:1.6}
 .jss-list li::before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:#047857;font-weight:700}
+
+/* Subscription terms restated at checkout — renewal price and success fee,
+   accepted explicitly before the order is submitted. */
+.sub-terms { margin: 14px 0; padding: 14px 16px; border: 1px solid #E7D9B8; background: #FFFBF2; border-radius: 14px; }
+.sub-terms h4 { margin: 0 0 8px; font-size: .95rem; color: #7C530E; }
+.sub-terms ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.sub-terms li { display: grid; gap: 2px; font-size: .86rem; color: #5F5847; }
+.sub-terms li b { color: #3A3527; }
+.sub-accept { display: flex; gap: 9px; align-items: flex-start; margin-top: 12px; font-size: .86rem; line-height: 1.6; cursor: pointer; }
+.sub-accept input { margin-top: 4px; flex: 0 0 auto; }
 /* Wide result tables inside owner panels scroll on their own rather than
    pushing the page sideways on a phone. */
 .mini-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}

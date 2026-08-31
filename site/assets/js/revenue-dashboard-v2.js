@@ -1,4 +1,4 @@
-// Revenue Command Center v2 — REAL client data, no demo numbers.
+// Business Development as a Service — client workspace. REAL client data, no demo numbers.
 // Auth = the client-portal session (bp_session marker + the httpOnly server
 // cookie the /account OTP login sets). Data = the client's own CRM orders
 // (/api/requests?action=my-orders), operational overview (my-overview) and
@@ -41,7 +41,7 @@
   const ACTIVE = ['مؤكد - قيد التنفيذ'];
   const DONE = ['مكتمل'];
 
-  const state = { orders: [], overview: null, tasks: [], documents: [], loaded: false, error: false, period: 'month' };
+  const state = { orders: [], overview: null, tasks: [], documents: [], bd: null, loaded: false, error: false, period: 'month' };
 
   // Real identity in the top bar (was a hardcoded "BM").
   (function () {
@@ -80,7 +80,8 @@
     return `<span class="status-chip ${cls}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${cls === 'ok' ? '#E3F1E9;color:#006C35' : cls === 'active' ? '#E8EDFB;color:#0B1B5A' : cls === 'off' ? '#F3F4F6;color:#6B7280' : '#FFF7E6;color:#92600A'}">${esc(shown || '—')}</span>`;
   };
   const emptyState = (t, p, cta) => `<div class="dash-card" style="text-align:center;padding:48px 24px"><div style="font-size:2rem;margin-bottom:10px">◇</div><h3 style="margin:0 0 6px">${t}</h3><p style="color:#6B7280;max-width:46em;margin:0 auto 16px">${p}</p>${cta || ''}</div>`;
-  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/revenue-os' : '/ar/revenue-os'}#pricing" style="text-decoration:none">${L('View Revenue OS packages', 'استعرض باقات Revenue OS')}</a>`;
+  const startCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/business-development' : '/ar/business-development'}#leadForm" style="text-decoration:none">${L('Tell us who to target', 'أخبرنا بمن نستهدف')}</a>`;
+  const pkgCta = () => `<a class="dash-btn primary" href="${lang === 'en' ? '/business-development' : '/ar/business-development'}#pricing" style="text-decoration:none">${L('View BD as a Service packages', 'استعرض باقات تطوير الأعمال كخدمة')}</a>`;
 
   function periodOrders() { return state.orders.filter(inPeriod); }
   // The client's own orders with us. Deliberately NOT called a pipeline: these
@@ -100,22 +101,86 @@
     o.total ? money(o.total) : '—', esc(o.at || '—'),
   ]);
 
-  // A Revenue OS subscription is what makes this workspace fill up. Detect it
-  // from the client's own confirmed orders.
+  // A subscription is what makes this workspace fill up. Detect it
+  // from the client's own orders — matching on what they actually bought (the
+  // note items and the recorded subscription terms), not on the CRM opportunity
+  // title, which is generic and never names the package.
+  // The service was renamed to Business Development as a Service in 2026-08.
+  // Orders placed before the rename carry the old name and must keep working,
+  // so both names match; the internal "revos-" product codes never changed.
+  const PLAN_NAME = /revenue\s*os|revos|bd\s*as\s*a\s*service|bdaas|business development as a service|تطوير الأعمال كخدمة/i;
+  function isRevos(o) {
+    if (!o) return false;
+    const hay = [o.title, o.ref, o.items, (o.subscriptions || []).map((s) => s.name).join(' ')].join(' ');
+    return PLAN_NAME.test(hay);
+  }
+  // Four states. A client who paid an hour ago is "being activated", not "not
+  // subscribed" — that reads as if the payment was lost. And every registered
+  // client gets 14 days of the service without buying it, so "no order" is a
+  // trial, not a locked door.
+  //
+  // The trial dates come from the server (state.bd), anchored to the
+  // organization's registration date. Never recompute them here: a browser that
+  // decides its own eligibility grants itself a fresh fortnight on every
+  // storage clear.
   function revosPlan() {
-    const hit = state.orders.find((o) => /revenue\s*os/i.test((o.title || '') + ' ' + (o.ref || '')) && (ACTIVE.includes(o.status) || DONE.includes(o.status)));
-    return hit || null;
+    const mine = state.orders.filter(isRevos);
+    const live = mine.find((o) => ACTIVE.includes(o.status) || DONE.includes(o.status));
+    if (live) return { state: 'active', order: live };
+    const pending = mine.find((o) => o.status !== 'ملغي');
+    if (pending) return { state: 'pending', order: pending };
+    const bd = state.bd;
+    if (bd && bd.state === 'trial') return { state: 'trial', order: null, days: bd.days, endsAt: bd.endsAt };
+    if (bd && bd.state === 'expired') return { state: 'expired', order: null };
+    return { state: 'none', order: null };
+  }
+  // Is the workspace open to them right now — by subscription or by trial?
+  function planOpen() {
+    const st = revosPlan().state;
+    return st === 'active' || st === 'trial';
+  }
+  // The terms they accepted at checkout, shown back to them.
+  function planTerms(o) {
+    const s = (o && o.subscriptions && o.subscriptions[0]) || null;
+    if (!s) return '';
+    return s.commissionPercent
+      ? L(`renews at ${s.renewsAt} SAR/month · ${s.commissionPercent}% success fee on collected revenue`,
+          `يتجدد بـ ${s.renewsAt} ﷼ شهرياً · عمولة نجاح ${s.commissionPercent}% على الإيراد المحصّل`)
+      : L(`renews at ${s.renewsAt} SAR/month · no commission`, `يتجدد بـ ${s.renewsAt} ﷼ شهرياً · بدون عمولة`);
   }
 
   const views = {
     overview() {
       const plan = revosPlan();
       const o = orderSummary();
-      const banner = plan
-        ? `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #168A5B"><b>${L('Revenue OS is active', 'اشتراك Revenue OS مفعّل')}</b><br><small style="color:#6B7280">${esc(plan.title || '')} · ${L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')}</small></div>`
-        : `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid #B7791F"><b>${L('This workspace is ready — Revenue OS is not subscribed yet', 'مساحتك جاهزة — اشتراك Revenue OS غير مفعّل بعد')}</b><br><small style="color:#6B7280">${L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.')}</small><div style="margin-top:10px">${pkgCta()}</div></div>`;
+      const bar = (color, head, sub, cta) =>
+        `<div class="dash-card" style="padding:16px 18px;border-inline-start:4px solid ${color}"><b>${head}</b><br><small style="color:#6B7280">${sub}</small>${cta ? `<div style="margin-top:10px">${cta}</div>` : ''}</div>`;
+      const dayWord = (n) => (lang === 'en' ? (n === 1 ? 'day' : 'days') : (n === 1 ? 'يوم' : n === 2 ? 'يومان' : n <= 10 ? 'أيام' : 'يومًا'));
+      const banner =
+        plan.state === 'active'
+          ? bar('#168A5B', L('BD as a Service is active', 'اشتراك تطوير الأعمال كخدمة مفعّل'),
+              [esc(plan.order.items || plan.order.title || ''), planTerms(plan.order),
+               L('your pipeline fills as the team runs it', 'يمتلئ الـPipeline مع تشغيل الفريق لباقتك')].filter(Boolean).join(' · '))
+          : plan.state === 'pending'
+          ? bar('#0B1B5A', L('Your subscription was received — being activated', 'استلمنا اشتراكك — قيد التفعيل'),
+              [`<b dir="ltr">${esc(plan.order.ref)}</b>`, esc(plan.order.items || ''), planTerms(plan.order),
+               L('we are verifying your transfer; the workspace opens as soon as it is confirmed.', 'نتحقق من تحويلك الآن، وتُفتح مساحتك فور التأكيد.')].filter(Boolean).join(' · '))
+          : plan.state === 'trial'
+          ? bar('#168A5B',
+              L(`Free trial — ${plan.days} ${dayWord(plan.days)} left`, `تجربة مجانية — باقٍ ${plan.days} ${dayWord(plan.days)}`),
+              L('The workspace is open to you at no cost. Subscribe before it ends to keep it and to have our team run the pipeline for you.',
+                'المساحة مفتوحة لك بلا مقابل. اشترك قبل انتهائها للاحتفاظ بها وليشغّل فريقنا الـPipeline نيابةً عنك.'),
+              pkgCta())
+          : plan.state === 'expired'
+          ? bar('#B7791F', L('Your free trial has ended', 'انتهت تجربتك المجانية'),
+              L('Subscribe to reopen the workspace and put the team on your pipeline.',
+                'اشترك لإعادة فتح المساحة ووضع الفريق على الـPipeline الخاص بك.'),
+              pkgCta())
+          : bar('#B7791F', L('This workspace is ready — BD as a Service is not subscribed yet', 'مساحتك جاهزة — اشتراك تطوير الأعمال كخدمة غير مفعّل بعد'),
+              L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.'),
+              pkgCta());
 
-      // These are Revenue OS numbers — opportunities generated FOR the client.
+      // These are BD-as-a-Service numbers — opportunities generated FOR the client.
       // They are not the client's own purchases from us; those live below.
       const note = L('starts when your package runs', 'تبدأ مع تشغيل باقتك');
       return `${head('Revenue Overview', L('Opportunities Business Partner generates for you — and where they stand.', 'الفرص التي يبنيها لك Business Partner — وأين وصلت.'), `<a class="dash-btn" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Client portal', 'منصّة العملاء')}</a>`)}
@@ -145,11 +210,19 @@
       </div>`;
     },
     pipeline() {
+      // During the trial the honest message is not "buy a package" — the client
+      // already has the service. It is "tell us your market and we start".
+      const onTrial = revosPlan().state === 'trial';
       return `${head(L('Opportunities & pipeline', 'الفرص والـPipeline'), L('Opportunities Business Partner generates for you — never your own orders with us.', 'الفرص التي يبنيها لك Business Partner — وليست طلباتك لدينا.'))}
-      ${emptyState(L('No opportunities generated yet', 'لا توجد فرص مولّدة بعد'),
-        L('Once a Revenue OS package is running, every account we target, qualify and take to a meeting shows up here with its value, stage and next action. Your own service orders with Business Partner live in the client portal.',
-          'بمجرد تشغيل باقة Revenue OS، يظهر هنا كل حساب نستهدفه ونؤهله ونصل به إلى اجتماع، بقيمته ومرحلته والإجراء التالي. أما طلبات خدماتك لدى Business Partner فمكانها منصّة العملاء.'),
-        pkgCta())}`;
+      ${onTrial
+        ? emptyState(L('Your trial is open — tell us who to target', 'تجربتك مفتوحة — أخبرنا بمن نستهدف'),
+            L('Send us your sector, target market and average deal size, and we start building the target list during the trial. Every account we target, qualify and take to a meeting appears here with its value, stage and next action.',
+              'أرسل لنا قطاعك والسوق المستهدف ومتوسط قيمة الصفقة، ونبدأ ببناء قائمة الاستهداف خلال التجربة. وكل حساب نستهدفه ونؤهله ونصل به إلى اجتماع يظهر هنا بقيمته ومرحلته والإجراء التالي.'),
+            startCta())
+        : emptyState(L('No opportunities generated yet', 'لا توجد فرص مولّدة بعد'),
+            L('Once a BD as a Service package is running, every account we target, qualify and take to a meeting shows up here with its value, stage and next action. Your own service orders with Business Partner live in the client portal.',
+              'بمجرد تشغيل باقة تطوير الأعمال كخدمة، يظهر هنا كل حساب نستهدفه ونؤهله ونصل به إلى اجتماع، بقيمته ومرحلته والإجراء التالي. أما طلبات خدماتك لدى Business Partner فمكانها منصّة العملاء.'),
+            pkgCta())}`;
     },
     revenue() {
       const o = orderSummary();
@@ -168,7 +241,7 @@
       ${d.length ? `<article class="dash-card">${table([L('Document', 'المستند'), L('Category', 'التصنيف'), L('Verification', 'حالة التحقق'), L('Date', 'التاريخ')], d.map((x) => [esc(x.title), esc(x.category || '—'), statusChip(x.verify_status === 'verified' ? 'مكتمل' : 'قيد المراجعة'), esc(String(x.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No documents yet', 'لا توجد مستندات بعد'), L('Upload your documents from the client portal and they show up here immediately.', 'ارفع مستنداتك من منصّة العملاء وتظهر هنا مباشرة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Open the client portal', 'فتح منصّة العملاء')}</a>`)}`;
     },
   };
-  // Sections that activate with a running Revenue OS package — honest empty
+  // Sections that activate with a running BD-as-a-Service package — honest empty
   // states, no invented numbers.
   const soon = {
     accounts: [L('Target accounts', 'الحسابات المستهدفة'), L('Target company lists (ICP) are built and appear here once your package starts running.', 'قوائم الشركات المستهدفة (ICP) تُبنى وتظهر هنا مع بدء تشغيل باقتك.')],
@@ -183,21 +256,31 @@
     views[k] = () => head(soon[k][0], L('Real data only — no demo numbers.', 'بيانات حقيقية فقط — لا أرقام تجريبية.')) + emptyState(soon[k][0], soon[k][1], pkgCta());
   });
 
-  // Seven of the twelve sections only fill up once a Revenue OS package is
-  // running. Left unmarked they read as broken pages, so label them in the
-  // sidebar rather than letting the client discover seven identical blanks.
-  (function () {
+  // Seven of the twelve sections only fill up once the service is actually
+  // running for this client. Left unmarked they read as broken pages, so the
+  // sidebar says so rather than letting them discover seven identical blanks.
+  //
+  // Called from render(), not at load: whether the service is running depends on
+  // the orders and the trial, and neither has arrived yet when this file
+  // executes. Tagging every section "with plan" to a client whose free trial is
+  // live would be telling them they lack something they have.
+  function markSections() {
+    const open = planOpen();
     Object.keys(soon).forEach((k) => {
       const btn = nav.querySelector('button[data-view="' + k + '"]');
       if (!btn) return;
-      btn.style.opacity = "0.62";
-      btn.title = L("Activates with a Revenue OS subscription", "تُفعَّل مع اشتراك Revenue OS");
+      btn.style.opacity = open ? "" : "0.62";
+      btn.title = open ? "" : L("Activates with a BD as a Service subscription", "تُفعَّل مع اشتراك تطوير الأعمال كخدمة");
+      const existing = btn.querySelector("small[data-plan-tag]");
+      if (open) { if (existing) existing.remove(); return; }
+      if (existing) return;
       const tag = document.createElement("small");
+      tag.setAttribute("data-plan-tag", "1");
       tag.textContent = L("with plan", "مع الباقة");
       tag.style.cssText = "margin-inline-start:auto;font-size:10px;font-weight:800;background:#EEF1F8;color:#0B1B5A;padding:1px 7px;border-radius:20px";
       btn.appendChild(tag);
     });
-  })();
+  }
 
   const TITLES_AR = { overview: 'نظرة عامة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
   const titles = new Proxy({}, { get: (_, k) => (lang === 'en' ? (NAV_EN[k] || '') : (TITLES_AR[k] || '')) });
@@ -207,6 +290,7 @@
     if (state.error) { content.innerHTML = emptyState(L('Could not load your data', 'تعذّر تحميل البيانات'), L('Sign in from the client portal, then come back to the dashboard.', 'سجّل الدخول من منصّة العملاء ثم عد إلى اللوحة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}?redirect=revenue" style="text-decoration:none">${L('Sign in', 'تسجيل الدخول')}</a>`); return; }
     content.innerHTML = (views[current] || views.overview)();
     if (title) title.textContent = titles[current] || '';
+    markSections();
   }
   nav.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-view]');
@@ -232,7 +316,7 @@
     const note = document.querySelector('.prototype-note + .prototype-note') || document.querySelector('.prototype-note');
     if (note) note.innerHTML = note.innerHTML.replace('بيانات حقيقية من حسابك', 'Real data from your account').replace('مرتبطة بمنصّة العملاء والسلة', 'connected to your client portal and cart').replace('فتح منصّة العملاء', 'Open the client portal');
     const crumb = document.querySelector('.crumb small');
-    if (crumb) crumb.textContent = 'Business Partner / Client Workspace';
+    if (crumb) crumb.textContent = 'Business Partner / BD as a Service';
   })();
 
   render();
@@ -243,7 +327,7 @@
     jf('/api/requests?action=my-ops&what=tasks'),
     jf('/api/requests?action=my-ops&what=documents'),
   ]).then(([ord, ov, tk, dc]) => {
-    if (ord && ord.ok) state.orders = ord.orders || [];
+    if (ord && ord.ok) { state.orders = ord.orders || []; state.bd = ord.bd || null; }
     else if (ord && ord.error === 'unauthorized') { location.href = '/ar/account?redirect=revenue'; return; }
     if (ov && ov.ok) state.overview = ov;
     if (tk && tk.ok) state.tasks = tk.items || [];

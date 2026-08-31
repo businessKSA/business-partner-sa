@@ -1056,7 +1056,7 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
           <a class="tool" href="/ar/compliance-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🛡️</span><h4>لوحة مستشار الامتثال</h4><p>اللوحة التي يراها مشترك خدمة الامتثال — مراقبة المنصات الحكومية والتنبيهات.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/ar/employer-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🏢</span><h4>لوحة منصة التوظيف</h4><p>لوحة أصحاب العمل المشتركين في منصة التوظيف — المرشحون والطلبات.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/ar/portal/dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">👥</span><h4>بوابة الاستقدام HR</h4><p>لوحة عملاء بوابة الاستقدام والتوظيف hr.businesspartner.sa.</p><span class="go">فتح ←</span></a>
-          <a class="tool" href="/revenue-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📈</span><h4>لوحة Revenue OS — البايبلاين</h4><p>الفرص والـPipeline والإيرادات والتحصيل — ما يراه مشترك Revenue OS في لوحته.</p><span class="go">فتح ←</span></a>
+          <a class="tool" href="/business-development-dashboard" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📈</span><h4>لوحة تطوير الأعمال كخدمة — البايبلاين</h4><p>الفرص والـPipeline والإيرادات والتحصيل — ما يراه مشترك تطوير الأعمال كخدمة في لوحته.</p><span class="go">فتح ←</span></a>
           <a class="tool" href="/account" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">📄</span><h4>بوابة العملاء</h4><p>تتبع الطلبات والمستندات — ما يراه العميل بعد شراء أي خدمة.</p><span class="go">فتح ←</span></a>
           <a class="tool" id="qpAdminCard" href="#" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">📑</span><h4>لوحة عروض الأسعار والعقود</h4><p>إصدار العروض وتحويلها لعقود، التوقيع الإلكتروني، مطالبات السداد، وملفات العملاء. حالتها تُقرأ من أداة «لوحة العروض» في الأدوات.</p><span class="go">فتح ←</span></a>
           <a class="tool" id="qpPortalCard" href="#" target="_blank" rel="noopener"><span class="tag">لوحة عملاء</span><span class="ico">🗂️</span><h4>بوابة العميل — العروض والعقود</h4><p>ما يراه العميل من عروضه وعقوده ومطالباته. ويظهر له أيضاً داخل «حسابي» على الموقع.</p><span class="go">فتح ←</span></a>
@@ -2314,7 +2314,22 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
             ? '🏢 باسم منشأة · ' + esc(l.tax.nameAr || '—') + (l.tax.vat ? ' · ض: ' + esc(l.tax.vat) : '')
             : '👤 باسم شخصي (مبسّطة)') + '</span></div>') : '') +
         f('التاريخ', fmtDate(l.at) + (l.createdAt ? ' · وصل ' + fmtDate(l.createdAt) : ''));
-      $('dBody').innerHTML = notesHtml(l.notes || l.details);
+      // A monthly subscription is not the same commitment as a one-off order:
+      // show the renewal price and the commission the client agreed to, so the
+      // team approves it knowing what it renews at.
+      var subs = l.subscriptions || [];
+      $('dBody').innerHTML =
+        (subs.length
+          ? '<div style="background:#FFFBF2;border:1px solid #E7D9B8;border-radius:10px;padding:10px 12px;margin-bottom:12px">' +
+            '<b style="color:#7C530E">🔁 اشتراك شهري — وافق عليه العميل عند الدفع</b>' +
+            subs.map(function(s){
+              return '<div style="margin-top:6px;font-size:13px">' + esc(s.name) +
+                ' — يتجدد بـ <b>' + esc(String(s.renewsAt)) + ' ﷼ شهرياً</b>' +
+                ' · عمولة نجاح <b>' + esc(String(s.commissionPercent)) + '%</b> على الإيراد المحصّل</div>';
+            }).join('') +
+            '<div style="margin-top:8px;color:#7C530E;font-size:12px">التجديد ليس آلياً — ضع تذكير التجديد بعد الاعتماد.</div></div>'
+          : '') +
+        notesHtml(l.notes || l.details);
       var files = l.receipts || [];
       $('dFilesWrap').style.display = files.length ? 'block' : 'none';
       if (files.length){

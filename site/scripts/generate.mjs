@@ -14,9 +14,8 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
 const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex").slice(0, 10);
 const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
+const BDAAS_JS_V = assetV("assets/js/business-development.js");
 const LIVE_V = assetV("assets/js/live-prices.js");
-const REVOS_CSS_V = assetV("assets/css/revenue-os-page.css");
-const REVOS_JS_V = assetV("assets/js/revenue-os-v1.js");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -769,11 +768,11 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
+    // Owner decision (2026-08-31): the floating "Ask Baher" advisor is off the
+    // public site — the green WhatsApp button is the only floating action. This
+    // has been reversed once before, so advisorWidget() is kept intact below
+    // rather than deleted; restoring it is re-adding the call here.
     waFab() +
-    // Owner request (2026-08): restore the floating "Ask Baher" widget
-    // (guided desk: services → quote, book a consultation, and live chat)
-    // alongside the green WhatsApp button.
-    advisorWidget() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
@@ -1287,7 +1286,7 @@ function buildHome() {
     [L("HR & Workforce", "الموارد البشرية"), catUrl("HR Services")],
     [L("Compliance & Violations", "الامتثال والمخالفات"), u("/compliance-agent")],
     [L("Offices & Housing", "المكاتب والسكن"), u("/workspaces")],
-    [L("Business Development", "تطوير الأعمال"), u("/revenue-os")],
+    [L("Business Development", "تطوير الأعمال"), u("/business-development")],
   ].map(([t, href]) => `<a href="${href}">${t}</a>`).join("");
 
   const hero = `<section class="bph-hero"><div class="bph-wrap">
@@ -1387,7 +1386,7 @@ function buildHome() {
     ["B10X", L("Smart Advisor", "المستشار الذكي"), L("Available 24/7 to understand your goal and route the next action.", "متاح 24/7 لفهم المطلوب وتحديد الخدمة والخطوة التالية."), "#bp-consultant"],
     ["AI", L("Compliance Advisor", "مستشار الامتثال"), L("Tracks obligations, violations, deadlines and remediation paths.", "يراقب الالتزامات والمخالفات والمواعيد ومسارات المعالجة."), u("/compliance-agent")],
     ["AI", L("Document Advisor", "مستشار المستندات"), L("Reads your files, extracts data and checks requirements inside your account.", "يقرأ الملفات ويستخرج البيانات ويتحقق من المتطلبات داخل حسابك."), u("/ai-document-agent")],
-    ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/revenue-os")],
+    ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/business-development")],
   ].map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const areas = [
@@ -1398,7 +1397,7 @@ function buildHome() {
     ["05", L("Offices & real estate", "المكاتب والعقار"), L("Offices, workspaces, real-estate search and workplace operations.", "مكاتب، مساحات عمل، بحث عقاري وحلول تشغيل المكان."), u("/workspaces")],
     ["06", L("Housing & relocation", "السكن والانتقال"), L("Worker housing, executive housing, relocation and support services.", "سكن العمالة، السكن التنفيذي، Relocation والخدمات المساندة."), u("/worker-housing")],
     ["07", L("Legal & contracts", "القانونية والعقود"), L("Contracts, agreements and legal reviews tied to operations.", "عقود واتفاقيات ومراجعات قانونية مرتبطة بتشغيل الشركة."), u("/packages") + "#pkg-legal"],
-    ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/revenue-os")],
+    ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/business-development")],
   ].map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const svc = `<section class="bph-services" id="bp-services"><div class="bph-wrap">
@@ -1723,7 +1722,7 @@ function buildServicesIndex() {
   </div></section>
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Revenue OS — business development as a service ⚡", "Revenue OS — تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore Revenue OS", "استعرض Revenue OS")}</a></div>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>`;
   return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
@@ -1852,184 +1851,199 @@ function buildServiceDetail(s) {
   return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
 }
 
-/* ---------- Revenue OS (/revenue-os) ----------
-   Built through the site's own page() so it carries the real header (with the
-   language switcher), footer and WhatsApp button like every other page. Its
-   own visual language lives in revenue-os-page.css, scoped under .revos so it
-   cannot collide with styles.css. */
-function buildRevenueOS() {
+/* ---------- Business Development as a Service (/business-development) ----------
+   Built entirely from the site's own components — hero / section / section-head /
+   grid / card / home-steps / pkg / faq-item — so it looks like the rest of the
+   site instead of a separate microsite bolted on. It used to ship its own
+   stylesheet (revenue-os-page.css, every rule scoped under .revos), which is
+   exactly why it read as off-brand: a second design system on one domain.
+
+   The 14-day trial is the headline offer, not a footnote: every client who
+   registers in the portal gets the service free for a fortnight, so the primary
+   call to action is "start the trial", and buying a package is the step after. */
+function buildBdaas() {
   const track = (en, ar) => `data-track="${esc(L(en, ar))}"`;
-  const feeLine = (succ, close) =>
-    `<div class="fee">${L("Success fee", "عمولة النجاح")} <strong>${succ}</strong> + ${L("closing add-on", "إضافة الإغلاق")} <strong>${close}</strong> — ${L("on revenue actually collected", "على الإيراد المحصّل فعليًا")}</div>`;
-  const pkgBtn = (code, amount, nameEn, nameAr, label, primary) =>
-    `<a class="btn${primary ? " btn-primary" : ""}" href="#" data-revos-cart="${code}" data-amount="${amount}" data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}">${label}</a>`;
+  // One commission number, on collected revenue only. The page used to print two
+  // (success + closing) which nobody could tell apart and which read as ~12.5%.
+  const fee = (rate) =>
+    rate === 0
+      ? `<p class="pk-surcharge"><b>${L("No commission", "بدون عمولة")}</b> — ${L("a fixed monthly price, whatever you close.", "سعر شهري ثابت، مهما أغلقت.")}</p>`
+      : `<p class="pk-surcharge"><b>${L("Success fee", "عمولة نجاح")} ${rate}%</b> — ${L("on revenue you actually collect from the deals we generate.", "على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.")}</p>`;
+  // The line that makes the ladder mean something: paying a commission is what
+  // buys our closing team. Below it, we generate and qualify and the client closes.
+  const closer = (us) =>
+    `<p class="pk-for">${us
+      ? `<b>${L("We close with you", "نُغلق معك")}</b> — ${L("proposals, negotiation and collection follow-up.", "عروض وتفاوض ومتابعة تحصيل.")}`
+      : `<b>${L("You close", "أنت تُغلق")}</b> — ${L("we generate, qualify and book the meetings.", "نحن نولّد ونؤهّل ونحجز الاجتماعات.")}`}</p>`;
+  const feats = (items) => `<ul>${items.map((f) => `<li>${I.check}<span>${f}</span></li>`).join("")}</ul>`;
+  // The site-wide .add-cart button (main.js owns it) rather than a second cart
+  // path of this page's own — the subscription fields ride along as data-*.
+  const buy = (code, amount, nameEn, nameAr, label, primary, commission, renews) =>
+    `<button type="button" class="btn ${primary ? "btn-primary" : "btn-ghost"} add-cart" style="width:100%"
+      data-id="${esc(code)}" data-kind="package" data-amount="${amount}"
+      data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+      data-price-public="1" data-billing="monthly" data-commission="${commission}"${renews ? ` data-renews-at="${renews}"` : ""}
+    >🛒 ${label}</button>`;
+  const quoteBtn = (label) => `<a class="btn btn-ghost" style="width:100%" href="#leadForm">${label}</a>`;
 
-  const body = `<div class="revos">
-  <section class="hero dot-bg"><div class="container hero-inner">
-    <span class="eyebrow">Business Partner Revenue OS</span>
-    <h1>${L("We build the customer and supplier base", "نبني لك قاعدة العملاء والموردين")} <span>${L("your business grows on.", "التي ينمو عليها عملك.")}</span></h1>
-    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary" href="#leadForm">${L("Start building your pipeline →", "ابدأ بناء الـPipeline ←")}</a><a class="btn" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a></div>
-    <div class="proof"><span>${L("Without hiring a full team", "بدون توظيف فريق كامل")}</span><span>${L("CRM and live reports", "CRM وتقارير مباشرة")}</span><span>${L("Customers, suppliers and partners", "عملاء وموردون وشركاء")}</span></div>
+  const tiers = [
+    { name: "Starter", forUs: true, price: L("Performance only", "أداء فقط"), per: L("no monthly fee", "بدون رسوم شهرية"), commission: 18,
+      items: [L("Runs as capacity allows", "تشغيل حسب التوفر"), L("Basic pipeline", "Pipeline أساسي"), L("Short results report", "تقرير نتائج مختصر")],
+      cta: null },
+    // No introductory month: the 14-day trial is the offer that gets a client
+    // in, and a discounted first month on top of it only muddies the ladder.
+    { name: "Connect", forUs: false, amount: 499, commission: 12, priceNum: 499,
+      items: [L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة"), L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك"), L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")],
+      code: "revos-connect", nameEn: "BD as a Service — Connect (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)",
+      cta: L("Subscribe to Connect", "اشترك في Connect") },
+    { name: "Launch", forUs: false, amount: 2500, commission: 8, priceNum: 2500,
+      items: [L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M"), L("A defined database", "قاعدة بيانات محددة"), L("Qualification and a monthly report", "تأهيل وتقرير شهري")],
+      code: "revos-launch", nameEn: "BD as a Service — Launch (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)",
+      cta: L("Subscribe to Launch", "اشترك في Launch") },
+    { name: "Growth", forUs: false, amount: 5000, commission: 0, priceNum: 5000, highlight: true,
+      badge: L("Most chosen", "الأكثر اختيارًا"),
+      items: [L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M"), L("CRM and weekly reports", "CRM وتقارير أسبوعية"), L("Multi-channel campaigns", "حملات متعددة القنوات")],
+      code: "revos-growth", nameEn: "BD as a Service — Growth (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)",
+      cta: L("Subscribe to Growth", "اشترك في Growth") },
+    { name: "Professional", forUs: true, amount: 9500, commission: 5, priceNum: 9500,
+      items: [L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M"), L("Forecast and proposal management", "Forecast وإدارة عروض"), L("Negotiation support", "دعم التفاوض")],
+      code: "revos-professional", nameEn: "BD as a Service — Professional (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)",
+      cta: L("Subscribe to Professional", "اشترك في Professional") },
+    { name: "Enterprise", forUs: true, commission: 3, price: L("From 15,000 SAR", "يبدأ من 15,000 ﷼"), per: L("monthly + VAT", "شهريًا + الضريبة"),
+      items: [L("Pipeline starting at 10M", "Pipeline يبدأ من 10M"), L("Executive dashboards", "لوحات تنفيذية"), L("Custom SLA", "SLA مخصص")],
+      cta: null },
+    { name: "Dedicated Team", forUs: true, commission: 2, price: L("From 20,000 SAR", "يبدأ من 20,000 ﷼"), per: L("monthly + VAT", "شهريًا + الضريبة"),
+      items: [L("SDR and account manager", "SDR وAccount Manager"), L("Pipeline per SLA", "Pipeline حسب SLA"), L("Custom integrations and automation", "تكاملات وأتمتة مخصصة")],
+      cta: null },
+  ];
+
+  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}"${t.badge ? ` data-badge="${esc(t.badge)}"` : ""}>
+    <div class="pk-name">${t.name}</div>
+    <div class="pk-price">${t.priceNum ? `${t.priceNum.toLocaleString("en-US")} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span>` : `${t.price} <span class="pk-per">${t.per}</span>`}</div>
+    ${t.intro ? `<p class="pk-intro">${t.intro}</p>` : ""}
+    ${closer(t.forUs)}
+    ${feats(t.items)}
+    ${fee(t.commission)}
+    ${t.cta ? buy(t.code, t.amount, t.nameEn, t.nameAr, t.cta, !!t.highlight, t.commission, t.renews) : quoteBtn(L("Talk to us", "تحدث معنا"))}
+  </div>`;
+
+  const paths = [
+    ["↗", L("I need customers", "أبحث عن عملاء"), L("We build the target market, reach decision makers and turn interest into real opportunities.", "نبني السوق المستهدف ونصل إلى صناع القرار ونحوّل الاهتمام إلى فرص فعلية."), L("I need customers", "أبحث عن عملاء")],
+    ["◎", L("I need suppliers", "أبحث عن موردين"), L("We search, compare and qualify suppliers locally and globally against your commercial and technical needs.", "نبحث ونقارن ونؤهل الموردين محليًا وعالميًا وفق الاحتياج التجاري والفني."), L("I need suppliers", "أبحث عن موردين")],
+    ["◇", L("I need a partner or distributor", "أبحث عن شريك أو موزع"), L("We build expansion channels, partnerships and protected introductions with clear agreements and commissions.", "نبني قنوات توسع وشراكات ومقدمات محمية باتفاقيات وعمولات واضحة."), L("I need a partner or distributor", "أبحث عن موزعين أو شركاء")],
+  ].map(([ico, h, p, tr]) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${ico}</div><h3>${h}</h3><p>${p}</p><a class="btn btn-ghost btn-sm" href="#leadForm" ${track(tr, tr)}>${L("Start this track", "ابدأ هذا المسار")}</a></div>`).join("");
+
+  const steps = [
+    [1, L("Targeting & research", "الاستهداف والبحث"), L("We define the ideal customer profile and build the target company list for your sector and market.", "نحدّد ملف العميل المثالي ونبني قائمة الشركات المستهدفة لقطاعك وسوقك.")],
+    [2, L("Qualification & outreach", "التأهيل والتواصل"), L("We qualify each account and reach decision makers across channels, with your approval at the sensitive points.", "نؤهّل كل حساب ونصل إلى صنّاع القرار عبر القنوات، باعتمادك في النقاط الحساسة.")],
+    [3, L("Meetings & opportunities", "الاجتماعات والفرص"), L("Booked meetings become documented opportunities in the CRM, each with a value, a stage and a next action.", "الاجتماعات المحجوزة تتحول إلى فرص موثقة في CRM، لكل واحدة قيمة ومرحلة وإجراء تالٍ.")],
+    [4, L("Contract & collection", "العقد والتحصيل"), L("Proposals, negotiation and follow-up through to a signed contract and revenue actually collected.", "عروض وتفاوض ومتابعة حتى عقد موقّع وإيراد محصّل فعليًا.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+
+  const platform = [
+    ["▣", L("CRM for customers, suppliers and partners", "CRM للعملاء والموردين والشركاء"), L("Company and contact files, stages, sources, match scores and next actions.", "ملفات شركات وجهات اتصال ومراحل ومصادر ودرجات مطابقة وإجراءات تالية.")],
+    ["♢", L("Deal-source protection", "حماية مصدر الصفقة"), L("The opportunity source, the agreement and the commission basis are recorded — relationships do not depend on memory.", "مصدر الفرصة والاتفاقية وقاعدة العمولة موثقة — ولا تعتمد العلاقات على الذاكرة.")],
+    ["☎", L("Meetings and follow-up", "الاجتماعات والمتابعة"), L("Reminders, summaries, objections, decisions and the next best action after every meeting.", "تذكيرات وملخصات واعتراضات وقرارات والإجراء التالي بعد كل اجتماع.")],
+    ["⚙", L("Automation with human approval", "أتمتة باعتماد بشري"), L("Every state triggers the right action, and a person approves before anything reaches your market.", "كل حالة تطلق الإجراء المناسب، ويعتمد إنسان قبل أن يصل أي شيء إلى سوقك.")],
+  ].map(([ico, h, p]) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${ico}</div><h3>${h}</h3><p>${p}</p></div>`).join("");
+
+  const industries = [["Contracting & construction", "المقاولات والإنشاءات"], ["Recruitment & workforce", "التوظيف والقوى العاملة"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Real estate", "العقار"], ["Hospitality", "الضيافة"], ["Manufacturing", "التصنيع"], ["Professional services", "الخدمات المهنية"], ["Mega projects", "المشاريع الكبرى"]]
+    .map(([en, ar]) => `<span class="sector-chip">${L(en, ar)}</span>`).join("");
+
+  const faqs = [
+    [L("What exactly do I get in the free 14 days?", "ما الذي أحصل عليه فعليًا في الأربعة عشر يومًا؟"),
+     L("The client workspace opens with your own data: the pipeline view, meetings, tasks, documents and reports. Tell us your sector and target market and we start building the target list during the trial. No card, no commitment, and it ends by itself.",
+       "تُفتح مساحة العميل ببياناتك أنت: عرض الـPipeline والاجتماعات والمهام والمستندات والتقارير. أخبرنا بقطاعك وسوقك المستهدف ونبدأ ببناء قائمة الاستهداف خلال التجربة. بلا بطاقة، وبلا التزام، وتنتهي من تلقاء نفسها.")],
+    [L("Why does one package carry no commission at all?", "لماذا توجد باقة بدون أي عمولة؟"),
+     L("Because the commission buys our closing team, not the pipeline. On Growth we generate, qualify and book your meetings for one fixed monthly price and your own team closes — so there is nothing to take a percentage of. From Professional up we sit in the negotiation with you, and the commission is what pays for that.",
+       "لأن العمولة تشتري فريق الإغلاق لدينا، لا الـPipeline نفسه. في باقة Growth نولّد ونؤهّل ونحجز اجتماعاتك بسعر شهري ثابت وفريقك هو من يُغلق — فلا شيء نأخذ عليه نسبة. ومن Professional فأعلى نجلس معك في التفاوض، والعمولة هي ما يدفع مقابل ذلك.")],
+    [L("Do you take a commission on my existing customers?", "هل تأخذون عمولة على عملائي الحاليين؟"),
+     L("No. The commission applies only to opportunities we generated and documented in your CRM before the first contact, and only on revenue you have actually collected — not on a signed contract or an unpaid invoice.",
+       "لا. العمولة تُطبَّق فقط على الفرص التي ولّدناها وسُجّلت في CRM قبل أول تواصل، وعلى الإيراد الذي حصّلته فعليًا — لا على عقد موقّع ولا على فاتورة لم تُدفع.")],
+    [L("Does pipeline value mean guaranteed revenue?", "هل قيمة الـPipeline تعني إيرادًا مضمونًا؟"),
+     L("No. It is a target value for qualified opportunities and depends on offer quality, the market, response speed and closing factors.",
+       "لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.")],
+    [L("When is the success fee due?", "متى تستحق عمولة النجاح؟"),
+     L("Within fifteen days of you actually collecting the revenue, invoiced separately from the monthly subscription.",
+       "خلال خمسة عشر يومًا من تحصيلك للإيراد فعليًا، وبفاتورة مستقلة عن الاشتراك الشهري.")],
+  ].map(([q, a]) => `<div class="faq-item"><button class="faq-q" aria-expanded="false">${q} ${I.chevron}</button><div class="faq-a"><p>${a}</p></div></div>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Business development as a service", "تطوير الأعمال كخدمة")}</span>
+    <h1>${L("We build the customer and supplier base your business grows on", "نبني لك قاعدة العملاء والموردين التي ينمو عليها عملك")}</h1>
+    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس — بدون توظيف فريق كامل.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 14 days free", "ابدأ 14 يومًا مجانًا")}</a>
+      <a class="btn btn-ghost btn-lg" href="#pricing">${L("See the packages", "استعرض الباقات")}</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Free for 14 days with any account", "مجانًا 14 يومًا مع أي حساب")}</span>
+      <span class="hero-badge">${I.check}${L("No card, no commitment", "بلا بطاقة وبلا التزام")}</span>
+      <span class="hero-badge">${I.check}${L("Commission only on revenue you collect", "العمولة على ما تحصّله فقط")}</span>
+    </div>
   </div></section>
 
-  <nav class="section-nav"><div class="container chip-row">
-    <a class="sector-chip" href="#paths">${L("Tracks", "المسارات")}</a>
-    <a class="sector-chip" href="#platform">${L("Platform", "المنصة")}</a>
-    <a class="sector-chip" href="#method">${L("How it works", "كيف نعمل")}</a>
-    <a class="sector-chip" href="#industries">${L("Industries", "القطاعات")}</a>
-    <a class="sector-chip" href="#pricing">${L("Packages", "الباقات")}</a>
-    <a class="sector-chip" href="#results">${L("Reports", "التقارير")}</a>
-    <a class="sector-chip" href="#faq">${L("FAQ", "الأسئلة")}</a>
-    <a class="sector-chip" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a>
-  </div></nav>
-
-  <section class="trust-strip"><div class="container">
-    <p>${L("Built for businesses that live on deals, relationships and supply chains", "مصمم للشركات التي تعتمد على الصفقات والعلاقات وسلاسل التوريد")}</p>
-    <div class="chip-row">${[["Contracting", "المقاولات"], ["Recruitment", "التوظيف"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Manufacturing", "التصنيع"], ["Real estate", "العقار"]].map(([en, ar]) => `<span class="sector-chip">${L(en, ar)}</span>`).join("")}</div>
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Fourteen days, free, the moment you register", "أربعة عشر يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 14 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 14 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/business-development-dashboard")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
-  <section class="section dot-bg" id="paths"><div class="container">
+  <section class="section section--gray" id="paths"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Three growth tracks", "ثلاثة مسارات للنمو")}</span><h2>${L("Pick what your business needs now", "اختر ما يحتاجه عملك الآن")}</h2><p>${L("Each track starts with a clear request and ends with documented opportunities and measurable next steps.", "كل مسار يبدأ بطلب واضح وينتهي بفرص موثقة وإجراءات تالية قابلة للقياس.")}</p></div>
-    <div class="paths">
-      <article class="path-card"><div class="card-icon">↗</div><h3>${L("I need customers", "أبحث عن عملاء")}</h3>
-        <p class="muted">${L("We build the target market, reach decision makers and turn interest into real opportunities.", "نبني السوق المستهدف ونصل إلى صناع القرار ونحوّل الاهتمام إلى فرص فعلية.")}</p>
-        <ul class="clean-list"><li>${L("ICP and company base", "ICP وقاعدة شركات")}</li><li>${L("Qualification and multi-channel outreach", "تأهيل وتواصل متعدد القنوات")}</li><li>${L("Meetings, opportunities and proposals", "اجتماعات وفرص وعروض")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need customers", "أبحث عن عملاء")}>${L("Start the customers track", "ابدأ مسار العملاء")}</a></article>
-      <article class="path-card"><div class="card-icon">◎</div><h3>${L("I need suppliers", "أبحث عن موردين")}</h3>
-        <p class="muted">${L("We search, compare and qualify suppliers locally and globally against your commercial and technical needs.", "نبحث ونقارن ونؤهل الموردين محليًا وعالميًا وفق الاحتياج التجاري والفني.")}</p>
-        <ul class="clean-list"><li>${L("Longlist and shortlist", "Longlist وShortlist")}</li><li>${L("Capabilities and certifications", "القدرات والشهادات")}</li><li>${L("RFQ and offer comparison", "RFQ ومقارنة العروض")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need suppliers", "أبحث عن موردين")}>${L("Start the suppliers track", "ابدأ مسار الموردين")}</a></article>
-      <article class="path-card"><div class="card-icon">◇</div><h3>${L("I need a partner or distributor", "أبحث عن شريك أو موزع")}</h3>
-        <p class="muted">${L("We build expansion channels, partnerships and protected introductions with clear agreements and commissions.", "نبني قنوات توسع وشراكات ومقدمات محمية باتفاقيات وعمولات واضحة.")}</p>
-        <ul class="clean-list"><li>${L("Partners and distributors", "Partners وDistributors")}</li><li>${L("Mandates and introductions", "Mandates وIntroductions")}</li><li>${L("Revenue share and commission", "Revenue Share وCommission")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need a partner or distributor", "أبحث عن موزعين أو شركاء")}>${L("Start the partnerships track", "ابدأ مسار الشراكات")}</a></article>
-    </div>
+    <div class="grid grid-3">${paths}</div>
   </div></section>
 
-  <section class="section" id="platform"><div class="container">
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "آلية العمل")}</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section section--gray" id="platform"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("The platform", "المنصة")}</span><h2>${L("The whole commercial relationship in one system", "كل العلاقة التجارية في نظام واحد")}</h2><p>${L("No abandoned spreadsheets and no scattered conversations: every account, opportunity, meeting, contract and collection has a clear record.", "لا قوائم بيانات مهملة ولا محادثات منفصلة؛ كل حساب وفرصة واجتماع وعقد وتحصيل له سجل واضح.")}</p></div>
-    <div class="bento">
-      <article class="feature-card"><div class="card-icon">▣</div><h3>${L("CRM for customers, suppliers and partners", "CRM للعملاء والموردين والشركاء")}</h3>
-        <p class="muted">${L("Company and contact files, stages, sources, match scores and next actions.", "ملفات شركات وجهات اتصال ومراحل ومصادر ودرجات مطابقة وإجراءات تالية.")}</p>
-        <div class="record-list">
-          <div class="record active"><span class="record-avatar">A</span><div><b>${L("Alpha Company", "شركة ألفا")}</b><small>${L("Qualified opportunity · Riyadh", "فرصة مؤهلة · الرياض")}</small></div><span class="record-tag">Score 91</span></div>
-          <div class="record"><span class="record-avatar">S</span><div><b>${L("Industrial supplier", "مورد صناعي")}</b><small>${L("Technical offer received", "عرض فني مستلم")}</small></div><span class="record-tag">Verified</span></div>
-          <div class="record"><span class="record-avatar">P</span><div><b>${L("Channel partner", "شريك قنوات")}</b><small>${L("Introduction agreement under review", "اتفاقية تعريف قيد المراجعة")}</small></div><span class="record-tag">Partner</span></div>
-        </div></article>
-      <article class="feature-card dark"><div class="card-icon">♢</div><h3>${L("Governance and commission protection", "حوكمة وحماية العمولة")}</h3>
-        <p>${L("Relationships do not depend on memory or scattered messages.", "لا تعتمد العلاقات على الذاكرة أو الرسائل المتفرقة.")}</p>
-        <div class="guard-list"><span>✓ ${L("The opportunity source is documented", "مصدر الفرصة موثق")}</span><span>✓ ${L("The agreement and commission basis are stored", "الاتفاقية وقاعدة العمولة محفوظة")}</span><span>✓ ${L("Disclosure and approval before outreach", "الإفصاح والموافقة قبل التواصل")}</span><span>✓ ${L("Revenue and collection tied to evidence", "الإيراد والتحصيل مرتبطان بالدليل")}</span></div></article>
-    </div>
-    <div class="bento-row">
-      <article class="feature-card"><div class="card-icon">☎</div><h3>${L("Smart meetings and follow-up", "اجتماعات ومتابعة ذكية")}</h3><p class="muted">${L("Reminders, summaries, objections, decisions, tasks and follow-up drafts.", "تذكيرات، ملخصات، اعتراضات، قرارات، Tasks وFollow-up draft.")}</p><ul class="clean-list"><li>${L("Show-rate and no-show tracking", "Show-rate وNo-show tracking")}</li><li>${L("Meeting intelligence", "Meeting intelligence")}</li><li>${L("Next best action", "Next Best Action")}</li></ul></article>
-      <article class="feature-card"><div class="card-icon">⚙</div><h3>${L("Automation that moves instead of your team", "أتمتة تتحرك بدل فريقك")}</h3><p class="muted">${L("Every state triggers the right action, with human approval at the sensitive points.", "كل حالة تطلق الإجراء المناسب مع Human Approval في النقاط الحساسة.")}</p>
-        <div class="flow-box"><span class="flow-node">${L("New lead", "Lead جديد")}</span><span>←</span><span class="flow-node core">${L("AI qualifies", "AI يؤهل")}</span><span>←</span><span class="flow-node">${L("Human approval", "اعتماد بشري")}</span><span>←</span><span class="flow-node">${L("Outreach", "تواصل")}</span><span>←</span><span class="flow-node">${L("CRM update", "تحديث CRM")}</span></div></article>
-    </div>
-  </div></section>
-
-  <section class="section-sm dot-bg" id="method"><div class="container">
-    <div class="section-head"><span class="eyebrow">Business Partner Revenue OS</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
-    <div class="journey">${[["Targeting", "استهداف"], ["Research", "بحث"], ["Qualification", "تأهيل"], ["Outreach", "تواصل"], ["Meeting", "اجتماع"], ["Contract", "عقد"], ["Collection", "تحصيل"]].map(([en, ar]) => `<div class="journey-step"><strong>${L(en, ar)}</strong><small>${en}</small></div>`).join("")}</div>
+    <div class="grid grid-2">${platform}</div>
   </div></section>
 
   <section class="section" id="industries"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد، Playbook مختلف لكل قطاع")}</h2><p>${L("Independent pages, messages and qualification criteria for each market.", "صفحات ورسائل ومعايير تأهيل مستقلة لكل سوق.")}</p></div>
-    <div class="industry-grid">${[["Contracting & construction", "المقاولات والإنشاءات"], ["Recruitment & workforce", "التوظيف والقوى العاملة"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Real estate", "العقار"], ["Hospitality", "الضيافة"], ["Manufacturing", "التصنيع"], ["Professional services", "الخدمات المهنية"], ["Mega projects", "المشاريع الكبرى"]].map(([en, ar]) => `<div class="industry-card">${L(en, ar)}</div>`).join("")}</div>
+    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد، Playbook مختلف لكل قطاع")}</h2></div>
+    <div class="chip-row" style="justify-content:center">${industries}</div>
   </div></section>
 
-  <section class="section dot-bg" id="pricing"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("The higher the subscription, the lower the performance rate", "كلما زاد الاشتراك، انخفضت نسبة الأداء")}</h2><p>${L("Choose the balance between a monthly fee and a fee on success and closing.", "اختر التوازن المناسب بين الرسوم الشهرية والعمولة على النجاح والإغلاق.")}</p></div>
-    <div class="pricing">
-      <article class="price-card"><h3>Starter</h3><p class="muted">${L("Entry with no monthly fee.", "دخول بدون رسوم شهرية.")}</p>
-        <div class="amount" style="font-size:1.05rem">${L("No monthly fee", "بدون رسوم شهرية")} <span>${L("performance only", "أداء فقط")}</span></div>
-        <ul class="clean-list"><li>${L("Runs as capacity allows", "تشغيل حسب التوفر")}</li><li>${L("Basic pipeline", "Pipeline أساسي")}</li><li>${L("Short results report", "تقرير نتائج مختصر")}</li></ul>
-        ${feeLine("12%", "3%")}<a class="btn" href="#leadForm">${L("Start now", "ابدأ الآن")}</a></article>
-
-      <article class="price-card"><h3>Connect</h3><p class="muted">${L("Tools and data you run yourself.", "أدوات وبيانات تشتغل بها بنفسك.")}</p>
-        <div class="amount">499 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة")}</li><li>${L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك")}</li><li>${L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")}</li></ul>
-        <div class="fee">${L("No success fee", "بدون عمولة نجاح")} — <strong>${L("tools, data and the dashboard only", "أدوات وبيانات ولوحة فقط")}</strong>, ${L("the delivery team starts at Launch", "وفريق التنفيذ يبدأ من Launch")}</div>
-        ${pkgBtn("revos-connect", 499, "Revenue OS — Connect (monthly)", "Revenue OS — باقة Connect (شهري)", L("Subscribe to Connect", "اشترك في Connect"), false)}</article>
-
-      <article class="price-card"><h3>Launch</h3><p class="muted">${L("For a structured trial.", "للتجربة المنظمة.")}</p>
-        <div class="amount">2,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M")}</li><li>${L("A defined database", "قاعدة بيانات محددة")}</li><li>${L("Qualification and a monthly report", "تأهيل وتقرير شهري")}</li></ul>
-        ${feeLine("10%", "2.5%")}${pkgBtn("revos-launch", 2500, "Revenue OS — Launch (monthly)", "Revenue OS — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false)}</article>
-
-      <article class="price-card featured"><span class="price-badge">${L("Most chosen", "الأكثر اختيارًا")}</span><h3>Growth</h3><p class="muted">${L("To build a continuous pipeline.", "لبناء مسار مستمر.")}</p>
-        <div class="amount">5,000 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M")}</li><li>${L("CRM and weekly reports", "CRM وتقارير أسبوعية")}</li><li>${L("Multi-channel campaigns", "حملات متعددة القنوات")}</li></ul>
-        ${feeLine("8%", "2%")}${pkgBtn("revos-growth", 5000, "Revenue OS — Growth (monthly)", "Revenue OS — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true)}</article>
-
-      <article class="price-card"><h3>Professional</h3><p class="muted">${L("For higher-value deals.", "للصفقات الأعلى قيمة.")}</p>
-        <div class="amount">9,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M")}</li><li>${L("Forecast and proposal management", "Forecast وإدارة عروض")}</li><li>${L("Negotiation support", "دعم التفاوض")}</li></ul>
-        ${feeLine("6%", "1.5%")}${pkgBtn("revos-professional", 9500, "Revenue OS — Professional (monthly)", "Revenue OS — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false)}</article>
-
-      <article class="price-card"><h3>Enterprise</h3><p class="muted">${L("For multiple markets and sectors.", "لأسواق وقطاعات متعددة.")}</p>
-        <div class="amount">${L("From 15,000 SAR", "يبدأ من 15,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Pipeline starting at 10M", "Pipeline يبدأ من 10M")}</li><li>${L("Executive dashboards", "لوحات تنفيذية")}</li><li>${L("Custom SLA", "SLA مخصص")}</li></ul>
-        ${feeLine("4%", "1%")}<a class="btn" href="#leadForm">${L("Talk to us", "تحدث معنا")}</a></article>
-
-      <article class="price-card"><h3>Dedicated Team</h3><p class="muted">${L("A dedicated business-development team.", "فريق تطوير أعمال مخصص.")}</p>
-        <div class="amount">${L("From 20,000 SAR", "يبدأ من 20,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("SDR and account manager", "SDR وAccount Manager")}</li><li>${L("Pipeline per SLA", "Pipeline حسب SLA")}</li><li>${L("Custom integrations and automation", "تكاملات وأتمتة مخصصة")}</li></ul>
-        ${feeLine("3%", "1%")}<a class="btn" href="#leadForm">${L("Request a proposal", "اطلب عرضًا")}</a></article>
-    </div>
-
-    <div class="paths" style="margin-top:26px">
-      <article class="path-card"><div class="card-icon">◷</div><h3>${L("Guided setup from day one", "تشغيل موجّه من البداية")}</h3><p class="muted">${L("We prepare the track, connect it to your data and launch it with you — no technical complexity and no extra headcount.", "نجهّز لك المسار ونربطه ببياناتك ونطلقه معك — بدون تعقيد تقني ولا فريق إضافي.")}</p></article>
-      <article class="path-card"><div class="card-icon">↗</div><h3>${L("Start with one track and expand", "ابدأ بمسار واحد وتوسّع")}</h3><p class="muted">${L("You do not need everything at once — start with customers or suppliers and move up whenever you grow.", "لا تحتاج تفعيل كل شيء دفعة واحدة — ابدأ بالعملاء أو الموردين وارفع باقتك متى ما نمت.")}</p></article>
-      <article class="path-card"><div class="card-icon">✓</div><h3>${L("No long commitment", "بدون التزام طويل")}</h3><p class="muted">${L("The subscription is monthly — change or stop it any time, and the diagnosis session before subscribing is free.", "الاشتراك شهري — غيّر باقتك أو أوقفها في أي وقت. وجلسة التشخيص قبل الاشتراك مجانية.")}</p></article>
-    </div>
+  <section class="section section--gray" id="pricing"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("One question decides your package: who closes the deal?", "سؤال واحد يحدد باقتك: من يُغلق الصفقة؟")}</h2><p>${L("Pay a monthly fee only and we generate, qualify and book the meetings while you close. Add a commission and our team closes with you — charged on revenue you actually collect, nothing else.", "ادفع رسومًا شهرية فقط فنولّد ونؤهّل ونحجز الاجتماعات وأنت تُغلق. أضف عمولة فيُغلق فريقنا معك — وتُحتسب على الإيراد الذي تحصّله فعليًا، لا شيء غيره.")}</p></div>
+    <div class="grid grid-3">${tiers.map(tierCard).join("")}</div>
+    <p class="pk-note" style="text-align:center;max-width:820px;margin:26px auto 0">${L("The commission is charged only on revenue collected from opportunities Business Partner generated and documented in your CRM — never on your existing customers, and never on an invoice you have not been paid for.", "العمولة تُحتسب فقط على الإيراد المحصّل من فرص ولّدها Business Partner وموثّقة في CRM الخاص بك — لا على عملائك الحاليين، ولا على فاتورة لم تُحصّلها بعد.")}</p>
   </div></section>
 
-  <section class="section" id="results"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("What reporting looks like", "شكل التقارير")}</span><h2>${L("We measure commercial value, not message count", "نقيس القيمة التجارية، لا عدد الرسائل")}</h2><p>${L("The figures below are design examples showing the shape of the client dashboard — they are not performance claims.", "الأرقام التالية أمثلة تصميمية توضح شكل لوحة العميل وليست ادعاءات أداء فعلية.")}</p></div>
-    <div class="case-grid">
-      <article class="case-card"><div class="case-number">2.4M <small>Pipeline</small></div><h3>${L("B2B customer track", "مسار عملاء B2B")}</h3><p class="muted">${L("Opportunities classified by value, stage and next action.", "فرص مصنفة حسب القيمة والمرحلة والإجراء التالي.")}</p></article>
-      <article class="case-card"><div class="case-number">19 <small>Suppliers</small></div><h3>${L("A qualified supplier network", "شبكة موردين مؤهلة")}</h3><p class="muted">${L("Capabilities, certifications, offers and negotiation status.", "قدرات وشهادات وعروض وحالة تفاوض.")}</p></article>
-      <article class="case-card"><div class="case-number">100% <small>Attribution</small></div><h3>${L("Deal-source protection", "حماية مصدر الصفقة")}</h3><p class="muted">${L("Introduction, meeting, contract, revenue and commission in one record.", "Introduction واجتماع وعقد وإيراد وعمولة في سجل واحد.")}</p></article>
-    </div>
-  </div></section>
-
-  <section class="section-sm dot-bg" id="faq"><div class="container">
+  <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("FAQ", "الأسئلة الشائعة")}</span><h2>${L("Before you start", "قبل أن تبدأ")}</h2></div>
-    <div class="faq">
-      <details open><summary>${L("Does pipeline value mean guaranteed revenue?", "هل قيمة الـPipeline تعني إيرادًا مضمونًا؟")}</summary><p>${L("No. It is a target value for qualified opportunities and depends on offer quality, the market, response speed and closing factors.", "لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.")}</p></details>
-      <details><summary>${L("When is the success fee due?", "متى تستحق عمولة النجاح؟")}</summary><p>${L("The agreement defines the trigger. The preferred model ties the fee to revenue actually collected.", "تحدد الاتفاقية نقطة الاستحقاق. النموذج المفضل يربط العمولة بالإيراد المحصل فعليًا.")}</p></details>
-      <details><summary>${L("What is the difference between the success fee and the closing add-on?", "ما الفرق بين عمولة النجاح وإضافة الإغلاق؟")}</summary><p>${L("The success fee relates to generating and managing the opportunity; the closing add-on relates to actually taking part in negotiation and signing.", "عمولة النجاح ترتبط بتوليد وإدارة الفرصة، وإضافة الإغلاق ترتبط بالمشاركة الفعلية في التفاوض والتوقيع.")}</p></details>
-      <details><summary>${L("Can we run the supplier track only?", "هل يمكن البحث عن الموردين فقط؟")}</summary><p>${L("Yes. Customers, suppliers, distributors or partners can each run as an independent track.", "نعم. يمكن تشغيل مسار مستقل للعملاء أو الموردين أو الموزعين أو الشركاء.")}</p></details>
-    </div>
+    <div class="faq-list" style="max-width:900px;margin:auto">${faqs}</div>
   </div></section>
 
-  <section class="section dot-bg" id="contact"><div class="container"><div class="cta-box">
-    <span class="eyebrow">${L("Start now", "ابدأ الآن")}</span>
-    <h2>${L("What pipeline value do you want to build in 90 days?", "ما قيمة الـPipeline التي تريد بناءها خلال 90 يومًا؟")}</h2>
-    <p>${L("Tell us your sector, market, average deal size and the relationships you need, and we will prepare the operating plan and the right package.", "شاركنا القطاع والسوق ومتوسط قيمة الصفقة ونوع العلاقات المطلوبة، وسنجهز تصور التشغيل والباقة المناسبة.")}</p>
-    <form class="lead-form" id="leadForm">
-      <input required id="rl-name" placeholder="${Lraw("Full name", "الاسم الكامل")}">
-      <input required id="rl-company" placeholder="${Lraw("Company name", "اسم الشركة")}">
-      <input required id="rl-email" type="email" placeholder="${Lraw("Email", "البريد الإلكتروني")}">
-      <input required id="rl-phone" placeholder="${Lraw("Mobile number", "رقم الجوال")}">
-      <select class="full" id="rl-track"><option>${L("I need customers", "أبحث عن عملاء")}</option><option>${L("I need suppliers", "أبحث عن موردين")}</option><option>${L("I need distributors or partners", "أبحث عن موزعين أو شركاء")}</option></select>
-      <textarea class="full" id="rl-notes" rows="4" placeholder="${Lraw("Describe your market and the outcome you want", "صف السوق والنتيجة المطلوبة")}"></textarea>
-      <button class="btn btn-primary full" id="rl-submit">${L("Request a diagnosis session", "اطلب جلسة تشخيص")}</button>
-      <div id="sent" class="full" hidden style="color:var(--success);font-weight:900;text-align:center"></div>
-      <div id="sentErr" class="full" hidden style="color:#b91c1c;font-weight:700;text-align:center">${L("We could not send the request right now — reach us on WhatsApp and we will help immediately.", "تعذّر إرسال الطلب الآن — تواصل معنا عبر واتساب وسنخدمك فورًا.")}</div>
+  <section class="section section--gray" id="leadForm"><div class="container" style="max-width:760px">
+    <div class="section-head"><span class="eyebrow">${L("Start now", "ابدأ الآن")}</span><h2>${L("What pipeline do you want to build in 90 days?", "ما قيمة الـPipeline التي تريد بناءها خلال 90 يومًا؟")}</h2><p>${L("Tell us the sector, the market, your average deal size and the relationships you need — we come back with the operating plan and the right package.", "شاركنا القطاع والسوق ومتوسط قيمة الصفقة ونوع العلاقات المطلوبة، ونعود لك بتصور التشغيل والباقة المناسبة.")}</p></div>
+    <form id="rl-form" novalidate>
+      <div class="join-grid">
+        <div class="field"><label for="rl-name">${L("Full name", "الاسم الكامل")} *</label><input type="text" id="rl-name" required></div>
+        <div class="field"><label for="rl-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="rl-company" required></div>
+        <div class="field"><label for="rl-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="rl-email" required></div>
+        <div class="field"><label for="rl-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="rl-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field field-full"><label for="rl-track">${L("Which track?", "أي مسار؟")}</label><select id="rl-track"><option>${L("I need customers", "أبحث عن عملاء")}</option><option>${L("I need suppliers", "أبحث عن موردين")}</option><option>${L("I need a partner or distributor", "أبحث عن موزعين أو شركاء")}</option></select></div>
+        <div class="field field-full"><label for="rl-notes">${L("Describe the market and the outcome you want", "صف السوق والنتيجة المطلوبة")}</label><textarea id="rl-notes" rows="4"></textarea></div>
+      </div>
+      <div class="join-actions"><button type="submit" class="btn btn-primary btn-lg" id="rl-submit">${L("Request a diagnostic session", "اطلب جلسة تشخيص")}</button></div>
+      <div class="form-success" hidden id="sent"></div>
+      <div class="form-error" hidden id="sentErr">${L("Could not send right now — reach us on WhatsApp and we'll take it from there.", "تعذّر إرسال الطلب الآن — تواصل معنا عبر واتساب وسنخدمك فورًا.")}</div>
     </form>
-  </div></div></section>
-  </div>`;
+  </div></section>`;
 
   return page({
-    title: Lraw("Revenue OS — customers, suppliers and revenue | Business Partner", "Revenue OS — العملاء والموردون والإيرادات | بيزنس بارتنر"),
-    desc: Lraw("Business Partner Revenue OS: we build your customer, supplier and partner base and run opportunities through to revenue and collection.", "Business Partner Revenue OS: نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
-    active: "/revenue-os",
-    path: "/revenue-os",
+    title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
+    desc: Lraw("Business Development as a Service by Business Partner: free for 14 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: مجانًا 14 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
+    active: "/business-development",
+    path: "/business-development",
     body,
-    extraHead: `<link rel="stylesheet" href="/assets/css/revenue-os-page.css?v=${REVOS_CSS_V}">`,
-    script: `<script src="/assets/js/revenue-os-v1.js?v=${REVOS_JS_V}"></script>`,
+    script: `<script src="/assets/js/business-development.js?v=${BDAAS_JS_V}"></script>`,
   });
 }
 
@@ -11701,7 +11715,7 @@ function buildB10X() {
       ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
       ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
       ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
-      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/revenue-os")}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/business-development")}
       ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
       ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
     </div>
@@ -11737,7 +11751,7 @@ function buildB10X() {
         <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
         <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
     </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/revenue-os")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
   </div></section>
 
   <section class="section dot-bg" id="mission"><div class="container">
@@ -11894,7 +11908,7 @@ function writeFullSite(pre) {
   write(`${pre}index.html`, buildHome());
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}revenue-os.html`, buildRevenueOS());
+  write(`${pre}business-development.html`, buildBdaas());
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
@@ -12238,13 +12252,35 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // Revenue OS subscriptions (sold from /revenue-os): monthly fee + success
-    // commission ladder. Codes match the cart item ids so the order API's
-    // server-side re-pricing can find them.
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-connect", key: "revos-connect", nameAr: "Revenue OS — باقة Connect (شهري)", nameEn: "Revenue OS — Connect (monthly)", amount: 499, priceLabel: "499 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["قائمة شركات مستهدفة", "التقاط عملاء وحجز مواعيد", "لوحة عميل وتقرير شهري", "بدون عمولة"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-launch", key: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, priceLabel: "2,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 1M", "عمولة نجاح 10% + إغلاق 2.5%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-growth", key: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, priceLabel: "5,000 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 3M", "عمولة نجاح 8% + إغلاق 2%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-professional", key: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, priceLabel: "9,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 10M", "عمولة نجاح 6% + إغلاق 1.5%"], url: `${base}/revenue-os` },
+    // BD-as-a-Service subscriptions (sold from /business-development). Owner-approved ladder
+    // (2026-08): ONE success-fee number, charged on collected revenue only, and
+    // the rate buys our closing team — pay a monthly fee alone and the client
+    // closes; pay a commission and we close with them. Codes match the cart item
+    // ids so the order API's server-side re-pricing can find them.
+    ...[
+      { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
+        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
+      { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 1M", "قاعدة بيانات محددة", "تأهيل وتقرير شهري"] },
+      { code: "revos-growth", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)", nameEn: "BD as a Service — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
+      { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
+        featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
+    ].map((p) => ({
+      group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
+      code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
+      priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
+      billingPeriod: "monthly",
+      // Commercial terms travel with the price so the order, the invoice and the
+      // admin panel all read the same number the pricing page printed.
+      commissionPercent: p.commission,
+      commissionBasisAr: p.commission
+        ? "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM"
+        : "بدون عمولة — سعر شهري ثابت",
+      closingByBusinessPartner: p.closedByUs,
+      featuresAr: p.featuresAr,
+      url: `${base}/business-development`,
+    })),
   ],
 };
 write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));

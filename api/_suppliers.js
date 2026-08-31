@@ -462,6 +462,29 @@ export async function quotesForClientRefs(refs) {
   return out;
 }
 
+/**
+ * A monthly package writes its accepted terms into the order note as
+ * "اشتراك شهري: <name> (يتجدد <n> ﷼/شهر · عمولة <p>%) ، …". The contract, the
+ * admin panel and the client's dashboard all need those terms back out of it,
+ * so the parse lives here rather than being re-guessed at each call site.
+ */
+export function parseSubsFromNotes(notes) {
+  // Matched globally rather than by first slicing out an "اشتراك شهري: …"
+  // segment: the terms themselves contain a "·" separator, so slicing on that
+  // character cut every value in half and returned nothing.
+  const re = /([^·،]+?)\s*\(يتجدد\s*([\d.]+)\s*﷼\/شهر\s*·\s*عمولة\s*([\d.]+)%\)/g;
+  const out = [];
+  let m;
+  while ((m = re.exec(String(notes || ""))) && out.length < 10) {
+    out.push({
+      name: m[1].replace(/^.*اشتراك شهري:\s*/, "").trim(),
+      renewsAt: Number(m[2]),
+      commissionPercent: Number(m[3]),
+    });
+  }
+  return out;
+}
+
 // Put the contract in front of the client. Extracted so the owner's button and
 // the automatic path that follows an acceptance send the SAME document — a
 // contract that differs depending on who triggered it is not one contract.
@@ -482,6 +505,10 @@ async function sendContractFor(o, { email, clientName, clientCr, clientVat }) {
     net: Math.round(net * 100) / 100, vat, total: Math.round((net + vat) * 100) / 100,
     vatRate: VAT_PCT, leadTime: o.leadTime, executor,
     today: new Date().toISOString().slice(0, 10),
+    // Subscription terms the client accepted at checkout, so the contract they
+    // sign states the renewal price and the success fee instead of reading like
+    // a one-off engagement that ends when the work is delivered.
+    subscription: parseSubsFromNotes(o.notes)[0] || null,
   });
   const env = await docusignSendContract({
     ref: o.clientRef || o.ref, email,

@@ -3,9 +3,9 @@ import path from 'node:path';
 
 const ROOT=path.resolve('site');
 const include=[
-  '/services','/packages','/b10x','/compliance-agent','/ai-document-agent','/shared-services','/workspaces','/worker-housing','/revenue-os','/about','/consultation','/task-force','/data','/deals','/tourism','/farina'
+  '/services','/packages','/b10x','/compliance-agent','/ai-document-agent','/shared-services','/workspaces','/worker-housing','/business-development','/about','/consultation','/task-force','/data','/deals','/tourism','/farina'
 ];
-const skip=['/account','/portal','/checkout','/cart','/admin','/suppliers','/agency-portal','/revenue-dashboard','/hr'];
+const skip=['/account','/portal','/checkout','/cart','/admin','/suppliers','/agency-portal','/business-development-dashboard','/hr'];
 
 const css=String.raw`<style id="bp-public-brand-v5-css">
 body.bp-public-brand-v5{--bp-navy:#07163f;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}

@@ -60,22 +60,22 @@
           ]
         },
         {
-          "href": "/revenue-os",
-          "en": "Revenue OS ⚡",
-          "ar": "Revenue OS — تطوير الأعمال ⚡",
+          "href": "/business-development",
+          "en": "BD as a Service ⚡",
+          "ar": "تطوير الأعمال كخدمة ⚡",
           "sub": [
             {
-              "href": "/revenue-os",
+              "href": "/business-development",
               "en": "How it works",
               "ar": "كيف يعمل"
             },
             {
-              "href": "/revenue-os#pricing",
+              "href": "/business-development#pricing",
               "en": "Packages & pricing",
               "ar": "الباقات والأسعار"
             },
             {
-              "href": "/revenue-dashboard",
+              "href": "/business-development-dashboard",
               "en": "Client dashboard",
               "ar": "لوحة العميل"
             }
@@ -423,9 +423,9 @@
           "ar": "منصّة العملاء"
         },
         {
-          "href": "/revenue-dashboard",
-          "en": "Revenue OS dashboard",
-          "ar": "لوحة Revenue OS"
+          "href": "/business-development-dashboard",
+          "en": "BD as a Service dashboard",
+          "ar": "لوحة تطوير الأعمال كخدمة"
         },
         {
           "href": "/portal",
