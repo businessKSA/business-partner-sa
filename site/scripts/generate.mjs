@@ -1858,8 +1858,8 @@ function buildServiceDetail(s) {
    stylesheet (revenue-os-page.css, every rule scoped under .revos), which is
    exactly why it read as off-brand: a second design system on one domain.
 
-   The 14-day trial is the headline offer, not a footnote: every client who
-   registers in the portal gets the service free for a fortnight, so the primary
+   The 30-day trial is the headline offer, not a footnote: every client who
+   registers in the portal gets the service free for a month, so the primary
    call to action is "start the trial", and buying a package is the step after. */
 function buildBdaas() {
   const track = (en, ar) => `data-track="${esc(L(en, ar))}"`;
@@ -1890,7 +1890,7 @@ function buildBdaas() {
     { name: "Starter", forUs: true, price: L("Performance only", "أداء فقط"), per: L("no monthly fee", "بدون رسوم شهرية"), commission: 18,
       items: [L("Runs as capacity allows", "تشغيل حسب التوفر"), L("Basic pipeline", "Pipeline أساسي"), L("Short results report", "تقرير نتائج مختصر")],
       cta: null },
-    // No introductory month: the 14-day trial is the offer that gets a client
+    // No introductory month: the 30-day trial is the offer that gets a client
     // in, and a discounted first month on top of it only muddies the ladder.
     { name: "Connect", forUs: false, amount: 499, commission: 12, priceNum: 499,
       items: [L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة"), L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك"), L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")],
@@ -1951,7 +1951,7 @@ function buildBdaas() {
     .map(([en, ar]) => `<span class="sector-chip">${L(en, ar)}</span>`).join("");
 
   const faqs = [
-    [L("What exactly do I get in the free 14 days?", "ما الذي أحصل عليه فعليًا في الأربعة عشر يومًا؟"),
+    [L("What exactly do I get in the free 30 days?", "ما الذي أحصل عليه فعليًا في الثلاثين يومًا؟"),
      L("The client workspace opens with your own data: the pipeline view, meetings, tasks, documents and reports. Tell us your sector and target market and we start building the target list during the trial. No card, no commitment, and it ends by itself.",
        "تُفتح مساحة العميل ببياناتك أنت: عرض الـPipeline والاجتماعات والمهام والمستندات والتقارير. أخبرنا بقطاعك وسوقك المستهدف ونبدأ ببناء قائمة الاستهداف خلال التجربة. بلا بطاقة، وبلا التزام، وتنتهي من تلقاء نفسها.")],
     [L("Why does one package carry no commission at all?", "لماذا توجد باقة بدون أي عمولة؟"),
@@ -1974,18 +1974,18 @@ function buildBdaas() {
     <h1>${L("We build the customer and supplier base your business grows on", "نبني لك قاعدة العملاء والموردين التي ينمو عليها عملك")}</h1>
     <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس — بدون توظيف فريق كامل.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 14 days free", "ابدأ 14 يومًا مجانًا")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 30 days free", "ابدأ 30 يومًا مجانًا")}</a>
       <a class="btn btn-ghost btn-lg" href="#pricing">${L("See the packages", "استعرض الباقات")}</a>
     </div>
     <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("Free for 14 days with any account", "مجانًا 14 يومًا مع أي حساب")}</span>
+      <span class="hero-badge">${I.check}${L("Free for 30 days with any account", "مجانًا 30 يومًا مع أي حساب")}</span>
       <span class="hero-badge">${I.check}${L("No card, no commitment", "بلا بطاقة وبلا التزام")}</span>
       <span class="hero-badge">${I.check}${L("Commission only on revenue you collect", "العمولة على ما تحصّله فقط")}</span>
     </div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Fourteen days, free, the moment you register", "أربعة عشر يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 14 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 14 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Thirty days, free, the moment you register", "ثلاثون يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 30 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 30 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
     <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/business-development-dashboard")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
@@ -2039,7 +2039,7 @@ function buildBdaas() {
 
   return page({
     title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
-    desc: Lraw("Business Development as a Service by Business Partner: free for 14 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: مجانًا 14 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
+    desc: Lraw("Business Development as a Service by Business Partner: free for 30 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: مجانًا 30 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
     active: "/business-development",
     path: "/business-development",
     body,

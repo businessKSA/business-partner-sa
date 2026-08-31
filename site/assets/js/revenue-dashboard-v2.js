@@ -116,7 +116,7 @@
   }
   // Four states. A client who paid an hour ago is "being activated", not "not
   // subscribed" — that reads as if the payment was lost. And every registered
-  // client gets 14 days of the service without buying it, so "no order" is a
+  // client gets 30 days of the service without buying it, so "no order" is a
   // trial, not a locked door.
   //
   // The trial dates come from the server (state.bd), anchored to the

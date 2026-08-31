@@ -1486,9 +1486,11 @@
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
           { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
         ];
-        // Business Development as a Service is included for 14 days with every
-        // account — no purchase. The card says which state they are in and how
-        // long is left, because a trial nobody is told about is not a trial.
+        // Business Development as a Service is included free with every account
+        // — no purchase. The card says which state they are in and how long is
+        // left, because a trial nobody is told about is not a trial. The length
+        // comes from the server (bd.totalDays, api/_trial.js), never a number
+        // typed in here: two places holding it is how copy starts lying.
         var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
           var isBd = pl[i].u === '/business-development-dashboard';
@@ -1500,7 +1502,10 @@
             cta = en ? 'Open your trial' : 'افتح تجربتك';
           } else if (isBd && bd && bd.state === 'expired'){
             badge = en ? 'Trial ended' : 'انتهت التجربة';
-            line = en ? 'Your 14-day trial has ended — subscribe to reopen it.' : 'انتهت تجربتك (14 يومًا) — اشترك لإعادة فتحها.';
+            var td = bd.totalDays || 0;
+            line = en
+              ? ('Your ' + (td ? td + '-day ' : '') + 'trial has ended — subscribe to reopen it.')
+              : ('انتهت تجربتك' + (td ? ' (' + td + ' يومًا)' : '') + ' — اشترك لإعادة فتحها.');
           } else if (isBd && bd && bd.state === 'subscribed'){
             badge = en ? 'Active' : 'مفعّلة';
             line = en ? 'Your subscription is running.' : 'اشتراكك يعمل.';

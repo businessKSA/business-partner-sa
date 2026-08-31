@@ -1,10 +1,10 @@
-// The 14-day Business Development trial every registered client gets.
+// The 30-day Business Development trial every registered client gets.
 //
 // Run: npm test
 //
 // The point of pinning this: the trial clock is the organization's created_at,
 // not anything the browser holds. If that ever moves to localStorage or a
-// first-visit stamp, clearing site data hands out a fresh fortnight forever and
+// first-visit stamp, clearing site data hands out a fresh trial forever and
 // the trial silently stops being a trial. These cases fail loudly if it does.
 import { bdTrial, isPaidBdOrder, BD_TRIAL_DAYS } from "../api/_trial.js";
 
@@ -21,10 +21,14 @@ ok(t.days === BD_TRIAL_DAYS, `${BD_TRIAL_DAYS} days left: ` + t.days);
 ok(!!t.endsAt, "has an end date");
 
 console.log("\n2. The clock runs down and then stops");
-ok(bdTrial({ created_at: daysAgo(7) }, false, NOW).days === 7, "day 7 → 7 left");
-ok(bdTrial({ created_at: daysAgo(13.5) }, false, NOW).days === 1, "last partial day still reads 1, not 0");
-const over = bdTrial({ created_at: daysAgo(15) }, false, NOW);
-ok(over.state === "expired", "day 15 → expired: " + over.state);
+// Expressed against BD_TRIAL_DAYS, not against a number typed twice: changing
+// the trial length should not silently turn these into assertions about
+// nothing. A week in always leaves the length minus seven.
+const week = bdTrial({ created_at: daysAgo(7) }, false, NOW);
+ok(week.days === BD_TRIAL_DAYS - 7, `day 7 → ${BD_TRIAL_DAYS - 7} left: ` + week.days);
+ok(bdTrial({ created_at: daysAgo(BD_TRIAL_DAYS - 0.5) }, false, NOW).days === 1, "last partial day still reads 1, not 0");
+const over = bdTrial({ created_at: daysAgo(BD_TRIAL_DAYS + 1) }, false, NOW);
+ok(over.state === "expired", `day ${BD_TRIAL_DAYS + 1} → expired: ` + over.state);
 ok(over.days === 0, "no negative days: " + over.days);
 
 console.log("\n3. A paying client is never 'on trial'");
@@ -34,7 +38,7 @@ const paidLate = bdTrial({ created_at: daysAgo(500) }, true, NOW);
 ok(paidLate.state === "subscribed", "and beats an expired one too: " + paidLate.state);
 
 console.log("\n4. No registration date is admitted, not guessed");
-// Guessing 'trial' here would give a free fortnight to anyone whose org row is
+// Guessing 'trial' here would give a free month to anyone whose org row is
 // incomplete; guessing 'expired' would deny a legitimately new client. Neither
 // is honest, so the dashboard is told we do not know.
 for (const org of [null, {}, { created_at: "not a date" }]) {
