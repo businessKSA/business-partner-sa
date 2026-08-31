@@ -3376,7 +3376,7 @@ function wall(d){say('sys',d&&d.message?d.message:'انتهت فترتك الت�
 function renderTrial(a){
   access=a||access; if(!access)return;
   var box=$('da7Trial'); if(!box)return;
-  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>الوكيل الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
+  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>المستشار الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
@@ -3500,7 +3500,7 @@ function fresh(){
 }
 
 function view(){
-  return '<div class="pagehead"><h2>الوكيل الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
+  return '<div class="pagehead"><h2>المستشار الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
   '<div class="da7-trial" id="da7Trial"></div>'+
   '<div class="da7-stats" id="da7Stats"></div>'+
   '<div class="da7-grid">'+

@@ -1512,7 +1512,7 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
-  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // Same reason for /api/doc-agent — المستشار الذكي للمستندات lives in
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.action || "") === "approve") {
