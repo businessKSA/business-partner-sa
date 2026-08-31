@@ -2149,7 +2149,7 @@ function advisorPage(cfg) {
     subBody = `
       <ul>${includes}</ul>
       <div class="buy-row" style="gap:9px;flex-wrap:wrap">
-        <a class="btn btn-primary" href="${u("/account")}?view=documents">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
+        <a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
         <a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a>
       </div>
       <p class="adv-note">${L("Included with your client portal account — signing in with a one-time email code creates one.", "متاح مع حسابك في لوحة العميل — تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً.")}</p>`;
@@ -2237,7 +2237,7 @@ function buildAiAgents() {
       tag: "AI", name: L("Document Advisor", "مستشار المستندات"),
       tg: L("Reads your documents once, then fills any form — Word, Excel and PDF, in place, traceable to the source.", "يقرأ مستنداتك مرة واحدة ثم يعبّئ أي نموذج — Word وExcel وPDF في مكانها، وكل قيمة بمصدرها."),
       feats: [L("Extraction with provenance", "استخراج بمصدر لكل قيمة"), L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Private to your company vault", "خاص بخزنة شركتك")],
-      price: "", acts: `<a class="btn btn-primary" href="${u("/account")}?view=documents">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
+      price: "", acts: `<a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
     },
     {
       tag: "AI", name: L("Business Development Advisor", "مستشار تطوير الأعمال"),
