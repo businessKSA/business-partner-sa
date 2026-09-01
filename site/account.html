@@ -1364,7 +1364,9 @@
       '/ar/compliance-dashboard': 'compliance',
       '/ar/portal': 'employees',
       '/employer-dashboard': 'employer',
-      '/shared-services/dashboard': 'shared'
+      '/ar/employer-dashboard': 'employer',
+      '/shared-services/dashboard': 'shared',
+      '/ar/shared-services/dashboard': 'shared'
     };
     function ssoNavigate(url){
       var key = SSO_PORTALS[url];
@@ -2111,12 +2113,26 @@
     // chrome-less mode (?embed=1) so only the tool itself shows.
     function openEmbed(url, title){
       var f = $('embedFrame'), nt = $('embedNewTab');
-      var src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'embed=1';
+      var withEmbed = function(u){ return u + (u.indexOf('?') > -1 ? '&' : '?') + 'embed=1'; };
+      var src = withEmbed(url);
       $('embedTitle').textContent = title || '';
       if (nt){ nt.href = url; nt.textContent = state.lang === 'en' ? 'Open in a new tab ↗' : 'افتحها في تبويب مستقل ↗'; }
-      if (f && f.getAttribute('src') !== src) f.setAttribute('src', src);
       switchView('embed');
       window.scrollTo(0, 0);
+      if (!f || f.getAttribute('data-url') === url) return;
+      f.setAttribute('data-url', url);
+      // Same origin, so the frame shares this page's storage: seed the
+      // portal's own sign-in from the account session first (no code, no
+      // second login), then load it.
+      var key = SSO_PORTALS[url];
+      if (!key){ f.setAttribute('src', src); return; }
+      fetch('/api/requests?action=sso-open&portal=' + encodeURIComponent(key), { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok && out.seed){ try { for (var k in out.seed) localStorage.setItem(k, out.seed[k]); } catch (e) {} }
+          f.setAttribute('src', withEmbed((out && out.ok && out.url) || url));
+        })
+        .catch(function(){ f.setAttribute('src', src); });
     }
     window.bpOpenEmbed = openEmbed;
     // Advisors hub — every smart advisor in one grid, each one openable now.
