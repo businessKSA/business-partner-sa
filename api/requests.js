@@ -1971,6 +1971,179 @@ export default async function handler(req, res) {
     }
   }
 
+  // ---- The revenue board -----------------------------------------------------
+  // Most of the money that passes through Business Partner is not Business
+  // Partner's. A company tops up its wallet so we can pay its GOSI
+  // subscription, renew its iqamas and work permits, settle municipality
+  // licences and platform fees, and run its payroll — all so it never collects
+  // a violation. That money is the client's while it sits with us, and it
+  // becomes a government platform's the moment we pay. Calling any of it
+  // "revenue" would inflate the business several times over and put a tax
+  // liability on the wrong side of the ledger.
+  //
+  // So this endpoint answers four separate questions instead of one:
+  //   1. كم دخل الصندوق؟     cash actually collected, whatever it belongs to
+  //   2. كم منه لنا؟          bp_fees on orders that were really paid — this
+  //                           alone is revenue
+  //   3. كم منه ليس لنا؟      gov fees (pass-through), VAT (owed to ZATCA),
+  //                           wallet balances (clients'), escrow (suppliers')
+  //   4. كم لم يصل بعد؟       orders awaiting payment and quotes still out
+  //
+  // The manual Notion ledger stays, but as one source beside the system's own
+  // records rather than the only one — it is where cash and bank movements
+  // that never touched the site get written down.
+  if ((q.action || "") === "panel-revenue") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+
+    // An order counts as revenue only once the money is in. Anything still
+    // waiting on a transfer or a receipt review is pipeline, not income.
+    const PAID = ["paid", "in_progress", "delivered", "completed"];
+    const WAITING = ["payment_verification", "awaiting_payment", "draft"];
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+    const r2 = (x) => Math.round(x * 100) / 100;
+    const monthKey = new Date().toISOString().slice(0, 7);
+    const yearKey = monthKey.slice(0, 4);
+
+    try {
+      const [orders, payments, wallets, escrows, walletTx] = await Promise.all([
+        sb("orders?select=ref,status,bp_fees,gov_fees,vat,total,currency,created_at&order=created_at.desc&limit=1000"),
+        sb("payments?select=method,status,amount,gateway_ref,order_id,created_at&order=created_at.desc&limit=1000"),
+        sb("wallet_balances?select=*").catch(() => []),
+        sb("escrows?select=ref,amount,status,supplier_name,title,created_at&order=created_at.desc&limit=500"),
+        sb("wallet_transactions?select=type,amount,note,created_at&order=created_at.desc&limit=500"),
+      ]);
+
+      // ---- what is ours, month by month
+      const monthly = {};
+      const bucket = (mk) => (monthly[mk] = monthly[mk] || { revenue: 0, govFees: 0, vat: 0, cash: 0 });
+      let revMonth = 0, revYear = 0, revAll = 0, paidCount = 0;
+      let govMonth = 0, govYear = 0, govAll = 0;
+      let vatMonth = 0, vatYear = 0, vatAll = 0;
+      let pipeN = 0, pipeFees = 0, pipeTotal = 0;
+
+      for (const o of orders || []) {
+        const mk = String(o.created_at || "").slice(0, 7);
+        const fees = n(o.bp_fees), gov = n(o.gov_fees), vat = n(o.vat);
+        if (PAID.includes(o.status)) {
+          paidCount++;
+          revAll += fees; govAll += gov; vatAll += vat;
+          if (mk.slice(0, 4) === yearKey) { revYear += fees; govYear += gov; vatYear += vat; }
+          if (mk === monthKey) { revMonth += fees; govMonth += gov; vatMonth += vat; }
+          const b = bucket(mk); b.revenue += fees; b.govFees += gov; b.vat += vat;
+        } else if (WAITING.includes(o.status)) {
+          pipeN++; pipeFees += fees; pipeTotal += n(o.total);
+        }
+      }
+
+      // ---- what actually reached the account, by channel
+      const byMethod = {};
+      let cashTotal = 0, cashMonth = 0;
+      for (const p of payments || []) {
+        if (String(p.status) !== "paid") continue;
+        const amt = n(p.amount), mk = String(p.created_at || "").slice(0, 7);
+        byMethod[p.method || "أخرى"] = r2((byMethod[p.method || "أخرى"] || 0) + amt);
+        cashTotal += amt;
+        if (mk === monthKey) cashMonth += amt;
+        bucket(mk).cash += amt;
+      }
+
+      // ---- money held that is not ours
+      const walletHeld = (wallets || []).reduce((s, w) => s + n(w.balance), 0);
+      let escrowHeld = 0, escrowReleased = 0, escrowRefunded = 0;
+      for (const e of escrows || []) {
+        const a = n(e.amount);
+        if (e.status === "held" || e.status === "delivered" || e.status === "refund_requested") escrowHeld += a;
+        else if (e.status === "released") escrowReleased += a;
+        else if (e.status === "refunded") escrowRefunded += a;
+      }
+      const topUps = (walletTx || []).filter((t) => t.type === "topup").reduce((s, t) => s + n(t.amount), 0);
+
+      // ---- quotes still out, from the invoicing app (best effort)
+      let quotes = { n: 0, total: 0, reachable: false };
+      try {
+        if (PANEL_BRIDGE_TOKEN) {
+          const qr = await fetch(`${PANEL_URL}/api/bridge/owner`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+            body: JSON.stringify({ action: "overview" }),
+            signal: AbortSignal.timeout(8000),
+          });
+          const qj = await qr.json().catch(() => null);
+          if (qr.ok && qj && qj.ok) {
+            quotes = { n: n(qj.openQuotes || qj.quotesOpen), total: n(qj.openQuotesValue || qj.quotesValue), reachable: true };
+          }
+        }
+      } catch { /* the board renders without it */ }
+
+      // ---- the manual ledger, as one source among several
+      let ledger = { configured: false, mRev: 0, mExp: 0, yRev: 0, yExp: 0, entries: 0 };
+      if (NOTION_TOKEN) {
+        try {
+          const from = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10);
+          const data = await notionQuery(FINANCE_DB, {
+            page_size: 100,
+            filter: { property: "التاريخ", date: { on_or_after: from } },
+            sorts: [{ property: "التاريخ", direction: "descending" }],
+          });
+          let mRev = 0, mExp = 0, yRev = 0, yExp = 0, cnt = 0;
+          for (const pg of data.results || []) {
+            const p = pg.properties || {};
+            const amt = p["المبلغ"] && typeof p["المبلغ"].number === "number" ? p["المبلغ"].number : 0;
+            const date = propAny(p["التاريخ"]).slice(0, 10);
+            if (!(amt > 0) || !date) continue;
+            cnt++;
+            const isRev = propAny(p["النوع"]) === "إيراد";
+            const mk = date.slice(0, 7);
+            if (mk.slice(0, 4) === yearKey) { if (isRev) yRev += amt; else yExp += amt; }
+            if (mk === monthKey) { if (isRev) mRev += amt; else mExp += amt; }
+          }
+          ledger = { configured: true, mRev: r2(mRev), mExp: r2(mExp), yRev: r2(yRev), yExp: r2(yExp), entries: cnt };
+        } catch (e) { console.error("panel-revenue ledger", String(e).slice(0, 120)); }
+      }
+
+      // ---- what the owner should not be left to infer
+      const notes = [];
+      if (!paidCount && (orders || []).length) {
+        notes.push("لا يوجد طلب واحد مسجَّل كمدفوع في قاعدة البيانات رغم وجود طلبات — راجع «تنبيهات المطابقة» أدناه.");
+      }
+      if (pipeN) notes.push(`${pipeN} طلباً ما زال بانتظار تأكيد السداد — قيمتها ${r2(pipeTotal)} ﷼ ليست إيراداً بعد.`);
+      if (!ledger.configured) notes.push("دفتر نوشن اليدوي غير متاح — الأرقام هنا من قاعدة البيانات وحدها.");
+      else if (!ledger.entries) notes.push("دفتر نوشن اليدوي فارغ — أي تحصيل بنكي أو نقدي خارج الموقع لن يظهر حتى يُسجَّل فيه.");
+      if (escrowHeld > 0) notes.push(`${r2(escrowHeld)} ﷼ محجوزة في الضمان لموردين — أمانة لدينا، لا إيراداً.`);
+      if (walletHeld > 0) notes.push(`${r2(walletHeld)} ﷼ أرصدة عملاء في المحافظ — مالهم لدينا لسداد التزاماتهم، لا إيراداً.`);
+
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        asOf: new Date().toISOString(),
+        currency: "SAR",
+        cash: { total: r2(cashTotal), month: r2(cashMonth), byMethod, topUps: r2(topUps) },
+        revenue: { month: r2(revMonth), year: r2(revYear), all: r2(revAll), paidOrders: paidCount },
+        notOurs: {
+          govFees: { month: r2(govMonth), year: r2(govYear), all: r2(govAll) },
+          vat: { month: r2(vatMonth), year: r2(vatYear), all: r2(vatAll) },
+          walletHeld: r2(walletHeld),
+          escrowHeld: r2(escrowHeld),
+          escrowReleased: r2(escrowReleased),
+          escrowRefunded: r2(escrowRefunded),
+        },
+        pipeline: { orders: pipeN, orderFees: r2(pipeFees), orderTotal: r2(pipeTotal), quotes },
+        ledger,
+        monthly: Object.fromEntries(Object.entries(monthly).map(([k, v]) => [k, {
+          revenue: r2(v.revenue), govFees: r2(v.govFees), vat: r2(v.vat), cash: r2(v.cash),
+        }])),
+        counts: { orders: (orders || []).length, payments: (payments || []).length, escrows: (escrows || []).length },
+        notes,
+      }));
+    } catch (e) {
+      console.error("panel-revenue failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "revenue_failed" }));
+    }
+  }
+
   // Daily CRM sweep, called by the n8n schedule — no human in the loop.
   // Keyless like escrow-sweep, and safe to be: it only (1) mirrors the
   // WhatsApp leads database into the master pipeline (idempotent upserts keyed

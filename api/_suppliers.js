@@ -565,6 +565,19 @@ export async function markOrderPaid(clientRef, { total, method, note } = {}) {
       await notion(`pages/${o.id}`, "PATCH", { properties: props });
     }
   }
+  // Notion was the only place a payment was ever recorded, so the row in
+  // `orders` stayed at payment_verification forever — and every revenue figure
+  // read from the database counted a paid order as unpaid. The payment moves
+  // both records or neither.
+  if (recorded && DB_ON) {
+    try {
+      await sb(`orders?ref=eq.${encodeURIComponent(ref)}&status=in.(payment_verification,awaiting_payment,draft)`, {
+        method: "PATCH", prefer: "return=minimal",
+        body: { status: "paid", updated_at: new Date().toISOString() },
+      });
+    } catch (e) { console.error("markOrderPaid db status failed", String(e).slice(0, 160)); }
+  }
+
   const notified = await announce({
     stage: "payment_received", clientRef: ref, orderId: orderId || undefined,
     name: client, service, total,

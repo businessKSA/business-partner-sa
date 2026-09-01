@@ -386,6 +386,7 @@
         <button data-v="leads">📥 الطلبات والموافقات</button>
         <button data-v="notion">📇 نوشن — مباشر</button>
         <button data-v="finance">💰 المالية</button>
+        <button data-v="revenue">📊 الإيرادات</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button class="grp" id="grpContent"><span>📝</span><span>محتوى الموقع</span><span class="caret">▾</span></button>
         <div class="sub" id="subContent"></div>
@@ -417,6 +418,7 @@
         <button data-v="overview" class="active">📊 نظرة عامة</button>
         <button data-v="leads">📥 الطلبات</button>
         <button data-v="finance">💰 المالية</button>
+        <button data-v="revenue">📊 الإيرادات</button>
         <button data-v="suppliers">🤝 الشركاء</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
@@ -714,6 +716,68 @@
             <thead><tr><th>التاريخ</th><th>النوع</th><th>البيان</th><th>الفئة</th><th>المبلغ ﷼</th><th>الدفع</th><th>المرجع</th></tr></thead>
             <tbody id="finBody"><tr><td class="empty" colspan="7">جاري التحميل…</td></tr></tbody>
           </table></div>
+        </div>
+      </section>
+
+      <!-- ============ Revenue: what is ours, and what only passes through ============ -->
+      <section class="view" id="view-revenue">
+        <div class="pagehead">
+          <h2>📊 الإيرادات — ما هو لنا، وما يمرّ من خلالنا</h2>
+          <div class="spacer"></div>
+          <span class="stamp" id="revStamp"></span>
+          <button class="refresh" id="revRefresh">↻ تحديث</button>
+          <div class="sub">معظم المال الذي يمرّ عبر بيزنس بارتنر ليس ملكاً لبيزنس بارتنر: المنشأة تشحن محفظتها لنسدّد عنها التأمينات والإقامات ورخص العمل والبلدية ورسوم المنصات ورواتب موظفيها. هذا مالها ما دام عندنا، ويصير مال جهة حكومية لحظة السداد. لذلك تفصل هذه اللوحة أربعة أسئلة بدل أن تخلطها في رقم واحد.</div>
+        </div>
+
+        <div class="panel" style="margin-bottom:14px;border-inline-start:4px solid #047857">
+          <div class="panel-head"><h3>✅ إيرادنا نحن — أتعاب بيزنس بارتنر وحدها</h3></div>
+          <div class="tiles" style="padding:6px 14px 14px">
+            <div class="tile"><div class="k">هذا الشهر</div><div class="v" id="revMonth">—</div><div class="d">﷼ أتعاب · بلا ضريبة وبلا رسوم حكومية</div></div>
+            <div class="tile"><div class="k">هذه السنة</div><div class="v" id="revYear">—</div><div class="d">﷼ منذ يناير</div></div>
+            <div class="tile"><div class="k">منذ البداية</div><div class="v" id="revAll">—</div><div class="d">﷼ من الطلبات المدفوعة</div></div>
+            <div class="tile"><div class="k">طلبات مدفوعة</div><div class="v" id="revPaidN">—</div><div class="d">التي احتُسبت أعلاه</div></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:14px;border-inline-start:4px solid #b45309">
+          <div class="panel-head"><h3>🤲 مال ليس لنا — أمانات والتزامات</h3></div>
+          <div class="tiles" style="padding:6px 14px 4px">
+            <div class="tile"><div class="k">👛 أرصدة محافظ العملاء</div><div class="v" id="revWallet">—</div><div class="d">﷼ مالهم لدينا لسداد التزاماتهم</div></div>
+            <div class="tile"><div class="k">🔒 محجوز في الضمان</div><div class="v" id="revEscrow">—</div><div class="d">﷼ أمانة لمورد حتى يُنفَّذ</div></div>
+            <div class="tile"><div class="k">🏛 رسوم حكومية محصّلة</div><div class="v" id="revGov">—</div><div class="d">﷼ تمرير — تُسدَّد للجهة</div></div>
+            <div class="tile"><div class="k">🧾 ضريبة مستحقة</div><div class="v" id="revVat">—</div><div class="d">﷼ للزكاة والدخل، لا لنا</div></div>
+          </div>
+          <div style="padding:0 18px 14px;color:#64748b;font-size:11.5px">لا يدخل أيٌّ من هذه الأربعة في رقم الإيراد أعلاه — عدّها إيراداً يضخّم حجم الشركة ويضع التزاماً ضريبياً في الجهة الخطأ من الدفتر.</div>
+        </div>
+
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-head"><h3>💵 النقد الذي وصلنا فعلاً</h3></div>
+          <div class="tiles" style="padding:6px 14px 4px">
+            <div class="tile"><div class="k">إجمالي المحصّل</div><div class="v" id="revCash">—</div><div class="d">﷼ مهما كان مالكه</div></div>
+            <div class="tile"><div class="k">هذا الشهر</div><div class="v" id="revCashM">—</div><div class="d">﷼</div></div>
+            <div class="tile"><div class="k">شحن محافظ</div><div class="v" id="revTopups">—</div><div class="d">﷼ ودائع عملاء</div></div>
+          </div>
+          <div id="revMethods" style="padding:0 18px 14px;font-size:12.5px;color:#475569"></div>
+        </div>
+
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-head"><h3>⏳ لم يصل بعد — خط الأنابيب</h3></div>
+          <div class="tiles" style="padding:6px 14px 4px">
+            <div class="tile"><div class="k">طلبات بانتظار السداد</div><div class="v" id="revPipeN">—</div><div class="d">لم تُحتسب إيراداً</div></div>
+            <div class="tile"><div class="k">قيمتها الإجمالية</div><div class="v" id="revPipeTotal">—</div><div class="d">﷼ شامل الضريبة</div></div>
+            <div class="tile"><div class="k">أتعابنا منها</div><div class="v" id="revPipeFees">—</div><div class="d">﷼ ما سيصير إيراداً عند السداد</div></div>
+            <div class="tile"><div class="k">عروض أسعار مرسلة</div><div class="v" id="revQuotes">—</div><div class="d">من نظام الفوترة</div></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-head"><h3>📅 شهراً بشهر</h3></div>
+          <div id="revMonths" style="padding:8px 18px 16px;font-size:12.5px">جاري التحميل…</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>⚠️ ما لا يصحّ أن تستنتجه بنفسك</h3></div>
+          <div id="revNotes" style="padding:10px 18px 16px;font-size:12.5px;line-height:1.9">جاري التحميل…</div>
         </div>
       </section>
 
@@ -1968,7 +2032,7 @@
         // ask "where are you?" is one more thing to explain.
         var active = document.querySelector('.view.on');
         var lbl = { 'view-overview':'نظرة عامة', 'view-leads':'الطلبات والموافقات', 'view-suppliers':'الشركاء',
-                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر', 'view-finance':'المالية' };
+                    'view-content':'محتوى الموقع', 'view-pages':'الصفحات', 'view-tools':'الأدوات', 'view-notion':'نوشن — مباشر', 'view-finance':'المالية', 'view-revenue':'الإيرادات' };
         $('aiCtx').textContent = 'أنت في: ' + ((active && lbl[active.id]) || 'اللوحة');
         try { $('aiInput').focus(); } catch (e) {}
       }
@@ -2181,7 +2245,62 @@
       };
       finLoad();
     }
+    // ===== الإيرادات: أربعة أسئلة منفصلة، لا رقم واحد يخلطها =====
+    var revLoaded = false;
+    function revLoad(){
+      $('revStamp').textContent = '…';
+      fetch(API_URL + '?action=panel-revenue' + authQS(), { cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){
+            $('revStamp').textContent = out && out.error === 'db_not_configured' ? 'يحتاج ربط قاعدة البيانات' : 'تعذّر التحميل';
+            $('revNotes').textContent = 'لم تُقرأ الأرقام، فلا يُعرض شيء — رقم خاطئ أسوأ من لا رقم.';
+            return;
+          }
+          var m = function(x){ return (Number(x) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
+          var r = out.revenue || {}, no = out.notOurs || {}, c = out.cash || {}, p = out.pipeline || {};
+          $('revMonth').textContent = m(r.month); $('revYear').textContent = m(r.year);
+          $('revAll').textContent = m(r.all);     $('revPaidN').textContent = r.paidOrders || 0;
+          $('revWallet').textContent = m(no.walletHeld); $('revEscrow').textContent = m(no.escrowHeld);
+          $('revGov').textContent = m((no.govFees || {}).all); $('revVat').textContent = m((no.vat || {}).all);
+          $('revCash').textContent = m(c.total); $('revCashM').textContent = m(c.month);
+          $('revTopups').textContent = m(c.topUps);
+          $('revPipeN').textContent = p.orders || 0;
+          $('revPipeTotal').textContent = m(p.orderTotal);
+          $('revPipeFees').textContent = m(p.orderFees);
+          $('revQuotes').textContent = (p.quotes && p.quotes.reachable) ? (p.quotes.n || 0) : '—';
+
+          var bm = c.byMethod || {}, mk = Object.keys(bm);
+          $('revMethods').innerHTML = mk.length
+            ? 'حسب القناة: ' + mk.map(function(k){ return '<b>' + k + '</b> ' + m(bm[k]) + ' ﷼'; }).join(' · ')
+            : 'لا توجد مدفوعات مسجّلة عبر النظام بعد.';
+
+          // شهراً بشهر: الأخضر أتعابنا، والرمادي ما مرّ من خلالنا فقط
+          var keys = [], d0 = new Date();
+          for (var i = 11; i >= 0; i--){ var d = new Date(d0.getFullYear(), d0.getMonth() - i, 1); keys.push(d.toISOString().slice(0, 7)); }
+          var mo = out.monthly || {}, mx = 1;
+          keys.forEach(function(k){ var v = mo[k]; if (v) mx = Math.max(mx, v.revenue, v.cash); });
+          $('revMonths').innerHTML = keys.map(function(k){
+            var v = mo[k] || { revenue: 0, govFees: 0, vat: 0, cash: 0 };
+            return '<div style="display:flex;align-items:center;gap:8px;margin:5px 0">'
+              + '<span style="width:58px;color:#64748b;direction:ltr;text-align:left">' + k + '</span>'
+              + '<div style="flex:1"><div style="background:#04785722;border-radius:4px;height:9px"><div style="background:#047857;height:9px;border-radius:4px;width:' + Math.round(100 * v.revenue / mx) + '%"></div></div>'
+              + '<div style="background:#94a3b822;border-radius:4px;height:7px;margin-top:2px"><div style="background:#94a3b8;height:7px;border-radius:4px;width:' + Math.round(100 * v.cash / mx) + '%"></div></div></div>'
+              + '<span style="width:200px;font-size:11.5px;color:#475569">أتعابنا <b style="color:#047857">' + m(v.revenue) + '</b> · نقد وصل ' + m(v.cash) + '</span>'
+              + '</div>';
+          }).join('') + '<div style="color:#94a3b8;font-size:11px;margin-top:6px">الأخضر أتعابنا وحدها، والرمادي كل النقد الذي وصل بما فيه مال العملاء والرسوم الحكومية</div>';
+
+          var notes = out.notes || [];
+          $('revNotes').innerHTML = notes.length
+            ? notes.map(function(t){ return '<div style="margin:4px 0">• ' + t.replace(/</g, '&lt;') + '</div>'; }).join('')
+            : '<span style="color:#047857">لا ملاحظات — الأرقام أعلاه مطابقة لما في قاعدة البيانات.</span>';
+          $('revStamp').textContent = 'حُدِّث ' + new Date().toLocaleTimeString('ar-SA');
+        })
+        .catch(function(){ $('revStamp').textContent = 'تعذّر الاتصال'; });
+    }
+
     function switchView(v){
+      if (v === 'revenue' && !revLoaded){ revLoaded = true; revLoad(); $('revRefresh').onclick = revLoad; }
       if (v === 'finance' && !finLoaded){ finLoaded = true; finInit(); }
       if (v === 'suppliers' && !supLoaded){ supLoaded = true; loadSuppliers(); }
       if (v === 'notion' && !NT.loaded){ NT.loaded = true; ntInit();
