@@ -17,7 +17,7 @@ A complete bilingual (Arabic/English) landing page for Business Partner Services
 
 **Business Partner** - Government Platform Management Services
 
-- **Phone**: 0503793356
+- **Phone**: 0530540231
 - **Email**: business@businesspartner.sa
 - **Website**: www.businesspartner.sa
 - **Address**: الرياض – حي العارض – شارع ريحانة بنت زيد
@@ -330,7 +330,7 @@ This project is proprietary to Business Partner Services. All rights reserved.
 
 For technical support or inquiries:
 - **Email**: business@businesspartner.sa
-- **Phone**: 0503793356
+- **Phone**: 0530540231
 - **Website**: https://businesspartner.sa
 
 ---
