@@ -2052,6 +2052,24 @@
         '<div class="hr-field" style="max-width:280px"><label>اللغة</label><select id="st-lang"><option>العربية</option><option disabled>English (قريباً)</option></select></div>' +
         '<button class="hr-btn hr-btn-primary hr-btn-sm" id="st-save">حفظ</button></div></section>' +
         '<section class="hr-card" style="margin-top:14px"><div class="hd"><h2>البيانات</h2></div><div class="bd"><p class="hr-hint" style="margin-bottom:10px">تعمل اللوحة حالياً على بيانات تجريبية + تعديلاتك المحفوظة على هذا الجهاز.</p><button class="hr-btn hr-btn-danger hr-btn-sm" id="st-reset">مسح بيانات التجربة وإعادة الضبط</button></div></section>';
+      // Owner (2026-09): the console had no way out — a signed-in employer
+      // could neither leave nor switch to another employer account.
+      var acct = document.createElement("section");
+      acct.className = "hr-card"; acct.style.marginTop = "14px";
+      acct.innerHTML = '<div class="hd"><h2>الحساب</h2></div><div class="bd"><p class="hr-hint" style="margin-bottom:10px">' +
+        (CODE ? "أنت داخل بحساب صاحب العمل المرتبط بهذا الجهاز." : "تتصفح اللوحة في وضع التجربة.") +
+        '</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="hr-btn hr-btn-sm" id="st-logout">🚪 تسجيل الخروج من لوحة التوظيف</button>' +
+        '<button class="hr-btn hr-btn-sm" id="st-switch">👤 الدخول بحساب صاحب عمل آخر</button></div></div>';
+      $("st-root").appendChild(acct);
+      function hrSignOut() {
+        try {
+          ["bp_emp_code", "bp_emp_company", "bp_emp_status", "bp_emp_email", "bp_hr_overlay", "bp_hr_invites", "bp_hr_match_runs"].forEach(function (k) { localStorage.removeItem(k); });
+        } catch (e) {}
+        var embed = /[?&]embed=1(?:&|$)/.test(location.search) ? "?embed=1" : "";
+        location.href = "/ar/employer-login" + embed;
+      }
+      $("st-logout").addEventListener("click", hrSignOut);
+      $("st-switch").addEventListener("click", hrSignOut);
       $("st-save").addEventListener("click", function () {
         HRStore.setBag("prefs", { notif: $("st-notif").checked, digest: $("st-digest").checked });
         toast("حُفظت التفضيلات.");

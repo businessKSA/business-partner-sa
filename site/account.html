@@ -594,6 +594,12 @@
         <!-- ===== hiring board, embedded for every client ===== -->
         <section class="view" id="view-hiring">
           <div class="pagehead"><h2 id="hiringTitle">لوحة التوظيف</h2><div class="sub" id="hiringLead">انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك — مفتوحة لك تلقائياً بحسابك. <a id="hiringNewTab" href="/ar/employer-dashboard" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn ghost sm" id="hiringReload">🔄 <span data-t="hiringReload">إعادة تحميل اللوحة</span></button>
+            <button class="btn ghost sm" id="hiringSwitch">👤 <span data-t="hiringSwitch">الدخول بحساب صاحب عمل آخر</span></button>
+            <button class="btn ghost sm" id="hiringLogout">🚪 <span data-t="hiringLogout">تسجيل الخروج من لوحة التوظيف</span></button>
+            <a class="btn ghost sm" id="hiringNewTab" href="/ar/hr/employer" target="_blank" rel="noopener"><span data-t="hiringNewTab">افتحها في تبويب مستقل ↗</span></a>
+          </div>
           <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
         </section>
 
@@ -947,6 +953,7 @@
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
         grpAdvisors: 'مستشاروك الأذكياء', grpWork: 'أعمالي', grpCompany: 'المنشأة',
+        hiringReload: 'إعادة تحميل اللوحة', hiringSwitch: 'الدخول بحساب صاحب عمل آخر', hiringLogout: 'تسجيل الخروج من لوحة التوظيف', hiringNewTab: 'افتحها في تبويب مستقل ↗',
         navCompliance: 'مستشار الامتثال', navBd: 'مستشار تطوير الأعمال', navSs: 'فريق الخدمات المشتركة', navSmart: 'الموظف الذكي',
         tasksAddTitle: 'أضف مهمة لنفسك', tasksAddPh: 'مثال: تجديد رخصة البلدية', tasksAddBtn: 'إضافة', tasksAddDue: 'تاريخ الاستحقاق', tasksAddUrg: 'الأولوية',
         urgUrgent: 'عاجلة', urgSoon: 'قريبة', urgNormal: 'عادية',
@@ -1071,6 +1078,7 @@
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
         grpAdvisors: 'Your smart advisors', grpWork: 'My business', grpCompany: 'Company',
+        hiringReload: 'Reload the board', hiringSwitch: 'Sign in with another employer account', hiringLogout: 'Sign out of the hiring board', hiringNewTab: 'Open in a new tab ↗',
         navCompliance: 'Compliance advisor', navBd: 'Business development advisor', navSs: 'Shared services team', navSmart: 'Smart employee',
         tasksAddTitle: 'Add a task for yourself', tasksAddPh: 'e.g. Renew the municipality licence', tasksAddBtn: 'Add', tasksAddDue: 'Due date', tasksAddUrg: 'Priority',
         urgUrgent: 'Urgent', urgSoon: 'Soon', urgNormal: 'Normal',
@@ -2135,6 +2143,20 @@
         .catch(function(){ f.setAttribute('src', src); });
     }
     window.bpOpenEmbed = openEmbed;
+    // The embedded hiring board keeps its own employer sign-in in shared
+    // storage; these give the client a way out of it (and into another
+    // employer account) without leaving the portal.
+    (function(){
+      var hf = $('hiringFrame'); if (!hf) return;
+      var base = function(){ return (state.lang === 'en' ? '/en' : '/ar'); };
+      function hrClear(){
+        try { ['bp_emp_code','bp_emp_company','bp_emp_status','bp_emp_email','bp_hr_overlay','bp_hr_invites','bp_hr_match_runs'].forEach(function(k){ localStorage.removeItem(k); }); } catch (e) {}
+      }
+      var r = $('hiringReload'), s = $('hiringSwitch'), l = $('hiringLogout');
+      if (r) r.onclick = function(){ hf.setAttribute('src', base() + '/employer-dashboard?embed=1&r=' + Date.now()); };
+      if (s) s.onclick = function(){ hrClear(); hf.setAttribute('src', base() + '/employer-login?embed=1'); };
+      if (l) l.onclick = function(){ hrClear(); hf.setAttribute('src', base() + '/employer-dashboard?embed=1&r=' + Date.now()); };
+    })();
     // Advisors hub — every smart advisor in one grid, each one openable now.
     // All of them are covered by the 30-day platform trial, so the hub never
     // shows a locked card to a signed-in client inside the trial window.
