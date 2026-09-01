@@ -19,6 +19,26 @@
   },
   "redirects": [
     {
+      "source": "/erp",
+      "destination": "https://bp-erp-bahers-projects-291a34d3.vercel.app/login",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|es|zh|ru|hi|ko|ja)/erp",
+      "destination": "https://bp-erp-bahers-projects-291a34d3.vercel.app/login",
+      "permanent": false
+    },
+    {
+      "source": "/erp/:path*",
+      "destination": "https://bp-erp-bahers-projects-291a34d3.vercel.app/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|es|zh|ru|hi|ko|ja)/erp/:path*",
+      "destination": "https://bp-erp-bahers-projects-291a34d3.vercel.app/:path*",
+      "permanent": false
+    },
+    {
       "source": "/blog",
       "destination": "/saudi-arabia",
       "permanent": true
