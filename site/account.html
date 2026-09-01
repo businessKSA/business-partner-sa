@@ -1972,7 +1972,11 @@
             } else {
               note.textContent = (o && o.error === 'too_large')
                 ? (en ? 'The file is too large.' : 'الملف أكبر من المسموح.')
-                : (en ? 'Could not save — try again.' : 'تعذر الحفظ — أعد المحاولة.');
+                : (o && o.error === 'not_provisioned')
+                  // Ours to fix, not theirs to retry — say so rather than
+                  // sending the client round a loop that cannot succeed.
+                  ? (en ? 'This is not switched on yet at our end — the team has been notified.' : 'الخدمة لم تُفعَّل عندنا بعد — أبلغنا الفريق، ولا داعي لإعادة المحاولة.')
+                  : (en ? 'Could not save — try again.' : 'تعذر الحفظ — أعد المحاولة.');
             }
           })
           .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });

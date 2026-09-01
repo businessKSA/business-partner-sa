@@ -2643,9 +2643,24 @@ export default async function handler(req, res) {
         };
         if (profilePath) { row.profile_path = profilePath; row.profile_name = profileName; row.profile_bytes = profileBytes; }
         for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
-        await sb("bd_profiles?on_conflict=organization_id", {
-          method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: [row],
-        });
+        // bd_profiles ships in db/schema.sql and has to be applied to Supabase
+        // before this can store anything. Until it is, the generic handler below
+        // would answer "try again" to a client who can retry forever without
+        // anything changing — the fault is ours and unprompted retrying will
+        // never fix it. Say that instead, and log it where the owner will see it.
+        try {
+          await sb("bd_profiles?on_conflict=organization_id", {
+            method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: [row],
+          });
+        } catch (e) {
+          const msg = String(e && e.message ? e.message : e);
+          if (/bd_profiles/i.test(msg) && /(does not exist|relation|schema cache|42P01|PGRST205)/i.test(msg)) {
+            console.error("bd_profiles table missing — apply db/schema.sql to Supabase");
+            res.statusCode = 503;
+            return res.end(JSON.stringify({ ok: false, error: "not_provisioned" }));
+          }
+          throw e;
+        }
         // The owner asked to hear about this in the panel. Notify once, when the
         // profile first becomes usable for matching — not on every keystroke
         // save, and not while it is still too thin to match on.
