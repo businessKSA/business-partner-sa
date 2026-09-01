@@ -429,6 +429,20 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         <section class="view on" id="view-home">
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
+            <!-- B10X: the flagship, first thing on the client's home -->
+            <div class="card c12" id="b10xCard" style="background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-color:transparent">
+              <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+                <div style="flex:1;min-width:240px">
+                  <div style="font-size:11px;font-weight:800;letter-spacing:.3px;opacity:.75;margin-bottom:4px">B10X</div>
+                  <h4 style="color:#fff;margin:0 0 6px;font-size:16px" data-t="b10xTitle">B10X — نظام الهبوط في السوق السعودي</h4>
+                  <div style="font-size:12.5px;line-height:1.8;opacity:.85" data-t="b10xLead">من التأسيس إلى التشغيل: مستشارك الذكي يجهّز مسارك، والفريق ينفّذ خلف الكواليس — كل شيء من داخل لوحتك.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn" id="b10xOpen" style="background:#fff;color:#123b87;border:0;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xOpen">افتح B10X</button>
+                  <button class="btn ghost" id="b10xAsk" style="border-color:rgba(255,255,255,.5);color:#fff;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
+                </div>
+              </div>
+            </div>
             <!-- الخدمات المشتركة: متاحة لكل عميل مسجّل بفترة تجريبية مجانية -->
             <div class="card c6" id="ssCard" style="display:none;background:linear-gradient(135deg,#EEF0FF,#F8F9FF);border-color:#d9ddfb">
               <h4>🤝 <span>فريقك التنفيذي الذكي — الخدمات المشتركة</span><a class="more" href="/ar/shared-services/dashboard">افتح البوابة ←</a></h4>
@@ -962,6 +976,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
         grpAdvisors: 'مستشاروك الأذكياء', grpWork: 'أعمالي', grpCompany: 'المنشأة',
+        b10xTitle: 'B10X — نظام الهبوط في السوق السعودي', b10xLead: 'من التأسيس إلى التشغيل: مستشارك الذكي يجهّز مسارك، والفريق ينفّذ خلف الكواليس — كل شيء من داخل لوحتك.', b10xOpen: 'افتح B10X', b10xAsk: 'اسأل B10X',
         hiringReload: 'إعادة تحميل اللوحة', hiringSwitch: 'الدخول بحساب صاحب عمل آخر', hiringLogout: 'تسجيل الخروج من لوحة التوظيف', hiringNewTab: 'افتحها في تبويب مستقل ↗',
         navCompliance: 'مستشار الامتثال', navBd: 'مستشار تطوير الأعمال', navSs: 'فريق الخدمات المشتركة', navSmart: 'الموظف الذكي',
         tasksAddTitle: 'أضف مهمة لنفسك', tasksAddPh: 'مثال: تجديد رخصة البلدية', tasksAddBtn: 'إضافة', tasksAddDue: 'تاريخ الاستحقاق', tasksAddUrg: 'الأولوية',
@@ -1087,6 +1102,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
         grpAdvisors: 'Your smart advisors', grpWork: 'My business', grpCompany: 'Company',
+        b10xTitle: 'B10X — the Saudi market landing system', b10xLead: 'From formation to operations: your smart advisor prepares your path and the team executes behind the scenes — all inside your portal.', b10xOpen: 'Open B10X', b10xAsk: 'Ask B10X',
         hiringReload: 'Reload the board', hiringSwitch: 'Sign in with another employer account', hiringLogout: 'Sign out of the hiring board', hiringNewTab: 'Open in a new tab ↗',
         navCompliance: 'Compliance advisor', navBd: 'Business development advisor', navSs: 'Shared services team', navSmart: 'Smart employee',
         tasksAddTitle: 'Add a task for yourself', tasksAddPh: 'e.g. Renew the municipality licence', tasksAddBtn: 'Add', tasksAddDue: 'Due date', tasksAddUrg: 'Priority',
@@ -3658,6 +3674,19 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       fab.style.display = 'none';
       document.body.appendChild(fab);
       document.body.appendChild(dock);
+      // Owner (2026-09): WhatsApp as a floating icon on the left — the same
+      // number as the site's floating button.
+      var wa = document.createElement('a');
+      wa.className = 'wa-fab'; wa.id = 'waFab';
+      wa.href = 'https://wa.me/966507034157'; wa.target = '_blank'; wa.rel = 'noopener';
+      wa.setAttribute('aria-label', 'واتساب');
+      wa.style.cssText = 'position:fixed;left:20px;bottom:20px;z-index:89;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(37,211,102,.4);text-decoration:none';
+      wa.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>';
+      document.body.appendChild(wa);
+      // B10X on the home view: open the flagship inside the portal.
+      var bo = $('b10xOpen'), ba = $('b10xAsk');
+      if (bo) bo.onclick = function(){ openEmbed(state.lang === 'en' ? '/b10x' : '/ar/b10x', 'B10X'); };
+      if (ba) ba.onclick = function(){ openEmbed((state.lang === 'en' ? '/' : '/ar/') + '#bp-consultant', 'B10X'); };
       var box = dock.querySelector('#acMsgs'), inp = dock.querySelector('#acIn');
       function render(typing){
         box.innerHTML = msgs.map(function(m){
@@ -3820,7 +3849,7 @@ function clickView(v){var b=document.querySelector('#sideNav [data-v="'+v+'"]');
 function injectCompanyBar(){var wrap=byId('view-home')||document.querySelector('.viewwrap');if(!wrap||byId('bp6-companybar'))return;var d=document.createElement('div');d.id='bp6-companybar';d.className='bp6-companybar';d.innerHTML='<div><h3>مساحة الشركة النشطة</h3><p>كل الطلبات والمستندات والامتثال أدناه تخص الشركة المختارة فقط.</p><div class="bp6-company-note">يمكنك إدارة حتى <span class="bp6-100">100 شركة</span> من نفس الحساب.</div></div><div class="bp6-company-actions"><span class="bp6-pill" id="bp6CompanyName">الشركة الحالية</span><button class="btn sm ghost" id="bp6Switch">تبديل الشركة</button><button class="btn sm" id="bp6Add">＋ إضافة شركة</button></div>';wrap.insertAdjacentElement('afterbegin',d);byId('bp6Switch').onclick=function(){clickView('company');setTimeout(function(){var p=byId('orgPick');if(p)p.focus()},80)};byId('bp6Add').onclick=function(){clickView('company');setTimeout(function(){var a=byId('orgAdd');if(a)a.click()},80)};syncCompanyName()}
 function syncCompanyName(){var n=byId('topOrgName'),t=byId('bp6CompanyName');if(n&&t)t.textContent=n.textContent||'الشركة الحالية'}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function removeWhatsappFlows(){document.querySelectorAll('a[href*="wa.me"],a[href*="whatsapp"]').forEach(function(a){if(a.closest('#gate'))return;a.setAttribute('href','/ar/account?view=tickets');a.removeAttribute('target');a.textContent='افتح تذكرة داخل بوابة العميل'});var ph=byId('tkPh');if(ph){var a=ph.querySelector('a');if(a){a.href='#';a.onclick=function(e){e.preventDefault();var m=byId('tkMain');if(m)m.style.display='block';ph.style.display='none'};a.textContent='فتح تذكرة داخل البوابة'}}}
+function removeWhatsappFlows(){document.querySelectorAll('a[href*="wa.me"],a[href*="whatsapp"]').forEach(function(a){if(a.closest('#gate')||a.classList.contains('wa-fab'))return;a.setAttribute('href','/ar/account?view=tickets');a.removeAttribute('target');a.textContent='افتح تذكرة داخل بوابة العميل'});var ph=byId('tkPh');if(ph){var a=ph.querySelector('a');if(a){a.href='#';a.onclick=function(e){e.preventDefault();var m=byId('tkMain');if(m)m.style.display='block';ph.style.display='none'};a.textContent='فتح تذكرة داخل البوابة'}}}
 function routeQuery(){var q=new URLSearchParams(location.search);var v=q.get('view');if(v==='store')clickView('store');if(v==='documents')clickView('documents');if(v==='compliance'){var b=document.querySelector('#sideNav [data-v="compliance"]')||document.querySelector('[data-v="compliance-v6"]');if(b)b.click()}}
 function boot(){injectCompanyBar();removeWhatsappFlows();routeQuery();var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
