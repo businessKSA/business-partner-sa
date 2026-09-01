@@ -691,6 +691,12 @@ export default async function handler(req, res) {
     try {
       let rowsRaw = [];
       let cursor = null, guard = 0;
+      // 1,893 people have applied through the site; the old five-page ceiling
+      // showed the newest 500 of them and silently dropped the rest, so a job
+      // posted a while ago looked like it had no applicants at all. Bounded by
+      // the clock as well as the page count, so a growing pool slows this down
+      // rather than truncating it without saying so.
+      const deadline = Date.now() + 40000;
       do {
         const r = await notionFetch(`databases/${DB_ID}/query`, "POST", {
           page_size: 100,
@@ -707,7 +713,8 @@ export default async function handler(req, res) {
         const d = await r.json();
         rowsRaw = rowsRaw.concat(d.results || []);
         cursor = d.has_more ? d.next_cursor : null;
-      } while (cursor && ++guard < 5);
+      } while (cursor && ++guard < 40 && Date.now() < deadline);
+      const truncated = !!cursor;
 
       const STAGE_KEY = { "جديد": "new", "فرز": "review", "قائمة مختصرة": "shortlist", "رُشّح لصاحب عمل": "shortlist", "مقابلة": "interview", "عرض": "offer", "تم التوظيف": "hired", "مرفوض": "rejected", "مؤجل": "future" };
       const groups = {};
@@ -741,7 +748,9 @@ export default async function handler(req, res) {
         });
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups) }));
+      // Say so when the pool outgrew even the raised ceiling, rather than
+      // handing back a short list that looks complete.
+      return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups), scanned: rowsRaw.length, truncated }));
     } catch (e) {
       console.error("applicants handler error", e);
       res.statusCode = 500;

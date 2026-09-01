@@ -265,15 +265,35 @@
     return c && ["BP-DEMO", "BP-EMP-DEMO"].indexOf(c.toUpperCase()) < 0 ? c : "";
   }
   if (!CODE && !DEMO_OK) {
+    // Before showing a login wall, ask the server whether this browser already
+    // carries a client-portal session. The employer dashboard answers the same
+    // question through validate=1 with no code, and reusing that endpoint keeps
+    // one mechanism rather than two: the server re-derives the account from its
+    // own httpOnly session cookie and hands back an "org:…" code.
     var content = $("hr-content");
-    if (content) {
-      content.innerHTML = '<div class="hr-gate"><div style="font-size:2rem">🔐</div>' +
-        "<h2>سجّل الدخول للوحة صاحب العمل</h2>" +
-        "<p>وظائفك ومتقدموك ومسار التوظيف في مكان واحد. سجّل الدخول بحساب شركتك أو استكشف اللوحة بالبيانات التجريبية.</p>" +
-        '<a class="hr-btn hr-btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>' +
-        '<button class="hr-btn hr-btn-ghost" style="width:100%;margin-top:10px" id="hr-gate-demo">استكشف بالبيانات التجريبية</button></div>';
-      var gd = $("hr-gate-demo");
-      if (gd) gd.addEventListener("click", function () { writeLS("bp_hr_demo", true); location.reload(); });
+    if (content) content.innerHTML = '<div class="hr-gate"><p>جارٍ فتح لوحتك…</p></div>';
+    fetch("/api/candidates?validate=1", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.unlocked && d.code) {
+          try { localStorage.setItem("bp_emp_code", d.code); } catch (e) {}
+          return location.reload();
+        }
+        showHrGate();
+      })
+      .catch(showHrGate);
+
+    function showHrGate() {
+      var box = $("hr-content");
+      if (box) {
+        box.innerHTML = '<div class="hr-gate"><div style="font-size:2rem">🔐</div>' +
+          "<h2>سجّل الدخول للوحة صاحب العمل</h2>" +
+          "<p>وظائفك ومتقدموك ومسار التوظيف في مكان واحد. سجّل الدخول بحساب شركتك أو استكشف اللوحة بالبيانات التجريبية.</p>" +
+          '<a class="hr-btn hr-btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>' +
+          '<button class="hr-btn hr-btn-ghost" style="width:100%;margin-top:10px" id="hr-gate-demo">استكشف بالبيانات التجريبية</button></div>';
+        var gd = $("hr-gate-demo");
+        if (gd) gd.addEventListener("click", function () { writeLS("bp_hr_demo", true); location.reload(); });
+      }
     }
     initChrome(false);
     return;
