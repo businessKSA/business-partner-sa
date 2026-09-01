@@ -705,6 +705,25 @@ create policy doc_agent_outputs_read on doc_agent_outputs for select using (requ
 -- انتهائها يبقى كل ما أُنتج محفوظاً ويُطلب الاشتراك للتوليد الجديد.
 alter table organizations add column if not exists doc_agent_trial_started_at timestamptz;
 
+-- 2026-08-31: الوكيل الذكي للمستندات — توقيع العميل وختم المنشأة.
+-- التوقيع والختم يُحفظان مرة واحدة على مستوى المنشأة ويُعاد استخدامهما في كل
+-- طلب لاحق. الموافقة الصريحة (signature_consent_at) شرط لتطبيق التوقيع: بلا
+-- تاريخ موافقة لا يُختم أي مستند بتوقيع العميل.
+alter table organizations add column if not exists signature_storage_key text;
+alter table organizations add column if not exists signature_mime text;
+alter table organizations add column if not exists signature_consent_at timestamptz;
+alter table organizations add column if not exists signature_updated_at timestamptz;
+alter table organizations add column if not exists stamp_storage_key text;
+alter table organizations add column if not exists stamp_mime text;
+alter table organizations add column if not exists stamp_updated_at timestamptz;
+
+-- 'client_image' يطبّق صورة توقيع العميل المحفوظة على حقول التوقيع في النموذج.
+alter table doc_agent_requests drop constraint if exists doc_agent_requests_signature_mode_check;
+alter table doc_agent_requests add constraint doc_agent_requests_signature_mode_check
+  check (signature_mode in ('leave_blank','typed_electronic','external_esign','client_image'));
+alter table doc_agent_requests add column if not exists stamp_mode text not null default 'auto'
+  check (stamp_mode in ('auto','off'));
+
 -- ---------------------------------------------------------------------------
 -- 2026-08-31: ملف تطوير الأعمال للعميل — مُدخل المطابقة.
 --

@@ -337,8 +337,13 @@
 <style id="bp-admin-v8-css">
 :root{--navy:#07163f!important;--navy-700:#112c71!important;--navy-900:#05102f!important;--bg:#f6f8fc!important;--surface:#fff!important;--line:#e5eaf3!important;--text:#14203e!important;--soft:#68758f!important;--muted:#94a0b5!important;--radius:18px!important;--shadow:0 10px 32px rgba(18,38,85,.055)!important}
 body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
-#app.on{align-items:flex-start}
-.side{width:228px!important;padding:18px 12px!important;background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)!important;border-inline-end:1px solid rgba(255,255,255,.08)}
+/* align-items must stay "stretch": flex-start used to shrink the sticky
+   sidebar to its content height, leaving a floating navy block mid-page. */
+#app.on{align-items:stretch}
+.side{width:228px!important;min-height:100dvh;padding:18px 12px!important;background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)!important;border-inline-end:1px solid rgba(255,255,255,.08)}
+/* The top header reads as one solid bar the content scrolls under — not a
+   floating island overlapping the cards. */
+.admin-topbar{top:0!important;margin:-22px -28px 18px!important;border-top:0!important;border-inline:0!important;border-radius:0 0 16px 16px!important;padding:12px 26px!important;z-index:40!important;box-shadow:0 10px 24px rgba(18,38,85,.08)!important}
 .side .logo{padding:0 8px 18px!important;margin-bottom:12px!important}.side .logo img{max-width:142px!important;filter:brightness(0) invert(1)}.side .logo .t{font-size:13px!important}.side .logo .t small{font-size:9.5px!important;opacity:.6!important}
 .nav{gap:2px!important}.nav:before{content:'COMMAND CENTER';display:block;font-size:9px;font-weight:900;letter-spacing:.16em;color:rgba(255,255,255,.38);padding:4px 12px 8px}
 .nav button{padding:9px 10px!important;font-size:12.5px!important;border-radius:9px!important}.nav button.active{background:#fff!important;color:#07163f!important;box-shadow:0 8px 20px rgba(0,0,0,.13)}
@@ -363,7 +368,7 @@ body{background:linear-gradient(180deg,#f8faff 0,#f4f7fc 100%)!important}
 .tbl-wrap{border-radius:0 0 16px 16px}.filters{padding:10px 14px!important}.filters input[type="search"]{font-size:12px!important;padding:8px 11px!important}table{font-size:12px!important}th{font-size:10.5px!important;padding:8px!important}td{padding:9px 8px!important}
 .mobilebar{background:#fff!important;border-bottom:1px solid var(--line)!important}
 #aiFab{background:linear-gradient(135deg,#07163f,#3159d8)!important;box-shadow:0 12px 30px rgba(36,75,184,.25)!important}
-@media(max-width:1180px){#view-overview{grid-template-columns:1fr}.bp-admin-command{grid-template-columns:1fr}.#view-overview>#fupPanel,#view-overview>#anaPanel,#view-overview>.panel:not(#fupPanel):not(#anaPanel){grid-column:1!important}.tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}#view-overview>#anaPanel{position:static!important}}
+@media(max-width:1180px){#view-overview{grid-template-columns:1fr}.bp-admin-command{grid-template-columns:1fr}#view-overview>#fupPanel,#view-overview>#anaPanel,#view-overview>.panel:not(#fupPanel):not(#anaPanel){grid-column:1!important}.tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}#view-overview>#anaPanel{position:static!important}}
 @media(max-width:860px){.main{width:100%!important;padding:14px 12px 60px!important}.bp-admin-command{border-radius:17px;padding:17px}.bp-admin-command .actions{grid-template-columns:1fr 1fr}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.panel{border-radius:15px!important}}
 </style>
 </head>

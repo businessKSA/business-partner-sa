@@ -77,6 +77,8 @@
     .gsearch:focus{border-color:var(--navy);background:#fff}
     .top-ico{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;background:#fff;font-weight:700;color:var(--navy);flex-shrink:0}
     .top-ico:hover{background:var(--bg)}
+    .top-ico.wide{width:auto;padding:0 11px;gap:6px;font-size:11.5px;text-decoration:none;white-space:nowrap}
+    @media (max-width:700px){.top-ico.wide span{display:none}.top-ico.wide{width:30px;padding:0}}
     .top-ico .dot{position:absolute;top:-6px;inset-inline-end:-6px;min-width:15px;height:15px;background:var(--bad);border-radius:99px;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px}
     .userchip{display:flex;gap:8px;align-items:center;font-size:11.5px}
     .userchip .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
@@ -279,6 +281,13 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
 .da7-btn.ghost{background:#eef3ff;color:#2148a8}
 .da7-btn.clip{background:#fff;border:1px solid var(--da7-line);color:var(--da7-navy);padding:11px 13px}
 .da7-btn[disabled]{opacity:.5;cursor:not-allowed}
+.da7-sig{border:1px solid var(--da7-line);border-radius:14px;padding:12px;background:#fbfcff}
+.da7-sig canvas{width:100%;height:150px;display:block;border:1.5px dashed #c3d2ee;border-radius:11px;background:#fff;touch-action:none;cursor:crosshair}
+.da7-consent{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;color:var(--da7-ink);line-height:1.75;cursor:pointer}
+.da7-consent input{margin-top:2px;flex:0 0 auto}
+.da7-mark{margin-top:9px;font-size:11.5px;color:var(--da7-muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.da7-mark.on{color:#127a4b;font-weight:800}
+.da7-mark img{height:34px;border:1px solid var(--da7-line);border-radius:7px;background:#fff;padding:2px}
 .da7-drop{border:1.5px dashed #c3d2ee;border-radius:15px;background:#fbfcff;padding:17px;text-align:center;color:var(--da7-muted);font-size:12px;cursor:pointer;transition:.15s}
 .da7-drop:hover,.da7-drop.over{border-color:var(--da7-blue);background:#f2f6ff;color:#2148a8}
 .da7-files{display:flex;flex-direction:column;gap:7px;margin-top:11px}
@@ -360,8 +369,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
         <button data-v="store"><span>🛒</span><span data-t="navStore">اطلب خدمة</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
+        <button data-v="advisors"><span>✦</span><span data-t="navAdvisors">المستشارون الأذكياء</span></button>
+        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
-        <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
@@ -375,7 +385,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
-      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -384,6 +393,8 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       <div class="topbar">
         <span class="orgsel" id="topOrg" title="">🏢 <span id="topOrgName">—</span></span>
         <input class="gsearch" id="topSearch" type="search" data-tp="searchPh" placeholder="بحث في هذه الصفحة: طلب، خدمة، مهمة…" />
+        <button class="top-ico wide" id="assistBtn" title="المساعد">🤖 <span id="assistBtnLbl">المساعد</span></button>
+        <a class="top-ico wide" id="backToSite" href="/ar" title="العودة إلى الموقع">🌐 <span id="backToSiteLbl">العودة إلى الموقع</span></a>
         <button class="top-ico" id="langBtn" title="ع/E">ع/E</button>
         <button class="top-ico" id="bellBtn" title="">🔔<span class="dot" id="bellDot" style="display:none"></span></button>
         <span class="userchip"><span class="av" id="ucAv">؟</span><span class="meta"><b id="ucName">—</b><span id="ucRole" data-t="roleOwner">مالك المنشأة</span></span></span>
@@ -575,6 +586,18 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
           <div class="emptyline" id="svcEmpty" style="display:none"></div>
         </section>
 
+        <!-- ===== advisors hub: every smart advisor, ready to use ===== -->
+        <section class="view" id="view-advisors">
+          <div class="pagehead"><h2 id="advHubTitle">المستشارون الأذكياء</h2><div class="sub" id="advHubLead">كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).</div></div>
+          <div id="advHubGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        </section>
+
+        <!-- ===== hiring board, embedded for every client ===== -->
+        <section class="view" id="view-hiring">
+          <div class="pagehead"><h2 id="hiringTitle">لوحة التوظيف</h2><div class="sub" id="hiringLead">انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك — مفتوحة لك تلقائياً بحسابك. <a id="hiringNewTab" href="/ar/employer-dashboard" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
+        </section>
+
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
           <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
@@ -748,30 +771,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
             </div>
           </div>
         </section>
-        <section class="view" id="view-bdprofile"><div class="pagehead"><h2 id="bdHead">ملف تطوير الأعمال</h2><p class="sub" id="bdLead">اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.</p></div>
-          <div class="panel"><div class="phead"><h3 id="bdFormTitle">نشاطك ومن تستهدف</h3><span class="badge plain" id="bdPct">0%</span></div>
-            <div style="padding:14px 16px 18px;display:grid;gap:14px;max-width:720px">
-              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdServices">ماذا تبيع؟ اشرحه بكلماتك</span>
-                <textarea id="bdServices" rows="4" placeholder="مثال: نورّد ونركّب معدات المطابخ المركزية للمستشفيات والفنادق، ونقدّم عقود صيانة سنوية." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
-              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdIcp">من هو عميلك المثالي؟</span>
-                <textarea id="bdIcp" rows="3" placeholder="مثال: مستشفيات خاصة وفنادق أربع نجوم فأعلى، مدير المشتريات أو المدير التنفيذي." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
-              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdSectors">القطاعات التي تستهدفها</span>
-                <div id="bdSectors" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-                <div style="font-size:11.5px;color:var(--soft)" id="bdSectorsHint">اختر حتى ستة قطاعات — عليها تُبنى المطابقة.</div></div>
-              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdCities">المدن</span>
-                <div id="bdCities" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
-              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdFile">بروفايل المنشأة (PDF أو صورة — اختياري)</span>
-                <input id="bdFile" type="file" accept="application/pdf,image/*" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .8rem;font:inherit" />
-                <span style="font-size:11.5px;color:var(--soft)" id="bdFileHint">نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.</span></label>
-              <div id="bdCurrent" style="display:none;font-size:12px;color:var(--soft)"></div>
-              <div><button class="btn sm" id="bdSave">💾 حفظ ملف تطوير الأعمال</button></div>
-              <div class="note" id="bdNote" style="display:none"></div>
-            </div>
-          </div>
-          <div class="panel" id="bdExtractPanel" style="margin-top:14px;display:none"><div class="phead"><h3 id="bdExtractTitle">ما استخرجناه من بروفايلك</h3></div>
-            <div id="bdExtract" style="padding:12px 16px 16px;font-size:13px"></div>
-          </div>
-        </section>
         <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
           <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
           <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
@@ -906,7 +905,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         waMsg: 'تعذّر إرسال رمز التحقق عبر البريد حالياً.',
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
-        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navTasks: 'المهام', navOrders: 'الطلبات',
+        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navAdvisors: 'المستشارون الأذكياء', navHiring: 'لوحة التوظيف', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
@@ -1022,7 +1021,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         waMsg: 'We could not send the verification email right now.',
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
-        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navTasks: 'Tasks', navOrders: 'Orders',
+        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navAdvisors: 'Smart advisors', navHiring: 'Hiring dashboard', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
@@ -1847,6 +1846,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
       $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
       $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var abl = $('assistBtnLbl'); if (abl) abl.textContent = en ? 'Assistant' : 'المساعد';
       var org = (state.overview && state.overview.organization) || {};
       if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
       if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
@@ -1873,134 +1873,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         })
         .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
     }
-    // ---------------- Business Development profile ----------------
-    // The client says what they sell and who they target; that is what the
-    // companies database is matched against. The sector options come from the
-    // server, never from a list typed in here: they must be the exact values
-    // the database filters on, and a label invented in the browser matches
-    // nothing while looking like an empty database.
-    var bdState = { sectors: [], cities: [], picked: [], pickedCities: [], loaded: false };
-    function bdChip(label, on){
-      return '<button type="button" class="btn sm ' + (on ? '' : 'ghost') + '" data-chip="' + esc(label) + '" style="border-radius:999px">' + esc(label) + '</button>';
-    }
-    function bdPaint(){
-      var en = state.lang === 'en';
-      $('bdSectors').innerHTML = bdState.sectors.map(function(s){
-        return '<button type="button" class="btn sm ' + (bdState.picked.indexOf(s[0]) >= 0 ? '' : 'ghost') + '" data-sector="' + esc(s[0]) + '" style="border-radius:999px">' + esc(en ? s[0] : s[1]) + '</button>';
-      }).join('');
-      $('bdCities').innerHTML = bdState.cities.map(function(c){
-        return '<button type="button" class="btn sm ' + (bdState.pickedCities.indexOf(c[0]) >= 0 ? '' : 'ghost') + '" data-city="' + esc(c[0]) + '" style="border-radius:999px">' + esc(en ? c[0] : c[1]) + '</button>';
-      }).join('');
-    }
-    function renderBdProfile(){
-      var en = state.lang === 'en';
-      $('navBdLbl').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
-      $('bdHead').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
-      $('bdLead').textContent = en
-        ? 'Tell us what you sell and who you target — this is what we match the companies database against and build your target list from.'
-        : 'اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.';
-      $('bdFormTitle').textContent = en ? 'Your business and your targets' : 'نشاطك ومن تستهدف';
-      $('lblBdServices').textContent = en ? 'What do you sell? In your own words' : 'ماذا تبيع؟ اشرحه بكلماتك';
-      $('lblBdIcp').textContent = en ? 'Who is your ideal customer?' : 'من هو عميلك المثالي؟';
-      $('lblBdSectors').textContent = en ? 'Sectors you target' : 'القطاعات التي تستهدفها';
-      $('bdSectorsHint').textContent = en ? 'Pick up to six — matching is built on these.' : 'اختر حتى ستة قطاعات — عليها تُبنى المطابقة.';
-      $('lblBdCities').textContent = en ? 'Cities' : 'المدن';
-      $('lblBdFile').textContent = en ? 'Company profile (PDF or image — optional)' : 'بروفايل المنشأة (PDF أو صورة — اختياري)';
-      $('bdFileHint').textContent = en
-        ? 'We read it and pull out your services and keywords to sharpen the match. What you write yourself always wins.'
-        : 'نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.';
-      $('bdSave').textContent = en ? '💾 Save profile' : '💾 حفظ ملف تطوير الأعمال';
-      $('bdExtractTitle').textContent = en ? 'What we read from your profile' : 'ما استخرجناه من بروفايلك';
-      if (bdState.loaded){ bdPaint(); return; }
-      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'ops-bd-profile' }) })
-        .then(function(r){ return r.json().catch(function(){ return {}; }); })
-        .then(function(o){
-          if (!o || !o.ok) return;
-          bdState.loaded = true;
-          bdState.sectors = o.sectors || [];
-          bdState.cities = o.cities || [];
-          var p = o.profile;
-          if (p){
-            $('bdServices').value = p.servicesText || '';
-            $('bdIcp').value = p.idealCustomer || '';
-            bdState.picked = p.targetSectors || [];
-            bdState.pickedCities = p.targetCities || [];
-            $('bdPct').textContent = (p.completeness || 0) + '%';
-            if (p.hasProfile){
-              $('bdCurrent').style.display = '';
-              $('bdCurrent').textContent = (en ? 'Attached: ' : 'المرفق الحالي: ') + (p.profileName || '');
-            }
-            bdShowExtract(p.extracted);
-          }
-          bdPaint();
-        })
-        .catch(function(){});
-    }
-    function bdShowExtract(x){
-      if (!x || (!(x.services || []).length && !(x.keywords || []).length)){ $('bdExtractPanel').style.display = 'none'; return; }
-      var en = state.lang === 'en';
-      var html = '';
-      if ((x.services || []).length) html += '<div style="margin-bottom:8px"><b>' + (en ? 'Services' : 'الخدمات') + ':</b> ' + esc((x.services || []).join('، ')) + '</div>';
-      if ((x.keywords || []).length) html += '<div><b>' + (en ? 'Keywords' : 'الكلمات المفتاحية') + ':</b> ' + esc((x.keywords || []).join('، ')) + '</div>';
-      $('bdExtract').innerHTML = html;
-      $('bdExtractPanel').style.display = '';
-    }
-    function bdToggle(list, value, max){
-      var i = list.indexOf(value);
-      if (i >= 0) list.splice(i, 1);
-      else if (list.length < max) list.push(value);
-      bdPaint();
-    }
-    function saveBdProfile(){
-      var en = state.lang === 'en';
-      var note = $('bdNote'), btn = $('bdSave');
-      var body = {
-        action: 'ops-bd-profile-save',
-        servicesText: $('bdServices').value.trim(),
-        idealCustomer: $('bdIcp').value.trim(),
-        targetSectors: bdState.picked,
-        targetCities: bdState.pickedCities,
-      };
-      if (!body.servicesText && !bdState.picked.length){
-        note.style.display = ''; note.textContent = en ? 'Write what you sell and pick at least one sector.' : 'اكتب ماذا تبيع واختر قطاعاً واحداً على الأقل.';
-        return;
-      }
-      var f = $('bdFile').files && $('bdFile').files[0];
-      var go = function(){
-        btn.disabled = true; note.style.display = ''; note.textContent = en ? 'Saving…' : 'جارٍ الحفظ…';
-        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
-          .then(function(r){ return r.json().catch(function(){ return {}; }); })
-          .then(function(o){
-            btn.disabled = false;
-            if (o && o.ok){
-              $('bdPct').textContent = (o.completeness || 0) + '%';
-              bdShowExtract(o.extracted);
-              note.textContent = o.canMatch
-                ? (en ? '✅ Saved — you are ready for matching.' : '✅ تم الحفظ — صرت جاهزاً للمطابقة.')
-                : (en ? '✅ Saved — pick a sector to start matching.' : '✅ تم الحفظ — اختر قطاعاً لتبدأ المطابقة.');
-            } else {
-              note.textContent = (o && o.error === 'too_large')
-                ? (en ? 'The file is too large.' : 'الملف أكبر من المسموح.')
-                : (o && o.error === 'not_provisioned')
-                  // Ours to fix, not theirs to retry — say so rather than
-                  // sending the client round a loop that cannot succeed.
-                  ? (en ? 'This is not switched on yet at our end — the team has been notified.' : 'الخدمة لم تُفعَّل عندنا بعد — أبلغنا الفريق، ولا داعي لإعادة المحاولة.')
-                  : (en ? 'Could not save — try again.' : 'تعذر الحفظ — أعد المحاولة.');
-            }
-          })
-          .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
-      };
-      if (!f) return go();
-      var fr = new FileReader();
-      fr.onload = function(){
-        var s = String(fr.result || '');
-        body.fileBase64 = s.slice(s.indexOf(',') + 1);
-        body.fileName = f.name; body.fileMime = f.type || 'application/pdf';
-        go();
-      };
-      fr.onerror = function(){ note.style.display = ''; note.textContent = en ? 'Could not read the file.' : 'تعذّرت قراءة الملف.'; };
-      fr.readAsDataURL(f);
-    }
     // ---------------- payments / team / reports (built from account data already loaded) ----------------
     function renderPayments(){
       var en = state.lang === 'en';
@@ -2020,6 +1892,40 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
       }
       $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    // Advisors hub — every smart advisor in one grid, each one openable now.
+    // All of them are covered by the 30-day platform trial, so the hub never
+    // shows a locked card to a signed-in client inside the trial window.
+    function renderAdvisors(){
+      var en = state.lang === 'en';
+      $('advHubTitle').textContent = en ? 'Smart advisors' : 'المستشارون الأذكياء';
+      $('advHubLead').textContent = en ? 'All your advisors in one place — ready to use now, free for your first 30 days.' : 'كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).';
+      var list = [
+        ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
+        ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your hiring pipeline.' : 'انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك.', 'hiring'],
+        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/business-development-dashboard'],
+        ['🤖', en ? 'Smart employee' : 'الموظف الذكي', en ? 'A 24/7 specialist — marketing, admin, sales or procurement. Open your smart-employees portal.' : 'متخصص يعمل 24/7 — تسويق، إداري، مبيعات أو مشتريات. افتح بوابة موظفيك الأذكياء.', '/ar/portal'],
+        ['🤝', en ? 'Shared services team' : 'فريق الخدمات المشتركة', en ? 'Your executive team dashboard — HR, finance, legal and government relations.' : 'لوحة فريقك التنفيذي — موارد بشرية ومالية وقانونية وعلاقات حكومية.', '/ar/shared-services/dashboard'],
+        ['💬', en ? 'Portal assistant' : 'مساعد لوحتك', en ? 'Knows your orders, wallet and every section — ask it anything.' : 'يعرف طلباتك ومحفظتك وكل أقسام اللوحة — اسأله أي شيء.', 'assistant']
+      ];
+      var h = '';
+      for (var i = 0; i < list.length; i++){
+        var a = list[i];
+        h += '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px">'
+          + '<div style="font-size:26px">' + a[0] + '</div><b style="color:var(--navy)">' + esc(a[1]) + '</b>'
+          + '<span style="font-size:12.5px;color:#5a6285;flex:1;line-height:1.8">' + esc(a[2]) + '</span>'
+          + '<button class="btn sm" data-adv="' + a[3] + '" style="align-self:flex-start">' + (en ? 'Open' : 'افتح المستشار') + '</button></div>';
+      }
+      $('advHubGrid').innerHTML = h;
+      var bs = $('advHubGrid').querySelectorAll('[data-adv]');
+      for (var j = 0; j < bs.length; j++) bs[j].onclick = function(){
+        var t = this.getAttribute('data-adv');
+        if (t === 'docagent'){ var db = document.querySelector('#sideNav [data-v="docagent"]'); if (db){ db.click(); return; } t = '/ar/account?view=docagent'; }
+        if (t === 'hiring'){ switchView('hiring'); return; }
+        if (t === 'assistant'){ var ab = $('assistBtn'); if (ab) ab.click(); return; }
+        location.href = t;
+      };
     }
     function renderTeam(){
       var en = state.lang === 'en';
@@ -2085,7 +1991,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       renderTeam();
       renderReports();
       renderCompany();
-      renderBdProfile();
       if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); loadMyOrgs(); }
       filterSearch();
     }
@@ -2252,10 +2157,17 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','store','services','company','bdprofile','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','store','services','advisors','hiring','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       if (v === 'store') stInit();
+      if (v === 'advisors') renderAdvisors();
+      if (v === 'hiring'){
+        // Lazy-load the embedded hiring board on first open; the portal
+        // session unlocks it server-side (30-day trial), no second login.
+        var hf = $('hiringFrame');
+        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard');
+      }
       for (var i = 0; i < VIEWS.length; i++){
         var el = $('view-' + VIEWS[i]);
         if (el) el.classList.toggle('on', VIEWS[i] === v);
@@ -3294,15 +3206,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         }
       }).catch(function(){});
       $('orgSave').onclick = saveCompany;
-      $('bdSave').onclick = saveBdProfile;
-      // Delegated: the chips are repainted on every language switch and every
-      // toggle, so binding each button directly would leave dead handlers.
-      $('bdSectors').addEventListener('click', function(e){
-        var t = e.target.closest('[data-sector]'); if (t) bdToggle(bdState.picked, t.getAttribute('data-sector'), 6);
-      });
-      $('bdCities').addEventListener('click', function(e){
-        var t = e.target.closest('[data-city]'); if (t) bdToggle(bdState.pickedCities, t.getAttribute('data-city'), 7);
-      });
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;
       $('gCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyCode(); });
@@ -3451,6 +3354,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         try { inp.focus(); } catch (e) {}
       };
       dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
+      // The topbar «المساعد» button opens the same concierge dock as the fab.
+      var hdrAssist = document.getElementById('assistBtn');
+      if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };
       dock.querySelector('#acGo').onclick = function(){ ask(inp.value); };
       inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') ask(inp.value); });
       // Ask B10X: free text → a tracked service request (type b10x-request,
@@ -3588,8 +3494,8 @@ db.querySelectorAll('[data-docopen]').forEach(function(b){b.onclick=openDocs})
 }).catch(function(){var a=byId('bp6Actions');if(a)a.innerHTML='<div class="bp6-empty">تعذر تحميل بيانات الامتثال الآن.</div>'})}
 function renderAccess(acc){var el=byId('bp6Access');if(!el)return;
 if(acc&&acc.active){el.innerHTML='<div style="background:#e9f7ef;border:1px solid #bfe6cd;color:#0e6b3c;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-weight:700;font-size:13px">✓ اشتراكك في مستشار الامتثال نشط — كل الميزات مفتوحة بلا حدود.</div>';return}
-if(acc&&acc.trial&&acc.days_left>0){el.innerHTML='<div style="background:#fff8e6;border:1px solid #f2e2ae;color:#8a6d1b;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>🎁 تجربة مجانية — باقي '+acc.days_left+' يوم من 14.</b><span>كل ميزات الامتثال والمخالفات مفتوحة لك الآن.</span><a href="/ar/compliance-agent#pricing" style="margin-inline-start:auto;background:#0B1B5A;color:#fff;border-radius:999px;padding:6px 14px;text-decoration:none;font-weight:800;font-size:12px">فعّل الاشتراك</a></div>';return}
-if(acc&&acc.trial){el.innerHTML='<div style="background:#fff;border:1px solid #e4e7f0;border-radius:16px;padding:28px;text-align:center;margin-bottom:12px"><div style="font-size:34px">🔒</div><h3 style="color:#0B1B5A;margin:8px 0 4px">انتهت تجربتك المجانية (14 يوماً)</h3><p style="color:#5a6285;font-size:13px;max-width:52ch;margin:0 auto 14px">أعجبتك متابعة الامتثال والمخالفات؟ فعّل اشتراكك ويرجع كل شيء فوراً — مستنداتك ومخالفاتك محفوظة كما هي.</p><a href="/ar/compliance-agent#pricing" style="background:#0B1B5A;color:#fff;border-radius:999px;padding:10px 22px;text-decoration:none;font-weight:800;font-size:13px">اشترك الآن</a> <a href="/ar/account?view=tickets" style="color:#0B1B5A;font-weight:700;font-size:13px;margin-inline-start:10px">أو كلّم فريقنا</a></div>';return}
+if(acc&&acc.trial&&acc.days_left>0){el.innerHTML='<div style="background:#fff8e6;border:1px solid #f2e2ae;color:#8a6d1b;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>🎁 تجربة مجانية — باقي '+acc.days_left+' يوم من 30.</b><span>كل ميزات الامتثال والمخالفات مفتوحة لك الآن.</span><a href="/ar/compliance-agent#pricing" style="margin-inline-start:auto;background:#0B1B5A;color:#fff;border-radius:999px;padding:6px 14px;text-decoration:none;font-weight:800;font-size:12px">فعّل الاشتراك</a></div>';return}
+if(acc&&acc.trial){el.innerHTML='<div style="background:#fff;border:1px solid #e4e7f0;border-radius:16px;padding:28px;text-align:center;margin-bottom:12px"><div style="font-size:34px">🔒</div><h3 style="color:#0B1B5A;margin:8px 0 4px">انتهت تجربتك المجانية (30 يوماً)</h3><p style="color:#5a6285;font-size:13px;max-width:52ch;margin:0 auto 14px">أعجبتك متابعة الامتثال والمخالفات؟ فعّل اشتراكك ويرجع كل شيء فوراً — مستنداتك ومخالفاتك محفوظة كما هي.</p><a href="/ar/compliance-agent#pricing" style="background:#0B1B5A;color:#fff;border-radius:999px;padding:10px 22px;text-decoration:none;font-weight:800;font-size:13px">اشترك الآن</a> <a href="/ar/account?view=tickets" style="color:#0B1B5A;font-weight:700;font-size:13px;margin-inline-start:10px">أو كلّم فريقنا</a></div>';return}
 el.innerHTML=''}
 function violStatusChip(st){var m={'جديدة':['#fff4e0','#9a6b0d','🟡 جديدة — تقدر تعترض'],'قيد الاعتراض':['#e8f0ff','#2853c5','⏳ قيد الاعتراض'],'مقبول الاعتراض':['#e9f7ef','#0e6b3c','✅ قُبل الاعتراض'],'مرفوض الاعتراض':['#fdecea','#b3372b','❌ رُفض الاعتراض'],'مدفوعة':['#eef1f6','#5a6285','💳 مدفوعة'],'ملغاة':['#eef1f6','#5a6285','⚪ ملغاة']};var c=m[st]||m['جديدة'];return '<span style="background:'+c[0]+';color:'+c[1]+';border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;white-space:nowrap">'+c[2]+'</span>'}
 function renderViolations(viols){var el=byId('bp6Violations');if(!el)return;
@@ -3631,7 +3537,7 @@ function renderTrial(a){
   var left=access.days_left==null?access.trial_days:access.days_left;
   if(access.allowed){
     box.className='da7-trial';
-    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||14)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||14)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||30)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||30)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
   }else{
     box.className='da7-trial ended';
     box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
@@ -3648,6 +3554,7 @@ function tag(role){
 function renderState(d){
   if(!d||!d.ok)return;
   if(d.access)renderTrial(d.access);
+  if(d.marks)renderMarks(d.marks);
   var g=d.gap||{};
   $('da7Stats').innerHTML='<div class="da7-stat"><b>'+(g.forms||0)+'</b><span>نموذج للتعبئة</span></div>'+
     '<div class="da7-stat"><b>'+(g.sources||0)+'</b><span>مستند مصدر</span></div>'+
@@ -3728,6 +3635,11 @@ function fill(formId,seen){
       if(o.ok&&o.output_id){done++;get('&action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){if(l.url)link(o.form,l.url,o.unfilled?(o.unfilled+' حقل بانتظارك'):'')})}
       else if(!o.ok)say('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));
     });
+    if(d.signed&&d.signed.length){
+      var has=function(k){return d.signed.indexOf(k)!==-1};
+      say('sys',has('signature')&&has('stamp')?'وُضع توقيعك وختم منشأتك في مواضعهما.'
+        :has('signature')?'وُضع توقيعك في موضع التوقيع.':'وُضع ختم منشأتك في موضعه.');
+    }
     var rest=d.remaining||[];
     if(rest.length&&seen<12){fill(rest[0].id,seen+1);return}
     if(done||seen)say('bot','تم — ملفاتك المعبّأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».');
@@ -3766,6 +3678,26 @@ function view(){
       '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — المستشار يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
         '<div class="da7-drop" id="da7Drop">اسحب الملفات هنا أو اضغط للاختيار<br><small>PDF · Word · Excel · صور</small></div>'+
         '<div class="da7-files" id="da7Files"><div class="da7-empty">لم تُرفع ملفات بعد.</div></div></div>'+
+      '<div class="da7-box" style="margin-top:14px"><h3>توقيعك وختم منشأتك</h3>'+
+        '<p class="hint">وقّع بإصبعك أو بالفأرة مرة واحدة، ويُستخدم التوقيع نفسه في كل نموذج بعدها. يُطبَّق فقط على الحقول التي تطلب توقيعاً أو ختماً — ولا يُطبَّق أبداً بدون موافقتك الصريحة أدناه.</p>'+
+        '<div class="da7-sig"><canvas id="da7Pad" width="600" height="200"></canvas>'+
+          '<div class="da7-row" style="margin-top:8px;flex-wrap:wrap">'+
+            '<button class="da7-btn ghost" id="da7PadClear" type="button">مسح</button>'+
+            '<button class="da7-btn clip" id="da7SigUp" type="button">ارفع صورة توقيع</button>'+
+            '<button class="da7-btn" id="da7SigSave" type="button">احفظ التوقيع</button>'+
+          '</div>'+
+          '<label class="da7-consent"><input type="checkbox" id="da7Consent"> أوافق على استخدام هذا التوقيع لتوقيع مستنداتي التي يعبّئها المستشار.</label>'+
+          '<div class="da7-mark" id="da7SigState">لا يوجد توقيع محفوظ.</div>'+
+        '</div>'+
+        '<div class="da7-sig" style="margin-top:12px">'+
+          '<div class="da7-row" style="flex-wrap:wrap">'+
+            '<button class="da7-btn clip" id="da7StampUp" type="button">ارفع صورة الختم</button>'+
+            '<button class="da7-btn ghost" id="da7StampClear" type="button">احذف الختم</button>'+
+          '</div>'+
+          '<div class="da7-mark" id="da7StampState">لا يوجد ختم محفوظ.</div>'+
+        '</div>'+
+        '<input type="file" id="da7MarkFile" accept="image/png,image/jpeg,image/webp" hidden>'+
+      '</div>'+
       '<div class="da7-box" style="margin-top:14px"><h3>مخرجاتك</h3><p class="hint">النماذج المعبّأة والحزمة النهائية — بروابط تنزيل موقّعة قصيرة العمر.</p>'+
         '<div class="da7-files" id="da7Outs"><div class="da7-empty">لا مخرجات بعد.</div></div>'+
         '<div class="da7-row" style="margin-top:12px"><button class="da7-btn" id="da7Fill" disabled>عبّئ النماذج</button>'+
@@ -3778,6 +3710,7 @@ function mount(){
   var wrap=document.querySelector('.viewwrap'); if(!wrap||$('view-docagent'))return;
   var s=document.createElement('section'); s.className='view da7'; s.id='view-docagent'; s.innerHTML=view();
   wrap.appendChild(s);
+  padSetup();
   $('da7Send').onclick=send;
   $('da7Input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send()}});
   $('da7Clip').onclick=function(){$('da7File').click()};
@@ -3803,6 +3736,89 @@ function nav(){
     open(); window.scrollTo(0,0);
   };
 }
+// ---- the client's signature and the company stamp ------------------------
+// The pad writes a transparent PNG: black ink on nothing, so the signature sits
+// over the form's own ruled line instead of hiding it behind a white box.
+var padDrawn=false, markKind='signature';
+function padSetup(){
+  var c=$('da7Pad'); if(!c||c._on)return; c._on=1;
+  var g=c.getContext('2d'), drawing=false, last=null;
+  function fit(){
+    var r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    var data=padDrawn?c.toDataURL():null;
+    c.width=Math.max(300,Math.round(r.width*dpr)); c.height=Math.round(150*dpr);
+    g.scale(dpr,dpr); g.lineWidth=2.2; g.lineCap='round'; g.lineJoin='round'; g.strokeStyle='#101828';
+    if(data){var im=new Image();im.onload=function(){g.drawImage(im,0,0,r.width,150)};im.src=data}
+  }
+  fit(); window.addEventListener('resize',fit);
+  function at(e){
+    var r=c.getBoundingClientRect();
+    var t=(e.touches&&e.touches[0])||e;
+    return {x:t.clientX-r.left, y:t.clientY-r.top};
+  }
+  function down(e){e.preventDefault();drawing=true;last=at(e)}
+  function move(e){
+    if(!drawing)return; e.preventDefault();
+    var p=at(e); g.beginPath(); g.moveTo(last.x,last.y); g.lineTo(p.x,p.y); g.stroke();
+    last=p; padDrawn=true;
+  }
+  function up(){drawing=false}
+  c.addEventListener('mousedown',down); c.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+  c.addEventListener('touchstart',down,{passive:false});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',up);
+  $('da7PadClear').onclick=function(){g.clearRect(0,0,c.width,c.height);padDrawn=false};
+  $('da7SigSave').onclick=function(){
+    if(!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(!padDrawn){alert('ارسم توقيعك في المربع أولاً، أو ارفعه كصورة.');return}
+    saveMark('signature', c.toDataURL('image/png').split(',')[1], 'image/png');
+  };
+  $('da7SigUp').onclick=function(){markKind='signature';$('da7MarkFile').click()};
+  $('da7StampUp').onclick=function(){markKind='stamp';$('da7MarkFile').click()};
+  $('da7StampClear').onclick=function(){
+    post({action:'clear-mark',ref:ref||undefined,kind:'stamp'}).then(function(d){if(d.marks)renderMarks(d.marks)});
+  };
+  $('da7MarkFile').onchange=function(){
+    var f=(this.files||[])[0]; this.value='';
+    if(!f)return;
+    if(markKind==='signature'&&!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(f.size>2*1024*1024){alert('الصورة أكبر من 2 ميجابايت.');return}
+    var rd=new FileReader();
+    rd.onload=function(){saveMark(markKind,String(rd.result).split(',')[1],f.type||'image/png')};
+    rd.readAsDataURL(f);
+  };
+}
+function saveMark(kind,b64,mime){
+  post({action:'set-mark',kind:kind,fileBase64:b64,fileType:mime,consent:kind==='signature'?!!$('da7Consent').checked:undefined})
+    .then(function(d){
+      if(!d.ok){alert(d.error==='consent_required'?'فعّل الموافقة أولاً.':'تعذّر الحفظ — حاول مرة أخرى.');return}
+      renderMarks(d.marks);
+      say('sys',kind==='signature'?'حُفِظ توقيعك — سيُطبَّق على حقول التوقيع في النماذج القادمة.':'حُفِظ ختم منشأتك.');
+      if(kind==='signature'&&ref)post({action:'set-option',ref:ref,signature_mode:'client_image'});
+    });
+}
+function renderMarks(m){
+  if(!m)return;
+  var sg=$('da7SigState'), st=$('da7StampState');
+  if(sg){
+    sg.className='da7-mark'+(m.signature.saved?' on':'');
+    sg.textContent=m.signature.saved?'✓ توقيعك محفوظ ومُفعّل.':'لا يوجد توقيع محفوظ.';
+    if(m.signature.saved){
+      var c=$('da7Consent'); if(c)c.checked=true;
+      get('&action=mark-link&kind=signature').then(function(d){
+        if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='توقيعك'; sg.appendChild(i);
+      });
+    }
+  }
+  if(st){
+    st.className='da7-mark'+(m.stamp.saved?' on':'');
+    st.textContent=m.stamp.saved?'✓ ختم منشأتك محفوظ.':'لا يوجد ختم محفوظ.';
+    if(m.stamp.saved)get('&action=mark-link&kind=stamp').then(function(d){
+      if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='ختم المنشأة'; st.appendChild(i);
+    });
+  }
+}
 var opened=false;
 function purge(){
   try{localStorage.removeItem('bp_da_ref');localStorage.removeItem('bp_da_org')}catch(e){}
@@ -3815,10 +3831,11 @@ function open(){
       // not a registered client (or no establishment yet): nothing of theirs is
       // kept here, and any stale local pointer is dropped on the spot.
       purge();
-      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 14 يوماً.');
+      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 30 يوماً.');
       return;
     }
     if(a.ok)renderTrial(a.access);
+    if(a.marks)renderMarks(a.marks);
     get('&action=list').then(function(d){
       // A cached ref belongs to exactly one establishment. If the signed-in tenant
       // changed on this browser, the previous client's pointer and log go first.

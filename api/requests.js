@@ -96,7 +96,7 @@ const DEMO_CODES = {
 // BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
 const TRIAL_CODES = new Set(["TRIAL"]);
 // Shared Services: free trial length (days) for every registered client.
-const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 14) || 14;
+const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 30) || 30;
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -2335,7 +2335,7 @@ export default async function handler(req, res) {
       }
       if (what === "compliance-access") {
         // الامتثال متاح لكل حساب مسجّل: المشترك النشط بلا حدود، وغيره تجربة
-        // مجانية 14 يوماً تبدأ من إنشاء حساب الشركة.
+        // مجانية 30 يوماً تبدأ من إنشاء حساب الشركة.
         let active = false;
         const accEmail = (sess.user && sess.user.email) || "";
         if (NOTION_TOKEN && accEmail) {
@@ -2352,7 +2352,7 @@ export default async function handler(req, res) {
         if (!active) {
           const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
           const created = orgs[0] && orgs[0].created_at ? new Date(orgs[0].created_at).getTime() : Date.now();
-          const ends = created + 14 * 86400000;
+          const ends = created + 30 * 86400000;
           endsAt = new Date(ends).toISOString().slice(0, 10);
           daysLeft = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
         }

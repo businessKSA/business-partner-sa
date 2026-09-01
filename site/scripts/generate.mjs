@@ -1062,6 +1062,21 @@ const homeCss = `<style>
 .bph .hs-label{display:block;font-weight:700;font-size:.85rem;color:var(--n);margin:0 0 6px}
 .bph .hs-field{width:100%;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;font:inherit;font-size:.93rem;background:#fff;color:inherit}
 .bph .hs-field:focus{outline:none;border-color:var(--b);box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+.bph .hs-pickwrap{position:relative;margin:0 0 10px}
+.bph .hs-pickwrap .hs-field{margin:0}
+.bph .hs-sug{position:absolute;top:calc(100% + 6px);inset-inline:0;z-index:40;background:#fff;border:1px solid #d5dae6;border-radius:13px;box-shadow:0 20px 46px rgba(11,27,90,.18);max-height:320px;overflow-y:auto;padding:6px}
+.bph .hs-sug[hidden],.bph .hs-picked[hidden]{display:none}
+.bph .hs-sug button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;font:inherit;font-size:.88rem;text-align:start;padding:9px 11px;border-radius:9px;cursor:pointer;color:var(--n)}
+.bph .hs-sug button:hover,.bph .hs-sug button.hl{background:#f1f4fb}
+.bph .hs-sug .g{font-size:.66rem;color:#8a93a7;font-weight:700;white-space:nowrap}
+.bph .hs-sug .none{padding:10px 12px;font-size:.85rem;color:var(--mut);line-height:1.7}
+.bph .hs-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.bph .hs-chips-t{font-size:.72rem;font-weight:800;color:#8a93a7}
+.bph .hs-chip{border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:.78rem;font-weight:700;color:var(--n);cursor:pointer}
+.bph .hs-chip:hover{border-color:var(--b);color:var(--b)}
+.bph .hs-chip.on{background:var(--n);border-color:var(--n);color:#fff}
+.bph .hs-picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:11px;padding:9px 12px;font-size:.84rem;font-weight:700;margin:0 0 14px;line-height:1.7}
+.bph .hs-picked a{color:var(--b);font-weight:800;text-decoration:none;margin-inline-start:auto;white-space:nowrap}
 .bph .hs-go{width:100%}
 .bph .hs-msg{margin:12px 0 0;font-size:.88rem;line-height:1.6}
 .bph .hs-msg.err{color:#b91c1c}
@@ -1145,10 +1160,83 @@ function homeScript() {
   const T = (en, ar) => JSON.stringify(Lraw(en, ar));
   return `<script>
 (function () {
-  var go = document.getElementById("hsGo"), svc = document.getElementById("hsSvc"),
+  var go = document.getElementById("hsGo"), search = document.getElementById("hsSearch"),
+      sug = document.getElementById("hsSug"), chips = document.getElementById("hsChips"),
+      pickedBox = document.getElementById("hsPicked"),
       ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
-  if (go && svc && ph && msg) {
+  if (go && search && sug && ph && msg) {
     var say = function (text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); };
+    var LIST = [];
+    try { LIST = JSON.parse((document.getElementById("hsData") || {}).textContent || "[]"); } catch (e) {}
+    var OTHER = { c: "other", n: ${T("Something else / not sure", "شيء آخر / لست متأكداً")}, g: "", u: "" };
+    var selCode = "", selName = "", cur = [], hl = -1;
+    var escT = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (ch) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]; }); };
+    var markChip = function (code) {
+      Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+        b.classList.toggle("on", !!code && b.getAttribute("data-code") === code);
+      });
+    };
+    var clearSel = function () { selCode = ""; selName = ""; pickedBox.hidden = true; markChip(""); };
+    var pick = function (item) {
+      selCode = item.c; selName = item.n;
+      search.value = item.n; sug.hidden = true; hl = -1;
+      pickedBox.innerHTML = "✓ " + escT(item.n)
+        + (item.u ? '<a href="' + escT(item.u) + '">' + ${T("Details & price ←", "التفاصيل والسعر ←")} + "</a>" : "");
+      pickedBox.hidden = false;
+      markChip(item.c);
+      say("", "");
+      ph.focus();
+    };
+    var findByCode = function (code) {
+      if (code === "other") return OTHER;
+      for (var i = 0; i < LIST.length; i++) if (LIST[i].c === code) return LIST[i];
+      return null;
+    };
+    var renderSug = function (q) {
+      q = String(q || "").trim().toLowerCase();
+      if (!q) { sug.hidden = true; return; }
+      cur = [];
+      for (var i = 0; i < LIST.length && cur.length < 8; i++) {
+        var it = LIST[i];
+        if ((it.n || "").toLowerCase().indexOf(q) > -1 || (it.g || "").toLowerCase().indexOf(q) > -1) cur.push(it);
+      }
+      hl = -1;
+      if (!cur.length) {
+        sug.innerHTML = '<div class="none">' + ${T("No exact match — send anyway and we will pin the service with you on the call.", "لا نتيجة مطابقة — أرسل طلبك كما كتبته وسنحدد الخدمة معك في المكالمة.")} + "</div>";
+      } else {
+        var h = "";
+        for (var j = 0; j < cur.length; j++) h += '<button type="button" data-i="' + j + '"><span>' + escT(cur[j].n) + '</span><span class="g">' + escT(cur[j].g) + "</span></button>";
+        sug.innerHTML = h;
+        Array.prototype.forEach.call(sug.querySelectorAll("[data-i]"), function (b) {
+          b.addEventListener("click", function () { pick(cur[+b.getAttribute("data-i")]); });
+        });
+      }
+      sug.hidden = false;
+    };
+    search.addEventListener("input", function () { clearSel(); renderSug(search.value); });
+    search.addEventListener("keydown", function (e) {
+      var bs = sug.querySelectorAll("[data-i]");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (sug.hidden || !bs.length) return;
+        e.preventDefault();
+        hl = e.key === "ArrowDown" ? (hl + 1) % bs.length : (hl - 1 + bs.length) % bs.length;
+        Array.prototype.forEach.call(bs, function (b, i) { b.classList.toggle("hl", i === hl); });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (!sug.hidden && hl > -1 && cur[hl]) pick(cur[hl]);
+        else if (!sug.hidden && cur.length === 1) pick(cur[0]);
+        else ph.focus();
+      } else if (e.key === "Escape") { sug.hidden = true; }
+    });
+    document.addEventListener("click", function (e) {
+      if (!sug.hidden && !sug.contains(e.target) && e.target !== search) sug.hidden = true;
+    });
+    Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+      b.addEventListener("click", function () {
+        var it = findByCode(b.getAttribute("data-code"));
+        if (it) pick(it);
+      });
+    });
     // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
     var normPhone = function (v) {
       var d = String(v || "").replace(/[^\\d]/g, "").replace(/^00/, "");
@@ -1158,21 +1246,21 @@ function homeScript() {
       return "";
     };
     go.addEventListener("click", function () {
-      if (!svc.value) { say(${T("Please choose a service.", "من فضلك اختر الخدمة.")}, "err"); svc.focus(); return; }
+      var free = search.value.trim();
+      if (!selCode && !free) { say(${T("Pick a service or type what you need.", "اختر خدمة أو اكتب ما تحتاجه.")}, "err"); search.focus(); return; }
       var phone = normPhone(ph.value);
       if (!phone) { say(${T("Enter a valid Saudi mobile number (05XXXXXXXX).", "أدخل رقم جوال سعودي صحيح (05XXXXXXXX).")}, "err"); ph.focus(); return; }
-      var picked = svc.options[svc.selectedIndex];
       go.disabled = true;
       say(${T("Sending…", "جاري الإرسال…")}, "");
       fetch("/api/requests", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "quick-start", code: svc.value, service: picked ? picked.text : svc.value, phone: phone, lang: document.documentElement.lang || "ar" })
+        body: JSON.stringify({ type: "quick-start", code: selCode || "other", service: selName || free, phone: phone, lang: document.documentElement.lang || "ar" })
       })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok) throw new Error("failed");
           say(${T("Received ✓ Our team will call you shortly. Reference: ", "وصلنا طلبك ✓ سيتواصل معك فريقنا قريباً. رقم المرجع: ")} + d.ref, "ok");
-          ph.value = ""; svc.selectedIndex = 0;
+          ph.value = ""; search.value = ""; clearSel();
         })
         .catch(function () {
           say(${T("Sending failed — please book a consultation instead.", "تعذّر الإرسال — يمكنك حجز استشارة بدلاً من ذلك.")}, "err");
@@ -1215,34 +1303,34 @@ function homeScript() {
 </script>`;
 }
 
-// «ابدأ الآن» — one dropdown, one phone field, one button. Deliberately asks
-// for nothing else: every extra field costs conversions, and the team can get
-// the rest on the call.
+// «ابدأ الآن» — a searchable picker, one phone field, one button. The old
+// native <select> dumped 140+ raw options on the visitor; now they type two
+// letters and get styled suggestions, or tap a most-requested chip. Free text
+// still converts: an unmatched need is sent as-is instead of blocking the
+// lead. Deliberately asks for nothing else: every extra field costs
+// conversions, and the team can get the rest on the call.
 function heroStartBox() {
   const quick = HOME_QUICK_CODES.map((c) => services.find((s) => s.code === c)).filter(Boolean);
-  const opt = (s) => `<option value="${esc(s.code)}">${esc(sName(s))}</option>`;
-  const groups = categories
-    .map((c) => {
-      const inCat = services.filter((s) => s.category === c.key);
-      if (!inCat.length) return "";
-      return `<optgroup label="${esc(catLabel(c.key))}">${inCat.map(opt).join("")}</optgroup>`;
-    })
-    .join("");
+  // No prices in this data on purpose — the SHOW_PRICES policy is enforced by
+  // the page pipeline, and this JSON must never become a side channel for it.
+  const data = services.map((s) => ({ c: s.code, n: sName(s), g: catLabel(s.category), u: u("/services/" + s.slug) }));
+  const chip = (s) => `<button type="button" class="hs-chip" data-code="${esc(s.code)}">${esc(sName(s))}</button>`;
   return `<aside class="hero-start" id="heroStart">
     <h2 class="hs-title">${L("Start now", "ابدأ الآن")}</h2>
     <p class="hs-sub">${L("Pick your service, leave your mobile — we reply and prepare your documents.", "اختر خدمتك واترك رقم جوالك — نتواصل معك ونبدأ بتجهيز مستنداتك.")}</p>
-    <label class="hs-label" for="hsSvc">${L("Which service do you need?", "أي خدمة تحتاج؟")}</label>
-    <select class="hs-field" id="hsSvc">
-      <option value="">${L("Choose a service…", "اختر الخدمة…")}</option>
-      <optgroup label="${L("Most requested", "الأكثر طلباً")}">${quick.map(opt).join("")}</optgroup>
-      ${groups}
-      <option value="other">${L("Something else / not sure", "شيء آخر / لست متأكداً")}</option>
-    </select>
+    <label class="hs-label" for="hsSearch">${L("Which service do you need?", "أي خدمة تحتاج؟")}</label>
+    <div class="hs-pickwrap">
+      <input class="hs-field" id="hsSearch" type="text" autocomplete="off" placeholder="${esc(Lraw('Type to search: "CR", "visa", "iqama"…', "اكتب للبحث: سجل تجاري، إقامة، تأشيرة…"))}">
+      <div class="hs-sug" id="hsSug" hidden></div>
+    </div>
+    <div class="hs-chips" id="hsChips"><span class="hs-chips-t">${L("Most requested:", "الأكثر طلباً:")}</span>${quick.map(chip).join("")}<button type="button" class="hs-chip" data-code="other">${L("Not sure yet", "لست متأكداً بعد")}</button></div>
+    <div class="hs-picked" id="hsPicked" hidden></div>
     <label class="hs-label" for="hsPhone">${L("Mobile number", "رقم الجوال")}</label>
     <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
     <button type="button" class="bph-btn primary hs-go" id="hsGo">${L("Start now", "ابدأ الآن")}</button>
     <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
     <p class="hs-alt">${L("Or", "أو")} <a href="${u("/consultation")}">${L("book a free consultation", "احجز استشارة مجانية")}</a> — ${L("no cost, no commitment.", "بدون تكلفة أو التزام.")}</p>
+    <script type="application/json" id="hsData">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
   </aside>`;
 }
 
@@ -5816,6 +5904,7 @@ function buildEmployerDashboard() {
         <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
         <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
+        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل بيزنس بارتنر؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -11583,7 +11672,7 @@ function buildSharedServicesPortal() {
     // date, so a client who just registered simply finds the portal open.
     // Arabic counts its days by rule: 1 يوم, 2 يومان, 3–10 أيام, 11+ يوماً.
     function leftText(t){
-      var n=t.daysLeft, total=t.totalDays||14;
+      var n=t.daysLeft, total=t.totalDays||30;
       ${LANG === "ar" ? `
       var head = n===1?'يوم واحد متبقٍ' : n===2?'يومان متبقيان'
         : (n>=3&&n<=10)?(n+' أيام متبقية') : (n+' يوماً متبقياً');
