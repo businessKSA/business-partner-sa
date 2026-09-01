@@ -15,6 +15,9 @@
     },
     "api/requests.js": {
       "maxDuration": 60
+    },
+    "api/candidates.js": {
+      "maxDuration": 60
     }
   },
   "redirects": [
