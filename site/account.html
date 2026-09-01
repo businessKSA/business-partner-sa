@@ -363,6 +363,7 @@
         <button data-v="advisors"><span>✦</span><span data-t="navAdvisors">المستشارون الأذكياء</span></button>
         <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
+        <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
@@ -760,6 +761,30 @@
               <div><button class="btn sm" id="orgSave">💾 حفظ بيانات المنشأة</button></div>
               <div class="note" id="orgNote" style="display:none"></div>
             </div>
+          </div>
+        </section>
+        <section class="view" id="view-bdprofile"><div class="pagehead"><h2 id="bdHead">ملف تطوير الأعمال</h2><p class="sub" id="bdLead">اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.</p></div>
+          <div class="panel"><div class="phead"><h3 id="bdFormTitle">نشاطك ومن تستهدف</h3><span class="badge plain" id="bdPct">0%</span></div>
+            <div style="padding:14px 16px 18px;display:grid;gap:14px;max-width:720px">
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdServices">ماذا تبيع؟ اشرحه بكلماتك</span>
+                <textarea id="bdServices" rows="4" placeholder="مثال: نورّد ونركّب معدات المطابخ المركزية للمستشفيات والفنادق، ونقدّم عقود صيانة سنوية." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdIcp">من هو عميلك المثالي؟</span>
+                <textarea id="bdIcp" rows="3" placeholder="مثال: مستشفيات خاصة وفنادق أربع نجوم فأعلى، مدير المشتريات أو المدير التنفيذي." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
+              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdSectors">القطاعات التي تستهدفها</span>
+                <div id="bdSectors" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+                <div style="font-size:11.5px;color:var(--soft)" id="bdSectorsHint">اختر حتى ستة قطاعات — عليها تُبنى المطابقة.</div></div>
+              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdCities">المدن</span>
+                <div id="bdCities" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdFile">بروفايل المنشأة (PDF أو صورة — اختياري)</span>
+                <input id="bdFile" type="file" accept="application/pdf,image/*" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .8rem;font:inherit" />
+                <span style="font-size:11.5px;color:var(--soft)" id="bdFileHint">نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.</span></label>
+              <div id="bdCurrent" style="display:none;font-size:12px;color:var(--soft)"></div>
+              <div><button class="btn sm" id="bdSave">💾 حفظ ملف تطوير الأعمال</button></div>
+              <div class="note" id="bdNote" style="display:none"></div>
+            </div>
+          </div>
+          <div class="panel" id="bdExtractPanel" style="margin-top:14px;display:none"><div class="phead"><h3 id="bdExtractTitle">ما استخرجناه من بروفايلك</h3></div>
+            <div id="bdExtract" style="padding:12px 16px 16px;font-size:13px"></div>
           </div>
         </section>
         <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
@@ -1864,6 +1889,134 @@
         })
         .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
     }
+    // ---------------- Business Development profile ----------------
+    // The client says what they sell and who they target; that is what the
+    // companies database is matched against. The sector options come from the
+    // server, never from a list typed in here: they must be the exact values
+    // the database filters on, and a label invented in the browser matches
+    // nothing while looking like an empty database.
+    var bdState = { sectors: [], cities: [], picked: [], pickedCities: [], loaded: false };
+    function bdChip(label, on){
+      return '<button type="button" class="btn sm ' + (on ? '' : 'ghost') + '" data-chip="' + esc(label) + '" style="border-radius:999px">' + esc(label) + '</button>';
+    }
+    function bdPaint(){
+      var en = state.lang === 'en';
+      $('bdSectors').innerHTML = bdState.sectors.map(function(s){
+        return '<button type="button" class="btn sm ' + (bdState.picked.indexOf(s[0]) >= 0 ? '' : 'ghost') + '" data-sector="' + esc(s[0]) + '" style="border-radius:999px">' + esc(en ? s[0] : s[1]) + '</button>';
+      }).join('');
+      $('bdCities').innerHTML = bdState.cities.map(function(c){
+        return '<button type="button" class="btn sm ' + (bdState.pickedCities.indexOf(c[0]) >= 0 ? '' : 'ghost') + '" data-city="' + esc(c[0]) + '" style="border-radius:999px">' + esc(en ? c[0] : c[1]) + '</button>';
+      }).join('');
+    }
+    function renderBdProfile(){
+      var en = state.lang === 'en';
+      $('navBdLbl').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
+      $('bdHead').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
+      $('bdLead').textContent = en
+        ? 'Tell us what you sell and who you target — this is what we match the companies database against and build your target list from.'
+        : 'اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.';
+      $('bdFormTitle').textContent = en ? 'Your business and your targets' : 'نشاطك ومن تستهدف';
+      $('lblBdServices').textContent = en ? 'What do you sell? In your own words' : 'ماذا تبيع؟ اشرحه بكلماتك';
+      $('lblBdIcp').textContent = en ? 'Who is your ideal customer?' : 'من هو عميلك المثالي؟';
+      $('lblBdSectors').textContent = en ? 'Sectors you target' : 'القطاعات التي تستهدفها';
+      $('bdSectorsHint').textContent = en ? 'Pick up to six — matching is built on these.' : 'اختر حتى ستة قطاعات — عليها تُبنى المطابقة.';
+      $('lblBdCities').textContent = en ? 'Cities' : 'المدن';
+      $('lblBdFile').textContent = en ? 'Company profile (PDF or image — optional)' : 'بروفايل المنشأة (PDF أو صورة — اختياري)';
+      $('bdFileHint').textContent = en
+        ? 'We read it and pull out your services and keywords to sharpen the match. What you write yourself always wins.'
+        : 'نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.';
+      $('bdSave').textContent = en ? '💾 Save profile' : '💾 حفظ ملف تطوير الأعمال';
+      $('bdExtractTitle').textContent = en ? 'What we read from your profile' : 'ما استخرجناه من بروفايلك';
+      if (bdState.loaded){ bdPaint(); return; }
+      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'ops-bd-profile' }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(o){
+          if (!o || !o.ok) return;
+          bdState.loaded = true;
+          bdState.sectors = o.sectors || [];
+          bdState.cities = o.cities || [];
+          var p = o.profile;
+          if (p){
+            $('bdServices').value = p.servicesText || '';
+            $('bdIcp').value = p.idealCustomer || '';
+            bdState.picked = p.targetSectors || [];
+            bdState.pickedCities = p.targetCities || [];
+            $('bdPct').textContent = (p.completeness || 0) + '%';
+            if (p.hasProfile){
+              $('bdCurrent').style.display = '';
+              $('bdCurrent').textContent = (en ? 'Attached: ' : 'المرفق الحالي: ') + (p.profileName || '');
+            }
+            bdShowExtract(p.extracted);
+          }
+          bdPaint();
+        })
+        .catch(function(){});
+    }
+    function bdShowExtract(x){
+      if (!x || (!(x.services || []).length && !(x.keywords || []).length)){ $('bdExtractPanel').style.display = 'none'; return; }
+      var en = state.lang === 'en';
+      var html = '';
+      if ((x.services || []).length) html += '<div style="margin-bottom:8px"><b>' + (en ? 'Services' : 'الخدمات') + ':</b> ' + esc((x.services || []).join('، ')) + '</div>';
+      if ((x.keywords || []).length) html += '<div><b>' + (en ? 'Keywords' : 'الكلمات المفتاحية') + ':</b> ' + esc((x.keywords || []).join('، ')) + '</div>';
+      $('bdExtract').innerHTML = html;
+      $('bdExtractPanel').style.display = '';
+    }
+    function bdToggle(list, value, max){
+      var i = list.indexOf(value);
+      if (i >= 0) list.splice(i, 1);
+      else if (list.length < max) list.push(value);
+      bdPaint();
+    }
+    function saveBdProfile(){
+      var en = state.lang === 'en';
+      var note = $('bdNote'), btn = $('bdSave');
+      var body = {
+        action: 'ops-bd-profile-save',
+        servicesText: $('bdServices').value.trim(),
+        idealCustomer: $('bdIcp').value.trim(),
+        targetSectors: bdState.picked,
+        targetCities: bdState.pickedCities,
+      };
+      if (!body.servicesText && !bdState.picked.length){
+        note.style.display = ''; note.textContent = en ? 'Write what you sell and pick at least one sector.' : 'اكتب ماذا تبيع واختر قطاعاً واحداً على الأقل.';
+        return;
+      }
+      var f = $('bdFile').files && $('bdFile').files[0];
+      var go = function(){
+        btn.disabled = true; note.style.display = ''; note.textContent = en ? 'Saving…' : 'جارٍ الحفظ…';
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(o){
+            btn.disabled = false;
+            if (o && o.ok){
+              $('bdPct').textContent = (o.completeness || 0) + '%';
+              bdShowExtract(o.extracted);
+              note.textContent = o.canMatch
+                ? (en ? '✅ Saved — you are ready for matching.' : '✅ تم الحفظ — صرت جاهزاً للمطابقة.')
+                : (en ? '✅ Saved — pick a sector to start matching.' : '✅ تم الحفظ — اختر قطاعاً لتبدأ المطابقة.');
+            } else {
+              note.textContent = (o && o.error === 'too_large')
+                ? (en ? 'The file is too large.' : 'الملف أكبر من المسموح.')
+                : (o && o.error === 'not_provisioned')
+                  // Ours to fix, not theirs to retry — say so rather than
+                  // sending the client round a loop that cannot succeed.
+                  ? (en ? 'This is not switched on yet at our end — the team has been notified.' : 'الخدمة لم تُفعَّل عندنا بعد — أبلغنا الفريق، ولا داعي لإعادة المحاولة.')
+                  : (en ? 'Could not save — try again.' : 'تعذر الحفظ — أعد المحاولة.');
+            }
+          })
+          .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
+      };
+      if (!f) return go();
+      var fr = new FileReader();
+      fr.onload = function(){
+        var s = String(fr.result || '');
+        body.fileBase64 = s.slice(s.indexOf(',') + 1);
+        body.fileName = f.name; body.fileMime = f.type || 'application/pdf';
+        go();
+      };
+      fr.onerror = function(){ note.style.display = ''; note.textContent = en ? 'Could not read the file.' : 'تعذّرت قراءة الملف.'; };
+      fr.readAsDataURL(f);
+    }
     // ---------------- payments / team / reports (built from account data already loaded) ----------------
     function renderPayments(){
       var en = state.lang === 'en';
@@ -1982,6 +2135,7 @@
       renderTeam();
       renderReports();
       renderCompany();
+      renderBdProfile();
       if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); loadMyOrgs(); }
       filterSearch();
     }
@@ -2148,7 +2302,7 @@
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','store','services','advisors','hiring','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','store','services','advisors','hiring','company','bdprofile','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
     function switchView(v){
       if (VIEWS.indexOf(v) === -1) v = 'home';
       if (v === 'store') stInit();
@@ -3197,6 +3351,15 @@
         }
       }).catch(function(){});
       $('orgSave').onclick = saveCompany;
+      $('bdSave').onclick = saveBdProfile;
+      // Delegated: the chips are repainted on every language switch and every
+      // toggle, so binding each button directly would leave dead handlers.
+      $('bdSectors').addEventListener('click', function(e){
+        var t = e.target.closest('[data-sector]'); if (t) bdToggle(bdState.picked, t.getAttribute('data-sector'), 6);
+      });
+      $('bdCities').addEventListener('click', function(e){
+        var t = e.target.closest('[data-city]'); if (t) bdToggle(bdState.pickedCities, t.getAttribute('data-city'), 7);
+      });
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;
       $('gCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyCode(); });
