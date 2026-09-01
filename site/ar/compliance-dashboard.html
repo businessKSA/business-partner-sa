@@ -500,7 +500,7 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
 <div id="chat-frame-wrap"><div id="n8n-chat-widget"></div></div>
 <div class="tip" id="tip" role="tooltip"></div>
 
-<script>(function(){const API_URL = "https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z";const INTAKE_URL = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";
+<script>(function(){const API_URL = "https://businesspartnerai.app.n8n.cloud/webhook/bp3-portal-9kq4z";const INTAKE_URL = "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web";const PORTAL_API = "/api/requests";
     const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const DEMO = new URLSearchParams(location.search).get('demo') === '1';
 
@@ -576,6 +576,27 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       if (uploadStep < DOC_STEPS.length - 1) { uploadStep++; renderUploadStep(); }
       else { document.getElementById('upload-wizard').style.display = 'none'; document.getElementById('upload-done').style.display = 'block'; }
     }
+    function fileToB64(file) {
+      return new Promise(function (resolve, reject) {
+        const rd = new FileReader();
+        rd.onload = function () { resolve(String(rd.result).split(',')[1] || ''); };
+        rd.onerror = reject;
+        rd.readAsDataURL(file);
+      });
+    }
+    /* الرفع إلى خزنة بوابة العميل — المستند يُقرأ آلياً ويظهر في البوابة واللوحة معاً */
+    function portalUploadFiles(s, fileList) {
+      const jobs = [];
+      for (let i = 0; i < fileList.length; i++) (function (file) {
+        jobs.push(fileToB64(file).then(function (b64) {
+          return fetch(PORTAL_API, {
+            method: 'POST', headers: { 'content-type': 'application/json' }, credentials: 'same-origin',
+            body: JSON.stringify({ action: 'ops-doc-upload', title: s.label + (fileList.length > 1 ? ' — ' + file.name : ''), category: s.key || 'other', fileName: file.name, mime: file.type || 'application/pdf', base64: b64 }),
+          }).then(function (r) { if (!r.ok) throw new Error('status ' + r.status); });
+        }));
+      })(fileList[i]);
+      return Promise.all(jobs);
+    }
     function submitUploadStep(cb) {
       const s = DOC_STEPS[uploadStep];
       const fileInput = document.getElementById('upload-step-file');
@@ -585,16 +606,30 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       if (totalSize > 15 * 1024 * 1024) { showUploadMsg('حجم الملفات يتجاوز 15MB — الرجاء تصغير الملف أو رفعه على دفعات.', false); return; }
       const nextBtn = document.getElementById('upload-next');
       nextBtn.disabled = true; nextBtn.textContent = '...جارٍ الرفع';
-      const fd = new FormData();
-      fd.append('company', (lastData && lastData.company) || '');
-      fd.append('email', localStorage.getItem('bp_portal_email') || '');
-      fd.append('code', localStorage.getItem('bp_portal_code') || '');
-      fd.append('notion_page_id', (lastData && lastData.pageId) || '');
-      fd.append('notes', s.label);
-      fd.append('platforms', s.key || '');
-      for (let i = 0; i < fileInput.files.length; i++) fd.append('files', fileInput.files[i]);
-      fetch(INTAKE_URL, { method: 'POST', body: fd })
-        .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); showUploadMsg('✅ تم رفع: ' + s.label, true); setTimeout(function () { reloadData(function (d) { renderFiles(d); }); }, 1500); })
+      const hasCreds = !!(localStorage.getItem('bp_portal_email') && localStorage.getItem('bp_portal_code'));
+      const jobs = [];
+      if (portalDocs !== null) jobs.push(portalUploadFiles(s, fileInput.files));
+      if (hasCreds) {
+        const fd = new FormData();
+        fd.append('company', (lastData && lastData.company) || '');
+        fd.append('email', localStorage.getItem('bp_portal_email') || '');
+        fd.append('code', localStorage.getItem('bp_portal_code') || '');
+        fd.append('notion_page_id', (lastData && lastData.pageId) || '');
+        fd.append('notes', s.label);
+        fd.append('platforms', s.key || '');
+        for (let i = 0; i < fileInput.files.length; i++) fd.append('files', fileInput.files[i]);
+        jobs.push(fetch(INTAKE_URL, { method: 'POST', body: fd }).then(function (r) { if (!r.ok) throw new Error('status ' + r.status); }));
+      }
+      if (!jobs.length) { showUploadMsg('سجّل دخولك أو افتح اللوحة من بوابة العميل ثم أعد المحاولة.', false); nextBtn.disabled = false; nextBtn.textContent = 'التالي ←'; return; }
+      Promise.all(jobs)
+        .then(function () {
+          showUploadMsg('✅ تم رفع: ' + s.label, true);
+          return loadPortalDocs().then(function (pd) { if (pd !== null) portalDocs = pd; });
+        })
+        .then(function () {
+          if (hasCreds) setTimeout(function () { reloadData(function (d) { renderAll(d); }); }, 1500);
+          else if (lastData) renderAll(lastData);
+        })
         .catch(function () { showUploadMsg('تعذّر رفع "' + s.label + '" — تحقق من اتصالك وحاول مجدداً.', false); })
         .finally(function () { nextBtn.disabled = false; nextBtn.textContent = 'التالي ←'; cb(); });
     }
@@ -613,6 +648,7 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
     const loginBtn = document.getElementById('login-btn');
     const dashErr = document.getElementById('dash-err');
     let lastData = null;
+    let portalDocs = null; /* مستندات بوابة العميل — null يعني لا توجد جلسة بوابة */
     let activePlatformFilter = null;
     let selectedCompanyId = null;
     let autoOpenedUpload = false;
@@ -856,6 +892,80 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       if (moreBtn) moreBtn.addEventListener('click', function () { renderAlertsList(el, alertsRaw, {}); });
     }
 
+    /* ===== مستندات بوابة العميل (Supabase) =====
+       عند وجود جلسة بوابة العميل — سواء فُتحت اللوحة داخل البوابة أو مباشرة —
+       تُقرأ المستندات التي رفعها العميل في بوابته وتُدمج في اللوحة: الملفات،
+       خط الاستحقاقات، السجل، والتنبيهات. الحذف من هنا يحذف من خزنة البوابة. */
+    const PORTAL_CAT_AR = { cr:'السجل التجاري', vat:'الزكاة والضريبة', zatca:'الزكاة والضريبة', zakat:'الزكاة والضريبة', gosi:'التأمينات (GOSI)', qiwa:'قوى', mudad:'مدد', muqeem:'مقيم', chamber:'الغرفة التجارية', balady:'بلدي', address:'العنوان الوطني', license:'رخصة', id:'هوية / إقامة', contract:'عقد', other:'أخرى' };
+    function loadPortalDocs() {
+      return fetch(PORTAL_API + '?action=my-ops&what=documents', { credentials: 'same-origin', cache: 'no-store' })
+        .then(function (r) { if (!r.ok) return null; return r.json(); })
+        .then(function (o) { return (o && o.ok) ? (o.items || []) : null; })
+        .catch(function () { return null; });
+    }
+    function portalDays(expiry) {
+      if (!expiry) return null;
+      const d = new Date(expiry + 'T00:00:00');
+      if (isNaN(d)) return null;
+      return Math.round((d.getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000);
+    }
+    function mergePortalIntoData(data) {
+      if (!portalDocs || !portalDocs.length) return data;
+      data = Object.assign({}, data);
+      const files = (data.files || []).slice();
+      const register = (data.register || []).slice();
+      const alerts = (data.alerts || []).slice();
+      portalDocs.forEach(function (doc) {
+        const vers = (doc.document_versions || []).slice().sort(function (a, b) { return (b.version_no || 0) - (a.version_no || 0); });
+        const latest = vers[0] || null;
+        const label = PORTAL_CAT_AR[doc.category] || doc.category || 'أخرى';
+        files.unshift({
+          portal: true, docId: doc.id, versionId: latest && latest.id,
+          name: doc.title || (latest && latest.file_name) || 'مستند',
+          typeLabel: label,
+          uploaded: String((latest && latest.uploaded_at) || doc.created_at || '').slice(0, 10),
+          expiry: doc.expiry_date || null,
+          verified: doc.verify_status === 'verified',
+        });
+        const days = portalDays(doc.expiry_date);
+        if (days !== null) {
+          const dup = register.some(function (r) { return r.expiry === doc.expiry_date && (r.platform === label || (r.subject || '') === (doc.title || '')); });
+          if (!dup) {
+            register.push({ platform: label, subject: doc.title || label, actionType: 'تجديد مستند', expiry: doc.expiry_date, daysRemaining: days, fromPortal: true });
+            if (days <= 30) alerts.push({ title: 'مستند «' + (doc.title || label) + '» ' + (days <= 0 ? 'منتهي' : 'ينتهي خلال ' + days + ' يوم'), risk: days <= 0 ? 'أحمر' : 'أصفر', platform: label, daysRemaining: days, expiry: doc.expiry_date, action: 'جدّد المستند وارفع النسخة الجديدة — الوكيل يحدّث لوحتك تلقائياً' });
+          }
+        }
+      });
+      register.sort(function (a, b) { return (a.daysRemaining == null ? 9999 : a.daysRemaining) - (b.daysRemaining == null ? 9999 : b.daysRemaining); });
+      const counts = { red: 0, yellow: 0, green: 0 };
+      register.forEach(function (r) { const st = itemStatus(r.daysRemaining); if (st === 'r') counts.red++; else if (st === 'y') counts.yellow++; else if (st === 'g') counts.green++; });
+      data.files = files; data.register = register; data.alerts = alerts; data.counts = counts;
+      const dated = counts.red + counts.yellow + counts.green;
+      if (typeof data.healthScore !== 'number' && dated) {
+        data.healthScore = Math.round(100 * counts.green / dated);
+        data.healthBand = data.healthScore >= 85 ? 'ممتاز' : data.healthScore >= 65 ? 'جيد' : data.healthScore >= 40 ? 'متوسط' : 'خطر';
+      }
+      return data;
+    }
+    function portalOnlyData() {
+      let comp = {}; try { comp = JSON.parse(localStorage.getItem('bp_company') || '{}'); } catch (e) {}
+      return { ok: true, locked: false, portalOnly: true, company: comp.name || 'منشأتك', pageId: null, companies: [], employees: null, saudis: null, quarterlyCost: null, annualCost: null, healthScore: null, healthBand: null, lastAnalysis: '', counts: { red: 0, yellow: 0, green: 0 }, alerts: [], register: [], platforms: [], files: [] };
+    }
+    function openPortalDoc(versionId) {
+      if (!versionId) return;
+      fetch(PORTAL_API + '?action=my-ops&what=doc-link&version=' + encodeURIComponent(versionId), { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (o) { if (o && o.ok && o.url) window.open(o.url, '_blank', 'noopener'); })
+        .catch(function () {});
+    }
+    function deletePortalDoc(docId, name) {
+      if (!confirm('حذف المستند "' + name + '" نهائياً من خزنة مستنداتك؟')) return;
+      fetch(PORTAL_API, { method: 'POST', headers: { 'content-type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'ops-doc-delete', id: docId }) })
+        .then(function () { return loadPortalDocs(); })
+        .then(function (pd) { if (pd !== null) portalDocs = pd; if (lastData) renderAll(lastData); })
+        .catch(function () {});
+    }
+
     /* ===== الملفات ===== */
     const FILE_TYPE_AR = { 'CR':'السجل التجاري', 'Saudi Business Center':'المركز السعودي للأعمال', 'Qiwa':'قوى', 'Muqeem':'مقيم', 'GOSI':'التأمينات', 'Mudad':'مدد', 'ZATCA/VAT':'ضريبة القيمة المضافة', 'Zakat':'الزكاة', 'Chamber':'الغرفة التجارية', 'National Address':'العنوان الوطني', 'Balady':'بلدي', 'Civil Defense':'الدفاع المدني', 'Ejar':'إيجار', 'MISA':'MISA', 'Insurance Policy':'بوليصة التأمين', 'Other':'أخرى' };
     function renderFiles(data) {
@@ -865,6 +975,13 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       if (!files.length) { el.innerHTML = '<div class="card"><div class="empty">لا توجد ملفات مرفوعة بعد — اضغط «📤 رفع الملفات» وارفع أول مستند.</div></div>'; return; }
       el.innerHTML = '<div class="filegrid">' + files.map(function (f) {
         const safeName = esc(f.name || 'ملف');
+        if (f.portal) {
+          const pbadge = f.verified ? '<span class="qr-ok">✓ قُرئ وتحقق آلياً</span>' : '<span class="qr-ok qr-warn">قيد التحقق</span>';
+          return '<div class="fcard"><div class="ft"><span class="ficon">🗂️</span><a href="#" class="fopen" data-ver="' + esc(f.versionId || '') + '">' + safeName + '</a></div>' +
+            '<div class="fmeta"><span>' + esc(f.typeLabel || '—') + '</span><span>رُفع ' + (f.uploaded || '—') + '</span>' + (f.expiry ? '<span>ينتهي ' + f.expiry + '</span>' : '') + '<span>🔐 خزنة بوابة العميل</span></div>' +
+            pbadge +
+            '<div class="facts"><button type="button" class="frep">📤 استبدال</button><button type="button" class="fdel file-del" data-portal="1" data-doc="' + esc(f.docId) + '" data-name="' + safeName + '">🗑 حذف</button></div></div>';
+        }
         const verified = (typeof f.confidence === 'number' && f.confidence >= 0.9 && !f.needsReview);
         const badge = verified
           ? '<span class="qr-ok">✓ تم التحقق إلكترونياً</span>'
@@ -876,8 +993,14 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       }).join('') + '</div><p style="color:var(--faint);font-size:.75rem;margin-top:.6rem">للاستبدال: احذف الملف ثم ارفع النسخة الجديدة من لوحة الرفع — الوكيل يعيد التحليل ويحدّث لوحتك تلقائياً.</p>';
     }
     document.getElementById('files-list').addEventListener('click', function (e) {
+      const op = e.target.closest('.fopen');
+      if (op) { e.preventDefault(); openPortalDoc(op.dataset.ver); return; }
       const del = e.target.closest('.file-del');
-      if (del) { deleteClientFile(del.dataset.doc, del.dataset.drive, del.dataset.name); return; }
+      if (del) {
+        if (del.dataset.portal) deletePortalDoc(del.dataset.doc, del.dataset.name);
+        else deleteClientFile(del.dataset.doc, del.dataset.drive, del.dataset.name);
+        return;
+      }
       if (e.target.closest('.frep')) openUploadDrawer();
     });
     function deleteClientFile(docId, driveId, name) {
@@ -995,6 +1118,7 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
     /* ===== renderAll ===== */
     function renderAll(data) {
       if (!data) return;
+      data = mergePortalIntoData(data);
       data = estimateCosts(data);
       document.getElementById('company-name').textContent = data.company || 'لوحة الامتثال';
       renderHero(data);
@@ -1035,7 +1159,7 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
         lockedScreen.style.display = 'none';
         dash.style.display = 'block';
         document.getElementById('fab-wrap').style.display = 'flex';
-        if (!autoOpenedUpload && !((data && data.files) || []).length) {
+        if (!autoOpenedUpload && !((data && data.files) || []).length && !(portalDocs || []).length) {
           autoOpenedUpload = true;
           setTimeout(openUploadDrawer, 900);
         }
@@ -1074,11 +1198,15 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
     document.getElementById('refresh-btn').addEventListener('click', function () {
       const email = localStorage.getItem('bp_portal_email');
       const code = localStorage.getItem('bp_portal_code');
-      if (!email || !code) return;
       const btn = document.getElementById('refresh-btn');
       btn.disabled = true; btn.textContent = '...جارٍ التحديث';
       dashErr.style.display = 'none';
-      loadDashboard(email, code).then(function (data) {
+      loadPortalDocs().then(function (pd) {
+        portalDocs = pd;
+        if (email && code) return loadDashboard(email, code);
+        if (pd !== null) return portalOnlyData();
+        throw new Error('no_session');
+      }).then(function (data) {
         lastData = data;
         renderAll(data);
       }).catch(function () {
@@ -1088,6 +1216,23 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
         btn.disabled = false; btn.textContent = '↻ تحديث';
       });
     });
+    /* مزامنة حيّة: إذا رفع العميل أو حذف مستنداً في بوابته وعاد إلى اللوحة —
+       تتحدّث القائمة دون الحاجة لزر التحديث. */
+    let portalSyncBusy = false;
+    function syncPortalDocs() {
+      if (portalSyncBusy || document.hidden) return;
+      portalSyncBusy = true;
+      loadPortalDocs().then(function (pd) {
+        portalSyncBusy = false;
+        if (pd === null) return;
+        const changed = JSON.stringify(pd) !== JSON.stringify(portalDocs);
+        portalDocs = pd;
+        if (changed && lastData) renderAll(lastData);
+      }).catch(function () { portalSyncBusy = false; });
+    }
+    addEventListener('focus', syncPortalDocs);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) syncPortalDocs(); });
+    setInterval(syncPortalDocs, 60000);
 
     const chatToggle = document.getElementById('chat-toggle');
     const chatWrap = document.getElementById('chat-frame-wrap');
@@ -1147,18 +1292,28 @@ a[href*="wa.me"],a[href*="whatsapp"]{display:none!important}
       if (DEMO) { lastData = demoData(); showApp(lastData); renderAll(lastData); return; }
       const e = localStorage.getItem('bp_portal_email');
       const k = localStorage.getItem('bp_portal_code');
-      if (e && k) {
-        loginScreen.style.display = 'none';
-        loadDashboard(e, k).then(function (data) {
-          lastData = data;
-          showApp(data);
-          if (!data.locked) renderAll(data);
-        }).catch(function () {
-          doLogout();
-          loginErr.textContent = 'تعذّر تحميل البيانات. سجّل الدخول من جديد.';
-          loginErr.style.display = 'block';
-        });
-      }
+      /* جلسة بوابة العميل أولاً: من سجّل في الموقع يرى لوحته ومستنداته فوراً
+         بدون بريد ورمز — ومن لديه رمز n8n تُدمج بياناته فوق ذلك. */
+      loadPortalDocs().then(function (pd) {
+        portalDocs = pd;
+        if (e && k) {
+          loginScreen.style.display = 'none';
+          loadDashboard(e, k).then(function (data) {
+            lastData = data;
+            showApp(data);
+            if (!data.locked) renderAll(data);
+          }).catch(function () {
+            if (pd !== null) { lastData = portalOnlyData(); showApp(lastData); renderAll(lastData); return; }
+            doLogout();
+            loginErr.textContent = 'تعذّر تحميل البيانات. سجّل الدخول من جديد.';
+            loginErr.style.display = 'block';
+          });
+        } else if (pd !== null) {
+          lastData = portalOnlyData();
+          showApp(lastData);
+          renderAll(lastData);
+        }
+      });
     })();
   })();</script> <script type="module">const CHAT_URL = "https://businesspartnerai.app.n8n.cloud/webhook/05804653-e4bf-465c-aa1f-69773ea1f86d/chat";
 
