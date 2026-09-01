@@ -51,3 +51,25 @@ export class ValidationError extends DomainError {
     super(message, 'VALIDATION', details);
   }
 }
+
+/**
+ * هل العطل «القاعدة غير متاحة» لا «البيانات خاطئة»؟
+ *
+ * الفرق يهمّ لأن الرسالة تختلف اختلافاً تاماً: بياناتٌ خاطئة تُقال
+ * لمستخدمٍ يصحّحها، وقاعدةٌ غير مضبوطة تُقال لمن ينشر النظام. وخلطُهما
+ * يجعل من ينشر أول مرّة يظنّ كلمة مروره خاطئة فيجرّبها عشراً، بينما
+ * `DATABASE_URL` غير مضبوط أصلاً.
+ *
+ * الرموز من Prisma: P1000 مصادقة، P1001 لا وصول، P1002 مهلة،
+ * P1003 قاعدة غير موجودة، P1017 أُغلق الاتصال.
+ */
+export function isDatabaseUnavailable(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false;
+  const err = e as { name?: string; code?: string; errorCode?: string; message?: string };
+
+  if (err.name === 'PrismaClientInitializationError') return true;
+  if (['P1000', 'P1001', 'P1002', 'P1003', 'P1017'].includes(err.code ?? '')) return true;
+
+  // متغيّر البيئة الغائب يصل أحياناً رسالةً بلا رمز
+  return /Environment variable not found|Can't reach database server/i.test(err.message ?? '');
+}

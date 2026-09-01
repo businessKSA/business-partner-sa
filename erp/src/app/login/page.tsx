@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db.ts';
 import { verifyPassword, createSession, currentSession } from '@/lib/auth.ts';
 import { withoutTenant } from '@/lib/db.ts';
 import { requestMagicLink } from '@/lib/magic-link.ts';
+import { isDatabaseUnavailable } from '@/lib/errors.ts';
 import { PasswordFallback } from './password-fallback.tsx';
 
 /**
@@ -33,13 +34,22 @@ export default async function LoginPage({
     'use server';
 
     const email = String(formData.get('email') ?? '').trim().toLowerCase();
-    const outcome = await requestMagicLink(email);
 
-    if (!outcome.sent) {
-      console.log(`↷ لم يُرسل رابط دخول إلى «${email}»: ${outcome.reason}`);
+    // التوجيه خارج `try` عمداً: `redirect` يعمل برمي استثناءٍ خاص، فلو وقع
+    // داخل الكتلة لالتقطه `catch` وصار «عطل قاعدة» وهو نجاح.
+    let unavailable = false;
+    try {
+      const outcome = await requestMagicLink(email);
+      if (!outcome.sent) {
+        console.log(`↷ لم يُرسل رابط دخول إلى «${email}»: ${outcome.reason}`);
+      }
+    } catch (e) {
+      if (!isDatabaseUnavailable(e)) throw e;
+      console.error('✗ طلب رابط دخول وقاعدة البيانات غير متاحة:', e);
+      unavailable = true;
     }
 
-    redirect('/login?sent=1');
+    redirect(unavailable ? '/login?error=config' : '/login?sent=1');
   }
 
   async function signIn(formData: FormData) {
@@ -50,27 +60,48 @@ export default async function LoginPage({
 
     if (!email || !password) redirect('/login?error=1');
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    // كما في `sendLink`: كل عملٍ يمسّ القاعدة داخل `try`، وكل `redirect`
+    // خارجه — فرميةُ التوجيه لا تُلتقط على أنها عطل.
+    let verdict: 'ok' | 'bad' | 'no-tenant' | 'config' = 'bad';
+    let sessionFor: { userId: string; tenantId: string } | null = null;
 
-    // نتحقّق من كلمة المرور حتى حين لا يوجد المستخدم: الردّ الفوري بالرفض
-    // يكشف بفارق الزمن أن البريد غير مسجَّل.
-    const stored = user?.passwordHash ?? 'x:0000000000000000000000000000000000000000000000000000000000000000';
-    const ok = await verifyPassword(password, stored);
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !user.active || !ok) redirect('/login?error=1');
+      // نتحقّق من كلمة المرور حتى حين لا يوجد المستخدم: الردّ الفوري بالرفض
+      // يكشف بفارق الزمن أن البريد غير مسجَّل.
+      const stored = user?.passwordHash ?? 'x:0000000000000000000000000000000000000000000000000000000000000000';
+      const ok = await verifyPassword(password, stored);
 
-    const membership = await withoutTenant('تحديد المنشأة الافتراضية عند الدخول', (tx) =>
-      tx.membership.findFirst({
-        where: { userId: user.id, active: true },
-        orderBy: { createdAt: 'asc' },
-      }),
-    );
+      if (!user || !user.active || !ok) {
+        verdict = 'bad';
+      } else {
+        const membership = await withoutTenant('تحديد المنشأة الافتراضية عند الدخول', (tx) =>
+          tx.membership.findFirst({
+            where: { userId: user.id, active: true },
+            orderBy: { createdAt: 'asc' },
+          }),
+        );
 
-    if (!membership) redirect('/login?error=2');
+        if (!membership) {
+          verdict = 'no-tenant';
+        } else {
+          await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+          sessionFor = { userId: user.id, tenantId: membership.tenantId };
+          verdict = 'ok';
+        }
+      }
+    } catch (e) {
+      if (!isDatabaseUnavailable(e)) throw e;
+      console.error('✗ محاولة دخول وقاعدة البيانات غير متاحة:', e);
+      verdict = 'config';
+    }
 
-    await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-    await createSession(user.id, membership.tenantId);
+    if (verdict === 'config') redirect('/login?error=config');
+    if (verdict === 'bad') redirect('/login?error=1');
+    if (verdict === 'no-tenant') redirect('/login?error=2');
 
+    await createSession(sessionFor!.userId, sessionFor!.tenantId);
     redirect('/dashboard');
   }
 
@@ -93,6 +124,15 @@ export default async function LoginPage({
           <div className="card-body">
             {error === '1' ? (
               <div className="alert error">البريد أو كلمة المرور غير صحيحة.</div>
+            ) : null}
+            {error === 'config' ? (
+              <div className="alert error">
+                <strong>النظام غير موصول بقاعدة بيانات</strong>
+                هذا خلل إعداد لا خطأ في بياناتك. على من ينشر النظام أن يضبط
+                <span className="mono"> DATABASE_URL </span>
+                في متغيّرات البيئة ثم يُعيد النشر. راجع
+                <span className="mono"> docs/deploy.md</span>.
+              </div>
             ) : null}
             {error === '2' ? (
               <div className="alert warn">
