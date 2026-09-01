@@ -723,3 +723,36 @@ alter table doc_agent_requests add constraint doc_agent_requests_signature_mode_
   check (signature_mode in ('leave_blank','typed_electronic','external_esign','client_image'));
 alter table doc_agent_requests add column if not exists stamp_mode text not null default 'auto'
   check (stamp_mode in ('auto','off'));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-31: ملف تطوير الأعمال للعميل — مُدخل المطابقة.
+--
+-- العميل يكتب ماذا يبيع، ويرفق بروفايل منشأته، ويحدد القطاعات والمدن التي
+-- يستهدفها. هذه هي البيانات التي تُطابَق عليها قاعدة الشركات
+-- (قاعدة الشركات — مبيعات في نوشن، تخدمها /api/pay?resource=leads).
+--
+-- القطاعات والمدن تُخزَّن بالقيمة الإنجليزية الحرفية التي تُرشِّح بها نوشن،
+-- لا بالنص العربي الذي يراه العميل — انظر api/_bdprofile.js. النص العربي
+-- عرضٌ فقط، وتخزينه هنا يعني مطابقةً لا تُرجع شيئاً أبداً.
+--
+-- صفٌّ واحد لكل منشأة: البروفايل ملك المنشأة لا الموظف الذي كتبه.
+create table if not exists bd_profiles (
+  organization_id uuid primary key references organizations(id) on delete cascade,
+  services_text text,                       -- ماذا يبيع، بكلماته هو
+  ideal_customer text,                      -- وصف العميل المثالي
+  target_sectors text[] not null default '{}',  -- قيم Sector الحرفية
+  target_cities  text[] not null default '{}',  -- قيم City الحرفية
+  profile_path text,                        -- مسار البروفايل في المخزن
+  profile_name text,
+  profile_bytes int,
+  extracted jsonb,                          -- ما استخرجه القارئ من البروفايل
+  completeness int not null default 0 check (completeness between 0 and 100),
+  notified_at timestamptz,                  -- أول اكتمال أُشعر به المالك
+  created_by uuid references users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists bd_profiles_sectors_idx on bd_profiles using gin (target_sectors);
+
+alter table bd_profiles enable row level security;
+create policy bd_profiles_read on bd_profiles for select using (organization_id in (select current_org_ids()));

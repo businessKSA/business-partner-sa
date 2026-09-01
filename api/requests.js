@@ -19,6 +19,10 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
 import { bdTrial, isPaidBdOrder } from "./_trial.js";
+import {
+  SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
+  canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
+} from "./_bdprofile.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -26,7 +30,7 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { handleDocAgent } from "./_docagent.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -2571,6 +2575,120 @@ export default async function handler(req, res) {
           active: msLeft > 0,
           totalDays: SS_TRIAL_DAYS,
         }));
+      }
+      // ---- Business Development profile: the input side of matchmaking ----
+      // What the client sells, who they want to sell it to, and their company
+      // profile document. Sectors and cities are stored as the exact values the
+      // companies database filters on — see api/_bdprofile.js for why storing
+      // the Arabic label instead would silently match nothing.
+      if (b.action === "ops-bd-profile") {
+        const rows = await sb(`bd_profiles?organization_id=eq.${orgId}&limit=1`).catch(() => []);
+        const r = rows[0] || null;
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          sectors: BD_SECTORS, cities: BD_CITIES,
+          profile: r ? {
+            servicesText: r.services_text || "",
+            idealCustomer: r.ideal_customer || "",
+            targetSectors: r.target_sectors || [],
+            targetCities: r.target_cities || [],
+            profileName: r.profile_name || "",
+            hasProfile: !!r.profile_path,
+            extracted: r.extracted || null,
+            completeness: r.completeness || 0,
+          } : null,
+        }));
+      }
+      if (b.action === "ops-bd-profile-save") {
+        const p = normalizeProfile(b);
+        // An uploaded company profile is read once, here, and what the reader
+        // finds is folded in without overwriting anything the client typed.
+        let profilePath = null, profileName = null, profileBytes = null, extracted = null;
+        if (b.fileBase64 && b.fileName) {
+          const mime = String(b.fileMime || "").toLowerCase();
+          if (!DOC_MIME_OK.test(mime)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_type" })); }
+          let buf;
+          try { buf = Buffer.from(String(b.fileBase64), "base64"); } catch { buf = null; }
+          if (!buf || !buf.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+          if (buf.length > MAX_DOC_BYTES) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+          profileName = String(b.fileName).slice(0, 160);
+          profileBytes = buf.length;
+          profilePath = `bd-profiles/${orgId}/${Date.now()}-${profileName.replace(/[^\w.\-]+/g, "_")}`;
+          await storagePut(profilePath, buf, mime);
+          // Reading is best-effort: a profile that saved but could not be parsed
+          // is still a profile, and losing the client's typing to a model
+          // timeout would be the worse failure.
+          try {
+            const raw = await readDocumentRaw(String(b.fileBase64), mime, PROFILE_READ_PROMPT, 1200);
+            extracted = parseJson(raw) || null;
+          } catch (e) { console.error("bd profile read failed", String(e).slice(0, 200)); }
+        }
+        const merged = extracted ? mergeExtracted({ ...p, profilePath }, extracted) : { ...p, profilePath };
+        const completeness = profileCompleteness(merged);
+        const row = {
+          organization_id: orgId,
+          services_text: merged.servicesText || null,
+          ideal_customer: merged.idealCustomer || null,
+          target_sectors: merged.targetSectors || [],
+          target_cities: merged.targetCities || [],
+          extracted: extracted ? {
+            services: merged.extractedServices || [],
+            keywords: merged.extractedKeywords || [],
+            suggestedSectors: merged.suggestedSectors || [],
+          } : undefined,
+          completeness,
+          created_by: userId,
+          updated_at: new Date().toISOString(),
+        };
+        if (profilePath) { row.profile_path = profilePath; row.profile_name = profileName; row.profile_bytes = profileBytes; }
+        for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
+        // bd_profiles ships in db/schema.sql and has to be applied to Supabase
+        // before this can store anything. Until it is, the generic handler below
+        // would answer "try again" to a client who can retry forever without
+        // anything changing — the fault is ours and unprompted retrying will
+        // never fix it. Say that instead, and log it where the owner will see it.
+        try {
+          await sb("bd_profiles?on_conflict=organization_id", {
+            method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: [row],
+          });
+        } catch (e) {
+          const msg = String(e && e.message ? e.message : e);
+          if (/bd_profiles/i.test(msg) && /(does not exist|relation|schema cache|42P01|PGRST205)/i.test(msg)) {
+            console.error("bd_profiles table missing — apply db/schema.sql to Supabase");
+            res.statusCode = 503;
+            return res.end(JSON.stringify({ ok: false, error: "not_provisioned" }));
+          }
+          throw e;
+        }
+        // The owner asked to hear about this in the panel. Notify once, when the
+        // profile first becomes usable for matching — not on every keystroke
+        // save, and not while it is still too thin to match on.
+        if (canMatch(merged)) {
+          const existing = await sb(`bd_profiles?organization_id=eq.${orgId}&select=notified_at&limit=1`).catch(() => []);
+          if (!(existing[0] && existing[0].notified_at)) {
+            const org = (sess && sess.organization) || {};
+            const who = org.name_ar || org.name_en || "منشأة";
+            const secs = (merged.targetSectors || []).map(sectorLabel).join("، ");
+            await notify({
+              organization_id: orgId, event: "bd_profile_ready", channel: "inapp",
+              title: `جاهز للمطابقة — ${who} يستهدف: ${secs}`,
+              idempotency_key: `bd_profile:${orgId}`,
+            });
+            await sendEmail(TEAM_EMAIL, `🎯 ملف تطوير أعمال جديد — ${who}`,
+              `<p><b>${esc(who)}</b> عبّأ ملف تطوير الأعمال وصار جاهزاً للمطابقة.</p>` +
+              `<p><b>القطاعات المستهدفة:</b> ${esc(secs)}</p>` +
+              `<p><b>المدن:</b> ${esc((merged.targetCities || []).map(cityLabel).join("، ") || "—")}</p>` +
+              `<p><b>ماذا يبيع:</b> ${esc((merged.servicesText || "").slice(0, 600))}</p>` +
+              `<p><b>البروفايل المرفق:</b> ${esc(profileName || "لم يُرفق")}</p>`);
+            await sb(`bd_profiles?organization_id=eq.${orgId}`, {
+              method: "PATCH", prefer: "return=minimal", body: { notified_at: new Date().toISOString() },
+            }).catch(() => {});
+          }
+        }
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "bd_profile.saved", entity_type: "bd_profile", entity_id: orgId });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, completeness, canMatch: canMatch(merged), extracted: row.extracted || null }));
       }
       if (b.action === "ops-violation-add") {
         const authority = String(b.authority || "").trim().slice(0, 80);
