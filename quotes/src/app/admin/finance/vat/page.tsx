@@ -54,6 +54,18 @@ export default async function VatPage({
           <Link className="btn sm ghost" href={`/admin/finance/vat?q=${offset + 1}`}>الربع الأحدث</Link>
         ) : null}
         <Link className="btn sm ghost" href="/admin/finance">لوحة المالية</Link>
+        <a
+          className="btn sm ghost"
+          href={`/admin/finance/export?kind=expenses&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
+        >
+          مصاريف الربع CSV
+        </a>
+        <a
+          className="btn sm ghost"
+          href={`/admin/finance/export?kind=revenues&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
+        >
+          إيرادات الربع CSV
+        </a>
       </div>
 
       <div className="card">

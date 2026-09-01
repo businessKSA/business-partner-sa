@@ -6,13 +6,19 @@ import { EmployeeForm, PayrollForm, ArchiveEmployeeButton } from './HrForms';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HrPage() {
+export default async function HrPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
   await guardAdmin();
+  const { edit } = await searchParams;
   const [employees, runs] = await Promise.all([
     prisma.employee.findMany({ orderBy: [{ status: 'asc' }, { nameAr: 'asc' }] }),
     prisma.payrollRun.findMany({ orderBy: { month: 'desc' }, take: 24, include: { lines: true } }),
   ]);
   const active = employees.filter((e) => e.status === 'ACTIVE');
+  const editing = edit ? employees.find((e) => e.id === edit) ?? null : null;
   const monthlyCost = round2(active.reduce((s, e) => s + e.basicSalary + e.allowances + e.gosiEmployer, 0));
   const now = new Date();
   const defaultMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
@@ -41,7 +47,10 @@ export default async function HrPage() {
       </div>
 
       <div className="grid c2">
-        <EmployeeForm centers={Object.entries(COST_CENTER).map(([key, v]) => ({ key, label: v.ar }))} />
+        <EmployeeForm
+          centers={Object.entries(COST_CENTER).map(([key, v]) => ({ key, label: v.ar }))}
+          employee={editing}
+        />
         <PayrollForm defaultMonth={defaultMonth} />
       </div>
 
@@ -73,7 +82,10 @@ export default async function HrPage() {
                   <td className="num">{fmtMoney(e.gosiEmployer)}</td>
                   <td className="num">{fmtMoney(round2(e.basicSalary + e.allowances - e.gosiEmployee))}</td>
                   <td>{e.status === 'ACTIVE' ? 'نشط' : 'مؤرشف'}</td>
-                  <td><ArchiveEmployeeButton id={e.id} active={e.status === 'ACTIVE'} /></td>
+                  <td className="row" style={{ gap: 6 }}>
+                    <a className="btn ghost sm" href={`/admin/finance/hr?edit=${e.id}`}>تعديل</a>
+                    <ArchiveEmployeeButton id={e.id} active={e.status === 'ACTIVE'} />
+                  </td>
                 </tr>
               ))
             )}

@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { round2 } from '@/lib/money';
 import { createExpense, createRevenue, createPayrollRun } from '@/lib/finance';
+import { audit } from '@/lib/timeline';
 import { COST_CENTER, PAY_METHOD } from '@/lib/finance-enums';
 import { issueTaxDocument, retryReport, issueCreditNote } from '@/lib/zatca/issue';
 
@@ -78,7 +79,7 @@ export async function actionCreateRevenue(_prev: State, fd: FormData): Promise<S
 // ----------------------------------------------------------------- الموظفون
 
 export async function actionSaveEmployee(_prev: State, fd: FormData): Promise<State> {
-  await requireAdmin();
+  const actor = await requireAdmin();
   const id = s(fd, 'id');
   const nameAr = s(fd, 'nameAr');
   const basicSalary = n(fd, 'basicSalary');
@@ -97,8 +98,38 @@ export async function actionSaveEmployee(_prev: State, fd: FormData): Promise<St
     gosiEmployer: round2(n(fd, 'gosiEmployer')),
     gosiEmployee: round2(n(fd, 'gosiEmployee')),
   };
-  if (id) await prisma.employee.update({ where: { id }, data });
-  else await prisma.employee.create({ data });
+  // الراتب يحدّد مصروف كل مسير قادم، فتعديله حركة مالية لا تحرير بيانات —
+  // ويُسجَّل في السلسلة المسلسلة بالتجزئة كبقية الحركات، بقيمته قبل وبعد.
+  if (id) {
+    const before = await prisma.employee.findUnique({
+      where: { id },
+      select: { nameAr: true, basicSalary: true, allowances: true, gosiEmployer: true, gosiEmployee: true, costCenter: true },
+    });
+    if (!before) return { error: 'الموظف غير موجود' };
+    await prisma.employee.update({ where: { id }, data });
+    const changed: Record<string, { من: unknown; إلى: unknown }> = {};
+    for (const k of ['basicSalary', 'allowances', 'gosiEmployer', 'gosiEmployee', 'costCenter'] as const) {
+      if (before[k] !== data[k]) changed[k] = { من: before[k], إلى: data[k] };
+    }
+    await audit({
+      action: 'finance.employee.update',
+      entityType: 'Employee',
+      entityId: id,
+      actor,
+      amount: data.basicSalary + data.allowances + data.gosiEmployer,
+      payload: { name: data.nameAr, changed },
+    });
+  } else {
+    const created = await prisma.employee.create({ data });
+    await audit({
+      action: 'finance.employee.create',
+      entityType: 'Employee',
+      entityId: created.id,
+      actor,
+      amount: data.basicSalary + data.allowances + data.gosiEmployer,
+      payload: { name: data.nameAr, costCenter: data.costCenter },
+    });
+  }
 
   revalidatePath('/admin/finance/hr');
   return { ok: id ? 'حُدِّثت بيانات الموظف' : 'أُضيف الموظف' };

@@ -24,6 +24,8 @@ export default async function FinancePage({
   const bounds =
     period === 'year' ? yearBounds() : period === 'quarter' ? quarterBounds() : monthBounds();
   const s = await financeSummary(bounds.from, bounds.to);
+  const exportFrom = bounds.from.toISOString().slice(0, 10);
+  const exportTo = bounds.to.toISOString().slice(0, 10);
   const [dueInvoices, zatcaIssued, zatcaFailed] = await Promise.all([
     prisma.invoice.aggregate({ where: { status: 'DUE' }, _sum: { total: true }, _count: true }),
     prisma.zatcaRecord.count(),
@@ -90,6 +92,14 @@ export default async function FinancePage({
         <Link className="btn" href="/admin/finance/zatca">الفوترة الإلكترونية</Link>
         <Link className="btn ghost" href="/admin/invoices">فواتير العملاء</Link>
         <Link className="btn ghost" href="/admin/supply">المشتريات والتوريد</Link>
+      </div>
+
+      {/* تصدير الدفتر للمحاسب — الفترة المعروضة نفسها، وملف يفتحه إكسل بالعربية */}
+      <div className="row" style={{ marginBottom: 14, flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+        <span className="sub">تصدير {bounds.label} للمحاسب:</span>
+        <a className="btn ghost sm" href={`/admin/finance/export?kind=expenses&from=${exportFrom}&to=${exportTo}`}>المصاريف CSV</a>
+        <a className="btn ghost sm" href={`/admin/finance/export?kind=revenues&from=${exportFrom}&to=${exportTo}`}>الإيرادات CSV</a>
+        <a className="btn ghost sm" href={`/admin/finance/export?kind=tax&from=${exportFrom}&to=${exportTo}`}>المستندات الضريبية CSV</a>
       </div>
 
       <div className="grid c2">
