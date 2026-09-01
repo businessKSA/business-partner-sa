@@ -12,6 +12,23 @@
 
 export const BD_TRIAL_DAYS = 30;
 
+// Open-access policy (owner decision 2026-09): every portal, advisor and
+// dashboard opens for a signed-in client without codes or trial locks. Set
+// BP_OPEN_ACCESS=0 to fall back to the per-service trials.
+export const OPEN_ACCESS = process.env.BP_OPEN_ACCESS !== "0";
+
+// The owner is never on a trial anywhere, whatever the policy flag says.
+export const OWNER_EMAILS = String(process.env.OWNER_EMAILS || "dr.baher.magnas@gmail.com")
+  .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+export function isOwnerEmail(email) {
+  return OWNER_EMAILS.includes(String(email || "").trim().toLowerCase());
+}
+/** Is everything open for this session (open policy, or the owner)? */
+export function openFor(sess) {
+  if (OPEN_ACCESS) return true;
+  return isOwnerEmail(sess && sess.user && sess.user.email);
+}
+
 const DAY = 86400000;
 
 /**
