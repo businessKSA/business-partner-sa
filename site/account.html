@@ -3643,6 +3643,10 @@
           '<button type="button" id="acB10x" style="background:#9A3412;color:#fff;border:0;border-radius:10px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer">🚀 أرسل كطلب خدمة B10X</button>' +
           '<span style="color:#94a3b8;font-size:11px">يتحول ما كتبته لطلب رسمي برقم متابعة يُسند لفريقك</span>' +
         '</div>';
+      // Owner (2026-09): no floating button — the assistant opens only from
+      // «المساعد» in the header. The button stays in the DOM (hidden) because
+      // the header binds to its click.
+      fab.style.display = 'none';
       document.body.appendChild(fab);
       document.body.appendChild(dock);
       var box = dock.querySelector('#acMsgs'), inp = dock.querySelector('#acIn');
