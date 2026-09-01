@@ -378,7 +378,6 @@
         <div class="grp" data-t="grpCompany">المنشأة</div>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
-        <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
         <button data-v="tickets"><span>◖</span><span data-t="navTickets">التذاكر والدعم</span></button>
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
@@ -430,7 +429,7 @@
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <button class="btn" id="b10xOpen" style="background:#fff;color:#123b87;border:0;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xOpen">افتح B10X</button>
-                  <button class="btn ghost" id="b10xAsk" style="border-color:rgba(255,255,255,.5);color:#fff;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
+                  <button class="btn ghost" id="b10xAsk" style="background:transparent!important;border:1px solid rgba(255,255,255,.55)!important;color:#fff!important;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
                 </div>
               </div>
             </div>
@@ -832,10 +831,6 @@
             <div id="bdExtract" style="padding:12px 16px 16px;font-size:13px"></div>
           </div>
         </section>
-        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
-          <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
-          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
-        </section>
         <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div>
           <div class="panel"><div class="phead"><h3 id="repTitle">ملخص حسابك</h3></div><div id="repKpis" style="padding:14px 16px 16px"></div></div>
           <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="repOrdersTitle">الطلبات حسب الحالة</h3></div><div id="repBreak" style="padding:6px 16px 12px"></div></div>
@@ -914,7 +909,6 @@
             <div class="rowline" data-mv="approvals"><span>✓</span><span class="t" data-t="navApprovals">الموافقات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="papers"><span>⌗</span><span class="t" data-t="navPapers">عروض الأسعار والعقود</span><span class="m">›</span></div>
             <div class="rowline" data-mv="documents"><span>⌸</span><span class="t" data-t="navDocuments">المستندات</span><span class="m">›</span></div>
-            <div class="rowline" data-mv="team"><span>﴾﴿</span><span class="t" data-t="navTeam">الموظفون والفريق</span><span class="m">›</span></div>
             <div class="rowline" data-mv="reports"><span>◔</span><span class="t" data-t="navReports">التقارير والتحليلات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="tickets"><span>◖</span><span class="t" data-t="navTickets">التذاكر والدعم</span><span class="m">›</span></div>
             <div class="rowline" data-mv="alerts"><span>◉</span><span class="t" data-t="navAlerts">التنبيهات</span><span class="m">›</span></div>
@@ -1697,9 +1691,9 @@
       var cbs = document.querySelectorAll('[data-cancel]');
       for (i = 0; i < cbs.length; i++) cbs[i].onclick = function(){
         var ref = this.getAttribute('data-cancel');
-        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + '?' : 'إلغاء الطلب ' + ref + '؟')) return;
+        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + ' and remove it from your portal?' : 'إلغاء الطلب ' + ref + ' وحذفه من لوحتك؟')) return;
         var self = this; self.disabled = true;
-        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref }) })
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref, remove: true }) })
           .then(function(r){ return r.json(); })
           .then(function(o){
             if (o.ok){ fetchServerOrders(); }
@@ -1769,12 +1763,27 @@
         // What was actually bought (from the order note) beats the generic
         // opportunity title "طلب/شراء خدمة".
         var what = o.items || o.title || t('trackedOrder');
+        var canDrop = isCancelled(o.status) || isReview(o.status) || isPay(o.status);
         rows += '<tr data-srch><td class="ref">' + esc(o.ref) +
           (o.at ? '<br><span style="color:var(--soft);font-size:10.5px;direction:ltr;display:inline-block">' + esc(o.at) + '</span>' : '') + '</td>' +
           '<td>' + esc(what) + trail + '</td>' +
-          '<td>' + statusChip(o.status) + '</td></tr>';
+          '<td>' + statusChip(o.status) +
+          (canDrop ? '<br><button class="btn ghost sm" style="margin-top:6px;color:#b91c1c" data-odel="' + esc(o.ref) + '">' + (state.lang === 'en' ? (isCancelled(o.status) ? 'Remove' : 'Cancel & remove') : (isCancelled(o.status) ? 'حذف' : 'إلغاء وحذف')) + '</button>' : '') +
+          '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';
+      var dels = document.querySelectorAll('[data-odel]');
+      for (var d = 0; d < dels.length; d++) dels[d].onclick = function(){
+        var ref = this.getAttribute('data-odel');
+        if (!confirm(state.lang === 'en' ? 'Remove order ' + ref + ' from your portal?' : 'حذف الطلب ' + ref + ' من لوحتك؟')) return;
+        var self = this; self.disabled = true;
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-delete', ref: ref }) })
+          .then(function(r){ return r.json(); })
+          .then(function(o){
+            if (o.ok){ state.orders = state.orders.filter(function(x){ return x.ref !== ref; }); renderAll(); fetchServerOrders(); }
+            else { self.disabled = false; alert(o.message || (state.lang === 'en' ? 'Could not remove — open a ticket and the team will handle it.' : 'تعذّر الحذف — افتح تذكرة ويتولاها الفريق.')); }
+          }).catch(function(){ self.disabled = false; });
+      };
       var tg = $('ordersCancelToggle');
       if (tg){
         tg.style.display = cancelled ? '' : 'none';
@@ -2269,7 +2278,9 @@
       renderQuotes();
       renderPapers();
       renderPayments();
-      renderTeam();
+      // Owner (2026-09): the «الموظفون والفريق» view was removed — the same
+      // entries live under the advisors group and the hiring board.
+      if ($('teamCards')) renderTeam();
       renderReports();
       renderCompany();
       renderBdProfile();
@@ -3722,7 +3733,7 @@
         if (!msgs.length){ msgs.push({ role: 'assistant', content: 'أهلاً 👋 أنا مساعد لوحتك — أعرف طلباتك ومحفظتك وضماناتك وكل أقسام اللوحة. اسألني أي شيء، أو اختر سؤالاً جاهزاً.' }); render(false); hints(); }
         try { inp.focus(); } catch (e) {}
       };
-      dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
+      dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'none'; };
       // The topbar «المساعد» button opens the same concierge dock as the fab.
       var hdrAssist = document.getElementById('assistBtn');
       if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };

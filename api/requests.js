@@ -968,6 +968,16 @@ const CONTENT_FILES = {
 };
 
 // Flip a CRM lead's حالة الطلب by its BP-xxxxxx reference.
+// Archive (Notion "trash") — the page leaves every query but stays recoverable.
+async function archiveNotionPage(pageId) {
+  const r = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ archived: true }),
+  });
+  if (!r.ok) throw new Error("archive_failed");
+}
+
 async function setLeadStatus(ref, status) {
   if (!NOTION_TOKEN) throw new Error("notion_not_configured");
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
@@ -3967,12 +3977,55 @@ export default async function handler(req, res) {
       }
       await setLeadStatus(ref, "ملغي");
       try { await appendLeadNote(pg, `ألغاه العميل بنفسه من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
-      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي».</p></div>`).catch(() => {});
+      // Owner (2026-09): a client who cancels wants the order gone from their
+      // lists, not a greyed-out row. Archiving keeps it recoverable from the
+      // Notion trash for the team while it disappears from every client view.
+      let removed = false;
+      if (b.remove) { try { await archiveNotionPage(pg.id); removed = true; } catch {} }
+      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي»${removed ? " وأُرشف الطلب (يمكن استرجاعه من سلة نوشن)" : ""}.</p></div>`).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, removed }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+    }
+  }
+
+  // Remove an already-cancelled (or still unstarted) order from the client's
+  // lists. Same ownership rule as cancelling; archived, never hard-deleted.
+  if (b.action === "my-order-delete") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    if (!ref || !/^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(ref)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_ref" })); }
+    try {
+      const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      const pg = ((await r.json()).results || [])[0];
+      if (!pg) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+      const p = pg.properties || {};
+      const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("").toLowerCase();
+      if (!myEmail || !notes.includes(myEmail)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_yours" })); }
+      const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+      if (!["ملغي", "مرفوض", "قيد المراجعة", "بانتظار الدفع"].includes(status)) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "in_progress", message: "بدأ العمل على هذا الطلب — لإزالته افتح تذكرة دعم ويرجع لك الفريق بالتفاصيل." }));
+      }
+      if (status !== "ملغي" && status !== "مرفوض") await setLeadStatus(ref, "ملغي");
+      try { await appendLeadNote(pg, `حذفه العميل من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
+      await archiveNotionPage(pg.id);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true }));
     } catch {
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+      return res.end(JSON.stringify({ ok: false, error: "delete_failed" }));
     }
   }
 
