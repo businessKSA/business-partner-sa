@@ -500,6 +500,12 @@ function pathInLang(path, lang) {
   if (lang === "en") return p;
   return p === "/" ? `/${lang}/` : `/${lang}${p}`;
 }
+// Embedded mode: the client portal opens dashboards/advisors inside its own
+// frame with `?embed=1`; the page then drops its site chrome so the client
+// sees one workspace, not a website inside a website.
+const EMBED_SNIPPET = `<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>`;
+
 function head(title, desc, path) {
   const canonical = path || "/";
   const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
@@ -532,6 +538,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
 ${SHOW_PRICES ? "" : '<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>'}
+${EMBED_SNIPPET}
 </head>
 <body>`;
 }
@@ -1802,18 +1809,82 @@ function categoryCards() {
 }
 
 function buildServicesIndex() {
+  // Every service, on this page, in one scroll. The category-only index hid
+  // 140 services behind a second click and read as "the services are gone";
+  // the listing now lives here, grouped by category, with a search box and
+  // category chips that filter in place. Cards reuse the exact category-page
+  // markup so the two pages read as one design.
+  const svcCard = (s, cat) => {
+    const d = sDesc(s);
+    return `<a class="card svc-card" href="${u("/services/" + s.slug)}" data-svc data-cat="${esc(cat.key)}" data-q="${esc((sName(s) + " " + d).toLowerCase())}">
+        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
+        <h3>${esc(sName(s))}</h3>
+        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
+        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+      </a>`;
+  };
+  const groups = categories
+    .map((cat) => {
+      const list = services.filter((s) => s.category === cat.key);
+      if (!list.length) return "";
+      return `<section class="svc-group" data-group="${esc(cat.key)}" id="cat-${esc(catSlugUrl(cat.key))}">
+        <div class="svc-group-head"><h2>${CAT_ICON[cat.key] || "📁"} ${L(catEn(cat.key), cat.ar)}</h2><span class="count-pill">${list.length} ${L(enCount(list.length, "service", "services"), arCount(list.length, "خدمة", "خدمتان", "خدمات"))}</span><a class="card-link" href="${catUrl(cat.key)}">${L("Category page", "صفحة التصنيف")} ${I.arrow}</a></div>
+        <div class="grid grid-3">${list.map((s) => svcCard(s, cat)).join("")}</div>
+      </section>`;
+    })
+    .join("");
+  const chips = categories
+    .map((cat) => `<button type="button" class="svc-chip" data-chip="${esc(cat.key)}">${CAT_ICON[cat.key] || "📁"} ${L(catEn(cat.key), cat.ar)}</button>`)
+    .join("");
   const body = `
-  <section class="hero"><div class="container hero-inner">
+  <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Services", "الخدمات")}</span>
-    <h1>${L("Choose a service category", "اختر تصنيف الخدمة")}</h1>
-    <p class="lead">${L(services.length + " services organized into " + categories.length + " categories — pick a category to see its services, each with a full page of documents, requirements and a custom quote.", services.length + " خدمة موزّعة على " + categories.length + " تصنيفاً — اختر التصنيف لتشاهد خدماته، ولكل خدمة صفحة كاملة بالمستندات والمتطلبات وعرض سعر حسب حالتك.")}</p>
+    <h1>${L("Every service, on one page", "كل خدماتنا في صفحة واحدة")}</h1>
+    <p class="lead">${L(services.length + " government and business services across " + categories.length + " categories — search, filter, and open any service for its documents, requirements and a quote for your case.", services.length + " خدمة حكومية وتجارية في " + categories.length + " تصنيفاً — ابحث، فلتر، وافتح أي خدمة لتشاهد مستنداتها ومتطلباتها وعرض سعر حسب حالتك.")}</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3 cat-grid">${categoryCards()}</div>
+  <section class="section svc-all"><div class="container">
+    <div class="svc-toolbar" id="svcToolbar">
+      <input type="search" id="svcSearch" class="svc-search" placeholder="${esc(Lraw("Search 140+ services… e.g. CR, iqama, visa, VAT", "ابحث في +140 خدمة… مثل: سجل تجاري، إقامة، تأشيرة، ضريبة"))}" autocomplete="off">
+      <div class="svc-chips"><button type="button" class="svc-chip on" data-chip="">${L("All", "الكل")}</button>${chips}</div>
+      <p class="svc-count" id="svcCount"></p>
+    </div>
+    ${groups}
+    <p class="svc-empty" id="svcEmpty" hidden>${L("No service matches that — try another word, or ask the advisor and we will point you to the right one.", "لا خدمة تطابق بحثك — جرّب كلمة أخرى، أو اسأل المستشار ونوجّهك للخدمة الصحيحة.")}</p>
     <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
-  </div></section>`;
-  return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  </div></section>
+  <style>
+    .svc-toolbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:12px 0 8px;margin:-8px 0 12px;border-bottom:1px solid #e5eaf3}
+    .svc-search{width:100%;padding:13px 16px;border:1px solid #d5dae6;border-radius:13px;font:inherit;font-size:.95rem;background:#fff;color:inherit;margin-bottom:10px}
+    .svc-search:focus{outline:none;border-color:#3159d8;box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+    .svc-chips{display:flex;gap:7px;overflow:auto;padding-bottom:6px;scrollbar-width:none}.svc-chips::-webkit-scrollbar{display:none}
+    .svc-chip{flex:0 0 auto;border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:.8rem;font-weight:700;color:#0B1B5A;cursor:pointer;white-space:nowrap}
+    .svc-chip:hover{border-color:#3159d8;color:#3159d8}.svc-chip.on{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+    .svc-count{margin:8px 0 0;font-size:.8rem;color:#6f7b92}
+    .svc-group{margin:26px 0 0}.svc-group[hidden]{display:none}
+    .svc-group-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}.svc-group-head h2{margin:0;font-size:1.25rem;color:#0B1B5A}.svc-group-head .card-link{margin-inline-start:auto}
+    .svc-card[hidden]{display:none}.svc-empty{text-align:center;color:#6f7b92;padding:40px 0}.svc-empty[hidden]{display:none}
+  </style>
+  <script>
+  (function(){
+    var q=document.getElementById("svcSearch"),chips=document.querySelectorAll("[data-chip]"),cards=document.querySelectorAll("[data-svc]"),groups=document.querySelectorAll(".svc-group"),count=document.getElementById("svcCount"),empty=document.getElementById("svcEmpty");
+    if(!q)return;
+    var cat="";
+    var total=cards.length;
+    function apply(){
+      var t=(q.value||"").trim().toLowerCase(),n=0;
+      for(var i=0;i<cards.length;i++){var c=cards[i];var ok=(!cat||c.getAttribute("data-cat")===cat)&&(!t||(c.getAttribute("data-q")||"").indexOf(t)>-1);c.hidden=!ok;if(ok)n++;}
+      for(var g=0;g<groups.length;g++){var vis=groups[g].querySelectorAll("[data-svc]:not([hidden])").length;groups[g].hidden=!vis;}
+      empty.hidden=n>0;
+      count.textContent=(n===total?total:n+" / "+total)+" ${Lraw("services", "خدمة")}";
+    }
+    for(var k=0;k<chips.length;k++)chips[k].addEventListener("click",function(){cat=this.getAttribute("data-chip")||"";for(var j=0;j<chips.length;j++)chips[j].classList.toggle("on",chips[j]===this);apply();var g=cat&&document.querySelector('.svc-group[data-group="'+cat+'"]');if(g)g.scrollIntoView({behavior:"smooth",block:"start"});});
+    q.addEventListener("input",apply);
+    try{var h=decodeURIComponent(location.hash.slice(1));if(h&&/^cat-/.test(h)){var el=document.getElementById(h);if(el)el.scrollIntoView();}}catch(e){}
+    apply();
+  })();
+  </script>`;
+  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -9648,6 +9719,7 @@ function buildPortal(pre = "/") {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>بوابة الموظفين الأذكياء | Business Partner</title>
+  ${EMBED_SNIPPET}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -9915,6 +9987,22 @@ function buildPortal(pre = "/") {
     }
     var cur=null;
     var showGate=false;
+    // Open-access policy (owner decision 2026-09): a signed-in client of the
+    // portal never types a code here — the account session unlocks every
+    // smart employee directly. Codes remain only for guests who bought
+    // without an account.
+    var sessionChecked=false;
+    function unlockFromSession(){
+      if(sessionChecked||subbed) return;
+      sessionChecked=true;
+      fetch('/api/otp',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'me'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var u=d&&(d.user||(d.session&&d.session.user));
+          if(u&&u.email){ email=u.email; localStorage.setItem(LS.email,email); unlock('ALL'); }
+        })
+        .catch(function(){});
+    }
     function route(){
       if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
       $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';
@@ -11686,9 +11774,14 @@ function buildSharedServicesPortal() {
       var head=document.querySelector('#ss-dash .ss-dash-head');
       if(!head||document.getElementById('ss-trial-bar'))return;
       var d=document.createElement('div');d.id='ss-trial-bar';
+      if(t.open){
+        d.innerHTML='<b>✅ '+${JSON.stringify(Lraw("Open for your account", "مفتوحة لحسابك"))}+'</b>'
+          +'<span>'+${JSON.stringify(Lraw("Your executive team is fully open — no trial, no code.", "فريقك التنفيذي مفتوح لك بالكامل — بدون فترة تجريبية أو رمز."))}+'</span>';
+      } else {
       d.innerHTML='<b>🎁 '+${JSON.stringify(Lraw("Free trial", "تجربة مجانية"))}+'</b>'
         +'<span>'+(t.daysLeft>0?leftText(t):${JSON.stringify(Lraw("Your trial has ended", "انتهت فترتك التجريبية"))})+'</span>'
         +'<a class="btn btn-primary" href="${u('/shared-services')}#ss-subscribe">'+${JSON.stringify(Lraw("Subscribe", "اشترك الآن"))}+'</a>';
+      }
       head.insertAdjacentElement('afterend',d);
     }
     function tryTrial(gl){
@@ -11700,7 +11793,7 @@ function buildSharedServicesPortal() {
             // Trial conversations run in preview mode: real answers from the
             // team, but no private workspace until the client subscribes.
             setClient({code:'demo123',demo:true,name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:{},
-              trial:{daysLeft:d.daysLeft,endsAt:d.endsAt,totalDays:d.totalDays}});
+              trial:{daysLeft:d.daysLeft,endsAt:d.endsAt,totalDays:d.totalDays,open:!!d.open}});
             openService(); trialRibbon(getClient().trial);
           } else if(gl){
             gl.textContent=(d&&d.ok&&!d.active)

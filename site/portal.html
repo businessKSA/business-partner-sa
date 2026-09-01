@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>بوابة الموظفين الأذكياء | Business Partner</title>
+  <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -273,6 +275,22 @@
     }
     var cur=null;
     var showGate=false;
+    // Open-access policy (owner decision 2026-09): a signed-in client of the
+    // portal never types a code here — the account session unlocks every
+    // smart employee directly. Codes remain only for guests who bought
+    // without an account.
+    var sessionChecked=false;
+    function unlockFromSession(){
+      if(sessionChecked||subbed) return;
+      sessionChecked=true;
+      fetch('/api/otp',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'me'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var u=d&&(d.user||(d.session&&d.session.user));
+          if(u&&u.email){ email=u.email; localStorage.setItem(LS.email,email); unlock('ALL'); }
+        })
+        .catch(function(){});
+    }
     function route(){
       if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
       $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';

@@ -3,7 +3,8 @@ import path from 'node:path';
 
 const ROOT=path.resolve('site');
 const include=[
-  '/services','/packages','/b10x','/compliance-agent','/ai-document-agent','/shared-services','/workspaces','/worker-housing','/business-development','/about','/consultation','/task-force','/data','/deals','/tourism','/farina'
+  '/services','/packages','/b10x','/compliance-agent','/ai-document-agent','/shared-services','/workspaces','/worker-housing','/business-development','/about','/consultation','/task-force','/data','/deals','/tourism','/farina',
+  '/contact','/careers','/calculator','/calculators','/tools-and-calculators','/news','/newsletter','/guide','/directory','/opportunities','/saudi-arabia','/magazine','/terms','/bank-account','/estrdad','/formation-contract','/smart-employee','/connect','/employers','/employer-join','/employer-login','/mahfol-makfol','/recruitment-agencies','/workspace-request','/quote','/contract','/team','/jobs','/job','/job-search-service','/candidate-profile'
 ];
 const skip=['/account','/portal','/checkout','/cart','/admin','/suppliers','/agency-portal','/business-development-dashboard','/hr'];
 

@@ -14,7 +14,7 @@
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 import { getSession } from "./_db.js";
-import { bdTrial } from "./_trial.js";
+import { bdTrial, openFor } from "./_trial.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -218,6 +218,7 @@ async function portalUnlock(req) {
     const sess = await getSession(req);
     const org = sess && sess.organization;
     if (!org || !org.id) return null;
+    if (openFor(sess)) return { unlocked: true, plan: "مفتوح لحسابك", code: "org:" + org.id, days: null, portal: true, open: true };
     const t = bdTrial(org, false);
     if (t.state !== "trial") return null;
     return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };

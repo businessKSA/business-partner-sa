@@ -29,8 +29,15 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // Shared DB helpers live in api/_db.js (not a deployed function).
 import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+// The session must be the same on businesspartner.sa and www.businesspartner.sa:
+// a host-only cookie left a client signed in on one and locked out on the
+// other. Scoped to the apex on production hosts; preview hosts stay host-only.
+function cookieDomain(res) {
+  const host = String((res && res.__bpHost) || "").toLowerCase().split(":")[0];
+  return /(^|\.)businesspartner\.sa$/.test(host) ? "; Domain=.businesspartner.sa" : "";
+}
 function setSessionCookie(res, raw, maxAgeS) {
-  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}`);
+  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}${cookieDomain(res)}`);
 }
 
 // Upsert user + ensure org membership + mint a session. Returns cookie payload.
@@ -131,6 +138,7 @@ async function readBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.__bpHost = req.headers["x-forwarded-host"] || req.headers.host || "";
   if (req.method === "GET") {
     res.statusCode = 200;
     // dbConfigured = env vars present; dbReachable = a live probe against the

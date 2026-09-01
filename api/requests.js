@@ -18,7 +18,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
-import { bdTrial, isPaidBdOrder } from "./_trial.js";
+import { bdTrial, isPaidBdOrder, openFor } from "./_trial.js";
 import {
   SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
   canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
@@ -2322,7 +2322,7 @@ export default async function handler(req, res) {
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
     const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
-    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [], bd: bdTrial(sess.organization, false) })); }
+    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [], bd: bdTrial(sess.organization, false, new Date(), openFor(sess)) })); }
     try {
       const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
         method: "POST",
@@ -2367,7 +2367,7 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         ok: true,
         orders,
-        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder)),
+        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder), new Date(), openFor(sess)),
       }));
     } catch {
       res.statusCode = 502;
@@ -2499,7 +2499,7 @@ export default async function handler(req, res) {
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "tasks") {
-        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
+        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at,completed_at,source&order=created_at.desc&limit=80`);
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "violations") {
@@ -2521,6 +2521,8 @@ export default async function handler(req, res) {
             if (r.ok) active = ((await r.json()).results || []).length > 0;
           } catch {}
         }
+        // Open policy / owner: always active, never a countdown.
+        if (openFor(sess)) active = true;
         let daysLeft = 0, endsAt = null;
         if (!active) {
           const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
@@ -2726,6 +2728,28 @@ export default async function handler(req, res) {
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
       }
+      // The client's own task list: they add what they need to do, tick it
+      // off, and reopen it — their tasks, their control, alongside the ones
+      // the platform derives from their orders.
+      if (b.action === "ops-task-add") {
+        const title = String(b.title || "").trim().slice(0, 200);
+        if (!title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const due = /^\d{4}-\d{2}-\d{2}$/.test(String(b.due || "")) ? b.due : null;
+        const urgency = ["urgent", "soon", "normal"].includes(b.urgency) ? b.urgency : "normal";
+        const rows = await sb("tasks", { method: "POST", body: [{ organization_id: orgId, title, details: String(b.details || "").trim().slice(0, 1000) || null, assignee: "client", status: "open", urgency, due_at: due, source: "manual" }] });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "task.created", entity_type: "task", entity_id: rows[0] && rows[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, task: rows[0] || null }));
+      }
+      if (b.action === "ops-task-reopen") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "open", completed_at: null } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-task-delete") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client&source=eq.manual`, { method: "DELETE", prefer: "return=minimal" });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
       // Shared Services free trial — every registered client gets SS_TRIAL_DAYS
       // days from the moment their organization was created, with no purchase
       // and nothing to activate. Derived from organizations.created_at so there
@@ -2738,14 +2762,16 @@ export default async function handler(req, res) {
         const ends = new Date(started.getTime() + SS_TRIAL_DAYS * 86400000);
         const msLeft = ends.getTime() - Date.now();
         const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+        const open = openFor(sess);
         res.statusCode = 200;
         return res.end(JSON.stringify({
           ok: true,
           name: org.name_ar || org.name_en || "",
           startedAt: started.toISOString(),
           endsAt: ends.toISOString(),
-          daysLeft,
-          active: msLeft > 0,
+          daysLeft: open ? null : daysLeft,
+          active: open || msLeft > 0,
+          open,
           totalDays: SS_TRIAL_DAYS,
         }));
       }

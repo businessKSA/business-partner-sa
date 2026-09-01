@@ -271,7 +271,7 @@ function nav(){
   var n=document.getElementById('sideNav'); if(!n||n.querySelector('[data-v="docagent"]'))return;
   var b=document.createElement('button'); b.setAttribute('data-v','docagent');
   b.innerHTML='<span>🗂️</span><span>مستشار المستندات</span>';
-  var after=n.querySelector('[data-v="documents"]')||n.querySelector('[data-v="company"]');
+  var after=n.querySelector('[data-v="compliance"]')||n.querySelector('[data-v="documents"]')||n.querySelector('[data-v="company"]');
   if(after)after.insertAdjacentElement('afterend',b); else n.appendChild(b);
   b.onclick=function(){
     document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});

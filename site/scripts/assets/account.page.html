@@ -65,6 +65,7 @@
     .side nav button{background:none;border:0;color:rgba(255,255,255,.82);padding:8px 10px;border-radius:9px;display:flex;gap:8px;align-items:center;width:100%;text-align:start;font-size:12.5px;font-weight:600}
     .side nav button:hover{background:rgba(255,255,255,.08);color:#fff}
     .side nav button.on{background:rgba(255,255,255,.16);color:#fff;font-weight:700}
+    .side nav .grp{font-size:10.5px;font-weight:700;letter-spacing:.2px;color:rgba(255,255,255,.5);padding:12px 10px 4px;text-transform:uppercase}
     .side nav button .b{margin-inline-start:auto;background:var(--bad);color:#fff;font-size:9.5px;border-radius:99px;padding:0 6px;font-weight:700}
     .side .grow{flex:1}
     .side .foot{border-top:1px solid rgba(255,255,255,.15);padding-top:10px;font-size:11px;color:rgba(255,255,255,.65);line-height:1.7;padding-inline:8px}
@@ -295,19 +296,25 @@
       <div class="logo">Business Partner<small data-t="appTitle">مركز عمليات العميل</small></div>
       <nav id="sideNav">
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
+        <div class="grp" data-t="grpAdvisors">مستشاروك الأذكياء</div>
+        <button data-v="compliance"><span>🛡️</span><span data-t="navCompliance">مستشار الامتثال</span></button>
+        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
+        <button data-v="bd"><span>📈</span><span data-t="navBd">مستشار تطوير الأعمال</span></button>
+        <button data-v="ss"><span>🤝</span><span data-t="navSs">فريق الخدمات المشتركة</span></button>
+        <button data-v="smart"><span>🤖</span><span data-t="navSmart">الموظف الذكي</span></button>
+        <div class="grp" data-t="grpWork">أعمالي</div>
         <button data-v="store"><span>🛒</span><span data-t="navStore">اطلب خدمة</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
-        <button data-v="advisors"><span>✦</span><span data-t="navAdvisors">المستشارون الأذكياء</span></button>
-        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
-        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
-        <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
+        <button data-v="papers"><span>⌗</span><span data-t="navPapers">عروض الأسعار والعقود</span><span class="b w" id="sbPapers" style="display:none;background:var(--warn)"></span></button>
+        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
         <button data-v="wallet"><span>◍</span><span data-t="navWallet">المحفظة</span></button>
-        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
-        <button data-v="papers"><span>⌗</span><span data-t="navPapers">عروض الأسعار والعقود</span><span class="b w" id="sbPapers" style="display:none;background:var(--warn)"></span></button>
         <button data-v="documents"><span>⌸</span><span data-t="navDocuments">المستندات</span></button>
+        <div class="grp" data-t="grpCompany">المنشأة</div>
+        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
+        <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
         <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
         <button data-v="tickets"><span>◖</span><span data-t="navTickets">التذاكر والدعم</span></button>
@@ -527,15 +534,32 @@
           <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
         </section>
 
+        <!-- ===== any advisor / dashboard, opened right here (one click, no hopping) ===== -->
+        <section class="view" id="view-embed">
+          <div class="pagehead"><h2 id="embedTitle">—</h2><div class="sub" id="embedLead"><a id="embedNewTab" href="#" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <iframe id="embedFrame" title="" style="width:100%;min-height:80vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
+        </section>
+
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
-          <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
+          <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">كل ما يخص منشأتك في مكان واحد: ما هو مطلوب منك، ما يعمل عليه فريقنا، وما تم إنجازه — وتقدر تضيف مهامك الخاصة.</div></div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="phead"><h3 data-t="tasksAddTitle">أضف مهمة لنفسك</h3></div>
+            <div style="padding:6px 16px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+              <input id="tkTitle" data-tp="tasksAddPh" placeholder="مثال: تجديد رخصة البلدية" style="flex:2 1 220px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit">
+              <label style="font-size:11px;font-weight:700;display:grid;gap:4px"><span data-t="tasksAddDue">تاريخ الاستحقاق</span><input id="tkDue" type="date" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.45rem .6rem;font:inherit"></label>
+              <label style="font-size:11px;font-weight:700;display:grid;gap:4px"><span data-t="tasksAddUrg">الأولوية</span><select id="tkUrg" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.5rem .6rem;font:inherit"><option value="normal" data-t="urgNormal">عادية</option><option value="soon" data-t="urgSoon">قريبة</option><option value="urgent" data-t="urgUrgent">عاجلة</option></select></label>
+              <button class="btn sm" id="tkAdd" data-t="tasksAddBtn">إضافة</button>
+            </div>
+            <div class="note err" id="tkMsg" style="display:none;margin:0 16px 12px"></div>
+          </div>
           <div class="panel" id="quotesPanelTasks" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:14px">
             <div class="phead"><h3 id="quotesTitleTasks">📝 عروض أسعار بانتظار قرارك</h3></div>
             <div id="quotesBodyTasks"></div>
           </div>
-          <div class="panel" id="srvTasksPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 data-t="srvTasksTitle">مهام من فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
-          <div class="panel"><div class="phead"><h3 data-t="derivedTasksTitle">مهام من طلباتك</h3></div><div id="tasksList" style="padding:6px 16px"></div></div>
+          <div class="panel" style="margin-bottom:14px"><div class="phead"><h3 data-t="tasksMine">مطلوب منك</h3></div><div style="padding:6px 16px"><div id="tasksList"></div><div id="myTasksList"></div><div class="emptyline" id="tasksMineEmpty" data-t="tasksMineEmpty">لا شيء مطلوب منك الآن 🎉</div></div></div>
+          <div class="panel" id="srvTasksPanel" style="margin-bottom:14px"><div class="phead"><h3 data-t="tasksTeam">يعمل عليها فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
+          <div class="panel"><div class="phead"><h3 data-t="tasksDone">مكتملة</h3></div><div id="doneTasksList" style="padding:6px 16px"></div></div>
         </section>
 
         <!-- ===== orders ===== -->
@@ -561,6 +585,7 @@
               <thead><tr><th data-t="thRef">المرجع</th><th data-t="thService">الخدمة</th><th data-t="thStatus">الحالة</th></tr></thead>
               <tbody id="ordersBody"></tbody>
             </table></div>
+            <div style="padding:8px 16px 12px"><button class="btn ghost sm" id="ordersCancelToggle" style="display:none"></button></div>
           </div>
         </section>
 
@@ -571,12 +596,12 @@
           <p style="margin-top:12px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p>
         </section>
         <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2><div class="sub">اشحن رصيدك إلكترونياً أو بتحويل بنكي، واستخدمه للسداد أو كضمان تنفيذ مع الموردين — بيزنس بارتنر هو الضامن.</div></div>
-          <div class="card" id="walletPanel" style="display:none">
+          <div class="card" id="walletPanel">
             <h4 data-t="wallet">رصيد المحفظة</h4>
             <div class="kpi" id="walletBig">0 ﷼</div>
             <div id="walletTx" style="margin-top:8px"></div>
           </div>
-          <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
+          <div class="ph" id="walletPh" style="display:none"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
 
           <div class="card" id="wtopCard" style="margin-top:14px">
             <h4>⚡ شحن المحفظة</h4>
@@ -858,6 +883,14 @@
         waMsg: 'تعذّر إرسال رمز التحقق عبر البريد حالياً.',
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
+        grpAdvisors: 'مستشاروك الأذكياء', grpWork: 'أعمالي', grpCompany: 'المنشأة',
+        navCompliance: 'مستشار الامتثال', navBd: 'مستشار تطوير الأعمال', navSs: 'فريق الخدمات المشتركة', navSmart: 'الموظف الذكي',
+        tasksAddTitle: 'أضف مهمة لنفسك', tasksAddPh: 'مثال: تجديد رخصة البلدية', tasksAddBtn: 'إضافة', tasksAddDue: 'تاريخ الاستحقاق', tasksAddUrg: 'الأولوية',
+        urgUrgent: 'عاجلة', urgSoon: 'قريبة', urgNormal: 'عادية',
+        tasksMine: 'مطلوب منك', tasksTeam: 'يعمل عليها فريق Business Partner', tasksDone: 'مكتملة',
+        tasksMineEmpty: 'لا شيء مطلوب منك الآن 🎉', tasksTeamEmpty: 'لا مهام قيد التنفيذ لدى فريقنا حالياً.', tasksDoneEmpty: 'لم تُنجز مهام بعد.',
+        taskReopen: 'إعادة فتح', taskDelete: 'حذف', taskBy: 'من', taskSrcManual: 'أضفتها بنفسك', taskSrcTeam: 'فريق Business Partner', taskSrcOrder: 'من طلبك',
+        ordersShowCancelled: 'عرض الملغية', ordersHideCancelled: 'إخفاء الملغية', thDate: 'التاريخ',
         navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navAdvisors: 'المستشارون الأذكياء', navHiring: 'لوحة التوظيف', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
         navPapers: 'عروض الأسعار والعقود',
@@ -904,8 +937,8 @@
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
         qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'مستشار الامتثال',
-        tasksSub: 'مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.',
-        ordersSub: 'طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.',
+        tasksSub: 'كل ما يخص منشأتك في مكان واحد: ما هو مطلوب منك، ما يعمل عليه فريقنا، وما تم إنجازه — وتقدر تضيف مهامك الخاصة.',
+        ordersSub: 'كل طلباتك: ماذا طلبت، حالته الآن، وتاريخه — وتقدر تتبع أي طلب برقمه المرجعي.',
         ordersTitle: 'سجل الطلبات',
         thRef: 'المرجع', thService: 'الخدمة', thStatus: 'الحالة',
         addRefPh: 'أضف رقم طلب (BP-506275)', addRefBtn: 'تتبع',
@@ -974,6 +1007,14 @@
         waMsg: 'We could not send the verification email right now.',
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
+        grpAdvisors: 'Your smart advisors', grpWork: 'My business', grpCompany: 'Company',
+        navCompliance: 'Compliance advisor', navBd: 'Business development advisor', navSs: 'Shared services team', navSmart: 'Smart employee',
+        tasksAddTitle: 'Add a task for yourself', tasksAddPh: 'e.g. Renew the municipality licence', tasksAddBtn: 'Add', tasksAddDue: 'Due date', tasksAddUrg: 'Priority',
+        urgUrgent: 'Urgent', urgSoon: 'Soon', urgNormal: 'Normal',
+        tasksMine: 'Needs your action', tasksTeam: 'In progress with the Business Partner team', tasksDone: 'Completed',
+        tasksMineEmpty: 'Nothing needs your action right now 🎉', tasksTeamEmpty: 'Our team has no task in progress for you at the moment.', tasksDoneEmpty: 'No completed tasks yet.',
+        taskReopen: 'Reopen', taskDelete: 'Delete', taskBy: 'by', taskSrcManual: 'Added by you', taskSrcTeam: 'Business Partner team', taskSrcOrder: 'From your order',
+        ordersShowCancelled: 'Show cancelled', ordersHideCancelled: 'Hide cancelled', thDate: 'Date',
         navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navAdvisors: 'Smart advisors', navHiring: 'Hiring dashboard', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
         navPapers: 'Quotations and Contracts',
@@ -1020,8 +1061,8 @@
         qaTitle: 'Quick actions',
         qaRequest: 'Request a service', qaUpgrade: 'Upgrade plan', qaPay: 'Pay an invoice', qaWallet: 'Top up wallet',
         qaDoc: 'Upload document', qaUser: 'Add user', qaTicket: 'Open a ticket', qaConsult: 'Book consultation', qaCompliance: 'Compliance agent',
-        tasksSub: 'Real tasks derived from your orders — no fake reminders.',
-        ordersSub: 'Orders recorded from this browser plus any reference you add manually.',
+        tasksSub: 'Everything about your company in one place: what needs your action, what our team is working on, what is done — plus your own tasks.',
+        ordersSub: 'All your orders: what you ordered, its current status and date — track any order by its reference.',
         ordersTitle: 'Orders log',
         thRef: 'Reference', thService: 'Service', thStatus: 'Status',
         addRefPh: 'Track an order (BP-506275)', addRefBtn: 'Track',
@@ -1537,7 +1578,11 @@
         for (i = 0; i < pl.length; i++){
           var isBd = pl[i].u === '/business-development-dashboard';
           var badge = portalBadge, line = '', cta = openLbl;
-          if (isBd && bd && bd.state === 'trial'){
+          if (isBd && bd && bd.open){
+            badge = en ? 'Open' : 'مفتوحة';
+            line = en ? 'Open for your account — no subscription needed.' : 'مفتوحة لحسابك بالكامل — بدون اشتراك.';
+            cta = en ? 'Open the dashboard' : 'افتح اللوحة';
+          } else if (isBd && bd && bd.state === 'trial'){
             var dw = en ? (bd.days === 1 ? 'day' : 'days') : (bd.days === 1 ? 'يوم' : bd.days === 2 ? 'يومان' : bd.days <= 10 ? 'أيام' : 'يومًا');
             badge = en ? 'Free trial' : 'تجربة مجانية';
             line = en ? ('Included free — ' + bd.days + ' ' + dw + ' left') : ('مشمولة مجانًا — باقٍ ' + bd.days + ' ' + dw);
@@ -1605,13 +1650,23 @@
           '<span class="t">' + esc(list[i].label) + '</span>' +
           '<a class="btn sm" href="' + esc(list[i].href) + '">' + esc(t('upload')) + '</a></div>';
       }
-      $('tasksList').innerHTML = html || '<div class="emptyline">' + esc(t('noTasks')) + '</div>';
+      $('tasksList').innerHTML = html;
+      syncTasksEmpty();
+    }
+    // "Needs your action" is fed by two sources (receipts owed on orders, and
+    // tasks assigned to the client); the empty line shows only when both are.
+    function syncTasksEmpty(){
+      var e = $('tasksMineEmpty'); if (!e) return;
+      var mine = $('myTasksList');
+      e.style.display = (tasks().length || (mine && mine.children.length)) ? 'none' : '';
     }
 
+    var showCancelled = false;
     function renderOrders(){
-      var rows = '';
+      var rows = '', cancelled = 0;
       for (var i = 0; i < state.orders.length; i++){
         var o = state.orders[i];
+        if (isCancelled(o.status)){ cancelled++; if (!showCancelled) continue; }
         var log = o.journey || [];
         var trail = log.length
           ? '<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px;color:var(--navy)">' +
@@ -1622,11 +1677,25 @@
                   esc(e.text || '') + (e.by ? ' <span style="color:var(--soft)">(' + esc(e.by) + ')</span>' : '') + '</li>';
               }).join('') + '</ul></details>'
           : '';
-        rows += '<tr data-srch><td class="ref">' + esc(o.ref) + '</td>' +
-          '<td>' + esc(o.title || t('trackedOrder')) + trail + '</td>' +
+        // What was actually bought (from the order note) beats the generic
+        // opportunity title "طلب/شراء خدمة".
+        var what = o.items || o.title || t('trackedOrder');
+        rows += '<tr data-srch><td class="ref">' + esc(o.ref) +
+          (o.at ? '<br><span style="color:var(--soft);font-size:10.5px;direction:ltr;display:inline-block">' + esc(o.at) + '</span>' : '') + '</td>' +
+          '<td>' + esc(what) + trail + '</td>' +
           '<td>' + statusChip(o.status) + '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';
+      var tg = $('ordersCancelToggle');
+      if (tg){
+        tg.style.display = cancelled ? '' : 'none';
+        tg.textContent = (showCancelled ? t('ordersHideCancelled') : t('ordersShowCancelled')) + ' (' + cancelled + ')';
+        tg.onclick = function(){ showCancelled = !showCancelled; renderOrders(); };
+      }
+      // The walkthrough sample order is for a client with nothing yet; real
+      // orders make it noise.
+      var demo = document.querySelector('.bp-request-demo');
+      if (demo) demo.style.display = state.orders.length ? 'none' : '';
       var note = $('ordersNote');
       if (state.fetchFailed && state.orders.length){ note.style.display = ''; note.textContent = t('fetchFail'); }
       else note.style.display = 'none';
@@ -1974,13 +2043,26 @@
       }
       $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
     }
+    // Open any advisor or dashboard inside the portal: one click, the same
+    // session, no second login and no hopping between pages. The page loads in
+    // chrome-less mode (?embed=1) so only the tool itself shows.
+    function openEmbed(url, title){
+      var f = $('embedFrame'), nt = $('embedNewTab');
+      var src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'embed=1';
+      $('embedTitle').textContent = title || '';
+      if (nt){ nt.href = url; nt.textContent = state.lang === 'en' ? 'Open in a new tab ↗' : 'افتحها في تبويب مستقل ↗'; }
+      if (f && f.getAttribute('src') !== src) f.setAttribute('src', src);
+      switchView('embed');
+      window.scrollTo(0, 0);
+    }
+    window.bpOpenEmbed = openEmbed;
     // Advisors hub — every smart advisor in one grid, each one openable now.
     // All of them are covered by the 30-day platform trial, so the hub never
     // shows a locked card to a signed-in client inside the trial window.
     function renderAdvisors(){
       var en = state.lang === 'en';
       $('advHubTitle').textContent = en ? 'Smart advisors' : 'المستشارون الأذكياء';
-      $('advHubLead').textContent = en ? 'All your advisors in one place — ready to use now, free for your first 30 days.' : 'كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).';
+      $('advHubLead').textContent = en ? 'All your advisors in one place — open, ready, and they run right here in your portal.' : 'كل مستشاريك في مكان واحد — مفتوحون لك بالكامل ويعملون هنا داخل لوحتك.';
       var list = [
         ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
         ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
@@ -2005,7 +2087,8 @@
         if (t === 'docagent'){ var db = document.querySelector('#sideNav [data-v="docagent"]'); if (db){ db.click(); return; } t = '/ar/account?view=docagent'; }
         if (t === 'hiring'){ switchView('hiring'); return; }
         if (t === 'assistant'){ var ab = $('assistBtn'); if (ab) ab.click(); return; }
-        location.href = t;
+        for (var k in EMBEDS) if (EMBEDS[k][0] === t){ switchView(k); return; }
+        openEmbed(t, this.parentNode.querySelector('b') ? this.parentNode.querySelector('b').textContent : '');
       };
     }
     function renderTeam(){
@@ -2239,8 +2322,25 @@
     }
 
     // ---------------- navigation + search ----------------
-    var VIEWS = ['home','store','services','advisors','hiring','company','bdprofile','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    var VIEWS = ['home','store','services','advisors','hiring','embed','company','bdprofile','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    // Sidebar entries that are a dashboard living on its own page: opened
+    // inside the portal frame, one click, the same session. The sidebar
+    // button stays highlighted so the client knows where they are.
+    var EMBEDS = {
+      compliance: ['/ar/compliance-dashboard', 'مستشار الامتثال', 'Compliance advisor'],
+      bd: ['/business-development-dashboard', 'مستشار تطوير الأعمال', 'Business development advisor'],
+      ss: ['/ar/shared-services/dashboard', 'فريق الخدمات المشتركة', 'Shared services team'],
+      smart: ['/ar/portal', 'الموظف الذكي', 'Smart employee']
+    };
+    var embedNav = '';
     function switchView(v){
+      if (EMBEDS[v]){
+        var e = EMBEDS[v];
+        embedNav = v;
+        openEmbed(e[0], state.lang === 'en' ? e[2] : e[1]);
+        return;
+      }
+      if (v !== 'embed') embedNav = '';
       if (VIEWS.indexOf(v) === -1) v = 'home';
       if (v === 'store') stInit();
       if (v === 'advisors') renderAdvisors();
@@ -2248,14 +2348,12 @@
         // Lazy-load the embedded hiring board on first open; the portal
         // session unlocks it server-side (30-day trial), no second login.
         var hf = $('hiringFrame');
-        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard');
+        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard?embed=1');
       }
-      for (var i = 0; i < VIEWS.length; i++){
-        var el = $('view-' + VIEWS[i]);
-        if (el) el.classList.toggle('on', VIEWS[i] === v);
-      }
+      var allViews = document.querySelectorAll('.viewwrap .view');
+      for (var i = 0; i < allViews.length; i++) allViews[i].classList.toggle('on', allViews[i].id === 'view-' + v);
       var sbs = document.querySelectorAll('#sideNav button');
-      for (var j = 0; j < sbs.length; j++) sbs[j].classList.toggle('on', sbs[j].getAttribute('data-v') === v);
+      for (var j = 0; j < sbs.length; j++) sbs[j].classList.toggle('on', sbs[j].getAttribute('data-v') === (v === 'embed' && embedNav ? embedNav : v));
       var bns = document.querySelectorAll('#bnav button');
       var bnavMatch = v;
       if (['payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings'].indexOf(v) !== -1) bnavMatch = 'more';
@@ -2327,11 +2425,11 @@
           gateErr(fromResend ? 2 : 1, '');
           showWa(fromResend ? 2 : 1, true);
         } else {
-          gateErr(fromResend ? 2 : 1, t('errGeneric'));
+          gateErr(fromResend ? 2 : 1, t('errGeneric') + ' (' + (out.error || out._http || '?') + ')');
         }
       }).catch(function(){
         btn.disabled = false; btn.textContent = t('sendCode');
-        gateErr(fromResend ? 2 : 1, t('errGeneric'));
+        gateErr(fromResend ? 2 : 1, t('errGeneric') + ' (' + (state.lang === 'en' ? 'connection' : 'اتصال') + ')');
       });
     }
     // Google sign-in lands on the same session the emailed code produces, so
@@ -2361,8 +2459,8 @@
       gateErr(1, '');
       otp({ action: 'google', credential: resp.credential }).then(function(out){
         if (out && out.ok){ state.email = out.email || state.email; enterAfterAuth(out, (out.user && out.user.name) || ''); }
-        else gateErr(1, t('errGeneric'));
-      }).catch(function(){ gateErr(1, t('errGeneric')); });
+        else gateErr(1, t('errGeneric') + ' (google/' + ((out && (out.error || out._http)) || '?') + ')');
+      }).catch(function(e){ gateErr(1, t('errGeneric') + ' (' + (state.lang === 'en' ? 'connection' : 'اتصال') + ')'); try { console.error('google sign-in', e); } catch(_){} });
     };
     (function initGoogle(){
       var box = document.getElementById('gGoogle');
@@ -3142,30 +3240,72 @@
         decide(id, 'rejected', txt, err);
       };
     }
+    // Task centre: one row format for the three lists (needs you / with our
+    // team / done). Only tasks the client created can be deleted; the rest
+    // are records of what the service team did for them.
+    function taskRow(x){
+      var done = x.status === 'done';
+      var manual = x.source === 'manual';
+      var src = manual ? t('taskSrcManual') : (x.source === 'order' ? t('taskSrcOrder') : t('taskSrcTeam'));
+      var urg = (x.urgency === 'urgent' || x.urgency === 'high') ? '<span class="badge bad">' + esc(t('urgUrgent')) + '</span> '
+              : x.urgency === 'soon' ? '<span class="badge warn">' + esc(t('urgSoon')) + '</span> ' : '';
+      var meta = [src, x.due_at ? t('taskDue') + ' ' + dts(x.due_at) : '', done && x.completed_at ? '✓ ' + dts(x.completed_at) : ''].filter(Boolean).join(' · ');
+      var btns = '';
+      if (!done && x.assignee === 'client') btns += '<button class="btn ghost sm" data-tdone="' + esc(x.id) + '">' + esc(t('taskDoneBtn')) + '</button>';
+      if (done && x.assignee === 'client') btns += '<button class="btn ghost sm" data-treopen="' + esc(x.id) + '">' + esc(t('taskReopen')) + '</button>';
+      if (manual) btns += '<button class="btn ghost sm" data-tdel="' + esc(x.id) + '">' + esc(t('taskDelete')) + '</button>';
+      return '<div class="rowline" data-srch style="' + (done ? 'opacity:.6' : '') + '">' +
+        '<span>' + (done ? '✓' : '☐') + '</span>' +
+        '<span class="t">' + urg + esc(x.title || '') + (x.details ? ' — ' + esc(x.details) : '') +
+        '<br><span style="color:var(--soft);font-size:10.5px">' + esc(meta) + '</span></span>' +
+        '<span style="display:flex;gap:6px;flex-wrap:wrap">' + btns + '</span></div>';
+    }
+    function reloadTasks(){
+      return opsGet('tasks').then(function(x){ if (x.ok){ ops.tasks = x.items || []; renderSrvTasks(); } });
+    }
     function renderSrvTasks(){
-      var open = ops.tasks.filter(function(x){ return x.status !== 'done' && x.status !== 'cancelled'; });
-      $('srvTasksPanel').style.display = ops.tasks.length ? '' : 'none';
-      var h = '';
+      var mine = [], team = [], done = [];
       for (var i = 0; i < ops.tasks.length; i++){
         var x = ops.tasks[i];
-        var done = x.status === 'done';
-        h += '<div class="rowline" data-srch style="' + (done ? 'opacity:.55' : '') + '">' +
-          '<span>' + (done ? '✓' : (x.urgency === 'high' ? '⚠' : '☐')) + '</span>' +
-          '<span class="t">' + esc(x.title || '') + (x.details ? ' — ' + esc(x.details) : '') +
-          (x.due_at ? ' <span style="color:var(--soft);font-size:10.5px">(' + esc(t('taskDue')) + ' ' + dts(x.due_at) + ')</span>' : '') + '</span>' +
-          (done || x.assignee !== 'client' ? '' : '<button class="btn ghost sm" data-tdone="' + esc(x.id) + '">' + esc(t('taskDoneBtn')) + '</button>') +
-          '</div>';
+        if (x.status === 'done') done.push(x);
+        else if (x.status === 'cancelled') continue;
+        else if (x.assignee === 'client') mine.push(x);
+        else team.push(x);
       }
-      $('srvTasksList').innerHTML = h;
+      $('myTasksList').innerHTML = mine.map(taskRow).join('');
+      $('srvTasksList').innerHTML = team.map(taskRow).join('') || '<div class="emptyline">' + esc(t('tasksTeamEmpty')) + '</div>';
+      $('doneTasksList').innerHTML = done.map(taskRow).join('') || '<div class="emptyline">' + esc(t('tasksDoneEmpty')) + '</div>';
+      syncTasksEmpty();
+      var open = mine.length + tasks().length;
       var badge = $('sbTasks'), bb = $('bnTasks');
-      if (open.length){ badge.style.display = ''; badge.textContent = open.length; if (bb){ bb.style.display = ''; } }
-      var btns = document.querySelectorAll('[data-tdone]');
-      for (var j = 0; j < btns.length; j++) btns[j].onclick = function(){
-        this.disabled = true;
-        opsPost({ action: 'ops-task-done', id: this.getAttribute('data-tdone') }).then(function(){
-          opsGet('tasks').then(function(x){ if (x.ok){ ops.tasks = x.items || []; renderSrvTasks(); } });
-        });
+      badge.style.display = open ? '' : 'none'; badge.textContent = open;
+      if (bb){ bb.style.display = open ? '' : 'none'; bb.textContent = open; }
+      var act = function(sel, action, confirmKey){
+        var btns = document.querySelectorAll('[' + sel + ']');
+        for (var j = 0; j < btns.length; j++) btns[j].onclick = function(){
+          if (confirmKey && !confirm(t(confirmKey) + '?')) return;
+          this.disabled = true;
+          opsPost({ action: action, id: this.getAttribute(sel) }).then(reloadTasks);
+        };
       };
+      act('data-tdone', 'ops-task-done');
+      act('data-treopen', 'ops-task-reopen');
+      act('data-tdel', 'ops-task-delete', 'taskDelete');
+      var add = $('tkAdd');
+      if (add && !add._wired){
+        add._wired = true;
+        add.onclick = function(){
+          var title = ($('tkTitle').value || '').trim(), msg = $('tkMsg');
+          if (!title){ $('tkTitle').focus(); return; }
+          add.disabled = true; msg.style.display = 'none';
+          opsPost({ action: 'ops-task-add', title: title, due: $('tkDue').value || '', urgency: $('tkUrg').value }).then(function(o){
+            add.disabled = false;
+            if (o && o.ok){ $('tkTitle').value = ''; $('tkDue').value = ''; reloadTasks(); }
+            else { msg.style.display = ''; msg.textContent = t('fetchFail'); }
+          }).catch(function(){ add.disabled = false; msg.style.display = ''; msg.textContent = t('fetchFail'); });
+        };
+        $('tkTitle').addEventListener('keydown', function(e){ if (e.key === 'Enter') add.click(); });
+      }
     }
     function markAllRead(){
       opsPost({ action: 'ops-notif-read' }).then(function(o){
@@ -3206,7 +3346,11 @@
       opsPost({ action: 'ops-ss-trial' }).then(function(d){
         if (!d || !d.ok) return;
         var meta = $('ssTrialMeta'), btn = $('ssOpenBtn');
-        if (d.active){
+        if (btn){ btn.href = '#'; btn.onclick = function(e){ e.preventDefault(); openEmbed('/ar/shared-services/dashboard', 'فريق الخدمات المشتركة'); }; }
+        if (d.open){
+          if (meta) { meta.textContent = '✅ مفتوحة لك بالكامل — تحدث مع فريقك التنفيذي الآن.'; meta.style.color = ''; }
+          if (btn) btn.textContent = 'افتح البوابة';
+        } else if (d.active){
           var n = d.daysLeft, total = d.totalDays || 14;
           var head = n === 1 ? 'يوم واحد متبقٍ' : n === 2 ? 'يومان متبقيان'
             : (n >= 3 && n <= 10) ? (n + ' أيام متبقية') : (n + ' يوماً متبقياً');

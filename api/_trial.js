@@ -21,7 +21,12 @@ const DAY = 86400000;
  * @returns {{state: 'subscribed'|'trial'|'expired'|'unknown', days: number,
  *            startedAt: string|null, endsAt: string|null, totalDays: number}}
  */
-export function bdTrial(org, hasPaidPlan, now = new Date()) {
+export function bdTrial(org, hasPaidPlan, now = new Date(), open = false) {
+  // Open policy / owner: reported as an active subscription that never runs
+  // out, flagged `open` so the UI can say "مفتوحة لك" rather than "اشتراكك يعمل".
+  if (open) {
+    return { state: "subscribed", open: true, days: 0, startedAt: null, endsAt: null, totalDays: BD_TRIAL_DAYS };
+  }
   // A paying client is not on trial, whatever the dates say.
   if (hasPaidPlan) {
     return { state: "subscribed", days: 0, startedAt: null, endsAt: null, totalDays: BD_TRIAL_DAYS };

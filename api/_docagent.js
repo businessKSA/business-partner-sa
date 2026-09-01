@@ -20,6 +20,7 @@
 //     the client — never a silent pick.
 //   * Filling never redesigns the form: we only append colored runs next to
 //     existing text nodes and flip existing checkbox glyphs.
+import { OPEN_ACCESS } from "./_trial.js";
 import crypto from "node:crypto";
 import {
   sb, DB_ON, getSession, audit, notify,
@@ -327,8 +328,9 @@ const DOC_AGENT_CODES = (process.env.DOC_AGENT_SERVICE_CODES || "bp-ai-doc-01,bp
 async function accessState(orgId, { begin } = {}) {
   const rows = await sb(`organizations?id=eq.${orgId}&select=id,doc_agent_trial_started_at`);
   const org = rows[0] || {};
-  let entitled = false;
-  try {
+  // Open policy: every signed-in establishment is entitled (see api/_trial.js).
+  let entitled = OPEN_ACCESS;
+  if (!entitled) try {
     const ent = await sb(`service_entitlements?organization_id=eq.${orgId}&status=in.(provisioning,action_required,active)&select=id,services(code)`);
     entitled = ent.some((e) => e.services && DOC_AGENT_CODES.includes(String(e.services.code || "").toLowerCase()));
   } catch {}
