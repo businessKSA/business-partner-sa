@@ -1046,7 +1046,7 @@
         docVer: 'نسخة', docDownload: 'تنزيل', docExpiryLbl: 'ينتهي',
         docStPending: 'قيد التحقق', docStVerified: 'موثق يدوياً', docStRejected: 'مرفوض',
         tkSub: 'تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.',
-        tkNew: 'تذكرة جديدة', tkSubjectPh: 'الموضوع', tkBodyPh: 'اشرح طلبك…',
+        tkNew: 'تذكرة جديدة', tkSubjectPh: 'الموضوع', tkBodyPh: 'اشرح طلبك…', tkAboutOrder: 'بخصوص الطلب',
         tkCatGeneral: 'عام', tkCatOrder: 'عن طلب', tkCatBilling: 'دفع وفواتير', tkCatTech: 'مشكلة تقنية',
         tkSubmit: 'إرسال التذكرة', tkMine: 'تذاكري', tkNone: 'لا تذاكر بعد — أنشئ أول تذكرة من الأعلى.',
         tkNeedFields: 'أدخل الموضوع ونص الرسالة.', tkSending: 'جارٍ الإرسال…', tkSent: 'فُتحت التذكرة ✅',
@@ -1172,7 +1172,7 @@
         docVer: 'v', docDownload: 'Download', docExpiryLbl: 'Expires',
         docStPending: 'Pending verification', docStVerified: 'Manually verified', docStRejected: 'Rejected',
         tkSub: 'Tickets reach our team instantly by email; replies land here and in your inbox.',
-        tkNew: 'New ticket', tkSubjectPh: 'Subject', tkBodyPh: 'Describe your request…',
+        tkNew: 'New ticket', tkSubjectPh: 'Subject', tkBodyPh: 'Describe your request…', tkAboutOrder: 'About order',
         tkCatGeneral: 'General', tkCatOrder: 'About an order', tkCatBilling: 'Billing', tkCatTech: 'Technical issue',
         tkSubmit: 'Submit ticket', tkMine: 'My tickets', tkNone: 'No tickets yet — open your first one above.',
         tkNeedFields: 'Enter a subject and a message.', tkSending: 'Sending…', tkSent: 'Ticket opened ✅',
@@ -1578,7 +1578,10 @@
         else if (st === 'need'){ badge = '<span class="badge warn">' + esc(t('stNeed')) + '</span>'; acts = '<a class="btn sm" href="/ar/checkout">' + esc(t('completePay')) + '</a>'; }
         else if (st === 'ended'){ badge = '<span class="badge bad">' + esc(statusMeta(o.status).label) + '</span>'; }
         else { badge = statusChip(o.status); }
-        acts += '<a class="btn sm ghost" href="' + esc(WA) + '?text=' + encodeURIComponent(t('agentPrefill') + o.ref) + '" target="_blank" rel="noopener">' + esc(t('qaTicket')) + '</a>';
+        // Owner (2026-09-02): a ticket about an order is opened inside the
+        // portal (Tickets & Support) with the order pre-filled — never on
+        // WhatsApp. The WhatsApp agent read the order ref as a login code.
+        acts += '<a class="btn sm ghost" href="#" data-ticket-ref="' + esc(o.ref) + '" data-ticket-title="' + esc(o.title || '') + '">' + esc(t('qaTicket')) + '</a>';
         // The client's own kill switch — while the order is still under
         // review or awaiting payment. After work starts the server refuses
         // and points them at support, so no half-done work is discarded.
@@ -3610,6 +3613,22 @@
       $('logoutBtn').onclick = doLogout;
       $('logoutBtnM').onclick = doLogout;
       $('docSend').onclick = uploadDoc;
+      function openOrderTicket(ref, title){
+        switchView('tickets');
+        var cat = $('tkCat'); if (cat) cat.value = 'طلب';
+        var sub = $('tkSubject');
+        if (sub) sub.value = t('tkAboutOrder') + ' ' + ref + (title ? ' — ' + title : '');
+        var main = $('tkMain');
+        var target = (main && main.style.display !== 'none') ? main : $('tkPh');
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var body = $('tkBody'); if (body && main && main.style.display !== 'none') setTimeout(function(){ body.focus(); }, 250);
+      }
+      document.addEventListener('click', function(e){
+        var a = e.target && e.target.closest ? e.target.closest('[data-ticket-ref]') : null;
+        if (!a) return;
+        e.preventDefault();
+        openOrderTicket(a.getAttribute('data-ticket-ref') || '', a.getAttribute('data-ticket-title') || '');
+      });
       $('tkSend').onclick = function(){
         var subject = $('tkSubject').value.trim();
         var body = $('tkBody').value.trim();
