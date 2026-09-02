@@ -1,6 +1,6 @@
 import { workflow, node, trigger, sticky, newCredential, expr } from '@n8n/workflow-sdk';
 
-const PANEL = 'https://bp-quotes-three.vercel.app';
+const PANEL = 'https://bp-quotes-three.vercel.app/quotes';
 
 const notionPull = trigger({
   type: 'n8n-nodes-base.scheduleTrigger',

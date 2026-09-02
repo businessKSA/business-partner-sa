@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState, useMemo, useState, useTransition } from 'react';
 import { actionDispatchRfps, actionSelectBid, actionExtractBid, actionBuildResaleQuote } from '@/app/actions';
 import { SUPPLIER_CATEGORIES, categoryLabel } from '@/lib/categories';
@@ -69,7 +70,7 @@ function Dispatch({
       <div style={{ marginTop: 14 }}>
         {!shown.length ? (
           <p className="muted">
-            لا مورد في هذا التصنيف. أضف موردين من <a href="/admin/suppliers">صفحة الموردين</a> —
+            لا مورد في هذا التصنيف. أضف موردين من <Link href="/admin/suppliers">صفحة الموردين</Link> —
             ولا بدّ من بريدٍ لكل مورد.
           </p>
         ) : (

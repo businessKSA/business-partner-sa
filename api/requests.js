@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign } from "./_db.js";
+import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign, storageDelete } from "./_db.js";
 
 import { loadCatalog } from "./_catalog.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
@@ -1247,7 +1247,10 @@ const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
 // لم يُكتب. فمتغيّر بيئة لقيمةٍ واحدة معروفة يمنع التشغيل ولا يحمي شيئاً.
 //
 // والمتغيّر يبقى ليغلب الافتراض في بيئة تجربة أو عند تغيّر العنوان.
-const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app")
+// من خادمٍ إلى خادم يُنادى نطاق Vercel مباشرةً لا نطاق الموقع: نداء الموقع
+// لنفسه على /quotes يمرّ بحافته ثم يعود إلى اللوحة — قفزة بلا فائدة. والجذر
+// /quotes جزء من عنوان اللوحة على أي نطاق (basePath)، فيُذكر هنا.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app/quotes")
   .trim()
   .replace(/\/+$/, "");
 
@@ -2453,7 +2456,7 @@ export default async function handler(req, res) {
         const title = String(b.title || "").trim().slice(0, 200);
         const fileName = String(b.fileName || "document.pdf").slice(0, 120);
         const base64 = typeof b.base64 === "string" ? b.base64.slice(0, 11_000_000) : "";
-        const mime = /^(application\/pdf|image\/(jpeg|png|webp))$/.test(String(b.mime)) ? b.mime : "application/pdf";
+        const mime = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/.test(String(b.mime)) ? b.mime : "application/pdf";
         const expiry = /^\d{4}-\d{2}-\d{2}$/.test(String(b.expiry || "")) ? b.expiry : null;
         if (!title || !base64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
         const buf = Buffer.from(base64, "base64");
@@ -2494,6 +2497,23 @@ export default async function handler(req, res) {
         await notify({ organization_id: orgId, event: "document_uploaded", channel: "inapp", title: extracted ? `رُفع المستند «${title}» (نسخة ${vno}) وقُرئ آلياً ✓` : `رُفع المستند «${title}» (نسخة ${vno}) — قيد التحقق`, idempotency_key: `doc_up:${docId}:${vno}` });
         await audit({ organization_id: orgId, actor_user_id: userId, action: "document.uploaded", entity_type: "document", entity_id: docId, after: { version: vno, file: fileName, read: !!extracted } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, documentId: docId, version: vno, ...(extracted ? { extracted } : {}) }));
+      }
+      if (b.action === "ops-doc-delete") {
+        // Delete one of the org's own documents: vault objects, versions, row.
+        const did = String(b.id || "").trim();
+        if (!did) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const rows = await sb(`documents?id=eq.${encodeURIComponent(did)}&organization_id=eq.${orgId}&select=id,title,document_versions(id,storage_key)&limit=1`);
+        const doc = rows[0];
+        if (!doc) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        // current_version_id points into document_versions; clear it first so
+        // the version rows can go. Older schemas without the column just skip.
+        try { await sb(`documents?id=eq.${did}`, { method: "PATCH", prefer: "return=minimal", body: { current_version_id: null } }); } catch {}
+        for (const v of doc.document_versions || []) { if (v.storage_key) { try { await storageDelete(v.storage_key); } catch {} } }
+        await sb(`document_versions?document_id=eq.${did}`, { method: "DELETE", prefer: "return=minimal" });
+        await sb(`documents?id=eq.${did}`, { method: "DELETE", prefer: "return=minimal" });
+        await notify({ organization_id: orgId, event: "document_deleted", channel: "inapp", title: `حُذف المستند «${doc.title || ""}» من خزنة مستنداتك`, idempotency_key: `doc_del:${did}` });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "document.deleted", entity_type: "document", entity_id: did, after: { title: doc.title || "" } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
       }
       if (b.action === "ops-approval-decide") {
         const aid = String(b.id || "");

@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { actionCreateQuote } from '@/app/actions';
 
@@ -212,7 +213,7 @@ export default function QuoteBuilder({
                 ))}
               </select>
               <p className="muted" style={{ marginTop: 6 }}>
-                لا يوجد العميل؟ <a href="/admin/clients/new">أضِف عميلاً جديداً</a>
+                لا يوجد العميل؟ <Link href="/admin/clients/new">أضِف عميلاً جديداً</Link>
               </p>
             </div>
             <div>
@@ -451,7 +452,7 @@ export default function QuoteBuilder({
           <button className="btn" type="submit" disabled={pending}>
             {pending ? 'جارٍ الحفظ' : 'حفظ كمسودة'}
           </button>
-          <a className="btn ghost" href="/admin">إلغاء</a>
+          <Link className="btn ghost" href="/admin">إلغاء</Link>
         </div>
         {state.error ? <div className="notice bad">{state.error}</div> : null}
       </form>

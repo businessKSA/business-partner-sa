@@ -9,6 +9,7 @@
  * واحد، ولا تُرسل قبل اجتيازها حارس المحتوى.
  */
 import { prisma } from './db';
+import { appBase } from './base';
 import { COMPANY } from '../../config/company';
 import { loadTemplate, render } from './templates';
 import { fmtMoney, fmtDate } from './money';
@@ -131,12 +132,12 @@ export function composeClientMail(
 }
 
 export function publicUrl(token: string): string {
-  return `${process.env.APP_URL || 'http://localhost:3000'}/d/${token}`;
+  return `${appBase()}/d/${token}`;
 }
 
 /** رابط سداد الفاتورة — يُفتح برمز الفاتورة وحده بلا تسجيل دخول. */
 export function payUrl(payToken: string): string {
-  return `${process.env.APP_URL || 'http://localhost:3000'}/portal/pay/${payToken}`;
+  return `${appBase()}/portal/pay/${payToken}`;
 }
 
 /** يولّد الـPDF ويؤرشفه في مجلد العميل الصحيح، ويعيد المحتوى. */
@@ -380,7 +381,7 @@ export async function sendQuoteRequestAck(documentId: string, serviceNameAr: str
   if (!doc || !doc.client.email) return;
 
   const clientNameAr = doc.client.companyAr || doc.client.nameAr;
-  const portal = `${process.env.APP_URL || 'http://localhost:3000'}/portal/quotes`;
+  const portal = `${appBase()}/portal/quotes`;
 
   let composed;
   try {
@@ -473,7 +474,7 @@ export async function sendPaymentReceipt(invoiceId: string): Promise<void> {
 
   const clientNameAr = invoice.client.companyAr || invoice.client.nameAr;
   const clientNameEn = invoice.client.companyEn || invoice.client.nameEn || invoice.client.nameAr;
-  const portal = `${process.env.APP_URL || 'http://localhost:3000'}/portal/invoices`;
+  const portal = `${appBase()}/portal/invoices`;
   const method = methodLabelAr(invoice.method, invoice.provider);
 
   const refs: MailRef[] = [{ label: 'رقم الفاتورة', value: invoice.number }];
