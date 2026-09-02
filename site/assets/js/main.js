@@ -6761,11 +6761,13 @@ var BP_EMP_BILLING = "monthly";
       Array.prototype.forEach.call(els, function (el) { el.textContent = txt; });
     }
     function step(cursor) {
-      fetch("/api/candidates?count=1" + (cursor ? "&cursor=" + encodeURIComponent(cursor) : ""))
+      // sofar travels with the cursor so the final request can cache the real
+      // total; a cached answer comes back complete on the very first call.
+      fetch("/api/candidates?count=1" + (cursor ? "&cursor=" + encodeURIComponent(cursor) + "&sofar=" + total : ""))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok) return;
-          total += d.total || 0;
+          total = d.cached ? (d.total || 0) : total + (d.total || 0);
           render(!d.nextCursor);
           if (d.nextCursor) step(d.nextCursor);
         }).catch(function () {});
