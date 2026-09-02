@@ -496,9 +496,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
             </div>
             <div class="card c4 agentbox">
               <h4 data-t="agentTitle">مستشار Business Partner الذكي</h4>
-              <div class="hint" data-t="agentHint">اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.</div>
+              <div class="hint" data-t="agentHint">اكتب سؤالك ويُفتح كتذكرة داخل بوابتك، ويرد عليك فريقنا هنا وعلى بريدك.</div>
               <input id="agentInput" data-tp="agentPh" placeholder="اسأل عن خدماتك أو إجراءاتك…" />
-              <button class="btn sm" id="agentSend" data-t="agentSend">إرسال عبر واتساب</button>
+              <button class="btn sm" id="agentSend" data-t="agentSend">أرسل كتذكرة</button>
             </div>
 
             <div class="card c4">
@@ -846,7 +846,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         </section>
         <section class="view" id="view-tickets">
           <div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2><div class="sub" data-t="tkSub">تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.</div></div>
-          <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div>
+          <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="#" id="tkPhOpen" data-t="qaTicket">فتح تذكرة</a></p></div>
           <div id="tkMain" style="display:none">
             <div class="card c12">
               <h4 data-t="tkNew">تذكرة جديدة</h4>
@@ -1018,9 +1018,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         govQiwa: 'قوى', govGosi: 'التأمينات الاجتماعية', govMuqeem: 'مقيم', govMudad: 'مدد',
         govZatca: 'الزكاة والضريبة', govBalady: 'بلدي', govAbsher: 'أبشر أعمال', govChamber: 'الغرفة التجارية',
         agentTitle: 'مستشار Business Partner الذكي',
-        agentHint: 'اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.',
+        agentHint: 'اكتب سؤالك ويُفتح كتذكرة داخل بوابتك، ويرد عليك فريقنا هنا وعلى بريدك.',
         agentPh: 'اسأل عن خدماتك أو إجراءاتك…',
-        agentSend: 'إرسال عبر واتساب',
+        agentSend: 'أرسل كتذكرة',
         agentPrefill: 'مرحباً، أنا عميل في مركز عمليات العميل — Business Partner. ',
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
@@ -1144,9 +1144,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         govQiwa: 'Qiwa', govGosi: 'GOSI', govMuqeem: 'Muqeem', govMudad: 'Mudad',
         govZatca: 'ZATCA', govBalady: 'Balady', govAbsher: 'Absher Business', govChamber: 'Chamber of Commerce',
         agentTitle: 'Business Partner Smart Agent',
-        agentHint: 'Type your question and our team replies directly on WhatsApp.',
+        agentHint: 'Type your question — it opens as a ticket in your portal and our team replies here and by email.',
         agentPh: 'Ask about your services or procedures…',
-        agentSend: 'Send via WhatsApp',
+        agentSend: 'Send as a ticket',
         agentPrefill: 'Hello, I am a Client Operations Center customer at Business Partner. ',
         qaTitle: 'Quick actions',
         qaRequest: 'Request a service', qaUpgrade: 'Upgrade plan', qaPay: 'Pay an invoice', qaWallet: 'Top up wallet',
@@ -3145,6 +3145,19 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       var mm = map[s] || ['tkStOpen', 'plain'];
       return '<span class="badge ' + mm[1] + '">' + esc(t(mm[0])) + '</span>';
     }
+    // Open the in-portal ticket form with a free question (home assistant box)
+    // or bare; order tickets go through openOrderTicket below.
+    function openTicketFor(ref, title, body){
+      switchView('tickets');
+      var ph = $('tkPh'), main = $('tkMain');
+      if (ph) ph.style.display = 'none';
+      if (main) main.style.display = '';
+      var subj = $('tkSubject'), txt = $('tkBody');
+      if (subj && title) subj.value = title;
+      if (txt && body) txt.value = body;
+      try { (txt || subj).focus(); } catch (e) {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+    }
     function renderTickets(){
       var h = '';
       for (var i = 0; i < ops.tickets.length; i++){
@@ -3612,10 +3625,15 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       $('bannerClose').onclick = function(){ $('limitedBanner').classList.remove('on'); };
       $('addRefBtn').onclick = addRef;
       $('addRefInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') addRef(); });
+      // Owner (2026-09): the question becomes a ticket inside the portal —
+      // WhatsApp is only the floating icon, never a hand-off from a view.
       $('agentSend').onclick = function(){
-        var msg = t('agentPrefill') + $('agentInput').value.trim();
-        window.open(WA + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+        var q = $('agentInput').value.trim();
+        openTicketFor('', q ? q.slice(0, 80) : '', q);
+        $('agentInput').value = '';
       };
+      var tkPhOpen = $('tkPhOpen');
+      if (tkPhOpen) tkPhOpen.onclick = function(e){ e.preventDefault(); openTicketFor('', '', ''); };
       $('agentInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('agentSend').onclick(); });
       $('setLangAr').onclick = function(){ if (state.lang !== 'ar'){ state.lang = 'ar'; applyLang(); renderAll(); } };
       $('setLangEn').onclick = function(){ if (state.lang !== 'en'){ state.lang = 'en'; applyLang(); renderAll(); } };
@@ -3887,7 +3905,7 @@ function syncCompanyName(){var n=byId('topOrgName'),t=byId('bp6CompanyName');if(
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function removeWhatsappFlows(){document.querySelectorAll('a[href*="wa.me"],a[href*="whatsapp"]').forEach(function(a){if(a.closest('#gate')||a.classList.contains('wa-fab'))return;a.setAttribute('href','/ar/account?view=tickets');a.removeAttribute('target');a.textContent='افتح تذكرة داخل بوابة العميل'});var ph=byId('tkPh');if(ph){var a=ph.querySelector('a');if(a){a.href='#';a.onclick=function(e){e.preventDefault();var m=byId('tkMain');if(m)m.style.display='block';ph.style.display='none'};a.textContent='فتح تذكرة داخل البوابة'}}}
 function routeQuery(){var q=new URLSearchParams(location.search);var v=q.get('view');if(v==='store')clickView('store');if(v==='documents')clickView('documents');if(v==='compliance'){var b=document.querySelector('#sideNav [data-v="compliance"]')||document.querySelector('[data-v="compliance-v6"]');if(b)b.click()}}
-function boot(){injectCompanyBar();removeWhatsappFlows();routeQuery();var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
+function boot(){injectCompanyBar();removeWhatsappFlows();routeQuery();var waT=null;new MutationObserver(function(){if(waT)return;waT=setTimeout(function(){waT=null;removeWhatsappFlows()},120)}).observe(document.body,{childList:true,subtree:true});var obs=new MutationObserver(syncCompanyName);var n=byId('topOrgName');if(n)obs.observe(n,{childList:true,subtree:true,characterData:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();</script>
 <script id="bp-docagent-v7-js">(function(){
