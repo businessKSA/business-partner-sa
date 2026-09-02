@@ -17,7 +17,8 @@ export const SITE_BASE_FOR_DATA =
   (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
 
 // Arabic folds so a customer's spelling matches ours: hamza forms → ا,
-// ة → ه, ى → ي, tashkeel and tatweel dropped, "ال" prefix left alone.
+// ة → ه, ى → ي, tashkeel and tatweel dropped, and the clitics ال/و/ب/ل
+// stripped from word starts so «الإقامة» and «إقامة» are one word.
 export function normalizeText(v) {
   return String(v || "")
     .toLowerCase()
@@ -28,6 +29,7 @@ export function normalizeText(v) {
     .replace(/ؤ/g, "و")
     .replace(/ئ/g, "ي")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/(^|\s)(?:ال|و|وال|بال|لل|ب|ل)(?=\S{3,})/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
