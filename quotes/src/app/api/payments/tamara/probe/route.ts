@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { appBase } from '@/lib/base';
 import { currentAdmin } from '@/lib/auth';
 import {
   tamaraStatus,
@@ -14,7 +15,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 function notificationUrl(req: Request): string {
-  const base = process.env.APP_URL || new URL(req.url).origin;
+  const base = appBase(req);
   return `${base.replace(/\/$/, '')}/api/payments/tamara`;
 }
 

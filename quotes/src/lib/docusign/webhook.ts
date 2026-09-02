@@ -13,6 +13,7 @@ import { sendMail } from '../mailer';
 import { storage } from '../storage';
 import { downloadSignedDocuments } from './service';
 import { queue, JOB } from '../queue';
+import { appBase } from '../base';
 
 /** الموقّع كما يصفه DocuSign داخل recipients.signers. */
 interface ConnectSigner {
@@ -247,7 +248,7 @@ export async function applyEnvelopeStatus(
     doc.number,
     doc.client.companyAr || doc.client.nameAr,
     `envelope ${envelopeId} — status ${status}`,
-    `${process.env.APP_URL || 'http://localhost:3000'}/admin/documents/${doc.id}`,
+    `${appBase()}/admin/documents/${doc.id}`,
   );
 
   return { ok: true, message: `تم تحديث الظرف ${envelopeId} إلى ${status}` };
@@ -264,7 +265,7 @@ export async function emailSignedCopies(envelopeDbId: string) {
   });
   if (!env.signedPdfPath) return;
   const doc = env.document;
-  const portal = `${process.env.APP_URL || 'http://localhost:3000'}/portal/contracts`;
+  const portal = `${appBase()}/portal/contracts`;
 
   // من وقّع، بأي بريد، ومتى بالضبط — هذا ما يُسأل عنه عند أي نزاع، فيصل
   // في الرسالة نفسها لا في مرفق يحتاج فتحاً. التوقيت بـUTC بلا تحويل:
