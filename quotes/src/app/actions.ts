@@ -475,7 +475,7 @@ export async function actionRequestSourcing(_prev: State, fd: FormData): Promise
       sent
         ? `أُرسل طلب العرض تلقائياً إلى ${sent} مورد. تابع العروض واختر منها.`
         : `لا مورد مفعّل في فئة ${service.sourcingCategory} — أرسل الطلب يدوياً من صفحته.`,
-      `${process.env.APP_URL || ''}/admin/supply/${req.id}`,
+      `${appBase()}/admin/supply/${req.id}`,
     );
 
     return {
@@ -528,7 +528,7 @@ export async function actionRequestQuote(_prev: State, fd: FormData): Promise<St
         doc.number,
         service.nameAr,
         'الخدمة مفتوحة السعر — يحتاج العرض تسعيراً منك قبل إرساله.',
-        `${process.env.APP_URL || ''}/admin/documents/${doc.id}`,
+        `${appBase()}/admin/documents/${doc.id}`,
       );
       // العميل يخرج بيده برقم يسأل به، لا بجملة على الشاشة وحدها
       await sendQuoteRequestAck(doc.id, service.nameAr).catch(() => {});
