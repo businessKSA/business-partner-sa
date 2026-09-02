@@ -379,7 +379,7 @@
     <aside class="side">
       <div class="logo">
         <img src="/assets/img/logo.png" alt="BP" onerror="this.style.display='none'" />
-        <div class="t">لوحة التحكم<small>Business Partner — للمالك</small></div>
+        <div class="t">لوحة تحكم الموقع<small>Business Partner — للمالك</small></div>
       </div>
       <nav class="nav" id="navDesk">
         <button data-v="overview" class="active">📊 نظرة عامة</button>
@@ -420,6 +420,7 @@
         <button data-v="finance">💰 المالية</button>
         <button data-v="revenue">📊 الإيرادات</button>
         <button data-v="suppliers">🤝 الشركاء</button>
+        <button data-v="notion">📇 نوشن</button>
         <button data-v="content">📝 المحتوى</button>
         <button data-v="pages">📄 الصفحات</button>
         <button data-v="tools">🧰 الأدوات</button>
@@ -427,15 +428,11 @@
     </div>
 
     <main class="main">
-      <!-- Top header: language, assistant, open website. The language switch is
-           deliberately disabled — the admin is Arabic-only today, and a switch
-           that changes nothing would be a lie. Enable it only when a real
-           English admin exists. -->
+      <!-- Top header: assistant and open website. The panel is Arabic-only;
+           a language switch comes back only with a real English panel. -->
       <div class="admin-topbar">
-        <div class="atb-title"><strong>مركز التشغيل</strong><span>Business Partner · Operations</span></div>
+        <div class="atb-title"><strong>لوحة تحكم الموقع</strong><span>Business Partner · للمالك</span></div>
         <div class="atb-actions">
-          <button type="button" class="atb-btn" id="topLang" disabled
-                  title="واجهة اللوحة بالعربية حالياً — النسخة الإنجليزية قيد التجهيز">🌐 English <small>قريباً</small></button>
           <button type="button" class="atb-btn" id="topAi">✨ المساعد</button>
           <a class="atb-btn atb-primary" href="/" target="_blank" rel="noopener">↗ فتح الموقع</a>
         </div>
@@ -450,7 +447,15 @@
           <div class="sub">مؤشرات محسوبة من أحدث الطلبات في نظام CRM (آخر ٥٠ طلباً).</div>
         </div>
 
-        <!-- site analytics: first thing the owner sees -->
+        <div class="tiles">
+          <div class="tile"><div class="k">📥 أحدث الطلبات</div><div class="v" id="tTotal">—</div><div class="d">آخر ما وصل من الموقع</div></div>
+          <div class="tile"><div class="k">☀️ اليوم</div><div class="v" id="tToday">—</div><div class="d">طلبات وصلت اليوم</div></div>
+          <div class="tile"><div class="k">🗓️ آخر ٧ أيام</div><div class="v" id="tWeek">—</div><div class="d">نشاط الأسبوع</div></div>
+          <div class="tile"><div class="k">⏳ قيد المراجعة</div><div class="v" id="tPending">—</div><div class="d">تحتاج قرارك</div></div>
+          <div class="tile"><div class="k">✅ مؤكدة / مكتملة</div><div class="v" id="tDone">—</div><div class="d">من المعروض حالياً</div></div>
+        </div>
+
+        <!-- site analytics -->
         <div class="panel" id="anaPanel" style="margin-bottom:18px">
           <div class="panel-head"><h3>📈 إحصائيات الموقع</h3><span class="stamp" id="anaStamp"></span></div>
           <div class="tiles" style="padding:14px 18px 0">
@@ -498,14 +503,6 @@
           </div>
           <div id="fupList" style="padding:4px 18px 14px;font-size:13.5px">جاري التحميل…</div>
           <div id="fupMoreBar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 18px 14px"></div>
-        </div>
-
-        <div class="tiles">
-          <div class="tile"><div class="k">📥 أحدث الطلبات</div><div class="v" id="tTotal">—</div><div class="d">آخر ما وصل من الموقع</div></div>
-          <div class="tile"><div class="k">☀️ اليوم</div><div class="v" id="tToday">—</div><div class="d">طلبات وصلت اليوم</div></div>
-          <div class="tile"><div class="k">🗓️ آخر ٧ أيام</div><div class="v" id="tWeek">—</div><div class="d">نشاط الأسبوع</div></div>
-          <div class="tile"><div class="k">⏳ قيد المراجعة</div><div class="v" id="tPending">—</div><div class="d">تحتاج قرارك</div></div>
-          <div class="tile"><div class="k">✅ مؤكدة / مكتملة</div><div class="v" id="tDone">—</div><div class="d">من المعروض حالياً</div></div>
         </div>
 
         <div class="panel">
@@ -1079,7 +1076,6 @@
             </div>
             <div class="dbody" id="dsMsg" style="display:none;margin-top:10px"></div>
           </div>
-        </div>
 
         <div class="tools" id="boardGrid">
           <a class="tool" href="/ar/suppliers-admin" target="_blank" rel="noopener"><span class="tag">داخلي</span><span class="ico">🏭</span><h4>لوحة تحكم الشركاء</h4><p>اعتماد الموردين الجدد وإرسال رمز الدخول، طلب عروض أسعار من عدة موردين، ترسية أوامر العمل، ومتابعة الفواتير في الاتجاهين.</p><span class="go">فتح ←</span></a>
@@ -1930,6 +1926,18 @@
      */
     function sameOrigin(url){ return /^\//.test(url); }
 
+    // Any card in the panel that points at one of our own pages opens inside
+    // the panel, exactly as the sidebar's «لوحاتنا» entries do. External
+    // services keep their new tab — they refuse to render in a frame anyway.
+    document.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('a.tool[href]');
+      if (!a || !$('app').contains(a)) return;
+      var href = a.getAttribute('href') || '';          // sameOrigin() reads a path, not a URL
+      if (href === '#' || !sameOrigin(href) || e.metaKey || e.ctrlKey || e.button === 1) return;
+      e.preventDefault();
+      var h4 = a.querySelector('h4');
+      openBoard(href, h4 ? h4.textContent.trim() : '');
+    });
     function openBoard(url, title){
       switchView('board');
       $('boardTitle').textContent = title || '';
