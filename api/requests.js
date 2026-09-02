@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign, storageDelete } from "./_db.js";
 
-import { loadCatalog } from "./_catalog.js";
+import { loadCatalog, normalizeText } from "./_catalog.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -1601,14 +1601,28 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "public, max-age=300");
     try {
       const cat = await loadCatalog();
-      const term = String(q.q || "").trim().toLowerCase();
+      const term = normalizeText(q.q || "");
       const code = String(q.code || "").trim().toUpperCase();
+      const strip = ({ search, ...rest }) => rest;
       let services = cat.services;
+      let pages = [];
       if (code) services = services.filter((s) => s.code === code);
       else if (term) {
-        services = services.filter((s) =>
-          (s.nameAr + " " + s.nameEn + " " + s.category + " " + s.categoryAr + " " + s.code)
-            .toLowerCase().includes(term));
+        // Every word the customer typed must appear (in any order, Arabic
+        // folded); if that finds nothing, any word will do — a thin answer
+        // beats "no service found" for a question we clearly cover.
+        const tokens = term.split(" ").filter((t) => t.length > 1);
+        // Word-prefix match: "عمال" finds "عمالة" but not "أعمال".
+        const has = (hay, t) => (" " + hay).includes(" " + t);
+        const all = (hay) => tokens.every((t) => has(hay, t));
+        const any = (hay) => tokens.some((t) => has(hay, t));
+        const rank = (hay) => tokens.filter((t) => has(hay, t)).length;
+        let hit = services.filter((s) => all(s.search));
+        if (!hit.length) hit = services.filter((s) => any(s.search));
+        services = hit.sort((a, b) => rank(b.search) - rank(a.search));
+        pages = cat.pages.filter((p) => any(p.search)).sort((a, b) => rank(b.search) - rank(a.search)).slice(0, 5);
+      } else {
+        pages = cat.pages;
       }
       const limit = Math.min(Math.max(parseInt(q.limit, 10) || 40, 1), 200);
       res.statusCode = 200;
@@ -1616,10 +1630,11 @@ export default async function handler(req, res) {
         ok: true,
         currency: "SAR",
         updated: cat.updated,
-        note: "أسعار الخدمات الفردية إرشادية وتُحسم بعرض سعر رسمي؛ أسعار الباقات معلنة كما هي.",
+        note: "أسعار الخدمات الفردية إرشادية وتُحسم بعرض سعر رسمي؛ أسعار الباقات معلنة كما هي. url = الصفحة العربية، urlEn = الإنجليزية.",
         packages: cat.packages,
+        pages: pages.map(strip),
         count: services.length,
-        services: services.slice(0, limit),
+        services: services.slice(0, limit).map(strip),
       }));
     } catch (e) {
       res.statusCode = 502;
