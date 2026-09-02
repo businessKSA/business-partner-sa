@@ -12,6 +12,7 @@ export function AdminBar({ email }: { email: string }) {
       <Link href="/admin/documents/new">عرض سعر جديد</Link>
       <Link href="/admin/clients">العملاء</Link>
       <Link href="/admin/invoices">الفواتير</Link>
+      <Link href="/admin/finance">المالية</Link>
       <Link href="/admin/catalog">الكتالوج</Link>
       <Link href="/admin/catalog/map">الخريطة</Link>
       <Link href="/admin/agent">الوكيل الذكي</Link>

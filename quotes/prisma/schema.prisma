@@ -490,6 +490,8 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   walletEntries WalletEntry[]
+  // الفاتورة الضريبية الصادرة داخلياً لهذا السداد (بديل الدفترة)
+  zatcaRecord   ZatcaRecord?
 
   @@index([clientId])
   @@index([status])
@@ -798,4 +800,195 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------------------ المالية
+// النظام المالي الداخلي: مصاريف وإيرادات ورواتب وفواتير ضريبية تصدر داخلياً
+// دون الاعتماد على منصة خارجية (دفترة/قيود). كل قيد يحمل مركز تكلفة يربط
+// الحركة بقسمها: الموارد البشرية، المبيعات، المشتريات، التسويق، الخدمات
+// المشتركة، الخدمات الحكومية — فتخرج قائمة الدخل لكل قسم من نفس الدفتر.
+
+model Expense {
+  id     String   @id @default(cuid())
+  number String   @unique // EXP-2026-0001
+  date   DateTime
+
+  // مركز التكلفة: HR | SALES | PURCHASES | MARKETING | SHARED | GOV_SERVICES | GENERAL
+  costCenter String @default("GENERAL")
+  // التصنيف: SALARIES | GOSI | RENT | MARKETING_ADS | SUBSCRIPTIONS | SUPPLIES
+  // | GOV_FEES | PROFESSIONAL | TRAVEL | UTILITIES | BANK_FEES | OTHER
+  category   String @default("OTHER")
+
+  vendorName String
+  // الرقم الضريبي للمورّد — وجوده شرط خصم ضريبة المدخلات في الإقرار
+  vendorVat  String?
+
+  descAr        String
+  amountExclVat Float
+  // ضريبة مدخلات قابلة للخصم من إقرار ضريبة القيمة المضافة
+  vatAmount     Float  @default(0)
+  total         Float
+
+  // TRANSFER | CASH | CARD | MADA
+  method      String  @default("TRANSFER")
+  receiptPath String?
+  notes       String?
+
+  // إن تولّد القيد آلياً: مسير رواتب أو دفعة مورّد
+  payrollRunId String?
+  payrollRun   PayrollRun? @relation(fields: [payrollRunId], references: [id])
+  employeeId   String?
+  employee     Employee?   @relation(fields: [employeeId], references: [id])
+
+  actor     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([costCenter])
+  @@index([category])
+}
+
+// إيراد يدوي لما يقع خارج فواتير اللوحة (تحصيل نقدي، إيراد قديم، تسوية).
+// إيرادات الفواتير تُشتق من الفواتير المدفوعة نفسها ولا تُكرَّر هنا.
+model RevenueEntry {
+  id     String   @id @default(cuid())
+  number String   @unique // REV-2026-0001
+  date   DateTime
+
+  costCenter String @default("SALES")
+  source     String // من أين جاء الإيراد
+  descAr     String
+
+  amountExclVat Float
+  vatAmount     Float   @default(0)
+  total         Float
+  method        String  @default("TRANSFER")
+  notes         String?
+
+  actor     String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([costCenter])
+}
+
+// ------------------------------------------------------------ الموارد البشرية
+model Employee {
+  id     String  @id @default(cuid())
+  nameAr String
+  nameEn String?
+
+  // رقم الهوية أو الإقامة
+  nationalId String?
+  jobTitleAr String?
+  // القسم الذي يُحمَّل راتبه عليه
+  costCenter String  @default("SHARED")
+  email      String?
+  phone      String?
+  iban       String?
+
+  basicSalary  Float
+  allowances   Float @default(0)
+  // حصة المنشأة في التأمينات الاجتماعية شهرياً
+  gosiEmployer Float @default(0)
+  // خصم حصة الموظف من الراتب
+  gosiEmployee Float @default(0)
+
+  // ACTIVE | ARCHIVED
+  status    String    @default("ACTIVE")
+  joinedAt  DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  expenses     Expense[]
+  payrollLines PayrollLine[]
+}
+
+// مسير رواتب شهر واحد — التوليد يقيّد مصروفاً لكل موظف على مركز تكلفته
+model PayrollRun {
+  id    String @id @default(cuid())
+  // YYYY-MM
+  month String @unique
+
+  totalNet  Float
+  totalGosi Float
+  totalCost Float
+  // DRAFT | POSTED
+  status    String   @default("POSTED")
+  actor     String?
+  createdAt DateTime @default(now())
+
+  lines    PayrollLine[]
+  expenses Expense[]
+}
+
+model PayrollLine {
+  id         String     @id @default(cuid())
+  runId      String
+  run        PayrollRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee   @relation(fields: [employeeId], references: [id])
+
+  basicSalary  Float
+  allowances   Float
+  gosiEmployee Float
+  gosiEmployer Float
+  // الصافي المحوَّل للموظف
+  netPay       Float
+
+  @@unique([runId, employeeId])
+}
+
+// ------------------------------------------------- الفوترة الإلكترونية (زاتكا)
+// سجل الفاتورة الضريبية الصادرة داخلياً: رقم تسلسلي واحد للمنشأة، وسلسلة
+// تجزئة متصلة (ICV + PIH) كما تشترط لائحة الفوترة الإلكترونية. الـXML يُحفظ
+// كاملاً هنا لأن الهيئة تشترط أرشفة الفاتورة بصيغتها الصادرة.
+model ZatcaRecord {
+  id String @id @default(cuid())
+
+  invoiceId String?  @unique
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+  number String @unique // BP-TI-2026-0001 — التسلسل الضريبي الداخلي الوحيد
+  uuid   String @unique
+  // Invoice Counter Value — عدّاد متصل لا يعود للصفر
+  icv    Int    @unique
+
+  // SIMPLIFIED (b2c) | STANDARD (b2b)
+  docType    String   @default("SIMPLIFIED")
+  // 388 فاتورة | 381 إشعار دائن | 383 إشعار مدين
+  typeCode   String   @default("388")
+  // رقم الفاتورة الأصل — إلزامي للإشعارات، فارغ للفاتورة
+  billingRef String?
+  issueAt    DateTime
+
+  sellerName String
+  sellerVat  String
+  buyerName  String?
+  buyerVat   String?
+
+  netAmount Float
+  vatAmount Float
+  total     Float
+
+  // تجزئة الفاتورة وتجزئة الفاتورة السابقة — سلسلة لا تنقطع
+  hash String
+  pih  String
+  // حمولة رمز الاستجابة السريعة TLV base64
+  qr   String
+  // XML الموقَّع (المرحلة الثانية) أو غير الموقَّع (المرحلة الأولى)
+  xml  String
+
+  // ISSUED (المرحلة الأولى، لا إبلاغ) | REPORTED | CLEARED | REJECTED | FAILED
+  status        String    @default("ISSUED")
+  zatcaMode     String? // sandbox | simulation | production
+  zatcaWarnings String?
+  zatcaError    String?
+  reportedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([issueAt])
 }

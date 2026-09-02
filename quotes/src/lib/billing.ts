@@ -13,6 +13,7 @@ import { logEvent, audit } from './timeline';
 import { DOC_STATUS } from './enums';
 import { notifyEvent, sendPaymentReceipt } from './send';
 import { issueTaxInvoice, daftraLive } from './daftra';
+import { issueTaxDocument } from './zatca/issue';
 
 export interface InvoiceInput {
   clientId: string;
@@ -240,8 +241,25 @@ export async function markInvoicePaid(
  * لا إيراد، ولا ضريبة عليه — فاتورة ضريبية له تُبلّغ عن إيراد لم يتحقّق.
  *
  * صالحة للاستدعاء مرتين على الفاتورة نفسها: الصادرة فعلاً تُترك كما هي.
+ *
+ * محرّك الإصدار يحدده TAX_ENGINE:
+ *   internal (الافتراضي) — الإصدار الداخلي من هذا النظام: تسلسل واحد وQR
+ *     معتمد، وربط زاتكا حين تُهيّأ شهادة الختم. بلا اشتراك خارجي.
+ *   daftra — المسار القديم عبر جسر الموقع (يتطلب DAFTRA_MODE=live).
+ *   off — لا إصدار آلياً.
  */
+function taxEngine(): 'internal' | 'daftra' | 'off' {
+  const e = (process.env.TAX_ENGINE || 'internal').trim().toLowerCase();
+  return e === 'daftra' || e === 'off' ? e : 'internal';
+}
+
 export async function issueTaxInvoiceFor(invoiceId: string): Promise<void> {
+  const engine = taxEngine();
+  if (engine === 'off') return;
+  if (engine === 'internal') {
+    await issueInternalTaxInvoiceFor(invoiceId);
+    return;
+  }
   if (!daftraLive()) return;
 
   const invoice = await prisma.invoice.findUnique({
@@ -312,6 +330,62 @@ export async function issueTaxInvoiceFor(invoiceId: string): Promise<void> {
     code: 'TAX_INVOICE',
     titleAr: `صدرت الفاتورة الضريبية ${result.number} من الدفترة`,
     titleEn: `Tax invoice ${result.number} issued from Daftra`,
+    actor: 'system',
+    actorKind: 'system',
+  });
+}
+
+/** الإصدار الداخلي — من نظامنا مباشرة، بلا منصة خارجية. */
+async function issueInternalTaxInvoiceFor(invoiceId: string): Promise<void> {
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { client: true, zatcaRecord: { select: { id: true } } },
+  });
+  if (!invoice || invoice.status !== 'PAID') return;
+  if (invoice.zatcaRecord || invoice.daftraNumber) return;
+  if (invoice.isGovFeeDeposit || invoice.depositKind) return;
+
+  const c = invoice.client;
+  const result = await issueTaxDocument({
+    invoiceId: invoice.id,
+    buyer: {
+      name: c.companyAr || c.nameAr,
+      vatNumber: c.vatNumber || null,
+      crNumber: c.crNumber || null,
+      city: c.city || null,
+    },
+    lines: [{
+      nameAr: invoice.titleAr,
+      quantity: 1,
+      unitPrice: invoice.amountExclVat,
+      vatPercent: invoice.vatRate * 100,
+    }],
+    paymentMeansCode: invoice.method === 'transfer' ? '42' : '48',
+    actor: 'system',
+  });
+
+  if (!result.ok) {
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { daftraError: `internal: ${result.error}`.slice(0, 400) },
+    });
+    await audit({
+      action: 'TAX_INVOICE_FAILED',
+      entityType: 'invoice',
+      entityId: invoice.id,
+      actor: 'system',
+      payload: { engine: 'internal', error: result.error },
+    });
+    return;
+  }
+
+  await logEvent({
+    entityType: 'invoice',
+    entityId: invoice.id,
+    clientId: invoice.clientId,
+    code: 'TAX_INVOICE',
+    titleAr: `صدرت الفاتورة الضريبية ${result.number} داخلياً`,
+    titleEn: `Tax invoice ${result.number} issued internally`,
     actor: 'system',
     actorKind: 'system',
   });
