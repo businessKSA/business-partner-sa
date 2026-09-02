@@ -2082,7 +2082,7 @@ function buildBdaas() {
 
   const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}"${t.badge ? ` data-badge="${esc(t.badge)}"` : ""}>
     <div class="pk-name">${t.name}</div>
-    <div class="pk-price">${t.priceNum ? `${t.priceNum.toLocaleString("en-US")} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span>` : `${t.price} <span class="pk-per">${t.per}</span>`}</div>
+    <div class="pk-price"><span class="price-amt">${t.priceNum ? `${t.priceNum.toLocaleString("en-US")} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span>` : `${t.price} <span class="pk-per">${t.per}</span>`}</span><span class="pk-guest" data-guest-note>${L("Sign in to see the price", "سجّل دخولك لعرض السعر")}</span></div>
     ${t.intro ? `<p class="pk-intro">${t.intro}</p>` : ""}
     ${closer(t.forUs)}
     ${feats(t.items)}
@@ -2110,8 +2110,35 @@ function buildBdaas() {
     ["⚙", L("Automation with human approval", "أتمتة باعتماد بشري"), L("Every state triggers the right action, and a person approves before anything reaches your market.", "كل حالة تطلق الإجراء المناسب، ويعتمد إنسان قبل أن يصل أي شيء إلى سوقك.")],
   ].map(([ico, h, p]) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${ico}</div><h3>${h}</h3><p>${p}</p></div>`).join("");
 
-  const industries = [["Contracting & construction", "المقاولات والإنشاءات"], ["Recruitment & workforce", "التوظيف والقوى العاملة"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Real estate", "العقار"], ["Hospitality", "الضيافة"], ["Manufacturing", "التصنيع"], ["Professional services", "الخدمات المهنية"], ["Mega projects", "المشاريع الكبرى"]]
-    .map(([en, ar]) => `<span class="sector-chip">${L(en, ar)}</span>`).join("");
+  const industries = [["🏗️", "Contracting & construction", "المقاولات والإنشاءات"], ["👥", "Recruitment & workforce", "التوظيف والقوى العاملة"], ["🍽️", "Food & catering", "الأغذية والإعاشة"], ["🚚", "Logistics", "اللوجستيات"], ["💻", "Technology", "التقنية"], ["🏢", "Real estate", "العقار"], ["🏨", "Hospitality", "الضيافة"], ["🏭", "Manufacturing", "التصنيع"], ["📊", "Professional services", "الخدمات المهنية"], ["🏙️", "Mega projects", "المشاريع الكبرى"]]
+    .map(([ico, en, ar]) => `<span class="sector-chip"><i aria-hidden="true">${ico}</i>${L(en, ar)}</span>`).join("");
+
+  // Classes below exist only on this page — styles.css doesn't define them
+  // (the sectors row used to render as one unstyled run-on line).
+  const bdCss = `<style>
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px 12px}
+    .sector-chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:9px 18px;font-size:.92rem;font-weight:700;box-shadow:0 1px 3px rgba(11,27,90,.06);transition:.15s}
+    .sector-chip:hover{border-color:var(--navy);box-shadow:0 6px 18px rgba(11,27,90,.1);transform:translateY(-1px)}
+    .sector-chip i{font-style:normal;font-size:1.05rem;line-height:1}
+    .bd-ind-note{text-align:center;color:var(--text-soft);max-width:720px;margin:22px auto 0;font-size:.95rem;line-height:1.8}
+    .bd-tier-group{margin-top:34px}
+    .bd-tier-group:first-of-type{margin-top:8px}
+    .bd-tier-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid rgba(11,27,90,.1)}
+    .bd-tier-head h3{margin:0;color:var(--navy);font-size:1.25rem;font-weight:800}
+    .bd-tier-head span{display:inline-block;background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:4px 12px;font-size:.78rem;font-weight:700}
+    .bd-tier-head p{margin:0;flex-basis:100%;color:var(--text-soft);font-size:.95rem;line-height:1.7}
+    .pkg .pk-note,.pk-note{color:var(--text-soft);font-size:.9rem;line-height:1.8}
+    .pkg .pk-guest{display:block;font-size:.95rem;font-weight:700;color:var(--text-soft)}
+    .bd-tier-group .grid-4 .pk-name{font-size:1.3rem}
+    .bd-tier-group .grid-4 .pk-price{font-size:1.2rem}
+    .bd-tier-group .grid-4 .pk-price .pk-per{display:block;font-size:.8rem}
+    .bd-ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1000px;margin:0 auto 34px}
+    .bd-ladder div{background:#fff;border:1px solid var(--gray-line);border-radius:16px;padding:16px 18px;text-align:center}
+    .bd-ladder b{display:block;color:var(--navy);font-size:1.4rem;font-weight:800;line-height:1.2}
+    .bd-ladder small{display:block;color:var(--text-soft);font-size:.82rem;margin-top:4px;line-height:1.5}
+    @media (max-width:900px){.bd-ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:520px){.bd-ladder{grid-template-columns:1fr}.sector-chip{padding:8px 14px;font-size:.86rem}}
+  </style>`;
 
   const faqs = [
     [L("What exactly do I get in the free 30 days?", "ما الذي أحصل عليه فعليًا في الثلاثين يومًا؟"),
@@ -2135,7 +2162,7 @@ function buildBdaas() {
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Business development as a service", "تطوير الأعمال كخدمة")}</span>
     <h1>${L("We build the customer and supplier base your business grows on", "نبني لك قاعدة العملاء والموردين التي ينمو عليها عملك")}</h1>
-    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس — بدون توظيف فريق كامل.")}</p>
+    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل في مسار مبيعات واحد قابل للقياس، من دون أن توظّف فريقًا كاملًا.")}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 30 days free", "ابدأ 30 يومًا مجانًا")}</a>
       <a class="btn btn-ghost btn-lg" href="#pricing">${L("See the packages", "استعرض الباقات")}</a>
@@ -2168,13 +2195,27 @@ function buildBdaas() {
   </div></section>
 
   <section class="section" id="industries"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد، Playbook مختلف لكل قطاع")}</h2></div>
+    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد وخطة عمل مختلفة لكل قطاع")}</h2><p>${L("The target list, the decision makers, the message and the meeting rhythm change with the sector. These are the ones we run most.", "قائمة الاستهداف وصنّاع القرار والرسالة وإيقاع الاجتماعات تختلف من قطاع لآخر. هذه أكثر القطاعات التي نعمل فيها.")}</p></div>
     <div class="chip-row" style="justify-content:center">${industries}</div>
+    <p class="bd-ind-note">${L("Your sector not listed? The same system works for any B2B business — tell us about it in the form below.", "قطاعك غير موجود؟ النظام نفسه يعمل لأي نشاط يبيع للشركات — أخبرنا عنه في النموذج أدناه.")}</p>
   </div></section>
 
   <section class="section section--gray" id="pricing"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("One question decides your package: who closes the deal?", "سؤال واحد يحدد باقتك: من يُغلق الصفقة؟")}</h2><p>${L("Pay a monthly fee only and we generate, qualify and book the meetings while you close. Add a commission and our team closes with you — charged on revenue you actually collect, nothing else.", "ادفع رسومًا شهرية فقط فنولّد ونؤهّل ونحجز الاجتماعات وأنت تُغلق. أضف عمولة فيُغلق فريقنا معك — وتُحتسب على الإيراد الذي تحصّله فعليًا، لا شيء غيره.")}</p></div>
-    <div class="grid grid-3">${tiers.map(tierCard).join("")}</div>
+    <div class="bd-ladder">
+      <div><b>30 ${L("days", "يومًا")}</b><small>${L("free workspace with any account", "مساحة عمل مجانية مع أي حساب")}</small></div>
+      <div><b>0%</b><small>${L("commission on Growth — your team closes", "عمولة في Growth — فريقك يُغلق")}</small></div>
+      <div><b>2–18%</b><small>${L("success fee when our team closes with you", "عمولة نجاح عندما يُغلق فريقنا معك")}</small></div>
+      <div><b>15 ${L("days", "يومًا")}</b><small>${L("after collection, on a separate invoice", "بعد التحصيل، وبفاتورة مستقلة")}</small></div>
+    </div>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>${L("You close", "أنت تُغلق")}</h3><span>${L("Monthly fee only", "رسوم شهرية فقط")}</span><p>${L("We build the list, qualify the accounts and book the meetings. Your team runs the proposal and signs the deal.", "نبني القائمة ونؤهّل الحسابات ونحجز الاجتماعات، وفريقك يقدّم العرض ويوقّع الصفقة.")}</p></div>
+      <div class="grid grid-3">${tiers.filter((t) => !t.forUs).map(tierCard).join("")}</div>
+    </div>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>${L("We close with you", "نُغلق معك")}</h3><span>${L("Success fee on collected revenue", "عمولة نجاح على المحصّل")}</span><p>${L("Our team sits in the proposal, the negotiation and the collection follow-up. The commission is charged only on revenue you actually collect.", "فريقنا يشاركك العرض والتفاوض ومتابعة التحصيل، والعمولة تُحتسب فقط على الإيراد الذي تحصّله فعليًا.")}</p></div>
+      <div class="grid grid-4">${tiers.filter((t) => t.forUs).map(tierCard).join("")}</div>
+    </div>
     <p class="pk-note" style="text-align:center;max-width:820px;margin:26px auto 0">${L("The commission is charged only on revenue collected from opportunities Business Partner generated and documented in your CRM — never on your existing customers, and never on an invoice you have not been paid for.", "العمولة تُحتسب فقط على الإيراد المحصّل من فرص ولّدها Business Partner وموثّقة في CRM الخاص بك — لا على عملائك الحاليين، ولا على فاتورة لم تُحصّلها بعد.")}</p>
   </div></section>
 
@@ -2206,6 +2247,7 @@ function buildBdaas() {
     active: "/business-development",
     path: "/business-development",
     body,
+    extraHead: bdCss,
     script: `<script src="/assets/js/business-development.js?v=${BDAAS_JS_V}"></script>`,
   });
 }
