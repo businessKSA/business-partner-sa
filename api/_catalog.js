@@ -29,7 +29,7 @@ export function normalizeText(v) {
     .replace(/ؤ/g, "و")
     .replace(/ئ/g, "ي")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/(^|\s)(?:ال|و|وال|بال|لل|ب|ل)(?=\S{3,})/g, "$1")
+    .replace(/(^|\s)(?:وال|بال|كال|فال|لل|ال)(?=\S{3,})/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
