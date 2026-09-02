@@ -1246,7 +1246,10 @@ const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
 // لم يُكتب. فمتغيّر بيئة لقيمةٍ واحدة معروفة يمنع التشغيل ولا يحمي شيئاً.
 //
 // والمتغيّر يبقى ليغلب الافتراض في بيئة تجربة أو عند تغيّر العنوان.
-const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app")
+// من خادمٍ إلى خادم يُنادى نطاق Vercel مباشرةً لا نطاق الموقع: نداء الموقع
+// لنفسه على /quotes يمرّ بحافته ثم يعود إلى اللوحة — قفزة بلا فائدة. والجذر
+// /quotes جزء من عنوان اللوحة على أي نطاق (basePath)، فيُذكر هنا.
+const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app/quotes")
   .trim()
   .replace(/\/+$/, "");
 

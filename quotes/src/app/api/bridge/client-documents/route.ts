@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { appBase } from '@/lib/base';
 import { prisma } from '@/lib/db';
 import { CHANNEL, resolveClient } from '@/lib/identity';
 
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, found: false, quotes: [], contracts: [], invoices: [] });
   }
 
-  const base = (process.env.APP_URL || new URL(req.url).origin).replace(/\/+$/, '');
+  const base = appBase(req);
 
   const [documents, invoices] = await Promise.all([
     prisma.document.findMany({
