@@ -33,7 +33,7 @@
       location.reload();
     });
   })();
-  const NAV_EN = { overview: 'Overview', accounts: 'Target accounts', leads: 'Leads', pipeline: 'Opportunities & pipeline', meetings: 'Meetings', campaigns: 'Campaigns & outreach', suppliers: 'Suppliers & requests', revenue: 'Revenue & collection', commissions: 'Commissions', tasks: 'Tasks & SLA', documents: 'Documents', reports: 'Reports' };
+  const NAV_EN = { overview: 'Overview', matches: 'Matching companies', accounts: 'Target accounts', leads: 'Leads', pipeline: 'Opportunities & pipeline', meetings: 'Meetings', campaigns: 'Campaigns & outreach', suppliers: 'Suppliers & requests', revenue: 'Revenue & collection', commissions: 'Commissions', tasks: 'Tasks & SLA', documents: 'Documents', reports: 'Reports' };
 
   const money = (v) => new Intl.NumberFormat('en-US').format(Math.round(v)) + L(' SAR', ' ريال');
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -132,12 +132,18 @@
     const bd = state.bd;
     if (bd && bd.state === 'trial') return { state: 'trial', order: null, days: bd.days, endsAt: bd.endsAt };
     if (bd && bd.state === 'expired') return { state: 'expired', order: null };
+    // The server can declare the workspace open with no order behind it: the
+    // open-access policy, or the owner (api/_trial.js openFor). Before this
+    // branch existed that answer fell through to 'none', so the owner saw
+    // "not subscribed yet" and seven sections tagged "with plan" — on a
+    // workspace the server had just said was theirs.
+    if (bd && bd.state === 'subscribed') return { state: 'open', order: null, open: !!bd.open };
     return { state: 'none', order: null };
   }
-  // Is the workspace open to them right now — by subscription or by trial?
+  // Is the workspace open to them right now — by subscription, trial or policy?
   function planOpen() {
     const st = revosPlan().state;
-    return st === 'active' || st === 'trial';
+    return st === 'active' || st === 'trial' || st === 'open';
   }
   // The terms they accepted at checkout, shown back to them.
   function planTerms(o) {
@@ -176,6 +182,11 @@
               L('Subscribe to reopen the workspace and put the team on your pipeline.',
                 'اشترك لإعادة فتح المساحة ووضع الفريق على الـPipeline الخاص بك.'),
               pkgCta())
+          : plan.state === 'open'
+          ? bar('#168A5B', L('This workspace is open to you', 'المساحة مفتوحة لك'),
+              L('Every section is available. Fill in your business-development profile and the matching companies appear under "Matching companies".',
+                'كل الأقسام متاحة لك. عبّئ ملف تطوير الأعمال وتظهر الشركات المطابقة تحت «الشركات المطابقة».'),
+              `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}?view=bdprofile" style="text-decoration:none">${L('Open my profile', 'افتح ملفي')}</a>`)
           : bar('#B7791F', L('This workspace is ready — BD as a Service is not subscribed yet', 'مساحتك جاهزة — اشتراك تطوير الأعمال كخدمة غير مفعّل بعد'),
               L('Opportunities, meetings and commissions appear here once a package is running.', 'الفرص والاجتماعات والعمولات تظهر هنا بمجرد تشغيل باقتك.'),
               pkgCta());
@@ -240,7 +251,76 @@
       return `${head(L('Documents', 'المستندات'), L('Your documents uploaded in the client operations center.', 'مستنداتك المرفوعة في مركز عمليات العميل.'))}
       ${d.length ? `<article class="dash-card">${table([L('Document', 'المستند'), L('Category', 'التصنيف'), L('Verification', 'حالة التحقق'), L('Date', 'التاريخ')], d.map((x) => [esc(x.title), esc(x.category || '—'), statusChip(x.verify_status === 'verified' ? 'مكتمل' : 'قيد المراجعة'), esc(String(x.created_at || '').slice(0, 10))]))}</article>` : emptyState(L('No documents yet', 'لا توجد مستندات بعد'), L('Upload your documents from the client portal and they show up here immediately.', 'ارفع مستنداتك من منصّة العملاء وتظهر هنا مباشرة.'), `<a class="dash-btn primary" href="${lang === 'en' ? '/account' : '/ar/account'}" style="text-decoration:none">${L('Open the client portal', 'فتح منصّة العملاء')}</a>`)}`;
     },
+    // Matching companies: the client's profile against the companies database.
+    // Fetched on first open, not at load — it is a Notion query and most visits
+    // never reach this tab. Rows carry no contact details; each phone/e-mail is
+    // revealed one company at a time and logged server-side.
+    matches() {
+      const m = state.matches;
+      const profileLink = `${lang === 'en' ? '/account' : '/ar/account'}?view=bdprofile`;
+      if (!m || m.loading) {
+        if (!m) loadMatches();
+        return head(L('Matching companies', 'الشركات المطابقة'), L('Companies in our database that fit what you sell and who you target.', 'شركات في قاعدتنا تناسب ما تبيعه ومن تستهدفه.')) +
+          `<div class="dash-card" style="text-align:center;padding:60px">${L('Finding matches…', 'جارٍ البحث عن المطابقات…')}</div>`;
+      }
+      if (m.error === 'not_open') {
+        return head(L('Matching companies', 'الشركات المطابقة'), '') + emptyState(L('Matching opens with your workspace', 'المطابقة تُفتح مع مساحتك'), L('Subscribe, or use your free days, and the matching companies appear here.', 'اشترك أو استخدم أيامك المجانية وتظهر الشركات المطابقة هنا.'), pkgCta());
+      }
+      if (m.error) {
+        return head(L('Matching companies', 'الشركات المطابقة'), '') + emptyState(L('Could not load matches', 'تعذّر تحميل المطابقات'), L('Try again in a moment.', 'أعد المحاولة بعد قليل.'), `<button class="dash-btn" onclick="window.bpReloadMatches()">${L('Retry', 'إعادة المحاولة')}</button>`);
+      }
+      if (!m.ready) {
+        return head(L('Matching companies', 'الشركات المطابقة'), '') + emptyState(L('Tell us who you target first', 'أخبرنا من تستهدف أولاً'), L('Pick at least one sector in your business-development profile and the matching companies appear here.', 'اختر قطاعاً واحداً على الأقل في ملف تطوير الأعمال وتظهر الشركات المطابقة هنا.'), `<a class="dash-btn primary" href="${profileLink}" style="text-decoration:none">${L('Open my profile', 'افتح ملفي')}</a>`);
+      }
+      const crit = [m.sectors.join('، '), m.cities.length ? m.cities.join('، ') : ''].filter(Boolean).join(' · ');
+      const rows = m.companies.map((c) => {
+        const site = c.website ? `<a href="${esc(c.website)}" target="_blank" rel="noopener">${esc(c.website.replace(/^https?:\/\//, ''))}</a>` : '—';
+        const contact = c.phone || c.email
+          ? [c.phone ? `<span dir="ltr">${esc(c.phone)}</span>` : '', c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''].filter(Boolean).join('<br>')
+          : (c.hasPhone || c.hasEmail)
+            ? `<button class="dash-btn" data-reveal="${esc(c.id)}">${L('Show contact', 'أظهر التواصل')}</button>`
+            : '—';
+        return [`<b>${esc(c.name)}</b>${c.description ? `<br><small style="color:#6B7280">${esc(c.description.slice(0, 140))}</small>` : ''}`, esc(c.why || c.sector), esc(c.city || '—'), site, contact];
+      });
+      return head(L('Matching companies', 'الشركات المطابقة'), L('Matched on: ', 'مطابقة على: ') + esc(crit), `<a class="dash-btn" href="${profileLink}" style="text-decoration:none">${L('Edit targets', 'عدّل الاستهداف')}</a>`) +
+        (rows.length
+          ? `<article class="dash-card">${table([L('Company', 'الشركة'), L('Why', 'السبب'), L('City', 'المدينة'), L('Website', 'الموقع'), L('Contact', 'التواصل')], rows)}</article>` +
+            (m.has_more ? `<div style="text-align:center;margin-top:12px"><button class="dash-btn" onclick="window.bpMoreMatches()">${L('Load more', 'تحميل المزيد')}</button></div>` : '') +
+            `<p style="color:#6B7280;font-size:12.5px;margin:12px 4px 0">${L('Contacts are shown one company at a time and each request is logged. Use them for legitimate B2B outreach under the Saudi PDPL.', 'بيانات التواصل تُعرض شركةً شركة وكل طلب يُسجَّل. استخدمها للتواصل التجاري المشروع وفق نظام حماية البيانات.')}</p>`
+          : emptyState(L('No companies match yet', 'لا شركات مطابقة بعد'), L('Widen your sectors or cities in the profile — the database grows every week.', 'وسّع القطاعات أو المدن في ملفك — القاعدة تنمو كل أسبوع.'), `<a class="dash-btn primary" href="${profileLink}" style="text-decoration:none">${L('Edit targets', 'عدّل الاستهداف')}</a>`));
+    },
   };
+  function opsPost(body) {
+    return fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+      .then((r) => r.json().catch(() => ({})));
+  }
+  function loadMatches(cursor) {
+    const prev = cursor && state.matches ? state.matches : null;
+    state.matches = { loading: true };
+    if (!cursor) render();
+    opsPost({ action: 'ops-bd-matches', cursor: cursor || '' }).then((o) => {
+      if (!o || !o.ok) { state.matches = { error: (o && o.error) || 'failed' }; return render(); }
+      const companies = prev ? prev.companies.concat(o.companies || []) : (o.companies || []);
+      state.matches = { ready: !!o.ready, companies, sectors: o.sectors || [], cities: o.cities || [], has_more: !!o.has_more, next_cursor: o.next_cursor || '' };
+      render();
+    }).catch(() => { state.matches = { error: 'network' }; render(); });
+  }
+  window.bpReloadMatches = () => loadMatches();
+  window.bpMoreMatches = () => { const m = state.matches; if (m && m.next_cursor) loadMatches(m.next_cursor); };
+  // One reveal per click; the row is updated in place once the server answers.
+  content.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-reveal]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-reveal');
+    btn.disabled = true; btn.textContent = L('…', '…');
+    opsPost({ action: 'ops-bd-reveal', id }).then((o) => {
+      const m = state.matches;
+      if (!o || !o.ok || !m || !m.companies) { btn.disabled = false; btn.textContent = L('Show contact', 'أظهر التواصل'); return; }
+      const i = m.companies.findIndex((c) => c.id === id);
+      if (i >= 0) m.companies[i] = { ...m.companies[i], phone: o.company.phone, email: o.company.email };
+      render();
+    });
+  });
   // Sections that activate with a running BD-as-a-Service package — honest empty
   // states, no invented numbers.
   const soon = {
@@ -282,7 +362,7 @@
     });
   }
 
-  const TITLES_AR = { overview: 'نظرة عامة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
+  const TITLES_AR = { overview: 'نظرة عامة', matches: 'الشركات المطابقة', accounts: 'الحسابات المستهدفة', leads: 'العملاء المحتملون', pipeline: 'الفرص والـPipeline', meetings: 'الاجتماعات', campaigns: 'الحملات والتواصل', suppliers: 'الموردون والطلبات', revenue: 'الإيرادات والتحصيل', commissions: 'العمولات', tasks: 'المهام وSLA', documents: 'المستندات', reports: 'التقارير' };
   const titles = new Proxy({}, { get: (_, k) => (lang === 'en' ? (NAV_EN[k] || '') : (TITLES_AR[k] || '')) });
   let current = 'overview';
   function render() {

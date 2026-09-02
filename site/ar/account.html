@@ -387,7 +387,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         <div class="grp" data-t="grpCompany">المنشأة</div>
         <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
-        <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
         <button data-v="tickets"><span>◖</span><span data-t="navTickets">التذاكر والدعم</span></button>
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
@@ -841,10 +840,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
             <div id="bdExtract" style="padding:12px 16px 16px;font-size:13px"></div>
           </div>
         </section>
-        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
-          <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
-          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
-        </section>
         <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div>
           <div class="panel"><div class="phead"><h3 id="repTitle">ملخص حسابك</h3></div><div id="repKpis" style="padding:14px 16px 16px"></div></div>
           <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="repOrdersTitle">الطلبات حسب الحالة</h3></div><div id="repBreak" style="padding:6px 16px 12px"></div></div>
@@ -923,7 +918,6 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
             <div class="rowline" data-mv="approvals"><span>✓</span><span class="t" data-t="navApprovals">الموافقات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="papers"><span>⌗</span><span class="t" data-t="navPapers">عروض الأسعار والعقود</span><span class="m">›</span></div>
             <div class="rowline" data-mv="documents"><span>⌸</span><span class="t" data-t="navDocuments">المستندات</span><span class="m">›</span></div>
-            <div class="rowline" data-mv="team"><span>﴾﴿</span><span class="t" data-t="navTeam">الموظفون والفريق</span><span class="m">›</span></div>
             <div class="rowline" data-mv="reports"><span>◔</span><span class="t" data-t="navReports">التقارير والتحليلات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="tickets"><span>◖</span><span class="t" data-t="navTickets">التذاكر والدعم</span><span class="m">›</span></div>
             <div class="rowline" data-mv="alerts"><span>◉</span><span class="t" data-t="navAlerts">التنبيهات</span><span class="m">›</span></div>
@@ -2278,7 +2272,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       renderQuotes();
       renderPapers();
       renderPayments();
-      renderTeam();
+      // Owner (2026-09): the «الموظفون والفريق» view was removed — the same
+      // entries live under the advisors group and the hiring board.
+      if ($('teamCards')) renderTeam();
       renderReports();
       renderCompany();
       renderBdProfile();
@@ -2454,12 +2450,18 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
     // button stays highlighted so the client knows where they are.
     var EMBEDS = {
       compliance: ['/ar/compliance-dashboard', 'مستشار الامتثال', 'Compliance advisor'],
-      bd: ['/business-development-dashboard', 'مستشار تطوير الأعمال', 'Business development advisor'],
       ss: ['/ar/shared-services/dashboard', 'فريق الخدمات المشتركة', 'Shared services team'],
       smart: ['/ar/portal', 'الموظف الذكي', 'Smart employee']
     };
     var embedNav = '';
     function switchView(v){
+      // Owner decision (2026-09-02): the business-development workspace is not
+      // a window inside the portal — it opens as its own page, same session,
+      // with the matching companies already inside it.
+      if (v === 'bd'){
+        location.href = (state.lang === 'en' ? '' : '/ar') + '/business-development-dashboard';
+        return;
+      }
       if (EMBEDS[v]){
         var e = EMBEDS[v];
         embedNav = v;

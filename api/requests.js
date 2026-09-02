@@ -23,6 +23,7 @@ import {
   SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
   canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
 } from "./_bdprofile.js";
+import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -2797,6 +2798,56 @@ export default async function handler(req, res) {
             extracted: r.extracted || null,
             completeness: r.completeness || 0,
           } : null,
+        }));
+      }
+      // ---- Matchmaking: the profile against the companies database ----
+      // Open to anyone the server already lets into the workspace: the open
+      // policy, the owner, a live trial or a paid plan. The query is built from
+      // the stored profile only — never from the request body — so a client
+      // cannot widen their own match into a database dump.
+      if (b.action === "ops-bd-matches" || b.action === "ops-bd-reveal") {
+        const trial = bdTrial(sess.organization, false);
+        const allowed = openFor(sess) || trial.state === "trial" || trial.state === "subscribed";
+        if (!allowed) { res.statusCode = 402; return res.end(JSON.stringify({ ok: false, error: "not_open", trial })); }
+        if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+        const rows = await sb(`bd_profiles?organization_id=eq.${orgId}&select=target_sectors,target_cities&limit=1`).catch(() => []);
+        const prof = rows[0] ? { targetSectors: rows[0].target_sectors || [], targetCities: rows[0].target_cities || [] } : { targetSectors: [], targetCities: [] };
+        const labels = { sector: sectorLabel, city: cityLabel };
+
+        if (b.action === "ops-bd-reveal") {
+          // One company, on request, and it leaves a trace: who revealed what.
+          const pageId = String(b.id || "").replace(/[^0-9a-f-]/gi, "").slice(0, 40);
+          if (!pageId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_id" })); }
+          const r = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+            headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION },
+          });
+          if (!r.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+          const page = await r.json();
+          const row = bdMapCompany(page, true);
+          // A page the client's own filter would not have returned is not theirs
+          // to reveal, whatever id they typed.
+          if (!(prof.targetSectors || []).includes(row.sector)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_matched" })); }
+          await audit({ organization_id: orgId, actor_user_id: userId, action: "bd_match.reveal", entity_type: "company", entity_id: pageId });
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: true, company: row }));
+        }
+
+        const query = bdMatchQuery(prof, b.cursor);
+        if (!query) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, ready: false, companies: [], profile: prof })); }
+        const r = await fetch(`https://api.notion.com/v1/databases/${BD_LEADS_DB}/query`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify(query),
+        });
+        if (!r.ok) { console.error("bd matches query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+        const data = await r.json();
+        const companies = (data.results || []).map((p) => bdMapCompany(p)).filter((c) => c.name)
+          .map((c) => ({ ...c, why: bdExplainMatch(c, prof, labels) }));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, ready: true, companies, profile: prof,
+          sectors: (prof.targetSectors || []).map(sectorLabel), cities: (prof.targetCities || []).map(cityLabel),
+          next_cursor: data.next_cursor || "", has_more: !!data.has_more,
         }));
       }
       if (b.action === "ops-bd-profile-save") {
