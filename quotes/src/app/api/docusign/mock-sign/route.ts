@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { appBase } from '@/lib/base';
 import { prisma } from '@/lib/db';
 import { docusignMode } from '@/lib/docusign/jwt';
 import { applyEnvelopeStatus } from '@/lib/docusign/webhook';
@@ -119,6 +120,6 @@ export async function POST(req: Request) {
   const next = signed.has('client') && signed.has('bp') ? 'completed' : 'delivered';
   await applyEnvelopeStatus(env.envelopeId, next, payload);
 
-  const base = process.env.APP_URL || new URL(req.url).origin;
+  const base = appBase(req);
   return NextResponse.redirect(returnUrl.startsWith('http') ? returnUrl : `${base}${returnUrl}`, 303);
 }

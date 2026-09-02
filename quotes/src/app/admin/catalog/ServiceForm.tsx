@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionSaveService } from '@/app/actions';
 import { SUPPLIER_CATEGORIES } from '@/lib/categories';
@@ -161,7 +162,7 @@ export default function ServiceForm({ service }: { service: S | null }) {
 
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ'}</button>
-        {v ? <a className="btn ghost" href="/admin/catalog">إلغاء التعديل</a> : null}
+        {v ? <Link className="btn ghost" href="/admin/catalog">إلغاء التعديل</Link> : null}
       </div>
       {state.error ? <div className="notice bad">{state.error}</div> : null}
       {state.ok ? <div className="notice ok">{state.ok}</div> : null}

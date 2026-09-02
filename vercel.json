@@ -75,7 +75,9 @@
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
   ],
   "rewrites": [
-    {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/api/catalog"},
+    {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
+    {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
+    {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
     {"source":"/api/daftra-invoice","destination":"/api/requests?__route=daftra-invoice"},
     {"source":"/api/supplier-quote-read","destination":"/api/requests?__route=supplier-quote-read"},
     {"source":"/api/notion-suppliers","destination":"/api/requests?__route=notion-suppliers"},

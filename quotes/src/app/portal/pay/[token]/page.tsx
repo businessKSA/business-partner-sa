@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
@@ -5,6 +6,7 @@ import { payments } from '@/lib/payments';
 import { tamaraEligible } from '@/lib/payments/tamara';
 import TamaraButton from './TamaraButton';
 import { COMPANY } from '@config/company';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +39,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
         ) : (
           <p className="sub">الفاتورة الضريبية تصلك على بريدك فور صدورها.</p>
         )}
-        <a className="btn" href="/portal">بوابة العميل</a>
+        <Link className="btn" href="/portal">بوابة العميل</Link>
       </div>
     );
   }
@@ -51,7 +53,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
   });
   // التكلفة تُذكر للعميل كحقيقة عن الخدمة لا كرسم يُضاف عليه — المستحق ثابت
   const feeNote = 'تُقسَّم على دفعات وفق شروط تمارا.';
-  const base = process.env.APP_URL || 'http://localhost:3000';
+  const base = appBase();
   const intent = await provider.createPayment({
     amount: invoice.total,
     description: `${invoice.number} — ${invoice.titleEn}`,

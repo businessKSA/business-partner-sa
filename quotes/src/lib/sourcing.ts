@@ -26,6 +26,7 @@
  * هنا ليست تجميلاً: هي الفرق بين إعادة بيع وبين وعدٍ بما لا نملك.
  */
 import { prisma } from './db';
+import { appBase } from './base';
 import { VAT_RATE } from '../../config/company';
 import { round2 } from './money';
 import { nextSupplyRequestNumber, nextDocumentNumber } from './numbering';
@@ -330,7 +331,7 @@ export async function buildResaleQuote(supplyRequestId: string, actor = 'admin')
 
 /** رابط صفحة المورد. */
 export function rfpUrl(token: string): string {
-  const base = (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
+  const base = appBase();
   return `${base}/rfp/${token}`;
 }
 
