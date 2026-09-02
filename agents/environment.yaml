@@ -1,0 +1,19 @@
+# بيئة تشغيل فريق BP الذكي. تُنشأ مرة واحدة: ant beta:environments create < agents/environment.yaml
+name: bp-team-env
+config:
+  type: cloud
+  networking:
+    type: limited
+    allow_package_managers: true
+    allow_mcp_servers: true
+    allowed_hosts:
+      - businesspartnerai.app.n8n.cloud   # إرسال واتساب/إيميل عبر n8n
+      - www.businesspartner.sa            # فحص الموقع الحي
+      - businesspartner.sa
+      - hr.businesspartner.sa
+      - bp-quotes-three.vercel.app        # لوحة العروض
+      - api.notion.com
+      - api.github.com                    # فتح PR عبر الـ git proxy
+      - github.com
+      - api.vercel.com
+      - vercel.com

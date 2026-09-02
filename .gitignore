@@ -30,3 +30,7 @@ dist-portable/
 business-partner-site.zip
 business-partner-onefile.html
 *.bundle
+
+# أسرار فريق الوكلاء
+agents/.env
+agents/node_modules/
