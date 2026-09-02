@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionUpdateOwnProfile } from '@/app/actions';
 import PhoneField from '@/components/PhoneField';
@@ -74,7 +75,7 @@ export default function ProfileForm({ profile }: { profile: OwnProfile }) {
 
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ بياناتي'}</button>
-        <a className="btn ghost" href="/portal">رجوع</a>
+        <Link className="btn ghost" href="/portal">رجوع</Link>
       </div>
       {state.error ? <div className="notice bad">{state.error}</div> : null}
       {state.ok ? <div className="notice good">{state.ok}</div> : null}

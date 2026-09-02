@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { appBase } from '@/lib/base';
 import { prisma } from '@/lib/db';
 import { adminEmail, createMagicLink } from '@/lib/auth';
 
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
 
   const body = (await req.json().catch(() => ({}))) as { action?: string };
   const action = String(body.action || 'overview');
-  const base = (process.env.APP_URL || new URL(req.url).origin).replace(/\/+$/, '');
+  const base = appBase(req);
 
   if (action === 'login') {
     const email = adminEmail();

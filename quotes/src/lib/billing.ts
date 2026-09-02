@@ -4,6 +4,7 @@
  * كل حركة مالية تُسجَّل في سجل التدقيق المسلسل بالتجزئة.
  */
 import { prisma } from './db';
+import { appBase } from './base';
 import { VAT_RATE } from '../../config/company';
 import { round2, fmtMoney } from './money';
 import { nextInvoiceNumber } from './numbering';
@@ -209,7 +210,7 @@ export async function markInvoicePaid(
       doc.number,
       invoice.client.companyAr || invoice.client.nameAr,
       `invoice ${invoice.number} — SAR ${fmtMoney(invoice.total)} via ${info.method || info.provider}`,
-      `${process.env.APP_URL || 'http://localhost:3000'}/admin/documents/${doc.id}`,
+      `${appBase()}/admin/documents/${doc.id}`,
     );
   } else {
     await notifyEvent(
@@ -217,7 +218,7 @@ export async function markInvoicePaid(
       invoice.number,
       invoice.client.companyAr || invoice.client.nameAr,
       `SAR ${fmtMoney(invoice.total)} via ${info.method || info.provider}`,
-      `${process.env.APP_URL || 'http://localhost:3000'}/admin/clients/${invoice.clientId}`,
+      `${appBase()}/admin/clients/${invoice.clientId}`,
     );
   }
 

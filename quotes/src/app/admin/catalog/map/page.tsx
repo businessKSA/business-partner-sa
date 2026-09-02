@@ -94,9 +94,9 @@ export default async function CatalogMapPage({
             الناقص فقط
           </label>
           <button className="btn" type="submit">عرض</button>
-          <a className="btn ghost" href="/api/catalog/full" target="_blank" rel="noreferrer">
+          <Link className="btn ghost" href="/api/catalog/full" target="_blank" rel="noreferrer">
             تصدير JSON
-          </a>
+          </Link>
         </form>
         <FixPrices pending={pendingFix} />
       </div>

@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState, useMemo, useState } from 'react';
 import { actionRequestQuote, actionRequestSourcing } from '@/app/actions';
 
@@ -68,7 +69,7 @@ export default function ServicePicker({
           </p>
         ) : null}
         <p style={{ marginTop: 10 }}>
-          <a className="btn ghost" href="/portal/services">اطلب خدمة أخرى</a>
+          <Link className="btn ghost" href="/portal/services">اطلب خدمة أخرى</Link>
         </p>
       </div>
     );
