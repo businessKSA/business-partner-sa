@@ -33,7 +33,30 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style>
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px 12px}
+    .sector-chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:9px 18px;font-size:.92rem;font-weight:700;box-shadow:0 1px 3px rgba(11,27,90,.06);transition:.15s}
+    .sector-chip:hover{border-color:var(--navy);box-shadow:0 6px 18px rgba(11,27,90,.1);transform:translateY(-1px)}
+    .sector-chip i{font-style:normal;font-size:1.05rem;line-height:1}
+    .bd-ind-note{text-align:center;color:var(--text-soft);max-width:720px;margin:22px auto 0;font-size:.95rem;line-height:1.8}
+    .bd-tier-group{margin-top:34px}
+    .bd-tier-group:first-of-type{margin-top:8px}
+    .bd-tier-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid rgba(11,27,90,.1)}
+    .bd-tier-head h3{margin:0;color:var(--navy);font-size:1.25rem;font-weight:800}
+    .bd-tier-head span{display:inline-block;background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:4px 12px;font-size:.78rem;font-weight:700}
+    .bd-tier-head p{margin:0;flex-basis:100%;color:var(--text-soft);font-size:.95rem;line-height:1.7}
+    .pkg .pk-note,.pk-note{color:var(--text-soft);font-size:.9rem;line-height:1.8}
+    .pkg .pk-guest{display:block;font-size:.95rem;font-weight:700;color:var(--text-soft)}
+    .bd-tier-group .grid-4 .pk-name{font-size:1.3rem}
+    .bd-tier-group .grid-4 .pk-price{font-size:1.2rem}
+    .bd-tier-group .grid-4 .pk-price .pk-per{display:block;font-size:.8rem}
+    .bd-ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1000px;margin:0 auto 34px}
+    .bd-ladder div{background:#fff;border:1px solid var(--gray-line);border-radius:16px;padding:16px 18px;text-align:center}
+    .bd-ladder b{display:block;color:var(--navy);font-size:1.4rem;font-weight:800;line-height:1.2}
+    .bd-ladder small{display:block;color:var(--text-soft);font-size:.82rem;margin-top:4px;line-height:1.5}
+    @media (max-width:900px){.bd-ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:520px){.bd-ladder{grid-template-columns:1fr}.sector-chip{padding:8px 14px;font-size:.86rem}}
+  </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 <style id="bp-simple-header-css">
 .site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
 .bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
@@ -115,23 +138,24 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
   </div></section>
 
   <section class="section" id="industries"><div class="container">
-    <div class="section-head"><span class="eyebrow">Industries</span><h2>One system, a different playbook per industry</h2></div>
-    <div class="chip-row" style="justify-content:center"><span class="sector-chip">Contracting &amp; construction</span><span class="sector-chip">Recruitment &amp; workforce</span><span class="sector-chip">Food &amp; catering</span><span class="sector-chip">Logistics</span><span class="sector-chip">Technology</span><span class="sector-chip">Real estate</span><span class="sector-chip">Hospitality</span><span class="sector-chip">Manufacturing</span><span class="sector-chip">Professional services</span><span class="sector-chip">Mega projects</span></div>
+    <div class="section-head"><span class="eyebrow">Industries</span><h2>One system, a different playbook per industry</h2><p>The target list, the decision makers, the message and the meeting rhythm change with the sector. These are the ones we run most.</p></div>
+    <div class="chip-row" style="justify-content:center"><span class="sector-chip"><i aria-hidden="true">🏗️</i>Contracting &amp; construction</span><span class="sector-chip"><i aria-hidden="true">👥</i>Recruitment &amp; workforce</span><span class="sector-chip"><i aria-hidden="true">🍽️</i>Food &amp; catering</span><span class="sector-chip"><i aria-hidden="true">🚚</i>Logistics</span><span class="sector-chip"><i aria-hidden="true">💻</i>Technology</span><span class="sector-chip"><i aria-hidden="true">🏢</i>Real estate</span><span class="sector-chip"><i aria-hidden="true">🏨</i>Hospitality</span><span class="sector-chip"><i aria-hidden="true">🏭</i>Manufacturing</span><span class="sector-chip"><i aria-hidden="true">📊</i>Professional services</span><span class="sector-chip"><i aria-hidden="true">🏙️</i>Mega projects</span></div>
+    <p class="bd-ind-note">Your sector not listed? The same system works for any B2B business — tell us about it in the form below.</p>
   </div></section>
 
   <section class="section section--gray" id="pricing"><div class="container">
     <div class="section-head"><span class="eyebrow">Packages</span><h2>One question decides your package: who closes the deal?</h2><p>Pay a monthly fee only and we generate, qualify and book the meetings while you close. Add a commission and our team closes with you — charged on revenue you actually collect, nothing else.</p></div>
-    <div class="grid grid-3"><div class="pkg">
-    <div class="pk-name">Starter</div>
-    <div class="pk-price">Performance only <span class="pk-per">no monthly fee</span></div>
-    
-    <p class="pk-for"><b>We close with you</b> — proposals, negotiation and collection follow-up.</p>
-    <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Runs as capacity allows</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Basic pipeline</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Short results report</span></li></ul>
-    <p class="pk-surcharge"><b>Success fee 18%</b> — on revenue you actually collect from the deals we generate.</p>
-    <a class="btn btn-ghost" style="width:100%" href="#leadForm">Talk to us</a>
-  </div><div class="pkg">
+    <div class="bd-ladder">
+      <div><b>30 days</b><small>free workspace with any account</small></div>
+      <div><b>0%</b><small>commission on Growth — your team closes</small></div>
+      <div><b>2–18%</b><small>success fee when our team closes with you</small></div>
+      <div><b>15 days</b><small>after collection, on a separate invoice</small></div>
+    </div>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>You close</h3><span>Monthly fee only</span><p>We build the list, qualify the accounts and book the meetings. Your team runs the proposal and signs the deal.</p></div>
+      <div class="grid grid-3"><div class="pkg">
     <div class="pk-name">Connect</div>
-    <div class="pk-price">499 <span class="pk-per">SAR / mo</span></div>
+    <div class="pk-price"><span class="price-amt">499 <span class="pk-per">SAR / mo</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>You close</b> — we generate, qualify and book the meetings.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Target company list by sector and city</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Lead capture and booking on your website</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Client dashboard and a monthly report</span></li></ul>
@@ -143,7 +167,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     >🛒 Subscribe to Connect</button>
   </div><div class="pkg">
     <div class="pk-name">Launch</div>
-    <div class="pk-price">2,500 <span class="pk-per">SAR / mo</span></div>
+    <div class="pk-price"><span class="price-amt">2,500 <span class="pk-per">SAR / mo</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>You close</b> — we generate, qualify and book the meetings.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Target pipeline up to 1M</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>A defined database</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Qualification and a monthly report</span></li></ul>
@@ -155,7 +179,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     >🛒 Subscribe to Launch</button>
   </div><div class="pkg pop" data-badge="Most chosen">
     <div class="pk-name">Growth</div>
-    <div class="pk-price">5,000 <span class="pk-per">SAR / mo</span></div>
+    <div class="pk-price"><span class="price-amt">5,000 <span class="pk-per">SAR / mo</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>You close</b> — we generate, qualify and book the meetings.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Target pipeline up to 3M</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>CRM and weekly reports</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Multi-channel campaigns</span></li></ul>
@@ -165,9 +189,21 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
       data-name-ar="تطوير الأعمال كخدمة — باقة Growth (شهري)" data-name-en="BD as a Service — Growth (monthly)"
       data-price-public="1" data-billing="monthly" data-commission="0"
     >🛒 Subscribe to Growth</button>
+  </div></div>
+    </div>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>We close with you</h3><span>Success fee on collected revenue</span><p>Our team sits in the proposal, the negotiation and the collection follow-up. The commission is charged only on revenue you actually collect.</p></div>
+      <div class="grid grid-4"><div class="pkg">
+    <div class="pk-name">Starter</div>
+    <div class="pk-price"><span class="price-amt">Performance only <span class="pk-per">no monthly fee</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
+    
+    <p class="pk-for"><b>We close with you</b> — proposals, negotiation and collection follow-up.</p>
+    <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Runs as capacity allows</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Basic pipeline</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Short results report</span></li></ul>
+    <p class="pk-surcharge"><b>Success fee 18%</b> — on revenue you actually collect from the deals we generate.</p>
+    <a class="btn btn-ghost" style="width:100%" href="#leadForm">Talk to us</a>
   </div><div class="pkg">
     <div class="pk-name">Professional</div>
-    <div class="pk-price">9,500 <span class="pk-per">SAR / mo</span></div>
+    <div class="pk-price"><span class="price-amt">9,500 <span class="pk-per">SAR / mo</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>We close with you</b> — proposals, negotiation and collection follow-up.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Target pipeline up to 10M</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Forecast and proposal management</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Negotiation support</span></li></ul>
@@ -179,7 +215,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     >🛒 Subscribe to Professional</button>
   </div><div class="pkg">
     <div class="pk-name">Enterprise</div>
-    <div class="pk-price">From 15,000 SAR <span class="pk-per">monthly + VAT</span></div>
+    <div class="pk-price"><span class="price-amt">From 15,000 SAR <span class="pk-per">monthly + VAT</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>We close with you</b> — proposals, negotiation and collection follow-up.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Pipeline starting at 10M</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Executive dashboards</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Custom SLA</span></li></ul>
@@ -187,13 +223,14 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="btn btn-ghost" style="width:100%" href="#leadForm">Talk to us</a>
   </div><div class="pkg">
     <div class="pk-name">Dedicated Team</div>
-    <div class="pk-price">From 20,000 SAR <span class="pk-per">monthly + VAT</span></div>
+    <div class="pk-price"><span class="price-amt">From 20,000 SAR <span class="pk-per">monthly + VAT</span></span><span class="pk-guest" data-guest-note>Sign in to see the price</span></div>
     
     <p class="pk-for"><b>We close with you</b> — proposals, negotiation and collection follow-up.</p>
     <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>SDR and account manager</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Pipeline per SLA</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Custom integrations and automation</span></li></ul>
     <p class="pk-surcharge"><b>Success fee 2%</b> — on revenue you actually collect from the deals we generate.</p>
     <a class="btn btn-ghost" style="width:100%" href="#leadForm">Talk to us</a>
   </div></div>
+    </div>
     <p class="pk-note" style="text-align:center;max-width:820px;margin:26px auto 0">The commission is charged only on revenue collected from opportunities Business Partner generated and documented in your CRM — never on your existing customers, and never on an invoice you have not been paid for.</p>
   </div></section>
 
