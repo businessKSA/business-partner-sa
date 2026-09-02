@@ -4,5 +4,18 @@
   "buildCommand": "npm run vercel-build",
   "installCommand": "npm install",
   "outputDirectory": ".next",
-  "ignoreCommand": "git diff --quiet \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}\" HEAD -- . ../site/assets/data/catalog.json"
+  "ignoreCommand": "git diff --quiet \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}\" HEAD -- . ../site/assets/data/catalog.json",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "*": false,
+      "claude/*": false,
+      "codex/*": false,
+      "feat/*": false,
+      "fix/*": false,
+      "backup/*": false,
+      "master": true,
+      "staging": true
+    }
+  }
 }
