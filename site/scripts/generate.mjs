@@ -1015,6 +1015,22 @@ const homeCss = `<style>
 .bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
 .bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
 
+/* 1d — instalments: financing our own fee, stated as exactly that */
+.bph .bph-pay{padding:56px 0;background:#fff}
+.bph .bph-pay-shell{max-width:1120px;margin:0 auto;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr}
+.bph .bph-pay-main{padding:34px 32px}
+.bph .bph-pay-main h2{margin:10px 0 12px;font-size:clamp(1.7rem,2.9vw,2.5rem);line-height:1.12;letter-spacing:-.04em;color:var(--n)}
+.bph .bph-pay-main p{margin:0;color:var(--mut);font-size:.92rem;line-height:1.85}
+.bph .bph-pay-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(22,184,117,.1);color:#0f8e57;font-size:.68rem;font-weight:900}
+.bph .bph-pay-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.bph .bph-pay-side{padding:30px 28px;background:linear-gradient(160deg,var(--soft),#eef3fd);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.bph .bph-pay-fact{display:flex;gap:11px;align-items:flex-start}
+.bph .bph-pay-fact .k{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);font-size:.75rem}
+.bph .bph-pay-fact b{display:block;color:var(--n);font-size:.83rem;margin-bottom:3px}
+.bph .bph-pay-fact span{color:var(--mut);font-size:.77rem;line-height:1.7}
+.bph .bph-pay-fine{margin-top:4px;padding-top:12px;border-top:1px dashed #cfd8e8;color:#7c879c;font-size:.71rem;line-height:1.75}
+@media(max-width:880px){.bph .bph-pay-shell{grid-template-columns:1fr}.bph .bph-pay-side{border-inline-start:0;border-top:1px solid var(--line)}}
+
 /* 2 — chat: the control plane, large and centred */
 .bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
 .bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
@@ -1478,6 +1494,43 @@ function buildHome() {
     </div>
   </div></section>`;
 
+  /* ---- 1d. Instalments -------------------------------------------------
+     Deliberately narrow. Tamara finances the Business Partner service fee —
+     our own fee for our own service, which is what a BNPL merchant agreement
+     is for. It is not a wallet top-up: taking money to hold and pay out to
+     third parties later is stored value, and financing payroll with consumer
+     credit is a different business again. Both are regulated activities and
+     neither is what this section offers, so neither is implied here.
+     No amount and no number of months appear: the limit is Tamara's decision
+     at checkout, per customer, and printing a figure we cannot honour turns
+     into a decline on the payment page. ---- */
+  const payFacts = [
+    ["١", L("Instalments cover our service fee", "التقسيط على أتعابنا"),
+     L("Government and platform charges are passed through to the authority as they are, itemised separately on your invoice.", "الرسوم الحكومية ورسوم المنصات تُمرَّر إلى الجهة كما هي، مبيّنة منفصلة في فاتورتك.")],
+    ["٢", L("Tamara decides the plan", "تمارا تحدد الخطة"),
+     L("The amount and the number of instalments are Tamara's decision at checkout. You see the schedule before you confirm.", "المبلغ وعدد الدفعات قرار تمارا عند الدفع. وترى الجدول كاملاً قبل أن تؤكّد.")],
+    ["٣", L("Work starts on approval", "التنفيذ يبدأ عند الاعتماد"),
+     L("Our team begins as soon as the order is approved — you are not waiting for the last instalment.", "يبدأ فريقنا فور اعتماد الطلب — ولا تنتظر آخر دفعة.")],
+  ].map(([k, b, d]) => `<div class="bph-pay-fact"><div class="k">${k}</div><div><b>${b}</b><span>${d}</span></div></div>`).join("");
+
+  const pay = `<section class="bph-pay" id="bp-pay"><div class="bph-wrap">
+    <div class="bph-pay-shell">
+      <div class="bph-pay-main">
+        <span class="bph-pay-eyebrow">${L("Instalments · Tamara", "التقسيط · تمارا")}</span>
+        <h2>${L("Order now, pay our fee in instalments", "اطلب الخدمة الآن، وقسّط أتعابها")}</h2>
+        <p>${L("A renewal does not wait for your cash-flow month. Choose the service you need, split the Business Partner fee into instalments with Tamara at checkout, and our team starts the government work straight away — so the deadline is met either way.", "التجديد لا ينتظر شهر السيولة عندك. اختر الخدمة التي تحتاجها، وقسّط أتعاب Business Partner عبر تمارا عند الدفع، ويبدأ فريقنا العمل الحكومي فوراً — فيُدرَك الموعد في الحالين.")}</p>
+        <div class="bph-pay-actions">
+          <a class="bph-btn primary" href="#bp-start">${L("Choose a service", "اختر خدمتك")}</a>
+          <a class="bph-btn" href="${u("/packages")}">${L("See packages", "استعرض الباقات")}</a>
+        </div>
+      </div>
+      <div class="bph-pay-side">
+        ${payFacts}
+        <p class="bph-pay-fine">${L("Instalments are provided by Tamara under its own terms, and approval is Tamara's decision. Business Partner does not lend, hold deposits, or disburse payroll on your behalf.", "التقسيط خدمة تقدّمها تمارا وفق شروطها، والموافقة قرارها. وBusiness Partner لا تُقرض ولا تحتفظ بودائع ولا تصرف رواتب نيابةً عنك.")}</p>
+      </div>
+    </div>
+  </div></section>`;
+
   /* The advisor is no longer the greeter — it is the fallback for a visitor
      who cannot name what they need. Its prompts lead with the obligations a
      company with staff actually carries. */
@@ -1636,7 +1689,7 @@ function buildHome() {
     </div>
   </div></section>`;
 
-  const body = `<div class="bph">${hero}${risk}${how}${svc}${start}${chat}${packages}${b10x}${proof}</div>`;
+  const body = `<div class="bph">${hero}${risk}${how}${pay}${svc}${start}${chat}${packages}${b10x}${proof}</div>`;
 
   return page({
     title: Lraw("Business Partner — Saudi business setup & operations", "بيزنس بارتنر — تأسيس وتشغيل الأعمال في السعودية"),

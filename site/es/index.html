@@ -83,6 +83,22 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
 .bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
 
+/* 1d — instalments: financing our own fee, stated as exactly that */
+.bph .bph-pay{padding:56px 0;background:#fff}
+.bph .bph-pay-shell{max-width:1120px;margin:0 auto;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr}
+.bph .bph-pay-main{padding:34px 32px}
+.bph .bph-pay-main h2{margin:10px 0 12px;font-size:clamp(1.7rem,2.9vw,2.5rem);line-height:1.12;letter-spacing:-.04em;color:var(--n)}
+.bph .bph-pay-main p{margin:0;color:var(--mut);font-size:.92rem;line-height:1.85}
+.bph .bph-pay-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(22,184,117,.1);color:#0f8e57;font-size:.68rem;font-weight:900}
+.bph .bph-pay-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.bph .bph-pay-side{padding:30px 28px;background:linear-gradient(160deg,var(--soft),#eef3fd);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.bph .bph-pay-fact{display:flex;gap:11px;align-items:flex-start}
+.bph .bph-pay-fact .k{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);font-size:.75rem}
+.bph .bph-pay-fact b{display:block;color:var(--n);font-size:.83rem;margin-bottom:3px}
+.bph .bph-pay-fact span{color:var(--mut);font-size:.77rem;line-height:1.7}
+.bph .bph-pay-fine{margin-top:4px;padding-top:12px;border-top:1px dashed #cfd8e8;color:#7c879c;font-size:.71rem;line-height:1.75}
+@media(max-width:880px){.bph .bph-pay-shell{grid-template-columns:1fr}.bph .bph-pay-side{border-inline-start:0;border-top:1px solid var(--line)}}
+
 /* 2 — chat: the control plane, large and centred */
 .bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
 .bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
@@ -302,6 +318,22 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
     <div class="bph-how-actions">
       <a class="bph-btn primary" href="/account">Open your account</a>
       <a class="bph-btn" href="#bp-consultant">Not sure? Ask the smart advisor</a>
+    </div>
+  </div></section><section class="bph-pay" id="bp-pay"><div class="bph-wrap">
+    <div class="bph-pay-shell">
+      <div class="bph-pay-main">
+        <span class="bph-pay-eyebrow">Instalments · Tamara</span>
+        <h2>Order now, pay our fee in instalments</h2>
+        <p>A renewal does not wait for your cash-flow month. Choose the service you need, split the Business Partner fee into instalments with Tamara at checkout, and our team starts the government work straight away — so the deadline is met either way.</p>
+        <div class="bph-pay-actions">
+          <a class="bph-btn primary" href="#bp-start">Choose a service</a>
+          <a class="bph-btn" href="/es/packages">See packages</a>
+        </div>
+      </div>
+      <div class="bph-pay-side">
+        <div class="bph-pay-fact"><div class="k">١</div><div><b>Instalments cover our service fee</b><span>Government and platform charges are passed through to the authority as they are, itemised separately on your invoice.</span></div></div><div class="bph-pay-fact"><div class="k">٢</div><div><b>Tamara decides the plan</b><span>The amount and the number of instalments are Tamara's decision at checkout. You see the schedule before you confirm.</span></div></div><div class="bph-pay-fact"><div class="k">٣</div><div><b>Work starts on approval</b><span>Our team begins as soon as the order is approved — you are not waiting for the last instalment.</span></div></div>
+        <p class="bph-pay-fine">Instalments are provided by Tamara under its own terms, and approval is Tamara's decision. Business Partner does not lend, hold deposits, or disburse payroll on your behalf.</p>
+      </div>
     </div>
   </div></section><section class="bph-services" id="bp-services"><div class="bph-wrap">
     <div class="bph-head">
