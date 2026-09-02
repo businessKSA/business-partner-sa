@@ -8712,3 +8712,465 @@ var BP_EMP_BILLING = "monthly";
     }
   });
 })();
+
+/* ============================================================================
+   برنامج السماسرة والإحالات — the public referral form (#rf-form).
+   Backend: /api/referrals (api/_referrals.js). A ?r=CODE in the URL attributes
+   the referral to that broker; a signed-in broker's own details prefill the
+   first section so they never retype them.
+   ========================================================================== */
+(function () {
+  "use strict";
+  var form = document.getElementById("rf-form");
+  if (!form) return;
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = $("rf-msg"), done = $("rf-done"), welcome = $("rf-welcome");
+
+  function param(name) {
+    try { return new URLSearchParams(location.search).get(name) || ""; } catch (e) { return ""; }
+  }
+  function stored(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+
+  // The code in the link wins; a signed-in broker in this browser is the
+  // fallback, so their own referrals are attributed even from a bare /referral.
+  var code = (param("r") || param("ref") || stored("bp_broker_code_public") || "").toUpperCase().trim();
+
+  if (code) {
+    fetch("/api/referrals?action=broker-by-code&code=" + encodeURIComponent(code))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        try { localStorage.setItem("bp_broker_code_public", d.code); } catch (e) {}
+        welcome.hidden = false;
+        welcome.textContent = T("You're referring through " + d.name + "'s link — this referral will be credited to them.",
+          "أنت تُحيل عبر رابط " + d.name + " — وستُنسب هذه الإحالة إليه.");
+      }).catch(function () {});
+  }
+
+  // A signed-in broker: fill their half of the form from their own account.
+  var email = stored("bp_broker_email"), access = stored("bp_broker_code");
+  if (email && access) {
+    fetch("/api/referrals?action=me&email=" + encodeURIComponent(email) + "&code=" + encodeURIComponent(access))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok || !d.broker) return;
+        if (!$("rf-name").value) $("rf-name").value = d.broker.name || "";
+        if (!$("rf-email").value) $("rf-email").value = d.broker.email || "";
+        if (!$("rf-phone").value) $("rf-phone").value = d.broker.phone || "";
+        if (!$("rf-city").value) $("rf-city").value = d.broker.city || "";
+        if (!code && d.broker.code) code = d.broker.code;
+      }).catch(function () {});
+  }
+
+  function fail(text) {
+    msg.style.color = "#B91C1C";
+    msg.textContent = text;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    msg.textContent = "";
+
+    var rel = form.querySelector('input[name="rf-rel"]:checked');
+    var payload = {
+      type: "referral",
+      code: code,
+      referrerName: $("rf-name").value.trim(),
+      referrerEmail: $("rf-email").value.trim(),
+      referrerPhone: $("rf-phone").value.trim(),
+      referrerLandline: $("rf-landline").value.trim(),
+      referrerCity: $("rf-city").value.trim(),
+      companyName: $("rf-company").value.trim(),
+      companyUrl: $("rf-url").value.trim(),
+      contactName: $("rf-contact").value.trim(),
+      contactTitle: $("rf-title").value.trim(),
+      contactEmail: $("rf-contact-email").value.trim(),
+      contactPhone: $("rf-contact-phone").value.trim(),
+      contactLandline: $("rf-contact-landline").value.trim(),
+      companySize: $("rf-size").value,
+      relationship: rel ? rel.value : "",
+      whyNeed: $("rf-why").value.trim(),
+      services: Array.prototype.slice.call(document.querySelectorAll(".rf-svc:checked")).map(function (c) { return c.value; }),
+    };
+
+    if (!payload.referrerName || !payload.referrerEmail) return fail(T("Your name and e-mail are required.", "اسمك وبريدك الإلكتروني مطلوبان."));
+    if (!payload.companyName) return fail(T("The company name is required.", "اسم الشركة مطلوب."));
+    // One reachable channel is the whole point of a referral — a company we
+    // cannot contact is not a lead, so this is checked before the request.
+    if (!payload.contactEmail && !payload.contactPhone) return fail(T("Give us the contact's e-mail or mobile — we need a way to reach them.", "أعطنا بريد أو جوال شخص الاتصال — نحتاج طريقة للوصول إليهم."));
+    if (!payload.whyNeed) return fail(T("Tell us why they need us.", "أخبرنا لماذا يحتاجوننا."));
+    if (!$("rf-consent").checked) return fail(T("Please confirm the referral rules.", "أكّد موافقتك على قواعد الإحالة."));
+
+    var btn = $("rf-submit");
+    btn.disabled = true;
+    btn.textContent = T("Sending…", "جارٍ الإرسال…");
+
+    fetch("/api/referrals", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = T("Send the referral", "أرسل الإحالة");
+        if (!res.d || !res.d.ok) return fail((res.d && res.d.message) || T("Couldn't send the referral. Try again.", "تعذّر إرسال الإحالة. حاول مرة أخرى."));
+        form.hidden = true;
+        done.hidden = false;
+        $("rf-done-ref").textContent = res.d.ref || "";
+        $("rf-done-msg").textContent = res.d.duplicate
+          ? T("This company had already been referred to us, so no commission applies to it. Your reference:", "هذه الشركة مُحالة إلينا مسبقاً، فلا تُحتسب عليها عمولة. رقمك المرجعي:")
+          : T("We'll contact them within two working days. Your reference:", "سنتواصل معهم خلال يومي عمل. رقمك المرجعي:");
+        $("rf-done-plan").textContent = !res.d.duplicate && res.d.plan ? T("Your commission on this referral: ", "عمولتك على هذه الإحالة: ") + res.d.plan : "";
+        try { window.scrollTo({ top: done.offsetTop - 90, behavior: "smooth" }); } catch (e) {}
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = T("Send the referral", "أرسل الإحالة");
+        fail(T("Network error — check your connection and try again.", "خطأ في الاتصال — تحقق من الشبكة وحاول مجدداً."));
+      });
+  });
+
+  var again = document.getElementById("rf-again");
+  if (again) again.addEventListener("click", function (e) {
+    e.preventDefault();
+    // Keep the referrer's half; only the company section is cleared.
+    ["rf-company", "rf-url", "rf-contact", "rf-title", "rf-contact-email", "rf-contact-phone", "rf-contact-landline", "rf-why"].forEach(function (id) { $(id).value = ""; });
+    $("rf-size").selectedIndex = 0;
+    Array.prototype.slice.call(document.querySelectorAll(".rf-svc:checked")).forEach(function (c) { c.checked = false; });
+    done.hidden = true;
+    form.hidden = false;
+    msg.textContent = "";
+  });
+})();
+
+/* ============================================================================
+   برنامج السماسرة والإحالات — the broker portal (#bp-portal).
+   Auth is (e-mail + access code) held in localStorage, the same bearer scheme
+   the supplier and provider portals use. Every number rendered here comes
+   from the server's ledger; nothing is computed in the browser.
+   ========================================================================== */
+(function () {
+  "use strict";
+  var root = document.getElementById("bp-portal");
+  if (!root) return;
+  var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  var STATUS = {
+    new: ["New", "جديدة", "#64748b"], contacted: ["Contacted", "تم التواصل", "#1F4ED8"],
+    qualified: ["Qualified", "مؤهلة", "#7c3aed"], proposal: ["Proposal sent", "عرض سعر", "#c2410c"],
+    won: ["Closed — won", "صفقة مغلقة", "#16a34a"], lost: ["Lost", "خسارة", "#b91c1c"],
+    duplicate: ["Duplicate", "مكررة", "#b45309"], expired: ["Expired", "منتهية", "#6b7280"],
+  };
+  var MONEY = {
+    pending: ["Awaiting approval", "بانتظار الاعتماد", "#c2410c"],
+    approved: ["Approved", "معتمدة", "#1F4ED8"],
+    paid: ["Paid", "مصروفة", "#16a34a"],
+    void: ["Void", "ملغاة", "#6b7280"],
+  };
+  function pill(map, key) {
+    var m = map[key] || [key, key, "#64748b"];
+    return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:600;color:#fff;background:' + m[2] + '">' + esc(T(m[0], m[1])) + "</span>";
+  }
+  var money = function (n, cur) { return (Math.round((Number(n) || 0) * 100) / 100).toLocaleString("en-US") + " " + T(cur || "SAR", "ريال"); };
+  var date = function (s) { return s ? String(s).slice(0, 10) : "—"; };
+
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} },
+  };
+  var session = { email: store.get("bp_broker_email"), code: store.get("bp_broker_code") };
+  var mode = "in";      // "in" | "up" | "code" | "otp"
+  var otp = null;       // { token, exp } from the e-mail-code round trip
+
+  /* ------------------------------------------------------------ sign in -- */
+  function setMode(next) {
+    mode = next;
+    var up = next === "up";
+    $("bp-tab-in").classList.toggle("is-active", !up);
+    $("bp-tab-up").classList.toggle("is-active", up);
+    $("bp-f-name").hidden = !up;
+    $("bp-f-phone").hidden = !up;
+    $("bp-f-city").hidden = !up;
+    $("bp-f-agree").hidden = !up;
+    $("bp-f-pass").hidden = next === "code" || next === "otp";
+    $("bp-f-code").hidden = next !== "code";
+    $("bp-f-otp").hidden = next !== "otp";
+    $("bp-auth-btn").textContent = up ? T("Create my account", "أنشئ حسابي")
+      : next === "otp" ? T("Confirm the code", "تأكيد الرمز")
+        : next === "code" ? T("Sign in with the code", "دخول بالرمز")
+          : T("Sign in", "دخول");
+    $("bp-auth-msg").textContent = "";
+  }
+  $("bp-tab-in").addEventListener("click", function () { setMode("in"); });
+  $("bp-tab-up").addEventListener("click", function () { setMode("up"); });
+  $("bp-use-code").addEventListener("click", function (e) { e.preventDefault(); setMode("code"); });
+  $("bp-use-email").addEventListener("click", function (e) {
+    e.preventDefault();
+    var email = $("bp-email").value.trim();
+    if (!email) { $("bp-auth-msg").textContent = T("Type your e-mail first.", "اكتب بريدك أولاً."); return; }
+    post({ type: "email-code", email: email }).then(function (d) {
+      if (!d || !d.ok) return;
+      otp = { token: d.token, exp: d.exp };
+      setMode("otp");
+      $("bp-auth-msg").style.color = "#16a34a";
+      $("bp-auth-msg").textContent = T("If that e-mail has an account, a code is on its way.", "إن كان لهذا البريد حساب فالرمز في طريقه إليه.");
+    });
+  });
+
+  function post(body) {
+    return fetch("/api/referrals", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false, message: T("Network error.", "خطأ في الاتصال.") }; });
+  }
+  function get(action, extra) {
+    return fetch("/api/referrals?action=" + action + "&email=" + encodeURIComponent(session.email) + "&code=" + encodeURIComponent(session.code) + (extra || ""))
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false }; });
+  }
+
+  $("bp-auth-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("bp-email").value.trim();
+    var btn = $("bp-auth-btn"), label = btn.textContent;
+    var err = $("bp-auth-msg");
+    err.style.color = "#B91C1C";
+    if (!email) { err.textContent = T("E-mail is required.", "البريد الإلكتروني مطلوب."); return; }
+
+    var body;
+    if (mode === "up") {
+      if (!$("bp-agree").checked) { err.textContent = T("Please accept the programme rules.", "وافق على قواعد البرنامج."); return; }
+      body = {
+        type: "signup", email: email, name: $("bp-name").value.trim(), phone: $("bp-phone").value.trim(),
+        city: $("bp-city").value.trim(), password: $("bp-password").value, agreement: true,
+      };
+    } else if (mode === "otp") {
+      body = { type: "email-verify", email: email, otp: $("bp-otp").value.trim(), token: otp && otp.token, exp: otp && otp.exp };
+    } else if (mode === "code") {
+      body = { type: "login", email: email, code: $("bp-code").value.trim() };
+    } else {
+      body = { type: "login", email: email, password: $("bp-password").value };
+    }
+
+    btn.disabled = true;
+    btn.textContent = T("One moment…", "لحظة…");
+    post(body).then(function (d) {
+      btn.disabled = false;
+      btn.textContent = label;
+      if (!d || !d.ok) { err.textContent = (d && d.message) || T("Sign-in failed.", "تعذّر الدخول."); return; }
+      session = { email: email, code: d.code };
+      store.set("bp_broker_email", email);
+      store.set("bp_broker_code", d.code);
+      if (d.broker && d.broker.code) store.set("bp_broker_code_public", d.broker.code);
+      if (mode === "up" && d.code) {
+        // The access code is shown exactly once — it is a hash on the server
+        // from here on, so it cannot be re-read, only re-issued.
+        window.alert(T("Your backup access code (save it): ", "رمز الدخول الاحتياطي (احفظه): ") + d.code);
+      }
+      open(d.broker);
+    });
+  });
+
+  $("bp-logout").addEventListener("click", function () {
+    store.del("bp_broker_email"); store.del("bp_broker_code");
+    session = { email: "", code: "" };
+    $("bp-app").hidden = true;
+    $("bp-auth").hidden = false;
+    setMode("in");
+  });
+
+  /* --------------------------------------------------------------- app -- */
+  var broker = null;
+
+  // One place paints the header, called both by a fresh sign-in (which has the
+  // broker in hand) and by load() (which fetches it). Painting only on sign-in
+  // left the greeting and the commission line blank for anyone returning with
+  // a stored session — the common case, since the session outlives the tab.
+  function paintHeader() {
+    if (!broker) return;
+    $("bp-hello").textContent = T("Hello ", "أهلاً ") + (broker.name || "");
+    $("bp-plan").textContent = broker.plan
+      ? T("Your commission: ", "عمولتك: ") + (T(broker.plan.sentenceEn, broker.plan.sentenceAr) || "")
+      : T("Your commission model is being set — we'll confirm it shortly.", "نموذج عمولتك قيد الضبط — سنؤكده قريباً.");
+    $("bp-link").value = broker.link || "";
+    $("bp-share").href = "https://wa.me/?text=" + encodeURIComponent(T("Business Partner handles government platforms, formation, hiring and compliance in Saudi Arabia. Start here: ", "بيزنس بارتنر يدير المنصات الحكومية والتأسيس والتوظيف والامتثال في السعودية. ابدأ من هنا: ") + (broker.link || ""));
+    fillProfile(broker);
+  }
+
+  function open(b) {
+    broker = b || broker;
+    $("bp-auth").hidden = true;
+    $("bp-app").hidden = false;
+    paintHeader();
+    load();
+  }
+
+  $("bp-copy").addEventListener("click", function () {
+    var input = $("bp-link");
+    input.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    if (!ok && navigator.clipboard) navigator.clipboard.writeText(input.value).catch(function () {});
+    this.textContent = T("Copied ✓", "تم النسخ ✓");
+    var btn = this;
+    setTimeout(function () { btn.textContent = T("Copy", "نسخ"); }, 1800);
+  });
+
+  Array.prototype.slice.call(root.querySelectorAll(".bp-tab")).forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      Array.prototype.slice.call(root.querySelectorAll(".bp-tab")).forEach(function (t) { t.classList.toggle("is-active", t === tab); });
+      Array.prototype.slice.call(root.querySelectorAll(".bp-pane")).forEach(function (p) { p.hidden = p.getAttribute("data-pane") !== tab.getAttribute("data-tab"); });
+    });
+  });
+
+  function load() {
+    get("me").then(function (d) {
+      if (d && d.ok) {
+        broker = d.broker;
+        paintHeader();
+        var t = d.totals || {};
+        $("bp-s-pending").textContent = money(t.pending, t.currency);
+        $("bp-s-paid").textContent = money(t.paid, t.currency);
+      } else if (d && (d.error === "bad_credentials" || d.error === "suspended")) {
+        $("bp-logout").click();
+      }
+    });
+    get("referrals").then(function (d) {
+      if (!d || !d.ok) return;
+      var refs = d.referrals || [];
+      $("bp-s-total").textContent = String(refs.length);
+      $("bp-s-won").textContent = String(refs.filter(function (r) { return r.status === "won"; }).length);
+
+      var tbody = $("bp-refs").querySelector("tbody");
+      tbody.innerHTML = refs.map(function (r) {
+        var earned = (r.commissions || []).reduce(function (s, c) { return c.status === "void" ? s : s + (Number(c.amount) || 0); }, 0);
+        return "<tr><td><b>" + esc(r.ref) + "</b></td><td>" + esc(r.company) +
+          (r.contact ? '<br><span style="color:#6a7085;font-size:.82rem">' + esc(r.contact) + "</span>" : "") +
+          "</td><td>" + pill(STATUS, r.status) + "</td><td>" + (r.dealValue ? money(r.dealValue, r.currency) : "—") +
+          "</td><td>" + (earned ? "<b>" + money(earned, r.currency) + "</b>" : "—") + "</td><td>" + date(r.createdAt) + "</td></tr>";
+      }).join("");
+      $("bp-refs-empty").hidden = refs.length > 0;
+
+      var comms = [];
+      refs.forEach(function (r) { (r.commissions || []).forEach(function (c) { comms.push({ c: c, r: r }); }); });
+      var cbody = $("bp-comms").querySelector("tbody");
+      cbody.innerHTML = comms.map(function (x) {
+        var c = x.c;
+        return "<tr><td><b>" + esc(x.r.ref) + "</b><br><span style=\"color:#6a7085;font-size:.82rem\">" + esc(x.r.company) + "</span></td><td>" +
+          esc(T(c.kind, c.kind === "recurring" ? "متكررة" : c.kind === "flat" ? "ثابتة" : c.kind === "tier" ? "شريحة" : "أول فاتورة")) +
+          "</td><td>" + esc(c.period || "—") + "</td><td>" + (c.basis ? money(c.basis, c.currency) : "—") +
+          "</td><td>" + (c.rate ? c.rate + "%" : "—") + "</td><td><b>" + money(c.amount, c.currency) + "</b></td><td>" + pill(MONEY, c.status) + "</td></tr>";
+      }).join("");
+      $("bp-comms-empty").hidden = comms.length > 0;
+
+      var payouts = d.payouts || [];
+      var pbody = $("bp-payouts").querySelector("tbody");
+      pbody.innerHTML = payouts.map(function (p) {
+        return "<tr><td>" + date(p.paidAt || p.createdAt) + "</td><td><b>" + money(p.amount, p.currency) + "</b></td><td>" +
+          esc(p.reference || "—") + "</td><td>" + pill(MONEY, p.status === "paid" ? "paid" : "approved") + "</td></tr>";
+      }).join("");
+      $("bp-payouts-empty").hidden = payouts.length > 0;
+    });
+  }
+
+  /* ------------------------------------------------- new referral (portal) */
+  $("bp-new-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var out = $("bp-n-msg");
+    out.style.color = "#B91C1C";
+    var payload = {
+      type: "referral", source: "portal", code: broker ? broker.code : "",
+      referrerName: broker ? broker.name : "", referrerEmail: session.email,
+      referrerPhone: broker ? broker.phone : "", referrerCity: broker ? broker.city : "",
+      companyName: $("bp-n-company").value.trim(), companyUrl: $("bp-n-url").value.trim(),
+      contactName: $("bp-n-contact").value.trim(), contactTitle: $("bp-n-title").value.trim(),
+      contactEmail: $("bp-n-email").value.trim(), contactPhone: $("bp-n-phone").value.trim(),
+      companySize: $("bp-n-size").value, relationship: $("bp-n-rel").value, whyNeed: $("bp-n-why").value.trim(),
+    };
+    if (!payload.companyName) { out.textContent = T("The company name is required.", "اسم الشركة مطلوب."); return; }
+    if (!payload.contactEmail && !payload.contactPhone) { out.textContent = T("Give us the contact's e-mail or mobile.", "أعطنا بريد أو جوال شخص الاتصال."); return; }
+    if (!payload.whyNeed) { out.textContent = T("Tell us why they need us.", "أخبرنا لماذا يحتاجوننا."); return; }
+
+    var btn = $("bp-n-submit");
+    btn.disabled = true;
+    post(payload).then(function (d) {
+      btn.disabled = false;
+      if (!d || !d.ok) { out.textContent = (d && d.message) || T("Couldn't send it.", "تعذّر الإرسال."); return; }
+      out.style.color = d.duplicate ? "#c2410c" : "#16a34a";
+      out.textContent = d.duplicate
+        ? T("Already referred to us — reference " + d.ref + ". No commission applies.", "مُحالة إلينا مسبقاً — المرجع " + d.ref + "، ولا تُحتسب عليها عمولة.")
+        : T("Sent. Reference " + d.ref + ".", "تم الإرسال. المرجع " + d.ref + ".");
+      $("bp-new-form").reset();
+      load();
+    });
+  });
+
+  /* ------------------------------------------------------ payout details -- */
+  function fillProfile(b) {
+    if (!b) return;
+    $("bp-p-name").value = b.name || "";
+    $("bp-p-phone").value = b.phone || "";
+    $("bp-p-city").value = b.city || "";
+    $("bp-p-kind").value = b.kind || "individual";
+    $("bp-p-company").value = b.companyName || "";
+    $("bp-p-bank").value = b.bankName || "";
+    $("bp-p-company-wrap").hidden = (b.kind || "individual") !== "company";
+    // The stored IBAN never comes back to the browser in full — only its last
+    // four digits, as a reminder that one is on file.
+    $("bp-p-iban-note").textContent = b.ibanLast4
+      ? T("On file: an IBAN ending in " + b.ibanLast4 + ". Type a new one only to replace it.", "المسجّل لدينا: آيبان ينتهي بـ " + b.ibanLast4 + ". اكتب آيباناً جديداً فقط إن أردت استبداله.")
+      : T("No IBAN on file yet — a commission can't be transferred without one.", "لا يوجد آيبان مسجّل — لا يمكن تحويل العمولة بدونه.");
+  }
+  $("bp-p-kind").addEventListener("change", function () { $("bp-p-company-wrap").hidden = this.value !== "company"; });
+
+  $("bp-profile-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var out = $("bp-p-msg");
+    out.style.color = "#B91C1C";
+    var btn = $("bp-p-save");
+    btn.disabled = true;
+    post({
+      type: "save-profile", email: session.email, code: session.code,
+      name: $("bp-p-name").value.trim(), phone: $("bp-p-phone").value.trim(), city: $("bp-p-city").value.trim(),
+      kind: $("bp-p-kind").value, companyName: $("bp-p-company").value.trim(), companyCr: $("bp-p-cr").value.trim(),
+      idNumber: $("bp-p-id").value.trim(), bankName: $("bp-p-bank").value.trim(), iban: $("bp-p-iban").value.trim(),
+      password: $("bp-p-pass").value || "",
+    }).then(function (d) {
+      btn.disabled = false;
+      if (!d || !d.ok) { out.textContent = (d && d.message) || T("Couldn't save.", "تعذّر الحفظ."); return; }
+      out.style.color = "#16a34a";
+      out.textContent = T("Saved.", "تم الحفظ.");
+      $("bp-p-iban").value = "";
+      $("bp-p-pass").value = "";
+      broker = d.broker;
+      fillProfile(broker);
+    });
+  });
+
+  // A session already in this browser opens the panel with no sign-in step.
+  if (session.email && session.code) open(null); else setMode("in");
+})();
+
+/* ============================================================================
+   /brokers — replace the static commission copy with the owner's live ladder.
+   The cards are readable without this: it only appends the plan that is
+   actually in force, so a rate edited in /brokers-admin shows up here without
+   a deploy, and a blocked API call changes nothing on the page.
+   ========================================================================== */
+(function () {
+  "use strict";
+  var out = document.getElementById("bp-plans-live");
+  if (!out) return;
+  var isAr = (document.documentElement.lang || "ar").toLowerCase().indexOf("ar") === 0;
+  fetch("/api/referrals?action=plans")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok || !d.plans || !d.plans.length) return;
+      var def = d.plans.filter(function (p) { return p.isDefault; })[0] || d.plans[0];
+      var sentence = isAr ? def.sentenceAr : (def.sentenceEn || def.sentenceAr);
+      out.hidden = false;
+      out.textContent = (isAr ? "النموذج المعتمد حالياً للحسابات الجديدة: " : "Currently in force for new accounts: ") + sentence +
+        (def.attributionDays ? (isAr ? " · مدة الأحقية " + def.attributionDays + " يوماً." : " · attribution window " + def.attributionDays + " days.") : "");
+    })
+    .catch(function () {});
+})();

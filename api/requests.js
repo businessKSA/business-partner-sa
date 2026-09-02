@@ -27,6 +27,7 @@ import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
 import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { handleDocAgent } from "./_docagent.js";
+import { handleReferrals } from "./_referrals.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -1516,6 +1517,10 @@ export default async function handler(req, res) {
   // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
+  // Same reason for /api/referrals — برنامج السماسرة والإحالات lives in
+  // ./_referrals.js: the public referral form, the broker portal and the
+  // owner's commission ledger.
+  if ((q.__route || "") === "referrals") return handleReferrals(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }

@@ -120,6 +120,11 @@
           "ar": "تسجيل الشركاء"
         },
         {
+          "href": "/brokers",
+          "en": "Referral & brokers",
+          "ar": "برنامج السماسرة والإحالات"
+        },
+        {
           "href": "/employer-join",
           "en": "For employers",
           "ar": "لأصحاب العمل"
