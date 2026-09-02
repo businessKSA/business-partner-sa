@@ -2,6 +2,7 @@
 
 /** كل عمليات التعديل تمر من هنا. الاعتماد شرط لكل إرسال. */
 import { revalidatePath } from 'next/cache';
+import { appBase } from '@/lib/base';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireClient, createMagicLink, consumeMagicLink, startAdminSession, startClientSession, endSessions, adminEmail, MAGIC_LINK_TTL_MIN } from '@/lib/auth';
@@ -168,7 +169,7 @@ export async function actionStartTamara(_prev: State, fd: FormData): Promise<Sta
   });
   if (!fit.ok) return { error: fit.reasonAr || 'التقسيط غير متاح لهذه الفاتورة' };
 
-  const base = process.env.APP_URL || 'http://localhost:3000';
+  const base = appBase();
   const ret = (outcome: string) =>
     `${base}/api/payments/tamara?pay=${encodeURIComponent(payToken)}&outcome=${outcome}`;
 

@@ -5,6 +5,7 @@
 import { cookies } from 'next/headers';
 import { prisma } from './db';
 import { hmac, safeEqual, shortToken } from './tokens';
+import { appBase } from './base';
 
 const ADMIN_COOKIE = 'bp_admin';
 const CLIENT_COOKIE = 'bp_client';
@@ -56,7 +57,7 @@ export async function createMagicLink(
       expiresAt: new Date(Date.now() + MAGIC_LINK_TTL_MIN * 60_000),
     },
   });
-  const base = process.env.APP_URL || 'http://localhost:3000';
+  const base = appBase();
   return purpose === 'ADMIN' ? `${base}/admin/login/${token}` : `${base}/portal/enter/${token}`;
 }
 

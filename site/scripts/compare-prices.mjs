@@ -10,7 +10,7 @@
  */
 import { readFileSync } from "node:fs";
 
-const PORTAL = (process.argv[2] || process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+const PORTAL = (process.argv[2] || process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app/quotes").replace(/\/+$/, "");
 const cat = JSON.parse(readFileSync("site/assets/data/catalog.json", "utf8"));
 
 const siteRows = new Map();

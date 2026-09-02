@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { guardClient } from '@/lib/guard';
 import { fmtMoney } from '@/lib/money';
@@ -39,7 +40,7 @@ export default async function MockPay({
         <input type="hidden" name="method" value="mada" />
         <input type="hidden" name="redirect" value="/portal" />
         <button className="btn" type="submit">تأكيد الدفع بنجاح</button>
-        <a className="btn ghost" href="/portal" style={{ marginInlineStart: 8 }}>إلغاء</a>
+        <Link className="btn ghost" href="/portal" style={{ marginInlineStart: 8 }}>إلغاء</Link>
       </form>
       <p className="muted mono" style={{ marginTop: 12 }}>callback: {callback}</p>
     </div>
