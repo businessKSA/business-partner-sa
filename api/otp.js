@@ -20,6 +20,12 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TTL_MS = 10 * 60 * 1000; // code valid for 10 minutes
 const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
+// Simple V1 preview testing: addresses under @test.businesspartner.sa sign in
+// with a fixed code and no e-mail is sent — only on Vercel previews or when
+// SIMPLE_TEST_MODE=1, never on production.
+const TEST_LOGIN = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview";
+const TEST_LOGIN_DOMAIN = "@test.businesspartner.sa";
+const TEST_LOGIN_CODE = String(process.env.SIMPLE_TEST_OTP || "123456").padStart(6, "0").slice(-6);
 
 // ---- Client Operations Center: real server-side sessions (Supabase) --------
 // When SUPABASE_URL + SUPABASE_SERVICE_KEY are set (db/schema.sql applied),
@@ -235,8 +241,13 @@ export default async function handler(req, res) {
     const email = String(body.email || "").trim().toLowerCase();
     const channel = body.channel === "sms" ? "sms" : "email";
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ error: "invalid_email" })); }
-    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    const isTestLogin = TEST_LOGIN && email.endsWith(TEST_LOGIN_DOMAIN);
+    const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
     const challenge = seal({ email, code, channel, exp: Date.now() + TTL_MS });
+    if (isTestLogin) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true }));
+    }
     let delivery;
     if (channel === "sms") delivery = await sendSms(body.phone, code);
     else delivery = await sendEmail(email, code);

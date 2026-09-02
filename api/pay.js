@@ -29,6 +29,30 @@ import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { sb, DB_ON } from "./_db.js";
+import { markRequestPaidByRef } from "./_simple.js";
+
+// Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
+// Its amount is the quote's net as stored on the request row — never the
+// browser's number — and it is only payable once the contract is signed.
+async function sv1Line(rawId) {
+  const id = String(rawId || "");
+  if (!/^sv1:/i.test(id) || !DB_ON) return null;
+  const ref = id.slice(4).toUpperCase().slice(0, 40);
+  try {
+    const rows = await sb(`requests?ref=eq.${encodeURIComponent(ref)}&select=ref,title,status,quote&limit=1`);
+    const r = rows[0];
+    if (!r || !r.quote || !["SIGNED", "PAYMENT_PENDING"].includes(r.status)) return null;
+    return { ref: r.ref, amount: Number(r.quote.net) || 0, name: `${r.title} — ${r.quote.number}` };
+  } catch { return null; }
+}
+async function sv1Settle(ids, p, provider) {
+  for (const x of ids) {
+    if (!/^sv1:/i.test(String(x.id))) continue;
+    try { await markRequestPaidByRef(String(x.id).slice(4).toUpperCase(), { provider, payId: String(p.id || ""), amount: Math.round(Number(p.amount || 0)) / 100, test: false, actor: provider }); }
+    catch (e) { console.error("sv1 settle", String(e.message || e).slice(0, 120)); }
+  }
+}
 
 // Trimmed, like every other secret this project reads. A newline pasted into
 // the Vercel env box is invisible in that UI and turns the verification call
@@ -165,12 +189,13 @@ async function settlePaidOrder(order, p) {
   let net = 0, unknown = false;
   const names = [], lines = [];
   for (const x of ids) {
-    const a = skuAmount(x.id, priceMap);
+    const sv1 = await sv1Line(x.id);
+    const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
     net += a * x.qty;
     lines.push({ id: x.id, line: a * x.qty });
     const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
-    names.push((cat ? cat.name : x.id) + " ×" + x.qty);
+    names.push((sv1 ? sv1.name : cat ? cat.name : x.id) + " ×" + x.qty);
   }
   net += Number(order.surchargeFee) || 0;
   const disc = await catalogDiscount(order.discountCode);
@@ -202,6 +227,7 @@ async function settlePaidOrder(order, p) {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified };
+    if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
     return { ok: true, already: !!j.already, verified, activated: j.activated || null };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
@@ -971,12 +997,13 @@ export default async function handler(req, res) {
     let priceMap = {}; try { priceMap = await catalogPrices(); } catch {}
     let net = 0, unknown = false; const items = []; const lines = [];
     for (const x of rawItems) {
-      const a = skuAmount(x.id, priceMap);
+      const sv1 = await sv1Line(x.id);
+      const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
       if (a == null) { unknown = true; continue; }
       const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
       net += a * x.qty;
       lines.push({ id: x.id, line: a * x.qty });
-      items.push({ id: x.id, name: cat ? cat.name : x.id, qty: x.qty, unit: a });
+      items.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, unit: a });
     }
     net += Number(order.surchargeFee) || 0;
     if (unknown || !(net > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "quote_only_items" })); }

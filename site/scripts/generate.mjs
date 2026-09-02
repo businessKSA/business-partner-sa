@@ -301,6 +301,9 @@ const FULLY_READY_LANGS = ["fr", "zh"];
 const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
+import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
+import { buildSimpleMy } from "./simple-v1-my.mjs";
+import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -12274,10 +12277,21 @@ function stampStaticAssets() {
 stampStaticAssets();
 
 let pageCount = 0;
+// Simple V1 (2026-09): the simplified customer layer. With SIMPLE_V1=1 it
+// takes over "/" (the classic homepage moves to /classic-home); without the
+// flag it is previewed at /simple-v1 and production is unchanged.
+const SV1 = simpleV1({ lang: () => LANG, esc, site, head, pathInLang, assetV });
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
 function writeFullSite(pre) {
-  write(`${pre}index.html`, buildHome());
+  if (SIMPLE_V1) {
+    write(`${pre}index.html`, SV1.buildHome("/"));
+    write(`${pre}classic-home.html`, buildHome());
+  } else {
+    write(`${pre}index.html`, buildHome());
+  }
+  write(`${pre}simple-v1.html`, SV1.buildHome("/simple-v1"));
+  write(`${pre}my.html`, buildSimpleMy(SV1, { lang: () => LANG }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}business-development.html`, buildBdaas());
@@ -12405,6 +12419,11 @@ write("monitor.html", buildMonitor());
 
 // Owner-only unified control panel for the site (standalone page, noindex)
 write("admin.html", buildAdmin());
+
+// Simple V1 operations dashboard (Arabic-first, noindex, key-gated).
+LANG = "ar";
+write("ops.html", buildSimpleOps(SV1, { lang: () => LANG }));
+LANG = "en";
 
 // Owner/consultant panel for the AI Document Agent (noindex, standalone).
 // Auth: the same bp_admin_key / bp_admin_ticket localStorage the /admin panel
