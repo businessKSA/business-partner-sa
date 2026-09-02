@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionSaveEmployee, actionRunPayroll, actionArchiveEmployee } from '@/app/finance-actions';
 
@@ -85,7 +86,7 @@ export function EmployeeForm({
         <button className="btn" type="submit" disabled={pending}>
           {pending ? 'جارٍ الحفظ' : employee ? 'احفظ التعديل' : 'أضف الموظف'}
         </button>
-        {employee ? <a className="btn ghost" href="/admin/finance/hr">إلغاء</a> : null}
+        {employee ? <Link className="btn ghost" href="/admin/finance/hr">إلغاء</Link> : null}
       </div>
       {employee ? (
         <div className="notice" style={{ marginTop: 12 }}>

@@ -1,8 +1,10 @@
+import Link from 'next/link';
 import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDateTime } from '@/lib/money';
 import { ZATCA_STATUS_LABEL } from '@/lib/finance-enums';
 import { sellerProfile, zatcaPhase2Ready, zatcaEnv } from '@/lib/zatca/config';
+import { BASE_PATH } from '@/lib/base';
 import { RetryButton } from './RetryButton';
 import { CreditNoteForm } from './CreditNoteForm';
 
@@ -101,9 +103,9 @@ export default async function ZatcaPage() {
                     <b>{r.number}</b>
                     <div className="sub">
                       {r.invoiceId ? (
-                        <><a href={`/admin/invoices/${r.invoiceId}/tax`}>عرض</a>{' · '}</>
+                        <><Link href={`/admin/invoices/${r.invoiceId}/tax`}>عرض</Link>{' · '}</>
                       ) : null}
-                      <a href={`/admin/finance/zatca/${r.id}/xml`}>XML</a>
+                      <a href={`${BASE_PATH}/admin/finance/zatca/${r.id}/xml`}>XML</a>
                     </div>
                   </td>
                   <td>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney, round2 } from '@/lib/money';
@@ -83,7 +84,7 @@ export default async function HrPage({
                   <td className="num">{fmtMoney(round2(e.basicSalary + e.allowances - e.gosiEmployee))}</td>
                   <td>{e.status === 'ACTIVE' ? 'نشط' : 'مؤرشف'}</td>
                   <td className="row" style={{ gap: 6 }}>
-                    <a className="btn ghost sm" href={`/admin/finance/hr?edit=${e.id}`}>تعديل</a>
+                    <Link className="btn ghost sm" href={`/admin/finance/hr?edit=${e.id}`}>تعديل</Link>
                     <ArchiveEmployeeButton id={e.id} active={e.status === 'ACTIVE'} />
                   </td>
                 </tr>

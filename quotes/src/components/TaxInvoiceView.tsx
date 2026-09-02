@@ -1,4 +1,5 @@
 import { COMPANY } from '@config/company';
+import { BASE_PATH } from '@/lib/base';
 import { fmtMoney, fmtDateTime } from '@/lib/money';
 import { qrSvg } from '@/lib/zatca/qrcode';
 
@@ -42,7 +43,7 @@ export function TaxInvoiceView({ d }: { d: TaxInvoiceModel }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 16 }}>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={COMPANY.brand.logo} alt="" style={{ height: 48, marginBottom: 8 }} />
+          <img src={`${BASE_PATH}${COMPANY.brand.logo}`} alt="" style={{ height: 48, marginBottom: 8 }} />
           <h2 style={{ margin: '0 0 4px' }}>{kind}</h2>
           <div className="sub">{d.number}</div>
           {d.billingRef ? <div className="sub">عن الفاتورة {d.billingRef}</div> : null}

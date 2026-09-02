@@ -5,6 +5,7 @@ import { fmtMoney } from '@/lib/money';
 import { financeSummary, monthBounds, quarterBounds, yearBounds } from '@/lib/finance';
 import { costCenterLabel } from '@/lib/finance-enums';
 import { zatcaPhase2Ready, sellerProfile } from '@/lib/zatca/config';
+import { BASE_PATH } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,12 +95,14 @@ export default async function FinancePage({
         <Link className="btn ghost" href="/admin/supply">المشتريات والتوريد</Link>
       </div>
 
-      {/* تصدير الدفتر للمحاسب — الفترة المعروضة نفسها، وملف يفتحه إكسل بالعربية */}
+      {/* تصدير الدفتر للمحاسب — الفترة المعروضة نفسها، وملف يفتحه إكسل بالعربية.
+          مسارات تنزيل لا صفحات، فتبقى <a> ويُسبقها جذر اللوحة صراحةً: Link
+          وحده من يضيف basePath تلقائياً. */}
       <div className="row" style={{ marginBottom: 14, flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
         <span className="sub">تصدير {bounds.label} للمحاسب:</span>
-        <a className="btn ghost sm" href={`/admin/finance/export?kind=expenses&from=${exportFrom}&to=${exportTo}`}>المصاريف CSV</a>
-        <a className="btn ghost sm" href={`/admin/finance/export?kind=revenues&from=${exportFrom}&to=${exportTo}`}>الإيرادات CSV</a>
-        <a className="btn ghost sm" href={`/admin/finance/export?kind=tax&from=${exportFrom}&to=${exportTo}`}>المستندات الضريبية CSV</a>
+        <a className="btn ghost sm" href={`${BASE_PATH}/admin/finance/export?kind=expenses&from=${exportFrom}&to=${exportTo}`}>المصاريف CSV</a>
+        <a className="btn ghost sm" href={`${BASE_PATH}/admin/finance/export?kind=revenues&from=${exportFrom}&to=${exportTo}`}>الإيرادات CSV</a>
+        <a className="btn ghost sm" href={`${BASE_PATH}/admin/finance/export?kind=tax&from=${exportFrom}&to=${exportTo}`}>المستندات الضريبية CSV</a>
       </div>
 
       <div className="grid c2">

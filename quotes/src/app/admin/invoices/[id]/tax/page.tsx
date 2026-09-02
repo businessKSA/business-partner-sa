@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { guardAdmin } from '@/lib/guard';
+import { BASE_PATH } from '@/lib/base';
 import { prisma } from '@/lib/db';
 import { ZATCA_STATUS_LABEL } from '@/lib/finance-enums';
 import { TaxInvoiceView } from '@/components/TaxInvoiceView';
@@ -37,9 +39,9 @@ export default async function TaxInvoicePage({ params }: { params: Promise<{ id:
   return (
     <>
       <div className="row no-print" style={{ marginBottom: 14, gap: 8, flexWrap: 'wrap' }}>
-        <a className="btn ghost sm" href="/admin/invoices">الفواتير</a>
-        <a className="btn ghost sm" href="/admin/finance/zatca">سجل زاتكا</a>
-        <a className="btn ghost sm" href={`/admin/finance/zatca/${rec.id}/xml`}>تنزيل XML للأرشيف</a>
+        <Link className="btn ghost sm" href="/admin/invoices">الفواتير</Link>
+        <Link className="btn ghost sm" href="/admin/finance/zatca">سجل زاتكا</Link>
+        <a className="btn ghost sm" href={`${BASE_PATH}/admin/finance/zatca/${rec.id}/xml`}>تنزيل XML للأرشيف</a>
         <span className="sub">الحالة: {ZATCA_STATUS_LABEL[rec.status] || rec.status}</span>
       </div>
 

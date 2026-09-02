@@ -3,6 +3,7 @@ import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney } from '@/lib/money';
 import { financeSummary } from '@/lib/finance';
+import { BASE_PATH } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,13 +57,13 @@ export default async function VatPage({
         <Link className="btn sm ghost" href="/admin/finance">لوحة المالية</Link>
         <a
           className="btn sm ghost"
-          href={`/admin/finance/export?kind=expenses&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
+          href={`${BASE_PATH}/admin/finance/export?kind=expenses&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
         >
           مصاريف الربع CSV
         </a>
         <a
           className="btn sm ghost"
-          href={`/admin/finance/export?kind=revenues&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
+          href={`${BASE_PATH}/admin/finance/export?kind=revenues&from=${bounds.from.toISOString().slice(0, 10)}&to=${bounds.to.toISOString().slice(0, 10)}`}
         >
           إيرادات الربع CSV
         </a>

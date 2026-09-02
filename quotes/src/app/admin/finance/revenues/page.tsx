@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
@@ -95,11 +96,11 @@ export default async function RevenuesPage({
                   <td className="num">{fmtMoney(i.vatAmount)}</td>
                   <td>
                     {i.zatcaRecord ? (
-                      <a href={`/admin/invoices/${i.id}/tax`}>{i.zatcaRecord.number}</a>
+                      <Link href={`/admin/invoices/${i.id}/tax`}>{i.zatcaRecord.number}</Link>
                     ) : i.daftraNumber ? (
                       <span className="sub">دفترة {i.daftraNumber}</span>
                     ) : (
-                      <a href={`/admin/invoices/${i.id}/tax`}>إصدار</a>
+                      <Link href={`/admin/invoices/${i.id}/tax`}>إصدار</Link>
                     )}
                   </td>
                 </tr>
