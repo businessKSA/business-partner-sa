@@ -12087,6 +12087,29 @@ for (const dir of [ROOT, ...ALL_LANGS.filter((l) => l !== "en").map((l) => path.
 if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
+// The dashboards under assets/data are hand-written pages, not generated, so
+// cleanHtml leaves them alone — and nothing was stamping their asset URLs.
+// They shipped "?v=4"-style literals while everything under /assets/ is served
+// immutable for a year, so every browser and the CDN kept the first copy of
+// revenue-dashboard-v2.js they ever saw: the owner opened the live workspace
+// and read "Revenue OS", a name the file itself had not carried for weeks.
+// Same rule as every generated page: the buster is the file's content hash.
+function stampStaticAssets() {
+  const dir = path.join(ROOT, "assets", "data");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith(".html")) continue;
+    const full = path.join(dir, f);
+    const before = fs.readFileSync(full, "utf8");
+    const after = before.replace(/(["'])\/assets\/(js|css)\/([\w.-]+\.(?:js|css))\?v=[^"']*\1/g, (m, q, kind, file) => {
+      const rel = `assets/${kind}/${file}`;
+      return fs.existsSync(path.join(ROOT, rel)) ? `${q}/assets/${kind}/${file}?v=${assetV(rel)}${q}` : m;
+    });
+    if (after !== before) fs.writeFileSync(full, after);
+  }
+}
+stampStaticAssets();
+
 let pageCount = 0;
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
