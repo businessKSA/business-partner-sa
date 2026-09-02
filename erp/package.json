@@ -1,0 +1,42 @@
+{
+  "name": "bp-erp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "نظام تخطيط موارد المؤسسات — متعدد المنشآت، عربي أولاً، متوافق مع هيئة الزكاة والضريبة والدخل",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "prisma generate && next build",
+    "start": "next start -p 3100",
+    "db:push": "prisma db push --skip-generate && node --import tsx scripts/apply-rls.ts",
+    "db:reset": "prisma db push --force-reset --skip-generate && node --import tsx scripts/apply-rls.ts && npm run seed",
+    "generate": "prisma generate",
+    "seed": "tsx prisma/seed.ts",
+    "studio": "prisma studio",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "seed:plans": "tsx prisma/seed-plans.ts",
+    "health": "tsx scripts/health-check.ts",
+    "e2e": "node e2e/smoke.mjs",
+    "seed:once": "tsx prisma/seed-if-empty.ts",
+    "vercel-build": "node scripts/vercel-build.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@types/nodemailer": "^8.0.1",
+    "decimal.js": "^10.6.0",
+    "next": "^16.3.1",
+    "nodemailer": "^9.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "playwright-core": "^1.62.1",
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
