@@ -1271,9 +1271,14 @@ const PANEL_BRIDGE_TOKEN = process.env.PANEL_BRIDGE_TOKEN || "";
 // من خادمٍ إلى خادم يُنادى نطاق Vercel مباشرةً لا نطاق الموقع: نداء الموقع
 // لنفسه على /quotes يمرّ بحافته ثم يعود إلى اللوحة — قفزة بلا فائدة. والجذر
 // /quotes جزء من عنوان اللوحة على أي نطاق (basePath)، فيُذكر هنا.
-const PANEL_URL = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app/quotes")
-  .trim()
-  .replace(/\/+$/, "");
+const PANEL_URL = (function () {
+  // اللوحة تحت /quotes. أي قيمة قديمة بلا الجذر تُصحَّح هنا كي لا
+  // يسقط الجسر لو بقي المتغيّر في إعدادات النشر على عنوان ما قبل التوحيد.
+  const raw = (process.env.QUOTES_PANEL_URL || "https://bp-quotes-three.vercel.app/quotes")
+    .trim()
+    .replace(/\/+$/, "");
+  return raw.endsWith("/quotes") ? raw : raw + "/quotes";
+})();
 
 function bridgeAuthorized(req) {
   if (!PANEL_BRIDGE_TOKEN) return false;
