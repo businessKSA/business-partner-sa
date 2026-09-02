@@ -496,16 +496,62 @@ function cartBtns({ id, code, nameEn, nameAr, amount, priceLabel, kind = "servic
 }
 
 /* ---------- layout ---------- */
+// Absolute origin for canonical/hreflang/og URLs — Google ignores relative
+// hreflang and social scrapers ignore relative og:image, so every URL a
+// crawler consumes must be fully qualified.
+const SITE_ORIGIN = "https://businesspartner.sa";
 // URL of the same page (by canonical/English path) in a given language.
 function pathInLang(path, lang) {
   const p = path || "/";
   if (lang === "en") return p;
   return p === "/" ? `/${lang}/` : `/${lang}${p}`;
 }
+// Absolute URL for a page in a given language. cleanUrls serves foo.html at
+// /foo, and directory indexes at the bare directory path, so "/index"
+// suffixes are stripped (e.g. the portal's "/portal/index" → "/portal").
+function absUrl(canonical, lang) {
+  return SITE_ORIGIN + pathInLang(canonical, lang).replace(/\/index$/, "");
+}
+// Organization + WebSite structured data, emitted on the homepages only —
+// crawlers pick sitewide entities from the root, repeating them on every
+// page just adds weight.
+function orgJsonLd() {
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_ORIGIN}/#organization`,
+        name: "Business Partner",
+        alternateName: "بيزنس بارتنر",
+        url: `${SITE_ORIGIN}/`,
+        logo: `${SITE_ORIGIN}/assets/img/logo.png`,
+        email: "business@businesspartner.sa",
+        telephone: "+966503793356",
+        address: { "@type": "PostalAddress", addressCountry: "SA" },
+        sameAs: [
+          "https://www.linkedin.com/company/108785026/",
+          "https://www.instagram.com/businesspartnersa/",
+          "https://www.facebook.com/BusinessPartnerKsa/",
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_ORIGIN}/#website`,
+        name: "Business Partner",
+        url: `${SITE_ORIGIN}/`,
+        inLanguage: LANG,
+        publisher: { "@id": `${SITE_ORIGIN}/#organization` },
+      },
+    ],
+  };
+  return `\n<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`;
+}
 function head(title, desc, path) {
   const canonical = path || "/";
+  const pageUrl = absUrl(canonical, LANG);
   const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
-  const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
+  const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${absUrl(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}"${SHOW_PRICES ? "" : ' data-prices="off"'}>
 <head>
@@ -513,15 +559,24 @@ function head(title, desc, path) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
+<link rel="canonical" href="${pageUrl}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
-<meta property="og:image" content="/assets/img/cover.png">
+<meta property="og:url" content="${pageUrl}">
+<meta property="og:site_name" content="Business Partner">
+<meta property="og:image" content="${SITE_ORIGIN}/assets/img/cover.png">
+<meta property="og:image:width" content="2460">
+<meta property="og:image:height" content="936">
 <meta property="og:locale" content="${LANG_LOCALE[LANG] || "en_US"}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(desc)}">
+<meta name="twitter:image" content="${SITE_ORIGIN}/assets/img/cover.png">
 <meta name="theme-color" content="#0B1B5A">
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
-<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+<link rel="alternate" hreflang="x-default" href="${absUrl(canonical, "en")}">${canonical === "/" ? orgJsonLd() : ""}
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7140,7 +7195,7 @@ function buildCart() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
+  return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body, noindex: true });
 }
 
 // The discount box the cart and checkout asides share. The aside's stylesheet
@@ -7332,7 +7387,7 @@ function buildCheckout() {
     </div>
   </div></section>`;
   const bodyWithCodes = body + `<script>window.BP_DISCOUNTS=${JSON.stringify(catalogDiscounts())};</script>`;
-  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body: bodyWithCodes });
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body: bodyWithCodes, noindex: true });
 }
 
 function buildTerms() {
@@ -7682,7 +7737,7 @@ function buildAccount() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body });
+  return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body, noindex: true });
 }
 
 function buildConsultation() {
@@ -10987,8 +11042,8 @@ write("ar/portal.html", buildPortal("/ar/"));
 write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
 
 // sitemap.xml — both language trees
-const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const base = SITE_ORIGIN;
+const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/terms", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
