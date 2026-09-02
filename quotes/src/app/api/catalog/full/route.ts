@@ -4,6 +4,7 @@ import { currentAdmin } from '@/lib/auth';
 import { priceInclVat, syncTokenValid } from '@/lib/catalog-sync';
 import { methodsForService, PAYMENT_METHODS } from '@/lib/payment-methods';
 import { COMPANY, VAT_RATE } from '@config/company';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'غير مصرّح.' }, { status: 401 });
   }
 
-  const base = (process.env.APP_URL || '').replace(/\/+$/, '');
+  const base = appBase(req);
   const siteBase = (process.env.SITE_URL || 'https://businesspartner.sa').replace(/\/+$/, '');
   const notionBase = 'https://www.notion.so/';
 

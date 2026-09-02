@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { payments } from '@/lib/payments';
 import { markInvoicePaid } from '@/lib/billing';
 import { markMockPaid } from '@/lib/payments/mock';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
   const status = url.searchParams.get('status') || '';
   const method = url.searchParams.get('method') || undefined;
   const back = url.searchParams.get('redirect') || '/portal';
-  const base = process.env.APP_URL || url.origin;
+  const base = appBase(req);
 
   const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
   if (!invoice) return NextResponse.redirect(`${base}/portal`, 303);
