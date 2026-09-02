@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionCreateClient } from '@/app/actions';
 import PhoneField from '@/components/PhoneField';
@@ -72,7 +73,7 @@ export default function NewClient() {
         </div>
         <div className="row" style={{ marginTop: 14 }}>
           <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ العميل'}</button>
-          <a className="btn ghost" href="/admin/clients">إلغاء</a>
+          <Link className="btn ghost" href="/admin/clients">إلغاء</Link>
         </div>
         {state.error ? <div className="notice bad">{state.error}</div> : null}
       </form>

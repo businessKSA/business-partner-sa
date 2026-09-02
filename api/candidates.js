@@ -38,6 +38,48 @@ const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8
 const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
 // Workshop hiring-campaign DB — source of the public Indeed XML job feed (?feed=jobs).
 const WORKSHOP_DB = process.env.NOTION_WORKSHOP_DB || "f83bce33eab7481a8b803495c6cd7619";
+// Notion has no COUNT endpoint, so the pool total is walked 100 rows at a time
+// — 25,000 rows is ~250 round trips, which no page load should be doing. The
+// finished total is parked here and served instantly for a day.
+const METRICS_DB = process.env.NOTION_METRICS_DB || "245f3a1ffb1844b19707bb67120b9605";
+const POOL_METRIC = "حجم قاعدة المواهب";
+
+// Every advert on the site is published by Business Partner — the end client
+// the role is staffed for is our own commercial detail, not the publisher's
+// name. The Notion "الشركة" field keeps whatever was written there, so the
+// internal attribution survives; this only decides the name on the card.
+const PUBLISHER = "Business Partner — بيزنس بارتنر";
+const publisherName = () => PUBLISHER;
+
+async function readCachedCount() {
+  try {
+    const r = await notionFetch(`databases/${METRICS_DB}/query`, "POST", {
+      page_size: 1, filter: { property: "المقياس", title: { equals: POOL_METRIC } },
+    });
+    if (!r.ok) return null;
+    const row = ((await r.json()).results || [])[0];
+    if (!row) return null;
+    const p = row.properties || {};
+    const value = p["القيمة"] && typeof p["القيمة"].number === "number" ? p["القيمة"].number : null;
+    const at = p["آخر حساب"] && p["آخر حساب"].date ? p["آخر حساب"].date.start : "";
+    if (value == null || !at) return null;
+    const ageH = (Date.now() - new Date(at).getTime()) / 36e5;
+    return { id: row.id, value, at, stale: !(ageH >= 0 && ageH < 24) };
+  } catch { return null; }
+}
+
+async function writeCachedCount(total, existingId) {
+  const props = {
+    "القيمة": { number: total },
+    "آخر حساب": { date: { start: new Date().toISOString() } },
+    "ملاحظة": { rich_text: [{ text: { content: "المرشحون غير المخفيين عن الموقع. يُحسب مرة يومياً بعد اكتمال أول مشي كامل." } }] },
+  };
+  try {
+    if (existingId) return void (await notionFetch(`pages/${existingId}`, "PATCH", { properties: props }));
+    props["المقياس"] = { title: [{ text: { content: POOL_METRIC } }] };
+    await notionFetch("pages", "POST", { parent: { database_id: METRICS_DB }, properties: props });
+  } catch { /* a cache miss is not worth failing the request over */ }
+}
 const FEED_COMPANY = process.env.JOBS_FEED_COMPANY || "Business Partner";
 const FEED_CITY = process.env.JOBS_FEED_CITY || "Riyadh";
 const FEED_STATE = process.env.JOBS_FEED_STATE || "Riyadh Province";
@@ -541,7 +583,7 @@ export default async function handler(req, res) {
         return {
           id: pg.id,
           title: txt(p["العنوان الوظيفي"]),
-          company: txt(p["الشركة"]),
+          company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
           description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
@@ -577,7 +619,7 @@ export default async function handler(req, res) {
         ok: true,
         posting: {
           id: pg.id, title, status,
-          company: txt(p["الشركة"]),
+          company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
           description: txt(p["الوصف والمتطلبات"]),
@@ -601,6 +643,15 @@ export default async function handler(req, res) {
     try {
       res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
       const countCursor = (url0.searchParams.get("cursor") || "").trim() || null;
+      // Rows already counted by earlier links in this chain — the client passes
+      // it back so the final link knows the real total and can park it.
+      const soFar = Math.max(0, Number(url0.searchParams.get("sofar")) || 0);
+      // A fresh cached total short-circuits the whole walk. Only on the first
+      // link: mid-chain the caller is explicitly asking to keep counting.
+      const cached = countCursor ? null : await readCachedCount();
+      if (cached && !cached.stale) {
+        return res.end(JSON.stringify({ ok: true, total: cached.value, nextCursor: null, done: true, cached: true, countedAt: cached.at }));
+      }
       if (!handler._titleProp) {
         const dbr = await notionFetch(`databases/${DB_ID}`, "GET");
         if (dbr.ok) {
@@ -638,7 +689,11 @@ export default async function handler(req, res) {
         if (Date.now() > deadline) { truncated = true; break; }
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, total, nextCursor: cursor || null, done: !cursor && !truncated }));
+      const done = !cursor && !truncated;
+      // The last link in the chain knows the real total — park it so the next
+      // visitor gets the number in one request instead of two hundred.
+      if (done) await writeCachedCount(soFar + total, cached && cached.id);
+      return res.end(JSON.stringify({ ok: true, total, nextCursor: cursor || null, done, sofar: soFar + total }));
     } catch (e) {
       console.error("pool count handler error", e);
       res.statusCode = 500;

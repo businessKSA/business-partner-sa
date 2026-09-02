@@ -131,7 +131,9 @@ const COMPLIANCE_PORTAL_URL = "/ar/compliance-dashboard";
 // بوابة العميل: عرض سعر رسمي وعقد وفاتورة ضريبية. مسار موازٍ للسلة — السلة
 // شراء فوري، والبوابة مستند رسمي موقّع. النطاق من البيئة ليُبدَّل إلى نطاق
 // فرعي من businesspartner.sa دون تعديل الشيفرة.
-const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://bp-quotes-three.vercel.app").replace(/\/+$/, "");
+// بوابة العميل تحت نطاق الموقع لا على نطاق Vercel: العميل يرى عنواناً واحداً
+// في الزرّ وفي البريد وفي شريط المتصفح، ولا يحفظ نطاقاً ثانياً.
+const CLIENT_PORTAL_URL = (process.env.PORTAL_URL || "https://www.businesspartner.sa/quotes").replace(/\/+$/, "");
 const portalQuoteUrl = (code) =>
   `${CLIENT_PORTAL_URL}/portal/services${code ? "?code=" + encodeURIComponent(code) : ""}`;
 

@@ -105,7 +105,25 @@ export async function storageGet(path) {
   if (!r.ok) { console.error("storage get error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
   return Buffer.from(await r.arrayBuffer());
 }
+// Remove an object from the vault — used when the client deletes a document.
+// Best-effort: a missing object is already gone, which is what we wanted.
+export async function storageDelete(path) {
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method: "DELETE",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!r.ok && r.status !== 404) console.error("storage delete error", r.status, (await r.text()).slice(0, 200));
+}
 // Short-lived signed download URL (default 10 minutes).
+// Remove an object from the vault — used when the client deletes a document.
+// Best-effort: a missing object is already gone, which is what we wanted.
+export async function storageDelete(path) {
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method: "DELETE",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!r.ok && r.status !== 404) console.error("storage delete error", r.status, (await r.text()).slice(0, 200));
+}
 export async function storageSign(path, expiresIn) {
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
     method: "POST",

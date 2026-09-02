@@ -438,7 +438,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <button class="btn" id="b10xOpen" style="background:#fff;color:#123b87;border:0;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xOpen">افتح B10X</button>
-                  <button class="btn ghost" id="b10xAsk" style="border-color:rgba(255,255,255,.5);color:#fff;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
+                  <button class="btn ghost" id="b10xAsk" style="background:transparent!important;border:1px solid rgba(255,255,255,.55)!important;color:#fff!important;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
                 </div>
               </div>
             </div>
@@ -1700,9 +1700,9 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       var cbs = document.querySelectorAll('[data-cancel]');
       for (i = 0; i < cbs.length; i++) cbs[i].onclick = function(){
         var ref = this.getAttribute('data-cancel');
-        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + '?' : 'إلغاء الطلب ' + ref + '؟')) return;
+        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + ' and remove it from your portal?' : 'إلغاء الطلب ' + ref + ' وحذفه من لوحتك؟')) return;
         var self = this; self.disabled = true;
-        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref }) })
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref, remove: true }) })
           .then(function(r){ return r.json(); })
           .then(function(o){
             if (o.ok){ fetchServerOrders(); }
@@ -1772,12 +1772,27 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         // What was actually bought (from the order note) beats the generic
         // opportunity title "طلب/شراء خدمة".
         var what = o.items || o.title || t('trackedOrder');
+        var canDrop = isCancelled(o.status) || isReview(o.status) || isPay(o.status);
         rows += '<tr data-srch><td class="ref">' + esc(o.ref) +
           (o.at ? '<br><span style="color:var(--soft);font-size:10.5px;direction:ltr;display:inline-block">' + esc(o.at) + '</span>' : '') + '</td>' +
           '<td>' + esc(what) + trail + '</td>' +
-          '<td>' + statusChip(o.status) + '</td></tr>';
+          '<td>' + statusChip(o.status) +
+          (canDrop ? '<br><button class="btn ghost sm" style="margin-top:6px;color:#b91c1c" data-odel="' + esc(o.ref) + '">' + (state.lang === 'en' ? (isCancelled(o.status) ? 'Remove' : 'Cancel & remove') : (isCancelled(o.status) ? 'حذف' : 'إلغاء وحذف')) + '</button>' : '') +
+          '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';
+      var dels = document.querySelectorAll('[data-odel]');
+      for (var d = 0; d < dels.length; d++) dels[d].onclick = function(){
+        var ref = this.getAttribute('data-odel');
+        if (!confirm(state.lang === 'en' ? 'Remove order ' + ref + ' from your portal?' : 'حذف الطلب ' + ref + ' من لوحتك؟')) return;
+        var self = this; self.disabled = true;
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-delete', ref: ref }) })
+          .then(function(r){ return r.json(); })
+          .then(function(o){
+            if (o.ok){ state.orders = state.orders.filter(function(x){ return x.ref !== ref; }); renderAll(); fetchServerOrders(); }
+            else { self.disabled = false; alert(o.message || (state.lang === 'en' ? 'Could not remove — open a ticket and the team will handle it.' : 'تعذّر الحذف — افتح تذكرة ويتولاها الفريق.')); }
+          }).catch(function(){ self.disabled = false; });
+      };
       var tg = $('ordersCancelToggle');
       if (tg){
         tg.style.display = cancelled ? '' : 'none';
@@ -3733,7 +3748,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         if (!msgs.length){ msgs.push({ role: 'assistant', content: 'أهلاً 👋 أنا مساعد لوحتك — أعرف طلباتك ومحفظتك وضماناتك وكل أقسام اللوحة. اسألني أي شيء، أو اختر سؤالاً جاهزاً.' }); render(false); hints(); }
         try { inp.focus(); } catch (e) {}
       };
-      dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'flex'; };
+      dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'none'; };
       // The topbar «المساعد» button opens the same concierge dock as the fab.
       var hdrAssist = document.getElementById('assistBtn');
       if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };

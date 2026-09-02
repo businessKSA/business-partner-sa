@@ -8,6 +8,7 @@
  * خط Tajawal مُستضاف محلياً في public/fonts فلا يعتمد التوليد على الشبكة.
  */
 import type { Browser } from 'playwright-core';
+import { appBase } from './base';
 
 let browserPromise: Promise<Browser> | null = null;
 
@@ -97,6 +98,6 @@ export async function renderPdf({ url, landscape = false }: PdfOptions): Promise
 
 /** الرابط الداخلي لصفحة الطباعة الخاصة بمستند. */
 export function printUrl(token: string): string {
-  const base = process.env.INTERNAL_URL || process.env.APP_URL || 'http://localhost:3000';
+  const base = process.env.INTERNAL_URL || appBase();
   return `${base}/d/${token}/print`;
 }
