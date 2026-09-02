@@ -62,6 +62,27 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
 .bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
 
+/* 1b — the obligations we carry: why a company hires us at all */
+.bph .bph-risk{padding:56px 0 8px;background:#fff}
+.bph .bph-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+@media(max-width:900px){.bph .bph-risk-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.bph .bph-risk-grid{grid-template-columns:1fr}}
+.bph .bph-risk-card{border:1px solid var(--line);border-radius:18px;padding:18px 17px;background:#fff;box-shadow:0 6px 20px rgba(9,30,78,.04)}
+.bph .bph-risk-card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;background:linear-gradient(135deg,rgba(22,184,117,.13),rgba(67,214,244,.14));margin-bottom:11px}
+.bph .bph-risk-card h3{margin:0 0 6px;font-size:.92rem;color:var(--n);letter-spacing:-.02em}
+.bph .bph-risk-card p{margin:0;color:var(--mut);font-size:.79rem;line-height:1.75}
+.bph .bph-risk-note{max-width:900px;margin:22px auto 0;text-align:center;color:#8b94a6;font-size:.74rem;line-height:1.85}
+
+/* 1c — the journey, in three steps, before any service name is mentioned */
+.bph .bph-how{padding:58px 0;background:linear-gradient(180deg,#fff,var(--soft))}
+.bph .bph-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:1120px;margin:0 auto;counter-reset:bpstep}
+.bph .bph-step{position:relative;border:1px solid var(--line);border-radius:20px;padding:24px 20px 20px;background:#fff}
+.bph .bph-step:before{counter-increment:bpstep;content:counter(bpstep);position:absolute;top:-15px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-weight:900;font-size:.82rem;box-shadow:0 8px 18px rgba(36,75,184,.22)}
+.bph .bph-step h3{margin:6px 0 8px;font-size:1.02rem;color:var(--n);letter-spacing:-.03em}
+.bph .bph-step p{margin:0;color:var(--mut);font-size:.83rem;line-height:1.8}
+.bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
+.bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
+
 /* 2 — chat: the control plane, large and centred */
 .bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
 .bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
@@ -225,7 +246,9 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
   .bph .bph-wrap{width:min(100% - 26px,1180px)}
   .bph section{padding:50px 0}
   .bph .bph-hero{padding:38px 0 20px}
-  .bph .bph-hero h1{font-size:2.55rem}
+  .bph .bph-hero h1{font-size:1.95rem;line-height:1.12;margin:12px auto 12px}
+  .bph .bph-hero p.bph-lead{font-size:.9rem;line-height:1.75}
+  .bph .bph-kicker{font-size:.66rem}
   .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
   .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
   .bph .bph-b10x h2{font-size:2.6rem}
@@ -253,58 +276,32 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
 @media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
 </style>
 </head>
-<body class="bph-page"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/services">الانتقال والاستقرار</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/#bp-consultant">B10X</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/business-development">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><details class="bp-dd"><summary>التوظيف</summary><div class="bp-mini-menu"><a href="/ar/careers">الوظائف المتاحة</a><a href="/ar/employer-dashboard">لوحة صاحب العمل</a><a href="/ar/employer-join">تسجيل صاحب عمل جديد</a><a href="/ar/employers">خدمات أصحاب العمل</a><a href="/ar/job-search-service">خدمة البحث عن وظيفة</a><a href="/ar/recruitment-agencies">وكالات التوظيف</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/account">ابدأ الآن</a></div></div></header><main><div class="bph"><section class="bph-hero"><div class="bph-wrap">
-    <span class="bph-kicker"><i></i> Business Partner · تأسيس وتشغيل الشركات في السعودية</span>
-    <h1>نؤسس شركتك. نشغّلها. <span>ونساعدك تنمو في السعودية.</span></h1>
-    <p class="bph-lead">Business Partner تجمع تأسيس الشركات، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن، وتطوير الأعمال في تجربة تشغيل واحدة — بذكاء اصطناعي وتنفيذ بشري.</p>
-    <div class="bph-chips"><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/workspaces">المكاتب والسكن</a><a href="/ar/business-development">تطوير الأعمال</a></div>
-    <div class="bph-proofline"><b>B10X</b><i></i><span>مستشار ذكي 24/7</span><i></i><span>فريق تنفيذ بشري</span><i></i><span>لوحة عميل + SLA</span></div>
+<body class="bph-page"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/tourism">السياحة والفعاليات</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/b10x">B10X</a><a href="/ar/#bp-consultant">المستشار الذكي</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/smart-employee">الموظف الذكي المتخصص</a><a href="/ar/business-development">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/agency-portal">بوابة وكالات التوظيف</a><a href="/ar/connect">مركز الربط</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><details class="bp-dd"><summary>التوظيف</summary><div class="bp-mini-menu"><a href="/ar/careers">الوظائف المتاحة</a><a href="/ar/employer-dashboard">لوحة صاحب العمل</a><a href="/ar/employer-join">تسجيل صاحب عمل جديد</a><a href="/ar/employers">خدمات أصحاب العمل</a><a href="/ar/job-search-service">خدمة البحث عن وظيفة</a><a href="/ar/recruitment-agencies">وكالات التوظيف</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/account">ابدأ الآن</a></div></div></header><main><div class="bph"><section class="bph-hero"><div class="bph-wrap">
+    <span class="bph-kicker"><i></i> Business Partner · الامتثال والعمليات الحكومية والمدفوعات للشركات في السعودية</span>
+    <h1>التزاماتك تُسدَّد في وقتها.<br><span>فلا يتحول موعدٌ إلى غرامة.</span></h1>
+    <p class="bph-lead">تحتفظ برصيدك لدى Business Partner، فنسدّد ما على شركتك عند استحقاقه — التأمينات، تجديد الإقامات ورخص العمل، رخص البلدية، رسوم المنصات، والرواتب — وننفّذ العمل الحكومي خلف كل بند. وتتابع ذلك من لوحة واحدة بدل أن تطارد المواعيد.</p>
+    <div class="bph-chips"><a href="/ar/shared-services">التأمينات والرواتب</a><a href="/ar/services/category/government-relations">الإقامات ورخص العمل</a><a href="/ar/services/category/government-relations">البلدية والتراخيص</a><a href="/ar/compliance-agent">المخالفات والاعتراضات</a><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/hr-services">الاستقدام والموارد البشرية</a></div>
+    <div class="bph-proofline"><b>رصيدك يبقى مالك</b><i></i><span>لا يُصرف إلا مقابل التزام مستحق</span><i></i><span>كل عملية في كشف حسابك</span></div>
     <div class="bph-hero-actions">
-      <a class="bph-btn primary" href="#bp-consultant">ابدأ مع المستشار الذكي</a>
-      <a class="bph-btn" href="#bp-services">استعرض خدماتنا</a>
+      <a class="bph-btn primary" href="#bp-how">كيف يعمل؟</a>
+      <a class="bph-btn" href="#bp-services">استعرض الخدمات</a>
     </div>
-  </div></section><section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+  </div></section><section class="bph-risk" id="bp-risk"><div class="bph-wrap">
     <div class="bph-head">
-      <h2>قل لنا ماذا تحتاج. B10X يحدد لك الطريق.</h2>
-      <p>لا تحتاج تعرف اسم الخدمة. اشرح المطلوب فقط — والمستشار الذكي يحدد الخدمة والمتطلبات والخطوة التالية.</p>
+      <h2>ما الذي نحمله عن شركتك</h2>
+      <p>كل بند أدناه التزامٌ له تاريخ. وتجاوز التاريخ هو ما يكلّف، لا الرسم نفسه.</p>
     </div>
-    <div class="bph-chat-shell"><div class="bph-chat">
-      <div class="bph-chat-head">
-        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>B10X — المستشار الذكي من Business Partner</span></div>
-        <span class="bph-chat-live">● Online</span>
-      </div>
-      <div class="bph-chat-body" id="bphChatBody">
-        <div class="bph-msg ai">أهلًا 👋 قل لي وش تحتاج أو وش المشكلة اللي تواجهك، وأنا أساعدك أحدد المسار المناسب.</div>
-        <div class="bph-chat-chips"><button type="button" data-chat-q="أبغى أفتح شركة في السعودية">تأسيس شركة</button><button type="button" data-chat-q="أنا مستثمر أجنبي وأبغى ترخيص وزارة الاستثمار">مستثمر أجنبي</button><button type="button" data-chat-q="أحتاج مساعدة في الموظفين وخدمات القوى العاملة">موظفين وقوى</button><button type="button" data-chat-q="عندي موضوع امتثال أو منصة حكومية">امتثال</button><button type="button" data-chat-q="وصلتني مخالفة وأبغى أراجع مسار الاعتراض">اعتراض على مخالفة</button><button type="button" data-chat-q="أبغى عرض سعر لخدمة">عرض سعر</button></div>
-      </div>
-      <form class="bph-compose" id="bphChatForm">
-        <textarea id="bphChatInput" rows="1" placeholder="اكتب مثلاً: عندي شركة أجنبية وأبغى أبدأ في الرياض…"></textarea>
-        <button type="submit" aria-label="إرسال">↑</button>
-      </form>
-      <div class="bph-chat-note">المستشار يساعدك داخل الموقع، ويمكنك الانتقال للطلب أو لوحة العميل عند الحاجة.</div>
-    </div></div>
-  </div></section><section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
-    <div class="bph-b10x-intro">
-      <div><span class="bph-eyebrow">B10X by Business Partner</span>
-        <h2>كل خدماتك. طبقة تشغيل واحدة.</h2></div>
-      <p>B10X هو طريقة استخدام Business Partner بالكامل: تسأل، نفهم المطلوب، نحدد الخدمة والمتطلبات، تعتمد، ثم يبدأ التنفيذ وتتابع كل شيء من حسابك — بدون مطاردة الرسائل أو الضياع بين عدة مزودين.</p>
+    <div class="bph-risk-grid"><div class="bph-risk-card"><div class="ic">🪪</div><h3>الإقامات ورخص العمل</h3><p>تُتابَع لكل موظف وتُجدَّد قبل انتهائها، وتُدفع رسومها من رصيدك.</p></div><div class="bph-risk-card"><div class="ic">🏛</div><h3>التأمينات ورسوم المنصات</h3><p>الاشتراكات الشهرية ورسوم المنصات الحكومية المسجَّلة عليها شركتك، تُسدَّد في مواعيدها.</p></div><div class="bph-risk-card"><div class="ic">📄</div><h3>رخص البلدية والسجل التجاري</h3><p>تجديد الرخص والسجلات يُجهَّز ويُقدَّم، لا يُترك لآخر أسبوع.</p></div><div class="bph-risk-card"><div class="ic">💵</div><h3>الرواتب</h3><p>تُصرف رواتب موظفيك من رصيدك في دورتك، فيبقى وضعك في حماية الأجور سليماً.</p></div><div class="bph-risk-card"><div class="ic">⚖️</div><h3>المخالفات</h3><p>تُراجَع، وتُدرَس أهلية الاعتراض، ثم يُجهَّز ويُقدَّم ويُتابَع. لا وعد بالإلغاء — القرار للجهة.</p></div><div class="bph-risk-card"><div class="ic">🤝</div><h3>الموردون، بضمان التنفيذ</h3><p>تُحجز أتعاب المورد من رصيدك ولا تُفرج إلا بعد التسليم وتأكيدك.</p></div></div>
+    <p class="bph-risk-note">الرسوم الحكومية ورسوم المنصات تُمرَّر إلى الجهة كما هي — وأتعاب Business Partner تُذكر منفصلة في كل فاتورة.</p>
+  </div></section><section class="bph-how" id="bp-how"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>ثلاث خطوات، ثم تتوقف عن مطاردة المواعيد</h2>
+      <p>لا أسماء خدمات تحفظها ولا نماذج تبحث عنها. تحتفظ برصيد، ونتولى الباقي ونعرضه عليك كاملاً.</p>
     </div>
-    <div class="bph-promise"><div><b>24/7 Smart Advisor</b><span>مستشار ذكي يفهم احتياجك ويوجهك فورًا.</span></div><div><b>Client Portal</b><span>طلبات، مستندات، SLA وخطوة تالية واضحة.</span></div><div><b>Document AI</b><span>قراءة وفحص المستندات داخل مساحة شركتك.</span></div><div><b>Compliance</b><span>التزامات، تنبيهات، مخالفات وتجديدات.</span></div><div><b>Government Ops</b><span>تنفيذ فعلي عبر فريق Business Partner.</span></div><div><b>Growth</b><span>عملاء، موردون، شركاء وفرص نمو.</span></div></div>
-    <div class="bph-b10x-grid">
-      <div class="bph-panel"><h3>ماذا يشمل B10X؟</h3><div class="bph-caps"><div class="bph-cap"><b>تأسيس وتشغيل الشركات</b><span>من التأسيس والاستثمار الأجنبي إلى التراخيص والتشغيل اليومي.</span></div><div class="bph-cap"><b>الموارد البشرية</b><span>موظفين، قوى، نقل خدمات، توظيف واستقدام.</span></div><div class="bph-cap"><b>الامتثال والمخالفات</b><span>مراقبة الالتزامات ومسارات الاعتراض والمعالجة.</span></div><div class="bph-cap"><b>المكاتب والسكن والانتقال</b><span>مكاتب، سكن عمالة، سكن تنفيذي وRelocation.</span></div><div class="bph-cap"><b>القانونية والعقود</b><span>عقود ومراجعات قانونية مرتبطة بتشغيل الشركة.</span></div><div class="bph-cap"><b>تطوير الأعمال</b><span>Pipeline، عملاء، موردون، شركاء وفرص سوق.</span></div></div></div>
-      <div class="bph-request">
-        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
-        <div class="bph-row"><span>الجهة</span><b>وزارة الاستثمار</b></div>
-        <div class="bph-row"><span>Next Action</span><b>رفع القوائم المالية المدققة</b></div>
-        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
-        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
-        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
-      </div>
-    </div>
-    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
-    <div class="bph-b10x-cta">
-      <a class="bph-btn white" href="/ar/b10x">اكتشف B10X بالتفصيل</a>
-      <a class="bph-btn ghost" href="#bp-consultant">ابدأ مع المستشار الذكي</a>
+    <div class="bph-steps"><div class="bph-step"><h3>تحتفظ برصيد</h3><p>تشحن محفظة شركتك بتحويل أو بطاقة. يبقى المبلغ مالك، محجوزاً لالتزاماتك — لا مدفوعاً لنا.</p><div class="bph-step-meta">المحفظة · كشف حساب متى شئت</div></div><div class="bph-step"><h3>نسدّد وننفّذ في الوقت</h3><p>يُسدَّد كل التزام عند استحقاقه، وينفّذ فريقنا العمل الحكومي خلفه — وتُبلَّغ قبل، لا بعد.</p><div class="bph-step-meta">تنفيذ بشري · SLA</div></div><div class="bph-step"><h3>ترى كل شيء في مكان واحد</h3><p>الطلبات والمستندات والفواتير وما دُفع وما هو قادم — في لوحتك، مع تنبيه قبل كل موعد.</p><div class="bph-step-meta">لوحة العميل</div></div></div>
+    <div class="bph-how-actions">
+      <a class="bph-btn primary" href="/ar/account">افتح حسابك</a>
+      <a class="bph-btn" href="#bp-consultant">لست متأكداً؟ اسأل المستشار الذكي</a>
     </div>
   </div></section><section class="bph-services" id="bp-services"><div class="bph-wrap">
     <div class="bph-head">
@@ -394,6 +391,26 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
     </article></div>
     <p class="qb-foot">الرسوم الحكومية منفصلة ومعلنة قبل الدفع.</p>
   </div></div>
+  </div></section><section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>قل لنا ماذا تحتاج. B10X يحدد لك الطريق.</h2>
+      <p>لا تحتاج تعرف اسم الخدمة. اشرح المطلوب فقط — والمستشار الذكي يحدد الخدمة والمتطلبات والخطوة التالية.</p>
+    </div>
+    <div class="bph-chat-shell"><div class="bph-chat">
+      <div class="bph-chat-head">
+        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>B10X — المستشار الذكي من Business Partner</span></div>
+        <span class="bph-chat-live">● Online</span>
+      </div>
+      <div class="bph-chat-body" id="bphChatBody">
+        <div class="bph-msg ai">أهلًا 👋 قل لي وش تحتاج أو وش المشكلة اللي تواجهك، وأنا أساعدك أحدد المسار المناسب.</div>
+        <div class="bph-chat-chips"><button type="button" data-chat-q="عندي تجديد إقامة أو رخصة قرب موعده وأبغاكم تتولونه">عندي تجديد قرب</button><button type="button" data-chat-q="وصلتني مخالفة وأبغى أراجع مسار الاعتراض">وصلتني مخالفة</button><button type="button" data-chat-q="أبغاكم تتولون التأمينات ورواتب موظفيني">التأمينات والرواتب</button><button type="button" data-chat-q="أحتاج مساعدة في الموظفين وخدمات القوى العاملة">موظفين وقوى</button><button type="button" data-chat-q="أبغى أفتح شركة في السعودية">تأسيس شركة</button><button type="button" data-chat-q="أبغى عرض سعر لخدمة">عرض سعر</button></div>
+      </div>
+      <form class="bph-compose" id="bphChatForm">
+        <textarea id="bphChatInput" rows="1" placeholder="اكتب مثلاً: عندي شركة أجنبية وأبغى أبدأ في الرياض…"></textarea>
+        <button type="submit" aria-label="إرسال">↑</button>
+      </form>
+      <div class="bph-chat-note">المستشار يساعدك داخل الموقع، ويمكنك الانتقال للطلب أو لوحة العميل عند الحاجة.</div>
+    </div></div>
   </div></section><section class="bph-packages" id="bp-packages"><div class="bph-wrap">
     <div class="bph-head">
       <h2>اختر طريقة العمل المناسبة لشركتك.</h2>
@@ -422,6 +439,29 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
         <p>دعم قانوني وعقود ومراجعات مرتبطة بتشغيل ونمو الشركة.</p>
         <ul><li>عقود واتفاقيات</li><li>مراجعات قانونية</li><li>دعم حسب نطاق الباقة</li></ul>
         <a class="bph-btn" href="/ar/packages#pkg-legal">استعرض الباقات</a></div>
+    </div>
+  </div></section><section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
+    <div class="bph-b10x-intro">
+      <div><span class="bph-eyebrow">B10X by Business Partner</span>
+        <h2>كل خدماتك. طبقة تشغيل واحدة.</h2></div>
+      <p>B10X هو طريقة استخدام Business Partner بالكامل: تسأل، نفهم المطلوب، نحدد الخدمة والمتطلبات، تعتمد، ثم يبدأ التنفيذ وتتابع كل شيء من حسابك — بدون مطاردة الرسائل أو الضياع بين عدة مزودين.</p>
+    </div>
+    <div class="bph-promise"><div><b>24/7 Smart Advisor</b><span>مستشار ذكي يفهم احتياجك ويوجهك فورًا.</span></div><div><b>Client Portal</b><span>طلبات، مستندات، SLA وخطوة تالية واضحة.</span></div><div><b>Document AI</b><span>قراءة وفحص المستندات داخل مساحة شركتك.</span></div><div><b>Compliance</b><span>التزامات، تنبيهات، مخالفات وتجديدات.</span></div><div><b>Government Ops</b><span>تنفيذ فعلي عبر فريق Business Partner.</span></div><div><b>Growth</b><span>عملاء، موردون، شركاء وفرص نمو.</span></div></div>
+    <div class="bph-b10x-grid">
+      
+      <div class="bph-request">
+        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
+        <div class="bph-row"><span>الجهة</span><b>وزارة الاستثمار</b></div>
+        <div class="bph-row"><span>Next Action</span><b>رفع القوائم المالية المدققة</b></div>
+        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
+        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
+        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
+      </div>
+    </div>
+    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
+    <div class="bph-b10x-cta">
+      <a class="bph-btn white" href="/ar/b10x">اكتشف B10X بالتفصيل</a>
+      <a class="bph-btn ghost" href="#bp-consultant">ابدأ مع المستشار الذكي</a>
     </div>
   </div></section><section class="bph-proof"><div class="bph-wrap">
     <div class="bph-head">
@@ -464,7 +504,7 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
       <li><a href="/ar/services">كل الخدمات</a></li>
       <li><a href="/ar/packages">الباقات</a></li>
       <li><a href="/ar/business-development">تطوير الأعمال كخدمة</a></li>
-      <li><a href="/ar/ai-agents">الوكلاء الأذكياء</a></li>
+      <li><a href="/ar/ai-agents">المستشارون الأذكياء</a></li>
       <li><a href="/ar/task-force">تاسك فورس</a></li>
       <li><a href="/ar/hr">التوظيف</a></li>
       <li><a href="/ar/deals">الصفقات</a></li>

@@ -62,6 +62,27 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
 .bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
 
+/* 1b — the obligations we carry: why a company hires us at all */
+.bph .bph-risk{padding:56px 0 8px;background:#fff}
+.bph .bph-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+@media(max-width:900px){.bph .bph-risk-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.bph .bph-risk-grid{grid-template-columns:1fr}}
+.bph .bph-risk-card{border:1px solid var(--line);border-radius:18px;padding:18px 17px;background:#fff;box-shadow:0 6px 20px rgba(9,30,78,.04)}
+.bph .bph-risk-card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;background:linear-gradient(135deg,rgba(22,184,117,.13),rgba(67,214,244,.14));margin-bottom:11px}
+.bph .bph-risk-card h3{margin:0 0 6px;font-size:.92rem;color:var(--n);letter-spacing:-.02em}
+.bph .bph-risk-card p{margin:0;color:var(--mut);font-size:.79rem;line-height:1.75}
+.bph .bph-risk-note{max-width:900px;margin:22px auto 0;text-align:center;color:#8b94a6;font-size:.74rem;line-height:1.85}
+
+/* 1c — the journey, in three steps, before any service name is mentioned */
+.bph .bph-how{padding:58px 0;background:linear-gradient(180deg,#fff,var(--soft))}
+.bph .bph-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:1120px;margin:0 auto;counter-reset:bpstep}
+.bph .bph-step{position:relative;border:1px solid var(--line);border-radius:20px;padding:24px 20px 20px;background:#fff}
+.bph .bph-step:before{counter-increment:bpstep;content:counter(bpstep);position:absolute;top:-15px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-weight:900;font-size:.82rem;box-shadow:0 8px 18px rgba(36,75,184,.22)}
+.bph .bph-step h3{margin:6px 0 8px;font-size:1.02rem;color:var(--n);letter-spacing:-.03em}
+.bph .bph-step p{margin:0;color:var(--mut);font-size:.83rem;line-height:1.8}
+.bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
+.bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
+
 /* 2 — chat: the control plane, large and centred */
 .bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
 .bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
@@ -225,7 +246,9 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
   .bph .bph-wrap{width:min(100% - 26px,1180px)}
   .bph section{padding:50px 0}
   .bph .bph-hero{padding:38px 0 20px}
-  .bph .bph-hero h1{font-size:2.55rem}
+  .bph .bph-hero h1{font-size:1.95rem;line-height:1.12;margin:12px auto 12px}
+  .bph .bph-hero p.bph-lead{font-size:.9rem;line-height:1.75}
+  .bph .bph-kicker{font-size:.66rem}
   .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
   .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
   .bph .bph-b10x h2{font-size:2.6rem}
@@ -253,58 +276,32 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
 @media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
 </style>
 </head>
-<body class="bph-page"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/services/category/company-formation">Company Formation</a><a href="/services/category/foreign-investment">Foreign Investment</a><a href="/services/category/premium-residency">Premium Residency</a><a href="/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/services/category/government-relations">Government Services</a><a href="/compliance-agent">Compliance & Violations</a><a href="/services/category/hr-services">HR Services</a><a href="/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/workspaces">Workspaces</a><a href="/worker-housing">Worker Housing</a><a href="/services">Relocation</a><a href="/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/#bp-consultant">B10X</a><a href="/ai-document-agent">Document AI</a><a href="/business-development">Business Development</a><a href="/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/suppliers">Partner Registration</a><a href="/partner-dashboard">Partner Portal</a><a href="/careers">Jobs</a></div></div></details><a href="/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/ai-agents">All AI Advisors</a><a href="/compliance-agent">Compliance Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Hiring</summary><div class="bp-mini-menu"><a href="/careers">Open jobs</a><a href="/employer-dashboard">Employer dashboard</a><a href="/employer-join">Register as employer</a><a href="/employers">Employer services</a><a href="/job-search-service">Job search service</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/services/category/recruitment">Recruitment services</a></div></details><a href="/about">About</a><a href="/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>English</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/account">Get started</a></div></div></header><main><div class="bph"><section class="bph-hero"><div class="bph-wrap">
-    <span class="bph-kicker"><i></i> Business Partner · Company Setup &amp; Operations in Saudi Arabia</span>
-    <h1>Set up your company. Run it. <span>Grow in Saudi Arabia.</span></h1>
-    <p class="bph-lead">Business Partner brings company setup, government operations, HR, compliance, offices, housing and business development into one operating experience — AI powered, human executed.</p>
-    <div class="bph-chips"><a href="/services/category/company-formation">Company Setup</a><a href="/services/category/government-relations">Government Services</a><a href="/services/category/hr-services">HR &amp; Workforce</a><a href="/compliance-agent">Compliance &amp; Violations</a><a href="/workspaces">Offices &amp; Housing</a><a href="/business-development">Business Development</a></div>
-    <div class="bph-proofline"><b>B10X</b><i></i><span>24/7 smart advisor</span><i></i><span>Human operations team</span><i></i><span>Client Portal + SLA</span></div>
+<body class="bph-page"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/services/category/company-formation">Company Formation</a><a href="/services/category/foreign-investment">Foreign Investment</a><a href="/services/category/premium-residency">Premium Residency</a><a href="/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/services/category/government-relations">Government Services</a><a href="/compliance-agent">Compliance & Violations</a><a href="/services/category/hr-services">HR Services</a><a href="/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/workspaces">Workspaces</a><a href="/worker-housing">Worker Housing</a><a href="/tourism">Tourism & Events</a><a href="/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/b10x">B10X</a><a href="/#bp-consultant">Smart Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/smart-employee">Specialised Smart Employee</a><a href="/business-development">Business Development</a><a href="/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/suppliers">Partner Registration</a><a href="/partner-dashboard">Partner Portal</a><a href="/agency-portal">Recruitment Agency Portal</a><a href="/connect">Connect Hub</a><a href="/careers">Jobs</a></div></div></details><a href="/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/ai-agents">All AI Advisors</a><a href="/compliance-agent">Compliance Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Hiring</summary><div class="bp-mini-menu"><a href="/careers">Open jobs</a><a href="/employer-dashboard">Employer dashboard</a><a href="/employer-join">Register as employer</a><a href="/employers">Employer services</a><a href="/job-search-service">Job search service</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/services/category/recruitment">Recruitment services</a></div></details><a href="/about">About</a><a href="/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>English</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/account">Get started</a></div></div></header><main><div class="bph"><section class="bph-hero"><div class="bph-wrap">
+    <span class="bph-kicker"><i></i> Business Partner · Compliance, government operations and payments for companies in Saudi Arabia</span>
+    <h1>Your obligations, paid on time.<br><span>So a deadline never becomes a fine.</span></h1>
+    <p class="bph-lead">Keep a balance with Business Partner and we settle what your company owes as it falls due — GOSI, iqama and work-permit renewals, municipality licences, platform fees and payroll — and execute the government work behind each one. You watch it from one dashboard instead of chasing dates.</p>
+    <div class="bph-chips"><a href="/shared-services">GOSI &amp; payroll</a><a href="/services/category/government-relations">Iqamas &amp; work permits</a><a href="/services/category/government-relations">Municipality &amp; licences</a><a href="/compliance-agent">Violations &amp; objections</a><a href="/services/category/company-formation">Company setup</a><a href="/services/category/hr-services">Recruitment &amp; HR</a></div>
+    <div class="bph-proofline"><b>Your money stays yours</b><i></i><span>Paid only against a due obligation</span><i></i><span>Every payment on your statement</span></div>
     <div class="bph-hero-actions">
-      <a class="bph-btn primary" href="#bp-consultant">Start with the smart advisor</a>
+      <a class="bph-btn primary" href="#bp-how">See how it works</a>
       <a class="bph-btn" href="#bp-services">Explorar los servicios</a>
     </div>
-  </div></section><section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+  </div></section><section class="bph-risk" id="bp-risk"><div class="bph-wrap">
     <div class="bph-head">
-      <h2>Tell us what you need. B10X finds the path.</h2>
-      <p>You do not need to know the service name. Just describe what you need — the smart advisor identifies the service, the requirements and the next step.</p>
+      <h2>What we carry for your company</h2>
+      <p>Every line below is an obligation with a date on it. Missing the date is what costs money — not the fee itself.</p>
     </div>
-    <div class="bph-chat-shell"><div class="bph-chat">
-      <div class="bph-chat-head">
-        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>B10X — Business Partner smart advisor</span></div>
-        <span class="bph-chat-live">● Online</span>
-      </div>
-      <div class="bph-chat-body" id="bphChatBody">
-        <div class="bph-msg ai">Hi 👋 Tell me what you need or what you are stuck on, and I will help you find the right path.</div>
-        <div class="bph-chat-chips"><button type="button" data-chat-q="I want to set up a company in Saudi Arabia">Constitución de empresa</button><button type="button" data-chat-q="I am a foreign investor and want a MISA licence">Foreign investor</button><button type="button" data-chat-q="I need help with employees and workforce services">Employees &amp; workforce</button><button type="button" data-chat-q="I have a compliance or government platform issue">Cumplimiento</button><button type="button" data-chat-q="I received a violation and want to review the objection path">Object to a violation</button><button type="button" data-chat-q="I want a quote for a service">Get a quote</button></div>
-      </div>
-      <form class="bph-compose" id="bphChatForm">
-        <textarea id="bphChatInput" rows="1" placeholder="e.g. I have a foreign company and want to start in Riyadh…"></textarea>
-        <button type="submit" aria-label="Enviar">↑</button>
-      </form>
-      <div class="bph-chat-note">The advisor helps you inside the site; move to a request or the client portal whenever you are ready.</div>
-    </div></div>
-  </div></section><section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
-    <div class="bph-b10x-intro">
-      <div><span class="bph-eyebrow">B10X by Business Partner</span>
-        <h2>Every service. One operating layer.</h2></div>
-      <p>B10X is how you use Business Partner end to end: ask, we understand the need, we identify the service and requirements, you approve, then execution starts and you track everything from your account — no chasing messages across providers.</p>
+    <div class="bph-risk-grid"><div class="bph-risk-card"><div class="ic">🪪</div><h3>Iqamas &amp; work permits</h3><p>Renewals tracked per employee and filed before they lapse, with the fees paid from your balance.</p></div><div class="bph-risk-card"><div class="ic">🏛</div><h3>GOSI &amp; platform fees</h3><p>Monthly subscriptions and the government platforms your company is registered on, settled on schedule.</p></div><div class="bph-risk-card"><div class="ic">📄</div><h3>Municipality &amp; commercial licences</h3><p>Licence and registration renewals prepared and submitted, not left to the last week.</p></div><div class="bph-risk-card"><div class="ic">💵</div><h3>Payroll</h3><p>Salaries disbursed from your balance on your cycle, so wage-protection status stays clean.</p></div><div class="bph-risk-card"><div class="ic">⚖️</div><h3>Violations</h3><p>Reviewed, eligibility for objection studied, prepared, filed and followed up. No promise of cancellation — the decision is the authority's.</p></div><div class="bph-risk-card"><div class="ic">🤝</div><h3>Suppliers, under escrow</h3><p>A supplier's fee is held from your balance and released only after the work is delivered and you confirm it.</p></div></div>
+    <p class="bph-risk-note">Government fees and platform charges are passed through to the authority as they are — Business Partner is paid its own service fee, stated separately on every invoice.</p>
+  </div></section><section class="bph-how" id="bp-how"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Three steps, then you stop chasing dates</h2>
+      <p>No service names to learn and no forms to hunt for. You keep a balance, we do the rest and show you all of it.</p>
     </div>
-    <div class="bph-promise"><div><b>24/7 Smart Advisor</b><span>Understands your goal and routes the next action.</span></div><div><b>Client Portal</b><span>Requests, documents, SLA and a clear next action.</span></div><div><b>Document AI</b><span>Reads and checks documents inside your company workspace.</span></div><div><b>Compliance</b><span>Obligations, alerts, violations and renewals.</span></div><div><b>Government Ops</b><span>Real execution by the Business Partner team.</span></div><div><b>Growth</b><span>Customers, suppliers, partners and pipeline.</span></div></div>
-    <div class="bph-b10x-grid">
-      <div class="bph-panel"><h3>What B10X covers</h3><div class="bph-caps"><div class="bph-cap"><b>Company setup &amp; operations</b><span>From formation and foreign investment to licensing and daily operations.</span></div><div class="bph-cap"><b>HR &amp; workforce</b><span>Employees, Qiwa, sponsorship transfer, recruitment and hiring.</span></div><div class="bph-cap"><b>Compliance &amp; violations</b><span>Obligation monitoring, objection paths and remediation.</span></div><div class="bph-cap"><b>Offices, housing &amp; relocation</b><span>Offices, worker housing, executive housing and relocation.</span></div><div class="bph-cap"><b>Legal &amp; contracts</b><span>Contracts and legal reviews tied to running the company.</span></div><div class="bph-cap"><b>Business development</b><span>Pipeline, customers, suppliers, partners and market opportunities.</span></div></div></div>
-      <div class="bph-request">
-        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
-        <div class="bph-row"><span>Autoridad</span><b>Ministry of Investment</b></div>
-        <div class="bph-row"><span>Next Action</span><b>Upload audited financial statements</b></div>
-        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
-        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
-        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
-      </div>
-    </div>
-    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
-    <div class="bph-b10x-cta">
-      <a class="bph-btn white" href="/b10x">Explore B10X in detail</a>
-      <a class="bph-btn ghost" href="#bp-consultant">Start with the smart advisor</a>
+    <div class="bph-steps"><div class="bph-step"><h3>Keep a balance</h3><p>Top up your company wallet by transfer or card. It stays your money, held for your obligations — not a payment to us.</p><div class="bph-step-meta">Wallet · statement on demand</div></div><div class="bph-step"><h3>We pay and execute on time</h3><p>Each obligation is settled as it falls due and the government work behind it is carried out by our team — you are told before, not after.</p><div class="bph-step-meta">Human execution · SLA</div></div><div class="bph-step"><h3>You see everything in one place</h3><p>Requests, documents, invoices, what was paid and what is coming — in your dashboard, with an alert before each date.</p><div class="bph-step-meta">Client dashboard</div></div></div>
+    <div class="bph-how-actions">
+      <a class="bph-btn primary" href="/account">Open your account</a>
+      <a class="bph-btn" href="#bp-consultant">Not sure? Ask the smart advisor</a>
     </div>
   </div></section><section class="bph-services" id="bp-services"><div class="bph-wrap">
     <div class="bph-head">
@@ -394,6 +391,26 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
     </article></div>
     <p class="qb-foot">Las tasas gubernamentales son independientes y se detallan antes de pagar.</p>
   </div></div>
+  </div></section><section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Tell us what you need. B10X finds the path.</h2>
+      <p>You do not need to know the service name. Just describe what you need — the smart advisor identifies the service, the requirements and the next step.</p>
+    </div>
+    <div class="bph-chat-shell"><div class="bph-chat">
+      <div class="bph-chat-head">
+        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>B10X — Business Partner smart advisor</span></div>
+        <span class="bph-chat-live">● Online</span>
+      </div>
+      <div class="bph-chat-body" id="bphChatBody">
+        <div class="bph-msg ai">Hi 👋 Tell me what you need or what you are stuck on, and I will help you find the right path.</div>
+        <div class="bph-chat-chips"><button type="button" data-chat-q="I have an iqama or licence renewal coming up and want it handled">A renewal is due</button><button type="button" data-chat-q="I received a violation and want to review the objection path">I got a violation</button><button type="button" data-chat-q="I want you to handle GOSI and payroll for my company">GOSI &amp; payroll</button><button type="button" data-chat-q="I need help with employees and workforce services">Employees &amp; workforce</button><button type="button" data-chat-q="I want to set up a company in Saudi Arabia">Constitución de empresa</button><button type="button" data-chat-q="I want a quote for a service">Get a quote</button></div>
+      </div>
+      <form class="bph-compose" id="bphChatForm">
+        <textarea id="bphChatInput" rows="1" placeholder="e.g. I have a foreign company and want to start in Riyadh…"></textarea>
+        <button type="submit" aria-label="Enviar">↑</button>
+      </form>
+      <div class="bph-chat-note">The advisor helps you inside the site; move to a request or the client portal whenever you are ready.</div>
+    </div></div>
   </div></section><section class="bph-packages" id="bp-packages"><div class="bph-wrap">
     <div class="bph-head">
       <h2>Choose how you want to work with us.</h2>
@@ -422,6 +439,29 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
         <p>Contracts, reviews and legal support tied to running and growing the company.</p>
         <ul><li>Contracts and agreements</li><li>Legal reviews</li><li>Scope-based support</li></ul>
         <a class="bph-btn" href="/es/packages#pkg-legal">Explore packages</a></div>
+    </div>
+  </div></section><section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
+    <div class="bph-b10x-intro">
+      <div><span class="bph-eyebrow">B10X by Business Partner</span>
+        <h2>Every service. One operating layer.</h2></div>
+      <p>B10X is how you use Business Partner end to end: ask, we understand the need, we identify the service and requirements, you approve, then execution starts and you track everything from your account — no chasing messages across providers.</p>
+    </div>
+    <div class="bph-promise"><div><b>24/7 Smart Advisor</b><span>Understands your goal and routes the next action.</span></div><div><b>Client Portal</b><span>Requests, documents, SLA and a clear next action.</span></div><div><b>Document AI</b><span>Reads and checks documents inside your company workspace.</span></div><div><b>Compliance</b><span>Obligations, alerts, violations and renewals.</span></div><div><b>Government Ops</b><span>Real execution by the Business Partner team.</span></div><div><b>Growth</b><span>Customers, suppliers, partners and pipeline.</span></div></div>
+    <div class="bph-b10x-grid">
+      
+      <div class="bph-request">
+        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
+        <div class="bph-row"><span>Autoridad</span><b>Ministry of Investment</b></div>
+        <div class="bph-row"><span>Next Action</span><b>Upload audited financial statements</b></div>
+        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
+        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
+        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
+      </div>
+    </div>
+    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
+    <div class="bph-b10x-cta">
+      <a class="bph-btn white" href="/b10x">Explore B10X in detail</a>
+      <a class="bph-btn ghost" href="#bp-consultant">Start with the smart advisor</a>
     </div>
   </div></section><section class="bph-proof"><div class="bph-wrap">
     <div class="bph-head">

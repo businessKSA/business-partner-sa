@@ -994,6 +994,27 @@ const homeCss = `<style>
 .bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
 .bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
 
+/* 1b — the obligations we carry: why a company hires us at all */
+.bph .bph-risk{padding:56px 0 8px;background:#fff}
+.bph .bph-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+@media(max-width:900px){.bph .bph-risk-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.bph .bph-risk-grid{grid-template-columns:1fr}}
+.bph .bph-risk-card{border:1px solid var(--line);border-radius:18px;padding:18px 17px;background:#fff;box-shadow:0 6px 20px rgba(9,30,78,.04)}
+.bph .bph-risk-card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;background:linear-gradient(135deg,rgba(22,184,117,.13),rgba(67,214,244,.14));margin-bottom:11px}
+.bph .bph-risk-card h3{margin:0 0 6px;font-size:.92rem;color:var(--n);letter-spacing:-.02em}
+.bph .bph-risk-card p{margin:0;color:var(--mut);font-size:.79rem;line-height:1.75}
+.bph .bph-risk-note{max-width:900px;margin:22px auto 0;text-align:center;color:#8b94a6;font-size:.74rem;line-height:1.85}
+
+/* 1c — the journey, in three steps, before any service name is mentioned */
+.bph .bph-how{padding:58px 0;background:linear-gradient(180deg,#fff,var(--soft))}
+.bph .bph-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:1120px;margin:0 auto;counter-reset:bpstep}
+.bph .bph-step{position:relative;border:1px solid var(--line);border-radius:20px;padding:24px 20px 20px;background:#fff}
+.bph .bph-step:before{counter-increment:bpstep;content:counter(bpstep);position:absolute;top:-15px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-weight:900;font-size:.82rem;box-shadow:0 8px 18px rgba(36,75,184,.22)}
+.bph .bph-step h3{margin:6px 0 8px;font-size:1.02rem;color:var(--n);letter-spacing:-.03em}
+.bph .bph-step p{margin:0;color:var(--mut);font-size:.83rem;line-height:1.8}
+.bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
+.bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
+
 /* 2 — chat: the control plane, large and centred */
 .bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
 .bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
@@ -1157,7 +1178,9 @@ body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!impo
   .bph .bph-wrap{width:min(100% - 26px,1180px)}
   .bph section{padding:50px 0}
   .bph .bph-hero{padding:38px 0 20px}
-  .bph .bph-hero h1{font-size:2.55rem}
+  .bph .bph-hero h1{font-size:1.95rem;line-height:1.12;margin:12px auto 12px}
+  .bph .bph-hero p.bph-lead{font-size:.9rem;line-height:1.75}
+  .bph .bph-kicker{font-size:.66rem}
   .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
   .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
   .bph .bph-b10x h2{font-size:2.6rem}
@@ -1377,39 +1400,93 @@ function homeQuickBuy() {
 }
 
 function buildHome() {
-  /* ---- 1. Hero: Business Partner first. B10X is the layer inside it, never
-       the thing that greets you. ---- */
+  /* ---- 1. Hero ----------------------------------------------------------
+     The old headline promised six categories at once — a directory, not a
+     position. It also named B10X seventeen times on this page while never
+     once naming the wallet, the escrow, the payroll or the fines. So it sold
+     the tool and buried the outcome.
+     What a company with staff actually fears is a deadline it forgot: an
+     iqama, a work permit, a GOSI instalment, a municipality licence. That
+     fear is the headline now. B10X becomes the thing that runs it. ---- */
   const chips = [
-    [L("Company Setup", "تأسيس الشركات"), catUrl("Company Formation")],
-    [L("Government Services", "الخدمات الحكومية"), catUrl("Government Relations")],
-    [L("HR & Workforce", "الموارد البشرية"), catUrl("HR Services")],
-    [L("Compliance & Violations", "الامتثال والمخالفات"), u("/compliance-agent")],
-    [L("Offices & Housing", "المكاتب والسكن"), u("/workspaces")],
-    [L("Business Development", "تطوير الأعمال"), u("/business-development")],
+    [L("GOSI & payroll", "التأمينات والرواتب"), u("/shared-services")],
+    [L("Iqamas & work permits", "الإقامات ورخص العمل"), catUrl("Government Relations")],
+    [L("Municipality & licences", "البلدية والتراخيص"), catUrl("Government Relations")],
+    [L("Violations & objections", "المخالفات والاعتراضات"), u("/compliance-agent")],
+    [L("Company setup", "تأسيس الشركات"), catUrl("Company Formation")],
+    [L("Recruitment & HR", "الاستقدام والموارد البشرية"), catUrl("HR Services")],
   ].map(([t, href]) => `<a href="${href}">${t}</a>`).join("");
 
   const hero = `<section class="bph-hero"><div class="bph-wrap">
-    <span class="bph-kicker"><i></i> ${L("Business Partner · Company Setup & Operations in Saudi Arabia", "Business Partner · تأسيس وتشغيل الشركات في السعودية")}</span>
-    <h1>${/* Lraw, not L: the <span> is the gradient accent, not text to escape. */ Lraw(
-      "Set up your company. Run it. <span>Grow in Saudi Arabia.</span>",
-      "نؤسس شركتك. نشغّلها. <span>ونساعدك تنمو في السعودية.</span>",
+    <span class="bph-kicker"><i></i> ${L("Business Partner · Compliance, government operations and payments for companies in Saudi Arabia", "Business Partner · الامتثال والعمليات الحكومية والمدفوعات للشركات في السعودية")}</span>
+    <h1>${Lraw(
+      "Your obligations, paid on time.<br><span>So a deadline never becomes a fine.</span>",
+      "التزاماتك تُسدَّد في وقتها.<br><span>فلا يتحول موعدٌ إلى غرامة.</span>",
     )}</h1>
-    <p class="bph-lead">${L("Business Partner brings company setup, government operations, HR, compliance, offices, housing and business development into one operating experience — AI powered, human executed.", "Business Partner تجمع تأسيس الشركات، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن، وتطوير الأعمال في تجربة تشغيل واحدة — بذكاء اصطناعي وتنفيذ بشري.")}</p>
+    <p class="bph-lead">${L("Keep a balance with Business Partner and we settle what your company owes as it falls due — GOSI, iqama and work-permit renewals, municipality licences, platform fees and payroll — and execute the government work behind each one. You watch it from one dashboard instead of chasing dates.", "تحتفظ برصيدك لدى Business Partner، فنسدّد ما على شركتك عند استحقاقه — التأمينات، تجديد الإقامات ورخص العمل، رخص البلدية، رسوم المنصات، والرواتب — وننفّذ العمل الحكومي خلف كل بند. وتتابع ذلك من لوحة واحدة بدل أن تطارد المواعيد.")}</p>
     <div class="bph-chips">${chips}</div>
-    <div class="bph-proofline"><b>B10X</b><i></i><span>${L("24/7 smart advisor", "مستشار ذكي 24/7")}</span><i></i><span>${L("Human operations team", "فريق تنفيذ بشري")}</span><i></i><span>${L("Client Portal + SLA", "لوحة عميل + SLA")}</span></div>
+    <div class="bph-proofline"><b>${L("Your money stays yours", "رصيدك يبقى مالك")}</b><i></i><span>${L("Paid only against a due obligation", "لا يُصرف إلا مقابل التزام مستحق")}</span><i></i><span>${L("Every payment on your statement", "كل عملية في كشف حسابك")}</span></div>
     <div class="bph-hero-actions">
-      <a class="bph-btn primary" href="#bp-consultant">${L("Start with the smart advisor", "ابدأ مع المستشار الذكي")}</a>
-      <a class="bph-btn" href="#bp-services">${L("Explore services", "استعرض خدماتنا")}</a>
+      <a class="bph-btn primary" href="#bp-how">${L("See how it works", "كيف يعمل؟")}</a>
+      <a class="bph-btn" href="#bp-services">${L("Explore services", "استعرض الخدمات")}</a>
     </div>
   </div></section>`;
 
-  /* ---- 2. The advisor: the control plane, directly under the headline. ---- */
+  /* ---- 1b. What we carry for you. Named obligations, not adjectives.
+       No amounts and no deadlines are stated anywhere here: those are
+       government facts that change, and inventing them is forbidden. ---- */
+  const risks = [
+    ["🪪", L("Iqamas & work permits", "الإقامات ورخص العمل"), L("Renewals tracked per employee and filed before they lapse, with the fees paid from your balance.", "تُتابَع لكل موظف وتُجدَّد قبل انتهائها، وتُدفع رسومها من رصيدك.")],
+    ["🏛", L("GOSI & platform fees", "التأمينات ورسوم المنصات"), L("Monthly subscriptions and the government platforms your company is registered on, settled on schedule.", "الاشتراكات الشهرية ورسوم المنصات الحكومية المسجَّلة عليها شركتك، تُسدَّد في مواعيدها.")],
+    ["📄", L("Municipality & commercial licences", "رخص البلدية والسجل التجاري"), L("Licence and registration renewals prepared and submitted, not left to the last week.", "تجديد الرخص والسجلات يُجهَّز ويُقدَّم، لا يُترك لآخر أسبوع.")],
+    ["💵", L("Payroll", "الرواتب"), L("Salaries disbursed from your balance on your cycle, so wage-protection status stays clean.", "تُصرف رواتب موظفيك من رصيدك في دورتك، فيبقى وضعك في حماية الأجور سليماً.")],
+    ["⚖️", L("Violations", "المخالفات"), L("Reviewed, eligibility for objection studied, prepared, filed and followed up. No promise of cancellation — the decision is the authority's.", "تُراجَع، وتُدرَس أهلية الاعتراض، ثم يُجهَّز ويُقدَّم ويُتابَع. لا وعد بالإلغاء — القرار للجهة.")],
+    ["🤝", L("Suppliers, under escrow", "الموردون، بضمان التنفيذ"), L("A supplier's fee is held from your balance and released only after the work is delivered and you confirm it.", "تُحجز أتعاب المورد من رصيدك ولا تُفرج إلا بعد التسليم وتأكيدك.")],
+  ].map(([ic, t, d]) => `<div class="bph-risk-card"><div class="ic">${ic}</div><h3>${t}</h3><p>${d}</p></div>`).join("");
+
+  const risk = `<section class="bph-risk" id="bp-risk"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("What we carry for your company", "ما الذي نحمله عن شركتك")}</h2>
+      <p>${L("Every line below is an obligation with a date on it. Missing the date is what costs money — not the fee itself.", "كل بند أدناه التزامٌ له تاريخ. وتجاوز التاريخ هو ما يكلّف، لا الرسم نفسه.")}</p>
+    </div>
+    <div class="bph-risk-grid">${risks}</div>
+    <p class="bph-risk-note">${L("Government fees and platform charges are passed through to the authority as they are — Business Partner is paid its own service fee, stated separately on every invoice.", "الرسوم الحكومية ورسوم المنصات تُمرَّر إلى الجهة كما هي — وأتعاب Business Partner تُذكر منفصلة في كل فاتورة.")}</p>
+  </div></section>`;
+
+  /* ---- 1c. The journey in three steps, before any service name. ---- */
+  const steps = [
+    [L("Keep a balance", "تحتفظ برصيد"),
+     L("Top up your company wallet by transfer or card. It stays your money, held for your obligations — not a payment to us.", "تشحن محفظة شركتك بتحويل أو بطاقة. يبقى المبلغ مالك، محجوزاً لالتزاماتك — لا مدفوعاً لنا."),
+     L("Wallet · statement on demand", "المحفظة · كشف حساب متى شئت")],
+    [L("We pay and execute on time", "نسدّد وننفّذ في الوقت"),
+     L("Each obligation is settled as it falls due and the government work behind it is carried out by our team — you are told before, not after.", "يُسدَّد كل التزام عند استحقاقه، وينفّذ فريقنا العمل الحكومي خلفه — وتُبلَّغ قبل، لا بعد."),
+     L("Human execution · SLA", "تنفيذ بشري · SLA")],
+    [L("You see everything in one place", "ترى كل شيء في مكان واحد"),
+     L("Requests, documents, invoices, what was paid and what is coming — in your dashboard, with an alert before each date.", "الطلبات والمستندات والفواتير وما دُفع وما هو قادم — في لوحتك، مع تنبيه قبل كل موعد."),
+     L("Client dashboard", "لوحة العميل")],
+  ].map(([t, d, m]) => `<div class="bph-step"><h3>${t}</h3><p>${d}</p><div class="bph-step-meta">${m}</div></div>`).join("");
+
+  const how = `<section class="bph-how" id="bp-how"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Three steps, then you stop chasing dates", "ثلاث خطوات، ثم تتوقف عن مطاردة المواعيد")}</h2>
+      <p>${L("No service names to learn and no forms to hunt for. You keep a balance, we do the rest and show you all of it.", "لا أسماء خدمات تحفظها ولا نماذج تبحث عنها. تحتفظ برصيد، ونتولى الباقي ونعرضه عليك كاملاً.")}</p>
+    </div>
+    <div class="bph-steps">${steps}</div>
+    <div class="bph-how-actions">
+      <a class="bph-btn primary" href="${u("/account")}">${L("Open your account", "افتح حسابك")}</a>
+      <a class="bph-btn" href="#bp-consultant">${L("Not sure? Ask the smart advisor", "لست متأكداً؟ اسأل المستشار الذكي")}</a>
+    </div>
+  </div></section>`;
+
+  /* The advisor is no longer the greeter — it is the fallback for a visitor
+     who cannot name what they need. Its prompts lead with the obligations a
+     company with staff actually carries. */
   const chatChips = [
-    [L("Company formation", "تأسيس شركة"), L("I want to set up a company in Saudi Arabia", "أبغى أفتح شركة في السعودية")],
-    [L("Foreign investor", "مستثمر أجنبي"), L("I am a foreign investor and want a MISA licence", "أنا مستثمر أجنبي وأبغى ترخيص وزارة الاستثمار")],
+    [L("A renewal is due", "عندي تجديد قرب"), L("I have an iqama or licence renewal coming up and want it handled", "عندي تجديد إقامة أو رخصة قرب موعده وأبغاكم تتولونه")],
+    [L("I got a violation", "وصلتني مخالفة"), L("I received a violation and want to review the objection path", "وصلتني مخالفة وأبغى أراجع مسار الاعتراض")],
+    [L("GOSI & payroll", "التأمينات والرواتب"), L("I want you to handle GOSI and payroll for my company", "أبغاكم تتولون التأمينات ورواتب موظفيني")],
     [L("Employees & workforce", "موظفين وقوى"), L("I need help with employees and workforce services", "أحتاج مساعدة في الموظفين وخدمات القوى العاملة")],
-    [L("Compliance", "امتثال"), L("I have a compliance or government platform issue", "عندي موضوع امتثال أو منصة حكومية")],
-    [L("Object to a violation", "اعتراض على مخالفة"), L("I received a violation and want to review the objection path", "وصلتني مخالفة وأبغى أراجع مسار الاعتراض")],
+    [L("Company formation", "تأسيس شركة"), L("I want to set up a company in Saudi Arabia", "أبغى أفتح شركة في السعودية")],
     [L("Get a quote", "عرض سعر"), L("I want a quote for a service", "أبغى عرض سعر لخدمة")],
   ].map(([label, q]) => `<button type="button" data-chat-q="${esc(q)}">${label}</button>`).join("");
 
@@ -1445,15 +1522,6 @@ function buildHome() {
     ["Growth", L("Customers, suppliers, partners and pipeline.", "عملاء، موردون، شركاء وفرص نمو.")],
   ].map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join("");
 
-  const caps = [
-    [L("Company setup & operations", "تأسيس وتشغيل الشركات"), L("From formation and foreign investment to licensing and daily operations.", "من التأسيس والاستثمار الأجنبي إلى التراخيص والتشغيل اليومي.")],
-    [L("HR & workforce", "الموارد البشرية"), L("Employees, Qiwa, sponsorship transfer, recruitment and hiring.", "موظفين، قوى، نقل خدمات، توظيف واستقدام.")],
-    [L("Compliance & violations", "الامتثال والمخالفات"), L("Obligation monitoring, objection paths and remediation.", "مراقبة الالتزامات ومسارات الاعتراض والمعالجة.")],
-    [L("Offices, housing & relocation", "المكاتب والسكن والانتقال"), L("Offices, worker housing, executive housing and relocation.", "مكاتب، سكن عمالة، سكن تنفيذي وRelocation.")],
-    [L("Legal & contracts", "القانونية والعقود"), L("Contracts and legal reviews tied to running the company.", "عقود ومراجعات قانونية مرتبطة بتشغيل الشركة.")],
-    [L("Business development", "تطوير الأعمال"), L("Pipeline, customers, suppliers, partners and market opportunities.", "Pipeline، عملاء، موردون، شركاء وفرص سوق.")],
-  ].map(([b, s]) => `<div class="bph-cap"><b>${b}</b><span>${s}</span></div>`).join("");
-
   const b10x = `<section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
     <div class="bph-b10x-intro">
       <div><span class="bph-eyebrow">B10X by Business Partner</span>
@@ -1462,7 +1530,7 @@ function buildHome() {
     </div>
     <div class="bph-promise">${promise}</div>
     <div class="bph-b10x-grid">
-      <div class="bph-panel"><h3>${L("What B10X covers", "ماذا يشمل B10X؟")}</h3><div class="bph-caps">${caps}</div></div>
+      
       <div class="bph-request">
         <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
         <div class="bph-row"><span>${L("Authority", "الجهة")}</span><b>${L("Ministry of Investment", "وزارة الاستثمار")}</b></div>
@@ -1568,7 +1636,7 @@ function buildHome() {
     </div>
   </div></section>`;
 
-  const body = `<div class="bph">${hero}${chat}${b10x}${svc}${start}${packages}${proof}</div>`;
+  const body = `<div class="bph">${hero}${risk}${how}${svc}${start}${chat}${packages}${b10x}${proof}</div>`;
 
   return page({
     title: Lraw("Business Partner — Saudi business setup & operations", "بيزنس بارتنر — تأسيس وتشغيل الأعمال في السعودية"),

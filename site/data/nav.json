@@ -30,12 +30,12 @@
         {
           "href": "/ai-agents",
           "en": "AI Agents ⚡",
-          "ar": "الوكلاء الأذكياء ⚡",
+          "ar": "المستشارون الأذكياء ⚡",
           "sub": [
             {
               "href": "/ai-agents",
               "en": "All AI Agents",
-              "ar": "كل الوكلاء الأذكياء"
+              "ar": "كل المستشارون الأذكياء"
             },
             {
               "href": "/compliance-agent",
