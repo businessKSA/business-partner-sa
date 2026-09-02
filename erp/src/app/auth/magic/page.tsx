@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { inspectMagicLink, consumeMagicLink } from '@/lib/magic-link.ts';
 import { createSession, currentSession } from '@/lib/auth.ts';
+import { isDatabaseUnavailable } from '@/lib/errors.ts';
 
 /**
  * فتح رابط الدخول.
@@ -11,29 +12,64 @@ import { createSession, currentSession } from '@/lib/auth.ts';
  * قبل أن يراها المرسَل إليه — تفحصها بحثاً عن تصيّد. فرابطٌ يُنشئ الجلسة
  * بمجرّد فتحه يُحرَق قبل أن يصل، فيجد صاحبه «رابطاً مستعمَلاً» ولم يلمسه.
  * والفاحص الآلي لا يضغط أزراراً ولا يرسل `POST`.
+ *
+ * وكل ما يمسّ القاعدة هنا محروسٌ بـ`isDatabaseUnavailable`: هذه الصفحة
+ * هي التي **يهبط عليها الرابط القادم بالبريد**، فانهيارها بصفحة 500 يعني
+ * أن من ضغط رابطه لا يرى إلا شاشةً بيضاء لا تقول شيئاً. وهي أولى بهذا
+ * الحرس من شاشة الدخول نفسها.
  */
 export default async function MagicPage({
   searchParams,
 }: {
   searchParams: Promise<{ token?: string; error?: string }>;
 }) {
-  const existing = await currentSession();
+  const { token = '', error } = await searchParams;
+
+  // التوجيه خارج `try` عمداً: `redirect` يعمل برمي استثناءٍ خاص، فلو وقع
+  // داخل الكتلة لالتقطه `catch` وحُسب عطلَ قاعدةٍ وهو نجاح.
+  let unavailable = false;
+  let existing: Awaited<ReturnType<typeof currentSession>> = null;
+
+  try {
+    existing = await currentSession();
+  } catch (e) {
+    if (!isDatabaseUnavailable(e)) throw e;
+    unavailable = true;
+  }
+
   if (existing) redirect('/dashboard');
 
-  const { token = '', error } = await searchParams;
-  const state = await inspectMagicLink(token);
+  let state: Awaited<ReturnType<typeof inspectMagicLink>> | null = null;
+  if (!unavailable) {
+    try {
+      state = await inspectMagicLink(token);
+    } catch (e) {
+      if (!isDatabaseUnavailable(e)) throw e;
+      unavailable = true;
+    }
+  }
 
   async function confirm(formData: FormData) {
     'use server';
 
     const t = String(formData.get('token') ?? '');
-    const result = await consumeMagicLink(t);
 
-    if (!result.ok) {
-      redirect(`/auth/magic?token=${encodeURIComponent(t)}&error=${result.reason}`);
+    let result: Awaited<ReturnType<typeof consumeMagicLink>> | null = null;
+    let misconfigured = false;
+
+    try {
+      result = await consumeMagicLink(t);
+    } catch (e) {
+      if (!isDatabaseUnavailable(e)) throw e;
+      console.error('✗ تأكيد رابط دخول وقاعدة البيانات غير متاحة:', e);
+      misconfigured = true;
     }
 
-    await createSession(result.userId, result.tenantId);
+    const back = `/auth/magic?token=${encodeURIComponent(t)}`;
+    if (misconfigured) redirect(`${back}&error=config`);
+    if (!result!.ok) redirect(`${back}&error=${result!.reason}`);
+
+    await createSession(result!.userId, result!.tenantId);
     redirect('/dashboard');
   }
 
@@ -45,7 +81,14 @@ export default async function MagicPage({
     NO_MEMBERSHIP: 'حسابك لا ينتمي إلى أي منشأة بعد. تواصل مع مسؤول النظام.',
   };
 
-  const problem = error ? REASONS[error] : !state.valid ? REASONS[state.reason] : null;
+  const misconfigured = unavailable || error === 'config';
+  const problem = misconfigured
+    ? null
+    : error
+      ? REASONS[error]
+      : state && !state.valid
+        ? REASONS[state.reason]
+        : null;
 
   return (
     <div style={{
@@ -61,7 +104,16 @@ export default async function MagicPage({
 
         <div className="card">
           <div className="card-body">
-            {problem ? (
+            {misconfigured ? (
+              <div className="alert error">
+                <strong>النظام غير موصول بقاعدة بيانات</strong>
+                رابطك سليمٌ على الأرجح، والخلل خلل إعداد لا فيك ولا فيه. على من
+                ينشر النظام أن يضبط
+                <span className="mono"> DATABASE_URL </span>
+                في متغيّرات البيئة ثم يُعيد النشر. راجع
+                <span className="mono"> docs/deploy.md</span>.
+              </div>
+            ) : problem ? (
               <>
                 <div className="alert error">{problem}</div>
                 <a className="btn primary" href="/login" style={{ width: '100%', justifyContent: 'center' }}>
@@ -71,7 +123,7 @@ export default async function MagicPage({
             ) : (
               <>
                 <p style={{ marginTop: 0, marginBottom: 4 }}>
-                  تأكيد الدخول باسم <strong dir="ltr">{state.valid ? state.email : ''}</strong>
+                  تأكيد الدخول باسم <strong dir="ltr">{state?.valid ? state.email : ''}</strong>
                 </p>
                 <p className="muted small" style={{ marginTop: 0 }}>
                   اضغط للمتابعة. الرابط يعمل مرّةً واحدة.
