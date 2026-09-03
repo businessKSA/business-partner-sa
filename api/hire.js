@@ -23,7 +23,7 @@ const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 const SYSTEM = `أنت مساعد توظيف خبير لدى Business Partner (بيزنس بارتنر) في السعودية. تساعد أصحاب العمل على تقييم المرشّحين واتخاذ قرارات توظيف عملية وسريعة. كن دقيقاً وموجزاً ومهنياً، وراعِ أنظمة العمل والتوطين في السعودية. اكتب بلغة المستخدم (العربية افتراضياً). لا تختلق بيانات غير موجودة.`;
 
 async function callGemini(prompt, maxTokens) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST",
     headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },

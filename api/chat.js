@@ -154,7 +154,12 @@ const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 
 async function callGemini(messages, system) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  // gemini-2.5-flash was retired: Google answers 404 with «no longer available
+  // to new users … use models/gemini-3.6-flash». The failover hid it — the
+  // chain moved on to the next provider — so the only visible symptom was the
+  // generic «صار خلل بسيط» whenever Gemini was the only configured key.
+  // Override with GEMINI_MODEL when Google moves it again.
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST",
     headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
@@ -267,6 +272,14 @@ const PROVIDERS = [
   { name: "baher-n8n", keys: null, call: callN8nBaher },
 ];
 const configured = () => PROVIDERS.filter((p) => !p.keys || !!envFrom(p.keys));
+// The n8n provider carries no key, so `configured()` is never empty and the
+// "missing key" branch never fires: with no keys at all the chain still has one
+// member, it fails, and the customer-facing «صار خلل بسيط» is shown. On a
+// developer's machine that reads like a bug in the site rather than an absent
+// key, so locally we name what is missing instead.
+const hasModelKey = () => PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
+const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
+const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
 
 export default async function handler(req, res) {
@@ -298,7 +311,9 @@ export default async function handler(req, res) {
   const chain = configured();
   if (!chain.length) {
     res.statusCode = 500;
-    return res.end(JSON.stringify({ error: "missing_api_key", reply: "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً." }));
+    // Locally the generic line reads like a bug; name the missing key instead.
+    const reply = LOCAL_DEV_CHAT() ? NO_KEY_HINT : "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً.";
+    return res.end(JSON.stringify({ error: "missing_api_key", reply }));
   }
 
   // Parse body (Vercel may pass it parsed or raw)
@@ -390,6 +405,10 @@ export default async function handler(req, res) {
     }
   }
 
+  if (LOCAL_DEV_CHAT() && !hasModelKey()) {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ error: "missing_api_key", reply: NO_KEY_HINT }));
+  }
   res.statusCode = 502;
   return res.end(JSON.stringify({ error: "upstream_error", reply: "صار خلل بسيط. جرّب مرة ثانية أو تواصل معنا على واتساب." }));
 }

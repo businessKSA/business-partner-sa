@@ -23,8 +23,8 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // Simple V1 preview testing: addresses under @test.businesspartner.sa sign in
 // with a fixed code and no e-mail is sent — only on Vercel previews or when
 // SIMPLE_TEST_MODE=1, never on production.
-const TEST_LOGIN = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview"
-  || process.env.APP_ENV === "development";
+const LOCAL_DEV = process.env.APP_ENV === "development";
+const TEST_LOGIN = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || LOCAL_DEV;
 // @test.local is the localhost pair documented in docs/local-development.md
 // (client@test.local / admin@test.local); the .businesspartner.sa domain is
 // the preview pair. Neither exists in production.
@@ -245,12 +245,17 @@ export default async function handler(req, res) {
     const email = String(body.email || "").trim().toLowerCase();
     const channel = body.channel === "sms" ? "sms" : "email";
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ error: "invalid_email" })); }
-    const isTestLogin = TEST_LOGIN && TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d));
+    // Local development: no mail can leave the machine anyway, so every
+    // address signs in with the fixed code. Without this the owner types their
+    // own real address, falls through to the mail provider that is not
+    // configured locally, and gets «تعذّر إرسال الرمز» with no way forward.
+    const isTestLogin = TEST_LOGIN
+      && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
     const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
     const challenge = seal({ email, code, channel, exp: Date.now() + TTL_MS });
     if (isTestLogin) {
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true }));
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true, ...(LOCAL_DEV ? { devCode: code } : {}) }));
     }
     let delivery;
     if (channel === "sms") delivery = await sendSms(body.phone, code);

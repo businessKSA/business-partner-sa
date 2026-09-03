@@ -129,7 +129,7 @@ async function geminiCall(key, model, parts, maxTokens, timeoutMs) {
 async function readWithGemini(base64, mime, prompt, maxTokens) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
-  const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const { text } = await geminiCall(key, model, [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }], maxTokens || 900);
   return parseJson(text);
 }
@@ -248,7 +248,7 @@ export async function askModel(prompt, maxTokens) {
   const errs = [];
   if (gk) {
     try {
-      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
       const { text, truncated } = await geminiCall(gk, model, [{ text: prompt }], maxTokens || 2000);
       const parsed = parseJson(text);
       if (parsed) return { ok: true, data: parsed, provider: "gemini", truncated };
