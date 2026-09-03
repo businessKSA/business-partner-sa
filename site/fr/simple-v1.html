@@ -374,8 +374,21 @@ fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-t
 ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
 .catch(function(){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.chatError})}
+// Handoff from the per-service assistant (site/scripts/service-advisor.mjs):
+// the visitor already answered the short questions on a service page, so the
+// chat opens in the right context with that service already in the scope.
+var handoff=false;
+try{var hx=JSON.parse(sessionStorage.getItem('bp_sva_request')||'null');
+if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){sessionStorage.removeItem('bp_sva_request');
+state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=hx.name;state.ready=false;
+state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
+$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
+msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();save();ask();
+handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
 // boot
-if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
+if(handoff){/* already rendered from the service-page handoff */}
+else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems()}
 else setCtx(state.ctx,true);

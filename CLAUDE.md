@@ -23,6 +23,19 @@
 - قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/bpic-marketing-site-jvrnga`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
 - **لا تدفع أبداً إلى فرع آخر** دون إذن صريح من المالك.
 
+## 2.5) التطوير المحلي أولاً (قرار المالك 2026-09-04)
+
+- **لا نشرة على Vercel مع كل تعديل.** العمل على `localhost` أولاً: `npm run dev`
+  ثم `http://localhost:3000`. تُطلب معاينة Vercel عند محطة مستقرة فقط أو حين
+  يطلبها المالك. التفاصيل في `docs/local-development.md`.
+- `LOCAL_DB=1` يحوّل قاعدة البيانات إلى ملف JSON تحت `.localdb/`؛ الخادم يرفض
+  الإقلاع إن أُطفئ بلا `LOCAL_ALLOW_REMOTE_DB=1` حتى لا يُطوَّر على بيانات
+  عملاء حقيقية.
+- `api/_mode.js`: محلياً الدفع اختبار، تمارا رمليّة، واتساب محاكى، البريد
+  معاينة، العقد اختبار. لا بطاقة تُخصم ولا رسالة تصل عميلاً.
+- حسابات محلية: `client@test.local` و`admin@test.local` بالرمز `123456`،
+  ومفتاح اللوحة `test-ops`.
+
 ## 3) البناء والتحقق
 
 - البناء الكامل: `npm run build` (16 خطوة؛ النجاح = «B10X cache key updated on 1209 pages»). لا تشغّل `generate.mjs` وحده.
@@ -33,7 +46,12 @@
 ## 4) سياسات المحتوى الثابتة
 
 - الأسعار من الكتالوج بالـSKU فقط، ولا تُخترع أسعار أو معلومات حكومية. `SHOW_PRICES=false` (الأسعار للمسجّلين فقط).
-- لا أزرار واتساب داخل محتوى الصفحات — فقط الزر العائم.
+- لا أزرار واتساب داخل محتوى الصفحات — فقط الزر العائم. **استثناء واحد
+  بأمر المالك (2026-09-04):** زر «أرسل طلبي على واتساب» داخل «مشخّص الخدمة»
+  في صفحات `/services/*` (`site/scripts/service-advisor.mjs`)، لأن الملخّص
+  المكتوب هو ناتج المشخّص نفسه.
+- اسم العلامة الظاهر «Business Partner» في كل اللغات بالشعار الرسمي — لا
+  «شريك الأعمال» ولا «شريك أعمالك» (قرار المالك 2026-09-04، طبقة Simple V1).
 - التسمية: «المستشار الذكي» وعائلتها، وليس «الوكيل» (باستثناء المسميات المهنية الرسمية و«وكيل محفول مكفول» والتوكيل القانوني).
 - المخالفات: مراجعة / دراسة أهلية الاعتراض / تجهيز / تقديم / متابعة — لا وعد بالإلغاء.
 - لا تُكتب أسرار في Notion أو في الملفات المدفوعة.
@@ -42,5 +60,10 @@
 ---
 
 # English summary for tools that read this file
+
+**Local-first (2026-09-04):** develop on `npm run dev` → http://localhost:3000
+with `LOCAL_DB=1` (JSON file under `.localdb/`, production Supabase untouched)
+and every integration in a safe mode (`api/_mode.js`). Vercel previews are for
+stable milestones only, never after every change. See `docs/local-development.md`.
 
 **One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) and `bp-erp` (`erp/`) Vercel projects are being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard. Do not create Vercel projects, do not build new features inside `quotes/` or `erp/` as standalone apps, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
