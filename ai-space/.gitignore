@@ -1,0 +1,4 @@
+# Real endpoint paths for the deployed Space. This repository is public and the
+# n8n webhook paths are unauthenticated secret URLs, so the live config never
+# enters git. config.example.js documents the shape.
+config.js

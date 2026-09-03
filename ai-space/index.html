@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#02060f">
+<title>BP AI Command Space</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🛰️</text></svg>">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="starfield" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="tb-brand">
+    <span class="tb-mark">◈</span>
+    <div>
+      <b>Business Partner</b>
+      <small>AI COMMAND SPACE</small>
+    </div>
+  </div>
+
+  <div class="tb-stats" id="tbStats"></div>
+
+  <div class="tb-right">
+    <div class="tb-owner">
+      <div class="tb-owner-txt"><b>باهر</b><small>القائد</small></div>
+      <div class="tb-avatar">BM</div>
+    </div>
+    <button id="btnRefresh" class="tb-btn" title="تحديث البيانات">⟳</button>
+  </div>
+</header>
+
+<div class="linkline" id="linkLine" hidden></div>
+
+<main class="grid">
+
+  <!-- ======= THE FOCUS: the orbit map ======= -->
+  <section class="panel map" id="mapPanel">
+    <div class="panel-head">
+      <h2>خريطة الشركة الحية</h2>
+      <span class="panel-sub" id="mapSub">—</span>
+    </div>
+
+    <div class="orbit" id="orbit">
+      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <button class="core" id="coreBtn" type="button">
+        <span class="core-glow"></span>
+        <b>باهر الافتراضي</b>
+        <small>Virtual Baher</small>
+        <em id="coreState">—</em>
+      </button>
+      <div id="orbs"></div>
+    </div>
+
+    <div class="valuechain" id="valueChain"></div>
+  </section>
+
+  <!-- ======= Left rail: live operations ======= -->
+  <aside class="rail rail-ops">
+    <section class="panel">
+      <div class="panel-head"><h2>المهام المفتوحة</h2><span class="panel-sub" id="taskSub">—</span></div>
+      <div class="scroll" id="taskList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>الصفقات والإيراد</h2><span class="panel-sub" id="dealSub">—</span></div>
+      <div class="scroll" id="dealList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>جاهزية الربط</h2><span class="panel-sub" id="intSub">—</span></div>
+      <div class="scroll" id="intList"></div>
+    </section>
+  </aside>
+
+  <!-- ======= Right rail: the one conversation ======= -->
+  <aside class="rail rail-talk">
+    <section class="panel talk">
+      <div class="panel-head">
+        <h2>محادثة واحدة · صوت وكتابة</h2>
+        <span class="state" id="uiState">…</span>
+      </div>
+
+      <div class="mic-strip">
+        <div class="meter" id="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <button id="btnMic" class="chip" type="button">🎙️ الاستماع</button>
+        <button id="btnSpeak" class="chip" type="button">🔊 الصوت</button>
+      </div>
+
+      <div class="msgs" id="msgs"></div>
+
+      <div class="composer">
+        <textarea id="input" rows="1" placeholder="اكتب، أو تكلّم مباشرة…"></textarea>
+        <button id="btnSend" type="button">إرسال</button>
+      </div>
+      <div class="target" id="targetLine">التوجيه: كل الشركة</div>
+    </section>
+  </aside>
+</main>
+
+<!-- ======= Department dossier ======= -->
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header class="sheet-head">
+      <div>
+        <h3 id="sheetTitle">—</h3>
+        <p id="sheetSub">—</p>
+      </div>
+      <button id="sheetClose" type="button" aria-label="إغلاق">✕</button>
+    </header>
+    <div class="sheet-body" id="sheetBody"></div>
+    <footer class="sheet-foot">
+      <button class="btn-ghost" id="sheetAsk" type="button">اسأل باهر عن هذا القسم</button>
+    </footer>
+  </div>
+</div>
+
+<script src="/config.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
