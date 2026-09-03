@@ -7,11 +7,15 @@
 // route. The homepage replaces "/" only when the SIMPLE_V1=1 build flag is
 // set — otherwise it is previewed at /simple-v1 and the classic home stays.
 //
-// Layout follows the owner's own mockup (2026-09-02): hero text beside three
-// service doors, one app panel with the conversation on one side and the
-// editable scope always visible on the other, a six-step journey strip, and a
-// preview of the two dashboards. The official logo stays — the mockup's
-// letter-mark is not used, per the written brief.
+// Layout follows the approved concept file business_partner_simple_v1_refined
+// .html (2026-09-03): hero text beside three service doors, a three-step
+// "you don't need to know the service name" band, one app panel with the
+// conversation on one side and the editable scope always visible on the other,
+// a six-step journey strip, and a preview of the two dashboards. The visible
+// brand is "Business Partner" in every language, drawn with the official logo
+// asset — the concept's temporary letter-mark is placeholder branding.
+// No price appears here: the catalogue stays in the backend and the figure
+// reaches the customer in the quotation for the scope they approved.
 //
 // Four languages (ar/en/fr/zh) from the dictionary below — the pages are
 // authored once and rendered per language by generate.mjs' language loop.
@@ -20,17 +24,32 @@ export const SIMPLE_V1 = process.env.SIMPLE_V1 === "1";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
-  brand: { ar: "شريك الأعمال", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
-  heroTag: { ar: "شريك أعمالك في السعودية", en: "Your business partner in Saudi Arabia", fr: "Votre partenaire d'affaires en Arabie saoudite", zh: "您在沙特的商业伙伴" },
+  // The visible company name is "Business Partner" in every language — the
+  // Arabic renderings («شريك الأعمال» / «شريك أعمالك») are not used as the brand.
+  brand: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
+  heroTag: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
   login: { ar: "دخول", en: "Sign in", fr: "Connexion", zh: "登录" },
   navStart: { ar: "ابدأ طلبك", en: "Start your request", fr: "Démarrer une demande", zh: "开始申请" },
-  heroTitle: { ar: "قل لنا وش تحتاج،<br>ونرتب لك الطلب.", en: "Tell us what you need,<br>and we'll organise the request.", fr: "Dites-nous ce qu'il vous faut,<br>nous organisons la demande.", zh: "告诉我们您的需求，<br>我们为您安排申请。" },
-  heroText: { ar: "ابدأ محادثة بسيطة. نرتب الخدمات المطلوبة، وبعد موافقتك يطلع عرض السعر والعقد والدفع والفاتورة من مكان واحد.", en: "Start a simple conversation. We organise the services needed, and after your approval the quotation, contract, payment and invoice all come from one place.", fr: "Commencez par une simple conversation. Nous organisons les services nécessaires et, après votre accord, le devis, le contrat, le paiement et la facture viennent du même endroit.", zh: "从一次简单的对话开始。我们安排所需服务，经您确认后，报价、合同、付款和发票都在同一处完成。" },
+  heroTitle: { ar: "قل لنا وش تحتاج،<br>ونبدأ معك من هنا.", en: "Tell us what you need,<br>and we start here with you.", fr: "Dites-nous ce qu'il vous faut,<br>et nous commençons ici.", zh: "告诉我们您的需求，<br>我们从这里开始。" },
+  heroText: { ar: "اختر نوع الخدمة أو ابدأ المحادثة مباشرة. نفهم طلبك، ونجهّز لك الخطوات المناسبة، وبعدها تكمل كل شيء من حسابك.", en: "Pick a service or just start the conversation. We understand the request, prepare the right steps, and you finish everything from your account.", fr: "Choisissez un service ou lancez simplement la conversation. Nous comprenons votre demande, préparons les bonnes étapes, et vous finalisez tout depuis votre compte.", zh: "选择服务类型，或直接开始对话。我们理解您的需求、准备相应步骤，随后您在账户中完成全部流程。" },
   heroChat: { ar: "ابدأ محادثة", en: "Start a conversation", fr: "Démarrer la conversation", zh: "开始对话" },
   heroWa: { ar: "أكمل على واتساب", en: "Continue on WhatsApp", fr: "Continuer sur WhatsApp", zh: "在 WhatsApp 继续" },
+
+  trust1: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
+  trust2: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
+  trust3: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+
+  noNameTitle: { ar: "ما تحتاج تعرف اسم الخدمة", en: "You don't need to know the name of the service", fr: "Vous n'avez pas besoin de connaître le nom du service", zh: "您无需知道服务的名称" },
+  noNameSub: { ar: "اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.", en: "Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.", fr: "Choisissez une rubrique ou décrivez simplement votre besoin. Nous organisons la demande en arrière-plan ; vous ne voyez que ce qui vous concerne.", zh: "选择相应板块，或直接描述您的需求。我们在后台整理申请，您只看到与您相关的内容。" },
+  nn1: { ar: "1. اشرح احتياجك", en: "1. Describe what you need", fr: "1. Décrivez votre besoin", zh: "1. 说明您的需求" },
+  nn1s: { ar: "اكتب بالطريقة العادية، بلا نماذج طويلة.", en: "Write it normally — no long forms.", fr: "Écrivez normalement, sans formulaire interminable.", zh: "用平常的话写下来，无需冗长表单。" },
+  nn2: { ar: "2. راجع طلبك", en: "2. Review your request", fr: "2. Revoyez votre demande", zh: "2. 检查您的申请" },
+  nn2s: { ar: "الخدمات المطلوبة تظهر واضحة وقابلة للتعديل.", en: "The services requested appear clearly, and you can edit them.", fr: "Les services demandés s'affichent clairement et restent modifiables.", zh: "所需服务清晰列出，且可自行修改。" },
+  nn3: { ar: "3. كمّل من حسابك", en: "3. Finish from your account", fr: "3. Terminez depuis votre compte", zh: "3. 在账户中完成" },
+  nn3s: { ar: "عرض سعر، عقد، دفع، فاتورة، ومتابعة.", en: "Quotation, contract, payment, invoice and follow-up.", fr: "Devis, contrat, paiement, facture et suivi.", zh: "报价、合同、付款、发票与跟进。" },
 
   ctxConsulting: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   ctxGovernment: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
@@ -42,8 +61,8 @@ const D = {
   ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
   ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
 
-  advisorTitle: { ar: "اشرح طلبك مثل ما تشرحه لشخص", en: "Explain your request the way you'd explain it to a person", fr: "Expliquez votre demande comme à une personne", zh: "像对人一样说明您的需求" },
-  advisorSub: { ar: "بعد المحادثة راجع البنود بنفسك: احذف، أضف أو عدّل قبل عرض السعر.", en: "After the conversation, review the items yourself: remove, add or edit before the quotation.", fr: "Après la conversation, revoyez les éléments vous-même : supprimez, ajoutez ou modifiez avant le devis.", zh: "对话之后由您自己检查条目：在报价前删除、添加或修改。" },
+  advisorTitle: { ar: "كل شيء يبدأ من المحادثة", en: "Everything starts with the conversation", fr: "Tout commence par la conversation", zh: "一切从对话开始" },
+  advisorSub: { ar: "اشرح احتياجك بطريقتك، ونرتّب لك الطلب والخدمات المناسبة. راجع البنود بنفسك — احذف أو أضف أو عدّل — قبل عرض السعر.", en: "Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.", fr: "Expliquez votre besoin avec vos mots ; nous organisons la demande et les services adaptés. Revoyez les éléments — supprimez, ajoutez, modifiez — avant le devis.", zh: "用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。" },
   stepReq: { ar: "الطلب", en: "Request", fr: "Demande", zh: "申请" },
   stepQuote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   stepContract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
@@ -64,9 +83,8 @@ const D = {
   scopeAdd: { ar: "إضافة", en: "Add", fr: "Ajouter", zh: "添加" },
   scopeAddPh: { ar: "أضف بند…", en: "Add an item…", fr: "Ajouter un élément…", zh: "添加条目…" },
   typeLbl: { ar: "نوع الطلب", en: "Request type", fr: "Type de demande", zh: "申请类型" },
-  priceLbl: { ar: "السعر", en: "Price", fr: "Prix", zh: "价格" },
-  priceByScope: { ar: "يُحدَّد في عرض السعر", en: "Set in the quotation", fr: "Défini dans le devis", zh: "在报价中确定" },
-  priceFrom: { ar: "يبدأ من", en: "From", fr: "À partir de", zh: "起价" },
+  stateLbl: { ar: "الحالة", en: "Status", fr: "Statut", zh: "状态" },
+  stateReady: { ar: "جاهز للمراجعة", en: "Ready for review", fr: "Prêt pour révision", zh: "待审核" },
   sar: { ar: "ريال", en: "SAR", fr: "SAR", zh: "SAR" },
   createBtn: { ar: "إنشاء عرض السعر", en: "Create the quotation", fr: "Créer le devis", zh: "生成报价" },
 
@@ -161,15 +179,9 @@ export function simpleV1(ctx) {
   const LANG_NAMES = { ar: "العربية", en: "English", fr: "Français", zh: "中文" };
   const contact = site.contact || {};
   const WA_HUMAN = "https://wa.me/966" + String(contact.whatsappSupport || contact.phone || "0530540231").replace(/^0/, "");
-  // Formation carries a public package price (owner policy: package prices are
-  // public, service prices are not) — read by SKU from the catalog, never typed.
-  const formationFrom = (() => {
-    const groups = (site.packages && site.packages.groups) || [];
-    for (const g of groups) for (const tr of (g.tiers || g.items || [])) {
-      if (String(tr.code || "").toUpperCase() === "BP-PKG-FORM-FOREIGN" && Number(tr.amount) > 0) return Number(tr.amount);
-    }
-    return 0;
-  })();
+  // No price is shown on the public homepage: the approved concept puts the
+  // catalogue and its prices in the backend, and the figure reaches the
+  // customer in the quotation for the scope they approved.
 
   const CSS = `<style id="sv1-css">
 .sv1{--n:#0B1B5A;--n2:#081345;--g:#F5F6FA;--l:#E4E7F0;--t:#1F2430;--s:#4a4f5e;--ok:#16815A;--wa:#25D366;--sh:0 12px 34px rgba(11,27,90,.10);--line:#E4E7F0;--ink:#1F2430;--mut:#5f6880;--soft:#f7f9fd;font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh}
@@ -204,6 +216,12 @@ export function simpleV1(ctx) {
 .sv1-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.18;margin:14px 0 17px;letter-spacing:-.01em}
 .sv1-lead{font-size:17px;color:var(--s);margin:0}
 .sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
 .sv1-doors{display:grid;gap:10px}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:15px;padding:18px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:#99a7d4;transform:translateY(-2px)}
@@ -303,6 +321,7 @@ export function simpleV1(ctx) {
  .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
@@ -368,12 +387,14 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
     const adminMenu = ["pAdminReqs", "pClientChats", "pClientQuotes", "pClientContracts", "pClientAppts", "pAdminPayments", "pClientInv", "pAdminWa", "pAdminTasks", "pAdminCatalog"]
       .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
-    const dash = `—`;
+    // Sample figures, exactly as the approved concept shows them; the caption
+    // under the panel says so, and real numbers appear after signing in.
+    const S = { cActive: "2", cQuote: "1", cSign: "1", cAppt: "1", aNew: "6", aQuote: "3", aSign: "2", aPaid: "4" };
 
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
-      priceByScope: t("priceByScope"), priceFrom: t("priceFrom"), sar: t("sar"),
+      stateReady: t("stateReady"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
       welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation") },
       chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation") },
@@ -394,6 +415,7 @@ ${header(path)}
         <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
         <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
       </div>
+      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li></ul>
     </div>
     <div class="sv1-doors" id="doors">${doors}</div>
   </div></section>
@@ -421,7 +443,7 @@ ${header(path)}
           <div class="sv1-addrow"><input id="sv1AddIn" placeholder="${esc(t("scopeAddPh"))}"><button type="button" class="sv1-btn sm" id="sv1Add">${t("scopeAdd")}</button></div>
           <div class="sv1-summary">
             <div><span>${t("typeLbl")}</span><b id="sv1Type">${t("ctxConsulting")}</b></div>
-            <div><span>${t("priceLbl")}</span><strong id="sv1Price">${t("priceByScope")}</strong></div>
+            <div><span>${t("stateLbl")}</span><strong id="sv1Price">${t("stateReady")}</strong></div>
           </div>
           <button type="button" class="sv1-btn primary" style="width:100%" id="sv1Create">${t("createBtn")}</button>
         </div>
@@ -444,6 +466,15 @@ ${header(path)}
     </div>
   </div></section>
 
+  <section class="sv1-sec" id="simple"><div class="wrap">
+    <div class="sv1-title"><h2>${t("noNameTitle")}</h2><p>${t("noNameSub")}</p></div>
+    <div class="sv1-three">
+      <div class="sv1-panel"><h4>${t("nn1")}</h4><p class="sv1-muted">${t("nn1s")}</p></div>
+      <div class="sv1-panel"><h4>${t("nn2")}</h4><p class="sv1-muted">${t("nn2s")}</p></div>
+      <div class="sv1-panel"><h4>${t("nn3")}</h4><p class="sv1-muted">${t("nn3s")}</p></div>
+    </div>
+  </div></section>
+
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
     <div class="sv1-title"><h2>${t("journeyTitle")}</h2><p>${t("journeySub")}</p></div>
     <div class="sv1-flow">${flow}</div>
@@ -458,10 +489,10 @@ ${header(path)}
         <main class="sv1-pmain">
           <h3>${t("goodMorning")}</h3><div class="sv1-muted">${t("topToday")}</div>
           <div class="sv1-stats">
-            <div class="sv1-stat"><span>${t("kActive")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kQuote")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kSign")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kAppt")}</span><b>${dash}</b></div>
+            <div class="sv1-stat"><span>${t("kActive")}</span><b>${S.cActive}</b></div>
+            <div class="sv1-stat"><span>${t("kQuote")}</span><b>${S.cQuote}</b></div>
+            <div class="sv1-stat"><span>${t("kSign")}</span><b>${S.cSign}</b></div>
+            <div class="sv1-stat"><span>${t("kAppt")}</span><b>${S.cAppt}</b></div>
           </div>
           <div class="sv1-cols">
             <div class="sv1-panel"><h4>${t("pClientReqs")}</h4>
@@ -481,10 +512,10 @@ ${header(path)}
         <main class="sv1-pmain">
           <h3>${t("todayReqs")}</h3><div class="sv1-muted">${t("onlyAction")}</div>
           <div class="sv1-stats">
-            <div class="sv1-stat"><span>${t("kNew")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kNeedQuote")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kWaitSign")}</span><b>${dash}</b></div>
-            <div class="sv1-stat"><span>${t("kPaid")}</span><b>${dash}</b></div>
+            <div class="sv1-stat"><span>${t("kNew")}</span><b>${S.aNew}</b></div>
+            <div class="sv1-stat"><span>${t("kNeedQuote")}</span><b>${S.aQuote}</b></div>
+            <div class="sv1-stat"><span>${t("kWaitSign")}</span><b>${S.aSign}</b></div>
+            <div class="sv1-stat"><span>${t("kPaid")}</span><b>${S.aPaid}</b></div>
           </div>
           <div class="sv1-cols">
             <div class="sv1-panel"><h4>${t("pAdminReqs")}</h4>
@@ -507,7 +538,7 @@ ${footer()}`;
 
     const script = `<script>
 (function(){
-var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))},FORM_FROM=${JSON.stringify(formationFrom)};
+var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))};
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
@@ -516,11 +547,10 @@ try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang
 function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
 function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
 function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
-function priceText(){if(state.ctx==='formation'&&FORM_FROM>0)return TX.priceFrom+' '+Number(FORM_FROM).toLocaleString(LANG==='ar'?'ar-SA-u-nu-latn':'en-US')+' '+TX.sar;return TX.priceByScope}
 function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
 function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
-$('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=priceText();
+$('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=TX.stateReady;
 msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();save();
 if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
 document.addEventListener('click',function(e){var d=e.target.closest?e.target.closest('[data-door]'):null;if(d)setCtx(d.getAttribute('data-door'))});
@@ -550,13 +580,13 @@ ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));va
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
 .catch(function(){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.chatError})}
 // boot
-if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=priceText();
+if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems()}
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
-      title: { ar: "شريك الأعمال — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" }[l],
+      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" }[l],
       desc: t("heroText"),
       path, body, script,
     });

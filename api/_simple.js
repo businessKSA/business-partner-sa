@@ -20,8 +20,9 @@ import { sb, DB_ON, getSession, audit, notify } from "./_db.js";
 import { contractHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 
-export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview";
+export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 const NOTIFY_ON = process.env.SIMPLE_NOTIFY === "1";
 const SELF_BASE = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
 const RESEND_API_KEY = (process.env.RESEND_API_KEY || process.env.RESEND_KEY || "").trim();
@@ -59,11 +60,17 @@ function opsOk(src) {
   // Preview/test only: a throwaway key so the owner can test /ops without
   // exposing the production panel key on a preview URL.
   if (SIMPLE_TEST_MODE && key && key === (process.env.SIMPLE_OPS_KEY || "test-ops")) return true;
+  // Local development only: the documented dashboard key from .env.local.
+  if (DEV && key && key === (process.env.SIMPLE_OPS_KEY || "test-ops")) return true;
   return false;
 }
 
 async function sendEmail(to, subject, html) {
-  if (!NOTIFY_ON) return { ok: false, skipped: "notify_off" };
+  // Local/preview: record it in the dev outbox instead of mailing a person.
+  if (!EMAIL_LIVE || !NOTIFY_ON) {
+    await outbox({ kind: "email", to, subject, body: html });
+    return { ok: false, skipped: EMAIL_LIVE ? "notify_off" : "email_mode_" + MODES().email };
+  }
   if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -157,7 +164,7 @@ export async function handleSimple(req, res) {
   const isOps = action.startsWith("ops-");
   try {
     if (action === "config") {
-      return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, notify: NOTIFY_ON, types: REQUEST_TYPES, statuses: REQUEST_STATUSES, sources: REQUEST_SOURCES });
+      return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, notify: NOTIFY_ON, modes: MODES(), types: REQUEST_TYPES, statuses: REQUEST_STATUSES, sources: REQUEST_SOURCES });
     }
     if (isOps) {
       if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) return json(res, 401, { ok: false, error: "unauthorized" });
@@ -453,6 +460,11 @@ async function opsAction(action, b, qs, req, res) {
       new_clients_month: new Set(all.filter((r) => (r.created_at || "").slice(0, 7) === month).map((r) => r.client_name || r.ref)).size,
     };
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, recent: all.slice(0, 12).map(summary) });
+  }
+
+  // Development only: what would have been emailed / sent on WhatsApp.
+  if (action === "ops-outbox") {
+    return json(res, 200, { ok: true, modes: MODES(), outbox: DEV ? await outboxList(60) : [] });
   }
 
   if (action === "ops-requests") {

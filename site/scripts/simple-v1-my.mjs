@@ -4,7 +4,7 @@
 // is waiting on (approve quote → sign contract → pay → done).
 
 const P = {
-  title: { ar: "حسابي — شريك الأعمال", en: "My account — Business Partner", fr: "Mon compte — Business Partner", zh: "我的账户 — Business Partner" },
+  title: { ar: "حسابي — Business Partner", en: "My account — Business Partner", fr: "Mon compte — Business Partner", zh: "我的账户 — Business Partner" },
   navHome: { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
   navNew: { ar: "ابدأ طلب جديد", en: "New request", fr: "Nouvelle demande", zh: "新申请" },
   navRequests: { ar: "طلباتي", en: "My requests", fr: "Mes demandes", zh: "我的申请" },
