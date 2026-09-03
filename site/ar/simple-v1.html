@@ -116,6 +116,14 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--n);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
 .sv1-summary{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:11px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .sv1-summary strong{font-size:16px;color:var(--n)}
@@ -225,10 +233,16 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
         </div>
         <div class="sv1-scope">
           <span class="sv1-tag">ملخص طلبك</span>
-          <h3>الخدمات المطلوبة</h3>
-          <p>هذه القائمة تتحول إلى نطاق الخدمة في عرض السعر.</p>
+          <h3>نطاق الخدمات</h3>
+          <p>هذا هو نطاق العمل الذي يقوم عليه عرض السعر. عدّله كما تشاء قبل أن ترسله.</p>
           <div id="sv1Items"></div>
           <div class="sv1-addrow"><input id="sv1AddIn" placeholder="أضف بند…"><button type="button" class="sv1-btn sm" id="sv1Add">إضافة</button></div>
+          <div class="sv1-docs">
+            <h4>المستندات المطلوبة</h4>
+            <p>لكل خدمة مستنداتها. جهّزها الآن أو أرفقها لاحقاً من حسابك.</p>
+            <div id="sv1Docs"></div>
+            <div class="sv1-addrow"><input id="sv1DocIn" placeholder="أضف مستنداً…"><button type="button" class="sv1-btn sm" id="sv1DocAdd">إضافة</button></div>
+          </div>
           <div class="sv1-summary">
             <div><span>نوع الطلب</span><b id="sv1Type">الاستشارات</b></div>
             <div><span>الحالة</span><strong id="sv1Price">جاهز للمراجعة</strong></div>
@@ -258,19 +272,18 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
     <div class="sv1-title"><h2>ما تحتاج تعرف اسم الخدمة</h2><p>اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.</p></div>
     <div class="sv1-three">
       <div class="sv1-panel"><h4>1. اشرح احتياجك</h4><p class="sv1-muted">اكتب بالطريقة العادية، بلا نماذج طويلة.</p></div>
-      <div class="sv1-panel"><h4>2. راجع طلبك</h4><p class="sv1-muted">الخدمات المطلوبة تظهر واضحة وقابلة للتعديل.</p></div>
+      <div class="sv1-panel"><h4>2. راجع طلبك</h4><p class="sv1-muted">نطاق الخدمات يظهر واضحاً وقابلاً للتعديل.</p></div>
       <div class="sv1-panel"><h4>3. كمّل من حسابك</h4><p class="sv1-muted">عرض سعر، عقد، دفع، فاتورة، ومتابعة.</p></div>
     </div>
   </div></section>
 
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
     <div class="sv1-title"><h2>رحلة واحدة لكل الخدمات</h2><p>ما يحتاج العميل يتعلم نظام جديد لكل خدمة.</p></div>
-    <div class="sv1-flow"><div><i>1</i><b>محادثة</b><small>نفهم المطلوب</small></div><div><i>2</i><b>نطاق الخدمة</b><small>إضافة وحذف</small></div><div><i>3</i><b>عرض السعر</b><small>موافقة العميل</small></div><div><i>4</i><b>العقد</b><small>توقيع إلكتروني</small></div><div><i>5</i><b>الدفع</b><small>دفع إلكتروني</small></div><div><i>6</i><b>الفاتورة</b><small>داخل الحساب</small></div></div>
+    <div class="sv1-flow"><div><i>1</i><b>محادثة</b><small>نفهم المطلوب</small></div><div><i>2</i><b>نطاق الخدمات</b><small>إضافة وحذف</small></div><div><i>3</i><b>عرض السعر</b><small>موافقة العميل</small></div><div><i>4</i><b>العقد</b><small>توقيع إلكتروني</small></div><div><i>5</i><b>الدفع</b><small>دفع إلكتروني</small></div><div><i>6</i><b>الفاتورة</b><small>داخل الحساب</small></div></div>
   </div></section>
 
   <section class="sv1-sec" id="portal"><div class="wrap">
-    <div class="sv1-title"><h2>لوحة بسيطة وواضحة</h2><p>للعميل: طلباته وعروضه وعقوده ومواعيده ومدفوعاته. وللإدارة: الطلبات التي تحتاج إجراءً فقط.</p></div>
-    <div class="sv1-tabs"><button type="button" class="sv1-tab on" id="sv1TabC">لوحة العميل</button><button type="button" class="sv1-tab" id="sv1TabA">لوحة الإدارة</button></div>
+    <div class="sv1-title"><h2>حسابك: كل شيء في مكان واحد</h2><p>طلباتك وعروض أسعارك وعقودك ومواعيدك ومدفوعاتك وفواتيرك — تتابعها بنفسك في أي وقت.</p></div>
     <div class="sv1-portal">
       <div class="sv1-pgrid" id="sv1PC">
         <aside class="sv1-side"><strong>Business Partner</strong><small>BUSINESS PARTNER</small><div class="sv1-mi on">الرئيسية</div><div class="sv1-mi">ابدأ طلب</div><div class="sv1-mi">طلباتي</div><div class="sv1-mi">عروض الأسعار</div><div class="sv1-mi">العقود</div><div class="sv1-mi">المواعيد</div><div class="sv1-mi">السلة والدفع</div><div class="sv1-mi">الفواتير</div><div class="sv1-mi">المحادثات</div></aside>
@@ -295,29 +308,6 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
           </div>
         </main>
       </div>
-      <div class="sv1-pgrid sv1-hide" id="sv1PA">
-        <aside class="sv1-side"><strong>لوحة الإدارة</strong><small>BUSINESS PARTNER</small><div class="sv1-mi on">الطلبات</div><div class="sv1-mi">المحادثات</div><div class="sv1-mi">عروض الأسعار</div><div class="sv1-mi">العقود</div><div class="sv1-mi">المواعيد</div><div class="sv1-mi">المدفوعات</div><div class="sv1-mi">الفواتير</div><div class="sv1-mi">واتساب</div><div class="sv1-mi">المهام</div><div class="sv1-mi">الخدمات والأسعار</div></aside>
-        <main class="sv1-pmain">
-          <h3>طلبات اليوم</h3><div class="sv1-muted">فقط ما يحتاج منك إجراءً.</div>
-          <div class="sv1-stats">
-            <div class="sv1-stat"><span>جديدة</span><b>6</b></div>
-            <div class="sv1-stat"><span>تحتاج عرضاً</span><b>3</b></div>
-            <div class="sv1-stat"><span>بانتظار التوقيع</span><b>2</b></div>
-            <div class="sv1-stat"><span>مدفوعة</span><b>4</b></div>
-          </div>
-          <div class="sv1-cols">
-            <div class="sv1-panel"><h4>الطلبات</h4>
-              <div class="sv1-prow"><span>الخدمات الحكومية</span><span class="sv1-status">جديدة</span></div>
-              <div class="sv1-prow"><span>الاستشارات</span><span class="sv1-status">تحتاج عرضاً</span></div>
-              <div class="sv1-prow"><span>تأسيس الشركات</span><span class="sv1-status done">مدفوعة</span></div>
-            </div>
-            <div class="sv1-panel"><h4>المهام</h4>
-              <p class="sv1-muted">فقط ما يحتاج منك إجراءً.</p>
-              <a class="sv1-btn primary sm" href="/ops">افتح لوحة الإدارة</a>
-            </div>
-          </div>
-        </main>
-      </div>
     </div>
     <p class="sv1-pnote">صورة توضيحية للواجهة — البيانات الحقيقية تظهر بعد تسجيل الدخول.</p>
   </div></section>
@@ -333,24 +323,27 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
 (function(){
-var LANG="ar",TX={"thinking":"نرتّب طلبك…","chatError":"تعذّر الرد الآن. جرّب مرة أخرى أو تواصل معنا عبر واتساب.","scopeIn":"ضمن نطاق الطلب","needScope":"أضف بنداً واحداً على الأقل قبل إنشاء الطلب.","loginErr":"تعذّر إرسال الرمز. تأكد من البريد أو جرّب لاحقاً.","codeErr":"الرمز غير صحيح.","creating":"ننشئ طلبك…","created":"تم إنشاء طلبك. رقم الطلب:","openPortal":"افتح حسابي","stateReady":"جاهز للمراجعة","titles":{"consulting":"الاستشارات","government":"الخدمات الحكومية","formation":"تأسيس الشركات"},"welcome":{"consulting":"حياك الله 👋 اشرح لي الموضوع اللي تحتاج تستشير فيه.","government":"حياك الله 👋 اشرح لي المعاملة أو المشكلة في المنصة.","formation":"حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها."},"chips":{"consulting":["استشارة عن ترخيص","مشكلة في الشركة","تحديد الجهات ذات العلاقة","فحص شامل للشركة"],"government":["مشكلة في قوى","تغيير مهنة","نقل خدمات","تأشيرات","النطاقات والتوطين","إدارة المنصات"],"formation":["فرع شركة أجنبية","شركة ريادة أعمال","التسجيل الاستثماري","متطلبات التأسيس"]},"seed":{"consulting":["فهم الموضوع والحالة الحالية","تحديد الجهات والمتطلبات ذات العلاقة","تحديد الخطوات والتوصيات المطلوبة"],"government":["فحص المشكلة أو المعاملة","تحديد الخدمات الحكومية المطلوبة","تنفيذ أو متابعة الخدمات المتفق عليها"],"formation":["تحديد مسار التأسيس","إجراءات التأسيس والسجل وعقد التأسيس","الاشتراك في المنصات الحكومية الأساسية","تعيين المدير على الشركة","دعم فتح الحساب البنكي"]},"types":{"consulting":"الاستشارات","government":"الخدمات الحكومية","formation":"تأسيس الشركات"},"doorSub":{"consulting":"سؤال، تحدٍّ، قرار أو موضوع يخص شركتك.","government":"معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.","formation":"فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال."}},PORTAL="/ar/my";
+var LANG="ar",TX={"thinking":"نرتّب طلبك…","chatError":"تعذّر الرد الآن. جرّب مرة أخرى أو تواصل معنا عبر واتساب.","scopeIn":"ضمن نطاق الطلب","needScope":"أضف بنداً واحداً على الأقل قبل إنشاء الطلب.","loginErr":"تعذّر إرسال الرمز. تأكد من البريد أو جرّب لاحقاً.","codeErr":"الرمز غير صحيح.","creating":"ننشئ طلبك…","created":"تم إنشاء طلبك. رقم الطلب:","openPortal":"افتح حسابي","stateReady":"جاهز للمراجعة","docsEmpty":"تظهر هنا بعد أن يفهم المستشار طلبك.","titles":{"consulting":"الاستشارات","government":"الخدمات الحكومية","formation":"تأسيس الشركات"},"welcome":{"consulting":"حياك الله 👋 اشرح لي الموضوع اللي تحتاج تستشير فيه.","government":"حياك الله 👋 اشرح لي المعاملة أو المشكلة في المنصة.","formation":"حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها."},"chips":{"consulting":["استشارة عن ترخيص","مشكلة في الشركة","تحديد الجهات ذات العلاقة","فحص شامل للشركة"],"government":["مشكلة في قوى","تغيير مهنة","نقل خدمات","تأشيرات","النطاقات والتوطين","إدارة المنصات"],"formation":["فرع شركة أجنبية","شركة ريادة أعمال","التسجيل الاستثماري","متطلبات التأسيس"]},"seed":{"consulting":["فهم الموضوع والحالة الحالية","تحديد الجهات والمتطلبات ذات العلاقة","تحديد الخطوات والتوصيات المطلوبة"],"government":["فحص المشكلة أو المعاملة","تحديد الخدمات الحكومية المطلوبة","تنفيذ أو متابعة الخدمات المتفق عليها"],"formation":["تحديد مسار التأسيس","إجراءات التأسيس والسجل وعقد التأسيس","الاشتراك في المنصات الحكومية الأساسية","تعيين المدير على الشركة","دعم فتح الحساب البنكي"]},"types":{"consulting":"الاستشارات","government":"الخدمات الحكومية","formation":"تأسيس الشركات"},"doorSub":{"consulting":"سؤال، تحدٍّ، قرار أو موضوع يخص شركتك.","government":"معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.","formation":"فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال."}},PORTAL="/ar/my";
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
-var state={ctx:'consulting',history:[],items:[],summary:'',title:'',ready:false,busy:false};
-try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
-function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
+var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
+try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.docs=sv.docs||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
+function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,docs:state.docs,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
 function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
 function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
 function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
-function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});
+function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
+state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
+function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});state.docs=[];
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
 $('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();save();
+msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();drawDocs();save();
 if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
 document.addEventListener('click',function(e){var d=e.target.closest?e.target.closest('[data-door]'):null;if(d)setCtx(d.getAttribute('data-door'))});
 function parseScope(text){var i=text.indexOf('<<SCOPE>>');if(i<0)return{text:text.trim(),scope:null};var j=text.indexOf('<<END>>',i);var raw=text.slice(i+9,j<0?text.length:j);var sc=null;try{sc=JSON.parse(raw)}catch(e){}var clean=(text.slice(0,i)+(j<0?'':text.slice(j+7))).trim();return{text:clean,scope:sc&&sc.ready?sc:null}}
-function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
+state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
 fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
 .then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);if(p.text)add(p.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope)})
@@ -360,8 +353,8 @@ form.addEventListener('submit',function(e){e.preventDefault();submit()});
 input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 $('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};
 $('sv1AddIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1Add').click()}});
-$('sv1TabC').onclick=function(){$('sv1PC').classList.remove('sv1-hide');$('sv1PA').classList.add('sv1-hide');this.classList.add('on');$('sv1TabA').classList.remove('on')};
-$('sv1TabA').onclick=function(){$('sv1PA').classList.remove('sv1-hide');$('sv1PC').classList.add('sv1-hide');this.classList.add('on');$('sv1TabC').classList.remove('on')};
+$('sv1DocAdd').onclick=function(){var v=$('sv1DocIn').value.trim();if(!v)return;state.docs.push({title:v,note:''});$('sv1DocIn').value='';drawDocs();save()};
+$('sv1DocIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1DocAdd').click()}});
 var challenge='',email='';
 $('sv1Create').onclick=function(){if(!state.items.length){$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.needScope;return}if(window.SV1_SESSION){createRequest();return}$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent='';$('sv1Login').scrollIntoView({behavior:'smooth',block:'nearest'});$('sv1Email').focus()};
 $('sv1SendCode').onclick=function(){email=$('sv1Email').value.trim().toLowerCase();var err=$('sv1LoginErr');err.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){err.textContent=TX.loginErr;return}var self=this;self.disabled=true;
@@ -369,7 +362,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 $('sv1Verify').onclick=function(){var self=this;self.disabled=true;$('sv1LoginErr').textContent='';
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'verify',email:email,code:$('sv1Code').value.trim(),challenge:challenge,name:$('sv1Name').value.trim()})}).then(function(r){return r.json()}).then(function(o){self.disabled=false;if(!o||!o.ok){$('sv1LoginErr').textContent=TX.codeErr;return}window.SV1_SESSION={user:{email:email}};try{localStorage.setItem('bp_session','1')}catch(e){}createRequest()}).catch(function(){self.disabled=false;$('sv1LoginErr').textContent=TX.codeErr})};
 function createRequest(){var ok=$('sv1LoginOk');$('sv1Login').classList.remove('sv1-hide');$('sv1LoginStep1').classList.add('sv1-hide');$('sv1LoginStep2').classList.add('sv1-hide');ok.classList.remove('sv1-hide');ok.textContent=TX.creating;
-fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'request-create',type:TYPE[state.ctx],source:'WEBSITE',lang:LANG,title:state.title||TX.titles[state.ctx],summary:state.summary,scope:state.items,conversation:state.history,name:$('sv1Name').value.trim(),phone:$('sv1Phone').value.trim()})})
+fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'request-create',type:TYPE[state.ctx],source:'WEBSITE',lang:LANG,title:state.title||TX.titles[state.ctx],summary:state.summary,scope:state.items,documents:state.docs,conversation:state.history,name:$('sv1Name').value.trim(),phone:$('sv1Phone').value.trim()})})
 .then(function(r){return r.json()}).then(function(o){if(!o||!o.ok){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=(o&&o.message)||TX.chatError;return}
 ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
@@ -384,12 +377,12 @@ state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.t
 state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 $('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();save();ask();
+msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();drawDocs();save();ask();
 handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
 // boot
 if(handoff){/* already rendered from the service-page handoff */}
 else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
-msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems()}
+msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
 })();</script></body></html>

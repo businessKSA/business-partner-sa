@@ -47,7 +47,7 @@ const D = {
   nn1: { ar: "1. اشرح احتياجك", en: "1. Describe what you need", fr: "1. Décrivez votre besoin", zh: "1. 说明您的需求" },
   nn1s: { ar: "اكتب بالطريقة العادية، بلا نماذج طويلة.", en: "Write it normally — no long forms.", fr: "Écrivez normalement, sans formulaire interminable.", zh: "用平常的话写下来，无需冗长表单。" },
   nn2: { ar: "2. راجع طلبك", en: "2. Review your request", fr: "2. Revoyez votre demande", zh: "2. 检查您的申请" },
-  nn2s: { ar: "الخدمات المطلوبة تظهر واضحة وقابلة للتعديل.", en: "The services requested appear clearly, and you can edit them.", fr: "Les services demandés s'affichent clairement et restent modifiables.", zh: "所需服务清晰列出，且可自行修改。" },
+  nn2s: { ar: "نطاق الخدمات يظهر واضحاً وقابلاً للتعديل.", en: "The scope of work appears clearly, and you can edit it.", fr: "Le périmètre s'affiche clairement et reste modifiable.", zh: "服务范围清晰列出，且可自行修改。" },
   nn3: { ar: "3. كمّل من حسابك", en: "3. Finish from your account", fr: "3. Terminez depuis votre compte", zh: "3. 在账户中完成" },
   nn3s: { ar: "عرض سعر، عقد، دفع، فاتورة، ومتابعة.", en: "Quotation, contract, payment, invoice and follow-up.", fr: "Devis, contrat, paiement, facture et suivi.", zh: "报价、合同、付款、发票与跟进。" },
 
@@ -77,9 +77,13 @@ const D = {
   welcomeFormation: { ar: "حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها.", en: "Welcome 👋 Tell me about the company you want to set up.", fr: "Bienvenue 👋 Parlez-moi de la société que vous voulez créer.", zh: "欢迎 👋 请介绍您想设立的公司。" },
 
   scopeTag: { ar: "ملخص طلبك", en: "Your request", fr: "Votre demande", zh: "您的申请" },
-  scopeHeading: { ar: "الخدمات المطلوبة", en: "Services requested", fr: "Services demandés", zh: "所需服务" },
-  scopeNote: { ar: "هذه القائمة تتحول إلى نطاق الخدمة في عرض السعر.", en: "This list becomes the scope of work in the quotation.", fr: "Cette liste devient le périmètre du devis.", zh: "此清单将成为报价中的服务范围。" },
+  scopeHeading: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
+  scopeNote: { ar: "هذا هو نطاق العمل الذي يقوم عليه عرض السعر. عدّله كما تشاء قبل أن ترسله.", en: "This is the scope of work the quotation is built on. Edit it as you like before sending.", fr: "C'est le périmètre sur lequel repose le devis. Modifiez-le avant de l'envoyer.", zh: "报价将以此服务范围为准，发送前可自行修改。" },
   scopeIn: { ar: "ضمن نطاق الطلب", en: "In scope", fr: "Dans le périmètre", zh: "在范围内" },
+  docsHeading: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
+  docsNote: { ar: "لكل خدمة مستنداتها. جهّزها الآن أو أرفقها لاحقاً من حسابك.", en: "Every service has its own documents. Prepare them now, or attach them later from your account.", fr: "Chaque service a ses documents. Préparez-les maintenant ou joignez-les plus tard depuis votre compte.", zh: "每项服务都有其所需文件。现在准备，或稍后在账户中上传。" },
+  docsEmpty: { ar: "تظهر هنا بعد أن يفهم المستشار طلبك.", en: "These appear once the advisor understands your request.", fr: "Ils apparaîtront une fois votre demande comprise.", zh: "顾问了解您的需求后将在此列出。" },
+  docsAddPh: { ar: "أضف مستنداً…", en: "Add a document…", fr: "Ajouter un document…", zh: "添加文件…" },
   scopeAdd: { ar: "إضافة", en: "Add", fr: "Ajouter", zh: "添加" },
   scopeAddPh: { ar: "أضف بند…", en: "Add an item…", fr: "Ajouter un élément…", zh: "添加条目…" },
   typeLbl: { ar: "نوع الطلب", en: "Request type", fr: "Type de demande", zh: "申请类型" },
@@ -92,7 +96,7 @@ const D = {
   journeySub: { ar: "ما يحتاج العميل يتعلم نظام جديد لكل خدمة.", en: "No customer has to learn a new system for each service.", fr: "Aucun client n'a à apprendre un nouveau système par service.", zh: "客户无需为每项服务学习新系统。" },
   j1: { ar: "محادثة", en: "Conversation", fr: "Conversation", zh: "对话" },
   j1s: { ar: "نفهم المطلوب", en: "We understand the need", fr: "Nous comprenons le besoin", zh: "了解需求" },
-  j2: { ar: "نطاق الخدمة", en: "Scope of work", fr: "Périmètre", zh: "服务范围" },
+  j2: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
   j2s: { ar: "إضافة وحذف", en: "Add and remove", fr: "Ajouter et supprimer", zh: "增删条目" },
   j3: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   j3s: { ar: "موافقة العميل", en: "Customer approval", fr: "Accord du client", zh: "客户确认" },
@@ -103,8 +107,8 @@ const D = {
   j6: { ar: "الفاتورة", en: "Invoice", fr: "Facture", zh: "发票" },
   j6s: { ar: "داخل الحساب", en: "Inside the account", fr: "Dans le compte", zh: "在账户中" },
 
-  portalTitle: { ar: "لوحة بسيطة وواضحة", en: "A simple, clear dashboard", fr: "Un tableau de bord simple et clair", zh: "简洁清晰的面板" },
-  portalSub: { ar: "للعميل: طلباته وعروضه وعقوده ومواعيده ومدفوعاته. وللإدارة: الطلبات التي تحتاج إجراءً فقط.", en: "For the client: requests, quotes, contracts, appointments and payments. For operations: only the requests that need an action.", fr: "Pour le client : demandes, devis, contrats, rendez-vous et paiements. Pour l'équipe : uniquement ce qui demande une action.", zh: "客户看到申请、报价、合同、预约与付款；运营端只看需要处理的事项。" },
+  portalTitle: { ar: "حسابك: كل شيء في مكان واحد", en: "Your account: everything in one place", fr: "Votre compte : tout au même endroit", zh: "您的账户：一处掌握全部" },
+  portalSub: { ar: "طلباتك وعروض أسعارك وعقودك ومواعيدك ومدفوعاتك وفواتيرك — تتابعها بنفسك في أي وقت.", en: "Your requests, quotations, contracts, appointments, payments and invoices — all followed by you, any time.", fr: "Vos demandes, devis, contrats, rendez-vous, paiements et factures — suivis par vous, à tout moment.", zh: "您的申请、报价、合同、预约、付款与发票 — 随时自行跟进。" },
   tabClient: { ar: "لوحة العميل", en: "Client portal", fr: "Espace client", zh: "客户面板" },
   tabAdmin: { ar: "لوحة الإدارة", en: "Operations dashboard", fr: "Tableau de bord", zh: "运营面板" },
   previewNote: { ar: "صورة توضيحية للواجهة — البيانات الحقيقية تظهر بعد تسجيل الدخول.", en: "Illustrative preview — real data appears after you sign in.", fr: "Aperçu illustratif — les données réelles apparaissent après connexion.", zh: "示意界面 — 登录后显示真实数据。" },
@@ -266,6 +270,14 @@ export function simpleV1(ctx) {
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--n);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
 .sv1-summary{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:11px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .sv1-summary strong{font-size:16px;color:var(--n)}
@@ -385,16 +397,14 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 
     const clientMenu = ["pClientHome", "pClientNew", "pClientReqs", "pClientQuotes", "pClientContracts", "pClientAppts", "pClientPay", "pClientInv", "pClientChats"]
       .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
-    const adminMenu = ["pAdminReqs", "pClientChats", "pClientQuotes", "pClientContracts", "pClientAppts", "pAdminPayments", "pClientInv", "pAdminWa", "pAdminTasks", "pAdminCatalog"]
-      .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
     // Sample figures, exactly as the approved concept shows them; the caption
     // under the panel says so, and real numbers appear after signing in.
-    const S = { cActive: "2", cQuote: "1", cSign: "1", cAppt: "1", aNew: "6", aQuote: "3", aSign: "2", aPaid: "4" };
+    const S = { cActive: "2", cQuote: "1", cSign: "1", cAppt: "1" };
 
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
-      stateReady: t("stateReady"),
+      stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
       welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation") },
       chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation") },
@@ -441,6 +451,12 @@ ${header(path)}
           <p>${t("scopeNote")}</p>
           <div id="sv1Items"></div>
           <div class="sv1-addrow"><input id="sv1AddIn" placeholder="${esc(t("scopeAddPh"))}"><button type="button" class="sv1-btn sm" id="sv1Add">${t("scopeAdd")}</button></div>
+          <div class="sv1-docs">
+            <h4>${t("docsHeading")}</h4>
+            <p>${t("docsNote")}</p>
+            <div id="sv1Docs"></div>
+            <div class="sv1-addrow"><input id="sv1DocIn" placeholder="${esc(t("docsAddPh"))}"><button type="button" class="sv1-btn sm" id="sv1DocAdd">${t("scopeAdd")}</button></div>
+          </div>
           <div class="sv1-summary">
             <div><span>${t("typeLbl")}</span><b id="sv1Type">${t("ctxConsulting")}</b></div>
             <div><span>${t("stateLbl")}</span><strong id="sv1Price">${t("stateReady")}</strong></div>
@@ -482,7 +498,6 @@ ${header(path)}
 
   <section class="sv1-sec" id="portal"><div class="wrap">
     <div class="sv1-title"><h2>${t("portalTitle")}</h2><p>${t("portalSub")}</p></div>
-    <div class="sv1-tabs"><button type="button" class="sv1-tab on" id="sv1TabC">${t("tabClient")}</button><button type="button" class="sv1-tab" id="sv1TabA">${t("tabAdmin")}</button></div>
     <div class="sv1-portal">
       <div class="sv1-pgrid" id="sv1PC">
         <aside class="sv1-side"><strong>${t("brand")}</strong><small>BUSINESS PARTNER</small>${clientMenu}</aside>
@@ -507,29 +522,6 @@ ${header(path)}
           </div>
         </main>
       </div>
-      <div class="sv1-pgrid sv1-hide" id="sv1PA">
-        <aside class="sv1-side"><strong>${t("tabAdmin")}</strong><small>BUSINESS PARTNER</small>${adminMenu}</aside>
-        <main class="sv1-pmain">
-          <h3>${t("todayReqs")}</h3><div class="sv1-muted">${t("onlyAction")}</div>
-          <div class="sv1-stats">
-            <div class="sv1-stat"><span>${t("kNew")}</span><b>${S.aNew}</b></div>
-            <div class="sv1-stat"><span>${t("kNeedQuote")}</span><b>${S.aQuote}</b></div>
-            <div class="sv1-stat"><span>${t("kWaitSign")}</span><b>${S.aSign}</b></div>
-            <div class="sv1-stat"><span>${t("kPaid")}</span><b>${S.aPaid}</b></div>
-          </div>
-          <div class="sv1-cols">
-            <div class="sv1-panel"><h4>${t("pAdminReqs")}</h4>
-              <div class="sv1-prow"><span>${t("ctxGovernment")}</span><span class="sv1-status">${t("kNew")}</span></div>
-              <div class="sv1-prow"><span>${t("ctxConsulting")}</span><span class="sv1-status">${t("kNeedQuote")}</span></div>
-              <div class="sv1-prow"><span>${t("ctxFormation")}</span><span class="sv1-status done">${t("kPaid")}</span></div>
-            </div>
-            <div class="sv1-panel"><h4>${t("pAdminTasks")}</h4>
-              <p class="sv1-muted">${t("onlyAction")}</p>
-              <a class="sv1-btn primary sm" href="/ops">${t("openOpsBtn")}</a>
-            </div>
-          </div>
-        </main>
-      </div>
     </div>
     <p class="sv1-pnote">${t("previewNote")}</p>
   </div></section>
@@ -542,20 +534,23 @@ var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(h
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
-var state={ctx:'consulting',history:[],items:[],summary:'',title:'',ready:false,busy:false};
-try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
-function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
+var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
+try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.docs=sv.docs||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
+function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,docs:state.docs,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
 function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
 function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
 function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
-function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});
+function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
+state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='\u00d7';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
+function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});state.docs=[];
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
 $('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();save();
+msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();drawDocs();save();
 if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
 document.addEventListener('click',function(e){var d=e.target.closest?e.target.closest('[data-door]'):null;if(d)setCtx(d.getAttribute('data-door'))});
 function parseScope(text){var i=text.indexOf('<<SCOPE>>');if(i<0)return{text:text.trim(),scope:null};var j=text.indexOf('<<END>>',i);var raw=text.slice(i+9,j<0?text.length:j);var sc=null;try{sc=JSON.parse(raw)}catch(e){}var clean=(text.slice(0,i)+(j<0?'':text.slice(j+7))).trim();return{text:clean,scope:sc&&sc.ready?sc:null}}
-function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
+state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
 fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
 .then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);if(p.text)add(p.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope)})
@@ -565,8 +560,8 @@ form.addEventListener('submit',function(e){e.preventDefault();submit()});
 input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 $('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};
 $('sv1AddIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1Add').click()}});
-$('sv1TabC').onclick=function(){$('sv1PC').classList.remove('sv1-hide');$('sv1PA').classList.add('sv1-hide');this.classList.add('on');$('sv1TabA').classList.remove('on')};
-$('sv1TabA').onclick=function(){$('sv1PA').classList.remove('sv1-hide');$('sv1PC').classList.add('sv1-hide');this.classList.add('on');$('sv1TabC').classList.remove('on')};
+$('sv1DocAdd').onclick=function(){var v=$('sv1DocIn').value.trim();if(!v)return;state.docs.push({title:v,note:''});$('sv1DocIn').value='';drawDocs();save()};
+$('sv1DocIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1DocAdd').click()}});
 var challenge='',email='';
 $('sv1Create').onclick=function(){if(!state.items.length){$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.needScope;return}if(window.SV1_SESSION){createRequest();return}$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent='';$('sv1Login').scrollIntoView({behavior:'smooth',block:'nearest'});$('sv1Email').focus()};
 $('sv1SendCode').onclick=function(){email=$('sv1Email').value.trim().toLowerCase();var err=$('sv1LoginErr');err.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){err.textContent=TX.loginErr;return}var self=this;self.disabled=true;
@@ -574,7 +569,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 $('sv1Verify').onclick=function(){var self=this;self.disabled=true;$('sv1LoginErr').textContent='';
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'verify',email:email,code:$('sv1Code').value.trim(),challenge:challenge,name:$('sv1Name').value.trim()})}).then(function(r){return r.json()}).then(function(o){self.disabled=false;if(!o||!o.ok){$('sv1LoginErr').textContent=TX.codeErr;return}window.SV1_SESSION={user:{email:email}};try{localStorage.setItem('bp_session','1')}catch(e){}createRequest()}).catch(function(){self.disabled=false;$('sv1LoginErr').textContent=TX.codeErr})};
 function createRequest(){var ok=$('sv1LoginOk');$('sv1Login').classList.remove('sv1-hide');$('sv1LoginStep1').classList.add('sv1-hide');$('sv1LoginStep2').classList.add('sv1-hide');ok.classList.remove('sv1-hide');ok.textContent=TX.creating;
-fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'request-create',type:TYPE[state.ctx],source:'WEBSITE',lang:LANG,title:state.title||TX.titles[state.ctx],summary:state.summary,scope:state.items,conversation:state.history,name:$('sv1Name').value.trim(),phone:$('sv1Phone').value.trim()})})
+fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'request-create',type:TYPE[state.ctx],source:'WEBSITE',lang:LANG,title:state.title||TX.titles[state.ctx],summary:state.summary,scope:state.items,documents:state.docs,conversation:state.history,name:$('sv1Name').value.trim(),phone:$('sv1Phone').value.trim()})})
 .then(function(r){return r.json()}).then(function(o){if(!o||!o.ok){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=(o&&o.message)||TX.chatError;return}
 ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
@@ -589,13 +584,13 @@ state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.t
 state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 $('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();save();ask();
+msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();drawDocs();save();ask();
 handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
 // boot
 if(handoff){/* already rendered from the service-page handoff */}
 else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
-msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems()}
+msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({

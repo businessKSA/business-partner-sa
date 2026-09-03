@@ -40,6 +40,9 @@ const P = {
   writeMsg: { ar: "اكتب رسالة للفريق…", en: "Write a message to the team…", fr: "Écrire un message à l'équipe…", zh: "给团队留言…" },
   send: { ar: "إرسال", en: "Send", fr: "Envoyer", zh: "发送" },
   saveScope: { ar: "حفظ النطاق", en: "Save scope", fr: "Enregistrer", zh: "保存范围" },
+  docs: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
+  docsNote: { ar: "جهّز هذه المستندات — نطلبها لإتمام طلبك.", en: "Prepare these documents — we need them to complete your request.", fr: "Préparez ces documents — ils sont nécessaires pour traiter votre demande.", zh: "请准备这些文件 — 我们需要它们来完成您的申请。" },
+  docsNone: { ar: "لا مستندات مطلوبة حتى الآن.", en: "No documents requested yet.", fr: "Aucun document demandé pour l'instant.", zh: "暂无所需文件。" },
   addItem: { ar: "إضافة بند", en: "Add item", fr: "Ajouter", zh: "添加条目" },
   remove: { ar: "حذف", en: "Remove", fr: "Supprimer", zh: "删除" },
   scopeLocked: { ar: "النطاق مقفل بعد إصدار عرض السعر.", en: "Scope is locked once a quotation is issued.", fr: "Le périmètre est verrouillé après l'émission du devis.", zh: "报价发出后范围已锁定。" },
@@ -252,7 +255,12 @@ left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('di
 // scope
 var editable=['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
+// documents the advisor asked for — every service has its own list
+var dc=h('div',{class:'card'});dc.appendChild(h('h3',{},[TX.docs]));
+dc.appendChild(h('p',{class:'note'},[(r.documents&&r.documents.length)?TX.docsNote:TX.docsNone]));
+if(r.documents&&r.documents.length){var dul=h('ul',{class:'items'});(r.documents||[]).forEach(function(d){dul.appendChild(h('li',{},[h('span',{class:'ic'},['\ud83d\udcc4']),h('div',{},[h('b',{},[d.title]),d.note?h('small',{},[d.note]):null])]))});dc.appendChild(dul)}
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),msgS]))}else sc.appendChild(h('p',{class:'note'},[TX.scopeLocked]));
+sc.appendChild(dc.firstChild?dc:document.createComment(''));
 left.appendChild(sc);
 // tasks for client
 if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.tasksTitle]),h('ul',{class:'items'},r.tasks.map(function(t){return h('li',{},[h('span',{class:'ic'},[t.status==='DONE'?'✓':'•']),h('div',{},[h('b',{},[t.title]),t.details?h('small',{},[t.details]):null])])}))]));

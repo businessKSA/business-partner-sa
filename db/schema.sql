@@ -805,6 +805,11 @@ create table if not exists request_events (
 );
 create index if not exists request_events_req_idx on request_events(request_id, created_at);
 
+-- المستندات التي نطلبها من العميل لهذا الطلب. لكل خدمة نطاقها ومستنداتها،
+-- ويخرجها المستشار مع النطاق في الكتلة نفسها (needs) — كانت تُنتج ثم تُهمل.
+-- [{title, note, status: requested|received|waived, at}]
+alter table requests add column if not exists documents jsonb not null default '[]'::jsonb;
+
 alter table tasks add column if not exists request_id uuid references requests(id) on delete set null;
 alter table tasks add column if not exists human_action boolean not null default false;  -- «يحتاج تدخل بشري»
 alter table tasks add column if not exists priority text not null default 'normal' check (priority in ('low','normal','high','urgent'));

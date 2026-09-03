@@ -126,6 +126,21 @@ function normScope(items) {
     qty: Math.max(1, Math.min(99, Math.round(num(it.qty) || 1))),
   })).filter((it) => it.title);
 }
+// The documents we ask the customer for. Each service has its own list; the
+// advisor emits it beside the scope and ops can edit it afterwards.
+const DOC_STATES = ["requested", "received", "waived"];
+function normDocuments(list) {
+  return (Array.isArray(list) ? list : []).slice(0, 25).map((d) => {
+    const it = typeof d === "string" ? { title: d } : (d || {});
+    return {
+      title: str(it.title, 200),
+      note: str(it.note, 400),
+      status: DOC_STATES.includes(it.status) ? it.status : "requested",
+      at: str(it.at, 40) || nowIso(),
+    };
+  }).filter((d) => d.title);
+}
+
 function normConversation(msgs) {
   return (Array.isArray(msgs) ? msgs : []).slice(-60).map((m) => ({
     role: ["user", "assistant", "bp", "system"].includes(m.role) ? m.role : "user",
@@ -215,7 +230,7 @@ async function clientAction(action, b, qs, req, res, sess) {
       lang: ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "ar",
       title: str(b.title, 200) || defaultTitle(type, b.lang),
       summary: str(b.summary, 2000),
-      conversation, scope,
+      conversation, scope, documents: normDocuments(b.documents),
       client_name: str(b.name || sess.user.full_name, 160), client_email: email, client_phone: str(b.phone, 40),
       company_name: str(b.company || sess.organization?.name_ar || sess.organization?.name_en, 200),
     };
@@ -223,6 +238,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     const created = rows[0];
     await logEvent(created.id, "customer", who, "request.created", { type, source, items: scope.length });
     if (scope.length) await logEvent(created.id, "ai", "المستشار الذكي", "scope.proposed", { items: scope.map((s) => s.title) });
+    if (row.documents.length) await logEvent(created.id, "ai", "المستشار الذكي", "documents.requested", { documents: row.documents.map((d) => d.title) });
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.request.create", entity: "requests", entity_id: created.id, meta: { ref } });
     await sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${row.title}`, `<p>${esc(row.client_name)} · ${esc(email)}</p><p>${esc(row.summary)}</p><p><a href="${SELF_BASE}/ops?ref=${ref}">فتح الطلب</a></p>`);
     return json(res, 200, { ok: true, ref, request: clientView(created, [], []) });
