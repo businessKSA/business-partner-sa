@@ -94,8 +94,8 @@ const createSession = node({
     parameters: {
       method: 'POST',
       url: 'https://api.anthropic.com/v1/sessions',
-      authentication: 'genericCredentialType',
-      genericAuthType: 'httpTemplatedCustomAuth',
+      authentication: 'predefinedCredentialType',
+      nodeCredentialType: 'anthropicApi',
       sendHeaders: true,
       specifyHeaders: 'keypair',
       headerParameters: {
@@ -111,7 +111,7 @@ const createSession = node({
       jsonBody: expr('{{ JSON.stringify($json.body) }}'),
       options: { timeout: 30000 },
     },
-    credentials: { httpTemplatedCustomAuth: newCredential('BP — Anthropic API Key (x-api-key)') },
+    credentials: { anthropicApi: { id: 'mmbdtwapuZXoY91N', name: 'Anthropic account' } },
   },
   output: [{ id: 'sesn_…', status: 'running' }],
 });
@@ -139,7 +139,7 @@ const logSession = node({
 const note = sticky(
   '## باهر v2 — جلسة Managed Agents لكل رسالة\n' +
     'قبل التفعيل: (1) شغّل agents/scripts/apply.sh وvault.sh وانسخ المعرّفات إلى IDS أعلى الملف،\n' +
-    '(2) أنشئ اعتماد Templated Custom Auth بالقالب {"headers":{"x-api-key":"{{api_key}}"}} بمفتاح Anthropic،\n' +
+    '(2) اعتماد Anthropic account الموجود مربوط بعقدة الجلسة: تأكد أن مفتاحه فيه رصيد،\n' +
     '(3) اعتماد Header Auth باسم X-BP-Agent-Key (نفس مفتاح bp-agent-send)،\n' +
     '(4) وجّه BP-WhatsApp-Main إلى /webhook/baher-intake-v2 بدل baher-intake.',
   [receive, buildSession, createSession, logSession],

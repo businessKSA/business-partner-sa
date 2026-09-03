@@ -86,7 +86,7 @@ const sendWhatsApp = node({
       messageType: 'text',
       textBody: expr('{{ $json.text }}'),
     },
-    credentials: { whatsAppApi: newCredential('BP — WhatsApp Cloud') },
+    credentials: { whatsAppApi: { id: 'pBK0zR1g2JQSuRLe', name: 'WhatsApp — Business Partner — 0507034157' } },
   },
   output: [{ messages: [{ id: 'wamid.…' }] }],
 });
@@ -111,7 +111,7 @@ const note = sticky(
   '## قناة إرسال الوكلاء\n' +
     'الوكلاء الأذكياء ينادون هذا الويبهوك بمفتاح X-BP-Agent-Key المحفوظ في خزنة Anthropic.\n' +
     'قبل التفعيل: (1) أنشئ اعتماد Header Auth باسم X-BP-Agent-Key وقيمة = BP_N8N_HOOK_KEY في agents/.env،\n' +
-    '(2) اربط اعتماد WhatsApp Cloud، (3) ضع رقم المالك في OWNER_WHATSAPP.',
+    '(2) اعتماد واتساب مربوط باعتماد الرقم 0507034157 الموجود (بدّله إن لزم)، (3) ضع رقم المالك في OWNER_WHATSAPP.',
   [receive, normalize, isWhatsApp, sendWhatsApp, unsupported],
   { color: 4 },
 );
