@@ -56,7 +56,7 @@ const P = {
   approve: { ar: "اعتماد العرض", en: "Approve quote", fr: "Approuver le devis", zh: "确认报价" },
   reject: { ar: "طلب تعديل", en: "Request changes", fr: "Demander des modifications", zh: "要求修改" },
   rejectNote: { ar: "ما الذي تريد تعديله؟", en: "What would you like changed?", fr: "Que souhaitez-vous modifier ?", zh: "您希望修改什么？" },
-  quoteApproved: { ar: "تم اعتماد العرض. سيصلك العقد للتوقيع.", en: "Quote approved. The contract will follow for signature.", fr: "Devis approuvé. Le contrat suivra pour signature.", zh: "报价已确认，合同将随后发送供签署。" },
+  quoteApproved: { ar: "تم اعتماد العرض، والعقد جاهز للتوقيع الآن.", en: "Quote approved — your contract is ready to sign now.", fr: "Devis approuvé — votre contrat est prêt à signer.", zh: "报价已确认，合同现已可供签署。" },
   viewContract: { ar: "عرض العقد", en: "View contract", fr: "Voir le contrat", zh: "查看合同" },
   signTitle: { ar: "التوقيع الإلكتروني", en: "Electronic signature", fr: "Signature électronique", zh: "电子签名" },
   signName: { ar: "الاسم الكامل للموقّع", en: "Signer's full name", fr: "Nom complet du signataire", zh: "签署人全名" },
@@ -66,6 +66,9 @@ const P = {
   signBtn: { ar: "توقيع العقد", en: "Sign contract", fr: "Signer le contrat", zh: "签署合同" },
   signed: { ar: "تم توقيع العقد", en: "Contract signed", fr: "Contrat signé", zh: "合同已签署" },
   payNow: { ar: "ادفع الآن", en: "Pay now", fr: "Payer maintenant", zh: "立即付款" },
+  payCardNow: { ar: "ادفع بالبطاقة", en: "Pay by card", fr: "Payer par carte", zh: "银行卡付款" },
+  payTamaraNow: { ar: "قسّطها مع تمارا", en: "Pay in instalments with Tamara", fr: "Payer en plusieurs fois avec Tamara", zh: "使用 Tamara 分期" },
+  payReturning: { ar: "نؤكّد دفعتك…", en: "Confirming your payment…", fr: "Confirmation du paiement…", zh: "正在确认您的付款…" },
   payVia: { ar: "الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)", en: "Pay on the secure checkout page (mada, Visa, Mastercard, Apple Pay, Tamara when available)", fr: "Payer sur la page de paiement sécurisée (mada, Visa, Mastercard, Apple Pay, Tamara si disponible)", zh: "通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）" },
   testPay: { ar: "محاكاة الدفع (وضع الاختبار)", en: "Simulate payment (test mode)", fr: "Simuler le paiement (mode test)", zh: "模拟付款（测试模式）" },
   paySuccess: { ar: "نجاح — بطاقة", en: "Success — card", fr: "Succès — carte", zh: "成功 — 银行卡" },
@@ -267,7 +270,7 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 // quote
 if(r.quote){var qc=h('div',{class:'card'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(i.line)])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
-if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
+if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
@@ -280,8 +283,19 @@ else if(r.contract.status==='SIGNED')cc.appendChild(h('p',{class:'ok'},['✓ '+T
 right.appendChild(cc)}
 // payment
 if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
-pc.appendChild(h('button',{class:'btn',onclick:function(){api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok)return;try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}},[TX.payNow]));pc.appendChild(h('p',{class:'note'},[TX.payVia]));
-if(state.testMode){pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}})}},[x[2]]))});pc.appendChild(tp)}
+function gwGo(provider){var back=encodeURIComponent(location.pathname+'?view=request&ref='+encodeURIComponent(r.ref));
+location.href='/api/pay?action=mock-form&provider='+provider+'&amount='+encodeURIComponent(String((r.quote&&r.quote.total)||0))+'&label='+encodeURIComponent(r.ref)+'&back='+back}
+function payHere(provider){
+  // Test/local: the gateway this server hosts. Otherwise the cart + checkout
+  // the rest of the site uses, which needs the classic session.
+  if(state.testMode){gwGo(provider);return}
+  api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok)return;try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
+var payRow=h('div',{style:'display:flex;gap:7px;flex-wrap:wrap'},[
+  h('button',{class:'btn',onclick:function(){payHere('card')}},[TX.payCardNow]),
+  h('button',{class:'btn ghost',onclick:function(){payHere('tamara')}},[TX.payTamaraNow])]);
+pc.appendChild(payRow);pc.appendChild(h('p',{class:'note'},[TX.payVia]));
+if(state.testMode){
+pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}})}},[x[2]]))});pc.appendChild(tp)}
 right.appendChild(pc)}
 if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+(r.payment.provider||'')+' · '+when(r.payment.at)])]));
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[TX.download])]));
@@ -295,7 +309,19 @@ if(['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT'].indexOf(r.status)>=0)right.
 function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(i.line)+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;render()}).catch(function(){renderLogin()})}
+// Coming back from a payment gateway (local or hosted): the outcome rides on
+// the URL exactly as Moyasar and Tamara return it, and is settled through the
+// same action the test buttons use — one settle path, not two.
+function settleReturn(u){
+  var pay=u.searchParams.get('payment'),pid=u.searchParams.get('id'),ref=u.searchParams.get('ref');
+  if(!pay||!ref)return Promise.resolve(false);
+  var outcome=pay==='paid'?'success':(pay==='failed'?'failed':(pay==='cancelled'?'cancelled':'pending'));
+  var provider=u.searchParams.get('provider')==='tamara'?'tamara':'card';
+  return api('pay-test',{ref:ref,outcome:outcome,provider:provider,reference:pid||''}).then(function(){
+    u.searchParams.delete('payment');u.searchParams.delete('id');u.searchParams.delete('amount');u.searchParams.delete('provider');
+    history.replaceState({},'',u.pathname+u.search);return true}).catch(function(){return false});
+}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

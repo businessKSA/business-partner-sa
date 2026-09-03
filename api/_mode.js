@@ -58,6 +58,29 @@ export async function outboxList(limit = 50) {
   } catch { return []; }
 }
 
+// ---------------------------------------------------------------- payments --
+// A local run must never reach a live gateway. Two rules:
+//   1. live keys are refused outright while APP_ENV=development;
+//   2. with no keys at all, the checkout falls back to a local mock gateway so
+//      the whole path — cart → payment → invoice — is still walkable offline.
+const isLive = (k) => /^(pk|sk)_live_/.test(String(k || "").trim());
+export function payGuard() {
+  if (!DEV) return { ok: true };
+  const pk = process.env.MOYASAR_PUBLISHABLE_KEY || "";
+  const sk = process.env.MOYASAR_SECRET_KEY || "";
+  if (isLive(pk) || isLive(sk)) {
+    return { ok: false, error: "live_keys_in_development",
+      message: "مفتاح مُيسّر مباشر (live) داخل بيئة تطوير — الدفع موقوف. استعمل مفاتيح pk_test_/sk_test_ في .env.local." };
+  }
+  return { ok: true };
+}
+export const PAY_MOCK = () => DEV && !(process.env.MOYASAR_PUBLISHABLE_KEY || "").trim();
+// Tamara: in development the sandbox host is the default, so a sandbox token
+// pasted without its base cannot reach the production gateway by accident.
+export const TAMARA_BASE_DEFAULT = () =>
+  (DEV || TAMARA_MODE === "sandbox") ? "https://api-sandbox.tamara.co" : "https://api.tamara.co";
+export const TAMARA_MOCK = () => DEV && !(process.env.TAMARA_API_TOKEN || "").trim();
+
 export const MODES = () => ({
   app_env: APP_ENV, dev: DEV,
   payments: PAYMENTS_MODE, moyasar: MOYASAR_MODE, tamara: TAMARA_MODE,

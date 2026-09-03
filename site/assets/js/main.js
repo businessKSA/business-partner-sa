@@ -1791,7 +1791,14 @@ var BP = window.BP = window.BP || {};
       var phone = document.getElementById("co-phone").value.trim();
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+      if (!name || !phone || !isEmailValid) {
+        // Name the field that is actually missing. A signed-in client with an
+        // empty mobile was told to sign in — and did, twice, to the same wall.
+        if (!session2) { alert(BP.t("Please sign in to your account first.", "سجّل الدخول لحسابك أولاً.")); location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+        if (!phone) { alert(BP.t("Please enter your mobile number to complete the order.", "أدخل رقم جوالك لإتمام الطلب.")); var phEl = document.getElementById("co-phone"); if (phEl) phEl.focus(); return; }
+        alert(BP.t("Please complete your name and e-mail.", "أكمل الاسم والبريد الإلكتروني."));
+        return;
+      }
       var subsAccept = document.getElementById("co-subs-accept");
       if (subsAccept && !subsAccept.checked) {
         alert(BP.t("Please accept the subscription terms (monthly renewal and the success fee) before submitting.", "الرجاء الموافقة على شروط الاشتراك (التجديد الشهري وعمولة النجاح) قبل الإرسال."));

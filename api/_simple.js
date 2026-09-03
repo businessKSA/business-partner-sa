@@ -19,6 +19,7 @@ import crypto from "node:crypto";
 import { sb, DB_ON, getSession, audit, notify } from "./_db.js";
 import { contractHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
+import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 
@@ -129,6 +130,34 @@ function normScope(items) {
 // The documents we ask the customer for. Each service has its own list; the
 // advisor emits it beside the scope and ops can edit it afterwards.
 const DOC_STATES = ["requested", "received", "waived"];
+// The contract is derived from the approved quotation — same scope, same
+// figures — so approving the quote is enough to produce it. It used to wait
+// for a human to press a button in /ops, which left the customer looking at
+// «سيصلك العقد للتوقيع» with nothing arriving.
+function buildContract(row, opts = {}) {
+  const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
+  const html = contractHtml({
+    ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
+    lines: row.quote.items.map((l) => ({ name: l.title, qty: l.qty, amount: l.line })),
+    net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
+    leadTime: str(opts.lead_time, 120), executor: str(opts.executor, 120) || "Business Partner", today,
+  });
+  return {
+    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html,
+    created_at: nowIso(), sent_at: nowIso(), quote_number: row.quote.number,
+    mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
+  };
+}
+
+async function issueContract(row, actorKind, actor, opts) {
+  const contract = buildContract(row, opts);
+  const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
+  await logEvent(row.id, actorKind, actor, "contract.sent", { number: contract.number });
+  if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_contract", title: `عقد بانتظار توقيعك — ${row.ref}`, body: contract.number, idempotency_key: `simple_contract_${contract.number}` });
+  if (row.client_email) await sendEmail(row.client_email, `عقد ${contract.number} بانتظار توقيعك`, `<p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">افتح العقد ووقّعه</a></p>`);
+  return { contract, status: upd.status };
+}
+
 function normDocuments(list) {
   return (Array.isArray(list) ? list : []).slice(0, 25).map((d) => {
     const it = typeof d === "string" ? { title: d } : (d || {});
@@ -291,6 +320,12 @@ async function clientAction(action, b, qs, req, res, sess) {
     const upd = await patchRequest(row.id, { quote, status: approve ? "QUOTE_APPROVED" : "WAITING_CLIENT" });
     await logEvent(row.id, "customer", who, approve ? "quote.approved" : "quote.rejected", { number: quote.number, note: quote.decision_note });
     await sendEmail(OWNER_EMAIL, `${approve ? "اعتماد" : "رفض"} عرض السعر ${quote.number} (${ref})`, `<p>${esc(who)}: ${esc(quote.decision_note || "")}</p>`);
+    if (approve) {
+      // No waiting on a human: the approved quotation already contains
+      // everything the contract states.
+      const issued = await issueContract({ ...upd, quote }, "system", "النظام", {});
+      return json(res, 200, { ok: true, status: issued.status, quote, contract: { ...issued.contract, html: undefined } });
+    }
     return json(res, 200, { ok: true, status: upd.status, quote });
   }
 
@@ -418,14 +453,59 @@ const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 
 // Shared by the test payment and by the real gateway settle (api/pay.js
 // calls markRequestPaid after Moyasar/Tamara confirm a `sv1:<ref>` line).
+// The tax invoice belongs in the books, not only in our own row. A paid request
+// issues it in Daftra under the client's record, with the payment recorded
+// against it, and keeps the number + PDF on the request so the customer can
+// open it from /my. Locally and in test mode nothing is sent: the internal
+// TEST-INV- number stands in, and the reason is recorded so a missing invoice
+// is never a mystery.
+async function daftraInvoiceForRequest(row, payment) {
+  if (!daftraConfigured()) return { ok: false, reason: "daftra_not_configured" };
+  if (payment.test) return { ok: false, reason: "test_mode" };
+  const items = (row.quote?.items || []).map((l) => ({
+    name: str(l.title, 140) || "خدمة", quantity: Math.max(1, Math.min(999, num(l.qty) || 1)), unitPrice: round2(num(l.price)),
+  })).filter((i) => i.unitPrice >= 0);
+  if (!items.length) return { ok: false, reason: "no_priced_items" };
+  const who = {
+    name: str(row.company_name || row.client_name, 160),
+    email: str(row.client_email, 160), phone: str(row.client_phone, 40),
+  };
+  if (!who.name || !isEmail(who.email)) return { ok: false, reason: "missing_buyer" };
+  try {
+    const { client } = await daftraFindOrCreateClient(who);
+    if (!client || !client.id) return { ok: false, reason: "client_failed" };
+    const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
+    const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: row.ref });
+    let recorded = false;
+    try {
+      await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar" });
+      recorded = true;
+    } catch (e) { console.error("simple: daftra payment record failed", String(e.message || e).slice(0, 160)); }
+    let pdf = null;
+    try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
+    return { ok: true, id: inv.id, number: inv.number, net: inv.net, vat: inv.vat, total: inv.total,
+      vat_rate: Number(daftraVatRate()) || 15, recorded, pdf_url: (pdf && pdf.url) || "" };
+  } catch (e) {
+    console.error("simple: daftra invoice failed", String(e.message || e).slice(0, 200));
+    return { ok: false, reason: String(e.message || "daftra_failed").slice(0, 120) };
+  }
+}
+
 export async function markPaid(row, { provider, payId, amount, test, actor }) {
   const suffix = row.ref.replace(/^BP-R-/, "");
   const payment = { status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test };
-  const invoice = row.invoice || {
+  let invoice = row.invoice || {
     number: (test ? "TEST-INV-" : "INV-") + suffix, issued_at: nowIso(), mode: test ? "test" : "pending-daftra",
     net: row.quote?.net || 0, vat: row.quote?.vat || 0, total: row.quote?.total || 0, currency: "SAR", vat_rate: 15,
     items: row.quote?.items || [], bill_to: { name: row.client_name, company: row.company_name, email: row.client_email },
   };
+  if (!row.invoice) {
+    const d = await daftraInvoiceForRequest(row, payment);
+    invoice = d.ok
+      ? { ...invoice, number: d.number, daftra_id: d.id, mode: "daftra", net: d.net, vat: d.vat, total: d.total,
+          vat_rate: d.vat_rate, pdf_url: d.pdf_url, payment_recorded: d.recorded }
+      : { ...invoice, daftra: { issued: false, reason: d.reason } };
+  }
   const upd = await patchRequest(row.id, { payment, invoice, status: "PAID" });
   await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.paid", { provider, payId, amount: payment.amount });
   await logEvent(row.id, "system", test ? "TEST MODE" : "invoicing", "invoice.issued", { number: invoice.number, total: invoice.total });
@@ -619,21 +699,11 @@ async function opsAction(action, b, qs, req, res) {
   }
 
   if (action === "ops-contract") {
-    if (row.status !== "QUOTE_APPROVED" || !row.quote) return json(res, 409, { ok: false, error: "quote_not_approved" });
-    const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
-    const html = contractHtml({
-      ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
-      lines: row.quote.items.map((l) => ({ name: l.title, qty: l.qty, amount: l.line })),
-      net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
-      leadTime: str(b.lead_time, 120), executor: str(b.executor, 120) || "Business Partner", today,
-    });
-    const contract = { number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, created_at: nowIso(), sent_at: nowIso(), quote_number: row.quote.number, mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign" };
-    const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
-    await logEvent(row.id, "human", actor, "contract.sent", { number: contract.number });
-    if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_contract", title: `عقد بانتظار توقيعك — ${row.ref}`, body: contract.number, idempotency_key: `simple_contract_${contract.number}` });
-    if (row.client_email) await sendEmail(row.client_email, `عقد ${contract.number} بانتظار توقيعك`, `<p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">افتح العقد ووقّعه</a></p>`);
-    return json(res, 200, { ok: true, status: upd.status, contract: { ...contract, html: undefined } });
+    if (!row.quote || !["QUOTE_APPROVED", "CONTRACT_SENT"].includes(row.status)) return json(res, 409, { ok: false, error: "quote_not_approved" });
+    const issued = await issueContract(row, "human", actor, b);
+    return json(res, 200, { ok: true, status: issued.status, contract: { ...issued.contract, html: undefined } });
   }
+
 
   if (action === "ops-contract-html") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });

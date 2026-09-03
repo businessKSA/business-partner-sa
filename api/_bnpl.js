@@ -17,11 +17,17 @@
 // down again — so the way to take the button down in thirty seconds is a
 // variable that says «off», not the absence of a credential.
 
+import { TAMARA_BASE_DEFAULT, TAMARA_MOCK } from "./_mode.js";
+
 const TAMARA_TOKEN = (process.env.TAMARA_API_TOKEN || "").trim();
-const TAMARA_BASE = (process.env.TAMARA_API_BASE || "https://api.tamara.co").trim().replace(/\/$/, "");
+// The default host follows the run mode: a sandbox token pasted without its
+// base used to point straight at the production gateway. See api/_mode.js.
+const TAMARA_BASE = (process.env.TAMARA_API_BASE || TAMARA_BASE_DEFAULT()).trim().replace(/\/$/, "");
 const TAMARA_OFF = /^(1|true|yes|on|off)$/i.test((process.env.TAMARA_OFF || "").trim());
 
-export const tamaraConfigured = () => !!TAMARA_TOKEN && !TAMARA_OFF;
+// Locally the installment button stays visible with no token: the checkout
+// routes it to the local gateway instead, so the path is walkable offline.
+export const tamaraConfigured = () => (!!TAMARA_TOKEN || TAMARA_MOCK()) && !TAMARA_OFF;
 
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 const two = (n) => round2(n).toFixed(2);
