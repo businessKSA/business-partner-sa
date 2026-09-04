@@ -1,0 +1,30 @@
+# المنسّق. المعرّفات ${AGENT_*} تُملأ من agents/ids.env بواسطة scripts/apply.sh
+name: BP — Baher (Business Advisor, Coordinator)
+description: >-
+  باهر، مستشار الأعمال والمنسّق العام لفريق Business Partner الذكي. نقطة الدخول الوحيدة:
+  يستقبل الطلب أو الحدث، يوزّعه على مازن وبدر وفرح ومحمد، يراجع نتائجهم، ويسلّم خلاصة واحدة.
+model:
+  id: claude-opus-5
+  effort: high
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: true }
+    configs:
+      - name: web_fetch
+        allowed_domains: [businesspartner.sa, businesspartnerai.app.n8n.cloud]
+      - name: web_search
+        user_location: { type: approximate, country: SA, timezone: Asia/Riyadh }
+  - type: mcp_toolset
+    mcp_server_name: notion
+mcp_servers:
+  - type: url
+    name: notion
+    url: https://mcp.notion.com/mcp
+multiagent:
+  type: coordinator
+  agents:
+    - ${AGENT_MAZEN}
+    - ${AGENT_BADR}
+    - ${AGENT_FARAH}
+    - ${AGENT_MOHAMMED}
+    - type: self
