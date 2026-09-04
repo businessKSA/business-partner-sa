@@ -158,6 +158,23 @@ async function issueContract(row, actorKind, actor, opts) {
   return { contract, status: upd.status };
 }
 
+// Issuing a quotation is one operation with two doors: the operations desk
+// (ops-quote) and the customer confirming their own scope (scope-confirm).
+// Both must produce the same numbering, the same notification and the same
+// scope rewrite, so the whole thing lives here once.
+async function issueQuote(row, rawItems, opts, actorKind, actor) {
+  const priced = await priceItems(rawItems);
+  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), ...computeQuote(priced, opts) };
+  if (!quote.items.length) return { ok: false, error: "no_items" };
+  const send = opts.send !== false;
+  if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
+  const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
+  await logEvent(row.id, actorKind, actor, send ? "quote.sent" : "quote.drafted", { number: quote.number, total: quote.total });
+  if (send && row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_quote", title: `عرض سعر جاهز — ${row.ref}`, body: `${quote.number} · ${quote.total} ر.س`, idempotency_key: `simple_quote_${quote.number}` });
+  if (send && row.client_email) await sendEmail(row.client_email, `عرض سعر ${quote.number} — ${row.title}`, `<p>الإجمالي ${quote.total} ر.س شامل الضريبة.</p><p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">راجع العرض واعتمده</a></p>`);
+  return { ok: true, quote, status: upd.status };
+}
+
 function normDocuments(list) {
   return (Array.isArray(list) ? list : []).slice(0, 25).map((d) => {
     const it = typeof d === "string" ? { title: d } : (d || {});
@@ -170,10 +187,20 @@ function normDocuments(list) {
   }).filter((d) => d.title);
 }
 
+// The machine block is never shown to a human. Models do not always close it
+// with <<END>>, and they sometimes drop a bracket, so match loosely — a leaked
+// «SCOPE>>» in a customer's chat is worse than over-trimming one line.
+function stripScopeBlock(text) {
+  return String(text == null ? "" : text)
+    .replace(/<*\s*SCOPE\s*>>[\s\S]*?(?:<*\s*END\s*>>|$)/gi, "")
+    .replace(/<*\s*(?:SCOPE|END)\s*>>/gi, "")
+    .trim();
+}
+
 function normConversation(msgs) {
   return (Array.isArray(msgs) ? msgs : []).slice(-60).map((m) => ({
     role: ["user", "assistant", "bp", "system"].includes(m.role) ? m.role : "user",
-    content: str(String(m.content == null ? "" : m.content).replace(/<<SCOPE>>[\s\S]*?<<END>>/g, ""), 4000),
+    content: str(stripScopeBlock(m.content), 4000),
     at: m.at && !Number.isNaN(Date.parse(m.at)) ? new Date(m.at).toISOString() : nowIso(),
   })).filter((m) => m.content);
 }
@@ -302,6 +329,30 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.edited", { items: scope.map((s) => s.title) });
     return json(res, 200, { ok: true, scope });
+  }
+
+  // Saving the scope used to end the journey: the customer pressed a button,
+  // read «تم الحفظ» and nothing else happened until someone in operations
+  // noticed. Confirming the scope now hands the request on — the customer sees
+  // the next step, operations gets a pricing task and a notification. The
+  // quotation itself is still issued by hand from /ops (owner's rule): the
+  // price on a scope is a commercial decision, not a lookup.
+  if (action === "scope-confirm") {
+    if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
+    const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
+    if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
+    await patchRequest(row.id, { scope });
+    await logEvent(row.id, "customer", who, "scope.confirmed", { items: scope.map((it) => it.title) });
+
+    // Lines with no catalogue price are flagged for whoever prices the quote,
+    // so /ops sees at a glance what still needs a decision.
+    const priced = await priceItems(scope);
+    const unpriced = priced.filter((l) => !(num(l.price) > 0)).map((l) => l.title);
+    const upd = await patchRequest(row.id, { status: "REVIEWING" });
+    await pricingTask(row, unpriced);
+    await logEvent(row.id, "system", "النظام", "quote.pending", { unpriced });
+    if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_scope", title: `نطاق معتمد بانتظار التسعير — ${row.ref}`, body: scope.map((it) => it.title).join(" · ").slice(0, 200), idempotency_key: `simple_scope_${row.ref}` });
+    return json(res, 200, { ok: true, stage: "PRICING", status: upd.status, scope, unpriced });
   }
 
   if (action === "attachment-add") {
@@ -686,16 +737,9 @@ async function opsAction(action, b, qs, req, res) {
 
   if (action === "ops-quote") {
     if (["PAID", "IN_PROGRESS", "COMPLETED", "CANCELLED", "SIGNED", "PAYMENT_PENDING"].includes(row.status)) return json(res, 409, { ok: false, error: "too_late" });
-    const priced = await priceItems(b.items && b.items.length ? b.items : row.scope);
-    const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), ...computeQuote(priced, b) };
-    if (!quote.items.length) return json(res, 400, { ok: false, error: "no_items" });
-    const send = b.send !== false;
-    if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
-    const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
-    await logEvent(row.id, "human", actor, send ? "quote.sent" : "quote.drafted", { number: quote.number, total: quote.total });
-    if (send && row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_quote", title: `عرض سعر جاهز — ${row.ref}`, body: `${quote.number} · ${quote.total} ر.س`, idempotency_key: `simple_quote_${quote.number}` });
-    if (send && row.client_email) await sendEmail(row.client_email, `عرض سعر ${quote.number} — ${row.title}`, `<p>الإجمالي ${quote.total} ر.س شامل الضريبة.</p><p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">راجع العرض واعتمده</a></p>`);
-    return json(res, 200, { ok: true, status: upd.status, quote });
+    const out = await issueQuote(row, b.items && b.items.length ? b.items : row.scope, b, "human", actor);
+    if (!out.ok) return json(res, 400, out);
+    return json(res, 200, { ok: true, status: out.status, quote: out.quote });
   }
 
   if (action === "ops-contract") {
@@ -758,7 +802,10 @@ async function priceItems(items) {
   for (const s of (cat && cat.services) || []) if (s.code) byCode.set(String(s.code).toUpperCase(), s);
   return (Array.isArray(items) ? items : []).map((it) => {
     const svc = it.code ? byCode.get(String(it.code).toUpperCase()) : null;
-    const catPrice = svc ? num(svc.price && svc.price.amount != null ? svc.price.amount : svc.amount) : 0;
+    // loadCatalog() flattens price to a number; the raw catalogue file keeps
+    // it as {amount,label}. Reading only the object shape silently priced
+    // every catalogue line at zero.
+    const catPrice = svc ? num(svc.price && typeof svc.price === "object" ? svc.price.amount : (svc.price != null ? svc.price : svc.amount)) : 0;
     return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "", description: it.description || it.why || "", qty: it.qty || 1, price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
   });
 }
@@ -771,6 +818,22 @@ function guessType(text) {
 // tasks.organization_id is NOT NULL: manual intake for a not-yet-registered
 // client parks its tasks on the owner's own organization.
 let _fallbackOrg = null;
+// One open pricing task per request — pressing «اعتمد النطاق» twice must not
+// fill the operations queue with duplicates.
+async function pricingTask(row, unpriced) {
+  try {
+    const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)&select=id&limit=1`);
+    if (open && open[0]) return;
+    await sb("tasks", { method: "POST", body: [{
+      organization_id: row.organization_id || await fallbackOrg(),
+      title: `تسعير نطاق ${row.ref}`,
+      details: unpriced.length ? `بنود بلا سعر في الكتالوج: ${unpriced.join(" · ")}` : "راجع النطاق وأصدر عرض السعر.",
+      assignee: "bp", source: "pricing", status: "open", urgency: "high", priority: "high",
+      human_action: true, assigned_to: row.assigned_to || null, request_id: row.id,
+    }] });
+  } catch {}
+}
+
 async function fallbackOrg() {
   if (_fallbackOrg) return _fallbackOrg;
   const email = (process.env.OWNER_EMAILS || "dr.baher.magnas@gmail.com").split(",")[0].trim().toLowerCase();

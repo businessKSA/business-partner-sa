@@ -548,7 +548,9 @@ $('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSu
 msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();drawDocs();save();
 if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
 document.addEventListener('click',function(e){var d=e.target.closest?e.target.closest('[data-door]'):null;if(d)setCtx(d.getAttribute('data-door'))});
-function parseScope(text){var i=text.indexOf('<<SCOPE>>');if(i<0)return{text:text.trim(),scope:null};var j=text.indexOf('<<END>>',i);var raw=text.slice(i+9,j<0?text.length:j);var sc=null;try{sc=JSON.parse(raw)}catch(e){}var clean=(text.slice(0,i)+(j<0?'':text.slice(j+7))).trim();return{text:clean,scope:sc&&sc.ready?sc:null}}
+function parseScope(text){var m=/<*\\s*SCOPE\\s*>>/i.exec(text);if(!m)return{text:text.trim(),scope:null};var i=m.index,after=i+m[0].length;var e=/<*\\s*END\\s*>>/i.exec(text.slice(after));var raw=e?text.slice(after,after+e.index):text.slice(after);var sc=null;try{sc=JSON.parse(raw)}catch(err){var b=raw.indexOf('{'),d=raw.lastIndexOf('}');if(b>=0&&d>b){try{sc=JSON.parse(raw.slice(b,d+1))}catch(e2){}}}
+// Whatever the model did with the markers, the customer sees only prose.
+var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace(/<*\\s*(?:SCOPE|END)\\s*>>/gi,'').trim();return{text:clean,scope:sc&&sc.ready?sc:null}}
 function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
 state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
