@@ -728,7 +728,7 @@
     try { rec.start(); } catch (e) { clearTimeout(restartT); restartT = setTimeout(startListening, 900); }
   }
 
-  function initVoice() {
+  function initVoice(forceOn) {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
@@ -739,8 +739,13 @@
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (stream) {
         micReady = true;
-        wantListen = true;
-        rememberListen(true);
+        try { localStorage.setItem('bp_mic_granted', '1'); } catch (e) {}
+        // The stream (and with it the clap detector) stays open even when
+        // recognition is off, otherwise two claps could never switch it back on.
+        var stored = '1';
+        try { stored = localStorage.getItem('bp_listen') || '1'; } catch (e) {}
+        wantListen = forceOn ? true : stored !== '0';
+        rememberListen(wantListen);
         micLabel();
         startMeter(stream);
         rec = new SR();
@@ -795,7 +800,8 @@
           $('meter').classList.remove('on');
           if (!busy) resumeListening();
         };
-        startListening();
+        if (wantListen) startListening();
+        else setState('idle', 'صفّق مرتين لأسمعك');
       })
       .catch(function (e) {
         wantListen = false;
@@ -805,6 +811,54 @@
           ? 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة'
           : (e && e.message) || '');
       });
+  }
+
+  /* Two claps toggle listening, so the owner never has to reach for the button.
+   * A clap is a transient: one frame far above the running average of the last
+   * frames, not merely loud — speech ramps, a clap spikes. Two of them inside
+   * 1.1s count as the gesture, and a short deaf window afterwards stops the
+   * same pair from firing twice. */
+  var lvlHist = [], clapTimes = [], lastClapAt = 0, clapDeafUntil = 0;
+
+  function detectClap(lvl) {
+    var now = Date.now();
+    var avg = 0;
+    if (lvlHist.length) {
+      for (var i = 0; i < lvlHist.length; i++) avg += lvlHist[i];
+      avg /= lvlHist.length;
+    }
+    lvlHist.push(lvl);
+    if (lvlHist.length > 18) lvlHist.shift();
+
+    if (now < clapDeafUntil) return;
+    if (lvl < 0.34 || lvl < avg * 3 || now - lastClapAt < 180) return;
+
+    lastClapAt = now;
+    clapTimes.push(now);
+    clapTimes = clapTimes.filter(function (t) { return now - t < 1100; });
+    if (clapTimes.length < 2) return;
+
+    clapTimes = [];
+    clapDeafUntil = now + 1200;
+    toggleListenByClap();
+  }
+
+  function toggleListenByClap() {
+    wantListen = !wantListen;
+    rememberListen(wantListen);
+    micLabel();
+    if (wantListen) {
+      setState('idle', 'تصفيقتان · عاد السماع');
+      startListening();
+    } else {
+      pauseListening();
+      clearInterim();
+      // rec.stop() fires onend, whose resumeListening() would repaint the state
+      // and swallow the confirmation. Say it once the stop has settled.
+      setTimeout(function () {
+        if (!wantListen) setState('idle', 'تصفيقتان · أوقفتُ السماع · صفّق مرتين لأعود');
+      }, 90);
+    }
   }
 
   function startMeter(stream) {
@@ -819,10 +873,13 @@
       var bars = $('meter').querySelectorAll('i');
       var loop = function () {
         analyser.getByteFrequencyData(bins);
+        var sum = 0;
         for (var i = 0; i < bars.length; i++) {
           var v = bins[Math.floor(i * bins.length / bars.length)] / 255;
           bars[i].style.height = Math.max(3, Math.round(v * 22)) + 'px';
         }
+        for (var k = 0; k < bins.length; k++) sum += bins[k];
+        detectClap(sum / bins.length / 255);
         meterRaf = requestAnimationFrame(loop);
       };
       loop();
@@ -854,6 +911,15 @@
     if (!micReady) { b.classList.add('off'); b.textContent = '🎙️ شغّل المايك'; return; }
     b.classList.toggle('off', !wantListen);
     b.textContent = wantListen ? '🎙️ يسمعك · اضغط للإيقاف' : '🎙️ اضغط ليسمعك';
+  }
+  /* Safari has no navigator.permissions for the microphone. Only re-open the
+   * stream there if this browser granted it before — never on a first visit,
+   * which is what got the permission blocked in the first place. */
+  function armIfPreviouslyAllowed() {
+    var seen = '';
+    try { seen = localStorage.getItem('bp_mic_granted') || ''; } catch (e) {}
+    if (seen === '1') initVoice(false);
+    else setState('needmic');
   }
   function rememberListen(on) {
     try { localStorage.setItem('bp_listen', on ? '1' : '0'); } catch (e) {}
@@ -893,7 +959,7 @@
       this.classList.remove('off');
       this.textContent = '🎙️ جارٍ التفعيل…';
       setState('idle', 'اسمح للمايك في نافذة المتصفح');
-      initVoice();
+      initVoice(true);
       return;
     }
     wantListen = !wantListen;
@@ -921,11 +987,12 @@
   micLabel();
   if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
     setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
+  } else if (!(navigator.permissions && navigator.permissions.query)) {
+    armIfPreviouslyAllowed();
   } else if (navigator.permissions && navigator.permissions.query) {
     navigator.permissions.query({ name: 'microphone' }).then(function (st) {
-      var off = false;
-      try { off = localStorage.getItem('bp_listen') === '0'; } catch (e) {}
-      if (st && st.state === 'granted' && !off) { wantListen = true; initVoice(); }
-    }).catch(function () {});
+      if (st && st.state === 'granted') initVoice(false);
+      else setState('needmic');
+    }).catch(function () { armIfPreviouslyAllowed(); });
   }
 })();
