@@ -304,6 +304,7 @@ import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
+import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -12368,7 +12369,14 @@ function writeFullSite(pre) {
   write(`${pre}estrdad.html`, buildEstrdad());
   write(`${pre}bank-account.html`, buildBankAccount());
   write(`${pre}formation-contract.html`, buildFormationContract());
-  write(`${pre}checkout.html`, buildCheckout());
+  // الدفع بتصميم الموقع الجديد. القديم يبقى مبنيّاً على /checkout-classic
+  // لأن روابطه قد تكون في يد عميل الآن — لكن لا شيء في الموقع الجديد يرسل إليه.
+  if (SIMPLE_V1) {
+    write(`${pre}checkout.html`, buildSimpleCheckout(SV1, { lang: () => LANG, esc }));
+    write(`${pre}checkout-classic.html`, buildCheckout());
+  } else {
+    write(`${pre}checkout.html`, buildCheckout());
+  }
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());

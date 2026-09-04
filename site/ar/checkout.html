@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-prices="off">
+<html data-sv1-test="وضع الاختبار — لا مدفوعات حقيقية ولا رسائل للعملاء" lang="ar" dir="rtl" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>إتمام الطلب — بيزنس بارتنر</title>
-<meta name="description" content="ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال.">
-<meta property="og:title" content="إتمام الطلب — بيزنس بارتنر">
-<meta property="og:description" content="ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال.">
+<title>إتمام الدفع — Business Partner</title>
+<meta name="description" content="ادفع بالبطاقة أو Apple Pay أو تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.">
+<meta property="og:title" content="إتمام الدفع — Business Partner">
+<meta property="og:description" content="ادفع بالبطاقة أو Apple Pay أو تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -33,253 +33,427 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
-<style id="bp-simple-header-css">
-.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
-.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
-.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
-.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
-.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
-.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
-.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
-.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
-.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
-.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
-.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
-.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
-.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
-.bp-simple-header .bp-cart svg{width:19px;height:19px}
-.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
-@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
-@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
-@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
-</style>
+<style id="sv1-css">
+.sv1{--n:#0B1B5A;--n2:#081345;--g:#F5F6FA;--l:#E4E7F0;--t:#1F2430;--s:#4a4f5e;--ok:#16815A;--wa:#25D366;--sh:0 12px 34px rgba(11,27,90,.10);--line:#E4E7F0;--ink:#1F2430;--mut:#5f6880;--soft:#f7f9fd;font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh}
+.sv1 *{box-sizing:border-box}
+.sv1 a{color:inherit;text-decoration:none}
+.sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
+.sv1-ribbon{background:#b45309;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700}
+.sv1-hdr{border-bottom:1px solid var(--l);background:#fff;position:sticky;top:0;z-index:20}
+.sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-hdr .logo img{height:34px;width:auto;display:block}
+.sv1-nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:#39405a}
+.sv1-nav a{padding:6px 2px}
+.sv1-nav a:hover{color:var(--n)}
+.sv1-hdr .right{display:flex;align-items:center;gap:8px}
+.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--n);padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;line-height:1.2;font-family:inherit}
+.sv1-btn.primary{background:var(--n);border-color:var(--n);color:#fff}
+.sv1-btn.primary:hover{background:#13246e}
+.sv1-btn.wa{background:var(--wa);border-color:var(--wa);color:#073A17}
+.sv1-btn.sm{padding:7px 12px;font-size:12px}
+.sv1-btn[disabled]{opacity:.55;cursor:default}
+.sv1-lang{position:relative}
+.sv1-lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 8px;border-radius:999px}
+.sv1-lang summary::-webkit-details-marker{display:none}
+.sv1-lang .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh);min-width:150px;padding:6px;display:grid;z-index:5}
+.sv1-lang .menu a{padding:8px 10px;border-radius:8px;font-size:13px}
+.sv1-lang .menu a.on{background:var(--g);font-weight:700}
+.sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+.sv1 h1,.sv1 h2,.sv1 h3{color:var(--n);margin-top:0}
+.sv1-hero{background:linear-gradient(180deg,#fff,var(--g));padding:72px 0}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-block;background:#edf0f8;color:var(--n);padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.sv1-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.18;margin:14px 0 17px;letter-spacing:-.01em}
+.sv1-lead{font-size:17px;color:var(--s);margin:0}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;gap:10px}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:15px;padding:18px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:#99a7d4;transform:translateY(-2px)}
+.sv1-door .ico{width:42px;height:42px;border-radius:11px;background:#edf0f8;display:grid;place-items:center;font-size:19px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--n);font-weight:700}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:8px}
+.sv1-title p{color:var(--s);margin:0}
+.sv1-app{border:1px solid var(--l);border-radius:20px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--n)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:#777;font-weight:700}
+.sv1-steps .active{background:var(--n);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--n);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid #d9dfeb;background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:inherit;color:#39405a}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--n)}
+.sv1-compose .send{width:46px;border:0;border-radius:11px;background:var(--n);color:#fff;font-size:17px;cursor:pointer}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--n);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:11px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--n)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--n);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:13px;padding:15px;text-align:center}
+.sv1-flow i{font-style:normal;width:35px;height:35px;background:#edf0f8;color:var(--n);border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;font-weight:700;font-size:13px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--n)}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 16px;font-weight:700;color:#666;cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--n);color:#fff;border-color:var(--n)}
+.sv1-portal{border:1px solid var(--l);border-radius:18px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--n);font-weight:700}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:13px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:20px;color:var(--n)}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--n);margin:0 0 8px;font-size:13px}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9px;border-radius:999px;padding:3px 8px;background:#edf0f8;color:var(--n);white-space:nowrap}
+.sv1-status.done{background:#e8f7ef;color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
+.sv1-foot b{color:#fff}
+.sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
+.sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
+.sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
+.sv1-foot-row span:first-child{color:rgba(255,255,255,.55);font-size:11px;flex:none;min-width:78px}
+.sv1-foot-row.id{flex-direction:column;gap:0;align-items:flex-start;padding:5px 0}
+.sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
+.sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
+.sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
+.sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
+.sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+@media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+.sv1-hide{display:none!important}
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
-<body><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/tourism">السياحة والفعاليات</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/b10x">B10X</a><a href="/ar/#bp-consultant">المستشار الذكي</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/smart-employee">الموظف الذكي المتخصص</a><a href="/ar/business-development">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/agency-portal">بوابة وكالات التوظيف</a><a href="/ar/connect">مركز الربط</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><details class="bp-dd"><summary>التوظيف</summary><div class="bp-mini-menu"><a href="/ar/careers">الوظائف المتاحة</a><a href="/ar/employer-dashboard">لوحة صاحب العمل</a><a href="/ar/employer-join">تسجيل صاحب عمل جديد</a><a href="/ar/employers">خدمات أصحاب العمل</a><a href="/ar/job-search-service">خدمة البحث عن وظيفة</a><a href="/ar/recruitment-agencies">وكالات التوظيف</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/account">ابدأ الآن</a></div></div></header><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">إتمام الطلب</span>
-    <h1>إتمام الطلب</h1>
-    <p class="lead">اختر طريقة الدفع التي تناسبك: ادفع إلكترونياً ببطاقة مدى أو فيزا ويتفعّل طلبك تلقائياً فور تأكيد الدفع وتصلك فاتورتك الضريبية مباشرة — أو حوّل بنكياً وارفع صورة الإيصال ونفعّل طلبك فور التحقق منه.</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="steps-grid" style="margin-bottom:36px"><div class="step"><div class="step-n">1</div><div><h3>راجع سلتك</h3><p>تأكد من الخدمات والباقات المضافة والمبلغ الإجمالي.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>أدخل بياناتك وارفع ملفاتك</h3><p>الاسم والجوال والبريد، مع رفع المستندات المطلوبة لخدمتك (إن وجدت).</p></div></div><div class="step"><div class="step-n">3</div><div><h3>حوّل بنكياً وارفع الإيصال</h3><p>حوّل المبلغ على حسابنا البنكي، ثم ارفع صورة إيصال التحويل.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>نبدأ التنفيذ</h3><p>نراجع طلبك ونتواصل معك عبر واتساب لبدء تنفيذ الخدمة.</p></div></div></div>
-    <div class="cart-layout">
-      <div class="cart-main">
-        <form class="calc-form" id="checkout-form" novalidate>
-          <h2>بياناتك</h2>
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-name">الاسم الكامل</label><input id="co-name" name="name" type="text" required></div>
-            <div class="field"><label for="co-phone">رقم الجوال</label><input id="co-phone" name="phone" type="tel" required></div>
+<body class="sv1-page"><div class="sv1"><style id="sv1-co-css">
+.sv1-co-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.sv1-co-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sv1-co-fields label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
+.sv1-co-in{width:100%;border:1px solid var(--l);border-radius:11px;padding:12px 13px;font:inherit;font-size:14px;outline:none;background:#fff}
+.sv1-co-in:focus{border-color:var(--n)}
+.sv1-co-ways{display:grid;gap:8px;margin-bottom:16px}
+.sv1-co-way{display:flex;align-items:center;gap:12px;text-align:start;background:#fff;border:1px solid var(--l);border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.sv1-co-way .ico{width:38px;height:38px;border-radius:10px;background:var(--soft);display:grid;place-items:center;color:var(--n);flex:none}
+.sv1-co-way .tx b{display:block;font-size:13.5px;color:var(--n)}
+.sv1-co-way .tx small{font-size:11.5px;color:var(--mut)}
+.sv1-co-way.on{border-color:var(--n);box-shadow:0 0 0 3px rgba(11,27,90,.07)}
+.sv1-co-way[disabled]{opacity:.45;cursor:default}
+.sv1-co-mount{min-height:120px}
+.sv1-co-wait{font-size:12.5px;color:var(--mut);padding:22px 0;text-align:center}
+.sv1-co-fine{font-size:11.5px;color:var(--mut);line-height:1.75;margin:10px 0 0}
+.sv1-co-bank{display:grid;gap:9px;background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:14px}
+.sv1-co-bank div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.sv1-co-bank span{font-size:11.5px;color:var(--mut)}
+.sv1-co-bank b{font-size:13px;color:var(--n);font-weight:600}
+.sv1-co-sum{position:sticky;top:88px}
+.sv1-co-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef1f8;font-size:12.5px}
+.sv1-co-row:last-of-type{border-bottom:0}
+.sv1-co-row small{display:block;font-size:10.5px;color:var(--mut);margin-top:2px}
+.sv1-co-tot{border-top:1px dashed #cfd6e6;margin-top:10px;padding-top:12px;display:grid;gap:7px}
+.sv1-co-tot div{display:flex;justify-content:space-between;font-size:12.5px;color:var(--s)}
+.sv1-co-tot .big{align-items:baseline;margin-top:4px}
+.sv1-co-tot .big span{font-size:13.5px;font-weight:700;color:var(--n)}
+.sv1-co-tot .big b{font-size:22px;color:var(--n)}
+.sv1-co-trust{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid #eef1f8}
+.sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
+@media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
+@media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
+</style><header class="sv1-hdr"><div class="wrap">
+  <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
+  <nav class="sv1-nav" id="sv1Nav">
+    <a href="/ar/catalog">الخدمات</a>
+    <a href="/ar/#how">كيف نبدأ</a>
+    <a href="/ar/my" id="sv1AccountLink">حسابي</a>
+    <details class="sv1-lang"><summary>🌐 العربية</summary><div class="menu"><a href="/ar/checkout" data-lang="ar" class="on">العربية</a><a href="/checkout" data-lang="en">English</a><a href="/fr/checkout" data-lang="fr">Français</a><a href="/zh/checkout" data-lang="zh">中文</a></div></details>
+  </nav>
+  <div class="right">
+    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn" href="/ar/my">دخول</a>
+    
+  </div>
+</div></header>
+  <main>
+  <section class="sv1-sec"><div class="wrap">
+    <div class="sv1-title" style="margin-bottom:26px;">
+      <span class="sv1-tag">إتمام الدفع</span>
+      <h2>إتمام الدفع</h2>
+      <p>ادفع بالبطاقة أو Apple Pay أو تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.</p>
+    </div>
+
+    <div class="sv1-co-grid">
+
+      <div class="sv1-co-main">
+        <div class="sv1-panel">
+          <h4>بياناتك</h4>
+          <div class="sv1-co-fields">
+            <div><label for="coName">الاسم الكامل</label><input id="coName" class="sv1-co-in" autocomplete="name"></div>
+            <div><label for="coPhone">رقم الجوال</label><input id="coPhone" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
+            <div><label for="coEmail">البريد الإلكتروني</label><input id="coEmail" class="sv1-co-in" type="email" autocomplete="email"></div>
+            <div><label for="coCo">المنشأة (اختياري)</label><input id="coCo" class="sv1-co-in" autocomplete="organization"></div>
           </div>
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-email">البريد الإلكتروني *</label><input id="co-email" name="email" type="email" required></div>
-            <div class="field"><label for="co-entity" id="co-entity-label">المنشأة (اختياري)</label><input id="co-entity" name="entity" type="text"></div>
-          </div>
-          <h2>بيانات الفاتورة الضريبية</h2>
-          <p class="calc-note">اختر باسم مَن تُصدَر الفاتورة الضريبية. فاتورة المنشأة تتطلب الرقم الضريبي والعنوان الوطني — بدونهما لا تكون الفاتورة مطابقة لمتطلبات هيئة الزكاة والضريبة ولا يمكن تصحيحها بعد إصدارها.</p>
-          <div class="tax-choice">
-            <label class="tax-opt"><input type="radio" name="taxkind" value="personal" checked><span><strong>فاتورة باسم شخصي</strong><small>فاتورة ضريبية مبسّطة باسمك الشخصي.</small></span></label>
-            <label class="tax-opt"><input type="radio" name="taxkind" value="company"><span><strong>فاتورة باسم منشأة</strong><small>فاتورة ضريبية قياسية تُمكّنك من خصم ضريبة المدخلات.</small></span></label>
-          </div>
-          <div id="co-tax-company" class="field-group" hidden>
-            <div class="doc-read">
-              <label class="file-drop" for="co-tax-doc" id="taxdoc-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-                <span class="file-text" id="taxdoc-filename">ارفع شهادة الضريبة أو السجل التجاري — نقرأها ونعبّي الحقول بالأسفل نيابةً عنك</span></label>
-              <input id="co-tax-doc" type="file" accept=".pdf,image/*" hidden>
-              <p class="calc-note" id="taxdoc-msg" hidden></p>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-tax-name">اسم الشركة بالعربي (كما في السجل) <span class="req-star">*</span></label><input id="co-tax-name" name="taxName" type="text"></div>
-              <div class="field"><label for="co-tax-vat">الرقم الضريبي (١٥ رقماً) <span class="req-star">*</span></label><input id="co-tax-vat" name="taxVat" type="text" inputmode="numeric" maxlength="15" dir="ltr"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-tax-cr">رقم السجل التجاري</label><input id="co-tax-cr" name="taxCr" type="text" inputmode="numeric" dir="ltr"></div>
-              <div class="field"><label for="co-tax-contact">اسم الشخص المسؤول <span class="req-star">*</span></label><input id="co-tax-contact" name="taxContact" type="text"></div>
-            </div>
-            <div class="field"><label for="co-tax-mobile">جوال الشخص المسؤول <span class="req-star">*</span></label><input id="co-tax-mobile" name="taxMobile" type="tel" dir="ltr"></div>
-            <h3 style="margin:18px 0 8px;color:var(--navy);font-size:1rem">العنوان الوطني <span class="req-star">*</span></h3>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-bno">رقم المبنى</label><input id="co-na-bno" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
-              <div class="field"><label for="co-na-street">اسم الشارع</label><input id="co-na-street" type="text"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-district">الحي</label><input id="co-na-district" type="text"></div>
-              <div class="field"><label for="co-na-city">المدينة</label><input id="co-na-city" type="text"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-post">الرمز البريدي</label><input id="co-na-post" type="text" inputmode="numeric" maxlength="5" dir="ltr"></div>
-              <div class="field"><label for="co-na-add">الرقم الإضافي</label><input id="co-na-add" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
-            </div>
+        </div>
+
+        <div class="sv1-panel" style="margin-top:14px;">
+          <h4>طريقة الدفع</h4>
+          <div class="sv1-co-ways" id="coWays">
+            <button type="button" class="sv1-co-way on" data-way="card">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg></span>
+              <span class="tx"><b>بطاقة · Apple Pay</b><small>مدى · فيزا · ماستركارد</small></span>
+            </button>
+            <button type="button" class="sv1-co-way" data-way="tamara" id="coWayTamara">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
+              <span class="tx"><b>تمارا — قسّمها</b><small>ادفع على دفعات بلا فوائد</small></span>
+            </button>
+            <button type="button" class="sv1-co-way" data-way="bank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg></span>
+              <span class="tx"><b>تحويل بنكي</b><small>حوّل ثم أرسل الإيصال</small></span>
+            </button>
           </div>
 
-          <div id="pkg-details-box" class="field-group" hidden>
-            <h2>بيانات المنشأة</h2>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-cr">رقم السجل التجاري (الموحد)</label><input id="co-cr" name="cr" type="text" inputmode="numeric"></div>
-              <div class="field"><label for="co-headcount">عدد الموظفين</label><input id="co-headcount" name="headcount" type="number" min="1" value="1"></div>
+          <div id="coPaneCard" class="sv1-co-pane">
+            <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">نجهّز نموذج الدفع…</div></div>
+            <p class="sv1-co-fine">الدفع يتم على خوادم البوابة المرخّصة — لا تمرّ بيانات بطاقتك من خوادمنا.</p>
+          </div>
+
+          <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
+            <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">تمارا — قسّمها</button>
+            <p class="sv1-co-fine" id="coTamaraNote">ادفع على دفعات بلا فوائد</p>
+          </div>
+
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <div class="sv1-co-bank">
+              <div><span>المستفيد</span><b>شركة بزنس بارتنر سلوشنز</b></div>
+              <div><span>البنك</span><b>مصرف الراجحي</b></div>
+              <div><span>الآيبان</span><b><bdi dir="ltr">SA5380000511608016228498</bdi></b></div>
             </div>
-            <div class="field"><label for="co-address">العنوان الوطني (اختياري)</label><input id="co-address" name="address" type="text"></div>
-            <p class="calc-note" id="pkg-surcharge-note" hidden></p>
+            <p class="sv1-co-fine">بعد التحويل أرسل صورة الإيصال على واتساب أو البريد — ونفعّل طلبك فور التحقق.</p>
           </div>
-          <h2>ارفع مستنداتك</h2>
-          <div class="field">
-            <label class="file-drop" for="co-docs" id="docs-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-              <span class="file-text" id="docs-filename">المستندات المطلوبة لخدمتك (PDF/صور) — اختياري الآن</span></label>
-            <input id="co-docs" name="docs" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple hidden>
-          </div>
-          <h2>كيف تحب تدفع؟</h2>
-          <div class="tax-choice" id="pay-choice">
-            <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>الدفع الإلكتروني</strong><small>مدى / فيزا / Apple Pay — يتأكد فوراً وتصلك فاتورتك الضريبية مباشرة.</small></span></label>
-            <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>تحويل بنكي</strong><small>حوّل على حسابنا وارفع الإيصال — نتحقق منه ونفعّل طلبك.</small></span></label>
-            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>قسّطها — تمارا <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>قسّم المبلغ على 4 دفعات بدون فوائد أو رسوم — وتفعيل فوري بعد الموافقة.</small></span></label>
-          </div>
-          <div id="bnpl-box" class="bank-box" hidden>
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><strong>الدفع بالأقساط</strong></div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
-              <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
-                <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">· قسّمها على راحتك</span>
-              </button>
-            </div>
-            <p class="calc-note" id="bnpl-help">تُحوَّل لصفحة المزود الآمنة لاعتماد خطة التقسيط — ويتفعّل طلبك تلقائياً لحظة نجاح الدفع، مثل الدفع بالبطاقة تماماً.</p>
-          </div>
-          <div id="epay-box" class="bank-box" hidden>
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><strong>ادفع إلكترونياً (مدى / فيزا / أبل باي)</strong></div>
-            <div id="epay-form" class="mysr-form"></div>
-            <p class="calc-note" id="epay-help">دفع آمن. لا يُخصم أي مبلغ حتى تؤكد.</p>
-          </div>
-          <div id="bank-pay">
-          <div class="bank-box">
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg><strong>بيانات التحويل البنكي</strong></div>
-            <ul class="bank-list">
-              <li><span class="k">المستفيد</span><span class="v">شركة بزنس بارتنر سلوشنز</span></li>
-              <li><span class="k">البنك</span><span class="v">مصرف الراجحي</span></li>
-              <li><span class="k">رقم الحساب</span><span class="v mono">511000010006086228498</span><button type="button" class="copy-btn" data-copy="511000010006086228498">📋 نسخ</button></li>
-              <li><span class="k">IBAN</span><span class="v mono">SA5380000511608016228498</span><button type="button" class="copy-btn" data-copy="SA5380000511608016228498">📋 نسخ</button></li>
-            </ul>
-            <p class="calc-note">حوِّل الإجمالي إلى الحساب أعلاه ثم ارفع صورة الإيصال ليُعتمد طلبك. تصلك رسالة تأكيد فور المراجعة.</p>
-          </div>
-          <h2>ارفع إيصال التحويل <span class="req-star">*</span></h2>
-          <div class="field">
-            <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-              <span class="file-text" id="receipt-filename">إيصال التحويل البنكي — صورة (لقطة شاشة) هي الأسرع (تحقق تلقائي)، أو PDF — بنفس قيمة إجمالي طلبك</span></label>
-            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/*" required hidden>
-          </div>
-          <p class="calc-note" id="receipt-required-note">إلزامي: إيصال تحويل بنكي (صورة أو PDF) يوضح تحويل مبلغ يطابق إجمالي الطلب تماماً. الصورة (لقطة الشاشة) يتم التحقق منها تلقائياً خلال دقائق، أما PDF فقد يحتاج مراجعة يدوية سريعة. الطلبات بدون إيصال مطابق لن تُفعّل.</p>
-          </div>
-          <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>أقر وأوافق على <a href="/ar/terms" target="_blank" rel="noopener">الشروط والأحكام</a></span></label>
-          <button type="submit" class="btn btn-primary btn-lg" id="co-submit" style="width:100%">أرسل الطلب</button>
-          <p class="calc-note" id="online-submit-note" hidden>أكمل الدفع من نموذج البطاقة أعلاه — يُسجَّل طلبك لحظة نجاح الدفع.</p>
-          <p class="form-note">عند الإرسال نحفظ طلبك في حسابك على هذا الجهاز، ونرفع إيصالك لنظام فريقنا للتحقق، ونفتح واتساب لإشعار فريقنا.</p>
-          <div class="form-success" id="checkout-success" hidden></div>
-        </form>
-      </div>
-      <aside class="cart-aside">
-        <div class="order-box">
-          <h3>ملخص الطلب</h3>
-          <div id="checkout-items"></div>
-          <div class="disc-box" style="margin:10px 0 6px;padding:10px 12px;border:1.5px dashed #CBD5E1;border-radius:12px;background:#F8FAFC">
-            <label for="disc-code" style="display:block;font-size:.82rem;font-weight:700;margin-bottom:6px">🎟️ عندك كود خصم؟</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <input id="disc-code" placeholder="مثال: WELCOME10" autocomplete="off" style="flex:1 1 140px;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit;text-transform:uppercase;background:#fff" />
-              <button type="button" class="btn btn-ghost" id="disc-apply" style="width:auto;flex:0 0 auto;margin-bottom:0;white-space:nowrap">تطبيق</button>
-            </div>
-            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
-          </div>
-          <div class="cart-totals-block">
-          <div class="calc-line"><span class="k">المجموع (الأتعاب)</span><span class="v" id="co-subtotal">—</span></div>
-          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">الخصم <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
-          <div class="calc-line"><span class="k">ضريبة القيمة المضافة 15%</span><span class="v" id="co-vat">—</span></div>
-          <div class="calc-total"><span class="k">الإجمالي</span><span class="v" id="co-total">—</span></div>
-          </div>
-          <a class="btn btn-ghost" href="/ar/cart" style="width:100%">تعديل السلة</a>
         </div>
-      </aside>
+      </div>
+
+      <div class="sv1-co-side">
+        <div class="sv1-panel sv1-co-sum">
+          <h4>ملخص طلبك</h4>
+          <div id="coItems"></div>
+          <div class="sv1-co-tot">
+            <div><span>قبل الضريبة</span><b class="price-amt" id="coNet">—</b></div>
+            <div><span>ضريبة القيمة المضافة ١٥٪</span><b class="price-amt" id="coVat">—</b></div>
+            <div class="big"><span>الإجمالي</span><b class="price-amt" id="coTotal">—</b></div>
+          </div>
+          <div class="sv1-co-trust">
+            <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>اتصال مشفّر</div>
+            <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>فاتورة ضريبية معتمدة</div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div></section><script>window.BP_DISCOUNTS=[{"code":"WELCOME10","percent":10,"amount":0,"expires":"","note":"خصم ترحيبي 10%","services":[]}];</script></main><footer class="site-footer"><div class="container">
-  <div class="newsletter-band">
-    <div class="nl-copy">
-      <h3>اشترك في نشرتنا الإخبارية</h3>
-      <p>آخر أخبار الأعمال والأنظمة في السعودية — أسبوعياً بالعربية والإنجليزية مباشرة إلى بريدك.</p>
+  </div></section>
+  </main>
+<footer class="sv1-foot"><div class="wrap">
+  <div class="sv1-foot-grid">
+    <div class="sv1-foot-col">
+      <b class="sv1-foot-brand">Business Partner</b>
+      <p>الاستشارات، الخدمات الحكومية، وتأسيس الشركات.</p>
+      <p class="sv1-foot-note">فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.</p>
     </div>
-    <form class="newsletter-form" data-nl>
-      <input type="email" placeholder="بريدك الإلكتروني" aria-label="البريد الإلكتروني" data-nl-email required>
-      <button type="submit" class="btn btn-white">اشترك الآن</button>
-    </form>
-    <p class="nl-msg" data-nl-msg hidden></p>
-  </div>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
-      <p>بيزنس بارتنر يقدّم حلولاً عملية للشركات في السعودية في مجالات الامتثال، المنصات الحكومية، الموارد البشرية، التراخيص، والخدمات التشغيلية.</p>
-      <p class="footer-tag">شركاء نجاحك</p>
+    <div class="sv1-foot-col">
+      <h4>بيانات المنشأة</h4>
+      <div class="sv1-foot-row id"><span>الاسم في السجل التجاري</span><b>شركة بزنس بارتنر سلوشنز</b></div><div class="sv1-foot-row id"><span>الرقم الموحد</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>الرقم الضريبي</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>العنوان الوطني المختصر</span><bdi dir="ltr">RHSC2978</bdi></div>
     </div>
-    <div class="footer-col"><h4>خدماتنا</h4><ul>
-      <li><a href="/ar/services">كل الخدمات</a></li>
-      <li><a href="/ar/packages">الباقات</a></li>
-      <li><a href="/ar/business-development">تطوير الأعمال كخدمة</a></li>
-      <li><a href="/ar/ai-agents">المستشارون الأذكياء</a></li>
-      <li><a href="/ar/task-force">تاسك فورس</a></li>
-      <li><a href="/ar/hr">التوظيف</a></li>
-      <li><a href="/ar/deals">الصفقات</a></li>
-      <li><a href="/ar/mahfol-makfol">سياحة الأعمال</a></li>
-      <li><a href="/ar/workspaces">مساحات الأعمال</a></li>
-      <li><a href="/ar/farina">التموين والضيافة للشركات</a></li>
-      <li><a href="/ar/worker-housing">تسكين العمالة</a></li>
-      <li><a href="/ar/estrdad">استرداد الرسوم</a></li>
-      <li><a href="/ar/bank-account">فتح حساب بنكي</a></li>
-      <li><a href="/ar/formation-contract">تأسيس بين شركاء</a></li>
-      <li><a href="/ar/data">قاعدة عملاء الأعمال</a></li>
-      <li><a href="/ar/compliance-agent">مستشار الامتثال</a></li>
-      <li><a href="/ar/ai-document-agent">المستشار الذكي للمستندات</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>المنصات والبوابات</h4><ul>
-      <li><a href="/ar/account">منصّة العملاء</a></li>
-      <li><a href="/ar/business-development-dashboard">لوحة تطوير الأعمال كخدمة</a></li>
-      <li><a href="/ar/suppliers">تسجيل الشركاء</a></li>
-      <li><a href="/ar/employer-join">لأصحاب العمل</a></li>
-      <li><a href="/ar/portal">بوابة الموظفين الأذكياء</a></li>
-      <li><a href="/ar/employer-login">أصحاب العمل — دخول</a></li>
-      <li><a href="/ar/shared-services">فريق الخدمات المشتركة</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>مركز المعرفة</h4><ul>
-      <li><a href="/ar/saudi-arabia">الاستثمار في السعودية</a></li>
-      <li><a href="/ar/opportunities">الفرص الاستثمارية</a></li>
-      <li><a href="/ar/directory">دليل ريادة الأعمال</a></li>
-      <li><a href="/ar/tools-and-calculators">الأدوات والحاسبات</a></li>
-      <li><a href="/ar/news">الرؤى والأخبار</a></li>
-      <li><a href="/ar/magazine">المجلة (PDF)</a></li>
-      <li><a href="/ar/newsletter">النشرة الإخبارية</a></li>
-      <li><a href="/ar/calculator">حاسبة التكاليف</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>أدلة السعودية</h4><ul>
-      <li><a href="/ar/saudi-arabia">الاستثمار في السعودية</a></li>
-      <li><a href="/ar/guide/saudi-market">السوق السعودي</a></li>
-      <li><a href="/ar/guide/business-setup">تأسيس الأعمال</a></li>
-      <li><a href="/ar/guide/run-your-business">تشغيل عملك</a></li>
-      <li><a href="/ar/guide/live-in-saudi">الحياة في السعودية</a></li>
-      <li><a href="/ar/guide/residency">الإقامة في السعودية</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>الشركة</h4><ul>
-      <li><a href="/ar/about">من نحن</a></li>
-      <li><a href="/ar/consultation">احجز استشارة</a></li>
-      <li><a href="/ar/careers">الوظائف</a></li>
-      <li><a href="/ar/terms">الشروط والأحكام</a></li>
-      <li><a href="/ar/contact">اتصل بنا</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>تواصل</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>مبنى 2978 · شارع تركي بن عبدالله آل سعود · حي السليمانية · الرياض 12234 · الرقم الفرعي 8630</span></li>
-    </ul>
-    <div class="footer-social" aria-label="حساباتنا في التواصل الاجتماعي">
-      <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
-      <a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a>
-      <a href="https://www.facebook.com/BusinessPartnerKsa/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a>
-    </div></div>
+    <div class="sv1-foot-col">
+      <h4>تواصل</h4>
+      <div class="sv1-foot-row"><span>الهاتف</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
+      <div class="sv1-foot-row"><span>البريد</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
+      <div class="sv1-foot-row"><span>العنوان الوطني</span><span class="v">مبنى 2978 · شارع تركي بن عبدالله آل سعود · حي السليمانية · الرياض 12234 · الرقم الفرعي 8630</span></div>
+      <div class="sv1-foot-row"><span>أوقات العمل</span><span class="v">الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة</span></div>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>الدفع</h4>
+      <p class="sv1-foot-note">مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.</p>
+      <div class="sv1-foot-links">
+        <a href="/ar/terms">الشروط والأحكام</a>
+        <a href="/ar/catalog">كل الخدمات</a>
+      </div>
+    </div>
   </div>
-  <div class="footer-bottom">
-    <span>© 2026 بيزنس بارتنر · جميع الحقوق محفوظة</span>
-    <span>الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة</span>
-  </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">تواصل عبر واتساب</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+  <div class="sv1-foot-end">© 2026 Business Partner · جميع الحقوق محفوظة</div>
+</div></footer>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
+(function(){
+var LANG="ar",HOME="/ar/";
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا أو التحويل البنكي، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…"};
+var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+var $=function(id){return document.getElementById(id)};
+function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
+function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
+function lineOf(i){var p=Number(i.price!=null?i.price:i.amount)||0;return p*(Number(i.qty)||1)}
+var cart=readCart(),net=0;
+cart.forEach(function(i){net+=lineOf(i)});
+var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
+
+(function draw(){
+ var box=$('coItems');box.innerHTML='';
+ if(!cart.length){
+  var e=document.createElement('p');e.className='sv1-muted';e.textContent=TX.empty;box.appendChild(e);
+  var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'catalog';a.textContent=TX.browse;a.style.marginTop='10px';box.appendChild(a);
+  return}
+ cart.forEach(function(i){
+  var r=document.createElement('div');r.className='sv1-co-row';
+  var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=i.name||i.title||i.id||'';
+  l.appendChild(b);
+  if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
+  var v=document.createElement('b');v.className='price-amt';v.textContent=money(lineOf(i));
+  r.appendChild(l);r.appendChild(v);box.appendChild(r)});
+ $('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total);
+})();
+
+// تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+ .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+  if(!$('coEmail').value)$('coEmail').value=u.email||'';
+  if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
+
+// اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
+// بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
+function snapshot(){
+ var prev='';try{prev=(JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{}).ref||''}catch(e){}
+ var o={ref:prev||'BP-'+Date.now().toString().slice(-6),
+   name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
+   items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
+   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
+ try{sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}
+ return o}
+function meta(){
+ var s=snapshot(),items='';
+ try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
+ return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
+   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
+function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+
+// ---- اختيار الطريقة
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b){
+ b.onclick=function(){if(b.disabled)return;
+  Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(x){x.classList.toggle('on',x===b)});
+  for(var k in panes)panes[k].classList.toggle('sv1-hide',k!==b.getAttribute('data-way'))}});
+
+// ---- تمارا
+$('coTamaraGo').onclick=function(){
+ var n=$('coTamaraNote');
+ if(!ready()){n.textContent=TX.needFill;return}
+ var self=this;self.disabled=true;n.textContent=TX.loading;
+ fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
+ .then(function(r){return r.json()}).then(function(o){
+  if(o&&o.ok&&o.url){location.href=o.url;return}
+  self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
+ .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- البطاقة (مُيسّر) — نفس نداء التركيب في الموقع القديم
+var mount=$('coPayMount');
+function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+if(!cart.length){mount.innerHTML='';}
+else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+ if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
+ if(cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
+ if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
+ var s=document.createElement('script');s.src=cfg.scriptUrl;
+ s.onerror=payFailed;
+ s.onload=function(){
+  if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
+  var wanted=(cfg.methods||['creditcard']).slice();
+  var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
+  if(!canAP)wanted=wanted.filter(function(m){return m!=='applepay'});
+  if(!wanted.length)wanted=['creditcard'];
+  function boot(methods,applePay){
+   mount.innerHTML='<div id="epay-form"></div>';
+   window.Moyasar.init({element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+    callback_url:location.origin+location.pathname,metadata:meta(),
+    on_initiating:async function(){return {metadata:meta()}},
+    methods:methods,apple_pay:applePay||undefined});
+   // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
+   // المشتري بلا وسيلة دفع ولا رسالة.
+   setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
+  try{boot(wanted,canAP?cfg.applePay:null)}
+  catch(e){try{boot(['creditcard'],null)}catch(e2){payFailed()}}};
+ document.head.appendChild(s)}).catch(payFailed);
+})();</script></body></html>
