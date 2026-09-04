@@ -13,7 +13,7 @@ body{
   background-image:radial-gradient(ellipse at 50% 30%,#0a2c56 0,#05142c 32%,#02060f 66%,#01030a 100%);
   overflow:hidden;
 }
-.starfield{position:fixed;inset:0;pointer-events:none;z-index:0;
+.starfield{position:fixed;inset:0;width:100%;pointer-events:none;z-index:0;
   background-image:radial-gradient(#9ad9ff 1px,transparent 1px),radial-gradient(#7fc8ff 1px,transparent 1px);
   background-size:64px 64px,127px 127px;background-position:0 0,32px 48px;opacity:.10}
 
@@ -25,7 +25,7 @@ body{
 .tb-mark{font-size:24px;color:var(--cyan);text-shadow:0 0 16px var(--cyan)}
 .tb-brand b{display:block;font-size:16px;line-height:1.15}
 .tb-brand small{display:block;color:var(--gold);font-size:9.5px;letter-spacing:2.6px}
-.tb-stats{flex:1;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tb-stats{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .tb-stats::-webkit-scrollbar{display:none}
 .stat{flex:0 0 auto;min-width:104px;padding:6px 11px;border:1px solid var(--line);
   border-radius:10px;background:rgba(6,18,38,.72)}
@@ -48,12 +48,12 @@ body{
   background:rgba(90,25,35,.55);border-bottom:1px solid #7c2b3c;color:#ffc9d2}
 
 /* ---------- layout ---------- */
-.grid{position:relative;z-index:2;height:calc(100vh - 61px);display:grid;
+.grid{position:relative;z-index:2;height:calc(100vh - 61px);display:grid;min-width:0;
   grid-template-columns:310px minmax(0,1fr) 370px;grid-template-areas:"ops map talk";
   gap:10px;padding:10px}
 .map{grid-area:map}.rail-ops{grid-area:ops}.rail-talk{grid-area:talk}
 .rail{display:flex;flex-direction:column;gap:10px;min-height:0}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);min-width:0;
   box-shadow:0 0 30px rgba(11,164,255,.06),inset 0 0 22px rgba(16,54,90,.14);
   display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .rail-ops .panel{flex:1}
@@ -102,7 +102,7 @@ body{
 .orb em{display:block;font-style:normal;font-size:9px;color:var(--c);margin-top:1px}
 
 .valuechain{display:flex;align-items:center;gap:4px;padding:8px 10px;border-top:1px solid var(--line);
-  overflow-x:auto;scrollbar-width:none}
+  min-width:0;overflow-x:auto;scrollbar-width:none}
 .valuechain::-webkit-scrollbar{display:none}
 .vc{flex:0 0 auto;padding:5px 9px;border:1px solid var(--line2);border-radius:9px;
   background:rgba(6,20,42,.8);font-size:10px;cursor:pointer;color:var(--ink)}
@@ -112,9 +112,13 @@ body{
 .vc-arrow{flex:0 0 auto;color:#2a6f9e;font-size:12px}
 
 /* ---------- list rows ---------- */
-.row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;
   padding:8px 9px;border-bottom:1px solid rgba(13,41,68,.85)}
 .row:last-child{border-bottom:0}
+/* Grid items default to min-width:auto, so a long task title (or an English
+   integration name) pushed the whole rail past the viewport on a phone. */
+.row>*{min-width:0}
+.row b,.row small{overflow-wrap:anywhere}
 .row b{font-size:11.5px;font-weight:600;line-height:1.4}
 .row small{display:block;color:var(--dim);font-size:9.5px;margin-top:2px}
 .tag{font-size:9px;padding:3px 6px;border-radius:6px;background:#1b2c44;color:#a9c9e2;white-space:nowrap}
@@ -185,15 +189,43 @@ body{
   .rail-ops{flex-direction:row}
   .rail-ops .panel{flex:1;min-width:0}
 }
+/* Phones: the orbit is the wrong shape for a 430px viewport — absolutely
+   positioned orbs at +-36% run past the edge and get clipped. Below 900px the
+   same markup becomes a plain stack: Virtual Baher on top as a banner, then the
+   departments as a two-column grid. JS writes left/top inline, so the overrides
+   need !important. */
 @media(max-width:900px){
   body{overflow:auto}
   .grid{height:auto;grid-template-columns:1fr;grid-template-rows:none;
     grid-template-areas:"map" "talk" "ops"}
-  .orbit{height:74vh;min-height:520px}
   .rail-ops{flex-direction:column}
-  .rail-talk .panel{height:70vh}
-  .orb{width:150px}
-  .core{width:132px;height:132px}.core b{font-size:15px}
-  .topbar{flex-wrap:wrap}
+  .rail-talk .panel{height:auto;min-height:62vh}
+  .topbar{flex-wrap:wrap;gap:10px;padding:9px 12px}
   .tb-stats{order:3;width:100%}
+  .tb-brand{min-width:0;flex:1;gap:8px}
+  .tb-brand b{font-size:14px;white-space:nowrap}
+  .tb-brand small{font-size:8.5px;letter-spacing:1.4px;white-space:nowrap}
+  .tb-owner-txt{display:none}
+  .tb-avatar{width:34px;height:34px;font-size:12px}
+
+  .orbit{height:auto;min-height:0;overflow:visible;padding:12px}
+  .ring{display:none}
+  .core{position:static;transform:none;width:auto;height:auto;
+    max-width:none;border-radius:16px;padding:14px 16px;margin:0 0 12px;
+    display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+    box-shadow:0 0 22px rgba(41,191,255,.5),inset 0 0 24px rgba(122,223,255,.35)}
+  .core b{font-size:17px}
+  .core small{display:inline;margin-inline-start:6px}
+  .core em{width:100%;max-width:none;margin-top:2px}
+  .core-glow{display:none}
+
+  #orbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .orb{position:static!important;left:auto!important;top:auto!important;
+    transform:none!important;width:auto!important;border-radius:12px}
+  .orb:hover{transform:none!important}
+  .orb b{font-size:11.5px}
+}
+@media(max-width:430px){
+  #orbs{grid-template-columns:1fr}
+  .rail-talk .panel{min-height:70vh}
 }

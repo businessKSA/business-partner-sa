@@ -220,17 +220,20 @@
     var list = departments();
     var box = $('orbit').getBoundingClientRect();
     var narrow = box.width < 760;
+    // On phones the orbs are laid out by CSS grid, so skip the polar coordinates
+    // entirely rather than writing inline left/top the stylesheet has to undo.
+    var stacked = window.matchMedia('(max-width:900px)').matches;
     list.forEach(function (d, i) {
       var a = index[d.id] || {};
-      var ang = (i / list.length) * Math.PI * 2 - Math.PI / 2;
-      var rx = narrow ? 36 : 38, ry = narrow ? 38 : 36;
-      var x = 50 + Math.cos(ang) * rx;
-      var y = 50 + Math.sin(ang) * ry;
       var b = el('button', 'orb' + (isOn(a) ? '' : ' off') + (index[d.id] ? '' : ' noreg'));
       b.type = 'button';
       b.style.setProperty('--c', d.c);
-      b.style.left = x + '%';
-      b.style.top = y + '%';
+      if (!stacked) {
+        var ang = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+        var rx = narrow ? 36 : 38, ry = narrow ? 38 : 36;
+        b.style.left = (50 + Math.cos(ang) * rx) + '%';
+        b.style.top = (50 + Math.sin(ang) * ry) + '%';
+      }
       var ic = el('span', 'oi', d.icon);
       ic.appendChild(el('span', 'dot'));
       b.appendChild(ic);
