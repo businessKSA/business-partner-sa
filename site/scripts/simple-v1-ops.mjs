@@ -51,7 +51,7 @@ table.t input.inp{padding:6px 8px}
 .tabs button.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
 .note{font-size:.8rem;color:#5f6880}.ok-t{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.82rem}
 .stat{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem;color:#5f6880;margin-bottom:10px}.stat b{color:#1F2430}
-.contract-frame{border:1px solid #e4e8f1;border-radius:10px;background:#fff;padding:16px;max-height:380px;overflow:auto;font-size:.86rem;line-height:1.75}
+.contract-frame{display:block;width:100%;height:380px;border:1px solid #e4e8f1;border-radius:10px;background:#fff}
 .gate{max-width:420px;margin:60px auto;background:#fff;border:1px solid #e4e8f1;border-radius:16px;padding:24px}
 .gate h1{color:#0B1B5A;font-size:1.2rem;margin:0 0 8px}
 .mob{display:none}
@@ -305,7 +305,7 @@ if(r.attachments&&r.attachments.length)left.appendChild(h('div',{class:'card'},[
 // contract
 var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},['العقد'+(r.contract?' — '+r.contract.number+' ('+r.contract.status+')':'')]));
 if(r.status==='QUOTE_APPROVED'){var lt=h('input',{class:'inp',placeholder:'مدة التنفيذ المتوقعة (مثال: 10 أيام عمل)'});cc.appendChild(h('div',{class:'frm'},[lt,h('button',{class:'btn',onclick:function(){api('ops-contract',{ref:r.ref,lead_time:lt.value}).then(function(o){if(o&&o.ok)reload(hd,box)})}},['توليد العقد وإرساله للتوقيع'])]))}
-if(r.contract&&r.contract.has_html!==false){var fr=h('div',{class:'contract-frame'},['…']);cc.appendChild(fr);api('ops-contract-html',{ref:r.ref}).then(function(o){fr.innerHTML=o&&o.ok?o.html:''});if(r.contract.signature)cc.appendChild(h('p',{class:'ok-t'},['✓ وقّعه '+r.contract.signature.name+' · '+when(r.contract.signed_at)+' · '+(r.contract.signature.mode||'')+' · IP '+(r.contract.signature.ip||'')]))}
+if(r.contract&&r.contract.has_html!==false){var fr=h('iframe',{class:'contract-frame',title:'العقد'});cc.appendChild(fr);api('ops-contract-html',{ref:r.ref}).then(function(o){fr.srcdoc=o&&o.ok?o.html:''});if(r.contract.signature)cc.appendChild(h('p',{class:'ok-t'},['✓ وقّعه '+r.contract.signature.name+' · '+when(r.contract.signed_at)+' · '+(r.contract.signature.mode||'')+' · IP '+(r.contract.signature.ip||'')]))}
 right.appendChild(cc);
 // payment & invoice
 var pcard=h('div',{class:'card'});pcard.appendChild(h('h3',{},['الدفع والفاتورة']));

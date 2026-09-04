@@ -34,6 +34,10 @@ const P = {
   // all say «نطاق الخدمات» / "Scope of Work". The portal was still saying
   // «النطاق» after the rename, so a customer met two names for the same list.
   scope: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
+  openFull: { ar: "افتح بالحجم الكامل", en: "Open full size", fr: "Ouvrir en grand", zh: "全屏打开" },
+  docPrint: { ar: "طباعة / حفظ PDF", en: "Print / Save PDF", fr: "Imprimer / PDF", zh: "打印 / 保存 PDF" },
+  docClose: { ar: "إغلاق", en: "Close", fr: "Fermer", zh: "关闭" },
+  docWait:  { ar: "نجهّز المستند…", en: "Preparing the document…", fr: "Préparation du document…", zh: "正在准备文件…" },
   attachments: { ar: "المرفقات", en: "Attachments", fr: "Pièces jointes", zh: "附件" },
   quote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   contract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
@@ -196,7 +200,20 @@ table.q tfoot td{font-weight:700}
 .tl li i.ai{background:#efe7ff}.tl li i.human{background:#e6f4ea}.tl li i.customer{background:#eef2ff}.tl li i.system{background:#fff3e6}
 .stat{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.86rem;color:var(--mut);margin-bottom:12px}
 .stat b{color:var(--ink)}
-.contract-frame{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;max-height:420px;overflow:auto;font-size:.9rem;line-height:1.8}
+.contract-frame{display:block;width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
+.docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
+.docovl-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;background:#0B1B5A;color:#fff}
+.docovl-bar b{font-size:.95rem;font-weight:600}
+.docovl-bar .acts{display:flex;gap:8px}
+.docovl-bar button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
+  border-radius:8px;padding:8px 14px;font:inherit;font-size:.82rem;cursor:pointer}
+.docovl-bar button:hover{background:rgba(255,255,255,.12)}
+.docovl-bar button.p{background:#fff;color:#0B1B5A;border-color:#fff;font-weight:600}
+.docovl iframe{flex:1;width:100%;border:0;background:#fff}
+@media print{body>*:not(.docovl){display:none!important}
+  .docovl{position:static;background:#fff} .docovl-bar{display:none}}
 canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
 .note{font-size:.82rem;color:var(--mut)}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
@@ -277,6 +294,28 @@ m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'}
 var others=state.me.requests.filter(function(r){return need.indexOf(r)<0}).slice(0,6);
 if(others.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.navRequests]),h('div',{class:'list'},others.map(reqRow))]))}
 function viewNew(m){m.appendChild(h('h1',{},[TX.navNew]));m.appendChild(h('div',{class:'card'},[h('p',{},[TX.today]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]))}
+// المستند بالحجم الكامل: طبقةٌ فوق اللوحة، والمستند داخل iframe معزول فلا
+// تُصادر أنماطُه أنماطَ اللوحة ولا العكس، ويطبع وحده.
+function docOverlay(title,loader){
+ var ovl=h('div',{class:'docovl'});
+ var frame=h('iframe',{title:title,srcdoc:'<!doctype html><meta charset=utf-8><body style="font:14px system-ui;padding:24px;color:#64748b">'+TX.docWait+'</body>'});
+ function close(){document.removeEventListener('keydown',esc2);ovl.remove()}
+ function esc2(e){if(e.key==='Escape')close()}
+ var bar=h('div',{class:'docovl-bar'},[
+   h('b',{},[title]),
+   h('div',{class:'acts'},[
+     h('button',{class:'p',onclick:function(){try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){window.print()}}},[TX.docPrint]),
+     h('button',{onclick:close},[TX.docClose])])]);
+ ovl.appendChild(bar);ovl.appendChild(frame);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ document.addEventListener('keydown',esc2);
+ document.body.appendChild(ovl);
+ loader().then(function(html){if(html)frame.srcdoc=html});
+ return ovl}
+
+function docBtn(label,title,loader){
+ return h('button',{class:'btn ghost sm doc-open',onclick:function(){docOverlay(title,loader)}},[label])}
+
 function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me.requests.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);if(r.quote&&title===TX.navQuotes)row.insertBefore(h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)]),row.children[1]);if(r.contract&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?TX.signed:TX.contract)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
@@ -321,12 +360,12 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 // quote — while it is being priced the customer sees the step, not silence
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
-qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
+qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
 if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
-if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('div',{class:'contract-frame'},['…']);cc.appendChild(frame);api('contract-view',{ref:r.ref}).then(function(o){frame.innerHTML=o&&o.ok?o.html:'';state.contractHtml=o&&o.html||''});
+if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
 var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));

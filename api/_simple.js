@@ -17,7 +17,7 @@
 // SIMPLE_NOTIFY=1 is set explicitly.
 import crypto from "node:crypto";
 import { sb, DB_ON, getSession, audit, notify } from "./_db.js";
-import { contractHtml } from "./_docusign.js";
+import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -166,9 +166,11 @@ function buildContract(row, opts = {}) {
   const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
   const html = contractHtml({
     ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
-    lines: row.quote.items.map((l) => ({ name: l.title, qty: l.qty, amount: l.line })),
+    lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
     leadTime: str(opts.lead_time, 120), executor: str(opts.executor, 120) || "Business Partner", today,
+    // لغة العميل تُطبع مقابل العربية — والعربية هي المرجع في نص العقد نفسه.
+    lang: row.lang || "ar",
   });
   return {
     number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html,
@@ -245,7 +247,7 @@ function computeQuote(items, opts = {}) {
   const lines = (Array.isArray(items) ? items : []).slice(0, 30).map((it) => {
     const qty = Math.max(1, Math.min(99, Math.round(num(it.qty) || 1)));
     const price = round2(Math.max(0, num(it.price)));
-    return { code: str(it.code, 40), title: str(it.title, 200), description: str(it.description, 600), qty, price, line: round2(qty * price) };
+    return { code: str(it.code, 40), title: str(it.title, 200), titleEn: str(it.titleEn, 200), description: str(it.description, 600), qty, price, line: round2(qty * price) };
   }).filter((l) => l.title);
   const net = round2(lines.reduce((s, l) => s + l.line, 0));
   const vat = round2(net * VAT_RATE);
@@ -513,9 +515,34 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, status: upd.status, quote });
   }
 
+  // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
+  if (action === "quote-view") {
+    if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
+    const html = quoteHtml({
+      ref: row.ref, number: row.quote.number,
+      clientName: row.company_name || row.client_name || row.client_email,
+      items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
+      validUntil: row.quote.valid_until || "", paymentTerms: row.quote.payment_terms || "",
+      notes: row.quote.notes || "", lang: row.lang || "ar",
+      today: new Date(row.quote.created_at || Date.now()).toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" }),
+    });
+    return json(res, 200, { ok: true, html, number: row.quote.number });
+  }
+
   if (action === "contract-view") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
-    return json(res, 200, { ok: true, html: row.contract.html, contract: { ...row.contract, html: undefined } });
+    // العقد مشتقٌّ من عرض السعر، فما دام غير موقّع يُعاد بناؤه من البيانات
+    // الحالية عند كل عرض: هذا ما يُصلح عقوداً حُفظت قبل إصلاح خطأ «٠ ريال»
+    // بلا تدخّل. أما الموقّع فيُعاد كما هو حرفياً — بصمته SHA-256 مأخوذة منه.
+    let html = row.contract.html;
+    if (!row.contract.signature && !row.signature && row.quote && row.quote.items) {
+      try {
+        const rebuilt = buildContract(row, {});
+        html = rebuilt.html;
+        if (html !== row.contract.html) await patchRequest(row.id, { contract: { ...row.contract, html } });
+      } catch (e) { console.error("contract rebuild", String(e.message || e).slice(0, 140)); }
+    }
+    return json(res, 200, { ok: true, html, contract: { ...row.contract, html: undefined } });
   }
 
   if (action === "contract-sign") {
@@ -1199,7 +1226,13 @@ async function priceItems(items) {
     // it as {amount,label}. Reading only the object shape silently priced
     // every catalogue line at zero.
     const catPrice = svc ? num(svc.price && typeof svc.price === "object" ? svc.price.amount : (svc.price != null ? svc.price : svc.amount)) : 0;
-    return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "", description: it.description || it.why || "", qty: it.qty || 1, price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
+    // الاسم الإنجليزي من الكتالوج يُحمل مع البند ليُطبع في العمود المقابل
+    // بلغة العميل. ما لا اسم إنجليزي له يبقى بالعربية في العمودين — أفضل من
+    // ترجمةٍ آلية لاسم خدمة حكومية داخل عقد.
+    return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "",
+      titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
+      description: it.description || it.why || "", qty: it.qty || 1,
+      price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
   });
 }
 function guessType(text) {
