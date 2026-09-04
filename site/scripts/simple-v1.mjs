@@ -177,6 +177,7 @@ const D = {
   footPhone: { ar: "الهاتف", en: "Phone", fr: "Téléphone", zh: "电话" },
   footEmail: { ar: "البريد", en: "E-mail", fr: "E-mail", zh: "邮箱" },
   footAddress: { ar: "العنوان", en: "Address", fr: "Adresse", zh: "地址" },
+  footShortAddr: { ar: "العنوان الوطني المختصر", en: "Short national address", fr: "Adresse nationale abrégée", zh: "国家简短地址" },
   footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
   footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
   footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
@@ -426,6 +427,7 @@ export function simpleV1(ctx) {
       cr: cr.length === 10 ? cr : "",
       unified: unified.length === 10 && unified.startsWith("7") ? unified : "",
       vat: vat.length === 15 && vat.startsWith("3") && vat.endsWith("3") ? vat : "",
+      shortAddress: String(legal.shortAddress || "").trim().toUpperCase(),
     };
   }
 
@@ -442,6 +444,7 @@ export function simpleV1(ctx) {
       row(t("footCr"), id.cr),
       row(t("footUnified"), id.unified),
       row(t("footVat"), id.vat),
+      id.shortAddress ? `<div class="sv1-foot-row id"><span>${t("footShortAddr")}</span><bdi dir="ltr">${esc(id.shortAddress)}</bdi></div>` : "",
     ].join("");
     return `<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">

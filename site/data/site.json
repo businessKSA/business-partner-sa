@@ -10,8 +10,8 @@
  "whatsappSupport": "https://wa.me/966530540231",
  "whatsappChannel": "https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X",
  "bank": {
-  "beneficiary": "شركة بيزنس بارتنر",
-  "beneficiaryEn": "Business Partner Co.",
+  "beneficiary": "شركة بزنس بارتنر سلوشنز",
+  "beneficiaryEn": "Business Partner Solutions Company",
   "bankName": "مصرف الراجحي",
   "bankNameEn": "Al Rajhi Bank",
   "iban": "SA5380000511608016228498",
@@ -26,18 +26,18 @@
   "whatsappSupport": "0530540231",
   "email": "business@businesspartner.sa",
   "website": "www.businesspartner.sa",
-  "address": "الرياض – حي الملقا – شارع الأمير محمد بن سعد – مجمع طوق ورد",
-  "cr": "1009008634",
+  "address": "الرياض · حي السليمانية · شارع تركي بن عبدالله آل سعود · مبنى 2978 · الرمز البريدي 12234",
   "hours": "الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة",
-  "addressEn": "Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex",
+  "addressEn": "Riyadh · Al Sulaimaniyah District · Turki Ibn Abdullah Aal Saud St. · Building 2978 · 12234",
   "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock"
  },
  "legal": {
-  "name": "شركة بيزنس بارتنر",
-  "nameEn": "Business Partner Co.",
-  "cr": "1009008634",
-  "unified": "",
-  "vat": ""
+  "name": "شركة بزنس بارتنر سلوشنز",
+  "nameEn": "Business Partner Solutions Company",
+  "cr": "",
+  "unified": "7038825860",
+  "vat": "312079341500003",
+  "shortAddress": "RHSC2978"
  },
  "nav": [
   {
