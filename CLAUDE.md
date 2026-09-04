@@ -8,14 +8,14 @@
 |---|---|---|
 | `business-partner-sa-businessksa` (الموقع + `api/`) | `prj_0QXlyAeL02QYYNrAQCfc6lRheTGp` | **الوحيد المعتمد** |
 | `bp-quotes` (Root Directory: `quotes/`) | `prj_Vj1vuhZ803Bt8ETpHsOsMasVGvwt` | يُدمج في الرئيسي ثم **يُحذف نهائياً** |
-| `bp-erp` (Root Directory: `erp/`) | `prj_jRpTMKArauNZLe22qOZpDMj4GtJP` | أُفرغ محتواه؛ بقي `erp/vercel.json` كعب انتظار. **يُحذف المشروع من اللوحة أولاً ثم المجلد** — انظر `erp/README.md` |
+| ~~`bp-erp`~~ | — | **حُذف نهائياً (2026-09-04)** من لوحة Vercel، ثم حُذف `erp/` من المستودع. لا تعده. |
 
 - **ممنوع** إنشاء مشروع Vercel جديد، أو ربط مجلد جديد كمشروع مستقل، أو إضافة `vercel.json` لمجلد فرعي.
 - **ممنوع** تطوير ميزات جديدة داخل `quotes/` كتطبيق مستقل. أي عمل عليه يكون فقط لنقل ما فيه إلى الموقع الرئيسي (`site/` + `api/`) تمهيداً لحذفه. (`erp/` لم يعد موجوداً.)
 - المشاريع الثلاثة تُبنى مع كل دفعة على أي فرع، وهذا ما استنفد سقف المئة نشرة في اليوم على الخطة المجانية مراراً وعطّل إصلاحات جاهزة. لهذا يُصفّى كل شيء في مشروع واحد.
 - حذف المشروعين من Vercel يتم من لوحة Vercel (Project → Settings → Delete) بعد اكتمال الدمج — لا يحذفهما Claude من نفسه، ولا يوقفهما (pause) قبل الدمج حتى لا تنقطع خدمة قائمة.
-- **الوضع الحالي (2026-09-04):** `bp-erp` أُفرغ من المستودع ولا يبني ولا يحمل نطاقاً مخصصاً — جاهز للحذف من اللوحة. أما `bp-quotes` فما زال يشغّل لوحة العروض فعلياً؛ المسار `businesspartner.sa/quotes/*` هو **rewrite** إليه من `vercel.json` الرئيسي، وليس دمجاً. حذفه أو إيقافه الآن يكسر عروض الأسعار والعقود والفواتير حتى تُنقل جداوله ومساراته إلى `api/` + `db/` (المهمة القادمة).
-- شرط التجاهل: `erp/vercel.json` لا يبني أبداً، و`quotes/vercel.json` يبني فقط إذا تغيّر `quotes/` أو `site/assets/data/catalog.json` في مدى الدفعة. لا تحذف `ignoreCommand` من الملفين، ولا تحذف مجلداً هو جذرُ مشروع Vercel قائم.
+- **الوضع الحالي (2026-09-04):** `bp-erp` حُذف من اللوحة ثم من المستودع — بقي مشروعان. أما `bp-quotes` فما زال يشغّل لوحة العروض فعلياً؛ المسار `businesspartner.sa/quotes/*` هو **rewrite** إليه من `vercel.json` الرئيسي، وليس دمجاً. حذفه أو إيقافه الآن يكسر عروض الأسعار والعقود والفواتير حتى تُنقل جداوله ومساراته إلى `api/` + `db/` (المهمة القادمة).
+- شرط التجاهل: `quotes/vercel.json` يبني فقط إذا تغيّر `quotes/` أو `site/assets/data/catalog.json` في مدى الدفعة. لا تحذف `ignoreCommand` منه، ولا تحذف مجلداً هو جذرُ مشروع Vercel قائم — احذف المشروع من اللوحة أولاً (هذا ما جرى مع `erp/`).
 - **المشروع الرئيسي كذلك صار له `ignoreCommand` (2026-09-04):** يبني تلقائياً
   على `master` و`staging` وفي الإنتاج فقط. أي فرع آخر لا ينشر إلا إذا احتوت
   رسالة آخر كوميت على العلامة المتفق عليها (انظر `ignoreCommand` في
@@ -74,4 +74,4 @@ with `LOCAL_DB=1` (JSON file under `.localdb/`, production Supabase untouched)
 and every integration in a safe mode (`api/_mode.js`). Vercel previews are for
 stable milestones only, never after every change. See `docs/local-development.md`.
 
-**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `erp/` was emptied on 2026-09-04 down to a placeholder `vercel.json`; delete the Vercel project from the dashboard FIRST, then the folder — removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
+**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
