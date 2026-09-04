@@ -24,7 +24,14 @@ import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
-const NOTIFY_ON = process.env.SIMPLE_NOTIFY === "1";
+// Live since 2026-09-04: a customer who approves a quotation must be told the
+// contract is waiting, and operations must hear about a new request. This was
+// opt-in (SIMPLE_NOTIFY=1) while the layer was in preview — unset in
+// production it meant every notice went silently to the outbox instead of an
+// inbox. It is opt-out now; the real safety gate is below and unchanged:
+// nothing leaves the machine unless EMAIL_MODE is live AND this is not a test
+// deployment, so previews and localhost still cannot e-mail a real customer.
+const NOTIFY_ON = process.env.SIMPLE_NOTIFY !== "0";
 const SELF_BASE = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
 const RESEND_API_KEY = (process.env.RESEND_API_KEY || process.env.RESEND_KEY || "").trim();
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
@@ -78,10 +85,13 @@ async function sendEmail(to, subject, html) {
     return out.find((r) => r.ok) || out[0] || { ok: false, error: "no_recipient" };
   }
   to = list[0] || "";
-  // Local/preview: record it in the dev outbox instead of mailing a person.
-  if (!EMAIL_LIVE || !NOTIFY_ON) {
+  // Local, preview, or an explicitly muted deployment: record it in the outbox
+  // instead of mailing a person. SIMPLE_TEST_MODE is named here as well as in
+  // EMAIL_LIVE because a preview that someone points at production e-mail
+  // settings must still not reach a customer.
+  if (!EMAIL_LIVE || SIMPLE_TEST_MODE || !NOTIFY_ON) {
     await outbox({ kind: "email", to, subject, body: html });
-    return { ok: false, skipped: EMAIL_LIVE ? "notify_off" : "email_mode_" + MODES().email };
+    return { ok: false, skipped: !EMAIL_LIVE ? "email_mode_" + MODES().email : SIMPLE_TEST_MODE ? "test_mode" : "notify_off" };
   }
   if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: "email_not_configured" };
   try {
