@@ -170,6 +170,24 @@ const D = {
   // gives and stays inside this design.
   footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
+  footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
+  footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
+  footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
+  footVat: { ar: "الرقم الضريبي", en: "VAT number", fr: "Numéro de TVA", zh: "增值税号" },
+  footPhone: { ar: "الهاتف", en: "Phone", fr: "Téléphone", zh: "电话" },
+  footEmail: { ar: "البريد", en: "E-mail", fr: "E-mail", zh: "邮箱" },
+  footAddress: { ar: "العنوان", en: "Address", fr: "Adresse", zh: "地址" },
+  footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
+  footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
+  footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
+  footPayLine: { ar: "مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.",
+                 en: "mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.",
+                 fr: "mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.",
+                 zh: "mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。" },
+  footInvoice: { ar: "فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.",
+                 en: "A ZATCA-compliant tax invoice for every paid order.",
+                 fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
+                 zh: "每笔已付订单均开具符合 ZATCA 规定的税务发票。" },
   footRights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved", fr: "Tous droits réservés", zh: "版权所有" },
 
   // Quick chips shown before the first message.
@@ -328,11 +346,25 @@ export function simpleV1(ctx) {
 .sv1-status{font-size:9px;border-radius:999px;padding:3px 8px;background:#edf0f8;color:var(--n);white-space:nowrap}
 .sv1-status.done{background:#e8f7ef;color:var(--ok)}
 .sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
-.sv1-foot{margin-top:auto;padding:28px 0;background:var(--n2);color:#ccd4ed;font-size:12px}
-.sv1-foot .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center}
+.sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
-.sv1-foot a{color:#fff}
-.sv1-foot .end{margin-inline-start:auto;color:rgba(255,255,255,.6)}
+.sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
+.sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
+.sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
+.sv1-foot-row span:first-child{color:rgba(255,255,255,.55);font-size:11px;flex:none;min-width:78px}
+.sv1-foot-row.id{flex-direction:column;gap:0;align-items:flex-start;padding:5px 0}
+.sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
+.sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
+.sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
+.sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
+.sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+@media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
 .sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
@@ -347,7 +379,7 @@ export function simpleV1(ctx) {
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}.sv1-foot .end{margin-inline-start:0}}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
   function langSwitch(path) {
@@ -370,14 +402,75 @@ export function simpleV1(ctx) {
   </div>
 </div></header>`;
   }
+  // Who we legally are. Every value comes from configuration — site/data/site.json
+  // first, then the same build-time environment variables the ZATCA invoice
+  // already uses (api/_zatca.js), so a number is entered once and appears both
+  // on the invoice and in the footer.
+  //
+  // A missing number renders nothing at all. A registration number is a
+  // government fact: showing a wrong or placeholder one is worse than showing
+  // none, and worse still on the page whose whole job is to be believed. The
+  // shape checks below are the same rule the tax authority applies — 15 digits
+  // beginning and ending with 3 for VAT, 10 digits starting with 7 for the
+  // unified number — so a typo is dropped rather than published.
+  const legal = site.legal || {};
+  const digits = (v) => String(v == null ? "" : v).replace(/\D/g, "");
+  const env = (k) => String(process.env[k] || "").trim();
+  function legalIdentity() {
+    const name = String(legal[lang() === "ar" ? "name" : "nameEn"] || legal.name || env("COMPANY_LEGAL_NAME") || "").trim();
+    const cr = digits(legal.cr || env("COMPANY_CR_NUMBER"));
+    const unified = digits(legal.unified || env("COMPANY_UNIFIED_NUMBER"));
+    const vat = digits(legal.vat || env("COMPANY_VAT_NUMBER"));
+    return {
+      name,
+      cr: cr.length === 10 ? cr : "",
+      unified: unified.length === 10 && unified.startsWith("7") ? unified : "",
+      vat: vat.length === 15 && vat.startsWith("3") && vat.endsWith("3") ? vat : "",
+    };
+  }
+
   function footer() {
     const year = new Date().getFullYear();
+    const id = legalIdentity();
+    // Latin digits, and marked as such: an Arabic page renders a bare number
+    // right-to-left, and a registration number read backwards is a wrong
+    // registration number.
+    const num = (v) => `<bdi dir="ltr">${esc(v)}</bdi>`;
+    const row = (label, value) => (value ? `<div class="sv1-foot-row id"><span>${label}</span>${num(value)}</div>` : "");
+    const identity = [
+      id.name ? `<div class="sv1-foot-row id"><span>${t("footLegalName")}</span><b>${esc(id.name)}</b></div>` : "",
+      row(t("footCr"), id.cr),
+      row(t("footUnified"), id.unified),
+      row(t("footVat"), id.vat),
+    ].join("");
     return `<footer class="sv1-foot"><div class="wrap">
-  <span><b>${t("brand")}</b> — ${t("footLine")}</span>
-  <span>${t("footContact")}: ${esc(contact.phone || "")} · ${esc(contact.email || "")}</span>
-  <a href="${href("/terms")}">${t("footTerms")}</a>
-  ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
-  <span class="end">© ${year} Business Partner · ${t("footRights")}</span>
+  <div class="sv1-foot-grid">
+    <div class="sv1-foot-col">
+      <b class="sv1-foot-brand">${t("brand")}</b>
+      <p>${t("footLine")}</p>
+      <p class="sv1-foot-note">${t("footInvoice")}</p>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footIdentity")}</h4>
+      ${identity || `<p class="sv1-foot-note">${esc(id.name || "")}</p>`}
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footContact")}</h4>
+      <div class="sv1-foot-row"><span>${t("footPhone")}</span><a href="tel:${esc(contact.phoneIntl || contact.phone || "")}">${num(contact.phone || "")}</a></div>
+      <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
+      ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
+      ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footPay")}</h4>
+      <p class="sv1-foot-note">${t("footPayLine")}</p>
+      <div class="sv1-foot-links">
+        <a href="${href("/terms")}">${t("footTerms")}</a>
+        ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
+      </div>
+    </div>
+  </div>
+  <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
 </div></footer>
 <a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a>`;
   }
