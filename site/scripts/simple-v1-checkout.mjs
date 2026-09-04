@@ -48,6 +48,14 @@ const T = {
              fr: "Le paiement passe par la passerelle agréée — vos données de carte ne transitent pas chez nous.",
              zh: "支付在持牌网关完成——卡片信息不经过我们的服务器。" },
   loading: { ar: "نجهّز نموذج الدفع…", en: "Preparing the payment form…", fr: "Préparation du paiement…", zh: "正在准备支付表单…" },
+  quoted:  { ar: "يُسعّر عند المراجعة", en: "Quoted on review", fr: "Devis après examen", zh: "审核后报价" },
+  signIn:  { ar: "سجّل دخولك لعرض السعر وإتمام الدفع", en: "Sign in to see the price and pay.",
+             fr: "Connectez-vous pour voir le prix et payer.", zh: "登录后查看价格并付款。" },
+  signInBtn:{ ar: "دخول إلى حسابي", en: "Sign in", fr: "Se connecter", zh: "登录" },
+  noAmount:{ ar: "هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.",
+             en: "These items are quoted on review — we send the quotation, then the payment link.",
+             fr: "Ces éléments sont devisés après examen — nous envoyons le devis, puis le lien de paiement.",
+             zh: "这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。" },
   payDown: { ar: "تعذّر فتح نموذج الدفع الآن. جرّب تمارا أو التحويل البنكي، أو راسلنا على واتساب.",
              en: "The payment form could not load. Try Tamara or bank transfer, or message us on WhatsApp.",
              fr: "Le formulaire n'a pas pu se charger. Essayez Tamara ou le virement.",
@@ -191,15 +199,24 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading") })};
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
 function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
-function lineOf(i){var p=Number(i.price!=null?i.price:i.amount)||0;return p*(Number(i.qty)||1)}
+// شكل بند السلة يكتبه main.js و api/_simple.js: {id,nameAr,nameEn,amount,price,qty}.
+// «price» عنوانٌ نصي («3,038 ر.س») لا رقم — قراءته كرقم كانت تُخرج NaN فصفراً،
+// فيظهر الإجمالي 0.00 ويرفض مُيسّر التركيب. الرقم في «amount» وحده.
+function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
+function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
+var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
+function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
 var cart=readCart(),net=0;
+var unpriced=cart.filter(function(i){return !Number(i.amount)}).length;   // بنودٌ تُسعّر عند المراجعة
+var hidden=cart.filter(function(i){return Number(i.amount)&&!shown(i)}).length; // مسعّرة لكنها محجوبة عن غير المسجّل
 cart.forEach(function(i){net+=lineOf(i)});
 var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
+var payable=cart.length&&!unpriced&&!hidden&&total>0;
 
 (function draw(){
  var box=$('coItems');box.innerHTML='';
@@ -209,12 +226,15 @@ var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
   return}
  cart.forEach(function(i){
   var r=document.createElement('div');r.className='sv1-co-row';
-  var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=i.name||i.title||i.id||'';
+  var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=nameOf(i);
   l.appendChild(b);
   if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
-  var v=document.createElement('b');v.className='price-amt';v.textContent=money(lineOf(i));
+  var v=document.createElement('b');
+  if(shown(i)){v.textContent=money(lineOf(i))}else{v.style.fontWeight='400';v.style.color='var(--mut)';v.style.fontSize='11.5px';v.textContent=Number(i.amount)?TX.signIn:TX.quoted}
   r.appendChild(l);r.appendChild(v);box.appendChild(r)});
- $('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total);
+ if(payable){$('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total)}
+ else{var q=unpriced?TX.quoted:TX.signIn;$('coNet').textContent=q;$('coVat').textContent='—';$('coTotal').textContent=q;
+  $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
@@ -250,6 +270,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b
 // ---- تمارا
 $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
+ if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
  var self=this;self.disabled=true;n.textContent=TX.loading;
  fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
@@ -262,7 +283,17 @@ $('coTamaraGo').onclick=function(){
 // ---- البطاقة (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');
 function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+// مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
+// لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
+function payBlocked(msg,href,label){
+ mount.innerHTML='';
+ var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
+ if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
+ var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
+else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
+else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
  if(cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
