@@ -28,7 +28,10 @@ const NOTIFY_ON = process.env.SIMPLE_NOTIFY === "1";
 const SELF_BASE = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
 const RESEND_API_KEY = (process.env.RESEND_API_KEY || process.env.RESEND_KEY || "").trim();
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
-const OWNER_EMAIL = process.env.BP_OWNER_EMAIL || "business@businesspartner.sa";
+// Every operational notice goes to the company mailboxes. A list, not one
+// address: the domain moved once already and a single missed inbox means a
+// customer's request sits unread.
+const OWNER_EMAIL = process.env.BP_OWNER_EMAIL || "business@businesspartner.sa,business@businesspartnerksa.com";
 
 export const REQUEST_TYPES = ["CONSULTATION", "GOVERNMENT_SERVICE", "COMPANY_FORMATION"];
 export const REQUEST_SOURCES = ["WEBSITE", "WHATSAPP", "EMAIL", "PHONE", "AI_ASSISTANT", "MANUAL", "REFERRAL"];
@@ -67,6 +70,14 @@ function opsOk(src) {
 }
 
 async function sendEmail(to, subject, html) {
+  // "to" may be a comma-separated list (the owner mailboxes): send to each so
+  // one bad address cannot swallow the whole notice.
+  const list = String(to || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (list.length > 1) {
+    const out = await Promise.all(list.map((one) => sendEmail(one, subject, html)));
+    return out.find((r) => r.ok) || out[0] || { ok: false, error: "no_recipient" };
+  }
+  to = list[0] || "";
   // Local/preview: record it in the dev outbox instead of mailing a person.
   if (!EMAIL_LIVE || !NOTIFY_ON) {
     await outbox({ kind: "email", to, subject, body: html });

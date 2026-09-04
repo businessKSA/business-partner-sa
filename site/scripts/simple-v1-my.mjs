@@ -101,6 +101,16 @@ const P = {
   loginText: { ar: "أدخل بريدك ونرسل لك رمز دخول.", en: "Enter your email and we'll send a sign-in code.", fr: "Saisissez votre e-mail, nous envoyons un code.", zh: "输入邮箱，我们将发送登录验证码。" },
   email: { ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", zh: "邮箱" },
   sendCode: { ar: "أرسل الرمز", en: "Send code", fr: "Envoyer le code", zh: "发送验证码" },
+  password: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
+  loginPw: { ar: "دخول بكلمة المرور", en: "Sign in with password", fr: "Se connecter avec mot de passe", zh: "使用密码登录" },
+  usePw: { ar: "لديك كلمة مرور؟ ادخل بها", en: "Have a password? Sign in with it", fr: "Vous avez un mot de passe ?", zh: "使用密码登录" },
+  useCode: { ar: "ادخل برمز البريد بدلاً من ذلك", en: "Use an emailed code instead", fr: "Utiliser un code par e-mail", zh: "改用邮箱验证码" },
+  orGoogle: { ar: "أو ادخل بحساب Google", en: "Or continue with Google", fr: "Ou continuer avec Google", zh: "或使用 Google 登录" },
+  pwTitle: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
+  pwNote: { ar: "اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.", en: "Set a password so you can sign in directly instead of waiting for an emailed code.", fr: "Définissez un mot de passe pour vous connecter directement.", zh: "设置密码即可直接登录，无需每次等待验证码。" },
+  pwSave: { ar: "حفظ كلمة المرور", en: "Save password", fr: "Enregistrer", zh: "保存密码" },
+  pwShort: { ar: "كلمة المرور ٨ أحرف على الأقل.", en: "The password must be at least 8 characters.", fr: "8 caractères minimum.", zh: "密码至少 8 个字符。" },
+  pwSaved: { ar: "تم حفظ كلمة المرور ✓", en: "Password saved ✓", fr: "Mot de passe enregistré ✓", zh: "密码已保存 ✓" },
   code: { ar: "رمز الدخول", en: "Sign-in code", fr: "Code", zh: "验证码" },
   verify: { ar: "دخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
   loginErr: { ar: "تعذّر إرسال الرمز.", en: "Couldn't send the code.", fr: "Impossible d'envoyer le code.", zh: "无法发送验证码。" },
@@ -188,6 +198,9 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .note{font-size:.82rem;color:var(--mut)}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
 .login{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
+.login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
+.login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
+.login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
 .login h1{margin:0 0 6px;color:var(--n);font-size:1.3rem}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
@@ -225,7 +238,23 @@ function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div
 var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
 var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
 var s1=h('div',{},[e1,b1]),s2=h('div',{hidden:''},[e2,b2]);
-box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(errEl);app.appendChild(box)}
+// Three doors to the same account: emailed code, password, Google. Only the
+// ones this deployment has configured are drawn.
+var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
+var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
+var sp=h('div',{hidden:''},[e3,b3]);
+var toPw=h('a',{class:'lnk',onclick:function(){sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
+var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
+var gwrap=h('div',{class:'gbtn',hidden:''});
+box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(gwrap);box.appendChild(errEl);app.appendChild(box);
+otp({action:'methods'}).then(function(m){if(!m||!m.ok)return;if(!m.password){toPw.hidden=true}if(m.google&&m.googleClientId)mountGoogle(gwrap,m.googleClientId,errEl)}).catch(function(){})}
+// Google Identity Services is loaded only when a client id exists, so a
+// deployment without Google never pulls a script it cannot use.
+function mountGoogle(wrap,cid,errEl){wrap.hidden=false;wrap.appendChild(h('p',{class:'note'},[TX.orGoogle]));var slot=h('div',{id:'bpGoogleBtn'});wrap.appendChild(slot);
+window.__bpGoogleCb=function(resp){otp({action:'google',credential:resp&&resp.credential}).then(function(o){if(!o||!o.ok){errEl.textContent=TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()})};
+function init(){try{google.accounts.id.initialize({client_id:cid,callback:window.__bpGoogleCb});google.accounts.id.renderButton(slot,{theme:'outline',size:'large',width:280,locale:LANG==='ar'?'ar':'en'})}catch(e){wrap.hidden=true}}
+if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
+var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};return {quotes:c.quotes,contracts:c.contracts,pay:c.payments}}
@@ -253,7 +282,12 @@ function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr_number:cr.value})}).then(function(r){return r.json()}).then(function(o){msg.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.save]));f.appendChild(msg);
-m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]))}
+m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]));
+// Setting a password needs a live session, which is exactly where we are —
+// so the client picks one here and stops waiting for a code every visit.
+var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
+var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
+m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}

@@ -18,7 +18,9 @@ export const BD_TRIAL_DAYS = 30;
 export const OPEN_ACCESS = process.env.BP_OPEN_ACCESS !== "0";
 
 // The owner is never on a trial anywhere, whatever the policy flag says.
-export const OWNER_EMAILS = String(process.env.OWNER_EMAILS || "dr.baher.magnas@gmail.com")
+// Control of the platform sits with the owner's own address and the two
+// company mailboxes; OWNER_EMAILS overrides the list entirely.
+export const OWNER_EMAILS = String(process.env.OWNER_EMAILS || "dr.baher.magnas@gmail.com,business@businesspartner.sa,business@businesspartnerksa.com")
   .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 export function isOwnerEmail(email) {
   return OWNER_EMAILS.includes(String(email || "").trim().toLowerCase());
