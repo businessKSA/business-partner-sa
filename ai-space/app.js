@@ -604,9 +604,10 @@
   /* Long replies were truncated at 700 characters, so the last sentence was cut
    * mid-word. Split on sentence ends instead and queue the pieces in order. */
   function chunkForSpeech(s) {
-    // No lookbehind: Safari before 16.4 throws on it and the whole script dies.
-    var SEP = String.fromCharCode(1);
-    var parts = String(s).replace(/([.!?\u061F\u06D4\n])/g, '$1' + SEP).split(SEP);
+    // No lookbehind (Safari before 16.4 throws on it) and no control-character
+    // sentinel either — an invisible separator is impossible to review safely.
+    // Match runs of non-terminators followed by their terminators instead.
+    var parts = String(s).match(/[^.!?\u061F\u06D4\n]+[.!?\u061F\u06D4\n]*/g) || [String(s)];
     var out = [], buf = '';
     parts.forEach(function (p) {
       if ((buf + ' ' + p).trim().length > 220) { if (buf.trim()) out.push(buf.trim()); buf = p; }
