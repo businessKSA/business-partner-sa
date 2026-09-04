@@ -22,6 +22,7 @@ import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
@@ -260,8 +261,19 @@ export async function handleSimple(req, res) {
       return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, notify: NOTIFY_ON, modes: MODES(), types: REQUEST_TYPES, statuses: REQUEST_STATUSES, sources: REQUEST_SOURCES });
     }
     if (isOps) {
-      if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) return json(res, 401, { ok: false, error: "unauthorized" });
-      return opsAction(action, body, qs, req, res);
+      // Two doors into operations. The panel key is for automation (n8n) and
+      // for staff who have no account. The owner's own session is the other:
+      // he asked for the dashboard to open from his company e-mail, and a
+      // secret string he has to carry between devices is not that.
+      let opsUser = null;
+      if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
+        const sess = await getSession(req);
+        if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
+          return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
+        }
+        opsUser = { email: String(sess.user.email).toLowerCase(), name: sess.user.full_name || "" };
+      }
+      return opsAction(action, body, qs, req, res, opsUser);
     }
     const sess = await getSession(req);
     if (!sess) return json(res, 401, { ok: false, error: "no_session", message: "سجّل دخولك أولاً." });
@@ -594,6 +606,128 @@ export async function markRequestPaidByRef(ref, info) {
   return markPaid(row, info);
 }
 
+// ------------------------------------------------------- the follow-up sweep --
+// A request that nobody touches dies quietly: the quotation goes out and the
+// answer never comes, the contract sits unsigned, the paid job waits for
+// someone to start it. Nobody notices, because nothing on a dashboard says
+// «this one has been still for four days».
+//
+// The sweep is that noticing. It walks every open request, and for each stage
+// that has been still too long it does exactly two things: it opens ONE task
+// for the team, and — when the ball is in the customer's court — it sends ONE
+// reminder per window. Both are idempotent: an open task of the same kind, or
+// a reminder already logged inside the window, means it does nothing at all.
+// It is meant to be run repeatedly (panel load, n8n schedule, cron) and to be
+// boring when there is nothing to do.
+//
+// It never invents a fact: a reminder carries the request number, its stage
+// and a link. Prices come from the quotation that was already issued, and the
+// sweep issues no quotation, signs nothing and charges nothing.
+
+const DAY = 864e5;
+// How long a stage may sit still before the agent speaks up. Days.
+const SLA = {
+  NEW: 0,                 // a new request is looked at today
+  REVIEWING: 1,           // scope in hand → price it
+  WAITING_CLIENT: 2,
+  QUOTE_SENT: 3,
+  QUOTE_APPROVED: 1,      // approved → the contract is owed
+  CONTRACT_SENT: 2,
+  SIGNED: 2,
+  PAYMENT_PENDING: 2,
+  PAID: 1,                // paid → execution starts
+  IN_PROGRESS: 7,
+  WAITING_INTERNAL: 3,
+};
+// What the agent says and does at each stage. `client` marks the stages where
+// the customer is the one we are waiting for — only those get a reminder.
+const PLAY = {
+  NEW:            { source: "sweep-new",      title: (r) => `راجع الطلب الجديد ${r.ref}`,        details: () => "اقرأ المحادثة، ثبّت النطاق، وجهّز التسعير.", human: true,  urgency: "high" },
+  REVIEWING:      { source: "pricing",        title: (r) => `تسعير نطاق ${r.ref}`,               details: () => "النطاق جاهز — أصدر عرض السعر من اللوحة.", human: true,  urgency: "high" },
+  WAITING_CLIENT: { source: "sweep-client",   title: (r) => `تابع العميل — ${r.ref}`,            details: () => "الطلب بانتظار رد العميل.", client: true, subject: (r) => `تذكير بطلبك ${r.ref}`, body: () => "طلبك بانتظار ردّك حتى نكمل الخطوة التالية." },
+  QUOTE_SENT:     { source: "sweep-quote",    title: (r) => `عرض السعر بلا رد — ${r.ref}`,       details: (r) => `العرض ${r.quote && r.quote.number || ""} أُرسل ولم يُعتمد بعد.`, client: true, subject: (r) => `عرض السعر ${(r.quote && r.quote.number) || r.ref} بانتظار اعتمادك`, body: () => "عرض السعر جاهز في حسابك — اعتمده أو اطلب تعديله." },
+  QUOTE_APPROVED: { source: "sweep-contract", title: (r) => `جهّز العقد — ${r.ref}`,              details: () => "العميل اعتمد العرض؛ أصدر العقد.", human: true, urgency: "high" },
+  CONTRACT_SENT:  { source: "sweep-sign",     title: (r) => `عقد بلا توقيع — ${r.ref}`,          details: () => "العقد أُرسل ولم يُوقّع بعد.", client: true, subject: (r) => `العقد ${(r.contract && r.contract.number) || r.ref} بانتظار توقيعك`, body: () => "العقد جاهز للتوقيع الإلكتروني في حسابك." },
+  SIGNED:         { source: "sweep-pay",      title: (r) => `بانتظار الدفع — ${r.ref}`,          details: () => "العقد موقّع ولم يصل الدفع.", client: true, subject: (r) => `بانتظار الدفع — ${r.ref}`, body: () => "العقد موقّع؛ يبقى الدفع لنبدأ التنفيذ." },
+  PAYMENT_PENDING:{ source: "sweep-pay",      title: (r) => `دفع معلّق — ${r.ref}`,              details: () => "بدأ الدفع ولم يكتمل — تأكد من البوابة.", human: true, urgency: "high", client: true, subject: (r) => `دفعتك لم تكتمل — ${r.ref}`, body: () => "لم يكتمل الدفع. أعد المحاولة من حسابك، أو راسلنا." },
+  PAID:           { source: "sweep-start",    title: (r) => `ابدأ تنفيذ ${r.ref}`,               details: () => "الدفع وصل — ابدأ التنفيذ وحدّث الحالة.", human: true, urgency: "high" },
+  IN_PROGRESS:    { source: "sweep-progress", title: (r) => `حدّث العميل — ${r.ref}`,            details: () => "أسبوع بلا تحديث على طلب جارٍ.", human: true },
+  WAITING_INTERNAL:{source: "sweep-internal", title: (r) => `عالق داخلياً — ${r.ref}`,           details: () => "الطلب بانتظار جهة داخلية منذ أيام — صعّد.", human: true, urgency: "high" },
+};
+const SWEEP_DONE = ["COMPLETED", "CANCELLED"];
+
+// One open task per request per kind. The second run of the day must not add a
+// second copy of yesterday's task — a queue that grows on a timer is noise,
+// and noise is how a real task gets missed.
+async function sweepTask(row, play, actor) {
+  const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.${q(play.source)}&status=in.(open,in_progress,blocked)&select=id&limit=1`);
+  if (open && open[0]) return false;
+  await sb("tasks", { method: "POST", prefer: "return=minimal", body: [{
+    organization_id: row.organization_id || await fallbackOrg(),
+    title: play.title(row), details: play.details(row),
+    assignee: "bp", source: play.source, status: "open",
+    urgency: play.urgency || "normal", priority: play.urgency === "high" ? "high" : "normal",
+    human_action: !!play.human, assigned_to: row.assigned_to || null, request_id: row.id,
+  }] });
+  await logEvent(row.id, "ai", actor, "followup.task", { stage: row.status, title: play.title(row) });
+  return true;
+}
+
+// One reminder per stage per window. The proof lives in request_events, so a
+// restart, a second panel load or a duplicated schedule cannot turn a courteous
+// nudge into three e-mails in a minute.
+async function sweepRemind(row, play, windowDays, actor) {
+  if (!row.client_email) return false;
+  const since = new Date(Date.now() - windowDays * DAY).toISOString();
+  const sent = await sb(`request_events?request_id=eq.${row.id}&event=eq.followup.reminded&created_at=gte.${since}&select=id&limit=1`);
+  if (sent && sent[0]) return false;
+  const link = `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+  await sendEmail(row.client_email, play.subject(row),
+    `<p>${esc(play.body(row))}</p><p><a href="${link}">فتح الطلب ${esc(row.ref)}</a></p>`);
+  await logEvent(row.id, "ai", actor, "followup.reminded", { stage: row.status });
+  if (row.organization_id) {
+    await notify({ organization_id: row.organization_id, event: "simple_followup", title: play.subject(row), body: play.body(row), idempotency_key: `simple_follow_${row.ref}_${row.status}_${Math.floor(Date.now() / DAY)}` });
+  }
+  return true;
+}
+
+// The whole board in one pass. Returns what it did, so the panel can show it
+// and a scheduler can log it.
+async function runSweep({ actor = "المتابعة الذكية", limit = 400, dry = false } = {}) {
+  const rows = await sb(`requests?status=not.in.(${SWEEP_DONE.join(",")})&select=id,ref,status,title,lang,quote,contract,payment,appointment,client_name,client_email,organization_id,assigned_to,created_at,updated_at&order=updated_at.asc&limit=${limit}`);
+  const now = Date.now();
+  const acted = [], skipped = [];
+  for (const row of rows) {
+    const play = PLAY[row.status];
+    if (!play) continue;
+    const idle = (now - new Date(row.updated_at || row.created_at).getTime()) / DAY;
+    const due = SLA[row.status];
+    if (!(idle >= due)) { skipped.push({ ref: row.ref, status: row.status, idle_days: round2(idle), due_in_days: round2(due - idle) }); continue; }
+    const did = { ref: row.ref, status: row.status, idle_days: round2(idle), task: false, reminded: false };
+    if (!dry) {
+      // Failures are recorded, not swallowed. A sweep that quietly does nothing
+      // looks exactly like a sweep with nothing to do — and that is how a whole
+      // stage stops being followed up without anyone noticing.
+      try { did.task = await sweepTask(row, play, actor); }
+      catch (e) { did.error = "task: " + String(e && e.message || e).slice(0, 80); }
+      // The reminder window is the SLA itself, never under two days: a stage
+      // with a same-day SLA must not mean a same-day second e-mail.
+      if (play.client) {
+        try { did.reminded = await sweepRemind(row, play, Math.max(due, 2), actor); }
+        catch (e) { did.error = (did.error ? did.error + " · " : "") + "remind: " + String(e && e.message || e).slice(0, 80); }
+      }
+    }
+    acted.push(did);
+  }
+  return {
+    ran_at: nowIso(), scanned: rows.length, dry: !!dry,
+    tasks_opened: acted.filter((a) => a.task).length,
+    reminders_sent: acted.filter((a) => a.reminded).length,
+    errors: acted.filter((a) => a.error).map((a) => ({ ref: a.ref, error: a.error })),
+    due: acted, waiting: skipped.slice(0, 60),
+  };
+}
+
 // ------------------------------------------------- WhatsApp agent gate --
 // Who answers this number — the machine or a person? No row means the agent
 // answers; that is also what a missing table or a failed read means, so a
@@ -642,8 +776,10 @@ async function waGateSet(phone, { paused, minutes, reason, actor }) {
 }
 
 // --------------------------------------------------------------- ops side --
-async function opsAction(action, b, qs, req, res) {
-  const actor = str(b.actor || qs.actor, 80) || "المالك";
+async function opsAction(action, b, qs, req, res, opsUser) {
+  // Who did this, in the audit trail. A named owner beats the generic
+  // «المالك» that a shared panel key can only ever produce.
+  const actor = (opsUser && (opsUser.name || opsUser.email)) || str(b.actor || qs.actor, 80) || "المالك";
 
   if (action === "ops-summary") {
     const all = await sb("requests?select=ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to&order=created_at.desc&limit=500");
@@ -761,6 +897,26 @@ async function opsAction(action, b, qs, req, res) {
       task = t[0] ? taskOut(t[0]) : null;
     }
     return json(res, 200, { ok: true, ref, request: summary(created), task });
+  }
+
+  // --------------------------------------------------------- the follow-up --
+
+  // Read-only: what is overdue right now, and what the agents did last. Safe
+  // to call on every panel load, because it changes nothing.
+  if (action === "ops-follow") {
+    const [board, log] = await Promise.all([
+      runSweep({ dry: true, limit: 400 }),
+      sb("request_events?event=in.(followup.task,followup.reminded)&select=event,actor,details,created_at,requests(ref,title,status)&order=created_at.desc&limit=60").catch(() => []),
+    ]);
+    return json(res, 200, { ok: true, board, log });
+  }
+
+  // The run itself. Opens tasks and sends the reminders. Idempotent by design,
+  // so a double click, a second panel and a scheduler firing together cannot
+  // produce a second task or a second e-mail.
+  if (action === "ops-sweep") {
+    const out = await runSweep({ actor, limit: 400, dry: b.dry === true });
+    return json(res, 200, { ok: true, ...out });
   }
 
   // ------------------------------------------------ WhatsApp agent control --

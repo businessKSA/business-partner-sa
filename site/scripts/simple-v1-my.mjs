@@ -373,7 +373,11 @@ function settleReturn(u){
     u.searchParams.delete('payment');u.searchParams.delete('id');u.searchParams.delete('amount');u.searchParams.delete('provider');
     history.replaceState({},'',u.pathname+u.search);return true}).catch(function(){return false});
 }
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
+// A visitor sent here to sign in (from /ops, say) lands back where he was
+// going. Only a same-origin path is honoured — never a full URL, and never a
+// protocol-relative «//host», which a browser reads as another site.
+function nextPath(){try{var n=new URL(location.href).searchParams.get('next')||'';n=decodeURIComponent(n);return /^\/[^\/]/.test(n)?n:''}catch(e){return ''}}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });
