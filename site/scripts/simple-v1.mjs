@@ -4,8 +4,9 @@
 // (consulting, government services, company formation) through ONE chat, a
 // client portal (/my) and an operations dashboard (/ops). Built by
 // generate.mjs alongside the classic site; nothing here removes a classic
-// route. The homepage replaces "/" only when the SIMPLE_V1=1 build flag is
-// set — otherwise it is previewed at /simple-v1 and the classic home stays.
+// route. This homepage IS "/" as of the owner's approval on 2026-09-04; the
+// classic homepage moved to /classic-home and still builds. SIMPLE_V1=0 puts
+// the classic page back at "/" without touching any code.
 //
 // Layout follows the approved concept file business_partner_simple_v1_refined
 // .html (2026-09-03): hero text beside three service doors, a three-step
@@ -20,7 +21,12 @@
 // Four languages (ar/en/fr/zh) from the dictionary below — the pages are
 // authored once and rendered per language by generate.mjs' language loop.
 
-export const SIMPLE_V1 = process.env.SIMPLE_V1 === "1";
+// Owner approval 2026-09-04: Simple V1 is the site. The flag flipped from
+// opt-in to opt-out, so the switch lives in the repository where it shows up
+// in a diff, instead of a dashboard field nobody can review. Rollback stays
+// one step — SIMPLE_V1=0 in the environment, or revert this line — and the
+// classic homepage comes back untouched at "/".
+export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
