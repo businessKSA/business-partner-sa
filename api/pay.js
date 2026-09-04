@@ -24,6 +24,7 @@
 //                            emails them that the service unlocked.
 
 import crypto from "node:crypto";
+import { LEGAL_NAME } from "./_identity.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
@@ -452,9 +453,9 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
   try { payUrl = (await daftraPayLink(inv.id)).url; } catch { payUrl = ""; }
 
   if (pdf) {
-    await sendMail(who.email, `فاتورة ${inv.number} — بيزنس بارتنر`,
+    await sendMail(who.email, `فاتورة ${inv.number} — Business Partner`,
       `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
-        <h2 style="color:#0B1B5A">فاتورتك الضريبية من بيزنس بارتنر</h2>
+        <h2 style="color:#0B1B5A">فاتورتك الضريبية من ${esc(LEGAL_NAME)}</h2>
         <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
         <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
         <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
@@ -468,9 +469,9 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     let pub = null;
     try { pub = await daftraPublicInvoiceLink(inv.id, inv.publicUrl || inv.url || ""); } catch { pub = null; }
     if (pub && pub.url) {
-      await sendMail(who.email, `فاتورة ${inv.number} — بيزنس بارتنر`,
+      await sendMail(who.email, `فاتورة ${inv.number} — Business Partner`,
         `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
-          <h2 style="color:#0B1B5A">فاتورتك الضريبية من بيزنس بارتنر</h2>
+          <h2 style="color:#0B1B5A">فاتورتك الضريبية من ${esc(LEGAL_NAME)}</h2>
           <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
           <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
           <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>

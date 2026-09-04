@@ -23,6 +23,7 @@
 // it does.
 
 import { createSign, createPrivateKey } from "crypto";
+import { LEGAL_NAME, UNIFIED_NUMBER, VAT_NUMBER } from "./_identity.js";
 
 const env = (n, d = "") => (process.env[n] && String(process.env[n]).trim()) || d;
 const INTEGRATION_KEY = env("DOCUSIGN_INTEGRATION_KEY");
@@ -165,7 +166,10 @@ export function contractHtml({ ref, clientName, clientCr = "", clientVat = "", s
   const sub = subscription && Number(subscription.renewsAt) > 0 ? subscription : null;
   const pct = sub ? Number(sub.commissionPercent) || 0 : 0;
   const sections = [
-    { title: "أطراف العقد", html: `<p><b>الطرف الأول (مقدّم الخدمة):</b> شركة بيزنس بارتنر، سجل تجاري ومقر بالمملكة العربية السعودية.<br>
+    // الطرف الأول باسمه في السجل ورقمه الموحد ورقمه الضريبي. كان مكتوباً بيد
+    // «شركة بيزنس بارتنر» — كيانٌ بهذا الاسم لا يوجد في السجل، وعقدٌ موقّع
+    // إلكترونياً باسم طرفٍ غير مسجّل عيبٌ في العقد نفسه لا في صفحته.
+    { title: "أطراف العقد", html: `<p><b>الطرف الأول (مقدّم الخدمة):</b> ${esc(LEGAL_NAME)}${UNIFIED_NUMBER ? ` — الرقم الموحد: ${esc(UNIFIED_NUMBER)}` : ""}${VAT_NUMBER ? ` — الرقم الضريبي: ${esc(VAT_NUMBER)}` : ""} — المملكة العربية السعودية.<br>
 <b>الطرف الثاني (العميل):</b> ${esc(clientName)}${clientCr ? ` — سجل تجاري: ${esc(clientCr)}` : ""}${clientVat ? ` — الرقم الضريبي: ${esc(clientVat)}` : ""}.</p>
 ${executor ? `<p class="muted">يُنفّذ الطرف الأول هذه الخدمات بنفسه أو عبر شركائه المعتمدين${executor ? ` (${esc(executor)})` : ""}، ويظل مسؤولاً أمام العميل عن التنفيذ.</p>` : ""}` },
     { title: "محل العقد", html: `<p>يلتزم الطرف الأول بتقديم الخدمات الموضّحة أدناه:</p>

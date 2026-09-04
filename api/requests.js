@@ -31,6 +31,7 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
+import { BANK } from "./_identity.js";
 import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
@@ -821,7 +822,10 @@ const OTP_SECRET = process.env.OTP_SECRET || "";
 // عند تساويه مع TEAM_EMAIL تصبح النسخ المكررة أدناه no-op تلقائياً.
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
 const SITE_BASE = process.env.SITE_BASE || "https://businesspartner.sa";
-const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بيزنس بارتنر", bank: process.env.BP_BANK_NAME || "مصرف الراجحي", iban: process.env.BP_BANK_IBAN || "SA5380000511608016228498" };
+// اسم المستفيد والآيبان من مصدر واحد (api/_identity.js ← site/data/site.json).
+// كان الاسم مكتوباً هنا بيد ومخالفاً لسجل البنك، وهذا البريد هو الذي يطلب
+// من العميل أن يحوّل — فالخطأ فيه يُرفض عند الصرّاف لا عندنا.
+const SS_BANK = BANK;
 const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
 function ssSeal(o) { const iv = crypto.randomBytes(12); const c = crypto.createCipheriv("aes-256-gcm", ssKey(), iv); const ct = Buffer.concat([c.update(JSON.stringify(o), "utf8"), c.final()]); return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url"); }
 function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d = crypto.createDecipheriv("aes-256-gcm", ssKey(), raw.subarray(0, 12)); d.setAuthTag(raw.subarray(12, 28)); return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8")); }

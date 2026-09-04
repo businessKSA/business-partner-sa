@@ -8,9 +8,7 @@
 //
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { LEGAL_NAME, VAT_NUMBER, UNIFIED_NUMBER } from "./_identity.js";
 
 // Tag-Length-Value, where the length is the byte length of the UTF-8 value —
 // not its character count. Arabic seller names make that distinction load
@@ -62,19 +60,10 @@ export function vatNumberLooksValid(v) {
 // One source for both, deliberately: a VAT number that appears on the invoice
 // and a different one in the footer is the kind of contradiction a customer
 // notices exactly once, and never asks about — they just leave.
-function legalFromSite() {
-  try {
-    const here = dirname(fileURLToPath(import.meta.url));
-    const j = JSON.parse(readFileSync(join(here, "..", "site", "data", "site.json"), "utf8"));
-    return j.legal || {};
-  } catch { return {}; }
-}
-
 export function sellerProfile() {
-  const L = legalFromSite();
-  const name = (process.env.COMPANY_LEGAL_NAME || L.name || "").trim();
-  const vat = (process.env.COMPANY_VAT_NUMBER || L.vat || "").replace(/\D/g, "");
-  const cr = (process.env.COMPANY_CR_NUMBER || L.cr || L.unified || "").replace(/\D/g, "");
+  const name = LEGAL_NAME.trim();
+  const vat = VAT_NUMBER;
+  const cr = (process.env.COMPANY_CR_NUMBER || UNIFIED_NUMBER).replace(/\D/g, "");
   return {
     name, vatNumber: vat, crNumber: cr,
     vatValid: vatNumberLooksValid(vat),
