@@ -303,6 +303,7 @@ const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULL
 import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
+import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -12292,6 +12293,9 @@ function writeFullSite(pre) {
   }
   write(`${pre}simple-v1.html`, SV1.buildHome("/simple-v1"));
   write(`${pre}my.html`, buildSimpleMy(SV1, { lang: () => LANG }));
+  // «كل الخدمات» in this site's own design — where the footer link used to
+  // send people to the classic homepage.
+  if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}business-development.html`, buildBdaas());

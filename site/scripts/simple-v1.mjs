@@ -164,7 +164,11 @@ const D = {
   testMode: { ar: "وضع الاختبار — لا مدفوعات حقيقية ولا رسائل للعملاء", en: "TEST MODE — no real payments, no customer messages", fr: "MODE TEST — aucun paiement réel, aucun message client", zh: "测试模式 — 无真实付款，不向客户发送消息" },
   footContact: { ar: "تواصل", en: "Contact", fr: "Contact", zh: "联系我们" },
   footLine: { ar: "الاستشارات، الخدمات الحكومية، وتأسيس الشركات.", en: "Consulting, government services and company formation.", fr: "Conseil, services gouvernementaux et création d'entreprise.", zh: "咨询、政府服务与公司注册。" },
-  footClassic: { ar: "الموقع الكامل", en: "Full website", fr: "Site complet", zh: "完整网站" },
+  // Was «الموقع الكامل» pointing at /classic-home. People clicked it expecting
+  // more of this site and landed on the old one — another layout, another
+  // voice, another spelling of the brand. It now names what it actually
+  // gives and stays inside this design.
+  footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
   footRights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved", fr: "Tous droits réservés", zh: "版权所有" },
 
@@ -354,7 +358,7 @@ export function simpleV1(ctx) {
     return `<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="sv1-nav" id="sv1Nav">
-    <a href="${href("/")}#doors">${t("navServices")}</a>
+    <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
     ${langSwitch(path)}
@@ -372,7 +376,7 @@ export function simpleV1(ctx) {
   <span><b>${t("brand")}</b> — ${t("footLine")}</span>
   <span>${t("footContact")}: ${esc(contact.phone || "")} · ${esc(contact.email || "")}</span>
   <a href="${href("/terms")}">${t("footTerms")}</a>
-  ${SIMPLE_V1 ? `<a href="${href("/classic-home")}">${t("footClassic")}</a>` : ""}
+  ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
   <span class="end">© ${year} Business Partner · ${t("footRights")}</span>
 </div></footer>
 <a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a>`;
@@ -593,12 +597,19 @@ fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-t
 ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
 .catch(function(){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.chatError})}
-// Handoff from the per-service assistant (site/scripts/service-advisor.mjs):
-// the visitor already answered the short questions on a service page, so the
-// chat opens in the right context with that service already in the scope.
-var handoff=false;
-try{var hx=JSON.parse(sessionStorage.getItem('bp_sva_request')||'null');
-if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){sessionStorage.removeItem('bp_sva_request');
+// Handoff from «كل الخدمات» (/catalog) and from the per-service assistant
+// (site/scripts/service-advisor.mjs): the visitor already picked the service,
+// so the chat opens in the right context with it already in the scope.
+//
+// The key is read AND deleted in one step, before anything is parsed, so the
+// handoff stays one-shot even if the parse or the render below throws. A key
+// that outlived its landing would replay: the visitor returns to the homepage
+// within the hour and finds the conversation he had started reset to a service
+// he clicked once.
+var handoff=false,hxRaw=null;
+try{hxRaw=sessionStorage.getItem('bp_sva_request');if(hxRaw)sessionStorage.removeItem('bp_sva_request')}catch(e){}
+try{var hx=JSON.parse(hxRaw||'null');
+if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){
 state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=hx.name;state.ready=false;
 state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
