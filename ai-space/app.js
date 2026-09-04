@@ -8,7 +8,8 @@
   var API = {
     data: (CFG.n8n || '') + (CFG.dataPath || ''),
     chat: (CFG.n8n || '') + (CFG.chatPath || ''),
-    action: (CFG.n8n || '') + (CFG.actionPath || '')
+    action: (CFG.n8n || '') + (CFG.actionPath || ''),
+    voice: CFG.voicePath ? (CFG.n8n || '') + CFG.voicePath : ''
   };
   var CHAT_TIMEOUT = CFG.chatTimeoutMs || 150000;
   var REFRESH_MS = CFG.refreshMs === 0 ? 0 : (CFG.refreshMs || 45000);
@@ -95,19 +96,29 @@
         };
         index = {};
         DATA.agents.forEach(function (a) { if (a && a.agent_id) index[a.agent_id] = a; });
-        note('');
+        note('', 'data');
         renderAll(body.generated_at);
       })
       .catch(function (e) {
-        note('تعذر تحميل بيانات اللوحة: ' + (e.name === 'AbortError' ? 'انتهت المهلة (٣٠ ثانية)' : (e.message || e)));
+        note('تعذر تحميل بيانات اللوحة: ' + (e.name === 'AbortError' ? 'انتهت المهلة (٣٠ ثانية)' : (e.message || e)), 'data');
         if (manual) addMsg('تعذر تحميل البيانات: ' + (e.message || e), 'sys');
       })
       .then(function () { btn.classList.remove('spin'); });
   }
 
-  function note(t) {
+  /* The 45s data refresh used to clear the banner a moment after speak() or the
+   * microphone wrote a reason into it, so the reason flashed and vanished. A
+   * clear now only lands if it comes from whoever wrote the message. */
+  var noteOwner = '';
+  function note(t, owner) {
     var n = $('linkLine');
-    if (!t) { n.hidden = true; n.textContent = ''; return; }
+    owner = owner || '';
+    if (!t) {
+      if (noteOwner && owner && noteOwner !== owner) return;
+      n.hidden = true; n.textContent = ''; noteOwner = '';
+      return;
+    }
+    noteOwner = owner;
     n.hidden = false;
     n.textContent = '⚠️ ' + t;
   }
@@ -501,7 +512,10 @@
     busy = true;
     $('btnSend').disabled = true;
     addMsg(text, 'me');
-    $('input').value = '';
+    var box = $('input');
+    box.value = '';
+    delete box.dataset.interim;
+    box.dataset.typed = '0';
     autosize();
 
     var t0 = Date.now();
@@ -602,9 +616,73 @@
     return out.filter(Boolean).slice(0, 12);
   }
 
+  /* One entry point for every spoken reply. The neural voice is preferred when
+   * config.js carries a voicePath; the browser voice is the fallback, so the
+   * page still talks when the endpoint is missing, unpaid, or down — and the
+   * banner says which of those it was. */
+  var currentAudio = null;
+
   function speak(text) {
     var s = voicePart(text);
-    if (!speakOn || !s || !window.speechSynthesis) return Promise.resolve();
+    if (!speakOn || !s) return Promise.resolve();
+    if (!API.voice) return speakBrowser(s);
+    return speakNeural(s).catch(function (e) {
+      note('الصوت الطبيعي غير متاح (' + (e && e.message ? e.message : e) + ') — رجعت لصوت المتصفح', 'voice');
+      return speakBrowser(s);
+    });
+  }
+
+  function speakNeural(s) {
+    return new Promise(function (res, rej) {
+      pauseListening();
+      setState('speaking', 'صوت طبيعي');
+      var ctl = new AbortController();
+      var tm = setTimeout(function () { ctl.abort(); }, 45000);
+      fetch(API.voice, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: s.slice(0, 2500) }),
+        signal: ctl.signal
+      })
+        .then(function (r) {
+          clearTimeout(tm);
+          var ct = r.headers.get('content-type') || '';
+          if (!r.ok) {
+            return r.text().then(function (t) {
+              throw new Error('HTTP ' + r.status + (t ? ' · ' + t.slice(0, 120) : ''));
+            });
+          }
+          if (ct.indexOf('audio') === -1) {
+            return r.text().then(function (t) {
+              throw new Error('الخادم لم يرجّع صوتًا · ' + t.slice(0, 120));
+            });
+          }
+          return r.blob();
+        })
+        .then(function (b) {
+          if (!b || b.size < 512) throw new Error('ملف صوتي فارغ');
+          var url = URL.createObjectURL(b);
+          var a = new Audio(url);
+          var done = false;
+          currentAudio = a;
+          var clear = function () {
+            done = true;
+            try { URL.revokeObjectURL(url); } catch (e) {}
+            currentAudio = null;
+          };
+          a.onended = function () { if (done) return; clear(); res(); };
+          a.onerror = function () { if (done) return; clear(); rej(new Error('تعذّر تشغيل الصوت')); };
+          a.play().catch(function (e) { if (done) return; clear(); rej(e); });
+        })
+        .catch(function (e) {
+          clearTimeout(tm);
+          rej(e && e.name === 'AbortError' ? new Error('انتهت مهلة توليد الصوت') : e);
+        });
+    });
+  }
+
+  function speakBrowser(s) {
+    if (!s || !window.speechSynthesis) return Promise.resolve();
     if (!chosenVoice) loadVoices();
     var pieces = chunkForSpeech(s);
     if (!pieces.length) return Promise.resolve();
@@ -654,30 +732,42 @@
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
-      $('btnMic').classList.add('off');
-      $('btnMic').textContent = '🎙️ غير مدعوم';
       wantListen = false;
+      micLabel();
       return;
     }
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (stream) {
         micReady = true;
-        $('btnMic').classList.remove('off');
-        $('btnMic').textContent = '🎙️ الاستماع';
+        wantListen = true;
+        rememberListen(true);
+        micLabel();
         startMeter(stream);
         rec = new SR();
         rec.lang = 'ar-SA';
         rec.continuous = true;
         rec.interimResults = true;
-        rec.onstart = function () { listening = true; setState('listening'); $('meter').classList.add('on'); };
+        rec.onstart = function () {
+          listening = true;
+          setState('listening');
+          note('', 'mic');
+          $('meter').classList.add('on');
+        };
         rec.onresult = function (e) {
-          var finalText = '';
+          var finalText = '', interim = '';
           for (var i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+            else interim += e.results[i][0].transcript;
           }
           finalText = finalText.trim();
+          interim = interim.trim();
+          // Interim words were being thrown away, so nothing on screen moved
+          // while the owner spoke and the page looked deaf. Write them into the
+          // box as they arrive; the final result replaces them and is sent.
+          if (!finalText && interim) showInterim(interim);
           if (finalText.length > 1) {
-            setState('heard');
+            clearInterim();
+            setState('heard', finalText.slice(0, 60));
             pauseListening();
             ask(finalText);
           }
@@ -690,8 +780,14 @@
             setState('micoff', 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة');
             return;
           }
-          if (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'network') { resumeListening(); return; }
+          if (e.error === 'network') {
+            note('التعرّف على الصوت يحتاج اتصالًا بخوادم المتصفح ولم يستجب — الكتابة تعمل', 'mic');
+            resumeListening();
+            return;
+          }
+          if (e.error === 'no-speech' || e.error === 'aborted') { resumeListening(); return; }
           setState('error', e.error || '');
+          note('المايك: ' + (e.error || 'خطأ غير معروف'), 'mic');
           resumeListening();
         };
         rec.onend = function () {
@@ -704,8 +800,7 @@
       .catch(function (e) {
         wantListen = false;
         micReady = false;
-        $('btnMic').classList.add('off');
-        $('btnMic').textContent = '🎙️ فعّل المايك';
+        micLabel();
         setState('micoff', e && e.name === 'NotAllowedError'
           ? 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة'
           : (e && e.message) || '');
@@ -735,12 +830,46 @@
   }
 
   /* ---------- controls ---------- */
+  function showInterim(t) {
+    var el = $('input');
+    if (el.dataset.typed === '1') return;   // never clobber what he is typing
+    el.dataset.interim = '1';
+    el.value = t;
+    autosize();
+    setState('listening', t.slice(-48));
+  }
+  function clearInterim() {
+    var el = $('input');
+    if (el.dataset.interim === '1') { el.value = ''; delete el.dataset.interim; autosize(); }
+  }
+
+  /* The old labels read as status, not as an action: the button said "موقوف"
+   * and the owner could not tell whether that was a state or a button to press.
+   * Each label now names what a press will do. */
+  function micLabel() {
+    var b = $('btnMic');
+    if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+      b.classList.add('off'); b.textContent = '🎙️ غير مدعوم'; return;
+    }
+    if (!micReady) { b.classList.add('off'); b.textContent = '🎙️ شغّل المايك'; return; }
+    b.classList.toggle('off', !wantListen);
+    b.textContent = wantListen ? '🎙️ يسمعك · اضغط للإيقاف' : '🎙️ اضغط ليسمعك';
+  }
+  function rememberListen(on) {
+    try { localStorage.setItem('bp_listen', on ? '1' : '0'); } catch (e) {}
+  }
+
   function autosize() {
     var t = $('input');
     t.style.height = 'auto';
     t.style.height = Math.min(120, t.scrollHeight) + 'px';
   }
-  $('input').addEventListener('input', autosize);
+  $('input').addEventListener('input', function () {
+    var el = $('input');
+    delete el.dataset.interim;
+    el.dataset.typed = el.value.trim() ? '1' : '0';
+    autosize();
+  });
   $('input').addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(this.value); }
   });
@@ -750,7 +879,10 @@
     speakOn = !speakOn;
     this.classList.toggle('off', !speakOn);
     this.textContent = speakOn ? '🔊 الصوت' : '🔇 صامت';
-    if (!speakOn && window.speechSynthesis) window.speechSynthesis.cancel();
+    if (!speakOn) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+    }
   });
   /* Chrome refuses (and after a couple of dismissals permanently blocks) a
    * getUserMedia call that isn't tied to a user gesture. Asking on page load
@@ -765,10 +897,10 @@
       return;
     }
     wantListen = !wantListen;
-    this.classList.toggle('off', !wantListen);
-    this.textContent = wantListen ? '🎙️ الاستماع' : '🎙️ موقوف';
+    rememberListen(wantListen);
+    micLabel();
     if (wantListen) startListening();
-    else { pauseListening(); setState('idle'); }
+    else { pauseListening(); clearInterim(); setState('idle'); }
   });
   window.addEventListener('resize', function () { clearTimeout(window.__rz); window.__rz = setTimeout(renderOrbs, 200); });
 
@@ -782,12 +914,18 @@
   loadData();
   if (REFRESH_MS) setInterval(function () { if (!busy) loadData(); }, REFRESH_MS);
 
-  // No getUserMedia on load: the microphone is requested from the button click.
+  // Never getUserMedia unprompted on a fresh visit — that is what got the
+  // microphone blocked before. But once the owner has already granted it, the
+  // browser will not prompt again, so re-arm listening by itself and spare him
+  // pressing the button on every reload.
+  micLabel();
   if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
-    $('btnMic').classList.add('off');
-    $('btnMic').textContent = '🎙️ غير مدعوم';
     setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
-  } else {
-    $('btnMic').textContent = '🎙️ فعّل المايك';
+  } else if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions.query({ name: 'microphone' }).then(function (st) {
+      var off = false;
+      try { off = localStorage.getItem('bp_listen') === '0'; } catch (e) {}
+      if (st && st.state === 'granted' && !off) { wantListen = true; initVoice(); }
+    }).catch(function () {});
   }
 })();

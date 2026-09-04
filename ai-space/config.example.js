@@ -18,6 +18,11 @@ window.BP_SPACE_CONFIG = {
   // POST form { command_type, target_type, target_id, ... } -> 302
   actionPath: '/webhook/REPLACE-control-action-path',
 
+  // POST { text } -> audio/mpeg  (ElevenLabs behind n8n; the API key stays in
+  // the n8n credential and never reaches the browser).
+  // Leave empty or omit to keep using the browser's built-in voice.
+  voicePath: '',
+
   // Browser aborts a chat request after this many ms.
   chatTimeoutMs: 150000,
 
