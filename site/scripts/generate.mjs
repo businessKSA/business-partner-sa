@@ -320,6 +320,15 @@ const Lraw = (en, ar) => {
   if (LANG === "en") return en;
   return T(en);
 };
+// نصٌّ مترجَم يُوضع داخل نصّ جافاسكربت. `Lraw` يعطي النص خاماً، وهو الصواب
+// في سمة HTML وخطأٌ هنا: الترجمة الفرنسية «pour l'instant» فاصلتها العليا
+// تُنهي النص المفرد فتُسقط السكربت كلّه — وهو ما أعمى لوحة الخدمات المشتركة
+// الفرنسية بلا أن يفشل بناء. يهرب هذا ما يكسر النص، و`</script` كذلك لأنه
+// ينهي الوسم من داخل النص.
+const Ljs = (en, ar) => String(Lraw(en, ar))
+  .replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"')
+  .replace(/\r?\n/g, "\\n").replace(/<\/script/gi, "<\\/script");
+
 // Arabic numeral-noun agreement: 1 → singular ("خدمة"), 2 → dual ("خدمتان"),
 // 3-10 → plural ("خدمات"), 11+ → singular again (classical counted-noun rule).
 function arCount(n, singular, dual, plural) {
@@ -11663,28 +11672,28 @@ function buildSharedServicesPortal() {
       var tiles=document.getElementById('ss-kpis');
       var inprog=(d.tasks_by_status&&(d.tasks_by_status[${JSON.stringify(Lraw("In progress", "قيد التنفيذ"))}]||d.tasks_by_status['قيد التنفيذ']))||0;
       var last=(d.last_activity||'').slice(0,10)||'—';
-      tiles.innerHTML='<div class="ss-ktile"><div class="n">'+(d.conv_total||0)+'</div><div class="l">${Lraw("Conversations", "محادثة مع الفريق")}</div></div>'
-        +'<div class="ss-ktile"><div class="n">'+(d.tasks_total||0)+'</div><div class="l">${Lraw("Documented tasks", "مهمة موثقة")}</div></div>'
-        +'<div class="ss-ktile"><div class="n">'+inprog+'</div><div class="l">${Lraw("In progress", "قيد التنفيذ")}</div></div>'
-        +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">${Lraw("Last activity", "آخر نشاط")}</div></div>';
+      tiles.innerHTML='<div class="ss-ktile"><div class="n">'+(d.conv_total||0)+'</div><div class="l">${Ljs("Conversations", "محادثة مع الفريق")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+(d.tasks_total||0)+'</div><div class="l">${Ljs("Documented tasks", "مهمة موثقة")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+inprog+'</div><div class="l">${Ljs("In progress", "قيد التنفيذ")}</div></div>'
+        +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">${Ljs("Last activity", "آخر نشاط")}</div></div>';
       var ag=document.getElementById('ss-kagents');ag.innerHTML='';
       var keys=Object.keys(d.agents||{}).sort(function(a,b){return d.agents[b]-d.agents[a];});
-      if(!keys.length)ag.innerHTML='<div class="ss-kempty">${Lraw("No interactions yet — start from the Team tab.", "لا تفاعلات بعد — ابدأ من تبويب الفريق.")}</div>';
+      if(!keys.length)ag.innerHTML='<div class="ss-kempty">${Ljs("No interactions yet — start from the Team tab.", "لا تفاعلات بعد — ابدأ من تبويب الفريق.")}</div>';
       keys.forEach(function(k){var r=document.createElement('div');r.innerHTML='<span>'+agentLabel(k)+'</span><span class="c">'+d.agents[k]+'</span>';ag.appendChild(r);});
       var rc=document.getElementById('ss-krecent');rc.innerHTML='';
       var recent=d.recent||[];
-      if(!recent.length)rc.innerHTML='<div class="ss-kempty">${Lraw("Nothing yet.", "لا يوجد بعد.")}</div>';
+      if(!recent.length)rc.innerHTML='<div class="ss-kempty">${Ljs("Nothing yet.", "لا يوجد بعد.")}</div>';
       recent.forEach(function(m){var r=document.createElement('div');r.innerHTML='<span>'+(m.t||'')+'</span><span class="c">'+agentLabel(m.agent)+' · '+(m.date||'')+'</span>';rc.appendChild(r);});
     }
     function loadStats(){
       if(statsLoaded)return;statsLoaded=true;
       var c=getClient()||{};
       if(c.demo){renderStats({conv_total:12,tasks_total:5,tasks_by_status:{'قيد التنفيذ':2},agents:{khaled:5,mishari:3,farah:2,mohammed:2},recent:[{t:${JSON.stringify(Lraw("Quarterly marketing plan", "خطة تسويقية للربع"))},agent:'farah',date:'2026-07-15'},{t:${JSON.stringify(Lraw("Nitaqat check before hiring", "فحص النطاقات قبل توظيف عامل"))},agent:'mishari',date:'2026-07-14'}],last_activity:'2026-07-16'});return;}
-      document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Loading your numbers…", "نحمّل أرقامك…")}</div>';
+      document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Loading your numbers…", "نحمّل أرقامك…")}</div>';
       fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
         .then(function(r){return r.json();})
-        .then(function(d){if(d&&d.ok){renderStats(d);}else{document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;}})
-        .catch(function(){document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;});
+        .then(function(d){if(d&&d.ok){renderStats(d);}else{document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;}})
+        .catch(function(){document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;});
     }
     (function(){var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++){(function(b){b.onclick=function(){switchTab(b.getAttribute('data-tab'));};})(tabs[i]);}})();
 
@@ -12186,7 +12195,7 @@ function buildB10X() {
       fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
         .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
         .then(function(out){
-          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
+          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Ljs("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Ljs("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
           else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966530540231", "تعذّر الإرسال — تواصل واتساب: 966530540231")}'; }
         })
         .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });

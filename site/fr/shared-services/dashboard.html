@@ -760,11 +760,11 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
         +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">Dernière activité</div></div>';
       var ag=document.getElementById('ss-kagents');ag.innerHTML='';
       var keys=Object.keys(d.agents||{}).sort(function(a,b){return d.agents[b]-d.agents[a];});
-      if(!keys.length)ag.innerHTML='<div class="ss-kempty">Aucune interaction pour l'instant — commencez depuis l'onglet Équipe.</div>';
+      if(!keys.length)ag.innerHTML='<div class="ss-kempty">Aucune interaction pour l\'instant — commencez depuis l\'onglet Équipe.</div>';
       keys.forEach(function(k){var r=document.createElement('div');r.innerHTML='<span>'+agentLabel(k)+'</span><span class="c">'+d.agents[k]+'</span>';ag.appendChild(r);});
       var rc=document.getElementById('ss-krecent');rc.innerHTML='';
       var recent=d.recent||[];
-      if(!recent.length)rc.innerHTML='<div class="ss-kempty">Rien pour l'instant.</div>';
+      if(!recent.length)rc.innerHTML='<div class="ss-kempty">Rien pour l\'instant.</div>';
       recent.forEach(function(m){var r=document.createElement('div');r.innerHTML='<span>'+(m.t||'')+'</span><span class="c">'+agentLabel(m.agent)+' · '+(m.date||'')+'</span>';rc.appendChild(r);});
     }
     function loadStats(){
