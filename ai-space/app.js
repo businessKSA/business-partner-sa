@@ -549,22 +549,81 @@
 
   /* ---------- speech out (browser native, no paid TTS) ---------- */
   var speakOn = true;
+  var voices = [];
+  var chosenVoice = null;
+
+  /* The browser default for lang='ar-SA' is usually the flattest voice installed.
+   * Rank what is actually available and take the most natural one: Saudi dialect
+   * first, then network voices (those are the neural ones), then names the
+   * platforms give their high-quality engines. */
+  function rankVoice(v) {
+    var n = String(v.name || '').toLowerCase();
+    var lang = String(v.lang || '').replace('_', '-').toLowerCase();
+    var s = 0;
+    if (lang.indexOf('ar-sa') === 0) s += 50;
+    else if (lang.indexOf('ar-') === 0) s += 25;
+    if (v.localService === false) s += 30;
+    if (/neural|natural|premium|enhanced|wavenet|online|siri/.test(n)) s += 25;
+    if (/majed|maged|hamed|naayf|zariyah|hala|laila|salim|amina/.test(n)) s += 12;
+    if (/compact|espeak|robot|default/.test(n)) s -= 25;
+    return s;
+  }
+  function loadVoices() {
+    if (!window.speechSynthesis) return;
+    try { voices = window.speechSynthesis.getVoices() || []; } catch (e) { voices = []; }
+    var ar = voices.filter(function (v) {
+      return /^ar([-_]|$)/i.test(String(v.lang || ''));
+    });
+    chosenVoice = ar.length
+      ? ar.sort(function (a, b) { return rankVoice(b) - rankVoice(a); })[0]
+      : null;
+  }
+  if (window.speechSynthesis) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  /* Long replies were truncated at 700 characters, so the last sentence was cut
+   * mid-word. Split on sentence ends instead and queue the pieces in order. */
+  function chunkForSpeech(s) {
+    // No lookbehind: Safari before 16.4 throws on it and the whole script dies.
+    var SEP = String.fromCharCode(1);
+    var parts = String(s).replace(/([.!?\u061F\u06D4\n])/g, '$1' + SEP).split(SEP);
+    var out = [], buf = '';
+    parts.forEach(function (p) {
+      if ((buf + ' ' + p).trim().length > 220) { if (buf.trim()) out.push(buf.trim()); buf = p; }
+      else buf = buf ? buf + ' ' + p : p;
+    });
+    if (buf.trim()) out.push(buf.trim());
+    return out.filter(Boolean).slice(0, 12);
+  }
+
   function speak(text) {
     var s = voicePart(text);
     if (!speakOn || !s || !window.speechSynthesis) return Promise.resolve();
+    if (!chosenVoice) loadVoices();
+    var pieces = chunkForSpeech(s);
+    if (!pieces.length) return Promise.resolve();
+
     return new Promise(function (res) {
       pauseListening();
-      setState('speaking');
+      setState('speaking', chosenVoice ? chosenVoice.name : '');
       try { window.speechSynthesis.cancel(); } catch (e) {}
-      var u = new SpeechSynthesisUtterance(s.slice(0, 700));
-      u.lang = 'ar-SA';
-      u.rate = 1;
-      var done = false;
+      var i = 0, done = false;
       var finish = function () { if (done) return; done = true; res(); };
-      u.onend = finish;
-      u.onerror = finish;
-      setTimeout(finish, 60000);
-      window.speechSynthesis.speak(u);
+      var guard = setTimeout(finish, 120000);
+      var next = function () {
+        if (i >= pieces.length) { clearTimeout(guard); finish(); return; }
+        var u = new SpeechSynthesisUtterance(pieces[i++]);
+        if (chosenVoice) { u.voice = chosenVoice; u.lang = chosenVoice.lang; }
+        else u.lang = 'ar-SA';
+        u.rate = 0.96;
+        u.pitch = 1;
+        u.onend = next;
+        u.onerror = function () { clearTimeout(guard); finish(); };
+        window.speechSynthesis.speak(u);
+      };
+      next();
     });
   }
 
