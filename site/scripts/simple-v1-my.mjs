@@ -30,7 +30,10 @@ const P = {
   open: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
   back: { ar: "رجوع", en: "Back", fr: "Retour", zh: "返回" },
   conversation: { ar: "المحادثة", en: "Conversation", fr: "Conversation", zh: "对话" },
-  scope: { ar: "النطاق", en: "Scope", fr: "Périmètre", zh: "服务范围" },
+  // One name for one thing: the homepage, the portal and the operations board
+  // all say «نطاق الخدمات» / "Scope of Work". The portal was still saying
+  // «النطاق» after the rename, so a customer met two names for the same list.
+  scope: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
   attachments: { ar: "المرفقات", en: "Attachments", fr: "Pièces jointes", zh: "附件" },
   quote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   contract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
