@@ -12598,7 +12598,7 @@ write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 // never drift from what a customer sees on the pages themselves. Static file,
 // does not count against the Vercel Hobby 12-serverless-function cap.
 const catalogJson = {
-  updatedAt: new Date().toISOString(),
+  updatedAt: "",   // set at write time, and only when the data actually changed
   currency: "SAR",
   // Active discount codes, published so the payment endpoints re-verify a
   // discounted charge against the same source the checkout applied it from.
@@ -12674,6 +12674,17 @@ const catalogJson = {
     })),
   ],
 };
-write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+// The stamp moves only when the catalogue really moved. It used to be
+// `new Date()` on every run, so catalog.json changed on every build even when
+// no price did — and because bp-quotes watches this file, every single push
+// spent one of the day's hundred Vercel deployments on a rebuild that changed
+// nothing. Keep the previous stamp when the rest of the file is identical.
+{
+  let previous = null;
+  try { previous = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/data/catalog.json"), "utf8")); } catch {}
+  const sameData = previous && JSON.stringify({ ...previous, updatedAt: "" }) === JSON.stringify({ ...catalogJson, updatedAt: "" });
+  catalogJson.updatedAt = sameData ? previous.updatedAt : new Date().toISOString();
+  write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+}
 
 console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);
