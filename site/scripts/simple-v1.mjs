@@ -705,12 +705,20 @@ try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){locati
 var handoff=false,hxRaw=null;
 try{hxRaw=sessionStorage.getItem('bp_sva_request');if(hxRaw)sessionStorage.removeItem('bp_sva_request')}catch(e){}
 try{var hx=JSON.parse(hxRaw||'null');
-if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){
-state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=hx.name;state.ready=false;
-state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
+var hxItems=hx&&Array.isArray(hx.items)?hx.items.filter(function(x){return x&&x.title}):null;
+if(hx&&(hx.name||(hxItems&&hxItems.length))&&Date.now()-(hx.at||0)<36e5){
+state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=(hxItems&&hxItems.length>1)?(hx.text||hxItems[0].title):(hx.name||hxItems[0].title);state.ready=false;
+// اختيار متعدد من /catalog: البنود المؤشَّرة هي النطاق كما هي. اختيارٌ واحد
+// يُسند إليه بندان من البذرة ليكون للطلب هيكل يراجعه العميل؛ وأربعة بنود
+// اختارها بنفسه لا تحتاج حشواً — هي ما طلبه بالضبط.
+state.items=(hxItems&&hxItems.length)
+ ?hxItems.map(function(x){return {code:x.code||'',title:x.title,why:x.why||''}})
+ :[{code:hx.code||'',title:hx.name,why:hx.platform||''}];
+if(state.items.length===1)state.items=state.items.concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 $('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();drawDocs();save();ask();
+var opener=hx.text||hx.name||state.items.map(function(x){return x.title}).join('، ');
+msgs.innerHTML='';add(opener,'u');state.history.push({role:'user',content:opener});drawItems();drawDocs();save();ask();
 handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
 // boot
 if(handoff){/* already rendered from the service-page handoff */}
