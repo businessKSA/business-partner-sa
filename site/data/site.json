@@ -26,9 +26,9 @@
   "whatsappSupport": "0530540231",
   "email": "business@businesspartner.sa",
   "website": "www.businesspartner.sa",
-  "address": "الرياض · حي السليمانية · شارع تركي بن عبدالله آل سعود · مبنى 2978 · الرمز البريدي 12234",
+  "address": "مبنى 2978 · شارع تركي بن عبدالله آل سعود · حي السليمانية · الرياض 12234 · الرقم الفرعي 8630",
   "hours": "الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة",
-  "addressEn": "Riyadh · Al Sulaimaniyah District · Turki Ibn Abdullah Aal Saud St. · Building 2978 · 12234",
+  "addressEn": "Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630",
   "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock"
  },
  "legal": {
@@ -37,7 +37,16 @@
   "cr": "",
   "unified": "7038825860",
   "vat": "312079341500003",
-  "shortAddress": "RHSC2978"
+  "shortAddress": "RHSC2978",
+  "buildingNo": "2978",
+  "secondaryNo": "8630",
+  "postalCode": "12234",
+  "district": "حي السليمانية",
+  "districtEn": "Al Sulaimaniyah Dist.",
+  "street": "تركي بن عبدالله آل سعود",
+  "streetEn": "Turki Ibn Abdullah Aal Saud",
+  "city": "الرياض",
+  "cityEn": "Riyadh"
  },
  "nav": [
   {

@@ -176,7 +176,7 @@ const D = {
   footVat: { ar: "الرقم الضريبي", en: "VAT number", fr: "Numéro de TVA", zh: "增值税号" },
   footPhone: { ar: "الهاتف", en: "Phone", fr: "Téléphone", zh: "电话" },
   footEmail: { ar: "البريد", en: "E-mail", fr: "E-mail", zh: "邮箱" },
-  footAddress: { ar: "العنوان", en: "Address", fr: "Adresse", zh: "地址" },
+  footAddress: { ar: "العنوان الوطني", en: "National address", fr: "Adresse nationale", zh: "国家地址" },
   footShortAddr: { ar: "العنوان الوطني المختصر", en: "Short national address", fr: "Adresse nationale abrégée", zh: "国家简短地址" },
   footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
   footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
