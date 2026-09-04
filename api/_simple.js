@@ -627,7 +627,7 @@ async function opsAction(action, b, qs, req, res) {
       paid_orders: paid.length,
       new_clients_month: new Set(all.filter((r) => (r.created_at || "").slice(0, 7) === month).map((r) => r.client_name || r.ref)).size,
     };
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, recent: all.slice(0, 12).map(summary) });
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, integrations: integrationStatus(), recent: all.slice(0, 12).map(summary) });
   }
 
   // Development only: what would have been emailed / sent on WhatsApp.
@@ -841,6 +841,32 @@ function guessType(text) {
 let _fallbackOrg = null;
 // One open pricing task per request — pressing «اعتمد النطاق» twice must not
 // fill the operations queue with duplicates.
+// "Is the payment connected? and Tamara? and the invoice?" — a question that
+// used to have no answer but a guess, because every key is server-side with no
+// surface. This reports whether each one is configured, never what it is: a
+// boolean cannot be replayed, a key can. Behind the panel key, because telling
+// the world which integrations are unset is itself a hint worth withholding.
+function integrationStatus() {
+  const on = (v) => !!String(v || "").trim();
+  const pk = process.env.MOYASAR_PUBLISHABLE_KEY || "";
+  const sk = process.env.MOYASAR_SECRET_KEY || "";
+  const live = (k) => /^(pk|sk)_live_/.test(String(k).trim());
+  return {
+    card: { ready: on(pk) && on(sk), mode: live(pk) || live(sk) ? "live" : on(pk) ? "test" : "—",
+      publishable: on(pk), secret: on(sk),
+      // Without the webhook secret a payment is only confirmed by the browser
+      // coming back. A customer who pays and closes the tab is then paid in the
+      // gateway and unpaid here — worth naming, not hiding.
+      webhook: on(process.env.MOYASAR_WEBHOOK_SECRET) },
+    tamara: { ready: on(process.env.TAMARA_API_TOKEN), base: (process.env.TAMARA_API_BASE || "").includes("sandbox") ? "sandbox" : "live" },
+    daftra: { ready: daftraConfigured(), subdomain: (process.env.DAFTRA_SUBDOMAIN || "businesspartner").trim() },
+    email: { ready: on(process.env.RESEND_API_KEY) || on(process.env.RESEND_KEY), notify: NOTIFY_ON, from: on(process.env.OTP_FROM_EMAIL) },
+    google: { ready: on(process.env.GOOGLE_CLIENT_ID) },
+    database: { ready: DB_ON },
+    modes: MODES(),
+  };
+}
+
 async function pricingTask(row, unpriced) {
   try {
     const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)&select=id&limit=1`);
