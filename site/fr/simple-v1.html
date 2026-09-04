@@ -331,7 +331,18 @@ var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',read
 try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.docs=sv.docs||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
 function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,docs:state.docs,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
 function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
-function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
+function drawChips(list){if(!list||!list.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){var box=b.parentNode;if(box&&box.parentNode)box.parentNode.removeChild(box);input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight}
+function chips(){if(state.history.length)return;drawChips(TX.chips[state.ctx]||[])}
+// The advisor asks ONE question a turn and may offer ready answers, so a
+// customer on a phone taps instead of typing. The block is machine-only —
+// same loose matching as the scope block, because a model that drops a
+// bracket must not leave «OPTS>>» sitting in a chat bubble.
+function parseOpts(text){var m=/<*\s*OPTS\s*>>/i.exec(text);if(!m)return{text:text,opts:null};var i=m.index,after=i+m[0].length;var e=/<*\s*END\s*>>/i.exec(text.slice(after));var raw=e?text.slice(after,after+e.index):text.slice(after);var list=null;
+try{list=JSON.parse(raw)}catch(err){var b=raw.indexOf('['),d=raw.lastIndexOf(']');if(b>=0&&d>b){try{list=JSON.parse(raw.slice(b,d+1))}catch(e2){}}}
+var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace(/<*\s*(?:OPTS|END)\s*>>/gi,'').trim();
+if(!Array.isArray(list))return{text:clean,opts:null};
+list=list.map(function(x){return String(x==null?'':x).trim()}).filter(function(x){return x&&x.length<=60}).slice(0,4);
+return{text:clean,opts:list.length?list:null}}
 function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
 function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
 state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
@@ -348,7 +359,7 @@ function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(fu
 state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
 fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
-.then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);if(p.text)add(p.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope)})
+.then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);var o=parseOpts(p.text);if(o.text)add(o.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope);else drawChips(o.opts)})
 .catch(function(){th.remove();add(TX.chatError,'s')}).then(function(){state.busy=false;send.disabled=false})}
 function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.querySelector('.sv1-chips');if(c)c.remove();add(v,'u');state.history.push({role:'user',content:v});input.value='';save();ask()}
 form.addEventListener('submit',function(e){e.preventDefault();submit()});
@@ -385,6 +396,6 @@ handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a
 if(handoff){/* already rendered from the service-page handoff */}
 else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
-msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
+msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};var t=m.role==='assistant'?parseOpts(p.text).text:p.text;if(t)add(t,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
 })();</script></body></html>
