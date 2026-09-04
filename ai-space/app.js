@@ -467,6 +467,7 @@
      ===================================================================== */
   var STATES = {
     idle:     ['🎙️ جاهز', ''],
+    needmic:  ['🎙️ اضغط «فعّل المايك» للتحدّث', ''],
     listening:['🟢 أسمعك — تكلّم', 'live'],
     heard:    ['✅ سمعتك', 'busy'],
     thinking: ['🔵 أفكّر…', 'busy'],
@@ -631,7 +632,7 @@
   }
 
   /* ---------- speech in (always listening) ---------- */
-  var rec = null, listening = false, wantListen = true, restartT = null, audioCtx = null, analyser = null, meterRaf = null;
+  var rec = null, listening = false, wantListen = false, micReady = false, restartT = null, audioCtx = null, analyser = null, meterRaf = null;
 
   function pauseListening() {
     listening = false;
@@ -660,6 +661,9 @@
     }
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (stream) {
+        micReady = true;
+        $('btnMic').classList.remove('off');
+        $('btnMic').textContent = '🎙️ الاستماع';
         startMeter(stream);
         rec = new SR();
         rec.lang = 'ar-SA';
@@ -699,7 +703,9 @@
       })
       .catch(function (e) {
         wantListen = false;
+        micReady = false;
         $('btnMic').classList.add('off');
+        $('btnMic').textContent = '🎙️ فعّل المايك';
         setState('micoff', e && e.name === 'NotAllowedError'
           ? 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة'
           : (e && e.message) || '');
@@ -746,11 +752,22 @@
     this.textContent = speakOn ? '🔊 الصوت' : '🔇 صامت';
     if (!speakOn && window.speechSynthesis) window.speechSynthesis.cancel();
   });
+  /* Chrome refuses (and after a couple of dismissals permanently blocks) a
+   * getUserMedia call that isn't tied to a user gesture. Asking on page load
+   * was what got the microphone blocked; the first click asks instead. */
   $('btnMic').addEventListener('click', function () {
+    if (!micReady) {
+      wantListen = true;
+      this.classList.remove('off');
+      this.textContent = '🎙️ جارٍ التفعيل…';
+      setState('idle', 'اسمح للمايك في نافذة المتصفح');
+      initVoice();
+      return;
+    }
     wantListen = !wantListen;
     this.classList.toggle('off', !wantListen);
     this.textContent = wantListen ? '🎙️ الاستماع' : '🎙️ موقوف';
-    if (wantListen) { if (rec) startListening(); else initVoice(); }
+    if (wantListen) startListening();
     else { pauseListening(); setState('idle'); }
   });
   window.addEventListener('resize', function () { clearTimeout(window.__rz); window.__rz = setTimeout(renderOrbs, 200); });
@@ -759,10 +776,18 @@
   if (!API.data || API.data.indexOf('REPLACE') !== -1 || API.data.indexOf('YOUR-INSTANCE') !== -1) {
     note('config.js لم يُعبّأ بعد — انسخ config.example.js إلى config.js وضع مسارات n8n الحقيقية.');
   }
-  setState('idle');
+  setState('needmic');
   addMsg('أنا معك. اسألني عن الفريق، العملاء، الفلوس، أو التسويق — أو أعطني أمرًا وأنا أوزّعه على المدراء.', 'ai');
 
   loadData();
   if (REFRESH_MS) setInterval(function () { if (!busy) loadData(); }, REFRESH_MS);
-  initVoice();
+
+  // No getUserMedia on load: the microphone is requested from the button click.
+  if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    $('btnMic').classList.add('off');
+    $('btnMic').textContent = '🎙️ غير مدعوم';
+    setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
+  } else {
+    $('btnMic').textContent = '🎙️ فعّل المايك';
+  }
 })();
