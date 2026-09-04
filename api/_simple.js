@@ -22,6 +22,7 @@ import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { waSend, waNumber } from "./_stage.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -593,6 +594,53 @@ export async function markRequestPaidByRef(ref, info) {
   return markPaid(row, info);
 }
 
+// ------------------------------------------------- WhatsApp agent gate --
+// Who answers this number — the machine or a person? No row means the agent
+// answers; that is also what a missing table or a failed read means, so a
+// fault here disables the control, never the service.
+const WA_ALL = "*";
+function waKey(raw) {
+  const s = String(raw == null ? "" : raw).trim();
+  if (s === WA_ALL) return WA_ALL;
+  return waNumber(s) || "";
+}
+function waConfigured() {
+  return !!((process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_WHATSAPP_TOKEN || process.env.WA_TOKEN) &&
+            (process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.WA_PHONE_ID));
+}
+function waFailMessage(err) {
+  if (err === "wa_not_configured") return "واتساب غير مربوط: ينقص WHATSAPP_TOKEN أو WHATSAPP_PHONE_ID.";
+  if (err === "no_phone") return "رقم الجوال غير صالح.";
+  if (/^wa_1310/.test(String(err))) return "مضت ٢٤ ساعة على آخر رسالة من العميل — واتساب لا يسمح إلا بقالب معتمد (WHATSAPP_TEMPLATE_NAME).";
+  return "تعذّر الإرسال عبر واتساب.";
+}
+async function waGateRows() {
+  try { return await sb("wa_agent_gate?select=*&order=updated_at.desc&limit=200"); } catch { return []; }
+}
+// A pause with an expiry that has passed is no pause: the operator who muted
+// the agent for an hour must not have to remember to switch it back on.
+function gateLive(r) {
+  if (!r || !r.paused) return false;
+  if (r.until && new Date(r.until).getTime() <= Date.now()) return false;
+  return true;
+}
+async function waGateSet(phone, { paused, minutes, reason, actor }) {
+  const key = waKey(phone);
+  if (!key) return null;
+  const mins = Math.min(Math.max(num(minutes), 0), 60 * 24 * 30);
+  const row = {
+    phone: key, paused: !!paused,
+    reason: str(reason, 300) || null, actor: str(actor, 80) || null,
+    until: paused && mins > 0 ? new Date(Date.now() + mins * 6e4).toISOString() : null,
+    updated_at: nowIso(),
+  };
+  // on_conflict is spelled out rather than left to the primary key, because
+  // the local JSON database matches on it literally and would otherwise append
+  // a second row for the same number on every click.
+  const out = await sb("wa_agent_gate?on_conflict=phone", { method: "POST", prefer: "resolution=merge-duplicates,return=representation", body: [row] });
+  return (Array.isArray(out) ? out[0] : out) || row;
+}
+
 // --------------------------------------------------------------- ops side --
 async function opsAction(action, b, qs, req, res) {
   const actor = str(b.actor || qs.actor, 80) || "المالك";
@@ -713,6 +761,65 @@ async function opsAction(action, b, qs, req, res) {
       task = t[0] ? taskOut(t[0]) : null;
     }
     return json(res, 200, { ok: true, ref, request: summary(created), task });
+  }
+
+  // ------------------------------------------------ WhatsApp agent control --
+  // The bot on n8n answers every message. When a human takes a conversation
+  // over, an automatic reply landing in the middle of it is worse than no
+  // reply at all — so operations must be able to silence the agent for one
+  // number, or for everyone, from the panel.
+
+  if (action === "ops-wa-gate") {
+    const rows = await waGateRows();
+    const all = rows.find((r) => r.phone === WA_ALL) || null;
+    return json(res, 200, {
+      ok: true,
+      agent: { paused: gateLive(all), row: all },
+      paused: rows.filter((r) => r.phone !== WA_ALL && gateLive(r)),
+      recent: rows.filter((r) => r.phone !== WA_ALL).slice(0, 40),
+      canSend: waConfigured(),
+    });
+  }
+
+  if (action === "ops-wa-pause") {
+    const gate = await waGateSet(b.phone, { paused: b.paused !== false, minutes: b.minutes, reason: b.reason, actor });
+    if (!gate) return json(res, 400, { ok: false, error: "bad_phone" });
+    return json(res, 200, { ok: true, gate });
+  }
+
+  // n8n calls this before it answers: one number in, one boolean out. It is an
+  // ops- action so it goes through the same panel key — no second door.
+  if (action === "ops-wa-check") {
+    const rows = await waGateRows();
+    const key = waKey(b.phone || qs.phone);
+    const all = rows.find((r) => r.phone === WA_ALL);
+    const one = key && key !== WA_ALL ? rows.find((r) => r.phone === key) : null;
+    const paused = gateLive(all) || gateLive(one);
+    return json(res, 200, { ok: true, paused, scope: gateLive(all) ? "all" : paused ? "number" : null, reason: (gateLive(all) ? all.reason : one && one.reason) || null });
+  }
+
+  // A message typed in the panel and sent to the customer on WhatsApp. Sending
+  // it means a human is in the conversation, so the agent is paused on that
+  // number for an hour unless told otherwise — the operator should not have to
+  // remember two clicks to avoid the bot talking over them.
+  if (action === "ops-wa-send") {
+    const text = str(b.text, 3000);
+    if (!text) return json(res, 400, { ok: false, error: "empty" });
+    let target = null, reqRow = null;
+    const ref0 = str(b.ref || qs.ref, 40);
+    if (ref0) { reqRow = await getByRef(ref0); if (!reqRow) return json(res, 404, { ok: false, error: "not_found" }); target = reqRow.client_phone; }
+    if (b.phone) target = b.phone;
+    const to = waKey(target);
+    if (!to || to === WA_ALL) return json(res, 400, { ok: false, error: "no_phone", message: "لا يوجد رقم جوال لهذا الطلب." });
+    const sent = await waSend(to, text);
+    if (sent.ok && b.hold !== false) await waGateSet(to, { paused: true, minutes: num(b.minutes) > 0 ? b.minutes : 60, reason: "ردّ يدوي من اللوحة", actor });
+    if (reqRow) {
+      const conversation = normConversation([...(reqRow.conversation || []), { role: "bp", content: text, at: nowIso() }]);
+      await patchRequest(reqRow.id, { conversation });
+      await logEvent(reqRow.id, "human", actor, sent.ok ? "message.whatsapp" : "message.whatsapp.failed", { preview: text.slice(0, 140), error: sent.ok ? undefined : sent.error });
+    }
+    if (!sent.ok) return json(res, 502, { ok: false, error: sent.error || "wa_failed", message: waFailMessage(sent.error) });
+    return json(res, 200, { ok: true, mode: sent.mode, held: b.hold !== false });
   }
 
   // Everything below acts on one request.

@@ -816,3 +816,21 @@ alter table tasks add column if not exists priority text not null default 'norma
 alter table tasks add column if not exists assigned_to text;
 create index if not exists tasks_request_idx on tasks(request_id);
 create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');
+
+-- ---------------------------------------------------------------------------
+-- بوابة وكيل واتساب: من يردّ على هذا الرقم — الآلة أم إنسان؟
+--
+-- الروبوت على n8n يردّ على كل رسالة. حين يمسك موظف محادثة (عميل غاضب، حالة
+-- خاصة، صفقة تُقفل بالكلام) فردّ آلي في وسط الكلام يفسدها. هذا الجدول هو
+-- المفتاح: صفٌّ لكل رقم موقوف، والصف '*' يوقف الوكيل كله.
+--
+-- الافتراضي = لا صفّ = الوكيل يعمل. غياب الجدول أو تعذّر قراءته يعني كذلك
+-- «يعمل»: العطل يوقف التحكّم لا الخدمة.
+create table if not exists wa_agent_gate (
+  phone text primary key,                       -- أرقام فقط، أو '*' للمفتاح العام
+  paused boolean not null default true,
+  reason text,
+  actor text,
+  until timestamptz,                            -- استئناف تلقائي بعد هذا الوقت (null = يدوي)
+  updated_at timestamptz not null default now()
+);

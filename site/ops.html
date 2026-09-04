@@ -293,7 +293,56 @@ m.appendChild(tabs);m.appendChild(box);draw()}
 function vFiltered(m,title,f,extra){m.appendChild(h('h1',{},[title]));var rows=state.reqs.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r,extra(r))})):h('p',{class:'note'},['لا شيء.']))}
 function vClients(m){m.appendChild(h('h1',{},['العملاء']));var map={};state.reqs.forEach(function(r){var k=(r.client_email||r.client_phone||r.client_name||r.ref).toLowerCase();if(!map[k])map[k]={name:r.client_name,email:r.client_email,phone:r.client_phone,company:r.company_name,reqs:[],paid:0};map[k].reqs.push(r);if(r.payment&&r.payment.status==='PAID')map[k].paid+=Number(r.payment.amount||0)});var list=Object.keys(map).map(function(k){return map[k]});m.appendChild(list.length?h('div',{class:'list'},list.map(function(c){return h('div',{class:'row',onclick:function(){state.filter=c.email||c.name||'';go('requests')}},[h('div',{class:'tt'},[h('b',{},[c.name||c.email||'—']),h('small',{},[(c.company||'')+' · '+(c.email||'')+' · '+(c.phone||'')])]),h('span',{class:'pill'},[c.reqs.length+' طلب']),h('span',{class:'pill ok'},[money(c.paid)])])})):h('p',{class:'note'},['لا عملاء بعد.']))}
 function vInbox(m){m.appendChild(h('h1',{},['المحادثات — صندوق موحّد']));m.appendChild(intakeCard());var box=h('div',{class:'list'},[h('p',{class:'note'},['…'])]);m.appendChild(h('div',{class:'card'},[h('h2',{},['كل القنوات']),box]));api('ops-inbox').then(function(o){box.innerHTML='';if(!o||!o.ok||!o.threads.length){box.appendChild(h('p',{class:'note'},['لا محادثات.']));return}o.threads.forEach(function(t){box.appendChild(h('div',{class:'row',onclick:function(){if(t.kind==='request')go('request',t.ref);else location.href='/admin'}},[h('div',{class:'tt'},[h('b',{},[(t.unread?'● ':'')+(t.title||t.ref)]),h('small',{},[(t.name||t.email||'')+' · '+(t.last?((t.last.role==='bp'?'أنت: ':t.last.role==='user'?'العميل: ':'')+t.last.content):'')+' · '+when(t.at)])]),h('span',{class:'pill src'},[SRC[t.channel]||t.channel]),pill(t.status)]))})})}
-function vWhatsapp(m){m.appendChild(h('h1',{},['واتساب']));var rows=state.reqs.filter(function(r){return r.source==='WHATSAPP'});m.appendChild(h('div',{class:'card'},[h('h2',{},['الحالة']),h('p',{class:'note'},['الاستقبال يمرّ عبر n8n والرد عبر WhatsApp Cloud API (api/_stage.js). المحادثات الحيّة في صندوق /monitor. حوّل أي محادثة إلى طلب من الإدخال السريع أدناه مع مصدر «واتساب».']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank'},['فتح صندوق واتساب الحي'])]));var card=intakeCard();card.querySelector('select').value='WHATSAPP';m.appendChild(card);m.appendChild(h('div',{class:'card'},[h('h2',{},['طلبات من واتساب']),rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا طلبات من واتساب بعد.'])]))}
+// Same normalisation as api/_stage.js waNumber(): a Saudi mobile is typed half
+// a dozen ways, and showing «+0555…» beside a message that will actually go
+// to 9665… is a lie the operator only discovers afterwards.
+function waFmt(p){var d=String(p||'').replace(/D/g,'');if(!d)return '';if(d.indexOf('00')===0)d=d.slice(2);if(d.indexOf('0')===0)d='966'+d.slice(1);else if(d.length===9&&d.indexOf('5')===0)d='966'+d;return '+'+d}
+// The agent gate: one number, or everyone. A pause with a clock on it is the
+// common case — a person takes a conversation over, finishes it, and the bot
+// comes back by itself. A pause with no clock stays until someone lifts it.
+function waGateCard(m){
+var card=h('div',{class:'card'});card.appendChild(h('h2',{},['وكيل واتساب']));
+card.appendChild(h('p',{class:'note'},['الوكيل يردّ على واتساب تلقائياً. أوقفه هنا حين يمسك موظف المحادثة — الردّ الآلي في وسط كلام إنسان أسوأ من لا ردّ.']));
+var body=h('div',{},[h('p',{class:'note'},['…'])]);card.appendChild(body);m.appendChild(card);
+var sendCard=h('div',{class:'card'});m.appendChild(sendCard);
+function draw(){
+ body.innerHTML='';sendCard.innerHTML='';
+ api('ops-wa-gate').then(function(o){
+  body.innerHTML='';
+  if(!o||!o.ok){body.appendChild(h('p',{class:'note'},['تعذّر قراءة حالة الوكيل.']));return}
+  var off=o.agent&&o.agent.paused;
+  var head=h('div',{class:'row',style:'cursor:default'},[
+    h('div',{class:'tt'},[h('b',{},[off?'الوكيل موقوف — لا يردّ على أحد':'الوكيل يعمل — يردّ على كل الرسائل']),
+      h('small',{},[off&&o.agent.row&&o.agent.row.until?('يعود تلقائياً '+when(o.agent.row.until)):off?'موقوف حتى تشغّله يدوياً':'الردّ الآلي مفعّل'])]),
+    h('button',{class:'btn '+(off?'':'ghost')+' sm',onclick:function(){var b=this;b.disabled=true;api('ops-wa-pause',{phone:'*',paused:!off}).then(function(){draw()})}},[off?'شغّل الوكيل':'أوقف الوكيل كله'])]);
+  body.appendChild(head);
+  if(!off){var q=h('div',{class:'row',style:'cursor:default'},[h('div',{class:'tt'},[h('b',{},['إيقاف مؤقّت']),h('small',{},['يعود بنفسه بعد المدة — بلا حاجة لتذكّر إعادته'])])]);
+   [['٣٠ دقيقة',30],['ساعة',60],['٤ ساعات',240],['يوم',1440]].forEach(function(x){q.appendChild(h('button',{class:'btn ghost sm',onclick:function(){var b=this;b.disabled=true;api('ops-wa-pause',{phone:'*',paused:true,minutes:x[1],reason:'إيقاف مؤقّت من اللوحة'}).then(function(){draw()})}},[x[0]]))});
+   body.appendChild(q)}
+  var paused=o.paused||[];
+  body.appendChild(h('h2',{style:'margin-top:14px'},['أرقام موقوفة ('+paused.length+')']));
+  if(!paused.length)body.appendChild(h('p',{class:'note'},['لا رقم موقوف. الوكيل يردّ على الجميع.']));
+  else body.appendChild(h('div',{class:'list'},paused.map(function(r){return h('div',{class:'row',style:'cursor:default'},[
+    h('div',{class:'tt'},[h('b',{},[waFmt(r.phone)]),h('small',{},[(r.reason||'موقوف')+' · '+(r.actor||'')+(r.until?(' · يعود '+when(r.until)):' · بلا مدة')])]),
+    h('button',{class:'btn ghost sm',onclick:function(){var b=this;b.disabled=true;api('ops-wa-pause',{phone:r.phone,paused:false}).then(function(){draw()})}},['أعد التشغيل'])])})));
+  // Sending from the panel is the other half of taking over: mute the bot and
+  // say something, in one place.
+  sendCard.appendChild(h('h2',{},['أرسل رسالة واتساب']));
+  if(!o.canSend){sendCard.appendChild(h('p',{class:'note'},['⚠ واتساب غير مربوط للإرسال (ينقص WHATSAPP_TOKEN أو WHATSAPP_PHONE_ID). الإيقاف أعلاه يعمل، والإرسال لا.']));return}
+  var ph=h('input',{class:'inp',placeholder:'رقم الجوال (9665…)',inputmode:'tel'});
+  var tx=h('textarea',{class:'inp',rows:'3',placeholder:'نص الرسالة…',style:'margin-top:8px'});
+  var msg=h('p',{class:'note'},['الإرسال يوقف الوكيل على هذا الرقم ساعة تلقائياً.']);
+  var btn=h('button',{class:'btn sm',style:'margin-top:8px',onclick:function(){var b=this;var p=ph.value.trim(),t=tx.value.trim();if(!p||!t)return;b.disabled=true;msg.textContent='جارٍ الإرسال…';
+    api('ops-wa-send',{phone:p,text:t}).then(function(o2){b.disabled=false;if(o2&&o2.ok){tx.value='';msg.textContent='أُرسلت'+(o2.mode==='template'?' (قالب معتمد — خارج نافذة ٢٤ ساعة)':'')+'. الوكيل موقوف على هذا الرقم ساعة.';draw()}else msg.textContent=(o2&&o2.message)||'تعذّر الإرسال.'})}},['إرسال']);
+  sendCard.appendChild(ph);sendCard.appendChild(tx);sendCard.appendChild(btn);sendCard.appendChild(msg);
+ }).catch(function(){body.innerHTML='';body.appendChild(h('p',{class:'note'},['تعذّر الاتصال.']))})}
+draw()}
+function vWhatsapp(m){m.appendChild(h('h1',{},['واتساب']));
+waGateCard(m);
+var rows=state.reqs.filter(function(r){return r.source==='WHATSAPP'});
+m.appendChild(h('div',{class:'card'},[h('h2',{},['الربط']),h('p',{class:'note'},['الاستقبال يمرّ عبر n8n والرد عبر WhatsApp Cloud API (api/_stage.js). المحادثات الحيّة في صندوق /monitor. حوّل أي محادثة إلى طلب من الإدخال السريع أدناه مع مصدر «واتساب».']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank'},['فتح صندوق واتساب الحي'])]));
+var card=intakeCard();card.querySelector('select').value='WHATSAPP';m.appendChild(card);
+m.appendChild(h('div',{class:'card'},[h('h2',{},['طلبات من واتساب']),rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا طلبات من واتساب بعد.'])]))}
 function vEmail(m){m.appendChild(h('h1',{},['البريد']));var rows=state.reqs.filter(function(r){return r.source==='EMAIL'});m.appendChild(h('div',{class:'card'},[h('p',{class:'note'},['لا يوجد ربط وارد للبريد بعد؛ الرسائل الصادرة عبر Resend. أدخل أي بريد مهم كطلب بمصدر «بريد» ليُربط بالعميل والشركة والمهام.'])]));var card=intakeCard();card.querySelector('select').value='EMAIL';m.appendChild(card);m.appendChild(h('div',{class:'card'},[h('h2',{},['طلبات من البريد']),rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا شيء بعد.'])]))}
 function taskRow(t){var sel=h('select',{class:'inp',style:'width:auto',onclick:function(e){e.stopPropagation()},onchange:function(){api('ops-task-update',{id:t.id,status:this.value}).then(function(){load()})}},Object.keys(TS).map(function(k){return h('option',{value:k,selected:t.status===k?'':null},[TS[k]])}));return h('div',{class:'row',onclick:function(){if(t.request&&t.request.ref)go('request',t.request.ref)}},[h('div',{class:'tt'},[h('b',{},[(t.human_action?'🙋 ':'')+t.title]),h('small',{},[(t.request?t.request.ref+' · '+(t.request.client_name||'')+' · ':'')+(t.assigned_to||'')+(t.due_at?' · '+when(t.due_at):'')+(t.details?' · '+t.details:'')])]),t.priority&&t.priority!=='normal'?h('span',{class:'pill warn'},[t.priority]):null,sel])}
 function vTasks(m,human){m.appendChild(h('h1',{},[human?'يحتاج تدخل بشري':'المهام']));var rows=state.tasks.filter(function(t){return (!human||t.human_action)});var open=rows.filter(function(t){return t.status!=='DONE'}),done=rows.filter(function(t){return t.status==='DONE'});if(human)m.appendChild(h('div',{class:'card'},[h('p',{class:'note'},['كل ما لا يستطيع وكيل ذكي إنهاءه: دخول منصة حكومية، رمز تحقق، زيارة ميدانية، توقيع يدوي، اتصال بالعميل، تصعيد لجهة حكومية.'])]));m.appendChild(h('div',{class:'card'},[h('h2',{},['مفتوحة ('+open.length+')']),open.length?h('div',{class:'list'},open.map(taskRow)):h('p',{class:'note'},['لا مهام مفتوحة.'])]));if(done.length)m.appendChild(h('div',{class:'card'},[h('h2',{},['منجزة']),h('div',{class:'list'},done.slice(0,30).map(taskRow))]))}
@@ -324,8 +373,24 @@ var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,r
 // conversation + AI summary
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[String(mm.content||'').replace(/<<SCOPE>>[\s\S]*?<<END>>/g,'').trim(),h('small',{},[(mm.role==='user'?'العميل':mm.role==='bp'?'الفريق':mm.role==='assistant'?'المساعد':'النظام')+' · '+when(mm.at)])])}));
 var inp=h('input',{class:'inp',placeholder:'رد على العميل داخل الطلب…'}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;api('ops-request-message',{ref:r.ref,content:v}).then(function(o){if(o&&o.ok){r.conversation=o.conversation;r.status=o.status;inp.value='';draw(hd,box)}})}},['إرسال']);
+// Same conversation, the other channel. A customer who came in on WhatsApp
+// reads WhatsApp, not the portal — and answering there means the agent must
+// stop answering there too, so the send does both.
+var waBox=(function(){
+ var phone=r.client_phone||'';
+ if(!phone)return h('p',{class:'note',style:'margin-top:8px'},['لا رقم جوال لهذا العميل — الرد عبر واتساب غير متاح.']);
+ var t=h('input',{class:'inp',placeholder:'رد على العميل عبر واتساب ('+waFmt(phone)+')…'});
+ var st=h('span',{class:'ok-t'});
+ var gate=h('button',{class:'btn ghost sm'},['…']);
+ function sync(){api('ops-wa-check',{phone:phone}).then(function(o){var off=o&&o.paused;gate.textContent=off?('الوكيل موقوف'+(o.scope==='all'?' (كله)':'')+' — شغّله'):'أوقف الوكيل على هذا الرقم';gate.disabled=false;
+  gate.onclick=function(){gate.disabled=true;api('ops-wa-pause',{phone:o&&o.scope==='all'?'*':phone,paused:!off}).then(sync)}})}
+ sync();
+ var send=h('button',{class:'btn sm',onclick:function(){var v=t.value.trim();if(!v)return;var b=this;b.disabled=true;st.textContent='جارٍ الإرسال…';
+  api('ops-wa-send',{ref:r.ref,text:v}).then(function(o){b.disabled=false;if(o&&o.ok){t.value='';st.textContent='أُرسلت على واتساب';go('request',r.ref)}else st.textContent=(o&&o.message)||'تعذّر الإرسال'})}},['إرسال على واتساب']);
+ return h('div',{style:'margin-top:8px'},[h('div',{class:'rowf'},[t,send]),h('div',{class:'rowf',style:'margin-top:6px'},[gate,st])]);
+})();
 var sumBox=h('textarea',{class:'inp',placeholder:'ملخص المساعد الذكي…'},[r.ai_summary||'']);var sumMsg=h('span',{class:'ok-t'});
-left.appendChild(h('div',{class:'card'},[h('h3',{},['المحادثة']),msgs,h('div',{class:'rowf',style:'margin-top:8px'},[inp,sb]),h('h3',{style:'margin-top:14px'},['ملخص ذكي']),sumBox,h('div',{class:'rowf'},[h('button',{class:'btn ghost sm',onclick:function(){sumMsg.textContent='…';fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'admin',key:state.key,messages:[{role:'user',content:'لخّص طلب العميل التالي في 3 أسطر عملية للفريق (ما يريده، ما ينقص، الخطوة التالية):\n'+(r.conversation||[]).map(function(x){return (x.role==='user'?'العميل: ':x.role==='bp'?'الفريق: ':'المساعد: ')+x.content}).join('\n')+'\nالنطاق: '+(r.scope||[]).map(function(s){return s.title}).join('، ')}]})}).then(function(x){return x.json()}).then(function(o){if(o&&o.reply){sumBox.value=o.reply;sumMsg.textContent=''}else sumMsg.textContent='تعذّر التلخيص'}).catch(function(){sumMsg.textContent='تعذّر التلخيص'})}},['توليد الملخص']),h('button',{class:'btn sm',onclick:function(){api('ops-request-update',{ref:r.ref,ai_summary:sumBox.value}).then(function(o){sumMsg.textContent=o&&o.ok?'حُفظ':'خطأ'})}},['حفظ الملخص']),sumMsg])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
+left.appendChild(h('div',{class:'card'},[h('h3',{},['المحادثة']),msgs,h('div',{class:'rowf',style:'margin-top:8px'},[inp,sb]),waBox,h('h3',{style:'margin-top:14px'},['ملخص ذكي']),sumBox,h('div',{class:'rowf'},[h('button',{class:'btn ghost sm',onclick:function(){sumMsg.textContent='…';fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'admin',key:state.key,messages:[{role:'user',content:'لخّص طلب العميل التالي في 3 أسطر عملية للفريق (ما يريده، ما ينقص، الخطوة التالية):\n'+(r.conversation||[]).map(function(x){return (x.role==='user'?'العميل: ':x.role==='bp'?'الفريق: ':'المساعد: ')+x.content}).join('\n')+'\nالنطاق: '+(r.scope||[]).map(function(s){return s.title}).join('، ')}]})}).then(function(x){return x.json()}).then(function(o){if(o&&o.reply){sumBox.value=o.reply;sumMsg.textContent=''}else sumMsg.textContent='تعذّر التلخيص'}).catch(function(){sumMsg.textContent='تعذّر التلخيص'})}},['توليد الملخص']),h('button',{class:'btn sm',onclick:function(){api('ops-request-update',{ref:r.ref,ai_summary:sumBox.value}).then(function(o){sumMsg.textContent=o&&o.ok?'حُفظ':'خطأ'})}},['حفظ الملخص']),sumMsg])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
 // scope + pricing → quote
 var canQuote=['PAID','IN_PROGRESS','COMPLETED','CANCELLED','SIGNED','PAYMENT_PENDING','CONTRACT_SENT','QUOTE_APPROVED'].indexOf(r.status)<0;
 var items=(r.quote&&r.quote.status!=='REJECTED'?r.quote.items:r.scope).map(function(i){return {code:i.code||'',title:i.title,description:i.description||i.why||'',qty:i.qty||1,price:i.price!=null?i.price:''}});
