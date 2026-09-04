@@ -231,6 +231,16 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-co-tot .big b{font-size:22px;color:var(--n)}
 .sv1-co-trust{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid #eef1f8}
 .sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
+.sv1-co-rc{margin-top:14px;padding-top:13px;border-top:1px dashed #cfd6e6}
+.sv1-co-rc h5{margin:0 0 3px;font-size:13.5px;color:var(--n)}
+.sv1-co-rcrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
+.sv1-co-rcrow label{cursor:pointer}
+.sv1-co-rcname{font-size:11.5px;color:var(--mut);flex:1;min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-co-rcout{margin-top:11px;border:1px solid var(--l);border-radius:11px;padding:11px 13px;background:var(--soft);font-size:12.5px;line-height:1.8}
+.sv1-co-rcout.ok{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-rcout.warn{border-color:#f0d9b8;background:#fdf7ef}
+.sv1-co-rcout .cmp{display:flex;justify-content:space-between;gap:12px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--mut)}
+.sv1-co-rcout .cmp b{color:var(--n)}
 @media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
 </style><header class="sv1-hdr"><div class="wrap">
@@ -302,6 +312,17 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
               <div><span>الآيبان</span><b><bdi dir="ltr">SA5380000511608016228498</bdi></b></div>
             </div>
             <p class="sv1-co-fine">بعد التحويل أرسل صورة الإيصال على واتساب أو البريد — ونفعّل طلبك فور التحقق.</p>
+            <div class="sv1-co-rc">
+              <h5>أرفق إيصال التحويل</h5>
+              <p class="sv1-co-fine">صورة أو PDF · حتى ٦ ميغابايت — يقرأه المستشار ويقارن مبلغه بإجمالي طلبك.</p>
+              <div class="sv1-co-rcrow">
+                <label class="sv1-btn sm" for="coReceipt">اختر ملفاً
+                  <input id="coReceipt" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden></label>
+                <span class="sv1-co-rcname" id="coReceiptName">—</span>
+                <button type="button" class="sv1-btn primary sm" id="coReceiptGo" disabled>أرسل الإيصال</button>
+              </div>
+              <div class="sv1-co-rcout" id="coReceiptOut" hidden></div>
+            </div>
           </div>
         </div>
       </div>
@@ -359,7 +380,7 @@ fetch('/api/simple?action=config').then(function(r){return r.json()}).then(funct
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا أو التحويل البنكي، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع."};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا أو التحويل البنكي، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","rcBusy":"نرفع الإيصال ونقرأه…","rcBig":"الملف أكبر من ٦ ميغابايت.","rcType":"الصيغ المقبولة: JPG أو PNG أو WEBP أو PDF.","rcNoRef":"الرفع متاح بعد اعتماد عرض السعر — افتح طلبك من حسابك.","rcFail":"تعذّر رفع الإيصال. حاول مرة أخرى أو أرسله على واتساب.","rcOkM":"استلمنا الإيصال — المبلغ مطابق لإجمالي طلبك. نؤكّد لك وصوله بعد التحقق من الحساب البنكي.","rcOkD":"استلمنا الإيصال — المبلغ المقروء لا يطابق إجمالي طلبك، والفريق يراجعه الآن.","rcOkU":"استلمنا الإيصال ويراجعه الفريق — تعذّرت قراءة المبلغ آلياً.","rcRead":"قراءة الإيصال","rcWant":"إجمالي طلبك"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -439,6 +460,43 @@ $('coTamaraGo').onclick=function(){
   if(o&&o.ok&&o.url){location.href=o.url;return}
   self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- إيصال التحويل البنكي
+// المرجع يأتي من بند العرض في السلة (sv1:BP-R-XXXXXX)؛ بدونه لا طلبَ نُرفق به.
+var RCREF=(function(){for(var i=0;i<cart.length;i++){var id=String(cart[i].id||'');if(id.indexOf('sv1:')===0)return id.slice(4)}return ''})();
+(function(){
+ var inp=$('coReceipt'),nm=$('coReceiptName'),go=$('coReceiptGo'),out=$('coReceiptOut'),file=null;
+ if(!inp)return;
+ function say(cls,txt,extra){out.hidden=false;out.className='sv1-co-rcout'+(cls?' '+cls:'');out.textContent='';
+  var p=document.createElement('div');p.textContent=txt;out.appendChild(p);
+  if(extra){var c=document.createElement('div');c.className='cmp';
+   var a=document.createElement('span');a.textContent=TX.rcRead+': ';var ab=document.createElement('b');ab.textContent=extra.read;a.appendChild(ab);
+   var d=document.createElement('span');d.textContent=TX.rcWant+': ';var db=document.createElement('b');db.textContent=extra.want;d.appendChild(db);
+   c.appendChild(a);c.appendChild(d);out.appendChild(c)}}
+ inp.onchange=function(){file=inp.files&&inp.files[0]?inp.files[0]:null;
+  if(!file){nm.textContent='—';go.disabled=true;return}
+  nm.textContent=file.name;
+  if(file.size>6*1024*1024){say('warn',TX.rcBig);go.disabled=true;file=null;return}
+  var OKT=['image/jpeg','image/png','image/webp','application/pdf'];
+  if(OKT.indexOf(String(file.type).toLowerCase())<0){say('warn',TX.rcType);go.disabled=true;file=null;return}
+  out.hidden=true;go.disabled=false};
+ go.onclick=function(){
+  if(!file)return;
+  if(!RCREF){say('warn',TX.rcNoRef);return}
+  go.disabled=true;say('',TX.rcBusy);
+  var fr=new FileReader();
+  fr.onerror=function(){go.disabled=false;say('warn',TX.rcFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},
+     body:JSON.stringify({action:'receipt-upload',ref:RCREF,name:file.name,mime:file.type,base64:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     if(!o||!o.ok){go.disabled=false;say('warn',o&&o.error==='too_large'?TX.rcBig:o&&o.error==='bad_type'?TX.rcType:TX.rcFail);return}
+     var msg=o.verdict==='match'?TX.rcOkM:o.verdict==='unreadable'?TX.rcOkU:TX.rcOkD;
+     say(o.verdict==='match'?'ok':'warn',msg,o.amount!=null?{read:money(o.amount),want:money(o.expected)}:null)})
+    .catch(function(){go.disabled=false;say('warn',TX.rcFail)})};
+  fr.readAsDataURL(file)};
+})();
 
 // ---- البطاقة (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

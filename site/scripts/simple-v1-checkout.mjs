@@ -48,6 +48,41 @@ const T = {
              fr: "Le paiement passe par la passerelle agréée — vos données de carte ne transitent pas chez nous.",
              zh: "支付在持牌网关完成——卡片信息不经过我们的服务器。" },
   loading: { ar: "نجهّز نموذج الدفع…", en: "Preparing the payment form…", fr: "Préparation du paiement…", zh: "正在准备支付表单…" },
+  rcTitle: { ar: "أرفق إيصال التحويل", en: "Attach the transfer receipt",
+             fr: "Joignez le reçu du virement", zh: "上传转账凭证" },
+  rcHint:  { ar: "صورة أو PDF · حتى ٦ ميغابايت — يقرأه المستشار ويقارن مبلغه بإجمالي طلبك.",
+             en: "Image or PDF, up to 6 MB — the advisor reads it and compares the amount with your total.",
+             fr: "Image ou PDF, 6 Mo max — le conseiller le lit et compare le montant à votre total.",
+             zh: "图片或 PDF，最大 6MB — 顾问会读取并与订单总额核对。" },
+  rcPick:  { ar: "اختر ملفاً", en: "Choose a file", fr: "Choisir un fichier", zh: "选择文件" },
+  rcSend:  { ar: "أرسل الإيصال", en: "Send the receipt", fr: "Envoyer le reçu", zh: "发送凭证" },
+  rcBusy:  { ar: "نرفع الإيصال ونقرأه…", en: "Uploading and reading…", fr: "Envoi et lecture…", zh: "正在上传并读取…" },
+  rcBig:   { ar: "الملف أكبر من ٦ ميغابايت.", en: "The file is larger than 6 MB.",
+             fr: "Le fichier dépasse 6 Mo.", zh: "文件超过 6MB。" },
+  rcType:  { ar: "الصيغ المقبولة: JPG أو PNG أو WEBP أو PDF.", en: "Accepted: JPG, PNG, WEBP or PDF.",
+             fr: "Formats acceptes : JPG, PNG, WEBP ou PDF.", zh: "支持格式：JPG、PNG、WEBP 或 PDF。" },
+  rcNoRef: { ar: "الرفع متاح بعد اعتماد عرض السعر — افتح طلبك من حسابك.",
+             en: "Upload opens once a quotation is approved — open your request from your account.",
+             fr: "L'envoi s'ouvre apres l'approbation du devis — ouvrez votre demande depuis votre compte.",
+             zh: "报价通过后方可上传 — 请在账户中打开您的请求。" },
+  rcFail:  { ar: "تعذّر رفع الإيصال. حاول مرة أخرى أو أرسله على واتساب.",
+             en: "The receipt could not be uploaded. Try again or send it on WhatsApp.",
+             fr: "Le recu n'a pas pu etre envoye. Reessayez ou envoyez-le sur WhatsApp.",
+             zh: "凭证上传失败。请重试或通过 WhatsApp 发送。" },
+  rcOkM:   { ar: "استلمنا الإيصال — المبلغ مطابق لإجمالي طلبك. نؤكّد لك وصوله بعد التحقق من الحساب البنكي.",
+             en: "Receipt received — the amount matches your total. We confirm arrival after checking the bank account.",
+             fr: "Recu bien recu — le montant correspond a votre total. Nous confirmons apres verification bancaire.",
+             zh: "已收到凭证 — 金额与订单总额一致。核对银行账户后我们会确认。" },
+  rcOkD:   { ar: "استلمنا الإيصال — المبلغ المقروء لا يطابق إجمالي طلبك، والفريق يراجعه الآن.",
+             en: "Receipt received — the amount read does not match your total; the team is reviewing it.",
+             fr: "Recu bien recu — le montant lu ne correspond pas a votre total ; l'equipe le verifie.",
+             zh: "已收到凭证 — 读取金额与订单总额不符，团队正在核对。" },
+  rcOkU:   { ar: "استلمنا الإيصال ويراجعه الفريق — تعذّرت قراءة المبلغ آلياً.",
+             en: "Receipt received and under review — the amount could not be read automatically.",
+             fr: "Recu bien recu et en cours d'examen — le montant n'a pas pu etre lu automatiquement.",
+             zh: "已收到凭证并在审核中 — 无法自动读取金额。" },
+  rcRead:  { ar: "قراءة الإيصال", en: "Receipt reading", fr: "Lecture du recu", zh: "凭证读取" },
+  rcWant:  { ar: "إجمالي طلبك", en: "Your total", fr: "Votre total", zh: "订单总额" },
   quoted:  { ar: "يُسعّر عند المراجعة", en: "Quoted on review", fr: "Devis après examen", zh: "审核后报价" },
   signIn:  { ar: "سجّل دخولك لعرض السعر وإتمام الدفع", en: "Sign in to see the price and pay.",
              fr: "Connectez-vous pour voir le prix et payer.", zh: "登录后查看价格并付款。" },
@@ -136,6 +171,17 @@ export function buildSimpleCheckout(SV1, ctx) {
               <div><span>${esc(t("iban"))}</span><b><bdi dir="ltr">${esc(bank.iban || "")}</bdi></b></div>
             </div>
             <p class="sv1-co-fine">${esc(t("receipt"))}</p>
+            <div class="sv1-co-rc">
+              <h5>${esc(t("rcTitle"))}</h5>
+              <p class="sv1-co-fine">${esc(t("rcHint"))}</p>
+              <div class="sv1-co-rcrow">
+                <label class="sv1-btn sm" for="coReceipt">${esc(t("rcPick"))}
+                  <input id="coReceipt" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden></label>
+                <span class="sv1-co-rcname" id="coReceiptName">—</span>
+                <button type="button" class="sv1-btn primary sm" id="coReceiptGo" disabled>${esc(t("rcSend"))}</button>
+              </div>
+              <div class="sv1-co-rcout" id="coReceiptOut" hidden></div>
+            </div>
           </div>
         </div>
       </div>
@@ -192,6 +238,16 @@ ${SV1.footer()}`;
 .sv1-co-tot .big b{font-size:22px;color:var(--n)}
 .sv1-co-trust{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid #eef1f8}
 .sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
+.sv1-co-rc{margin-top:14px;padding-top:13px;border-top:1px dashed #cfd6e6}
+.sv1-co-rc h5{margin:0 0 3px;font-size:13.5px;color:var(--n)}
+.sv1-co-rcrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
+.sv1-co-rcrow label{cursor:pointer}
+.sv1-co-rcname{font-size:11.5px;color:var(--mut);flex:1;min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-co-rcout{margin-top:11px;border:1px solid var(--l);border-radius:11px;padding:11px 13px;background:var(--soft);font-size:12.5px;line-height:1.8}
+.sv1-co-rcout.ok{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-rcout.warn{border-color:#f0d9b8;background:#fdf7ef}
+.sv1-co-rcout .cmp{display:flex;justify-content:space-between;gap:12px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--mut)}
+.sv1-co-rcout .cmp b{color:var(--n)}
 @media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
 </style>`;
@@ -199,7 +255,7 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount") })};
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), rcBusy: t("rcBusy"), rcBig: t("rcBig"), rcType: t("rcType"), rcNoRef: t("rcNoRef"), rcFail: t("rcFail"), rcOkM: t("rcOkM"), rcOkD: t("rcOkD"), rcOkU: t("rcOkU"), rcRead: t("rcRead"), rcWant: t("rcWant") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -279,6 +335,43 @@ $('coTamaraGo').onclick=function(){
   if(o&&o.ok&&o.url){location.href=o.url;return}
   self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- إيصال التحويل البنكي
+// المرجع يأتي من بند العرض في السلة (sv1:BP-R-XXXXXX)؛ بدونه لا طلبَ نُرفق به.
+var RCREF=(function(){for(var i=0;i<cart.length;i++){var id=String(cart[i].id||'');if(id.indexOf('sv1:')===0)return id.slice(4)}return ''})();
+(function(){
+ var inp=$('coReceipt'),nm=$('coReceiptName'),go=$('coReceiptGo'),out=$('coReceiptOut'),file=null;
+ if(!inp)return;
+ function say(cls,txt,extra){out.hidden=false;out.className='sv1-co-rcout'+(cls?' '+cls:'');out.textContent='';
+  var p=document.createElement('div');p.textContent=txt;out.appendChild(p);
+  if(extra){var c=document.createElement('div');c.className='cmp';
+   var a=document.createElement('span');a.textContent=TX.rcRead+': ';var ab=document.createElement('b');ab.textContent=extra.read;a.appendChild(ab);
+   var d=document.createElement('span');d.textContent=TX.rcWant+': ';var db=document.createElement('b');db.textContent=extra.want;d.appendChild(db);
+   c.appendChild(a);c.appendChild(d);out.appendChild(c)}}
+ inp.onchange=function(){file=inp.files&&inp.files[0]?inp.files[0]:null;
+  if(!file){nm.textContent='—';go.disabled=true;return}
+  nm.textContent=file.name;
+  if(file.size>6*1024*1024){say('warn',TX.rcBig);go.disabled=true;file=null;return}
+  var OKT=['image/jpeg','image/png','image/webp','application/pdf'];
+  if(OKT.indexOf(String(file.type).toLowerCase())<0){say('warn',TX.rcType);go.disabled=true;file=null;return}
+  out.hidden=true;go.disabled=false};
+ go.onclick=function(){
+  if(!file)return;
+  if(!RCREF){say('warn',TX.rcNoRef);return}
+  go.disabled=true;say('',TX.rcBusy);
+  var fr=new FileReader();
+  fr.onerror=function(){go.disabled=false;say('warn',TX.rcFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},
+     body:JSON.stringify({action:'receipt-upload',ref:RCREF,name:file.name,mime:file.type,base64:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     if(!o||!o.ok){go.disabled=false;say('warn',o&&o.error==='too_large'?TX.rcBig:o&&o.error==='bad_type'?TX.rcType:TX.rcFail);return}
+     var msg=o.verdict==='match'?TX.rcOkM:o.verdict==='unreadable'?TX.rcOkU:TX.rcOkD;
+     say(o.verdict==='match'?'ok':'warn',msg,o.amount!=null?{read:money(o.amount),want:money(o.expected)}:null)})
+    .catch(function(){go.disabled=false;say('warn',TX.rcFail)})};
+  fr.readAsDataURL(file)};
+})();
 
 // ---- البطاقة (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

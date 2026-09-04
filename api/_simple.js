@@ -24,6 +24,8 @@ import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
+import { storagePut, storageSign } from "./_db.js";
+import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -427,6 +429,72 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { attachments });
     await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
     return json(res, 200, { ok: true, attachments });
+  }
+
+  // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
+  // بإجمالي الطلب. القراءة ليست إثباتاً لوصول المال — ولذلك لا تُعلَّم الحالة
+  // «مدفوعة» هنا أبداً؛ تُفتح مهمة تأكيد على لوحة العمليات بنتيجة المقارنة.
+  if (action === "receipt-upload") {
+    const total = round2(num(row.quote?.total));
+    if (!total) return json(res, 409, { ok: false, error: "no_quote" });
+    const mime = str(b.mime, 80);
+    const base64 = String(b.base64 || "").replace(/^data:[^;]+;base64,/, "");
+    if (!base64) return json(res, 400, { ok: false, error: "no_file" });
+    if (!DOC_MIME_OK.test(mime)) return json(res, 400, { ok: false, error: "bad_type" });
+    const bytes = Buffer.byteLength(base64, "base64");
+    if (bytes > MAX_DOC_BYTES) return json(res, 413, { ok: false, error: "too_large", max: MAX_DOC_BYTES });
+
+    const safe = (str(b.name, 90) || "receipt").replace(/[^\w.\-\u0600-\u06FF ]+/g, "_");
+    const path = `receipts/${row.ref}/${Date.now()}-${safe}`;
+    let url = "";
+    try {
+      await storagePut(path, Buffer.from(base64, "base64"), mime || "application/octet-stream");
+      url = (await storageSign(path, 60 * 60 * 24 * 60)) || "";
+    } catch (e) { console.error("receipt store", String(e.message || e).slice(0, 160)); }
+
+    const prompt = [
+      "هذا إيصال/إشعار تحويل بنكي. أعِد JSON فقط بلا أي نص آخر بالمفاتيح:",
+      '{"amount":number|null,"currency":string|null,"date":string|null,"sender":string|null,',
+      '"beneficiary":string|null,"bank":string|null,"reference":string|null,"is_receipt":boolean}',
+      "amount هو المبلغ المحوَّل بالأرقام بلا فواصل. إن لم تجد قيمة ضعها null. لا تخمّن.",
+    ].join(" ");
+    let read = null, provider = "";
+    try {
+      const raw = await readDocumentRaw(base64, mime, prompt, 500);
+      if (raw && raw.ok) { read = parseJson(String(raw.data || "")); provider = raw.provider || ""; }
+    } catch (e) { console.error("receipt read", String(e.message || e).slice(0, 160)); }
+
+    const amount = read && Number.isFinite(Number(read.amount)) ? round2(Number(read.amount)) : null;
+    const diff = amount == null ? null : round2(amount - total);
+    const verdict = amount == null ? "unreadable" : Math.abs(diff) <= 1 ? "match" : amount > total ? "over" : "short";
+
+    const receipt = {
+      name: safe, url, size: bytes, mime, at: nowIso(), provider,
+      read: read ? { amount, currency: read.currency || null, date: read.date || null,
+                     sender: read.sender || null, beneficiary: read.beneficiary || null,
+                     bank: read.bank || null, reference: read.reference || null } : null,
+      expected: total, diff, verdict,
+    };
+    const attachments = [...(row.attachments || []), { name: safe, url, note: "إيصال تحويل بنكي", kind: "receipt", at: receipt.at, by: "customer" }].slice(-40);
+    const payment = { ...(row.payment || {}), status: "REVIEW", provider: "bank", amount, currency: "SAR", at: receipt.at, receipt };
+    const upd = await patchRequest(row.id, { attachments, payment, status: "PAYMENT_PENDING" });
+    await logEvent(row.id, "ai", "المستشار الذكي", "payment.receipt", { verdict, amount, expected: total });
+    await sweepTask(upd, {
+      source: "receipt.verify", urgency: "high", human: true,
+      title: () => `تأكيد وصول تحويل بنكي — ${row.ref}`,
+      details: () => `قراءة الإيصال: ${amount == null ? "تعذّرت" : amount + " ر.س"} · المطلوب: ${total} ر.س · النتيجة: ${verdict}. افتح الحساب البنكي وأكّد الوصول قبل التفعيل — قراءة الصورة ليست إثباتاً.`,
+    }, "المستشار الذكي");
+
+    const VER = { match: "مطابق للإجمالي", over: "أعلى من الإجمالي", short: "أقل من الإجمالي", unreadable: "تعذّرت قراءة المبلغ" };
+    await announce(upd, "receipt", {
+      subject: `إيصال تحويل مرفوع — ${row.ref}`,
+      clientLine: amount == null
+        ? "استلمنا إيصالك ويراجعه الفريق الآن. نبلغك فور تأكيد وصول المبلغ."
+        : `استلمنا إيصالك: ${amount} ر.س (${VER[verdict]}). نؤكّد لك وصول المبلغ بعد التحقق من الحساب البنكي.`,
+      opsLine: `${row.client_name} رفع إيصالاً. القراءة: ${amount == null ? "—" : amount + " ر.س"} · المطلوب: ${total} ر.س · ${VER[verdict]}${url ? ` · الملف: ${url}` : " · تعذّر حفظ الملف"}`,
+      cta: "افتح الطلب في لوحة العمليات",
+    });
+    return json(res, 200, { ok: true, status: upd.status, receipt: { ...receipt, url: undefined }, verdict, amount, expected: total });
   }
 
   if (action === "quote-approve" || action === "quote-reject") {
