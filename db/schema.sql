@@ -697,3 +697,122 @@ create policy doc_agent_files_read on doc_agent_files for select using (request_
 create policy doc_agent_facts_read on doc_agent_facts for select using (organization_id in (select current_org_ids()));
 create policy doc_agent_messages_read on doc_agent_messages for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
 create policy doc_agent_outputs_read on doc_agent_outputs for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-28: الوكيل الذكي للمستندات — تجربة مجانية ١٤ يوماً لكل منشأة.
+-- الخدمة صارت داخل بوابة العميل بلا شراء: أول استخدام يبدأ العدّاد (لا تاريخ
+-- التسجيل — فالعميل القديم يستحق تجربته كاملة يوم يفتحها أول مرة)، وبعد
+-- انتهائها يبقى كل ما أُنتج محفوظاً ويُطلب الاشتراك للتوليد الجديد.
+alter table organizations add column if not exists doc_agent_trial_started_at timestamptz;
+
+-- 2026-08-31: الوكيل الذكي للمستندات — توقيع العميل وختم المنشأة.
+-- التوقيع والختم يُحفظان مرة واحدة على مستوى المنشأة ويُعاد استخدامهما في كل
+-- طلب لاحق. الموافقة الصريحة (signature_consent_at) شرط لتطبيق التوقيع: بلا
+-- تاريخ موافقة لا يُختم أي مستند بتوقيع العميل.
+alter table organizations add column if not exists signature_storage_key text;
+alter table organizations add column if not exists signature_mime text;
+alter table organizations add column if not exists signature_consent_at timestamptz;
+alter table organizations add column if not exists signature_updated_at timestamptz;
+alter table organizations add column if not exists stamp_storage_key text;
+alter table organizations add column if not exists stamp_mime text;
+alter table organizations add column if not exists stamp_updated_at timestamptz;
+
+-- 'client_image' يطبّق صورة توقيع العميل المحفوظة على حقول التوقيع في النموذج.
+alter table doc_agent_requests drop constraint if exists doc_agent_requests_signature_mode_check;
+alter table doc_agent_requests add constraint doc_agent_requests_signature_mode_check
+  check (signature_mode in ('leave_blank','typed_electronic','external_esign','client_image'));
+alter table doc_agent_requests add column if not exists stamp_mode text not null default 'auto'
+  check (stamp_mode in ('auto','off'));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-31: ملف تطوير الأعمال للعميل — مُدخل المطابقة.
+--
+-- العميل يكتب ماذا يبيع، ويرفق بروفايل منشأته، ويحدد القطاعات والمدن التي
+-- يستهدفها. هذه هي البيانات التي تُطابَق عليها قاعدة الشركات
+-- (قاعدة الشركات — مبيعات في نوشن، تخدمها /api/pay?resource=leads).
+--
+-- القطاعات والمدن تُخزَّن بالقيمة الإنجليزية الحرفية التي تُرشِّح بها نوشن،
+-- لا بالنص العربي الذي يراه العميل — انظر api/_bdprofile.js. النص العربي
+-- عرضٌ فقط، وتخزينه هنا يعني مطابقةً لا تُرجع شيئاً أبداً.
+--
+-- صفٌّ واحد لكل منشأة: البروفايل ملك المنشأة لا الموظف الذي كتبه.
+create table if not exists bd_profiles (
+  organization_id uuid primary key references organizations(id) on delete cascade,
+  services_text text,                       -- ماذا يبيع، بكلماته هو
+  ideal_customer text,                      -- وصف العميل المثالي
+  target_sectors text[] not null default '{}',  -- قيم Sector الحرفية
+  target_cities  text[] not null default '{}',  -- قيم City الحرفية
+  profile_path text,                        -- مسار البروفايل في المخزن
+  profile_name text,
+  profile_bytes int,
+  extracted jsonb,                          -- ما استخرجه القارئ من البروفايل
+  completeness int not null default 0 check (completeness between 0 and 100),
+  notified_at timestamptz,                  -- أول اكتمال أُشعر به المالك
+  created_by uuid references users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists bd_profiles_sectors_idx on bd_profiles using gin (target_sectors);
+
+alter table bd_profiles enable row level security;
+create policy bd_profiles_read on bd_profiles for select using (organization_id in (select current_org_ids()));
+
+-- ================================================================ Simple V1 --
+-- 2026-09-02: one request per customer need, carrying its whole transaction
+-- (conversation → scope → quote → contract → payment → invoice) as JSON
+-- snapshots on the row, so the client portal and the operations dashboard
+-- read one record. organization_id is nullable on purpose: a request phoned
+-- in before the client registered is attached the first time that e-mail
+-- signs in (api/_simple.js `me`). Tasks link back through tasks.request_id.
+create table if not exists requests (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,                       -- BP-R-XXXXXX
+  organization_id uuid references organizations(id),
+  user_id uuid references users(id),
+  type text not null check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION')),
+  source text not null default 'WEBSITE' check (source in ('WEBSITE','WHATSAPP','EMAIL','PHONE','AI_ASSISTANT','MANUAL','REFERRAL')),
+  status text not null default 'NEW' check (status in ('NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','QUOTE_APPROVED','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','PAID','IN_PROGRESS','WAITING_INTERNAL','COMPLETED','CANCELLED')),
+  lang text not null default 'ar',
+  title text not null,
+  summary text,
+  ai_summary text,
+  conversation jsonb not null default '[]'::jsonb,   -- [{role:user|assistant|bp|system, content, at}]
+  scope jsonb not null default '[]'::jsonb,          -- [{code, title, why, qty}]
+  attachments jsonb not null default '[]'::jsonb,    -- [{name, url, note, at, by}]
+  quote jsonb,        -- {number, status, items[], net, vat, total, valid_until, payment_terms, notes, sent_at, decided_at}
+  contract jsonb,     -- {number, status, html, sent_at, signed_at, signature{name,email,ip,ua,at,contract_sha256,mode}}
+  appointment jsonb,  -- {date, time, tz, topic, status, ref, gcal}
+  payment jsonb,      -- {status, provider, ref, amount, currency, at, test}
+  invoice jsonb,      -- {number, mode, net, vat, total, issued_at, items[], bill_to}
+  client_name text, client_email text, client_phone text, company_name text,
+  assigned_to text,
+  internal_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists requests_org_idx on requests(organization_id);
+create index if not exists requests_email_idx on requests(client_email);
+create index if not exists requests_status_idx on requests(status);
+
+create table if not exists request_events (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references requests(id) on delete cascade,
+  actor_kind text not null check (actor_kind in ('ai','human','customer','system','internal')),
+  actor text,
+  event text not null,        -- request.created / scope.proposed / quote.sent / contract.signed / payment.paid / task.human_required …
+  details jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists request_events_req_idx on request_events(request_id, created_at);
+
+-- المستندات التي نطلبها من العميل لهذا الطلب. لكل خدمة نطاقها ومستنداتها،
+-- ويخرجها المستشار مع النطاق في الكتلة نفسها (needs) — كانت تُنتج ثم تُهمل.
+-- [{title, note, status: requested|received|waived, at}]
+alter table requests add column if not exists documents jsonb not null default '[]'::jsonb;
+
+alter table tasks add column if not exists request_id uuid references requests(id) on delete set null;
+alter table tasks add column if not exists human_action boolean not null default false;  -- «يحتاج تدخل بشري»
+alter table tasks add column if not exists priority text not null default 'normal' check (priority in ('low','normal','high','urgent'));
+alter table tasks add column if not exists assigned_to text;
+create index if not exists tasks_request_idx on tasks(request_id);
+create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');

@@ -17,77 +17,218 @@
 <link rel="alternate" hreflang="fr" href="/fr/services/bp-pl-0090">
 <link rel="alternate" hreflang="zh" href="/zh/services/bp-pl-0090">
 <link rel="alternate" hreflang="x-default" href="/services/bp-pl-0090">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
-</head>
-<body><header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/zh/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/zh/">首页</a><a href="/zh/about">关于我们</a><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">我们的服务 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested active">
-    <button type="button" class="nav-drop active" aria-expanded="false">政府咨询服务 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/services">All services (140)</a><a href="/zh/services/category/company-formation">🏢 公司注册</a><a href="/zh/services/category/foreign-investment">🌍 外商投资</a><a href="/zh/services/category/premium-residency">🪪 高端居留</a><a href="/zh/services/category/government-relations">🏛️ 政府事务关系</a><a href="/zh/services/category/hr-services">👥 人力资源服务</a><a href="/zh/services/category/recruitment">🧑‍💼 招聘与人才引进</a><a href="/zh/services/category/business-support">📊 业务支持</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">套餐 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/packages">全部套餐</a><a href="/zh/packages#pkg-management">服务套餐</a><a href="/zh/packages#pkg-formation">公司注册</a><a href="/zh/packages#pkg-legal">法务套餐</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">AI 智能助手 ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/ai-agents">全部智能代理</a><a href="/zh/compliance-agent">合规</a><a href="/zh/ai-document-agent">Documents</a><a href="/portal">智能员工</a><a href="/zh/shared-services">共享服务团队</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/revenue-os">服务流程</a><a href="/zh/revenue-os#pricing">套餐与价格</a><a href="/zh/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/zh/services/category/ai-automation">AI 与自动化 ⚡</a><a href="/zh/task-force">专项工作组 ⚡</a><a href="/zh/data">B2B 线索数据库 ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">招聘 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/hr">招聘服务</a><a href="/zh/employers">雇主专区</a><a href="/zh/careers">在招职位</a><a href="/zh/job-search-service">We search for a job for you</a><a href="/zh/recruitment-agencies">Recruitment agencies</a><a href="/zh/agency-portal">Agency portal</a></div>
-  </div><a href="/zh/deals">项目撮合 ⚡</a><a href="/zh/estrdad">规费退还（استرداد）⚡</a><a href="/zh/bank-account">企业银行开户 ⚡</a><a href="/zh/formation-contract">合伙人公司注册 ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">商务旅行 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/mahfol-makfol">投资者专区</a><a href="/zh/mahfol-makfol/trips">旅程与体验</a><a href="/zh/tourism">公司活动</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">办公空间 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/workspaces">浏览空间</a><a href="/zh/workspace-request">申请办公空间</a><a href="/zh/services/bp-re-01">独立办公室</a><a href="/zh/services/bp-re-02">联合办公空间</a><a href="/zh/services/bp-re-03">虚拟办公室 + 国家地址</a><a href="/zh/services/bp-re-04">固定工位</a><a href="/zh/services/bp-re-05">办公室寻址服务</a><a href="/zh/services/bp-re-06">外国人房产持有</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">餐饮与接待 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/farina">总览</a><a href="/zh/farina#coffee-break">咖啡茶歇</a><a href="/zh/farina#vip-coffee">VIP 咖啡茶歇</a><a href="/zh/farina#executive-lunch">高管午餐</a><a href="/zh/farina#vip-hospitality">VIP 接待</a><a href="/zh/farina#workforce">员工餐饮</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">工人住宿 ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/worker-housing">总览</a><a href="/zh/worker-housing#wh-request">申请住宿</a><a href="/zh/worker-housing#wh-fines">法规与罚款</a><a href="/zh/services/bp-housing-01">许可代办服务</a><a href="/zh/services/bp-housing-02">工人交通</a></div>
-  </div><a href="/zh/consultation">预约免费咨询</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">知识中心 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">沙特指南 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/saudi-arabia">投资沙特阿拉伯</a><a href="/zh/guide/saudi-market">沙特市场</a><a href="/zh/guide/business-setup">设立企业</a><a href="/zh/guide/run-your-business">经营您的企业</a><a href="/zh/directory">创业指南</a><a href="/zh/guide/live-in-saudi">在沙特生活</a><a href="/zh/guide/residency">沙特居留</a></div>
-  </div><a href="/zh/opportunities">投资机会</a><a href="/zh/news">资讯与新闻</a><a href="/zh/newsletter">订阅通讯</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">工具与计算器 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/zh/tools-and-calculators">全部工具</a><a href="/zh/calculator">成本计算器</a><a href="/zh/calculators/government-cost">政府成本</a><a href="/zh/calculators/profession-checker">职业查询</a><a href="/zh/calculators/end-of-service">服务终了补偿金</a><a href="/zh/calculators/annual-leave">年假</a><a href="/zh/calculators/overtime">加班</a><a href="/zh/calculators/gosi">社保缴费计算器</a></div>
-  </div><a href="/zh/magazine">电子杂志（PDF）</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">平台与门户 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/zh/account">客户门户</a><a href="/zh/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">智能员工门户</a><a href="/zh/employer-join">雇主 —— 加入</a><a href="/zh/employer-login">雇主 —— 登录</a></div>
-    </div><a href="/zh/contact">联系我们</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span class="lang-label">中文</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/services/bp-pl-0090" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/services/bp-pl-0090" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/services/bp-pl-0090" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/services/bp-pl-0090" data-lang="zh" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
-  </div>
-    <a class="hdr-btn" data-account-link href="/zh/account" aria-label="登录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>登录</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/zh/suppliers" aria-label="合作伙伴注册"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">合作伙伴</span></a>
-    <a class="icon-btn cart-link" href="/zh/cart" aria-label="购物车"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="菜单" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style id="bp-public-v4-css">
+:root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
+body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
+body.bp-public-v4 main{background:transparent}
+body.bp-public-v4 .container{max-width:1180px}
+body.bp-public-v4 .site-header{background:rgba(255,255,255,.92)!important;backdrop-filter:blur(16px);border-bottom:1px solid rgba(7,22,63,.07)}
+body.bp-public-v4 .site-header .nav{gap:16px}
+body.bp-public-v4 .site-header .nav>a,body.bp-public-v4 .nav-drop{font-size:13px!important}
+
+/* Shared B10X mast */
+.bp-v4-mast{max-width:1180px;margin:22px auto 0;padding:0 22px}.bp-v4-mast-in{border-radius:24px;padding:22px 24px;background:linear-gradient(135deg,#07163f,#123b8e);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;box-shadow:0 18px 50px rgba(20,51,125,.14)}
+.bp-v4-mast small{display:block;font-size:10px;font-weight:900;letter-spacing:.11em;color:#bcd0ff;margin-bottom:6px}.bp-v4-mast strong{display:block;font-size:18px;line-height:1.4}.bp-v4-mast p{margin:4px 0 0;color:#d8e4ff;font-size:11px;line-height:1.65}.bp-v4-mast a{flex:0 0 auto;text-decoration:none;background:#fff;color:#123675;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:900}
+
+/* Service detail */
+body.bp-v4-service .svc-hero{background:transparent!important;padding:54px 0 26px!important}
+body.bp-v4-service .svc-hero .container{background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:28px;padding:30px!important;box-shadow:0 16px 50px rgba(16,24,40,.06)}
+body.bp-v4-service .svc-hero h1{font-size:clamp(30px,4.4vw,52px)!important;line-height:1.08!important;letter-spacing:-1.5px!important;color:var(--v4-n)!important;max-width:900px;margin:15px 0!important}
+body.bp-v4-service .breadcrumb,body.bp-v4-category .back-link{font-size:11px!important;color:#74809a!important}
+body.bp-v4-service .svc-meta{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+body.bp-v4-service .svc-meta .chip{border:1px solid #dde5f4!important;background:#fff!important;border-radius:999px!important;color:#41506d!important;font-size:10.5px!important;padding:7px 10px!important}
+body.bp-v4-service .svc-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 330px!important;gap:22px!important;align-items:start!important;margin-top:20px!important}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section,body.bp-v4-service main section:not(.svc-hero){border-radius:20px}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section{background:#fff;border:1px solid var(--v4-line);padding:20px!important;margin-bottom:12px!important;box-shadow:0 7px 24px rgba(16,24,40,.035)}
+body.bp-v4-service .svc-content h2,body.bp-v4-service .svc-main h2{color:var(--v4-n)!important;font-size:19px!important;margin:0 0 12px!important}
+body.bp-v4-service .svc-content p,body.bp-v4-service .svc-main p,body.bp-v4-service .svc-content li{font-size:12.5px!important;line-height:1.9!important;color:#56627a!important}
+body.bp-v4-service .svc-aside{position:sticky!important;top:92px!important}
+body.bp-v4-service .order-box{border:1px solid #dce5f5!important;border-radius:22px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;padding:20px!important;box-shadow:0 18px 48px rgba(16,49,120,.11)!important}
+body.bp-v4-service .order-box:before{content:'B10X · SERVICE EXECUTION';display:block;font-size:9px;letter-spacing:.1em;font-weight:900;color:var(--v4-b);margin-bottom:12px}
+body.bp-v4-service .order-box .btn{border-radius:12px!important;min-height:44px!important}
+body.bp-v4-service .callout{background:linear-gradient(135deg,#eef4ff,#f9fbff)!important;border:1px solid #d5e1fb!important;border-radius:16px!important;padding:14px!important}
+body.bp-v4-service .callout strong:before{content:'B10X · ';color:var(--v4-b)}
+
+/* Category and services catalog */
+body.bp-v4-category .hero--sm,body.bp-v4-catalog .page-hero{background:transparent!important;padding:44px 0 18px!important}
+body.bp-v4-category .hero--sm .hero-inner{max-width:1180px!important;background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:26px;padding:28px!important}
+body.bp-v4-category .hero--sm h1{font-size:clamp(32px,4vw,48px)!important;color:var(--v4-n)!important;margin:10px 0!important}
+body.bp-v4-category .hero--sm .lead{font-size:13px!important;line-height:1.8!important;color:var(--v4-muted)!important;max-width:760px!important}
+body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+body.bp-v4-category [class*="service-card"],body.bp-v4-catalog [class*="service-card"]{background:#fff!important;border:1px solid var(--v4-line)!important;border-radius:18px!important;padding:16px!important;box-shadow:0 7px 25px rgba(16,24,40,.035)!important;transition:.18s ease!important}
+body.bp-v4-category [class*="service-card"]:hover,body.bp-v4-catalog [class*="service-card"]:hover{transform:translateY(-3px)!important;border-color:#b9caf2!important;box-shadow:0 14px 34px rgba(16,24,40,.075)!important}
+body.bp-v4-category [class*="service-card"] h3,body.bp-v4-catalog [class*="service-card"] h3{font-size:14px!important;color:var(--v4-n)!important;line-height:1.45!important}
+body.bp-v4-category [class*="service-card"] p,body.bp-v4-catalog [class*="service-card"] p{font-size:10.7px!important;line-height:1.65!important;color:var(--v4-muted)!important}
+
+/* Packages */
+body.bp-v4-packages main{background:transparent!important}
+body.bp-v4-packages [id^="pkg-"]{scroll-margin-top:95px}
+body.bp-v4-packages .pkg-card,body.bp-v4-packages [class*="package-card"]{border:1px solid var(--v4-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 32px rgba(16,24,40,.05)!important;padding:20px!important}
+body.bp-v4-packages .pkg-card:hover,body.bp-v4-packages [class*="package-card"]:hover{transform:translateY(-3px)!important;box-shadow:0 17px 42px rgba(16,24,40,.085)!important}
+
+/* AI pages */
+body.bp-v4-ai main>section{border-radius:0}
+body.bp-v4-ai main .hero,body.bp-v4-ai main [class*="hero"]{background:radial-gradient(circle at 78% 10%,rgba(66,215,246,.14),transparent 26%),linear-gradient(135deg,#07163f,#123b8e)!important;color:#fff!important}
+body.bp-v4-ai main .hero h1,body.bp-v4-ai main [class*="hero"] h1{color:#fff!important}
+body.bp-v4-ai main .hero p,body.bp-v4-ai main [class*="hero"] p{color:#dbe5ff!important}
+body.bp-v4-ai .card,body.bp-v4-ai [class*="card"]{border-radius:20px!important;border-color:var(--v4-line)!important;box-shadow:0 8px 28px rgba(16,24,40,.04)!important}
+
+/* Buttons + footer */
+body.bp-public-v4 .btn-primary{background:linear-gradient(135deg,#07163f,#2856d6)!important;border-color:transparent!important;box-shadow:none!important}
+body.bp-public-v4 .btn,body.bp-public-v4 button{border-radius:12px}
+body.bp-public-v4 .site-footer{background:#07143b!important;padding:0!important;min-height:48px!important}
+body.bp-public-v4 .site-footer .newsletter-band,body.bp-public-v4 .site-footer .footer-grid{display:none!important}
+body.bp-public-v4 .site-footer>.container{padding-top:0!important;padding-bottom:0!important}
+body.bp-public-v4 .site-footer .footer-bottom{min-height:48px!important;margin:0!important;padding:8px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;color:rgba(255,255,255,.6)!important;font-size:10px!important}
+
+@media(max-width:900px){body.bp-v4-service .svc-layout{grid-template-columns:1fr!important}body.bp-v4-service .svc-aside{position:static!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bp-v4-mast-in{align-items:flex-start;flex-direction:column}}
+@media(max-width:620px){.bp-v4-mast{padding:0 14px}.bp-v4-mast-in{padding:18px;border-radius:18px}body.bp-v4-service .svc-hero{padding-top:28px!important}body.bp-v4-service .svc-hero .container,body.bp-v4-category .hero--sm .hero-inner{border-radius:20px;padding:20px!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:1fr!important}body.bp-public-v4 .site-footer .footer-bottom{flex-direction:column!important;justify-content:center!important;text-align:center!important}}
+</style><style id="bp-simple-header-css">
+.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
+.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
+.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
+.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
+.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
+.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
+.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
+.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
+.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
+.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
+.bp-simple-header .bp-cart svg{width:19px;height:19px}
+.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
+@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
+@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
+@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+</style>
+<style id="bp-public-brand-v5-css">
+body.bp-public-brand-v5{--bp-navy:#07163f;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
+body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
+body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
+body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
+body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
+body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
+body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
+body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
+body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
+body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
+body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
+body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
+body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
+body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
+body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
+body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
+body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
+body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
+body.bp-public-brand-v5 .wa-fab{display:none!important}
+@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
+</style>
+<style id="bp-sva-css">
+.bp-sva{border:1px solid #E4E7F0;border-radius:16px;background:#fff;box-shadow:0 12px 34px rgba(11,27,90,.08);overflow:hidden;margin:26px 0;font-family:inherit}
+.bp-sva-hd{padding:18px 20px;border-bottom:1px solid #E4E7F0}
+.bp-sva-hd h3{margin:0 0 6px;color:#0B1B5A;font-size:19px;display:flex;align-items:center;gap:8px}
+.bp-sva-hd p{margin:0;color:#4a4f5e;font-size:13px;line-height:1.7}
+.bp-sva-body{padding:16px 20px;background:#fbfcfe;min-height:150px}
+.bp-sva-q{background:#fff;border:1px solid #E4E7F0;border-radius:12px;padding:11px 14px;font-size:13.5px;color:#1F2430;margin-bottom:10px;max-width:92%;line-height:1.7}
+.bp-sva-a{background:#0B1B5A;color:#fff;border-radius:12px;padding:9px 13px;font-size:13px;margin:0 0 10px auto;max-width:88%;width:fit-content}
+.bp-sva-opts{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.bp-sva-opts button{border:1px solid #cfd6e6;background:#fff;color:#25304d;border-radius:999px;padding:8px 13px;font:inherit;font-size:12.5px;cursor:pointer;line-height:1.4}
+.bp-sva-opts button:hover{border-color:#0B1B5A;color:#0B1B5A}
+.bp-sva-note{display:flex;gap:7px;margin-bottom:12px}
+.bp-sva-note input{flex:1;min-width:0;border:1px solid #E4E7F0;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;outline:none}
+.bp-sva-note input:focus{border-color:#0B1B5A}
+.bp-sva-sum{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.bp-sva-sum dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.bp-sva-sum dt{color:#6b7280;font-size:11.5px;white-space:nowrap}
+.bp-sva-sum dd{margin:0;color:#1F2430;font-weight:600}
+.bp-sva-next{margin:12px 0 0;padding-top:12px;border-top:1px dashed #cfd6e6;font-size:13px;color:#25304d;line-height:1.75}
+.bp-sva-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 18px}
+.bp-sva-acts a,.bp-sva-acts button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:999px;padding:12px 16px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-decoration:none;border:1px solid #E4E7F0;background:#fff;color:#0B1B5A;line-height:1.3;text-align:center}
+.bp-sva-acts .wa{background:#128C4A;border-color:#128C4A;color:#fff;grid-column:1/-1}
+.bp-sva-acts .site{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+.bp-sva-restart{background:none;border:0;color:#6b7280;font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:0 20px 16px}
+.bp-sva-hide{display:none!important}
+@media(max-width:560px){.bp-sva-acts{grid-template-columns:1fr}}
+</style></head>
+<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-service"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/zh/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/zh/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/zh/services/category/company-formation">Company Formation</a><a href="/zh/services/category/foreign-investment">Foreign Investment</a><a href="/zh/services/category/premium-residency">Premium Residency</a><a href="/zh/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/zh/services/category/government-relations">Government Services</a><a href="/zh/compliance-agent">Compliance & Violations</a><a href="/zh/services/category/hr-services">HR Services</a><a href="/zh/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/zh/workspaces">Workspaces</a><a href="/zh/worker-housing">Worker Housing</a><a href="/zh/tourism">Tourism & Events</a><a href="/zh/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/zh/b10x">B10X</a><a href="/zh/#bp-consultant">Smart Advisor</a><a href="/zh/ai-document-agent">Document AI</a><a href="/zh/smart-employee">Specialised Smart Employee</a><a href="/zh/business-development">Business Development</a><a href="/zh/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/zh/suppliers">Partner Registration</a><a href="/zh/partner-dashboard">Partner Portal</a><a href="/zh/agency-portal">Recruitment Agency Portal</a><a href="/zh/connect">Connect Hub</a><a href="/zh/careers">Jobs</a></div></div></details><a href="/zh/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/zh/ai-agents">All AI Advisors</a><a href="/zh/compliance-agent">Compliance Advisor</a><a href="/zh/ai-document-agent">Document AI</a><a href="/zh/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>招聘</summary><div class="bp-mini-menu"><a href="/zh/careers">Open jobs</a><a href="/zh/employer-dashboard">Employer dashboard</a><a href="/zh/employer-join">Register as employer</a><a href="/zh/employers">Employer services</a><a href="/zh/job-search-service">Job search service</a><a href="/zh/recruitment-agencies">Recruitment agencies</a><a href="/zh/services/category/recruitment">Recruitment services</a></div></details><a href="/zh/about">About</a><a href="/zh/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>中文</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/zh/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/zh/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/zh/account">Get started</a></div></div></header><section class="bp-v4-mast"><div class="bp-v4-mast-in"><div><small>B10X · BUSINESS PARTNER</small><strong>Every service is part of B10X.</strong><p>AI guidance, human execution and transparent tracking in one operating layer.</p></div><a href="/services">Browse services</a></div></section><main>
   <section class="svc-hero"><div class="container">
     <div class="breadcrumb"><a href="/zh/">首页</a> → <a href="/zh/services">服务</a> → <a href="/zh/services/category/business-support">业务支持</a></div>
     <h1>Commercial Agency Registration Renewal</h1>
     <div class="svc-meta"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>业务支持</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>约一个工作日</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Commercial agents and their related companies</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg>沙特商业中心</span></div>
   </div></section>
   <div class="container"><div class="svc-layout">
-    <div class="svc-main">
+    <div class="svc-main"><section class="bp-sva" id="bp-sva" data-code="BP-PL-0090">
+  <div class="bp-sva-hd"><h3>🤖 智能服务诊断</h3><p>回答几个简短问题，我们为您整理申请摘要与下一步 — 然后通过 WhatsApp 发送，或直接在网站开始。无需注册。</p></div>
+  <div class="bp-sva-body" id="bp-sva-body" aria-live="polite"></div>
+  <div class="bp-sva-acts bp-sva-hide" id="bp-sva-acts">
+    <a class="wa" id="bp-sva-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">💬 通过 WhatsApp 发送申请</a>
+    <a class="site" id="bp-sva-start" href="/zh/simple-v1#advisor">在网站开始申请</a>
+    <a href="tel:0530540231">📞 直接致电</a>
+  </div>
+  <button type="button" class="bp-sva-restart bp-sva-hide" id="bp-sva-restart">重新开始</button>
+</section>
+<script>(function(){
+var C={"lang":"zh","code":"BP-PL-0090","name":"Commercial Agency Registration Renewal","platform":"Saudi Business Center","category":"Business Support","entity":false,"door":"consulting","options":[{"k":"execute","label":"我想现在办理","next":"We define the scope and deliverables, then the quotation and contract reach you and we start."},{"k":"quote","label":"我想要报价","next":"We prepare the quotation on the scope you approve — no surprises."},{"k":"ask","label":"只是咨询","next":"We answer your question and clarify what you actually need before any commitment."}],"wa":"https://wa.me/966530540231","tel":"0530540231","start":"/zh/simple-v1#advisor","t":{"hi":"您好 👋 这是「Commercial Agency Registration Renewal」。您目前的情况是？","yourRequest":"您的申请","authority":"机构 / 平台","nextStep":"下一步","qUrgency":"紧急程度如何？","aUrgent":"紧急 — 今天","aWeek":"一周内","aPlanning":"只是在规划","qEntity":"您是否已有商业登记或已设立实体？","aYes":"是","aNo":"否","aNotSure":"不确定","qNotes":"还想补充什么吗？（可选）","notesPh":"描述您的情况…","skip":"跳过","ready":"您的申请摘要已就绪","waIntro":"您好，我需要以下服务的协助：","waState":"情况","waUrgency":"紧急程度","waEntity":"已有实体","waNotes":"详情","waEnd":"请与我联系，通过官方渠道提交并跟进申请。谢谢。"}};
+var box=document.getElementById('bp-sva-body'),acts=document.getElementById('bp-sva-acts'),rst=document.getElementById('bp-sva-restart');
+if(!box)return;
+var A={};
+function el(tag,cls,txt){var d=document.createElement(tag);if(cls)d.className=cls;if(txt!=null)d.textContent=txt;return d}
+function ask(text){box.appendChild(el('div','bp-sva-q',text))}
+function said(text){box.appendChild(el('div','bp-sva-a',text))}
+function opts(list,cb){var w=el('div','bp-sva-opts');list.forEach(function(o){var b=el('button',null,o.label);b.type='button';b.onclick=function(){w.remove();said(o.label);cb(o)};w.appendChild(b)});box.appendChild(w);box.scrollTop=box.scrollHeight}
+function step1(){ask(C.t.hi);opts(C.options,function(o){A.state=o.label;A.next=o.next;step2()})}
+function step2(){ask(C.t.qUrgency);opts([{label:C.t.aUrgent},{label:C.t.aWeek},{label:C.t.aPlanning}],function(o){A.urgency=o.label;C.entity?step3():step4()})}
+function step3(){ask(C.t.qEntity);opts([{label:C.t.aYes},{label:C.t.aNo},{label:C.t.aNotSure}],function(o){A.entity=o.label;step4()})}
+function step4(){ask(C.t.qNotes);var w=el('div','bp-sva-note');var i=document.createElement('input');i.type='text';i.placeholder=C.t.notesPh;
+var ok=el('button',null,'✓');ok.type='button';ok.className='';var sk=el('button',null,C.t.skip);sk.type='button';
+var wrap=el('div','bp-sva-opts');wrap.appendChild(ok);wrap.appendChild(sk);
+function done(){A.notes=i.value.trim();w.remove();wrap.remove();if(A.notes)said(A.notes);summary()}
+ok.onclick=done;sk.onclick=function(){i.value='';done()};
+i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();done()}});
+w.appendChild(i);box.appendChild(w);box.appendChild(wrap);i.focus()}
+function row(dl,k,v){if(!v)return;var dt=el('dt',null,k),dd=el('dd',null,v);dl.appendChild(dt);dl.appendChild(dd)}
+function summary(){
+var s=el('div','bp-sva-sum');var dl=document.createElement('dl');
+row(dl,C.t.yourRequest,C.name);row(dl,C.t.authority,C.platform||C.category);row(dl,C.t.waState,A.state);row(dl,C.t.waUrgency,A.urgency);
+if(A.entity)row(dl,C.t.waEntity,A.entity);if(A.notes)row(dl,C.t.waNotes,A.notes);
+s.appendChild(dl);var n=el('div','bp-sva-next');n.innerHTML='<b>'+C.t.nextStep+':</b> '+A.next.replace(/[<>]/g,'');s.appendChild(n);
+box.appendChild(s);ask(C.t.ready);
+var lines=[C.t.waIntro,'',C.t.yourRequest+': '+C.name+(C.code?' ('+C.code+')':'')];
+if(C.platform)lines.push(C.t.authority+': '+C.platform);
+lines.push(C.t.waState+': '+A.state);lines.push(C.t.waUrgency+': '+A.urgency);
+if(A.entity)lines.push(C.t.waEntity+': '+A.entity);
+if(A.notes)lines.push(C.t.waNotes+': '+A.notes);
+lines.push('',C.t.waEnd);
+var wa=document.getElementById('bp-sva-wa');
+var base=C.wa.indexOf('?')>0?C.wa.split('?')[0]:C.wa;
+wa.href=base+'?text='+encodeURIComponent(lines.join('\n'));
+var st=document.getElementById('bp-sva-start');
+try{sessionStorage.setItem('bp_sva_request',JSON.stringify({code:C.code,name:C.name,platform:C.platform,door:C.door,lang:C.lang,answers:A,text:lines.join('\n'),at:Date.now()}))}catch(e){}
+st.href=C.start;
+acts.classList.remove('bp-sva-hide');rst.classList.remove('bp-sva-hide')}
+rst.onclick=function(){box.innerHTML='';acts.classList.add('bp-sva-hide');rst.classList.add('bp-sva-hide');A={};step1()};
+step1();
+})();</script>
       <section><h2>服务说明</h2><p class="lead-p">Commercial agency registration renewal with data and document updates and approval follow-up with the relevant authority.</p></section>
       <section><h2>所需文件</h2><ul class="doc-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>The current registration</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Parties' details</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Any supporting renewal documents</span></li></ul></section>
       <section><h2>Business Partner 的服务特点</h2><ul class="feat-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Reviewing the current registration</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Updating data &amp; documents</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Following up until renewal</span></li></ul></section>
@@ -133,7 +274,7 @@
     <div class="footer-col"><h4>我们的服务</h4><ul>
       <li><a href="/zh/services">全部服务</a></li>
       <li><a href="/zh/packages">套餐</a></li>
-      <li><a href="/zh/revenue-os">Revenue OS</a></li>
+      <li><a href="/zh/business-development">BD as a Service</a></li>
       <li><a href="/zh/ai-agents">智能代理</a></li>
       <li><a href="/zh/task-force">任务小组（Task Force）</a></li>
       <li><a href="/zh/hr">招聘</a></li>
@@ -151,7 +292,7 @@
     </ul></div>
     <div class="footer-col"><h4>平台与门户</h4><ul>
       <li><a href="/zh/account">客户门户</a></li>
-      <li><a href="/zh/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/zh/business-development-dashboard">BD as a Service dashboard</a></li>
       <li><a href="/zh/suppliers">合作伙伴注册</a></li>
       <li><a href="/zh/employer-join">雇主专区</a></li>
       <li><a href="/portal">智能员工门户</a></li>
@@ -184,7 +325,7 @@
       <li><a href="/zh/contact">联系我们</a></li>
     </ul></div>
     <div class="footer-col"><h4>联系方式</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>利雅得 —— 马尔卡区 —— 穆罕默德·本·萨阿德王子街 —— 图克瓦德综合体</span></li>
     </ul>
@@ -198,79 +339,4 @@
     <span>© 2026 Business Partner · 版权所有</span>
     <span>周日至周四 · 上午 9 点 – 下午 6 点 · 智能助手全天候在线</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="关闭">✕</button>
-    <p>您好 👋 我是巴希尔，您的智能助手。关于公司注册或政府平台有疑问吗？</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="与智能助手巴希尔开始对话">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">咨询巴希尔</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="咨询巴希尔">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="返回" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>巴希尔</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">您的智能伙伴 —— 现在在线</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
-
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">欢迎 👋 请先留下您的信息，以便我们为您服务并跟进您的申请。</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="全名 *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="手机号 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="电子邮箱 *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">开始 ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 您的信息仅用于为您服务及跟进您的申请。</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">请选择您需要的服务：</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">正在加载服务…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 预约免费咨询</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 或直接咨询巴希尔</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 预约免费咨询</div>
-      <div class="adv-book-sub">请选择日期与时间（利雅得 · 上午9点–下午6点 · 周五休息）：</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ 确认预约</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="描述您的需求（选填）"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 申请报价</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">您好 👋 我是 Business Partner 的智能助手巴希尔。公司注册、外商投资、许可证或任何政府手续，尽管问我——我会为您指引合适的服务。</div>
-      </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="外商投资公司注册">🏢 外商投资注册</button>
-        <button type="button" class="advisor-chip" data-q="政府平台管理">💼 政府平台</button>
-        <button type="button" class="advisor-chip" data-q="套餐与价格">💰 套餐与价格</button>
-        <button type="button" class="advisor-chip" data-q="我想要免费咨询">📞 免费咨询</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="在此输入您的问题…" aria-label="输入您的问题">
-        <button type="submit" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
-    </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="通过 WhatsApp 联系"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">通过 WhatsApp 联系我们</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>

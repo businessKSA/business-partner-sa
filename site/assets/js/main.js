@@ -6,10 +6,36 @@
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".nav");
   if (toggle && nav) {
-    toggle.addEventListener("click", function () {
+    var closeNav = function () {
+      if (!nav.classList.contains("open")) return;
+      nav.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("nav-open");
+      nav.querySelectorAll(".nav-group.open").forEach(function (g) {
+        g.classList.remove("open");
+        var d = g.querySelector(".nav-drop");
+        if (d) d.setAttribute("aria-expanded", "false");
+      });
+    };
+    toggle.addEventListener("click", function (e) {
+      e.stopPropagation();
       var isOpen = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", isOpen);
       document.body.classList.toggle("nav-open", isOpen);
+    });
+    // Tapping a real link inside the menu navigates AND dismisses the menu;
+    // dropdown toggles (.nav-drop) only expand their section and keep it open.
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest("a[href]")) closeNav();
+    });
+    // A tap anywhere outside the open menu dismisses it.
+    document.addEventListener("click", function (e) {
+      if (!nav.classList.contains("open")) return;
+      if (e.target.closest(".nav") || e.target.closest(".nav-toggle")) return;
+      closeNav();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeNav();
     });
   }
 
@@ -140,6 +166,13 @@ var BP = window.BP = window.BP || {};
   function write(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} updateBadge(); }
   BP.cart = { read: read, write: write };
 
+  // "Hide prices from visitors" is a policy about the service catalogue. A
+  // Business-development package quotes its own price on a public marketing
+  // page, so hiding it one click later in the cart just looks broken. Items
+  // carrying pricePublic keep their amount whatever the page setting says.
+  function priceShown(i) { return !!(i && i.amount && (PRICES_ON || i.pricePublic)); }
+  function allPublicPriced() { var c = read(); return c.length > 0 && c.every(priceShown); }
+
   function count() { return read().reduce(function (n, i) { return n + (i.qty || 1); }, 0); }
   function subtotal() { return read().reduce(function (s, i) { return s + (i.amount ? i.amount * (i.qty || 1) : 0); }, 0); }
   function hasQuoteItems() { return read().some(function (i) { return !i.amount; }); }
@@ -156,6 +189,8 @@ var BP = window.BP = window.BP || {};
     var a = btn.getAttribute("data-amount");
     var surA = btn.getAttribute("data-surcharge-amount");
     var surF = btn.getAttribute("data-surcharge-free");
+    var renews = btn.getAttribute("data-renews-at");
+    var comm = btn.getAttribute("data-commission");
     return {
       id: btn.getAttribute("data-id"),
       nameEn: btn.getAttribute("data-name-en") || "",
@@ -166,6 +201,14 @@ var BP = window.BP = window.BP || {};
       qty: 1,
       surchargeAmount: surA ? Number(surA) : null,
       surchargeFreeCount: surF ? Number(surF) : null,
+      // A price already published on a public marketing page stays visible in
+      // the cart whatever the hide-prices setting says — see priceShown().
+      pricePublic: btn.getAttribute("data-price-public") ? 1 : 0,
+      // Monthly subscriptions (Business Development packages). Read here so the
+      // whole site has ONE cart path; this page used to ship a second one.
+      billingPeriod: btn.getAttribute("data-billing") || "",
+      renewsAt: renews ? Number(renews) : null,
+      commissionPercent: comm ? Number(comm) : 0,
     };
   }
 
@@ -205,9 +248,9 @@ var BP = window.BP = window.BP || {};
     else {
       if (empty) empty.hidden = true;
       wrap.innerHTML = c.map(function (i, idx) {
-        var priceTxt = (PRICES_ON && i.amount) ? BP.money(i.amount) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
+        var priceTxt = priceShown(i) ? BP.money(i.amount) : BP.t("Quoted on review", "يُسعّر عند المراجعة");
         return '<div class="cart-item">' +
-          '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span></div>' +
+          '<div class="ci-main"><strong>' + esc(name(i)) + '</strong><span class="ci-kind">' + kindLabel(i.kind) + '</span>' + renewNote(i) + '</div>' +
           '<div class="ci-qty"><button type="button" class="ci-dec" data-i="' + idx + '">−</button><span>' + (i.qty || 1) + '</span><button type="button" class="ci-inc" data-i="' + idx + '">+</button></div>' +
           '<div class="ci-price">' + esc(priceTxt) + '</div>' +
           '<button type="button" class="ci-del" data-i="' + idx + '" aria-label="remove">✕</button>' +
@@ -231,6 +274,17 @@ var BP = window.BP = window.BP || {};
         if (note) note.hidden = true;
       }
     }
+  }
+
+  // A monthly subscription must say so wherever it is shown. Silence here is
+  // how a client ends up surprised by a second charge they never agreed to.
+  function renewNote(i) {
+    if (!i || i.billingPeriod !== "monthly") return "";
+    var txt = i.renewsAt && i.renewsAt !== i.amount
+      ? BP.t("Monthly subscription — renews at " + BP.money(i.renewsAt) + "/month",
+             "اشتراك شهري — يتجدد بـ " + BP.money(i.renewsAt) + " شهريًا")
+      : BP.t("Monthly subscription — renews every month", "اشتراك شهري — يتجدد كل شهر");
+    return '<span class="ci-renew">' + esc(txt) + "</span>";
   }
 
   function kindLabel(k) {
@@ -323,7 +377,7 @@ var BP = window.BP = window.BP || {};
 
   function renderTotals(subId, vatId, totId) {
     function set0(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
-    if (!PRICES_ON) {
+    if (!PRICES_ON && !allPublicPriced()) {
       var q0 = BP.t("Quoted on review", "يُسعّر عند المراجعة");
       set0(subId, q0); set0(vatId, "—"); set0(totId, q0);
       return;
@@ -1659,6 +1713,42 @@ var BP = window.BP = window.BP || {};
     }
     togglePkgBox();
 
+    // ---- subscription + commission terms -------------------------------
+    // A monthly package carries commercial terms (renewal price, success-fee
+    // percentage) that the pricing page prints but the order never captured.
+    // Nothing binds a percentage the client was never shown at the moment of
+    // paying, so the terms are restated here and accepted explicitly.
+    function subsInCart() {
+      return BP.cart.read().filter(function (i) { return i.billingPeriod === "monthly"; });
+    }
+    function subEsc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function subName(i) { return (BP.lang === "ar" ? i.nameAr : i.nameEn) || i.nameAr || i.nameEn || i.id; }
+    (function renderSubTerms() {
+      var subs = subsInCart();
+      var host = document.getElementById("co-items") || document.getElementById("checkout-items");
+      if (!subs.length || !host || document.getElementById("co-subs-terms")) return;
+      var box = document.createElement("div");
+      box.id = "co-subs-terms";
+      box.className = "sub-terms";
+      var rows = subs.map(function (i) {
+        var renew = i.renewsAt && i.renewsAt !== i.amount
+          ? BP.t("then " + BP.money(i.renewsAt) + " per month", "ثم " + BP.money(i.renewsAt) + " شهريًا")
+          : BP.t("renews at the same price every month", "يتجدد بنفس السعر كل شهر");
+        var fee = i.commissionPercent
+          ? BP.t("Success fee " + i.commissionPercent + "% on revenue you actually collect from opportunities we generate.",
+                 "عمولة نجاح " + i.commissionPercent + "% على الإيراد الذي تحصّله فعليًا من الفرص التي نولّدها.")
+          : BP.t("No commission — a fixed monthly price.", "بدون عمولة — سعر شهري ثابت.");
+        return "<li><b>" + subEsc(subName(i)) + "</b><span>" + subEsc(renew) + "</span><span>" + subEsc(fee) + "</span></li>";
+      }).join("");
+      box.innerHTML =
+        "<h4>" + BP.t("Subscription terms", "شروط الاشتراك") + "</h4><ul>" + rows + "</ul>" +
+        '<label class="sub-accept"><input type="checkbox" id="co-subs-accept"> ' +
+        BP.t("I understand this is a monthly subscription, that it renews until I cancel, and I accept the success fee stated above.",
+             "أفهم أن هذا اشتراك شهري يتجدد حتى ألغيه، وأوافق على عمولة النجاح الموضحة أعلاه.") +
+        "</label>";
+      host.parentNode.insertBefore(box, host.nextSibling);
+    })();
+
     // Pre-fill from the company profile saved earlier in the account dashboard, if any.
     try {
       var savedCompany = JSON.parse(localStorage.getItem("bp_company") || "{}");
@@ -1701,7 +1791,20 @@ var BP = window.BP = window.BP || {};
       var phone = document.getElementById("co-phone").value.trim();
       var email = ((session2 && session2.email) || document.getElementById("co-email").value.trim()).toLowerCase();
       var isEmailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-      if (!name || !phone || !isEmailValid) { alert(BP.t("Please sign in to your account, then enter your mobile.", "سجّل الدخول لحسابك أولاً، ثم أدخل رقم جوالك.")); if (!session2) location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+      if (!name || !phone || !isEmailValid) {
+        // Name the field that is actually missing. A signed-in client with an
+        // empty mobile was told to sign in — and did, twice, to the same wall.
+        if (!session2) { alert(BP.t("Please sign in to your account first.", "سجّل الدخول لحسابك أولاً.")); location.href = BP.lang === "ar" ? "/ar/account" : "/account"; return; }
+        if (!phone) { alert(BP.t("Please enter your mobile number to complete the order.", "أدخل رقم جوالك لإتمام الطلب.")); var phEl = document.getElementById("co-phone"); if (phEl) phEl.focus(); return; }
+        alert(BP.t("Please complete your name and e-mail.", "أكمل الاسم والبريد الإلكتروني."));
+        return;
+      }
+      var subsAccept = document.getElementById("co-subs-accept");
+      if (subsAccept && !subsAccept.checked) {
+        alert(BP.t("Please accept the subscription terms (monthly renewal and the success fee) before submitting.", "الرجاء الموافقة على شروط الاشتراك (التجديد الشهري وعمولة النجاح) قبل الإرسال."));
+        subsAccept.focus();
+        return;
+      }
       var pkgVisible = pkgBox && !pkgBox.hidden;
       var companyName = entityEl ? entityEl.value.trim() : "";
       var crNumber = crEl ? crEl.value.trim() : "";
@@ -1819,6 +1922,19 @@ var BP = window.BP = window.BP || {};
               type: "order", ref: ref, name: name, phone: phone, email: email,
               items: order.items.map(function (i) { return i.name + " ×" + (i.qty || 1); }),
               itemsData: cart.map(function (i) { return { id: i.id || "", qty: i.qty || 1, price: i.amount || 0 }; }),
+              // Commercial terms the client accepted at this exact moment, so
+              // the CRM, the admin panel and any later dispute all read the same
+              // numbers the pricing page printed — not a percentage from memory.
+              subscriptions: cart.filter(function (i) { return i.billingPeriod === "monthly"; })
+                .map(function (i) {
+                  return {
+                    id: i.id || "", name: i.nameAr || i.nameEn || i.id,
+                    billingPeriod: "monthly", firstAmount: i.amount || 0,
+                    renewsAt: i.renewsAt || i.amount || 0,
+                    commissionPercent: i.commissionPercent || 0,
+                    acceptedAt: new Date().toISOString(),
+                  };
+                }),
               total: total,
               agents: employeeSlugs,
               compliance: boughtCompliance,
@@ -3404,11 +3520,11 @@ var BP = window.BP = window.BP || {};
         done.innerHTML = "✅ <strong>" + T("We received your quote request", "استلمنا طلبك لعرض السعر") + (ref ? " — " + ref : "") + "</strong><br>" +
           T("Your advisor Baher will prepare a price tailored to your case and contact you shortly on your number/email.", "بيجهّز لك مستشارك باهر عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.") +
           '<div class="adv-ticket-acts"><button type="button" class="adv-primary" id="adv-ticket-more">' + T("New request", "طلب جديد") + '</button>' +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
         var more = $("adv-ticket-more"); if (more) more.addEventListener("click", goHome);
       }).catch(function () {
         go.disabled = false; go.textContent = "💬 " + T("Request a price quote", "اطلب عرض السعر");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't send the request — try WhatsApp.", "تعذّر إرسال الطلب — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
@@ -3487,10 +3603,10 @@ var BP = window.BP = window.BP || {};
           T("Your advisor Baher will confirm shortly.", "بيأكّد لك مستشارك باهر قريباً.") +
           '<div class="adv-ticket-acts">' +
           (cal ? '<a class="adv-primary" target="_blank" rel="noopener" href="' + cal + '">📅 ' + T("Add to Google Calendar", "أضِف إلى تقويم Google") + "</a>" : "") +
-          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
+          '<a class="adv-ghost" target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp advisor", "واتساب المستشار") + "</a></div>";
       }).catch(function () {
         go.disabled = false; go.textContent = "✅ " + T("Confirm appointment", "أكّد الموعد");
-        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966503793356">' + T("WhatsApp", "واتساب") + "</a>";
+        done.hidden = false; done.innerHTML = "⚠️ " + T("Couldn't book — try WhatsApp.", "تعذّر الحجز — جرّب واتساب.") + ' <a target="_blank" rel="noopener" href="https://wa.me/966530540231">' + T("WhatsApp", "واتساب") + "</a>";
       });
   }
 
@@ -4010,19 +4126,15 @@ var BP = window.BP = window.BP || {};
   // ---- installments (Tamara) ----
   // The button exists from day one; it reads «قريباً» until /api/pay says the
   // key is configured, then it goes live with no code change.
-  // A provider that just failed for this buyer is not offered to them again in
-  // the same visit. Three of the four real installment attempts on record were
-  // the same two people retrying a button that answered the same error every
-  // time — the second click could never have worked, and asking for it costs
-  // the sale. Session-scoped on purpose: a new visit tries the provider again,
-  // so a provider that recovers comes back on its own with no deploy.
+  // A provider outage is the same dead end to the buyer as a missing key, so
+  // the first failed attempt takes the button down for the rest of the visit
+  // instead of inviting a second and a third try at the same wall.
   function bnplDown(prov) {
     try { return sessionStorage.getItem("bp_bnpl_down_" + prov) === "1"; } catch (e) { return false; }
   }
   function markBnplDown(prov) {
     try { sessionStorage.setItem("bp_bnpl_down_" + prov, "1"); } catch (e) {}
   }
-
   function bnplButtons() {
     ["tamara"].forEach(function (prov) {
       var btn = document.getElementById("bnpl-" + prov);
@@ -4032,25 +4144,18 @@ var BP = window.BP = window.BP || {};
       btn.disabled = !on;
       btn.style.opacity = on ? "1" : ".45";
       btn.style.cursor = on ? "pointer" : "not-allowed";
-      // «قريباً» promises the method is coming; a provider that just answered
-      // an error is a different state and must not borrow that word.
-      var label = down
-        ? BP.t("unavailable", "غير متاح حالياً")
-        : BP.t("soon", "قريباً");
       var badge = btn.querySelector(".soon-badge");
-      if (!on) {
-        if (!badge) {
-          badge = document.createElement("span");
-          badge.className = "soon-badge";
-          badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
-          btn.appendChild(badge);
-        }
-        badge.textContent = label;
-      } else if (badge) badge.remove();
+      if (!on && !badge) {
+        badge = document.createElement("span");
+        badge.className = "soon-badge";
+        badge.style.cssText = "background:rgba(0,0,0,.25);color:#fff;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700";
+        badge.textContent = down ? BP.t("unavailable", "غير متاح حالياً") : BP.t("soon", "قريباً");
+        btn.appendChild(badge);
+      } else if (on && badge) badge.remove();
     });
   }
   function bnplGo(prov) {
-    if (!bnplCfg[prov]) return;
+    if (!bnplCfg[prov] || bnplDown(prov)) return;
     var help = document.getElementById("bnpl-help");
     var terms = document.getElementById("co-terms");
     var gap = (terms && !terms.checked)
@@ -4070,14 +4175,14 @@ var BP = window.BP = window.BP || {};
       .then(function (r) { return r.json(); })
       .then(function (out) {
         if (out && out.ok && out.url) { location.href = out.url; return; }
-        // «rejected» is the provider judging this one order and says nothing
-        // about the next one; anything else means the provider could not be
-        // reached or errored, so stop offering it for this visit.
+        if (btn) btn.disabled = false;
+        // «rejected» and «quote_only_items» are verdicts on this order — another
+        // cart may still pass. Anything else is the provider being down, and a
+        // second attempt would fail the same way, so the button steps aside.
         if (out && out.error && out.error !== "rejected" && out.error !== "quote_only_items") {
           markBnplDown(prov);
           bnplButtons();
         }
-        if (btn) btn.disabled = false;
         if (help) {
           help.style.color = "#b91c1c";
           help.textContent = out && out.error === "quote_only_items"
@@ -5932,11 +6037,17 @@ var BP_EMP_BILLING = "monthly";
       if (isDemoCode(code)) { cb(true, { unlocked: true, demo: true, candidates: DEMO_CANDS }); return; }
       // validate=1 answers from the Employers DB alone — no full pool scan
       // just to learn whether a code is active.
-      fetch("/api/candidates?validate=1&code=" + encodeURIComponent(code)).then(function (r) { return r.json(); })
+      // With no code the server still answers for the signed-in portal
+      // session, so any client-portal account opens the dashboard during
+      // the 30-day platform trial.
+      fetch("/api/candidates?validate=1" + (code ? "&code=" + encodeURIComponent(code) : ""), { credentials: "same-origin" }).then(function (r) { return r.json(); })
         .then(function (d) { cb(!!(d && d.unlocked), d); }).catch(function () { cb(false, null); });
     }
     function enter(code, data) {
-      CODE = code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", code);
+      // A portal-trial unlock hands back its own derived "org:…" code — the
+      // server re-derives it from the session on every call, so storing it
+      // only serves as a "try the session first next visit" marker.
+      CODE = (data && data.portal && data.code) || code; DEMO = !!(data && data.demo) || isDemoCode(code); writeLS("bp_emp_code", CODE);
       PLAN = (data && data.plan) || "";
       setUnlocked(true);
       // Demo mode's candidates are the fixed sample set — no need to hit the
@@ -5968,8 +6079,14 @@ var BP_EMP_BILLING = "monthly";
     // must always be an explicit, one-time click so a stale localStorage
     // value can't make a real subscriber's dashboard look empty/fake forever.
     var saved = readLS("bp_emp_code", "");
-    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); } }); }
-    else { if (isDemoCode(saved)) writeLS("bp_emp_code", ""); CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    function lockedBoot() { CODE = ""; setUnlocked(false); if (!gatedApp()) load(); renderCounts(); }
+    if (typeof saved === "string" && saved && !isDemoCode(saved)) { validate(saved, function (ok, data) { if (ok) enter(saved, data); else lockedBoot(); }); }
+    else {
+      if (isDemoCode(saved)) writeLS("bp_emp_code", "");
+      // No saved code — before showing the lock, ask the server whether a
+      // signed-in client-portal session unlocks the dashboard (30-day trial).
+      validate("", function (ok, data) { if (ok && data && data.portal) enter(data.code || "", data); else lockedBoot(); });
+    }
 
     Array.prototype.forEach.call(document.querySelectorAll(".empd-tab"), function (t) {
       t.addEventListener("click", function () {
@@ -6651,11 +6768,13 @@ var BP_EMP_BILLING = "monthly";
       Array.prototype.forEach.call(els, function (el) { el.textContent = txt; });
     }
     function step(cursor) {
-      fetch("/api/candidates?count=1" + (cursor ? "&cursor=" + encodeURIComponent(cursor) : ""))
+      // sofar travels with the cursor so the final request can cache the real
+      // total; a cached answer comes back complete on the very first call.
+      fetch("/api/candidates?count=1" + (cursor ? "&cursor=" + encodeURIComponent(cursor) + "&sofar=" + total : ""))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok) return;
-          total += d.total || 0;
+          total = d.cached ? (d.total || 0) : total + (d.total || 0);
           render(!d.nextCursor);
           if (d.nextCursor) step(d.nextCursor);
         }).catch(function () {});
@@ -7353,6 +7472,133 @@ var BP_EMP_BILLING = "monthly";
           msg.style.color = "#B91C1C"; msg.textContent = T("Network error.", "خطأ في الاتصال.");
         });
     });
+
+    // Back-fill: send past applicants the copy they never got. One request
+    // sends one bounded batch, so a full run is many requests — the button
+    // keeps firing them until the queue is empty rather than asking for fifty
+    // presses, and stops the moment the owner says so or an error comes back.
+    var bfStop = false, bfTotal = 0, bfBatches = 0;
+    function bfEl(id) { return document.getElementById(id); }
+
+    function bfRender(d, dryRun) {
+      bfEl("js-bf-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+        "<th>" + T("Name", "الاسم") + "</th><th>" + T("Email", "البريد") + "</th><th>" + T("ATS CV", "سيرة ATS") + "</th><th>" + T("Status", "الحالة") + "</th>" +
+        "</tr></thead><tbody>" + (d.results || []).map(function (r) {
+          var cv = (r.hasCv || r.hadCv) ? "✅" : "—";
+          var st = r.skipped === "duplicate" ? T("duplicate — skipped", "مكرر — تخطّيناه")
+            : dryRun ? T("queued", "في الدور")
+            : (r.sent ? T("sent ✓", "أُرسلت ✓") : T("failed", "فشلت"));
+          return "<tr><td>" + esc(r.name || "—") + "</td><td dir=\"ltr\">" + esc(r.to || "—") + "</td><td>" + cv + "</td><td>" + st + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    function bfBatch(dryRun) {
+      var limit = Number(bfEl("js-bf-limit").value) || 25;
+      var requireCv = bfEl("js-bf-cvonly").checked;
+      return fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "backfill-copies", key: KEY, limit: limit, dryRun: dryRun, requireCv: requireCv }),
+      }).then(function (r) { return r.json(); });
+    }
+
+    function bfFinish(text, isError) {
+      var msg = bfEl("js-bf-msg");
+      msg.style.color = isError ? "#B91C1C" : "";
+      msg.textContent = text;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = false;
+      bfEl("js-bf-run").textContent = "✉️ " + T("Send to everyone", "أرسل للجميع");
+      bfEl("js-bf-stop").hidden = true;
+    }
+
+    function bfLoop(dryRun) {
+      if (bfStop) return bfFinish(T("Stopped. ", "توقفنا. ") + bfTotal + T(" people were emailed — press again to carry on.", " شخصاً وصلتهم الرسالة — اضغط مرة أخرى للمتابعة."));
+      bfBatch(dryRun).then(function (d) {
+        if (!d || !d.ok) return bfFinish(d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.") : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        bfRender(d, dryRun);
+        if (dryRun) return bfFinish(T("Next in line: ", "التالون في الدور: ") + d.batch + T(" people. Nothing was sent.", " أشخاص. لم يُرسل شيء."));
+        bfTotal += d.sent; bfBatches++;
+        if (!d.batch) {
+          return bfFinish(bfTotal
+            ? T("Done — ", "تم — ") + bfTotal + T(" people emailed.", " شخصاً وصلتهم رسالتهم.")
+            : T("Nobody left in the queue — everyone has had their copy.", "لا أحد متبقٍ — الجميع وصلتهم نسختهم."));
+        }
+        bfEl("js-bf-msg").textContent = bfTotal + T(" sent so far. Keep this page open — it carries on by itself.", " أُرسلت حتى الآن. اترك الصفحة مفتوحة — تكمل لحالها.");
+        setTimeout(function () { bfLoop(false); }, 400);
+      }).catch(function () {
+        bfFinish(T("Network error after ", "خطأ في الاتصال بعد ") + bfTotal + T(" sent. Press again to carry on.", " رسالة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+
+    function backfill(dryRun) {
+      bfStop = false; bfTotal = 0; bfBatches = 0;
+      bfEl("js-bf-run").disabled = bfEl("js-bf-dry").disabled = true;
+      bfEl("js-bf-out").innerHTML = "";
+      bfEl("js-bf-msg").style.color = "";
+      bfEl("js-bf-msg").textContent = dryRun
+        ? T("Checking who is next in line…", "نتحقق من التالين في الدور…")
+        : T("Sending…", "جارٍ الإرسال…");
+      if (!dryRun) {
+        bfEl("js-bf-run").textContent = T("Sending…", "جارٍ الإرسال…");
+        bfEl("js-bf-stop").hidden = false;
+      }
+      bfLoop(dryRun);
+    }
+    // CV rewriting: one AI call per candidate, so batches are small and the
+    // loop is what makes it finish. Same shape as the back-fill drain.
+    var cvStop = false, cvDone = 0, cvRows = [];
+    function cvFinish(text, isError) {
+      var m = bfEl("js-cv-msg");
+      m.style.color = isError ? "#B91C1C" : "";
+      m.textContent = text;
+      bfEl("js-cv-run").disabled = false;
+      bfEl("js-cv-run").textContent = "✨ " + T("Improve pending CVs", "حسّن السير المعلّقة");
+      bfEl("js-cv-stop").hidden = true;
+      bfEl("js-cv-stop").disabled = false;
+    }
+    function cvLoop() {
+      if (cvStop) return cvFinish(T("Stopped after ", "توقفنا بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."));
+      fetch("/api/candidate", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "boost-cvs", key: KEY, limit: 5 }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) {
+          return cvFinish(d && d.error === "ai_not_configured"
+            ? T("No AI provider is configured.", "لا يوجد مزوّد ذكاء اصطناعي مهيّأ.")
+            : d && d.error === "forbidden" ? T("That key was rejected.", "المفتاح مرفوض.")
+            : T("That didn't run.", "لم تُنفّذ العملية."), true);
+        }
+        cvDone += d.done;
+        cvRows = cvRows.concat(d.results || []);
+        bfEl("js-cv-out").innerHTML = '<div class="mini-table-wrap"><table class="mini-table"><thead><tr>' +
+          "<th>" + T("Name", "الاسم") + "</th><th>" + T("Original", "الأصل") + "</th><th>" + T("Score", "الدرجة") + "</th>" +
+          "</tr></thead><tbody>" + cvRows.slice(-40).map(function (r) {
+            var score = (r.before != null && r.after != null) ? r.before + " → <b style=\"color:#047857\">" + r.after + "</b>" : "—";
+            return "<tr><td>" + esc(r.name || "—") + "</td><td>" + esc(r.lang || "—") + "</td><td>" + (r.ok ? score : T("failed", "فشلت")) + "</td></tr>";
+          }).join("") + "</tbody></table></div>";
+        if (!d.batch) return cvFinish(cvDone
+          ? T("Done — ", "تم — ") + cvDone + T(" CVs rewritten and scored.", " سيرة أُعيدت صياغتها وحُسبت درجتها.")
+          : T("No CVs waiting.", "لا توجد سير تنتظر."));
+        bfEl("js-cv-msg").textContent = cvDone + T(" done so far. Keep this page open.", " أُنجزت حتى الآن. اترك الصفحة مفتوحة.");
+        setTimeout(cvLoop, 400);
+      }).catch(function () {
+        cvFinish(T("Network error after ", "خطأ في الاتصال بعد ") + cvDone + T(" CVs. Press again to carry on.", " سيرة. اضغط مرة أخرى للمتابعة."), true);
+      });
+    }
+    bfEl("js-cv-run").addEventListener("click", function () {
+      cvStop = false; cvDone = 0; cvRows = [];
+      this.disabled = true; this.textContent = T("Working…", "جارٍ العمل…");
+      bfEl("js-cv-stop").hidden = false;
+      bfEl("js-cv-out").innerHTML = "";
+      bfEl("js-cv-msg").style.color = "";
+      bfEl("js-cv-msg").textContent = T("Rewriting — each CV takes a few seconds.", "جارٍ إعادة الصياغة — كل سيرة تأخذ ثوانٍ.");
+      cvLoop();
+    });
+    bfEl("js-cv-stop").addEventListener("click", function () { cvStop = true; this.disabled = true; });
+
+    bfEl("js-bf-dry").addEventListener("click", function () { backfill(true); });
+    bfEl("js-bf-run").addEventListener("click", function () { backfill(false); });
+    bfEl("js-bf-stop").addEventListener("click", function () { bfStop = true; this.disabled = true; });
+
 
     document.addEventListener("click", function (e) {
       var act = e.target.closest ? e.target.closest("[data-js-act]") : null;

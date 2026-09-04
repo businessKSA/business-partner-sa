@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Services — Business Partner</title>
+<title>All services — Business Partner</title>
 <meta name="description" content="140 government and business services — a custom quote for your case.">
-<meta property="og:title" content="Services — Business Partner">
+<meta property="og:title" content="All services — Business Partner">
 <meta property="og:description" content="140 government and business services — a custom quote for your case.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
@@ -17,125 +17,886 @@
 <link rel="alternate" hreflang="fr" href="/fr/services">
 <link rel="alternate" hreflang="zh" href="/zh/services">
 <link rel="alternate" hreflang="x-default" href="/services">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style id="bp-public-v4-css">
+:root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
+body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
+body.bp-public-v4 main{background:transparent}
+body.bp-public-v4 .container{max-width:1180px}
+body.bp-public-v4 .site-header{background:rgba(255,255,255,.92)!important;backdrop-filter:blur(16px);border-bottom:1px solid rgba(7,22,63,.07)}
+body.bp-public-v4 .site-header .nav{gap:16px}
+body.bp-public-v4 .site-header .nav>a,body.bp-public-v4 .nav-drop{font-size:13px!important}
+
+/* Shared B10X mast */
+.bp-v4-mast{max-width:1180px;margin:22px auto 0;padding:0 22px}.bp-v4-mast-in{border-radius:24px;padding:22px 24px;background:linear-gradient(135deg,#07163f,#123b8e);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;box-shadow:0 18px 50px rgba(20,51,125,.14)}
+.bp-v4-mast small{display:block;font-size:10px;font-weight:900;letter-spacing:.11em;color:#bcd0ff;margin-bottom:6px}.bp-v4-mast strong{display:block;font-size:18px;line-height:1.4}.bp-v4-mast p{margin:4px 0 0;color:#d8e4ff;font-size:11px;line-height:1.65}.bp-v4-mast a{flex:0 0 auto;text-decoration:none;background:#fff;color:#123675;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:900}
+
+/* Service detail */
+body.bp-v4-service .svc-hero{background:transparent!important;padding:54px 0 26px!important}
+body.bp-v4-service .svc-hero .container{background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:28px;padding:30px!important;box-shadow:0 16px 50px rgba(16,24,40,.06)}
+body.bp-v4-service .svc-hero h1{font-size:clamp(30px,4.4vw,52px)!important;line-height:1.08!important;letter-spacing:-1.5px!important;color:var(--v4-n)!important;max-width:900px;margin:15px 0!important}
+body.bp-v4-service .breadcrumb,body.bp-v4-category .back-link{font-size:11px!important;color:#74809a!important}
+body.bp-v4-service .svc-meta{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+body.bp-v4-service .svc-meta .chip{border:1px solid #dde5f4!important;background:#fff!important;border-radius:999px!important;color:#41506d!important;font-size:10.5px!important;padding:7px 10px!important}
+body.bp-v4-service .svc-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 330px!important;gap:22px!important;align-items:start!important;margin-top:20px!important}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section,body.bp-v4-service main section:not(.svc-hero){border-radius:20px}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section{background:#fff;border:1px solid var(--v4-line);padding:20px!important;margin-bottom:12px!important;box-shadow:0 7px 24px rgba(16,24,40,.035)}
+body.bp-v4-service .svc-content h2,body.bp-v4-service .svc-main h2{color:var(--v4-n)!important;font-size:19px!important;margin:0 0 12px!important}
+body.bp-v4-service .svc-content p,body.bp-v4-service .svc-main p,body.bp-v4-service .svc-content li{font-size:12.5px!important;line-height:1.9!important;color:#56627a!important}
+body.bp-v4-service .svc-aside{position:sticky!important;top:92px!important}
+body.bp-v4-service .order-box{border:1px solid #dce5f5!important;border-radius:22px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;padding:20px!important;box-shadow:0 18px 48px rgba(16,49,120,.11)!important}
+body.bp-v4-service .order-box:before{content:'B10X · SERVICE EXECUTION';display:block;font-size:9px;letter-spacing:.1em;font-weight:900;color:var(--v4-b);margin-bottom:12px}
+body.bp-v4-service .order-box .btn{border-radius:12px!important;min-height:44px!important}
+body.bp-v4-service .callout{background:linear-gradient(135deg,#eef4ff,#f9fbff)!important;border:1px solid #d5e1fb!important;border-radius:16px!important;padding:14px!important}
+body.bp-v4-service .callout strong:before{content:'B10X · ';color:var(--v4-b)}
+
+/* Category and services catalog */
+body.bp-v4-category .hero--sm,body.bp-v4-catalog .page-hero{background:transparent!important;padding:44px 0 18px!important}
+body.bp-v4-category .hero--sm .hero-inner{max-width:1180px!important;background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:26px;padding:28px!important}
+body.bp-v4-category .hero--sm h1{font-size:clamp(32px,4vw,48px)!important;color:var(--v4-n)!important;margin:10px 0!important}
+body.bp-v4-category .hero--sm .lead{font-size:13px!important;line-height:1.8!important;color:var(--v4-muted)!important;max-width:760px!important}
+body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+body.bp-v4-category [class*="service-card"],body.bp-v4-catalog [class*="service-card"]{background:#fff!important;border:1px solid var(--v4-line)!important;border-radius:18px!important;padding:16px!important;box-shadow:0 7px 25px rgba(16,24,40,.035)!important;transition:.18s ease!important}
+body.bp-v4-category [class*="service-card"]:hover,body.bp-v4-catalog [class*="service-card"]:hover{transform:translateY(-3px)!important;border-color:#b9caf2!important;box-shadow:0 14px 34px rgba(16,24,40,.075)!important}
+body.bp-v4-category [class*="service-card"] h3,body.bp-v4-catalog [class*="service-card"] h3{font-size:14px!important;color:var(--v4-n)!important;line-height:1.45!important}
+body.bp-v4-category [class*="service-card"] p,body.bp-v4-catalog [class*="service-card"] p{font-size:10.7px!important;line-height:1.65!important;color:var(--v4-muted)!important}
+
+/* Packages */
+body.bp-v4-packages main{background:transparent!important}
+body.bp-v4-packages [id^="pkg-"]{scroll-margin-top:95px}
+body.bp-v4-packages .pkg-card,body.bp-v4-packages [class*="package-card"]{border:1px solid var(--v4-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 32px rgba(16,24,40,.05)!important;padding:20px!important}
+body.bp-v4-packages .pkg-card:hover,body.bp-v4-packages [class*="package-card"]:hover{transform:translateY(-3px)!important;box-shadow:0 17px 42px rgba(16,24,40,.085)!important}
+
+/* AI pages */
+body.bp-v4-ai main>section{border-radius:0}
+body.bp-v4-ai main .hero,body.bp-v4-ai main [class*="hero"]{background:radial-gradient(circle at 78% 10%,rgba(66,215,246,.14),transparent 26%),linear-gradient(135deg,#07163f,#123b8e)!important;color:#fff!important}
+body.bp-v4-ai main .hero h1,body.bp-v4-ai main [class*="hero"] h1{color:#fff!important}
+body.bp-v4-ai main .hero p,body.bp-v4-ai main [class*="hero"] p{color:#dbe5ff!important}
+body.bp-v4-ai .card,body.bp-v4-ai [class*="card"]{border-radius:20px!important;border-color:var(--v4-line)!important;box-shadow:0 8px 28px rgba(16,24,40,.04)!important}
+
+/* Buttons + footer */
+body.bp-public-v4 .btn-primary{background:linear-gradient(135deg,#07163f,#2856d6)!important;border-color:transparent!important;box-shadow:none!important}
+body.bp-public-v4 .btn,body.bp-public-v4 button{border-radius:12px}
+body.bp-public-v4 .site-footer{background:#07143b!important;padding:0!important;min-height:48px!important}
+body.bp-public-v4 .site-footer .newsletter-band,body.bp-public-v4 .site-footer .footer-grid{display:none!important}
+body.bp-public-v4 .site-footer>.container{padding-top:0!important;padding-bottom:0!important}
+body.bp-public-v4 .site-footer .footer-bottom{min-height:48px!important;margin:0!important;padding:8px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;color:rgba(255,255,255,.6)!important;font-size:10px!important}
+
+@media(max-width:900px){body.bp-v4-service .svc-layout{grid-template-columns:1fr!important}body.bp-v4-service .svc-aside{position:static!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bp-v4-mast-in{align-items:flex-start;flex-direction:column}}
+@media(max-width:620px){.bp-v4-mast{padding:0 14px}.bp-v4-mast-in{padding:18px;border-radius:18px}body.bp-v4-service .svc-hero{padding-top:28px!important}body.bp-v4-service .svc-hero .container,body.bp-v4-category .hero--sm .hero-inner{border-radius:20px;padding:20px!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:1fr!important}body.bp-public-v4 .site-footer .footer-bottom{flex-direction:column!important;justify-content:center!important;text-align:center!important}}
+</style><style id="bp-simple-header-css">
+.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
+.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
+.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
+.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
+.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
+.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
+.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
+.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
+.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
+.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
+.bp-simple-header .bp-cart svg{width:19px;height:19px}
+.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
+@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
+@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
+@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+</style>
 </head>
-<body><header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/hi/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/hi/">होम</a><a href="/hi/about">हमारे बारे में</a><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">हमारी सेवाएं <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested active">
-    <button type="button" class="nav-drop active" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hi/services">All services (140)</a><a href="/services/category/company-formation">🏢 कंपनी गठन</a><a href="/services/category/foreign-investment">🌍 विदेशी निवेश</a><a href="/services/category/premium-residency">🪪 प्रीमियम रेजिडेंसी</a><a href="/services/category/government-relations">🏛️ सरकारी संबंध</a><a href="/services/category/hr-services">👥 HR सेवाएं</a><a href="/services/category/recruitment">🧑‍💼 भर्ती और नियुक्ति</a><a href="/services/category/business-support">📊 Business Support</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">पैकेज <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hi/packages">All packages</a><a href="/hi/packages#pkg-management">Service packages</a><a href="/hi/packages#pkg-formation">कंपनी गठन</a><a href="/hi/packages#pkg-legal">Legal Packages</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">AI एजेंट ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/ai-document-agent">Documents</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/revenue-os">यह कैसे काम करता है</a><a href="/revenue-os#pricing">Packages &amp; pricing</a><a href="/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">टास्क फोर्स ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">नियोक्ताओं के लिए</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
-  </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/tourism">Corporate events</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Browse spaces</a><a href="/workspace-request">Request a workspace</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/farina">Overview</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Overview</a><a href="/worker-housing#wh-request">Request housing</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Worker transport</a></div>
-  </div><a href="/consultation">मुफ्त परामर्श बुक करें</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">नॉलेज सेंटर <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/saudi-arabia">सऊदी अरब में निवेश करें</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
-  </div><a href="/opportunities">Investment Opportunities</a><a href="/news">जानकारी और समाचार</a><a href="/newsletter">न्यूज़लेटर</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">टूल्स और कैलकुलेटर <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
-  </div><a href="/magazine">पत्रिका (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">क्लाइंट पोर्टल</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
-    </div><a href="/hi/contact">संपर्क करें</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#fff"/><rect width="24" height="5.33" fill="#FF9933"/><rect y="10.66" width="24" height="5.34" fill="#138808"/><circle cx="12" cy="8" r="2.1" fill="none" stroke="#000080" stroke-width=".7"/></g></svg><span class="lang-label">हिन्दी</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/services" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/services" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/services" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/services" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
-  </div>
-    <a class="hdr-btn" data-account-link href="/account" aria-label="Sign in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Sign in</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Partners registration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Partners</span></a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="कार्ट"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="मेनू" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
-  <section class="hero"><div class="container hero-inner">
+<body class="bp-public-v4 bp-v4-catalog"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/services/category/company-formation">Company Formation</a><a href="/services/category/foreign-investment">Foreign Investment</a><a href="/services/category/premium-residency">Premium Residency</a><a href="/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/services/category/government-relations">Government Services</a><a href="/compliance-agent">Compliance & Violations</a><a href="/services/category/hr-services">HR Services</a><a href="/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/workspaces">Workspaces</a><a href="/worker-housing">Worker Housing</a><a href="/tourism">Tourism & Events</a><a href="/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/b10x">B10X</a><a href="/#bp-consultant">Smart Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/smart-employee">Specialised Smart Employee</a><a href="/business-development">Business Development</a><a href="/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/suppliers">Partner Registration</a><a href="/partner-dashboard">Partner Portal</a><a href="/agency-portal">Recruitment Agency Portal</a><a href="/connect">Connect Hub</a><a href="/careers">Jobs</a></div></div></details><a href="/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/ai-agents">All AI Advisors</a><a href="/compliance-agent">Compliance Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Hiring</summary><div class="bp-mini-menu"><a href="/careers">Open jobs</a><a href="/employer-dashboard">Employer dashboard</a><a href="/employer-join">Register as employer</a><a href="/employers">Employer services</a><a href="/job-search-service">Job search service</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/services/category/recruitment">Recruitment services</a></div></details><a href="/about">About</a><a href="/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>English</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/account">Get started</a></div></div></header><section class="bp-v4-mast"><div class="bp-v4-mast-in"><div><small>B10X · BUSINESS PARTNER</small><strong>Every service is part of B10X.</strong><p>AI guidance, human execution and transparent tracking in one operating layer.</p></div><a href="/services">Browse services</a></div></section><main>
+  <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">सेवाएं</span>
-    <h1>Choose a service category</h1>
-    <p class="lead">140 services organized into 9 categories — pick a category to see its services, each with a full page of documents, requirements and a custom quote.</p>
+    <h1>Every service, on one page</h1>
+    <p class="lead">140 government and business services across 9 categories — search, filter, and open any service for its documents, requirements and a quote for your case.</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3 cat-grid"><a class="card cat-card" href="/services/category/company-formation">
-        <div class="cat-card-icon">🏢</div>
-        <h3>कंपनी गठन</h3>
-        <p class="desc">23 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">23 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/foreign-investment">
-        <div class="cat-card-icon">🌍</div>
-        <h3>विदेशी निवेश</h3>
-        <p class="desc">8 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">8 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/premium-residency">
-        <div class="cat-card-icon">🪪</div>
-        <h3>प्रीमियम रेजिडेंसी</h3>
-        <p class="desc">3 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">3 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/government-relations">
-        <div class="cat-card-icon">🏛️</div>
-        <h3>सरकारी संबंध</h3>
-        <p class="desc">36 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">36 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/hr-services">
-        <div class="cat-card-icon">👥</div>
-        <h3>HR सेवाएं</h3>
-        <p class="desc">12 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">12 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/recruitment">
-        <div class="cat-card-icon">🧑‍💼</div>
-        <h3>भर्ती और नियुक्ति</h3>
-        <p class="desc">8 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">8 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/business-support">
-        <div class="cat-card-icon">📊</div>
-        <h3>Business Support</h3>
-        <p class="desc">37 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">37 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/real-estate">
-        <div class="cat-card-icon">🏗️</div>
-        <h3>Real Estate</h3>
-        <p class="desc">7 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">7 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card cat-card" href="/services/category/ai-automation">
-        <div class="cat-card-icon">🤖</div>
-        <h3>AI &amp; Automation</h3>
-        <p class="desc">6 services with clear fees from the official catalog.</p>
-        <div class="foot"><span class="count-pill">6 services</span><span class="card-link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+  <section class="section svc-all"><div class="container">
+    <div class="svc-toolbar" id="svcToolbar">
+      <input type="search" id="svcSearch" class="svc-search" placeholder="Search 140+ services… e.g. CR, iqama, visa, VAT" autocomplete="off">
+      <div class="svc-chips"><button type="button" class="svc-chip on" data-chip="">All</button><button type="button" class="svc-chip" data-chip="Company Formation">🏢 कंपनी गठन</button><button type="button" class="svc-chip" data-chip="Foreign Investment">🌍 विदेशी निवेश</button><button type="button" class="svc-chip" data-chip="Premium Residency">🪪 प्रीमियम रेजिडेंसी</button><button type="button" class="svc-chip" data-chip="Government Relations">🏛️ सरकारी संबंध</button><button type="button" class="svc-chip" data-chip="HR Services">👥 HR सेवाएं</button><button type="button" class="svc-chip" data-chip="Recruitment">🧑‍💼 भर्ती और नियुक्ति</button><button type="button" class="svc-chip" data-chip="Business Support">📊 Business Support</button><button type="button" class="svc-chip" data-chip="Real Estate">🏗️ Real Estate</button><button type="button" class="svc-chip" data-chip="AI Automation">🤖 AI &amp; Automation</button></div>
+      <p class="svc-count" id="svcCount"></p>
+    </div>
+    <section class="svc-group" data-group="Company Formation" id="cat-company-formation">
+        <div class="svc-group-head"><h2>🏢 कंपनी गठन</h2><span class="count-pill">23 services</span><a class="card-link" href="/services/category/company-formation">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-chamber-01" data-svc data-cat="Company Formation" data-q="chamber of commerce membership business partner handles “chamber of commerce membership” on your behalf within कंपनी गठन — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Chamber of Commerce membership</h3>
+        <p class="desc">Business Partner handles “Chamber of Commerce membership” on your behalf within कंपनी गठन — from preparing the documents…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0066" data-svc data-cat="Company Formation" data-q="pre-incorporation consultation business partner handles “pre-incorporation consultation” on your behalf within कंपनी गठन — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Pre-incorporation consultation</h3>
+        <p class="desc">Business Partner handles “Pre-incorporation consultation” on your behalf within कंपनी गठन — from preparing the documents…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-01" data-svc data-cat="Company Formation" data-q="saudi company formation end-to-end formation of a saudi-owned company (llc) — we prepare the regulatory requirements and follow the commercial registration and licensing through the saudi business center until formation is complete.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Saudi Company Formation</h3>
+        <p class="desc">End-to-end formation of a Saudi-owned company (LLC) — we prepare the regulatory requirements and follow the commercial r…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-02" data-svc data-cat="Company Formation" data-q="new commercial registration issuance new commercial registration issuance with requirements preparation and issuance follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>New Commercial Registration Issuance</h3>
+        <p class="desc">New Commercial Registration issuance with requirements preparation and issuance follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-03" data-svc data-cat="Company Formation" data-q="aoa issuance &amp; notarization (new company) articles of association issuance and notarization for a new company through to attestation.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>AoA Issuance &amp; Notarization (new company)</h3>
+        <p class="desc">Articles of Association issuance and notarization for a new company through to attestation.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-04" data-svc data-cat="Company Formation" data-q="commercial registration issuance commercial registration issuance with follow-up until the cr is issued.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Commercial Registration Issuance</h3>
+        <p class="desc">Commercial Registration issuance with follow-up until the CR is issued.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-05" data-svc data-cat="Company Formation" data-q="company name reservation company name reservation via the saudi business center with approval follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Company Name Reservation</h3>
+        <p class="desc">Company name reservation via the Saudi Business Center with approval follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-06" data-svc data-cat="Company Formation" data-q="company account on absher business opening and activating the company's absher business account and linking it to required services.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Company Account on Absher Business</h3>
+        <p class="desc">Opening and activating the company's Absher Business account and linking it to required services.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-07" data-svc data-cat="Company Formation" data-q="opening a branch for an existing company opening a branch for an existing company (local or foreign) with requirements preparation and issuance follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Opening a Branch for an Existing Company</h3>
+        <p class="desc">Opening a branch for an existing company (local or foreign) with requirements preparation and issuance follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-08" data-svc data-cat="Company Formation" data-q="company liquidation (cr cancellation &amp; closure) company liquidation, cr cancellation and entity closure with follow-up of the statutory procedures until completion.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Company Liquidation (CR cancellation &amp; closure)</h3>
+        <p class="desc">Company liquidation, CR cancellation and entity closure with follow-up of the statutory procedures until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-09" data-svc data-cat="Company Formation" data-q="cr cancellation certificate issuance issuance of the cr cancellation certificate after completing the procedures.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>CR Cancellation Certificate Issuance</h3>
+        <p class="desc">Issuance of the CR cancellation certificate after completing the procedures.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-10" data-svc data-cat="Company Formation" data-q="amending aoa / partners' resolutions amending the articles of association or partners' resolutions and notarizing them through to attestation.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Amending AoA / Partners' Resolutions</h3>
+        <p class="desc">Amending the Articles of Association or partners' resolutions and notarizing them through to attestation.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-11" data-svc data-cat="Company Formation" data-q="commercial registration amendment commercial registration amendment with approval follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Commercial Registration Amendment</h3>
+        <p class="desc">Commercial Registration amendment with approval follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-12" data-svc data-cat="Company Formation" data-q="trade name reservation trade name reservation with approval follow-up via the saudi business center.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Trade Name Reservation</h3>
+        <p class="desc">Trade name reservation with approval follow-up via the Saudi Business Center.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-13" data-svc data-cat="Company Formation" data-q="commercial registration cancellation commercial registration cancellation with follow-up until completion.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Commercial Registration Cancellation</h3>
+        <p class="desc">Commercial Registration cancellation with follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-14" data-svc data-cat="Company Formation" data-q="legal form transformation transforming the legal form of the entity (sole ↔ company) with requirements preparation and follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Legal Form Transformation</h3>
+        <p class="desc">Transforming the legal form of the entity (sole ↔ company) with requirements preparation and follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-15" data-svc data-cat="Company Formation" data-q="aoa drafting &amp; notarization support articles of association drafting and notarization support through to attestation.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>AoA Drafting &amp; Notarization Support</h3>
+        <p class="desc">Articles of Association drafting and notarization support through to attestation.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-16" data-svc data-cat="Company Formation" data-q="factory setup &amp; industrial licensing services business partner handles “factory setup &amp; industrial licensing services” on your behalf within कंपनी गठन — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Factory setup &amp; industrial licensing services</h3>
+        <p class="desc">Business Partner handles “Factory setup &amp; industrial licensing services” on your behalf within कंपनी गठन — from preparin…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-17" data-svc data-cat="Company Formation" data-q="commercial statement request commercial statement (ministry of commerce letter) issuance for the required purpose.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Commercial Statement Request</h3>
+        <p class="desc">Commercial statement (Ministry of Commerce letter) issuance for the required purpose.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-18" data-svc data-cat="Company Formation" data-q="converting an establishment into a company converting an establishment into a company (or vice versa) with requirements preparation and issuance follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Converting an Establishment into a Company</h3>
+        <p class="desc">Converting an establishment into a company (or vice versa) with requirements preparation and issuance follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-19" data-svc data-cat="Company Formation" data-q="commercial registration renewal commercial registration renewal with follow-up until completion.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Commercial Registration Renewal</h3>
+        <p class="desc">Commercial Registration renewal with follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sbc-20" data-svc data-cat="Company Formation" data-q="detailed cr extract issuance issuance of a detailed commercial registration extract for the required purpose.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Detailed CR Extract Issuance</h3>
+        <p class="desc">Issuance of a detailed Commercial Registration extract for the required purpose.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/cf-gen" data-svc data-cat="Company Formation" data-q="company formation — bespoke service business partner handles “company formation — bespoke service” on your behalf within कंपनी गठन — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">कंपनी गठन</span>
+        <h3>Company Formation — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Company Formation — Bespoke Service” on your behalf within कंपनी गठन — from preparing the docu…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
       </a></div>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>Revenue OS — business development as a service ⚡</h2><p>We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.</p><a class="btn btn-white" href="/revenue-os">Explore Revenue OS</a></div>
+      </section><section class="svc-group" data-group="Foreign Investment" id="cat-foreign-investment">
+        <div class="svc-group-head"><h2>🌍 विदेशी निवेश</h2><span class="count-pill">8 services</span><a class="card-link" href="/services/category/foreign-investment">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-fi-01" data-svc data-cat="Foreign Investment" data-q="foreign investor company formation formation of a 100% foreign-owned company — from the misa investment license through the commercial registration, chamber membership and zatca/vat registration. secondary licensing and back-office are available as add-ons.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Foreign Investor Company Formation</h3>
+        <p class="desc">Formation of a 100% foreign-owned company — from the MISA investment license through the Commercial Registration, Chambe…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-02" data-svc data-cat="Foreign Investment" data-q="foreign investment license issuance issuance of the foreign investment license through misa — we prepare the application and documents and follow the approval through to license issuance.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Foreign Investment License Issuance</h3>
+        <p class="desc">Issuance of the foreign investment license through MISA — we prepare the application and documents and follow the approv…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-03" data-svc data-cat="Foreign Investment" data-q="100%-owned foreign company formation (foreign branch) business partner handles “100%-owned foreign company formation (foreign branch)” on your behalf within विदेशी निवेश — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>100%-owned foreign company formation (foreign branch)</h3>
+        <p class="desc">Business Partner handles “100%-owned foreign company formation (foreign branch)” on your behalf within विदेशी निवेश — fr…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-04" data-svc data-cat="Foreign Investment" data-q="joint-venture company formation formation of a joint-venture company with a foreign partner — we structure the partnership, prepare the regulatory requirements, and follow the licensing and registration through to issuance.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Joint-Venture Company Formation</h3>
+        <p class="desc">Formation of a joint-venture company with a foreign partner — we structure the partnership, prepare the regulatory requi…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-05" data-svc data-cat="Foreign Investment" data-q="entrepreneur-license company formation company formation under a misa entrepreneur license — we prepare the support letter and requirements and follow the application through to the license and commercial registration.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Entrepreneur-License Company Formation</h3>
+        <p class="desc">Company formation under a MISA Entrepreneur license — we prepare the support letter and requirements and follow the appl…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-06" data-svc data-cat="Foreign Investment" data-q="foreign company branch registration registration of a branch for an existing foreign company in saudi arabia — we prepare the regulatory requirements and follow the licensing and registration through to the branch's commercial registration.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Foreign Company Branch Registration</h3>
+        <p class="desc">Registration of a branch for an existing foreign company in Saudi Arabia — we prepare the regulatory requirements and fo…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-fi-07" data-svc data-cat="Foreign Investment" data-q="foreign investor entry initial service to support foreign investor entry into the market, including path selection, core requirements, and early guidance for setup or licensing.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Foreign Investor Entry</h3>
+        <p class="desc">Initial service to support foreign investor entry into the market, including path selection, core requirements, and earl…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/fi-100" data-svc data-cat="Foreign Investment" data-q="foreign investment setup — 100% foreign owned company business partner handles “foreign investment setup — 100% foreign owned company” on your behalf within विदेशी निवेश — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">विदेशी निवेश</span>
+        <h3>Foreign Investment Setup — 100% Foreign Owned Company</h3>
+        <p class="desc">Business Partner handles “Foreign Investment Setup — 100% Foreign Owned Company” on your behalf within विदेशी निवेश — fr…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="Premium Residency" id="cat-premium-residency">
+        <div class="svc-group-head"><h2>🪪 प्रीमियम रेजिडेंसी</h2><span class="count-pill">3 services</span><a class="card-link" href="/services/category/premium-residency">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-pr-01" data-svc data-cat="Premium Residency" data-q="premium residency service (procedures + application) business partner handles “premium residency service (procedures + application)” on your behalf within प्रीमियम रेजिडेंसी — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">प्रीमियम रेजिडेंसी</span>
+        <h3>Premium Residency service (procedures + application)</h3>
+        <p class="desc">Business Partner handles “Premium Residency service (procedures + application)” on your behalf within प्रीमियम रेजिडेंसी…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pr-02" data-svc data-cat="Premium Residency" data-q="premium residency consultation a premium residency consultation to clarify the options and requirements and identify the most suitable path before starting procedures — including an eligibility assessment and a recommended pathway.">
+        <span class="tag">प्रीमियम रेजिडेंसी</span>
+        <h3>Premium Residency Consultation</h3>
+        <p class="desc">A Premium Residency consultation to clarify the options and requirements and identify the most suitable path before star…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/pr-gen" data-svc data-cat="Premium Residency" data-q="premium residency — bespoke service business partner handles “premium residency — bespoke service” on your behalf within प्रीमियम रेजिडेंसी — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">प्रीमियम रेजिडेंसी</span>
+        <h3>Premium Residency — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Premium Residency — Bespoke Service” on your behalf within प्रीमियम रेजिडेंसी — from preparing…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="Government Relations" id="cat-government-relations">
+        <div class="svc-group-head"><h2>🏛️ सरकारी संबंध</h2><span class="count-pill">36 services</span><a class="card-link" href="/services/category/government-relations">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-absher-01" data-svc data-cat="Government Relations" data-q="absher business setup absher business account setup and activation for the entity, linked to required government services.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Absher Business Setup</h3>
+        <p class="desc">Absher Business account setup and activation for the entity, linked to required government services.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-balady-01" data-svc data-cat="Government Relations" data-q="municipal license issuance municipal license issuance for commercial premises with balady and site requirements follow-up until license issuance.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Municipal License Issuance</h3>
+        <p class="desc">Municipal license issuance for commercial premises with Balady and site requirements follow-up until license issuance.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-balady-02" data-svc data-cat="Government Relations" data-q="e-cleaning contract (municipal requirement) business partner handles “e-cleaning contract (municipal requirement)” on your behalf within सरकारी संबंध — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>E-cleaning contract (municipal requirement)</h3>
+        <p class="desc">Business Partner handles “E-cleaning contract (municipal requirement)” on your behalf within सरकारी संबंध — from prepari…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-gosi-01" data-svc data-cat="Government Relations" data-q="gosi registration gosi registration with requirements validation and follow-up until service activation or registration completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>GOSI Registration</h3>
+        <p class="desc">GOSI registration with requirements validation and follow-up until service activation or registration completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-gosi-02" data-svc data-cat="Government Relations" data-q="add a saudi employee in gosi adding a saudi employee in gosi, including employee and establishment data follow-up until completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Add a Saudi Employee in GOSI</h3>
+        <p class="desc">Adding a Saudi employee in GOSI, including employee and establishment data follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-gosi-03" data-svc data-cat="Government Relations" data-q="gosi certificate issuance gosi certificate issuance for the entity or employees based on required information and available records.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>GOSI Certificate Issuance</h3>
+        <p class="desc">GOSI certificate issuance for the entity or employees based on required information and available records.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-gr-01" data-svc data-cat="Government Relations" data-q="contractor classification certificate contractor classification service and certificate issuance with requirements follow-up until completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Contractor Classification Certificate</h3>
+        <p class="desc">Contractor classification service and certificate issuance with requirements follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-mod-01" data-svc data-cat="Government Relations" data-q="civil defense permit &amp; safety certificate civil defense permit and safety certificate issuance with requirements follow-up until completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Civil Defense Permit &amp; Safety Certificate</h3>
+        <p class="desc">Civil Defense permit and safety certificate issuance with requirements follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-mod-02" data-svc data-cat="Government Relations" data-q="technical safety report technical safety report preparation as a civil defense requirement with approval follow-up within licensing procedures.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Technical Safety Report</h3>
+        <p class="desc">Technical safety report preparation as a Civil Defense requirement with approval follow-up within licensing procedures.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-mudad-01" data-svc data-cat="Government Relations" data-q="mudad wps setup mudad wps setup, including payroll data linkage and compliance readiness follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Mudad WPS Setup</h3>
+        <p class="desc">Mudad WPS setup, including payroll data linkage and compliance readiness follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-muqeem-01" data-svc data-cat="Government Relations" data-q="exit &amp; re-entry visa issuance exit and re-entry visa issuance for an employee or resident with application follow-up until issuance.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Exit &amp; Re-entry Visa Issuance</h3>
+        <p class="desc">Exit and re-entry visa issuance for an employee or resident with application follow-up until issuance.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-qiwa-01" data-svc data-cat="Government Relations" data-q="qiwa setup &amp; onboarding qiwa setup and onboarding for the entity, linked to required hr procedures.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Qiwa Setup &amp; Onboarding</h3>
+        <p class="desc">Qiwa setup and onboarding for the entity, linked to required HR procedures.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-qiwa-02" data-svc data-cat="Government Relations" data-q="employee sponsorship transfer employee sponsorship transfer service with request and regulatory requirements follow-up until completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Employee Sponsorship Transfer</h3>
+        <p class="desc">Employee sponsorship transfer service with request and regulatory requirements follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-qiwa-03" data-svc data-cat="Government Relations" data-q="employee profession change employee profession change through official channels with application follow-up until profession data is updated.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Employee Profession Change</h3>
+        <p class="desc">Employee profession change through official channels with application follow-up until profession data is updated.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-qiwa-04" data-svc data-cat="Government Relations" data-q="adding an authorized representative adding an authorized representative to the establishment and enabling the required permissions on relevant government platforms.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Adding an Authorized Representative</h3>
+        <p class="desc">Adding an authorized representative to the establishment and enabling the required permissions on relevant government pl…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-saip-01" data-svc data-cat="Government Relations" data-q="new trademark registration business partner handles “new trademark registration” on your behalf within सरकारी संबंध — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>New trademark registration</h3>
+        <p class="desc">Business Partner handles “New trademark registration” on your behalf within सरकारी संबंध — from preparing the documents …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-subl-01" data-svc data-cat="Government Relations" data-q="national address registration national address registration or update for the entity and linking it with registration data and related platforms.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>National Address Registration</h3>
+        <p class="desc">National Address registration or update for the entity and linking it with registration data and related platforms.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-zatca-01" data-svc data-cat="Government Relations" data-q="vat &amp; zakat registration vat and zakat registration with zatca — we handle the requirements and follow up until the tax account is activated.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>VAT &amp; Zakat Registration</h3>
+        <p class="desc">VAT and Zakat registration with ZATCA — we handle the requirements and follow up until the tax account is activated.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-zatca-02" data-svc data-cat="Government Relations" data-q="vat number issuance vat number issuance for the entity with registration or activation follow-up at zatca.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>VAT Number Issuance</h3>
+        <p class="desc">VAT number issuance for the entity with registration or activation follow-up at ZATCA.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-zatca-03" data-svc data-cat="Government Relations" data-q="annual zakat return filing annual zakat return filing with requirements and data follow-up until submission is complete.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Annual Zakat Return Filing</h3>
+        <p class="desc">Annual Zakat return filing with requirements and data follow-up until submission is complete.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-zatca-04" data-svc data-cat="Government Relations" data-q="zatca vat registration vat registration with zatca, including requirements follow-up and activation.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>ZATCA VAT Registration</h3>
+        <p class="desc">VAT registration with ZATCA, including requirements follow-up and activation.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-zatca-05" data-svc data-cat="Government Relations" data-q="vat return filing vat return filing with tax data preparation and submission follow-up until completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>VAT Return Filing</h3>
+        <p class="desc">VAT return filing with tax data preparation and submission follow-up until completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0076" data-svc data-cat="Government Relations" data-q="industrial license issuance for establishment industrial license issuance for establishing an industrial entity with application file preparation and requirements follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Industrial License Issuance for Establishment</h3>
+        <p class="desc">Industrial license issuance for establishing an industrial entity with application file preparation and requirements fol…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0077" data-svc data-cat="Government Relations" data-q="industrial license renewal industrial license renewal for the entity with regulatory requirements follow-up until renewal completion.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Industrial License Renewal</h3>
+        <p class="desc">Industrial license renewal for the entity with regulatory requirements follow-up until renewal completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0078" data-svc data-cat="Government Relations" data-q="industrial license amendment industrial license amendment for data, activity, or production capacity changes with approval follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Industrial License Amendment</h3>
+        <p class="desc">Industrial license amendment for data, activity, or production capacity changes with approval follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0079" data-svc data-cat="Government Relations" data-q="industrial license ownership transfer industrial license ownership transfer with document preparation and approval follow-up with the relevant authority.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Industrial License Ownership Transfer</h3>
+        <p class="desc">Industrial license ownership transfer with document preparation and approval follow-up with the relevant authority.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0080" data-svc data-cat="Government Relations" data-q="labor endorsement request labor endorsement request for the entity with justification and requirements preparation and follow-up until outcome.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Labor Endorsement Request</h3>
+        <p class="desc">Labor endorsement request for the entity with justification and requirements preparation and follow-up until outcome.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0081" data-svc data-cat="Government Relations" data-q="customs exemption for materials, machinery, and spare parts customs exemption request for materials, machinery, or spare parts with document preparation and approval follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Customs Exemption for Materials, Machinery, and Spare Parts</h3>
+        <p class="desc">Customs exemption request for materials, machinery, or spare parts with document preparation and approval follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0082" data-svc data-cat="Government Relations" data-q="certificate of origin issuance certificate of origin issuance for goods or products according to approved export and attestation requirements.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Certificate of Origin Issuance</h3>
+        <p class="desc">Certificate of origin issuance for goods or products according to approved export and attestation requirements.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0083" data-svc data-cat="Government Relations" data-q="chemical clearance request chemical clearance request management with document preparation and approval follow-up for regulated materials.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Chemical Clearance Request</h3>
+        <p class="desc">Chemical clearance request management with document preparation and approval follow-up for regulated materials.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0084" data-svc data-cat="Government Relations" data-q="customs tariff items upgrade customs tariff item upgrade or classification update in line with import and clearance requirements.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Customs Tariff Items Upgrade</h3>
+        <p class="desc">Customs tariff item upgrade or classification update in line with import and clearance requirements.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0085" data-svc data-cat="Government Relations" data-q="mining reconnaissance license mining reconnaissance license issuance for eligible areas or materials with application preparation and requirements follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Mining Reconnaissance License</h3>
+        <p class="desc">Mining reconnaissance license issuance for eligible areas or materials with application preparation and requirements fol…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0086" data-svc data-cat="Government Relations" data-q="industrial survey industrial survey completion and industrial entity data update in line with authority requirements.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Industrial Survey</h3>
+        <p class="desc">Industrial survey completion and industrial entity data update in line with authority requirements.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0087" data-svc data-cat="Government Relations" data-q="security consulting permit security consulting permit issuance with requirements preparation and approval follow-up with relevant authorities.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Security Consulting Permit</h3>
+        <p class="desc">Security consulting permit issuance with requirements preparation and approval follow-up with relevant authorities.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/gov-gen" data-svc data-cat="Government Relations" data-q="government transactions — bespoke service business partner handles “government transactions — bespoke service” on your behalf within सरकारी संबंध — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Government Transactions — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Government Transactions — Bespoke Service” on your behalf within सरकारी संबंध — from preparing…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/gr-gen" data-svc data-cat="Government Relations" data-q="government relations representative business partner handles “government relations representative” on your behalf within सरकारी संबंध — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">सरकारी संबंध</span>
+        <h3>Government Relations Representative</h3>
+        <p class="desc">Business Partner handles “Government Relations Representative” on your behalf within सरकारी संबंध — from preparing the d…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="HR Services" id="cat-hr-services">
+        <div class="svc-group-head"><h2>👥 HR सेवाएं</h2><span class="count-pill">12 services</span><a class="card-link" href="/services/category/hr-services">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-hr-01" data-svc data-cat="HR Services" data-q="employee health certificate issuance employee health certificate issuance with medical check and municipal requirements follow-up until issuance.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Employee Health Certificate Issuance</h3>
+        <p class="desc">Employee health certificate issuance with medical check and municipal requirements follow-up until issuance.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-hr-02" data-svc data-cat="HR Services" data-q="establishment file opening at mhrsd opening an establishment file at mhrsd with activation and related requirements follow-up.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Establishment File Opening at MHRSD</h3>
+        <p class="desc">Opening an establishment file at MHRSD with activation and related requirements follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-hr-03" data-svc data-cat="HR Services" data-q="hr &amp; employee management services hr and employee management services including file organization, procedures, and operational follow-up based on scope.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>HR &amp; Employee Management Services</h3>
+        <p class="desc">HR and employee management services including file organization, procedures, and operational follow-up based on scope.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-mudad-02" data-svc data-cat="HR Services" data-q="mudad wage protection file upload wage protection file upload through mudad with file status follow-up until processing is complete.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Mudad Wage Protection File Upload</h3>
+        <p class="desc">Wage Protection file upload through Mudad with file status follow-up until processing is complete.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-mudad-03" data-svc data-cat="HR Services" data-q="wage protection system notes resolution resolving wage protection system notes and following up corrective actions until compliance status improves.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Wage Protection System Notes Resolution</h3>
+        <p class="desc">Resolving Wage Protection System notes and following up corrective actions until compliance status improves.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-muqeem-02" data-svc data-cat="HR Services" data-q="new iqama issuance new iqama issuance for a foreign employee, including regulatory requirements follow-up until issuance.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>New Iqama Issuance</h3>
+        <p class="desc">New Iqama issuance for a foreign employee, including regulatory requirements follow-up until issuance.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-muqeem-03" data-svc data-cat="HR Services" data-q="iqama renewal iqama renewal service with regulatory requirements follow-up until renewal completion.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Iqama Renewal</h3>
+        <p class="desc">Iqama renewal service with regulatory requirements follow-up until renewal completion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-muqeem-04" data-svc data-cat="HR Services" data-q="family visit visa issuance family visit visa issuance with application preparation and requirements follow-up until the visa is issued.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Family Visit Visa Issuance</h3>
+        <p class="desc">Family visit visa issuance with application preparation and requirements follow-up until the visa is issued.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-housing-01" data-svc data-cat="HR Services" data-q="worker housing — licensed collective housing a complete worker-housing solution under momah's collective-housing supervision guide (ministerial decision 4600218548/1). any facility housing 20+ workers needs an operating license and faces quarterly inspections by four-ministry committees; operating unlicensed carries fines up to sar 10,000 and possible closure. we provide ready licensed housing or license your existing one: balady license, ejar contract attestation, civil defense certificate, bulk muqeem address updates — plus optional catering, transport and operations management.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Worker housing — licensed collective housing</h3>
+        <p class="desc">A complete worker-housing solution under MoMaH's collective-housing supervision guide (ministerial decision 4600218548/1…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-housing-02" data-svc data-cat="HR Services" data-q="worker transport — housing to work sites daily worker transport between housing and work sites with licensed drivers and scheduling built around your actual shifts. available standalone or as part of the integrated worker-housing solution (licensed housing + farina catering + transport) on one monthly contract and invoice.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Worker transport — housing to work sites</h3>
+        <p class="desc">Daily worker transport between housing and work sites with licensed drivers and scheduling built around your actual shif…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/hr-gen" data-svc data-cat="HR Services" data-q="human resources — bespoke service business partner handles “human resources — bespoke service” on your behalf within hr सेवाएं — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Human Resources — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Human Resources — Bespoke Service” on your behalf within HR सेवाएं — from preparing the docume…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/qw-est" data-svc data-cat="HR Services" data-q="qiwa platform task and establishment file with the ministry of human resources and social development business partner handles “qiwa platform task and establishment file with the ministry of human resources and social development” on your behalf within hr सेवाएं — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">HR सेवाएं</span>
+        <h3>Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development</h3>
+        <p class="desc">Business Partner handles “Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Deve…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="Recruitment" id="cat-recruitment">
+        <div class="svc-group-head"><h2>🧑‍💼 भर्ती और नियुक्ति</h2><span class="count-pill">8 services</span><a class="card-link" href="/services/category/recruitment">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-rec-01" data-svc data-cat="Recruitment" data-q="recruitment services &amp; work visa issuance recruitment and work visa issuance services including application preparation and requirements follow-up until visas are issued.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Recruitment Services &amp; Work Visa Issuance</h3>
+        <p class="desc">Recruitment and work visa issuance services including application preparation and requirements follow-up until visas are…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-rec-02" data-svc data-cat="Recruitment" data-q="work visa issuance work visa issuance with application preparation and requirements follow-up until the visa is issued.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Work Visa Issuance</h3>
+        <p class="desc">Work visa issuance with application preparation and requirements follow-up until the visa is issued.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-rec-03" data-svc data-cat="Recruitment" data-q="outsourced employment &amp; contracting (peo/eor) business partner handles “outsourced employment &amp; contracting (peo/eor)” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Outsourced Employment &amp; Contracting (PEO/EOR)</h3>
+        <p class="desc">Business Partner handles “Outsourced Employment &amp; Contracting (PEO/EOR)” on your behalf within भर्ती और नियुक्ति — from …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-rec-04" data-svc data-cat="Recruitment" data-q="executive search business partner handles “executive search” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Executive Search</h3>
+        <p class="desc">Business Partner handles “Executive Search” on your behalf within भर्ती और नियुक्ति — from preparing the documents and f…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-rec-05" data-svc data-cat="Recruitment" data-q="local recruitment business partner handles “local recruitment” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Local Recruitment</h3>
+        <p class="desc">Business Partner handles “Local Recruitment” on your behalf within भर्ती और नियुक्ति — from preparing the documents and …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-rec-06" data-svc data-cat="Recruitment" data-q="bulk recruitment business partner handles “bulk recruitment” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Bulk Recruitment</h3>
+        <p class="desc">Business Partner handles “Bulk Recruitment” on your behalf within भर्ती और नियुक्ति — from preparing the documents and f…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rec-gen" data-svc data-cat="Recruitment" data-q="recruitment and manpower — bespoke service business partner handles “recruitment and manpower — bespoke service” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Recruitment and Manpower — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Recruitment and Manpower — Bespoke Service” on your behalf within भर्ती और नियुक्ति — from pre…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/cv-10" data-svc data-cat="Recruitment" data-q="candidate cv sourcing business partner handles “candidate cv sourcing” on your behalf within भर्ती और नियुक्ति — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">भर्ती और नियुक्ति</span>
+        <h3>Candidate CV Sourcing</h3>
+        <p class="desc">Business Partner handles “Candidate CV Sourcing” on your behalf within भर्ती और नियुक्ति — from preparing the documents …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="Business Support" id="cat-business-support">
+        <div class="svc-group-head"><h2>📊 Business Support</h2><span class="count-pill">37 services</span><a class="card-link" href="/services/category/business-support">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-bs-01" data-svc data-cat="Business Support" data-q="digital marketing &amp; advertising digital marketing and advertising services including planning, execution, and follow-up across the required campaign channels.">
+        <span class="tag">Business Support</span>
+        <h3>Digital Marketing &amp; Advertising</h3>
+        <p class="desc">Digital marketing and advertising services including planning, execution, and follow-up across the required campaign cha…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0019" data-svc data-cat="Business Support" data-q="franchise law compliance &amp; registration we help franchisors achieve full compliance with the saudi franchise law — issued by royal decree no. (m/22) dated 09/02/1441h — and its implementing regulations. we run the whole track: a regulatory assessment and gap analysis, preparing and reviewing the disclosure document and franchise agreement, certified arabic legal translation, then registering the agreement and disclosure document with the ministry of commerce within the statutory window, with ongoing compliance support. government registration fees are separate; we scope the work and fees precisely once we review your case.">
+        <span class="tag">Business Support</span>
+        <h3>Franchise Law compliance &amp; registration</h3>
+        <p class="desc">We help franchisors achieve full compliance with the Saudi Franchise Law — issued by Royal Decree No. (M/22) dated 09/02…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0035" data-svc data-cat="Business Support" data-q="muqeem account management muqeem account management, including adding or updating resident and employee data based on entity needs.">
+        <span class="tag">Business Support</span>
+        <h3>Muqeem Account Management</h3>
+        <p class="desc">Muqeem account management, including adding or updating resident and employee data based on entity needs.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0050" data-svc data-cat="Business Support" data-q="vip transaction processing vip transaction processing service with dedicated follow-up and expedited coordination based on request scope.">
+        <span class="tag">Business Support</span>
+        <h3>VIP Transaction Processing</h3>
+        <p class="desc">VIP transaction processing service with dedicated follow-up and expedited coordination based on request scope.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0051" data-svc data-cat="Business Support" data-q="corporate bank account opening corporate bank account opening with requirements preparation and bank coordination until the account is opened.">
+        <span class="tag">Business Support</span>
+        <h3>Corporate Bank Account Opening</h3>
+        <p class="desc">Corporate bank account opening with requirements preparation and bank coordination until the account is opened.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0052" data-svc data-cat="Business Support" data-q="internal company regulations (governance) preparation of internal company regulations and governance policies to organize work and support administrative and regulatory compliance.">
+        <span class="tag">Business Support</span>
+        <h3>Internal Company Regulations (Governance)</h3>
+        <p class="desc">Preparation of internal company regulations and governance policies to organize work and support administrative and regu…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0053" data-svc data-cat="Business Support" data-q="company restructuring &amp; organization company restructuring and organization covering entity structure, operations, or governance based on business needs.">
+        <span class="tag">Business Support</span>
+        <h3>Company Restructuring &amp; Organization</h3>
+        <p class="desc">Company restructuring and organization covering entity structure, operations, or governance based on business needs.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0054" data-svc data-cat="Business Support" data-q="corporate legal representation corporate legal representation and legal advisory support for obligations, contracts, and regulatory procedures.">
+        <span class="tag">Business Support</span>
+        <h3>Corporate Legal Representation</h3>
+        <p class="desc">Corporate legal representation and legal advisory support for obligations, contracts, and regulatory procedures.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0055" data-svc data-cat="Business Support" data-q="corporate law consultation legal consultation related to corporate law, regulatory obligations, and business decisions.">
+        <span class="tag">Business Support</span>
+        <h3>Corporate Law Consultation</h3>
+        <p class="desc">Legal consultation related to corporate law, regulatory obligations, and business decisions.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0056" data-svc data-cat="Business Support" data-q="general business &amp; investment consultation general business and investment consultation to support formation, expansion, and operational decisions.">
+        <span class="tag">Business Support</span>
+        <h3>General Business &amp; Investment Consultation</h3>
+        <p class="desc">General business and investment consultation to support formation, expansion, and operational decisions.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0057" data-svc data-cat="Business Support" data-q="economic feasibility study preparation business partner handles “economic feasibility study preparation” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Economic feasibility study preparation</h3>
+        <p class="desc">Business Partner handles “Economic feasibility study preparation” on your behalf within Business Support — from preparin…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0058" data-svc data-cat="Business Support" data-q="business plan &amp; strategy development business plan preparation and strategy development to support formation, growth, or expansion.">
+        <span class="tag">Business Support</span>
+        <h3>Business Plan &amp; Strategy Development</h3>
+        <p class="desc">Business plan preparation and strategy development to support formation, growth, or expansion.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0059" data-svc data-cat="Business Support" data-q="financial advisor (accounting &amp; bookkeeping) financial advisor service covering accounting, bookkeeping, and financial record follow-up based on the agreed scope.">
+        <span class="tag">Business Support</span>
+        <h3>Financial Advisor (Accounting &amp; Bookkeeping)</h3>
+        <p class="desc">Financial advisor service covering accounting, bookkeeping, and financial record follow-up based on the agreed scope.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0060" data-svc data-cat="Business Support" data-q="audit &amp; tax review audit, tax review, and financial review services for the entity based on the required scope.">
+        <span class="tag">Business Support</span>
+        <h3>Audit &amp; Tax Review</h3>
+        <p class="desc">Audit, tax review, and financial review services for the entity based on the required scope.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0063" data-svc data-cat="Business Support" data-q="public relations &amp; corporate communications public relations and corporate communications service including messaging, coordination, and communication support based on entity needs.">
+        <span class="tag">Business Support</span>
+        <h3>Public Relations &amp; Corporate Communications</h3>
+        <p class="desc">Public relations and corporate communications service including messaging, coordination, and communication support based…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-diag-01" data-svc data-cat="Business Support" data-q="diagnostic report diagnostic report to assess the client or project situation, identify gaps and opportunities, and provide actionable recommendations.">
+        <span class="tag">Business Support</span>
+        <h3>Diagnostic Report</h3>
+        <p class="desc">Diagnostic report to assess the client or project situation, identify gaps and opportunities, and provide actionable rec…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-guide-01" data-svc data-cat="Business Support" data-q="general industry guide general guide for a specific sector or market, including a quick overview and essential information to support understanding and decision-making.">
+        <span class="tag">Business Support</span>
+        <h3>General Industry Guide</h3>
+        <p class="desc">General guide for a specific sector or market, including a quick overview and essential information to support understan…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-guide-02" data-svc data-cat="Business Support" data-q="custom guide custom guide built around the client or project need, with organized information and recommendations tailored to the requested scope.">
+        <span class="tag">Business Support</span>
+        <h3>Custom Guide</h3>
+        <p class="desc">Custom guide built around the client or project need, with organized information and recommendations tailored to the req…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0088" data-svc data-cat="Business Support" data-q="commercial agency registration new commercial agency registration with document preparation and application follow-up until registration.">
+        <span class="tag">Business Support</span>
+        <h3>Commercial Agency Registration</h3>
+        <p class="desc">New commercial agency registration with document preparation and application follow-up until registration.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0089" data-svc data-cat="Business Support" data-q="commercial agency registration amendment commercial agency registration amendment when data, parties, or agency scope changes, with approval follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Commercial Agency Registration Amendment</h3>
+        <p class="desc">Commercial agency registration amendment when data, parties, or agency scope changes, with approval follow-up.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0090" data-svc data-cat="Business Support" data-q="commercial agency registration renewal commercial agency registration renewal with data and document updates and approval follow-up with the relevant authority.">
+        <span class="tag">Business Support</span>
+        <h3>Commercial Agency Registration Renewal</h3>
+        <p class="desc">Commercial agency registration renewal with data and document updates and approval follow-up with the relevant authority…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0091" data-svc data-cat="Business Support" data-q="commercial agency registration cancellation commercial agency registration cancellation and closure after completing requirements and follow-up procedures.">
+        <span class="tag">Business Support</span>
+        <h3>Commercial Agency Registration Cancellation</h3>
+        <p class="desc">Commercial agency registration cancellation and closure after completing requirements and follow-up procedures.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0092" data-svc data-cat="Business Support" data-q="discount license issuance discount license issuance for the entity or store with requirements follow-up until approval.">
+        <span class="tag">Business Support</span>
+        <h3>Discount License Issuance</h3>
+        <p class="desc">Discount license issuance for the entity or store with requirements follow-up until approval.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-pl-0093" data-svc data-cat="Business Support" data-q="precious stones and precious metals licenses precious stones and metals license issuance with regulatory requirements follow-up until approval.">
+        <span class="tag">Business Support</span>
+        <h3>Precious Stones and Precious Metals Licenses</h3>
+        <p class="desc">Precious stones and metals license issuance with regulatory requirements follow-up until approval.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-sub-01" data-svc data-cat="Business Support" data-q="updates subscription monthly subscription for periodic updates and ongoing tracking of developments related to a specific topic, sector, or workstream.">
+        <span class="tag">Business Support</span>
+        <h3>Updates Subscription</h3>
+        <p class="desc">Monthly subscription for periodic updates and ongoing tracking of developments related to a specific topic, sector, or w…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-vendor-01" data-svc data-cat="Business Support" data-q="vendor qualification qualification of a new or existing vendor through readiness review, document checks, and mapping the requirements needed to start.">
+        <span class="tag">Business Support</span>
+        <h3>Vendor Qualification</h3>
+        <p class="desc">Qualification of a new or existing vendor through readiness review, document checks, and mapping the requirements needed…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-vendor-02" data-svc data-cat="Business Support" data-q="vendor follow-up monthly vendor follow-up covering coordination, commitment checks, and monitoring progress or open requirements.">
+        <span class="tag">Business Support</span>
+        <h3>Vendor Follow-up</h3>
+        <p class="desc">Monthly vendor follow-up covering coordination, commitment checks, and monitoring progress or open requirements.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/sbc-gen" data-svc data-cat="Business Support" data-q="shared services — bespoke service business partner handles “shared services — bespoke service” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Shared Services — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Shared Services — Bespoke Service” on your behalf within Business Support — from preparing the…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/sup-gen" data-svc data-cat="Business Support" data-q="support and advisory — bespoke service business partner handles “support and advisory — bespoke service” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Support and Advisory — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Support and Advisory — Bespoke Service” on your behalf within Business Support — from preparin…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/tr-gen" data-svc data-cat="Business Support" data-q="tourism — bespoke service business partner handles “tourism — bespoke service” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Tourism — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Tourism — Bespoke Service” on your behalf within Business Support — from preparing the documen…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/ma-brk" data-svc data-cat="Business Support" data-q="mergers and acquisitions brokerage business partner handles “mergers and acquisitions brokerage” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Mergers and Acquisitions Brokerage</h3>
+        <p class="desc">Business Partner handles “Mergers and Acquisitions Brokerage” on your behalf within Business Support — from preparing th…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-launch" data-svc data-cat="Business Support" data-q="business development — revenue operating system — launch package business partner handles “business development — revenue operating system — launch package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Launch Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Launch Package” on your behalf within Busine…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-start" data-svc data-cat="Business Support" data-q="business development — revenue operating system — starter package business partner handles “business development — revenue operating system — starter package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Starter Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Starter Package” on your behalf within Busin…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-growth" data-svc data-cat="Business Support" data-q="business development — revenue operating system — growth package business partner handles “business development — revenue operating system — growth package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Growth Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Growth Package” on your behalf within Busine…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-pro" data-svc data-cat="Business Support" data-q="business development — revenue operating system — professional package business partner handles “business development — revenue operating system — professional package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Professional Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Professional Package” on your behalf within …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-team" data-svc data-cat="Business Support" data-q="business development — revenue operating system — dedicated team package business partner handles “business development — revenue operating system — dedicated team package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Dedicated Team Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Dedicated Team Package” on your behalf withi…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/rev-ent" data-svc data-cat="Business Support" data-q="business development — revenue operating system — enterprise package business partner handles “business development — revenue operating system — enterprise package” on your behalf within business support — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Business Support</span>
+        <h3>Business Development — Revenue Operating System — Enterprise Package</h3>
+        <p class="desc">Business Partner handles “Business Development — Revenue Operating System — Enterprise Package” on your behalf within Bu…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="Real Estate" id="cat-real-estate">
+        <div class="svc-group-head"><h2>🏗️ Real Estate</h2><span class="count-pill">7 services</span><a class="card-link" href="/services/category/real-estate">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-re-01" data-svc data-cat="Real Estate" data-q="private office private office provision for a fixed number of people with suitable space based on client needs and available package.">
+        <span class="tag">Real Estate</span>
+        <h3>Private Office</h3>
+        <p class="desc">Private office provision for a fixed number of people with suitable space based on client needs and available package.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-re-02" data-svc data-cat="Real Estate" data-q="coworking space coworking space access with a flexible desk and office services based on the selected package.">
+        <span class="tag">Real Estate</span>
+        <h3>Coworking Space</h3>
+        <p class="desc">Coworking space access with a flexible desk and office services based on the selected package.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-re-03" data-svc data-cat="Real Estate" data-q="virtual office with national address virtual office service with a national address and mail handling for the company without requiring a physical office.">
+        <span class="tag">Real Estate</span>
+        <h3>Virtual Office with National Address</h3>
+        <p class="desc">Virtual office service with a National Address and mail handling for the company without requiring a physical office.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-re-04" data-svc data-cat="Real Estate" data-q="dedicated desk dedicated desk in a coworking space with office services based on the monthly package.">
+        <span class="tag">Real Estate</span>
+        <h3>Dedicated Desk</h3>
+        <p class="desc">Dedicated desk in a coworking space with office services based on the monthly package.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-re-05" data-svc data-cat="Real Estate" data-q="office search service office search service for the entity, including needs definition, option coordination, and follow-up until selection.">
+        <span class="tag">Real Estate</span>
+        <h3>Office Search Service</h3>
+        <p class="desc">Office search service for the entity, including needs definition, option coordination, and follow-up until selection.</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-re-06" data-svc data-cat="Real Estate" data-q="foreign property ownership we help non-saudi individuals and companies own property in saudi arabia under the non-saudi real estate ownership law (effective 2026) via rega's saudi properties portal. we handle eligibility and approved-zone review, digital identity (nafath) for individuals or misa registration and a unified number for companies, document translation and legalization, matching you to a property inside an approved zone, submitting and tracking the portal application, and coordinating e-notarization and title transfer through to deed issuance. government fees (up to 5% transfer fee + 5% rett ≈ 10%) are separate and disclosed.">
+        <span class="tag">Real Estate</span>
+        <h3>Foreign Property Ownership</h3>
+        <p class="desc">We help non-Saudi individuals and companies own property in Saudi Arabia under the Non-Saudi Real Estate Ownership Law (…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/re-gen" data-svc data-cat="Real Estate" data-q="real estate — bespoke service business partner handles “real estate — bespoke service” on your behalf within real estate — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">Real Estate</span>
+        <h3>Real Estate — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Real Estate — Bespoke Service” on your behalf within Real Estate — from preparing the document…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section><section class="svc-group" data-group="AI Automation" id="cat-ai-automation">
+        <div class="svc-group-head"><h2>🤖 AI &amp; Automation</h2><span class="count-pill">6 services</span><a class="card-link" href="/services/category/ai-automation">Category page <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a></div>
+        <div class="grid grid-3"><a class="card svc-card" href="/services/bp-ai-01" data-svc data-cat="AI Automation" data-q="ai business partner enterprise business partner handles “ai business partner enterprise” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>AI Business Partner Enterprise</h3>
+        <p class="desc">Business Partner handles “AI Business Partner Enterprise” on your behalf within AI &amp; Automation — from preparing the doc…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-ai-02" data-svc data-cat="AI Automation" data-q="ai agent setup business partner handles “ai agent setup” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>AI Agent Setup</h3>
+        <p class="desc">Business Partner handles “AI Agent Setup” on your behalf within AI &amp; Automation — from preparing the documents and filin…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-ai-03" data-svc data-cat="AI Automation" data-q="compliance &amp; obligations agent business partner handles “compliance &amp; obligations agent” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>Compliance &amp; obligations agent</h3>
+        <p class="desc">Business Partner handles “Compliance &amp; obligations agent” on your behalf within AI &amp; Automation — from preparing the doc…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-ai-smart-employee" data-svc data-cat="AI Automation" data-q="specialist smart employee business partner handles “specialist smart employee” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>Specialist smart employee</h3>
+        <p class="desc">Business Partner handles “Specialist smart employee” on your behalf within AI &amp; Automation — from preparing the document…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/bp-ai-04" data-svc data-cat="AI Automation" data-q="shared services team business partner handles “shared services team” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>Shared services team</h3>
+        <p class="desc">Business Partner handles “Shared services team” on your behalf within AI &amp; Automation — from preparing the documents and…</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a><a class="card svc-card" href="/services/ai-gen" data-svc data-cat="AI Automation" data-q="artificial intelligence automation — bespoke service business partner handles “artificial intelligence automation — bespoke service” on your behalf within ai &amp; automation — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.">
+        <span class="tag">AI &amp; Automation</span>
+        <h3>Artificial Intelligence Automation — Bespoke Service</h3>
+        <p class="desc">Business Partner handles “Artificial Intelligence Automation — Bespoke Service” on your behalf within AI &amp; Automation — …</p>
+        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
+      </a></div>
+      </section>
+    <p class="svc-empty" id="svcEmpty" hidden>No service matches that — try another word, or ask the advisor and we will point you to the right one.</p>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>Business Development as a Service ⚡</h2><p>We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.</p><a class="btn btn-white" href="/business-development">Explore BD as a Service</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>Looking for fixed-price bundles?</h2><p>Our packages bundle related services at a clear starting price.</p><a class="btn btn-white" href="/hi/packages">पैकेज देखें</a></div>
-  </div></section></main><footer class="site-footer"><div class="container">
+  </div></section>
+  <style>
+    .svc-toolbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:12px 0 8px;margin:-8px 0 12px;border-bottom:1px solid #e5eaf3}
+    .svc-search{width:100%;padding:13px 16px;border:1px solid #d5dae6;border-radius:13px;font:inherit;font-size:.95rem;background:#fff;color:inherit;margin-bottom:10px}
+    .svc-search:focus{outline:none;border-color:#3159d8;box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+    .svc-chips{display:flex;gap:7px;overflow:auto;padding-bottom:6px;scrollbar-width:none}.svc-chips::-webkit-scrollbar{display:none}
+    .svc-chip{flex:0 0 auto;border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:.8rem;font-weight:700;color:#0B1B5A;cursor:pointer;white-space:nowrap}
+    .svc-chip:hover{border-color:#3159d8;color:#3159d8}.svc-chip.on{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+    .svc-count{margin:8px 0 0;font-size:.8rem;color:#6f7b92}
+    .svc-group{margin:26px 0 0}.svc-group[hidden]{display:none}
+    .svc-group-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}.svc-group-head h2{margin:0;font-size:1.25rem;color:#0B1B5A}.svc-group-head .card-link{margin-inline-start:auto}
+    .svc-card[hidden]{display:none}.svc-empty{text-align:center;color:#6f7b92;padding:40px 0}.svc-empty[hidden]{display:none}
+  </style>
+  <script>
+  (function(){
+    var q=document.getElementById("svcSearch"),chips=document.querySelectorAll("[data-chip]"),cards=document.querySelectorAll("[data-svc]"),groups=document.querySelectorAll(".svc-group"),count=document.getElementById("svcCount"),empty=document.getElementById("svcEmpty");
+    if(!q)return;
+    var cat="";
+    var total=cards.length;
+    function apply(){
+      var t=(q.value||"").trim().toLowerCase(),n=0;
+      for(var i=0;i<cards.length;i++){var c=cards[i];var ok=(!cat||c.getAttribute("data-cat")===cat)&&(!t||(c.getAttribute("data-q")||"").indexOf(t)>-1);c.hidden=!ok;if(ok)n++;}
+      for(var g=0;g<groups.length;g++){var vis=groups[g].querySelectorAll("[data-svc]:not([hidden])").length;groups[g].hidden=!vis;}
+      empty.hidden=n>0;
+      count.textContent=(n===total?total:n+" / "+total)+" services";
+    }
+    for(var k=0;k<chips.length;k++)chips[k].addEventListener("click",function(){cat=this.getAttribute("data-chip")||"";for(var j=0;j<chips.length;j++)chips[j].classList.toggle("on",chips[j]===this);apply();var g=cat&&document.querySelector('.svc-group[data-group="'+cat+'"]');if(g)g.scrollIntoView({behavior:"smooth",block:"start"});});
+    q.addEventListener("input",apply);
+    try{var h=decodeURIComponent(location.hash.slice(1));if(h&&/^cat-/.test(h)){var el=document.getElementById(h);if(el)el.scrollIntoView();}}catch(e){}
+    apply();
+  })();
+  </script></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>हमारे न्यूज़लेटर की सदस्यता लें</h3>
@@ -156,7 +917,7 @@
     <div class="footer-col"><h4>हमारी सेवाएं</h4><ul>
       <li><a href="/hi/services">सभी सेवाएं</a></li>
       <li><a href="/hi/packages">पैकेज</a></li>
-      <li><a href="/revenue-os">Revenue OS</a></li>
+      <li><a href="/business-development">BD as a Service</a></li>
       <li><a href="/ai-agents">AI Agents</a></li>
       <li><a href="/task-force">Task Force</a></li>
       <li><a href="/hr">Recruitment</a></li>
@@ -174,7 +935,7 @@
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/account">क्लाइंट पोर्टल</a></li>
-      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/business-development-dashboard">BD as a Service dashboard</a></li>
       <li><a href="/suppliers">Partner registration</a></li>
       <li><a href="/employer-join">नियोक्ताओं के लिए</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
@@ -207,7 +968,7 @@
       <li><a href="/hi/contact">संपर्क करें</a></li>
     </ul></div>
     <div class="footer-col"><h4>संपर्क</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
     </ul>
@@ -221,79 +982,4 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="WhatsApp पर संपर्क करें"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="बंद करें">✕</button>
-    <p>Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Open chat with Baher, the smart assistant">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Ask Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Ask Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Your smart partner — online now</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="बंद करें"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
-
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Full name *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="Email *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Start ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Your details are used only to serve you and follow up on your request.</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Pick the service you need:</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 मुफ्त परामर्श बुक करें</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 मुफ्त परामर्श बुक करें</div>
-      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describe your request (optional)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Request a price quote</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.</div>
-      </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Foreign investment company setup">🏢 Foreign investment setup</button>
-        <button type="button" class="advisor-chip" data-q="Government platforms management">💼 Government platforms</button>
-        <button type="button" class="advisor-chip" data-q="Packages & pricing">💰 Packages &amp; pricing</button>
-        <button type="button" class="advisor-chip" data-q="I want a free consultation">📞 Free consultation</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="अपना सवाल यहां लिखें…" aria-label="अपना सवाल लिखें">
-        <button type="submit" aria-label="भेजें"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
-    </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="WhatsApp पर संपर्क करें"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>

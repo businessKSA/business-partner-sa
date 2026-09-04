@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign, storageDelete } from "./_db.js";
 
-import { loadCatalog } from "./_catalog.js";
+import { loadCatalog, normalizeText } from "./_catalog.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -17,7 +17,13 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
-import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid } from "./_suppliers.js";
+import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
+import { bdTrial, isPaidBdOrder, openFor } from "./_trial.js";
+import {
+  SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
+  canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
+} from "./_bdprofile.js";
+import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
@@ -25,8 +31,9 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, readDocumentRaw, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
 import { handleDocAgent } from "./_docagent.js";
+import { handleSimple } from "./_simple.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -90,6 +97,8 @@ const DEMO_CODES = {
 // capped number of real messages per agent before prompting to subscribe.
 // BP-DEMO/BP2026/DEMO123 stay unlimited — those are for the owner/internal testing.
 const TRIAL_CODES = new Set(["TRIAL"]);
+// Shared Services: free trial length (days) for every registered client.
+const SS_TRIAL_DAYS = Number(process.env.SS_TRIAL_DAYS || 30) || 30;
 
 async function orderStatuses(refs) {
   if (!refs.length) return { statuses: {}, agents: {}, emails: {} };
@@ -224,6 +233,10 @@ async function listLeads(limit) {
       phone: phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "",
       email: emailM ? emailM[1] : "",
       total,
+      // Monthly subscriptions recorded on the order, parsed back out of the
+      // note so /admin can show the renewal price and the agreed commission
+      // without the owner re-reading a paragraph to find them.
+      subscriptions: parseSubsFromNotes(notes),
       hasReceipt: receiptFiles.length > 0,
       details: detailsM ? detailsM[1].trim().slice(0, 140) : "",
       // Everything the owner needs to actually read a request without leaving
@@ -957,6 +970,16 @@ const CONTENT_FILES = {
 };
 
 // Flip a CRM lead's حالة الطلب by its BP-xxxxxx reference.
+// Archive (Notion "trash") — the page leaves every query but stays recoverable.
+async function archiveNotionPage(pageId) {
+  const r = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify({ archived: true }),
+  });
+  if (!r.ok) throw new Error("archive_failed");
+}
+
 async function setLeadStatus(ref, status) {
   if (!NOTION_TOKEN) throw new Error("notion_not_configured");
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
@@ -1518,9 +1541,10 @@ export default async function handler(req, res) {
   // Same reason for /api/jobhunt — the candidate-side job-search service and
   // the agent that runs it live in ./_jobhunt.js.
   if ((q.__route || "") === "jobhunt") return handleJobhunt(req, res);
-  // Same reason for /api/doc-agent — الوكيل الذكي للمستندات lives in
+  // Same reason for /api/doc-agent — المستشار الذكي للمستندات lives in
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
+  if ((q.__route || "") === "simple") return handleSimple(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1584,14 +1608,28 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "public, max-age=300");
     try {
       const cat = await loadCatalog();
-      const term = String(q.q || "").trim().toLowerCase();
+      const term = normalizeText(q.q || "");
       const code = String(q.code || "").trim().toUpperCase();
+      const strip = ({ search, ...rest }) => rest;
       let services = cat.services;
+      let pages = [];
       if (code) services = services.filter((s) => s.code === code);
       else if (term) {
-        services = services.filter((s) =>
-          (s.nameAr + " " + s.nameEn + " " + s.category + " " + s.categoryAr + " " + s.code)
-            .toLowerCase().includes(term));
+        // Every word the customer typed must appear (in any order, Arabic
+        // folded); if that finds nothing, any word will do — a thin answer
+        // beats "no service found" for a question we clearly cover.
+        const tokens = term.split(" ").filter((t) => t.length > 1);
+        // Word-prefix match: "عمال" finds "عمالة" but not "أعمال".
+        const has = (hay, t) => (" " + hay).includes(" " + t);
+        const all = (hay) => tokens.every((t) => has(hay, t));
+        const any = (hay) => tokens.some((t) => has(hay, t));
+        const rank = (hay) => tokens.filter((t) => has(hay, t)).length;
+        let hit = services.filter((s) => all(s.search));
+        if (!hit.length) hit = services.filter((s) => any(s.search));
+        services = hit.sort((a, b) => rank(b.search) - rank(a.search));
+        pages = cat.pages.filter((p) => any(p.search)).sort((a, b) => rank(b.search) - rank(a.search)).slice(0, 5);
+      } else {
+        pages = cat.pages;
       }
       const limit = Math.min(Math.max(parseInt(q.limit, 10) || 40, 1), 200);
       res.statusCode = 200;
@@ -1599,10 +1637,11 @@ export default async function handler(req, res) {
         ok: true,
         currency: "SAR",
         updated: cat.updated,
-        note: "أسعار الخدمات الفردية إرشادية وتُحسم بعرض سعر رسمي؛ أسعار الباقات معلنة كما هي.",
+        note: "أسعار الخدمات الفردية إرشادية وتُحسم بعرض سعر رسمي؛ أسعار الباقات معلنة كما هي. url = الصفحة العربية، urlEn = الإنجليزية.",
         packages: cat.packages,
+        pages: pages.map(strip),
         count: services.length,
-        services: services.slice(0, limit),
+        services: services.slice(0, limit).map(strip),
       }));
     } catch (e) {
       res.statusCode = 502;
@@ -1972,6 +2011,179 @@ export default async function handler(req, res) {
     }
   }
 
+  // ---- The revenue board -----------------------------------------------------
+  // Most of the money that passes through Business Partner is not Business
+  // Partner's. A company tops up its wallet so we can pay its GOSI
+  // subscription, renew its iqamas and work permits, settle municipality
+  // licences and platform fees, and run its payroll — all so it never collects
+  // a violation. That money is the client's while it sits with us, and it
+  // becomes a government platform's the moment we pay. Calling any of it
+  // "revenue" would inflate the business several times over and put a tax
+  // liability on the wrong side of the ledger.
+  //
+  // So this endpoint answers four separate questions instead of one:
+  //   1. كم دخل الصندوق؟     cash actually collected, whatever it belongs to
+  //   2. كم منه لنا؟          bp_fees on orders that were really paid — this
+  //                           alone is revenue
+  //   3. كم منه ليس لنا؟      gov fees (pass-through), VAT (owed to ZATCA),
+  //                           wallet balances (clients'), escrow (suppliers')
+  //   4. كم لم يصل بعد؟       orders awaiting payment and quotes still out
+  //
+  // The manual Notion ledger stays, but as one source beside the system's own
+  // records rather than the only one — it is where cash and bank movements
+  // that never touched the site get written down.
+  if ((q.action || "") === "panel-revenue") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+
+    // An order counts as revenue only once the money is in. Anything still
+    // waiting on a transfer or a receipt review is pipeline, not income.
+    const PAID = ["paid", "in_progress", "delivered", "completed"];
+    const WAITING = ["payment_verification", "awaiting_payment", "draft"];
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+    const r2 = (x) => Math.round(x * 100) / 100;
+    const monthKey = new Date().toISOString().slice(0, 7);
+    const yearKey = monthKey.slice(0, 4);
+
+    try {
+      const [orders, payments, wallets, escrows, walletTx] = await Promise.all([
+        sb("orders?select=ref,status,bp_fees,gov_fees,vat,total,currency,created_at&order=created_at.desc&limit=1000"),
+        sb("payments?select=method,status,amount,gateway_ref,order_id,created_at&order=created_at.desc&limit=1000"),
+        sb("wallet_balances?select=*").catch(() => []),
+        sb("escrows?select=ref,amount,status,supplier_name,title,created_at&order=created_at.desc&limit=500"),
+        sb("wallet_transactions?select=type,amount,note,created_at&order=created_at.desc&limit=500"),
+      ]);
+
+      // ---- what is ours, month by month
+      const monthly = {};
+      const bucket = (mk) => (monthly[mk] = monthly[mk] || { revenue: 0, govFees: 0, vat: 0, cash: 0 });
+      let revMonth = 0, revYear = 0, revAll = 0, paidCount = 0;
+      let govMonth = 0, govYear = 0, govAll = 0;
+      let vatMonth = 0, vatYear = 0, vatAll = 0;
+      let pipeN = 0, pipeFees = 0, pipeTotal = 0;
+
+      for (const o of orders || []) {
+        const mk = String(o.created_at || "").slice(0, 7);
+        const fees = n(o.bp_fees), gov = n(o.gov_fees), vat = n(o.vat);
+        if (PAID.includes(o.status)) {
+          paidCount++;
+          revAll += fees; govAll += gov; vatAll += vat;
+          if (mk.slice(0, 4) === yearKey) { revYear += fees; govYear += gov; vatYear += vat; }
+          if (mk === monthKey) { revMonth += fees; govMonth += gov; vatMonth += vat; }
+          const b = bucket(mk); b.revenue += fees; b.govFees += gov; b.vat += vat;
+        } else if (WAITING.includes(o.status)) {
+          pipeN++; pipeFees += fees; pipeTotal += n(o.total);
+        }
+      }
+
+      // ---- what actually reached the account, by channel
+      const byMethod = {};
+      let cashTotal = 0, cashMonth = 0;
+      for (const p of payments || []) {
+        if (String(p.status) !== "paid") continue;
+        const amt = n(p.amount), mk = String(p.created_at || "").slice(0, 7);
+        byMethod[p.method || "أخرى"] = r2((byMethod[p.method || "أخرى"] || 0) + amt);
+        cashTotal += amt;
+        if (mk === monthKey) cashMonth += amt;
+        bucket(mk).cash += amt;
+      }
+
+      // ---- money held that is not ours
+      const walletHeld = (wallets || []).reduce((s, w) => s + n(w.balance), 0);
+      let escrowHeld = 0, escrowReleased = 0, escrowRefunded = 0;
+      for (const e of escrows || []) {
+        const a = n(e.amount);
+        if (e.status === "held" || e.status === "delivered" || e.status === "refund_requested") escrowHeld += a;
+        else if (e.status === "released") escrowReleased += a;
+        else if (e.status === "refunded") escrowRefunded += a;
+      }
+      const topUps = (walletTx || []).filter((t) => t.type === "topup").reduce((s, t) => s + n(t.amount), 0);
+
+      // ---- quotes still out, from the invoicing app (best effort)
+      let quotes = { n: 0, total: 0, reachable: false };
+      try {
+        if (PANEL_BRIDGE_TOKEN) {
+          const qr = await fetch(`${PANEL_URL}/api/bridge/owner`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+            body: JSON.stringify({ action: "overview" }),
+            signal: AbortSignal.timeout(8000),
+          });
+          const qj = await qr.json().catch(() => null);
+          if (qr.ok && qj && qj.ok) {
+            quotes = { n: n(qj.openQuotes || qj.quotesOpen), total: n(qj.openQuotesValue || qj.quotesValue), reachable: true };
+          }
+        }
+      } catch { /* the board renders without it */ }
+
+      // ---- the manual ledger, as one source among several
+      let ledger = { configured: false, mRev: 0, mExp: 0, yRev: 0, yExp: 0, entries: 0 };
+      if (NOTION_TOKEN) {
+        try {
+          const from = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10);
+          const data = await notionQuery(FINANCE_DB, {
+            page_size: 100,
+            filter: { property: "التاريخ", date: { on_or_after: from } },
+            sorts: [{ property: "التاريخ", direction: "descending" }],
+          });
+          let mRev = 0, mExp = 0, yRev = 0, yExp = 0, cnt = 0;
+          for (const pg of data.results || []) {
+            const p = pg.properties || {};
+            const amt = p["المبلغ"] && typeof p["المبلغ"].number === "number" ? p["المبلغ"].number : 0;
+            const date = propAny(p["التاريخ"]).slice(0, 10);
+            if (!(amt > 0) || !date) continue;
+            cnt++;
+            const isRev = propAny(p["النوع"]) === "إيراد";
+            const mk = date.slice(0, 7);
+            if (mk.slice(0, 4) === yearKey) { if (isRev) yRev += amt; else yExp += amt; }
+            if (mk === monthKey) { if (isRev) mRev += amt; else mExp += amt; }
+          }
+          ledger = { configured: true, mRev: r2(mRev), mExp: r2(mExp), yRev: r2(yRev), yExp: r2(yExp), entries: cnt };
+        } catch (e) { console.error("panel-revenue ledger", String(e).slice(0, 120)); }
+      }
+
+      // ---- what the owner should not be left to infer
+      const notes = [];
+      if (!paidCount && (orders || []).length) {
+        notes.push("لا يوجد طلب واحد مسجَّل كمدفوع في قاعدة البيانات رغم وجود طلبات — راجع «تنبيهات المطابقة» أدناه.");
+      }
+      if (pipeN) notes.push(`${pipeN} طلباً ما زال بانتظار تأكيد السداد — قيمتها ${r2(pipeTotal)} ﷼ ليست إيراداً بعد.`);
+      if (!ledger.configured) notes.push("دفتر نوشن اليدوي غير متاح — الأرقام هنا من قاعدة البيانات وحدها.");
+      else if (!ledger.entries) notes.push("دفتر نوشن اليدوي فارغ — أي تحصيل بنكي أو نقدي خارج الموقع لن يظهر حتى يُسجَّل فيه.");
+      if (escrowHeld > 0) notes.push(`${r2(escrowHeld)} ﷼ محجوزة في الضمان لموردين — أمانة لدينا، لا إيراداً.`);
+      if (walletHeld > 0) notes.push(`${r2(walletHeld)} ﷼ أرصدة عملاء في المحافظ — مالهم لدينا لسداد التزاماتهم، لا إيراداً.`);
+
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        asOf: new Date().toISOString(),
+        currency: "SAR",
+        cash: { total: r2(cashTotal), month: r2(cashMonth), byMethod, topUps: r2(topUps) },
+        revenue: { month: r2(revMonth), year: r2(revYear), all: r2(revAll), paidOrders: paidCount },
+        notOurs: {
+          govFees: { month: r2(govMonth), year: r2(govYear), all: r2(govAll) },
+          vat: { month: r2(vatMonth), year: r2(vatYear), all: r2(vatAll) },
+          walletHeld: r2(walletHeld),
+          escrowHeld: r2(escrowHeld),
+          escrowReleased: r2(escrowReleased),
+          escrowRefunded: r2(escrowRefunded),
+        },
+        pipeline: { orders: pipeN, orderFees: r2(pipeFees), orderTotal: r2(pipeTotal), quotes },
+        ledger,
+        monthly: Object.fromEntries(Object.entries(monthly).map(([k, v]) => [k, {
+          revenue: r2(v.revenue), govFees: r2(v.govFees), vat: r2(v.vat), cash: r2(v.cash),
+        }])),
+        counts: { orders: (orders || []).length, payments: (payments || []).length, escrows: (escrows || []).length },
+        notes,
+      }));
+    } catch (e) {
+      console.error("panel-revenue failed", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "revenue_failed" }));
+    }
+  }
+
   // Daily CRM sweep, called by the n8n schedule — no human in the loop.
   // Keyless like escrow-sweep, and safe to be: it only (1) mirrors the
   // WhatsApp leads database into the master pipeline (idempotent upserts keyed
@@ -2146,7 +2358,7 @@ export default async function handler(req, res) {
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
     const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
-    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [] })); }
+    if (!myEmail) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, orders: [], bd: bdTrial(sess.organization, false, new Date(), openFor(sess)) })); }
     try {
       const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
         method: "POST",
@@ -2168,13 +2380,31 @@ export default async function handler(req, res) {
           const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
           const totalProp = p["إجمالي الطلب"];
           const total = totalProp && typeof totalProp.number === "number" ? totalProp.number : null;
-          return { ref, title, status, total, at: String(pg.created_time || "").slice(0, 10) };
+          // The opportunity title is generic ("طلب/شراء خدمة — <name>"), so what
+          // the client actually bought lives only in the note. Without this the
+          // client's own dashboard cannot tell a Revenue OS subscription from a
+          // one-off service and its subscription banner can never flip.
+          const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("");
+          const itemsM = notes.match(/طلب\s*·\s*([^·]+)/);
+          return {
+            ref, title, status, total, at: String(pg.created_time || "").slice(0, 10),
+            items: itemsM ? itemsM[1].trim().slice(0, 300) : "",
+            subscriptions: parseSubsFromNotes(notes),
+          };
         })
         // Orders and Revenue OS requests only: web-chat threads (WEB-<sid>)
         // also carry the email in Notes but are conversations, not orders.
         .filter((o) => o.ref && /^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(o.ref));
+      // Whether this client may use Business Development as a Service, decided
+      // here rather than in the dashboard: the trial clock is the organization's
+      // registration date, and a browser that computes its own eligibility can
+      // simply clear storage for another fortnight.
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, orders }));
+      return res.end(JSON.stringify({
+        ok: true,
+        orders,
+        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder), new Date(), openFor(sess)),
+      }));
     } catch {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
@@ -2305,7 +2535,7 @@ export default async function handler(req, res) {
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "tasks") {
-        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at&order=created_at.desc&limit=40`);
+        const items = await sb(`tasks?organization_id=eq.${orgId}&select=id,title,details,assignee,status,urgency,due_at,created_at,completed_at,source&order=created_at.desc&limit=80`);
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true, items }));
       }
       if (what === "violations") {
@@ -2314,7 +2544,7 @@ export default async function handler(req, res) {
       }
       if (what === "compliance-access") {
         // الامتثال متاح لكل حساب مسجّل: المشترك النشط بلا حدود، وغيره تجربة
-        // مجانية 14 يوماً تبدأ من إنشاء حساب الشركة.
+        // مجانية 30 يوماً تبدأ من إنشاء حساب الشركة.
         let active = false;
         const accEmail = (sess.user && sess.user.email) || "";
         if (NOTION_TOKEN && accEmail) {
@@ -2327,11 +2557,13 @@ export default async function handler(req, res) {
             if (r.ok) active = ((await r.json()).results || []).length > 0;
           } catch {}
         }
+        // Open policy / owner: always active, never a countdown.
+        if (openFor(sess)) active = true;
         let daysLeft = 0, endsAt = null;
         if (!active) {
           const orgs = await sb(`organizations?id=eq.${orgId}&select=created_at&limit=1`);
           const created = orgs[0] && orgs[0].created_at ? new Date(orgs[0].created_at).getTime() : Date.now();
-          const ends = created + 14 * 86400000;
+          const ends = created + 30 * 86400000;
           endsAt = new Date(ends).toISOString().slice(0, 10);
           daysLeft = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
         }
@@ -2548,6 +2780,217 @@ export default async function handler(req, res) {
         const tid = String(b.id || "");
         await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: new Date().toISOString() } });
         res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      // The client's own task list: they add what they need to do, tick it
+      // off, and reopen it — their tasks, their control, alongside the ones
+      // the platform derives from their orders.
+      if (b.action === "ops-task-add") {
+        const title = String(b.title || "").trim().slice(0, 200);
+        if (!title) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        const due = /^\d{4}-\d{2}-\d{2}$/.test(String(b.due || "")) ? b.due : null;
+        const urgency = ["urgent", "soon", "normal"].includes(b.urgency) ? b.urgency : "normal";
+        const rows = await sb("tasks", { method: "POST", body: [{ organization_id: orgId, title, details: String(b.details || "").trim().slice(0, 1000) || null, assignee: "client", status: "open", urgency, due_at: due, source: "manual" }] });
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "task.created", entity_type: "task", entity_id: rows[0] && rows[0].id });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true, task: rows[0] || null }));
+      }
+      if (b.action === "ops-task-reopen") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client`, { method: "PATCH", prefer: "return=minimal", body: { status: "open", completed_at: null } });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      if (b.action === "ops-task-delete") {
+        const tid = String(b.id || "");
+        await sb(`tasks?id=eq.${tid}&organization_id=eq.${orgId}&assignee=eq.client&source=eq.manual`, { method: "DELETE", prefer: "return=minimal" });
+        res.statusCode = 200; return res.end(JSON.stringify({ ok: true }));
+      }
+      // Shared Services free trial — every registered client gets SS_TRIAL_DAYS
+      // days from the moment their organization was created, with no purchase
+      // and nothing to activate. Derived from organizations.created_at so there
+      // is no extra state to provision, migrate or keep in sync.
+      if (b.action === "ops-ss-trial") {
+        const orgs = await sb(`organizations?id=eq.${orgId}&select=id,name_ar,name_en,created_at&limit=1`);
+        const org = orgs[0] || null;
+        if (!org) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+        const started = new Date(org.created_at || Date.now());
+        const ends = new Date(started.getTime() + SS_TRIAL_DAYS * 86400000);
+        const msLeft = ends.getTime() - Date.now();
+        const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+        const open = openFor(sess);
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          name: org.name_ar || org.name_en || "",
+          startedAt: started.toISOString(),
+          endsAt: ends.toISOString(),
+          daysLeft: open ? null : daysLeft,
+          active: open || msLeft > 0,
+          open,
+          totalDays: SS_TRIAL_DAYS,
+        }));
+      }
+      // ---- Business Development profile: the input side of matchmaking ----
+      // What the client sells, who they want to sell it to, and their company
+      // profile document. Sectors and cities are stored as the exact values the
+      // companies database filters on — see api/_bdprofile.js for why storing
+      // the Arabic label instead would silently match nothing.
+      if (b.action === "ops-bd-profile") {
+        const rows = await sb(`bd_profiles?organization_id=eq.${orgId}&limit=1`).catch(() => []);
+        const r = rows[0] || null;
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true,
+          sectors: BD_SECTORS, cities: BD_CITIES,
+          profile: r ? {
+            servicesText: r.services_text || "",
+            idealCustomer: r.ideal_customer || "",
+            targetSectors: r.target_sectors || [],
+            targetCities: r.target_cities || [],
+            profileName: r.profile_name || "",
+            hasProfile: !!r.profile_path,
+            extracted: r.extracted || null,
+            completeness: r.completeness || 0,
+          } : null,
+        }));
+      }
+      // ---- Matchmaking: the profile against the companies database ----
+      // Open to anyone the server already lets into the workspace: the open
+      // policy, the owner, a live trial or a paid plan. The query is built from
+      // the stored profile only — never from the request body — so a client
+      // cannot widen their own match into a database dump.
+      if (b.action === "ops-bd-matches" || b.action === "ops-bd-reveal") {
+        const trial = bdTrial(sess.organization, false);
+        const allowed = openFor(sess) || trial.state === "trial" || trial.state === "subscribed";
+        if (!allowed) { res.statusCode = 402; return res.end(JSON.stringify({ ok: false, error: "not_open", trial })); }
+        if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+        const rows = await sb(`bd_profiles?organization_id=eq.${orgId}&select=target_sectors,target_cities&limit=1`).catch(() => []);
+        const prof = rows[0] ? { targetSectors: rows[0].target_sectors || [], targetCities: rows[0].target_cities || [] } : { targetSectors: [], targetCities: [] };
+        const labels = { sector: sectorLabel, city: cityLabel };
+
+        if (b.action === "ops-bd-reveal") {
+          // One company, on request, and it leaves a trace: who revealed what.
+          const pageId = String(b.id || "").replace(/[^0-9a-f-]/gi, "").slice(0, 40);
+          if (!pageId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_id" })); }
+          const r = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+            headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION },
+          });
+          if (!r.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+          const page = await r.json();
+          const row = bdMapCompany(page, true);
+          // A page the client's own filter would not have returned is not theirs
+          // to reveal, whatever id they typed.
+          if (!(prof.targetSectors || []).includes(row.sector)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_matched" })); }
+          await audit({ organization_id: orgId, actor_user_id: userId, action: "bd_match.reveal", entity_type: "company", entity_id: pageId });
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ ok: true, company: row }));
+        }
+
+        const query = bdMatchQuery(prof, b.cursor);
+        if (!query) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, ready: false, companies: [], profile: prof })); }
+        const r = await fetch(`https://api.notion.com/v1/databases/${BD_LEADS_DB}/query`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+          body: JSON.stringify(query),
+        });
+        if (!r.ok) { console.error("bd matches query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+        const data = await r.json();
+        const companies = (data.results || []).map((p) => bdMapCompany(p)).filter((c) => c.name)
+          .map((c) => ({ ...c, why: bdExplainMatch(c, prof, labels) }));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, ready: true, companies, profile: prof,
+          sectors: (prof.targetSectors || []).map(sectorLabel), cities: (prof.targetCities || []).map(cityLabel),
+          next_cursor: data.next_cursor || "", has_more: !!data.has_more,
+        }));
+      }
+      if (b.action === "ops-bd-profile-save") {
+        const p = normalizeProfile(b);
+        // An uploaded company profile is read once, here, and what the reader
+        // finds is folded in without overwriting anything the client typed.
+        let profilePath = null, profileName = null, profileBytes = null, extracted = null;
+        if (b.fileBase64 && b.fileName) {
+          const mime = String(b.fileMime || "").toLowerCase();
+          if (!DOC_MIME_OK.test(mime)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_type" })); }
+          let buf;
+          try { buf = Buffer.from(String(b.fileBase64), "base64"); } catch { buf = null; }
+          if (!buf || !buf.length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_file" })); }
+          if (buf.length > MAX_DOC_BYTES) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
+          profileName = String(b.fileName).slice(0, 160);
+          profileBytes = buf.length;
+          profilePath = `bd-profiles/${orgId}/${Date.now()}-${profileName.replace(/[^\w.\-]+/g, "_")}`;
+          await storagePut(profilePath, buf, mime);
+          // Reading is best-effort: a profile that saved but could not be parsed
+          // is still a profile, and losing the client's typing to a model
+          // timeout would be the worse failure.
+          try {
+            const raw = await readDocumentRaw(String(b.fileBase64), mime, PROFILE_READ_PROMPT, 1200);
+            extracted = parseJson(raw) || null;
+          } catch (e) { console.error("bd profile read failed", String(e).slice(0, 200)); }
+        }
+        const merged = extracted ? mergeExtracted({ ...p, profilePath }, extracted) : { ...p, profilePath };
+        const completeness = profileCompleteness(merged);
+        const row = {
+          organization_id: orgId,
+          services_text: merged.servicesText || null,
+          ideal_customer: merged.idealCustomer || null,
+          target_sectors: merged.targetSectors || [],
+          target_cities: merged.targetCities || [],
+          extracted: extracted ? {
+            services: merged.extractedServices || [],
+            keywords: merged.extractedKeywords || [],
+            suggestedSectors: merged.suggestedSectors || [],
+          } : undefined,
+          completeness,
+          created_by: userId,
+          updated_at: new Date().toISOString(),
+        };
+        if (profilePath) { row.profile_path = profilePath; row.profile_name = profileName; row.profile_bytes = profileBytes; }
+        for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
+        // bd_profiles ships in db/schema.sql and has to be applied to Supabase
+        // before this can store anything. Until it is, the generic handler below
+        // would answer "try again" to a client who can retry forever without
+        // anything changing — the fault is ours and unprompted retrying will
+        // never fix it. Say that instead, and log it where the owner will see it.
+        try {
+          await sb("bd_profiles?on_conflict=organization_id", {
+            method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: [row],
+          });
+        } catch (e) {
+          const msg = String(e && e.message ? e.message : e);
+          if (/bd_profiles/i.test(msg) && /(does not exist|relation|schema cache|42P01|PGRST205)/i.test(msg)) {
+            console.error("bd_profiles table missing — apply db/schema.sql to Supabase");
+            res.statusCode = 503;
+            return res.end(JSON.stringify({ ok: false, error: "not_provisioned" }));
+          }
+          throw e;
+        }
+        // The owner asked to hear about this in the panel. Notify once, when the
+        // profile first becomes usable for matching — not on every keystroke
+        // save, and not while it is still too thin to match on.
+        if (canMatch(merged)) {
+          const existing = await sb(`bd_profiles?organization_id=eq.${orgId}&select=notified_at&limit=1`).catch(() => []);
+          if (!(existing[0] && existing[0].notified_at)) {
+            const org = (sess && sess.organization) || {};
+            const who = org.name_ar || org.name_en || "منشأة";
+            const secs = (merged.targetSectors || []).map(sectorLabel).join("، ");
+            await notify({
+              organization_id: orgId, event: "bd_profile_ready", channel: "inapp",
+              title: `جاهز للمطابقة — ${who} يستهدف: ${secs}`,
+              idempotency_key: `bd_profile:${orgId}`,
+            });
+            await sendEmail(TEAM_EMAIL, `🎯 ملف تطوير أعمال جديد — ${who}`,
+              `<p><b>${esc(who)}</b> عبّأ ملف تطوير الأعمال وصار جاهزاً للمطابقة.</p>` +
+              `<p><b>القطاعات المستهدفة:</b> ${esc(secs)}</p>` +
+              `<p><b>المدن:</b> ${esc((merged.targetCities || []).map(cityLabel).join("، ") || "—")}</p>` +
+              `<p><b>ماذا يبيع:</b> ${esc((merged.servicesText || "").slice(0, 600))}</p>` +
+              `<p><b>البروفايل المرفق:</b> ${esc(profileName || "لم يُرفق")}</p>`);
+            await sb(`bd_profiles?organization_id=eq.${orgId}`, {
+              method: "PATCH", prefer: "return=minimal", body: { notified_at: new Date().toISOString() },
+            }).catch(() => {});
+          }
+        }
+        await audit({ organization_id: orgId, actor_user_id: userId, action: "bd_profile.saved", entity_type: "bd_profile", entity_id: orgId });
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, completeness, canMatch: canMatch(merged), extracted: row.extracted || null }));
       }
       if (b.action === "ops-violation-add") {
         const authority = String(b.authority || "").trim().slice(0, 80);
@@ -3627,12 +4070,55 @@ export default async function handler(req, res) {
       }
       await setLeadStatus(ref, "ملغي");
       try { await appendLeadNote(pg, `ألغاه العميل بنفسه من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
-      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي».</p></div>`).catch(() => {});
+      // Owner (2026-09): a client who cancels wants the order gone from their
+      // lists, not a greyed-out row. Archiving keeps it recoverable from the
+      // Notion trash for the team while it disappears from every client view.
+      let removed = false;
+      if (b.remove) { try { await archiveNotionPage(pg.id); removed = true; } catch {} }
+      sendEmail(OWNER_EMAIL, `🚫 العميل ألغى الطلب ${ref}`, `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>العميل <b>${esc(myEmail)}</b> ألغى الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> من لوحته وكانت حالته «${esc(status)}». لا يلزمك إجراء — الحالة صارت «ملغي»${removed ? " وأُرشف الطلب (يمكن استرجاعه من سلة نوشن)" : ""}.</p></div>`).catch(() => {});
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, removed }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+    }
+  }
+
+  // Remove an already-cancelled (or still unstarted) order from the client's
+  // lists. Same ownership rule as cancelling; archived, never hard-deleted.
+  if (b.action === "my-order-delete") {
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "notion_not_configured" })); }
+    const myEmail = String((sess.user && sess.user.email) || "").toLowerCase();
+    const ref = String(b.ref || "").trim().slice(0, 40);
+    if (!ref || !/^(BP|RV|BPW|BPP|BPQ|BPI)-/i.test(ref)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_ref" })); }
+    try {
+      const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ page_size: 1, filter: { property: "رقم المرجع", rich_text: { equals: ref } } }),
+      });
+      if (!r.ok) throw new Error("notion_failed");
+      const pg = ((await r.json()).results || [])[0];
+      if (!pg) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+      const p = pg.properties || {};
+      const notes = ((p["Notes"] && p["Notes"].rich_text) || []).map((t) => t.plain_text).join("").toLowerCase();
+      if (!myEmail || !notes.includes(myEmail)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_yours" })); }
+      const status = (p["حالة الطلب"] && p["حالة الطلب"].select && p["حالة الطلب"].select.name) || "";
+      if (!["ملغي", "مرفوض", "قيد المراجعة", "بانتظار الدفع"].includes(status)) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "in_progress", message: "بدأ العمل على هذا الطلب — لإزالته افتح تذكرة دعم ويرجع لك الفريق بالتفاصيل." }));
+      }
+      if (status !== "ملغي" && status !== "مرفوض") await setLeadStatus(ref, "ملغي");
+      try { await appendLeadNote(pg, `حذفه العميل من لوحته (${myEmail}) في ${new Date().toISOString().slice(0, 16).replace("T", " ")}`); } catch {}
+      await archiveNotionPage(pg.id);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true }));
     } catch {
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: "cancel_failed" }));
+      return res.end(JSON.stringify({ ok: false, error: "delete_failed" }));
     }
   }
 
@@ -4186,7 +4672,25 @@ export default async function handler(req, res) {
       : "";
     const codesNote = pricedItems.length ? `<p style="color:#666;font-size:13px">أكواد الخدمات: ${esc(pricedItems.join(" · "))}</p>` : "";
     const discNote = orderDisc ? `<p style="color:#047857">🎟️ كود خصم مطبق: <b>${esc(orderDisc.code)}</b>${discCut ? ` (−${discCut} ﷼ قبل الضريبة)` : ""}</p>` : "";
-    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
+    // Monthly subscriptions (Revenue OS packages). The renewal price and the
+    // success-fee percentage were shown to the buyer and accepted by them at
+    // checkout; recording them on the order is what makes them enforceable and
+    // what stops the team from looking a percentage up later. Values are
+    // re-clamped here — the browser may display terms, it may not decide them.
+    const subs = (Array.isArray(b.subscriptions) ? b.subscriptions : []).slice(0, 10).map((s) => ({
+      id: String((s && s.id) || "").slice(0, 60),
+      name: String((s && s.name) || "").slice(0, 160),
+      firstAmount: Math.max(0, Math.min(1e6, Number(s && s.firstAmount) || 0)),
+      renewsAt: Math.max(0, Math.min(1e6, Number(s && s.renewsAt) || 0)),
+      commissionPercent: Math.max(0, Math.min(50, Number(s && s.commissionPercent) || 0)),
+    })).filter((s) => s.id);
+    const subsNotesText = subs.length
+      ? " · اشتراك شهري: " + subs.map((s) => `${s.name || s.id} (يتجدد ${s.renewsAt} ﷼/شهر · عمولة ${s.commissionPercent}%)`).join(" ، ")
+      : "";
+    const subsNote = subs.length
+      ? `<p style="background:#FFFBF2;border:1px solid #E7D9B8;padding:10px 12px;border-radius:8px">🔁 <strong>اشتراك شهري — وافق عليه العميل عند الدفع</strong><br>${subs.map((s) => `${esc(s.name || s.id)}: أول دفعة <strong>${s.firstAmount} ﷼</strong> · يتجدد بـ <strong>${s.renewsAt} ﷼ شهرياً</strong> · عمولة نجاح <strong>${s.commissionPercent}%</strong> على الإيراد المحصّل`).join("<br>")}<br><span style="color:#7C530E">التجديد ليس آلياً — أضف تذكير التجديد يدوياً بعد اعتماد الطلب.</span></p>`
+      : "";
+    const oHtml = `<div style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">طلب جديد ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", items) + row("الإجمالي", total ? total + " ﷼" : "")}</table>${codesNote}${discNote}${mismatchNote}${subsNote}${taxNote}${pkgFieldsNote}${agentsNote}${complianceNote}${employerNote}${receiptNote}<p>بعد تأكيد مطابقة المبلغ: افتح صف الطلب في قاعدة «Sales Pipeline» في Notion (رقم المرجع ${ref}) وغيّر <strong>حالة الطلب</strong> إلى «مؤكد - قيد التنفيذ» ثم «مكتمل». تظهر الحالة فوراً في لوحة العميل /account بلا إعادة نشر.</p></div>`;
     const pkgNotesText = (crNumber || headcount != null || nationalAddress) ? ` · س.ت: ${crNumber || "—"} · موظفين: ${headcount != null ? headcount : "—"}${nationalAddress ? " · عنوان: " + nationalAddress : ""}` : "";
     // The establishment the buyer typed at checkout. It was only ever used for
     // the subscription approval emails, so an order placed for a company was
@@ -4211,7 +4715,7 @@ export default async function handler(req, res) {
       // delivery issue (e.g. unverified sender domain), the order is still seen.
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${name}`, oHtml) : Promise.resolve({ ok: false }),
       isEmail(email) ? sendEmail(email, `تم استلام طلبك ودفعتك — ${ref}`, cHtml) : Promise.resolve(),
-      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
+      crmLead({ title: `طلب/شراء خدمة — ${name}`, phone, email, notes: `طلب · ${items}${total ? " · إجمالي " + total : ""}${orderDisc ? " · كود خصم: " + orderDisc.code : ""}${pricedItems.length ? " · أكواد: " + pricedItems.join(",") : ""}${pkgNotesText}${subsNotesText}${companyNotesText}${taxNotesText}${partnerRefText}`, ref, orderStatus: "قيد المراجعة", agents, total, receiptUploadId, receiptName }),
       addToAudience(email, name),
       forwardLead({ source: "order", ref, name, phone, email, items, total }),
     ]);

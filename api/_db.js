@@ -3,6 +3,10 @@
 // functions by Vercel, so this stays a plain shared module (keeps us under
 // the 12-function plan cap).
 import crypto from "node:crypto";
+import {
+  LOCAL_DB, localRest,
+  localStoragePut, localStorageGet, localStorageDelete, localStorageSign,
+} from "./_localdb.js";
 
 // Normalize hand-pasted env values; fall back to the project's known URL
 // (a public identifier, not a secret) when the value isn't a valid
@@ -13,9 +17,12 @@ if (_su && !/^https?:\/\//i.test(_su)) _su = "https://" + _su;
 if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(_su)) _su = _su ? DEFAULT_SUPABASE_URL : "";
 export const SUPABASE_URL = _su;
 export const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-export const DB_ON = !!(SUPABASE_URL && SUPABASE_KEY);
+// LOCAL_DB=1 (npm run dev) swaps the whole persistence layer for a JSON file
+// under .localdb/ so localhost never reads or writes production data.
+export const DB_ON = LOCAL_DB || !!(SUPABASE_URL && SUPABASE_KEY);
 
 export async function sb(path, { method = "GET", body, prefer } = {}) {
+  if (LOCAL_DB) return localRest(path, { method, body, prefer });
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
@@ -57,7 +64,9 @@ export async function getSession(req) {
   const s = rows[0];
   let org = null;
   if (s.organization_id) {
-    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness&limit=1`);
+    // created_at is the anchor for the 30-day Business Development trial —
+    // see api/_trial.js. It has to come from the row, not the browser.
+    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness,created_at&limit=1`);
     org = orgs[0] || null;
   }
   return { sessionId: s.id, user: s.users, organization: org, expiresAt: s.expires_at };
@@ -85,6 +94,7 @@ async function ensureBucket() {
   _bucketReady = true; // exists-already errors are fine
 }
 export async function storagePut(path, buffer, contentType) {
+  if (LOCAL_DB) return localStoragePut(path, buffer);
   await ensureBucket();
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "POST",
@@ -97,23 +107,26 @@ export async function storagePut(path, buffer, contentType) {
 // Fetch an object's bytes back from the vault (service key, server-side only).
 // The document agent needs the original form bytes to fill them.
 export async function storageGet(path) {
+  if (LOCAL_DB) return localStorageGet(path);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
   if (!r.ok) { console.error("storage get error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
   return Buffer.from(await r.arrayBuffer());
 }
-// Short-lived signed download URL (default 10 minutes).
 // Remove an object from the vault — used when the client deletes a document.
 // Best-effort: a missing object is already gone, which is what we wanted.
 export async function storageDelete(path) {
+  if (LOCAL_DB) return localStorageDelete(path);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "DELETE",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
   if (!r.ok && r.status !== 404) console.error("storage delete error", r.status, (await r.text()).slice(0, 200));
 }
+// Short-lived signed download URL (default 10 minutes).
 export async function storageSign(path, expiresIn) {
+  if (LOCAL_DB) return localStorageSign(path);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
     method: "POST",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },

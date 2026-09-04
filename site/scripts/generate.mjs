@@ -14,9 +14,8 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
 const assetV = (rel) => crypto.createHash("md5").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex").slice(0, 10);
 const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
+const BDAAS_JS_V = assetV("assets/js/business-development.js");
 const LIVE_V = assetV("assets/js/live-prices.js");
-const REVOS_CSS_V = assetV("assets/css/revenue-os-page.css");
-const REVOS_JS_V = assetV("assets/js/revenue-os-v1.js");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -161,11 +160,12 @@ const PKG_ALIAS = {
 const panelRow = (code) =>
   PANEL_PRICES.get(code) || PANEL_PRICES.get(PKG_ALIAS[code] || "");
 
-// أسعار اللوحة تسود على ملفات الموقع. تُطبَّق قبل أي عرض، فتصل كل بطاقة وكل
-// صفحة تفصيل والحاسبة والسلة بالرقم نفسه بدل تصحيح كل موضع طباعة وحده.
-// مفعّل افتراضياً بقرار المالك (٢٥ أغسطس ٢٠٢٦): السعر يُعدَّل في اللوحة وحدها.
-// وتعذُّر الوصول لا يُفشِل البناء — يُطبع تحذير ويُنشر الموقع بأسعار ملفاته.
-const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL !== "0";
+// قرار المالك (٣١ أغسطس ٢٠٢٦) عكس قرار ٢٥ أغسطس: أسعار لوحة العميل — أي ملفات
+// الموقع نفسها التي يقرأها متجر اللوحة عبر catalog.json — هي المرجع على كل
+// الموقع وكل الجذور. سحب أسعار لوحة bp-quotes وقت البناء كان يجعل صفحات الموقع
+// المنشورة تخالف متجر لوحة العميل (١٣ خدمة اختلفت، مثل BP-SBC-02: ٨٥ مقابل
+// ٢٥٠). الآن السحب اختياري صراحةً (CATALOG_FROM_PANEL=1) ولا يعمل افتراضياً.
+const CATALOG_FROM_PANEL = process.env.CATALOG_FROM_PANEL === "1";
 const PANEL_PRICES = new Map();
 if (CATALOG_FROM_PANEL) {
   try {
@@ -301,6 +301,9 @@ const FULLY_READY_LANGS = ["fr", "zh"];
 const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
+import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
+import { buildSimpleMy } from "./simple-v1-my.mjs";
+import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -502,6 +505,12 @@ function pathInLang(path, lang) {
   if (lang === "en") return p;
   return p === "/" ? `/${lang}/` : `/${lang}${p}`;
 }
+// Embedded mode: the client portal opens dashboards/advisors inside its own
+// frame with `?embed=1`; the page then drops its site chrome so the client
+// sees one workspace, not a website inside a website.
+const EMBED_SNIPPET = `<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>`;
+
 function head(title, desc, path) {
   const canonical = path || "/";
   const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
@@ -522,13 +531,21 @@ function head(title, desc, path) {
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
 <link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
 ${SHOW_PRICES ? "" : '<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>'}
+${EMBED_SNIPPET}
 </head>
 <body>`;
 }
@@ -755,18 +772,21 @@ function advisorWidget() {
   </section>`;
 }
 
-function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "" }) {
+function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "", bodyClass = "" }) {
   const p = path || active || "/";
   return (
-    head(title, desc, p).replace("</head>", extraHead + "</head>").replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>") +
+    head(title, desc, p)
+      .replace("</head>", extraHead + "</head>")
+      .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
+      .replace("<body>", bodyClass ? `<body class="${bodyClass}">` : "<body>") +
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
+    // Owner decision (2026-08-31): the floating "Ask Baher" advisor is off the
+    // public site — the green WhatsApp button is the only floating action. This
+    // has been reversed once before, so advisorWidget() is kept intact below
+    // rather than deleted; restoring it is re-adding the call here.
     waFab() +
-    // Owner request (2026-08): restore the floating "Ask Baher" widget
-    // (guided desk: services → quote, book a consultation, and live chat)
-    // alongside the green WhatsApp button.
-    advisorWidget() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
 }
@@ -856,7 +876,7 @@ const DELIV_AR = {
   "BP-HR-01": ["إصدار الشهادات الصحية للموظفين"],
   "BP-MUQEEM-02": ["إصدار إقامة جديدة للموظف"],
   "BP-AI-01": ["أتمتة متعددة المسارات بالذكاء الاصطناعي", "معالجة ذكية للمستندات", "لوحات تقارير ومؤشرات", "تحسين ودعم مستمر"],
-  "BP-AI-02": ["إعداد وكيل واتساب ذكي", "ربط مع CRM والبريد والتقويم والمستندات", "تأهيل العملاء المحتملين وتسعير فوري ومتابعة آلية"],
+  "BP-AI-02": ["إعداد مستشار واتساب ذكي", "ربط مع CRM والبريد والتقويم والمستندات", "تأهيل العملاء المحتملين وتسعير فوري ومتابعة آلية"],
 };
 function featuresOf(s, ov) {
   if (LANG === "ar") {
@@ -867,14 +887,14 @@ function featuresOf(s, ov) {
     if (dv.length) feats.push(...dv.slice(0, 4));
     feats.push("ننجز الإجراء نيابةً عنك من البداية حتى الإصدار");
     feats.push("أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة");
-    feats.push("دعم الوكيل الذكي على مدار الساعة");
+    feats.push("دعم المستشار الذكي على مدار الساعة");
     return feats.slice(0, 7);
   }
   if (ov && ov.featuresEn) return ov.featuresEn.map((f) => Lraw(f, f));
   return [
     Lraw("We complete the procedure on your behalf, from start to issuance", "ننجز الإجراء نيابةً عنك من البداية حتى الإصدار"),
     Lraw("Clear fees, with government fees separate and disclosed", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة"),
-    Lraw("Smart-agent support around the clock", "دعم الوكيل الذكي على مدار الساعة"),
+    Lraw("Smart-agent support around the clock", "دعم المستشار الذكي على مدار الساعة"),
   ];
 }
 function faqOf(s, ov) {
@@ -890,7 +910,7 @@ function faqOf(s, ov) {
     });
     faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
     if (s.govPlatform) faq.push({ q: "ما الجهة المختصة؟", a: `تُقدَّم الخدمة عبر ${govLabel(s.govPlatform)}، ونتولّى نحن التقديم والمتابعة معها.` });
-    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا، والوكيل الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
+    faq.push({ q: "كيف أبدأ؟", a: "تواصل معنا، والمستشار الذكي يحدد متطلباتك، يجهّز قائمة مستنداتك، ويبدأ تنفيذ طلبك فوراً." });
   } else {
     faq.push({
       q: Lraw("How much are the fees for this service?", ""),
@@ -919,135 +939,769 @@ function serviceQuickFacts(s, ov) {
 }
 
 /* ---------- pages ---------- */
+/* ---------- homepage conversion block ---------- */
+// The hero filled only its left half and the page carried no purchasable item
+// above the fold: a visitor who arrived ready to buy had to guess their way
+// into /services. These two blocks give them a path in one screen — tell us
+// what you need (lead → CRM), or buy one of the six most-requested services
+// outright.
+//
+// The six codes are real catalog entries (site/data/services.json); their
+// prices come from the same source every other page reads, so nothing here can
+// drift from what checkout charges.
+const HOME_QUICK_CODES = ["BP-SBC-02", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", "BP-MUQEEM-03", "BP-BALADY-01"];
+
+/* ============================================================================
+   Homepage — single source.
+
+   Everything the homepage renders is built here, in document order. There used
+   to be seven post-build scripts (home-clarity, home-hierarchy-v2,
+   home-positioning-v3, home-final-layout, home-brand-v5, home-b10x-sales,
+   home-order-guard-v7) that injected a second homepage after </header>, hid the
+   generated one with `display:none`, and then raced each other with
+   insertAdjacentElement + setTimeout to settle the section order. The visible
+   symptom was a B10X block flashing above the hero on every load. Order is
+   now decided once, here, by the order of the sections in `body` — there is
+   nothing left to re-sort at runtime.
+
+   Design tokens are the brand set: navy #07163F, B10X blue #3159D8, AI cyan
+   #43D6F4, success mint #16B875, background #F7F9FD.
+   ========================================================================== */
+
+const homeCss = `<style>
+.bph{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.bph *{box-sizing:border-box}
+.bph a{text-decoration:none}
+.bph .bph-wrap{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.bph section{padding:70px 0}
+.bph .bph-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.bph .bph-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.bph .bph-head{max-width:820px;margin:0 auto 30px;text-align:center}
+.bph .bph-head h2{margin:0;color:var(--n);font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.08;letter-spacing:-.045em}
+.bph .bph-head p{margin:12px 0 0;color:var(--mut);line-height:1.85;font-size:.95rem}
+.bph .bph-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--n);font-weight:800;font-size:.88rem;cursor:pointer}
+.bph .bph-btn.primary{border:0;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;box-shadow:0 13px 30px rgba(36,75,184,.18)}
+.bph .bph-btn.white{background:#fff;color:#0a286c;border:0}
+.bph .bph-btn.ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff}
+
+/* 1 — hero */
+.bph .bph-hero{padding:56px 0 30px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.bph .bph-hero h1{max-width:1000px;margin:17px auto 14px;font-size:clamp(2.4rem,4.4vw,4.1rem);line-height:1.03;letter-spacing:-.05em;color:var(--n)}
+.bph .bph-hero h1 span{background:linear-gradient(100deg,var(--b),#647eff 52%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bph .bph-hero p.bph-lead{max-width:900px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1.02rem}
+.bph .bph-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px auto 0;max-width:1020px}
+.bph .bph-chips a{padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.75rem;font-weight:800;box-shadow:0 5px 16px rgba(9,30,78,.04)}
+.bph .bph-chips a:hover{border-color:#9fb2ef}
+.bph .bph-proofline{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:17px auto 0;color:#7c879c;font-size:.7rem;font-weight:750}
+.bph .bph-proofline b{color:var(--b)}
+.bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
+.bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+
+/* 1b — the obligations we carry: why a company hires us at all */
+.bph .bph-risk{padding:56px 0 8px;background:#fff}
+.bph .bph-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+@media(max-width:900px){.bph .bph-risk-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.bph .bph-risk-grid{grid-template-columns:1fr}}
+.bph .bph-risk-card{border:1px solid var(--line);border-radius:18px;padding:18px 17px;background:#fff;box-shadow:0 6px 20px rgba(9,30,78,.04)}
+.bph .bph-risk-card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;background:linear-gradient(135deg,rgba(22,184,117,.13),rgba(67,214,244,.14));margin-bottom:11px}
+.bph .bph-risk-card h3{margin:0 0 6px;font-size:.92rem;color:var(--n);letter-spacing:-.02em}
+.bph .bph-risk-card p{margin:0;color:var(--mut);font-size:.79rem;line-height:1.75}
+.bph .bph-risk-note{max-width:900px;margin:22px auto 0;text-align:center;color:#8b94a6;font-size:.74rem;line-height:1.85}
+
+/* 1c — the journey, in three steps, before any service name is mentioned */
+.bph .bph-how{padding:58px 0;background:linear-gradient(180deg,#fff,var(--soft))}
+.bph .bph-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:1120px;margin:0 auto;counter-reset:bpstep}
+.bph .bph-step{position:relative;border:1px solid var(--line);border-radius:20px;padding:24px 20px 20px;background:#fff}
+.bph .bph-step:before{counter-increment:bpstep;content:counter(bpstep);position:absolute;top:-15px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-weight:900;font-size:.82rem;box-shadow:0 8px 18px rgba(36,75,184,.22)}
+.bph .bph-step h3{margin:6px 0 8px;font-size:1.02rem;color:var(--n);letter-spacing:-.03em}
+.bph .bph-step p{margin:0;color:var(--mut);font-size:.83rem;line-height:1.8}
+.bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
+.bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
+
+/* 1d — instalments: financing our own fee, stated as exactly that */
+.bph .bph-pay{padding:56px 0;background:#fff}
+.bph .bph-pay-shell{max-width:1120px;margin:0 auto;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr}
+.bph .bph-pay-main{padding:34px 32px}
+.bph .bph-pay-main h2{margin:10px 0 12px;font-size:clamp(1.7rem,2.9vw,2.5rem);line-height:1.12;letter-spacing:-.04em;color:var(--n)}
+.bph .bph-pay-main p{margin:0;color:var(--mut);font-size:.92rem;line-height:1.85}
+.bph .bph-pay-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(22,184,117,.1);color:#0f8e57;font-size:.68rem;font-weight:900}
+.bph .bph-pay-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.bph .bph-pay-side{padding:30px 28px;background:linear-gradient(160deg,var(--soft),#eef3fd);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.bph .bph-pay-fact{display:flex;gap:11px;align-items:flex-start}
+.bph .bph-pay-fact .k{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);font-size:.75rem}
+.bph .bph-pay-fact b{display:block;color:var(--n);font-size:.83rem;margin-bottom:3px}
+.bph .bph-pay-fact span{color:var(--mut);font-size:.77rem;line-height:1.7}
+.bph .bph-pay-fine{margin-top:4px;padding-top:12px;border-top:1px dashed #cfd8e8;color:#7c879c;font-size:.71rem;line-height:1.75}
+@media(max-width:880px){.bph .bph-pay-shell{grid-template-columns:1fr}.bph .bph-pay-side{border-inline-start:0;border-top:1px solid var(--line)}}
+
+/* 2 — chat: the control plane, large and centred */
+.bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
+.bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
+.bph .bph-chat{border-radius:28px;background:#fff;overflow:hidden}
+.bph .bph-chat-head{height:54px;padding:0 16px;border-bottom:1px solid #edf0f5;display:flex;align-items:center;justify-content:space-between}
+.bph .bph-chat-title{display:flex;align-items:center;gap:9px;color:var(--n);font-size:.79rem;font-weight:900}
+.bph .bph-chat-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-size:.6rem}
+.bph .bph-chat-live{font-size:.62rem;color:#0f8e57;background:#eaf9f2;padding:5px 9px;border-radius:999px;font-weight:800}
+.bph .bph-chat-body{padding:16px;min-height:240px;max-height:330px;overflow:auto;background:linear-gradient(180deg,#fbfcff,var(--soft))}
+.bph .bph-msg{max-width:88%;padding:11px 13px;border-radius:14px;margin-bottom:9px;font-size:.79rem;line-height:1.7;white-space:pre-wrap}
+.bph .bph-msg.ai{background:#fff;border:1px solid #e6eaf2;color:#34415c}
+.bph .bph-msg.user{margin-inline-start:auto;background:linear-gradient(135deg,var(--n),var(--b));color:#fff}
+.bph .bph-chat-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
+.bph .bph-chat-chips button{border:1px solid #dfe5f0;background:#fff;color:#36559d;border-radius:999px;padding:7px 11px;font-size:.68rem;cursor:pointer;font-weight:800}
+.bph .bph-chat-chips button:hover{border-color:#9fb2ef}
+.bph .bph-compose{display:flex;align-items:center;gap:9px;padding:12px;border-top:1px solid #e9edf4}
+.bph .bph-compose textarea{flex:1;resize:none;min-height:48px;max-height:110px;border:1px solid #dfe5ef;border-radius:13px;padding:12px;outline:none;background:#fbfcff;font:inherit;font-size:.85rem}
+.bph .bph-compose button{width:48px;height:48px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;cursor:pointer;font-weight:900;font-size:1.1rem}
+.bph .bph-chat-note{text-align:center;color:#929bad;font-size:.63rem;padding:0 14px 12px}
+
+/* 3 — B10X sales */
+.bph .bph-b10x{padding:68px 0;background:radial-gradient(circle at 88% 8%,rgba(67,214,244,.17),transparent 25%),linear-gradient(145deg,var(--n),#123b8e);color:#fff;position:relative;overflow:hidden}
+.bph .bph-b10x:before{content:'B10X';position:absolute;inset-inline-start:-18px;bottom:-72px;font-size:15rem;line-height:1;font-weight:950;letter-spacing:-.09em;color:rgba(255,255,255,.025);pointer-events:none}
+.bph .bph-b10x .bph-wrap{position:relative;z-index:1}
+.bph .bph-b10x-intro{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:end;margin-bottom:26px}
+.bph .bph-b10x .bph-eyebrow{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;font-size:.66rem;font-weight:900;color:#aeefff}
+.bph .bph-b10x h2{font-size:clamp(2.4rem,4.6vw,4.5rem);line-height:1;letter-spacing:-.055em;margin:13px 0 0;color:#fff}
+.bph .bph-b10x-intro p{margin:0;color:rgba(255,255,255,.7);font-size:.94rem;line-height:1.9;max-width:660px}
+.bph .bph-promise{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:22px 0 26px}
+.bph .bph-promise div{padding:13px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);border-radius:16px}
+.bph .bph-promise b{display:block;font-size:.78rem}
+.bph .bph-promise span{display:block;margin-top:4px;color:rgba(255,255,255,.55);font-size:.63rem;line-height:1.55}
+.bph .bph-b10x-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.bph .bph-panel{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);border-radius:24px;padding:20px}
+.bph .bph-panel h3{margin:0 0 14px;font-size:1rem;color:#fff}
+.bph .bph-caps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bph .bph-cap{padding:12px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075)}
+.bph .bph-cap b{display:block;font-size:.75rem}
+.bph .bph-cap span{display:block;font-size:.63rem;line-height:1.6;color:rgba(255,255,255,.57);margin-top:4px}
+.bph .bph-request{background:#fff;color:#17254d;border-radius:20px;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.14)}
+.bph .bph-request-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.bph .bph-request-top strong{font-size:.9rem}
+.bph .bph-badge{font-size:.58rem;padding:5px 9px;border-radius:999px;background:#eaf8f1;color:#108657;font-weight:850}
+.bph .bph-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #edf0f5;font-size:.69rem;color:#657087}
+.bph .bph-row:last-child{border-bottom:0}
+.bph .bph-row b{color:#1d2b50;text-align:end}
+/* Latin left-to-right chain: in an RTL page a plain flex row renders it
+   Track → … → Ask, i.e. backwards. */
+.bph .bph-flow{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin:26px 0 20px;direction:ltr}
+.bph .bph-flow span{font-size:.67rem;font-weight:850;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+.bph .bph-flow i{font-style:normal;color:#7ee7ff}
+.bph .bph-b10x-cta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+
+/* 4 — services */
+.bph .bph-services{padding:58px 0 66px;background:#fff}
+.bph .bph-ai-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}
+.bph .bph-ai-card{display:block;border-radius:20px;padding:17px 18px;border:1px solid #dfe5f0;background:linear-gradient(145deg,#fff,#f8faff);min-height:130px;position:relative;overflow:hidden}
+.bph .bph-ai-card:hover{box-shadow:0 14px 38px rgba(20,49,125,.09);border-color:#afc0f0}
+.bph .bph-ai-card:after{content:'AI';position:absolute;inset-inline-start:13px;bottom:-13px;font-size:3.3rem;font-weight:950;color:rgba(40,83,198,.035)}
+.bph .bph-ai-card small{display:inline-flex;padding:5px 8px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.59rem;font-weight:900;margin-bottom:16px}
+.bph .bph-ai-card strong{display:block;color:#142653;font-size:.87rem;margin-bottom:6px}
+.bph .bph-ai-card span{display:block;color:#778198;font-size:.69rem;line-height:1.7}
+.bph .bph-label{font-size:.7rem;font-weight:900;color:#6f7b92;margin:26px 2px 12px;letter-spacing:.04em}
+.bph .bph-cap-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bph .bph-capcard{display:block;min-height:152px;border-radius:20px;padding:17px;border:1px solid var(--line);background:#fff}
+.bph .bph-capcard:hover{border-color:#b7c4e8;box-shadow:0 12px 34px rgba(15,39,103,.08)}
+.bph .bph-capcard i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.72rem;margin-bottom:16px}
+.bph .bph-capcard strong{display:block;font-size:.83rem;color:#172854;margin-bottom:6px}
+.bph .bph-capcard span{display:block;font-size:.68rem;line-height:1.7;color:#778198}
+
+/* 5 — start now + buy now */
+.bph .bph-start{padding:62px 0;background:var(--soft)}
+.bph .bph-start-grid{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.15fr);gap:26px;align-items:start}
+.bph .hero-start{background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:20px;padding:26px 24px 22px;box-shadow:0 18px 46px rgba(11,27,90,.13)}
+.bph .hs-title{margin:0 0 6px;font-size:1.35rem;color:var(--n)}
+.bph .hs-sub{margin:0 0 18px;color:var(--mut);font-size:.92rem;line-height:1.65}
+.bph .hs-label{display:block;font-weight:700;font-size:.85rem;color:var(--n);margin:0 0 6px}
+.bph .hs-field{width:100%;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;font:inherit;font-size:.93rem;background:#fff;color:inherit}
+.bph .hs-field:focus{outline:none;border-color:var(--b);box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+.bph .hs-pickwrap{position:relative;margin:0 0 10px}
+.bph .hs-pickwrap .hs-field{margin:0}
+.bph .hs-sug{position:absolute;top:calc(100% + 6px);inset-inline:0;z-index:40;background:#fff;border:1px solid #d5dae6;border-radius:13px;box-shadow:0 20px 46px rgba(11,27,90,.18);max-height:320px;overflow-y:auto;padding:6px}
+.bph .hs-sug[hidden],.bph .hs-picked[hidden]{display:none}
+.bph .hs-sug button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;font:inherit;font-size:.88rem;text-align:start;padding:9px 11px;border-radius:9px;cursor:pointer;color:var(--n)}
+.bph .hs-sug button:hover,.bph .hs-sug button.hl{background:#f1f4fb}
+.bph .hs-sug .g{font-size:.66rem;color:#8a93a7;font-weight:700;white-space:nowrap}
+.bph .hs-sug .none{padding:10px 12px;font-size:.85rem;color:var(--mut);line-height:1.7}
+.bph .hs-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.bph .hs-chips-t{font-size:.72rem;font-weight:800;color:#8a93a7}
+.bph .hs-chip{border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:.78rem;font-weight:700;color:var(--n);cursor:pointer}
+.bph .hs-chip:hover{border-color:var(--b);color:var(--b)}
+.bph .hs-chip.on{background:var(--n);border-color:var(--n);color:#fff}
+.bph .hs-picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:11px;padding:9px 12px;font-size:.84rem;font-weight:700;margin:0 0 14px;line-height:1.7}
+.bph .hs-picked a{color:var(--b);font-weight:800;text-decoration:none;margin-inline-start:auto;white-space:nowrap}
+.bph .hs-go{width:100%}
+.bph .hs-msg{margin:12px 0 0;font-size:.88rem;line-height:1.6}
+.bph .hs-msg.err{color:#b91c1c}
+.bph .hs-msg.ok{color:#166534}
+.bph .hs-alt{margin:12px 0 0;font-size:.83rem;color:var(--mut);text-align:center}
+.bph .hs-alt a{color:var(--b);font-weight:700}
+.bph .qb-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.bph .qb-head h2{margin:6px 0 0;color:var(--n);font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.04em}
+.bph .qb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bph .qb-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 6px 20px rgba(11,27,90,.05)}
+.bph .qb-cat{font-size:.63rem;font-weight:800;color:#6f7b92;margin-bottom:7px}
+.bph .qb-card h3{margin:0 0 9px;font-size:.87rem;line-height:1.55;color:#172854}
+.bph .qb-card .price-amt{font-size:1.15rem;font-weight:850;color:var(--n);margin-bottom:10px}
+.bph .qb-note{margin:0 0 10px;font-size:.7rem;color:var(--mut)}
+.bph .qb-actions{margin-top:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bph .qb-actions .add-cart{font-size:.76rem;padding:9px 13px;border-radius:11px}
+.bph .qb-more{font-size:.73rem;font-weight:800;color:var(--b)}
+.bph .qb-foot{margin:16px 0 0;font-size:.72rem;color:var(--mut);text-align:center}
+
+/* 6 — packages */
+.bph .bph-packages{padding:62px 0;background:#fff}
+.bph .bph-pkg-grid{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:11px;align-items:stretch}
+.bph .bph-pkg{border:1px solid var(--line);border-radius:22px;padding:20px;background:#fff;display:flex;flex-direction:column}
+.bph .bph-pkg h3{margin:0 0 7px;color:var(--n)}
+.bph .bph-pkg p{margin:0;color:var(--mut);font-size:.72rem;line-height:1.65;min-height:44px}
+.bph .bph-pkg ul{list-style:none;padding:0;margin:16px 0 20px;display:grid;gap:8px}
+.bph .bph-pkg li{font-size:.7rem;color:#536077}
+.bph .bph-pkg li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.bph .bph-pkg .bph-btn{margin-top:auto;text-align:center}
+.bph .bph-pkg.b10x{position:relative;overflow:hidden;border:0;color:#fff;background:radial-gradient(circle at 90% 5%,rgba(67,214,244,.18),transparent 28%),linear-gradient(145deg,var(--n),#153f96);box-shadow:0 20px 55px rgba(24,57,145,.19)}
+.bph .bph-pkg.b10x:before{content:'B10X';position:absolute;inset-inline-start:-5px;bottom:-25px;font-size:5.5rem;font-weight:950;letter-spacing:-.08em;color:rgba(255,255,255,.045)}
+.bph .bph-pkg.b10x h3{color:#fff;font-size:1.45rem}
+.bph .bph-pkg.b10x p,.bph .bph-pkg.b10x li{color:rgba(255,255,255,.74)}
+.bph .bph-pkg.b10x li:before{color:#56e2b0}
+.bph .bph-pkg.b10x .bph-btn{position:relative;z-index:1}
+
+/* 7 — client portal proof */
+.bph .bph-proof{padding:62px 0 72px;background:var(--soft)}
+.bph .bph-proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bph .bph-proof-card{border:1px solid var(--line);border-radius:22px;padding:22px;background:#fff;box-shadow:0 8px 28px rgba(10,28,78,.05)}
+.bph .bph-proof-card.dark{background:linear-gradient(145deg,var(--n),#123984);color:#fff;border:0}
+.bph .bph-proof-card h3{margin:0 0 14px;color:var(--n)}
+.bph .bph-proof-card.dark h3{color:#fff}
+.bph .bph-mini{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:.73rem;color:#5d687d}
+.bph .bph-proof-card.dark .bph-mini{border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.72)}
+.bph .bph-status{font-size:.59rem;padding:4px 8px;border-radius:999px;background:#eaf8f1;color:#118657;font-weight:800}
+.bph .bph-proof-card.dark .bph-status{background:rgba(255,255,255,.12);color:#fff}
+.bph .bph-proof-card .bph-btn{margin-top:16px}
+
+/* The homepage carries its own full-width advisor; the floating one duplicates it. */
+body.bph-page .advisor-fab,body.bph-page .advisor-panel,body.bph-page .advisor-teaser{display:none!important}
+/* Compact footer — the homepage ends on a CTA, not on a sitemap. */
+body.bph-page .site-footer .newsletter-band,body.bph-page .site-footer .footer-grid{display:none!important}
+body.bph-page .site-footer{padding:0!important}
+body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!important;border:0!important}
+
+@media(max-width:1080px){
+  .bph .bph-ai-row,.bph .bph-cap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-pkg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-start-grid{grid-template-columns:1fr}
+}
+@media(max-width:980px){
+  .bph .bph-b10x-intro,.bph .bph-b10x-grid,.bph .bph-proof-grid{grid-template-columns:1fr}
+  .bph .bph-promise{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:640px){
+  .bph .bph-wrap{width:min(100% - 26px,1180px)}
+  .bph section{padding:50px 0}
+  .bph .bph-hero{padding:38px 0 20px}
+  .bph .bph-hero h1{font-size:1.95rem;line-height:1.12;margin:12px auto 12px}
+  .bph .bph-hero p.bph-lead{font-size:.9rem;line-height:1.75}
+  .bph .bph-kicker{font-size:.66rem}
+  .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
+  .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
+  .bph .bph-b10x h2{font-size:2.6rem}
+}
+</style>`;
+
+// Sends the «ابدأ الآن» box to /api/requests as a "quick-start" lead, and runs
+// the homepage advisor against /api/chat. Kept inline and dependency-free so
+// both work on first paint, before main.js has parsed.
+function homeScript() {
+  const T = (en, ar) => JSON.stringify(Lraw(en, ar));
+  return `<script>
+(function () {
+  var go = document.getElementById("hsGo"), search = document.getElementById("hsSearch"),
+      sug = document.getElementById("hsSug"), chips = document.getElementById("hsChips"),
+      pickedBox = document.getElementById("hsPicked"),
+      ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
+  if (go && search && sug && ph && msg) {
+    var say = function (text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); };
+    var LIST = [];
+    try { LIST = JSON.parse((document.getElementById("hsData") || {}).textContent || "[]"); } catch (e) {}
+    var OTHER = { c: "other", n: ${T("Something else / not sure", "شيء آخر / لست متأكداً")}, g: "", u: "" };
+    var selCode = "", selName = "", cur = [], hl = -1;
+    var escT = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (ch) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]; }); };
+    var markChip = function (code) {
+      Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+        b.classList.toggle("on", !!code && b.getAttribute("data-code") === code);
+      });
+    };
+    var clearSel = function () { selCode = ""; selName = ""; pickedBox.hidden = true; markChip(""); };
+    var pick = function (item) {
+      selCode = item.c; selName = item.n;
+      search.value = item.n; sug.hidden = true; hl = -1;
+      pickedBox.innerHTML = "✓ " + escT(item.n)
+        + (item.u ? '<a href="' + escT(item.u) + '">' + ${T("Details & price ←", "التفاصيل والسعر ←")} + "</a>" : "");
+      pickedBox.hidden = false;
+      markChip(item.c);
+      say("", "");
+      ph.focus();
+    };
+    var findByCode = function (code) {
+      if (code === "other") return OTHER;
+      for (var i = 0; i < LIST.length; i++) if (LIST[i].c === code) return LIST[i];
+      return null;
+    };
+    var renderSug = function (q) {
+      q = String(q || "").trim().toLowerCase();
+      if (!q) { sug.hidden = true; return; }
+      cur = [];
+      for (var i = 0; i < LIST.length && cur.length < 8; i++) {
+        var it = LIST[i];
+        if ((it.n || "").toLowerCase().indexOf(q) > -1 || (it.g || "").toLowerCase().indexOf(q) > -1) cur.push(it);
+      }
+      hl = -1;
+      if (!cur.length) {
+        sug.innerHTML = '<div class="none">' + ${T("No exact match — send anyway and we will pin the service with you on the call.", "لا نتيجة مطابقة — أرسل طلبك كما كتبته وسنحدد الخدمة معك في المكالمة.")} + "</div>";
+      } else {
+        var h = "";
+        for (var j = 0; j < cur.length; j++) h += '<button type="button" data-i="' + j + '"><span>' + escT(cur[j].n) + '</span><span class="g">' + escT(cur[j].g) + "</span></button>";
+        sug.innerHTML = h;
+        Array.prototype.forEach.call(sug.querySelectorAll("[data-i]"), function (b) {
+          b.addEventListener("click", function () { pick(cur[+b.getAttribute("data-i")]); });
+        });
+      }
+      sug.hidden = false;
+    };
+    search.addEventListener("input", function () { clearSel(); renderSug(search.value); });
+    search.addEventListener("keydown", function (e) {
+      var bs = sug.querySelectorAll("[data-i]");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (sug.hidden || !bs.length) return;
+        e.preventDefault();
+        hl = e.key === "ArrowDown" ? (hl + 1) % bs.length : (hl - 1 + bs.length) % bs.length;
+        Array.prototype.forEach.call(bs, function (b, i) { b.classList.toggle("hl", i === hl); });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (!sug.hidden && hl > -1 && cur[hl]) pick(cur[hl]);
+        else if (!sug.hidden && cur.length === 1) pick(cur[0]);
+        else ph.focus();
+      } else if (e.key === "Escape") { sug.hidden = true; }
+    });
+    document.addEventListener("click", function (e) {
+      if (!sug.hidden && !sug.contains(e.target) && e.target !== search) sug.hidden = true;
+    });
+    Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+      b.addEventListener("click", function () {
+        var it = findByCode(b.getAttribute("data-code"));
+        if (it) pick(it);
+      });
+    });
+    // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
+    var normPhone = function (v) {
+      var d = String(v || "").replace(/[^\\d]/g, "").replace(/^00/, "");
+      if (/^9665\\d{8}$/.test(d)) return d;
+      if (/^05\\d{8}$/.test(d)) return "966" + d.slice(1);
+      if (/^5\\d{8}$/.test(d)) return "966" + d;
+      return "";
+    };
+    go.addEventListener("click", function () {
+      var free = search.value.trim();
+      if (!selCode && !free) { say(${T("Pick a service or type what you need.", "اختر خدمة أو اكتب ما تحتاجه.")}, "err"); search.focus(); return; }
+      var phone = normPhone(ph.value);
+      if (!phone) { say(${T("Enter a valid Saudi mobile number (05XXXXXXXX).", "أدخل رقم جوال سعودي صحيح (05XXXXXXXX).")}, "err"); ph.focus(); return; }
+      go.disabled = true;
+      say(${T("Sending…", "جاري الإرسال…")}, "");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "quick-start", code: selCode || "other", service: selName || free, phone: phone, lang: document.documentElement.lang || "ar" })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error("failed");
+          say(${T("Received ✓ Our team will call you shortly. Reference: ", "وصلنا طلبك ✓ سيتواصل معك فريقنا قريباً. رقم المرجع: ")} + d.ref, "ok");
+          ph.value = ""; search.value = ""; clearSel();
+        })
+        .catch(function () {
+          say(${T("Sending failed — please book a consultation instead.", "تعذّر الإرسال — يمكنك حجز استشارة بدلاً من ذلك.")}, "err");
+        })
+        .then(function () { go.disabled = false; });
+    });
+    ph.addEventListener("keydown", function (e) { if (e.key === "Enter") go.click(); });
+  }
+
+  var form = document.getElementById("bphChatForm"), input = document.getElementById("bphChatInput"),
+      body = document.getElementById("bphChatBody");
+  if (!form || !input || !body) return;
+  var history = [];
+  function add(text, role) {
+    var d = document.createElement("div");
+    d.className = "bph-msg " + role; d.textContent = text;
+    body.appendChild(d); body.scrollTop = body.scrollHeight; return d;
+  }
+  function ask(q) {
+    if (!q) return;
+    add(q, "user"); history.push({ role: "user", content: q }); input.value = "";
+    var wait = add(${T("Thinking…", "المستشار يفكر…")}, "ai");
+    fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        wait.remove();
+        var reply = String(j.reply || j.message || ${T("No reply right now — please try again.", "تعذر الرد الآن. جرّب مرة ثانية.")});
+        add(reply, "ai"); history.push({ role: "assistant", content: reply });
+      })
+      .catch(function () { wait.textContent = ${T("Could not reach the advisor. Please try again shortly.", "تعذر الاتصال بالمستشار الآن. جرّب مرة ثانية بعد لحظات.")}; });
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value.trim()); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(input.value.trim()); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-chat-q]"), function (b) {
+    b.addEventListener("click", function () { ask(b.getAttribute("data-chat-q")); });
+  });
+})();
+</script>`;
+}
+
+// «ابدأ الآن» — a searchable picker, one phone field, one button. The old
+// native <select> dumped 140+ raw options on the visitor; now they type two
+// letters and get styled suggestions, or tap a most-requested chip. Free text
+// still converts: an unmatched need is sent as-is instead of blocking the
+// lead. Deliberately asks for nothing else: every extra field costs
+// conversions, and the team can get the rest on the call.
+function heroStartBox() {
+  const quick = HOME_QUICK_CODES.map((c) => services.find((s) => s.code === c)).filter(Boolean);
+  // No prices in this data on purpose — the SHOW_PRICES policy is enforced by
+  // the page pipeline, and this JSON must never become a side channel for it.
+  const data = services.map((s) => ({ c: s.code, n: sName(s), g: catLabel(s.category), u: u("/services/" + s.slug) }));
+  const chip = (s) => `<button type="button" class="hs-chip" data-code="${esc(s.code)}">${esc(sName(s))}</button>`;
+  return `<aside class="hero-start" id="heroStart">
+    <h2 class="hs-title">${L("Start now", "ابدأ الآن")}</h2>
+    <p class="hs-sub">${L("Pick your service, leave your mobile — we reply and prepare your documents.", "اختر خدمتك واترك رقم جوالك — نتواصل معك ونبدأ بتجهيز مستنداتك.")}</p>
+    <label class="hs-label" for="hsSearch">${L("Which service do you need?", "أي خدمة تحتاج؟")}</label>
+    <div class="hs-pickwrap">
+      <input class="hs-field" id="hsSearch" type="text" autocomplete="off" placeholder="${esc(Lraw('Type to search: "CR", "visa", "iqama"…', "اكتب للبحث: سجل تجاري، إقامة، تأشيرة…"))}">
+      <div class="hs-sug" id="hsSug" hidden></div>
+    </div>
+    <div class="hs-chips" id="hsChips"><span class="hs-chips-t">${L("Most requested:", "الأكثر طلباً:")}</span>${quick.map(chip).join("")}<button type="button" class="hs-chip" data-code="other">${L("Not sure yet", "لست متأكداً بعد")}</button></div>
+    <div class="hs-picked" id="hsPicked" hidden></div>
+    <label class="hs-label" for="hsPhone">${L("Mobile number", "رقم الجوال")}</label>
+    <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
+    <button type="button" class="bph-btn primary hs-go" id="hsGo">${L("Start now", "ابدأ الآن")}</button>
+    <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
+    <p class="hs-alt">${L("Or", "أو")} <a href="${u("/consultation")}">${L("book a free consultation", "احجز استشارة مجانية")}</a> — ${L("no cost, no commitment.", "بدون تكلفة أو التزام.")}</p>
+    <script type="application/json" id="hsData">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
+  </aside>`;
+}
+
+// The six most-requested services, buyable from the homepage. Prices ride the
+// existing owner policy: .price-amt is hidden while SHOW_PRICES is false and
+// appears automatically once a client is signed in, so this strip never leaks
+// a price the rest of the site is withholding.
+function homeQuickBuy() {
+  const cards = HOME_QUICK_CODES.map((code) => {
+    const s = services.find((x) => x.code === code);
+    if (!s || s.price.amount == null) return "";
+    const data = `data-id="${esc(s.slug)}" data-name-en="${esc(s.name)}" data-name-ar="${esc(sNameArOf(s))}" data-amount="${s.price.amount}" data-price="${esc(localizeLabel(s.price.label || ""))}" data-kind="service" data-bp-code="${esc(s.code)}"`;
+    return `<article class="qb-card">
+      <span class="qb-cat">${esc(catLabel(s.category))}</span>
+      <h3>${esc(sName(s))}</h3>
+      <div class="price-amt">${esc(localizeLabel(s.price.label || ""))}</div>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" ${data}>${I.cart}<span>${L("Add to cart", "أضف للسلة")}</span></button>
+        <a class="qb-more" href="${u("/services/" + s.slug)}">${L("Details", "التفاصيل")}</a>
+      </div>
+    </article>`;
+  }).join("");
+  return `<div>
+    <div class="qb-head">
+      <div><span class="bph-kicker"><i></i> ${L("Most requested", "الأكثر طلباً")}</span>
+        <h2>${L("Buy a service right now", "خدمات تشتريها الآن")}</h2></div>
+      <a class="bph-btn" href="${u("/services")}">${L("All services", "كل الخدمات")}</a>
+    </div>
+    <div class="qb-grid">${cards}</div>
+    <p class="qb-foot">${L("Government fees are separate and disclosed before you pay.", "الرسوم الحكومية منفصلة ومعلنة قبل الدفع.")}</p>
+  </div>`;
+}
+
 function buildHome() {
-  const h = site.home;
-  // Parallel English content (index-aligned with the Arabic data in site.json).
-  const EN = {
-    heroTitle: "One operating partner for every business requirement in Saudi Arabia",
-    heroSubtitle: "From company formation and foreign investment to licensing, HR and government compliance — we get it done clearly and quickly, and follow it through to issuance.",
-    heroCta: "Start now", heroCtaSecondary: "Browse services",
-    why: { title: "Why Business Partner", items: [
-      { title: "24/7 smart agent", text: "Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically." },
-      { title: "Fast execution", text: "Ready-made tracks and precise knowledge of the regulations save time — we start as soon as your documents are complete." },
-      { title: "Full transparency", text: "Clear fees, with government fees separate and disclosed. You know what you pay and why before you begin." },
-    ]},
-    coreTitle: "Our core services", coreSubtitle: "90+ services classified per the official catalog — covering your business journey from formation to operation.",
-    cards: [
-      { title: "Company Formation", text: "CR registration, LLC formation, entity conversions, and more." },
-      { title: "Foreign Investment", text: "MISA license, 100% foreign company, foreign branch, and partnerships." },
-      { title: "Premium Residency", text: "Choosing the right product and managing the application to issuance — no sponsor." },
-      { title: "Government Relations", text: "Qiwa, HR, Muqeem, GOSI, Balady, and sector licensing." },
-      { title: "HR Services", text: "Managing Qiwa, GOSI and Mudad, contracts, sponsorship transfer and compliance." },
-      { title: "Recruitment & Hiring", text: "Talent attraction and end-to-end recruitment procedures." },
-    ],
-    allServices: "All services", packagesDetails: "Package details",
-    agentEyebrow: "The killer feature", agentTitle: "The killer feature: the instant smart agent",
-    agentText: "Instead of waiting for office hours, the smart agent replies instantly, any time — it understands your case, recognises your client type (individual/business, Saudi/Gulf/foreign), gives you the right requirements and documents, and starts preparing your request immediately. When a human decision is needed, it hands you to our team at once.",
-    agentBullets: ["Instant reply 24/7, no waiting", "Identifies the right service and track for your case", "Prepares your document list automatically", "Hands you to a human expert when needed"],
-    agentCta: "Try the smart agent now", agentLearn: "Meet the agents system",
-    bubbleYou: "You", bubbleQ: "I want to set up a foreign company — what documents do I need?",
-    bubbleAgent: "Smart agent · now", bubbleA: "Sure! I need the parent company's attested Commercial Registration, financial statements, and a board resolution. Shall I prepare the full list for you?",
-    trustEyebrow: "Trust in numbers",
-    stats: [
-      { label: "Clients served" }, { label: "Years of experience in the Saudi market" },
-      { label: "Services in the official catalog" }, { label: "Government authorities we deal with" },
-    ],
-    whyEyebrow: "Why us", servicesEyebrow: "Services", packagesEyebrow: "Packages", reviewsEyebrow: "Client reviews",
-    reviewsItems: [
-      { text: "They completed my company formation quickly and every step was clear from the start.", name: "Client — retail sector", role: "Company formation" },
-      { text: "The smart agent answered me at night and prepared my document list right away.", name: "Client — investor", role: "Foreign investment" },
-      { text: "Clear fees with no surprises, and they followed through until the license was issued.", name: "Client — industrial sector", role: "Industrial license" },
-    ],
-    finalTitle: "Ready to start?", finalText: "Send us your enquiry now — the smart agent replies instantly and sets your next step.", finalCta: "Start now",
-  };
+  /* ---- 1. Hero ----------------------------------------------------------
+     The old headline promised six categories at once — a directory, not a
+     position. It also named B10X seventeen times on this page while never
+     once naming the wallet, the escrow, the payroll or the fines. So it sold
+     the tool and buried the outcome.
+     What a company with staff actually fears is a deadline it forgot: an
+     iqama, a work permit, a GOSI instalment, a municipality licence. That
+     fear is the headline now. B10X becomes the thing that runs it. ---- */
+  const chips = [
+    [L("GOSI & payroll", "التأمينات والرواتب"), u("/shared-services")],
+    [L("Iqamas & work permits", "الإقامات ورخص العمل"), catUrl("Government Relations")],
+    [L("Municipality & licences", "البلدية والتراخيص"), catUrl("Government Relations")],
+    [L("Violations & objections", "المخالفات والاعتراضات"), u("/compliance-agent")],
+    [L("Company setup", "تأسيس الشركات"), catUrl("Company Formation")],
+    [L("Recruitment & HR", "الاستقدام والموارد البشرية"), catUrl("HR Services")],
+  ].map(([t, href]) => `<a href="${href}">${t}</a>`).join("");
 
-  const whyCards = h.why.items
-    .map((it, i) => `<div class="card feature"><div class="card-icon">${I[it.icon] || I.check}</div>
-      <h3>${L(EN.why.items[i].title, it.title)}</h3><p>${L(EN.why.items[i].text, it.text)}</p></div>`)
-    .join("");
-  const svcQuickLinks = h.coreServices.cards
-    .map((c, i) => `<a class="quick-link" href="${catUrl(c.category)}"><span class="q-icon">${I.building}</span><span>${L(EN.cards[i].title, c.title)}</span></a>`)
-    .join("");
-  const pkgQuickLinks = site.packages.tiers
-    .map((t) => `<a class="quick-link" href="${u("/packages")}"><span class="q-icon">📦</span><span>${L(t.nameEn || t.nameAr, t.nameAr)}</span></a>`)
-    .join("");
-  const stats = h.stats.items.map((s, i) => `<div class="stat"><div class="num">${esc(s.value)}</div><div class="lbl">${L(EN.stats[i].label, s.label)}</div></div>`).join("");
-  const quotes = h.testimonials.items
-    .map((q, i) => `<div class="quote"><p>${L(EN.reviewsItems[i].text, q.text)}</p><div class="who">${L(EN.reviewsItems[i].name, q.name)}</div><div class="role">${L(EN.reviewsItems[i].role, q.role)}</div></div>`)
-    .join("");
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">${L("Partnering for your success", "شركاء نجاحك")}</p>
-    <h1>${L(EN.heroTitle, h.heroTitle)}</h1>
-    <p class="lead">${L(EN.heroSubtitle, h.heroSubtitle)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a><a class="btn btn-ghost btn-lg" href="${u("/services")}">${L(EN.heroCtaSecondary, h.heroCtaSecondary)}</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("Instant reply 24/7", "رد فوري 24/7")}</span>
-      <span class="hero-badge">${I.check}${L("90+ government services", "+90 خدمة حكومية")}</span>
-      <span class="hero-badge">${I.check}${L("Transparent fees", "أتعاب شفافة")}</span>
+  const hero = `<section class="bph-hero"><div class="bph-wrap">
+    <span class="bph-kicker"><i></i> ${L("Business Partner · Compliance, government operations and payments for companies in Saudi Arabia", "Business Partner · الامتثال والعمليات الحكومية والمدفوعات للشركات في السعودية")}</span>
+    <h1>${Lraw(
+      "Your obligations, paid on time.<br><span>So a deadline never becomes a fine.</span>",
+      "التزاماتك تُسدَّد في وقتها.<br><span>فلا يتحول موعدٌ إلى غرامة.</span>",
+    )}</h1>
+    <p class="bph-lead">${L("Keep a balance with Business Partner and we settle what your company owes as it falls due — GOSI, iqama and work-permit renewals, municipality licences, platform fees and payroll — and execute the government work behind each one. You watch it from one dashboard instead of chasing dates.", "تحتفظ برصيدك لدى Business Partner، فنسدّد ما على شركتك عند استحقاقه — التأمينات، تجديد الإقامات ورخص العمل، رخص البلدية، رسوم المنصات، والرواتب — وننفّذ العمل الحكومي خلف كل بند. وتتابع ذلك من لوحة واحدة بدل أن تطارد المواعيد.")}</p>
+    <div class="bph-chips">${chips}</div>
+    <div class="bph-proofline"><b>${L("Your money stays yours", "رصيدك يبقى مالك")}</b><i></i><span>${L("Paid only against a due obligation", "لا يُصرف إلا مقابل التزام مستحق")}</span><i></i><span>${L("Every payment on your statement", "كل عملية في كشف حسابك")}</span></div>
+    <div class="bph-hero-actions">
+      <a class="bph-btn primary" href="#bp-how">${L("See how it works", "كيف يعمل؟")}</a>
+      <a class="bph-btn" href="#bp-services">${L("Explore services", "استعرض الخدمات")}</a>
     </div>
-  </div></section>
-
-  <section class="section section--navy trust-band"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L(EN.trustEyebrow, h.stats.eyebrow || "أرقام ثقة")}</span><h2 style="color:#fff">${L("Numbers we're proud of", h.stats.title)}</h2></div>
-    <div class="stats">${stats}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Who we are", "من نحن")}</span><h2>${L("Your operating partner in Saudi Arabia", "شريكك التشغيلي في السعودية")}</h2><p>${L("We handle your government procedures, extract your records and run your platforms — so you focus on growing your business, backed by 15+ years in the Saudi market.", "نتولّى إجراءاتك الحكومية، ونستخرج سجلاتك، وندير منصّاتك — لتتفرّغ لنمو أعمالك، بخبرة تتجاوز 15 عاماً في السوق السعودي.")}</p></div>
-    <div class="grid grid-3">
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🏛️</div><h3>${L("15+ authorities", "+15 جهة حكومية")}</h3><p>${L("We deal with the official authorities on your behalf.", "نتعامل مع الجهات الرسمية نيابةً عنك.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🗂️</div><h3>${L("90+ services", "+90 خدمة")}</h3><p>${L("A full official catalog covering formation to daily operations.", "كتالوج رسمي شامل يغطي رحلتك من التأسيس للتشغيل.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🖥️</div><h3>${L("Platform management", "إدارة المنصّات")}</h3><p>${L("Qiwa, GOSI, Muqeem, Mudad, Absher and more — managed for you.", "قوى، التأمينات، مقيم، مدد، أبشر وغيرها — نديرها عنك.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🤖</div><h3>${L("Smart agent 24/7", "وكيل ذكي 24/7")}</h3><p>${L("Instant replies and automatic document prep any time.", "رد فوري وتجهيز مستنداتك تلقائياً في أي وقت.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">⚡</div><h3>${L("Fast execution", "تنفيذ سريع")}</h3><p>${L("Ready-made tracks and precise knowledge of the regulations.", "مسارات جاهزة ومعرفة دقيقة بالأنظمة.")}</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🛡️</div><h3>${L("Full transparency", "شفافية كاملة")}</h3><p>${L("Clear fees, with government fees disclosed separately.", "أتعاب واضحة والرسوم الحكومية منفصلة ومعلنة.")}</p></div>
-    </div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نعمل")}</span><h2>${L("How we get your records & licences done", "كيف نُنجز سجلاتك وتراخيصك")}</h2><p>${L("A clear path from your first message to issuance — we handle the paperwork and follow it through.", "مسار واضح من أول رسالة حتى الإصدار — نتولّى الإجراءات ونتابعها حتى تُنجز.")}</p></div>
-    <div class="home-steps">
-      <div class="hstep"><span class="hstep-n">1</span><h3>${L("Consult", "تواصل واستشارة")}</h3><p>${L("Tell us what you need — we identify the right service for your case.", "أخبرنا باحتياجك — نحدد الخدمة المناسبة لحالتك.")}</p></div>
-      <div class="hstep"><span class="hstep-n">2</span><h3>${L("Prepare documents", "تجهيز المستندات")}</h3><p>${L("We prepare and review your document list with you.", "نجهّز قائمة مستنداتك ونراجعها معك.")}</p></div>
-      <div class="hstep"><span class="hstep-n">3</span><h3>${L("Submit & follow up", "الرفع والمتابعة")}</h3><p>${L("We submit to the relevant authority and follow up until issuance.", "نرفع طلبك على الجهة المختصة ونتابعه حتى الإصدار.")}</p></div>
-      <div class="hstep"><span class="hstep-n">4</span><h3>${L("Delivery & support", "التسليم والدعم")}</h3><p>${L("We hand over your record/licence ready, with ongoing support.", "نسلّمك سجلك/رخصتك جاهزة، مع دعم مستمر بعدها.")}</p></div>
-    </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/consultation")}">${L("Start now", "ابدأ الآن")}</a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.whyEyebrow, "لماذا نحن")}</span><h2>${L(EN.why.title, h.why.title)}</h2></div>
-    <div class="grid grid-3">${whyCards}</div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">${L(EN.servicesEyebrow, "الخدمات")}</span><h2>${L(EN.coreTitle, h.coreServices.title)}</h2></div>
-      <a class="btn btn-primary" href="${u("/services")}">${L(EN.allServices, "كل الخدمات")} ${I.arrow}</a>
-    </div>
-    <div class="quick-links">${svcQuickLinks}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">${L(EN.packagesEyebrow, "الباقات")}</span><h2>${L(site.packages.titleEn || site.packages.title, site.packages.title)}</h2></div>
-      <a class="btn btn-primary" href="${u("/packages")}">${L("View packages", "استعرض الباقات")} ${I.arrow}</a>
-    </div>
-    <div class="quick-links">${pkgQuickLinks}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(EN.reviewsEyebrow, "آراء العملاء")}</span><h2>${L("Client reviews", h.testimonials.title)}</h2></div>
-    <div class="grid grid-3">${quotes}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><h2>${L(EN.finalTitle, h.finalCta.title)}</h2><p>${L(EN.finalText, h.finalCta.text)}</p><a class="btn btn-white btn-lg" href="${u("/consultation")}">${I.calendar}<span>${L("Book a consultation", "احجز استشارة")}</span></a></div>
   </div></section>`;
 
-  return page({ title: Lraw("Business Partner — your business operating partner in Saudi Arabia", "بيزنس بارتنر — شريك تشغيل أعمالك في السعودية"), desc: Lraw(site.brand.shortBioEn || site.brand.shortBio, site.brand.shortBio), active: "/", body });
+  /* ---- 1b. What we carry for you. Named obligations, not adjectives.
+       No amounts and no deadlines are stated anywhere here: those are
+       government facts that change, and inventing them is forbidden. ---- */
+  const risks = [
+    ["🪪", L("Iqamas & work permits", "الإقامات ورخص العمل"), L("Renewals tracked per employee and filed before they lapse, with the fees paid from your balance.", "تُتابَع لكل موظف وتُجدَّد قبل انتهائها، وتُدفع رسومها من رصيدك.")],
+    ["🏛", L("GOSI & platform fees", "التأمينات ورسوم المنصات"), L("Monthly subscriptions and the government platforms your company is registered on, settled on schedule.", "الاشتراكات الشهرية ورسوم المنصات الحكومية المسجَّلة عليها شركتك، تُسدَّد في مواعيدها.")],
+    ["📄", L("Municipality & commercial licences", "رخص البلدية والسجل التجاري"), L("Licence and registration renewals prepared and submitted, not left to the last week.", "تجديد الرخص والسجلات يُجهَّز ويُقدَّم، لا يُترك لآخر أسبوع.")],
+    ["💵", L("Payroll", "الرواتب"), L("Salaries disbursed from your balance on your cycle, so wage-protection status stays clean.", "تُصرف رواتب موظفيك من رصيدك في دورتك، فيبقى وضعك في حماية الأجور سليماً.")],
+    ["⚖️", L("Violations", "المخالفات"), L("Reviewed, eligibility for objection studied, prepared, filed and followed up. No promise of cancellation — the decision is the authority's.", "تُراجَع، وتُدرَس أهلية الاعتراض، ثم يُجهَّز ويُقدَّم ويُتابَع. لا وعد بالإلغاء — القرار للجهة.")],
+    ["🤝", L("Suppliers, under escrow", "الموردون، بضمان التنفيذ"), L("A supplier's fee is held from your balance and released only after the work is delivered and you confirm it.", "تُحجز أتعاب المورد من رصيدك ولا تُفرج إلا بعد التسليم وتأكيدك.")],
+  ].map(([ic, t, d]) => `<div class="bph-risk-card"><div class="ic">${ic}</div><h3>${t}</h3><p>${d}</p></div>`).join("");
+
+  const risk = `<section class="bph-risk" id="bp-risk"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("What we carry for your company", "ما الذي نحمله عن شركتك")}</h2>
+      <p>${L("Every line below is an obligation with a date on it. Missing the date is what costs money — not the fee itself.", "كل بند أدناه التزامٌ له تاريخ. وتجاوز التاريخ هو ما يكلّف، لا الرسم نفسه.")}</p>
+    </div>
+    <div class="bph-risk-grid">${risks}</div>
+    <p class="bph-risk-note">${L("Government fees and platform charges are passed through to the authority as they are — Business Partner is paid its own service fee, stated separately on every invoice.", "الرسوم الحكومية ورسوم المنصات تُمرَّر إلى الجهة كما هي — وأتعاب Business Partner تُذكر منفصلة في كل فاتورة.")}</p>
+  </div></section>`;
+
+  /* ---- 1c. The journey in three steps, before any service name. ---- */
+  const steps = [
+    [L("Keep a balance", "تحتفظ برصيد"),
+     L("Top up your company wallet by transfer or card. It stays your money, held for your obligations — not a payment to us.", "تشحن محفظة شركتك بتحويل أو بطاقة. يبقى المبلغ مالك، محجوزاً لالتزاماتك — لا مدفوعاً لنا."),
+     L("Wallet · statement on demand", "المحفظة · كشف حساب متى شئت")],
+    [L("We pay and execute on time", "نسدّد وننفّذ في الوقت"),
+     L("Each obligation is settled as it falls due and the government work behind it is carried out by our team — you are told before, not after.", "يُسدَّد كل التزام عند استحقاقه، وينفّذ فريقنا العمل الحكومي خلفه — وتُبلَّغ قبل، لا بعد."),
+     L("Human execution · SLA", "تنفيذ بشري · SLA")],
+    [L("You see everything in one place", "ترى كل شيء في مكان واحد"),
+     L("Requests, documents, invoices, what was paid and what is coming — in your dashboard, with an alert before each date.", "الطلبات والمستندات والفواتير وما دُفع وما هو قادم — في لوحتك، مع تنبيه قبل كل موعد."),
+     L("Client dashboard", "لوحة العميل")],
+  ].map(([t, d, m]) => `<div class="bph-step"><h3>${t}</h3><p>${d}</p><div class="bph-step-meta">${m}</div></div>`).join("");
+
+  const how = `<section class="bph-how" id="bp-how"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Three steps, then you stop chasing dates", "ثلاث خطوات، ثم تتوقف عن مطاردة المواعيد")}</h2>
+      <p>${L("No service names to learn and no forms to hunt for. You keep a balance, we do the rest and show you all of it.", "لا أسماء خدمات تحفظها ولا نماذج تبحث عنها. تحتفظ برصيد، ونتولى الباقي ونعرضه عليك كاملاً.")}</p>
+    </div>
+    <div class="bph-steps">${steps}</div>
+    <div class="bph-how-actions">
+      <a class="bph-btn primary" href="${u("/account")}">${L("Open your account", "افتح حسابك")}</a>
+      <a class="bph-btn" href="#bp-consultant">${L("Not sure? Ask the smart advisor", "لست متأكداً؟ اسأل المستشار الذكي")}</a>
+    </div>
+  </div></section>`;
+
+  /* ---- 1d. Instalments -------------------------------------------------
+     Deliberately narrow. Tamara finances the Business Partner service fee —
+     our own fee for our own service, which is what a BNPL merchant agreement
+     is for. It is not a wallet top-up: taking money to hold and pay out to
+     third parties later is stored value, and financing payroll with consumer
+     credit is a different business again. Both are regulated activities and
+     neither is what this section offers, so neither is implied here.
+     No amount and no number of months appear: the limit is Tamara's decision
+     at checkout, per customer, and printing a figure we cannot honour turns
+     into a decline on the payment page. ---- */
+  const payFacts = [
+    ["١", L("Instalments cover our service fee", "التقسيط على أتعابنا"),
+     L("Government and platform charges are passed through to the authority as they are, itemised separately on your invoice.", "الرسوم الحكومية ورسوم المنصات تُمرَّر إلى الجهة كما هي، مبيّنة منفصلة في فاتورتك.")],
+    ["٢", L("Tamara decides the plan", "تمارا تحدد الخطة"),
+     L("The amount and the number of instalments are Tamara's decision at checkout. You see the schedule before you confirm.", "المبلغ وعدد الدفعات قرار تمارا عند الدفع. وترى الجدول كاملاً قبل أن تؤكّد.")],
+    ["٣", L("Work starts on approval", "التنفيذ يبدأ عند الاعتماد"),
+     L("Our team begins as soon as the order is approved — you are not waiting for the last instalment.", "يبدأ فريقنا فور اعتماد الطلب — ولا تنتظر آخر دفعة.")],
+  ].map(([k, b, d]) => `<div class="bph-pay-fact"><div class="k">${k}</div><div><b>${b}</b><span>${d}</span></div></div>`).join("");
+
+  const pay = `<section class="bph-pay" id="bp-pay"><div class="bph-wrap">
+    <div class="bph-pay-shell">
+      <div class="bph-pay-main">
+        <span class="bph-pay-eyebrow">${L("Instalments · Tamara", "التقسيط · تمارا")}</span>
+        <h2>${L("Order now, pay our fee in instalments", "اطلب الخدمة الآن، وقسّط أتعابها")}</h2>
+        <p>${L("A renewal does not wait for your cash-flow month. Choose the service you need, split the Business Partner fee into instalments with Tamara at checkout, and our team starts the government work straight away — so the deadline is met either way.", "التجديد لا ينتظر شهر السيولة عندك. اختر الخدمة التي تحتاجها، وقسّط أتعاب Business Partner عبر تمارا عند الدفع، ويبدأ فريقنا العمل الحكومي فوراً — فيُدرَك الموعد في الحالين.")}</p>
+        <div class="bph-pay-actions">
+          <a class="bph-btn primary" href="#bp-start">${L("Choose a service", "اختر خدمتك")}</a>
+          <a class="bph-btn" href="${u("/packages")}">${L("See packages", "استعرض الباقات")}</a>
+        </div>
+      </div>
+      <div class="bph-pay-side">
+        ${payFacts}
+        <p class="bph-pay-fine">${L("Instalments are provided by Tamara under its own terms, and approval is Tamara's decision. Business Partner does not lend, hold deposits, or disburse payroll on your behalf.", "التقسيط خدمة تقدّمها تمارا وفق شروطها، والموافقة قرارها. وBusiness Partner لا تُقرض ولا تحتفظ بودائع ولا تصرف رواتب نيابةً عنك.")}</p>
+      </div>
+    </div>
+  </div></section>`;
+
+  /* The advisor is no longer the greeter — it is the fallback for a visitor
+     who cannot name what they need. Its prompts lead with the obligations a
+     company with staff actually carries. */
+  const chatChips = [
+    [L("A renewal is due", "عندي تجديد قرب"), L("I have an iqama or licence renewal coming up and want it handled", "عندي تجديد إقامة أو رخصة قرب موعده وأبغاكم تتولونه")],
+    [L("I got a violation", "وصلتني مخالفة"), L("I received a violation and want to review the objection path", "وصلتني مخالفة وأبغى أراجع مسار الاعتراض")],
+    [L("GOSI & payroll", "التأمينات والرواتب"), L("I want you to handle GOSI and payroll for my company", "أبغاكم تتولون التأمينات ورواتب موظفيني")],
+    [L("Employees & workforce", "موظفين وقوى"), L("I need help with employees and workforce services", "أحتاج مساعدة في الموظفين وخدمات القوى العاملة")],
+    [L("Company formation", "تأسيس شركة"), L("I want to set up a company in Saudi Arabia", "أبغى أفتح شركة في السعودية")],
+    [L("Get a quote", "عرض سعر"), L("I want a quote for a service", "أبغى عرض سعر لخدمة")],
+  ].map(([label, q]) => `<button type="button" data-chat-q="${esc(q)}">${label}</button>`).join("");
+
+  const chat = `<section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Tell us what you need. B10X finds the path.", "قل لنا ماذا تحتاج. B10X يحدد لك الطريق.")}</h2>
+      <p>${L("You do not need to know the service name. Just describe what you need — the smart advisor identifies the service, the requirements and the next step.", "لا تحتاج تعرف اسم الخدمة. اشرح المطلوب فقط — والمستشار الذكي يحدد الخدمة والمتطلبات والخطوة التالية.")}</p>
+    </div>
+    <div class="bph-chat-shell"><div class="bph-chat">
+      <div class="bph-chat-head">
+        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>${L("B10X — Business Partner smart advisor", "B10X — المستشار الذكي من Business Partner")}</span></div>
+        <span class="bph-chat-live">● Online</span>
+      </div>
+      <div class="bph-chat-body" id="bphChatBody">
+        <div class="bph-msg ai">${L("Hi 👋 Tell me what you need or what you are stuck on, and I will help you find the right path.", "أهلًا 👋 قل لي وش تحتاج أو وش المشكلة اللي تواجهك، وأنا أساعدك أحدد المسار المناسب.")}</div>
+        <div class="bph-chat-chips">${chatChips}</div>
+      </div>
+      <form class="bph-compose" id="bphChatForm">
+        <textarea id="bphChatInput" rows="1" placeholder="${L("e.g. I have a foreign company and want to start in Riyadh…", "اكتب مثلاً: عندي شركة أجنبية وأبغى أبدأ في الرياض…")}"></textarea>
+        <button type="submit" aria-label="${L("Send", "إرسال")}">↑</button>
+      </form>
+      <div class="bph-chat-note">${L("The advisor helps you inside the site; move to a request or the client portal whenever you are ready.", "المستشار يساعدك داخل الموقع، ويمكنك الانتقال للطلب أو لوحة العميل عند الحاجة.")}</div>
+    </div></div>
+  </div></section>`;
+
+  /* ---- 3. B10X: what it is, what it includes, how it works. ---- */
+  const promise = [
+    ["24/7 Smart Advisor", L("Understands your goal and routes the next action.", "مستشار ذكي يفهم احتياجك ويوجهك فورًا.")],
+    ["Client Portal", L("Requests, documents, SLA and a clear next action.", "طلبات، مستندات، SLA وخطوة تالية واضحة.")],
+    ["Document AI", L("Reads and checks documents inside your company workspace.", "قراءة وفحص المستندات داخل مساحة شركتك.")],
+    ["Compliance", L("Obligations, alerts, violations and renewals.", "التزامات، تنبيهات، مخالفات وتجديدات.")],
+    ["Government Ops", L("Real execution by the Business Partner team.", "تنفيذ فعلي عبر فريق Business Partner.")],
+    ["Growth", L("Customers, suppliers, partners and pipeline.", "عملاء، موردون، شركاء وفرص نمو.")],
+  ].map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join("");
+
+  const b10x = `<section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
+    <div class="bph-b10x-intro">
+      <div><span class="bph-eyebrow">B10X by Business Partner</span>
+        <h2>${L("Every service. One operating layer.", "كل خدماتك. طبقة تشغيل واحدة.")}</h2></div>
+      <p>${L("B10X is how you use Business Partner end to end: ask, we understand the need, we identify the service and requirements, you approve, then execution starts and you track everything from your account — no chasing messages across providers.", "B10X هو طريقة استخدام Business Partner بالكامل: تسأل، نفهم المطلوب، نحدد الخدمة والمتطلبات، تعتمد، ثم يبدأ التنفيذ وتتابع كل شيء من حسابك — بدون مطاردة الرسائل أو الضياع بين عدة مزودين.")}</p>
+    </div>
+    <div class="bph-promise">${promise}</div>
+    <div class="bph-b10x-grid">
+      
+      <div class="bph-request">
+        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
+        <div class="bph-row"><span>${L("Authority", "الجهة")}</span><b>${L("Ministry of Investment", "وزارة الاستثمار")}</b></div>
+        <div class="bph-row"><span>Next Action</span><b>${L("Upload audited financial statements", "رفع القوائم المالية المدققة")}</b></div>
+        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
+        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
+        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
+      </div>
+    </div>
+    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
+    <div class="bph-b10x-cta">
+      <a class="bph-btn white" href="${u("/b10x")}">${L("Explore B10X in detail", "اكتشف B10X بالتفصيل")}</a>
+      <a class="bph-btn ghost" href="#bp-consultant">${L("Start with the smart advisor", "ابدأ مع المستشار الذكي")}</a>
+    </div>
+  </div></section>`;
+
+  /* ---- 4. Services: advisors first, then the eight business areas. 140
+       services live behind these, never as 140 cards on the homepage. ---- */
+  const advisors = [
+    ["B10X", L("Smart Advisor", "المستشار الذكي"), L("Available 24/7 to understand your goal and route the next action.", "متاح 24/7 لفهم المطلوب وتحديد الخدمة والخطوة التالية."), "#bp-consultant"],
+    ["AI", L("Compliance Advisor", "مستشار الامتثال"), L("Tracks obligations, violations, deadlines and remediation paths.", "يراقب الالتزامات والمخالفات والمواعيد ومسارات المعالجة."), u("/compliance-agent")],
+    ["AI", L("Document Advisor", "مستشار المستندات"), L("Reads your files, extracts data and checks requirements inside your account.", "يقرأ الملفات ويستخرج البيانات ويتحقق من المتطلبات داخل حسابك."), u("/ai-document-agent")],
+    ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/business-development")],
+  ].map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
+
+  const areas = [
+    ["01", L("Company setup & investment", "تأسيس الشركات والاستثمار"), L("Local and foreign setup, licensing, registration and post-formation.", "تأسيس محلي وأجنبي، التراخيص، التسجيل وما بعد التأسيس."), catUrl("Company Formation")],
+    ["02", L("Government services & licensing", "الخدمات الحكومية والتراخيص"), L("Qiwa, GOSI, Balady, ZATCA and other business platforms.", "قوى، التأمينات، بلدي، الزكاة والضريبة وغيرها من منصات الأعمال."), catUrl("Government Relations")],
+    ["03", L("HR & workforce", "الموارد البشرية والقوى العاملة"), L("HR operations, sponsorship transfer, recruitment and workforce.", "HR Operations، نقل خدمات، توظيف، استقدام وتشغيل القوى العاملة."), catUrl("HR Services")],
+    ["04", L("Compliance & violations", "الامتثال والمخالفات"), L("Obligations, alerts, violations, objection paths and remediation.", "متابعة الالتزامات، التنبيهات، المخالفات ومسارات الاعتراض والمعالجة."), u("/compliance-agent")],
+    ["05", L("Offices & real estate", "المكاتب والعقار"), L("Offices, workspaces, real-estate search and workplace operations.", "مكاتب، مساحات عمل، بحث عقاري وحلول تشغيل المكان."), u("/workspaces")],
+    ["06", L("Housing & relocation", "السكن والانتقال"), L("Worker housing, executive housing, relocation and support services.", "سكن العمالة، السكن التنفيذي، Relocation والخدمات المساندة."), u("/worker-housing")],
+    ["07", L("Legal & contracts", "القانونية والعقود"), L("Contracts, agreements and legal reviews tied to operations.", "عقود واتفاقيات ومراجعات قانونية مرتبطة بتشغيل الشركة."), u("/packages") + "#pkg-legal"],
+    ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/business-development")],
+  ].map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
+
+  const svc = `<section class="bph-services" id="bp-services"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Everything your company needs, in one place.", "كل ما تحتاجه شركتك في مكان واحد.")}</h2>
+      <p>${L("Choose a business area, or use one of the smart advisors to reach the right workflow directly.", "اختر المجال، أو استخدم أحد المستشارين الأذكياء للوصول مباشرة للمسار المناسب.")}</p>
+    </div>
+    <div class="bph-ai-row">${advisors}</div>
+    <div class="bph-label">${L("Business Partner service areas", "مجالات خدمات Business Partner")}</div>
+    <div class="bph-cap-grid">${areas}</div>
+  </div></section>`;
+
+  /* ---- 5. Start now / buy now: the two direct entry points. ---- */
+  const start = `<section class="bph-start" id="bp-start"><div class="bph-wrap">
+    <div class="bph-start-grid">${heroStartBox()}${homeQuickBuy()}</div>
+  </div></section>`;
+
+  /* ---- 6. Packages: the four real families, no Micro/Small/Medium/Large. ---- */
+  const packages = `<section class="bph-packages" id="bp-packages"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Choose how you want to work with us.", "اختر طريقة العمل المناسبة لشركتك.")}</h2>
+      <p>${L("Start with B10X, or pick from the service, formation and legal package families.", "ابدأ بـB10X أو اختر من باقات الخدمات والتأسيس والدعم القانوني.")}</p>
+    </div>
+    <div class="bph-pkg-grid">
+      <div class="bph-pkg b10x"><h3>B10X</h3>
+        <p>${L("The intelligent operating layer that connects you to every Business Partner service from one place.", "طبقة التشغيل الذكية التي تربطك بكل خدمات Business Partner من مكان واحد.")}</p>
+        <ul>
+          <li>${L("24/7 smart advisor", "المستشار الذكي 24/7")}</li>
+          <li>${L("Client Portal, requests and SLA tracking", "Client Portal ومتابعة الطلبات وSLA")}</li>
+          <li>${L("Document AI and document vault", "Document AI وخزنة المستندات")}</li>
+          <li>${L("Compliance & Violations Center", "Compliance & Violations Center")}</li>
+          <li>${L("Human execution coordination", "تنسيق التنفيذ مع فريق Business Partner")}</li>
+        </ul>
+        <a class="bph-btn white" href="${u("/b10x")}">${L("Start with B10X", "ابدأ مع B10X")}</a></div>
+      <div class="bph-pkg"><h3>${L("Service packages", "باقات الخدمات")}</h3>
+        <p>${L("Government and operational services bundled around how your company runs.", "تشغيل ومتابعة الخدمات الحكومية والتشغيلية حسب احتياج شركتك.")}</p>
+        <ul><li>${L("Multiple services and requests", "طلبات وخدمات متعددة")}</li><li>${L("Tracking and alerts", "متابعة وتنبيهات")}</li><li>${L("One unified client workspace", "لوحة عميل موحدة")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-management">${L("Explore packages", "استعرض الباقات")}</a></div>
+      <div class="bph-pkg"><h3>${L("Company formation", "تأسيس الشركات")}</h3>
+        <p>${L("Formation tracks for local and foreign companies, and everything after.", "مسارات تأسيس وتجهيز الشركات المحلية والأجنبية وما بعد التأسيس.")}</p>
+        <ul><li>${L("Formation and licensing", "التأسيس والتراخيص")}</li><li>${L("Documents and requirements", "المستندات والمتطلبات")}</li><li>${L("Post-formation operations", "ما بعد التأسيس والتشغيل")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-formation">${L("Explore packages", "استعرض الباقات")}</a></div>
+      <div class="bph-pkg"><h3>${L("Legal packages", "الباقات القانونية")}</h3>
+        <p>${L("Contracts, reviews and legal support tied to running and growing the company.", "دعم قانوني وعقود ومراجعات مرتبطة بتشغيل ونمو الشركة.")}</p>
+        <ul><li>${L("Contracts and agreements", "عقود واتفاقيات")}</li><li>${L("Legal reviews", "مراجعات قانونية")}</li><li>${L("Scope-based support", "دعم حسب نطاق الباقة")}</li></ul>
+        <a class="bph-btn" href="${u("/packages")}#pkg-legal">${L("Explore packages", "استعرض الباقات")}</a></div>
+    </div>
+  </div></section>`;
+
+  /* ---- 7. Product proof: the Client Portal is the product, not a footnote. ---- */
+  const proof = `<section class="bph-proof"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>${L("Everything tracked from one workspace.", "كل شيء تتابعه من لوحة واحدة.")}</h2>
+      <p>${L("Once work starts you never chase messages again. Requests, quotes, documents, payments and execution status all live in your account.", "بعد بدء العمل، لا تحتاج تطارد الرسائل. الطلبات والعروض والمستندات والمدفوعات وحالة التنفيذ كلها في حسابك.")}</p>
+    </div>
+    <div class="bph-proof-grid">
+      <div class="bph-proof-card"><h3>${L("Client Portal", "لوحة العميل")}</h3>
+        <div class="bph-mini"><span>${L("Active requests", "طلبات نشطة")}</span><span class="bph-status">${L("In progress", "قيد التنفيذ")}</span></div>
+        <div class="bph-mini"><span>${L("Quotes", "عروض الأسعار")}</span><span>3</span></div>
+        <div class="bph-mini"><span>${L("Documents", "المستندات")}</span><span>12</span></div>
+        <div class="bph-mini"><span>${L("Payments & invoices", "المدفوعات والفواتير")}</span><span>${L("Up to date", "محدّثة")}</span></div>
+        <a class="bph-btn" href="${u("/account")}">${L("Open the client portal", "فتح لوحة العميل")}</a></div>
+      <div class="bph-proof-card dark"><h3>Business Partner Workspace</h3>
+        <div class="bph-mini"><span>B10X</span><span class="bph-status">Active</span></div>
+        <div class="bph-mini"><span>Compliance</span><span>${L("Monitoring", "قيد المراقبة")}</span></div>
+        <div class="bph-mini"><span>${L("Multi-company", "شركات متعددة")}</span><span>${L("Switch anytime", "تنقّل بين شركاتك")}</span></div>
+        <div class="bph-mini"><span>Documents & SLA</span><span>${L("Connected", "مرتبطة")}</span></div>
+        <a class="bph-btn white" href="${u("/account")}">${L("See your experience after sign-in", "شاهد تجربتك بعد الدخول")}</a></div>
+    </div>
+  </div></section>`;
+
+  const body = `<div class="bph">${hero}${risk}${how}${pay}${svc}${start}${chat}${packages}${b10x}${proof}</div>`;
+
+  return page({
+    title: Lraw("Business Partner — Saudi business setup & operations", "بيزنس بارتنر — تأسيس وتشغيل الأعمال في السعودية"),
+    desc: Lraw(
+      "Business Partner sets up, operates and grows your company in Saudi Arabia: formation, government services, HR, compliance, offices, housing and business development — AI powered, human executed.",
+      "بيزنس بارتنر تؤسس شركتك وتشغّلها وتساعدك على النمو في السعودية: التأسيس، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن وتطوير الأعمال.",
+    ),
+    active: "/", body, bodyClass: "bph-page", extraHead: homeCss, script: homeScript(),
+  });
 }
 
 function buildAbout() {
@@ -1283,18 +1937,82 @@ function categoryCards() {
 }
 
 function buildServicesIndex() {
+  // Every service, on this page, in one scroll. The category-only index hid
+  // 140 services behind a second click and read as "the services are gone";
+  // the listing now lives here, grouped by category, with a search box and
+  // category chips that filter in place. Cards reuse the exact category-page
+  // markup so the two pages read as one design.
+  const svcCard = (s, cat) => {
+    const d = sDesc(s);
+    return `<a class="card svc-card" href="${u("/services/" + s.slug)}" data-svc data-cat="${esc(cat.key)}" data-q="${esc((sName(s) + " " + d).toLowerCase())}">
+        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
+        <h3>${esc(sName(s))}</h3>
+        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
+        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
+      </a>`;
+  };
+  const groups = categories
+    .map((cat) => {
+      const list = services.filter((s) => s.category === cat.key);
+      if (!list.length) return "";
+      return `<section class="svc-group" data-group="${esc(cat.key)}" id="cat-${esc(catSlugUrl(cat.key))}">
+        <div class="svc-group-head"><h2>${CAT_ICON[cat.key] || "📁"} ${L(catEn(cat.key), cat.ar)}</h2><span class="count-pill">${list.length} ${L(enCount(list.length, "service", "services"), arCount(list.length, "خدمة", "خدمتان", "خدمات"))}</span><a class="card-link" href="${catUrl(cat.key)}">${L("Category page", "صفحة التصنيف")} ${I.arrow}</a></div>
+        <div class="grid grid-3">${list.map((s) => svcCard(s, cat)).join("")}</div>
+      </section>`;
+    })
+    .join("");
+  const chips = categories
+    .map((cat) => `<button type="button" class="svc-chip" data-chip="${esc(cat.key)}">${CAT_ICON[cat.key] || "📁"} ${L(catEn(cat.key), cat.ar)}</button>`)
+    .join("");
   const body = `
-  <section class="hero"><div class="container hero-inner">
+  <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Services", "الخدمات")}</span>
-    <h1>${L("Choose a service category", "اختر تصنيف الخدمة")}</h1>
-    <p class="lead">${L(services.length + " services organized into " + categories.length + " categories — pick a category to see its services, each with a full page of documents, requirements and a custom quote.", services.length + " خدمة موزّعة على " + categories.length + " تصنيفاً — اختر التصنيف لتشاهد خدماته، ولكل خدمة صفحة كاملة بالمستندات والمتطلبات وعرض سعر حسب حالتك.")}</p>
+    <h1>${L("Every service, on one page", "كل خدماتنا في صفحة واحدة")}</h1>
+    <p class="lead">${L(services.length + " government and business services across " + categories.length + " categories — search, filter, and open any service for its documents, requirements and a quote for your case.", services.length + " خدمة حكومية وتجارية في " + categories.length + " تصنيفاً — ابحث، فلتر، وافتح أي خدمة لتشاهد مستنداتها ومتطلباتها وعرض سعر حسب حالتك.")}</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3 cat-grid">${categoryCards()}</div>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Revenue OS — business development as a service ⚡", "Revenue OS — تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/revenue-os")}">${L("Explore Revenue OS", "استعرض Revenue OS")}</a></div>
+  <section class="section svc-all"><div class="container">
+    <div class="svc-toolbar" id="svcToolbar">
+      <input type="search" id="svcSearch" class="svc-search" placeholder="${esc(Lraw("Search 140+ services… e.g. CR, iqama, visa, VAT", "ابحث في +140 خدمة… مثل: سجل تجاري، إقامة، تأشيرة، ضريبة"))}" autocomplete="off">
+      <div class="svc-chips"><button type="button" class="svc-chip on" data-chip="">${L("All", "الكل")}</button>${chips}</div>
+      <p class="svc-count" id="svcCount"></p>
+    </div>
+    ${groups}
+    <p class="svc-empty" id="svcEmpty" hidden>${L("No service matches that — try another word, or ask the advisor and we will point you to the right one.", "لا خدمة تطابق بحثك — جرّب كلمة أخرى، أو اسأل المستشار ونوجّهك للخدمة الصحيحة.")}</p>
+    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
-  </div></section>`;
-  return page({ title: Lraw("Services — Business Partner", "الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  </div></section>
+  <style>
+    .svc-toolbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:12px 0 8px;margin:-8px 0 12px;border-bottom:1px solid #e5eaf3}
+    .svc-search{width:100%;padding:13px 16px;border:1px solid #d5dae6;border-radius:13px;font:inherit;font-size:.95rem;background:#fff;color:inherit;margin-bottom:10px}
+    .svc-search:focus{outline:none;border-color:#3159d8;box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+    .svc-chips{display:flex;gap:7px;overflow:auto;padding-bottom:6px;scrollbar-width:none}.svc-chips::-webkit-scrollbar{display:none}
+    .svc-chip{flex:0 0 auto;border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:.8rem;font-weight:700;color:#0B1B5A;cursor:pointer;white-space:nowrap}
+    .svc-chip:hover{border-color:#3159d8;color:#3159d8}.svc-chip.on{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+    .svc-count{margin:8px 0 0;font-size:.8rem;color:#6f7b92}
+    .svc-group{margin:26px 0 0}.svc-group[hidden]{display:none}
+    .svc-group-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}.svc-group-head h2{margin:0;font-size:1.25rem;color:#0B1B5A}.svc-group-head .card-link{margin-inline-start:auto}
+    .svc-card[hidden]{display:none}.svc-empty{text-align:center;color:#6f7b92;padding:40px 0}.svc-empty[hidden]{display:none}
+  </style>
+  <script>
+  (function(){
+    var q=document.getElementById("svcSearch"),chips=document.querySelectorAll("[data-chip]"),cards=document.querySelectorAll("[data-svc]"),groups=document.querySelectorAll(".svc-group"),count=document.getElementById("svcCount"),empty=document.getElementById("svcEmpty");
+    if(!q)return;
+    var cat="";
+    var total=cards.length;
+    function apply(){
+      var t=(q.value||"").trim().toLowerCase(),n=0;
+      for(var i=0;i<cards.length;i++){var c=cards[i];var ok=(!cat||c.getAttribute("data-cat")===cat)&&(!t||(c.getAttribute("data-q")||"").indexOf(t)>-1);c.hidden=!ok;if(ok)n++;}
+      for(var g=0;g<groups.length;g++){var vis=groups[g].querySelectorAll("[data-svc]:not([hidden])").length;groups[g].hidden=!vis;}
+      empty.hidden=n>0;
+      count.textContent=(n===total?total:n+" / "+total)+" ${Lraw("services", "خدمة")}";
+    }
+    for(var k=0;k<chips.length;k++)chips[k].addEventListener("click",function(){cat=this.getAttribute("data-chip")||"";for(var j=0;j<chips.length;j++)chips[j].classList.toggle("on",chips[j]===this);apply();var g=cat&&document.querySelector('.svc-group[data-group="'+cat+'"]');if(g)g.scrollIntoView({behavior:"smooth",block:"start"});});
+    q.addEventListener("input",apply);
+    try{var h=decodeURIComponent(location.hash.slice(1));if(h&&/^cat-/.test(h)){var el=document.getElementById(h);if(el)el.scrollIntoView();}}catch(e){}
+    apply();
+  })();
+  </script>`;
+  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -1353,7 +2071,7 @@ function buildServiceDetail(s) {
   const feats = featuresOf(s, ov);
   const faq = faqOf(s, ov);
   const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد الوكيل الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
+    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد المستشار الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
     : "";
   const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
   const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
@@ -1391,7 +2109,7 @@ function buildServiceDetail(s) {
       <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
       <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
       <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "الوكيل الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
+      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "المستشار الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
     </div>
     <aside class="svc-aside">
       <div class="order-box">
@@ -1420,251 +2138,555 @@ function buildServiceDetail(s) {
   return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
 }
 
-/* ---------- Revenue OS (/revenue-os) ----------
-   Built through the site's own page() so it carries the real header (with the
-   language switcher), footer and WhatsApp button like every other page. Its
-   own visual language lives in revenue-os-page.css, scoped under .revos so it
-   cannot collide with styles.css. */
-function buildRevenueOS() {
+/* ---------- Business Development as a Service (/business-development) ----------
+   Built entirely from the site's own components — hero / section / section-head /
+   grid / card / home-steps / pkg / faq-item — so it looks like the rest of the
+   site instead of a separate microsite bolted on. It used to ship its own
+   stylesheet (revenue-os-page.css, every rule scoped under .revos), which is
+   exactly why it read as off-brand: a second design system on one domain.
+
+   The 30-day trial is the headline offer, not a footnote: every client who
+   registers in the portal gets the service free for a month, so the primary
+   call to action is "start the trial", and buying a package is the step after. */
+function buildBdaas() {
   const track = (en, ar) => `data-track="${esc(L(en, ar))}"`;
-  const feeLine = (succ, close) =>
-    `<div class="fee">${L("Success fee", "عمولة النجاح")} <strong>${succ}</strong> + ${L("closing add-on", "إضافة الإغلاق")} <strong>${close}</strong> — ${L("on revenue actually collected", "على الإيراد المحصّل فعليًا")}</div>`;
-  const pkgBtn = (code, amount, nameEn, nameAr, label, primary) =>
-    `<a class="btn${primary ? " btn-primary" : ""}" href="#" data-revos-cart="${code}" data-amount="${amount}" data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}">${label}</a>`;
+  // One commission number, on collected revenue only. The page used to print two
+  // (success + closing) which nobody could tell apart and which read as ~12.5%.
+  const fee = (rate) =>
+    rate === 0
+      ? `<p class="pk-surcharge"><b>${L("No commission", "بدون عمولة")}</b> — ${L("a fixed monthly price, whatever you close.", "سعر شهري ثابت، مهما أغلقت.")}</p>`
+      : `<p class="pk-surcharge"><b>${L("Success fee", "عمولة نجاح")} ${rate}%</b> — ${L("on revenue you actually collect from the deals we generate.", "على الإيراد الذي تحصّله فعليًا من الصفقات التي نولّدها.")}</p>`;
+  // The line that makes the ladder mean something: paying a commission is what
+  // buys our closing team. Below it, we generate and qualify and the client closes.
+  const closer = (us) =>
+    `<p class="pk-for">${us
+      ? `<b>${L("We close with you", "نُغلق معك")}</b> — ${L("proposals, negotiation and collection follow-up.", "عروض وتفاوض ومتابعة تحصيل.")}`
+      : `<b>${L("You close", "أنت تُغلق")}</b> — ${L("we generate, qualify and book the meetings.", "نحن نولّد ونؤهّل ونحجز الاجتماعات.")}`}</p>`;
+  const feats = (items) => `<ul>${items.map((f) => `<li>${I.check}<span>${f}</span></li>`).join("")}</ul>`;
+  // The site-wide .add-cart button (main.js owns it) rather than a second cart
+  // path of this page's own — the subscription fields ride along as data-*.
+  const buy = (code, amount, nameEn, nameAr, label, primary, commission, renews) =>
+    `<button type="button" class="btn ${primary ? "btn-primary" : "btn-ghost"} add-cart" style="width:100%"
+      data-id="${esc(code)}" data-kind="package" data-amount="${amount}"
+      data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+      data-price-public="1" data-billing="monthly" data-commission="${commission}"${renews ? ` data-renews-at="${renews}"` : ""}
+    >🛒 ${label}</button>`;
+  const quoteBtn = (label) => `<a class="btn btn-ghost" style="width:100%" href="#leadForm">${label}</a>`;
 
-  const body = `<div class="revos">
-  <section class="hero dot-bg"><div class="container hero-inner">
-    <span class="eyebrow">Business Partner Revenue OS</span>
-    <h1>${L("We build the customer and supplier base", "نبني لك قاعدة العملاء والموردين")} <span>${L("your business grows on.", "التي ينمو عليها عملك.")}</span></h1>
-    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل داخل Pipeline واحد قابل للقياس.")}</p>
-    <div class="hero-actions"><a class="btn btn-primary" href="#leadForm">${L("Start building your pipeline →", "ابدأ بناء الـPipeline ←")}</a><a class="btn" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a></div>
-    <div class="proof"><span>${L("Without hiring a full team", "بدون توظيف فريق كامل")}</span><span>${L("CRM and live reports", "CRM وتقارير مباشرة")}</span><span>${L("Customers, suppliers and partners", "عملاء وموردون وشركاء")}</span></div>
+  const tiers = [
+    { name: "Starter", forUs: true, price: L("Performance only", "أداء فقط"), per: L("no monthly fee", "بدون رسوم شهرية"), commission: 18,
+      items: [L("Runs as capacity allows", "تشغيل حسب التوفر"), L("Basic pipeline", "Pipeline أساسي"), L("Short results report", "تقرير نتائج مختصر")],
+      cta: null },
+    // No introductory month: the 30-day trial is the offer that gets a client
+    // in, and a discounted first month on top of it only muddies the ladder.
+    { name: "Connect", forUs: false, amount: 499, commission: 12, priceNum: 499,
+      items: [L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة"), L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك"), L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")],
+      code: "revos-connect", nameEn: "BD as a Service — Connect (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)",
+      cta: L("Subscribe to Connect", "اشترك في Connect") },
+    { name: "Launch", forUs: false, amount: 2500, commission: 8, priceNum: 2500,
+      items: [L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M"), L("A defined database", "قاعدة بيانات محددة"), L("Qualification and a monthly report", "تأهيل وتقرير شهري")],
+      code: "revos-launch", nameEn: "BD as a Service — Launch (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)",
+      cta: L("Subscribe to Launch", "اشترك في Launch") },
+    { name: "Growth", forUs: false, amount: 5000, commission: 0, priceNum: 5000, highlight: true,
+      badge: L("Most chosen", "الأكثر اختيارًا"),
+      items: [L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M"), L("CRM and weekly reports", "CRM وتقارير أسبوعية"), L("Multi-channel campaigns", "حملات متعددة القنوات")],
+      code: "revos-growth", nameEn: "BD as a Service — Growth (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)",
+      cta: L("Subscribe to Growth", "اشترك في Growth") },
+    { name: "Professional", forUs: true, amount: 9500, commission: 5, priceNum: 9500,
+      items: [L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M"), L("Forecast and proposal management", "Forecast وإدارة عروض"), L("Negotiation support", "دعم التفاوض")],
+      code: "revos-professional", nameEn: "BD as a Service — Professional (monthly)", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)",
+      cta: L("Subscribe to Professional", "اشترك في Professional") },
+    { name: "Enterprise", forUs: true, commission: 3, price: L("From 15,000 SAR", "يبدأ من 15,000 ﷼"), per: L("monthly + VAT", "شهريًا + الضريبة"),
+      items: [L("Pipeline starting at 10M", "Pipeline يبدأ من 10M"), L("Executive dashboards", "لوحات تنفيذية"), L("Custom SLA", "SLA مخصص")],
+      cta: null },
+    { name: "Dedicated Team", forUs: true, commission: 2, price: L("From 20,000 SAR", "يبدأ من 20,000 ﷼"), per: L("monthly + VAT", "شهريًا + الضريبة"),
+      items: [L("SDR and account manager", "SDR وAccount Manager"), L("Pipeline per SLA", "Pipeline حسب SLA"), L("Custom integrations and automation", "تكاملات وأتمتة مخصصة")],
+      cta: null },
+  ];
+
+  const tierCard = (t) => `<div class="pkg${t.highlight ? " pop" : ""}"${t.badge ? ` data-badge="${esc(t.badge)}"` : ""}>
+    <div class="pk-name">${t.name}</div>
+    <div class="pk-price"><span class="price-amt">${t.priceNum ? `${t.priceNum.toLocaleString("en-US")} <span class="pk-per">${L("SAR / mo", "ريال / شهرياً")}</span>` : `${t.price} <span class="pk-per">${t.per}</span>`}</span><span class="pk-guest" data-guest-note>${L("Sign in to see the price", "سجّل دخولك لعرض السعر")}</span></div>
+    ${t.intro ? `<p class="pk-intro">${t.intro}</p>` : ""}
+    ${closer(t.forUs)}
+    ${feats(t.items)}
+    ${fee(t.commission)}
+    ${t.cta ? buy(t.code, t.amount, t.nameEn, t.nameAr, t.cta, !!t.highlight, t.commission, t.renews) : quoteBtn(L("Talk to us", "تحدث معنا"))}
+  </div>`;
+
+  const paths = [
+    ["↗", L("I need customers", "أبحث عن عملاء"), L("We build the target market, reach decision makers and turn interest into real opportunities.", "نبني السوق المستهدف ونصل إلى صناع القرار ونحوّل الاهتمام إلى فرص فعلية."), L("I need customers", "أبحث عن عملاء")],
+    ["◎", L("I need suppliers", "أبحث عن موردين"), L("We search, compare and qualify suppliers locally and globally against your commercial and technical needs.", "نبحث ونقارن ونؤهل الموردين محليًا وعالميًا وفق الاحتياج التجاري والفني."), L("I need suppliers", "أبحث عن موردين")],
+    ["◇", L("I need a partner or distributor", "أبحث عن شريك أو موزع"), L("We build expansion channels, partnerships and protected introductions with clear agreements and commissions.", "نبني قنوات توسع وشراكات ومقدمات محمية باتفاقيات وعمولات واضحة."), L("I need a partner or distributor", "أبحث عن موزعين أو شركاء")],
+  ].map(([ico, h, p, tr]) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${ico}</div><h3>${h}</h3><p>${p}</p><a class="btn btn-ghost btn-sm" href="#leadForm" ${track(tr, tr)}>${L("Start this track", "ابدأ هذا المسار")}</a></div>`).join("");
+
+  const steps = [
+    [1, L("Targeting & research", "الاستهداف والبحث"), L("We define the ideal customer profile and build the target company list for your sector and market.", "نحدّد ملف العميل المثالي ونبني قائمة الشركات المستهدفة لقطاعك وسوقك.")],
+    [2, L("Qualification & outreach", "التأهيل والتواصل"), L("We qualify each account and reach decision makers across channels, with your approval at the sensitive points.", "نؤهّل كل حساب ونصل إلى صنّاع القرار عبر القنوات، باعتمادك في النقاط الحساسة.")],
+    [3, L("Meetings & opportunities", "الاجتماعات والفرص"), L("Booked meetings become documented opportunities in the CRM, each with a value, a stage and a next action.", "الاجتماعات المحجوزة تتحول إلى فرص موثقة في CRM، لكل واحدة قيمة ومرحلة وإجراء تالٍ.")],
+    [4, L("Contract & collection", "العقد والتحصيل"), L("Proposals, negotiation and follow-up through to a signed contract and revenue actually collected.", "عروض وتفاوض ومتابعة حتى عقد موقّع وإيراد محصّل فعليًا.")],
+  ].map((s) => `<div class="hstep"><span class="hstep-n">${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join("");
+
+  const platform = [
+    ["▣", L("CRM for customers, suppliers and partners", "CRM للعملاء والموردين والشركاء"), L("Company and contact files, stages, sources, match scores and next actions.", "ملفات شركات وجهات اتصال ومراحل ومصادر ودرجات مطابقة وإجراءات تالية.")],
+    ["♢", L("Deal-source protection", "حماية مصدر الصفقة"), L("The opportunity source, the agreement and the commission basis are recorded — relationships do not depend on memory.", "مصدر الفرصة والاتفاقية وقاعدة العمولة موثقة — ولا تعتمد العلاقات على الذاكرة.")],
+    ["☎", L("Meetings and follow-up", "الاجتماعات والمتابعة"), L("Reminders, summaries, objections, decisions and the next best action after every meeting.", "تذكيرات وملخصات واعتراضات وقرارات والإجراء التالي بعد كل اجتماع.")],
+    ["⚙", L("Automation with human approval", "أتمتة باعتماد بشري"), L("Every state triggers the right action, and a person approves before anything reaches your market.", "كل حالة تطلق الإجراء المناسب، ويعتمد إنسان قبل أن يصل أي شيء إلى سوقك.")],
+  ].map(([ico, h, p]) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${ico}</div><h3>${h}</h3><p>${p}</p></div>`).join("");
+
+  const industries = [["🏗️", "Contracting & construction", "المقاولات والإنشاءات"], ["👥", "Recruitment & workforce", "التوظيف والقوى العاملة"], ["🍽️", "Food & catering", "الأغذية والإعاشة"], ["🚚", "Logistics", "اللوجستيات"], ["💻", "Technology", "التقنية"], ["🏢", "Real estate", "العقار"], ["🏨", "Hospitality", "الضيافة"], ["🏭", "Manufacturing", "التصنيع"], ["📊", "Professional services", "الخدمات المهنية"], ["🏙️", "Mega projects", "المشاريع الكبرى"]]
+    .map(([ico, en, ar]) => `<span class="sector-chip"><i aria-hidden="true">${ico}</i>${L(en, ar)}</span>`).join("");
+
+  // Classes below exist only on this page — styles.css doesn't define them
+  // (the sectors row used to render as one unstyled run-on line).
+  const bdCss = `<style>
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px 12px}
+    .sector-chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:9px 18px;font-size:.92rem;font-weight:700;box-shadow:0 1px 3px rgba(11,27,90,.06);transition:.15s}
+    .sector-chip:hover{border-color:var(--navy);box-shadow:0 6px 18px rgba(11,27,90,.1);transform:translateY(-1px)}
+    .sector-chip i{font-style:normal;font-size:1.05rem;line-height:1}
+    .bd-ind-note{text-align:center;color:var(--text-soft);max-width:720px;margin:22px auto 0;font-size:.95rem;line-height:1.8}
+    .bd-tier-group{margin-top:34px}
+    .bd-tier-group:first-of-type{margin-top:8px}
+    .bd-tier-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid rgba(11,27,90,.1)}
+    .bd-tier-head h3{margin:0;color:var(--navy);font-size:1.25rem;font-weight:800}
+    .bd-tier-head span{display:inline-block;background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:4px 12px;font-size:.78rem;font-weight:700}
+    .bd-tier-head p{margin:0;flex-basis:100%;color:var(--text-soft);font-size:.95rem;line-height:1.7}
+    .pkg .pk-note,.pk-note{color:var(--text-soft);font-size:.9rem;line-height:1.8}
+    .pkg .pk-guest{display:block;font-size:.95rem;font-weight:700;color:var(--text-soft)}
+    .bd-tier-group .grid-4 .pk-name{font-size:1.3rem}
+    .bd-tier-group .grid-4 .pk-price{font-size:1.2rem}
+    .bd-tier-group .grid-4 .pk-price .pk-per{display:block;font-size:.8rem}
+    .bd-ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1000px;margin:0 auto 34px}
+    .bd-ladder div{background:#fff;border:1px solid var(--gray-line);border-radius:16px;padding:16px 18px;text-align:center}
+    .bd-ladder b{display:block;color:var(--navy);font-size:1.4rem;font-weight:800;line-height:1.2}
+    .bd-ladder small{display:block;color:var(--text-soft);font-size:.82rem;margin-top:4px;line-height:1.5}
+    @media (max-width:900px){.bd-ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:520px){.bd-ladder{grid-template-columns:1fr}.sector-chip{padding:8px 14px;font-size:.86rem}}
+  </style>`;
+
+  const faqs = [
+    [L("What exactly do I get in the free 30 days?", "ما الذي أحصل عليه فعليًا في الثلاثين يومًا؟"),
+     L("The client workspace opens with your own data: the pipeline view, meetings, tasks, documents and reports. Tell us your sector and target market and we start building the target list during the trial. No card, no commitment, and it ends by itself.",
+       "تُفتح مساحة العميل ببياناتك أنت: عرض الـPipeline والاجتماعات والمهام والمستندات والتقارير. أخبرنا بقطاعك وسوقك المستهدف ونبدأ ببناء قائمة الاستهداف خلال التجربة. بلا بطاقة، وبلا التزام، وتنتهي من تلقاء نفسها.")],
+    [L("Why does one package carry no commission at all?", "لماذا توجد باقة بدون أي عمولة؟"),
+     L("Because the commission buys our closing team, not the pipeline. On Growth we generate, qualify and book your meetings for one fixed monthly price and your own team closes — so there is nothing to take a percentage of. From Professional up we sit in the negotiation with you, and the commission is what pays for that.",
+       "لأن العمولة تشتري فريق الإغلاق لدينا، لا الـPipeline نفسه. في باقة Growth نولّد ونؤهّل ونحجز اجتماعاتك بسعر شهري ثابت وفريقك هو من يُغلق — فلا شيء نأخذ عليه نسبة. ومن Professional فأعلى نجلس معك في التفاوض، والعمولة هي ما يدفع مقابل ذلك.")],
+    [L("Do you take a commission on my existing customers?", "هل تأخذون عمولة على عملائي الحاليين؟"),
+     L("No. The commission applies only to opportunities we generated and documented in your CRM before the first contact, and only on revenue you have actually collected — not on a signed contract or an unpaid invoice.",
+       "لا. العمولة تُطبَّق فقط على الفرص التي ولّدناها وسُجّلت في CRM قبل أول تواصل، وعلى الإيراد الذي حصّلته فعليًا — لا على عقد موقّع ولا على فاتورة لم تُدفع.")],
+    [L("Does pipeline value mean guaranteed revenue?", "هل قيمة الـPipeline تعني إيرادًا مضمونًا؟"),
+     L("No. It is a target value for qualified opportunities and depends on offer quality, the market, response speed and closing factors.",
+       "لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.")],
+    [L("When is the success fee due?", "متى تستحق عمولة النجاح؟"),
+     L("Within fifteen days of you actually collecting the revenue, invoiced separately from the monthly subscription.",
+       "خلال خمسة عشر يومًا من تحصيلك للإيراد فعليًا، وبفاتورة مستقلة عن الاشتراك الشهري.")],
+  ].map(([q, a]) => `<div class="faq-item"><button class="faq-q" aria-expanded="false">${q} ${I.chevron}</button><div class="faq-a"><p>${a}</p></div></div>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Business development as a service", "تطوير الأعمال كخدمة")}</span>
+    <h1>${L("We build the customer and supplier base your business grows on", "نبني لك قاعدة العملاء والموردين التي ينمو عليها عملك")}</h1>
+    <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل في مسار مبيعات واحد قابل للقياس، من دون أن توظّف فريقًا كاملًا.")}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 30 days free", "ابدأ 30 يومًا مجانًا")}</a>
+      <a class="btn btn-ghost btn-lg" href="#pricing">${L("See the packages", "استعرض الباقات")}</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Free for 30 days with any account", "مجانًا 30 يومًا مع أي حساب")}</span>
+      <span class="hero-badge">${I.check}${L("No card, no commitment", "بلا بطاقة وبلا التزام")}</span>
+      <span class="hero-badge">${I.check}${L("Commission only on revenue you collect", "العمولة على ما تحصّله فقط")}</span>
+    </div>
   </div></section>
 
-  <nav class="section-nav"><div class="container chip-row">
-    <a class="sector-chip" href="#paths">${L("Tracks", "المسارات")}</a>
-    <a class="sector-chip" href="#platform">${L("Platform", "المنصة")}</a>
-    <a class="sector-chip" href="#method">${L("How it works", "كيف نعمل")}</a>
-    <a class="sector-chip" href="#industries">${L("Industries", "القطاعات")}</a>
-    <a class="sector-chip" href="#pricing">${L("Packages", "الباقات")}</a>
-    <a class="sector-chip" href="#results">${L("Reports", "التقارير")}</a>
-    <a class="sector-chip" href="#faq">${L("FAQ", "الأسئلة")}</a>
-    <a class="sector-chip" href="${u("/revenue-dashboard")}">${L("Client dashboard", "لوحة العميل")}</a>
-  </div></nav>
-
-  <section class="trust-strip"><div class="container">
-    <p>${L("Built for businesses that live on deals, relationships and supply chains", "مصمم للشركات التي تعتمد على الصفقات والعلاقات وسلاسل التوريد")}</p>
-    <div class="chip-row">${[["Contracting", "المقاولات"], ["Recruitment", "التوظيف"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Manufacturing", "التصنيع"], ["Real estate", "العقار"]].map(([en, ar]) => `<span class="sector-chip">${L(en, ar)}</span>`).join("")}</div>
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Thirty days, free, the moment you register", "ثلاثون يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 30 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 30 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/business-development-dashboard")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
-  <section class="section dot-bg" id="paths"><div class="container">
+  <section class="section section--gray" id="paths"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Three growth tracks", "ثلاثة مسارات للنمو")}</span><h2>${L("Pick what your business needs now", "اختر ما يحتاجه عملك الآن")}</h2><p>${L("Each track starts with a clear request and ends with documented opportunities and measurable next steps.", "كل مسار يبدأ بطلب واضح وينتهي بفرص موثقة وإجراءات تالية قابلة للقياس.")}</p></div>
-    <div class="paths">
-      <article class="path-card"><div class="card-icon">↗</div><h3>${L("I need customers", "أبحث عن عملاء")}</h3>
-        <p class="muted">${L("We build the target market, reach decision makers and turn interest into real opportunities.", "نبني السوق المستهدف ونصل إلى صناع القرار ونحوّل الاهتمام إلى فرص فعلية.")}</p>
-        <ul class="clean-list"><li>${L("ICP and company base", "ICP وقاعدة شركات")}</li><li>${L("Qualification and multi-channel outreach", "تأهيل وتواصل متعدد القنوات")}</li><li>${L("Meetings, opportunities and proposals", "اجتماعات وفرص وعروض")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need customers", "أبحث عن عملاء")}>${L("Start the customers track", "ابدأ مسار العملاء")}</a></article>
-      <article class="path-card"><div class="card-icon">◎</div><h3>${L("I need suppliers", "أبحث عن موردين")}</h3>
-        <p class="muted">${L("We search, compare and qualify suppliers locally and globally against your commercial and technical needs.", "نبحث ونقارن ونؤهل الموردين محليًا وعالميًا وفق الاحتياج التجاري والفني.")}</p>
-        <ul class="clean-list"><li>${L("Longlist and shortlist", "Longlist وShortlist")}</li><li>${L("Capabilities and certifications", "القدرات والشهادات")}</li><li>${L("RFQ and offer comparison", "RFQ ومقارنة العروض")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need suppliers", "أبحث عن موردين")}>${L("Start the suppliers track", "ابدأ مسار الموردين")}</a></article>
-      <article class="path-card"><div class="card-icon">◇</div><h3>${L("I need a partner or distributor", "أبحث عن شريك أو موزع")}</h3>
-        <p class="muted">${L("We build expansion channels, partnerships and protected introductions with clear agreements and commissions.", "نبني قنوات توسع وشراكات ومقدمات محمية باتفاقيات وعمولات واضحة.")}</p>
-        <ul class="clean-list"><li>${L("Partners and distributors", "Partners وDistributors")}</li><li>${L("Mandates and introductions", "Mandates وIntroductions")}</li><li>${L("Revenue share and commission", "Revenue Share وCommission")}</li></ul>
-        <a class="btn" href="#leadForm" ${track("I need a partner or distributor", "أبحث عن موزعين أو شركاء")}>${L("Start the partnerships track", "ابدأ مسار الشراكات")}</a></article>
-    </div>
+    <div class="grid grid-3">${paths}</div>
   </div></section>
 
-  <section class="section" id="platform"><div class="container">
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "آلية العمل")}</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
+    <div class="home-steps">${steps}</div>
+  </div></section>
+
+  <section class="section section--gray" id="platform"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("The platform", "المنصة")}</span><h2>${L("The whole commercial relationship in one system", "كل العلاقة التجارية في نظام واحد")}</h2><p>${L("No abandoned spreadsheets and no scattered conversations: every account, opportunity, meeting, contract and collection has a clear record.", "لا قوائم بيانات مهملة ولا محادثات منفصلة؛ كل حساب وفرصة واجتماع وعقد وتحصيل له سجل واضح.")}</p></div>
-    <div class="bento">
-      <article class="feature-card"><div class="card-icon">▣</div><h3>${L("CRM for customers, suppliers and partners", "CRM للعملاء والموردين والشركاء")}</h3>
-        <p class="muted">${L("Company and contact files, stages, sources, match scores and next actions.", "ملفات شركات وجهات اتصال ومراحل ومصادر ودرجات مطابقة وإجراءات تالية.")}</p>
-        <div class="record-list">
-          <div class="record active"><span class="record-avatar">A</span><div><b>${L("Alpha Company", "شركة ألفا")}</b><small>${L("Qualified opportunity · Riyadh", "فرصة مؤهلة · الرياض")}</small></div><span class="record-tag">Score 91</span></div>
-          <div class="record"><span class="record-avatar">S</span><div><b>${L("Industrial supplier", "مورد صناعي")}</b><small>${L("Technical offer received", "عرض فني مستلم")}</small></div><span class="record-tag">Verified</span></div>
-          <div class="record"><span class="record-avatar">P</span><div><b>${L("Channel partner", "شريك قنوات")}</b><small>${L("Introduction agreement under review", "اتفاقية تعريف قيد المراجعة")}</small></div><span class="record-tag">Partner</span></div>
-        </div></article>
-      <article class="feature-card dark"><div class="card-icon">♢</div><h3>${L("Governance and commission protection", "حوكمة وحماية العمولة")}</h3>
-        <p>${L("Relationships do not depend on memory or scattered messages.", "لا تعتمد العلاقات على الذاكرة أو الرسائل المتفرقة.")}</p>
-        <div class="guard-list"><span>✓ ${L("The opportunity source is documented", "مصدر الفرصة موثق")}</span><span>✓ ${L("The agreement and commission basis are stored", "الاتفاقية وقاعدة العمولة محفوظة")}</span><span>✓ ${L("Disclosure and approval before outreach", "الإفصاح والموافقة قبل التواصل")}</span><span>✓ ${L("Revenue and collection tied to evidence", "الإيراد والتحصيل مرتبطان بالدليل")}</span></div></article>
-    </div>
-    <div class="bento-row">
-      <article class="feature-card"><div class="card-icon">☎</div><h3>${L("Smart meetings and follow-up", "اجتماعات ومتابعة ذكية")}</h3><p class="muted">${L("Reminders, summaries, objections, decisions, tasks and follow-up drafts.", "تذكيرات، ملخصات، اعتراضات، قرارات، Tasks وFollow-up draft.")}</p><ul class="clean-list"><li>${L("Show-rate and no-show tracking", "Show-rate وNo-show tracking")}</li><li>${L("Meeting intelligence", "Meeting intelligence")}</li><li>${L("Next best action", "Next Best Action")}</li></ul></article>
-      <article class="feature-card"><div class="card-icon">⚙</div><h3>${L("Automation that moves instead of your team", "أتمتة تتحرك بدل فريقك")}</h3><p class="muted">${L("Every state triggers the right action, with human approval at the sensitive points.", "كل حالة تطلق الإجراء المناسب مع Human Approval في النقاط الحساسة.")}</p>
-        <div class="flow-box"><span class="flow-node">${L("New lead", "Lead جديد")}</span><span>←</span><span class="flow-node core">${L("AI qualifies", "AI يؤهل")}</span><span>←</span><span class="flow-node">${L("Human approval", "اعتماد بشري")}</span><span>←</span><span class="flow-node">${L("Outreach", "تواصل")}</span><span>←</span><span class="flow-node">${L("CRM update", "تحديث CRM")}</span></div></article>
-    </div>
-  </div></section>
-
-  <section class="section-sm dot-bg" id="method"><div class="container">
-    <div class="section-head"><span class="eyebrow">Business Partner Revenue OS</span><h2>${L("From market to revenue in one journey", "من السوق إلى الإيراد في رحلة واحدة")}</h2></div>
-    <div class="journey">${[["Targeting", "استهداف"], ["Research", "بحث"], ["Qualification", "تأهيل"], ["Outreach", "تواصل"], ["Meeting", "اجتماع"], ["Contract", "عقد"], ["Collection", "تحصيل"]].map(([en, ar]) => `<div class="journey-step"><strong>${L(en, ar)}</strong><small>${en}</small></div>`).join("")}</div>
+    <div class="grid grid-2">${platform}</div>
   </div></section>
 
   <section class="section" id="industries"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد، Playbook مختلف لكل قطاع")}</h2><p>${L("Independent pages, messages and qualification criteria for each market.", "صفحات ورسائل ومعايير تأهيل مستقلة لكل سوق.")}</p></div>
-    <div class="industry-grid">${[["Contracting & construction", "المقاولات والإنشاءات"], ["Recruitment & workforce", "التوظيف والقوى العاملة"], ["Food & catering", "الأغذية والإعاشة"], ["Logistics", "اللوجستيات"], ["Technology", "التقنية"], ["Real estate", "العقار"], ["Hospitality", "الضيافة"], ["Manufacturing", "التصنيع"], ["Professional services", "الخدمات المهنية"], ["Mega projects", "المشاريع الكبرى"]].map(([en, ar]) => `<div class="industry-card">${L(en, ar)}</div>`).join("")}</div>
+    <div class="section-head"><span class="eyebrow">${L("Industries", "القطاعات")}</span><h2>${L("One system, a different playbook per industry", "نظام واحد وخطة عمل مختلفة لكل قطاع")}</h2><p>${L("The target list, the decision makers, the message and the meeting rhythm change with the sector. These are the ones we run most.", "قائمة الاستهداف وصنّاع القرار والرسالة وإيقاع الاجتماعات تختلف من قطاع لآخر. هذه أكثر القطاعات التي نعمل فيها.")}</p></div>
+    <div class="chip-row" style="justify-content:center">${industries}</div>
+    <p class="bd-ind-note">${L("Your sector not listed? The same system works for any B2B business — tell us about it in the form below.", "قطاعك غير موجود؟ النظام نفسه يعمل لأي نشاط يبيع للشركات — أخبرنا عنه في النموذج أدناه.")}</p>
   </div></section>
 
-  <section class="section dot-bg" id="pricing"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("The higher the subscription, the lower the performance rate", "كلما زاد الاشتراك، انخفضت نسبة الأداء")}</h2><p>${L("Choose the balance between a monthly fee and a fee on success and closing.", "اختر التوازن المناسب بين الرسوم الشهرية والعمولة على النجاح والإغلاق.")}</p></div>
-    <div class="pricing">
-      <article class="price-card"><h3>Starter</h3><p class="muted">${L("Entry with no monthly fee.", "دخول بدون رسوم شهرية.")}</p>
-        <div class="amount" style="font-size:1.05rem">${L("No monthly fee", "بدون رسوم شهرية")} <span>${L("performance only", "أداء فقط")}</span></div>
-        <ul class="clean-list"><li>${L("Runs as capacity allows", "تشغيل حسب التوفر")}</li><li>${L("Basic pipeline", "Pipeline أساسي")}</li><li>${L("Short results report", "تقرير نتائج مختصر")}</li></ul>
-        ${feeLine("12%", "3%")}<a class="btn" href="#leadForm">${L("Start now", "ابدأ الآن")}</a></article>
-
-      <article class="price-card"><h3>Connect</h3><p class="muted">${L("Tools and data you run yourself.", "أدوات وبيانات تشتغل بها بنفسك.")}</p>
-        <div class="amount">499 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target company list by sector and city", "قائمة شركات مستهدفة بالقطاع والمدينة")}</li><li>${L("Lead capture and booking on your website", "التقاط عملاء وحجز مواعيد على موقعك")}</li><li>${L("Client dashboard and a monthly report", "لوحة عميل وتقرير شهري")}</li></ul>
-        <div class="fee">${L("No success fee", "بدون عمولة نجاح")} — <strong>${L("tools, data and the dashboard only", "أدوات وبيانات ولوحة فقط")}</strong>, ${L("the delivery team starts at Launch", "وفريق التنفيذ يبدأ من Launch")}</div>
-        ${pkgBtn("revos-connect", 499, "Revenue OS — Connect (monthly)", "Revenue OS — باقة Connect (شهري)", L("Subscribe to Connect", "اشترك في Connect"), false)}</article>
-
-      <article class="price-card"><h3>Launch</h3><p class="muted">${L("For a structured trial.", "للتجربة المنظمة.")}</p>
-        <div class="amount">2,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 1M", "Pipeline مستهدف حتى 1M")}</li><li>${L("A defined database", "قاعدة بيانات محددة")}</li><li>${L("Qualification and a monthly report", "تأهيل وتقرير شهري")}</li></ul>
-        ${feeLine("10%", "2.5%")}${pkgBtn("revos-launch", 2500, "Revenue OS — Launch (monthly)", "Revenue OS — باقة Launch (شهري)", L("Subscribe to Launch", "اشترك في Launch"), false)}</article>
-
-      <article class="price-card featured"><span class="price-badge">${L("Most chosen", "الأكثر اختيارًا")}</span><h3>Growth</h3><p class="muted">${L("To build a continuous pipeline.", "لبناء مسار مستمر.")}</p>
-        <div class="amount">5,000 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 3M", "Pipeline مستهدف حتى 3M")}</li><li>${L("CRM and weekly reports", "CRM وتقارير أسبوعية")}</li><li>${L("Multi-channel campaigns", "حملات متعددة القنوات")}</li></ul>
-        ${feeLine("8%", "2%")}${pkgBtn("revos-growth", 5000, "Revenue OS — Growth (monthly)", "Revenue OS — باقة Growth (شهري)", L("Subscribe to Growth", "اشترك في Growth"), true)}</article>
-
-      <article class="price-card"><h3>Professional</h3><p class="muted">${L("For higher-value deals.", "للصفقات الأعلى قيمة.")}</p>
-        <div class="amount">9,500 ${L("SAR", "﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Target pipeline up to 10M", "Pipeline مستهدف حتى 10M")}</li><li>${L("Forecast and proposal management", "Forecast وإدارة عروض")}</li><li>${L("Negotiation support", "دعم التفاوض")}</li></ul>
-        ${feeLine("6%", "1.5%")}${pkgBtn("revos-professional", 9500, "Revenue OS — Professional (monthly)", "Revenue OS — باقة Professional (شهري)", L("Subscribe to Professional", "اشترك في Professional"), false)}</article>
-
-      <article class="price-card"><h3>Enterprise</h3><p class="muted">${L("For multiple markets and sectors.", "لأسواق وقطاعات متعددة.")}</p>
-        <div class="amount">${L("From 15,000 SAR", "يبدأ من 15,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("Pipeline starting at 10M", "Pipeline يبدأ من 10M")}</li><li>${L("Executive dashboards", "لوحات تنفيذية")}</li><li>${L("Custom SLA", "SLA مخصص")}</li></ul>
-        ${feeLine("4%", "1%")}<a class="btn" href="#leadForm">${L("Talk to us", "تحدث معنا")}</a></article>
-
-      <article class="price-card"><h3>Dedicated Team</h3><p class="muted">${L("A dedicated business-development team.", "فريق تطوير أعمال مخصص.")}</p>
-        <div class="amount">${L("From 20,000 SAR", "يبدأ من 20,000 ﷼")} <span>${L("monthly + VAT", "شهريًا + الضريبة")}</span></div>
-        <ul class="clean-list"><li>${L("SDR and account manager", "SDR وAccount Manager")}</li><li>${L("Pipeline per SLA", "Pipeline حسب SLA")}</li><li>${L("Custom integrations and automation", "تكاملات وأتمتة مخصصة")}</li></ul>
-        ${feeLine("3%", "1%")}<a class="btn" href="#leadForm">${L("Request a proposal", "اطلب عرضًا")}</a></article>
+  <section class="section section--gray" id="pricing"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Packages", "الباقات")}</span><h2>${L("One question decides your package: who closes the deal?", "سؤال واحد يحدد باقتك: من يُغلق الصفقة؟")}</h2><p>${L("Pay a monthly fee only and we generate, qualify and book the meetings while you close. Add a commission and our team closes with you — charged on revenue you actually collect, nothing else.", "ادفع رسومًا شهرية فقط فنولّد ونؤهّل ونحجز الاجتماعات وأنت تُغلق. أضف عمولة فيُغلق فريقنا معك — وتُحتسب على الإيراد الذي تحصّله فعليًا، لا شيء غيره.")}</p></div>
+    <div class="bd-ladder">
+      <div><b>30 ${L("days", "يومًا")}</b><small>${L("free workspace with any account", "مساحة عمل مجانية مع أي حساب")}</small></div>
+      <div><b>0%</b><small>${L("commission on Growth — your team closes", "عمولة في Growth — فريقك يُغلق")}</small></div>
+      <div><b>2–18%</b><small>${L("success fee when our team closes with you", "عمولة نجاح عندما يُغلق فريقنا معك")}</small></div>
+      <div><b>15 ${L("days", "يومًا")}</b><small>${L("after collection, on a separate invoice", "بعد التحصيل، وبفاتورة مستقلة")}</small></div>
     </div>
-
-    <div class="paths" style="margin-top:26px">
-      <article class="path-card"><div class="card-icon">◷</div><h3>${L("Guided setup from day one", "تشغيل موجّه من البداية")}</h3><p class="muted">${L("We prepare the track, connect it to your data and launch it with you — no technical complexity and no extra headcount.", "نجهّز لك المسار ونربطه ببياناتك ونطلقه معك — بدون تعقيد تقني ولا فريق إضافي.")}</p></article>
-      <article class="path-card"><div class="card-icon">↗</div><h3>${L("Start with one track and expand", "ابدأ بمسار واحد وتوسّع")}</h3><p class="muted">${L("You do not need everything at once — start with customers or suppliers and move up whenever you grow.", "لا تحتاج تفعيل كل شيء دفعة واحدة — ابدأ بالعملاء أو الموردين وارفع باقتك متى ما نمت.")}</p></article>
-      <article class="path-card"><div class="card-icon">✓</div><h3>${L("No long commitment", "بدون التزام طويل")}</h3><p class="muted">${L("The subscription is monthly — change or stop it any time, and the diagnosis session before subscribing is free.", "الاشتراك شهري — غيّر باقتك أو أوقفها في أي وقت. وجلسة التشخيص قبل الاشتراك مجانية.")}</p></article>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>${L("You close", "أنت تُغلق")}</h3><span>${L("Monthly fee only", "رسوم شهرية فقط")}</span><p>${L("We build the list, qualify the accounts and book the meetings. Your team runs the proposal and signs the deal.", "نبني القائمة ونؤهّل الحسابات ونحجز الاجتماعات، وفريقك يقدّم العرض ويوقّع الصفقة.")}</p></div>
+      <div class="grid grid-3">${tiers.filter((t) => !t.forUs).map(tierCard).join("")}</div>
     </div>
+    <div class="bd-tier-group">
+      <div class="bd-tier-head"><h3>${L("We close with you", "نُغلق معك")}</h3><span>${L("Success fee on collected revenue", "عمولة نجاح على المحصّل")}</span><p>${L("Our team sits in the proposal, the negotiation and the collection follow-up. The commission is charged only on revenue you actually collect.", "فريقنا يشاركك العرض والتفاوض ومتابعة التحصيل، والعمولة تُحتسب فقط على الإيراد الذي تحصّله فعليًا.")}</p></div>
+      <div class="grid grid-4">${tiers.filter((t) => t.forUs).map(tierCard).join("")}</div>
+    </div>
+    <p class="pk-note" style="text-align:center;max-width:820px;margin:26px auto 0">${L("The commission is charged only on revenue collected from opportunities Business Partner generated and documented in your CRM — never on your existing customers, and never on an invoice you have not been paid for.", "العمولة تُحتسب فقط على الإيراد المحصّل من فرص ولّدها Business Partner وموثّقة في CRM الخاص بك — لا على عملائك الحاليين، ولا على فاتورة لم تُحصّلها بعد.")}</p>
   </div></section>
 
-  <section class="section" id="results"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("What reporting looks like", "شكل التقارير")}</span><h2>${L("We measure commercial value, not message count", "نقيس القيمة التجارية، لا عدد الرسائل")}</h2><p>${L("The figures below are design examples showing the shape of the client dashboard — they are not performance claims.", "الأرقام التالية أمثلة تصميمية توضح شكل لوحة العميل وليست ادعاءات أداء فعلية.")}</p></div>
-    <div class="case-grid">
-      <article class="case-card"><div class="case-number">2.4M <small>Pipeline</small></div><h3>${L("B2B customer track", "مسار عملاء B2B")}</h3><p class="muted">${L("Opportunities classified by value, stage and next action.", "فرص مصنفة حسب القيمة والمرحلة والإجراء التالي.")}</p></article>
-      <article class="case-card"><div class="case-number">19 <small>Suppliers</small></div><h3>${L("A qualified supplier network", "شبكة موردين مؤهلة")}</h3><p class="muted">${L("Capabilities, certifications, offers and negotiation status.", "قدرات وشهادات وعروض وحالة تفاوض.")}</p></article>
-      <article class="case-card"><div class="case-number">100% <small>Attribution</small></div><h3>${L("Deal-source protection", "حماية مصدر الصفقة")}</h3><p class="muted">${L("Introduction, meeting, contract, revenue and commission in one record.", "Introduction واجتماع وعقد وإيراد وعمولة في سجل واحد.")}</p></article>
-    </div>
-  </div></section>
-
-  <section class="section-sm dot-bg" id="faq"><div class="container">
+  <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("FAQ", "الأسئلة الشائعة")}</span><h2>${L("Before you start", "قبل أن تبدأ")}</h2></div>
-    <div class="faq">
-      <details open><summary>${L("Does pipeline value mean guaranteed revenue?", "هل قيمة الـPipeline تعني إيرادًا مضمونًا؟")}</summary><p>${L("No. It is a target value for qualified opportunities and depends on offer quality, the market, response speed and closing factors.", "لا. هي قيمة مستهدفة للفرص المؤهلة، وتخضع لجودة العرض والسوق وسرعة الاستجابة وعوامل الإغلاق.")}</p></details>
-      <details><summary>${L("When is the success fee due?", "متى تستحق عمولة النجاح؟")}</summary><p>${L("The agreement defines the trigger. The preferred model ties the fee to revenue actually collected.", "تحدد الاتفاقية نقطة الاستحقاق. النموذج المفضل يربط العمولة بالإيراد المحصل فعليًا.")}</p></details>
-      <details><summary>${L("What is the difference between the success fee and the closing add-on?", "ما الفرق بين عمولة النجاح وإضافة الإغلاق؟")}</summary><p>${L("The success fee relates to generating and managing the opportunity; the closing add-on relates to actually taking part in negotiation and signing.", "عمولة النجاح ترتبط بتوليد وإدارة الفرصة، وإضافة الإغلاق ترتبط بالمشاركة الفعلية في التفاوض والتوقيع.")}</p></details>
-      <details><summary>${L("Can we run the supplier track only?", "هل يمكن البحث عن الموردين فقط؟")}</summary><p>${L("Yes. Customers, suppliers, distributors or partners can each run as an independent track.", "نعم. يمكن تشغيل مسار مستقل للعملاء أو الموردين أو الموزعين أو الشركاء.")}</p></details>
-    </div>
+    <div class="faq-list" style="max-width:900px;margin:auto">${faqs}</div>
   </div></section>
 
-  <section class="section dot-bg" id="contact"><div class="container"><div class="cta-box">
-    <span class="eyebrow">${L("Start now", "ابدأ الآن")}</span>
-    <h2>${L("What pipeline value do you want to build in 90 days?", "ما قيمة الـPipeline التي تريد بناءها خلال 90 يومًا؟")}</h2>
-    <p>${L("Tell us your sector, market, average deal size and the relationships you need, and we will prepare the operating plan and the right package.", "شاركنا القطاع والسوق ومتوسط قيمة الصفقة ونوع العلاقات المطلوبة، وسنجهز تصور التشغيل والباقة المناسبة.")}</p>
-    <form class="lead-form" id="leadForm">
-      <input required id="rl-name" placeholder="${Lraw("Full name", "الاسم الكامل")}">
-      <input required id="rl-company" placeholder="${Lraw("Company name", "اسم الشركة")}">
-      <input required id="rl-email" type="email" placeholder="${Lraw("Email", "البريد الإلكتروني")}">
-      <input required id="rl-phone" placeholder="${Lraw("Mobile number", "رقم الجوال")}">
-      <select class="full" id="rl-track"><option>${L("I need customers", "أبحث عن عملاء")}</option><option>${L("I need suppliers", "أبحث عن موردين")}</option><option>${L("I need distributors or partners", "أبحث عن موزعين أو شركاء")}</option></select>
-      <textarea class="full" id="rl-notes" rows="4" placeholder="${Lraw("Describe your market and the outcome you want", "صف السوق والنتيجة المطلوبة")}"></textarea>
-      <button class="btn btn-primary full" id="rl-submit">${L("Request a diagnosis session", "اطلب جلسة تشخيص")}</button>
-      <div id="sent" class="full" hidden style="color:var(--success);font-weight:900;text-align:center"></div>
-      <div id="sentErr" class="full" hidden style="color:#b91c1c;font-weight:700;text-align:center">${L("We could not send the request right now — reach us on WhatsApp and we will help immediately.", "تعذّر إرسال الطلب الآن — تواصل معنا عبر واتساب وسنخدمك فورًا.")}</div>
+  <section class="section section--gray" id="leadForm"><div class="container" style="max-width:760px">
+    <div class="section-head"><span class="eyebrow">${L("Start now", "ابدأ الآن")}</span><h2>${L("What pipeline do you want to build in 90 days?", "ما قيمة الـPipeline التي تريد بناءها خلال 90 يومًا؟")}</h2><p>${L("Tell us the sector, the market, your average deal size and the relationships you need — we come back with the operating plan and the right package.", "شاركنا القطاع والسوق ومتوسط قيمة الصفقة ونوع العلاقات المطلوبة، ونعود لك بتصور التشغيل والباقة المناسبة.")}</p></div>
+    <form id="rl-form" novalidate>
+      <div class="join-grid">
+        <div class="field"><label for="rl-name">${L("Full name", "الاسم الكامل")} *</label><input type="text" id="rl-name" required></div>
+        <div class="field"><label for="rl-company">${L("Company name", "اسم الشركة")} *</label><input type="text" id="rl-company" required></div>
+        <div class="field"><label for="rl-email">${L("Email", "البريد الإلكتروني")} *</label><input type="email" id="rl-email" required></div>
+        <div class="field"><label for="rl-phone">${L("Mobile", "رقم الجوال")} *</label><input type="tel" id="rl-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field field-full"><label for="rl-track">${L("Which track?", "أي مسار؟")}</label><select id="rl-track"><option>${L("I need customers", "أبحث عن عملاء")}</option><option>${L("I need suppliers", "أبحث عن موردين")}</option><option>${L("I need a partner or distributor", "أبحث عن موزعين أو شركاء")}</option></select></div>
+        <div class="field field-full"><label for="rl-notes">${L("Describe the market and the outcome you want", "صف السوق والنتيجة المطلوبة")}</label><textarea id="rl-notes" rows="4"></textarea></div>
+      </div>
+      <div class="join-actions"><button type="submit" class="btn btn-primary btn-lg" id="rl-submit">${L("Request a diagnostic session", "اطلب جلسة تشخيص")}</button></div>
+      <div class="form-success" hidden id="sent"></div>
+      <div class="form-error" hidden id="sentErr">${L("Could not send right now — reach us on WhatsApp and we'll take it from there.", "تعذّر إرسال الطلب الآن — تواصل معنا عبر واتساب وسنخدمك فورًا.")}</div>
     </form>
-  </div></div></section>
-  </div>`;
+  </div></section>`;
 
   return page({
-    title: Lraw("Revenue OS — customers, suppliers and revenue | Business Partner", "Revenue OS — العملاء والموردون والإيرادات | بيزنس بارتنر"),
-    desc: Lraw("Business Partner Revenue OS: we build your customer, supplier and partner base and run opportunities through to revenue and collection.", "Business Partner Revenue OS: نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
-    active: "/revenue-os",
-    path: "/revenue-os",
+    title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
+    desc: Lraw("Business Development as a Service by Business Partner: free for 30 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: مجانًا 30 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
+    active: "/business-development",
+    path: "/business-development",
     body,
-    extraHead: `<link rel="stylesheet" href="/assets/css/revenue-os-page.css?v=${REVOS_CSS_V}">`,
-    script: `<script src="/assets/js/revenue-os-v1.js?v=${REVOS_JS_V}"></script>`,
+    extraHead: bdCss,
+    script: `<script src="/assets/js/business-development.js?v=${BDAAS_JS_V}"></script>`,
   });
 }
 
+/* ---------- Smart advisors — one design, one buying mechanism ----------
+   Owner directive (31 Aug 2026): every smart advisor gets its own selling
+   page and subscription, all on the same design and the same cart mechanics.
+   Prices are read from services.json by SKU — never typed here — so the
+   advisor pages, the hub, the cart and the portal store always agree.
+   Naming policy: «المستشار الذكي» family (never «الوكيل الذكي»). */
+
+const svcByCode = (code) => services.find((s) => (s.code || "").toUpperCase() === String(code).toUpperCase()) || null;
+const advPrice = (code) => {
+  const s = svcByCode(code);
+  return s && s.price ? { amount: s.price.amount ?? null, label: s.price.label || "" } : { amount: null, label: "" };
+};
+
+const ADV_CSS = `<style>
+.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
+.adv section{padding:64px 0}
+.adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.adv-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.adv-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.adv-hero h1{max-width:860px;margin:16px auto 12px;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.045em;color:var(--n)}
+.adv-hero .lead{max-width:760px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1rem}
+.adv-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px auto 0;max-width:860px}
+.adv-chips span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.73rem;font-weight:800}
+.adv-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.adv-head{max-width:760px;margin:0 auto 28px;text-align:center}
+.adv-head h2{margin:0;color:var(--n);font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.04em;line-height:1.15}
+.adv-head p{margin:10px 0 0;color:var(--mut);line-height:1.8;font-size:.93rem}
+.adv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.adv-feature{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff}
+.adv-feature b{display:block;color:#172854;font-size:.9rem;margin-bottom:7px}
+.adv-feature p{margin:0;color:#778198;font-size:.78rem;line-height:1.75}
+.adv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-step{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
+.adv-step i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.8rem;margin-bottom:12px}
+.adv-step b{display:block;color:#172854;font-size:.83rem;margin-bottom:5px}
+.adv-step p{margin:0;color:#778198;font-size:.72rem;line-height:1.7}
+.adv-sub{background:var(--soft)}
+.adv-subbox{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 18px 46px rgba(11,27,90,.1)}
+.adv-subbox h3{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.adv-subbox .price-amt{font-size:2rem;font-weight:850;color:var(--n);margin:10px 0 2px}
+.adv-subbox .adv-per{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+.adv-subbox .qb-note{margin:0 0 14px;font-size:.85rem;color:var(--mut)}
+.adv-subbox ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;text-align:start}
+.adv-subbox li{font-size:.83rem;color:#536077}
+.adv-subbox li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:8px}
+.adv-subbox .buy-row{justify-content:center;display:flex}
+.adv-subbox .adv-note{margin:14px 0 0;font-size:.75rem;color:var(--mut)}
+.adv-faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.adv-faq details{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px 18px}
+.adv-faq summary{cursor:pointer;font-weight:800;color:var(--n);font-size:.9rem}
+.adv-faq p{margin:10px 0 0;color:var(--mut);font-size:.85rem;line-height:1.8}
+.adv-cta{background:linear-gradient(145deg,var(--n),#123b8e);color:#fff;text-align:center}
+.adv-cta h2{margin:0 0 8px;color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.04em}
+.adv-cta p{margin:0 auto 20px;max-width:620px;color:rgba(255,255,255,.72);line-height:1.8;font-size:.92rem}
+.adv-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.adv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff;transition:.2s}
+.adv-card:hover{border-color:#b7c4e8;box-shadow:0 14px 38px rgba(20,49,125,.09)}
+.adv-card small{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.6rem;font-weight:900;margin-bottom:14px}
+.adv-card h3{margin:0 0 6px;color:#142653;font-size:1.02rem}
+.adv-card .tg{margin:0 0 10px;color:#778198;font-size:.76rem;line-height:1.65}
+.adv-card ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.adv-card li{font-size:.73rem;color:#536077}
+.adv-card li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.adv-card .price-amt{font-size:1.05rem;font-weight:850;color:var(--n);margin:0 0 4px}
+.adv-card .qb-note{margin:0 0 10px;font-size:.72rem;color:var(--mut)}
+.adv-card .adv-acts{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adv-card .adv-acts .buy-row{display:contents}
+.adv-more{font-size:.8rem;font-weight:800;color:var(--b);text-decoration:none}
+@media(max-width:980px){.adv-grid,.adv-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adv-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.adv .wrap{width:min(100% - 26px,1100px)}.adv section{padding:48px 0}.adv-grid,.adv-hub-grid,.adv-steps{grid-template-columns:1fr}}
+</style>`;
+
+// One selling page per advisor: hero → who it's for → what it does → how it
+// works → the subscription (real SKU price + the same add-cart mechanism the
+// whole site uses) → FAQ → final CTA.
+function advisorPage(cfg) {
+  const chips = (cfg.chips || []).map((c) => `<span>${c}</span>`).join("");
+  const feats = (cfg.features || [])
+    .map(([t, d]) => `<div class="adv-feature"><b>${t}</b><p>${d}</p></div>`)
+    .join("");
+  const steps = (cfg.steps || [])
+    .map(([t, d], i) => `<div class="adv-step"><i>${i + 1}</i><b>${t}</b><p>${d}</p></div>`)
+    .join("");
+  const includes = (cfg.includes || []).map((x) => `<li>${x}</li>`).join("");
+  const faq = (cfg.faq || [])
+    .map(([q, aa]) => `<details><summary>${q}</summary><p>${aa}</p></details>`)
+    .join("");
+
+  // The subscription block. Three honest shapes:
+  //  - a real SKU → price + add-to-cart (guest price-hiding policy applies);
+  //  - a picker (smart employee): the generic SKU can't be fulfilled without a
+  //    specialty slug, so the button goes to the picker, price shown as-is;
+  //  - no SKU (document advisor) → the tool lives in the portal; no invented price.
+  let subBody = "";
+  const p = cfg.sku ? advPrice(cfg.sku) : { amount: null, label: "" };
+  if (cfg.sku && p.amount != null && !cfg.pickerHref) {
+    subBody = `
+      <div class="price-amt">${esc(localizeLabel(p.label))}</div>
+      <p class="adv-per">${L("Monthly subscription — cancel any time.", "اشتراك شهري — تقدر توقفه في أي وقت.")}</p>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <ul>${includes}</ul>
+      ${cartBtns({ id: cfg.cartId, code: cfg.sku, nameEn: cfg.nameEn, nameAr: cfg.nameAr, amount: p.amount, priceLabel: p.label, kind: "agent" })}
+      <p class="adv-note">${L("Activated inside your client portal after checkout; government fees, where relevant, stay separate and disclosed.", "يُفعَّل داخل لوحة العميل بعد إتمام الشراء؛ والرسوم الحكومية — حيث تنطبق — منفصلة ومعلنة.")}</p>`;
+  } else if (cfg.pickerHref) {
+    subBody = `
+      <div class="price-amt">${esc(localizeLabel(p.label))}</div>
+      <p class="adv-per">${L("Per specialist smart employee, monthly.", "لكل موظف ذكي متخصص، شهرياً.")}</p>
+      <p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>
+      <ul>${includes}</ul>
+      <div class="buy-row"><a class="btn btn-primary" href="${u(cfg.pickerHref)}">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>
+      <p class="adv-note">${L("You choose the specialty first — the subscription activates for that exact employee.", "تختار التخصص أولاً — والاشتراك يتفعّل لهذا الموظف تحديداً.")}</p>`;
+  } else {
+    subBody = `
+      <ul>${includes}</ul>
+      <div class="buy-row" style="gap:9px;flex-wrap:wrap">
+        <a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
+        <a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a>
+      </div>
+      <p class="adv-note">${L("Included with your client portal account — signing in with a one-time email code creates one.", "متاح مع حسابك في لوحة العميل — تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً.")}</p>`;
+  }
+
+  const body = `<div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> ${cfg.kicker}</span>
+    <h1>${cfg.title}</h1>
+    <p class="lead">${cfg.lead}</p>
+    <div class="adv-chips">${chips}</div>
+    <div class="adv-hero-actions">
+      <a class="btn btn-primary btn-lg" href="#subscribe">${cfg.heroCta || L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="adv-head"><h2>${cfg.featuresTitle || L("What it does for you", "وش يسوي لك؟")}</h2>${cfg.forWho ? `<p>${cfg.forWho}</p>` : ""}</div>
+    <div class="adv-grid">${feats}</div>
+  </div></section>
+
+  <section id="how" style="background:var(--soft)"><div class="wrap">
+    <div class="adv-head"><h2>${L("How it works", "كيف يعمل؟")}</h2></div>
+    <div class="adv-steps">${steps}</div>
+  </div></section>
+
+  <section id="subscribe"><div class="wrap">
+    <div class="adv-head"><h2>${cfg.subTitle || L("Your subscription", "اشتراكك")}</h2></div>
+    <div class="adv-subbox"><h3>${cfg.nameL}</h3>${subBody}</div>
+  </div></section>
+
+  ${faq ? `<section class="adv-sub"><div class="wrap">
+    <div class="adv-head"><h2>${L("Common questions", "أسئلة شائعة")}</h2></div>
+    <div class="adv-faq">${faq}</div>
+  </div></section>` : ""}
+
+  <section class="adv-cta"><div class="wrap">
+    <h2>${L("Not sure it fits your case?", "مو متأكد أنه يناسب حالتك؟")}</h2>
+    <p>${L("Tell the B10X smart advisor what you need, or book a free consultation — no cost, no commitment.", "قل للمستشار الذكي وش تحتاج، أو احجز استشارة مجانية — بدون تكلفة أو التزام.")}</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="${u("/")}#bp-consultant">${L("Talk to the smart advisor", "كلّم المستشار الذكي")}</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="${u("/consultation")}">${L("Book a free consultation", "احجز استشارة مجانية")}</a>
+    </div>
+  </div></section>
+  </div>`;
+
+  return page({ title: cfg.pageTitle, desc: cfg.pageDesc, active: cfg.active, path: cfg.path || cfg.active, body, extraHead: ADV_CSS });
+}
+
+/* ---------- الوكلاء الأذكياء — الصفحة الأم (/ai-agents) ----------
+   One hub, one design, one buying mechanism: every advisor as a card with its
+   real catalog price (or its honest CTA), linking to its own selling page. */
 function buildAiAgents() {
-  const a = site.aiAgents;
-  const steps = a.how.steps
-    .map(
-      (s) => `<div class="step"><div class="step-n">${esc(s.n)}</div><div><h3>${L(s.titleEn || s.title, s.title)}</h3><p>${L(s.textEn || s.text, s.text)}</p></div></div>`
-    )
-    .join("");
-  const cards = a.agents
-    .map((g) => {
-      const name = L(g.nameEn || g.name, g.name);
-      const external = /^https?:\/\//.test(g.link || "");
-      const linkAttrs = external ? ` target="_blank" rel="noopener"` : "";
-      const nameHtml = g.link ? `<a href="${u(g.link)}"${linkAttrs} style="color:inherit;text-decoration:none">${name}</a>` : name;
-      // The smart-employees card must not sell a generic SKU: activation codes
-      // unlock specific employee slugs, so a slug-less "agent-..." purchase can
-      // never be fulfilled. Route that card to the employee picker instead.
-      const isPicker = g.link === "/connect";
-      // One SKU per product — the compliance page sells agent-Compliance-Agent,
-      // so the hub must use the same id or the same subscription becomes two
-      // different cart lines.
-      const cartId = g.link === "/compliance-agent" ? "agent-Compliance-Agent" : "agent-" + (g.nameEn || g.name).replace(/\s+/g, "-");
-      const btns = isPicker
-        ? `<div class="buy-row"><a href="${u(g.link)}" class="btn btn-primary">${L("Pick your employee (12 specialties)", "اختر موظفك (12 تخصصاً)")}</a></div>`
-        : cartBtns({ id: cartId, nameEn: g.nameEn || g.name, nameAr: g.name, amount: parseAmount(g.price), priceLabel: g.price, kind: "agent", ghost: !g.highlight });
-      const tryBtn = g.link && !isPicker ? `<a href="${u(g.link)}"${linkAttrs} class="btn btn-ghost">${L("Details", "التفاصيل")}</a>` : "";
-      const btnsWithTry = tryBtn ? btns.replace('<div class="buy-row">', `<div class="buy-row">${tryBtn}`) : btns;
-      return `<div class="pkg${g.highlight ? " pop" : ""}">
-      <div class="pk-name">${nameHtml}<small>${L(g.taglineEn || g.tagline, g.tagline)}</small></div>
-      ${SHOW_PRICES ? `<div class="pk-price">${esc(priceLabel({ price: { label: g.price } }))}</div>` : ""}
-      <p class="pk-for">${L(g.forEn || g.for, g.for)}</p>
-      <ul>${g.features.map((f, i) => `<li>${I.check}<span>${L((g.featuresEn && g.featuresEn[i]) || f, f)}</span></li>`).join("")}</ul>
-      ${btnsWithTry}
-    </div>`;
-    })
-    .join("");
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("AI Agents", "الوكلاء الأذكياء")}</span>
-    <h1>${L(a.titleEn || a.title, a.title)}</h1>
-    <p class="lead">${L(a.leadEn || a.lead, a.lead)}</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agents">${L(a.learnEn || "استعرض الوكلاء", "استعرض الوكلاء")}</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge">${I.check}${L("24/7 monitoring", "مراقبة 24/7")}</span>
-      <span class="hero-badge">${I.check}${L("Autonomous execution", "تنفيذ ذاتي")}</span>
-      <span class="hero-badge">${I.check}${L("Approval & payment only", "موافقة ودفع فقط")}</span>
+  const emp = advPrice("BP-AI-SMART-EMPLOYEE");
+  const comp = advPrice("BP-AI-03");
+  const shared = advPrice("BP-AI-04");
+  const rev = advPrice("REV-LAUNCH");
+
+  const guest = `<p class="qb-note" data-guest-note>${L("Price shown after sign-in", "السعر يظهر بعد تسجيل الدخول")}</p>`;
+  const from = (lbl) => `<div class="price-amt">${L("From", "يبدأ من")} ${esc(localizeLabel(lbl))}</div>`;
+
+  const cards = [
+    {
+      tag: "B10X", name: L("B10X Smart Advisor", "مستشار B10X الذكي"),
+      tg: L("The operating layer over everything: ask, it routes you to the right service, requirements and execution.", "طبقة التشغيل فوق كل شيء: اسأل، وهو يوصلك للخدمة الصحيحة والمتطلبات والتنفيذ."),
+      feats: [L("Understands your goal 24/7", "يفهم هدفك 24/7"), L("Routes to any of 140+ services", "يوجهك لأي خدمة من +140"), L("From question to tracked request", "من السؤال إلى طلب مُتابَع")],
+      price: "", acts: `<a class="btn btn-primary" href="${u("/b10x")}">${L("Explore B10X", "اكتشف B10X")}</a><a class="adv-more" href="${u("/")}#bp-consultant">${L("Try it now", "جرّبه الآن")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Compliance Advisor", "مستشار الامتثال"),
+      tg: L("Qiwa, Muqeem, GOSI, Mudad and Nitaqat under constant watch — your role is approval only.", "قوى ومقيم والتأمينات ومدد ونطاقات تحت مراقبة دائمة — ودورك الموافقة فقط."),
+      feats: [L("Deadlines before they become fines", "المهل قبل أن تصير غرامات"), L("Violation review & objection filing", "مراجعة المخالفات وتقديم الاعتراض"), L("Periodic compliance reports", "تقارير امتثال دورية")],
+      price: (comp.amount != null ? `<div class="price-amt">${esc(localizeLabel(comp.label))}</div>${guest}` : ""),
+      acts: `${cartBtns({ id: "agent-Compliance-Agent", code: "BP-AI-03", nameEn: "Compliance & obligations agent", nameAr: "مستشار الامتثال والالتزام", amount: comp.amount, priceLabel: comp.label, kind: "agent" })}<a class="adv-more" href="${u("/compliance-agent")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Specialist Smart Employee", "الموظف الذكي المتخصص"),
+      tg: L("A 24-hour specialist — marketing, admin, sales, tech or procurement — without the hiring cost.", "متخصص يعمل 24 ساعة — تسويق، إداري، مبيعات، تقني أو مشتريات — بدون تكلفة توظيف."),
+      feats: [L("12 specialties to pick from", "12 تخصصاً تختار منها"), L("Works inside your policies", "يعمل ضمن سياساتك"), L("Each specialty its own subscription", "كل تخصص اشتراك مستقل")],
+      price: (emp.amount != null ? `${from(emp.label)}${guest}` : ""),
+      acts: `<a class="btn btn-primary" href="${u("/connect")}">${L("Pick your employee", "اختر موظفك")}</a><a class="adv-more" href="${u("/smart-employee")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Document Advisor", "مستشار المستندات"),
+      tg: L("Reads your documents once, then fills any form — Word, Excel and PDF, in place, traceable to the source.", "يقرأ مستنداتك مرة واحدة ثم يعبّئ أي نموذج — Word وExcel وPDF في مكانها، وكل قيمة بمصدرها."),
+      feats: [L("Extraction with provenance", "استخراج بمصدر لكل قيمة"), L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Private to your company vault", "خاص بخزنة شركتك")],
+      price: "", acts: `<a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
+    },
+    {
+      tag: "AI", name: L("Business Development Advisor", "مستشار تطوير الأعمال"),
+      tg: L("Customers, suppliers, partners and a pipeline that never sleeps — growth as an operating system.", "عملاء وموردون وشركاء وPipeline لا ينام — النمو كنظام تشغيل."),
+      feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
+      price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
+      acts: `<a class="btn btn-primary" href="${u("/revenue-os")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+    },
+    {
+      tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),
+      tg: L("The Compliance Advisor plus a full working team — one workspace for your platforms and your people.", "مستشار الامتثال مع فريق عمل كامل — لوحة واحدة لمنصاتك وفريقك."),
+      feats: [L("Compliance + execution in one", "امتثال وتنفيذ في واحد"), L("Available to companies & individuals", "متاح للمنشآت والأفراد"), L("Scales as you grow", "يتوسع مع نموك")],
+      price: (shared.amount != null ? `<div class="price-amt">${esc(localizeLabel(shared.label))}</div>${guest}` : ""),
+      acts: `${cartBtns({ id: "agent-Shared-services-team", code: "BP-AI-04", nameEn: "Shared services team", nameAr: "فريق الخدمات المشتركة", amount: shared.amount, priceLabel: shared.label, kind: "agent" })}<a class="adv-more" href="${u("/shared-services")}">${L("Details", "التفاصيل")}</a>`,
+    },
+  ].map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
+
+  const body = `<div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> ${L("The smart advisors", "المستشارون الأذكياء")}</span>
+    <h1>${L("A smart team that works 24/7 — and a human team behind it.", "فريق ذكي يعمل 24/7 — وخلفه فريق بشري.")}</h1>
+    <p class="lead">${L(
+      "Every advisor does one job extremely well: compliance, documents, growth, or a full specialist employee. Subscribe to one, or combine them — they all live in your client portal, and they all buy the same way.",
+      "كل مستشار يتقن مهمة واحدة تماماً: الامتثال، المستندات، النمو، أو موظف متخصص كامل. اشترك في واحد أو اجمعها — كلها تعيش في لوحة عميلك، وكلها تُشترى بنفس الطريقة.",
+    )}</p>
+  </div></section>
+  <section style="padding-top:20px"><div class="wrap">
+    <div class="adv-hub-grid">${cards}</div>
+    <p style="margin:18px 0 0;text-align:center;font-size:.8rem;color:#68748d">${L("Prices are our fees; government fees, where relevant, are separate and disclosed before you pay.", "الأسعار أتعابنا؛ والرسوم الحكومية — حيث تنطبق — منفصلة ومعلنة قبل الدفع.")}</p>
+  </div></section>
+  <section class="adv-cta"><div class="wrap">
+    <h2>${L("Not sure where to start?", "مو متأكد من وين تبدأ؟")}</h2>
+    <p>${L("Tell the B10X smart advisor what you need — it routes you to the right advisor and the right plan.", "قل للمستشار الذكي وش تحتاج — وهو يوجهك للمستشار الصحيح والخطة الصحيحة.")}</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="${u("/")}#bp-consultant">${L("Talk to the smart advisor", "كلّم المستشار الذكي")}</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="${u("/consultation")}">${L("Book a free consultation", "احجز استشارة مجانية")}</a>
     </div>
   </div></section>
+  </div>`;
 
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L(a.how.eyebrowEn || a.how.eyebrow, a.how.eyebrow)}</span><h2>${L(a.how.titleEn || a.how.title, a.how.title)}</h2></div>
-    <div class="steps-grid">${steps}</div>
-  </div></section>
+  return page({
+    title: Lraw("Smart Advisors — Business Partner", "المستشارون الأذكياء — بيزنس بارتنر"),
+    desc: Lraw(
+      "Compliance, documents, growth and specialist smart employees — one design, one subscription mechanism, all inside your client portal.",
+      "الامتثال والمستندات والنمو وموظفون أذكياء متخصصون — تصميم واحد وآلية اشتراك واحدة، وكلها داخل لوحة العميل.",
+    ),
+    active: "/ai-agents", body, extraHead: ADV_CSS,
+  });
+}
 
-  <section class="section" id="agents"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("The system", "المنظومة")}</span><h2>${L(a.packagesTitleEn || a.packagesTitle, a.packagesTitle)}</h2><p>${L(a.packagesSubtitleEn || a.packagesSubtitle, a.packagesSubtitle)}</p></div>
-    <div class="grid grid-3">${cards}</div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>${L(a.pricingNoteEn || a.pricingNote, a.pricingNote)}</p></div>
-    <div class="center mt-32" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-primary" href="${u("/portal")}">🎁 ${L("Try the team free — 3 messages per employee", "جرّب الفريق مجاناً — 3 رسائل لكل موظف")}</a>
-      <a class="btn btn-ghost" href="${u("/portal")}">🔐 ${L("Already subscribed? Enter the portal", "مشترك بالفعل؟ ادخل البوابة")}</a>
-      <a class="btn btn-ghost" href="${LANG === "ar" ? "/ar/connect" : "/connect"}">${L("Connect your tools (Gmail, Calendar, Notion, Slack…)", "اربط أدواتك (Gmail، التقويم، Notion، Slack…)")}</a>
-    </div>
-  </div></section>`;
-  return page({ title: Lraw("AI Agents — Business Partner", "الوكلاء الأذكياء — بيزنس بارتنر"), desc: Lraw((a.leadEn || a.lead).slice(0, 155), a.lead.slice(0, 155)), active: "/ai-agents", body });
+/* ---------- الموظف الذكي المتخصص (/smart-employee) ----------
+   Sells the specialist smart-employee subscription. The buy button goes to the
+   picker (/connect): activation unlocks a specific specialty slug, so a
+   generic purchase can never be fulfilled — the price shown is the catalog's. */
+function buildSmartEmployeePage() {
+  return advisorPage({
+    active: "/smart-employee",
+    path: "/smart-employee",
+    pageTitle: Lraw("Specialist Smart Employee — Business Partner", "الموظف الذكي المتخصص — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "A specialist smart employee that works 24 hours inside your policies: marketing, admin, sales, tech or procurement — without the cost of hiring.",
+      "موظف ذكي متخصص يعمل 24 ساعة ضمن سياساتك: تسويق، إداري، مبيعات، تقني أو مشتريات — بدون تكلفة توظيف.",
+    ),
+    kicker: L("Specialist Smart Employee · 12 specialties", "الموظف الذكي المتخصص · 12 تخصصاً"),
+    title: L("A specialist employee that works 24 hours. Without the hiring cost.", "موظف متخصص يعمل 24 ساعة. بدون تكلفة توظيف."),
+    lead: L(
+      "Hiring a specialist costs a salary, GOSI, and months of ramp-up. The specialist smart employee starts today: you pick the specialty, it works around the clock inside your company's policies and under your supervision — and your team keeps the interesting work.",
+      "توظيف متخصص يكلفك راتباً وتأمينات وشهور تهيئة. الموظف الذكي المتخصص يبدأ اليوم: تختار التخصص، ويعمل على مدار الساعة ضمن سياسات شركتك وتحت إشرافك — ويبقى لفريقك الشغل الممتع.",
+    ),
+    chips: ["تسويق", "إداري", "مبيعات", "تقني", "مشتريات", "محتوى", "تقارير"],
+    forWho: L(
+      "For establishments that want a specialist's capacity without a specialist's payroll.",
+      "للمنشآت التي تريد قدرات متخصص بدون رواتب متخصص.",
+    ),
+    features: [
+      [L("Marketing employee", "موظف تسويق"), L("Content, campaigns and performance follow-up on a steady drumbeat.", "محتوى وحملات ومتابعة أداء بإيقاع ثابت لا يتوقف.")],
+      [L("Admin employee", "موظف إداري"), L("Task organisation, follow-ups and reports that actually arrive.", "تنظيم المهام والمتابعات والتقارير التي تصل فعلاً.")],
+      [L("Sales employee", "موظف مبيعات"), L("Client follow-up, replies and quotes — no lead goes cold.", "متابعة العملاء والردود والعروض — لا عميل محتمل يبرد.")],
+      [L("Tech / procurement employee", "موظف تقني أو مشتريات"), L("Operational tasks, vendors and orders handled methodically.", "مهام تشغيلية وموردون وطلبات تُدار بمنهجية.")],
+      [L("Inside your policies", "ضمن سياساتك"), L("Works 24 hours within your company's rules and under your supervision.", "يعمل 24 ساعة ضمن قواعد شركتك وتحت إشرافك.")],
+      [L("Grows with you", "يكبر معك"), L("Add specialties as you grow — each one is its own subscription you control.", "أضف تخصصات وأنت تكبر — كل تخصص اشتراك مستقل تتحكم فيه.")],
+    ],
+    steps: [
+      [L("Pick the specialty", "اختر التخصص"), L("12 specialties — choose what your business needs first.", "12 تخصصاً — اختر ما تحتاجه منشأتك أولاً.")],
+      [L("Set the policies", "اضبط السياسات"), L("Tone, limits and approvals: the employee works your way.", "النبرة والحدود والموافقات: الموظف يشتغل بطريقتك.")],
+      [L("It works", "يشتغل"), L("Around the clock, with output landing where you work.", "على مدار الساعة، ومخرجاته تصل حيث تعمل.")],
+      [L("You supervise", "تشرف"), L("Follow the output and adjust the policies any time.", "تتابع المخرجات وتعدّل السياسات في أي وقت.")],
+    ],
+    nameL: L("Specialist smart employee", "الموظف الذكي المتخصص"),
+    nameAr: "موظف ذكي متخصص",
+    nameEn: "Specialist smart employee",
+    sku: "BP-AI-SMART-EMPLOYEE",
+    pickerHref: "/connect",
+    includes: [
+      L("One specialist employee in the specialty you pick", "موظف متخصص واحد في التخصص الذي تختاره"),
+      L("Works 24 hours inside your policies", "يعمل 24 ساعة ضمن سياساتك"),
+      L("Supervision and output tracking from your portal", "إشراف ومتابعة مخرجات من لوحتك"),
+      L("Swap or add specialties as you grow", "بدّل أو أضف تخصصات وأنت تكبر"),
+    ],
+    faq: [
+      [L("Which specialties exist?", "وش التخصصات المتاحة؟"),
+       L("Twelve, across marketing, admin, sales, tech, procurement and more — the picker shows them all.", "اثنا عشر تخصصاً في التسويق والإدارة والمبيعات والتقنية والمشتريات وغيرها — صفحة الاختيار تعرضها كلها.")],
+      [L("Can I run more than one?", "أقدر أشغّل أكثر من واحد؟"),
+       L("Yes — each specialty is its own subscription, added or stopped independently.", "نعم — كل تخصص اشتراك مستقل، تضيفه أو توقفه وحده.")],
+    ],
+  });
 }
 
 function buildTaskForce() {
@@ -2238,7 +3260,7 @@ function buildNitaqatCalculator() {
         <div class="field"><label for="cc-saudis">${L("Saudi employees (average)", "متوسط العمالة السعودية")}</label><input type="number" id="cc-saudis" min="0" value="3"></div>
       </div>
       <button class="btn btn-primary" id="cc-nit-calc">${L("Calculate", "احسب")}</button>
-      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-agent")}">${L("Subscribe to the Compliance Agent — it reads your GOSI/Qiwa/Muqeem files and tracks them for you →", "اشترك في وكيل الامتثال — يقرأ ملفات التأمينات/قوى/مقيم ويتابعها عنك ←")}</a></p>
+      <p class="form-note">💡 ${L("Don't know your exact numbers?", "ما تعرف أعدادك بدقة؟")} <a href="${u("/compliance-agent")}">${L("Subscribe to the Compliance Agent — it reads your GOSI/Qiwa/Muqeem files and tracks them for you →", "اشترك في مستشار الامتثال — يقرأ ملفات التأمينات/قوى/مقيم ويتابعها عنك ←")}</a></p>
       <div class="cc-result" id="cc-nit-result" hidden>
         <div class="cc-tiles">
           <div class="cc-tile"><span>${L("Saudization rate", "نسبة التوطين")}</span><strong id="cc-pct">—</strong></div>
@@ -2547,360 +3569,119 @@ function buildProfessionChecker() {
 }
 
 
-// The paid Compliance Agent subscription product — full landing + pricing +
-// payment + intake, wrapped in the site's own header/footer/cart (unlike the
-// Payment reuses api/pay.js same-origin.
+/* ---------- مستشار الامتثال (/compliance-agent) ---------- */
 function buildComplianceAgent() {
-  const platforms = ["قوى","مقيم","GOSI","مدد","نطاقات","السجل التجاري","المركز السعودي للأعمال","ZATCA","الغرفة التجارية","العنوان الوطني","بلدي","الدفاع المدني","إيجار","MISA"];
-  const platformsEn = ["Qiwa","Muqeem","GOSI","Mudad","Nitaqat","CR","Saudi Business Center","ZATCA","Chamber","National Address","Balady","Civil Defense","Ejar","MISA"];
-  const chips = platforms.map((p, i) => `<span class="hero-badge">${L(platformsEn[i], p)}</span>`).join("");
-  const steps = [
-    ["1", L("Subscribe and register your establishment", "تشترك وتسجّل منشأتك"), L("CR, Qiwa, Muqeem, GOSI, Mudad, ZATCA, licenses — image, PDF or Excel.", "السجل، قوى، مقيم، التأمينات، مدد، ZATCA، الرخص… صورة أو PDF أو Excel.")],
-    ["2", L("The agent reads and analyzes", "الوكيل يقرأ ويحلّل"), L("Extracts dates, numbers and statuses automatically and builds your compliance record.", "يستخرج التواريخ والأرقام والحالات تلقائياً ويبني سجل امتثال لمنشأتك.")],
-    ["3", L("Daily monitoring", "مراقبة يومية"), L("Calculates days and risks, and alerts you before any expiry or violation via WhatsApp and email.", "يحسب الأيام والمخاطر، وينبّهك قبل أي انتهاء أو مخالفة عبر واتساب وإيميل.")],
-    ["4", L("Every action needs your approval", "كل إجراء بموافقتك"), L("Prepares the renewal/action and shows it to you — nothing government-related runs without your approval.", "يجهّز التجديد/الإجراء ويعرضه عليك — لا يُنفَّذ أي شيء حكومي دون موافقتك.")],
-  ];
-  const stepsHtml = steps.map(([n, t, d]) => `<div class="step"><div class="step-n">${n}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
-  const valueItems = [
-    [L("Certificates and their expiry dates", "الشهادات وتواريخ انتهائها"), L("Zakat, tax, chamber, GOSI, Saudization, wage protection, IBAN.", "الزكاة، الضريبة، الغرفة، التأمينات، التوطين، حماية الأجور، الآيبان.")],
-    [L("Workforce and residencies", "العمالة والإقامات"), L("Work permits (Qiwa), residencies (Muqeem), wage protection (Mudad).", "رخص العمل (قوى)، الإقامات (مقيم)، حماية الأجور (مدد).")],
-    [L("Nitaqat and Saudization", "النطاقات والسعودة"), L("Your expected band and how many Saudis you need to match or upgrade.", "نطاقك المتوقع وكم سعودي تحتاج للمطابقة أو الترقية.")],
-    [L("Licenses and location", "الرخص والموقع"), L("Municipal license (Balady), Civil Defense, a certified lease contract.", "الرخصة البلدية (بلدي)، الدفاع المدني، عقد إيجار موثّق.")],
-    [L("Foreign investors", "المستثمر الأجنبي"), L("Investment license (MISA) and its dates.", "رخصة الاستثمار (MISA) وتواريخها.")],
-    [L("Alerts", "التنبيهات"), L("Daily report + an alert before violations and before any expiry.", "تقرير يومي + منبّه قبل نزول المخالفات وقبل كل انتهاء.")],
-  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("Compliance Agent", "وكيل الامتثال")}</span>
-    <h1>${L("A government compliance & operations team that watches your establishment daily", "فريق امتثال وتشغيل حكومي يتابع منشأتك يومياً")}</h1>
-    <p class="lead">${L("Subscribe and get a virtual compliance department monitoring your company, alerting you before violations and deadlines, and preparing every government action for your approval — without ever logging into a government portal yourself.", "اشترك، وخلّي عندك قسم امتثال افتراضي يراقب شركتك، ينبّهك قبل المخالفات والانتهاءات، ويرتّب لك كل إجراء حكومي — بموافقتك. بدون ما تدخل أي منصة حكومية بنفسك.")}</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="${COMPLIANCE_PORTAL_URL}">🔐 ${L("Already subscribed? Sign in", "مشترك بالفعل؟ سجّل دخولك")}</a>
-    </div>
-    <div class="hero-badges">${chips}</div>
-  </div></section>
-
-  <section id="intake" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to opening your dashboard", "أربع خطوات من التسجيل إلى فتح لوحتك")}</h2></div>
-    <div class="steps-grid">${[
-      [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site — the same account you use for every other service.", "أنشئ حسابك في الموقع — نفس الحساب الذي تستخدمه لباقي الخدمات.")],
-      [L("Add the subscription to your cart", "أضف الاشتراك للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
-      [L("Payment is confirmed", "يتأكد الدفع"), L("Pay online and your access code is emailed to you instantly — a bank transfer is confirmed first.", "ادفع إلكترونياً ويصلك رمز الدخول على بريدك فوراً — والتحويل البنكي يُعتمد أولاً.")],
-      [L("Open your dashboard", "افتح لوحتك"), L("Sign in to your compliance dashboard with your email and the access code — your establishment file, alerts and document upload are all there.", "ادخل لوحة الامتثال ببريدك ورمز الدخول — ملف منشأتك وتنبيهاتك ورفع مستنداتك كلها هناك.")],
-    ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تشتغل الخدمة؟")}</span><h2>${L("Four steps — from registering your establishment to a daily alert and a ready action pending your approval", "أربع خطوات — من تسجيل منشأتك إلى تنبيه يومي وإجراء جاهز بموافقتك")}</h2></div>
-    <div class="steps-grid">${stepsHtml}</div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">💰</span><p>${L("Compliance now literally pays back: Monsha'at's Estrdad initiative refunds SMEs their government fees through 2028 — but only while your CR, certificates, licenses and Nitaqat stay compliant. The agent keeps you inside the eligible band.", "امتثالك الآن يدفع لك حرفياً: مبادرة «استرداد» من منشآت تعيد للمنشآت رسومها الحكومية حتى 2028 — لكن فقط ما دام سجلك وشهاداتك وتراخيصك ونطاقاتك ممتثلة. الوكيل يبقيك داخل نطاق الاستحقاق.")} <a href="${u("/estrdad")}">${L("Learn about fee refunds ←", "اعرف عن استرداد الرسوم ←")}</a></p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">${L("What does the agent track for you?", "وش يتابع لك الوكيل؟")}</h3>
-      <ul class="value-list">${valueItems}</ul>
-    </div>
-  </div></section>
-
-  <section id="pricing" class="section" style="padding-top:0"><div class="container">
-    <div class="price-box">
-      <div>${SHOW_PRICES ? `<div class="price-amt">${L("From 250", "يبدأ من 250")} <small>${L("SAR / monthly", "ريال / شهرياً")}</small></div>` : ""}
-      <div class="text-soft">${L("Compliance subscription — daily monitoring and alerts. Government fees for actions are separate and only run with your approval.", "اشتراك خدمة الامتثال — مراقبة يومية وتنبيهات. الرسوم الحكومية للإجراءات منفصلة وتُنفَّذ بموافقتك.")}</div></div>
-      ${cartBtns({ id: "agent-Compliance-Agent", nameEn: "Compliance & obligations agent", nameAr: "وكيل الامتثال والالتزام", amount: 250, priceLabel: L("From 250 ﷼ / monthly", "يبدأ من 250 ﷼ / شهرياً"), kind: "agent" })}
-    </div>
-  </div></section>
-
-  <style>
-    .text-soft{color:var(--text-soft)}
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .price-box{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;background:var(--white);border:1px solid var(--gray-line);border-radius:18px;padding:1.3rem 1.5rem}
-    .price-amt{font-size:2rem;font-weight:800;color:var(--navy)}
-    .price-amt small{font-size:.95rem;color:var(--text-soft);font-weight:600}
-    .price-box .buy-row{margin-inline-start:auto}
-  </style>`;
-
-  return page({
-    title: Lraw("Compliance Agent — Business Partner", "وكيل الامتثال — بيزنس بارتنر"),
-    desc: Lraw("Subscribe and get a virtual compliance team monitoring your company daily, alerting you before violations.", "اشترك واحصل على فريق امتثال افتراضي يراقب شركتك يومياً وينبّهك قبل المخالفات."),
+  return advisorPage({
     active: "/compliance-agent",
-    path: "/compliance-agent",
-    body,
+    pageTitle: Lraw("Compliance Advisor — Business Partner", "مستشار الامتثال — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "Your government platforms under constant watch: Qiwa, Muqeem, GOSI, Mudad and Nitaqat — deadlines, violations and obligations detected and handled, your role is approval only.",
+      "منصاتك الحكومية تحت المراقبة الدائمة: قوى، مقيم، التأمينات، مدد ونطاقات — رصد المهل والمخالفات والالتزامات ومعالجتها، ودورك الموافقة فقط.",
+    ),
+    kicker: L("Compliance Advisor · works 24/7", "مستشار الامتثال · يعمل 24/7"),
+    title: L("Your government platforms, under constant watch.", "منصاتك الحكومية تحت المراقبة الدائمة."),
+    lead: L(
+      "Every establishment lives across Qiwa, Muqeem, GOSI, Mudad and Nitaqat — and every one of them has deadlines that cost real money when missed. The Compliance Advisor watches them all, tells you what needs action before it becomes a violation, and prepares the paperwork. Your role: approve and pay.",
+      "كل منشأة تعيش موزعة بين قوى ومقيم والتأمينات ومدد ونطاقات — وكل منصة فيها مهل تتحول لمخالفات تكلف مالاً حقيقياً إذا فاتت. مستشار الامتثال يراقبها كلها، يخبرك بما يحتاج إجراء قبل أن يصبح مخالفة، ويجهّز المستندات. دورك: موافقة ودفع فقط.",
+    ),
+    chips: [
+      "قوى", "مقيم", L("GOSI", "التأمينات GOSI"), "مدد", "نطاقات", L("Balady", "بلدي"), "ZATCA",
+    ].map((x) => (typeof x === "string" ? x : x)),
+    forWho: L(
+      "For establishments that want permanent compliance without a full-time employee chasing portals.",
+      "للمنشآت التي تريد امتثالاً دائماً بدون موظف متفرغ يطارد البوابات.",
+    ),
+    features: [
+      [L("Continuous monitoring", "مراقبة مستمرة"), L("Qiwa, Muqeem, GOSI, Mudad and Nitaqat checked around the clock — nothing waits for someone to remember to log in.", "قوى ومقيم والتأمينات ومدد ونطاقات تُفحص على مدار الساعة — لا شيء ينتظر أحداً يتذكر أن يسجل الدخول.")],
+      [L("Deadlines before they bite", "المهل قبل أن تعضّ"), L("Expiries, renewals and obligations surface as clear tasks with the cost and the deadline — before the fine, not after.", "الانتهاءات والتجديدات والالتزامات تظهر كمهام واضحة بالتكلفة والمهلة — قبل الغرامة لا بعدها.")],
+      [L("Violations handled properly", "المخالفات تُعالج بمسارها الصحيح"), L("When a violation appears we review it, study objection eligibility, prepare the evidence and file — then track it to the result.", "عند ظهور مخالفة نراجعها، ندرس أهلية الاعتراض، نجهّز المستندات ونقدّم — ثم نتابعها حتى النتيجة.")],
+      [L("Self-executing paperwork", "تجهيز ذاتي للإجراءات"), L("The advisor prepares documents and submissions itself; a human from our team steps in where the platforms require one.", "المستشار يجهّز المستندات والرفع بنفسه؛ ويتدخل فريقنا البشري حيث تتطلب المنصات ذلك.")],
+      [L("Approval-only workload for you", "عبؤك أنت: الموافقة فقط"), L("Every step comes to you as an approval with its cost — nothing executes without your yes.", "كل خطوة تصلك كموافقة بتكلفتها — لا شيء يُنفَّذ بدون موافقتك.")],
+      [L("Periodic compliance reports", "تقارير امتثال دورية"), L("A clear report of your establishment's compliance state, inside your client portal.", "تقرير واضح عن حالة امتثال منشأتك، داخل لوحة العميل.")],
+    ],
+    steps: [
+      [L("Connect", "الربط"), L("We link your establishment's platforms inside your client portal.", "نربط منصات منشأتك داخل لوحة العميل.")],
+      [L("Watch", "المراقبة"), L("The advisor monitors deadlines, obligations and violations continuously.", "المستشار يراقب المهل والالتزامات والمخالفات باستمرار.")],
+      [L("Alert & prepare", "التنبيه والتجهيز"), L("What needs action arrives as a task with cost and deadline, documents ready.", "ما يحتاج إجراء يصلك كمهمة بتكلفتها ومهلتها، والمستندات جاهزة.")],
+      [L("Approve & track", "الموافقة والمتابعة"), L("You approve, we execute, and you track everything to completion in your portal.", "توافق، نُنفّذ، وتتابع كل شيء حتى الإنجاز من لوحتك.")],
+    ],
+    nameL: L("Compliance Advisor subscription", "اشتراك مستشار الامتثال"),
+    nameAr: "مستشار الامتثال والالتزام",
+    nameEn: "Compliance & obligations agent",
+    sku: "BP-AI-03",
+    cartId: "agent-Compliance-Agent",
+    includes: [
+      L("Continuous monitoring of Qiwa, Muqeem, GOSI, Mudad and Nitaqat", "مراقبة مستمرة لقوى ومقيم والتأمينات ومدد ونطاقات"),
+      L("Deadline, renewal and obligation alerts with cost before every step", "تنبيهات المهل والتجديدات والالتزامات بالتكلفة قبل كل خطوة"),
+      L("Violation review, objection-eligibility study and filing", "مراجعة المخالفات ودراسة أهلية الاعتراض وتقديمه"),
+      L("Document preparation and submission", "تجهيز المستندات ورفعها"),
+      L("Periodic compliance reports in your client portal", "تقارير امتثال دورية في لوحة العميل"),
+    ],
+    faq: [
+      [L("Does it replace my government-relations officer?", "هل يغني عن معقّب أو موظف علاقات حكومية؟"),
+       L("For routine monitoring and follow-up, yes — and where a step legally requires a human, our operations team executes it as part of the flow.", "في المراقبة والمتابعة الروتينية نعم — وحيث يتطلب الإجراء تدخلاً بشرياً نظاماً، يتولاه فريق التشغيل لدينا كجزء من المسار.")],
+      [L("Can it cancel violations?", "هل يلغي المخالفات؟"),
+       L("No one can promise that. What we do: review the violation, study objection eligibility, prepare the strongest file, submit, and follow it to the result.", "لا أحد يستطيع الوعد بذلك. ما نفعله: مراجعة المخالفة، دراسة أهلية الاعتراض، تجهيز أقوى ملف، التقديم، والمتابعة حتى النتيجة.")],
+      [L("Where do I see its work?", "وين أشوف شغله؟"),
+       L("Everything lives in your client portal: tasks, approvals, documents and reports — scoped to your company alone.", "كل شيء داخل لوحة العميل: المهام والموافقات والمستندات والتقارير — ولا يراها إلا حسابك وشركتك.")],
+    ],
   });
 }
 
-// الوكيل الذكي للمستندات — AI Document Agent. Chat-first: the client uploads
-// source documents (CR, AOA, IDs, bank letters…) and forms that need filling
-// (vendor/AML/KYC/NDA…); the agent classifies, extracts facts with provenance,
-// asks only for what is missing, fills the forms (agent-added data in blue),
-// and packages the final submission ZIP. Backend: /api/doc-agent →
-// api/requests.js?__route=doc-agent → api/_docagent.js. Session = the same
-// bp_sid account cookie as the rest of the portal.
+/* ---------- مستشار المستندات (/ai-document-agent) ----------
+   The workspace itself lives inside the client portal (/account?view=documents);
+   this public page sells it and never renders anyone's conversation. */
 function buildDocAgent() {
-  const docTypes = ["سجل تجاري","عقد تأسيس","شهادة ضريبية","IBAN","هوية / إقامة","جواز سفر","عنوان وطني","رخص","عقود","كشوف حساب","Vendor Forms","AML / KYC","NDA","نماذج بنكية","نماذج حكومية","استبيانات"];
-  const docTypesEn = ["Commercial Registration","Articles of Association","Tax Certificate","IBAN","National ID / Iqama","Passport","National Address","Licenses","Contracts","Bank Statements","Vendor Forms","AML / KYC","NDA","Bank Forms","Government Forms","Questionnaires"];
-  const chips = docTypes.map((p, i) => `<span class="hero-badge">${L(docTypesEn[i], p)}</span>`).join("");
-  const steps = [
-    [L("Upload everything at once", "ارفع كل شيء دفعة واحدة"), L("Documents that contain data, forms that need filling, your stamp, even a screenshot of the requirements email — the agent classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — الوكيل يصنّف كل ملف بنفسه.")],
-    [L("It reads, extracts and cross-checks", "يقرأ ويستخرج ويطابق"), L("Every value keeps its source, page, date and confidence. Conflicting values across documents become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والقيم المتعارضة بين مستندين تتحول لسؤال لك — لا اختيار صامت أبداً.")],
-    [L("It asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% of the form. I still need: expected annual volume, and are both owners not PEPs?” Legal declarations are never assumed.", "«عبّيت 87% من النموذج. بقي: قيمة التعامل السنوي، وهل كلا المالكين Not a PEP؟» — الإقرارات القانونية لا تُفترض أبداً.")],
-    [L("Filled forms + the final package", "نماذج معبّأة + الحزمة النهائية"), L("Word, Excel and fillable PDF forms come back filled in place — agent-added data in blue, layout untouched — named per the checklist and zipped, signature left for you.", "نماذج Word وExcel وPDF القابلة للتعبئة ترجع معبّأة كما هي — بيانات الوكيل بالأزرق والتصميم كما هو — مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
-  ];
-  const stepsHtml = steps.map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
-  const valueItems = [
-    [L("One unified client profile", "ملف بيانات موحّد"), L("CR + AOA + VAT + bank + IDs merge into one profile; the next request reuses it — upload only the new form.", "السجل + عقد التأسيس + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه — ارفع الفورم الجديد فقط.")],
-    [L("Any language, both directions", "أي لغة، وبالاتجاهين"), L("Reads an Arabic CR and fills an English vendor form (or the reverse). Official names are never translated.", "يقرأ سجلاً عربياً ويعبّئ نموذجاً إنجليزياً (أو العكس). الأسماء الرسمية لا تُترجم أبداً.")],
-    [L("UBO & ownership math", "الملاك وUBO"), L("Computes ownership percentages from the AOA and fills UBO sections, with an ownership chart on demand.", "يحسب نسب الملكية من عقد التأسيس ويعبّئ أقسام UBO، مع مخطط ملكية عند الطلب.")],
-    [L("Expiry check on every document", "فحص صلاحية كل مستند"), L("Expired documents are flagged and the request continues — you are asked for a fresh copy before final submission.", "المستند المنتهي يُعلَّم ويستمر الطلب — ويُطلب منك نسخة محدثة قبل التقديم النهائي.")],
-    [L("Natural-language edits", "تعديلات بلغة طبيعية"), L("“Make Section 9 all No”, “today's date”, “add the stamp” — the agent applies them to the right fields only.", "«Section 9 كله No»، «خلي تاريخ اليوم»، «حط الختم» — الوكيل يطبقها على الحقول الصحيحة فقط.")],
-    [L("QA before delivery", "مراجعة جودة قبل التسليم"), L("A second pass verifies every planned value landed, checkboxes are right and no placeholders remain.", "مراجعة ثانية تتأكد أن كل قيمة انكتبت فعلاً، والمربعات صحيحة، ولا يوجد أي Placeholder متبقٍ.")],
-  ].map(([t, d]) => `<li>${I.check}<span><b>${t}:</b> ${d}</span></li>`).join("");
-
-  const T = {
-    hello: Lraw("Upload the documents that contain your data, and the files you want filled. I will review everything, use what is available, and ask you only for what is missing.", "ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص."),
-    start: Lraw("Start now", "ابدأ الآن"),
-    login: Lraw("Sign in first — your documents live in your private vault. One code to your email and you are in.", "سجّل دخولك أولاً — مستنداتك تُحفَظ في خزنتك الخاصة. رمز واحد على بريدك وتدخل."),
-    loginBtn: Lraw("Sign in / create account", "تسجيل الدخول / إنشاء حساب"),
-    placeholder: Lraw("Write here… e.g. “Section 9 all No” or “what is still missing?”", "اكتب هنا… مثل «Section 9 كله No» أو «وش الناقص؟»"),
-    send: Lraw("Send", "إرسال"),
-    uploading: Lraw("Uploading & reading…", "جارٍ الرفع والقراءة…"),
-    generate: Lraw("Fill the forms", "عبّئ النماذج"),
-    pack: Lraw("Prepare the final package", "جهّز الحزمة النهائية"),
-    generating: Lraw("Filling the forms — a QA pass runs before anything reaches you…", "جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…"),
-    packing: Lraw("Packing everything into one ZIP…", "جارٍ ضغط كل شيء في ملف واحد…"),
-    outputs: Lraw("Your deliverables", "مخرجاتك"),
-    download: Lraw("Download", "تحميل"),
-    failed: Lraw("Something went wrong — try again or talk to us on WhatsApp.", "صار خطأ — أعد المحاولة أو كلمنا واتساب."),
-    tooBig: Lraw("This file is larger than 3 MB — the upload limit. Compress or split it, then send it again.", "هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أرسله مرة أخرى."),
-    noForms: Lraw("I don't have a form to fill yet — tell me which uploaded file is the form, e.g. “fill the file X”.", "ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف X»."),
-    readyMsg: Lraw("Done — your filled files are ready, download them from the links above or from “Your deliverables”.", "تم — ملفاتك المعبأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك»."),
-    facts: Lraw("facts extracted", "معلومة مستخرجة"),
-    forms: Lraw("forms detected", "نموذج للتعبئة"),
-    newReq: Lraw("New request", "طلب جديد"),
-  };
-
-  const body = `
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</span>
-    <h1>${L("Upload your documents. We finish the rest.", "ارفع مستنداتك. ونحن نكمل الباقي.")}</h1>
-    <p class="lead">${L("The smart agent reads your documents, extracts the data, fills your forms, finds what is missing, places the stamp when needed, and hands you the final package — your signature is the only thing left.", "الوكيل الذكي يقرأ مستنداتك، يستخرج المعلومات، يعبّئ النماذج، يكتشف النواقص، يضع الختم عند الحاجة، ويرتّب لك الحزمة النهائية — وما يبقى عليك إلا توقيعك.")}</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="#agent">${L("Start now", "ابدأ الآن")}</a>
-      <a class="btn btn-ghost btn-lg" href="#how">${L("How it works", "كيف يعمل؟")}</a>
-    </div>
-    <div class="hero-badges">${chips}</div>
-  </div></section>
-
-  <section id="agent" class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Chat-first", "محادثة أولاً")}</span><h2>${L("No long forms — a conversation and your files", "بدون نماذج طويلة — محادثة وملفاتك")}</h2></div>
-    <div class="da-shell">
-      <div class="da-head">
-        <b>${L("AI Document Agent", "الوكيل الذكي للمستندات")}</b>
-        <span class="da-chip" id="da-status">—</span>
-        <span class="da-chip" id="da-progress" hidden></span>
-        <button class="btn btn-ghost" id="da-new" hidden style="margin-inline-start:auto;padding:.3rem .8rem">${T.newReq}</button>
-      </div>
-      <div class="da-msgs" id="da-msgs"><div class="da-msg bot">${esc(T.hello)}</div></div>
-      <div class="da-outputs" id="da-outputs" hidden><b>${T.outputs}</b><ul id="da-outputs-list"></ul></div>
-      <div class="da-gate" id="da-gate" hidden>
-        <p>${esc(T.login)}</p>
-        <a class="btn btn-primary" href="${u("/account")}">${T.loginBtn}</a>
-      </div>
-      <form class="da-form" id="da-form" hidden>
-        <label class="da-attach" title="${L("Attach files", "أرفق ملفات")}"><input type="file" id="da-file" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,application/pdf,image/*">📎</label>
-        <input id="da-input" autocomplete="off" placeholder="${esc(T.placeholder)}">
-        <button class="btn btn-primary" type="submit">${T.send}</button>
-      </form>
-      <div class="da-actions" id="da-actions" hidden>
-        <button class="btn btn-ghost" id="da-generate">🖊️ ${T.generate}</button>
-        <button class="btn btn-ghost" id="da-package">📦 ${T.pack}</button>
-      </div>
-      <div class="da-start" id="da-start" hidden><button class="btn btn-primary btn-lg" id="da-begin">${T.start}</button></div>
-    </div>
-    <p class="da-note">${L("Files are stored encrypted in your private vault, downloads use short-lived signed links only, and every value the agent writes is traceable to its source document and page.", "تُحفَظ الملفات مشفّرة في خزنتك الخاصة، والتحميل عبر روابط موقّعة قصيرة العمر فقط، وكل قيمة يكتبها الوكيل يمكن تتبعها إلى مستندها وصفحتها المصدر.")}</p>
-  </div></section>
-
-  <section id="how" class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف يعمل؟")}</span><h2>${L("Information sources → understanding → matching → filled documents", "مصادر معلومات → فهم → مطابقة → مستندات معبّأة")}</h2></div>
-    <div class="steps-grid">${stepsHtml}</div>
-    <div class="callout" style="max-width:820px;margin:28px auto 0"><span class="ico">🔏</span><p>${L("The agent never fabricates a signature and never assumes legal declarations (PEP, sanctions, conflicts of interest…). It asks, records your explicit confirmation with its channel and time, and leaves the signature to you.", "الوكيل لا يصنع توقيعاً ولا يفترض الإقرارات القانونية (PEP، العقوبات، تضارب المصالح…). يسألك، يسجّل تأكيدك الصريح بقناته ووقته، ويترك التوقيع لك.")}</p></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="order-box">
-      <h3 style="margin-bottom:1rem">${L("What makes it different?", "وش يميزه؟")}</h3>
-      <ul class="value-list">${valueItems}</ul>
-    </div>
-  </div></section>
-
-  <style>
-    .value-list{list-style:none;display:grid;gap:.7rem;margin:0;padding:0}
-    .value-list li{display:flex;gap:.6rem;align-items:flex-start}
-    .value-list li svg{width:20px;height:20px;flex-shrink:0;margin-top:3px;color:var(--wa)}
-    .value-list b{color:var(--navy)}
-    .da-shell{max-width:820px;margin:0 auto;background:var(--white);border:1px solid var(--gray-line);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
-    .da-head{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--gray-line);background:var(--gray-bg)}
-    .da-chip{font-size:.78rem;background:var(--white);border:1px solid var(--gray-line);border-radius:99px;padding:.15rem .7rem;color:var(--text-soft)}
-    .da-msgs{padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;min-height:220px;max-height:420px;overflow-y:auto}
-    .da-msg{max-width:85%;padding:.6rem .9rem;border-radius:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-    .da-msg.bot{background:var(--gray-bg);border:1px solid var(--gray-line);align-self:flex-start}
-    .da-msg.me{background:var(--navy);color:var(--white);align-self:flex-end}
-    .da-msg.sys{background:#EEF4FF;border:1px dashed #B9CDF3;color:var(--navy);font-size:.85rem;align-self:center}
-    .da-form{display:flex;gap:.5rem;padding: .8rem 1.1rem;border-top:1px solid var(--gray-line)}
-    .da-form input[type=text],.da-form #da-input{flex:1;border:1px solid var(--gray-line);border-radius:10px;padding:.6rem .8rem;font:inherit}
-    .da-attach{cursor:pointer;display:flex;align-items:center;font-size:1.2rem}
-    .da-attach input{display:none}
-    .da-actions{display:flex;gap:.6rem;flex-wrap:wrap;padding:0 1.1rem .9rem}
-    .da-start{padding:1rem;text-align:center}
-    .da-gate{padding:1.2rem;text-align:center;border-top:1px solid var(--gray-line)}
-    .da-outputs{padding:.6rem 1.1rem;border-top:1px solid var(--gray-line);font-size:.9rem}
-    .da-outputs ul{list-style:none;margin:.4rem 0 0;padding:0;display:grid;gap:.35rem}
-    .da-outputs li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
-    .da-outputs .qa-passed{color:var(--wa)} .da-outputs .qa-failed{color:#C0392B}
-    .da-note{max-width:820px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.88rem}
-  </style>`;
-
-  const script = `<script>
-  (function(){
-    var API='/api/doc-agent';
-    var $=function(id){return document.getElementById(id);};
-    if(!$('da-msgs'))return;
-    var ref='';
-    try{ref=localStorage.getItem('bp_da_ref')||'';}catch(e){}
-    var T=${JSON.stringify(T)};
-    function el(cls,text){var d=document.createElement('div');d.className='da-msg '+cls;d.textContent=text;$('da-msgs').appendChild(d);$('da-msgs').scrollTop=1e9;return d;}
-    function post(bodyObj){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(bodyObj)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function get(qs){return fetch(API+qs,{credentials:'same-origin'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d;});});}
-    function show(id,on){var n=$(id);if(n)n.hidden=!on;}
-    function setStatus(s){$('da-status').textContent=s||'—';}
-    function renderState(s){
-      if(!s||!s.ok)return;
-      setStatus(s.request.status);
-      var facts=(s.facts||[]).length, forms=(s.gap&&s.gap.forms)||0;
-      var p=$('da-progress');
-      if(facts||forms){p.hidden=false;p.textContent=facts+' '+T.facts+' · '+forms+' '+T.forms;}
-      var outs=(s.outputs||[]).filter(function(o){return o.kind!=='package_zip';});
-      show('da-outputs',outs.length>0);
-      var ul=$('da-outputs-list');ul.innerHTML='';
-      outs.forEach(function(o){
-        var li=document.createElement('li');
-        var qa=o.qa_status==='passed'?'<span class="qa-passed">✓ QA</span>':(o.qa_status==='failed'?'<span class="qa-failed">⚠ QA</span>':'');
-        li.innerHTML='<span>'+o.delivery_name.replace(/[<>]/g,'')+' (v'+o.version_no+')</span> '+qa;
-        var a=document.createElement('a');a.href='#';a.textContent=T.download;a.className='btn btn-ghost';a.style.padding='.15rem .7rem';
-        a.onclick=function(ev){ev.preventDefault();get('?action=output-link&id='+o.id).then(function(d){if(d.url)window.open(d.url,'_blank');});};
-        li.appendChild(a);ul.appendChild(li);
-      });
-      show('da-actions',forms>0||outs.length>0);
-    }
-    function refresh(){if(ref)get('?action=state&ref='+encodeURIComponent(ref)).then(renderState);}
-    function activate(){show('da-form',true);show('da-actions',false);show('da-start',false);show('da-new',true);refresh();}
-    function begin(){
-      post({action:'start',locale:document.documentElement.lang||'ar'}).then(function(d){
-        if(d.ok){ref=d.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}activate();setStatus(d.status);}
-        else el('sys',T.failed);
-      });
-    }
-    // Boot: are we signed in, and is there a request to resume?
-    get('?action=list').then(function(d){
-      if(d.__code===401){show('da-gate',true);return;}
-      if(!d.ok){show('da-gate',true);return;}
-      var open=(d.requests||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1;});
-      var match=null;
-      open.forEach(function(r){if(r.ref===ref)match=r;});
-      if(!match&&open.length)match=open[0];
-      if(match){ref=match.ref;try{localStorage.setItem('bp_da_ref',ref);}catch(e){}
-        get('?action=state&ref='+encodeURIComponent(ref)).then(function(s){
-          if(s.ok){(s.messages||[]).slice(-8).forEach(function(m){el(m.author==='client'?'me':'bot',m.body);});renderState(s);}
-          activate();
-        });
-      } else { show('da-start',true); }
-    }).catch(function(){show('da-gate',true);});
-    $('da-begin')&&($('da-begin').onclick=begin);
-    $('da-new')&&($('da-new').onclick=function(){try{localStorage.removeItem('bp_da_ref');}catch(e){}ref='';$('da-msgs').innerHTML='';el('bot',T.hello);begin();});
-    $('da-form').addEventListener('submit',function(ev){
-      ev.preventDefault();
-      var v=$('da-input').value.trim();if(!v||!ref)return;
-      $('da-input').value='';el('me',v);
-      var typing=el('sys','…');
-      post({action:'chat',ref:ref,message:v}).then(function(d){
-        typing.remove();
-        el('bot',d.ok?d.reply:T.failed);
-        if(d.ok&&d.generate_now)runGenerate();
-        refresh();
-      }).catch(function(){typing.remove();el('sys',T.failed);});
-    });
-    $('da-file').addEventListener('change',function(){
-      var files=Array.prototype.slice.call(this.files||[]);this.value='';
-      if(!ref||!files.length)return;
-      (function next(i){
-        if(i>=files.length){refresh();return;}
-        var f=files[i];
-        el('me','📎 '+f.name);
-        if(f.size>3*1024*1024){el('bot',T.tooBig);next(i+1);return;}
-        var note=el('sys',T.uploading);
-        var rd=new FileReader();
-        rd.onload=function(){
-          var b64=String(rd.result).split(',')[1]||'';
-          var ext=(f.name.split('.').pop()||'').toLowerCase();
-          var mimeByExt={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
-          post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||mimeByExt[ext]||'application/pdf'}).then(function(d){
-            note.remove();
-            el('bot',d.ok?d.note:(d.error==='too_large'?T.tooBig:T.failed));
-            next(i+1);
-          }).catch(function(){note.remove();el('sys',T.failed);next(i+1);});
-        };
-        rd.readAsDataURL(f);
-      })(0);
-    });
-    function runGenerate(formId,seen){
-      if(!ref)return;var note=el('sys',T.generating);seen=seen||0;
-      post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
-        note.remove();
-        if(!d.ok){el('bot',d.error==='no_target_forms'?T.noForms:(T.failed+(d.detail?(' ('+d.detail+')'):'')));refresh();return;}
-        var done=0;
-        (d.outputs||[]).forEach(function(o){
-          if(o.ok&&o.output_id){
-            done++;
-            get('?action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){
-              if(!l.url)return;
-              var row=el('bot','⬇️ ');
-              var a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';
-              a.textContent=o.form;a.style.fontWeight='700';a.style.textDecoration='underline';
-              row.appendChild(a);
-              if(o.unfilled)row.appendChild(document.createTextNode(' — '+o.unfilled+' ?'));
-            });
-          } else if(!o.ok){el('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));}
-        });
-        var rest=d.remaining||[];
-        if(rest.length&&seen<12){runGenerate(rest[0].id,seen+1);return;}
-        if(done||seen)el('bot',T.readyMsg);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    }
-    $('da-generate').onclick=runGenerate;
-    $('da-package').onclick=function(){
-      if(!ref)return;var note=el('sys',T.packing);
-      post({action:'package',ref:ref}).then(function(d){
-        note.remove();
-        if(d.ok&&d.url)window.open(d.url,'_blank');else el('sys',T.failed);
-        refresh();
-      }).catch(function(){note.remove();el('sys',T.failed);});
-    };
-  })();
-  </script>`;
-
-  return page({
-    title: Lraw("AI Document Agent — Business Partner", "الوكيل الذكي للمستندات — بيزنس بارتنر"),
-    desc: Lraw("Upload your documents and the forms you need filled — the AI agent reads, extracts, fills, stamps and packages everything.", "ارفع مستنداتك والنماذج المطلوب تعبئتها، والوكيل الذكي يتولى الباقي: قراءة واستخراج وتعبئة وختم وتجهيز الحزمة."),
+  return advisorPage({
     active: "/ai-document-agent",
-    path: "/ai-document-agent",
-    body,
-    script,
+    pageTitle: Lraw("Document Advisor — Business Partner", "مستشار المستندات — بيزنس بارتنر"),
+    pageDesc: Lraw(
+      "Upload the documents that hold your data and the forms that need filling — the Document Advisor reads, extracts, fills Word, Excel and PDF in place, and hands you the final package.",
+      "ارفع المستندات التي تحمل بياناتك والنماذج المطلوب تعبئتها — مستشار المستندات يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويسلّمك الحزمة النهائية.",
+    ),
+    kicker: L("Document Advisor · inside your portal", "مستشار المستندات · داخل لوحة العميل"),
+    title: L("Upload your documents. It finishes the rest.", "ارفع مستنداتك. وهو يكمل الباقي."),
+    lead: L(
+      "Vendor forms, AML/KYC, bank forms, government questionnaires — filling them means copying the same company data for the hundredth time. The Document Advisor reads your CR, articles, IDs and statements once, then fills any form you throw at it — in place, with every value traceable to its source page.",
+      "نماذج الموردين، AML/KYC، النماذج البنكية، الاستبيانات الحكومية — تعبئتها تعني نسخ نفس بيانات شركتك للمرة المئة. مستشار المستندات يقرأ سجلك وعقد تأسيسك وهوياتك وكشوفك مرة واحدة، ثم يعبّئ أي نموذج ترميه عليه — في مكانه، وكل قيمة تتبَّع لمصدرها وصفحتها.",
+    ),
+    chips: ["سجل تجاري", "عقد تأسيس", "IBAN", "هوية / إقامة", "Vendor Forms", "AML / KYC", "NDA"],
+    forWho: L(
+      "For companies drowning in forms: banks, vendors, government portals and counterparties.",
+      "للشركات الغارقة في النماذج: بنوك وموردون وبوابات حكومية وأطراف تعاقد.",
+    ),
+    features: [
+      [L("Reads everything at once", "يقرأ كل شيء دفعة واحدة"), L("Documents with data, forms to fill, your stamp, even a screenshot of the requirements email — it classifies each file itself.", "مستندات فيها بيانات، نماذج تحتاج تعبئة، ختم الشركة، وحتى صورة من إيميل المتطلبات — يصنّف كل ملف بنفسه.")],
+      [L("Extracts with provenance", "يستخرج بمصدر لكل قيمة"), L("Every value keeps its source, page, date and confidence. Conflicts become a question to you — never a silent guess.", "كل قيمة تحتفظ بمصدرها وصفحتها وتاريخها ودرجة ثقتها. والتعارضات تتحول لسؤال لك — لا تخمين صامت أبداً.")],
+      [L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Word, Excel and fillable PDFs come back filled — advisor-added data in blue, layout untouched, signature left for you.", "نماذج Word وExcel وPDF ترجع معبّأة — بيانات المستشار بالأزرق والتصميم كما هو، والتوقيع يبقى لك.")],
+      [L("Asks only for the gap", "يسألك عن الناقص فقط"), L("“I filled 87% — I still need the expected annual volume.” Legal declarations are never assumed.", "«عبّيت 87% — بقي قيمة التعامل السنوي.» والإقرارات القانونية لا تُفترض أبداً.")],
+      [L("One reusable company profile", "ملف شركة واحد يُعاد استخدامه"), L("CR + AOA + VAT + bank + IDs merge into one profile; your next request reuses it.", "السجل + العقد + الضريبة + البنك + الهويات تندمج في ملف واحد؛ وطلبك القادم يعيد استخدامه.")],
+      [L("Private to your company", "خاص بشركتك وحدها"), L("Files stored encrypted in your vault; downloads via short-lived signed links; no other account ever sees them.", "الملفات مشفّرة في خزنتك؛ التحميل بروابط موقّعة قصيرة العمر؛ ولا يراها أي حساب آخر أبداً.")],
+    ],
+    steps: [
+      [L("Upload", "ارفع"), L("Drop in the data documents and the forms that need filling.", "أسقط مستندات البيانات والنماذج المطلوب تعبئتها.")],
+      [L("Review", "يراجع"), L("It reads, extracts, cross-checks and asks only for what is missing.", "يقرأ ويستخرج ويطابق ويسألك عن الناقص فقط.")],
+      [L("Fill", "يعبّئ"), L("Forms come back filled in place, with a QA pass before delivery.", "النماذج ترجع معبّأة في مكانها، وتمر بمراجعة جودة قبل التسليم.")],
+      [L("Package", "يسلّم"), L("Named per the checklist, zipped, signature left for you.", "مسمّاة حسب قائمة المتطلبات ومضغوطة، والتوقيع يبقى لك.")],
+    ],
+    nameL: L("Document Advisor", "مستشار المستندات"),
+    nameAr: "مستشار المستندات",
+    nameEn: "Document Advisor",
+    sku: null,
+    includes: [
+      L("Reads Arabic and English, fills in both directions", "يقرأ العربية والإنجليزية ويعبّئ بالاتجاهين"),
+      L("UBO and ownership math from your articles", "حساب الملاك وUBO من عقد التأسيس"),
+      L("Expiry check on every document", "فحص صلاحية كل مستند"),
+      L("Natural-language edits: “Section 9 all No”", "تعديلات بلغة طبيعية: «Section 9 كله No»"),
+      L("QA pass before anything reaches you", "مراجعة جودة قبل أن يصلك أي ملف"),
+    ],
+    subTitle: L("Where to use it", "وين تستخدمه؟"),
+    faq: [
+      [L("Why can't I chat with it here?", "ليش ما أقدر أحادثه هنا؟"),
+       L("Because your documents and conversations belong inside your account, scoped to your company — not on a public page. Open it from your client portal.", "لأن مستنداتك ومحادثاتك مكانها داخل حسابك ومرتبطة بشركتك — لا في صفحة عامة. افتحه من لوحة العميل.")],
+      [L("Does it sign for me?", "هل يوقّع عني؟"),
+       L("Never. It never fabricates a signature and never assumes legal declarations — it asks, records your explicit confirmation, and leaves the signature to you.", "أبداً. لا يصنع توقيعاً ولا يفترض الإقرارات القانونية — يسأل، يسجّل تأكيدك الصريح، ويترك التوقيع لك.")],
+    ],
   });
 }
 
@@ -4217,7 +4998,7 @@ function buildMahfolTrips() {
   </div></section>
 
   <section class="section"><div class="container" style="max-width:840px">
-    <div class="section-head"><span class="eyebrow">${L("Smart agent", "الوكيل الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Smart agent", "المستشار الذكي")}</span><h2>${L("Plan your trip in 30 seconds", "خطّط رحلتك في 30 ثانية")}</h2><p>${L("Chat with our agent — pick a few options and we'll shape your trip or find your flight.", "تحدّث مع وكيلنا — اختر بعض الخيارات ونصمّم رحلتك أو نبحث لك عن الطيران.")}</p></div>
     <div class="tr-agent" id="tr-agent">
       <div class="tr-agent-head"><span class="r">${I.robot}</span><div><h3>${L("Mahfol Makfol Agent", "وكيل محفول مكفول الذكي")}</h3><p>${L("Trips • Flights • Experiences", "رحلات • طيران • تجارب")}</p></div></div>
       <div class="tr-agent-msgs" id="tr-msgs"></div>
@@ -4858,7 +5639,7 @@ function buildJobSearchService() {
   const steps = [
     [L("Tell us what you're looking for", "قل لنا عمّا تبحث"), L("Your profession, your experience and where you want to work. If you've applied through us before, we already have your CV.", "مهنتك وخبرتك وأين تريد أن تعمل. إن كنت قد تقدّمت عبرنا من قبل فسيرتك الذاتية موجودة لدينا.")],
     [L("Pick how you pay", "اختر طريقة الدفع"), L("A flat 100 SAR a month while we search — or nothing at all until you accept an offer.", "١٠٠ ريال شهرياً طوال فترة البحث — أو لا شيء إطلاقاً حتى تقبل عرضاً وظيفياً.")],
-    [L("We search, every week", "نبحث لك أسبوعياً"), L("Our agent reads every new opening against your profile and sends you only the ones that genuinely fit.", "وكيلنا يقرأ كل وظيفة جديدة مقابل ملفك ويرسل لك ما يناسبك فعلاً فقط.")],
+    [L("We search, every week", "نبحث لك أسبوعياً"), L("Our agent reads every new opening against your profile and sends you only the ones that genuinely fit.", "مستشارنا الذكي يقرأ كل وظيفة جديدة مقابل ملفك ويرسل لك ما يناسبك فعلاً فقط.")],
     [L("We put you forward", "نرشّحك بأنفسنا"), L("We nominate you to the employer, arrange the interview and follow it through to the offer.", "نرشّحك لصاحب العمل، ونرتّب المقابلة، ونتابع حتى العرض الوظيفي.")],
   ].map((x, i) => `<div class="card"><div class="card-icon">${i + 1}</div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
 
@@ -5364,6 +6145,7 @@ function buildEmployerDashboard() {
         <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
         <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
+        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل بيزنس بارتنر؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -6404,7 +7186,7 @@ function buildEstrdad() {
     ["🔔", L("Notifying the authority before changing your CR activity", "إشعار الهيئة قبل أي تغيير في نشاط السجل")],
   ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.5rem">${c[0]}</div><h3 style="font-size:1rem">${c[1]}</h3></div>`).join("");
   const helps = [
-    [L("Continuous compliance watch", "مراقبة امتثال مستمرة"), L("The Compliance Agent tracks your CR, certificates, licenses and Nitaqat daily and alerts you BEFORE anything expires — so your refund never stops.", "وكيل الامتثال يراقب سجلك وشهاداتك وتراخيصك ونطاقاتك يومياً وينبهك قبل أي انتهاء — فلا تتوقف دفعاتك أبداً."), "/compliance-agent"],
+    [L("Continuous compliance watch", "مراقبة امتثال مستمرة"), L("The Compliance Agent tracks your CR, certificates, licenses and Nitaqat daily and alerts you BEFORE anything expires — so your refund never stops.", "مستشار الامتثال يراقب سجلك وشهاداتك وتراخيصك ونطاقاتك يومياً وينبهك قبل أي انتهاء — فلا تتوقف دفعاتك أبداً."), "/compliance-agent"],
     [L("Nitaqat before it hurts", "نطاقاتك قبل ما تتأثر"), L("HR management (Qiwa, GOSI, Mudad) and recruitment that keep your Saudization inside the eligible band.", "إدارة الموارد البشرية (قوى، التأمينات، مدد) والتوظيف بما يُبقي توطينك ضمن النطاق المؤهل."), "/hr"],
     [L("File preparation & submission", "تجهيز الملف والتقديم"), L("Size certificate, IBAN certificate, activity licenses, accurate data — we prepare the full Estrdad file and follow your request to disbursement, including objections within the 60-day window.", "شهادة حجم المنشأة، شهادة الآيبان، التراخيص، ودقة البيانات — نجهّز ملف استرداد كاملاً ونتابع طلبك حتى الصرف، بما فيه الاعتراض خلال مهلة الـ60 يوماً."), "/consultation"],
     [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في بيزنس بارتنر قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/account"],
@@ -7111,7 +7893,7 @@ function buildCart() {
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Your cart", "سلة الطلبات")}</span>
     <h1>${L("Your cart", cm.cartTitle)}</h1>
-    <p class="lead">${L("Review your selected services and packages, then continue to bank-transfer checkout.", "راجع الخدمات والباقات المختارة، ثم أكمل الطلب عبر التحويل البنكي.")}</p>
+    <p class="lead">${L("Review your selected services and packages, then pay online by card — or by bank transfer if you prefer.", "راجع الخدمات والباقات المختارة، ثم ادفع إلكترونياً بالبطاقة — أو بالتحويل البنكي إن أحببت.")}</p>
   </div></section>
   <section class="section"><div class="container">
     <div class="cart-layout">
@@ -7332,7 +8114,7 @@ function buildCheckout() {
     </div>
   </div></section>`;
   const bodyWithCodes = body + `<script>window.BP_DISCOUNTS=${JSON.stringify(catalogDiscounts())};</script>`;
-  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Complete your order by bank transfer and upload your documents and the transfer receipt.", "أكمل طلبك عبر التحويل البنكي وارفع مستنداتك وإيصال التحويل."), active: "/cart", path: "/checkout", body: bodyWithCodes });
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Pay online by card and your order activates instantly with a tax invoice — or pay by bank transfer and upload the receipt.", "ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال."), active: "/cart", path: "/checkout", body: bodyWithCodes });
 }
 
 function buildTerms() {
@@ -7561,7 +8343,7 @@ function buildAccount() {
               <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
               <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
-              <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "وكيل الامتثال")}</strong></a>
+              <a class="portal-card" href="${u(COMPLIANCE_PORTAL_URL)}"><span>🛡️</span><strong>${L("Compliance Agent", "مستشار الامتثال")}</strong></a>
               <a class="portal-card" href="${u("/employer-dashboard")}"><span>🧑‍💼</span><strong>${L("AI Recruitment", "التوظيف الذكي")}</strong></a>
               <a class="portal-card" href="${u("/workspaces")}"><span>🏢</span><strong>${L("Office spaces", "المكاتب ومساحات العمل")}</strong></a>
               <a class="portal-card" href="${u("/suppliers")}"><span>🚚</span><strong>${L("Partner registration", "تسجيل الشركاء")}</strong></a>
@@ -7658,14 +8440,14 @@ function buildAccount() {
             ${docsWizard()}
           </div>
           <div class="dash-card" style="margin-top:16px">
-            <h3 style="margin:0 0 6px">${L("AI Document Agent", "الوكيل الذكي للمستندات")}</h3>
-            <p style="margin:0 0 10px;color:var(--muted)">${L("Upload documents that contain your data and forms that need filling — the agent reads, extracts, fills Word/Excel/PDF in place and packages everything. Your files stay in your private vault, tied to this account only.", "ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويجهّز الحزمة. ملفاتك في خزنتك الخاصة المرتبطة بحسابك هذا فقط.")}</p>
-            <a class="btn btn-primary" href="${u("/ai-document-agent")}">🗂️ ${L("Open the Document Agent", "افتح وكيل المستندات")}</a>
+            <h3 style="margin:0 0 6px">${L("AI Document Agent", "المستشار الذكي للمستندات")}</h3>
+            <p style="margin:0 0 10px;color:var(--muted)">${L("Upload documents that contain your data and forms that need filling — the agent reads, extracts, fills Word/Excel/PDF in place and packages everything. Your files stay in your private vault, tied to this account only.", "ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — المستشار يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويجهّز الحزمة. ملفاتك في خزنتك الخاصة المرتبطة بحسابك هذا فقط.")}</p>
+            <a class="btn btn-primary" href="${u("/ai-document-agent")}">🗂️ ${L("Open the Document Agent", "افتح مستشار المستندات")}</a>
           </div>
           <div class="dash-card" style="margin-top:16px">
             <h3 style="margin:0 0 6px">${L("Files attached to your orders", "الملفات المرفقة بطلباتك")}</h3>
             <div id="all-uploads"><p class="dash-empty">${L("No order attachments yet — you can also attach files when placing an order.", "لا توجد مرفقات طلبات بعد — يمكنك أيضاً إرفاق ملفات عند تقديم طلب.")}</p></div>
-            <a class="btn btn-ghost" href="${u("/compliance-agent")}" style="margin-top:12px">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في وكيل الامتثال")}</a>
+            <a class="btn btn-ghost" href="${u("/compliance-agent")}" style="margin-top:12px">🛡️ ${L("Subscribe to the Compliance Agent", "اشترك في مستشار الامتثال")}</a>
           </div>
         </div>
 
@@ -8243,7 +9025,7 @@ function buildJobSearchAdmin() {
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Owner panel", "لوحة المالك")}</span>
     <h1>${L("Job-search service", "خدمة البحث عن وظيفة")}</h1>
-    <p class="lead">${L("Candidates who asked us to search on their behalf — activate the service, run the agent, and record what each one pays.", "المرشحون الذين طلبوا أن نبحث لهم عن وظيفة — فعّل الخدمة، شغّل الوكيل، وسجّل ما يدفعه كل واحد.")}</p>
+    <p class="lead">${L("Candidates who asked us to search on their behalf — activate the service, run the agent, and record what each one pays.", "المرشحون الذين طلبوا أن نبحث لهم عن وظيفة — فعّل الخدمة، شغّل المستشار، وسجّل ما يدفعه كل واحد.")}</p>
   </div></section>
   <section class="section"><div class="container" style="max-width:1120px">
 
@@ -8270,7 +9052,7 @@ function buildJobSearchAdmin() {
       <div class="dash-card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
-            <h3 style="margin:0">${L("The agent", "الوكيل")}</h3>
+            <h3 style="margin:0">${L("The agent", "المستشار")}</h3>
             <p class="emp-note" style="margin:4px 0 0">${L("Matches active subscribers against every open posting and emails each one their shortlist. Longest-waiting subscribers go first.", "يطابق المشتركين النشطين مع كل الوظائف المفتوحة ويرسل لكل واحد قائمته بالبريد. الأقدم انتظاراً أولاً.")}</p>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -8284,6 +9066,47 @@ function buildJobSearchAdmin() {
           </div>
         </div>
         <p class="emp-note" id="js-run-msg" style="min-height:18px;margin:10px 0 0"></p>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("Rewrite and score CVs", "حسّن السير الذاتية واحسب درجتها")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Rewrites each CV so hiring software can read it, translates it into English when it isn't, and scores it before and after. Wording, structure and keywords only — no fact, date or employer is ever changed.", "يعيد صياغة كل سيرة لتقرأها برامج التوظيف، ويترجمها للإنجليزية إن لم تكن كذلك، ويحسب درجتها قبل وبعد. الصياغة والترتيب والكلمات المفتاحية فقط — لا تُغيَّر أي معلومة أو تاريخ أو جهة عمل.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-primary btn-sm" id="js-cv-run">✨ ${L("Improve pending CVs", "حسّن السير المعلّقة")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-cv-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
+          </div>
+        </div>
+        <p class="emp-note" id="js-cv-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-cv-out" style="margin-top:8px"></div>
+      </div>
+
+      <div class="dash-card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">${L("Send past applicants their own copy", "أرسل للمتقدمين السابقين نسختهم")}</h3>
+            <p class="emp-note" style="margin:4px 0 0;max-width:640px">${L("Everyone who applied before this existed got nothing back — the AI summary and the ATS CV went only to us. This sends each of them their copy and keeps going until the queue is empty; leave the page open. One mail per person, however many times they applied, and nobody is mailed twice.", "كل من تقدّم قبل هذه الميزة لم يصله شيء — الملخص والسيرة بصيغة ATS كانت تصلنا نحن فقط. هذا يرسل لكل واحد نسخته ويكمل حتى ينتهي الطابور؛ اترك الصفحة مفتوحة. رسالة واحدة لكل شخص مهما تكرر تقديمه، ولا أحد يصله البريد مرتين.")}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="js-bf-limit" class="ap-filter" style="min-width:110px">
+              <option value="10">${L("10", "١٠")}</option>
+              <option value="25" selected>${L("25", "٢٥")}</option>
+              <option value="50">${L("50", "٥٠")}</option>
+              <option value="100">${L("100", "١٠٠")}</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="js-bf-dry">${L("Preview only", "معاينة فقط")}</button>
+            <button class="btn btn-primary btn-sm" id="js-bf-run">✉️ ${L("Send to everyone", "أرسل للجميع")}</button>
+            <button class="btn btn-ghost btn-sm" id="js-bf-stop" hidden>⏸ ${L("Stop", "إيقاف")}</button>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.86rem">
+          <input type="checkbox" id="js-bf-cvonly"> ${L("Only people whose ATS CV is ready (everyone else waits)", "من لديه سيرة ATS جاهزة فقط (والباقي ينتظر)")}
+        </label>
+        <p class="emp-note" style="margin:6px 0 0">${L("Left unticked, everyone gets their mail: those with a CV get it in full, the rest get where their application stands and what's open.", "بدون تحديد، الجميع يستلمون بريدهم: من عنده سيرة تصله كاملة، والباقي تصله حالة طلبه والوظائف المفتوحة.")}</p>
+        <p class="emp-note" id="js-bf-msg" style="min-height:18px;margin:10px 0 0"></p>
+        <div id="js-bf-out" style="margin-top:8px"></div>
       </div>
 
       <div class="dash-panel-head"><h2>${L("Subscribers", "المشتركون")}</h2><p>${L("Activating a subscriber starts the search and emails them. Record each instalment as it lands — the salary plan stops itself at one month's salary.", "تفعيل المشترك يبدأ البحث ويرسل له بريداً. سجّل كل دفعة عند استلامها — باقة الراتب تتوقف تلقائياً عند راتب شهر واحد.")}</p></div>
@@ -9066,6 +9889,7 @@ function buildPortal(pre = "/") {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>بوابة الموظفين الأذكياء | Business Partner</title>
+  ${EMBED_SNIPPET}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -9333,6 +10157,22 @@ function buildPortal(pre = "/") {
     }
     var cur=null;
     var showGate=false;
+    // Open-access policy (owner decision 2026-09): a signed-in client of the
+    // portal never types a code here — the account session unlocks every
+    // smart employee directly. Codes remain only for guests who bought
+    // without an account.
+    var sessionChecked=false;
+    function unlockFromSession(){
+      if(sessionChecked||subbed) return;
+      sessionChecked=true;
+      fetch('/api/otp',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'me'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var u=d&&(d.user||(d.session&&d.session.user));
+          if(u&&u.email){ email=u.email; localStorage.setItem(LS.email,email); unlock('ALL'); }
+        })
+        .catch(function(){});
+    }
     function route(){
       if(!subbed){ show(showGate?'screen-gate':'screen-login'); if(showGate) buildPicker(); $('who').textContent=email||''; $('logout').style.display=email?'':'none'; return; }
       $('who').textContent=email+(isTrial?' 🎁 (تجربة مجانية)':''); $('logout').style.display='';
@@ -9691,6 +10531,96 @@ function buildSharedServices() {
         .ss-proof span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:.84rem;font-weight:600;color:var(--brand,#0b1b5a);box-shadow:0 4px 12px rgba(11,27,90,.05)}
       </style>
     </div>
+  </section>
+
+  <section class="ss-showcase">
+    <div class="wrap">
+      <div class="sc-grid">
+        <div class="sc-copy">
+          <span class="eyebrow">${L("See it working", "شاهده يعمل")}</span>
+          <h2>${L("One chat. A whole executive team behind it.", "محادثة واحدة. وفريق تنفيذي كامل وراءها.")}</h2>
+          <p>${L("You write your request the way you'd say it. Baher receives it, briefs the right specialist, and the work comes back finished — while you watch the team move, live.", "تكتب طلبك بالطريقة التي تقولها بها. باهر يستلمه، يوجّه المتخصص المناسب، ويعود لك الشغل جاهزاً — وأنت تشاهد الفريق يتحرك مباشرة.")}</p>
+          <ul class="sc-list">
+            <li>${L("Your company file is learned once — the whole team knows your business", "ملف شركتك يُتعلّم مرة — والفريق كله يعرف نشاطك")}</li>
+            <li>${L("Every task and conversation logged in your own isolated workspace", "كل مهمة ومحادثة موثقة في مساحتك المعزولة")}</li>
+            <li>${L("Nothing binding — a payment, a signature, a government submission — happens without your approval", "لا شيء ملزم — دفع أو توقيع أو إجراء حكومي — يتم بدون موافقتك")}</li>
+          </ul>
+          <a class="btn btn-primary" href="${u("/shared-services/dashboard")}">🔑 ${L("Open the portal", "افتح البوابة")}</a>
+        </div>
+
+        <div class="sc-mock" aria-hidden="true">
+          <div class="sc-head">
+            <span class="sc-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i></i></span>
+            <div><b>${L("Baher", "باهر")}</b><span>${L("Business Advisor", "مستشار الأعمال")}</span></div>
+            <span class="sc-live">● ${L("Online now", "متصل الآن")}</span>
+          </div>
+          <div class="sc-log">
+            <div class="sc-msg me">${L("I need a marketing plan for my store", "ابغى خطة تسويق لمتجري")}<span>10:24 ✓✓</span></div>
+            <div class="sc-msg bot b1"><b>${L("On it.", "أبشر.")}</b> ${L("Farah is preparing the plan now.", "فرح تجهّز الخطة الآن.")}<span>10:24</span></div>
+            <div class="sc-msg bot b2">${L("Ready — audience analysis, 3 ad drafts and a monthly calendar. Shall I send them?", "جاهزة — تحليل الجمهور، ٣ مسودات إعلانات، وتقويم شهري. أرسلها لك؟")}<span>10:25</span></div>
+          </div>
+          <div class="sc-team"><span class="sc-dots"><i></i><i></i><i></i></span>${L("📣 Farah is working on your request…", "📣 فرح تشتغل على طلبك الآن…")}</div>
+          <div class="sc-form"><span>${L("Type your request here…", "اكتب طلبك هنا…")}</span><b>${L("Send", "إرسال")}</b></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      .ss-showcase{padding:44px 0 8px}
+      .ss-showcase .wrap{
+        background:
+          radial-gradient(760px 380px at 88% -12%, rgba(94,72,214,.4) 0%, transparent 60%),
+          radial-gradient(620px 340px at -8% 108%, rgba(15,158,153,.26) 0%, transparent 55%),
+          linear-gradient(160deg,#0b1035 0%,#131048 55%,#180f3f 100%);
+        border:1px solid rgba(255,255,255,.09);border-radius:26px;padding:34px 30px;
+        box-shadow:0 30px 80px rgba(8,10,40,.32)}
+      .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+      .sc-copy .eyebrow{background:rgba(46,230,200,.14);color:#7dffe9;border:0}
+      .sc-copy h2{color:#fff;margin:10px 0 12px;line-height:1.35}
+      .sc-copy>p{color:rgba(255,255,255,.7);line-height:1.9;margin:0 0 16px}
+      .sc-list{list-style:none;padding:0;margin:0 0 20px}
+      .sc-list li{position:relative;color:rgba(255,255,255,.78);font-size:.9rem;line-height:1.8;
+        padding-inline-start:26px;margin-bottom:9px}
+      .sc-list li::before{content:'✓';position:absolute;inset-inline-start:0;color:#2ee6c8;font-weight:800}
+      /* mock */
+      .sc-mock{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+        backdrop-filter:blur(16px);box-shadow:0 18px 50px rgba(5,8,35,.4);overflow:hidden}
+      .sc-head{display:flex;gap:11px;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);
+        border-bottom:1px solid rgba(255,255,255,.1)}
+      .sc-av{position:relative;width:42px;height:42px;flex:none}
+      .sc-av img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.35)}
+      .sc-av i{position:absolute;bottom:0;inset-inline-end:0;width:10px;height:10px;border-radius:50%;
+        background:#2ee6c8;border:2px solid #131048}
+      .sc-head b{display:block;color:#fff;font-size:.95rem}
+      .sc-head>div span{display:block;font-size:.75rem;color:rgba(255,255,255,.6)}
+      .sc-live{margin-inline-start:auto;font-size:.7rem;font-weight:700;color:#2ee6c8;white-space:nowrap}
+      .sc-log{display:flex;flex-direction:column;gap:10px;padding:16px 14px;min-height:230px}
+      .sc-msg{max-width:82%;padding:10px 13px 6px;border-radius:16px;font-size:.86rem;line-height:1.75;position:relative}
+      .sc-msg span{display:block;text-align:end;font-size:.64rem;opacity:.6;margin-top:2px}
+      .sc-msg.me{align-self:flex-end;background:linear-gradient(135deg,#12b3a5,#0d8f83);color:#fff;border-end-end-radius:6px}
+      .sc-msg.bot{align-self:flex-start;background:rgba(255,255,255,.1);color:#eef1ff;border-end-start-radius:6px}
+      .sc-msg.bot b{color:#fff}
+      .sc-msg.b1{animation:scIn .5s ease .3s both}
+      .sc-msg.b2{animation:scIn .5s ease 1.5s both}
+      @keyframes scIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+      .sc-team{display:flex;gap:9px;align-items:center;padding:8px 16px;font-size:.78rem;color:#9ef3e4;
+        background:rgba(18,179,165,.1);border-top:1px solid rgba(255,255,255,.07)}
+      .sc-dots{display:inline-flex;gap:4px}
+      .sc-dots i{width:6px;height:6px;border-radius:50%;background:#9ef3e4;animation:scDot 1.2s infinite}
+      .sc-dots i:nth-child(2){animation-delay:.18s}.sc-dots i:nth-child(3){animation-delay:.36s}
+      @keyframes scDot{0%,60%,100%{opacity:.35}30%{opacity:1;transform:translateY(-3px)}}
+      .sc-form{display:flex;gap:9px;align-items:center;padding:12px 14px}
+      .sc-form span{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+        border-radius:14px;padding:10px 13px;font-size:.84rem;color:rgba(255,255,255,.45)}
+      .sc-form b{background:var(--brand,#0b1b5a);color:#fff;border-radius:12px;padding:10px 18px;font-size:.85rem}
+      @media(prefers-reduced-motion:reduce){.sc-msg.b1,.sc-msg.b2{animation:none}.sc-dots i{animation:none}}
+      @media(max-width:900px){
+        .sc-grid{grid-template-columns:1fr;gap:24px}
+        .sc-mock{order:-1}          /* show the product before the pitch */
+        .ss-showcase .wrap{padding:24px 16px;border-radius:20px}
+        .sc-copy h2{font-size:1.35rem}
+        .sc-log{min-height:0}
+      }
+    </style>
   </section>
 
   <section class="ss-sec">
@@ -10156,6 +11086,11 @@ function buildSharedServicesPortal() {
         <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في بيزنس بارتنر — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
+        <div class="ss-trust">
+          <span><b>12</b>${L("specialists in one chat", "متخصصاً في محادثة واحدة")}</span>
+          <span><b>24/7</b>${L("always on", "بلا توقف")}</span>
+          <span><b>🔒</b>${L("nothing binding without your approval", "لا التزام بدون موافقتك")}</span>
+        </div>
         <div class="ss-gate-links">
           <a href="${u('/shared-services')}">${L("← Back to service info", "← عن الخدمة")}</a>
           <a href="${u('/shared-services')}#ss-subscribe">${L("Subscribe now", "اشترك الآن")}</a>
@@ -10183,29 +11118,57 @@ function buildSharedServicesPortal() {
         <button class="ss-logout" id="ss-logout" type="button">${L("Sign out", "خروج")}</button>
       </div>
 
+      <div class="ss-browser">
+        <div class="ss-browser-top">
+          <span class="ss-browser-dots"><i></i><i></i><i></i></span>
+          <span class="ss-browser-url">🔒 businesspartner.sa/${LANG === "ar" ? "ar/" : ""}shared-services/dashboard</span>
+        </div>
+        <div class="ss-browser-body">
       <div class="ss-tabs" role="tablist">
-        <button class="ss-tab active" data-tab="team" type="button">👥 ${L("The team", "الفريق")}</button>
+        <div class="ss-side-id">
+          <img src="/assets/img/baher.jpg" alt="" loading="lazy">
+          <div><b>${L("Baher", "باهر")}</b><span>${L("Business Advisor", "مستشار الأعمال")}</span></div>
+        </div>
+        <button class="ss-tab active" data-tab="team" type="button">💬 ${L("Chat", "المحادثة")}</button>
         <button class="ss-tab" data-tab="svc" type="button">🧰 ${L("Services", "الخدمات")}</button>
         <button class="ss-tab" data-tab="stats" type="button">📊 ${L("Reports", "التقارير")}</button>
         <button class="ss-tab" data-tab="tools" type="button">🔌 ${L("Connectors", "الموصلات")}</button>
         <button class="ss-tab" data-tab="comp" type="button">🛡️ ${L("Compliance", "الامتثال")}</button>
       </div>
+      <div class="ss-panes">
 
       <div class="ss-pane" id="pane-team">
-        <p class="ss-pane-lead">${L("Pick a specialist and deal with them directly — each one is an expert in their field. ✏️ You can rename any of them to whatever you like — the new name sticks, and the agent itself adopts it.", "اختر متخصصاً وتعامل معه مباشرة — كل واحد خبير في مجاله. ✏️ وتقدر تغيّر اسم أي موظف لأي اسم يعجبك — الاسم الجديد يثبت لك، والموظف نفسه يتبنّاه ويتعامل به.")}</p>
-        <div class="ss-agents" id="ss-agents"></div>
+        <p class="ss-pane-lead">${L("One conversation — your whole executive team. Baher takes your request and the specialists execute behind the scenes; anything binding waits for your approval. ✏️ You can rename him to whatever you like.", "محادثة واحدة — وفريقك التنفيذي كامل وراها. باهر يستلم طلبك والمتخصصون ينفذون خلف الكواليس، وأي إجراء ملزم ينتظر موافقتك. ✏️ وتقدر تغيّر اسمه لأي اسم يعجبك.")}</p>
+        <div class="ss-agents" id="ss-agents" hidden></div>
         <div class="ss-panel">
-          <div class="ss-panel-head"><span class="e" id="ph-e">👑</span><div><b id="ph-n"></b><span id="ph-r"></span></div><button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}" style="background:none;border:1px solid var(--line);border-radius:9px;cursor:pointer;font:inherit;font-size:.82rem;padding:5px 10px;margin-inline-start:10px;color:var(--brand,#0b1b5a)">✏️ ${L("Rename", "غيّر الاسم")}</button><span class="ss-live">● ${L("Live", "مباشر")}</span></div>
+          <div class="ss-panel-head">
+            <span class="ss-pavatar" id="ph-av"><img src="/assets/img/baher.jpg" alt="" loading="lazy"><i class="ss-ponline" aria-hidden="true"></i></span>
+            <span class="e" id="ph-e" hidden>👑</span>
+            <div><b id="ph-n"></b><span id="ph-r"></span></div>
+            <div class="ss-chat-actions">
+              <button id="ss-rename" type="button" title="${Lraw("Rename this agent", "غيّر اسم الموظف")}">✏️ <span class="lbl">${L("Rename", "غيّر الاسم")}</span></button>
+              <button id="ss-print" type="button" title="${Lraw("Save the conversation as PDF", "احفظ المحادثة PDF")}">📄 <span class="lbl">${L("Save PDF", "حفظ PDF")}</span></button>
+              <span class="ss-live">● ${L("Online now", "متصل الآن")}</span>
+            </div>
+          </div>
           <div class="ss-log" id="ss-log"></div>
+          <button id="ss-jump" type="button" title="${Lraw("Jump to latest", "انزل لآخر رسالة")}" aria-label="${Lraw("Jump to latest", "انزل لآخر رسالة")}">↓</button>
+          <div class="ss-teamline" id="ss-teamline" hidden><span class="dots"><i></i><i></i><i></i></span><span id="ss-teamline-t"></span></div>
+          <div class="ss-chips" id="ss-chips">
+            <button type="button">${L("Prepare a quote for my client", "جهّز لي عرض سعر")}</button>
+            <button type="button">${L("Check my government obligations", "افحص التزاماتي الحكومية")}</button>
+            <button type="button">${L("Write an ad post for my business", "اكتب لي منشوراً إعلانياً")}</button>
+            <button type="button">${L("Summarize the team's latest work", "لخّص آخر أعمال الفريق")}</button>
+          </div>
           <form class="ss-form" id="ss-form">
-            <input id="ss-input" type="text" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}">
+            <textarea id="ss-input" rows="1" autocomplete="off" placeholder="${Lraw("Type your request here…", "اكتب طلبك هنا…")}" title="${Lraw("Enter sends · Shift+Enter for a new line", "Enter يرسل · Shift+Enter لسطر جديد")}" aria-label="${Lraw("Type your request", "اكتب طلبك")}"></textarea>
             <button class="btn btn-primary" type="submit">${L("Send", "إرسال")}</button>
           </form>
         </div>
       </div>
 
       <div class="ss-pane" id="pane-svc" hidden>
-        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Team tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب الفريق «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
+        <p class="ss-pane-lead">${L("All Business Partner services in one place — open any service directly, or just tell Baher in the Chat tab and he executes and escalates for your approval.", "كل خدمات بزنس بارتنر في مكان واحد — افتح أي خدمة مباشرة، أو قل لباهر في تبويب المحادثة «اطلب لي…» وهو ينفّذ ويصعّد لموافقتك.")}</p>
         <div class="ss-svc">
           <a href="${u("/services")}"><span class="e">🗂️</span><b>${L(`All services (${services.length})`, `كل الخدمات (${services.length})`)}</b><span>${L("Government & business services — request any with a custom quote.", "خدمات حكومية وتجارية — اطلب أي خدمة بعرض حسب حالتك.")}</span></a>
           <a href="${u("/packages")}"><span class="e">📦</span><b>${L("Packages", "الباقات")}</b><span>${L("Bundled services at a clear starting price.", "باقات جاهزة بسعر ابتدائي واضح.")}</span></a>
@@ -10264,7 +11227,198 @@ function buildSharedServicesPortal() {
           #ss-compdash-frame{display:block;width:100%;height:calc(100vh - 180px);min-height:760px;border:0;background:#fff}
           @media(max-width:640px){#ss-compdash-frame{min-height:640px}}
         </style>
+        <style>
+          /* ===== Portal in the new site design language =====
+             Light surfaces, navy + violet accents, and the product framed in
+             a browser window — the same shell the new site uses. */
+          #ss-agents[hidden]{display:none}
+          #ss-gate .wrap>.ss-access{
+            background:#fff;border:1px solid #E5E8F1;border-radius:28px;
+            box-shadow:0 24px 70px rgba(11,27,90,.12)}
+          #ss-gate .ss-access h2{color:#0B1B5A}
+          #ss-gate .ss-access>p{color:#687087}
+          #ss-gate .ss-access-form input{
+            background:#fff;border:2px solid #E5E8F1;color:#141827;border-radius:14px;
+            letter-spacing:.32em;font-weight:700;text-transform:uppercase;transition:border-color .2s,box-shadow .2s}
+          #ss-gate .ss-access-form input::placeholder{letter-spacing:normal;text-transform:none;color:#98a0b3;font-weight:400}
+          #ss-gate .ss-access-form input:focus{outline:none;border-color:#5C66F2;box-shadow:0 0 0 4px rgba(92,102,242,.15)}
+          .ss-trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px auto 4px;max-width:470px}
+          .ss-trust span{flex:1;min-width:124px;background:#F6F7FB;border:1px solid #E5E8F1;border-radius:15px;
+            padding:11px 9px;font-size:.72rem;color:#687087;line-height:1.5}
+          .ss-trust b{display:block;font-size:1.02rem;color:#5C66F2;margin-bottom:2px}
+
+          /* ---- browser shell ---- */
+          #ss-dash .ss-browser{background:#fff;border:1px solid rgba(11,27,90,.11);border-radius:26px;
+            box-shadow:0 30px 85px rgba(11,27,90,.16);overflow:hidden}
+          .ss-browser-top{height:46px;display:flex;align-items:center;gap:12px;padding:0 16px;
+            border-bottom:1px solid #E5E8F1;background:#fff}
+          .ss-browser-dots{display:flex;gap:7px;flex:none}
+          .ss-browser-dots i{width:9px;height:9px;border-radius:50%;background:#d8dbe5}
+          .ss-browser-dots i:first-child{background:#8b93ff}
+          .ss-browser-url{flex:1;background:#F6F7FB;border:1px solid #E5E8F1;border-radius:999px;
+            padding:5px 14px;font-size:11.5px;color:#8890a5;text-align:center;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .ss-browser-body{display:grid;grid-template-columns:214px 1fr;min-height:560px;background:#FAFBFE}
+
+          /* ---- sidebar (the tabs) ---- */
+          #ss-dash .ss-tabs{display:flex;flex-direction:column;gap:3px;flex-wrap:nowrap;
+            border-bottom:0;border-inline-end:1px solid #E5E8F1;background:#fff;
+            padding:14px 11px;margin:0;border-radius:0;width:auto;overflow:visible}
+          #ss-dash .ss-tab{border:0;border-radius:11px;padding:10px 12px;text-align:start;
+            color:#6b7284;font-size:12.8px;font-weight:700;white-space:nowrap;transition:background .15s,color .15s}
+          #ss-dash .ss-tab:hover{background:#F3F4FE;color:#142C86}
+          #ss-dash .ss-tab.active{background:#EEF0FF;color:#5C66F2}
+          .ss-side-id{display:flex;gap:10px;align-items:center;padding:4px 6px 14px;margin-bottom:8px;
+            border-bottom:1px solid #E5E8F1}
+          .ss-side-id img{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;
+            border:2px solid #EEF0FF}
+          .ss-side-id b{display:block;color:#0B1B5A;font-size:13px;line-height:1.3}
+          .ss-side-id span{display:block;color:#8890a5;font-size:10.5px}
+          .ss-panes{padding:20px 22px 24px;min-width:0}
+
+          /* ---- content ---- */
+          #ss-dash .ss-dash-head h2{color:#0B1B5A}
+          #ss-dash .ss-dash-head p{color:#687087}
+          #ss-dash .ss-logout{background:#fff;border:1px solid #E5E8F1;color:#0B1B5A;border-radius:999px;font-weight:700}
+          #ss-dash .ss-logout:hover{background:#F3F4FE;border-color:#c9cdf7}
+          #ss-dash .ss-pane-lead{color:#687087}
+          #ss-dash .ss-secure{color:#8890a5}
+          #ss-dash .ss-svc a,#ss-dash .ss-ktile,#ss-dash .ss-kcard,
+          #ss-dash .ss-cc,#ss-dash .ss-comp-main,#ss-dash .ss-comp-links a{
+            background:#fff;border:1px solid #E5E8F1;border-radius:18px;box-shadow:0 12px 36px rgba(11,27,90,.06)}
+          #ss-dash .ss-svc a:hover,#ss-dash .ss-comp-links a:hover{
+            border-color:#5C66F2;transform:translateY(-2px);box-shadow:0 18px 44px rgba(92,102,242,.16)}
+          #ss-dash .ss-svc a b,#ss-dash .ss-kcard>b,#ss-dash .ss-cc-t h3,
+          #ss-dash .ss-comp-links a b,#ss-dash .ss-krows .c,#ss-dash .ss-ktile .n{color:#0B1B5A}
+          #ss-dash .ss-cc-ic{background:#F0F1FF}
+          #ss-dash .ss-plat-chip{background:#F6F7FB;border-color:#E5E8F1;color:#0B1B5A}
+          #ss-dash .ss-compdash{background:#fff;border:1px solid #E5E8F1;border-radius:18px}
+
+          /* ---- chat ---- */
+          #pane-team .ss-panel{position:relative;background:#fff;border:1px solid #E5E8F1;border-radius:22px;
+            box-shadow:0 12px 36px rgba(11,27,90,.07)}
+          #pane-team .ss-panel-head{background:#fff;border-bottom:1px solid #E5E8F1;border-radius:22px 22px 0 0}
+          #pane-team .ss-panel-head b{color:#0B1B5A}
+          #pane-team .ss-panel-head>div span{color:#8890a5}
+          .ss-chat-actions{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
+          .ss-chat-actions button{background:#fff;border:1px solid #E5E8F1;border-radius:10px;color:#0B1B5A;
+            font:inherit;font-size:.78rem;padding:5px 10px;cursor:pointer}
+          .ss-chat-actions button:hover{background:#F3F4FE;border-color:#c9cdf7}
+          .ss-live{color:#26C783;font-weight:700;font-size:.74rem;white-space:nowrap}
+          .ss-pavatar{position:relative;width:46px;height:46px;flex:none}
+          .ss-pavatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #EEF0FF}
+          .ss-ponline{position:absolute;bottom:1px;inset-inline-end:1px;width:11px;height:11px;border-radius:50%;
+            background:#26C783;border:2px solid #fff;animation:sspulse 2s infinite}
+          @keyframes sspulse{0%,100%{box-shadow:0 0 0 0 rgba(38,199,131,.5)}50%{box-shadow:0 0 0 5px rgba(38,199,131,0)}}
+          #pane-team .ss-panel .ss-log{min-height:420px;max-height:560px;padding:16px 14px;background:#FAFBFE}
+          #pane-team .ss-msg{position:relative;max-width:78%;padding:11px 14px 7px;border-radius:18px;border:0;
+            animation:ssmsg .28s ease;white-space:normal}
+          @keyframes ssmsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+          #pane-team .ss-msg .tx{white-space:pre-wrap;line-height:1.8}
+          #pane-team .ss-msg .tx ul{margin:4px 0;padding-inline-start:20px;white-space:normal}
+          #pane-team .ss-msg .tx b.h{display:block;margin-top:4px}
+          #pane-team .ss-msg.bot{background:#fff;border:1px solid #E5E8F1;color:#141827;
+            border-end-start-radius:6px;margin-inline-start:34px;box-shadow:0 4px 14px rgba(11,27,90,.04)}
+          #pane-team .ss-msg.bot:not(.typing)::before{content:'';position:absolute;inset-inline-start:-34px;bottom:0;
+            width:26px;height:26px;border-radius:50%;background:url('/assets/img/baher.jpg') center/cover;
+            border:1.5px solid #EEF0FF}
+          #pane-team .ss-msg.me{background:linear-gradient(135deg,#142C86,#5C66F2);color:#fff;border-end-end-radius:6px}
+          #pane-team .ss-msg .meta{display:block;text-align:end;font-size:.66rem;opacity:.6;margin-top:2px}
+          #pane-team .ss-msg.bot .meta{color:#8890a5;opacity:1}
+          #pane-team .ss-msg .meta .tick{font-style:normal;opacity:.6}
+          #pane-team .ss-msg .meta .tick.ok{color:#9df3d0;opacity:1}
+          #pane-team .ss-msg .copy{position:absolute;top:6px;inset-inline-end:8px;opacity:0;transition:opacity .15s;
+            background:#F3F4FE;border:1px solid #E5E8F1;border-radius:7px;color:#5C66F2;font:inherit;font-size:.68rem;
+            padding:2px 8px;cursor:pointer}
+          #pane-team .ss-msg.bot:hover .copy{opacity:1}
+          .dots{display:inline-flex;gap:4px;align-items:center}
+          .dots i{width:7px;height:7px;border-radius:50%;background:#a9b0c9;animation:ssdot 1.2s infinite}
+          .dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+          @keyframes ssdot{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+          #pane-team .ss-msg.typing{padding:14px 18px}
+          .ss-teamline{display:flex;gap:10px;align-items:center;padding:9px 16px;font-size:.8rem;color:#5C66F2;
+            background:#EEF0FF;border-top:1px solid #E5E8F1}
+          .ss-teamline .dots i{background:#5C66F2}
+          .ss-welcome{align-self:center;text-align:center;max-width:520px;margin:auto;padding:18px 10px;color:#141827}
+          .ss-welcome .wv{font-size:2.2rem;margin-bottom:6px}
+          .ss-welcome b{font-size:1.05rem;color:#0B1B5A}
+          .ss-welcome p{color:#687087;font-size:.88rem;line-height:1.9;margin:8px 0 4px}
+          .ss-welcome .last{display:inline-block;font-size:.78rem;color:#5C66F2;background:#EEF0FF;
+            border-radius:999px;padding:4px 14px;min-height:1em;margin-top:6px}
+          .ss-welcome .last:empty{display:none}
+          .ss-chips{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap;background:#fff}
+          .ss-chips button{background:#fff;border:1px solid #E5E8F1;color:#4b5470;border-radius:999px;
+            padding:7px 14px;font:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+          .ss-chips button:hover{background:#F3F4FE;border-color:#c9cdf7;color:#142C86}
+          #pane-team .ss-form{background:#fff;border-top:0;padding:12px 14px 14px;border-radius:0 0 22px 22px}
+          #pane-team .ss-form textarea{flex:1;border:1px solid #E5E8F1;background:#fff;color:#141827;
+            border-radius:14px;padding:12px 14px;font:inherit;resize:none;max-height:140px;line-height:1.7}
+          #pane-team .ss-form textarea::placeholder{color:#98a0b3}
+          #pane-team .ss-form textarea:focus{outline:none;border-color:#5C66F2;box-shadow:0 0 0 4px rgba(92,102,242,.14)}
+          #ss-jump{position:absolute;inset-inline-end:16px;bottom:100px;z-index:4;width:38px;height:38px;
+            border-radius:50%;border:1px solid #E5E8F1;background:#fff;color:#5C66F2;cursor:pointer;font-size:1rem;
+            box-shadow:0 8px 20px rgba(11,27,90,.12);display:none}
+          #ss-jump.show{display:block}
+
+          #ss-trial-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+            background:linear-gradient(135deg,#EEF0FF,#F6F7FB);border:1px solid #d9ddfb;
+            border-radius:16px;padding:12px 16px;margin:0 0 16px}
+          #ss-trial-bar b{color:#5C66F2;font-size:.92rem;white-space:nowrap}
+          #ss-trial-bar span{color:#4b5470;font-size:.85rem;flex:1;min-width:180px}
+          #ss-trial-bar .btn{padding:8px 18px;font-size:.84rem;white-space:nowrap}
+          /* the portal IS a chat with Baher — the floating bubble is redundant here */
+          body:has(#ss-dash:not([hidden])) .advisor-fab,
+          body:has(#ss-dash:not([hidden])) .advisor-panel{display:none!important}
+
+          /* ===== phones ===== */
+          @media(max-width:860px){
+            .ss-browser-body{grid-template-columns:1fr}
+            #ss-dash .ss-tabs{flex-direction:row;overflow-x:auto;border-inline-end:0;border-bottom:1px solid #E5E8F1;
+              padding:9px 10px;scrollbar-width:none}
+            #ss-dash .ss-tabs::-webkit-scrollbar{display:none}
+            .ss-side-id{display:none}
+            .ss-panes{padding:14px 12px 18px}
+          }
+          @media(max-width:640px){
+            #ss-dash .ss-dash-head{gap:10px;margin-bottom:12px}
+            #ss-dash .ss-dash-head h2{font-size:1.08rem;margin-bottom:2px}
+            #ss-dash .ss-dash-head p{display:none}
+            #ss-dash .ss-dash-head>div{min-width:0;flex:1 1 100%}
+            #ss-dash .ss-logout{font-size:.76rem;padding:6px 10px}
+            .ss-browser-top{height:40px;padding:0 12px}
+            .ss-browser-url{font-size:10.5px}
+            .ss-browser-body{min-height:0}
+            #pane-team .ss-pane-lead{display:none}
+            #pane-team .ss-panel .ss-log{min-height:50vh;max-height:56vh;padding:12px 10px}
+            #pane-team .ss-msg{max-width:90%;padding:10px 12px 6px}
+            #pane-team .ss-panel-head{padding:10px 12px;gap:9px}
+            .ss-pavatar,.ss-pavatar img{width:38px;height:38px}
+            .ss-chat-actions{gap:6px}
+            .ss-chat-actions button{font-size:.9rem;padding:5px 9px;line-height:1}
+            .ss-chat-actions button .lbl{display:none}
+            .ss-chips{gap:6px;padding:8px 10px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+            .ss-chips::-webkit-scrollbar{display:none}
+            .ss-chips button{white-space:nowrap;font-size:.76rem;padding:6px 12px}
+            #pane-team .ss-form{padding:10px}
+            #ss-jump{bottom:112px;inset-inline-end:12px}
+            .wa-fab{display:none!important}
+            .ss-welcome{padding:12px 6px}
+            .ss-welcome .wv{font-size:1.8rem}
+            .ss-welcome p{font-size:.84rem;line-height:1.8}
+          }
+          @media print{
+            nav,footer,.ss-tabs,.ss-dash-head,.ss-chips,.ss-form,.ss-teamline,#ss-jump,
+            .advisor-fab,.wa-fab,.ss-browser-top{display:none!important}
+            #ss-dash .ss-browser{border:0!important;box-shadow:none!important}
+            .ss-browser-body{grid-template-columns:1fr!important}
+            #pane-team .ss-msg{max-width:100%!important;break-inside:avoid}
+            #pane-team .ss-panel .ss-log{max-height:none!important;overflow:visible!important}
+          }
+        </style>
       </div>
+        </div><!-- /.ss-panes -->
+        </div><!-- /.ss-browser-body -->
+      </div><!-- /.ss-browser -->
     </div>
   </section>
 
@@ -10539,10 +11693,93 @@ function buildSharedServicesPortal() {
     function chatKey(s){ var c=getClient(); return CHAT_PREFIX+((c&&c.code)||'anon')+'_'+s; }
     function loadChat(s){try{return JSON.parse(localStorage.getItem(chatKey(s))||'[]');}catch(e){return[];}}
     function saveChat(s,h){try{localStorage.setItem(chatKey(s),JSON.stringify(h.slice(-80)));}catch(e){}}
-    function renderChat(){log.innerHTML='';if(!chatHist.length){var em=document.createElement('div');em.className='ss-msg bot empty';em.textContent=${JSON.stringify(Lraw("Start your conversation with ", "ابدأ محادثتك مع "))}+dispName(cur)+' 👋';log.appendChild(em);return;}
-      chatHist.forEach(function(m){var d=document.createElement('div');d.className='ss-msg '+m.cls;d.textContent=m.text;log.appendChild(d);});log.scrollTop=log.scrollHeight;}
+    function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function mdLite(t){
+      var lines=esc(t).split('\\n'),out=[],inList=false;
+      lines.forEach(function(ln){
+        var li=ln.match(/^\\s*(?:[-•*]|\\d+[.)])\\s+(.*)$/);
+        if(li){ if(!inList){out.push('<ul>');inList=true;} out.push('<li>'+li[1]+'</li>'); return; }
+        if(inList){out.push('</ul>');inList=false;}
+        var h=ln.match(/^\\s*#{1,4}\\s+(.*)$/); if(h){out.push('<b class="h">'+h[1]+'</b>'); return; }
+        out.push(ln);
+      });
+      if(inList)out.push('</ul>');
+      return out.join('\\n').replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n{2,}/g,'\\n\\n');
+    }
+    function fmtTime(ts){var d=ts?new Date(ts):new Date();var h=d.getHours(),m=('0'+d.getMinutes()).slice(-2);return h+':'+m;}
+    function bubble(m){
+      var d=document.createElement('div');d.className='ss-msg '+m.cls;
+      var tx=document.createElement('div');tx.className='tx';
+      if(m.cls==='bot')tx.innerHTML=mdLite(m.text); else tx.textContent=m.text;
+      var meta=document.createElement('span');meta.className='meta';
+      meta.innerHTML=fmtTime(m.ts)+(m.cls==='me'?' <i class="tick'+(m.sent?' ok':'')+'">✓✓</i>':'');
+      d.appendChild(tx);d.appendChild(meta);
+      if(m.cls==='bot'){
+        var cp=document.createElement('button');cp.type='button';cp.className='copy';cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};
+        cp.onclick=function(){var t=m.text||'';
+          function done(){cp.textContent=${JSON.stringify(Lraw("Copied ✓", "نُسخ ✓"))};setTimeout(function(){cp.textContent=${JSON.stringify(Lraw("Copy", "نسخ"))};},1600);}
+          if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){});}
+          else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+        };
+        d.appendChild(cp);
+      }
+      return d;
+    }
+    function welcomeNode(){
+      var c=getClient()||{};var w=document.createElement('div');w.className='ss-welcome';
+      var who=cur?dispName(cur):${JSON.stringify(Lraw("Baher", "باهر"))};
+      w.innerHTML='<div class="wv">👋</div><b>'+${JSON.stringify(Lraw("Welcome ", "حياك الله "))}+esc(c.name||'')+'</b><p>'+${JSON.stringify(Lraw("I'm ", "أنا "))}+esc(who)+${JSON.stringify(Lraw(" — your business advisor. Your whole executive team is behind this chat: ask for anything and we execute; anything binding waits for your approval.", " — مستشار أعمالك. فريقك التنفيذي كامل خلف هذي المحادثة: اطلب أي شيء وننفذه، وأي إجراء ملزم ينتظر موافقتك."))}+'</p><span class="last" id="ss-lastact"></span>';
+      return w;
+    }
+    function fillLastAct(){
+      var el=document.getElementById('ss-lastact');if(!el)return;var c=getClient()||{};
+      if(c.demo){el.textContent=${JSON.stringify(Lraw("Last thing we worked on: your quarterly marketing plan — shall we continue?", "آخر ما اشتغلنا عليه: خطتك التسويقية الربعية — نكمل عليها؟"))};return;}
+      fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
+        .then(function(r){return r.json();})
+        .then(function(d){if(d&&d.ok&&d.recent&&d.recent.length){el.textContent=${JSON.stringify(Lraw("Last thing we worked on: ", "آخر ما اشتغلنا عليه: "))}+'«'+d.recent[0].t+'»';}})
+        .catch(function(){});
+    }
+    function renderChat(){log.innerHTML='';
+      if(!chatHist.length){log.appendChild(welcomeNode());fillLastAct();return;}
+      chatHist.forEach(function(m){log.appendChild(bubble(m));});log.scrollTop=log.scrollHeight;}
+    var TEAM_GUESS=[
+      [/تسويق|إعلان|منشور|محتوى|سوشال|حملة|هوية|marketing|ad|post|campaign/i,'farah','📣'],
+      [/نطاق|امتثال|قوى|تأمينات|مقيم|مدد|مخالف|رخصة عمل|إقامة|compliance|nitaqat|qiwa|gosi/i,'mishari','🛡️'],
+      [/سعر|عرض|باقة|اشتراك|quote|price|proposal/i,'badr','💼'],
+      [/توظيف|موظف|راتب|إجازة|عقد عمل|وصف وظيفي|hr|hiring|salary/i,'nasser','👥'],
+      [/موقع|تطبيق|أتمتة|ربط|نظام|تقني|website|app|automation|api/i,'mohammed','💻'],
+      [/فاتورة|ميزانية|ضريبة|زكاة|تدفق|مالي|invoice|budget|vat|tax/i,'abdulrahman','💰'],
+      [/عقد(?! عمل)|تأسيس|ترخيص|قانوني|contract|legal|license/i,'abdulaziz','⚖️'],
+      [/مورد|شراء|توريد|مناقصة|supplier|procure/i,'ahmed','🛒'],
+      [/خطة|استراتيجي|أهداف|رؤية|okr|plan|strategy/i,'strategy','🧠'],
+      [/إيميل|بريد|تذكير|اجتماع|لخص|ملخص|email|meeting|summar/i,'malak','🗂️']
+    ];
+    function guessTeam(m){
+      for(var i=0;i<TEAM_GUESS.length;i++)if(TEAM_GUESS[i][0].test(m)){
+        for(var j=0;j<AGENTS.length;j++)if(AGENTS[j].slug===TEAM_GUESS[i][1])return {n:dispName(AGENTS[j]),e:TEAM_GUESS[i][2],f:(TEAM_GUESS[i][1]==='farah'||TEAM_GUESS[i][1]==='malak')};
+      }
+      return null;
+    }
+    var tlTimers=[];
+    function teamline(on,msg){
+      var tl=document.getElementById('ss-teamline');if(!tl)return;
+      if(!on){tl.hidden=true;tlTimers.forEach(clearTimeout);tlTimers=[];return;}
+      tl.hidden=false;document.getElementById('ss-teamline-t').textContent=msg;
+    }
+    function startTeamline(m){
+      var who=guessTeam(m);var lead=cur?dispName(cur):${JSON.stringify(Lraw("Baher", "باهر"))};
+      teamline(true,lead+${JSON.stringify(Lraw(" is reading your request…", " يقرأ طلبك…"))});
+      tlTimers.push(setTimeout(function(){teamline(true,lead+${JSON.stringify(Lraw(" is briefing the right specialist…", " يوجّه المتخصص المناسب…"))});},2600));
+      tlTimers.push(setTimeout(function(){
+        teamline(true, who?(who.e+' '+who.n+(who.f?${JSON.stringify(Lraw(" is working on it…", " تشتغل على طلبك الآن…"))}:${JSON.stringify(Lraw(" is working on it…", " يشتغل على طلبك الآن…"))})):${JSON.stringify(Lraw("The team is working on your request…", "الفريق يشتغل على طلبك…"))});
+      },5200));
+      tlTimers.push(setTimeout(function(){teamline(true,lead+${JSON.stringify(Lraw(" is reviewing and assembling the result…", " يراجع النتيجة ويجهزها لك…"))});},16000));
+    }
     function selectAgent(a,el){cur=a;var chips=document.querySelectorAll('.ss-ag');for(var i=0;i<chips.length;i++)chips[i].classList.remove('sel');if(el)el.classList.add('sel');
-      document.getElementById('ph-e').textContent=a.e;document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
+      var pe=document.getElementById('ph-e'),pa=document.getElementById('ph-av');
+      if(pe){pe.textContent=a.e;pe.hidden=(a.slug==='khaled');}
+      if(pa)pa.hidden=(a.slug!=='khaled');
+      document.getElementById('ph-n').textContent=dispName(a);document.getElementById('ph-r').textContent=a.role;
       chatHist=loadChat(a.slug);renderChat();input.disabled=false;document.querySelector('#ss-form button').disabled=false;input.focus();}
     function buildAgents(){var box=document.getElementById('ss-agents');box.innerHTML='';
       AGENTS.forEach(function(a){var el=document.createElement('button');el.type='button';el.className='ss-ag';el.dataset.slug=a.slug;
@@ -10578,16 +11815,51 @@ function buildSharedServicesPortal() {
     function push(text,cls){var em=log.querySelector('.empty');if(em)em.remove();var d=document.createElement('div');d.className='ss-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
     var form=document.getElementById('ss-form');
     form.addEventListener('submit',function(e){e.preventDefault();if(!cur)return;var m=(input.value||'').trim();if(!m||busy)return;busy=true;
-      var agent=cur,href=chatHist;input.value='';push(m,'me');href.push({text:m,cls:'me'});saveChat(agent.slug,href);
-      var th=push('…','bot');var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
+      var agent=cur,href=chatHist;input.value='';
+      var w=log.querySelector('.ss-welcome');if(w)w.remove();
+      var mine={text:m,cls:'me',ts:Date.now()};var mineEl=bubble(mine);log.appendChild(mineEl);log.scrollTop=log.scrollHeight;
+      href.push(mine);saveChat(agent.slug,href);
+      var th=document.createElement('div');th.className='ss-msg bot typing';th.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';log.appendChild(th);log.scrollTop=log.scrollHeight;
+      startTeamline(m);
+      var ctrl=new AbortController();var timer=setTimeout(function(){ctrl.abort();},110000);
       var c=getClient()||{code:'demo123'};
       var url=N8N+'/ss-chat', payload={code:c.code,agent:agent.slug,message:m};
       if(c.demo)payload.names=getNames();
+      function finish(rep){
+        teamline(false);
+        var bm={text:rep,cls:'bot',ts:Date.now()};
+        var nb=bubble(bm);log.replaceChild(nb,th);log.scrollTop=log.scrollHeight;
+        mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
+        href.push(bm);saveChat(agent.slug,href);
+      }
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
-        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}rep=rep||BUSY;th.textContent=rep;href.push({text:rep,cls:'bot'});saveChat(agent.slug,href);})
-        .catch(function(er){clearTimeout(timer);var msg=(er&&er.name==='AbortError')?BUSY:ERRT;th.textContent=msg;href.push({text:msg,cls:'bot'});saveChat(agent.slug,href);})
+        .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
+        .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
         .then(function(){busy=false;});
     });
+    function submitChat(){ if(typeof form.requestSubmit==='function')form.requestSubmit(); else form.dispatchEvent(new Event('submit',{cancelable:true})); }
+    var chipsBox=document.getElementById('ss-chips');
+    if(chipsBox)chipsBox.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b||busy)return;
+      input.value=b.textContent.trim(); submitChat();
+    });
+    // Enter sends, Shift+Enter newline; textarea grows with content
+    function autoGrow(){ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,140)+'px'; }
+    input.addEventListener('input',autoGrow);
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();submitChat();setTimeout(autoGrow,0);}
+    });
+    // jump-to-latest
+    var jump=document.getElementById('ss-jump');
+    if(jump){
+      log.addEventListener('scroll',function(){
+        var far=(log.scrollHeight-log.scrollTop-log.clientHeight)>140;
+        jump.classList.toggle('show',far);
+      });
+      jump.onclick=function(){log.scrollTo({top:log.scrollHeight,behavior:'smooth'});jump.classList.remove('show');};
+    }
+    var pr=document.getElementById('ss-print');
+    if(pr)pr.onclick=function(){window.print();};
 
     // ---------- compliance: jump to Mishari ----------
     var cc=document.getElementById('ss-comp-chat');
@@ -10653,8 +11925,58 @@ function buildSharedServicesPortal() {
         .catch(function(){})
         .then(function(){ if(then)then(); });
     }
+    // ---------- free trial: every registered client, no purchase ----------
+    // The account API derives the window from the organization's own signup
+    // date, so a client who just registered simply finds the portal open.
+    // Arabic counts its days by rule: 1 يوم, 2 يومان, 3–10 أيام, 11+ يوماً.
+    function leftText(t){
+      var n=t.daysLeft, total=t.totalDays||30;
+      ${LANG === "ar" ? `
+      var head = n===1?'يوم واحد متبقٍ' : n===2?'يومان متبقيان'
+        : (n>=3&&n<=10)?(n+' أيام متبقية') : (n+' يوماً متبقياً');
+      return head+' من تجربتك المجانية ('+total+' يوماً)';
+      ` : `
+      return n+' '+(n===1?'day':'days')+' left of your '+total+'-day free trial';
+      `}
+    }
+    function trialRibbon(t){
+      if(!t)return;
+      var head=document.querySelector('#ss-dash .ss-dash-head');
+      if(!head||document.getElementById('ss-trial-bar'))return;
+      var d=document.createElement('div');d.id='ss-trial-bar';
+      if(t.open){
+        d.innerHTML='<b>✅ '+${JSON.stringify(Lraw("Open for your account", "مفتوحة لحسابك"))}+'</b>'
+          +'<span>'+${JSON.stringify(Lraw("Your executive team is fully open — no trial, no code.", "فريقك التنفيذي مفتوح لك بالكامل — بدون فترة تجريبية أو رمز."))}+'</span>';
+      } else {
+      d.innerHTML='<b>🎁 '+${JSON.stringify(Lraw("Free trial", "تجربة مجانية"))}+'</b>'
+        +'<span>'+(t.daysLeft>0?leftText(t):${JSON.stringify(Lraw("Your trial has ended", "انتهت فترتك التجريبية"))})+'</span>'
+        +'<a class="btn btn-primary" href="${u('/shared-services')}#ss-subscribe">'+${JSON.stringify(Lraw("Subscribe", "اشترك الآن"))}+'</a>';
+      }
+      head.insertAdjacentElement('afterend',d);
+    }
+    function tryTrial(gl){
+      fetch('/api/requests',{method:'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'ops-ss-trial'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok&&d.active){
+            // Trial conversations run in preview mode: real answers from the
+            // team, but no private workspace until the client subscribes.
+            setClient({code:'demo123',demo:true,name:d.name||${JSON.stringify(Lraw("Client", "عميل"))},names:{},
+              trial:{daysLeft:d.daysLeft,endsAt:d.endsAt,totalDays:d.totalDays,open:!!d.open}});
+            openService(); trialRibbon(getClient().trial);
+          } else if(gl){
+            gl.textContent=(d&&d.ok&&!d.active)
+              ? ${JSON.stringify(Lraw("Your free trial has ended — subscribe to keep your executive team.", "انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي."))}
+              : ${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
+          }
+        })
+        .catch(function(){
+          if(gl)gl.textContent=${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
+        });
+    }
     var boot=getClient();
-    if(boot){ hydrate(boot,openService); }
+    if(boot){ hydrate(boot,function(){ openService(); trialRibbon(boot.trial); }); }
     else {
       var gl=document.getElementById('ss-gate-lead');
       fetch('/api/requests?action=sso-open&portal=shared',{credentials:'same-origin',cache:'no-store'})
@@ -10663,17 +11985,241 @@ function buildSharedServicesPortal() {
           if(d&&d.ok&&d.seed&&d.seed.bp_ss_client_v1){
             try{ localStorage.setItem('bp_ss_client_v1',d.seed.bp_ss_client_v1); }catch(e){}
             hydrate(getClient(),openService);
-          } else if(gl){
-            gl.textContent=${JSON.stringify(Lraw("Sign in to your Business Partner account and your team portal opens automatically — no access code needed.", "سجّل الدخول في حساب العميل وتفتح لك بوابة فريقك تلقائياً — بدون أي رمز دخول."))};
-          }
+          } else { tryTrial(gl); }
         })
-        .catch(function(){});
+        .catch(function(){ tryTrial(gl); });
     }
   })();</script>`;
   return page({
     title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | بيزنس بارتنر"),
     desc: Lraw("Sign in to your Shared Services executive team portal.", "سجّل دخولك لبوابة فريقك التنفيذي في الخدمات المشتركة."),
     active: "/shared-services", path: "/shared-services/dashboard", body, script,
+  });
+}
+
+/* ---------- B10X Faster™ — Saudi Landing OS (flagship product page) ---------- */
+// One product that packages market entry, formation, relocation, government,
+// workforce, real estate, digital presence, suppliers and an always-on sales
+// pipeline behind a single B10X Account Manager. Existing pages (revenue-os,
+// deals, mahfol-makfol, hr, workspaces, compliance-agent, suppliers) become
+// the engines' deep links — nothing is duplicated or removed.
+function buildB10X() {
+  const step = (ic, en, ar, de, da) => `<article class="path-card" style="text-align:center"><div class="card-icon" style="margin-inline:auto">${ic}</div><h3 style="font-size:1.02rem">${L(en, ar)}</h3><p class="muted" style="font-size:.85rem">${L(de, da)}</p></article>`;
+  const engine = (ic, name, en, ar, items, href, cta) => `<article class="path-card"><div class="card-icon">${ic}</div><h3>${name}</h3><p class="muted"><b>${L(en, ar)}</b></p><ul class="clean-list">${items.map(([e2, a2]) => `<li>${L(e2, a2)}</li>`).join("")}</ul>${href ? `<a class="btn btn-ghost b10x-more" href="${href.startsWith("#") ? href : u(href)}">${cta || L("Learn more", "التفاصيل")}</a>` : ""}</article>`;
+  const chip = (en, ar) => `<span class="sector-chip">${L(en, ar)}</span>`;
+  const bl = (en, ar) => `<li>${L(en, ar)}</li>`;
+
+  const body = `
+  <section class="hero dot-bg"><div class="container hero-inner">
+    <span class="eyebrow">B10X Faster™ — Saudi Landing OS</span>
+    <h1>${L("From Landing in Saudi to Landing Your First Client.", "من أول وصول إلى السعودية إلى أول عميل.")}</h1>
+    <p class="lead" style="font-weight:700;color:var(--navy, #0B1B5A)">${L("Build Toward Your First SAR 1 Million.", "وابنِ طريقك نحو أول مليون ريال.")}</p>
+    <p class="lead">${L("Company formation, relocation, housing, government operations, employees, offices, suppliers, digital presence and an always-on sales pipeline — managed through one B10X Account Manager.", "التأسيس، الانتقال، السكن، العمليات الحكومية، الموظفون، المكاتب، الموردون، الحضور الرقمي وبايبلاين المبيعات — كلها من خلال مدير حساب B10X واحد.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a><a class="btn btn-ghost btn-lg" href="${u("/consultation")}">${L("Plan My Saudi Landing", "خطط لدخول السعودية")}</a></div>
+    <div class="proof"><span>${L("One Partner", "شريك واحد")}</span><span>${L("One Account Manager", "مدير حساب واحد")}</span><span>${L("One Operating System", "منظومة تشغيل واحدة")}</span><span>10X Faster</span></div>
+  </div></section>
+
+  <nav class="section-nav"><div class="container chip-row">
+    <a class="sector-chip" href="#journey">${L("The journey", "الرحلة")}</a>
+    <a class="sector-chip" href="#engines">${L("10 Engines", "المحركات العشرة")}</a>
+    <a class="sector-chip" href="#manager">${L("Account Manager", "مدير الحساب")}</a>
+    <a class="sector-chip" href="#relocation">${L("Relocation", "الانتقال")}</a>
+    <a class="sector-chip" href="#revenue">${L("Revenue", "الإيرادات")}</a>
+    <a class="sector-chip" href="#mission">${L("Discovery Mission", "رحلة المستثمر")}</a>
+    <a class="sector-chip" href="#pricing">${L("Pricing", "التسعير")}</a>
+    <a class="sector-chip" href="#b10x-apply">${L("Apply", "قدّم طلبك")}</a>
+  </div></nav>
+
+  <section class="trust-strip"><div class="container">
+    <p>${L("We don't just set up your company. We land it, run it and grow it.", "لا نؤسس شركتك فقط — نساعدك على الدخول والاستقرار والتشغيل والنمو.")}</p>
+  </div></section>
+
+  <section class="section dot-bg" id="journey"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("One journey, end to end", "رحلة واحدة من أول قرار")}</span><h2>${L("Explore. Land. Establish. Relocate. Operate. Hire. Sell. Source. Scale.", "استكشف. ادخل. أسّس. انتقل. شغّل. وظّف. بِع. ورّد. انمُ.")}</h2><p>${L("Saudi market entry, relocation, operations and growth — as a service.", "دخول السوق والانتقال والتشغيل والنمو — كخدمة واحدة.")}</p></div>
+    <div class="grid grid-3">
+      ${step("🧭", "Explore", "استكشف", "Understand the Saudi market.", "افهم السوق السعودي قبل أي قرار.")}
+      ${step("🛬", "Land", "ادخل", "Enter the market with a plan.", "ادخل السوق بخطة واضحة.")}
+      ${step("🏗️", "Establish", "أسّس", "Set up your company.", "أسّس كيانك النظامي.")}
+      ${step("🧳", "Relocate", "انتقل", "Move the investor, managers and team.", "انقل المستثمر والمدير والفريق.")}
+      ${step("⚙️", "Operate", "شغّل", "Run the company day to day.", "شغّل الشركة يوماً بيوم.")}
+      ${step("👥", "Hire", "وظّف", "Build the team.", "ابنِ الفريق.")}
+      ${step("📈", "Sell", "بِع", "Build your client pipeline.", "ابنِ بايبلاين عملائك.")}
+      ${step("🔗", "Source", "ورّد", "Build your supplier network.", "ابنِ شبكة مورديك.")}
+      ${step("🚀", "Scale", "انمُ", "Grow the company.", "نمِّ الشركة وتوسّع.")}
+    </div>
+  </div></section>
+
+  <section class="section" id="manager"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("The most important element", "أهم عنصر في المنتج")}</span><h2>${L("One Account Manager. 10X Execution Power.", "موظف واحد بقوة فريق كامل.")}</h2><p>${L("Every client gets a dedicated B10X Account Manager — your single point of contact for everything.", "كل عميل يحصل على مدير حساب B10X مخصص — نقطة اتصالك الوحيدة لكل شيء.")}</p></div>
+    <div class="chip-row" style="justify-content:center">
+      ${[["Government Specialists", "متخصصو الحكومة"], ["HR", "الموارد البشرية"], ["Recruitment", "التوظيف"], ["Business Development", "تطوير الأعمال"], ["Procurement", "المشتريات"], ["Supplier Sourcing", "توريد الموردين"], ["Real Estate", "العقارات"], ["Relocation", "الانتقال"], ["Marketing", "التسويق"], ["Technology", "التقنية"], ["Automation", "الأتمتة"], ["AI Agents", "وكلاء الذكاء الاصطناعي"], ["Administrative Support", "الدعم الإداري"], ["Finance Coordination", "التنسيق المالي"], ["Corporate Services", "الخدمات المؤسسية"]].map(([e2, a2]) => chip(e2, a2)).join("")}
+    </div>
+    <div class="callout" style="margin-top:22px"><span class="ico">💬</span><p><b>Ask B10X</b> — ${L("inside your client portal: type what you need — “I need an apartment for the GM”, “I need 5 employees”, “I have a Qiwa issue” — and it becomes a tracked service request assigned to your Account Manager.", "داخل بوابة العميل: اكتب ما تحتاجه — «أحتاج شقة للمدير العام»، «أحتاج ٥ موظفين»، «عندي مشكلة في قوى» — ويتحول تلقائياً إلى طلب خدمة برقم متابعة يُسند لمدير حسابك.")}</p></div>
+  </div></section>
+
+  <section class="section section--navy" id="engines"><div class="container">
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("The product", "المنتج")}</span><h2 style="color:#fff">${L("10 Engines. One Operating System.", "١٠ محركات. منظومة تشغيل واحدة.")}</h2></div>
+    <div class="grid grid-2">
+      ${engine("🧭", "B10X Explore", "Market exploration", "استكشاف السوق", [["Market entry assessment & sector research", "تقييم دخول السوق وبحث القطاع"], ["Competitor, customer & supplier mapping", "خرائط المنافسين والعملاء والموردين"], ["Regulatory mapping & target cities", "الخريطة التنظيمية والمدن المستهدفة"], ["Cost & workforce assessment", "تقييم التكاليف والقوى العاملة"]], "/mahfol-makfol")}
+      ${engine("🏗️", "B10X Establish", "Formation", "التأسيس", [["Investment license & foreign investor setup", "رخصة الاستثمار وتأسيس المستثمر الأجنبي"], ["LLC / foreign branch / RHQ", "شركة ذ.م.م / فرع أجنبي / مقر إقليمي"], ["CR, articles, GM appointment", "السجل التجاري وعقد التأسيس وتعيين المدير"], ["Attestation & translation coordination", "تنسيق التصديق والترجمة"]], "/services")}
+      ${engine("🏛️", "B10X Government", "Government & compliance", "الحكومة والامتثال", [["Qiwa, GOSI, Mudad, Muqeem, Absher", "قوى والتأمينات ومدد ومقيم وأبشر"], ["Baladi, Ejar, ZATCA, Etimad, Najiz", "بلدي وإيجار والزكاة واعتماد وناجز"], ["Compliance center: licenses, expiries, renewals", "مركز امتثال: الرخص والانتهاءات والتجديدات"], ["Sector platforms (SFDA, Saber, Fasah…)", "منصات القطاع (الغذاء والدواء، سابر، فسح…)"]], "/compliance-agent")}
+      ${engine("🧳", "B10X Relocation", "Relocation & settling-in", "الانتقال والاستقرار", [["Investor, executives, employees & family", "المستثمر والتنفيذيون والموظفون والعائلة"], ["Executive & workforce housing", "سكن تنفيذي وسكن عمالة"], ["Schools, healthcare, transport, banking", "المدارس والرعاية والتنقل والبنوك"], ["Arrival to departure, end to end", "من الوصول حتى المغادرة"]], "#relocation")}
+      ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
+      ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
+      ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/business-development")}
+      ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
+      ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
+    </div>
+  </div></section>
+
+  <section class="section dot-bg" id="relocation"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Relocation</span><h2>${L("We don't just relocate your business. We relocate the people behind it.", "لا ننقل شركتك فقط — نساعد الأشخاص خلفها على الانتقال والاستقرار.")}</h2></div>
+    <div class="grid grid-3">
+      <div class="card feature"><h3>🛫 ${L("Pre-arrival", "قبل الوصول")}</h3><p>${L("Needs assessment, city & area selection, housing and school requirements, commute and arrival planning.", "تقييم الاحتياج، اختيار المدينة والأحياء، متطلبات السكن والمدارس، وخطة الوصول.")}</p></div>
+      <div class="card feature"><h3>🛬 ${L("Arrival", "عند الوصول")}</h3><p>${L("Airport reception, executive car, temporary residence, SIM, orientation and Account Manager introduction.", "استقبال المطار، سيارة تنفيذية، سكن مؤقت، شريحة اتصال، وجولة تعريفية مع مدير حسابك.")}</p></div>
+      <div class="card feature"><h3>🏠 ${L("Executive housing", "السكن التنفيذي")}</h3><p>${L("Apartment, villa, compound or serviced residence — matched to budget, office, family and lifestyle.", "شقة، فيلا، كمباوند أو سكن مخدوم — حسب الميزانية والمكتب والعائلة ونمط الحياة.")}</p></div>
+      <div class="card feature"><h3>🏘️ ${L("Workforce housing", "سكن العمالة")}</h3><p>${L("Licensed group housing with maintenance, utilities, transport and catering coordination.", "سكن جماعي نظامي مع تنسيق الصيانة والخدمات والنقل والإعاشة.")}</p></div>
+      <div class="card feature"><h3>🏫 ${L("Family & schools", "العائلة والمدارس")}</h3><p>${L("International school search (British, American, IB) by budget, age and location — shortlist, visits, applications. Admission is not guaranteed.", "بحث المدارس الدولية (بريطاني، أمريكي، IB) حسب الميزانية والعمر والموقع — ترشيح وزيارات وتقديم. القبول غير مضمون.")}</p></div>
+      <div class="card feature"><h3>🚗 ${L("Transport, banking & settling-in", "التنقل والبنوك والاستقرار")}</h3><p>${L("Chauffeur/leasing coordination, bank appointment support, city orientation — through departure and exit support.", "تنسيق السائق والتأجير، ودعم موعد البنك، وجولات التعرف على المدينة — وحتى دعم المغادرة والإنهاء.")}</p></div>
+    </div>
+    <div class="callout" style="margin-top:18px"><span class="ico">ℹ️</span><p>${L("Flights, hotels, rent, school fees and all third-party costs are separate unless priced explicitly.", "الطيران والفنادق والإيجارات ورسوم المدارس وكل تكاليف الأطراف الثالثة منفصلة ما لم تُسعَّر صراحة.")}</p></div>
+  </div></section>
+
+  <section class="section" id="revenue"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Selling never stops", "مبيعاتك لا تتوقف")}</span><h2>${L("Your pipeline never sleeps.", "بايبلاينك لا ينام.")}</h2><p>${L("You don't enter Saudi without a pipeline. All year: research → prospect → outreach → follow-up → meeting → proposal → negotiation → win → repeat.", "لا تدخل السعودية بدون بايبلاين. طوال السنة: بحث ← استهداف ← تواصل ← متابعة ← اجتماع ← عرض ← تفاوض ← فوز ← تكرار.")}</p></div>
+    <div class="grid grid-2">
+      <div class="card"><h3>🏁 ${L("First Client Milestones", "معالم أول عميل")}</h3><ul class="clean-list">
+        ${bl("ICP defined → target accounts built", "تحديد العميل المثالي ← بناء الحسابات المستهدفة")}
+        ${bl("First outreach → first reply → first meeting", "أول تواصل ← أول رد ← أول اجتماع")}
+        ${bl("First qualified opportunity → first proposal", "أول فرصة مؤهلة ← أول عرض سعر")}
+        ${bl("First negotiation → FIRST CLIENT 🎉", "أول تفاوض ← أول عميل 🎉")}
+      </ul><p class="mini">${L("Tracked monthly: accounts researched, decision makers, outreach, replies, meetings, proposals, pipeline value, won revenue.", "تُتابع شهرياً: الحسابات المبحوثة، صناع القرار، التواصل، الردود، الاجتماعات، العروض، قيمة البايبلاين، والإيراد المحقق.")}</p></div>
+      <div class="card" id="road1m"><h3>🎯 ${L("Road to SAR 1,000,000 — planning tool", "الطريق إلى ١٬٠٠٠٬٠٠٠ ريال — أداة تخطيط")}</h3>
+        <div class="grid grid-2" style="gap:10px">
+          <label style="font-size:.85rem">${L("Average contract value (SAR)", "متوسط قيمة العقد (﷼)")}<input id="r1acv" type="number" value="50000" min="1000" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+          <label style="font-size:.85rem">${L("Win rate %", "نسبة الفوز %")}<input id="r1win" type="number" value="20" min="1" max="90" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        </div>
+        <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
+        <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
+    </div>
+    <div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+  </div></section>
+
+  <section class="section dot-bg" id="mission"><div class="container">
+    <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>${L("An executive discovery mission inside Saudi Arabia", "رحلة استكشافية تنفيذية داخل السعودية")}</h2><p>${L("Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.", "لقاءات حكومية وعملاء وموردون وبنوك وغرف تجارية وجولات عقارية — مصممة حسب قطاعك.")}</p></div>
+    <div class="chip-row" style="justify-content:center">${[["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Eastern Province", "الشرقية"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Aseer", "عسير"], ["Tabuk", "تبوك"], ["NEOM", "نيوم"], ["Jazan", "جازان"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+    <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>${L("Flights, hotels, transport and third-party costs are not included unless priced separately.", "الطيران والفنادق والنقل وتكاليف الأطراف الثالثة غير مشمولة إلا إذا سُعّرت منفصلة.")}</p></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
+  </div></section>
+
+  <section class="section" id="pricing"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Simple, serious pricing", "تسعير واضح وجاد")}</span><h2>${L("B10X Activation + B10X 365", "تفعيل B10X + عقد B10X 365")}</h2></div>
+    <div class="grid grid-2">
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X Activation</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 50,000 <span style="font-size:.9rem;font-weight:400">+ VAT · ${L("one time", "مرة واحدة")}</span></p>
+        <ul class="clean-list">${bl("Month 1 — Build: audit, structure, government map", "الشهر الأول — البناء: التدقيق والهيكلة والخريطة الحكومية")}${bl("Relocation plan, launch website, company profile", "خطة الانتقال، موقع الانطلاق، البروفايل")}${bl("CRM, ICP and supplier framework", "الـCRM وتعريف العميل المثالي وإطار الموردين")}</ul></div>
+      <div class="card" style="border:2px solid var(--navy, #0B1B5A)"><h3>B10X 365</h3>
+        <p style="font-size:1.9rem;font-weight:800;margin:6px 0">SAR 10,000 <span style="font-size:.9rem;font-weight:400">/ ${L("month", "شهرياً")} + VAT · ${L("12-month partnership", "شراكة ١٢ شهراً")}</span></p>
+        <ul class="clean-list">${bl("Dedicated Account Manager + request management", "مدير حساب مخصص + إدارة الطلبات")}${bl("Government ops, compliance, HR & recruitment coordination", "العمليات الحكومية والامتثال وتنسيق الموارد والتوظيف")}${bl("Revenue pipeline, supplier sourcing, vendor registration (≤5/mo)", "بايبلاين الإيراد وتوريد الموردين وتسجيل الموردين (≤٥ شهرياً)")}${bl("Relocation & real-estate coordination, documents, renewals, AI shared services", "تنسيق الانتقال والعقار والمستندات والتجديدات وخدمات الذكاء المشتركة")}</ul></div>
+    </div>
+    <p class="center" style="margin-top:14px;font-weight:700">${L("First-year base fees: SAR 170,000 + VAT — before add-ons or success fees.", "إجمالي الأتعاب الأساسية للسنة الأولى: ١٧٠٬٠٠٠ ريال + الضريبة — قبل أي إضافات أو عمولات نجاح.")}</p>
+    <div class="callout"><span class="ico">⚖️</span><p><b>${L("Government, third-party and success fees apply separately.", "الرسوم الحكومية وتكاليف الأطراف الثالثة وعمولات النجاح تُحتسب منفصلة.")}</b> ${L("The retainer is managed under a Fair Usage Policy: some services are included management, some included coordination, some usage-limited, and larger scopes are priced as projects or success fees.", "الاشتراك يُدار وفق سياسة الاستخدام العادل: بعض الخدمات إدارة مشمولة، وبعضها تنسيق مشمول، وبعضها محدود الاستخدام، والنطاقات الأكبر تُسعّر كمشاريع أو عمولات نجاح.")}</p></div>
+    <div class="section-head" style="margin-top:26px"><h2 style="font-size:1.2rem">${L("Success fees & add-on marketplace", "عمولات النجاح وسوق الإضافات")}</h2></div>
+    <div class="chip-row" style="justify-content:center">${[["Customer acquisition %", "استقطاب العملاء %"], ["Supplier / commercial match", "مطابقة الموردين"], ["Distribution & partnership", "التوزيع والشراكات"], ["Recruitment fee", "رسوم التوظيف"], ["Real estate (per regulations)", "العقار (وفق الأنظمة)"], ["M&A mandate + success", "الاندماج والاستحواذ"], ["Advanced website / e-commerce", "موقع متقدم / متجر"], ["Custom portal / CRM / ERP", "بوابة / CRM / ERP مخصص"], ["AI agents & automation", "وكلاء ذكاء وأتمتة"], ["Paid advertising", "إعلانات ممولة"], ["Executive & volume hiring", "توظيف تنفيذي وبالجملة"], ["Large relocation projects", "مشاريع انتقال كبيرة"], ["Custom market research", "أبحاث سوق مخصصة"], ["New-city expansion", "التوسع لمدن جديدة"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
+  </div></section>
+
+  <section class="section dot-bg"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Year one", "السنة الأولى")}</span><h2>${L("The annual timeline", "الجدول الزمني السنوي")}</h2></div>
+    <div class="grid grid-4">
+      <div class="card feature"><h3>${L("Month 1 — Build", "الشهر ١ — البناء")}</h3><p>${L("Audit, structure, government map, relocation plan, website, profile, CRM, ICP, supplier framework.", "تدقيق، هيكلة، خريطة حكومية، خطة انتقال، موقع، بروفايل، CRM، ICP، إطار موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 2–3 — Launch", "الشهران ٢–٣ — الانطلاق")}</h3><p>${L("Government activation, hiring, housing, office, outreach, meetings, vendor registrations.", "تفعيل حكومي، توظيف، سكن، مكتب، تواصل، اجتماعات، تسجيلات موردين.")}</p></div>
+      <div class="card feature"><h3>${L("Months 4–6 — Traction", "الأشهر ٤–٦ — الانطلاقة")}</h3><p>${L("Sales pipeline, suppliers, partnerships, recruitment, first clients, compliance.", "بايبلاين مبيعات، موردون، شراكات، توظيف، أول عملاء، امتثال.")}</p></div>
+      <div class="card feature"><h3>${L("Months 7–12 — Scale", "الأشهر ٧–١٢ — النمو")}</h3><p>${L("New accounts, markets, cities, partnerships, procurement, technology, deals, expansion.", "حسابات وأسواق ومدن جديدة، شراكات، مشتريات، تقنية، صفقات، توسع.")}</p></div>
+    </div>
+  </div></section>
+
+  <section class="section" id="b10x-apply"><div class="container" style="max-width:720px">
+    <div class="section-head"><span class="eyebrow">${L("Start B10X", "ابدأ B10X")}</span><h2>${L("Tell us about your company", "أخبرنا عن شركتك")}</h2><p>${L("A B10X specialist replies within one business day with your landing plan.", "يرد عليك مختص B10X خلال يوم عمل بخطة دخولك.")}</p></div>
+    <form id="b10xForm" class="card" style="display:grid;gap:12px">
+      <div class="grid grid-2" style="gap:12px">
+        <label>${L("Your name *", "اسمك *")}<input name="name" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Company *", "الشركة *")}<input name="company" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Country", "الدولة")}<input name="country" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Sector", "القطاع")}<input name="sector" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Phone / WhatsApp *", "الجوال / واتساب *")}<input name="phone" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+        <label>${L("Email *", "البريد *")}<input name="email" type="email" required style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></label>
+      </div>
+      <label>${L("What do you want to achieve in Saudi?", "ماذا تريد أن تحقق في السعودية؟")}<textarea name="message" rows="3" style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px"></textarea></label>
+      <button class="btn btn-primary btn-lg" type="submit">${L("Start B10X →", "ابدأ B10X ←")}</button>
+      <div id="b10xMsg" class="mini" style="display:none"></div>
+    </form>
+  </div></section>
+
+  <div class="cta-band"><h2>${L("Land in Saudi. Start Selling. Keep Growing.", "ادخل السعودية. ابدأ البيع. واستمر بالنمو.")}</h2><p>${L("One Partner. One Account Manager. One Operating System. 10X Faster.", "شريك واحد. مدير حساب واحد. منظومة واحدة. أسرع ١٠ مرات.")}</p><a class="btn btn-white btn-lg" href="#b10x-apply">${L("Start B10X", "ابدأ B10X")}</a></div>`;
+
+  const script = `
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    function r1(){
+      var acv = Math.max(1, +($('r1acv').value || 0));
+      var win = Math.min(90, Math.max(1, +($('r1win').value || 0))) / 100;
+      var target = 1000000;
+      var wins = Math.ceil(target / acv);
+      var opps = Math.ceil(wins / win);
+      var meetings = opps * 2;
+      var pipeline = Math.ceil(target / win);
+      $('r1out').querySelector('p').textContent = ${JSON.stringify("")} +
+        '${Lraw("Wins needed", "الصفقات المطلوبة")}: ' + wins.toLocaleString('en') +
+        ' · ${Lraw("Qualified opportunities", "الفرص المؤهلة")}: ' + opps.toLocaleString('en') +
+        ' · ${Lraw("Meetings", "الاجتماعات")}: ~' + meetings.toLocaleString('en') +
+        ' · ${Lraw("Pipeline value", "قيمة البايبلاين")}: SAR ' + pipeline.toLocaleString('en');
+    }
+    if ($('r1acv')){ $('r1acv').oninput = r1; $('r1win').oninput = r1; r1(); }
+    var f = $('b10xForm');
+    if (f) f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var d = new FormData(f), o = { type: 'b10x-apply' };
+      d.forEach(function(v, k){ o[k] = String(v); });
+      var m = $('b10xMsg'); m.style.display = 'block'; m.textContent = '${Lraw("Sending…", "جاري الإرسال…")}';
+      fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
+        .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
+          else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966530540231", "تعذّر الإرسال — تواصل واتساب: 966530540231")}'; }
+        })
+        .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });
+    });
+  })();`;
+
+  // Classes below exist only on this page — styles.css doesn't define them.
+  const b10xCss = `<style>
+    .dot-bg{background-image:radial-gradient(rgba(11,27,90,.07) 1px,transparent 1px);background-size:22px 22px}
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px}
+    .sector-chip{display:inline-block;background:#fff;border:1px solid #d7deee;color:var(--navy);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;box-shadow:0 1px 3px rgba(11,27,90,.06)}
+    a.sector-chip:hover{border-color:var(--navy);color:var(--navy)}
+    .section-nav{background:#f3f5fb;border-block:1px solid #e5eaf4;padding:14px 0}
+    .section-nav .chip-row{justify-content:center}
+    .trust-strip{background:var(--navy);padding:20px 0;text-align:center}
+    .trust-strip p{color:#fff;margin:0;font-size:1.08rem;font-weight:700}
+    .proof{display:flex;flex-wrap:wrap;gap:10px 12px;justify-content:center;margin-top:20px}
+    .proof span{background:rgba(11,27,90,.07);color:var(--navy);border-radius:999px;padding:6px 15px;font-weight:700;font-size:.88rem}
+    .path-card{background:#fff;border:1px solid #e5eaf4;border-radius:14px;padding:22px;box-shadow:0 6px 18px rgba(11,27,90,.06)}
+    .path-card h3{margin:10px 0 6px}
+    .muted{color:#5b6478}
+    .clean-list{list-style:none;padding:0;margin:10px 0}
+    .clean-list li{position:relative;padding-inline-start:22px;margin:7px 0;font-size:.92rem;color:#334155}
+    .clean-list li::before{content:"\\2713";position:absolute;inset-inline-start:0;color:#0F766E;font-weight:700}
+    .b10x-more{margin-top:12px;padding:9px 20px;font-size:.9rem}
+    .section--navy .section-head p{color:rgba(255,255,255,.85)}
+    #b10xForm label{font-size:.9rem;font-weight:600;color:var(--navy)}
+    @media (max-width:640px){.section-nav .chip-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}}
+  </style>`;
+
+  return page({
+    title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | بيزنس بارتنر"),
+    desc: Lraw("Saudi market entry, relocation, operations and growth as a service — formation, housing, government, employees, suppliers and an always-on sales pipeline behind one B10X Account Manager.", "دخول السوق السعودي والانتقال والتشغيل والنمو كخدمة — التأسيس والسكن والحكومة والموظفون والموردون وبايبلاين مبيعات دائم خلف مدير حساب B10X واحد."),
+    active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`, extraHead: b10xCss,
   });
 }
 
@@ -10707,15 +12253,51 @@ for (const dir of [ROOT, ...ALL_LANGS.filter((l) => l !== "en").map((l) => path.
 if (fs.existsSync(path.join(ROOT, "business-tourism.html"))) fs.unlinkSync(path.join(ROOT, "business-tourism.html"));
 if (fs.existsSync(path.join(ROOT, "blog.html"))) fs.unlinkSync(path.join(ROOT, "blog.html"));
 
+// The dashboards under assets/data are hand-written pages, not generated, so
+// cleanHtml leaves them alone — and nothing was stamping their asset URLs.
+// They shipped "?v=4"-style literals while everything under /assets/ is served
+// immutable for a year, so every browser and the CDN kept the first copy of
+// revenue-dashboard-v2.js they ever saw: the owner opened the live workspace
+// and read "Revenue OS", a name the file itself had not carried for weeks.
+// Same rule as every generated page: the buster is the file's content hash.
+function stampStaticAssets() {
+  const dir = path.join(ROOT, "assets", "data");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith(".html")) continue;
+    const full = path.join(dir, f);
+    const before = fs.readFileSync(full, "utf8");
+    const after = before.replace(/(["'])\/assets\/(js|css)\/([\w.-]+\.(?:js|css))\?v=[^"']*\1/g, (m, q, kind, file) => {
+      const rel = `assets/${kind}/${file}`;
+      return fs.existsSync(path.join(ROOT, rel)) ? `${q}/assets/${kind}/${file}?v=${assetV(rel)}${q}` : m;
+    });
+    if (after !== before) fs.writeFileSync(full, after);
+  }
+}
+stampStaticAssets();
+
 let pageCount = 0;
+// Simple V1 (2026-09): the simplified customer layer. With SIMPLE_V1=1 it
+// takes over "/" (the classic homepage moves to /classic-home); without the
+// flag it is previewed at /simple-v1 and production is unchanged.
+const SV1 = simpleV1({ lang: () => LANG, esc, site, head, pathInLang, assetV });
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
 function writeFullSite(pre) {
-  write(`${pre}index.html`, buildHome());
+  if (SIMPLE_V1) {
+    write(`${pre}index.html`, SV1.buildHome("/"));
+    write(`${pre}classic-home.html`, buildHome());
+  } else {
+    write(`${pre}index.html`, buildHome());
+  }
+  write(`${pre}simple-v1.html`, SV1.buildHome("/simple-v1"));
+  write(`${pre}my.html`, buildSimpleMy(SV1, { lang: () => LANG }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}revenue-os.html`, buildRevenueOS());
+  write(`${pre}business-development.html`, buildBdaas());
+  write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
+  write(`${pre}smart-employee.html`, buildSmartEmployeePage());
   write(`${pre}tourism.html`, buildTourism());
   write(`${pre}mahfol-makfol.html`, buildMahfolMakfol());
   write(`${pre}mahfol-makfol/trips.html`, buildMahfolTrips());
@@ -10838,6 +12420,11 @@ write("monitor.html", buildMonitor());
 // Owner-only unified control panel for the site (standalone page, noindex)
 write("admin.html", buildAdmin());
 
+// Simple V1 operations dashboard (Arabic-first, noindex, key-gated).
+LANG = "ar";
+write("ops.html", buildSimpleOps(SV1, { lang: () => LANG }));
+LANG = "en";
+
 // Owner/consultant panel for the AI Document Agent (noindex, standalone).
 // Auth: the same bp_admin_key / bp_admin_ticket localStorage the /admin panel
 // stores — opening it from /admin needs no re-login.
@@ -10847,7 +12434,7 @@ function buildDocAgentAdmin() {
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta name="robots" content="noindex, nofollow"/>
-<title>وكيل المستندات — لوحة المتابعة</title>
+<title>مستشار المستندات — لوحة المتابعة</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--navy:#0B1B5A;--bg:#F5F6FA;--line:#E4E7F0;--text:#1F2430;--muted:#6a7085;--blue:#1F4ED8;--red:#b91c1c;--green:#16a34a}
@@ -10879,7 +12466,7 @@ a{color:var(--blue)}
 </style>
 </head>
 <body><div class="wrap">
-<h1>🗂️ وكيل المستندات — لوحة المتابعة والتدخل</h1>
+<h1>🗂️ مستشار المستندات — لوحة المتابعة والتدخل</h1>
 <div class="bar">
   <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
   <button id="save">دخول</button>
@@ -10988,7 +12575,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/ai-agents", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
@@ -11011,7 +12598,7 @@ write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 // never drift from what a customer sees on the pages themselves. Static file,
 // does not count against the Vercel Hobby 12-serverless-function cap.
 const catalogJson = {
-  updatedAt: new Date().toISOString(),
+  updatedAt: "",   // set at write time, and only when the data actually changed
   currency: "SAR",
   // Active discount codes, published so the payment endpoints re-verify a
   // discounted charge against the same source the checkout applied it from.
@@ -11056,15 +12643,48 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // Revenue OS subscriptions (sold from /revenue-os): monthly fee + success
-    // commission ladder. Codes match the cart item ids so the order API's
-    // server-side re-pricing can find them.
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-connect", key: "revos-connect", nameAr: "Revenue OS — باقة Connect (شهري)", nameEn: "Revenue OS — Connect (monthly)", amount: 499, priceLabel: "499 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["قائمة شركات مستهدفة", "التقاط عملاء وحجز مواعيد", "لوحة عميل وتقرير شهري", "بدون عمولة"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-launch", key: "revos-launch", nameAr: "Revenue OS — باقة Launch (شهري)", nameEn: "Revenue OS — Launch (monthly)", amount: 2500, priceLabel: "2,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 1M", "عمولة نجاح 10% + إغلاق 2.5%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-growth", key: "revos-growth", nameAr: "Revenue OS — باقة Growth (شهري)", nameEn: "Revenue OS — Growth (monthly)", amount: 5000, priceLabel: "5,000 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 3M", "عمولة نجاح 8% + إغلاق 2%"], url: `${base}/revenue-os` },
-    { group: "revenue-os", groupNameAr: "Revenue OS", groupNameEn: "Revenue OS", code: "revos-professional", key: "revos-professional", nameAr: "Revenue OS — باقة Professional (شهري)", nameEn: "Revenue OS — Professional (monthly)", amount: 9500, priceLabel: "9,500 ﷼ / شهريًا", billingPeriod: "monthly", featuresAr: ["Pipeline مستهدف حتى 10M", "عمولة نجاح 6% + إغلاق 1.5%"], url: `${base}/revenue-os` },
+    // BD-as-a-Service subscriptions (sold from /business-development). Owner-approved ladder
+    // (2026-08): ONE success-fee number, charged on collected revenue only, and
+    // the rate buys our closing team — pay a monthly fee alone and the client
+    // closes; pay a commission and we close with them. Codes match the cart item
+    // ids so the order API's server-side re-pricing can find them.
+    ...[
+      { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
+        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
+      { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 1M", "قاعدة بيانات محددة", "تأهيل وتقرير شهري"] },
+      { code: "revos-growth", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)", nameEn: "BD as a Service — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
+        featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
+      { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
+        featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
+    ].map((p) => ({
+      group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
+      code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
+      priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
+      billingPeriod: "monthly",
+      // Commercial terms travel with the price so the order, the invoice and the
+      // admin panel all read the same number the pricing page printed.
+      commissionPercent: p.commission,
+      commissionBasisAr: p.commission
+        ? "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM"
+        : "بدون عمولة — سعر شهري ثابت",
+      closingByBusinessPartner: p.closedByUs,
+      featuresAr: p.featuresAr,
+      url: `${base}/business-development`,
+    })),
   ],
 };
-write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+// The stamp moves only when the catalogue really moved. It used to be
+// `new Date()` on every run, so catalog.json changed on every build even when
+// no price did — and because bp-quotes watches this file, every single push
+// spent one of the day's hundred Vercel deployments on a rebuild that changed
+// nothing. Keep the previous stamp when the rest of the file is identical.
+{
+  let previous = null;
+  try { previous = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/data/catalog.json"), "utf8")); } catch {}
+  const sameData = previous && JSON.stringify({ ...previous, updatedAt: "" }) === JSON.stringify({ ...catalogJson, updatedAt: "" });
+  catalogJson.updatedAt = sameData ? previous.updatedAt : new Date().toISOString();
+  write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+}
 
 console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);

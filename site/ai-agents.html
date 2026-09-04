@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Agents — Business Partner</title>
-<meta name="description" content="AI agents that run your business operations around the clock: they monitor, execute, and follow up on your government platforms and teams — while your role">
-<meta property="og:title" content="AI Agents — Business Partner">
-<meta property="og:description" content="AI agents that run your business operations around the clock: they monitor, execute, and follow up on your government platforms and teams — while your role">
+<title>Smart Advisors — Business Partner</title>
+<meta name="description" content="Compliance, documents, growth and specialist smart employees — one design, one subscription mechanism, all inside your client portal.">
+<meta property="og:title" content="Smart Advisors — Business Partner">
+<meta property="og:description" content="Compliance, documents, growth and specialist smart employees — one design, one subscription mechanism, all inside your client portal.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -17,119 +17,192 @@
 <link rel="alternate" hreflang="fr" href="/fr/ai-agents">
 <link rel="alternate" hreflang="zh" href="/zh/ai-agents">
 <link rel="alternate" hreflang="x-default" href="/ai-agents">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<style>
+.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
+.adv section{padding:64px 0}
+.adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.adv-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.adv-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.adv-hero h1{max-width:860px;margin:16px auto 12px;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.045em;color:var(--n)}
+.adv-hero .lead{max-width:760px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1rem}
+.adv-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px auto 0;max-width:860px}
+.adv-chips span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.73rem;font-weight:800}
+.adv-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.adv-head{max-width:760px;margin:0 auto 28px;text-align:center}
+.adv-head h2{margin:0;color:var(--n);font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.04em;line-height:1.15}
+.adv-head p{margin:10px 0 0;color:var(--mut);line-height:1.8;font-size:.93rem}
+.adv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.adv-feature{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff}
+.adv-feature b{display:block;color:#172854;font-size:.9rem;margin-bottom:7px}
+.adv-feature p{margin:0;color:#778198;font-size:.78rem;line-height:1.75}
+.adv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.adv-step{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
+.adv-step i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.8rem;margin-bottom:12px}
+.adv-step b{display:block;color:#172854;font-size:.83rem;margin-bottom:5px}
+.adv-step p{margin:0;color:#778198;font-size:.72rem;line-height:1.7}
+.adv-sub{background:var(--soft)}
+.adv-subbox{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 18px 46px rgba(11,27,90,.1)}
+.adv-subbox h3{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.adv-subbox .price-amt{font-size:2rem;font-weight:850;color:var(--n);margin:10px 0 2px}
+.adv-subbox .adv-per{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+.adv-subbox .qb-note{margin:0 0 14px;font-size:.85rem;color:var(--mut)}
+.adv-subbox ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;text-align:start}
+.adv-subbox li{font-size:.83rem;color:#536077}
+.adv-subbox li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:8px}
+.adv-subbox .buy-row{justify-content:center;display:flex}
+.adv-subbox .adv-note{margin:14px 0 0;font-size:.75rem;color:var(--mut)}
+.adv-faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.adv-faq details{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px 18px}
+.adv-faq summary{cursor:pointer;font-weight:800;color:var(--n);font-size:.9rem}
+.adv-faq p{margin:10px 0 0;color:var(--mut);font-size:.85rem;line-height:1.8}
+.adv-cta{background:linear-gradient(145deg,var(--n),#123b8e);color:#fff;text-align:center}
+.adv-cta h2{margin:0 0 8px;color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.04em}
+.adv-cta p{margin:0 auto 20px;max-width:620px;color:rgba(255,255,255,.72);line-height:1.8;font-size:.92rem}
+.adv-hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.adv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;padding:20px;background:#fff;transition:.2s}
+.adv-card:hover{border-color:#b7c4e8;box-shadow:0 14px 38px rgba(20,49,125,.09)}
+.adv-card small{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.6rem;font-weight:900;margin-bottom:14px}
+.adv-card h3{margin:0 0 6px;color:#142653;font-size:1.02rem}
+.adv-card .tg{margin:0 0 10px;color:#778198;font-size:.76rem;line-height:1.65}
+.adv-card ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.adv-card li{font-size:.73rem;color:#536077}
+.adv-card li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.adv-card .price-amt{font-size:1.05rem;font-weight:850;color:var(--n);margin:0 0 4px}
+.adv-card .qb-note{margin:0 0 10px;font-size:.72rem;color:var(--mut)}
+.adv-card .adv-acts{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adv-card .adv-acts .buy-row{display:contents}
+.adv-more{font-size:.8rem;font-weight:800;color:var(--b);text-decoration:none}
+@media(max-width:980px){.adv-grid,.adv-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adv-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.adv .wrap{width:min(100% - 26px,1100px)}.adv section{padding:48px 0}.adv-grid,.adv-hub-grid,.adv-steps{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style id="bp-public-v4-css">
+:root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
+body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
+body.bp-public-v4 main{background:transparent}
+body.bp-public-v4 .container{max-width:1180px}
+body.bp-public-v4 .site-header{background:rgba(255,255,255,.92)!important;backdrop-filter:blur(16px);border-bottom:1px solid rgba(7,22,63,.07)}
+body.bp-public-v4 .site-header .nav{gap:16px}
+body.bp-public-v4 .site-header .nav>a,body.bp-public-v4 .nav-drop{font-size:13px!important}
+
+/* Shared B10X mast */
+.bp-v4-mast{max-width:1180px;margin:22px auto 0;padding:0 22px}.bp-v4-mast-in{border-radius:24px;padding:22px 24px;background:linear-gradient(135deg,#07163f,#123b8e);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;box-shadow:0 18px 50px rgba(20,51,125,.14)}
+.bp-v4-mast small{display:block;font-size:10px;font-weight:900;letter-spacing:.11em;color:#bcd0ff;margin-bottom:6px}.bp-v4-mast strong{display:block;font-size:18px;line-height:1.4}.bp-v4-mast p{margin:4px 0 0;color:#d8e4ff;font-size:11px;line-height:1.65}.bp-v4-mast a{flex:0 0 auto;text-decoration:none;background:#fff;color:#123675;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:900}
+
+/* Service detail */
+body.bp-v4-service .svc-hero{background:transparent!important;padding:54px 0 26px!important}
+body.bp-v4-service .svc-hero .container{background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:28px;padding:30px!important;box-shadow:0 16px 50px rgba(16,24,40,.06)}
+body.bp-v4-service .svc-hero h1{font-size:clamp(30px,4.4vw,52px)!important;line-height:1.08!important;letter-spacing:-1.5px!important;color:var(--v4-n)!important;max-width:900px;margin:15px 0!important}
+body.bp-v4-service .breadcrumb,body.bp-v4-category .back-link{font-size:11px!important;color:#74809a!important}
+body.bp-v4-service .svc-meta{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+body.bp-v4-service .svc-meta .chip{border:1px solid #dde5f4!important;background:#fff!important;border-radius:999px!important;color:#41506d!important;font-size:10.5px!important;padding:7px 10px!important}
+body.bp-v4-service .svc-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 330px!important;gap:22px!important;align-items:start!important;margin-top:20px!important}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section,body.bp-v4-service main section:not(.svc-hero){border-radius:20px}
+body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section{background:#fff;border:1px solid var(--v4-line);padding:20px!important;margin-bottom:12px!important;box-shadow:0 7px 24px rgba(16,24,40,.035)}
+body.bp-v4-service .svc-content h2,body.bp-v4-service .svc-main h2{color:var(--v4-n)!important;font-size:19px!important;margin:0 0 12px!important}
+body.bp-v4-service .svc-content p,body.bp-v4-service .svc-main p,body.bp-v4-service .svc-content li{font-size:12.5px!important;line-height:1.9!important;color:#56627a!important}
+body.bp-v4-service .svc-aside{position:sticky!important;top:92px!important}
+body.bp-v4-service .order-box{border:1px solid #dce5f5!important;border-radius:22px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;padding:20px!important;box-shadow:0 18px 48px rgba(16,49,120,.11)!important}
+body.bp-v4-service .order-box:before{content:'B10X · SERVICE EXECUTION';display:block;font-size:9px;letter-spacing:.1em;font-weight:900;color:var(--v4-b);margin-bottom:12px}
+body.bp-v4-service .order-box .btn{border-radius:12px!important;min-height:44px!important}
+body.bp-v4-service .callout{background:linear-gradient(135deg,#eef4ff,#f9fbff)!important;border:1px solid #d5e1fb!important;border-radius:16px!important;padding:14px!important}
+body.bp-v4-service .callout strong:before{content:'B10X · ';color:var(--v4-b)}
+
+/* Category and services catalog */
+body.bp-v4-category .hero--sm,body.bp-v4-catalog .page-hero{background:transparent!important;padding:44px 0 18px!important}
+body.bp-v4-category .hero--sm .hero-inner{max-width:1180px!important;background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:26px;padding:28px!important}
+body.bp-v4-category .hero--sm h1{font-size:clamp(32px,4vw,48px)!important;color:var(--v4-n)!important;margin:10px 0!important}
+body.bp-v4-category .hero--sm .lead{font-size:13px!important;line-height:1.8!important;color:var(--v4-muted)!important;max-width:760px!important}
+body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+body.bp-v4-category [class*="service-card"],body.bp-v4-catalog [class*="service-card"]{background:#fff!important;border:1px solid var(--v4-line)!important;border-radius:18px!important;padding:16px!important;box-shadow:0 7px 25px rgba(16,24,40,.035)!important;transition:.18s ease!important}
+body.bp-v4-category [class*="service-card"]:hover,body.bp-v4-catalog [class*="service-card"]:hover{transform:translateY(-3px)!important;border-color:#b9caf2!important;box-shadow:0 14px 34px rgba(16,24,40,.075)!important}
+body.bp-v4-category [class*="service-card"] h3,body.bp-v4-catalog [class*="service-card"] h3{font-size:14px!important;color:var(--v4-n)!important;line-height:1.45!important}
+body.bp-v4-category [class*="service-card"] p,body.bp-v4-catalog [class*="service-card"] p{font-size:10.7px!important;line-height:1.65!important;color:var(--v4-muted)!important}
+
+/* Packages */
+body.bp-v4-packages main{background:transparent!important}
+body.bp-v4-packages [id^="pkg-"]{scroll-margin-top:95px}
+body.bp-v4-packages .pkg-card,body.bp-v4-packages [class*="package-card"]{border:1px solid var(--v4-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 32px rgba(16,24,40,.05)!important;padding:20px!important}
+body.bp-v4-packages .pkg-card:hover,body.bp-v4-packages [class*="package-card"]:hover{transform:translateY(-3px)!important;box-shadow:0 17px 42px rgba(16,24,40,.085)!important}
+
+/* AI pages */
+body.bp-v4-ai main>section{border-radius:0}
+body.bp-v4-ai main .hero,body.bp-v4-ai main [class*="hero"]{background:radial-gradient(circle at 78% 10%,rgba(66,215,246,.14),transparent 26%),linear-gradient(135deg,#07163f,#123b8e)!important;color:#fff!important}
+body.bp-v4-ai main .hero h1,body.bp-v4-ai main [class*="hero"] h1{color:#fff!important}
+body.bp-v4-ai main .hero p,body.bp-v4-ai main [class*="hero"] p{color:#dbe5ff!important}
+body.bp-v4-ai .card,body.bp-v4-ai [class*="card"]{border-radius:20px!important;border-color:var(--v4-line)!important;box-shadow:0 8px 28px rgba(16,24,40,.04)!important}
+
+/* Buttons + footer */
+body.bp-public-v4 .btn-primary{background:linear-gradient(135deg,#07163f,#2856d6)!important;border-color:transparent!important;box-shadow:none!important}
+body.bp-public-v4 .btn,body.bp-public-v4 button{border-radius:12px}
+body.bp-public-v4 .site-footer{background:#07143b!important;padding:0!important;min-height:48px!important}
+body.bp-public-v4 .site-footer .newsletter-band,body.bp-public-v4 .site-footer .footer-grid{display:none!important}
+body.bp-public-v4 .site-footer>.container{padding-top:0!important;padding-bottom:0!important}
+body.bp-public-v4 .site-footer .footer-bottom{min-height:48px!important;margin:0!important;padding:8px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;color:rgba(255,255,255,.6)!important;font-size:10px!important}
+
+@media(max-width:900px){body.bp-v4-service .svc-layout{grid-template-columns:1fr!important}body.bp-v4-service .svc-aside{position:static!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bp-v4-mast-in{align-items:flex-start;flex-direction:column}}
+@media(max-width:620px){.bp-v4-mast{padding:0 14px}.bp-v4-mast-in{padding:18px;border-radius:18px}body.bp-v4-service .svc-hero{padding-top:28px!important}body.bp-v4-service .svc-hero .container,body.bp-v4-category .hero--sm .hero-inner{border-radius:20px;padding:20px!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:1fr!important}body.bp-public-v4 .site-footer .footer-bottom{flex-direction:column!important;justify-content:center!important;text-align:center!important}}
+</style><style id="bp-simple-header-css">
+.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
+.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
+.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
+.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
+.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
+.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
+.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
+.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
+.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
+.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
+.bp-simple-header .bp-cart svg{width:19px;height:19px}
+.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
+@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
+@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
+@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+</style>
 </head>
-<body><header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/">Home</a><a href="/about">About us</a><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">Our services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/services">All services (140)</a><a href="/services/category/company-formation">🏢 Company Formation</a><a href="/services/category/foreign-investment">🌍 Foreign Investment</a><a href="/services/category/premium-residency">🪪 Premium Residency</a><a href="/services/category/government-relations">🏛️ Government Relations</a><a href="/services/category/hr-services">👥 HR Services</a><a href="/services/category/recruitment">🧑‍💼 Recruitment &amp; Hiring</a><a href="/services/category/business-support">📊 Business Support</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Packages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/packages">All packages</a><a href="/packages#pkg-management">Service packages</a><a href="/packages#pkg-formation">Company Formation</a><a href="/packages#pkg-legal">Legal Packages</a></div>
-  </div><div class="nav-group nested active">
-    <button type="button" class="nav-drop active" aria-expanded="false">AI Agents ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents" class="active">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/ai-document-agent">Documents</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/revenue-os">How it works</a><a href="/revenue-os#pricing">Packages &amp; pricing</a><a href="/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">Task Force ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">For employers</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
-  </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/tourism">Corporate events</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Browse spaces</a><a href="/workspace-request">Request a workspace</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/farina">Overview</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Overview</a><a href="/worker-housing#wh-request">Request housing</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Worker transport</a></div>
-  </div><a href="/consultation">Book a free consultation</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Knowledge Center <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/saudi-arabia">Invest in Saudi</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
-  </div><a href="/opportunities">Investment Opportunities</a><a href="/news">Insights &amp; news</a><a href="/newsletter">Newsletter</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Tools &amp; calculators <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
-  </div><a href="/magazine">Magazine (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Client portal</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
-    </div><a href="/contact">Contact us</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span class="lang-label">English</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents" data-lang="en" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/ai-agents" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/ai-agents" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/ai-agents" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
-  </div>
-    <a class="hdr-btn" data-account-link href="/account" aria-label="Sign in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Sign in</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Partners registration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Partners</span></a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">AI Agents</span>
-    <h1>The smart agents system — your AI team working 24/7</h1>
-    <p class="lead">AI agents that run your business operations around the clock: they monitor, execute, and follow up on your government platforms and teams — while your role is limited to approval and payment. This is the next layer of Business Partner.</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agents">Browse the agents</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>24/7 monitoring</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Autonomous execution</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Approval &amp; payment only</span>
+<body class="bp-public-v4 bp-v4-ai"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/services/category/company-formation">Company Formation</a><a href="/services/category/foreign-investment">Foreign Investment</a><a href="/services/category/premium-residency">Premium Residency</a><a href="/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/services/category/government-relations">Government Services</a><a href="/compliance-agent">Compliance & Violations</a><a href="/services/category/hr-services">HR Services</a><a href="/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/workspaces">Workspaces</a><a href="/worker-housing">Worker Housing</a><a href="/tourism">Tourism & Events</a><a href="/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/b10x">B10X</a><a href="/#bp-consultant">Smart Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/smart-employee">Specialised Smart Employee</a><a href="/business-development">Business Development</a><a href="/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/suppliers">Partner Registration</a><a href="/partner-dashboard">Partner Portal</a><a href="/agency-portal">Recruitment Agency Portal</a><a href="/connect">Connect Hub</a><a href="/careers">Jobs</a></div></div></details><a href="/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/ai-agents">All AI Advisors</a><a href="/compliance-agent">Compliance Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Hiring</summary><div class="bp-mini-menu"><a href="/careers">Open jobs</a><a href="/employer-dashboard">Employer dashboard</a><a href="/employer-join">Register as employer</a><a href="/employers">Employer services</a><a href="/job-search-service">Job search service</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/services/category/recruitment">Recruitment services</a></div></details><a href="/about">About</a><a href="/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>English</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/account">Get started</a></div></div></header><main><div class="adv">
+  <section class="adv-hero"><div class="wrap">
+    <span class="adv-kicker"><i></i> The smart advisors</span>
+    <h1>A smart team that works 24/7 — and a human team behind it.</h1>
+    <p class="lead">Every advisor does one job extremely well: compliance, documents, growth, or a full specialist employee. Subscribe to one, or combine them — they all live in your client portal, and they all buy the same way.</p>
+  </div></section>
+  <section style="padding-top:20px"><div class="wrap">
+    <div class="adv-hub-grid"><div class="adv-card"><small>B10X</small><h3>B10X Smart Advisor</h3><p class="tg">The operating layer over everything: ask, it routes you to the right service, requirements and execution.</p><ul><li>Understands your goal 24/7</li><li>Routes to any of 140+ services</li><li>From question to tracked request</li></ul><div class="adv-acts"><a class="btn btn-primary" href="/b10x">Explore B10X</a><a class="adv-more" href="/#bp-consultant">Try it now</a></div></div><div class="adv-card"><small>AI</small><h3>Compliance Advisor</h3><p class="tg">Qiwa, Muqeem, GOSI, Mudad and Nitaqat under constant watch — your role is approval only.</p><ul><li>Deadlines before they become fines</li><li>Violation review &amp; objection filing</li><li>Periodic compliance reports</li></ul><div class="price-amt">250 ﷼ / monthly</div><p class="qb-note" data-guest-note>Price shown after sign-in</p><div class="adv-acts"><div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="agent-Compliance-Agent" data-name-en="Compliance &amp; obligations agent" data-name-ar="مستشار الامتثال والالتزام" data-amount="250" data-price="" data-kind="agent" data-bp-code="BP-AI-03"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+  </div><a class="adv-more" href="/compliance-agent">Details</a></div></div><div class="adv-card"><small>AI</small><h3>Specialist Smart Employee</h3><p class="tg">A 24-hour specialist — marketing, admin, sales, tech or procurement — without the hiring cost.</p><ul><li>12 specialties to pick from</li><li>Works inside your policies</li><li>Each specialty its own subscription</li></ul><div class="price-amt">From 500 ﷼ / monthly</div><p class="qb-note" data-guest-note>Price shown after sign-in</p><div class="adv-acts"><a class="btn btn-primary" href="/connect">Pick your employee</a><a class="adv-more" href="/smart-employee">Details</a></div></div><div class="adv-card"><small>AI</small><h3>Document Advisor</h3><p class="tg">Reads your documents once, then fills any form — Word, Excel and PDF, in place, traceable to the source.</p><ul><li>Extraction with provenance</li><li>Fills forms in place</li><li>Private to your company vault</li></ul><div class="adv-acts"><a class="btn btn-primary" href="/account?view=docagent">Open from your portal</a><a class="adv-more" href="/ai-document-agent">Details</a></div></div><div class="adv-card"><small>AI</small><h3>Business Development Advisor</h3><p class="tg">Customers, suppliers, partners and a pipeline that never sleeps — growth as an operating system.</p><ul><li>Always-on sales pipeline</li><li>Supplier sourcing &amp; vendor registration</li><li>Monthly plans by stage</li></ul><div class="price-amt">From 2,500 ﷼ / شهر</div><p class="qb-note" data-guest-note>Price shown after sign-in</p><div class="adv-acts"><a class="btn btn-primary" href="/revenue-os">Explore the plans</a></div></div><div class="adv-card"><small>OPS</small><h3>Shared Services Team</h3><p class="tg">The Compliance Advisor plus a full working team — one workspace for your platforms and your people.</p><ul><li>Compliance + execution in one</li><li>Available to companies &amp; individuals</li><li>Scales as you grow</li></ul><div class="price-amt">1,500 ﷼ / monthly</div><p class="qb-note" data-guest-note>Price shown after sign-in</p><div class="adv-acts"><div class="buy-row">
+    <button type="button" class="btn btn-primary add-cart" data-id="agent-Shared-services-team" data-name-en="Shared services team" data-name-ar="فريق الخدمات المشتركة" data-amount="1500" data-price="" data-kind="agent" data-bp-code="BP-AI-04"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
+  </div><a class="adv-more" href="/shared-services">Details</a></div></div></div>
+    <p style="margin:18px 0 0;text-align:center;font-size:.8rem;color:#68748d">Prices are our fees; government fees, where relevant, are separate and disclosed before you pay.</p>
+  </div></section>
+  <section class="adv-cta"><div class="wrap">
+    <h2>Not sure where to start?</h2>
+    <p>Tell the B10X smart advisor what you need — it routes you to the right advisor and the right plan.</p>
+    <div class="adv-hero-actions">
+      <a class="btn btn-white btn-lg" href="/#bp-consultant">Talk to the smart advisor</a>
+      <a class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.3);color:#fff" href="/consultation">Book a free consultation</a>
     </div>
   </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">How it works</span><h2>Human intervention = approval and payment only</h2></div>
-    <div class="steps-grid"><div class="step"><div class="step-n">1</div><div><h3>Continuous monitoring</h3><p>The agent monitors your platforms and files 24/7 and detects any requirement, deadline or violation the moment it appears.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>Smart alert</h3><p>You receive a clear alert of what needs to be done and why, with cost and deadline — no complex jargon.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>Autonomous execution</h3><p>The agent prepares the documents and files the request with the relevant authority automatically when ready.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>Your approval and payment</h3><p>You approve and pay with one tap — the agent completes it through to issuance and updates your record.</p></div></div></div>
-  </div></section>
-
-  <section class="section" id="agents"><div class="container">
-    <div class="section-head"><span class="eyebrow">The system</span><h2>Three agents… to match your need</h2><p>Start with one agent or connect them all into a single system. Monthly subscription with clear fees.</p></div>
-    <div class="grid grid-3"><div class="pkg pop">
-      <div class="pk-name"><a href="/compliance-agent" style="color:inherit;text-decoration:none">Compliance &amp; obligations agent</a><small>Your government platforms under constant watch</small></div>
-      
-      <p class="pk-for">For businesses that want permanent compliance without manual follow-up</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>✅ Live now — try the free Nitaqat, cost and profession-checker tools</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Continuous monitoring: Qiwa · Muqeem · GOSI · Mudad · Nitaqat</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Detects deadlines, violations and obligations as they appear</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Autonomous execution: prepares and files documents</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Clear cost and deadline alerts before each step</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Human intervention = approval and payment only</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Periodic compliance reports for your entity</span></li></ul>
-      <div class="buy-row"><a href="/compliance-agent" class="btn btn-ghost">Details</a>
-    <button type="button" class="btn btn-primary add-cart" data-id="agent-Compliance-Agent" data-name-en="Compliance &amp; obligations agent" data-name-ar="وكيل الامتثال والالتزام" data-amount="250" data-price="" data-kind="agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-    </div><div class="pkg">
-      <div class="pk-name"><a href="/connect" style="color:inherit;text-decoration:none">Pick your smart employee — works 24 hours</a><small>A dedicated smart employee that never stops</small></div>
-      
-      <p class="pk-for">For businesses that want a specialist employee's capabilities without the hiring cost</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Choose your smart employee's specialty to fit your need</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Marketing employee: content, campaigns and performance tracking</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Admin employee: task organisation, follow-up and reports</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Sales employee: client follow-up, replies and quotes</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Tech or procurement employee: operational tasks and vendors</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Works 24 hours within your policies and under your supervision</span></li></ul>
-      <div class="buy-row"><a href="/connect" class="btn btn-primary">Pick your employee (12 specialties)</a></div>
-    </div><div class="pkg">
-      <div class="pk-name"><a href="/shared-services" style="color:inherit;text-decoration:none">Shared services team</a><small>The compliance team + the work team fully merged</small></div>
-      
-      <p class="pk-for">For businesses and individuals seeking a fully integrated system</p>
-      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Merges the compliance agent with the smart work team completely</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>A unified dashboard for all your platforms and teams</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Available to businesses and individuals</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Scales as your business grows</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Priority in execution and support</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Integration with all Business Partner services</span></li></ul>
-      <div class="buy-row"><a href="/shared-services" class="btn btn-ghost">Details</a>
-    <button type="button" class="btn btn-ghost add-cart" data-id="agent-Shared-services-team" data-name-en="Shared services team" data-name-ar="فريق الخدمات المشتركة" data-amount="1500" data-price="" data-kind="agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Add to cart</span></button>
-  </div>
-    </div></div>
-    <div class="callout" style="max-width:760px;margin:36px auto 0"><span class="ico">💡</span><p>Prices are monthly Business Partner fees and exclude VAT. The system can be customised to your entity's size — contact us with any enquiry.</p></div>
-    <div class="center mt-32" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-primary" href="/portal">🎁 Try the team free — 3 messages per employee</a>
-      <a class="btn btn-ghost" href="/portal">🔐 Already subscribed? Enter the portal</a>
-      <a class="btn btn-ghost" href="/connect">Connect your tools (Gmail, Calendar, Notion, Slack…)</a>
-    </div>
-  </div></section></main><footer class="site-footer"><div class="container">
+  </div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>Subscribe to our newsletter</h3>
@@ -150,7 +223,7 @@
     <div class="footer-col"><h4>Our services</h4><ul>
       <li><a href="/services">All services</a></li>
       <li><a href="/packages">Packages</a></li>
-      <li><a href="/revenue-os">Revenue OS</a></li>
+      <li><a href="/business-development">BD as a Service</a></li>
       <li><a href="/ai-agents">AI Agents</a></li>
       <li><a href="/task-force">Task Force</a></li>
       <li><a href="/hr">Recruitment</a></li>
@@ -168,7 +241,7 @@
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/account">Client portal</a></li>
-      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/business-development-dashboard">BD as a Service dashboard</a></li>
       <li><a href="/suppliers">Partner registration</a></li>
       <li><a href="/employer-join">For employers</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
@@ -201,7 +274,7 @@
       <li><a href="/contact">Contact us</a></li>
     </ul></div>
     <div class="footer-col"><h4>Contact</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
     </ul>
@@ -215,79 +288,4 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Close">✕</button>
-    <p>Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Open chat with Baher, the smart assistant">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Ask Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Ask Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Your smart partner — online now</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
-
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Full name *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="Email *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Start ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Your details are used only to serve you and follow up on your request.</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Pick the service you need:</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Book a free consultation</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 Book a free consultation</div>
-      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describe your request (optional)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Request a price quote</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.</div>
-      </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Foreign investment company setup">🏢 Foreign investment setup</button>
-        <button type="button" class="advisor-chip" data-q="Government platforms management">💼 Government platforms</button>
-        <button type="button" class="advisor-chip" data-q="Packages & pricing">💰 Packages &amp; pricing</button>
-        <button type="button" class="advisor-chip" data-q="I want a free consultation">📞 Free consultation</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="Type your question here…" aria-label="Type your question">
-        <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
-    </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>

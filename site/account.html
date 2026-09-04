@@ -11,14 +11,19 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
-      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0;
-      --text:#1F2430; --soft:#6a7085; --muted:#9aa0b4;
-      --ok:#16a34a; --ok-bg:#dcfce7; --ok-ink:#14532d;
+      /* Brand design system (owner, Aug 2026): navy #07163F, B10X blue #3159D8,
+         AI cyan #43D6F4, success mint #16B875, ground #F7F9FD. Same tokens as
+         the homepage and the admin command center, so the portal reads as the
+         same product. */
+      --navy:#07163f; --navy-700:#123b8e; --navy-900:#05102f;
+      --blue:#3159d8; --cyan:#43d6f4;
+      --bg:#F7F9FD; --surface:#fff; --line:#e5e9f2;
+      --text:#101a35; --soft:#68748d; --muted:#94a0b5;
+      --ok:#16b875; --ok-bg:#e6f9f1; --ok-ink:#0c6b46;
       --warn:#d97706; --warn-bg:#fef3c7; --warn-ink:#92400e;
       --bad:#dc2626; --bad-bg:#fee2e2; --bad-ink:#991b1b;
       --info-bg:#e0f2fe; --info-ink:#075985;
-      --r:14px; --shadow:0 6px 24px rgba(11,27,90,.07);
+      --r:16px; --shadow:0 10px 32px rgba(18,38,85,.06);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100dvh}
@@ -60,6 +65,7 @@
     .side nav button{background:none;border:0;color:rgba(255,255,255,.82);padding:8px 10px;border-radius:9px;display:flex;gap:8px;align-items:center;width:100%;text-align:start;font-size:12.5px;font-weight:600}
     .side nav button:hover{background:rgba(255,255,255,.08);color:#fff}
     .side nav button.on{background:rgba(255,255,255,.16);color:#fff;font-weight:700}
+    .side nav .grp{font-size:10.5px;font-weight:700;letter-spacing:.2px;color:rgba(255,255,255,.5);padding:12px 10px 4px;text-transform:uppercase}
     .side nav button .b{margin-inline-start:auto;background:var(--bad);color:#fff;font-size:9.5px;border-radius:99px;padding:0 6px;font-weight:700}
     .side .grow{flex:1}
     .side .foot{border-top:1px solid rgba(255,255,255,.15);padding-top:10px;font-size:11px;color:rgba(255,255,255,.65);line-height:1.7;padding-inline:8px}
@@ -72,6 +78,8 @@
     .gsearch:focus{border-color:var(--navy);background:#fff}
     .top-ico{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;background:#fff;font-weight:700;color:var(--navy);flex-shrink:0}
     .top-ico:hover{background:var(--bg)}
+    .top-ico.wide{width:auto;padding:0 11px;gap:6px;font-size:11.5px;text-decoration:none;white-space:nowrap}
+    @media (max-width:700px){.top-ico.wide span{display:none}.top-ico.wide{width:30px;padding:0}}
     .top-ico .dot{position:absolute;top:-6px;inset-inline-end:-6px;min-width:15px;height:15px;background:var(--bad);border-radius:99px;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px}
     .userchip{display:flex;gap:8px;align-items:center;font-size:11.5px}
     .userchip .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
@@ -208,8 +216,87 @@
       .gov{grid-template-columns:repeat(2,1fr)}
       .qa{grid-template-columns:repeat(3,1fr)}
     }
+
+    /* ---- brand pass (Aug 2026): the portal wears the same design system as
+       the homepage and admin — token swap above does most of it; these rules
+       finish the chrome without touching any id or behavior. ---- */
+    .side{background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)}
+    .side nav button.on{background:#fff;color:#07163f;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+    .side nav button.on .b{background:var(--bad)}
+    .btn{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px}
+    .btn.sm{border-radius:9px}
+    .topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.92)}
+    .pagehead h2{letter-spacing:-.02em;font-size:1.22rem}
+    .card:hover,.panel:hover{border-color:#dbe3f2}
+    .stchip.on{background:var(--navy);border-color:var(--navy)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(49,89,216,.13)}
+
   </style>
-<script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script>
+<style id="bp-portal-trust-css">
+.bp-request-demo{margin:0 0 16px;background:linear-gradient(135deg,#fff,#f7f9ff);border:1px solid #cfd9f2;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px rgba(11,27,90,.06)}
+.bp-rd-head{padding:14px 16px;border-bottom:1px solid #e7ebf4;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bp-rd-demo{font-size:9px;font-weight:800;border-radius:99px;padding:3px 8px;background:#eef3ff;color:#0B1B5A}
+.bp-rd-head strong{font-size:13px;color:#0B1B5A}.bp-rd-head .bp-rd-ministry{font-size:11px;color:#737b91}.bp-rd-head .bp-rd-status{margin-inline-start:auto;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:800}
+.bp-rd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#e9edf5;border-bottom:1px solid #e7ebf4}.bp-rd-kv{background:#fff;padding:12px 14px;min-width:0}.bp-rd-kv span{display:block;color:#8b92a6;font-size:9.5px;margin-bottom:3px}.bp-rd-kv b{display:block;font-size:11.5px;color:#27324a;overflow-wrap:anywhere}
+.bp-rd-body{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;padding:15px}.bp-rd-box{background:#fff;border:1px solid #e6e9f1;border-radius:13px;padding:13px}.bp-rd-box h5{font-size:11px;color:#0B1B5A;margin:0 0 10px}.bp-rd-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.bp-rd-step{position:relative;text-align:center;font-size:8.5px;color:#9aa0b4;padding-top:24px;line-height:1.35}.bp-rd-step:before{content:'';position:absolute;top:6px;left:50%;width:10px;height:10px;border-radius:50%;background:#d8dce6;transform:translateX(-50%);z-index:2}.bp-rd-step:after{content:'';position:absolute;top:10px;right:50%;width:100%;height:2px;background:#e3e6ed;z-index:1}.bp-rd-step:last-child:after{display:none}.bp-rd-step.done{color:#166534}.bp-rd-step.done:before{background:#16a34a}.bp-rd-step.done:after{background:#86efac}.bp-rd-step.cur{font-weight:800;color:#92400e}.bp-rd-step.cur:before{background:#f59e0b;box-shadow:0 0 0 4px #fef3c7}
+.bp-rd-doc{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f6;font-size:10.5px}.bp-rd-doc:last-of-type{border-bottom:0}.bp-rd-doc .state{margin-inline-start:auto;font-size:9px;border-radius:99px;padding:2px 7px}.bp-rd-doc .ok{background:#dcfce7;color:#166534}.bp-rd-doc .need{background:#fef3c7;color:#92400e}.bp-rd-upload{margin-top:10px;width:100%;border:0;border-radius:9px;padding:8px 10px;background:#0B1B5A;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer}.bp-rd-foot{padding:9px 15px;border-top:1px solid #eef0f5;background:#fbfcff;color:#7b8295;font-size:9.5px;line-height:1.7}
+#bpPortalTourBtn{border:1px solid #dce1ec;background:#fff;color:#0B1B5A;border-radius:9px;height:30px;padding:0 10px;font:700 10.5px inherit;cursor:pointer;white-space:nowrap}
+.bp-tour-backdrop{position:fixed;inset:0;background:rgba(4,12,38,.48);z-index:9997}.bp-tour-target{position:relative!important;z-index:9999!important;outline:3px solid #7aa2ff!important;outline-offset:4px!important;box-shadow:0 0 0 7px rgba(122,162,255,.18)!important}.bp-tour-card{position:fixed;z-index:10000;width:min(330px,calc(100vw - 28px));background:#fff;border-radius:15px;border:1px solid #e1e5ef;box-shadow:0 22px 60px rgba(4,12,38,.28);padding:15px;color:#1f2937}.bp-tour-card .n{font-size:9px;color:#7d8498;font-weight:800;margin-bottom:5px}.bp-tour-card h3{margin:0 0 6px;font-size:14px;color:#0B1B5A}.bp-tour-card p{margin:0;color:#667085;font-size:11px;line-height:1.75}.bp-tour-actions{display:flex;align-items:center;gap:7px;margin-top:13px}.bp-tour-actions button{border:1px solid #dce1ec;background:#fff;color:#0B1B5A;border-radius:8px;padding:6px 10px;font:700 10.5px inherit;cursor:pointer}.bp-tour-actions .next{background:#0B1B5A;color:#fff;border-color:#0B1B5A;margin-inline-start:auto}.bp-tour-actions .skip{border:0;color:#7d8498;background:transparent;padding-inline:3px}
+.bp-tour-toast{position:fixed;z-index:10010;left:50%;bottom:22px;transform:translateX(-50%);background:#101828;color:#fff;padding:9px 13px;border-radius:10px;font-size:10.5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+@media(max-width:850px){.bp-rd-grid{grid-template-columns:repeat(2,1fr)}.bp-rd-body{grid-template-columns:1fr}.bp-rd-steps{grid-template-columns:repeat(3,1fr)}.bp-rd-step:after{display:none}}
+</style><style id="bp-docagent-v7-css">
+:root{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
+.da7{display:none}.da7.on{display:block}
+.da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
+.da7-trial b{font-size:14px}.da7-trial p{margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.75);line-height:1.7}
+.da7-trial .days{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 13px;font-size:12px;font-weight:800;white-space:nowrap}
+.da7-trial.ended{background:linear-gradient(135deg,#5b1120,#a32036)}
+.da7-trial a{display:inline-flex;padding:8px 13px;background:#fff;color:#123b87;border-radius:10px;text-decoration:none;font-size:11.5px;font-weight:900}
+.da7-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}
+@media(max-width:1020px){.da7-grid{grid-template-columns:1fr}}
+.da7-box{background:#fff;border:1px solid var(--da7-line);border-radius:19px;padding:18px;box-shadow:0 8px 28px rgba(11,34,90,.05)}
+.da7-box h3{font-size:14px;color:var(--da7-navy);margin:0 0 4px}
+.da7-box .hint{font-size:11.5px;color:var(--da7-muted);margin:0 0 12px;line-height:1.8}
+.da7-log{height:390px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:4px 2px;margin-bottom:12px}
+.da7-m{max-width:86%;padding:10px 13px;border-radius:14px;font-size:12.5px;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+.da7-m.bot{background:#f4f7fd;border:1px solid var(--da7-line);color:var(--da7-ink);align-self:flex-start;border-bottom-right-radius:5px}
+.da7-m.me{background:linear-gradient(135deg,#0a255f,#3159d8);color:#fff;align-self:flex-end;border-bottom-left-radius:5px}
+.da7-m.sys{align-self:center;background:#fff8e7;border:1px dashed #e6c98a;color:#7a5a12;font-size:11px}
+.da7-m a{color:inherit;font-weight:900;text-decoration:underline}
+.da7-m.bot a{color:#2148a8}
+.da7-row{display:flex;gap:8px;align-items:center}
+.da7-row input[type=text]{flex:1;min-width:0;padding:11px 13px;border:1px solid var(--da7-line);border-radius:12px;font-family:inherit;font-size:12.5px;background:#fbfcfe}
+.da7-row input[type=text]:focus{outline:0;border-color:var(--da7-blue);background:#fff}
+.da7-btn{border:0;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;border-radius:11px;padding:11px 15px;background:linear-gradient(135deg,#0a255f,#3159d8);color:#fff}
+.da7-btn.ghost{background:#eef3ff;color:#2148a8}
+.da7-btn.clip{background:#fff;border:1px solid var(--da7-line);color:var(--da7-navy);padding:11px 13px}
+.da7-btn[disabled]{opacity:.5;cursor:not-allowed}
+.da7-sig{border:1px solid var(--da7-line);border-radius:14px;padding:12px;background:#fbfcff}
+.da7-sig canvas{width:100%;height:150px;display:block;border:1.5px dashed #c3d2ee;border-radius:11px;background:#fff;touch-action:none;cursor:crosshair}
+.da7-consent{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;color:var(--da7-ink);line-height:1.75;cursor:pointer}
+.da7-consent input{margin-top:2px;flex:0 0 auto}
+.da7-mark{margin-top:9px;font-size:11.5px;color:var(--da7-muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.da7-mark.on{color:#127a4b;font-weight:800}
+.da7-mark img{height:34px;border:1px solid var(--da7-line);border-radius:7px;background:#fff;padding:2px}
+.da7-drop{border:1.5px dashed #c3d2ee;border-radius:15px;background:#fbfcff;padding:17px;text-align:center;color:var(--da7-muted);font-size:12px;cursor:pointer;transition:.15s}
+.da7-drop:hover,.da7-drop.over{border-color:var(--da7-blue);background:#f2f6ff;color:#2148a8}
+.da7-files{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+.da7-file{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-bottom:1px solid #eef1f6;padding-bottom:7px}
+.da7-file:last-child{border-bottom:0}
+.da7-file strong{font-size:12px;color:var(--da7-ink);font-weight:700;word-break:break-all}
+.da7-file small{display:block;color:var(--da7-muted);font-size:10.5px;margin-top:2px}
+.da7-tag{border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;white-space:nowrap}
+.da7-tag.form{background:#e7f0ff;color:#1f49b3}.da7-tag.src{background:#e7f7ee;color:#12704a}
+.da7-tag.other{background:#f1f3f7;color:#5b6478}.da7-tag.out{background:#fdeee7;color:#a84515}
+.da7-empty{padding:16px;text-align:center;color:var(--da7-muted);font-size:11.5px}
+.da7-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.da7-stat{flex:1;min-width:88px;background:#f7f9fd;border:1px solid var(--da7-line);border-radius:13px;padding:10px 12px}
+.da7-stat b{display:block;font-size:1.25rem;color:var(--da7-navy);line-height:1}
+.da7-stat span{display:block;margin-top:3px;font-size:10.5px;color:var(--da7-muted)}
+</style>
+</head>
 <body>
 
   <!-- ================= GATE ================= -->
@@ -272,22 +359,30 @@
       <div class="logo">Business Partner<small data-t="appTitle">مركز عمليات العميل</small></div>
       <nav id="sideNav">
         <button data-v="home" class="on"><span>◈</span><span data-t="navHome">الرئيسية</span></button>
+        <div class="grp" data-t="grpAdvisors">مستشاروك الأذكياء</div>
+        <button data-v="compliance"><span>🛡️</span><span data-t="navCompliance">مستشار الامتثال</span></button>
+        <button data-v="hiring"><span>🧑‍💼</span><span data-t="navHiring">لوحة التوظيف</span></button>
+        <button data-v="bd"><span>📈</span><span data-t="navBd">مستشار تطوير الأعمال</span></button>
+        <button data-v="ss"><span>🤝</span><span data-t="navSs">فريق الخدمات المشتركة</span></button>
+        <button data-v="smart"><span>🤖</span><span data-t="navSmart">الموظف الذكي</span></button>
+        <div class="grp" data-t="grpWork">أعمالي</div>
+        <button data-v="store"><span>🛒</span><span data-t="navStore">اطلب خدمة</span></button>
         <button data-v="services"><span>▣</span><span data-t="navServices">خدماتي وبواباتي</span></button>
-        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
         <button data-v="tasks"><span>☑</span><span data-t="navTasks">المهام</span><span class="b" id="sbTasks" style="display:none"></span></button>
         <button data-v="orders"><span>≡</span><span data-t="navOrders">الطلبات</span></button>
+        <button data-v="papers"><span>⌗</span><span data-t="navPapers">عروض الأسعار والعقود</span><span class="b w" id="sbPapers" style="display:none;background:var(--warn)"></span></button>
+        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
         <button data-v="payments"><span>◫</span><span data-t="navPayments">المدفوعات والفواتير</span><span class="b w" id="sbPay" style="display:none;background:var(--warn)"></span></button>
         <button data-v="wallet"><span>◍</span><span data-t="navWallet">المحفظة</span></button>
-        <button data-v="approvals"><span>✓</span><span data-t="navApprovals">الموافقات</span><span class="b" id="sbAppr" style="display:none"></span></button>
-        <button data-v="papers"><span>⌗</span><span data-t="navPapers">عروض الأسعار والعقود</span><span class="b w" id="sbPapers" style="display:none;background:var(--warn)"></span></button>
         <button data-v="documents"><span>⌸</span><span data-t="navDocuments">المستندات</span></button>
-        <button data-v="team"><span>﴾﴿</span><span data-t="navTeam">الموظفون والفريق</span></button>
+        <div class="grp" data-t="grpCompany">المنشأة</div>
+        <button data-v="company"><span>🏢</span><span id="navCompanyLbl">بيانات المنشأة</span></button>
+        <button data-v="bdprofile"><span>🎯</span><span id="navBdLbl">ملف تطوير الأعمال</span></button>
         <button data-v="reports"><span>◔</span><span data-t="navReports">التقارير والتحليلات</span></button>
         <button data-v="tickets"><span>◖</span><span data-t="navTickets">التذاكر والدعم</span></button>
         <button data-v="alerts"><span>◉</span><span data-t="navAlerts">التنبيهات</span></button>
         <button data-v="settings"><span>⚙</span><span data-t="navSettings">الإعدادات</span></button>
       </nav>
-      <a id="backToSite" href="/ar" style="display:flex;gap:10px;align-items:center;padding:11px 18px;color:#C7D2FE;text-decoration:none;font-size:.92em"><span>🌐</span><span id="backToSiteLbl">العودة إلى الموقع</span></a>
       <div class="grow"></div>
       <div class="foot"><span id="footOrg">—</span><br /><span id="footSub" data-t="appTitle">مركز عمليات العميل</span></div>
     </aside>
@@ -296,6 +391,8 @@
       <div class="topbar">
         <span class="orgsel" id="topOrg" title="">🏢 <span id="topOrgName">—</span></span>
         <input class="gsearch" id="topSearch" type="search" data-tp="searchPh" placeholder="بحث في هذه الصفحة: طلب، خدمة، مهمة…" />
+        <button class="top-ico wide" id="assistBtn" title="المساعد">🤖 <span id="assistBtnLbl">المساعد</span></button>
+        <a class="top-ico wide" id="backToSite" href="/ar" title="العودة إلى الموقع">🌐 <span id="backToSiteLbl">العودة إلى الموقع</span></a>
         <button class="top-ico" id="langBtn" title="ع/E">ع/E</button>
         <button class="top-ico" id="bellBtn" title="">🔔<span class="dot" id="bellDot" style="display:none"></span></button>
         <span class="userchip"><span class="av" id="ucAv">؟</span><span class="meta"><b id="ucName">—</b><span id="ucRole" data-t="roleOwner">مالك المنشأة</span></span></span>
@@ -322,6 +419,32 @@
         <section class="view on" id="view-home">
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
+            <!-- B10X: the flagship, first thing on the client's home -->
+            <div class="card c12" id="b10xCard" style="background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-color:transparent">
+              <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+                <div style="flex:1;min-width:240px">
+                  <div style="font-size:11px;font-weight:800;letter-spacing:.3px;opacity:.75;margin-bottom:4px">B10X</div>
+                  <h4 style="color:#fff;margin:0 0 6px;font-size:16px" data-t="b10xTitle">B10X — نظام الهبوط في السوق السعودي</h4>
+                  <div style="font-size:12.5px;line-height:1.8;opacity:.85" data-t="b10xLead">من التأسيس إلى التشغيل: مستشارك الذكي يجهّز مسارك، والفريق ينفّذ خلف الكواليس — كل شيء من داخل لوحتك.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn" id="b10xOpen" style="background:#fff;color:#123b87;border:0;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xOpen">افتح B10X</button>
+                  <button class="btn ghost" id="b10xAsk" style="background:transparent!important;border:1px solid rgba(255,255,255,.55)!important;color:#fff!important;border-radius:12px;padding:10px 18px;font-weight:800" data-t="b10xAsk">اسأل B10X</button>
+                </div>
+              </div>
+            </div>
+            <!-- الخدمات المشتركة: متاحة لكل عميل مسجّل بفترة تجريبية مجانية -->
+            <div class="card c6" id="ssCard" style="display:none;background:linear-gradient(135deg,#EEF0FF,#F8F9FF);border-color:#d9ddfb">
+              <h4>🤝 <span>فريقك التنفيذي الذكي — الخدمات المشتركة</span><a class="more" href="/ar/shared-services/dashboard">افتح البوابة ←</a></h4>
+              <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                <img src="/assets/img/baher.jpg" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 12px rgba(11,27,90,.12)">
+                <div style="flex:1;min-width:200px">
+                  <div style="font-size:12.5px;color:#3d4560;line-height:1.75">محادثة واحدة مع باهر — و١٢ متخصصاً ينفّذون خلف الكواليس: حكومي وامتثال، موارد بشرية، مالية، قانوني، تسويق ومشتريات.</div>
+                  <div id="ssTrialMeta" style="font-size:11px;font-weight:700;color:#5C66F2;margin-top:5px"></div>
+                </div>
+                <a class="btn" id="ssOpenBtn" href="/ar/shared-services/dashboard" style="background:#5C66F2;color:#fff;border:0;border-radius:12px;padding:10px 20px;font-size:12.5px;font-weight:700;white-space:nowrap">ابدأ المحادثة</a>
+              </div>
+            </div>
             <div class="card c6 warnbar">
               <h4><span data-t="urgentTasks">المهام العاجلة</span><button class="more" data-goto="tasks" data-t="allTasks">كل المهام ←</button></h4>
               <div id="homeTasks"></div>
@@ -363,10 +486,10 @@
               <div id="homeServices"></div>
             </div>
             <div class="card c4 agentbox">
-              <h4 data-t="agentTitle">وكيل Business Partner الذكي</h4>
-              <div class="hint" data-t="agentHint">اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.</div>
+              <h4 data-t="agentTitle">مستشار Business Partner الذكي</h4>
+              <div class="hint" data-t="agentHint">اكتب سؤالك ويُفتح كتذكرة داخل بوابتك، ويرد عليك فريقنا هنا وعلى بريدك.</div>
               <input id="agentInput" data-tp="agentPh" placeholder="اسأل عن خدماتك أو إجراءاتك…" />
-              <button class="btn sm" id="agentSend" data-t="agentSend">إرسال عبر واتساب</button>
+              <button class="btn sm" id="agentSend" data-t="agentSend">أرسل كتذكرة</button>
             </div>
 
             <div class="card c4">
@@ -394,13 +517,80 @@
                 <span class="dis"><span data-t="qaUser">إضافة مستخدم</span><small data-t="soonShort">قريباً</small></span>
                 <a href="#" data-goto="tickets" data-t="qaTicket">فتح تذكرة</a>
                 <a href="/ar/consultation" data-t="qaConsult">حجز استشارة</a>
-                <a href="/ar/compliance-dashboard" data-t="qaCompliance">وكيل الامتثال</a>
+                <a href="/ar/compliance-dashboard" data-t="qaCompliance">مستشار الامتثال</a>
               </div>
             </div>
           </div>
         </section>
 
         <!-- ===== services ===== -->
+        <!-- ============ المتجر: اطلب أي خدمة وادفع الآن أو لاحقاً ============ -->
+        <!-- كل شيء داخل اللوحة: التصفح والسلة والدفع — لا خروج لصفحة أخرى. -->
+        <section class="view" id="view-store">
+          <style>
+            #view-store .stwrap{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+            @media (max-width:900px){#view-store .stwrap{grid-template-columns:1fr}}
+            .stchip{border:1px solid var(--line,#dfe4ee);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap;color:#334155}
+            .stchip.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
+            .stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+            .stitem{border:1px solid var(--line,#dfe4ee);border-radius:14px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:8px;transition:box-shadow .18s,transform .18s}
+            .stitem:hover{box-shadow:0 10px 26px rgba(11,27,90,.10);transform:translateY(-2px)}
+            .stitem .nm{font-weight:700;color:#0B1B5A;font-size:14px;line-height:1.45}
+            .stitem .pr{font-size:20px;font-weight:800;color:#0B1B5A;margin-top:auto}
+            .stitem .pr small{font-size:11.5px;font-weight:500;color:#64748b}
+            .stadd{background:#0B1B5A;color:#fff;border:0;border-radius:10px;padding:9px;font:inherit;font-weight:700;cursor:pointer}
+            .stadd:hover{background:#13246e}
+            .stcart{border:1px solid #C7D2FE;border-radius:14px;padding:14px;background:#F8FAFF;position:sticky;top:14px}
+            .stline{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px dashed #E2E8F0}
+            .stpay{display:grid;gap:8px;margin-top:10px}
+            .stpaybtn{display:flex;gap:10px;align-items:flex-start;text-align:start;border:1.5px solid var(--line,#dfe4ee);background:#fff;border-radius:12px;padding:10px 12px;font:inherit;cursor:pointer;width:100%}
+            .stpaybtn.on{border-color:#0B1B5A;background:#EEF2FF;box-shadow:0 0 0 3px rgba(11,27,90,.08)}
+            .stpaybtn b{display:block;font-size:13.5px;color:#0B1B5A}
+            .stpaybtn span{font-size:11.5px;color:#64748b}
+          </style>
+          <div class="pagehead">
+            <h2 data-t="navStore">🛒 اطلب خدمة — وادفع الآن أو لاحقاً</h2>
+            <div class="sub" data-t="storeSub">كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.</div>
+          </div>
+          <div class="stwrap">
+            <div>
+              <div class="card" style="margin-bottom:12px">
+                <input id="stSearch" type="search" placeholder="🔍 ابحث عن خدمة… (تأسيس، إقامة، رخصة، قوى…)" style="width:100%;padding:11px 14px;border:1px solid var(--line,#dfe4ee);border-radius:12px;font:inherit">
+                <div id="stCats" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"></div>
+              </div>
+              <div id="stGrid" class="stgrid"><div class="card" style="grid-column:1/-1">جاري تحميل الخدمات…</div></div>
+              <div id="stMore" style="text-align:center;margin-top:14px"></div>
+            </div>
+            <div>
+              <div class="stcart">
+                <div style="font-weight:800;color:#0B1B5A;margin-bottom:8px">🧾 سلة الطلب</div>
+                <div id="stCartLines"><div style="color:#64748b;font-size:12.5px;padding:8px 0">السلة فارغة — أضف خدمة من اليمين.</div></div>
+                <div id="stTotals" style="display:none;margin-top:8px;font-size:13px">
+                  <div class="stline"><span>المجموع</span><b id="stSub">0</b></div>
+                  <div class="stline"><span>ضريبة القيمة المضافة ١٥٪</span><b id="stVat">0</b></div>
+                  <div class="stline" style="border:0;font-size:15px"><span><b>الإجمالي</b></span><b id="stTot" style="color:#0B1B5A">0 ﷼</b></div>
+                </div>
+                <div id="stPayBox" style="display:none">
+                  <div style="font-weight:700;color:#0B1B5A;margin:12px 0 4px;font-size:13px">طريقة الدفع</div>
+                  <div class="stpay" id="stPayOpts"></div>
+                  <div id="stLaterBox" style="display:none;margin-top:8px">
+                    <label style="font-size:12px;color:#475569">تاريخ الاستحقاق
+                      <select id="stDue" style="width:100%;padding:8px;border:1px solid var(--line,#dfe4ee);border-radius:9px;font:inherit;margin-top:4px">
+                        <option value="7">بعد ٧ أيام</option>
+                        <option value="14" selected>بعد ١٤ يوماً</option>
+                        <option value="30">بعد ٣٠ يوماً</option>
+                      </select></label>
+                  </div>
+                  <button id="stSubmit" class="stadd" style="width:100%;margin-top:12px;padding:12px;font-size:14.5px">أكّد الطلب</button>
+                </div>
+                <!-- خارج صندوق الدفع عمداً: السلة تُفرَّغ بعد الطلب، ويجب أن
+                     يبقى تأكيد الطلب ورقم متابعته ظاهراً أمام العميل. -->
+                <div id="stMsg" style="font-size:12.5px;margin-top:10px;line-height:1.9"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="view" id="view-services">
           <div class="pagehead"><h2 data-t="navServices">خدماتي وبواباتي</h2><div class="sub" data-t="svcSub">خدماتك المشتراة وحالة كل واحدة — الفتح بجلسة موحدة بدون تسجيل دخول ثانٍ.</div></div>
           <div class="svc-tabs" id="svcTabs"></div>
@@ -408,15 +598,50 @@
           <div class="emptyline" id="svcEmpty" style="display:none"></div>
         </section>
 
+        <!-- ===== advisors hub: every smart advisor, ready to use ===== -->
+        <section class="view" id="view-advisors">
+          <div class="pagehead"><h2 id="advHubTitle">المستشارون الأذكياء</h2><div class="sub" id="advHubLead">كل مستشاريك في مكان واحد — جاهزون للاستخدام الآن، ومفتوحون لك مجاناً طوال تجربتك (30 يوماً).</div></div>
+          <div id="advHubGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        </section>
+
+        <!-- ===== hiring board, embedded for every client ===== -->
+        <section class="view" id="view-hiring">
+          <div class="pagehead"><h2 id="hiringTitle">لوحة التوظيف</h2><div class="sub" id="hiringLead">انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك — مفتوحة لك تلقائياً بحسابك.</div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn ghost sm" id="hiringReload">🔄 <span data-t="hiringReload">إعادة تحميل اللوحة</span></button>
+            <button class="btn ghost sm" id="hiringSwitch">👤 <span data-t="hiringSwitch">الدخول بحساب صاحب عمل آخر</span></button>
+            <button class="btn ghost sm" id="hiringLogout">🚪 <span data-t="hiringLogout">تسجيل الخروج من لوحة التوظيف</span></button>
+            <a class="btn ghost sm" id="hiringNewTab" href="/ar/employer-dashboard" target="_blank" rel="noopener"><span data-t="hiringNewTab">افتحها في تبويب مستقل ↗</span></a>
+          </div>
+          <iframe id="hiringFrame" title="لوحة التوظيف" style="width:100%;min-height:78vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
+        </section>
+
+        <!-- ===== any advisor / dashboard, opened right here (one click, no hopping) ===== -->
+        <section class="view" id="view-embed">
+          <div class="pagehead"><h2 id="embedTitle">—</h2><div class="sub" id="embedLead"><a id="embedNewTab" href="#" target="_blank" rel="noopener">افتحها في تبويب مستقل ↗</a></div></div>
+          <iframe id="embedFrame" title="" style="width:100%;min-height:80vh;border:1px solid var(--line);border-radius:14px;background:#fff"></iframe>
+        </section>
+
         <!-- ===== tasks ===== -->
         <section class="view" id="view-tasks">
-          <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.</div></div>
+          <div class="pagehead"><h2 data-t="navTasks">المهام</h2><div class="sub" data-t="tasksSub">كل ما يخص منشأتك في مكان واحد: ما هو مطلوب منك، ما يعمل عليه فريقنا، وما تم إنجازه — وتقدر تضيف مهامك الخاصة.</div></div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="phead"><h3 data-t="tasksAddTitle">أضف مهمة لنفسك</h3></div>
+            <div style="padding:6px 16px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+              <input id="tkTitle" data-tp="tasksAddPh" placeholder="مثال: تجديد رخصة البلدية" style="flex:2 1 220px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit">
+              <label style="font-size:11px;font-weight:700;display:grid;gap:4px"><span data-t="tasksAddDue">تاريخ الاستحقاق</span><input id="tkDue" type="date" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.45rem .6rem;font:inherit"></label>
+              <label style="font-size:11px;font-weight:700;display:grid;gap:4px"><span data-t="tasksAddUrg">الأولوية</span><select id="tkUrg" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.5rem .6rem;font:inherit"><option value="normal" data-t="urgNormal">عادية</option><option value="soon" data-t="urgSoon">قريبة</option><option value="urgent" data-t="urgUrgent">عاجلة</option></select></label>
+              <button class="btn sm" id="tkAdd" data-t="tasksAddBtn">إضافة</button>
+            </div>
+            <div class="note err" id="tkMsg" style="display:none;margin:0 16px 12px"></div>
+          </div>
           <div class="panel" id="quotesPanelTasks" style="display:none;border-color:#f59e0b;background:#fffbeb;margin-bottom:14px">
             <div class="phead"><h3 id="quotesTitleTasks">📝 عروض أسعار بانتظار قرارك</h3></div>
             <div id="quotesBodyTasks"></div>
           </div>
-          <div class="panel" id="srvTasksPanel" style="display:none;margin-bottom:14px"><div class="phead"><h3 data-t="srvTasksTitle">مهام من فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
-          <div class="panel"><div class="phead"><h3 data-t="derivedTasksTitle">مهام من طلباتك</h3></div><div id="tasksList" style="padding:6px 16px"></div></div>
+          <div class="panel" style="margin-bottom:14px"><div class="phead"><h3 data-t="tasksMine">مطلوب منك</h3></div><div style="padding:6px 16px"><div id="tasksList"></div><div id="myTasksList"></div><div class="emptyline" id="tasksMineEmpty" data-t="tasksMineEmpty">لا شيء مطلوب منك الآن 🎉</div></div></div>
+          <div class="panel" id="srvTasksPanel" style="margin-bottom:14px"><div class="phead"><h3 data-t="tasksTeam">يعمل عليها فريق Business Partner</h3></div><div id="srvTasksList" style="padding:6px 16px"></div></div>
+          <div class="panel"><div class="phead"><h3 data-t="tasksDone">مكتملة</h3></div><div id="doneTasksList" style="padding:6px 16px"></div></div>
         </section>
 
         <!-- ===== orders ===== -->
@@ -442,6 +667,7 @@
               <thead><tr><th data-t="thRef">المرجع</th><th data-t="thService">الخدمة</th><th data-t="thStatus">الحالة</th></tr></thead>
               <tbody id="ordersBody"></tbody>
             </table></div>
+            <div style="padding:8px 16px 12px"><button class="btn ghost sm" id="ordersCancelToggle" style="display:none"></button></div>
           </div>
         </section>
 
@@ -452,12 +678,12 @@
           <p style="margin-top:12px"><a class="btn ghost" href="/ar/checkout" data-t="qaPay">دفع فاتورة</a></p>
         </section>
         <section class="view" id="view-wallet"><div class="pagehead"><h2 data-t="navWallet">المحفظة</h2><div class="sub">اشحن رصيدك إلكترونياً أو بتحويل بنكي، واستخدمه للسداد أو كضمان تنفيذ مع الموردين — بيزنس بارتنر هو الضامن.</div></div>
-          <div class="card" id="walletPanel" style="display:none">
+          <div class="card" id="walletPanel">
             <h4 data-t="wallet">رصيد المحفظة</h4>
             <div class="kpi" id="walletBig">0 ﷼</div>
             <div id="walletTx" style="margin-top:8px"></div>
           </div>
-          <div class="ph" id="walletPh"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phLine">يُفعّل ضمن المرحلة القادمة</span> (P2)</p></div>
+          <div class="ph" id="walletPh" style="display:none"><div class="ic">◍</div><b data-t="navWallet">المحفظة</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
 
           <div class="card" id="wtopCard" style="margin-top:14px">
             <h4>⚡ شحن المحفظة</h4>
@@ -537,9 +763,9 @@
         <section class="view" id="view-documents">
           <div class="pagehead"><h2 data-t="navDocuments">المستندات</h2><div class="sub" data-t="docSub">خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.</div></div>
           <div class="card c12" style="margin-bottom:14px">
-            <h4 data-t="docAgentTitle">الوكيل الذكي للمستندات</h4>
-            <div class="note" style="display:block;margin:6px 0 10px" data-t="docAgentSub">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.</div>
-            <a class="btn sm" href="/ai-document-agent" id="docAgentLink" data-t="docAgentOpen">🗂️ افتح وكيل المستندات</a>
+            <h4>المستشار الذكي للمستندات</h4>
+            <div class="note" style="display:block;margin:6px 0 10px">ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — المستشار يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنة شركتك وحدها.</div>
+            <button class="btn sm" type="button" onclick="var b=document.querySelector('#sideNav [data-v=\'docagent\']');if(b)b.click()">🗂️ افتح مستشار المستندات</button>
           </div>
           <div class="ph" id="docPh"><div class="ic">⌸</div><b data-t="navDocuments">المستندات</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p></div>
           <div id="docMain" style="display:none">
@@ -581,9 +807,29 @@
             </div>
           </div>
         </section>
-        <section class="view" id="view-team"><div class="pagehead"><h2 data-t="navTeam">الموظفون والفريق</h2></div>
-          <div class="panel"><div class="phead"><h3 id="teamTitle">فريقك عبر بيزنس بارتنر</h3></div><div id="teamCards" style="padding:6px 16px 12px"></div></div>
-          <div class="panel" style="margin-top:14px"><div class="phead"><h3 id="teamTasksTitle">مهام مطلوبة منك</h3></div><div id="teamTasksList" style="padding:6px 16px 12px"></div></div>
+        <section class="view" id="view-bdprofile"><div class="pagehead"><h2 id="bdHead">ملف تطوير الأعمال</h2><p class="sub" id="bdLead">اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.</p></div>
+          <div class="panel"><div class="phead"><h3 id="bdFormTitle">نشاطك ومن تستهدف</h3><span class="badge plain" id="bdPct">0%</span></div>
+            <div style="padding:14px 16px 18px;display:grid;gap:14px;max-width:720px">
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdServices">ماذا تبيع؟ اشرحه بكلماتك</span>
+                <textarea id="bdServices" rows="4" placeholder="مثال: نورّد ونركّب معدات المطابخ المركزية للمستشفيات والفنادق، ونقدّم عقود صيانة سنوية." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdIcp">من هو عميلك المثالي؟</span>
+                <textarea id="bdIcp" rows="3" placeholder="مثال: مستشفيات خاصة وفنادق أربع نجوم فأعلى، مدير المشتريات أو المدير التنفيذي." style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.65rem .8rem;font:inherit;resize:vertical"></textarea></label>
+              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdSectors">القطاعات التي تستهدفها</span>
+                <div id="bdSectors" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+                <div style="font-size:11.5px;color:var(--soft)" id="bdSectorsHint">اختر حتى ستة قطاعات — عليها تُبنى المطابقة.</div></div>
+              <div style="display:grid;gap:6px"><span style="font-size:.88em;color:#334155" id="lblBdCities">المدن</span>
+                <div id="bdCities" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+              <label style="display:grid;gap:5px;font-size:.88em;color:#334155"><span id="lblBdFile">بروفايل المنشأة (PDF أو صورة — اختياري)</span>
+                <input id="bdFile" type="file" accept="application/pdf,image/*" style="border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .8rem;font:inherit" />
+                <span style="font-size:11.5px;color:var(--soft)" id="bdFileHint">نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.</span></label>
+              <div id="bdCurrent" style="display:none;font-size:12px;color:var(--soft)"></div>
+              <div><button class="btn sm" id="bdSave">💾 حفظ ملف تطوير الأعمال</button></div>
+              <div class="note" id="bdNote" style="display:none"></div>
+            </div>
+          </div>
+          <div class="panel" id="bdExtractPanel" style="margin-top:14px;display:none"><div class="phead"><h3 id="bdExtractTitle">ما استخرجناه من بروفايلك</h3></div>
+            <div id="bdExtract" style="padding:12px 16px 16px;font-size:13px"></div>
+          </div>
         </section>
         <section class="view" id="view-reports"><div class="pagehead"><h2 data-t="navReports">التقارير والتحليلات</h2></div>
           <div class="panel"><div class="phead"><h3 id="repTitle">ملخص حسابك</h3></div><div id="repKpis" style="padding:14px 16px 16px"></div></div>
@@ -591,7 +837,7 @@
         </section>
         <section class="view" id="view-tickets">
           <div class="pagehead"><h2 data-t="navTickets">التذاكر والدعم</h2><div class="sub" data-t="tkSub">تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.</div></div>
-          <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="https://wa.me/966507034157" target="_blank" rel="noopener" data-t="qaTicket">فتح تذكرة</a></p></div>
+          <div class="ph" id="tkPh"><div class="ic">◖</div><b data-t="navTickets">التذاكر والدعم</b><p><span data-t="phEnable">تُفعّل تلقائياً بعد تسجيل الدخول بجلسة كاملة</span></p><p style="margin-top:10px"><a class="btn ghost" href="#" id="tkPhOpen" data-t="qaTicket">فتح تذكرة</a></p></div>
           <div id="tkMain" style="display:none">
             <div class="card c12">
               <h4 data-t="tkNew">تذكرة جديدة</h4>
@@ -663,7 +909,6 @@
             <div class="rowline" data-mv="approvals"><span>✓</span><span class="t" data-t="navApprovals">الموافقات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="papers"><span>⌗</span><span class="t" data-t="navPapers">عروض الأسعار والعقود</span><span class="m">›</span></div>
             <div class="rowline" data-mv="documents"><span>⌸</span><span class="t" data-t="navDocuments">المستندات</span><span class="m">›</span></div>
-            <div class="rowline" data-mv="team"><span>﴾﴿</span><span class="t" data-t="navTeam">الموظفون والفريق</span><span class="m">›</span></div>
             <div class="rowline" data-mv="reports"><span>◔</span><span class="t" data-t="navReports">التقارير والتحليلات</span><span class="m">›</span></div>
             <div class="rowline" data-mv="tickets"><span>◖</span><span class="t" data-t="navTickets">التذاكر والدعم</span><span class="m">›</span></div>
             <div class="rowline" data-mv="alerts"><span>◉</span><span class="t" data-t="navAlerts">التنبيهات</span><span class="m">›</span></div>
@@ -715,7 +960,17 @@
         waMsg: 'تعذّر إرسال رمز التحقق عبر البريد حالياً.',
         waLink: 'تواصل معنا عبر واتساب',
         limitedMsg: 'قاعدة البيانات التشغيلية قيد التهيئة — بعض الأقسام ستُفعّل تباعاً.',
-        navHome: 'الرئيسية', navServices: 'خدماتي وبواباتي', navTasks: 'المهام', navOrders: 'الطلبات',
+        grpAdvisors: 'مستشاروك الأذكياء', grpWork: 'أعمالي', grpCompany: 'المنشأة',
+        b10xTitle: 'B10X — نظام الهبوط في السوق السعودي', b10xLead: 'من التأسيس إلى التشغيل: مستشارك الذكي يجهّز مسارك، والفريق ينفّذ خلف الكواليس — كل شيء من داخل لوحتك.', b10xOpen: 'افتح B10X', b10xAsk: 'اسأل B10X',
+        hiringReload: 'إعادة تحميل اللوحة', hiringSwitch: 'الدخول بحساب صاحب عمل آخر', hiringLogout: 'تسجيل الخروج من لوحة التوظيف', hiringNewTab: 'افتحها في تبويب مستقل ↗',
+        navCompliance: 'مستشار الامتثال', navBd: 'مستشار تطوير الأعمال', navSs: 'فريق الخدمات المشتركة', navSmart: 'الموظف الذكي',
+        tasksAddTitle: 'أضف مهمة لنفسك', tasksAddPh: 'مثال: تجديد رخصة البلدية', tasksAddBtn: 'إضافة', tasksAddDue: 'تاريخ الاستحقاق', tasksAddUrg: 'الأولوية',
+        urgUrgent: 'عاجلة', urgSoon: 'قريبة', urgNormal: 'عادية',
+        tasksMine: 'مطلوب منك', tasksTeam: 'يعمل عليها فريق Business Partner', tasksDone: 'مكتملة',
+        tasksMineEmpty: 'لا شيء مطلوب منك الآن 🎉', tasksTeamEmpty: 'لا مهام قيد التنفيذ لدى فريقنا حالياً.', tasksDoneEmpty: 'لم تُنجز مهام بعد.',
+        taskReopen: 'إعادة فتح', taskDelete: 'حذف', taskBy: 'من', taskSrcManual: 'أضفتها بنفسك', taskSrcTeam: 'فريق Business Partner', taskSrcOrder: 'من طلبك',
+        ordersShowCancelled: 'عرض الملغية', ordersHideCancelled: 'إخفاء الملغية', thDate: 'التاريخ',
+        navHome: 'الرئيسية', navStore: 'اطلب خدمة', storeSub: 'كل خدماتنا هنا داخل لوحتك: اختر، أضف للسلة، وادفع من محفظتك أو أجّل الفاتورة — بدون ما تغادر اللوحة.', navServices: 'خدماتي وبواباتي', navAdvisors: 'المستشارون الأذكياء', navHiring: 'لوحة التوظيف', navTasks: 'المهام', navOrders: 'الطلبات',
         navPayments: 'المدفوعات والفواتير', navWallet: 'المحفظة', navApprovals: 'الموافقات',
         navPapers: 'عروض الأسعار والعقود',
         papersSub: 'العروض المرسلة إليك وعقودك ومطالبات السداد — كما أصدرها فريق Business Partner.',
@@ -753,16 +1008,16 @@
         notConnected: 'غير متصلة', noIntegration: 'التكامل غير متاح',
         govQiwa: 'قوى', govGosi: 'التأمينات الاجتماعية', govMuqeem: 'مقيم', govMudad: 'مدد',
         govZatca: 'الزكاة والضريبة', govBalady: 'بلدي', govAbsher: 'أبشر أعمال', govChamber: 'الغرفة التجارية',
-        agentTitle: 'وكيل Business Partner الذكي',
-        agentHint: 'اكتب سؤالك ويرد عليك فريقنا مباشرة عبر واتساب.',
+        agentTitle: 'مستشار Business Partner الذكي',
+        agentHint: 'اكتب سؤالك ويُفتح كتذكرة داخل بوابتك، ويرد عليك فريقنا هنا وعلى بريدك.',
         agentPh: 'اسأل عن خدماتك أو إجراءاتك…',
-        agentSend: 'إرسال عبر واتساب',
+        agentSend: 'أرسل كتذكرة',
         agentPrefill: 'مرحباً، أنا عميل في مركز عمليات العميل — Business Partner. ',
         qaTitle: 'إجراءات سريعة',
         qaRequest: 'طلب خدمة', qaUpgrade: 'ترقية باقة', qaPay: 'دفع فاتورة', qaWallet: 'شحن المحفظة',
-        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'وكيل الامتثال',
-        tasksSub: 'مهام حقيقية مشتقة من طلباتك — لا تذكيرات وهمية.',
-        ordersSub: 'طلباتك المسجلة من هذا المتصفح + أي طلب تضيف رقمه المرجعي يدوياً.',
+        qaDoc: 'رفع مستند', qaUser: 'إضافة مستخدم', qaTicket: 'فتح تذكرة', qaConsult: 'حجز استشارة', qaCompliance: 'مستشار الامتثال',
+        tasksSub: 'كل ما يخص منشأتك في مكان واحد: ما هو مطلوب منك، ما يعمل عليه فريقنا، وما تم إنجازه — وتقدر تضيف مهامك الخاصة.',
+        ordersSub: 'كل طلباتك: ماذا طلبت، حالته الآن، وتاريخه — وتقدر تتبع أي طلب برقمه المرجعي.',
         ordersTitle: 'سجل الطلبات',
         thRef: 'المرجع', thService: 'الخدمة', thStatus: 'الحالة',
         addRefPh: 'أضف رقم طلب (BP-506275)', addRefBtn: 'تتبع',
@@ -780,9 +1035,9 @@
         apprNeedComment: 'اكتب سبب الرفض أولاً.', apprApproved: 'تمت الموافقة', apprRejected: 'مرفوض',
         apprAmount: 'المبلغ', apprDeadline: 'المهلة',
         docSub: 'خزنة مستنداتك — نسخ مؤرشفة بإصدارات، وروابط تنزيل موقّعة مؤقتة.',
-        docAgentTitle: 'الوكيل الذكي للمستندات',
+        docAgentTitle: 'المستشار الذكي للمستندات',
         docAgentSub: 'ارفع مستندات فيها بياناتك ونماذج تحتاج تعبئة — الوكيل يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها. ملفاتك تبقى في خزنتك الخاصة المرتبطة بحسابك وحده.',
-        docAgentOpen: '🗂️ افتح وكيل المستندات',
+        docAgentOpen: '🗂️ افتح مستشار المستندات',
         docTitlePh: 'اسم المستند (مثال: السجل التجاري)',
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
@@ -791,7 +1046,7 @@
         docVer: 'نسخة', docDownload: 'تنزيل', docExpiryLbl: 'ينتهي',
         docStPending: 'قيد التحقق', docStVerified: 'موثق يدوياً', docStRejected: 'مرفوض',
         tkSub: 'تذاكرك تصل فريقنا فوراً بالبريد، وترد عليك هنا وعلى بريدك.',
-        tkNew: 'تذكرة جديدة', tkSubjectPh: 'الموضوع', tkBodyPh: 'اشرح طلبك…',
+        tkNew: 'تذكرة جديدة', tkSubjectPh: 'الموضوع', tkBodyPh: 'اشرح طلبك…', tkAboutOrder: 'بخصوص الطلب',
         tkCatGeneral: 'عام', tkCatOrder: 'عن طلب', tkCatBilling: 'دفع وفواتير', tkCatTech: 'مشكلة تقنية',
         tkSubmit: 'إرسال التذكرة', tkMine: 'تذاكري', tkNone: 'لا تذاكر بعد — أنشئ أول تذكرة من الأعلى.',
         tkNeedFields: 'أدخل الموضوع ونص الرسالة.', tkSending: 'جارٍ الإرسال…', tkSent: 'فُتحت التذكرة ✅',
@@ -831,7 +1086,17 @@
         waMsg: 'We could not send the verification email right now.',
         waLink: 'Contact us on WhatsApp',
         limitedMsg: 'The operational database is being provisioned — some sections will activate gradually.',
-        navHome: 'Home', navServices: 'My Services and Portals', navTasks: 'Tasks', navOrders: 'Orders',
+        grpAdvisors: 'Your smart advisors', grpWork: 'My business', grpCompany: 'Company',
+        b10xTitle: 'B10X — the Saudi market landing system', b10xLead: 'From formation to operations: your smart advisor prepares your path and the team executes behind the scenes — all inside your portal.', b10xOpen: 'Open B10X', b10xAsk: 'Ask B10X',
+        hiringReload: 'Reload the board', hiringSwitch: 'Sign in with another employer account', hiringLogout: 'Sign out of the hiring board', hiringNewTab: 'Open in a new tab ↗',
+        navCompliance: 'Compliance advisor', navBd: 'Business development advisor', navSs: 'Shared services team', navSmart: 'Smart employee',
+        tasksAddTitle: 'Add a task for yourself', tasksAddPh: 'e.g. Renew the municipality licence', tasksAddBtn: 'Add', tasksAddDue: 'Due date', tasksAddUrg: 'Priority',
+        urgUrgent: 'Urgent', urgSoon: 'Soon', urgNormal: 'Normal',
+        tasksMine: 'Needs your action', tasksTeam: 'In progress with the Business Partner team', tasksDone: 'Completed',
+        tasksMineEmpty: 'Nothing needs your action right now 🎉', tasksTeamEmpty: 'Our team has no task in progress for you at the moment.', tasksDoneEmpty: 'No completed tasks yet.',
+        taskReopen: 'Reopen', taskDelete: 'Delete', taskBy: 'by', taskSrcManual: 'Added by you', taskSrcTeam: 'Business Partner team', taskSrcOrder: 'From your order',
+        ordersShowCancelled: 'Show cancelled', ordersHideCancelled: 'Hide cancelled', thDate: 'Date',
+        navHome: 'Home', navStore: 'Order a service', storeSub: 'Every service, inside your portal: pick, add to cart, pay from your wallet or defer the invoice — without leaving this page.', navServices: 'My Services and Portals', navAdvisors: 'Smart advisors', navHiring: 'Hiring dashboard', navTasks: 'Tasks', navOrders: 'Orders',
         navPayments: 'Payments and Invoices', navWallet: 'Wallet', navApprovals: 'Approvals',
         navPapers: 'Quotations and Contracts',
         papersSub: 'Quotations sent to you, your contracts, and payment requests — as issued by the Business Partner team.',
@@ -870,15 +1135,15 @@
         govQiwa: 'Qiwa', govGosi: 'GOSI', govMuqeem: 'Muqeem', govMudad: 'Mudad',
         govZatca: 'ZATCA', govBalady: 'Balady', govAbsher: 'Absher Business', govChamber: 'Chamber of Commerce',
         agentTitle: 'Business Partner Smart Agent',
-        agentHint: 'Type your question and our team replies directly on WhatsApp.',
+        agentHint: 'Type your question — it opens as a ticket in your portal and our team replies here and by email.',
         agentPh: 'Ask about your services or procedures…',
-        agentSend: 'Send via WhatsApp',
+        agentSend: 'Send as a ticket',
         agentPrefill: 'Hello, I am a Client Operations Center customer at Business Partner. ',
         qaTitle: 'Quick actions',
         qaRequest: 'Request a service', qaUpgrade: 'Upgrade plan', qaPay: 'Pay an invoice', qaWallet: 'Top up wallet',
         qaDoc: 'Upload document', qaUser: 'Add user', qaTicket: 'Open a ticket', qaConsult: 'Book consultation', qaCompliance: 'Compliance agent',
-        tasksSub: 'Real tasks derived from your orders — no fake reminders.',
-        ordersSub: 'Orders recorded from this browser plus any reference you add manually.',
+        tasksSub: 'Everything about your company in one place: what needs your action, what our team is working on, what is done — plus your own tasks.',
+        ordersSub: 'All your orders: what you ordered, its current status and date — track any order by its reference.',
         ordersTitle: 'Orders log',
         thRef: 'Reference', thService: 'Service', thStatus: 'Status',
         addRefPh: 'Track an order (BP-506275)', addRefBtn: 'Track',
@@ -907,7 +1172,7 @@
         docVer: 'v', docDownload: 'Download', docExpiryLbl: 'Expires',
         docStPending: 'Pending verification', docStVerified: 'Manually verified', docStRejected: 'Rejected',
         tkSub: 'Tickets reach our team instantly by email; replies land here and in your inbox.',
-        tkNew: 'New ticket', tkSubjectPh: 'Subject', tkBodyPh: 'Describe your request…',
+        tkNew: 'New ticket', tkSubjectPh: 'Subject', tkBodyPh: 'Describe your request…', tkAboutOrder: 'About order',
         tkCatGeneral: 'General', tkCatOrder: 'About an order', tkCatBilling: 'Billing', tkCatTech: 'Technical issue',
         tkSubmit: 'Submit ticket', tkMine: 'My tickets', tkNone: 'No tickets yet — open your first one above.',
         tkNeedFields: 'Enter a subject and a message.', tkSending: 'Sending…', tkSent: 'Ticket opened ✅',
@@ -932,6 +1197,7 @@
       lang: 'ar',
       user: null,          // {name,email}
       org: null,           // {name_ar,...}
+      bd: null,            // Business Development trial/subscription, from the server
       db: false,
       limited: false,
       orders: [],          // [{ref,title,status}] newest first
@@ -1026,6 +1292,9 @@
         .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function(d){
           var list = (d && d.ok && d.orders) || [];
+          // The server decides whether Business Development is on trial for this
+          // client (api/_trial.js) — the browser only renders the answer.
+          if (d && d.ok) state.bd = d.bd || null;
           if (list.length){
             var byRef = {};
             for (var i = 0; i < state.orders.length; i++) byRef[state.orders[i].ref] = state.orders[i];
@@ -1039,8 +1308,8 @@
                 state.orders.push({ ref: String(o.ref), title: String(o.title || ''), status: String(o.status || ''), at: String(o.at || '') });
               }
             }
-            renderAll();
           }
+          renderAll();
         })
         .catch(function(){})
         .then(function(){ fetchStatuses(); });
@@ -1113,7 +1382,9 @@
       '/ar/compliance-dashboard': 'compliance',
       '/ar/portal': 'employees',
       '/employer-dashboard': 'employer',
-      '/shared-services/dashboard': 'shared'
+      '/ar/employer-dashboard': 'employer',
+      '/shared-services/dashboard': 'shared',
+      '/ar/shared-services/dashboard': 'shared'
     };
     function ssoNavigate(url){
       var key = SSO_PORTALS[url];
@@ -1307,7 +1578,10 @@
         else if (st === 'need'){ badge = '<span class="badge warn">' + esc(t('stNeed')) + '</span>'; acts = '<a class="btn sm" href="/ar/checkout">' + esc(t('completePay')) + '</a>'; }
         else if (st === 'ended'){ badge = '<span class="badge bad">' + esc(statusMeta(o.status).label) + '</span>'; }
         else { badge = statusChip(o.status); }
-        acts += '<a class="btn sm ghost" href="' + esc(WA) + '?text=' + encodeURIComponent(t('agentPrefill') + o.ref) + '" target="_blank" rel="noopener">' + esc(t('qaTicket')) + '</a>';
+        // Owner (2026-09-02): a ticket about an order is opened inside the
+        // portal (Tickets & Support) with the order pre-filled — never on
+        // WhatsApp. The WhatsApp agent read the order ref as a login code.
+        acts += '<a class="btn sm ghost" href="#" data-ticket-ref="' + esc(o.ref) + '" data-ticket-title="' + esc(o.title || '') + '">' + esc(t('qaTicket')) + '</a>';
         // The client's own kill switch — while the order is still under
         // review or awaiting payment. After work starts the server refuses
         // and points them at support, so no half-done work is discarded.
@@ -1359,7 +1633,7 @@
             var pkName = enP ? (pk.nameEn || pk.nameAr) : (pk.nameAr || pk.nameEn);
             var pkPrice = enP ? (pk.priceLabel || '') : (pk.priceLabelAr || pk.priceLabel || '');
             var pkGroup = enP ? (pk.groupNameEn || '') : (pk.groupNameAr || '');
-            var pkHref = pk.group === 'revenue-os' ? '/revenue-os' : (enP ? '/packages' : '/ar/packages');
+            var pkHref = pk.group === 'revenue-os' ? '/business-development' : (enP ? '/packages' : '/ar/packages');
             cards += '<div class="svc" data-srch>' +
               '<div class="hd"><b>' + esc(pkName) + '</b><span class="badge plain">' + esc(pkGroup) + '</span></div>' +
               '<div class="kv"><span>' + (enP ? 'Price' : 'السعر') + '</span><b>' + esc(pkPrice || (enP ? 'On request' : 'حسب الطلب')) + '</b></div>' +
@@ -1375,26 +1649,54 @@
         var portalBadge = en ? 'Portal' : 'بوابة';
         var openLbl = en ? 'Open portal' : 'افتح البوابة';
         var pl = [
-          { i: '🚀', n: en ? 'Revenue OS dashboard' : 'لوحة Revenue OS', u: '/revenue-dashboard' },
+          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/business-development-dashboard' },
           { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
           { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
           { i: '🤝', n: en ? 'Shared services dashboard' : 'لوحة الخدمات المشتركة', u: '/shared-services/dashboard' }
         ];
+        // Business Development as a Service is included free with every account
+        // — no purchase. The card says which state they are in and how long is
+        // left, because a trial nobody is told about is not a trial. The length
+        // comes from the server (bd.totalDays, api/_trial.js), never a number
+        // typed in here: two places holding it is how copy starts lying.
+        var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
+          var isBd = pl[i].u === '/business-development-dashboard';
+          var badge = portalBadge, line = '', cta = openLbl;
+          if (isBd && bd && bd.open){
+            badge = en ? 'Open' : 'مفتوحة';
+            line = en ? 'Open for your account — no subscription needed.' : 'مفتوحة لحسابك بالكامل — بدون اشتراك.';
+            cta = en ? 'Open the dashboard' : 'افتح اللوحة';
+          } else if (isBd && bd && bd.state === 'trial'){
+            var dw = en ? (bd.days === 1 ? 'day' : 'days') : (bd.days === 1 ? 'يوم' : bd.days === 2 ? 'يومان' : bd.days <= 10 ? 'أيام' : 'يومًا');
+            badge = en ? 'Free trial' : 'تجربة مجانية';
+            line = en ? ('Included free — ' + bd.days + ' ' + dw + ' left') : ('مشمولة مجانًا — باقٍ ' + bd.days + ' ' + dw);
+            cta = en ? 'Open your trial' : 'افتح تجربتك';
+          } else if (isBd && bd && bd.state === 'expired'){
+            badge = en ? 'Trial ended' : 'انتهت التجربة';
+            var td = bd.totalDays || 0;
+            line = en
+              ? ('Your ' + (td ? td + '-day ' : '') + 'trial has ended — subscribe to reopen it.')
+              : ('انتهت تجربتك' + (td ? ' (' + td + ' يومًا)' : '') + ' — اشترك لإعادة فتحها.');
+          } else if (isBd && bd && bd.state === 'subscribed'){
+            badge = en ? 'Active' : 'مفعّلة';
+            line = en ? 'Your subscription is running.' : 'اشتراكك يعمل.';
+          }
           cards += '<div class="svc" data-srch>' +
-            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + portalBadge + '</span></div>' +
+            '<div class="hd"><b>' + pl[i].i + ' ' + esc(pl[i].n) + '</b><span class="badge plain">' + esc(badge) + '</span></div>' +
+            (line ? '<div class="kv"><span>' + (en ? 'Status' : 'الحالة') + '</span><b>' + esc(line) + '</b></div>' : '') +
             '<div class="kv"><span>' + esc(t('kvPortal')) + '</span><b style="direction:ltr">' + esc(pl[i].u) + '</b></div>' +
-            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + openLbl + '</a></div></div>';
+            '<div class="acts"><a class="btn sm" href="' + esc(pl[i].u) + '">' + esc(cta) + '</a></div></div>';
         }
       }
       $('svcGrid').innerHTML = cards;
       var cbs = document.querySelectorAll('[data-cancel]');
       for (i = 0; i < cbs.length; i++) cbs[i].onclick = function(){
         var ref = this.getAttribute('data-cancel');
-        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + '?' : 'إلغاء الطلب ' + ref + '؟')) return;
+        if (!confirm(state.lang === 'en' ? 'Cancel order ' + ref + ' and remove it from your portal?' : 'إلغاء الطلب ' + ref + ' وحذفه من لوحتك؟')) return;
         var self = this; self.disabled = true;
-        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref }) })
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-cancel', ref: ref, remove: true }) })
           .then(function(r){ return r.json(); })
           .then(function(o){
             if (o.ok){ fetchServerOrders(); }
@@ -1434,13 +1736,23 @@
           '<span class="t">' + esc(list[i].label) + '</span>' +
           '<a class="btn sm" href="' + esc(list[i].href) + '">' + esc(t('upload')) + '</a></div>';
       }
-      $('tasksList').innerHTML = html || '<div class="emptyline">' + esc(t('noTasks')) + '</div>';
+      $('tasksList').innerHTML = html;
+      syncTasksEmpty();
+    }
+    // "Needs your action" is fed by two sources (receipts owed on orders, and
+    // tasks assigned to the client); the empty line shows only when both are.
+    function syncTasksEmpty(){
+      var e = $('tasksMineEmpty'); if (!e) return;
+      var mine = $('myTasksList');
+      e.style.display = (tasks().length || (mine && mine.children.length)) ? 'none' : '';
     }
 
+    var showCancelled = false;
     function renderOrders(){
-      var rows = '';
+      var rows = '', cancelled = 0;
       for (var i = 0; i < state.orders.length; i++){
         var o = state.orders[i];
+        if (isCancelled(o.status)){ cancelled++; if (!showCancelled) continue; }
         var log = o.journey || [];
         var trail = log.length
           ? '<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px;color:var(--navy)">' +
@@ -1451,11 +1763,40 @@
                   esc(e.text || '') + (e.by ? ' <span style="color:var(--soft)">(' + esc(e.by) + ')</span>' : '') + '</li>';
               }).join('') + '</ul></details>'
           : '';
-        rows += '<tr data-srch><td class="ref">' + esc(o.ref) + '</td>' +
-          '<td>' + esc(o.title || t('trackedOrder')) + trail + '</td>' +
-          '<td>' + statusChip(o.status) + '</td></tr>';
+        // What was actually bought (from the order note) beats the generic
+        // opportunity title "طلب/شراء خدمة".
+        var what = o.items || o.title || t('trackedOrder');
+        var canDrop = isCancelled(o.status) || isReview(o.status) || isPay(o.status);
+        rows += '<tr data-srch><td class="ref">' + esc(o.ref) +
+          (o.at ? '<br><span style="color:var(--soft);font-size:10.5px;direction:ltr;display:inline-block">' + esc(o.at) + '</span>' : '') + '</td>' +
+          '<td>' + esc(what) + trail + '</td>' +
+          '<td>' + statusChip(o.status) +
+          (canDrop ? '<br><button class="btn ghost sm" style="margin-top:6px;color:#b91c1c" data-odel="' + esc(o.ref) + '">' + (state.lang === 'en' ? (isCancelled(o.status) ? 'Remove' : 'Cancel & remove') : (isCancelled(o.status) ? 'حذف' : 'إلغاء وحذف')) + '</button>' : '') +
+          '</td></tr>';
       }
       $('ordersBody').innerHTML = rows || '<tr><td colspan="3" class="emptyline" style="display:table-cell">' + esc(t('noOrdersRow')) + '</td></tr>';
+      var dels = document.querySelectorAll('[data-odel]');
+      for (var d = 0; d < dels.length; d++) dels[d].onclick = function(){
+        var ref = this.getAttribute('data-odel');
+        if (!confirm(state.lang === 'en' ? 'Remove order ' + ref + ' from your portal?' : 'حذف الطلب ' + ref + ' من لوحتك؟')) return;
+        var self = this; self.disabled = true;
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'my-order-delete', ref: ref }) })
+          .then(function(r){ return r.json(); })
+          .then(function(o){
+            if (o.ok){ state.orders = state.orders.filter(function(x){ return x.ref !== ref; }); renderAll(); fetchServerOrders(); }
+            else { self.disabled = false; alert(o.message || (state.lang === 'en' ? 'Could not remove — open a ticket and the team will handle it.' : 'تعذّر الحذف — افتح تذكرة ويتولاها الفريق.')); }
+          }).catch(function(){ self.disabled = false; });
+      };
+      var tg = $('ordersCancelToggle');
+      if (tg){
+        tg.style.display = cancelled ? '' : 'none';
+        tg.textContent = (showCancelled ? t('ordersHideCancelled') : t('ordersShowCancelled')) + ' (' + cancelled + ')';
+        tg.onclick = function(){ showCancelled = !showCancelled; renderOrders(); };
+      }
+      // The walkthrough sample order is for a client with nothing yet; real
+      // orders make it noise.
+      var demo = document.querySelector('.bp-request-demo');
+      if (demo) demo.style.display = state.orders.length ? 'none' : '';
       var note = $('ordersNote');
       if (state.fetchFailed && state.orders.length){ note.style.display = ''; note.textContent = t('fetchFail'); }
       else note.style.display = 'none';
@@ -1628,6 +1969,7 @@
       $('orgSave').textContent = en ? '💾 Save company profile' : '💾 حفظ بيانات المنشأة';
       $('backToSiteLbl').textContent = en ? 'Back to the website' : 'العودة إلى الموقع';
       $('backToSite').setAttribute('href', en ? '/' : '/ar');
+      var abl = $('assistBtnLbl'); if (abl) abl.textContent = en ? 'Assistant' : 'المساعد';
       var org = (state.overview && state.overview.organization) || {};
       if (!$('orgNameAr').value && org.name_ar) $('orgNameAr').value = org.name_ar;
       if (!$('orgNameEn').value && org.name_en) $('orgNameEn').value = org.name_en;
@@ -1654,6 +1996,134 @@
         })
         .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
     }
+    // ---------------- Business Development profile ----------------
+    // The client says what they sell and who they target; that is what the
+    // companies database is matched against. The sector options come from the
+    // server, never from a list typed in here: they must be the exact values
+    // the database filters on, and a label invented in the browser matches
+    // nothing while looking like an empty database.
+    var bdState = { sectors: [], cities: [], picked: [], pickedCities: [], loaded: false };
+    function bdChip(label, on){
+      return '<button type="button" class="btn sm ' + (on ? '' : 'ghost') + '" data-chip="' + esc(label) + '" style="border-radius:999px">' + esc(label) + '</button>';
+    }
+    function bdPaint(){
+      var en = state.lang === 'en';
+      $('bdSectors').innerHTML = bdState.sectors.map(function(s){
+        return '<button type="button" class="btn sm ' + (bdState.picked.indexOf(s[0]) >= 0 ? '' : 'ghost') + '" data-sector="' + esc(s[0]) + '" style="border-radius:999px">' + esc(en ? s[0] : s[1]) + '</button>';
+      }).join('');
+      $('bdCities').innerHTML = bdState.cities.map(function(c){
+        return '<button type="button" class="btn sm ' + (bdState.pickedCities.indexOf(c[0]) >= 0 ? '' : 'ghost') + '" data-city="' + esc(c[0]) + '" style="border-radius:999px">' + esc(en ? c[0] : c[1]) + '</button>';
+      }).join('');
+    }
+    function renderBdProfile(){
+      var en = state.lang === 'en';
+      $('navBdLbl').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
+      $('bdHead').textContent = en ? 'Business development profile' : 'ملف تطوير الأعمال';
+      $('bdLead').textContent = en
+        ? 'Tell us what you sell and who you target — this is what we match the companies database against and build your target list from.'
+        : 'اكتب ماذا تبيع وحدّد من تستهدف — هذا ما نطابق عليه قاعدة الشركات ونبني منه قائمة استهدافك.';
+      $('bdFormTitle').textContent = en ? 'Your business and your targets' : 'نشاطك ومن تستهدف';
+      $('lblBdServices').textContent = en ? 'What do you sell? In your own words' : 'ماذا تبيع؟ اشرحه بكلماتك';
+      $('lblBdIcp').textContent = en ? 'Who is your ideal customer?' : 'من هو عميلك المثالي؟';
+      $('lblBdSectors').textContent = en ? 'Sectors you target' : 'القطاعات التي تستهدفها';
+      $('bdSectorsHint').textContent = en ? 'Pick up to six — matching is built on these.' : 'اختر حتى ستة قطاعات — عليها تُبنى المطابقة.';
+      $('lblBdCities').textContent = en ? 'Cities' : 'المدن';
+      $('lblBdFile').textContent = en ? 'Company profile (PDF or image — optional)' : 'بروفايل المنشأة (PDF أو صورة — اختياري)';
+      $('bdFileHint').textContent = en
+        ? 'We read it and pull out your services and keywords to sharpen the match. What you write yourself always wins.'
+        : 'نقرأه ونستخرج منه خدماتك وكلماتك المفتاحية لتقوية المطابقة. ما تكتبه بنفسك يبقى هو المرجع.';
+      $('bdSave').textContent = en ? '💾 Save profile' : '💾 حفظ ملف تطوير الأعمال';
+      $('bdExtractTitle').textContent = en ? 'What we read from your profile' : 'ما استخرجناه من بروفايلك';
+      if (bdState.loaded){ bdPaint(); return; }
+      fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'ops-bd-profile' }) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(o){
+          if (!o || !o.ok) return;
+          bdState.loaded = true;
+          bdState.sectors = o.sectors || [];
+          bdState.cities = o.cities || [];
+          var p = o.profile;
+          if (p){
+            $('bdServices').value = p.servicesText || '';
+            $('bdIcp').value = p.idealCustomer || '';
+            bdState.picked = p.targetSectors || [];
+            bdState.pickedCities = p.targetCities || [];
+            $('bdPct').textContent = (p.completeness || 0) + '%';
+            if (p.hasProfile){
+              $('bdCurrent').style.display = '';
+              $('bdCurrent').textContent = (en ? 'Attached: ' : 'المرفق الحالي: ') + (p.profileName || '');
+            }
+            bdShowExtract(p.extracted);
+          }
+          bdPaint();
+        })
+        .catch(function(){});
+    }
+    function bdShowExtract(x){
+      if (!x || (!(x.services || []).length && !(x.keywords || []).length)){ $('bdExtractPanel').style.display = 'none'; return; }
+      var en = state.lang === 'en';
+      var html = '';
+      if ((x.services || []).length) html += '<div style="margin-bottom:8px"><b>' + (en ? 'Services' : 'الخدمات') + ':</b> ' + esc((x.services || []).join('، ')) + '</div>';
+      if ((x.keywords || []).length) html += '<div><b>' + (en ? 'Keywords' : 'الكلمات المفتاحية') + ':</b> ' + esc((x.keywords || []).join('، ')) + '</div>';
+      $('bdExtract').innerHTML = html;
+      $('bdExtractPanel').style.display = '';
+    }
+    function bdToggle(list, value, max){
+      var i = list.indexOf(value);
+      if (i >= 0) list.splice(i, 1);
+      else if (list.length < max) list.push(value);
+      bdPaint();
+    }
+    function saveBdProfile(){
+      var en = state.lang === 'en';
+      var note = $('bdNote'), btn = $('bdSave');
+      var body = {
+        action: 'ops-bd-profile-save',
+        servicesText: $('bdServices').value.trim(),
+        idealCustomer: $('bdIcp').value.trim(),
+        targetSectors: bdState.picked,
+        targetCities: bdState.pickedCities,
+      };
+      if (!body.servicesText && !bdState.picked.length){
+        note.style.display = ''; note.textContent = en ? 'Write what you sell and pick at least one sector.' : 'اكتب ماذا تبيع واختر قطاعاً واحداً على الأقل.';
+        return;
+      }
+      var f = $('bdFile').files && $('bdFile').files[0];
+      var go = function(){
+        btn.disabled = true; note.style.display = ''; note.textContent = en ? 'Saving…' : 'جارٍ الحفظ…';
+        fetch('/api/requests', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(o){
+            btn.disabled = false;
+            if (o && o.ok){
+              $('bdPct').textContent = (o.completeness || 0) + '%';
+              bdShowExtract(o.extracted);
+              note.textContent = o.canMatch
+                ? (en ? '✅ Saved — you are ready for matching.' : '✅ تم الحفظ — صرت جاهزاً للمطابقة.')
+                : (en ? '✅ Saved — pick a sector to start matching.' : '✅ تم الحفظ — اختر قطاعاً لتبدأ المطابقة.');
+            } else {
+              note.textContent = (o && o.error === 'too_large')
+                ? (en ? 'The file is too large.' : 'الملف أكبر من المسموح.')
+                : (o && o.error === 'not_provisioned')
+                  // Ours to fix, not theirs to retry — say so rather than
+                  // sending the client round a loop that cannot succeed.
+                  ? (en ? 'This is not switched on yet at our end — the team has been notified.' : 'الخدمة لم تُفعَّل عندنا بعد — أبلغنا الفريق، ولا داعي لإعادة المحاولة.')
+                  : (en ? 'Could not save — try again.' : 'تعذر الحفظ — أعد المحاولة.');
+            }
+          })
+          .catch(function(){ btn.disabled = false; note.style.display = ''; note.textContent = en ? 'Network error — try again.' : 'خطأ في الاتصال — أعد المحاولة.'; });
+      };
+      if (!f) return go();
+      var fr = new FileReader();
+      fr.onload = function(){
+        var s = String(fr.result || '');
+        body.fileBase64 = s.slice(s.indexOf(',') + 1);
+        body.fileName = f.name; body.fileMime = f.type || 'application/pdf';
+        go();
+      };
+      fr.onerror = function(){ note.style.display = ''; note.textContent = en ? 'Could not read the file.' : 'تعذّرت قراءة الملف.'; };
+      fr.readAsDataURL(f);
+    }
     // ---------------- payments / team / reports (built from account data already loaded) ----------------
     function renderPayments(){
       var en = state.lang === 'en';
@@ -1673,6 +2143,82 @@
         th += '<div class="rowline"><span class="badge plain">' + esc(String(t2.type || '')) + '</span><span class="t">' + esc(String(t2.note || '')) + '</span><b>' + esc(String(t2.amount || 0)) + ' ﷼</b></div>';
       }
       $('payTxList').innerHTML = th || '<div class="emptyline">' + (en ? 'No wallet transactions yet — your first top-up will appear here.' : 'لا حركات محفظة بعد — أول شحن أو خصم يظهر هنا.') + '</div>';
+    }
+    // Open any advisor or dashboard inside the portal: one click, the same
+    // session, no second login and no hopping between pages. The page loads in
+    // chrome-less mode (?embed=1) so only the tool itself shows.
+    function openEmbed(url, title){
+      var f = $('embedFrame'), nt = $('embedNewTab');
+      var withEmbed = function(u){ return u + (u.indexOf('?') > -1 ? '&' : '?') + 'embed=1'; };
+      var src = withEmbed(url);
+      $('embedTitle').textContent = title || '';
+      if (nt){ nt.href = url; nt.textContent = state.lang === 'en' ? 'Open in a new tab ↗' : 'افتحها في تبويب مستقل ↗'; }
+      switchView('embed');
+      window.scrollTo(0, 0);
+      if (!f || f.getAttribute('data-url') === url) return;
+      f.setAttribute('data-url', url);
+      // Same origin, so the frame shares this page's storage: seed the
+      // portal's own sign-in from the account session first (no code, no
+      // second login), then load it.
+      var key = SSO_PORTALS[url];
+      if (!key){ f.setAttribute('src', src); return; }
+      fetch('/api/requests?action=sso-open&portal=' + encodeURIComponent(key), { credentials: 'same-origin', cache: 'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (out && out.ok && out.seed){ try { for (var k in out.seed) localStorage.setItem(k, out.seed[k]); } catch (e) {} }
+          f.setAttribute('src', withEmbed((out && out.ok && out.url) || url));
+        })
+        .catch(function(){ f.setAttribute('src', src); });
+    }
+    window.bpOpenEmbed = openEmbed;
+    // The embedded hiring board keeps its own employer sign-in in shared
+    // storage; these give the client a way out of it (and into another
+    // employer account) without leaving the portal.
+    (function(){
+      var hf = $('hiringFrame'); if (!hf) return;
+      var base = function(){ return (state.lang === 'en' ? '/en' : '/ar'); };
+      function hrClear(){
+        try { ['bp_emp_code','bp_emp_company','bp_emp_status','bp_emp_email','bp_hr_overlay','bp_hr_invites','bp_hr_match_runs'].forEach(function(k){ localStorage.removeItem(k); }); } catch (e) {}
+      }
+      var r = $('hiringReload'), s = $('hiringSwitch'), l = $('hiringLogout');
+      if (r) r.onclick = function(){ hf.setAttribute('src', base() + '/employer-dashboard?embed=1&r=' + Date.now()); };
+      if (s) s.onclick = function(){ hrClear(); hf.setAttribute('src', base() + '/employer-login?embed=1'); };
+      if (l) l.onclick = function(){ hrClear(); hf.setAttribute('src', base() + '/employer-dashboard?embed=1&r=' + Date.now()); };
+    })();
+    // Advisors hub — every smart advisor in one grid, each one openable now.
+    // All of them are covered by the 30-day platform trial, so the hub never
+    // shows a locked card to a signed-in client inside the trial window.
+    function renderAdvisors(){
+      var en = state.lang === 'en';
+      $('advHubTitle').textContent = en ? 'Smart advisors' : 'المستشارون الأذكياء';
+      $('advHubLead').textContent = en ? 'All your advisors in one place — open, ready, and they run right here in your portal.' : 'كل مستشاريك في مكان واحد — مفتوحون لك بالكامل ويعملون هنا داخل لوحتك.';
+      var list = [
+        ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
+        ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
+        ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your hiring pipeline.' : 'انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك.', 'hiring'],
+        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/business-development-dashboard'],
+        ['🤖', en ? 'Smart employee' : 'الموظف الذكي', en ? 'A 24/7 specialist — marketing, admin, sales or procurement. Open your smart-employees portal.' : 'متخصص يعمل 24/7 — تسويق، إداري، مبيعات أو مشتريات. افتح بوابة موظفيك الأذكياء.', '/ar/portal'],
+        ['🤝', en ? 'Shared services team' : 'فريق الخدمات المشتركة', en ? 'Your executive team dashboard — HR, finance, legal and government relations.' : 'لوحة فريقك التنفيذي — موارد بشرية ومالية وقانونية وعلاقات حكومية.', '/ar/shared-services/dashboard'],
+        ['💬', en ? 'Portal assistant' : 'مساعد لوحتك', en ? 'Knows your orders, wallet and every section — ask it anything.' : 'يعرف طلباتك ومحفظتك وكل أقسام اللوحة — اسأله أي شيء.', 'assistant']
+      ];
+      var h = '';
+      for (var i = 0; i < list.length; i++){
+        var a = list[i];
+        h += '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px">'
+          + '<div style="font-size:26px">' + a[0] + '</div><b style="color:var(--navy)">' + esc(a[1]) + '</b>'
+          + '<span style="font-size:12.5px;color:#5a6285;flex:1;line-height:1.8">' + esc(a[2]) + '</span>'
+          + '<button class="btn sm" data-adv="' + a[3] + '" style="align-self:flex-start">' + (en ? 'Open' : 'افتح المستشار') + '</button></div>';
+      }
+      $('advHubGrid').innerHTML = h;
+      var bs = $('advHubGrid').querySelectorAll('[data-adv]');
+      for (var j = 0; j < bs.length; j++) bs[j].onclick = function(){
+        var t = this.getAttribute('data-adv');
+        if (t === 'docagent'){ var db = document.querySelector('#sideNav [data-v="docagent"]'); if (db){ db.click(); return; } t = '/ar/account?view=docagent'; }
+        if (t === 'hiring'){ switchView('hiring'); return; }
+        if (t === 'assistant'){ var ab = $('assistBtn'); if (ab) ab.click(); return; }
+        for (var k in EMBEDS) if (EMBEDS[k][0] === t){ switchView(k); return; }
+        openEmbed(t, this.parentNode.querySelector('b') ? this.parentNode.querySelector('b').textContent : '');
+      };
     }
     function renderTeam(){
       var en = state.lang === 'en';
@@ -1735,23 +2281,216 @@
       renderQuotes();
       renderPapers();
       renderPayments();
-      renderTeam();
+      // Owner (2026-09): the «الموظفون والفريق» view was removed — the same
+      // entries live under the advisors group and the hiring board.
+      if ($('teamCards')) renderTeam();
       renderReports();
       renderCompany();
+      renderBdProfile();
       if (state.db){ renderNotifs(); renderTickets(); renderDocs(); renderApprovals(); renderSrvTasks(); loadMyOrgs(); }
       filterSearch();
     }
 
-    // ---------------- navigation + search ----------------
-    var VIEWS = ['home','services','company','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
-    function switchView(v){
-      if (VIEWS.indexOf(v) === -1) v = 'home';
-      for (var i = 0; i < VIEWS.length; i++){
-        var el = $('view-' + VIEWS[i]);
-        if (el) el.classList.toggle('on', VIEWS[i] === v);
+    // ---------------- المتجر داخل اللوحة: اطلب وادفع بلا مغادرة ----------------
+    // الخدمات تُقرأ من الكتالوج بجلسة العميل، والسعر النهائي يُحسب على الخادم؛
+    // «ادفع لاحقاً» يفتح فاتورة مؤجلة بتاريخ استحقاق تلاحقه المتابعات تلقائياً.
+    var ST = { loaded:false, all:[], cat:'', q:'', cart:{}, pay:'wallet', bal:0, limit:24 };
+    function stMoney(n){ return (Math.round(n * 100) / 100).toLocaleString('en-US'); }
+    function stInit(){
+      if (ST.loaded) return;
+      ST.loaded = true;
+      fetch('/api/requests?action=portal-store', { credentials:'same-origin', cache:'no-store' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          if (!out || !out.ok){
+            $('stGrid').innerHTML = '<div class="card" style="grid-column:1/-1">تعذّر تحميل الخدمات — حدّث الصفحة أو تواصل معنا.</div>';
+            return;
+          }
+          ST.all = out.services || [];
+          ST.bal = Number(out.walletBalance) || 0;
+          stCats(); stRender(); stPayOpts();
+        })
+        .catch(function(){ $('stGrid').innerHTML = '<div class="card" style="grid-column:1/-1">تعذّر الاتصال بالخادم.</div>'; });
+      $('stSearch').oninput = function(){ ST.q = this.value.trim().toLowerCase(); ST.limit = 24; stRender(); };
+      $('stSubmit').onclick = stSubmit;
+      $('stDue').onchange = stCart;
+    }
+    function stCats(){
+      var seen = {}, cats = [];
+      ST.all.forEach(function(s){ if (s.cat && !seen[s.cat]){ seen[s.cat] = 1; cats.push(s.cat); } });
+      var html = '<button type="button" class="stchip on" data-c="">الكل (' + ST.all.length + ')</button>';
+      cats.forEach(function(c){
+        var n = ST.all.filter(function(s){ return s.cat === c; }).length;
+        html += '<button type="button" class="stchip" data-c="' + esc(c) + '">' + esc(c) + ' (' + n + ')</button>';
+      });
+      $('stCats').innerHTML = html;
+      var bs = $('stCats').querySelectorAll('.stchip');
+      for (var i = 0; i < bs.length; i++) bs[i].onclick = function(){
+        ST.cat = this.getAttribute('data-c'); ST.limit = 24;
+        for (var j = 0; j < bs.length; j++) bs[j].classList.toggle('on', bs[j] === this);
+        stRender();
+      };
+    }
+    function stMatch(){
+      return ST.all.filter(function(s){
+        if (ST.cat && s.cat !== ST.cat) return false;
+        if (ST.q && (s.name + ' ' + (s.nameEn || '') + ' ' + s.cat).toLowerCase().indexOf(ST.q) === -1) return false;
+        return true;
+      });
+    }
+    function stRender(){
+      var rows = stMatch();
+      var show = rows.slice(0, ST.limit);
+      if (!rows.length){
+        $('stGrid').innerHTML = '<div class="card" style="grid-column:1/-1">لا خدمة بهذا الاسم — جرّب كلمة أخرى، أو اسأل «مساعد لوحتك» وهو يحوّل طلبك لفريقنا.</div>';
+        $('stMore').innerHTML = ''; return;
       }
+      $('stGrid').innerHTML = show.map(function(s, i){
+        var inCart = ST.cart[s.id];
+        return '<article class="stitem">'
+          + '<div class="nm">' + esc(s.name) + '</div>'
+          + '<div style="font-size:11.5px;color:#64748b">' + esc(s.cat) + (s.days ? ' · ⏱ ' + esc(s.days) : '') + '</div>'
+          + '<div class="pr">' + (s.amount > 0 ? stMoney(s.amount) + ' <small>﷼ + ضريبة</small>' : '<small style="font-size:13px">بعرض سعر</small>') + '</div>'
+          + '<button class="stadd" data-add="' + i + '">' + (inCart ? '✓ في السلة (' + inCart.qty + ')' : '＋ أضف للسلة') + '</button>'
+          + '</article>';
+      }).join('');
+      var adds = $('stGrid').querySelectorAll('[data-add]');
+      for (var a = 0; a < adds.length; a++) adds[a].onclick = function(){
+        var s = show[+this.getAttribute('data-add')];
+        if (!s.amount){ alert('هذه الخدمة تُسعَّر حسب الحالة — اطلب عرض سعر من «مساعد لوحتك» أو من زر واتساب.'); return; }
+        ST.cart[s.id] = { id:s.id, name:s.name, amount:s.amount, qty:(ST.cart[s.id] ? ST.cart[s.id].qty : 0) + 1 };
+        stCart(); stRender();
+      };
+      $('stMore').innerHTML = rows.length > ST.limit
+        ? '<button type="button" class="stchip" id="stMoreBtn">عرض المزيد (' + (rows.length - ST.limit) + ')</button>' : '';
+      if ($('stMoreBtn')) $('stMoreBtn').onclick = function(){ ST.limit += 24; stRender(); };
+    }
+    function stCart(){
+      var keys = Object.keys(ST.cart);
+      if (!keys.length){
+        $('stCartLines').innerHTML = '<div style="color:#64748b;font-size:12.5px;padding:8px 0">السلة فارغة — أضف خدمة من اليمين.</div>';
+        $('stTotals').style.display = 'none'; $('stPayBox').style.display = 'none';
+        return;
+      }
+      $('stCartLines').innerHTML = keys.map(function(k){
+        var c = ST.cart[k];
+        return '<div class="stline"><span style="flex:1">' + esc(c.name) + (c.qty > 1 ? ' <b>×' + c.qty + '</b>' : '')
+          + ' <button type="button" data-del="' + esc(k) + '" style="border:0;background:none;color:#b91c1c;cursor:pointer;font-size:15px" title="حذف">×</button></span>'
+          + '<b>' + stMoney(c.amount * c.qty) + '</b></div>';
+      }).join('');
+      var dels = $('stCartLines').querySelectorAll('[data-del]');
+      for (var d = 0; d < dels.length; d++) dels[d].onclick = function(){ delete ST.cart[this.getAttribute('data-del')]; stCart(); stRender(); };
+      var sub = keys.reduce(function(s, k){ return s + ST.cart[k].amount * ST.cart[k].qty; }, 0);
+      var vat = Math.round(sub * 0.15 * 100) / 100;
+      $('stSub').textContent = stMoney(sub);
+      $('stVat').textContent = stMoney(vat);
+      $('stTot').textContent = stMoney(sub + vat) + ' ﷼';
+      $('stTotals').style.display = 'block';
+      $('stPayBox').style.display = 'block';
+      stPayOpts(sub + vat);
+    }
+    function stPayOpts(total){
+      total = total || 0;
+      var enough = ST.bal >= total && total > 0;
+      var opts = [
+        { k:'wallet', t:'💳 من المحفظة — فوري', s:'رصيدك: ' + stMoney(ST.bal) + ' ﷼' + (total ? (enough ? ' · يكفي ✓' : ' · لا يكفي، اشحن أو اختر طريقة أخرى') : '') },
+        { k:'later', t:'🗓 ادفع لاحقاً', s:'فاتورة مؤجلة بتاريخ استحقاق — نبدأ التنفيذ ونذكّرك قبل الموعد' },
+        { k:'card', t:'🏦 بطاقة إلكترونية', s:'مدى / فيزا / ماستركارد — رابط سداد يفتح داخل اللوحة' },
+        { k:'transfer', t:'🏛 تحويل بنكي', s:'نرسل لك بيانات الحساب والفاتورة بالبريد' },
+      ];
+      $('stPayOpts').innerHTML = opts.map(function(o){
+        return '<button type="button" class="stpaybtn' + (ST.pay === o.k ? ' on' : '') + '" data-pay="' + o.k + '"><div><b>' + o.t + '</b><span>' + esc(o.s) + '</span></div></button>';
+      }).join('');
+      var bs = $('stPayOpts').querySelectorAll('[data-pay]');
+      for (var i = 0; i < bs.length; i++) bs[i].onclick = function(){
+        ST.pay = this.getAttribute('data-pay');
+        for (var j = 0; j < bs.length; j++) bs[j].classList.toggle('on', bs[j] === this);
+        $('stLaterBox').style.display = ST.pay === 'later' ? 'block' : 'none';
+      };
+      $('stLaterBox').style.display = ST.pay === 'later' ? 'block' : 'none';
+    }
+    function stSubmit(){
+      var keys = Object.keys(ST.cart);
+      if (!keys.length) return;
+      var btn = $('stSubmit'), msg = $('stMsg');
+      btn.disabled = true; btn.textContent = 'جاري التأكيد…';
+      msg.style.color = '#64748b'; msg.textContent = '';
+      fetch('/api/requests', {
+        method:'POST', credentials:'same-origin', headers:{ 'content-type':'application/json' },
+        body: JSON.stringify({
+          type:'portal-order', pay: ST.pay, dueDays: +$('stDue').value,
+          items: keys.map(function(k){ return { id: ST.cart[k].id, qty: ST.cart[k].qty }; }),
+        }),
+      })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(out){
+          btn.disabled = false; btn.textContent = 'أكّد الطلب';
+          if (!out || !out.ok){
+            if (out && out.error === 'insufficient_balance'){
+              msg.style.color = '#b91c1c';
+              msg.innerHTML = 'رصيد المحفظة لا يكفي (ينقص <b>' + stMoney(out.short) + ' ﷼</b>). اشحن المحفظة أو اختر «ادفع لاحقاً».';
+              return;
+            }
+            msg.style.color = '#b91c1c';
+            msg.textContent = out && out.error === 'unauthorized' ? 'انتهت جلستك — سجّل الدخول من جديد.' : 'تعذّر تسجيل الطلب — أعد المحاولة.';
+            return;
+          }
+          ST.cart = {};
+          if (typeof out.walletBalance === 'number') ST.bal = out.walletBalance;
+          stCart(); stRender();
+          msg.style.color = '#047857';
+          msg.innerHTML = '✅ <b>' + (out.paid ? 'تم الطلب والسداد' : 'تم تسجيل طلبك') + '</b><br>رقم المتابعة: <b>' + esc(out.ref) + '</b> · الإجمالي ' + stMoney(out.total) + ' ﷼'
+            + (out.due ? '<br>🗓 تاريخ الاستحقاق: <b>' + esc(out.due) + '</b> — نذكّرك قبله.' : '')
+            + (out.paid ? '<br>💳 الرصيد المتبقي: <b>' + stMoney(out.walletBalance) + ' ﷼</b>' : '')
+            + (out.payUrl ? '<br><a href="' + esc(out.payUrl) + '" target="_blank" rel="noopener" style="color:#0B1B5A;font-weight:700">🏦 افتح صفحة السداد ←</a>' : '')
+            + '<br><span style="color:#64748b">وصلك بريد بالتفاصيل، والطلب ظاهر الآن في «الطلبات».</span>';
+          try { if (typeof loadAccount === 'function') loadAccount(); } catch (e) {}
+        })
+        .catch(function(){
+          btn.disabled = false; btn.textContent = 'أكّد الطلب';
+          msg.style.color = '#b91c1c'; msg.textContent = 'تعذّر الاتصال — أعد المحاولة.';
+        });
+    }
+
+    // ---------------- navigation + search ----------------
+    var VIEWS = ['home','store','services','advisors','hiring','embed','company','bdprofile','tasks','orders','payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings','more'];
+    // Sidebar entries that are a dashboard living on its own page: opened
+    // inside the portal frame, one click, the same session. The sidebar
+    // button stays highlighted so the client knows where they are.
+    var EMBEDS = {
+      compliance: ['/ar/compliance-dashboard', 'مستشار الامتثال', 'Compliance advisor'],
+      ss: ['/ar/shared-services/dashboard', 'فريق الخدمات المشتركة', 'Shared services team'],
+      smart: ['/ar/portal', 'الموظف الذكي', 'Smart employee']
+    };
+    var embedNav = '';
+    function switchView(v){
+      // Owner decision (2026-09-02): the business-development workspace is not
+      // a window inside the portal — it opens as its own page, same session,
+      // with the matching companies already inside it.
+      if (v === 'bd'){
+        location.href = (state.lang === 'en' ? '' : '/ar') + '/business-development-dashboard';
+        return;
+      }
+      if (EMBEDS[v]){
+        var e = EMBEDS[v];
+        embedNav = v;
+        openEmbed(e[0], state.lang === 'en' ? e[2] : e[1]);
+        return;
+      }
+      if (v !== 'embed') embedNav = '';
+      if (VIEWS.indexOf(v) === -1) v = 'home';
+      if (v === 'store') stInit();
+      if (v === 'advisors') renderAdvisors();
+      if (v === 'hiring'){
+        // Lazy-load the embedded hiring board on first open; the portal
+        // session unlocks it server-side (30-day trial), no second login.
+        var hf = $('hiringFrame');
+        if (hf && !hf.getAttribute('src')) hf.setAttribute('src', (state.lang === 'en' ? '/en' : '/ar') + '/employer-dashboard?embed=1');
+      }
+      var allViews = document.querySelectorAll('.viewwrap .view');
+      for (var i = 0; i < allViews.length; i++) allViews[i].classList.toggle('on', allViews[i].id === 'view-' + v);
       var sbs = document.querySelectorAll('#sideNav button');
-      for (var j = 0; j < sbs.length; j++) sbs[j].classList.toggle('on', sbs[j].getAttribute('data-v') === v);
+      for (var j = 0; j < sbs.length; j++) sbs[j].classList.toggle('on', sbs[j].getAttribute('data-v') === (v === 'embed' && embedNav ? embedNav : v));
       var bns = document.querySelectorAll('#bnav button');
       var bnavMatch = v;
       if (['payments','wallet','approvals','papers','documents','team','reports','tickets','alerts','settings'].indexOf(v) !== -1) bnavMatch = 'more';
@@ -1823,11 +2562,11 @@
           gateErr(fromResend ? 2 : 1, '');
           showWa(fromResend ? 2 : 1, true);
         } else {
-          gateErr(fromResend ? 2 : 1, t('errGeneric'));
+          gateErr(fromResend ? 2 : 1, t('errGeneric') + ' (' + (out.error || out._http || '?') + ')');
         }
       }).catch(function(){
         btn.disabled = false; btn.textContent = t('sendCode');
-        gateErr(fromResend ? 2 : 1, t('errGeneric'));
+        gateErr(fromResend ? 2 : 1, t('errGeneric') + ' (' + (state.lang === 'en' ? 'connection' : 'اتصال') + ')');
       });
     }
     // Google sign-in lands on the same session the emailed code produces, so
@@ -1857,8 +2596,8 @@
       gateErr(1, '');
       otp({ action: 'google', credential: resp.credential }).then(function(out){
         if (out && out.ok){ state.email = out.email || state.email; enterAfterAuth(out, (out.user && out.user.name) || ''); }
-        else gateErr(1, t('errGeneric'));
-      }).catch(function(){ gateErr(1, t('errGeneric')); });
+        else gateErr(1, t('errGeneric') + ' (google/' + ((out && (out.error || out._http)) || '?') + ')');
+      }).catch(function(e){ gateErr(1, t('errGeneric') + ' (' + (state.lang === 'en' ? 'connection' : 'اتصال') + ')'); try { console.error('google sign-in', e); } catch(_){} });
     };
     (function initGoogle(){
       var box = document.getElementById('gGoogle');
@@ -2397,6 +3136,19 @@
       var mm = map[s] || ['tkStOpen', 'plain'];
       return '<span class="badge ' + mm[1] + '">' + esc(t(mm[0])) + '</span>';
     }
+    // Open the in-portal ticket form with a free question (home assistant box)
+    // or bare; order tickets go through openOrderTicket below.
+    function openTicketFor(ref, title, body){
+      switchView('tickets');
+      var ph = $('tkPh'), main = $('tkMain');
+      if (ph) ph.style.display = 'none';
+      if (main) main.style.display = '';
+      var subj = $('tkSubject'), txt = $('tkBody');
+      if (subj && title) subj.value = title;
+      if (txt && body) txt.value = body;
+      try { (txt || subj).focus(); } catch (e) {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+    }
     function renderTickets(){
       var h = '';
       for (var i = 0; i < ops.tickets.length; i++){
@@ -2487,7 +3239,10 @@
               .then(function(r){ return r.json(); })
               .then(function(x){
                 if (x.ok && x.organization){ orgToLocal(x.organization); location.reload(); }
-                else add.disabled = false;
+                else {
+                  add.disabled = false;
+                  if (x && x.error === 'org_limit_reached') alert('وصلت للحد الأقصى (100 شركة لكل حساب). تواصل معنا إذا كنت تحتاج أكثر.');
+                }
               }).catch(function(){ add.disabled = false; });
           };
         }).catch(function(){});
@@ -2635,30 +3390,72 @@
         decide(id, 'rejected', txt, err);
       };
     }
+    // Task centre: one row format for the three lists (needs you / with our
+    // team / done). Only tasks the client created can be deleted; the rest
+    // are records of what the service team did for them.
+    function taskRow(x){
+      var done = x.status === 'done';
+      var manual = x.source === 'manual';
+      var src = manual ? t('taskSrcManual') : (x.source === 'order' ? t('taskSrcOrder') : t('taskSrcTeam'));
+      var urg = (x.urgency === 'urgent' || x.urgency === 'high') ? '<span class="badge bad">' + esc(t('urgUrgent')) + '</span> '
+              : x.urgency === 'soon' ? '<span class="badge warn">' + esc(t('urgSoon')) + '</span> ' : '';
+      var meta = [src, x.due_at ? t('taskDue') + ' ' + dts(x.due_at) : '', done && x.completed_at ? '✓ ' + dts(x.completed_at) : ''].filter(Boolean).join(' · ');
+      var btns = '';
+      if (!done && x.assignee === 'client') btns += '<button class="btn ghost sm" data-tdone="' + esc(x.id) + '">' + esc(t('taskDoneBtn')) + '</button>';
+      if (done && x.assignee === 'client') btns += '<button class="btn ghost sm" data-treopen="' + esc(x.id) + '">' + esc(t('taskReopen')) + '</button>';
+      if (manual) btns += '<button class="btn ghost sm" data-tdel="' + esc(x.id) + '">' + esc(t('taskDelete')) + '</button>';
+      return '<div class="rowline" data-srch style="' + (done ? 'opacity:.6' : '') + '">' +
+        '<span>' + (done ? '✓' : '☐') + '</span>' +
+        '<span class="t">' + urg + esc(x.title || '') + (x.details ? ' — ' + esc(x.details) : '') +
+        '<br><span style="color:var(--soft);font-size:10.5px">' + esc(meta) + '</span></span>' +
+        '<span style="display:flex;gap:6px;flex-wrap:wrap">' + btns + '</span></div>';
+    }
+    function reloadTasks(){
+      return opsGet('tasks').then(function(x){ if (x.ok){ ops.tasks = x.items || []; renderSrvTasks(); } });
+    }
     function renderSrvTasks(){
-      var open = ops.tasks.filter(function(x){ return x.status !== 'done' && x.status !== 'cancelled'; });
-      $('srvTasksPanel').style.display = ops.tasks.length ? '' : 'none';
-      var h = '';
+      var mine = [], team = [], done = [];
       for (var i = 0; i < ops.tasks.length; i++){
         var x = ops.tasks[i];
-        var done = x.status === 'done';
-        h += '<div class="rowline" data-srch style="' + (done ? 'opacity:.55' : '') + '">' +
-          '<span>' + (done ? '✓' : (x.urgency === 'high' ? '⚠' : '☐')) + '</span>' +
-          '<span class="t">' + esc(x.title || '') + (x.details ? ' — ' + esc(x.details) : '') +
-          (x.due_at ? ' <span style="color:var(--soft);font-size:10.5px">(' + esc(t('taskDue')) + ' ' + dts(x.due_at) + ')</span>' : '') + '</span>' +
-          (done || x.assignee !== 'client' ? '' : '<button class="btn ghost sm" data-tdone="' + esc(x.id) + '">' + esc(t('taskDoneBtn')) + '</button>') +
-          '</div>';
+        if (x.status === 'done') done.push(x);
+        else if (x.status === 'cancelled') continue;
+        else if (x.assignee === 'client') mine.push(x);
+        else team.push(x);
       }
-      $('srvTasksList').innerHTML = h;
+      $('myTasksList').innerHTML = mine.map(taskRow).join('');
+      $('srvTasksList').innerHTML = team.map(taskRow).join('') || '<div class="emptyline">' + esc(t('tasksTeamEmpty')) + '</div>';
+      $('doneTasksList').innerHTML = done.map(taskRow).join('') || '<div class="emptyline">' + esc(t('tasksDoneEmpty')) + '</div>';
+      syncTasksEmpty();
+      var open = mine.length + tasks().length;
       var badge = $('sbTasks'), bb = $('bnTasks');
-      if (open.length){ badge.style.display = ''; badge.textContent = open.length; if (bb){ bb.style.display = ''; } }
-      var btns = document.querySelectorAll('[data-tdone]');
-      for (var j = 0; j < btns.length; j++) btns[j].onclick = function(){
-        this.disabled = true;
-        opsPost({ action: 'ops-task-done', id: this.getAttribute('data-tdone') }).then(function(){
-          opsGet('tasks').then(function(x){ if (x.ok){ ops.tasks = x.items || []; renderSrvTasks(); } });
-        });
+      badge.style.display = open ? '' : 'none'; badge.textContent = open;
+      if (bb){ bb.style.display = open ? '' : 'none'; bb.textContent = open; }
+      var act = function(sel, action, confirmKey){
+        var btns = document.querySelectorAll('[' + sel + ']');
+        for (var j = 0; j < btns.length; j++) btns[j].onclick = function(){
+          if (confirmKey && !confirm(t(confirmKey) + '?')) return;
+          this.disabled = true;
+          opsPost({ action: action, id: this.getAttribute(sel) }).then(reloadTasks);
+        };
       };
+      act('data-tdone', 'ops-task-done');
+      act('data-treopen', 'ops-task-reopen');
+      act('data-tdel', 'ops-task-delete', 'taskDelete');
+      var add = $('tkAdd');
+      if (add && !add._wired){
+        add._wired = true;
+        add.onclick = function(){
+          var title = ($('tkTitle').value || '').trim(), msg = $('tkMsg');
+          if (!title){ $('tkTitle').focus(); return; }
+          add.disabled = true; msg.style.display = 'none';
+          opsPost({ action: 'ops-task-add', title: title, due: $('tkDue').value || '', urgency: $('tkUrg').value }).then(function(o){
+            add.disabled = false;
+            if (o && o.ok){ $('tkTitle').value = ''; $('tkDue').value = ''; reloadTasks(); }
+            else { msg.style.display = ''; msg.textContent = t('fetchFail'); }
+          }).catch(function(){ add.disabled = false; msg.style.display = ''; msg.textContent = t('fetchFail'); });
+        };
+        $('tkTitle').addEventListener('keydown', function(e){ if (e.key === 'Enter') add.click(); });
+      }
     }
     function markAllRead(){
       opsPost({ action: 'ops-notif-read' }).then(function(o){
@@ -2684,7 +3481,7 @@
         employees: '/ar/portal',
         employer: '/employer-dashboard',
         shared: '/shared-services/dashboard',
-        revenue: '/revenue-dashboard'
+        revenue: '/business-development-dashboard'
       };
       var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
       if (!url) return false;
@@ -2692,11 +3489,35 @@
       if (SSO_PORTALS[url]) ssoNavigate(url); else location.href = url;
       return true;
     }
+    // الخدمات المشتركة: كل عميل مسجّل يحصل على فترة تجريبية مجانية بدون شراء.
+    // نقرأ حالتها من الخادم (تُشتق من تاريخ تسجيل المنشأة) ونُظهر البطاقة.
+    function ssTrialCard(){
+      var card = $('ssCard'); if (!card) return;
+      opsPost({ action: 'ops-ss-trial' }).then(function(d){
+        if (!d || !d.ok) return;
+        var meta = $('ssTrialMeta'), btn = $('ssOpenBtn');
+        if (btn){ btn.href = '#'; btn.onclick = function(e){ e.preventDefault(); openEmbed('/ar/shared-services/dashboard', 'فريق الخدمات المشتركة'); }; }
+        if (d.open){
+          if (meta) { meta.textContent = '✅ مفتوحة لك بالكامل — تحدث مع فريقك التنفيذي الآن.'; meta.style.color = ''; }
+          if (btn) btn.textContent = 'افتح البوابة';
+        } else if (d.active){
+          var n = d.daysLeft, total = d.totalDays || 14;
+          var head = n === 1 ? 'يوم واحد متبقٍ' : n === 2 ? 'يومان متبقيان'
+            : (n >= 3 && n <= 10) ? (n + ' أيام متبقية') : (n + ' يوماً متبقياً');
+          if (meta) meta.textContent = '🎁 تجربة مجانية — ' + head + ' من ' + total + ' يوماً · بدون أي شراء';
+        } else {
+          if (meta) { meta.textContent = 'انتهت فترتك التجريبية — اشترك لتبقى مع فريقك التنفيذي.'; meta.style.color = '#b3261e'; }
+          if (btn) { btn.textContent = 'اشترك الآن'; btn.href = '/ar/shared-services#ss-subscribe'; }
+        }
+        card.style.display = '';
+      }).catch(function(){});
+    }
     function enterApp(){
       // Bridge to the site-wide cart/checkout (main.js reads bp_session from
       // localStorage): without this marker, /checkout bounces back here and
       // the purchase loop never completes.
       try { localStorage.setItem('bp_session', JSON.stringify({ email: (state.user && state.user.email) || state.email || '', name: (state.user && state.user.name) || '' })); } catch(e){}
+      try { ssTrialCard(); } catch(e){}
       // Seed the checkout's company prefill from the account's organization.
       try {
         if (state.org && (state.org.name_ar || state.org.name_en)) {
@@ -2761,6 +3582,15 @@
         }
       }).catch(function(){});
       $('orgSave').onclick = saveCompany;
+      $('bdSave').onclick = saveBdProfile;
+      // Delegated: the chips are repainted on every language switch and every
+      // toggle, so binding each button directly would leave dead handlers.
+      $('bdSectors').addEventListener('click', function(e){
+        var t = e.target.closest('[data-sector]'); if (t) bdToggle(bdState.picked, t.getAttribute('data-sector'), 6);
+      });
+      $('bdCities').addEventListener('click', function(e){
+        var t = e.target.closest('[data-city]'); if (t) bdToggle(bdState.pickedCities, t.getAttribute('data-city'), 7);
+      });
       $('gEmail').addEventListener('keydown', function(e){ if (e.key === 'Enter') sendCode(false); });
       $('gVerify').onclick = verifyCode;
       $('gCode').addEventListener('keydown', function(e){ if (e.key === 'Enter') verifyCode(); });
@@ -2769,6 +3599,9 @@
 
       var navBtns = document.querySelectorAll('#sideNav button, #bnav button');
       for (var i = 0; i < navBtns.length; i++) navBtns[i].onclick = function(){ switchView(this.getAttribute('data-v')); };
+      // Deep link: /account?view=documents opens that view directly (e.g. from
+      // the public Document Agent page).
+      try { var v0 = new URLSearchParams(location.search).get('view'); if (v0 && v0 !== 'docagent') switchView(v0); } catch (e) {}
       var mvs = document.querySelectorAll('[data-mv]');
       for (var j = 0; j < mvs.length; j++){
         mvs[j].style.cursor = 'pointer';
@@ -2783,16 +3616,37 @@
       $('bannerClose').onclick = function(){ $('limitedBanner').classList.remove('on'); };
       $('addRefBtn').onclick = addRef;
       $('addRefInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') addRef(); });
+      // Owner (2026-09): the question becomes a ticket inside the portal —
+      // WhatsApp is only the floating icon, never a hand-off from a view.
       $('agentSend').onclick = function(){
-        var msg = t('agentPrefill') + $('agentInput').value.trim();
-        window.open(WA + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+        var q = $('agentInput').value.trim();
+        openTicketFor('', q ? q.slice(0, 80) : '', q);
+        $('agentInput').value = '';
       };
+      var tkPhOpen = $('tkPhOpen');
+      if (tkPhOpen) tkPhOpen.onclick = function(e){ e.preventDefault(); openTicketFor('', '', ''); };
       $('agentInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('agentSend').onclick(); });
       $('setLangAr').onclick = function(){ if (state.lang !== 'ar'){ state.lang = 'ar'; applyLang(); renderAll(); } };
       $('setLangEn').onclick = function(){ if (state.lang !== 'en'){ state.lang = 'en'; applyLang(); renderAll(); } };
       $('logoutBtn').onclick = doLogout;
       $('logoutBtnM').onclick = doLogout;
       $('docSend').onclick = uploadDoc;
+      function openOrderTicket(ref, title){
+        switchView('tickets');
+        var cat = $('tkCat'); if (cat) cat.value = 'طلب';
+        var sub = $('tkSubject');
+        if (sub) sub.value = t('tkAboutOrder') + ' ' + ref + (title ? ' — ' + title : '');
+        var main = $('tkMain');
+        var target = (main && main.style.display !== 'none') ? main : $('tkPh');
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var body = $('tkBody'); if (body && main && main.style.display !== 'none') setTimeout(function(){ body.focus(); }, 250);
+      }
+      document.addEventListener('click', function(e){
+        var a = e.target && e.target.closest ? e.target.closest('[data-ticket-ref]') : null;
+        if (!a) return;
+        e.preventDefault();
+        openOrderTicket(a.getAttribute('data-ticket-ref') || '', a.getAttribute('data-ticket-title') || '');
+      });
       $('tkSend').onclick = function(){
         var subject = $('tkSubject').value.trim();
         var body = $('tkBody').value.trim();
@@ -2831,7 +3685,549 @@
         showStep(1);
       });
     }
+    // ===== «مساعد لوحتك» — in-portal AI concierge (chat mode:"account") =====
+    // Session-gated server-side; answers from THIS client's live data (orders
+    // snapshot from the page + wallet/escrows the server reads itself).
+    (function(){
+      var msgs = [], busy = false;
+      var HINTS = ['وين وصل طلبي؟', 'كم رصيد محفظتي وكيف أشحنها؟', 'اشرح لي نظام الضمان', 'كيف أرفع إيصال التحويل البنكي؟', 'كيف أفعّل موظفي الذكي؟', 'أبغى أفتح تذكرة دعم'];
+      var fab = document.createElement('button');
+      fab.type = 'button';
+      fab.style.cssText = 'position:fixed;inset-inline-start:20px;bottom:20px;z-index:90;display:flex;align-items:center;gap:8px;background:#0B1B5A;color:#fff;border:0;border-radius:99px;padding:13px 18px;font-family:inherit;font-size:13.5px;font-weight:700;box-shadow:0 10px 30px rgba(11,27,90,.34);cursor:pointer';
+      fab.innerHTML = '🤖 مساعد لوحتك';
+      var dock = document.createElement('div');
+      dock.style.cssText = 'position:fixed;inset-inline-start:20px;bottom:20px;z-index:91;width:min(440px,calc(100vw - 40px));display:none;flex-direction:column;background:#fff;border:1px solid #E4E7F0;border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.28);overflow:hidden;max-height:min(76vh,660px);direction:rtl';
+      dock.innerHTML =
+        '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0B1B5A;color:#fff">' +
+          '<span style="font-weight:700;font-size:14px">🤖 مساعد لوحتك</span>' +
+          '<span style="font-size:10.5px;opacity:.8">يعرف طلباتك ومحفظتك وكل أقسام اللوحة</span>' +
+          '<button type="button" id="acX" style="margin-inline-start:auto;background:none;border:0;color:#fff;font-size:18px;font-weight:700;cursor:pointer">✕</button>' +
+        '</div>' +
+        '<div id="acMsgs" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.9;min-height:180px"></div>' +
+        '<div id="acHints" style="display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px"></div>' +
+        '<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid #E4E7F0">' +
+          '<input id="acIn" type="text" placeholder="اسأل عن طلباتك أو محفظتك أو أي قسم…" style="flex:1;padding:10px 12px;border:1px solid #CBD5E1;border-radius:10px;font-family:inherit;font-size:13.5px;outline:none">' +
+          '<button type="button" id="acGo" style="background:#0B1B5A;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-family:inherit;font-weight:700;cursor:pointer">إرسال</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;padding:0 16px 12px">' +
+          '<button type="button" id="acB10x" style="background:#9A3412;color:#fff;border:0;border-radius:10px;padding:8px 14px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer">🚀 أرسل كطلب خدمة B10X</button>' +
+          '<span style="color:#94a3b8;font-size:11px">يتحول ما كتبته لطلب رسمي برقم متابعة يُسند لفريقك</span>' +
+        '</div>';
+      // Owner (2026-09): no floating button — the assistant opens only from
+      // «المساعد» in the header. The button stays in the DOM (hidden) because
+      // the header binds to its click.
+      fab.style.display = 'none';
+      document.body.appendChild(fab);
+      document.body.appendChild(dock);
+      // Owner (2026-09): WhatsApp as a floating icon on the left — the same
+      // number as the site's floating button.
+      var wa = document.createElement('a');
+      wa.className = 'wa-fab'; wa.id = 'waFab';
+      wa.href = 'https://wa.me/966507034157'; wa.target = '_blank'; wa.rel = 'noopener';
+      wa.setAttribute('aria-label', 'واتساب');
+      wa.style.cssText = 'position:fixed;left:20px;bottom:20px;z-index:89;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(37,211,102,.4);text-decoration:none';
+      wa.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>';
+      document.body.appendChild(wa);
+      // B10X on the home view: open the flagship inside the portal.
+      var bo = $('b10xOpen'), ba = $('b10xAsk');
+      if (bo) bo.onclick = function(){ openEmbed(state.lang === 'en' ? '/b10x' : '/ar/b10x', 'B10X'); };
+      if (ba) ba.onclick = function(){ openEmbed((state.lang === 'en' ? '/' : '/ar/') + '#bp-consultant', 'B10X'); };
+      var box = dock.querySelector('#acMsgs'), inp = dock.querySelector('#acIn');
+      function render(typing){
+        box.innerHTML = msgs.map(function(m){
+          var me = m.role === 'user';
+          return '<div style="align-self:' + (me ? 'flex-start' : 'flex-end') + ';max-width:88%;background:' + (me ? '#0B1B5A' : '#F1F4FB') + ';color:' + (me ? '#fff' : '#1F2430') + ';border-radius:12px;padding:8px 13px;white-space:pre-wrap">' + esc(m.content) + '</div>';
+        }).join('') + (typing ? '<div style="align-self:flex-end;color:#94a3b8;font-size:12px">يكتب…</div>' : '');
+        box.scrollTop = box.scrollHeight;
+      }
+      function hints(){
+        var h = dock.querySelector('#acHints');
+        h.innerHTML = HINTS.map(function(q, i){ return '<button type="button" data-ach="' + i + '" style="background:#F1F4FB;border:1px solid #E4E7F0;border-radius:99px;padding:5px 12px;font-family:inherit;font-size:12px;color:#0B1B5A;cursor:pointer">' + esc(q) + '</button>'; }).join('');
+        var bs = h.querySelectorAll('[data-ach]');
+        for (var i = 0; i < bs.length; i++) bs[i].onclick = function(){ ask(HINTS[+this.getAttribute('data-ach')]); };
+      }
+      function ask(q){
+        q = String(q || '').trim();
+        if (!q || busy) return;
+        busy = true;
+        msgs.push({ role: 'user', content: q });
+        render(true);
+        inp.value = '';
+        var ctx = {};
+        try { ctx.orders = (typeof localOrders === 'function' ? localOrders() : []).slice(0, 15); } catch (e) {}
+        fetch('/api/chat', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'account', messages: msgs.slice(-10), ctx: ctx }),
+        })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            busy = false;
+            var reply = out && out.reply;
+            if (!reply) reply = out && out.error === 'unauthorized'
+              ? 'سجّل دخولك للوحة أولاً حتى أقدر أساعدك ببياناتك.'
+              : 'تعذّر الرد الآن — جرّب مرة ثانية، أو واتساب مستشارك: 966530540231';
+            msgs.push({ role: 'assistant', content: String(reply) });
+            render(false);
+          })
+          .catch(function(){ busy = false; msgs.push({ role: 'assistant', content: 'تعذّر الاتصال — تأكد من الشبكة وجرّب ثانية.' }); render(false); });
+      }
+      fab.onclick = function(){
+        dock.style.display = 'flex'; fab.style.display = 'none';
+        if (!msgs.length){ msgs.push({ role: 'assistant', content: 'أهلاً 👋 أنا مساعد لوحتك — أعرف طلباتك ومحفظتك وضماناتك وكل أقسام اللوحة. اسألني أي شيء، أو اختر سؤالاً جاهزاً.' }); render(false); hints(); }
+        try { inp.focus(); } catch (e) {}
+      };
+      dock.querySelector('#acX').onclick = function(){ dock.style.display = 'none'; fab.style.display = 'none'; };
+      // The topbar «المساعد» button opens the same concierge dock as the fab.
+      var hdrAssist = document.getElementById('assistBtn');
+      if (hdrAssist) hdrAssist.onclick = function(){ fab.onclick(); };
+      dock.querySelector('#acGo').onclick = function(){ ask(inp.value); };
+      inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') ask(inp.value); });
+      // Ask B10X: free text → a tracked service request (type b10x-request,
+      // session-gated server-side) — classified into a B10X engine, assigned
+      // to the account team, confirmed here with its reference.
+      dock.querySelector('#acB10x').onclick = function(){
+        var btn = this;
+        var lastUser = null;
+        for (var i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'user'){ lastUser = msgs[i].content; break; }
+        var text = (inp.value || '').trim() || lastUser || '';
+        if (text.length < 5){ alert('اكتب طلبك أولاً في خانة الرسالة — مثال: أحتاج شقة للمدير العام في الرياض.'); return; }
+        btn.disabled = true; btn.textContent = 'جاري الإرسال…';
+        fetch('/api/requests', { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({ type: 'b10x-request', text: text }) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(out){
+            btn.disabled = false; btn.textContent = '🚀 أرسل كطلب خدمة B10X';
+            if (out && out.ok){
+              inp.value = '';
+              msgs.push({ role: 'assistant', content: '✅ استلمنا طلبك برقم متابعة ' + out.ref + '\nالتصنيف: ' + (out.engine || '') + '\nسيتولاه مدير حسابك وستصلك التحديثات هنا وفي «التنبيهات».' });
+              render(false);
+            } else if (out && out.error === 'unauthorized'){
+              alert('سجّل دخولك للوحة أولاً لإرسال طلب B10X.');
+            } else {
+              alert('تعذّر الإرسال — جرّب ثانية أو تواصل واتساب: 966530540231');
+            }
+          })
+          .catch(function(){ btn.disabled = false; btn.textContent = '🚀 أرسل كطلب خدمة B10X'; alert('تعذّر الاتصال.'); });
+      };
+    })();
+
     boot();
   </script>
+  
+
+<script id="bp-portal-trust-js">
+(function(){
+  if(window.__bpPortalTrust)return; window.__bpPortalTrust=1;
+  var ar=(document.documentElement.lang||'ar').toLowerCase().indexOf('ar')===0;
+  var tx=ar?{
+    demo:'مثال توضيحي',title:'كيف تظهر المعاملة للعميل',ministry:'وزارة الاستثمار',status:'مراجعة المستندات',
+    next:'الإجراء التالي',nextv:'رفع القوائم المالية المدققة',assigned:'المسؤول',assignedv:'فريق العلاقات الحكومية',sla:'مدة الخدمة',slav:'يومان عمل',updated:'آخر تحديث',updatedv:'اليوم · 2:15 م',
+    journey:'رحلة الطلب',docs:'مستندات هذا الطلب',upload:'ارفع المستند المطلوب',foot:'هذا مثال تعريفي فقط. الطلب الحقيقي يعرض بياناته الفعلية، الخطوات، المسؤول، SLA والمستندات الخاصة به.',
+    steps:['تم الاستلام','المراجعة الأولية','مراجعة المستندات','التقديم','معالجة الجهة','مكتمل'],
+    d1:'السجل التجاري',d2:'القوائم المالية المدققة',d3:'قرار الشركاء',ok:'مرفوع',need:'مطلوب',
+    tour:'جولة سريعة',t1:'هذه مساحة عملك',p1:'من هنا تتابع كل شيء يخص منشأتك: الطلبات، المستندات، الموافقات، الفواتير والتنبيهات.',
+    t2:'طلباتك ومعاملاتك',p2:'كل طلب له رقم مرجعي، حالة واضحة، خطوات تنفيذ، مسؤول، SLA وإجراء تالٍ.',
+    t3:'المستندات الخاصة بك',p3:'ترفع ملفاتك داخل خزنة حسابك. المستندات لا تُعرض لعميل آخر وتُستخدم مع الطلب أو الوكيل المرتبط بها.',
+    t4:'الموافقات',p4:'أي قرار يحتاج موافقتك يظهر هنا بدل الرسائل المتفرقة، مع سجل واضح للقرار.',
+    t5:'الدعم والتذاكر',p5:'إذا احتجت تدخل بشري، افتح تذكرة مرتبطة بحسابك وطلبك؛ فريق العمليات يرد من نفس المسار.',
+    nextb:'التالي',prev:'السابق',done:'إنهاء',skip:'تخطي',toast:'في الطلب الحقيقي سيُربط الملف مباشرة بالمعاملة.'
+  }:{
+    demo:'Demo example',title:'How a request appears to the client',ministry:'Ministry of Investment',status:'Document Review',next:'Next Action',nextv:'Upload audited financial statements',assigned:'Assigned',assignedv:'GR Operations',sla:'SLA',slav:'2 business days',updated:'Last update',updatedv:'Today · 2:15 PM',
+    journey:'Request journey',docs:'Request documents',upload:'Upload required document',foot:'Demo only. A real request shows its actual status, steps, owner, SLA and documents.',steps:['Received','Initial review','Document review','Submission','Authority processing','Completed'],d1:'Commercial Registration',d2:'Audited financial statements',d3:'Partners resolution',ok:'Uploaded',need:'Required',
+    tour:'Quick tour',t1:'Your workspace',p1:'Track everything for your company here: requests, documents, approvals, billing and alerts.',t2:'Your requests',p2:'Every request has a reference, clear status, execution steps, owner, SLA and next action.',t3:'Your private documents',p3:'Files live in your account vault and are used only with the request or agent they belong to.',t4:'Approvals',p4:'Any decision requiring you appears here with a clear audit trail.',t5:'Support',p5:'Open a ticket linked to your account and request whenever human help is needed.',nextb:'Next',prev:'Back',done:'Finish',skip:'Skip',toast:'In a live request the file is attached directly to that request.'
+  };
+
+  function demo(){
+    var view=document.getElementById('view-orders'); if(!view||view.querySelector('.bp-request-demo'))return;
+    var ph=view.querySelector('.pagehead'); if(!ph)return;
+    var el=document.createElement('div'); el.className='bp-request-demo';
+    el.innerHTML='<div class="bp-rd-head"><span class="bp-rd-demo">'+tx.demo+'</span><strong>#BP-12392 · '+tx.title+'</strong><span class="bp-rd-ministry">'+tx.ministry+'</span><span class="bp-rd-status">'+tx.status+'</span></div>'+
+      '<div class="bp-rd-grid"><div class="bp-rd-kv"><span>'+tx.next+'</span><b>'+tx.nextv+'</b></div><div class="bp-rd-kv"><span>'+tx.assigned+'</span><b>'+tx.assignedv+'</b></div><div class="bp-rd-kv"><span>'+tx.sla+'</span><b>'+tx.slav+'</b></div><div class="bp-rd-kv"><span>'+tx.updated+'</span><b>'+tx.updatedv+'</b></div></div>'+
+      '<div class="bp-rd-body"><div class="bp-rd-box"><h5>'+tx.journey+'</h5><div class="bp-rd-steps">'+tx.steps.map(function(s,i){return '<div class="bp-rd-step '+(i<2?'done':i===2?'cur':'')+'">'+s+'</div>'}).join('')+'</div></div>'+
+      '<div class="bp-rd-box"><h5>'+tx.docs+'</h5><div class="bp-rd-doc"><span>✓</span><span>'+tx.d1+'</span><span class="state ok">'+tx.ok+'</span></div><div class="bp-rd-doc"><span>!</span><span>'+tx.d2+'</span><span class="state need">'+tx.need+'</span></div><div class="bp-rd-doc"><span>✓</span><span>'+tx.d3+'</span><span class="state ok">'+tx.ok+'</span></div><button type="button" class="bp-rd-upload">'+tx.upload+'</button></div></div><div class="bp-rd-foot">'+tx.foot+'</div>';
+    ph.insertAdjacentElement('afterend',el);
+    var ub=el.querySelector('.bp-rd-upload'); if(ub)ub.addEventListener('click',function(){var b=document.querySelector('.side nav button[data-v="documents"]'); if(b)b.click(); toast(tx.toast);});
+  }
+
+  function toast(s){var old=document.querySelector('.bp-tour-toast');if(old)old.remove();var d=document.createElement('div');d.className='bp-tour-toast';d.textContent=s;document.body.appendChild(d);setTimeout(function(){d.remove()},2600)}
+
+  var steps=[
+    {sel:'.topbar',title:tx.t1,p:tx.p1},
+    {sel:'.side nav button[data-v="orders"]',title:tx.t2,p:tx.p2},
+    {sel:'.side nav button[data-v="documents"]',title:tx.t3,p:tx.p3},
+    {sel:'.side nav button[data-v="approvals"]',title:tx.t4,p:tx.p4},
+    {sel:'.side nav button[data-v="tickets"]',title:tx.t5,p:tx.p5}
+  ];
+  var idx=0,back=null,card=null,target=null;
+  function closeTour(mark){if(target)target.classList.remove('bp-tour-target');target=null;if(back)back.remove();if(card)card.remove();back=card=null;if(mark)try{sessionStorage.setItem('bp_portal_tour_seen','1')}catch(e){}}
+  function place(){if(!target||!card)return;var r=target.getBoundingClientRect(),w=card.offsetWidth||320,h=card.offsetHeight||180,g=14;var top=r.bottom+g,left=Math.max(g,Math.min(innerWidth-w-g,r.left));if(top+h>innerHeight-g)top=Math.max(g,r.top-h-g);card.style.top=top+'px';card.style.left=left+'px'}
+  function showStep(n){closeTour(false);idx=n;var st=steps[idx];target=document.querySelector(st.sel);if(!target){if(idx<steps.length-1)return showStep(idx+1);return closeTour(true)}target.classList.add('bp-tour-target');back=document.createElement('div');back.className='bp-tour-backdrop';document.body.appendChild(back);card=document.createElement('div');card.className='bp-tour-card';card.innerHTML='<div class="n">'+(idx+1)+' / '+steps.length+'</div><h3>'+st.title+'</h3><p>'+st.p+'</p><div class="bp-tour-actions"><button type="button" class="skip">'+tx.skip+'</button>'+(idx?'<button type="button" class="prev">'+tx.prev+'</button>':'')+'<button type="button" class="next">'+(idx===steps.length-1?tx.done:tx.nextb)+'</button></div>';document.body.appendChild(card);card.querySelector('.skip').onclick=function(){closeTour(true)};var pr=card.querySelector('.prev');if(pr)pr.onclick=function(){showStep(idx-1)};card.querySelector('.next').onclick=function(){if(idx===steps.length-1)closeTour(true);else showStep(idx+1)};place()}
+  addEventListener('resize',place,{passive:true});addEventListener('scroll',place,{passive:true,capture:true});
+  function addHelp(){var tb=document.querySelector('.topbar');if(!tb||document.getElementById('bpPortalTourBtn'))return;var b=document.createElement('button');b.type='button';b.id='bpPortalTourBtn';b.textContent='? '+tx.tour;b.onclick=function(){showStep(0)};tb.appendChild(b)}
+  function ready(){demo();addHelp();var app=document.getElementById('app');if(!app||!app.classList.contains('on'))return;var seen='';try{seen=sessionStorage.getItem('bp_portal_tour_seen')||''}catch(e){}if(!seen)setTimeout(function(){showStep(0)},700)}
+  var app=document.getElementById('app');if(app)new MutationObserver(ready).observe(app,{attributes:true,attributeFilter:['class']});setTimeout(ready,300);
+})();
+</script>
+<script id="bp-tenant-browser-guard">
+(function(){
+  if(window.__bpTenantGuard)return; window.__bpTenantGuard=1;
+  function purge(){
+    try{
+      var keep={bp_lang:1,bp_cookie_consent:1};
+      for(var i=localStorage.length-1;i>=0;i--){
+        var k=localStorage.key(i); if(k&&/^bp_/i.test(k)&&!keep[k]) localStorage.removeItem(k);
+      }
+    }catch(e){}
+    try{
+      for(var j=sessionStorage.length-1;j>=0;j--){
+        var s=sessionStorage.key(j); if(s&&/^bp_/i.test(s)) sessionStorage.removeItem(s);
+      }
+    }catch(e){}
+  }
+  ['logoutBtn','logoutBtnM'].forEach(function(id){
+    var b=document.getElementById(id); if(b)b.addEventListener('click',purge,true);
+  });
+  window.__bpPurgeTenantState=purge;
+})();
+</script><script id="bp-docagent-v7-js">(function(){
+var API='/api/requests?__route=doc-agent';
+var ref='', access=null, busy=false;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function get(qs){return fetch(API+qs,{credentials:'same-origin',cache:'no-store'}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d})})}
+function post(b){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify(b)}).then(function(r){return r.json().then(function(d){d.__code=r.status;return d})})}
+function say(cls,text){var d=document.createElement('div');d.className='da7-m '+cls;d.textContent=text;var l=$('da7Log');l.appendChild(d);l.scrollTop=1e9;return d}
+function link(name,url,note){var d=document.createElement('div');d.className='da7-m bot';d.appendChild(document.createTextNode('⬇️ '));
+  var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.textContent=name;d.appendChild(a);
+  if(note)d.appendChild(document.createTextNode(' — '+note));
+  var l=$('da7Log');l.appendChild(d);l.scrollTop=1e9}
+function wall(d){say('sys',d&&d.message?d.message:'انتهت فترتك التجريبية.');renderTrial({allowed:false,days_left:0,entitled:false});}
+
+function renderTrial(a){
+  access=a||access; if(!access)return;
+  var box=$('da7Trial'); if(!box)return;
+  if(access.entitled){box.className='da7-trial';box.innerHTML='<div><b>المستشار الذكي للمستندات</b><p>اشتراكك فعّال — تعبئة بلا حدود لنماذج Word وExcel وPDF.</p></div><span class="days">مُفعّل</span>';return}
+  var left=access.days_left==null?access.trial_days:access.days_left;
+  if(access.allowed){
+    box.className='da7-trial';
+    box.innerHTML='<div><b>تجربة مجانية '+(access.trial_days||30)+' يوماً — بلا شراء</b><p>ارفع مستنداتك والنماذج المطلوب تعبئتها، والمستشار يقرأ ويستخرج ويعبّئ ويجهّز الحزمة. ملفاتك في خزنة منشأتك وحدها.</p></div><span class="days">'+(access.never_started?('تبدأ عند أول استخدام · '+(access.trial_days||30)+' يوماً'):('متبقٍ '+left+' يوم'))+'</span>';
+  }else{
+    box.className='da7-trial ended';
+    box.innerHTML='<div><b>انتهت الفترة التجريبية</b><p>كل ما أنتجه المستشار يبقى محفوظاً وقابلاً للتنزيل. للاستمرار في تعبئة نماذج جديدة فعّل الاشتراك.</p></div><a href="/ar/services?q=%D9%88%D9%83%D9%8A%D9%84%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA">فعّل الاشتراك</a>';
+  }
+}
+function tag(role){
+  if(role==='target_form')return '<span class="da7-tag form">نموذج للتعبئة</span>';
+  if(role==='source')return '<span class="da7-tag src">مستند مصدر</span>';
+  if(role==='stamp_asset')return '<span class="da7-tag other">ختم</span>';
+  if(role==='signature_asset')return '<span class="da7-tag other">توقيع</span>';
+  if(role==='requirement')return '<span class="da7-tag other">قائمة متطلبات</span>';
+  return '<span class="da7-tag other">'+esc(role||'—')+'</span>';
+}
+function renderState(d){
+  if(!d||!d.ok)return;
+  if(d.access)renderTrial(d.access);
+  if(d.marks)renderMarks(d.marks);
+  var g=d.gap||{};
+  $('da7Stats').innerHTML='<div class="da7-stat"><b>'+(g.forms||0)+'</b><span>نموذج للتعبئة</span></div>'+
+    '<div class="da7-stat"><b>'+(g.sources||0)+'</b><span>مستند مصدر</span></div>'+
+    '<div class="da7-stat"><b>'+(g.facts||0)+'</b><span>معلومة مستخرجة</span></div>'+
+    '<div class="da7-stat"><b>'+((g.conflicts||[]).length)+'</b><span>تعارض</span></div>';
+  var files=d.files||[];
+  $('da7Files').innerHTML=files.length?files.map(function(f){
+    return '<div class="da7-file"><div><strong>'+esc(f.file_name)+'</strong><small>'+esc(f.doc_kind||'')+(f.expiry_status==='EXPIRED'?' · منتهي الصلاحية':'')+'</small></div>'+tag(f.role)+'</div>'
+  }).join(''):'<div class="da7-empty">لم تُرفع ملفات بعد.</div>';
+  var outs=d.outputs||[];
+  $('da7Outs').innerHTML=outs.length?outs.map(function(o){
+    return '<div class="da7-file"><div><strong>'+esc(o.delivery_name)+'</strong><small>إصدار '+o.version_no+' · فحص الجودة: '+esc(o.qa_status)+'</small></div><button class="da7-btn ghost" data-out="'+esc(o.id)+'">تنزيل</button></div>'
+  }).join(''):'<div class="da7-empty">لا مخرجات بعد — ارفع نموذجاً واطلب التعبئة.</div>';
+  Array.prototype.forEach.call($('da7Outs').querySelectorAll('[data-out]'),function(b){
+    b.onclick=function(){get('&action=output-link&id='+encodeURIComponent(b.getAttribute('data-out'))).then(function(l){if(l.url)window.open(l.url,'_blank')})}
+  });
+  $('da7Fill').disabled=!(g.forms>0);
+  $('da7Pack').disabled=!(outs.length>0);
+}
+function refresh(){ if(ref)get('&action=state&ref='+encodeURIComponent(ref)).then(renderState) }
+
+function begin(cb){
+  if(ref)return cb&&cb();
+  post({action:'start',locale:'ar'}).then(function(d){
+    if(d.__code===402){wall(d);return}
+    if(!d.ok){say('sys','تعذّر بدء الطلب.');return}
+    ref=d.ref; try{localStorage.setItem('bp_da_ref',ref)}catch(e){}
+    cb&&cb();
+  });
+}
+function send(){
+  var i=$('da7Input'), v=(i.value||'').trim(); if(!v||busy)return;
+  i.value=''; say('me',v);
+  begin(function(){
+    busy=true; var t=say('sys','…');
+    post({action:'chat',ref:ref,message:v}).then(function(d){
+      busy=false; t.remove();
+      if(d.__code===402){wall(d);return}
+      say('bot',d.ok?d.reply:'صار خطأ — أعد المحاولة.');
+      if(d.ok&&d.generate_now)fill();
+      refresh();
+    }).catch(function(){busy=false;t.remove();say('sys','تعذّر الاتصال.')});
+  });
+}
+function upload(files){
+  files=Array.prototype.slice.call(files||[]); if(!files.length)return;
+  begin(function(){
+    (function next(i){
+      if(i>=files.length){refresh();return}
+      var f=files[i]; say('me','📎 '+f.name);
+      if(f.size>3*1024*1024){say('sys','هذا الملف أكبر من 3 ميجابايت وهو حد الرفع. اضغطه أو قسّمه ثم أعد إرساله.');return next(i+1)}
+      var t=say('sys','جارٍ الرفع والقراءة…');
+      var rd=new FileReader();
+      rd.onload=function(){
+        var b64=String(rd.result).split(',')[1]||'';
+        var ext=(f.name.split('.').pop()||'').toLowerCase();
+        var m={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+        post({action:'upload',ref:ref,fileBase64:b64,fileName:f.name,fileType:f.type||m[ext]||'application/pdf'}).then(function(d){
+          t.remove();
+          if(d.__code===402){wall(d);return}
+          say('bot',d.ok?d.note:(d.error==='too_large'?'الملف أكبر من 3 ميجابايت.':'تعذّرت قراءة الملف.'));
+          next(i+1);
+        }).catch(function(){t.remove();say('sys','تعذّر الرفع.');next(i+1)});
+      };
+      rd.readAsDataURL(f);
+    })(0);
+  });
+}
+function fill(formId,seen){
+  if(!ref)return; seen=seen||0;
+  var t=say('sys','جارٍ تعبئة النماذج — وتمر بمراجعة جودة قبل أن تصلك…');
+  post(formId?{action:'generate',ref:ref,form_id:formId}:{action:'generate',ref:ref}).then(function(d){
+    t.remove();
+    if(d.__code===402){wall(d);return}
+    if(!d.ok){say('bot',d.error==='no_target_forms'?'ما عندي نموذج للتعبئة بعد — قل لي أي ملف من المرفوعة هو النموذج، مثل: «عبّي ملف كذا».':'تعذّرت التعبئة'+(d.detail?(' — '+d.detail):'.'));refresh();return}
+    var done=0;
+    (d.outputs||[]).forEach(function(o){
+      if(o.ok&&o.output_id){done++;get('&action=output-link&id='+encodeURIComponent(o.output_id)).then(function(l){if(l.url)link(o.form,l.url,o.unfilled?(o.unfilled+' حقل بانتظارك'):'')})}
+      else if(!o.ok)say('sys','⚠ '+o.form+(o.detail?(' — '+o.detail):''));
+    });
+    if(d.signed&&d.signed.length){
+      var has=function(k){return d.signed.indexOf(k)!==-1};
+      say('sys',has('signature')&&has('stamp')?'وُضع توقيعك وختم منشأتك في مواضعهما.'
+        :has('signature')?'وُضع توقيعك في موضع التوقيع.':'وُضع ختم منشأتك في موضعه.');
+    }
+    var rest=d.remaining||[];
+    if(rest.length&&seen<12){fill(rest[0].id,seen+1);return}
+    if(done||seen)say('bot','تم — ملفاتك المعبّأة جاهزة، حمّلها من الروابط أعلاه أو من «مخرجاتك».');
+    refresh();
+  }).catch(function(){t.remove();say('sys','تعذّر التوليد.')});
+}
+function pack(){
+  if(!ref)return; var t=say('sys','جارٍ ضغط كل شيء في ملف واحد…');
+  post({action:'package',ref:ref}).then(function(d){
+    t.remove();
+    if(d.ok&&d.url)link('حزمة التسليم النهائية (ZIP)',d.url,'');
+    else say('sys','لا توجد مخرجات لتغليفها بعد.');
+    refresh();
+  }).catch(function(){t.remove();say('sys','تعذّر التغليف.')});
+}
+function fresh(){
+  ref=''; try{localStorage.removeItem('bp_da_ref')}catch(e){}
+  $('da7Log').innerHTML=''; $('da7Files').innerHTML='<div class="da7-empty">لم تُرفع ملفات بعد.</div>';
+  $('da7Outs').innerHTML='<div class="da7-empty">لا مخرجات بعد.</div>';
+  say('bot','ارفع المستندات التي تحتوي على البيانات، وارفع الملفات التي تريد تعبئتها. سأراجع كل شيء وأستخدم المعلومات المتوفرة وأطلب منك فقط ما هو ناقص.');
+}
+
+function view(){
+  return '<div class="pagehead"><h2>المستشار الذكي للمستندات</h2><div class="sub">ارفع مستنداتك والنماذج المطلوب تعبئتها — يقرأ ويستخرج ويطابق ويعبّئ Word وExcel وPDF في مكانها، ويسألك عن الناقص فقط.</div></div>'+
+  '<div class="da7-trial" id="da7Trial"></div>'+
+  '<div class="da7-stats" id="da7Stats"></div>'+
+  '<div class="da7-grid">'+
+    '<div class="da7-box"><h3>محادثة المستشار</h3><p class="hint">اكتب بلغتك: «عبّي ملف كذا»، «Section 9 كله No»، «حط تاريخ اليوم»، «وش الناقص؟».</p>'+
+      '<div class="da7-log" id="da7Log"></div>'+
+      '<div class="da7-row"><button class="da7-btn clip" id="da7Clip" title="أرفق ملفات">📎</button>'+
+      '<input type="text" id="da7Input" placeholder="اكتب هنا…" autocomplete="off">'+
+      '<button class="da7-btn" id="da7Send">إرسال</button></div>'+
+      '<input type="file" id="da7File" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp" hidden>'+
+    '</div>'+
+    '<div>'+
+      '<div class="da7-box"><h3>ارفع ملفاتك</h3><p class="hint">مستندات فيها بيانات، ونماذج تحتاج تعبئة، وحتى صورة من إيميل المتطلبات — المستشار يصنّف كل ملف بنفسه. حتى 3 ميجابايت للملف.</p>'+
+        '<div class="da7-drop" id="da7Drop">اسحب الملفات هنا أو اضغط للاختيار<br><small>PDF · Word · Excel · صور</small></div>'+
+        '<div class="da7-files" id="da7Files"><div class="da7-empty">لم تُرفع ملفات بعد.</div></div></div>'+
+      '<div class="da7-box" style="margin-top:14px"><h3>توقيعك وختم منشأتك</h3>'+
+        '<p class="hint">وقّع بإصبعك أو بالفأرة مرة واحدة، ويُستخدم التوقيع نفسه في كل نموذج بعدها. يُطبَّق فقط على الحقول التي تطلب توقيعاً أو ختماً — ولا يُطبَّق أبداً بدون موافقتك الصريحة أدناه.</p>'+
+        '<div class="da7-sig"><canvas id="da7Pad" width="600" height="200"></canvas>'+
+          '<div class="da7-row" style="margin-top:8px;flex-wrap:wrap">'+
+            '<button class="da7-btn ghost" id="da7PadClear" type="button">مسح</button>'+
+            '<button class="da7-btn clip" id="da7SigUp" type="button">ارفع صورة توقيع</button>'+
+            '<button class="da7-btn" id="da7SigSave" type="button">احفظ التوقيع</button>'+
+          '</div>'+
+          '<label class="da7-consent"><input type="checkbox" id="da7Consent"> أوافق على استخدام هذا التوقيع لتوقيع مستنداتي التي يعبّئها المستشار.</label>'+
+          '<div class="da7-mark" id="da7SigState">لا يوجد توقيع محفوظ.</div>'+
+        '</div>'+
+        '<div class="da7-sig" style="margin-top:12px">'+
+          '<div class="da7-row" style="flex-wrap:wrap">'+
+            '<button class="da7-btn clip" id="da7StampUp" type="button">ارفع صورة الختم</button>'+
+            '<button class="da7-btn ghost" id="da7StampClear" type="button">احذف الختم</button>'+
+          '</div>'+
+          '<div class="da7-mark" id="da7StampState">لا يوجد ختم محفوظ.</div>'+
+        '</div>'+
+        '<input type="file" id="da7MarkFile" accept="image/png,image/jpeg,image/webp" hidden>'+
+      '</div>'+
+      '<div class="da7-box" style="margin-top:14px"><h3>مخرجاتك</h3><p class="hint">النماذج المعبّأة والحزمة النهائية — بروابط تنزيل موقّعة قصيرة العمر.</p>'+
+        '<div class="da7-files" id="da7Outs"><div class="da7-empty">لا مخرجات بعد.</div></div>'+
+        '<div class="da7-row" style="margin-top:12px"><button class="da7-btn" id="da7Fill" disabled>عبّئ النماذج</button>'+
+        '<button class="da7-btn ghost" id="da7Pack" disabled>جهّز الحزمة</button>'+
+        '<button class="da7-btn ghost" id="da7New">طلب جديد</button></div></div>'+
+    '</div>'+
+  '</div>';
+}
+function mount(){
+  var wrap=document.querySelector('.viewwrap'); if(!wrap||$('view-docagent'))return;
+  var s=document.createElement('section'); s.className='view da7'; s.id='view-docagent'; s.innerHTML=view();
+  wrap.appendChild(s);
+  padSetup();
+  $('da7Send').onclick=send;
+  $('da7Input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send()}});
+  $('da7Clip').onclick=function(){$('da7File').click()};
+  $('da7Drop').onclick=function(){$('da7File').click()};
+  $('da7File').addEventListener('change',function(){upload(this.files);this.value=''});
+  ['dragenter','dragover'].forEach(function(ev){$('da7Drop').addEventListener(ev,function(e){e.preventDefault();this.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(ev){$('da7Drop').addEventListener(ev,function(e){e.preventDefault();this.classList.remove('over')})});
+  $('da7Drop').addEventListener('drop',function(e){upload(e.dataTransfer&&e.dataTransfer.files)});
+  $('da7Fill').onclick=function(){fill()};
+  $('da7Pack').onclick=pack;
+  $('da7New').onclick=fresh;
+}
+function nav(){
+  var n=document.getElementById('sideNav'); if(!n||n.querySelector('[data-v="docagent"]'))return;
+  var b=document.createElement('button'); b.setAttribute('data-v','docagent');
+  b.innerHTML='<span>🗂️</span><span>مستشار المستندات</span>';
+  var after=n.querySelector('[data-v="compliance"]')||n.querySelector('[data-v="documents"]')||n.querySelector('[data-v="company"]');
+  if(after)after.insertAdjacentElement('afterend',b); else n.appendChild(b);
+  b.onclick=function(){
+    document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('#sideNav button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on'); var v=$('view-docagent'); if(v)v.classList.add('on');
+    open(); window.scrollTo(0,0);
+  };
+}
+// ---- the client's signature and the company stamp ------------------------
+// The pad writes a transparent PNG: black ink on nothing, so the signature sits
+// over the form's own ruled line instead of hiding it behind a white box.
+var padDrawn=false, markKind='signature';
+function padSetup(){
+  var c=$('da7Pad'); if(!c||c._on)return; c._on=1;
+  var g=c.getContext('2d'), drawing=false, last=null;
+  function fit(){
+    var r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    var data=padDrawn?c.toDataURL():null;
+    c.width=Math.max(300,Math.round(r.width*dpr)); c.height=Math.round(150*dpr);
+    g.scale(dpr,dpr); g.lineWidth=2.2; g.lineCap='round'; g.lineJoin='round'; g.strokeStyle='#101828';
+    if(data){var im=new Image();im.onload=function(){g.drawImage(im,0,0,r.width,150)};im.src=data}
+  }
+  fit(); window.addEventListener('resize',fit);
+  function at(e){
+    var r=c.getBoundingClientRect();
+    var t=(e.touches&&e.touches[0])||e;
+    return {x:t.clientX-r.left, y:t.clientY-r.top};
+  }
+  function down(e){e.preventDefault();drawing=true;last=at(e)}
+  function move(e){
+    if(!drawing)return; e.preventDefault();
+    var p=at(e); g.beginPath(); g.moveTo(last.x,last.y); g.lineTo(p.x,p.y); g.stroke();
+    last=p; padDrawn=true;
+  }
+  function up(){drawing=false}
+  c.addEventListener('mousedown',down); c.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+  c.addEventListener('touchstart',down,{passive:false});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',up);
+  $('da7PadClear').onclick=function(){g.clearRect(0,0,c.width,c.height);padDrawn=false};
+  $('da7SigSave').onclick=function(){
+    if(!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(!padDrawn){alert('ارسم توقيعك في المربع أولاً، أو ارفعه كصورة.');return}
+    saveMark('signature', c.toDataURL('image/png').split(',')[1], 'image/png');
+  };
+  $('da7SigUp').onclick=function(){markKind='signature';$('da7MarkFile').click()};
+  $('da7StampUp').onclick=function(){markKind='stamp';$('da7MarkFile').click()};
+  $('da7StampClear').onclick=function(){
+    post({action:'clear-mark',ref:ref||undefined,kind:'stamp'}).then(function(d){if(d.marks)renderMarks(d.marks)});
+  };
+  $('da7MarkFile').onchange=function(){
+    var f=(this.files||[])[0]; this.value='';
+    if(!f)return;
+    if(markKind==='signature'&&!$('da7Consent').checked){alert('فعّل الموافقة أولاً — لا يُطبَّق توقيعك بدونها.');return}
+    if(f.size>2*1024*1024){alert('الصورة أكبر من 2 ميجابايت.');return}
+    var rd=new FileReader();
+    rd.onload=function(){saveMark(markKind,String(rd.result).split(',')[1],f.type||'image/png')};
+    rd.readAsDataURL(f);
+  };
+}
+function saveMark(kind,b64,mime){
+  post({action:'set-mark',kind:kind,fileBase64:b64,fileType:mime,consent:kind==='signature'?!!$('da7Consent').checked:undefined})
+    .then(function(d){
+      if(!d.ok){alert(d.error==='consent_required'?'فعّل الموافقة أولاً.':'تعذّر الحفظ — حاول مرة أخرى.');return}
+      renderMarks(d.marks);
+      say('sys',kind==='signature'?'حُفِظ توقيعك — سيُطبَّق على حقول التوقيع في النماذج القادمة.':'حُفِظ ختم منشأتك.');
+      if(kind==='signature'&&ref)post({action:'set-option',ref:ref,signature_mode:'client_image'});
+    });
+}
+function renderMarks(m){
+  if(!m)return;
+  var sg=$('da7SigState'), st=$('da7StampState');
+  if(sg){
+    sg.className='da7-mark'+(m.signature.saved?' on':'');
+    sg.textContent=m.signature.saved?'✓ توقيعك محفوظ ومُفعّل.':'لا يوجد توقيع محفوظ.';
+    if(m.signature.saved){
+      var c=$('da7Consent'); if(c)c.checked=true;
+      get('&action=mark-link&kind=signature').then(function(d){
+        if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='توقيعك'; sg.appendChild(i);
+      });
+    }
+  }
+  if(st){
+    st.className='da7-mark'+(m.stamp.saved?' on':'');
+    st.textContent=m.stamp.saved?'✓ ختم منشأتك محفوظ.':'لا يوجد ختم محفوظ.';
+    if(m.stamp.saved)get('&action=mark-link&kind=stamp').then(function(d){
+      if(!d.url)return; var i=new Image(); i.src=d.url; i.alt='ختم المنشأة'; st.appendChild(i);
+    });
+  }
+}
+var opened=false;
+function purge(){
+  try{localStorage.removeItem('bp_da_ref');localStorage.removeItem('bp_da_org')}catch(e){}
+  ref=''; var l=$('da7Log'); if(l)l.innerHTML='';
+}
+function open(){
+  if(opened)return; opened=true;
+  get('&action=access').then(function(a){
+    if(a.__code===401||a.__code===400){
+      // not a registered client (or no establishment yet): nothing of theirs is
+      // kept here, and any stale local pointer is dropped on the spot.
+      purge();
+      say('bot','سجّل دخولك كعميل (أو أضف منشأتك) لتبدأ تجربتك المجانية 30 يوماً.');
+      return;
+    }
+    if(a.ok)renderTrial(a.access);
+    if(a.marks)renderMarks(a.marks);
+    get('&action=list').then(function(d){
+      // A cached ref belongs to exactly one establishment. If the signed-in tenant
+      // changed on this browser, the previous client's pointer and log go first.
+      var who=''; try{who=localStorage.getItem('bp_da_org')||''}catch(e){}
+      if(d&&d.org&&who&&who!==d.org)purge();
+      try{if(d&&d.org)localStorage.setItem('bp_da_org',d.org)}catch(e){}
+      var openReq=((d&&d.requests)||[]).filter(function(r){return ['DELIVERED','COMPLETED'].indexOf(r.status)===-1});
+      var saved=''; try{saved=localStorage.getItem('bp_da_ref')||''}catch(e){}
+      var pick=openReq.filter(function(r){return r.ref===saved})[0]||openReq[0];
+      if(pick){ref=pick.ref;try{localStorage.setItem('bp_da_ref',ref)}catch(e){}
+        get('&action=state&ref='+encodeURIComponent(ref)).then(function(s){
+          if(s.ok){(s.messages||[]).slice(-10).forEach(function(m){say(m.author==='client'?'me':'bot',m.body)});renderState(s)}
+        });
+      } else { try{localStorage.removeItem('bp_da_ref')}catch(e){} fresh(); }
+    });
+  });
+}
+function routeQuery(){var v=new URLSearchParams(location.search).get('view');if(v==='docagent'){var b=document.querySelector('#sideNav [data-v="docagent"]');if(b)b.click()}}
+function boot(){nav();mount();routeQuery()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();</script>
 </body>
 </html>

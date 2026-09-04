@@ -13,6 +13,8 @@
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
+import { getSession } from "./_db.js";
+import { bdTrial, openFor } from "./_trial.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -36,6 +38,48 @@ const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8
 const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
 // Workshop hiring-campaign DB — source of the public Indeed XML job feed (?feed=jobs).
 const WORKSHOP_DB = process.env.NOTION_WORKSHOP_DB || "f83bce33eab7481a8b803495c6cd7619";
+// Notion has no COUNT endpoint, so the pool total is walked 100 rows at a time
+// — 25,000 rows is ~250 round trips, which no page load should be doing. The
+// finished total is parked here and served instantly for a day.
+const METRICS_DB = process.env.NOTION_METRICS_DB || "245f3a1ffb1844b19707bb67120b9605";
+const POOL_METRIC = "حجم قاعدة المواهب";
+
+// Every advert on the site is published by Business Partner — the end client
+// the role is staffed for is our own commercial detail, not the publisher's
+// name. The Notion "الشركة" field keeps whatever was written there, so the
+// internal attribution survives; this only decides the name on the card.
+const PUBLISHER = "Business Partner — بيزنس بارتنر";
+const publisherName = () => PUBLISHER;
+
+async function readCachedCount() {
+  try {
+    const r = await notionFetch(`databases/${METRICS_DB}/query`, "POST", {
+      page_size: 1, filter: { property: "المقياس", title: { equals: POOL_METRIC } },
+    });
+    if (!r.ok) return null;
+    const row = ((await r.json()).results || [])[0];
+    if (!row) return null;
+    const p = row.properties || {};
+    const value = p["القيمة"] && typeof p["القيمة"].number === "number" ? p["القيمة"].number : null;
+    const at = p["آخر حساب"] && p["آخر حساب"].date ? p["آخر حساب"].date.start : "";
+    if (value == null || !at) return null;
+    const ageH = (Date.now() - new Date(at).getTime()) / 36e5;
+    return { id: row.id, value, at, stale: !(ageH >= 0 && ageH < 24) };
+  } catch { return null; }
+}
+
+async function writeCachedCount(total, existingId) {
+  const props = {
+    "القيمة": { number: total },
+    "آخر حساب": { date: { start: new Date().toISOString() } },
+    "ملاحظة": { rich_text: [{ text: { content: "المرشحون غير المخفيين عن الموقع. يُحسب مرة يومياً بعد اكتمال أول مشي كامل." } }] },
+  };
+  try {
+    if (existingId) return void (await notionFetch(`pages/${existingId}`, "PATCH", { properties: props }));
+    props["المقياس"] = { title: [{ text: { content: POOL_METRIC } }] };
+    await notionFetch("pages", "POST", { parent: { database_id: METRICS_DB }, properties: props });
+  } catch { /* a cache miss is not worth failing the request over */ }
+}
 const FEED_COMPANY = process.env.JOBS_FEED_COMPANY || "Business Partner";
 const FEED_CITY = process.env.JOBS_FEED_CITY || "Riyadh";
 const FEED_STATE = process.env.JOBS_FEED_STATE || "Riyadh Province";
@@ -204,6 +248,24 @@ async function resolvePlan(code) {
 }
 
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
+
+// Portal-session unlock — every signed-in client-portal account gets the
+// hiring dashboard during the 30-day platform trial (see api/_trial.js).
+// The effective employer code is derived from the session's organization id
+// on every request, never taken from the client: a supplied "org:…" code is
+// always ignored and re-derived here, so it cannot be forged to reach
+// another tenant's postings or the candidate pool.
+async function portalUnlock(req) {
+  try {
+    const sess = await getSession(req);
+    const org = sess && sess.organization;
+    if (!org || !org.id) return null;
+    if (openFor(sess)) return { unlocked: true, plan: "مفتوح لحسابك", code: "org:" + org.id, days: null, portal: true, open: true };
+    const t = bdTrial(org, false);
+    if (t.state !== "trial") return null;
+    return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
+  } catch { return null; }
+}
 // Business Partner's own careers-page roles — static pages in the generator,
 // not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
 // applicant grouping lines up with these postings in the console.
@@ -218,8 +280,13 @@ const SITE_ROLES = [
 // that description via /api/hire (task:"match") on the client side.
 async function handlePostings(req, res) {
   const b = await readBody(req);
-  const code = String(b.code || "").trim();
-  const { unlocked, owner } = await resolvePlan(code);
+  let code = String(b.code || "").trim();
+  let unlocked = false, owner = false;
+  if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
+  if (!unlocked) {
+    const pu = await portalUnlock(req);
+    if (pu) { unlocked = true; owner = false; code = pu.code; }
+  }
   if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
 
   if (b.action === "create-posting") {
@@ -516,7 +583,7 @@ export default async function handler(req, res) {
         return {
           id: pg.id,
           title: txt(p["العنوان الوظيفي"]),
-          company: txt(p["الشركة"]),
+          company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
           description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
@@ -552,7 +619,7 @@ export default async function handler(req, res) {
         ok: true,
         posting: {
           id: pg.id, title, status,
-          company: txt(p["الشركة"]),
+          company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
           description: txt(p["الوصف والمتطلبات"]),
@@ -576,6 +643,15 @@ export default async function handler(req, res) {
     try {
       res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
       const countCursor = (url0.searchParams.get("cursor") || "").trim() || null;
+      // Rows already counted by earlier links in this chain — the client passes
+      // it back so the final link knows the real total and can park it.
+      const soFar = Math.max(0, Number(url0.searchParams.get("sofar")) || 0);
+      // A fresh cached total short-circuits the whole walk. Only on the first
+      // link: mid-chain the caller is explicitly asking to keep counting.
+      const cached = countCursor ? null : await readCachedCount();
+      if (cached && !cached.stale) {
+        return res.end(JSON.stringify({ ok: true, total: cached.value, nextCursor: null, done: true, cached: true, countedAt: cached.at }));
+      }
       if (!handler._titleProp) {
         const dbr = await notionFetch(`databases/${DB_ID}`, "GET");
         if (dbr.ok) {
@@ -613,7 +689,11 @@ export default async function handler(req, res) {
         if (Date.now() > deadline) { truncated = true; break; }
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, total, nextCursor: cursor || null, done: !cursor && !truncated }));
+      const done = !cursor && !truncated;
+      // The last link in the chain knows the real total — park it so the next
+      // visitor gets the number in one request instead of two hundred.
+      if (done) await writeCachedCount(soFar + total, cached && cached.id);
+      return res.end(JSON.stringify({ ok: true, total, nextCursor: cursor || null, done, sofar: soFar + total }));
     } catch (e) {
       console.error("pool count handler error", e);
       res.statusCode = 500;
@@ -632,18 +712,26 @@ export default async function handler(req, res) {
   const qRes = (url.searchParams.get("res") || "").trim();
   const qRegion = (url.searchParams.get("region") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
-  const code = (url.searchParams.get("code") || "").trim();
+  let code = (url.searchParams.get("code") || "").trim();
   // Resume a previous, still-in-progress scan (see the time-budget note below)
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
-  const { unlocked, plan } = await resolvePlan(code);
+  let unlocked = false, plan = "";
+  if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
+  let portal = null;
+  if (!unlocked) {
+    portal = await portalUnlock(req);
+    if (portal) { unlocked = true; plan = portal.plan; code = portal.code; }
+  }
 
   // Lightweight code check (?validate=1&code=…) for the login page and the
   // dashboard's saved-code revalidation — one Employers-DB lookup instead of
   // paging the whole candidate pool just to learn whether a code is active.
+  // With no (or an "org:…") code it also answers for the portal session, so
+  // any signed-in client's dashboard opens itself during the platform trial.
   if (url.searchParams.get("validate") === "1") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan }));
+    return res.end(JSON.stringify({ ok: true, unlocked, plan, ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}) }));
   }
 
   // Per-job applicants for the employer console (?applicants=1&code=…).
@@ -658,6 +746,12 @@ export default async function handler(req, res) {
     try {
       let rowsRaw = [];
       let cursor = null, guard = 0;
+      // 1,893 people have applied through the site; the old five-page ceiling
+      // showed the newest 500 of them and silently dropped the rest, so a job
+      // posted a while ago looked like it had no applicants at all. Bounded by
+      // the clock as well as the page count, so a growing pool slows this down
+      // rather than truncating it without saying so.
+      const deadline = Date.now() + 40000;
       do {
         const r = await notionFetch(`databases/${DB_ID}/query`, "POST", {
           page_size: 100,
@@ -674,7 +768,8 @@ export default async function handler(req, res) {
         const d = await r.json();
         rowsRaw = rowsRaw.concat(d.results || []);
         cursor = d.has_more ? d.next_cursor : null;
-      } while (cursor && ++guard < 5);
+      } while (cursor && ++guard < 40 && Date.now() < deadline);
+      const truncated = !!cursor;
 
       const STAGE_KEY = { "جديد": "new", "فرز": "review", "قائمة مختصرة": "shortlist", "رُشّح لصاحب عمل": "shortlist", "مقابلة": "interview", "عرض": "offer", "تم التوظيف": "hired", "مرفوض": "rejected", "مؤجل": "future" };
       const groups = {};
@@ -708,7 +803,9 @@ export default async function handler(req, res) {
         });
       }
       res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups) }));
+      // Say so when the pool outgrew even the raised ceiling, rather than
+      // handing back a short list that looks complete.
+      return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups), scanned: rowsRaw.length, truncated }));
     } catch (e) {
       console.error("applicants handler error", e);
       res.statusCode = 500;

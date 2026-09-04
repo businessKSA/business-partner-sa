@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-31T19:54:21.093Z",
+  "updatedAt": "2026-09-04T01:02:40.935Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -1274,7 +1274,7 @@
     },
     {
       "code": "BP-AI-02",
-      "nameAr": "إعداد الوكيل الذكي",
+      "nameAr": "إعداد المستشار الذكي",
       "nameEn": "AI Agent Setup",
       "category": "AI Automation",
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
@@ -1638,7 +1638,7 @@
     },
     {
       "code": "BP-AI-03",
-      "nameAr": "وكيل الامتثال والالتزام",
+      "nameAr": "مستشار الامتثال والالتزام",
       "nameEn": "Compliance & obligations agent",
       "category": "AI Automation",
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
@@ -2392,73 +2392,88 @@
     },
     {
       "group": "revenue-os",
-      "groupNameAr": "Revenue OS",
-      "groupNameEn": "Revenue OS",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
       "code": "revos-connect",
       "key": "revos-connect",
-      "nameAr": "Revenue OS — باقة Connect (شهري)",
-      "nameEn": "Revenue OS — Connect (monthly)",
+      "nameAr": "تطوير الأعمال كخدمة — باقة Connect (شهري)",
+      "nameEn": "BD as a Service — Connect (monthly)",
       "amount": 499,
       "priceLabel": "499 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 12,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": false,
       "featuresAr": [
-        "قائمة شركات مستهدفة",
-        "التقاط عملاء وحجز مواعيد",
-        "لوحة عميل وتقرير شهري",
-        "بدون عمولة"
+        "قائمة شركات مستهدفة بالقطاع والمدينة",
+        "التقاط عملاء وحجز مواعيد على موقعك",
+        "لوحة عميل وتقرير شهري"
       ],
-      "url": "https://businesspartner.sa/revenue-os"
+      "url": "https://businesspartner.sa/business-development"
     },
     {
       "group": "revenue-os",
-      "groupNameAr": "Revenue OS",
-      "groupNameEn": "Revenue OS",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
       "code": "revos-launch",
       "key": "revos-launch",
-      "nameAr": "Revenue OS — باقة Launch (شهري)",
-      "nameEn": "Revenue OS — Launch (monthly)",
+      "nameAr": "تطوير الأعمال كخدمة — باقة Launch (شهري)",
+      "nameEn": "BD as a Service — Launch (monthly)",
       "amount": 2500,
       "priceLabel": "2,500 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 8,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": false,
       "featuresAr": [
         "Pipeline مستهدف حتى 1M",
-        "عمولة نجاح 10% + إغلاق 2.5%"
+        "قاعدة بيانات محددة",
+        "تأهيل وتقرير شهري"
       ],
-      "url": "https://businesspartner.sa/revenue-os"
+      "url": "https://businesspartner.sa/business-development"
     },
     {
       "group": "revenue-os",
-      "groupNameAr": "Revenue OS",
-      "groupNameEn": "Revenue OS",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
       "code": "revos-growth",
       "key": "revos-growth",
-      "nameAr": "Revenue OS — باقة Growth (شهري)",
-      "nameEn": "Revenue OS — Growth (monthly)",
+      "nameAr": "تطوير الأعمال كخدمة — باقة Growth (شهري)",
+      "nameEn": "BD as a Service — Growth (monthly)",
       "amount": 5000,
       "priceLabel": "5,000 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 0,
+      "commissionBasisAr": "بدون عمولة — سعر شهري ثابت",
+      "closingByBusinessPartner": false,
       "featuresAr": [
         "Pipeline مستهدف حتى 3M",
-        "عمولة نجاح 8% + إغلاق 2%"
+        "CRM وتقارير أسبوعية",
+        "حملات متعددة القنوات",
+        "سعر ثابت بدون أي عمولة"
       ],
-      "url": "https://businesspartner.sa/revenue-os"
+      "url": "https://businesspartner.sa/business-development"
     },
     {
       "group": "revenue-os",
-      "groupNameAr": "Revenue OS",
-      "groupNameEn": "Revenue OS",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
       "code": "revos-professional",
       "key": "revos-professional",
-      "nameAr": "Revenue OS — باقة Professional (شهري)",
-      "nameEn": "Revenue OS — Professional (monthly)",
+      "nameAr": "تطوير الأعمال كخدمة — باقة Professional (شهري)",
+      "nameEn": "BD as a Service — Professional (monthly)",
       "amount": 9500,
       "priceLabel": "9,500 ﷼ / شهريًا",
       "billingPeriod": "monthly",
+      "commissionPercent": 5,
+      "commissionBasisAr": "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM",
+      "closingByBusinessPartner": true,
       "featuresAr": [
         "Pipeline مستهدف حتى 10M",
-        "عمولة نجاح 6% + إغلاق 1.5%"
+        "Forecast وإدارة عروض",
+        "دعم التفاوض والإغلاق"
       ],
-      "url": "https://businesspartner.sa/revenue-os"
+      "url": "https://businesspartner.sa/business-development"
     }
   ]
 }

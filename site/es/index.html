@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Business Partner — tu socio operativo de negocios en Arabia Saudita</title>
-<meta name="description" content="Business Partner ofrece soluciones prácticas para empresas en Arabia Saudita en materia de cumplimiento normativo, plataformas gubernamentales, RRHH, licencias y servicios operativos.">
-<meta property="og:title" content="Business Partner — tu socio operativo de negocios en Arabia Saudita">
-<meta property="og:description" content="Business Partner ofrece soluciones prácticas para empresas en Arabia Saudita en materia de cumplimiento normativo, plataformas gubernamentales, RRHH, licencias y servicios operativos.">
+<title>Business Partner — Saudi business setup &amp; operations</title>
+<meta name="description" content="Business Partner sets up, operates and grows your company in Saudi Arabia: formation, government services, HR, compliance, offices, housing and business development — AI powered, human executed.">
+<meta property="og:title" content="Business Partner — Saudi business setup &amp; operations">
+<meta property="og:description" content="Business Partner sets up, operates and grows your company in Saudi Arabia: formation, government services, HR, compliance, offices, housing and business development — AI powered, human executed.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="es_ES">
@@ -17,142 +17,504 @@
 <link rel="alternate" hreflang="fr" href="/fr/">
 <link rel="alternate" hreflang="zh" href="/zh/">
 <link rel="alternate" hreflang="x-default" href="/">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<style>
+.bph{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.bph *{box-sizing:border-box}
+.bph a{text-decoration:none}
+.bph .bph-wrap{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.bph section{padding:70px 0}
+.bph .bph-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#2f4a86;font-size:.73rem;font-weight:800;box-shadow:0 6px 20px rgba(21,42,96,.05)}
+.bph .bph-kicker i{width:7px;height:7px;border-radius:50%;background:var(--m);box-shadow:0 0 0 5px rgba(22,184,117,.1)}
+.bph .bph-head{max-width:820px;margin:0 auto 30px;text-align:center}
+.bph .bph-head h2{margin:0;color:var(--n);font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.08;letter-spacing:-.045em}
+.bph .bph-head p{margin:12px 0 0;color:var(--mut);line-height:1.85;font-size:.95rem}
+.bph .bph-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--n);font-weight:800;font-size:.88rem;cursor:pointer}
+.bph .bph-btn.primary{border:0;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;box-shadow:0 13px 30px rgba(36,75,184,.18)}
+.bph .bph-btn.white{background:#fff;color:#0a286c;border:0}
+.bph .bph-btn.ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff}
+
+/* 1 — hero */
+.bph .bph-hero{padding:56px 0 30px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
+.bph .bph-hero h1{max-width:1000px;margin:17px auto 14px;font-size:clamp(2.4rem,4.4vw,4.1rem);line-height:1.03;letter-spacing:-.05em;color:var(--n)}
+.bph .bph-hero h1 span{background:linear-gradient(100deg,var(--b),#647eff 52%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bph .bph-hero p.bph-lead{max-width:900px;margin:0 auto;color:var(--mut);line-height:1.85;font-size:1.02rem}
+.bph .bph-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px auto 0;max-width:1020px}
+.bph .bph-chips a{padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33466f;font-size:.75rem;font-weight:800;box-shadow:0 5px 16px rgba(9,30,78,.04)}
+.bph .bph-chips a:hover{border-color:#9fb2ef}
+.bph .bph-proofline{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:17px auto 0;color:#7c879c;font-size:.7rem;font-weight:750}
+.bph .bph-proofline b{color:var(--b)}
+.bph .bph-proofline i{width:4px;height:4px;background:#c7cfde;border-radius:50%}
+.bph .bph-hero-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+
+/* 1b — the obligations we carry: why a company hires us at all */
+.bph .bph-risk{padding:56px 0 8px;background:#fff}
+.bph .bph-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+@media(max-width:900px){.bph .bph-risk-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.bph .bph-risk-grid{grid-template-columns:1fr}}
+.bph .bph-risk-card{border:1px solid var(--line);border-radius:18px;padding:18px 17px;background:#fff;box-shadow:0 6px 20px rgba(9,30,78,.04)}
+.bph .bph-risk-card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;background:linear-gradient(135deg,rgba(22,184,117,.13),rgba(67,214,244,.14));margin-bottom:11px}
+.bph .bph-risk-card h3{margin:0 0 6px;font-size:.92rem;color:var(--n);letter-spacing:-.02em}
+.bph .bph-risk-card p{margin:0;color:var(--mut);font-size:.79rem;line-height:1.75}
+.bph .bph-risk-note{max-width:900px;margin:22px auto 0;text-align:center;color:#8b94a6;font-size:.74rem;line-height:1.85}
+
+/* 1c — the journey, in three steps, before any service name is mentioned */
+.bph .bph-how{padding:58px 0;background:linear-gradient(180deg,#fff,var(--soft))}
+.bph .bph-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:1120px;margin:0 auto;counter-reset:bpstep}
+.bph .bph-step{position:relative;border:1px solid var(--line);border-radius:20px;padding:24px 20px 20px;background:#fff}
+.bph .bph-step:before{counter-increment:bpstep;content:counter(bpstep);position:absolute;top:-15px;inset-inline-start:20px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-weight:900;font-size:.82rem;box-shadow:0 8px 18px rgba(36,75,184,.22)}
+.bph .bph-step h3{margin:6px 0 8px;font-size:1.02rem;color:var(--n);letter-spacing:-.03em}
+.bph .bph-step p{margin:0;color:var(--mut);font-size:.83rem;line-height:1.8}
+.bph .bph-step .bph-step-meta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);color:#7c879c;font-size:.72rem;font-weight:750}
+.bph .bph-how-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:26px}
+
+/* 1d — instalments: financing our own fee, stated as exactly that */
+.bph .bph-pay{padding:56px 0;background:#fff}
+.bph .bph-pay-shell{max-width:1120px;margin:0 auto;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr}
+.bph .bph-pay-main{padding:34px 32px}
+.bph .bph-pay-main h2{margin:10px 0 12px;font-size:clamp(1.7rem,2.9vw,2.5rem);line-height:1.12;letter-spacing:-.04em;color:var(--n)}
+.bph .bph-pay-main p{margin:0;color:var(--mut);font-size:.92rem;line-height:1.85}
+.bph .bph-pay-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(22,184,117,.1);color:#0f8e57;font-size:.68rem;font-weight:900}
+.bph .bph-pay-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.bph .bph-pay-side{padding:30px 28px;background:linear-gradient(160deg,var(--soft),#eef3fd);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.bph .bph-pay-fact{display:flex;gap:11px;align-items:flex-start}
+.bph .bph-pay-fact .k{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);font-size:.75rem}
+.bph .bph-pay-fact b{display:block;color:var(--n);font-size:.83rem;margin-bottom:3px}
+.bph .bph-pay-fact span{color:var(--mut);font-size:.77rem;line-height:1.7}
+.bph .bph-pay-fine{margin-top:4px;padding-top:12px;border-top:1px dashed #cfd8e8;color:#7c879c;font-size:.71rem;line-height:1.75}
+@media(max-width:880px){.bph .bph-pay-shell{grid-template-columns:1fr}.bph .bph-pay-side{border-inline-start:0;border-top:1px solid var(--line)}}
+
+/* 2 — chat: the control plane, large and centred */
+.bph .bph-chat-sec{padding:24px 0 58px;background:linear-gradient(180deg,#fff,var(--soft) 65%,#fff)}
+.bph .bph-chat-shell{max-width:930px;margin:0 auto;padding:1px;border-radius:29px;background:linear-gradient(135deg,var(--b),#6c82ff,var(--c));box-shadow:0 28px 80px rgba(26,61,157,.16)}
+.bph .bph-chat{border-radius:28px;background:#fff;overflow:hidden}
+.bph .bph-chat-head{height:54px;padding:0 16px;border-bottom:1px solid #edf0f5;display:flex;align-items:center;justify-content:space-between}
+.bph .bph-chat-title{display:flex;align-items:center;gap:9px;color:var(--n);font-size:.79rem;font-weight:900}
+.bph .bph-chat-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;font-size:.6rem}
+.bph .bph-chat-live{font-size:.62rem;color:#0f8e57;background:#eaf9f2;padding:5px 9px;border-radius:999px;font-weight:800}
+.bph .bph-chat-body{padding:16px;min-height:240px;max-height:330px;overflow:auto;background:linear-gradient(180deg,#fbfcff,var(--soft))}
+.bph .bph-msg{max-width:88%;padding:11px 13px;border-radius:14px;margin-bottom:9px;font-size:.79rem;line-height:1.7;white-space:pre-wrap}
+.bph .bph-msg.ai{background:#fff;border:1px solid #e6eaf2;color:#34415c}
+.bph .bph-msg.user{margin-inline-start:auto;background:linear-gradient(135deg,var(--n),var(--b));color:#fff}
+.bph .bph-chat-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
+.bph .bph-chat-chips button{border:1px solid #dfe5f0;background:#fff;color:#36559d;border-radius:999px;padding:7px 11px;font-size:.68rem;cursor:pointer;font-weight:800}
+.bph .bph-chat-chips button:hover{border-color:#9fb2ef}
+.bph .bph-compose{display:flex;align-items:center;gap:9px;padding:12px;border-top:1px solid #e9edf4}
+.bph .bph-compose textarea{flex:1;resize:none;min-height:48px;max-height:110px;border:1px solid #dfe5ef;border-radius:13px;padding:12px;outline:none;background:#fbfcff;font:inherit;font-size:.85rem}
+.bph .bph-compose button{width:48px;height:48px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--n),var(--b));color:#fff;cursor:pointer;font-weight:900;font-size:1.1rem}
+.bph .bph-chat-note{text-align:center;color:#929bad;font-size:.63rem;padding:0 14px 12px}
+
+/* 3 — B10X sales */
+.bph .bph-b10x{padding:68px 0;background:radial-gradient(circle at 88% 8%,rgba(67,214,244,.17),transparent 25%),linear-gradient(145deg,var(--n),#123b8e);color:#fff;position:relative;overflow:hidden}
+.bph .bph-b10x:before{content:'B10X';position:absolute;inset-inline-start:-18px;bottom:-72px;font-size:15rem;line-height:1;font-weight:950;letter-spacing:-.09em;color:rgba(255,255,255,.025);pointer-events:none}
+.bph .bph-b10x .bph-wrap{position:relative;z-index:1}
+.bph .bph-b10x-intro{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:end;margin-bottom:26px}
+.bph .bph-b10x .bph-eyebrow{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;font-size:.66rem;font-weight:900;color:#aeefff}
+.bph .bph-b10x h2{font-size:clamp(2.4rem,4.6vw,4.5rem);line-height:1;letter-spacing:-.055em;margin:13px 0 0;color:#fff}
+.bph .bph-b10x-intro p{margin:0;color:rgba(255,255,255,.7);font-size:.94rem;line-height:1.9;max-width:660px}
+.bph .bph-promise{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:22px 0 26px}
+.bph .bph-promise div{padding:13px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);border-radius:16px}
+.bph .bph-promise b{display:block;font-size:.78rem}
+.bph .bph-promise span{display:block;margin-top:4px;color:rgba(255,255,255,.55);font-size:.63rem;line-height:1.55}
+.bph .bph-b10x-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.bph .bph-panel{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);border-radius:24px;padding:20px}
+.bph .bph-panel h3{margin:0 0 14px;font-size:1rem;color:#fff}
+.bph .bph-caps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bph .bph-cap{padding:12px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075)}
+.bph .bph-cap b{display:block;font-size:.75rem}
+.bph .bph-cap span{display:block;font-size:.63rem;line-height:1.6;color:rgba(255,255,255,.57);margin-top:4px}
+.bph .bph-request{background:#fff;color:#17254d;border-radius:20px;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.14)}
+.bph .bph-request-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.bph .bph-request-top strong{font-size:.9rem}
+.bph .bph-badge{font-size:.58rem;padding:5px 9px;border-radius:999px;background:#eaf8f1;color:#108657;font-weight:850}
+.bph .bph-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #edf0f5;font-size:.69rem;color:#657087}
+.bph .bph-row:last-child{border-bottom:0}
+.bph .bph-row b{color:#1d2b50;text-align:end}
+/* Latin left-to-right chain: in an RTL page a plain flex row renders it
+   Track → … → Ask, i.e. backwards. */
+.bph .bph-flow{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin:26px 0 20px;direction:ltr}
+.bph .bph-flow span{font-size:.67rem;font-weight:850;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+.bph .bph-flow i{font-style:normal;color:#7ee7ff}
+.bph .bph-b10x-cta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+
+/* 4 — services */
+.bph .bph-services{padding:58px 0 66px;background:#fff}
+.bph .bph-ai-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}
+.bph .bph-ai-card{display:block;border-radius:20px;padding:17px 18px;border:1px solid #dfe5f0;background:linear-gradient(145deg,#fff,#f8faff);min-height:130px;position:relative;overflow:hidden}
+.bph .bph-ai-card:hover{box-shadow:0 14px 38px rgba(20,49,125,.09);border-color:#afc0f0}
+.bph .bph-ai-card:after{content:'AI';position:absolute;inset-inline-start:13px;bottom:-13px;font-size:3.3rem;font-weight:950;color:rgba(40,83,198,.035)}
+.bph .bph-ai-card small{display:inline-flex;padding:5px 8px;border-radius:8px;background:#edf3ff;color:#2856c7;font-size:.59rem;font-weight:900;margin-bottom:16px}
+.bph .bph-ai-card strong{display:block;color:#142653;font-size:.87rem;margin-bottom:6px}
+.bph .bph-ai-card span{display:block;color:#778198;font-size:.69rem;line-height:1.7}
+.bph .bph-label{font-size:.7rem;font-weight:900;color:#6f7b92;margin:26px 2px 12px;letter-spacing:.04em}
+.bph .bph-cap-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bph .bph-capcard{display:block;min-height:152px;border-radius:20px;padding:17px;border:1px solid var(--line);background:#fff}
+.bph .bph-capcard:hover{border-color:#b7c4e8;box-shadow:0 12px 34px rgba(15,39,103,.08)}
+.bph .bph-capcard i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#eef3ff;color:#2b56c3;font-style:normal;font-weight:900;font-size:.72rem;margin-bottom:16px}
+.bph .bph-capcard strong{display:block;font-size:.83rem;color:#172854;margin-bottom:6px}
+.bph .bph-capcard span{display:block;font-size:.68rem;line-height:1.7;color:#778198}
+
+/* 5 — start now + buy now */
+.bph .bph-start{padding:62px 0;background:var(--soft)}
+.bph .bph-start-grid{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.15fr);gap:26px;align-items:start}
+.bph .hero-start{background:#fff;border:1px solid rgba(11,27,90,.12);border-radius:20px;padding:26px 24px 22px;box-shadow:0 18px 46px rgba(11,27,90,.13)}
+.bph .hs-title{margin:0 0 6px;font-size:1.35rem;color:var(--n)}
+.bph .hs-sub{margin:0 0 18px;color:var(--mut);font-size:.92rem;line-height:1.65}
+.bph .hs-label{display:block;font-weight:700;font-size:.85rem;color:var(--n);margin:0 0 6px}
+.bph .hs-field{width:100%;padding:12px 14px;margin:0 0 16px;border:1px solid #d5dae6;border-radius:11px;font:inherit;font-size:.93rem;background:#fff;color:inherit}
+.bph .hs-field:focus{outline:none;border-color:var(--b);box-shadow:0 0 0 3px rgba(49,89,216,.14)}
+.bph .hs-pickwrap{position:relative;margin:0 0 10px}
+.bph .hs-pickwrap .hs-field{margin:0}
+.bph .hs-sug{position:absolute;top:calc(100% + 6px);inset-inline:0;z-index:40;background:#fff;border:1px solid #d5dae6;border-radius:13px;box-shadow:0 20px 46px rgba(11,27,90,.18);max-height:320px;overflow-y:auto;padding:6px}
+.bph .hs-sug[hidden],.bph .hs-picked[hidden]{display:none}
+.bph .hs-sug button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;font:inherit;font-size:.88rem;text-align:start;padding:9px 11px;border-radius:9px;cursor:pointer;color:var(--n)}
+.bph .hs-sug button:hover,.bph .hs-sug button.hl{background:#f1f4fb}
+.bph .hs-sug .g{font-size:.66rem;color:#8a93a7;font-weight:700;white-space:nowrap}
+.bph .hs-sug .none{padding:10px 12px;font-size:.85rem;color:var(--mut);line-height:1.7}
+.bph .hs-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.bph .hs-chips-t{font-size:.72rem;font-weight:800;color:#8a93a7}
+.bph .hs-chip{border:1px solid #d5dae6;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:.78rem;font-weight:700;color:var(--n);cursor:pointer}
+.bph .hs-chip:hover{border-color:var(--b);color:var(--b)}
+.bph .hs-chip.on{background:var(--n);border-color:var(--n);color:#fff}
+.bph .hs-picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:11px;padding:9px 12px;font-size:.84rem;font-weight:700;margin:0 0 14px;line-height:1.7}
+.bph .hs-picked a{color:var(--b);font-weight:800;text-decoration:none;margin-inline-start:auto;white-space:nowrap}
+.bph .hs-go{width:100%}
+.bph .hs-msg{margin:12px 0 0;font-size:.88rem;line-height:1.6}
+.bph .hs-msg.err{color:#b91c1c}
+.bph .hs-msg.ok{color:#166534}
+.bph .hs-alt{margin:12px 0 0;font-size:.83rem;color:var(--mut);text-align:center}
+.bph .hs-alt a{color:var(--b);font-weight:700}
+.bph .qb-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.bph .qb-head h2{margin:6px 0 0;color:var(--n);font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.04em}
+.bph .qb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bph .qb-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 6px 20px rgba(11,27,90,.05)}
+.bph .qb-cat{font-size:.63rem;font-weight:800;color:#6f7b92;margin-bottom:7px}
+.bph .qb-card h3{margin:0 0 9px;font-size:.87rem;line-height:1.55;color:#172854}
+.bph .qb-card .price-amt{font-size:1.15rem;font-weight:850;color:var(--n);margin-bottom:10px}
+.bph .qb-note{margin:0 0 10px;font-size:.7rem;color:var(--mut)}
+.bph .qb-actions{margin-top:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bph .qb-actions .add-cart{font-size:.76rem;padding:9px 13px;border-radius:11px}
+.bph .qb-more{font-size:.73rem;font-weight:800;color:var(--b)}
+.bph .qb-foot{margin:16px 0 0;font-size:.72rem;color:var(--mut);text-align:center}
+
+/* 6 — packages */
+.bph .bph-packages{padding:62px 0;background:#fff}
+.bph .bph-pkg-grid{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:11px;align-items:stretch}
+.bph .bph-pkg{border:1px solid var(--line);border-radius:22px;padding:20px;background:#fff;display:flex;flex-direction:column}
+.bph .bph-pkg h3{margin:0 0 7px;color:var(--n)}
+.bph .bph-pkg p{margin:0;color:var(--mut);font-size:.72rem;line-height:1.65;min-height:44px}
+.bph .bph-pkg ul{list-style:none;padding:0;margin:16px 0 20px;display:grid;gap:8px}
+.bph .bph-pkg li{font-size:.7rem;color:#536077}
+.bph .bph-pkg li:before{content:'✓';color:var(--m);font-weight:900;margin-inline-end:6px}
+.bph .bph-pkg .bph-btn{margin-top:auto;text-align:center}
+.bph .bph-pkg.b10x{position:relative;overflow:hidden;border:0;color:#fff;background:radial-gradient(circle at 90% 5%,rgba(67,214,244,.18),transparent 28%),linear-gradient(145deg,var(--n),#153f96);box-shadow:0 20px 55px rgba(24,57,145,.19)}
+.bph .bph-pkg.b10x:before{content:'B10X';position:absolute;inset-inline-start:-5px;bottom:-25px;font-size:5.5rem;font-weight:950;letter-spacing:-.08em;color:rgba(255,255,255,.045)}
+.bph .bph-pkg.b10x h3{color:#fff;font-size:1.45rem}
+.bph .bph-pkg.b10x p,.bph .bph-pkg.b10x li{color:rgba(255,255,255,.74)}
+.bph .bph-pkg.b10x li:before{color:#56e2b0}
+.bph .bph-pkg.b10x .bph-btn{position:relative;z-index:1}
+
+/* 7 — client portal proof */
+.bph .bph-proof{padding:62px 0 72px;background:var(--soft)}
+.bph .bph-proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bph .bph-proof-card{border:1px solid var(--line);border-radius:22px;padding:22px;background:#fff;box-shadow:0 8px 28px rgba(10,28,78,.05)}
+.bph .bph-proof-card.dark{background:linear-gradient(145deg,var(--n),#123984);color:#fff;border:0}
+.bph .bph-proof-card h3{margin:0 0 14px;color:var(--n)}
+.bph .bph-proof-card.dark h3{color:#fff}
+.bph .bph-mini{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:.73rem;color:#5d687d}
+.bph .bph-proof-card.dark .bph-mini{border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.72)}
+.bph .bph-status{font-size:.59rem;padding:4px 8px;border-radius:999px;background:#eaf8f1;color:#118657;font-weight:800}
+.bph .bph-proof-card.dark .bph-status{background:rgba(255,255,255,.12);color:#fff}
+.bph .bph-proof-card .bph-btn{margin-top:16px}
+
+/* The homepage carries its own full-width advisor; the floating one duplicates it. */
+body.bph-page .advisor-fab,body.bph-page .advisor-panel,body.bph-page .advisor-teaser{display:none!important}
+/* Compact footer — the homepage ends on a CTA, not on a sitemap. */
+body.bph-page .site-footer .newsletter-band,body.bph-page .site-footer .footer-grid{display:none!important}
+body.bph-page .site-footer{padding:0!important}
+body.bph-page .site-footer .footer-bottom{margin:0!important;padding:12px 0!important;border:0!important}
+
+@media(max-width:1080px){
+  .bph .bph-ai-row,.bph .bph-cap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-pkg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bph .bph-start-grid{grid-template-columns:1fr}
+}
+@media(max-width:980px){
+  .bph .bph-b10x-intro,.bph .bph-b10x-grid,.bph .bph-proof-grid{grid-template-columns:1fr}
+  .bph .bph-promise{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:640px){
+  .bph .bph-wrap{width:min(100% - 26px,1180px)}
+  .bph section{padding:50px 0}
+  .bph .bph-hero{padding:38px 0 20px}
+  .bph .bph-hero h1{font-size:1.95rem;line-height:1.12;margin:12px auto 12px}
+  .bph .bph-hero p.bph-lead{font-size:.9rem;line-height:1.75}
+  .bph .bph-kicker{font-size:.66rem}
+  .bph .bph-ai-row,.bph .bph-cap-grid,.bph .bph-pkg-grid,.bph .qb-grid{grid-template-columns:1fr}
+  .bph .bph-promise,.bph .bph-caps{grid-template-columns:1fr 1fr}
+  .bph .bph-b10x h2{font-size:2.6rem}
+}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style id="bp-simple-header-css">
+.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
+.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
+.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
+.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
+.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
+.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
+.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
+.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
+.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
+.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
+.bp-simple-header .bp-cart svg{width:19px;height:19px}
+.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
+@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
+@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
+@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+</style>
 </head>
-<body><header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/es/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/es/" class="active">Inicio</a><a href="/es/about">Sobre nosotros</a><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Nuestros servicios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/es/services">All services (140)</a><a href="/services/category/company-formation">🏢 Constitución de empresas</a><a href="/services/category/foreign-investment">🌍 Inversión extranjera</a><a href="/services/category/premium-residency">🪪 Residencia Premium</a><a href="/services/category/government-relations">🏛️ Relaciones gubernamentales</a><a href="/services/category/hr-services">👥 Servicios de RRHH</a><a href="/services/category/recruitment">🧑‍💼 Reclutamiento y contratación</a><a href="/services/category/business-support">📊 Business Support</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Paquetes <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/es/packages">All packages</a><a href="/es/packages#pkg-management">Service packages</a><a href="/es/packages#pkg-formation">Constitución de empresas</a><a href="/es/packages#pkg-legal">Legal Packages</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Agentes de IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Cumplimiento</a><a href="/ai-document-agent">Documents</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/revenue-os">Cómo funciona</a><a href="/revenue-os#pricing">Paquetes y precios</a><a href="/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">Equipo de Acción ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">Para empleadores</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
-  </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Viajes y experiencias</a><a href="/tourism">Corporate events</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Ver espacios</a><a href="/workspace-request">Solicitar un espacio de trabajo</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/farina">Resumen</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Resumen</a><a href="/worker-housing#wh-request">Solicitar alojamiento</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Transporte de trabajadores</a></div>
-  </div><a href="/consultation">Reservar una consulta gratuita</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Centro de conocimiento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Guía de Arabia Saudí <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/saudi-arabia">Invertir en Arabia Saudita</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
-  </div><a href="/opportunities">Investment Opportunities</a><a href="/news">Noticias y análisis</a><a href="/newsletter">Boletín</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Herramientas y calculadoras <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Calculadora de costes</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Verificador de profesiones</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Vacaciones anuales</a><a href="/calculators/overtime">Horas extra</a><a href="/calculators/gosi">GOSI calculator</a></div>
-  </div><a href="/magazine">Revista (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Portal del cliente</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
-    </div><a href="/es/contact">Contáctanos</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></g></svg><span class="lang-label">Español</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
-  </div>
-    <a class="hdr-btn" data-account-link href="/account" aria-label="Iniciar sesión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Iniciar sesión</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Registro de socios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Socios</span></a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">Socios de tu éxito</p>
-    <h1>Un socio operativo único para todas tus necesidades empresariales en Arabia Saudita</h1>
-    <p class="lead">Desde la constitución de empresas y la inversión extranjera hasta licencias, RRHH y cumplimiento normativo — lo resolvemos con claridad y rapidez, hasta la emisión final.</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Reservar una consulta gratuita</span></a><a class="btn btn-ghost btn-lg" href="/es/services">Explorar servicios</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Respuesta instantánea 24/7</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Más de 90 servicios gubernamentales</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Tarifas transparentes</span>
+<body class="bph-page"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/services/category/company-formation">Company Formation</a><a href="/services/category/foreign-investment">Foreign Investment</a><a href="/services/category/premium-residency">Premium Residency</a><a href="/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/services/category/government-relations">Government Services</a><a href="/compliance-agent">Compliance & Violations</a><a href="/services/category/hr-services">HR Services</a><a href="/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/workspaces">Workspaces</a><a href="/worker-housing">Worker Housing</a><a href="/tourism">Tourism & Events</a><a href="/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/b10x">B10X</a><a href="/#bp-consultant">Smart Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/smart-employee">Specialised Smart Employee</a><a href="/business-development">Business Development</a><a href="/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/suppliers">Partner Registration</a><a href="/partner-dashboard">Partner Portal</a><a href="/agency-portal">Recruitment Agency Portal</a><a href="/connect">Connect Hub</a><a href="/careers">Jobs</a></div></div></details><a href="/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/ai-agents">All AI Advisors</a><a href="/compliance-agent">Compliance Advisor</a><a href="/ai-document-agent">Document AI</a><a href="/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Hiring</summary><div class="bp-mini-menu"><a href="/careers">Open jobs</a><a href="/employer-dashboard">Employer dashboard</a><a href="/employer-join">Register as employer</a><a href="/employers">Employer services</a><a href="/job-search-service">Job search service</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/services/category/recruitment">Recruitment services</a></div></details><a href="/about">About</a><a href="/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>English</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/account">Get started</a></div></div></header><main><div class="bph"><section class="bph-hero"><div class="bph-wrap">
+    <span class="bph-kicker"><i></i> Business Partner · Compliance, government operations and payments for companies in Saudi Arabia</span>
+    <h1>Your obligations, paid on time.<br><span>So a deadline never becomes a fine.</span></h1>
+    <p class="bph-lead">Keep a balance with Business Partner and we settle what your company owes as it falls due — GOSI, iqama and work-permit renewals, municipality licences, platform fees and payroll — and execute the government work behind each one. You watch it from one dashboard instead of chasing dates.</p>
+    <div class="bph-chips"><a href="/shared-services">GOSI &amp; payroll</a><a href="/services/category/government-relations">Iqamas &amp; work permits</a><a href="/services/category/government-relations">Municipality &amp; licences</a><a href="/compliance-agent">Violations &amp; objections</a><a href="/services/category/company-formation">Company setup</a><a href="/services/category/hr-services">Recruitment &amp; HR</a></div>
+    <div class="bph-proofline"><b>Your money stays yours</b><i></i><span>Paid only against a due obligation</span><i></i><span>Every payment on your statement</span></div>
+    <div class="bph-hero-actions">
+      <a class="bph-btn primary" href="#bp-how">See how it works</a>
+      <a class="bph-btn" href="#bp-services">Explorar los servicios</a>
     </div>
-  </div></section>
-
-  <section class="section section--navy trust-band"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">Trust in numbers</span><h2 style="color:#fff">Cifras de las que nos sentimos orgullosos</h2></div>
-    <div class="stats"><div class="stat"><div class="num">+1000</div><div class="lbl">Clients served</div></div><div class="stat"><div class="num">+15</div><div class="lbl">Years of experience in the Saudi market</div></div><div class="stat"><div class="num">+90</div><div class="lbl">Services in the official catalog</div></div><div class="stat"><div class="num">+15</div><div class="lbl">Government authorities we deal with</div></div></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Quiénes somos</span><h2>Tu socio operativo en Arabia Saudita</h2><p>Gestionamos tus trámites gubernamentales, extraemos tus registros y operamos tus plataformas — para que te concentres en hacer crecer tu negocio, respaldado por más de 15 años de experiencia en el mercado saudí.</p></div>
-    <div class="grid grid-3">
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🏛️</div><h3>Más de 15 organismos</h3><p>Tratamos con los organismos oficiales en tu nombre.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🗂️</div><h3>Más de 90 servicios</h3><p>Un catálogo oficial completo que cubre desde la constitución hasta las operaciones diarias.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🖥️</div><h3>Gestión de plataformas</h3><p>Qiwa, GOSI, Muqeem, Mudad, Absher y más — gestionados por nosotros.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🤖</div><h3>Agente inteligente 24/7</h3><p>Respuestas instantáneas y preparación automática de documentos en cualquier momento.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">⚡</div><h3>Ejecución rápida</h3><p>Procesos listos para usar y conocimiento preciso de la normativa.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🛡️</div><h3>Transparencia total</h3><p>Tarifas claras, con las tasas gubernamentales indicadas por separado.</p></div>
+  </div></section><section class="bph-risk" id="bp-risk"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>What we carry for your company</h2>
+      <p>Every line below is an obligation with a date on it. Missing the date is what costs money — not the fee itself.</p>
     </div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">Cómo funciona</span><h2>Cómo gestionamos tus registros y licencias</h2><p>Un camino claro desde tu primer mensaje hasta la emisión final — nos encargamos de los trámites y les damos seguimiento hasta el final.</p></div>
-    <div class="home-steps">
-      <div class="hstep"><span class="hstep-n">1</span><h3>Consulta</h3><p>Cuéntanos qué necesitas — identificamos el servicio adecuado para tu caso.</p></div>
-      <div class="hstep"><span class="hstep-n">2</span><h3>Preparación de documentos</h3><p>Preparamos y revisamos contigo tu lista de documentos.</p></div>
-      <div class="hstep"><span class="hstep-n">3</span><h3>Presentación y seguimiento</h3><p>Presentamos la solicitud ante el organismo correspondiente y damos seguimiento hasta la emisión.</p></div>
-      <div class="hstep"><span class="hstep-n">4</span><h3>Entrega y soporte</h3><p>Te entregamos tu registro/licencia lista, con soporte continuo.</p></div>
+    <div class="bph-risk-grid"><div class="bph-risk-card"><div class="ic">🪪</div><h3>Iqamas &amp; work permits</h3><p>Renewals tracked per employee and filed before they lapse, with the fees paid from your balance.</p></div><div class="bph-risk-card"><div class="ic">🏛</div><h3>GOSI &amp; platform fees</h3><p>Monthly subscriptions and the government platforms your company is registered on, settled on schedule.</p></div><div class="bph-risk-card"><div class="ic">📄</div><h3>Municipality &amp; commercial licences</h3><p>Licence and registration renewals prepared and submitted, not left to the last week.</p></div><div class="bph-risk-card"><div class="ic">💵</div><h3>Payroll</h3><p>Salaries disbursed from your balance on your cycle, so wage-protection status stays clean.</p></div><div class="bph-risk-card"><div class="ic">⚖️</div><h3>Violations</h3><p>Reviewed, eligibility for objection studied, prepared, filed and followed up. No promise of cancellation — the decision is the authority's.</p></div><div class="bph-risk-card"><div class="ic">🤝</div><h3>Suppliers, under escrow</h3><p>A supplier's fee is held from your balance and released only after the work is delivered and you confirm it.</p></div></div>
+    <p class="bph-risk-note">Government fees and platform charges are passed through to the authority as they are — Business Partner is paid its own service fee, stated separately on every invoice.</p>
+  </div></section><section class="bph-how" id="bp-how"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Three steps, then you stop chasing dates</h2>
+      <p>No service names to learn and no forms to hunt for. You keep a balance, we do the rest and show you all of it.</p>
     </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="/consultation">Empezar ahora</a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Por qué nosotros</span><h2>Por qué Business Partner</h2></div>
-    <div class="grid grid-3"><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg></div>
-      <h3>24/7 smart agent</h3><p>Responde tus preguntas 24/7, identifica el servicio adecuado para tu caso y comienza a preparar automáticamente tu lista de documentos.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
-      <h3>Ejecución rápida</h3><p>Los procesos listos para usar y el conocimiento preciso de la normativa ahorran tiempo — comenzamos en cuanto tus documentos estén completos.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
-      <h3>Transparencia total</h3><p>Tarifas claras, con las tasas gubernamentales separadas e indicadas. Sabes qué pagas y por qué antes de comenzar.</p></div></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">Servicios</span><h2>Nuestros servicios principales</h2></div>
-      <a class="btn btn-primary" href="/es/services">Todos los servicios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
+    <div class="bph-steps"><div class="bph-step"><h3>Keep a balance</h3><p>Top up your company wallet by transfer or card. It stays your money, held for your obligations — not a payment to us.</p><div class="bph-step-meta">Wallet · statement on demand</div></div><div class="bph-step"><h3>We pay and execute on time</h3><p>Each obligation is settled as it falls due and the government work behind it is carried out by our team — you are told before, not after.</p><div class="bph-step-meta">Human execution · SLA</div></div><div class="bph-step"><h3>You see everything in one place</h3><p>Requests, documents, invoices, what was paid and what is coming — in your dashboard, with an alert before each date.</p><div class="bph-step-meta">Client dashboard</div></div></div>
+    <div class="bph-how-actions">
+      <a class="bph-btn primary" href="/account">Open your account</a>
+      <a class="bph-btn" href="#bp-consultant">Not sure? Ask the smart advisor</a>
     </div>
-    <div class="quick-links"><a class="quick-link" href="/services/category/company-formation"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Constitución de empresas</span></a><a class="quick-link" href="/services/category/foreign-investment"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Inversión extranjera</span></a><a class="quick-link" href="/services/category/premium-residency"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Residencia Premium</span></a><a class="quick-link" href="/services/category/government-relations"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Relaciones gubernamentales</span></a><a class="quick-link" href="/services/category/hr-services"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Servicios de RRHH</span></a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">Paquetes</span><h2>Paquetes</h2></div>
-      <a class="btn btn-primary" href="/es/packages">Ver paquetes <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
+  </div></section><section class="bph-pay" id="bp-pay"><div class="bph-wrap">
+    <div class="bph-pay-shell">
+      <div class="bph-pay-main">
+        <span class="bph-pay-eyebrow">Instalments · Tamara</span>
+        <h2>Order now, pay our fee in instalments</h2>
+        <p>A renewal does not wait for your cash-flow month. Choose the service you need, split the Business Partner fee into instalments with Tamara at checkout, and our team starts the government work straight away — so the deadline is met either way.</p>
+        <div class="bph-pay-actions">
+          <a class="bph-btn primary" href="#bp-start">Choose a service</a>
+          <a class="bph-btn" href="/es/packages">See packages</a>
+        </div>
+      </div>
+      <div class="bph-pay-side">
+        <div class="bph-pay-fact"><div class="k">١</div><div><b>Instalments cover our service fee</b><span>Government and platform charges are passed through to the authority as they are, itemised separately on your invoice.</span></div></div><div class="bph-pay-fact"><div class="k">٢</div><div><b>Tamara decides the plan</b><span>The amount and the number of instalments are Tamara's decision at checkout. You see the schedule before you confirm.</span></div></div><div class="bph-pay-fact"><div class="k">٣</div><div><b>Work starts on approval</b><span>Our team begins as soon as the order is approved — you are not waiting for the last instalment.</span></div></div>
+        <p class="bph-pay-fine">Instalments are provided by Tamara under its own terms, and approval is Tamara's decision. Business Partner does not lend, hold deposits, or disburse payroll on your behalf.</p>
+      </div>
     </div>
-    <div class="quick-links"><a class="quick-link" href="/es/packages"><span class="q-icon">📦</span><span>Small Establishment Package</span></a><a class="quick-link" href="/es/packages"><span class="q-icon">📦</span><span>Launch Package</span></a><a class="quick-link" href="/es/packages"><span class="q-icon">📦</span><span>Growth Package</span></a><a class="quick-link" href="/es/packages"><span class="q-icon">📦</span><span>Scale Package</span></a><a class="quick-link" href="/es/packages"><span class="q-icon">📦</span><span>Enterprise Package</span></a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Opiniones de clientes</span><h2>Opiniones de clientes</h2></div>
-    <div class="grid grid-3"><div class="quote"><p>Completaron la constitución de mi empresa rápidamente y cada paso fue claro desde el principio.</p><div class="who">Cliente — sector minorista</div><div class="role">Constitución de empresa</div></div><div class="quote"><p>The smart agent answered me at night and prepared my document list right away.</p><div class="who">Cliente — inversionista</div><div class="role">Inversión extranjera</div></div><div class="quote"><p>Tarifas claras sin sorpresas, y le dieron seguimiento hasta que se emitió la licencia.</p><div class="who">Cliente — sector industrial</div><div class="role">Licencia industrial</div></div></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><h2>¿Listo para empezar?</h2><p>Send us your enquiry now — the smart agent replies instantly and sets your next step.</p><a class="btn btn-white btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Reservar una consulta</span></a></div>
-  </div></section></main><footer class="site-footer"><div class="container">
+  </div></section><section class="bph-services" id="bp-services"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Everything your company needs, in one place.</h2>
+      <p>Choose a business area, or use one of the smart advisors to reach the right workflow directly.</p>
+    </div>
+    <div class="bph-ai-row"><a class="bph-ai-card" href="#bp-consultant"><small>B10X</small><strong>Asesor Inteligente</strong><span>Available 24/7 to understand your goal and route the next action.</span></a><a class="bph-ai-card" href="/compliance-agent"><small>AI</small><strong>Compliance Advisor</strong><span>Tracks obligations, violations, deadlines and remediation paths.</span></a><a class="bph-ai-card" href="/ai-document-agent"><small>AI</small><strong>Document Advisor</strong><span>Reads your files, extracts data and checks requirements inside your account.</span></a><a class="bph-ai-card" href="/business-development"><small>AI</small><strong>Business Development Advisor</strong><span>Supports customers, suppliers, partners and pipeline growth.</span></a></div>
+    <div class="bph-label">Business Partner service areas</div>
+    <div class="bph-cap-grid"><a class="bph-capcard" href="/services/category/company-formation"><i>01</i><strong>Company setup &amp; investment</strong><span>Local and foreign setup, licensing, registration and post-formation.</span></a><a class="bph-capcard" href="/services/category/government-relations"><i>02</i><strong>Government services &amp; licensing</strong><span>Qiwa, GOSI, Balady, ZATCA and other business platforms.</span></a><a class="bph-capcard" href="/services/category/hr-services"><i>03</i><strong>HR &amp; workforce</strong><span>HR operations, sponsorship transfer, recruitment and workforce.</span></a><a class="bph-capcard" href="/compliance-agent"><i>04</i><strong>Compliance &amp; violations</strong><span>Obligations, alerts, violations, objection paths and remediation.</span></a><a class="bph-capcard" href="/workspaces"><i>05</i><strong>Offices &amp; real estate</strong><span>Offices, workspaces, real-estate search and workplace operations.</span></a><a class="bph-capcard" href="/worker-housing"><i>06</i><strong>Housing &amp; relocation</strong><span>Worker housing, executive housing, relocation and support services.</span></a><a class="bph-capcard" href="/es/packages#pkg-legal"><i>07</i><strong>Legal &amp; contracts</strong><span>Contracts, agreements and legal reviews tied to operations.</span></a><a class="bph-capcard" href="/business-development"><i>08</i><strong>Business development</strong><span>Customers, suppliers, partners, pipeline and growth in the Saudi market.</span></a></div>
+  </div></section><section class="bph-start" id="bp-start"><div class="bph-wrap">
+    <div class="bph-start-grid"><aside class="hero-start" id="heroStart">
+    <h2 class="hs-title">Empezar ahora</h2>
+    <p class="hs-sub">Elige tu servicio y deja tu móvil: te respondemos y preparamos tus documentos.</p>
+    <label class="hs-label" for="hsSearch">¿Qué servicio necesitas?</label>
+    <div class="hs-pickwrap">
+      <input class="hs-field" id="hsSearch" type="text" autocomplete="off" placeholder="Type to search: &quot;CR&quot;, &quot;visa&quot;, &quot;iqama&quot;…">
+      <div class="hs-sug" id="hsSug" hidden></div>
+    </div>
+    <div class="hs-chips" id="hsChips"><span class="hs-chips-t">Most requested:</span><button type="button" class="hs-chip" data-code="BP-SBC-02">New Commercial Registration Issuance</button><button type="button" class="hs-chip" data-code="BP-FI-02">Foreign Investment License Issuance</button><button type="button" class="hs-chip" data-code="BP-QIWA-02">Employee Sponsorship Transfer</button><button type="button" class="hs-chip" data-code="BP-ZATCA-01">VAT &amp; Zakat Registration</button><button type="button" class="hs-chip" data-code="BP-MUQEEM-03">Iqama Renewal</button><button type="button" class="hs-chip" data-code="BP-BALADY-01">Municipal License Issuance</button><button type="button" class="hs-chip" data-code="other">Not sure yet</button></div>
+    <div class="hs-picked" id="hsPicked" hidden></div>
+    <label class="hs-label" for="hsPhone">Número de móvil</label>
+    <input class="hs-field" id="hsPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX">
+    <button type="button" class="bph-btn primary hs-go" id="hsGo">Empezar ahora</button>
+    <p class="hs-msg" id="hsMsg" role="status" aria-live="polite"></p>
+    <p class="hs-alt">O <a href="/consultation">reserva una consulta gratuita</a> — sin coste ni compromiso.</p>
+    <script type="application/json" id="hsData">[{"c":"BP-CHAMBER-01","n":"Chamber of Commerce membership","g":"Constitución de empresas","u":"/services/bp-chamber-01"},{"c":"BP-PL-0066","n":"Pre-incorporation consultation","g":"Constitución de empresas","u":"/services/bp-pl-0066"},{"c":"BP-SBC-01","n":"Saudi Company Formation","g":"Constitución de empresas","u":"/services/bp-sbc-01"},{"c":"BP-SBC-02","n":"New Commercial Registration Issuance","g":"Constitución de empresas","u":"/services/bp-sbc-02"},{"c":"BP-SBC-03","n":"AoA Issuance & Notarization (new company)","g":"Constitución de empresas","u":"/services/bp-sbc-03"},{"c":"BP-SBC-04","n":"Commercial Registration Issuance","g":"Constitución de empresas","u":"/services/bp-sbc-04"},{"c":"BP-SBC-05","n":"Company Name Reservation","g":"Constitución de empresas","u":"/services/bp-sbc-05"},{"c":"BP-SBC-06","n":"Company Account on Absher Business","g":"Constitución de empresas","u":"/services/bp-sbc-06"},{"c":"BP-SBC-07","n":"Opening a Branch for an Existing Company","g":"Constitución de empresas","u":"/services/bp-sbc-07"},{"c":"BP-SBC-08","n":"Company Liquidation (CR cancellation & closure)","g":"Constitución de empresas","u":"/services/bp-sbc-08"},{"c":"BP-SBC-09","n":"CR Cancellation Certificate Issuance","g":"Constitución de empresas","u":"/services/bp-sbc-09"},{"c":"BP-SBC-10","n":"Amending AoA / Partners' Resolutions","g":"Constitución de empresas","u":"/services/bp-sbc-10"},{"c":"BP-SBC-11","n":"Commercial Registration Amendment","g":"Constitución de empresas","u":"/services/bp-sbc-11"},{"c":"BP-SBC-12","n":"Trade Name Reservation","g":"Constitución de empresas","u":"/services/bp-sbc-12"},{"c":"BP-SBC-13","n":"Commercial Registration Cancellation","g":"Constitución de empresas","u":"/services/bp-sbc-13"},{"c":"BP-SBC-14","n":"Legal Form Transformation","g":"Constitución de empresas","u":"/services/bp-sbc-14"},{"c":"BP-SBC-15","n":"AoA Drafting & Notarization Support","g":"Constitución de empresas","u":"/services/bp-sbc-15"},{"c":"BP-SBC-16","n":"Factory setup & industrial licensing services","g":"Constitución de empresas","u":"/services/bp-sbc-16"},{"c":"BP-SBC-17","n":"Commercial Statement Request","g":"Constitución de empresas","u":"/services/bp-sbc-17"},{"c":"BP-SBC-18","n":"Converting an Establishment into a Company","g":"Constitución de empresas","u":"/services/bp-sbc-18"},{"c":"BP-SBC-19","n":"Commercial Registration Renewal","g":"Constitución de empresas","u":"/services/bp-sbc-19"},{"c":"BP-SBC-20","n":"Detailed CR Extract Issuance","g":"Constitución de empresas","u":"/services/bp-sbc-20"},{"c":"BP-FI-01","n":"Foreign Investor Company Formation","g":"Inversión extranjera","u":"/services/bp-fi-01"},{"c":"BP-FI-02","n":"Foreign Investment License Issuance","g":"Inversión extranjera","u":"/services/bp-fi-02"},{"c":"BP-FI-03","n":"100%-owned foreign company formation (foreign branch)","g":"Inversión extranjera","u":"/services/bp-fi-03"},{"c":"BP-FI-04","n":"Joint-Venture Company Formation","g":"Inversión extranjera","u":"/services/bp-fi-04"},{"c":"BP-FI-05","n":"Entrepreneur-License Company Formation","g":"Inversión extranjera","u":"/services/bp-fi-05"},{"c":"BP-FI-06","n":"Foreign Company Branch Registration","g":"Inversión extranjera","u":"/services/bp-fi-06"},{"c":"BP-PR-01","n":"Premium Residency service (procedures + application)","g":"Residencia Premium","u":"/services/bp-pr-01"},{"c":"BP-PR-02","n":"Premium Residency Consultation","g":"Residencia Premium","u":"/services/bp-pr-02"},{"c":"BP-ABSHER-01","n":"Absher Business Setup","g":"Relaciones gubernamentales","u":"/services/bp-absher-01"},{"c":"BP-BALADY-01","n":"Municipal License Issuance","g":"Relaciones gubernamentales","u":"/services/bp-balady-01"},{"c":"BP-BALADY-02","n":"E-cleaning contract (municipal requirement)","g":"Relaciones gubernamentales","u":"/services/bp-balady-02"},{"c":"BP-GOSI-01","n":"GOSI Registration","g":"Relaciones gubernamentales","u":"/services/bp-gosi-01"},{"c":"BP-GOSI-02","n":"Add a Saudi Employee in GOSI","g":"Relaciones gubernamentales","u":"/services/bp-gosi-02"},{"c":"BP-GOSI-03","n":"GOSI Certificate Issuance","g":"Relaciones gubernamentales","u":"/services/bp-gosi-03"},{"c":"BP-GR-01","n":"Contractor Classification Certificate","g":"Relaciones gubernamentales","u":"/services/bp-gr-01"},{"c":"BP-MOD-01","n":"Civil Defense Permit & Safety Certificate","g":"Relaciones gubernamentales","u":"/services/bp-mod-01"},{"c":"BP-MOD-02","n":"Technical Safety Report","g":"Relaciones gubernamentales","u":"/services/bp-mod-02"},{"c":"BP-MUDAD-01","n":"Mudad WPS Setup","g":"Relaciones gubernamentales","u":"/services/bp-mudad-01"},{"c":"BP-MUQEEM-01","n":"Exit & Re-entry Visa Issuance","g":"Relaciones gubernamentales","u":"/services/bp-muqeem-01"},{"c":"BP-QIWA-01","n":"Qiwa Setup & Onboarding","g":"Relaciones gubernamentales","u":"/services/bp-qiwa-01"},{"c":"BP-QIWA-02","n":"Employee Sponsorship Transfer","g":"Relaciones gubernamentales","u":"/services/bp-qiwa-02"},{"c":"BP-QIWA-03","n":"Employee Profession Change","g":"Relaciones gubernamentales","u":"/services/bp-qiwa-03"},{"c":"BP-QIWA-04","n":"Adding an Authorized Representative","g":"Relaciones gubernamentales","u":"/services/bp-qiwa-04"},{"c":"BP-SAIP-01","n":"New trademark registration","g":"Relaciones gubernamentales","u":"/services/bp-saip-01"},{"c":"BP-SUBL-01","n":"National Address Registration","g":"Relaciones gubernamentales","u":"/services/bp-subl-01"},{"c":"BP-ZATCA-01","n":"VAT & Zakat Registration","g":"Relaciones gubernamentales","u":"/services/bp-zatca-01"},{"c":"BP-ZATCA-02","n":"VAT Number Issuance","g":"Relaciones gubernamentales","u":"/services/bp-zatca-02"},{"c":"BP-ZATCA-03","n":"Annual Zakat Return Filing","g":"Relaciones gubernamentales","u":"/services/bp-zatca-03"},{"c":"BP-ZATCA-04","n":"ZATCA VAT Registration","g":"Relaciones gubernamentales","u":"/services/bp-zatca-04"},{"c":"BP-ZATCA-05","n":"VAT Return Filing","g":"Relaciones gubernamentales","u":"/services/bp-zatca-05"},{"c":"BP-HR-01","n":"Employee Health Certificate Issuance","g":"Servicios de RRHH","u":"/services/bp-hr-01"},{"c":"BP-HR-02","n":"Establishment File Opening at MHRSD","g":"Servicios de RRHH","u":"/services/bp-hr-02"},{"c":"BP-HR-03","n":"HR & Employee Management Services","g":"Servicios de RRHH","u":"/services/bp-hr-03"},{"c":"BP-MUDAD-02","n":"Mudad Wage Protection File Upload","g":"Servicios de RRHH","u":"/services/bp-mudad-02"},{"c":"BP-MUDAD-03","n":"Wage Protection System Notes Resolution","g":"Servicios de RRHH","u":"/services/bp-mudad-03"},{"c":"BP-MUQEEM-02","n":"New Iqama Issuance","g":"Servicios de RRHH","u":"/services/bp-muqeem-02"},{"c":"BP-MUQEEM-03","n":"Iqama Renewal","g":"Servicios de RRHH","u":"/services/bp-muqeem-03"},{"c":"BP-MUQEEM-04","n":"Family Visit Visa Issuance","g":"Servicios de RRHH","u":"/services/bp-muqeem-04"},{"c":"BP-REC-01","n":"Recruitment Services & Work Visa Issuance","g":"Reclutamiento y contratación","u":"/services/bp-rec-01"},{"c":"BP-REC-02","n":"Work Visa Issuance","g":"Reclutamiento y contratación","u":"/services/bp-rec-02"},{"c":"BP-REC-03","n":"Outsourced Employment & Contracting (PEO/EOR)","g":"Reclutamiento y contratación","u":"/services/bp-rec-03"},{"c":"BP-REC-04","n":"Executive Search","g":"Reclutamiento y contratación","u":"/services/bp-rec-04"},{"c":"BP-REC-05","n":"Local Recruitment","g":"Reclutamiento y contratación","u":"/services/bp-rec-05"},{"c":"BP-REC-06","n":"Bulk Recruitment","g":"Reclutamiento y contratación","u":"/services/bp-rec-06"},{"c":"BP-BS-01","n":"Digital Marketing & Advertising","g":"Business Support","u":"/services/bp-bs-01"},{"c":"BP-PL-0019","n":"Franchise Law compliance & registration","g":"Business Support","u":"/services/bp-pl-0019"},{"c":"BP-PL-0035","n":"Muqeem Account Management","g":"Business Support","u":"/services/bp-pl-0035"},{"c":"BP-PL-0050","n":"VIP Transaction Processing","g":"Business Support","u":"/services/bp-pl-0050"},{"c":"BP-PL-0051","n":"Corporate Bank Account Opening","g":"Business Support","u":"/services/bp-pl-0051"},{"c":"BP-PL-0052","n":"Internal Company Regulations (Governance)","g":"Business Support","u":"/services/bp-pl-0052"},{"c":"BP-PL-0053","n":"Company Restructuring & Organization","g":"Business Support","u":"/services/bp-pl-0053"},{"c":"BP-PL-0054","n":"Corporate Legal Representation","g":"Business Support","u":"/services/bp-pl-0054"},{"c":"BP-PL-0055","n":"Corporate Law Consultation","g":"Business Support","u":"/services/bp-pl-0055"},{"c":"BP-PL-0056","n":"General Business & Investment Consultation","g":"Business Support","u":"/services/bp-pl-0056"},{"c":"BP-PL-0057","n":"Economic feasibility study preparation","g":"Business Support","u":"/services/bp-pl-0057"},{"c":"BP-PL-0058","n":"Business Plan & Strategy Development","g":"Business Support","u":"/services/bp-pl-0058"},{"c":"BP-PL-0059","n":"Financial Advisor (Accounting & Bookkeeping)","g":"Business Support","u":"/services/bp-pl-0059"},{"c":"BP-PL-0060","n":"Audit & Tax Review","g":"Business Support","u":"/services/bp-pl-0060"},{"c":"BP-PL-0063","n":"Public Relations & Corporate Communications","g":"Business Support","u":"/services/bp-pl-0063"},{"c":"BP-RE-01","n":"Private Office","g":"Real Estate","u":"/services/bp-re-01"},{"c":"BP-RE-02","n":"Coworking Space","g":"Real Estate","u":"/services/bp-re-02"},{"c":"BP-RE-03","n":"Virtual Office with National Address","g":"Real Estate","u":"/services/bp-re-03"},{"c":"BP-RE-04","n":"Dedicated Desk","g":"Real Estate","u":"/services/bp-re-04"},{"c":"BP-RE-05","n":"Office Search Service","g":"Real Estate","u":"/services/bp-re-05"},{"c":"BP-RE-06","n":"Foreign Property Ownership","g":"Real Estate","u":"/services/bp-re-06"},{"c":"BP-HOUSING-01","n":"Worker housing — licensed collective housing","g":"Servicios de RRHH","u":"/services/bp-housing-01"},{"c":"BP-HOUSING-02","n":"Worker transport — housing to work sites","g":"Servicios de RRHH","u":"/services/bp-housing-02"},{"c":"BP-AI-01","n":"AI Business Partner Enterprise","g":"AI & Automation","u":"/services/bp-ai-01"},{"c":"BP-AI-02","n":"AI Agent Setup","g":"AI & Automation","u":"/services/bp-ai-02"},{"c":"BP-FI-07","n":"Foreign Investor Entry","g":"Inversión extranjera","u":"/services/bp-fi-07"},{"c":"BP-DIAG-01","n":"Diagnostic Report","g":"Business Support","u":"/services/bp-diag-01"},{"c":"BP-GUIDE-01","n":"General Industry Guide","g":"Business Support","u":"/services/bp-guide-01"},{"c":"BP-GUIDE-02","n":"Custom Guide","g":"Business Support","u":"/services/bp-guide-02"},{"c":"BP-PL-0088","n":"Commercial Agency Registration","g":"Business Support","u":"/services/bp-pl-0088"},{"c":"BP-PL-0089","n":"Commercial Agency Registration Amendment","g":"Business Support","u":"/services/bp-pl-0089"},{"c":"BP-PL-0090","n":"Commercial Agency Registration Renewal","g":"Business Support","u":"/services/bp-pl-0090"},{"c":"BP-PL-0091","n":"Commercial Agency Registration Cancellation","g":"Business Support","u":"/services/bp-pl-0091"},{"c":"BP-PL-0092","n":"Discount License Issuance","g":"Business Support","u":"/services/bp-pl-0092"},{"c":"BP-PL-0093","n":"Precious Stones and Precious Metals Licenses","g":"Business Support","u":"/services/bp-pl-0093"},{"c":"BP-PL-0076","n":"Industrial License Issuance for Establishment","g":"Relaciones gubernamentales","u":"/services/bp-pl-0076"},{"c":"BP-PL-0077","n":"Industrial License Renewal","g":"Relaciones gubernamentales","u":"/services/bp-pl-0077"},{"c":"BP-PL-0078","n":"Industrial License Amendment","g":"Relaciones gubernamentales","u":"/services/bp-pl-0078"},{"c":"BP-PL-0079","n":"Industrial License Ownership Transfer","g":"Relaciones gubernamentales","u":"/services/bp-pl-0079"},{"c":"BP-PL-0080","n":"Labor Endorsement Request","g":"Relaciones gubernamentales","u":"/services/bp-pl-0080"},{"c":"BP-PL-0081","n":"Customs Exemption for Materials, Machinery, and Spare Parts","g":"Relaciones gubernamentales","u":"/services/bp-pl-0081"},{"c":"BP-PL-0082","n":"Certificate of Origin Issuance","g":"Relaciones gubernamentales","u":"/services/bp-pl-0082"},{"c":"BP-PL-0083","n":"Chemical Clearance Request","g":"Relaciones gubernamentales","u":"/services/bp-pl-0083"},{"c":"BP-PL-0084","n":"Customs Tariff Items Upgrade","g":"Relaciones gubernamentales","u":"/services/bp-pl-0084"},{"c":"BP-PL-0085","n":"Mining Reconnaissance License","g":"Relaciones gubernamentales","u":"/services/bp-pl-0085"},{"c":"BP-PL-0086","n":"Industrial Survey","g":"Relaciones gubernamentales","u":"/services/bp-pl-0086"},{"c":"BP-PL-0087","n":"Security Consulting Permit","g":"Relaciones gubernamentales","u":"/services/bp-pl-0087"},{"c":"BP-SUB-01","n":"Updates Subscription","g":"Business Support","u":"/services/bp-sub-01"},{"c":"BP-VENDOR-01","n":"Vendor Qualification","g":"Business Support","u":"/services/bp-vendor-01"},{"c":"BP-VENDOR-02","n":"Vendor Follow-up","g":"Business Support","u":"/services/bp-vendor-02"},{"c":"BP-AI-03","n":"Compliance & obligations agent","g":"AI & Automation","u":"/services/bp-ai-03"},{"c":"BP-AI-SMART-EMPLOYEE","n":"Specialist smart employee","g":"AI & Automation","u":"/services/bp-ai-smart-employee"},{"c":"BP-AI-04","n":"Shared services team","g":"AI & Automation","u":"/services/bp-ai-04"},{"c":"AI-GEN","n":"Artificial Intelligence Automation — Bespoke Service","g":"AI & Automation","u":"/services/ai-gen"},{"c":"CF-GEN","n":"Company Formation — Bespoke Service","g":"Constitución de empresas","u":"/services/cf-gen"},{"c":"GOV-GEN","n":"Government Transactions — Bespoke Service","g":"Relaciones gubernamentales","u":"/services/gov-gen"},{"c":"GR-GEN","n":"Government Relations Representative","g":"Relaciones gubernamentales","u":"/services/gr-gen"},{"c":"HR-GEN","n":"Human Resources — Bespoke Service","g":"Servicios de RRHH","u":"/services/hr-gen"},{"c":"PR-GEN","n":"Premium Residency — Bespoke Service","g":"Residencia Premium","u":"/services/pr-gen"},{"c":"RE-GEN","n":"Real Estate — Bespoke Service","g":"Real Estate","u":"/services/re-gen"},{"c":"REC-GEN","n":"Recruitment and Manpower — Bespoke Service","g":"Reclutamiento y contratación","u":"/services/rec-gen"},{"c":"SBC-GEN","n":"Shared Services — Bespoke Service","g":"Business Support","u":"/services/sbc-gen"},{"c":"SUP-GEN","n":"Support and Advisory — Bespoke Service","g":"Business Support","u":"/services/sup-gen"},{"c":"TR-GEN","n":"Tourism — Bespoke Service","g":"Business Support","u":"/services/tr-gen"},{"c":"CV-10","n":"Candidate CV Sourcing","g":"Reclutamiento y contratación","u":"/services/cv-10"},{"c":"MA-BRK","n":"Mergers and Acquisitions Brokerage","g":"Business Support","u":"/services/ma-brk"},{"c":"FI-100","n":"Foreign Investment Setup — 100% Foreign Owned Company","g":"Inversión extranjera","u":"/services/fi-100"},{"c":"QW-EST","n":"Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development","g":"Servicios de RRHH","u":"/services/qw-est"},{"c":"REV-LAUNCH","n":"Business Development — Revenue Operating System — Launch Package","g":"Business Support","u":"/services/rev-launch"},{"c":"REV-START","n":"Business Development — Revenue Operating System — Starter Package","g":"Business Support","u":"/services/rev-start"},{"c":"REV-GROWTH","n":"Business Development — Revenue Operating System — Growth Package","g":"Business Support","u":"/services/rev-growth"},{"c":"REV-PRO","n":"Business Development — Revenue Operating System — Professional Package","g":"Business Support","u":"/services/rev-pro"},{"c":"REV-TEAM","n":"Business Development — Revenue Operating System — Dedicated Team Package","g":"Business Support","u":"/services/rev-team"},{"c":"REV-ENT","n":"Business Development — Revenue Operating System — Enterprise Package","g":"Business Support","u":"/services/rev-ent"}]</script>
+  </aside><div>
+    <div class="qb-head">
+      <div><span class="bph-kicker"><i></i> Los más solicitados</span>
+        <h2>Compra un servicio ahora mismo</h2></div>
+      <a class="bph-btn" href="/es/services">Todos los servicios</a>
+    </div>
+    <div class="qb-grid"><article class="qb-card">
+      <span class="qb-cat">Constitución de empresas</span>
+      <h3>New Commercial Registration Issuance</h3>
+      <div class="price-amt">250 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-sbc-02" data-name-en="إصدار سجل تجاري جديد" data-name-ar="إصدار سجل تجاري جديد" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-sbc-02">Detalles</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">Inversión extranjera</span>
+      <h3>Foreign Investment License Issuance</h3>
+      <div class="price-amt">10,000 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-fi-02" data-name-en="استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)" data-name-ar="استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)" data-amount="10000" data-price="" data-kind="service" data-bp-code="BP-FI-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-fi-02">Detalles</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">Relaciones gubernamentales</span>
+      <h3>Employee Sponsorship Transfer</h3>
+      <div class="price-amt">1,000 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-qiwa-02" data-name-en="نقل كفالة عامل (نقل خدمة)" data-name-ar="نقل كفالة عامل (نقل خدمة)" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-QIWA-02"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-qiwa-02">Detalles</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">Relaciones gubernamentales</span>
+      <h3>VAT &amp; Zakat Registration</h3>
+      <div class="price-amt">500 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-zatca-01" data-name-en="التسجيل في الزكاة والضريبة (VAT &amp; Zakat)" data-name-ar="التسجيل في الزكاة والضريبة (VAT &amp; Zakat)" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-ZATCA-01"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-zatca-01">Detalles</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">Servicios de RRHH</span>
+      <h3>Iqama Renewal</h3>
+      <div class="price-amt">300 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-muqeem-03" data-name-en="تجديد إقامة (هوية مقيم)" data-name-ar="تجديد إقامة (هوية مقيم)" data-amount="300" data-price="" data-kind="service" data-bp-code="BP-MUQEEM-03"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-muqeem-03">Detalles</a>
+      </div>
+    </article><article class="qb-card">
+      <span class="qb-cat">Relaciones gubernamentales</span>
+      <h3>Municipal License Issuance</h3>
+      <div class="price-amt">1,000 ﷼</div>
+      <p class="qb-note" data-guest-note>El precio se muestra tras iniciar sesión</p>
+      <div class="qb-actions">
+        <button type="button" class="bph-btn primary add-cart" data-id="bp-balady-01" data-name-en="إصدار رخصة بلدية (مقر تجاري)" data-name-ar="إصدار رخصة بلدية (مقر تجاري)" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-BALADY-01"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span>Añadir al carrito</span></button>
+        <a class="qb-more" href="/services/bp-balady-01">Detalles</a>
+      </div>
+    </article></div>
+    <p class="qb-foot">Las tasas gubernamentales son independientes y se detallan antes de pagar.</p>
+  </div></div>
+  </div></section><section class="bph-chat-sec" id="bp-consultant"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Tell us what you need. B10X finds the path.</h2>
+      <p>You do not need to know the service name. Just describe what you need — the smart advisor identifies the service, the requirements and the next step.</p>
+    </div>
+    <div class="bph-chat-shell"><div class="bph-chat">
+      <div class="bph-chat-head">
+        <div class="bph-chat-title"><span class="bph-chat-mark">10X</span><span>B10X — Business Partner smart advisor</span></div>
+        <span class="bph-chat-live">● Online</span>
+      </div>
+      <div class="bph-chat-body" id="bphChatBody">
+        <div class="bph-msg ai">Hi 👋 Tell me what you need or what you are stuck on, and I will help you find the right path.</div>
+        <div class="bph-chat-chips"><button type="button" data-chat-q="I have an iqama or licence renewal coming up and want it handled">A renewal is due</button><button type="button" data-chat-q="I received a violation and want to review the objection path">I got a violation</button><button type="button" data-chat-q="I want you to handle GOSI and payroll for my company">GOSI &amp; payroll</button><button type="button" data-chat-q="I need help with employees and workforce services">Employees &amp; workforce</button><button type="button" data-chat-q="I want to set up a company in Saudi Arabia">Constitución de empresa</button><button type="button" data-chat-q="I want a quote for a service">Get a quote</button></div>
+      </div>
+      <form class="bph-compose" id="bphChatForm">
+        <textarea id="bphChatInput" rows="1" placeholder="e.g. I have a foreign company and want to start in Riyadh…"></textarea>
+        <button type="submit" aria-label="Enviar">↑</button>
+      </form>
+      <div class="bph-chat-note">The advisor helps you inside the site; move to a request or the client portal whenever you are ready.</div>
+    </div></div>
+  </div></section><section class="bph-packages" id="bp-packages"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Choose how you want to work with us.</h2>
+      <p>Start with B10X, or pick from the service, formation and legal package families.</p>
+    </div>
+    <div class="bph-pkg-grid">
+      <div class="bph-pkg b10x"><h3>B10X</h3>
+        <p>The intelligent operating layer that connects you to every Business Partner service from one place.</p>
+        <ul>
+          <li>24/7 smart advisor</li>
+          <li>Client Portal, requests and SLA tracking</li>
+          <li>Document AI and document vault</li>
+          <li>Compliance &amp; Violations Center</li>
+          <li>Human execution coordination</li>
+        </ul>
+        <a class="bph-btn white" href="/b10x">Start with B10X</a></div>
+      <div class="bph-pkg"><h3>Service packages</h3>
+        <p>Government and operational services bundled around how your company runs.</p>
+        <ul><li>Multiple services and requests</li><li>Tracking and alerts</li><li>One unified client workspace</li></ul>
+        <a class="bph-btn" href="/es/packages#pkg-management">Explore packages</a></div>
+      <div class="bph-pkg"><h3>Constitución de empresa</h3>
+        <p>Formation tracks for local and foreign companies, and everything after.</p>
+        <ul><li>Formation and licensing</li><li>Documents and requirements</li><li>Post-formation operations</li></ul>
+        <a class="bph-btn" href="/es/packages#pkg-formation">Explore packages</a></div>
+      <div class="bph-pkg"><h3>Legal packages</h3>
+        <p>Contracts, reviews and legal support tied to running and growing the company.</p>
+        <ul><li>Contracts and agreements</li><li>Legal reviews</li><li>Scope-based support</li></ul>
+        <a class="bph-btn" href="/es/packages#pkg-legal">Explore packages</a></div>
+    </div>
+  </div></section><section class="bph-b10x" id="b10x-sales"><div class="bph-wrap">
+    <div class="bph-b10x-intro">
+      <div><span class="bph-eyebrow">B10X by Business Partner</span>
+        <h2>Every service. One operating layer.</h2></div>
+      <p>B10X is how you use Business Partner end to end: ask, we understand the need, we identify the service and requirements, you approve, then execution starts and you track everything from your account — no chasing messages across providers.</p>
+    </div>
+    <div class="bph-promise"><div><b>24/7 Smart Advisor</b><span>Understands your goal and routes the next action.</span></div><div><b>Client Portal</b><span>Requests, documents, SLA and a clear next action.</span></div><div><b>Document AI</b><span>Reads and checks documents inside your company workspace.</span></div><div><b>Compliance</b><span>Obligations, alerts, violations and renewals.</span></div><div><b>Government Ops</b><span>Real execution by the Business Partner team.</span></div><div><b>Growth</b><span>Customers, suppliers, partners and pipeline.</span></div></div>
+    <div class="bph-b10x-grid">
+      
+      <div class="bph-request">
+        <div class="bph-request-top"><strong>Request #BP-12392</strong><span class="bph-badge">Document Review</span></div>
+        <div class="bph-row"><span>Autoridad</span><b>Ministry of Investment</b></div>
+        <div class="bph-row"><span>Next Action</span><b>Upload audited financial statements</b></div>
+        <div class="bph-row"><span>Assigned</span><b dir="ltr">Government Operations</b></div>
+        <div class="bph-row"><span>SLA</span><b dir="ltr">2 business days</b></div>
+        <div class="bph-row"><span>Documents</span><b dir="ltr">4 / 5 complete</b></div>
+      </div>
+    </div>
+    <div class="bph-flow"><span>Ask</span><i>→</i><span>Understand</span><i>→</i><span>Approve</span><i>→</i><span>Execute</span><i>→</i><span>Track</span></div>
+    <div class="bph-b10x-cta">
+      <a class="bph-btn white" href="/b10x">Explore B10X in detail</a>
+      <a class="bph-btn ghost" href="#bp-consultant">Start with the smart advisor</a>
+    </div>
+  </div></section><section class="bph-proof"><div class="bph-wrap">
+    <div class="bph-head">
+      <h2>Everything tracked from one workspace.</h2>
+      <p>Once work starts you never chase messages again. Requests, quotes, documents, payments and execution status all live in your account.</p>
+    </div>
+    <div class="bph-proof-grid">
+      <div class="bph-proof-card"><h3>Client Portal</h3>
+        <div class="bph-mini"><span>Active requests</span><span class="bph-status">En curso</span></div>
+        <div class="bph-mini"><span>Quotes</span><span>3</span></div>
+        <div class="bph-mini"><span>Documents</span><span>12</span></div>
+        <div class="bph-mini"><span>Payments &amp; invoices</span><span>Up to date</span></div>
+        <a class="bph-btn" href="/account">Open the client portal</a></div>
+      <div class="bph-proof-card dark"><h3>Business Partner Workspace</h3>
+        <div class="bph-mini"><span>B10X</span><span class="bph-status">Active</span></div>
+        <div class="bph-mini"><span>Compliance</span><span>Monitoring</span></div>
+        <div class="bph-mini"><span>Multi-company</span><span>Switch anytime</span></div>
+        <div class="bph-mini"><span>Documents & SLA</span><span>Connected</span></div>
+        <a class="bph-btn white" href="/account">See your experience after sign-in</a></div>
+    </div>
+  </div></section></div></main><footer class="site-footer"><div class="container">
   <div class="newsletter-band">
     <div class="nl-copy">
       <h3>Suscríbete a nuestro boletín</h3>
@@ -173,7 +535,7 @@
     <div class="footer-col"><h4>Nuestros servicios</h4><ul>
       <li><a href="/es/services">Todos los servicios</a></li>
       <li><a href="/es/packages">Paquetes</a></li>
-      <li><a href="/revenue-os">Revenue OS</a></li>
+      <li><a href="/business-development">BD as a Service</a></li>
       <li><a href="/ai-agents">Agentes de IA</a></li>
       <li><a href="/task-force">Task Force</a></li>
       <li><a href="/hr">Recruitment</a></li>
@@ -191,7 +553,7 @@
     </ul></div>
     <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
       <li><a href="/account">Portal del cliente</a></li>
-      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/business-development-dashboard">BD as a Service dashboard</a></li>
       <li><a href="/suppliers">Registro de socios</a></li>
       <li><a href="/employer-join">Para empleadores</a></li>
       <li><a href="/portal">Smart employees portal</a></li>
@@ -224,7 +586,7 @@
       <li><a href="/es/contact">Contáctanos</a></li>
     </ul></div>
     <div class="footer-col"><h4>Contacto</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
     </ul>
@@ -238,79 +600,146 @@
     <span>© 2026 Business Partner · All rights reserved</span>
     <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contáctenos por WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Cerrar">✕</button>
-    <p>Hola 👋 Soy Baher, su asistente inteligente. ¿Preguntas sobre constitución de empresas o plataformas gubernamentales?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Abrir el chat con Baher, el asistente inteligente">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Pregunte a Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Pregunte a Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Atrás" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Su socio inteligente — en línea ahora</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contáctenos por WhatsApp</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><script>
+(function () {
+  var go = document.getElementById("hsGo"), search = document.getElementById("hsSearch"),
+      sug = document.getElementById("hsSug"), chips = document.getElementById("hsChips"),
+      pickedBox = document.getElementById("hsPicked"),
+      ph = document.getElementById("hsPhone"), msg = document.getElementById("hsMsg");
+  if (go && search && sug && ph && msg) {
+    var say = function (text, cls) { msg.textContent = text; msg.className = "hs-msg" + (cls ? " " + cls : ""); };
+    var LIST = [];
+    try { LIST = JSON.parse((document.getElementById("hsData") || {}).textContent || "[]"); } catch (e) {}
+    var OTHER = { c: "other", n: "Otra cosa / no estoy seguro", g: "", u: "" };
+    var selCode = "", selName = "", cur = [], hl = -1;
+    var escT = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (ch) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]; }); };
+    var markChip = function (code) {
+      Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+        b.classList.toggle("on", !!code && b.getAttribute("data-code") === code);
+      });
+    };
+    var clearSel = function () { selCode = ""; selName = ""; pickedBox.hidden = true; markChip(""); };
+    var pick = function (item) {
+      selCode = item.c; selName = item.n;
+      search.value = item.n; sug.hidden = true; hl = -1;
+      pickedBox.innerHTML = "✓ " + escT(item.n)
+        + (item.u ? '<a href="' + escT(item.u) + '">' + "Details & price ←" + "</a>" : "");
+      pickedBox.hidden = false;
+      markChip(item.c);
+      say("", "");
+      ph.focus();
+    };
+    var findByCode = function (code) {
+      if (code === "other") return OTHER;
+      for (var i = 0; i < LIST.length; i++) if (LIST[i].c === code) return LIST[i];
+      return null;
+    };
+    var renderSug = function (q) {
+      q = String(q || "").trim().toLowerCase();
+      if (!q) { sug.hidden = true; return; }
+      cur = [];
+      for (var i = 0; i < LIST.length && cur.length < 8; i++) {
+        var it = LIST[i];
+        if ((it.n || "").toLowerCase().indexOf(q) > -1 || (it.g || "").toLowerCase().indexOf(q) > -1) cur.push(it);
+      }
+      hl = -1;
+      if (!cur.length) {
+        sug.innerHTML = '<div class="none">' + "No exact match — send anyway and we will pin the service with you on the call." + "</div>";
+      } else {
+        var h = "";
+        for (var j = 0; j < cur.length; j++) h += '<button type="button" data-i="' + j + '"><span>' + escT(cur[j].n) + '</span><span class="g">' + escT(cur[j].g) + "</span></button>";
+        sug.innerHTML = h;
+        Array.prototype.forEach.call(sug.querySelectorAll("[data-i]"), function (b) {
+          b.addEventListener("click", function () { pick(cur[+b.getAttribute("data-i")]); });
+        });
+      }
+      sug.hidden = false;
+    };
+    search.addEventListener("input", function () { clearSel(); renderSug(search.value); });
+    search.addEventListener("keydown", function (e) {
+      var bs = sug.querySelectorAll("[data-i]");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (sug.hidden || !bs.length) return;
+        e.preventDefault();
+        hl = e.key === "ArrowDown" ? (hl + 1) % bs.length : (hl - 1 + bs.length) % bs.length;
+        Array.prototype.forEach.call(bs, function (b, i) { b.classList.toggle("hl", i === hl); });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (!sug.hidden && hl > -1 && cur[hl]) pick(cur[hl]);
+        else if (!sug.hidden && cur.length === 1) pick(cur[0]);
+        else ph.focus();
+      } else if (e.key === "Escape") { sug.hidden = true; }
+    });
+    document.addEventListener("click", function (e) {
+      if (!sug.hidden && !sug.contains(e.target) && e.target !== search) sug.hidden = true;
+    });
+    Array.prototype.forEach.call(chips.querySelectorAll(".hs-chip"), function (b) {
+      b.addEventListener("click", function () {
+        var it = findByCode(b.getAttribute("data-code"));
+        if (it) pick(it);
+      });
+    });
+    // Saudi mobile: 05XXXXXXXX, 5XXXXXXXX, +9665XXXXXXXX or 009665XXXXXXXX.
+    var normPhone = function (v) {
+      var d = String(v || "").replace(/[^\d]/g, "").replace(/^00/, "");
+      if (/^9665\d{8}$/.test(d)) return d;
+      if (/^05\d{8}$/.test(d)) return "966" + d.slice(1);
+      if (/^5\d{8}$/.test(d)) return "966" + d;
+      return "";
+    };
+    go.addEventListener("click", function () {
+      var free = search.value.trim();
+      if (!selCode && !free) { say("Pick a service or type what you need.", "err"); search.focus(); return; }
+      var phone = normPhone(ph.value);
+      if (!phone) { say("Introduce un número de móvil saudí válido (05XXXXXXXX).", "err"); ph.focus(); return; }
+      go.disabled = true;
+      say("Enviando…", "");
+      fetch("/api/requests", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "quick-start", code: selCode || "other", service: selName || free, phone: phone, lang: document.documentElement.lang || "ar" })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error("failed");
+          say("Recibido ✓ Nuestro equipo te llamará en breve. Referencia: " + d.ref, "ok");
+          ph.value = ""; search.value = ""; clearSel();
+        })
+        .catch(function () {
+          say("No se pudo enviar: reserva una consulta en su lugar.", "err");
+        })
+        .then(function () { go.disabled = false; });
+    });
+    ph.addEventListener("keydown", function (e) { if (e.key === "Enter") go.click(); });
+  }
 
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Bienvenido 👋 Primero, cuéntenos sobre usted para poder atenderle y dar seguimiento a su solicitud.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Nombre completo *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Móvil 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="Correo electrónico *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Comenzar ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Sus datos se usan únicamente para atenderle y dar seguimiento a su solicitud.</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Elija el servicio que necesita:</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Cargando servicios…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Reservar una consulta gratuita</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 O pregunte directamente a Baher</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 Reservar una consulta gratuita</div>
-      <div class="adv-book-sub">Elija día y hora (Riad · 9:00–18:00 · cerrado los viernes):</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirmar la cita</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describa su solicitud (opcional)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Solicitar un presupuesto</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Hola 👋 Soy Baher, su asistente inteligente en Business Partner. Pregúnteme sobre constitución de empresas, inversión extranjera, licencias o cualquier trámite gubernamental, y le indicaré el servicio adecuado.</div>
-      </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Constitución de empresa con inversión extranjera">🏢 Constitución con inversión extranjera</button>
-        <button type="button" class="advisor-chip" data-q="Gestión de plataformas gubernamentales">💼 Plataformas gubernamentales</button>
-        <button type="button" class="advisor-chip" data-q="Paquetes y precios">💰 Paquetes y precios</button>
-        <button type="button" class="advisor-chip" data-q="Quiero una consulta gratuita">📞 Consulta gratuita</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="Escribe tu pregunta aquí…" aria-label="Escribe tu pregunta">
-        <button type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
-    </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+  var form = document.getElementById("bphChatForm"), input = document.getElementById("bphChatInput"),
+      body = document.getElementById("bphChatBody");
+  if (!form || !input || !body) return;
+  var history = [];
+  function add(text, role) {
+    var d = document.createElement("div");
+    d.className = "bph-msg " + role; d.textContent = text;
+    body.appendChild(d); body.scrollTop = body.scrollHeight; return d;
+  }
+  function ask(q) {
+    if (!q) return;
+    add(q, "user"); history.push({ role: "user", content: q }); input.value = "";
+    var wait = add("Thinking…", "ai");
+    fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        wait.remove();
+        var reply = String(j.reply || j.message || "No reply right now — please try again.");
+        add(reply, "ai"); history.push({ role: "assistant", content: reply });
+      })
+      .catch(function () { wait.textContent = "Could not reach the advisor. Please try again shortly."; });
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value.trim()); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(input.value.trim()); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-chat-q]"), function (b) {
+    b.addEventListener("click", function () { ask(b.getAttribute("data-chat-q")); });
+  });
+})();
+</script></body></html>

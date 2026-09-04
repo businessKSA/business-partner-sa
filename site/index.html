@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-prices="off">
+<html data-sv1-test="TEST MODE — no real payments, no customer messages" lang="en" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Business Partner — your business operating partner in Saudi Arabia</title>
-<meta name="description" content="Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services.">
-<meta property="og:title" content="Business Partner — your business operating partner in Saudi Arabia">
-<meta property="og:description" content="Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services.">
+<title>Business Partner — Consulting, government services, company formation</title>
+<meta name="description" content="Pick a service or just start the conversation. We understand the request, prepare the right steps, and you finish everything from your account.">
+<meta property="og:title" content="Business Partner — Consulting, government services, company formation">
+<meta property="og:description" content="Pick a service or just start the conversation. We understand the request, prepare the right steps, and you finish everything from your account.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -17,300 +17,374 @@
 <link rel="alternate" hreflang="fr" href="/fr/">
 <link rel="alternate" hreflang="zh" href="/zh/">
 <link rel="alternate" hreflang="x-default" href="/">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<style id="sv1-css">
+.sv1{--n:#0B1B5A;--n2:#081345;--g:#F5F6FA;--l:#E4E7F0;--t:#1F2430;--s:#4a4f5e;--ok:#16815A;--wa:#25D366;--sh:0 12px 34px rgba(11,27,90,.10);--line:#E4E7F0;--ink:#1F2430;--mut:#5f6880;--soft:#f7f9fd;font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh}
+.sv1 *{box-sizing:border-box}
+.sv1 a{color:inherit;text-decoration:none}
+.sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
+.sv1-ribbon{background:#b45309;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700}
+.sv1-hdr{border-bottom:1px solid var(--l);background:#fff;position:sticky;top:0;z-index:20}
+.sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-hdr .logo img{height:34px;width:auto;display:block}
+.sv1-nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:#39405a}
+.sv1-nav a{padding:6px 2px}
+.sv1-nav a:hover{color:var(--n)}
+.sv1-hdr .right{display:flex;align-items:center;gap:8px}
+.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--n);padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;line-height:1.2;font-family:inherit}
+.sv1-btn.primary{background:var(--n);border-color:var(--n);color:#fff}
+.sv1-btn.primary:hover{background:#13246e}
+.sv1-btn.wa{background:var(--wa);border-color:var(--wa);color:#073A17}
+.sv1-btn.sm{padding:7px 12px;font-size:12px}
+.sv1-btn[disabled]{opacity:.55;cursor:default}
+.sv1-lang{position:relative}
+.sv1-lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 8px;border-radius:999px}
+.sv1-lang summary::-webkit-details-marker{display:none}
+.sv1-lang .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh);min-width:150px;padding:6px;display:grid;z-index:5}
+.sv1-lang .menu a{padding:8px 10px;border-radius:8px;font-size:13px}
+.sv1-lang .menu a.on{background:var(--g);font-weight:700}
+.sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+.sv1 h1,.sv1 h2,.sv1 h3{color:var(--n);margin-top:0}
+.sv1-hero{background:linear-gradient(180deg,#fff,var(--g));padding:72px 0}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-block;background:#edf0f8;color:var(--n);padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.sv1-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.18;margin:14px 0 17px;letter-spacing:-.01em}
+.sv1-lead{font-size:17px;color:var(--s);margin:0}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;gap:10px}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:15px;padding:18px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:#99a7d4;transform:translateY(-2px)}
+.sv1-door .ico{width:42px;height:42px;border-radius:11px;background:#edf0f8;display:grid;place-items:center;font-size:19px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--n);font-weight:700}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:8px}
+.sv1-title p{color:var(--s);margin:0}
+.sv1-app{border:1px solid var(--l);border-radius:20px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--n)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:#777;font-weight:700}
+.sv1-steps .active{background:var(--n);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--n);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid #d9dfeb;background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:inherit;color:#39405a}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--n)}
+.sv1-compose .send{width:46px;border:0;border-radius:11px;background:var(--n);color:#fff;font-size:17px;cursor:pointer}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--n);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:11px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--n)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--n);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:13px;padding:15px;text-align:center}
+.sv1-flow i{font-style:normal;width:35px;height:35px;background:#edf0f8;color:var(--n);border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;font-weight:700;font-size:13px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--n)}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 16px;font-weight:700;color:#666;cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--n);color:#fff;border-color:var(--n)}
+.sv1-portal{border:1px solid var(--l);border-radius:18px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--n);font-weight:700}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:13px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:20px;color:var(--n)}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--n);margin:0 0 8px;font-size:13px}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9px;border-radius:999px;padding:3px 8px;background:#edf0f8;color:var(--n);white-space:nowrap}
+.sv1-status.done{background:#e8f7ef;color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-foot{margin-top:auto;padding:28px 0;background:var(--n2);color:#ccd4ed;font-size:12px}
+.sv1-foot .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center}
+.sv1-foot b{color:#fff}
+.sv1-foot a{color:#fff}
+.sv1-foot .end{margin-inline-start:auto;color:rgba(255,255,255,.6)}
+.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+.sv1-hide{display:none!important}
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}.sv1-foot .end{margin-inline-start:0}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
-<body><header class="site-header"><div class="container header-inner">
+<body class="sv1-page"><div class="sv1">
+<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/" class="active">Home</a><a href="/about">About us</a><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Our services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/services">All services (140)</a><a href="/services/category/company-formation">🏢 Company Formation</a><a href="/services/category/foreign-investment">🌍 Foreign Investment</a><a href="/services/category/premium-residency">🪪 Premium Residency</a><a href="/services/category/government-relations">🏛️ Government Relations</a><a href="/services/category/hr-services">👥 HR Services</a><a href="/services/category/recruitment">🧑‍💼 Recruitment &amp; Hiring</a><a href="/services/category/business-support">📊 Business Support</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Packages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/packages">All packages</a><a href="/packages#pkg-management">Service packages</a><a href="/packages#pkg-formation">Company Formation</a><a href="/packages#pkg-legal">Legal Packages</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">AI Agents ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/ai-document-agent">Documents</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/revenue-os">How it works</a><a href="/revenue-os#pricing">Packages &amp; pricing</a><a href="/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">Task Force ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">For employers</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
-  </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/tourism">Corporate events</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Browse spaces</a><a href="/workspace-request">Request a workspace</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/farina">Overview</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Overview</a><a href="/worker-housing#wh-request">Request housing</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Worker transport</a></div>
-  </div><a href="/consultation">Book a free consultation</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Knowledge Center <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/saudi-arabia">Invest in Saudi</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
-  </div><a href="/opportunities">Investment Opportunities</a><a href="/news">Insights &amp; news</a><a href="/newsletter">Newsletter</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Tools &amp; calculators <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
-  </div><a href="/magazine">Magazine (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Client portal</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
-    </div><a href="/contact">Contact us</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span class="lang-label">English</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/" data-lang="en" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
+  <nav class="sv1-nav" id="sv1Nav">
+    <a href="/#doors">Services</a>
+    <a href="/#how">How it works</a>
+    <a href="/my" id="sv1AccountLink">My account</a>
+    <details class="sv1-lang"><summary>🌐 English</summary><div class="menu"><a href="/ar/" data-lang="ar">العربية</a><a href="/" data-lang="en" class="on">English</a><a href="/fr/" data-lang="fr">Français</a><a href="/zh/" data-lang="zh">中文</a></div></details>
+  </nav>
+  <div class="right">
+    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn" href="/my">Sign in</a>
+    <a class="sv1-btn primary" href="/#advisor">Start your request</a>
   </div>
-    <a class="hdr-btn" data-account-link href="/account" aria-label="Sign in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Sign in</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Partners registration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Partners</span></a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
-  <section class="hero"><div class="container hero-inner">
-    <p class="hero-tagline">Partnering for your success</p>
-    <h1>One operating partner for every business requirement in Saudi Arabia</h1>
-    <p class="lead">From company formation and foreign investment to licensing, HR and government compliance — we get it done clearly and quickly, and follow it through to issuance.</p>
-    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Book a free consultation</span></a><a class="btn btn-ghost btn-lg" href="/services">Browse services</a></div>
-    <div class="hero-badges">
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Instant reply 24/7</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>90+ government services</span>
-      <span class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg>Transparent fees</span>
-    </div>
-  </div></section>
-
-  <section class="section section--navy trust-band"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">Trust in numbers</span><h2 style="color:#fff">Numbers we're proud of</h2></div>
-    <div class="stats"><div class="stat"><div class="num">+1000</div><div class="lbl">Clients served</div></div><div class="stat"><div class="num">+15</div><div class="lbl">Years of experience in the Saudi market</div></div><div class="stat"><div class="num">+90</div><div class="lbl">Services in the official catalog</div></div><div class="stat"><div class="num">+15</div><div class="lbl">Government authorities we deal with</div></div></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Who we are</span><h2>Your operating partner in Saudi Arabia</h2><p>We handle your government procedures, extract your records and run your platforms — so you focus on growing your business, backed by 15+ years in the Saudi market.</p></div>
-    <div class="grid grid-3">
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🏛️</div><h3>15+ authorities</h3><p>We deal with the official authorities on your behalf.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🗂️</div><h3>90+ services</h3><p>A full official catalog covering formation to daily operations.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🖥️</div><h3>Platform management</h3><p>Qiwa, GOSI, Muqeem, Mudad, Absher and more — managed for you.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🤖</div><h3>Smart agent 24/7</h3><p>Instant replies and automatic document prep any time.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">⚡</div><h3>Fast execution</h3><p>Ready-made tracks and precise knowledge of the regulations.</p></div>
-      <div class="card feature"><div class="card-icon" style="font-size:1.6rem">🛡️</div><h3>Full transparency</h3><p>Clear fees, with government fees disclosed separately.</p></div>
-    </div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="section-head"><span class="eyebrow">How it works</span><h2>How we get your records &amp; licences done</h2><p>A clear path from your first message to issuance — we handle the paperwork and follow it through.</p></div>
-    <div class="home-steps">
-      <div class="hstep"><span class="hstep-n">1</span><h3>Consult</h3><p>Tell us what you need — we identify the right service for your case.</p></div>
-      <div class="hstep"><span class="hstep-n">2</span><h3>Prepare documents</h3><p>We prepare and review your document list with you.</p></div>
-      <div class="hstep"><span class="hstep-n">3</span><h3>Submit &amp; follow up</h3><p>We submit to the relevant authority and follow up until issuance.</p></div>
-      <div class="hstep"><span class="hstep-n">4</span><h3>Delivery &amp; support</h3><p>We hand over your record/licence ready, with ongoing support.</p></div>
-    </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="/consultation">Start now</a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Why us</span><h2>Why Business Partner</h2></div>
-    <div class="grid grid-3"><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 13v3M22 13v3"/></svg></div>
-      <h3>24/7 smart agent</h3><p>Answers your questions 24/7, identifies the right service for your case, and starts preparing your document list automatically.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
-      <h3>Fast execution</h3><p>Ready-made tracks and precise knowledge of the regulations save time — we start as soon as your documents are complete.</p></div><div class="card feature"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
-      <h3>Full transparency</h3><p>Clear fees, with government fees separate and disclosed. You know what you pay and why before you begin.</p></div></div>
-  </div></section>
-
-  <section class="section section--gray"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">Services</span><h2>Our core services</h2></div>
-      <a class="btn btn-primary" href="/services">All services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
-    </div>
-    <div class="quick-links"><a class="quick-link" href="/services/category/company-formation"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Company Formation</span></a><a class="quick-link" href="/services/category/foreign-investment"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Foreign Investment</span></a><a class="quick-link" href="/services/category/premium-residency"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Premium Residency</span></a><a class="quick-link" href="/services/category/government-relations"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>Government Relations</span></a><a class="quick-link" href="/services/category/hr-services"><span class="q-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg></span><span>HR Services</span></a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="quick-head">
-      <div><span class="eyebrow">Packages</span><h2>Packages</h2></div>
-      <a class="btn btn-primary" href="/packages">View packages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
-    </div>
-    <div class="quick-links"><a class="quick-link" href="/packages"><span class="q-icon">📦</span><span>Small Establishment Package</span></a><a class="quick-link" href="/packages"><span class="q-icon">📦</span><span>Launch Package</span></a><a class="quick-link" href="/packages"><span class="q-icon">📦</span><span>Growth Package</span></a><a class="quick-link" href="/packages"><span class="q-icon">📦</span><span>Scale Package</span></a><a class="quick-link" href="/packages"><span class="q-icon">📦</span><span>Enterprise Package</span></a></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="section-head"><span class="eyebrow">Client reviews</span><h2>Client reviews</h2></div>
-    <div class="grid grid-3"><div class="quote"><p>They completed my company formation quickly and every step was clear from the start.</p><div class="who">Client — retail sector</div><div class="role">Company formation</div></div><div class="quote"><p>The smart agent answered me at night and prepared my document list right away.</p><div class="who">Client — investor</div><div class="role">Foreign investment</div></div><div class="quote"><p>Clear fees with no surprises, and they followed through until the license was issued.</p><div class="who">Client — industrial sector</div><div class="role">Industrial license</div></div></div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <div class="cta-band"><h2>Ready to start?</h2><p>Send us your enquiry now — the smart agent replies instantly and sets your next step.</p><a class="btn btn-white btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Book a consultation</span></a></div>
-  </div></section></main><footer class="site-footer"><div class="container">
-  <div class="newsletter-band">
-    <div class="nl-copy">
-      <h3>Subscribe to our newsletter</h3>
-      <p>The latest business &amp; regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.</p>
-    </div>
-    <form class="newsletter-form" data-nl>
-      <input type="email" placeholder="Your email" aria-label="Email" data-nl-email required>
-      <button type="submit" class="btn btn-white">Subscribe now</button>
-    </form>
-    <p class="nl-msg" data-nl-msg hidden></p>
-  </div>
-  <div class="footer-grid">
+</div></header>
+<main>
+  <section class="sv1-hero"><div class="wrap grid">
     <div>
-      <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
-      <p>Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services.</p>
-      <p class="footer-tag">Partnering for your success</p>
-    </div>
-    <div class="footer-col"><h4>Our services</h4><ul>
-      <li><a href="/services">All services</a></li>
-      <li><a href="/packages">Packages</a></li>
-      <li><a href="/revenue-os">Revenue OS</a></li>
-      <li><a href="/ai-agents">AI Agents</a></li>
-      <li><a href="/task-force">Task Force</a></li>
-      <li><a href="/hr">Recruitment</a></li>
-      <li><a href="/deals">Deals</a></li>
-      <li><a href="/mahfol-makfol">Business Tourism</a></li>
-      <li><a href="/workspaces">Business Spaces</a></li>
-      <li><a href="/farina">Catering &amp; Hospitality</a></li>
-      <li><a href="/worker-housing">Worker Housing</a></li>
-      <li><a href="/estrdad">Fee refunds (Estrdad)</a></li>
-      <li><a href="/bank-account">Corporate bank account</a></li>
-      <li><a href="/formation-contract">Formation with partners</a></li>
-      <li><a href="/data">B2B Leads Database</a></li>
-      <li><a href="/compliance-agent">Compliance Agent</a></li>
-      <li><a href="/ai-document-agent">AI Document Agent</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
-      <li><a href="/account">Client portal</a></li>
-      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
-      <li><a href="/suppliers">Partner registration</a></li>
-      <li><a href="/employer-join">For employers</a></li>
-      <li><a href="/portal">Smart employees portal</a></li>
-      <li><a href="/employer-login">Employers — sign in</a></li>
-      <li><a href="/shared-services">Shared Services Team</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Knowledge Center</h4><ul>
-      <li><a href="/saudi-arabia">Invest in Saudi</a></li>
-      <li><a href="/opportunities">Investment Opportunities</a></li>
-      <li><a href="/directory">Startup Ecosystem Directory</a></li>
-      <li><a href="/tools-and-calculators">Tools &amp; calculators</a></li>
-      <li><a href="/news">Insights &amp; news</a></li>
-      <li><a href="/magazine">Magazine (PDF)</a></li>
-      <li><a href="/newsletter">Newsletter</a></li>
-      <li><a href="/calculator">Cost calculator</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Saudi guides</h4><ul>
-      <li><a href="/saudi-arabia">Invest in Saudi</a></li>
-      <li><a href="/guide/saudi-market">The Saudi Market</a></li>
-      <li><a href="/guide/business-setup">Business Setup</a></li>
-      <li><a href="/guide/run-your-business">Run Your Business</a></li>
-      <li><a href="/guide/live-in-saudi">Live in Saudi</a></li>
-      <li><a href="/guide/residency">Residency in KSA</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Company</h4><ul>
-      <li><a href="/about">About us</a></li>
-      <li><a href="/consultation">Book a consultation</a></li>
-      <li><a href="/careers">Careers</a></li>
-      <li><a href="/terms">Terms &amp; Conditions</a></li>
-      <li><a href="/contact">Contact us</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Contact</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
-    </ul>
-    <div class="footer-social" aria-label="Social media">
-      <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
-      <a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a>
-      <a href="https://www.facebook.com/BusinessPartnerKsa/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a>
-    </div></div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 Business Partner · All rights reserved</span>
-    <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
-  </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Close">✕</button>
-    <p>Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Open chat with Baher, the smart assistant">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Ask Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Ask Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Your smart partner — online now</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
-
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Full name *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="Email *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Start ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Your details are used only to serve you and follow up on your request.</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Pick the service you need:</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Book a free consultation</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 Book a free consultation</div>
-      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describe your request (optional)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Request a price quote</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.</div>
+      <span class="sv1-tag">Business Partner</span>
+      <h1>Tell us what you need,<br>and we start here with you.</h1>
+      <p class="sv1-lead">Pick a service or just start the conversation. We understand the request, prepare the right steps, and you finish everything from your account.</p>
+      <div class="sv1-actions">
+        <a class="sv1-btn primary" href="#advisor">Start a conversation</a>
+        <a class="sv1-btn wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">Continue on WhatsApp</a>
       </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Foreign investment company setup">🏢 Foreign investment setup</button>
-        <button type="button" class="advisor-chip" data-q="Government platforms management">💼 Government platforms</button>
-        <button type="button" class="advisor-chip" data-q="Packages & pricing">💰 Packages &amp; pricing</button>
-        <button type="button" class="advisor-chip" data-q="I want a free consultation">📞 Free consultation</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="Type your question here…" aria-label="Type your question">
-        <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
+      <ul class="sv1-trust"><li>Consulting</li><li>Government services</li><li>Company formation</li></ul>
     </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+    <div class="sv1-doors" id="doors"><button type="button" class="sv1-door on" id="door-consulting" data-door="consulting"><div class="ico">💬</div><h3>Consulting</h3><p>A question, a challenge, a decision or any matter about your company.</p><span>Start the consultation →</span></button><button type="button" class="sv1-door" id="door-government" data-door="government"><div class="ico">🏛️</div><h3>Government services</h3><p>A transaction, a problem on a platform, or running your government platforms.</p><span>Start the request →</span></button><button type="button" class="sv1-door" id="door-formation" data-door="formation"><div class="ico">🏢</div><h3>Company formation</h3><p>A branch of a foreign company, or a company via the entrepreneurship route.</p><span>Start the formation →</span></button></div>
+  </div></section>
+
+  <section class="sv1-sec" id="advisor"><div class="wrap">
+    <div class="sv1-title"><h2>Everything starts with the conversation</h2><p>Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.</p></div>
+    <div class="sv1-app">
+      <div class="sv1-appbar"><b>Business Partner</b>
+        <div class="sv1-steps"><span class="active">Request</span><span>Quotation</span><span>Contract</span><span>Payment</span><span>Invoice</span></div>
+      </div>
+      <div class="sv1-appgrid">
+        <div class="sv1-chat">
+          <div class="sv1-chathead"><h3 id="sv1ChatTitle">Consulting</h3><p id="sv1ChatSub">A question, a challenge, a decision or any matter about your company.</p></div>
+          <div class="sv1-msgs" id="sv1Msgs" aria-live="polite"></div>
+          <form class="sv1-compose" id="sv1Form">
+            <textarea id="sv1In" placeholder="Write your request here…" aria-label="Write your request here…"></textarea>
+            <button type="submit" class="send" id="sv1Send" aria-label="Send">↑</button>
+          </form>
+        </div>
+        <div class="sv1-scope">
+          <span class="sv1-tag">Your request</span>
+          <h3>Scope of Work</h3>
+          <p>This is the scope of work the quotation is built on. Edit it as you like before sending.</p>
+          <div id="sv1Items"></div>
+          <div class="sv1-addrow"><input id="sv1AddIn" placeholder="Add an item…"><button type="button" class="sv1-btn sm" id="sv1Add">Add</button></div>
+          <div class="sv1-docs">
+            <h4>Documents required</h4>
+            <p>Every service has its own documents. Prepare them now, or attach them later from your account.</p>
+            <div id="sv1Docs"></div>
+            <div class="sv1-addrow"><input id="sv1DocIn" placeholder="Add a document…"><button type="button" class="sv1-btn sm" id="sv1DocAdd">Add</button></div>
+          </div>
+          <div class="sv1-summary">
+            <div><span>Request type</span><b id="sv1Type">Consulting</b></div>
+            <div><span>Status</span><strong id="sv1Price">Ready for review</strong></div>
+          </div>
+          <button type="button" class="sv1-btn primary" style="width:100%" id="sv1Create">Create the quotation</button>
+        </div>
+      </div>
+      <div class="sv1-login sv1-hide" id="sv1Login">
+        <h4>Last step: your email</h4><p>We'll send a sign-in code so the request is saved to your account.</p>
+        <div class="g" id="sv1LoginStep1">
+          <input id="sv1Name" placeholder="Name" autocomplete="name">
+          <input id="sv1Phone" placeholder="Mobile number" inputmode="tel" autocomplete="tel">
+          <input id="sv1Email" class="full" type="email" placeholder="Email" autocomplete="email">
+          <button type="button" class="sv1-btn primary full" id="sv1SendCode">Send code</button>
+        </div>
+        <div class="g sv1-hide" id="sv1LoginStep2">
+          <input id="sv1Code" class="full" inputmode="numeric" maxlength="6" placeholder="Sign-in code (6 digits)">
+          <button type="button" class="sv1-btn primary full" id="sv1Verify">Confirm & create request</button>
+        </div>
+        <div class="sv1-err" id="sv1LoginErr"></div>
+        <div class="sv1-ok sv1-hide" id="sv1LoginOk"></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sv1-sec" id="simple"><div class="wrap">
+    <div class="sv1-title"><h2>You don't need to know the name of the service</h2><p>Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.</p></div>
+    <div class="sv1-three">
+      <div class="sv1-panel"><h4>1. Describe what you need</h4><p class="sv1-muted">Write it normally — no long forms.</p></div>
+      <div class="sv1-panel"><h4>2. Review your request</h4><p class="sv1-muted">The scope of work appears clearly, and you can edit it.</p></div>
+      <div class="sv1-panel"><h4>3. Finish from your account</h4><p class="sv1-muted">Quotation, contract, payment, invoice and follow-up.</p></div>
+    </div>
+  </div></section>
+
+  <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
+    <div class="sv1-title"><h2>One journey for every service</h2><p>No customer has to learn a new system for each service.</p></div>
+    <div class="sv1-flow"><div><i>1</i><b>Conversation</b><small>We understand the need</small></div><div><i>2</i><b>Scope of Work</b><small>Add and remove</small></div><div><i>3</i><b>Quotation</b><small>Customer approval</small></div><div><i>4</i><b>Contract</b><small>Electronic signature</small></div><div><i>5</i><b>Payment</b><small>Online payment</small></div><div><i>6</i><b>Invoice</b><small>Inside the account</small></div></div>
+  </div></section>
+
+  <section class="sv1-sec" id="portal"><div class="wrap">
+    <div class="sv1-title"><h2>Your account: everything in one place</h2><p>Your requests, quotations, contracts, appointments, payments and invoices — all followed by you, any time.</p></div>
+    <div class="sv1-portal">
+      <div class="sv1-pgrid" id="sv1PC">
+        <aside class="sv1-side"><strong>Business Partner</strong><small>BUSINESS PARTNER</small><div class="sv1-mi on">Home</div><div class="sv1-mi">New request</div><div class="sv1-mi">My requests</div><div class="sv1-mi">Quotations</div><div class="sv1-mi">Contracts</div><div class="sv1-mi">Appointments</div><div class="sv1-mi">Cart & payment</div><div class="sv1-mi">Invoices</div><div class="sv1-mi">Conversations</div></aside>
+        <main class="sv1-pmain">
+          <h3>Welcome 👋</h3><div class="sv1-muted">The things that matter in your account today.</div>
+          <div class="sv1-stats">
+            <div class="sv1-stat"><span>Active requests</span><b>2</b></div>
+            <div class="sv1-stat"><span>Quotation</span><b>1</b></div>
+            <div class="sv1-stat"><span>Contract to sign</span><b>1</b></div>
+            <div class="sv1-stat"><span>Upcoming appointment</span><b>1</b></div>
+          </div>
+          <div class="sv1-cols">
+            <div class="sv1-panel"><h4>My requests</h4>
+              <div class="sv1-prow"><span>Government services</span><span class="sv1-status">Request</span></div>
+              <div class="sv1-prow"><span>Consulting</span><span class="sv1-status">Quotation</span></div>
+              <div class="sv1-prow"><span>Company formation</span><span class="sv1-status done">Payment</span></div>
+            </div>
+            <div class="sv1-panel"><h4>Appointments</h4>
+              <p class="sv1-muted">Upcoming appointment</p>
+              <a class="sv1-btn primary sm" href="/my">Open my account</a>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <p class="sv1-pnote">Illustrative preview — real data appears after you sign in.</p>
+  </div></section>
+</main>
+<footer class="sv1-foot"><div class="wrap">
+  <span><b>Business Partner</b> — Consulting, government services and company formation.</span>
+  <span>Contact: 0530540231 · business@businesspartner.sa</span>
+  <a href="/terms">Terms</a>
+  <a href="/classic-home">Full website</a>
+  <span class="end">© 2026 Business Partner · All rights reserved</span>
+</div></footer>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
+(function(){
+var LANG="en",TX={"thinking":"Working on it…","chatError":"We couldn't reply right now. Try again or reach us on WhatsApp.","scopeIn":"In scope","needScope":"Add at least one item before creating the request.","loginErr":"Couldn't send the code. Check the email or try later.","codeErr":"Wrong code.","creating":"Creating your request…","created":"Your request is created. Reference:","openPortal":"Open my account","stateReady":"Ready for review","docsEmpty":"These appear once the advisor understands your request.","titles":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"welcome":{"consulting":"Welcome 👋 Tell me the matter you'd like advice on.","government":"Welcome 👋 Tell me the transaction or the problem on the platform.","formation":"Welcome 👋 Tell me about the company you want to set up."},"chips":{"consulting":["A licensing question","A problem in the company","Which authorities are involved","A full company review"],"government":["A problem on Qiwa","Change a profession","Transfer of services","Visas","Nitaqat & Saudisation","Manage my platforms"],"formation":["Branch of a foreign company","Entrepreneurship licence","Investment registration","Formation requirements"]},"seed":{"consulting":["Understand the matter and the current position","Identify the authorities and requirements involved","Define the steps and recommendations"],"government":["Examine the problem or the transaction","Identify the government services required","Execute or follow up the agreed services"],"formation":["Define the formation route","Formation, commercial register and articles of association","Registration on the core government platforms","Appointing the company manager","Support with opening the bank account"]},"types":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"doorSub":{"consulting":"A question, a challenge, a decision or any matter about your company.","government":"A transaction, a problem on a platform, or running your government platforms.","formation":"A branch of a foreign company, or a company via the entrepreneurship route."}},PORTAL="/my";
+var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+var $=function(id){return document.getElementById(id)};
+var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
+var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
+try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.docs=sv.docs||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
+function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,docs:state.docs,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
+function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
+function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
+function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
+function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
+state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
+function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});state.docs=[];
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
+$('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=TX.stateReady;
+msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();drawDocs();save();
+if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
+document.addEventListener('click',function(e){var d=e.target.closest?e.target.closest('[data-door]'):null;if(d)setCtx(d.getAttribute('data-door'))});
+function parseScope(text){var m=/<*\s*SCOPE\s*>>/i.exec(text);if(!m)return{text:text.trim(),scope:null};var i=m.index,after=i+m[0].length;var e=/<*\s*END\s*>>/i.exec(text.slice(after));var raw=e?text.slice(after,after+e.index):text.slice(after);var sc=null;try{sc=JSON.parse(raw)}catch(err){var b=raw.indexOf('{'),d=raw.lastIndexOf('}');if(b>=0&&d>b){try{sc=JSON.parse(raw.slice(b,d+1))}catch(e2){}}}
+// Whatever the model did with the markers, the customer sees only prose.
+var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace(/<*\s*(?:SCOPE|END)\s*>>/gi,'').trim();return{text:clean,scope:sc&&sc.ready?sc:null}}
+function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
+state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
+fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
+.then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);if(p.text)add(p.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope)})
+.catch(function(){th.remove();add(TX.chatError,'s')}).then(function(){state.busy=false;send.disabled=false})}
+function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.querySelector('.sv1-chips');if(c)c.remove();add(v,'u');state.history.push({role:'user',content:v});input.value='';save();ask()}
+form.addEventListener('submit',function(e){e.preventDefault();submit()});
+input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
+$('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};
+$('sv1AddIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1Add').click()}});
+$('sv1DocAdd').onclick=function(){var v=$('sv1DocIn').value.trim();if(!v)return;state.docs.push({title:v,note:''});$('sv1DocIn').value='';drawDocs();save()};
+$('sv1DocIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('sv1DocAdd').click()}});
+var challenge='',email='';
+$('sv1Create').onclick=function(){if(!state.items.length){$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.needScope;return}if(window.SV1_SESSION){createRequest();return}$('sv1Login').classList.remove('sv1-hide');$('sv1LoginErr').textContent='';$('sv1Login').scrollIntoView({behavior:'smooth',block:'nearest'});$('sv1Email').focus()};
+$('sv1SendCode').onclick=function(){email=$('sv1Email').value.trim().toLowerCase();var err=$('sv1LoginErr');err.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){err.textContent=TX.loginErr;return}var self=this;self.disabled=true;
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'start',email:email})}).then(function(r){return r.json()}).then(function(o){self.disabled=false;if(!o||!o.ok){err.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;$('sv1LoginStep1').classList.add('sv1-hide');$('sv1LoginStep2').classList.remove('sv1-hide');if(o.testLogin)$('sv1Code').placeholder='TEST: 123456';$('sv1Code').focus()}).catch(function(){self.disabled=false;err.textContent=TX.loginErr})};
+$('sv1Verify').onclick=function(){var self=this;self.disabled=true;$('sv1LoginErr').textContent='';
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'verify',email:email,code:$('sv1Code').value.trim(),challenge:challenge,name:$('sv1Name').value.trim()})}).then(function(r){return r.json()}).then(function(o){self.disabled=false;if(!o||!o.ok){$('sv1LoginErr').textContent=TX.codeErr;return}window.SV1_SESSION={user:{email:email}};try{localStorage.setItem('bp_session','1')}catch(e){}createRequest()}).catch(function(){self.disabled=false;$('sv1LoginErr').textContent=TX.codeErr})};
+function createRequest(){var ok=$('sv1LoginOk');$('sv1Login').classList.remove('sv1-hide');$('sv1LoginStep1').classList.add('sv1-hide');$('sv1LoginStep2').classList.add('sv1-hide');ok.classList.remove('sv1-hide');ok.textContent=TX.creating;
+fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'request-create',type:TYPE[state.ctx],source:'WEBSITE',lang:LANG,title:state.title||TX.titles[state.ctx],summary:state.summary,scope:state.items,documents:state.docs,conversation:state.history,name:$('sv1Name').value.trim(),phone:$('sv1Phone').value.trim()})})
+.then(function(r){return r.json()}).then(function(o){if(!o||!o.ok){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=(o&&o.message)||TX.chatError;return}
+ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
+try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
+.catch(function(){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.chatError})}
+// Handoff from the per-service assistant (site/scripts/service-advisor.mjs):
+// the visitor already answered the short questions on a service page, so the
+// chat opens in the right context with that service already in the scope.
+var handoff=false;
+try{var hx=JSON.parse(sessionStorage.getItem('bp_sva_request')||'null');
+if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){sessionStorage.removeItem('bp_sva_request');
+state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=hx.name;state.ready=false;
+state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
+$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
+msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();drawDocs();save();ask();
+handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
+// boot
+if(handoff){/* already rendered from the service-page handoff */}
+else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
+msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
+else setCtx(state.ctx,true);
+})();</script></body></html>

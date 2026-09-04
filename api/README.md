@@ -1,5 +1,12 @@
 # «المستشار» — Advisor chatbot (Vercel Serverless Function)
 
+> **Adding a file to `api/`?** Vercel turns every non-underscore `.js`/`.mjs`
+> file in this directory into a serverless function, and the plan caps a
+> deployment at **12**. This directory sits at exactly 12 — a thirteenth file
+> fails the whole deployment with `exceeded_serverless_functions_per_deployment`,
+> after the build has already reported success. Shared code belongs in an
+> `_underscore.js` module (excluded from the count); tests belong in `tests/`.
+
 On-site AI chat widget that answers visitors' questions about Saudi government
 procedures and BP services, then gently suggests a relevant Business Partner
 service. Backend: `api/chat.js`, a Vercel serverless function that proxies to the

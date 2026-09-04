@@ -2,311 +2,113 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo \"no dependencies\"",
-  "buildCommand": "node site/scripts/generate.mjs",
+  "buildCommand": "npm run build",
+  "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
     "api/candidate.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/chat.js": {
       "maxDuration": 60
     },
     "api/requests.js": {
       "maxDuration": 60
+    },
+    "api/candidates.js": {
+      "maxDuration": 60
     }
   },
   "redirects": [
     {
-      "source": "/blog",
-      "destination": "/saudi-arabia",
+      "source": "/revenue-os",
+      "destination": "/business-development",
       "permanent": true
     },
     {
-      "source": "/business-tourism",
-      "destination": "/tourism",
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-os",
+      "destination": "/:lang/business-development",
       "permanent": true
-    },
-    {
-      "source": "/lead-generation",
-      "destination": "/data",
-      "permanent": true
-    },
-    {
-      "source": "/ar/lead-generation",
-      "destination": "/ar/data",
-      "permanent": true
-    },
-    {
-      "source": "/compliance-portal",
-      "destination": "/compliance-agent",
-      "permanent": true
-    },
-    {
-      "source": "/ar/compliance-portal",
-      "destination": "/ar/compliance-agent",
-      "permanent": true
-    },
-    {
-      "source": "/installments",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/ar/installments",
-      "destination": "/ar",
-      "permanent": true
-    },
-    {
-      "source": "/services/bp-pl-0001",
-      "destination": "/services/bp-sbc-01",
-      "permanent": true
-    },
-    {
-      "source": "/ar/services/bp-pl-0001",
-      "destination": "/ar/services/bp-sbc-01",
-      "permanent": true
-    },
-    {
-      "source": "/services/bp-pl-0067",
-      "destination": "/services/bp-fi-02",
-      "permanent": true
-    },
-    {
-      "source": "/ar/services/bp-pl-0067",
-      "destination": "/ar/services/bp-fi-02",
-      "permanent": true
-    },
-    {
-      "source": "/services/bp-pl-0075",
-      "destination": "/services/bp-pl-0051",
-      "permanent": true
-    },
-    {
-      "source": "/ar/services/bp-pl-0075",
-      "destination": "/ar/services/bp-pl-0051",
-      "permanent": true
-    },
-    {
-      "source": "/services/bp-gosi-04",
-      "destination": "/services/bp-gosi-01",
-      "permanent": true
-    },
-    {
-      "source": "/ar/services/bp-gosi-04",
-      "destination": "/ar/services/bp-gosi-01",
-      "permanent": true
-    },
-    {
-      "source": "/services/bp-pl-0094",
-      "destination": "/services/bp-pl-0019",
-      "permanent": true
-    },
-    {
-      "source": "/ar/services/bp-pl-0094",
-      "destination": "/ar/services/bp-pl-0019",
-      "permanent": true
-    },
-    {
-      "source": "/ar/admin",
-      "destination": "/admin",
-      "permanent": false
-    },
-    {
-      "source": "/ar/monitor",
-      "destination": "/monitor",
-      "permanent": false
-    },
-    {
-      "source": "/inbox",
-      "destination": "/monitor",
-      "permanent": false
-    },
-    {
-      "source": "/ar/inbox",
-      "destination": "/monitor",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/quotes",
-      "destination": "https://bp-quotes-three.vercel.app/quotes"
-    },
-    {
-      "source": "/quotes/:path*",
-      "destination": "https://bp-quotes-three.vercel.app/quotes/:path*"
-    },
-    {
-      "source": "/api/live-catalog",
-      "destination": "https://bp-quotes-three.vercel.app/quotes/api/catalog"
-    },
-    {
-      "source": "/api/daftra-invoice",
-      "destination": "/api/requests?__route=daftra-invoice"
-    },
-    {
-      "source": "/api/supplier-quote-read",
-      "destination": "/api/requests?__route=supplier-quote-read"
-    },
-    {
-      "source": "/api/notion-suppliers",
-      "destination": "/api/requests?__route=notion-suppliers"
-    },
-    {
-      "source": "/api/suppliers",
-      "destination": "/api/requests?__route=suppliers"
-    },
-    {
-      "source": "/api/agencies",
-      "destination": "/api/requests?__route=agencies"
-    },
-    {
-      "source": "/api/jobhunt",
-      "destination": "/api/requests?__route=jobhunt"
-    },
-    {
-      "source": "/api/doc-agent",
-      "destination": "/api/requests?__route=doc-agent"
-    },
-    {
-      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
-      "destination": "/assets/data/revenue-command-center"
-    },
-    {
-      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal",
-      "destination": "/assets/data/revenue-command-center"
     },
     {
       "source": "/revenue-dashboard",
-      "destination": "/assets/data/revenue-command-center"
+      "destination": "/business-development-dashboard",
+      "permanent": true
     },
     {
-      "source": "/client-portal",
-      "destination": "/assets/data/revenue-command-center"
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/revenue-dashboard",
+      "destination": "/:lang/business-development-dashboard",
+      "permanent": true
     },
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/ar/portal/index"
+      "source": "/bdaas",
+      "destination": "/business-development",
+      "permanent": false
     },
     {
-      "source": "/join",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/ar/portal/join"
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/bdaas",
+      "destination": "/:lang/business-development",
+      "permanent": false
     },
-    {
-      "source": "/dashboard",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/ar/portal/dashboard"
-    },
-    {
-      "source": "/candidates",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/ar/portal/candidates"
-    },
-    {
-      "source": "/en",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/portal/index"
-    },
-    {
-      "source": "/en/join",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/portal/join"
-    },
-    {
-      "source": "/en/dashboard",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/portal/dashboard"
-    },
-    {
-      "source": "/en/candidates",
-      "has": [
-        {
-          "type": "host",
-          "value": "hr.businesspartner.sa"
-        }
-      ],
-      "destination": "/portal/candidates"
-    },
-    {
-      "source": "/jobs-feed.xml",
-      "destination": "/api/candidates?feed=jobs"
-    },
-    {
-      "source": "/indeed.xml",
-      "destination": "/api/candidates?feed=jobs"
-    }
+    {"source":"/blog","destination":"/saudi-arabia","permanent":true},
+    {"source":"/business-tourism","destination":"/tourism","permanent":true},
+    {"source":"/lead-generation","destination":"/data","permanent":true},
+    {"source":"/ar/lead-generation","destination":"/ar/data","permanent":true},
+    {"source":"/compliance-portal","destination":"/compliance-agent","permanent":true},
+    {"source":"/ar/compliance-portal","destination":"/ar/compliance-agent","permanent":true},
+    {"source":"/installments","destination":"/","permanent":true},
+    {"source":"/ar/installments","destination":"/ar","permanent":true},
+    {"source":"/services/bp-pl-0001","destination":"/services/bp-sbc-01","permanent":true},
+    {"source":"/ar/services/bp-pl-0001","destination":"/ar/services/bp-sbc-01","permanent":true},
+    {"source":"/services/bp-pl-0067","destination":"/services/bp-fi-02","permanent":true},
+    {"source":"/ar/services/bp-pl-0067","destination":"/ar/services/bp-fi-02","permanent":true},
+    {"source":"/services/bp-pl-0075","destination":"/services/bp-pl-0051","permanent":true},
+    {"source":"/ar/services/bp-pl-0075","destination":"/ar/services/bp-pl-0051","permanent":true},
+    {"source":"/services/bp-gosi-04","destination":"/services/bp-gosi-01","permanent":true},
+    {"source":"/ar/services/bp-gosi-04","destination":"/ar/services/bp-gosi-01","permanent":true},
+    {"source":"/services/bp-pl-0094","destination":"/services/bp-pl-0019","permanent":true},
+    {"source":"/ar/services/bp-pl-0094","destination":"/ar/services/bp-pl-0019","permanent":true},
+    {"source":"/ar/admin","destination":"/admin","permanent":false},
+    {"source":"/ar/monitor","destination":"/monitor","permanent":false},
+    {"source":"/inbox","destination":"/monitor","permanent":false},
+    {"source":"/ar/inbox","destination":"/monitor","permanent":false}
+  ],
+  "rewrites": [
+    {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
+    {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
+    {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
+    {"source":"/api/daftra-invoice","destination":"/api/requests?__route=daftra-invoice"},
+    {"source":"/api/supplier-quote-read","destination":"/api/requests?__route=supplier-quote-read"},
+    {"source":"/api/notion-suppliers","destination":"/api/requests?__route=notion-suppliers"},
+    {"source":"/api/suppliers","destination":"/api/requests?__route=suppliers"},
+    {"source":"/api/agencies","destination":"/api/requests?__route=agencies"},
+    {"source":"/api/jobhunt","destination":"/api/requests?__route=jobhunt"},
+    {"source":"/api/doc-agent","destination":"/api/requests?__route=doc-agent"},
+    {"source":"/api/simple","destination":"/api/requests?__route=simple"},
+    {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
+    {"source":"/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
+    {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal","destination":"/assets/data/revenue-command-center"},
+    {"source":"/client-portal","destination":"/assets/data/revenue-command-center"},
+    {"source":"/","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/index"},
+    {"source":"/join","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/join"},
+    {"source":"/dashboard","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/dashboard"},
+    {"source":"/candidates","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/candidates"},
+    {"source":"/en","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/portal/index"},
+    {"source":"/en/join","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/portal/join"},
+    {"source":"/en/dashboard","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/portal/dashboard"},
+    {"source":"/en/candidates","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/portal/candidates"},
+    {"source":"/jobs-feed.xml","destination":"/api/candidates?feed=jobs"},
+    {"source":"/indeed.xml","destination":"/api/candidates?feed=jobs"}
   ],
   "headers": [
-    {
-      "source": "/.well-known/apple-developer-merchantid-domain-association",
-      "headers": [
-        {
-          "key": "content-type",
-          "value": "text/plain; charset=utf-8"
-        },
-        {
-          "key": "cache-control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
+    {"source":"/.well-known/apple-developer-merchantid-domain-association","headers":[{"key":"content-type","value":"text/plain; charset=utf-8"},{"key":"cache-control","value":"public, max-age=0, must-revalidate"}]},
+    {"source":"/assets/(.*)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]}
   ],
   "crons": [
-    {
-      "path": "/api/newsletter",
-      "schedule": "0 6 * * 0"
-    },
-    {
-      "path": "/api/requests?__route=jobhunt&action=run&limit=15",
-      "schedule": "0 5 * * 1"
-    }
+    {"path":"/api/newsletter","schedule":"0 6 * * 0"},
+    {"path":"/api/requests?__route=jobhunt&action=run&limit=15","schedule":"0 5 * * 1"},
+    {"path":"/api/candidate?action=backfill&limit=25","schedule":"0 3 * * *"}
   ]
 }

@@ -34,3 +34,7 @@ business-partner-onefile.html
 # أسرار فريق الوكلاء
 agents/.env
 agents/node_modules/
+
+# local development database + outbox (never committed)
+.localdb/
+.env.local
