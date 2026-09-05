@@ -329,6 +329,7 @@ export default async function handler(req, res) {
     const out = await transcribeAudio(
       String(body.audio || "").replace(/^data:[^;]+;base64,/, ""),
       String(body.mime || "audio/webm"),
+      String(body.lang || "").slice(0, 5),   // لغة الصفحة تلميحاً لا قيداً
     );
     res.statusCode = out.error === "too_large" ? 413 : out.error === "bad_type" ? 400 : 200;
     return res.end(JSON.stringify(out));

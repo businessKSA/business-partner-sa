@@ -821,7 +821,7 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
   fr.onload=function(){
    var b64=String(fr.result||'').split(',')[1]||'';
    fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
-     body:JSON.stringify({mode:'voice',mime:type||'audio/webm',audio:b64})})
+     body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
     .then(function(r){return r.json()}).then(function(o){
      reset();
      if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}

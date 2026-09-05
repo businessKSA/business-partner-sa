@@ -326,20 +326,34 @@ const TRANSCRIBE_PROMPT = [
 ].join(" ");
 
 const GEMINI_AUDIO_OK = /^audio\/(wav|x-wav|mpeg|mp3|ogg|aac|flac|aiff|mp4|m4a|x-m4a)$/i;
-async function speechGemini(base64, mime) {
+async function speechGemini(base64, mime, hint) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
   if (!GEMINI_AUDIO_OK.test(String(mime).split(";")[0])) throw new Error("unsupported_mime");
   const model = process.env.GEMINI_AUDIO_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const { text } = await geminiCall(key, model,
-    [{ inline_data: { mime_type: String(mime).split(";")[0], data: base64 } }, { text: TRANSCRIBE_PROMPT }], 1400, 60000);
+    [{ inline_data: { mime_type: String(mime).split(";")[0], data: base64 } },
+     { text: TRANSCRIBE_PROMPT + (hint === "ar" ? " " + ASR_PROMPT_AR : "") }], 1400, 60000);
   return parseJson(text);
 }
 
 // Whisper يعيد نصاً عادياً ولغةً مكتشفة في الاستجابة نفسها — لا JSON نطلبه.
 // وواجهته واحدة عند OpenAI و Groq، فالدالة واحدة والمضيف هو الفرق.
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-async function whisperAt(host, keys, defModel, envModel, base64, mime, label) {
+// المفردات التي يُخطئها التفريغ في هذا المجال تحديداً: «منشأة» تُكتب
+// «موشاة»، و«كفالة» و«قوى» و«مقيم» أسماء منصّات لا كلمات عامة. Whisper
+// يقبل prompt يُهيّئ مفكّكه على هذه الألفاظ قبل أن يسمعها — وهذا ما يُصلح
+// أكثر الأخطاء المشاهَدة، لا تبديل النموذج وحده.
+const ASR_PROMPT_AR = [
+  "محادثة عن خدمات الأعمال في السعودية.",
+  "مفردات متوقعة: منشأة، منشآت، كفالة، نقل كفالة، نقل خدمات، إقامة، تأشيرة، رخصة،",
+  "سجل تجاري، عقد تأسيس، الغرفة التجارية، العنوان الوطني، الرقم الموحد، الرقم الضريبي،",
+  "قوى، مقيم، أبشر، بلدي، مدد، نطاقات، التوطين، المؤسسة العامة للتأمينات الاجتماعية،",
+  "هيئة الزكاة والضريبة والجمارك، وزارة الاستثمار، رخصة ريادة الأعمال، مكتب العمل.",
+].join(" ");
+const ASR_PROMPT = { ar: ASR_PROMPT_AR, en: "A conversation about business services in Saudi Arabia: commercial registration, sponsorship transfer, iqama, visas, licences, Qiwa, Muqeem, ZATCA, MISA." };
+
+async function whisperAt(host, keys, defModel, envModel, base64, mime, label, hint) {
   const key = envFrom(keys);
   if (!key) throw new Error("no_key");
   const clean = String(mime).split(";")[0];
@@ -348,6 +362,11 @@ async function whisperAt(host, keys, defModel, envModel, base64, mime, label) {
   form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
   form.append("model", process.env[envModel] || defModel);
   form.append("response_format", "verbose_json");
+  form.append("temperature", "0");
+  // تثبيت اللغة يمنع النموذج من «تخمين» لغةٍ أخرى على لهجةٍ محلية.
+  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
+  const prime = ASR_PROMPT[hint] || (hint === "ar" ? ASR_PROMPT_AR : "");
+  if (prime) form.append("prompt", prime);
   const r = await fetch(`${host}/audio/transcriptions`, {
     method: "POST", headers: { authorization: `Bearer ${key}` }, body: form,
     signal: AbortSignal.timeout(60000),
@@ -356,24 +375,25 @@ async function whisperAt(host, keys, defModel, envModel, base64, mime, label) {
   const d = await r.json();
   return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
 }
-const speechGroq = (b, m) => whisperAt("https://api.groq.com/openai/v1", GROQ_KEYS, "whisper-large-v3-turbo", "GROQ_TRANSCRIBE_MODEL", b, m, "groq");
-const speechOpenAI = (b, m) => whisperAt("https://api.openai.com/v1", OPENAI_KEYS, "whisper-1", "OPENAI_TRANSCRIBE_MODEL", b, m, "openai");
+const speechGroq = (b, m, h) => whisperAt("https://api.groq.com/openai/v1", GROQ_KEYS, "whisper-large-v3", "GROQ_TRANSCRIBE_MODEL", b, m, "groq", h);
+const speechOpenAI = (b, m, h) => whisperAt("https://api.openai.com/v1", OPENAI_KEYS, "whisper-1", "OPENAI_TRANSCRIBE_MODEL", b, m, "openai", h);
 
 const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
 
-export async function transcribeAudio(base64, mime) {
+export async function transcribeAudio(base64, mime, hint) {
   if (!base64) return { ok: false, error: "no_audio" };
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
   for (const [name, call] of [["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
     try {
-      const out = await call(base64, mime);
+      const out = await call(base64, mime, String(hint || "").slice(0, 2).toLowerCase());
       const text = String((out && out.text) || "").trim();
       if (!text) return { ok: false, error: "no_speech", provider: name };
       let lang = String((out && out.lang) || "").trim().toLowerCase();
       lang = LANG_ALIAS[lang] || lang.slice(0, 2);
-      return { ok: true, text: text.slice(0, 4000), lang: /^[a-z]{2}$/.test(lang) ? lang : "", provider: name };
+      const fixed = await polishArabic(text.slice(0, 4000), lang);
+      return { ok: true, text: fixed.text, raw: fixed.changed ? text.slice(0, 4000) : undefined, lang: /^[a-z]{2}$/.test(lang) ? lang : "", provider: name };
     } catch (e) {
       const msg = String(e.message || e);
       tried.push(`${name}: ${msg.slice(0, 70)}`);
@@ -384,4 +404,39 @@ export async function transcribeAudio(base64, mime) {
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
+}
+
+
+// التفريغ يسمع الصوت ولا يعرف المجال، فيكتب «موشاة» مكان «منشأة». هذه مرحلةٌ
+// ثانية تُصلح أخطاء السمع في ألفاظ الأعمال والجهات الحكومية فقط.
+//
+// محكومة عمداً: لا تُعيد صياغة، ولا تضيف ولا تحذف، وإن اختلف الطول أكثر من
+// الثلث رُدَّ الأصل. تصحيحٌ يبتلع جملةً من كلام العميل أسوأ من خطأ إملائي —
+// لأن النطاق يُبنى على هذا الكلام.
+async function polishArabic(text, lang) {
+  const t = String(text || "").trim();
+  if (lang !== "ar" || t.length < 12 || t.length > 1500) return { text: t, changed: false };
+  const prompt = [
+    "أنت مصحّح تفريغ صوتي لمحادثة عن خدمات الأعمال في السعودية.",
+    "صحّح أخطاء التعرّف على الكلام في الألفاظ المتخصصة فقط: أسماء الجهات والمنصّات والمصطلحات",
+    "(منشأة، كفالة، نقل كفالة، نقل خدمات، إقامة، سجل تجاري، الغرفة التجارية، العنوان الوطني،",
+    "الرقم الموحد، الرقم الضريبي، قوى، مقيم، أبشر، بلدي، مدد، نطاقات، التوطين، التأمينات الاجتماعية،",
+    "هيئة الزكاة والضريبة والجمارك، وزارة الاستثمار، رخصة ريادة الأعمال).",
+    "لا تُعِد الصياغة، ولا تضف كلمة، ولا تحذف كلمة، ولا تغيّر اللهجة، ولا تجب على الكلام.",
+    "إن لم تكن واثقاً من كلمة فاتركها كما هي.",
+    'أعِد JSON فقط: {"text":"النص بعد التصحيح"}.',
+    "النص:",
+    t,
+  ].join(" ");
+  try {
+    const raw = await askModel(prompt, 900);          // يعيد data مُحلّلاً سلفاً
+    const out = String((raw && raw.ok && raw.data && raw.data.text) || "").trim();
+    if (!out) return { text: t, changed: false };
+    const ratio = out.length / t.length;
+    if (ratio < 0.66 || ratio > 1.5) return { text: t, changed: false };
+    return { text: out, changed: out !== t };
+  } catch (e) {
+    console.error("polish", String(e.message || e).slice(0, 140));
+    return { text: t, changed: false };
+  }
 }
