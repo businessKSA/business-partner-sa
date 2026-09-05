@@ -325,9 +325,11 @@ const TRANSCRIBE_PROMPT = [
   "إن لم يكن في التسجيل كلامٌ مفهوم فأعِد text فارغاً.",
 ].join(" ");
 
+const GEMINI_AUDIO_OK = /^audio\/(wav|x-wav|mpeg|mp3|ogg|aac|flac|aiff|mp4|m4a|x-m4a)$/i;
 async function speechGemini(base64, mime) {
   const key = envFrom(GEMINI_KEYS);
   if (!key) throw new Error("no_key");
+  if (!GEMINI_AUDIO_OK.test(String(mime).split(";")[0])) throw new Error("unsupported_mime");
   const model = process.env.GEMINI_AUDIO_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const { text } = await geminiCall(key, model,
     [{ inline_data: { mime_type: String(mime).split(";")[0], data: base64 } }, { text: TRANSCRIBE_PROMPT }], 1400, 60000);
@@ -363,7 +365,8 @@ export async function transcribeAudio(base64, mime) {
   if (!base64) return { ok: false, error: "no_audio" };
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
-  for (const [name, call] of [["gemini", speechGemini], ["groq", speechGroq], ["openai", speechOpenAI]]) {
+  const tried = [];
+  for (const [name, call] of [["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
     try {
       const out = await call(base64, mime);
       const text = String((out && out.text) || "").trim();
@@ -373,9 +376,12 @@ export async function transcribeAudio(base64, mime) {
       return { ok: true, text: text.slice(0, 4000), lang: /^[a-z]{2}$/.test(lang) ? lang : "", provider: name };
     } catch (e) {
       const msg = String(e.message || e);
-      if (msg !== "no_key") console.error("transcribe", name, msg.slice(0, 160));
+      tried.push(`${name}: ${msg.slice(0, 70)}`);
+      if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS);
-  return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured" };
+  const anyKey = envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
+  // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
+  // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
+  return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
 }

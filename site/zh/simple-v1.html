@@ -241,7 +241,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
- .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
  .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
@@ -272,7 +273,9 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
-    <a class="sv1-btn" href="/zh/my">登录</a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="/zh/my">登录</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/zh/">返回网站</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">退出登录</button>
     <a class="sv1-btn primary" href="/zh/#advisor">开始申请</a>
   </div>
 </div></header>
@@ -422,9 +425,9 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 </div></footer>
 <a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
+var $h=function(id){return document.getElementById(id)};var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script><script>
 (function(){
-var LANG="zh",TX={"thinking":"正在处理…","chatError":"暂时无法回复，请重试或通过 WhatsApp 联系我们。","scopeIn":"在范围内","needScope":"请至少添加一个条目后再创建申请。","micStart":"用语音代替打字","micStop":"停止录音","micRec":"正在聆听…","micWork":"正在转写…","micDenied":"麦克风被阻止。请在浏览器中允许，或改为输入文字。","micNone":"您的浏览器不支持录音 — 请输入文字。","micQuiet":"未检测到语音。请靠近后重试。","micFail":"转写失败。请输入文字或重试。","micLong":"录音过长，请录短一些。","loginErr":"无法发送验证码，请检查邮箱或稍后重试。","codeErr":"验证码错误。","creating":"正在创建申请…","created":"申请已创建。编号：","openPortal":"打开我的账户","stateReady":"待审核","docsEmpty":"顾问了解您的需求后将在此列出。","titles":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"welcome":{"consulting":"欢迎 👋 请说明您想咨询的事项。","government":"欢迎 👋 请说明需要办理的事务或平台上的问题。","formation":"欢迎 👋 请介绍您想设立的公司。"},"chips":{"consulting":["许可相关咨询","公司内部问题","涉及哪些主管机关","公司全面检查"],"government":["Qiwa 平台问题","变更职业","服务转移","签证","Nitaqat 与本地化","代管平台"],"formation":["外国公司分支","创业许可","投资注册","设立要求"]},"seed":{"consulting":["了解事项与现状","确定涉及的机关与要求","明确步骤与建议"],"government":["检查问题或事务","确定所需政府服务","执行或跟进约定的服务"],"formation":["确定设立路径","设立手续、商业登记与公司章程","核心政府平台注册","任命公司经理","协助开立银行账户"]},"types":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"doorSub":{"consulting":"关于贵公司的问题、挑战或决策。","government":"办理事务、平台问题，或代管您的政府平台。","formation":"外国公司分支机构，或通过创业路径设立公司。"}},PORTAL="/zh/my";
+var LANG="zh",TX={"thinking":"正在处理…","chatError":"暂时无法回复，请重试或通过 WhatsApp 联系我们。","scopeIn":"在范围内","needScope":"请至少添加一个条目后再创建申请。","micStart":"用语音代替打字","micStop":"停止录音","micRec":"正在聆听…","micWork":"正在转写…","micDenied":"麦克风被阻止。请在浏览器中允许，或改为输入文字。","micNone":"您的浏览器不支持录音 — 请输入文字。","micQuiet":"未检测到语音。请靠近后重试。","micFail":"转写失败。请输入文字或重试。","micLong":"录音过长，请录短一些。","micOff":"服务器尚未启用语音转写。请输入文字。","loginErr":"无法发送验证码，请检查邮箱或稍后重试。","codeErr":"验证码错误。","creating":"正在创建申请…","created":"申请已创建。编号：","openPortal":"打开我的账户","stateReady":"待审核","docsEmpty":"顾问了解您的需求后将在此列出。","titles":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"welcome":{"consulting":"欢迎 👋 请说明您想咨询的事项。","government":"欢迎 👋 请说明需要办理的事务或平台上的问题。","formation":"欢迎 👋 请介绍您想设立的公司。"},"chips":{"consulting":["许可相关咨询","公司内部问题","涉及哪些主管机关","公司全面检查"],"government":["Qiwa 平台问题","变更职业","服务转移","签证","Nitaqat 与本地化","代管平台"],"formation":["外国公司分支","创业许可","投资注册","设立要求"]},"seed":{"consulting":["了解事项与现状","确定涉及的机关与要求","明确步骤与建议"],"government":["检查问题或事务","确定所需政府服务","执行或跟进约定的服务"],"formation":["确定设立路径","设立手续、商业登记与公司章程","核心政府平台注册","任命公司经理","协助开立银行账户"]},"types":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"doorSub":{"consulting":"关于贵公司的问题、挑战或决策。","government":"办理事务、平台问题，或代管您的政府平台。","formation":"外国公司分支机构，或通过创业路径设立公司。"}},PORTAL="/zh/my";
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
@@ -493,7 +496,7 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
      body:JSON.stringify({mode:'voice',mime:type||'audio/webm',audio:b64})})
     .then(function(r){return r.json()}).then(function(o){
      reset();
-     if(!o||!o.ok){say('err',o&&o.error==='no_speech'?TX.micQuiet:o&&o.error==='too_large'?TX.micLong:TX.micFail);return}
+     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
      hide();
      // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
      if(o.lang)state.voiceLang=o.lang;

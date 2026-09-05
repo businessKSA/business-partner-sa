@@ -37,6 +37,8 @@ const D = {
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
+  navSite: { ar: "العودة إلى الموقع", en: "Back to the site", fr: "Retour au site", zh: "返回网站" },
+  logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
   login: { ar: "دخول", en: "Sign in", fr: "Connexion", zh: "登录" },
   navStart: { ar: "ابدأ طلبك", en: "Start your request", fr: "Démarrer une demande", zh: "开始申请" },
   heroTitle: { ar: "قل لنا وش تحتاج،<br>ونبدأ معك من هنا.", en: "Tell us what you need,<br>and we start here with you.", fr: "Dites-nous ce qu'il vous faut,<br>et nous commençons ici.", zh: "告诉我们您的需求，<br>我们从这里开始。" },
@@ -207,6 +209,10 @@ const D = {
               en: "We heard no speech. Move closer and try again.",
               fr: "Aucune parole détectée. Rapprochez-vous et réessayez.",
               zh: "未检测到语音。请靠近后重试。" },
+  micOff:   { ar: "التفريغ الصوتي غير مُفعَّل على الخادم بعد. اكتب رسالتك.",
+              en: "Voice transcription is not enabled on the server yet. Please type instead.",
+              fr: "La transcription vocale n'est pas encore activée sur le serveur. Écrivez votre message.",
+              zh: "服务器尚未启用语音转写。请输入文字。" },
   micFail:  { ar: "تعذّر تفريغ الصوت. اكتب رسالتك أو أعد المحاولة.",
               en: "Could not transcribe. Type your message or try again.",
               fr: "Transcription impossible. Écrivez ou réessayez.",
@@ -454,7 +460,8 @@ export function simpleV1(ctx) {
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
- .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
  .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
@@ -496,7 +503,9 @@ export function simpleV1(ctx) {
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
-    <a class="sv1-btn" href="${href("/my")}">${t("login")}</a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="${href("/my")}">${t("login")}</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="${href("/")}">${t("navSite")}</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t("logout")}</button>
     ${cta ? `<a class="sv1-btn primary" href="${href("/")}#advisor">${t("navStart")}</a>` : ""}
   </div>
 </div></header>`;
@@ -577,7 +586,7 @@ export function simpleV1(ctx) {
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script>`;
+var $h=function(id){return document.getElementById(id)};var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
 
   function shell({ title, desc, path, body, script = "", noindex = false }) {
     const h = head(title, desc, path)
@@ -608,7 +617,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
       micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
-      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"),
+      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
@@ -809,7 +818,7 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
      body:JSON.stringify({mode:'voice',mime:type||'audio/webm',audio:b64})})
     .then(function(r){return r.json()}).then(function(o){
      reset();
-     if(!o||!o.ok){say('err',o&&o.error==='no_speech'?TX.micQuiet:o&&o.error==='too_large'?TX.micLong:TX.micFail);return}
+     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
      hide();
      // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
      if(o.lang)state.voiceLang=o.lang;

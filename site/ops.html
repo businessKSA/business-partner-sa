@@ -241,7 +241,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
- .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
  .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
@@ -322,12 +323,14 @@ table.t input.inp{padding:6px 8px}
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
-    <a class="sv1-btn" href="/ar/my">دخول</a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="/ar/my">دخول</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/ar/">العودة إلى الموقع</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">تسجيل الخروج</button>
     
   </div>
 </div></header><div id="app"></div></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
+var $h=function(id){return document.getElementById(id)};var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script><script>
 (function(){
 var ST={NEW:'جديد',REVIEWING:'قيد المراجعة',WAITING_CLIENT:'بانتظار العميل',QUOTE_SENT:'عرض مُرسل',QUOTE_APPROVED:'العرض معتمد',CONTRACT_SENT:'عقد مُرسل',SIGNED:'موقّع',PAYMENT_PENDING:'بانتظار الدفع',PAID:'مدفوع',IN_PROGRESS:'قيد التنفيذ',WAITING_INTERNAL:'بانتظار داخلي',COMPLETED:'مكتمل',CANCELLED:'ملغي'};
 var TY={CONSULTATION:'استشارة',GOVERNMENT_SERVICE:'خدمة حكومية',COMPANY_FORMATION:'تأسيس شركة'};
