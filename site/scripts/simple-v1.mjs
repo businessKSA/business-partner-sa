@@ -191,6 +191,10 @@ const D = {
                  en: "A ZATCA-compliant tax invoice for every paid order.",
                  fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
                  zh: "每笔已付订单均开具符合 ZATCA 规定的税务发票。" },
+  composeHint: { ar: "اكتب طلبك، أو اطلبه بصوتك من خلال المايك.",
+                 en: "Type your request, or say it out loud using the mic.",
+                 fr: "Écrivez votre demande, ou dictez-la avec le micro.",
+                 zh: "输入您的请求，或使用麦克风口述。" },
   micStart: { ar: "تكلّم بدل الكتابة", en: "Speak instead of typing",
               fr: "Parlez au lieu d'écrire", zh: "用语音代替打字" },
   micStop:  { ar: "أوقف التسجيل", en: "Stop recording", fr: "Arrêter l'enregistrement", zh: "停止录音" },
@@ -347,7 +351,7 @@ export function simpleV1(ctx) {
 .sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .sv1-appbar b{color:var(--ink)}
 .sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
-.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:#777;font-weight:700}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
 .sv1-steps .active{background:var(--ac);color:#fff}
 .sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
@@ -363,6 +367,7 @@ export function simpleV1(ctx) {
 .sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
 .sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
 .sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
 .sv1-compose textarea:focus{border-color:var(--ac)}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
@@ -649,7 +654,7 @@ ${header(path)}
     <div class="sv1-title"><h2>${t("advisorTitle")}</h2><p>${t("advisorSub")}</p></div>
     <div class="sv1-app">
       <div class="sv1-appbar"><b>${t("brand")}</b>
-        <div class="sv1-steps"><span class="active">${t("stepReq")}</span><span>${t("stepQuote")}</span><span>${t("stepContract")}</span><span>${t("stepPay")}</span><span>${t("stepInvoice")}</span></div>
+        <div class="sv1-steps">${[1,2,3,4,5,6].map((n) => `<span${n === 1 ? ' class="active"' : ""}>${n} · ${t("j" + n)}</span>`).join("")}</div>
       </div>
       <div class="sv1-appgrid">
         <div class="sv1-chat">
@@ -663,6 +668,7 @@ ${header(path)}
             </button>
             <button type="submit" class="send" id="sv1Send" aria-label="${esc(t("send"))}">↑</button>
           </form>
+          <p class="sv1-composehint">${esc(t("composeHint"))}</p>
         </div>
         <div class="sv1-scope">
           <span class="sv1-tag">${t("scopeTag")}</span>

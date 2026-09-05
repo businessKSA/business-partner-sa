@@ -128,7 +128,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .sv1-appbar b{color:var(--ink)}
 .sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
-.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:#777;font-weight:700}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
 .sv1-steps .active{background:var(--ac);color:#fff}
 .sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
@@ -144,6 +144,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
 .sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
 .sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
 .sv1-compose textarea:focus{border-color:var(--ac)}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
@@ -298,7 +299,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
     <div class="sv1-title"><h2>一切从对话开始</h2><p>用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。</p></div>
     <div class="sv1-app">
       <div class="sv1-appbar"><b>Business Partner</b>
-        <div class="sv1-steps"><span class="active">申请</span><span>报价</span><span>合同</span><span>付款</span><span>发票</span></div>
+        <div class="sv1-steps"><span class="active">1 · 对话</span><span>2 · 服务范围</span><span>3 · 报价</span><span>4 · 合同</span><span>5 · 付款</span><span>6 · 发票</span></div>
       </div>
       <div class="sv1-appgrid">
         <div class="sv1-chat">
@@ -312,6 +313,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
             </button>
             <button type="submit" class="send" id="sv1Send" aria-label="发送">↑</button>
           </form>
+          <p class="sv1-composehint">输入您的请求，或使用麦克风口述。</p>
         </div>
         <div class="sv1-scope">
           <span class="sv1-tag">您的申请</span>
