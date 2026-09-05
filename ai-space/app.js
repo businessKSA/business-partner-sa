@@ -510,7 +510,22 @@
    * ask() returned early on `busy` and the button sat disabled, sometimes for
    * the full 150s timeout, with listening paused the whole time. A request in
    * flight is now interruptible. */
-  var inflight = null, abortedByUser = false;
+  var inflight = null, abortedByUser = false, busySince = 0;
+
+  function forceUnbusy(why) {
+    if (!busy) return;
+    try { if (inflight) inflight.abort(); } catch (e) {}
+    inflight = null;
+    busy = false;
+    busySince = 0;
+    abortedByUser = false;
+    var b = $('btnSend');
+    b.textContent = 'إرسال';
+    b.disabled = false;
+    diag('أُعيد ضبط حالة الانتظار تلقائيًا: ' + why);
+    note('تعلّقت حالة الانتظار فأُعيد ضبطها — المايك عاد للعمل.', 'mic');
+    resumeListening();
+  }
 
   function cancelAsk() {
     if (!busy || !inflight) return false;
@@ -523,6 +538,7 @@
     text = String(text || '').trim();
     if (!text || busy) return Promise.resolve();
     busy = true;
+    busySince = Date.now();
     abortedByUser = false;
     $('btnSend').textContent = 'إيقاف';
     addMsg(text, 'me');
@@ -577,6 +593,7 @@
         clearInterval(tick);
         inflight = null;
         busy = false;
+        busySince = 0;
         abortedByUser = false;
         $('btnSend').textContent = 'إرسال';
         $('btnSend').disabled = false;
@@ -751,6 +768,8 @@
       'الاستماع مطلوب: ' + (DIAG.wantListen ? 'نعم' : 'لا'),
       'بدأ التعرّف: ' + DIAG.started + (DIAG.startedAt ? ' (آخر مرة ' + DIAG.startedAt + ')' : ''),
       'نتائج نهائية: ' + DIAG.results + ' · مؤقتة: ' + DIAG.interim,
+      'صوت يُنطق الآن: ' + ((window.speechSynthesis && window.speechSynthesis.speaking) ? 'نعم' : 'لا'),
+      'ينتظر ردًا: ' + (busy ? 'نعم' + (busySince ? ' منذ ' + Math.round((Date.now() - busySince) / 1000) + 'ث' : '') : 'لا'),
       'آخر خطأ: ' + (DIAG.lastErr ? DIAG.lastErr + ' @ ' + DIAG.lastErrAt : 'لا شيء'),
       DIAG.note ? 'ملاحظة: ' + DIAG.note : ''
     ].filter(Boolean).join('\n');
@@ -800,10 +819,46 @@
     clearTimeout(restartT);
     restartT = setTimeout(startListening, 450);
   }
-  var startWatch = null;
+  var startWatch = null, speakBlocks = 0, busyBlocks = 0;
+
+  /* Two unbounded waits used to silence the microphone permanently:
+   *
+   * 1. speechSynthesis.speaking can stay stuck true in Chrome when an utterance
+   *    is cancelled or the tab loses focus and `onend` never fires. The old code
+   *    then bounced between resumeListening() and startListening() forever and
+   *    never called rec.start() — no error, no message, just deafness.
+   * 2. A stuck `busy` did the same, and worse: startListening() returned without
+   *    scheduling another attempt, so listening never resumed at all.
+   *
+   * Both waits are now capped and recover themselves. */
   function startListening() {
-    if (!rec || !wantListen || busy || listening) return;
-    if (window.speechSynthesis && window.speechSynthesis.speaking) { resumeListening(); return; }
+    if (!rec || !wantListen) return;
+    if (listening) return;
+
+    if (busy) {
+      busyBlocks += 1;
+      if (busyBlocks >= 8) {   // ~4s of being blocked by a request that never settled
+        busyBlocks = 0;
+        forceUnbusy('انتظار الرد تعلّق');
+      } else {
+        clearTimeout(restartT);
+        restartT = setTimeout(startListening, 500);
+        return;
+      }
+    } else { busyBlocks = 0; }
+
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      speakBlocks += 1;
+      if (speakBlocks >= 6) {  // ~3s: speaking is stuck, not actually speaking
+        speakBlocks = 0;
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+        diag('speechSynthesis.speaking بقي عالقًا — أُلغي النطق واستُؤنف الاستماع');
+      } else {
+        resumeListening();
+        return;
+      }
+    } else { speakBlocks = 0; }
+
     try {
       rec.start();
       // start() can resolve into silence: no onstart, no onerror. Without this
@@ -1100,6 +1155,21 @@
 
   loadData();
   if (REFRESH_MS) setInterval(function () { if (!busy) loadData(); }, REFRESH_MS);
+
+  // Last line of defence: nothing may hold the microphone shut indefinitely.
+  setInterval(function () {
+    if (busy && busySince && Date.now() - busySince > CHAT_TIMEOUT + 8000) {
+      forceUnbusy('تجاوز المهلة القصوى');
+    }
+    if (rec && wantListen && !listening && !busy) startListening();
+    // A timeout or error badge used to sit there while the page was in fact
+    // listening again, which reads as "still broken" to the owner.
+    if (listening && !busy) {
+      var n = $('uiState');
+      if (n && n.textContent.indexOf('أسمعك') === -1) setState('listening');
+    }
+    diag();
+  }, 5000);
 
   // Never getUserMedia unprompted on a fresh visit — that is what got the
   // microphone blocked before. But once the owner has already granted it, the
