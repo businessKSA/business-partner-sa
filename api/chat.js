@@ -22,7 +22,7 @@ import { sb, DB_ON, getSession } from "./_db.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
 import { priceSheetText } from "./_catalog.js";
-import { transcribeAudio } from "./_docread.js";
+import { transcribeAudio, voiceProviders } from "./_docread.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -307,6 +307,7 @@ export default async function handler(req, res) {
       providers: configured().map((p) => p.name),
       keyConfigured: configured().length > 0,
       detail,
+      voice: voiceProviders(),
     }));
   }
   if (req.method !== "POST") {

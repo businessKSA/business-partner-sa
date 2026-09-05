@@ -340,6 +340,30 @@ async function speechGemini(base64, mime, hint) {
 // Whisper يعيد نصاً عادياً ولغةً مكتشفة في الاستجابة نفسها — لا JSON نطلبه.
 // وواجهته واحدة عند OpenAI و Groq، فالدالة واحدة والمضيف هو الفرق.
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
+// اسم المتغيّر كما أدخله المالك في Vercel هو «ElevenLabs» — تُقرأ الأسماء
+// الشائعة كلها، كما يُقرأ مفتاح جيميناي من «BusinessPartnerGimini».
+const ELEVEN_KEYS = ["ELEVENLABS_API_KEY", "ELEVEN_API_KEY", "ELEVENLABS", "ElevenLabs", "elevenlabs", "XI_API_KEY", "ELEVEN_LABS_API_KEY"];
+
+// ElevenLabs Scribe: الأدق للعربية اليوم، ويقبل ما تسجّله المتصفحات كما هو.
+async function speechEleven(base64, mime, hint) {
+  const key = envFrom(ELEVEN_KEYS);
+  if (!key) throw new Error("no_key");
+  const clean = String(mime).split(";")[0];
+  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
+  const form = new FormData();
+  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
+  form.append("model_id", process.env.ELEVENLABS_STT_MODEL || "scribe_v1");
+  form.append("tag_audio_events", "false");
+  form.append("diarize", "false");
+  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language_code", hint);
+  const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    method: "POST", headers: { "xi-api-key": key }, body: form,
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!r.ok) throw new Error(`eleven ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  const d = await r.json();
+  return { text: String(d.text || "").trim(), lang: String(d.language_code || "").slice(0, 8).toLowerCase() };
+}
 // المفردات التي يُخطئها التفريغ في هذا المجال تحديداً: «منشأة» تُكتب
 // «موشاة»، و«كفالة» و«قوى» و«مقيم» أسماء منصّات لا كلمات عامة. Whisper
 // يقبل prompt يُهيّئ مفكّكه على هذه الألفاظ قبل أن يسمعها — وهذا ما يُصلح
@@ -380,12 +404,18 @@ const speechOpenAI = (b, m, h) => whisperAt("https://api.openai.com/v1", OPENAI_
 
 const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
 
+// تقريرٌ للفحص: أي مفرِّغٍ مُهيّأ وباسم أي متغيّر — الأسماء فقط، لا القيم.
+export function voiceProviders() {
+  return [["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]]
+    .map(([name, keys]) => ({ name, configured: !!envFrom(keys), via: keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null }));
+}
+
 export async function transcribeAudio(base64, mime, hint) {
   if (!base64) return { ok: false, error: "no_audio" };
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
-  for (const [name, call] of [["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
+  for (const [name, call] of [["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
     try {
       const out = await call(base64, mime, String(hint || "").slice(0, 2).toLowerCase());
       const text = String((out && out.text) || "").trim();
@@ -400,7 +430,7 @@ export async function transcribeAudio(base64, mime, hint) {
       if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
+  const anyKey = envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
