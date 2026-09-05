@@ -204,13 +204,13 @@ table.q tfoot td{font-weight:700}
 .doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
 .docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
 .docovl-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px 16px;background:var(--n2,#0D1017);color:#fff}
+  padding:10px 16px;background:var(--n2,#081345);color:#fff}
 .docovl-bar b{font-size:.95rem;font-weight:600}
 .docovl-bar .acts{display:flex;gap:8px}
 .docovl-bar button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
   border-radius:8px;padding:8px 14px;font:inherit;font-size:.82rem;cursor:pointer}
 .docovl-bar button:hover{background:rgba(255,255,255,.12)}
-.docovl-bar button.p{background:#fff;color:#0D1017;border-color:#fff;font-weight:600}
+.docovl-bar button.p{background:#fff;color:#0B1B5A;border-color:#fff;font-weight:600}
 .docovl iframe{flex:1;width:100%;border:0;background:#fff}
 @media print{body>*:not(.docovl){display:none!important}
   .docovl{position:static;background:#fff} .docovl-bar{display:none}}
