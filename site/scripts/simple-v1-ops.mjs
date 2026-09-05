@@ -302,6 +302,26 @@ qc.appendChild(catMsg);qc.appendChild(catBox);qc.appendChild(h('div',{class:'frm
 if(r.quote)qc.appendChild(h('p',{class:'note',style:'margin-top:8px'},['قبل الضريبة '+money(r.quote.net)+' · ضريبة '+money(r.quote.vat)+' · الإجمالي '+money(r.quote.total)+' · صالح حتى '+(r.quote.valid_until||'')+(r.quote.decision_note?' · ملاحظة العميل: '+r.quote.decision_note:'')]));
 left.appendChild(qc);
 // attachments
+// الإلغاء وإعادة الفتح من اللوحة: في أي مرحلة، بسببٍ مُدوَّن، وبإشعار الطرفين.
+(function(){
+ var box=h('div',{class:'card'}),msg=h('div',{class:'note'});
+ if(r.cancel_request)box.appendChild(h('p',{class:'warn-t'},['\u26A0\uFE0F العميل طلب الإلغاء وهو في مرحلة '+(r.cancel_request.stage||'')+(r.cancel_request.note?' — السبب: '+r.cancel_request.note:'')+' · '+when(r.cancel_request.at)]));
+ if(r.status==='CANCELLED'){
+  box.appendChild(h('h3',{},['الطلب ملغى']));
+  box.appendChild(h('p',{class:'note'},[r.cancel?('ألغاه '+(r.cancel.actor||'—')+' من مرحلة '+(r.cancel.stage||'—')+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')):'—']));
+  if(r.cancel&&r.cancel.was_paid)box.appendChild(h('p',{class:'warn-t'},['\u26A0\uFE0F كان الطلب مدفوعاً — الاسترداد قرارٌ منفصل لم يُنفَّذ آلياً.']));
+  box.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn sm',onclick:function(){var b2=this;b2.disabled=true;api('ops-reopen',{ref:r.ref}).then(function(o){b2.disabled=false;if(o&&o.ok)location.reload();else{msg.className='err';msg.textContent=(o&&o.error)||'تعذّر'}})}},['إعادة فتح الطلب'])]));
+ }else{
+  var why=h('input',{class:'inp',placeholder:'سبب الإلغاء (يُدوَّن ويصل العميل)'});
+  box.appendChild(h('h3',{},['إلغاء الطلب']));
+  box.appendChild(h('p',{class:'note'},['الإلغاء يوقف الطلب ويُشعر العميل. المبالغ المدفوعة لا تُردّ آلياً — الاسترداد قرارٌ منفصل.']));
+  box.appendChild(why);
+  box.appendChild(h('div',{class:'msgform',style:'margin-top:8px'},[h('button',{class:'btn danger sm',onclick:function(){
+   if(!confirm('إلغاء الطلب '+r.ref+'?'))return;var b2=this;b2.disabled=true;
+   api('ops-cancel',{ref:r.ref,note:why.value.trim()}).then(function(o){b2.disabled=false;if(o&&o.ok)location.reload();else{msg.className='err';msg.textContent=(o&&o.error)||'تعذّر'}})}},['إلغاء الطلب'])]));
+ }
+ box.appendChild(msg);left.appendChild(box);
+})();
 if(r.attachments&&r.attachments.length)left.appendChild(h('div',{class:'card'},[h('h3',{},['المستندات']),h('ul',{},r.attachments.map(function(a){return h('li',{},[a.url?h('a',{href:a.url,target:'_blank'},[a.name]):a.name,' · '+(a.note||'')+' · '+when(a.at)])}))]));
 // contract
 var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},['العقد'+(r.contract?' — '+r.contract.number+' ('+r.contract.status+')':'')]));

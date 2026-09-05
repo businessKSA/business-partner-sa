@@ -335,23 +335,27 @@ async function speechGemini(base64, mime) {
 }
 
 // Whisper يعيد نصاً عادياً ولغةً مكتشفة في الاستجابة نفسها — لا JSON نطلبه.
-async function speechOpenAI(base64, mime) {
-  const key = envFrom(OPENAI_KEYS);
+// وواجهته واحدة عند OpenAI و Groq، فالدالة واحدة والمضيف هو الفرق.
+const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
+async function whisperAt(host, keys, defModel, envModel, base64, mime, label) {
+  const key = envFrom(keys);
   if (!key) throw new Error("no_key");
   const clean = String(mime).split(";")[0];
   const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
   const form = new FormData();
   form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model", process.env.OPENAI_TRANSCRIBE_MODEL || "whisper-1");
+  form.append("model", process.env[envModel] || defModel);
   form.append("response_format", "verbose_json");
-  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+  const r = await fetch(`${host}/audio/transcriptions`, {
     method: "POST", headers: { authorization: `Bearer ${key}` }, body: form,
     signal: AbortSignal.timeout(60000),
   });
-  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  if (!r.ok) throw new Error(`${label} ${r.status}: ${(await r.text()).slice(0, 160)}`);
   const d = await r.json();
   return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
 }
+const speechGroq = (b, m) => whisperAt("https://api.groq.com/openai/v1", GROQ_KEYS, "whisper-large-v3-turbo", "GROQ_TRANSCRIBE_MODEL", b, m, "groq");
+const speechOpenAI = (b, m) => whisperAt("https://api.openai.com/v1", OPENAI_KEYS, "whisper-1", "OPENAI_TRANSCRIBE_MODEL", b, m, "openai");
 
 const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
 
@@ -359,7 +363,7 @@ export async function transcribeAudio(base64, mime) {
   if (!base64) return { ok: false, error: "no_audio" };
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
-  for (const [name, call] of [["gemini", speechGemini], ["openai", speechOpenAI]]) {
+  for (const [name, call] of [["gemini", speechGemini], ["groq", speechGroq], ["openai", speechOpenAI]]) {
     try {
       const out = await call(base64, mime);
       const text = String((out && out.text) || "").trim();
@@ -372,6 +376,6 @@ export async function transcribeAudio(base64, mime) {
       if (msg !== "no_key") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(OPENAI_KEYS);
+  const anyKey = envFrom(GEMINI_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS);
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured" };
 }

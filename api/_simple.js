@@ -143,7 +143,7 @@ function ownedBy(row, sess) {
 // The public view of a request — no internal notes, no assignment.
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
-  if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, has_html: true };
+  if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   return { ...pub, events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
@@ -643,11 +643,38 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, appointment });
   }
 
+  // الإلغاء من جهة العميل. قبل اعتماد العرض يُلغى فوراً — لا شيء يترتّب عليه.
+  // بعده لا يُلغى بضغطة: هناك عقدٌ أو دفعةٌ أو تنفيذٌ جارٍ، فيُسجَّل طلب
+  // إلغاء ويُفتح على الفريق ويُشعر الطرفان. رفضُ الطلب بـ409 كان يترك
+  // العميل بلا مخرج، وهذا ليس إلغاءً «متاحاً».
   if (action === "request-cancel") {
-    if (!["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT"].includes(row.status)) return json(res, 409, { ok: false, error: "cannot_cancel", message: "تعذّر الإلغاء بعد اعتماد العرض — افتح تذكرة ويتولاها الفريق." });
-    await patchRequest(row.id, { status: "CANCELLED" });
-    await logEvent(row.id, "customer", who, "request.cancelled", { note: str(b.note, 300) });
-    return json(res, 200, { ok: true, status: "CANCELLED" });
+    const note = str(b.note, 500);
+    if (["CANCELLED", "COMPLETED"].includes(row.status)) return json(res, 409, { ok: false, error: "already_closed" });
+    if (["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING"].includes(row.status)) {
+      const upd = await patchRequest(row.id, { status: "CANCELLED", cancel: { at: nowIso(), by: "customer", actor: who, note, stage: row.status } });
+      await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
+      await announce(upd, "cancelled", {
+        subject: `أُلغي الطلب ${row.ref}`,
+        clientLine: "ألغينا طلبك كما طلبت. تقدر تبدأ طلباً جديداً في أي وقت.",
+        opsLine: `${row.client_name || who} ألغى الطلب بنفسه قبل اعتماد العرض.${note ? ` السبب: ${note}` : ""}`,
+      });
+      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true });
+    }
+    const pending = { at: nowIso(), by: "customer", actor: who, note, stage: row.status };
+    const upd = await patchRequest(row.id, { cancel_request: pending });
+    await logEvent(row.id, "customer", who, "cancel.requested", { note, stage: row.status });
+    await sweepTask(upd, {
+      source: "cancel.request", urgency: "high", human: true,
+      title: () => `طلب إلغاء — ${row.ref}`,
+      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه أو تواصل معه.`,
+    }, "المستشار الذكي");
+    await announce(upd, "cancel-request", {
+      subject: `طلب إلغاء ${row.ref} بانتظار مراجعة الفريق`,
+      clientLine: "استلمنا طلب الإلغاء. الطلب وصل مرحلةً يترتّب عليها التزامات، فيراجعه الفريق ويعود لك.",
+      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""}`,
+      cta: "افتح الطلب في لوحة العمليات",
+    });
+    return json(res, 200, { ok: true, status: row.status, requested: true });
   }
 
   return json(res, 400, { ok: false, error: "unknown_action" });
@@ -1189,6 +1216,45 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     // اللوحة تقرأ ما يقرأه العميل — بما فيه النسخة المصحَّحة — وتُنبَّه إن
     // كان العقد قد صُحِّح بعد التوقيع فيحتاج توقيعاً جديداً.
     return json(res, 200, { ok: true, html: row.contract.html, needsResign: !!row.contract.needs_resign, correctedAt: row.contract.corrected_at || "" });
+  }
+
+  // الإلغاء من لوحة العمليات: في أي مرحلة، بسببٍ مُدوَّن، وبإشعار الطرفين.
+  // المال لا يُمَسّ هنا: طلبٌ مدفوع يُلغى ويبقى الاسترداد خطوةً منفصلة
+  // يقرّرها المالك في البوابة — إلغاءٌ يحرّك مبلغاً بلا قرارٍ صريح أسوأ من
+  // إلغاءٍ لا يحرّكه.
+  if (action === "ops-cancel") {
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "already_cancelled" });
+    const note = str(b.note, 500);
+    const wasPaid = row.payment && row.payment.status === "PAID";
+    const upd = await patchRequest(row.id, {
+      status: "CANCELLED",
+      cancel: { at: nowIso(), by: "ops", actor, note, stage: row.status, was_paid: !!wasPaid },
+      cancel_request: null,
+    });
+    await logEvent(row.id, "ops", actor, "request.cancelled", { note, stage: row.status, by: "ops" });
+    await audit({ organization_id: row.organization_id, action: "simple.request.cancel", entity: "requests", entity_id: row.id, meta: { ref: row.ref, note } });
+    await announce(upd, "cancelled", {
+      subject: `أُلغي الطلب ${row.ref}`,
+      clientLine: `ألغينا الطلب.${note ? ` السبب: ${note}` : ""} إن كان لديك استفسار راسلنا وسنساعدك.`,
+      opsLine: `${actor} ألغى الطلب من مرحلة ${row.status}.${wasPaid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل لم يُنفَّذ." : ""}`,
+    });
+    return json(res, 200, { ok: true, status: "CANCELLED", wasPaid: !!wasPaid, refundPending: !!wasPaid });
+  }
+
+  // التراجع عن الإلغاء: الأخطاء تقع، وطلبٌ أُلغي بالخطأ يجب أن يعود بلا
+  // إعادة إنشاء تفقد تاريخه كله.
+  if (action === "ops-reopen") {
+    if (row.status !== "CANCELLED") return json(res, 409, { ok: false, error: "not_cancelled" });
+    const back = REQUEST_STATUSES.includes(str(b.status, 40)) ? str(b.status, 40)
+      : (row.cancel && REQUEST_STATUSES.includes(row.cancel.stage) ? row.cancel.stage : "REVIEWING");
+    const upd = await patchRequest(row.id, { status: back, cancel: null, cancel_request: null });
+    await logEvent(row.id, "ops", actor, "request.reopened", { to: back });
+    await announce(upd, "reopened", {
+      subject: `أُعيد فتح الطلب ${row.ref}`,
+      clientLine: "أعدنا فتح طلبك ونكمل من حيث توقّفنا.",
+      opsLine: `${actor} أعاد فتح الطلب إلى ${back}.`,
+    });
+    return json(res, 200, { ok: true, status: back });
   }
 
   // إعادة إصدار العقد للتوقيع: تُستعمل حين صُحِّح عقدٌ بعد توقيعه. العقد
