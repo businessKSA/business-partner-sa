@@ -481,8 +481,8 @@
     needmic:  ['🎙️ اضغط «فعّل المايك» للتحدّث', ''],
     listening:['🟢 أسمعك — تكلّم', 'live'],
     heard:    ['✅ سمعتك', 'busy'],
-    thinking: ['🔵 أفكّر…', 'busy'],
-    deleg:    ['🟣 أوزّع على المدراء…', 'busy'],
+    thinking: ['🔵 أفكّر… (المايك موقوف · اضغط إيقاف للمقاطعة)', 'busy'],
+    deleg:    ['🟣 أوزّع على المدراء… (اضغط إيقاف للمقاطعة)', 'busy'],
     speaking: ['🗣️ أتكلّم', 'talk'],
     micoff:   ['🔴 المايك مقفول', 'err'],
     error:    ['⚠️ خطأ', 'err']
@@ -506,11 +506,25 @@
     return String(t || '').split('[[DETAILS]]')[0].replace(/^\s*VOICE:\s*/i, '').trim();
   }
 
+  /* The owner could not send a second command while the first was still out:
+   * ask() returned early on `busy` and the button sat disabled, sometimes for
+   * the full 150s timeout, with listening paused the whole time. A request in
+   * flight is now interruptible. */
+  var inflight = null, abortedByUser = false;
+
+  function cancelAsk() {
+    if (!busy || !inflight) return false;
+    abortedByUser = true;
+    try { inflight.abort(); } catch (e) {}
+    return true;
+  }
+
   function ask(text) {
     text = String(text || '').trim();
     if (!text || busy) return Promise.resolve();
     busy = true;
-    $('btnSend').disabled = true;
+    abortedByUser = false;
+    $('btnSend').textContent = 'إيقاف';
     addMsg(text, 'me');
     var box = $('input');
     box.value = '';
@@ -526,6 +540,7 @@
     }, 1500);
 
     var ctl = new AbortController();
+    inflight = ctl;
     var tm = setTimeout(function () { ctl.abort(); }, CHAT_TIMEOUT);
 
     return fetch(API.chat, {
@@ -551,15 +566,19 @@
       })
       .catch(function (e) {
         var abort = e.name === 'AbortError';
-        addMsg(abort
+        if (abort && abortedByUser) addMsg('أوقفت الطلب. تفضّل بالأمر الجديد.', 'sys');
+        else addMsg(abort
           ? 'انتهت المهلة بعد ' + Math.round(CHAT_TIMEOUT / 1000) + ' ثانية. الطلب طويل — جرّب سؤالًا أقصر.'
           : (e.message || String(e)), 'sys');
-        setState('error');
+        setState(abortedByUser ? 'idle' : 'error');
       })
       .then(function () {
         clearTimeout(tm);
         clearInterval(tick);
+        inflight = null;
         busy = false;
+        abortedByUser = false;
+        $('btnSend').textContent = 'إرسال';
         $('btnSend').disabled = false;
         resumeListening();
       });
@@ -710,6 +729,64 @@
     });
   }
 
+  /* ---------- diagnostics ----------
+   * Three blind fixes to the microphone were tested against a FAKE recogniser,
+   * so none of them proved anything about the real one. This panel reports what
+   * actually happens in the owner's own browser: permission state, whether the
+   * recogniser ever started, and the exact error if it did not. */
+  var DIAG = {
+    support: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+    perm: '?', micReady: false, wantListen: false, started: 0,
+    results: 0, interim: 0, lastErr: '', lastErrAt: '', startedAt: '', note: ''
+  };
+  function stamp() {
+    var d = new Date();
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
+  }
+  function diagText() {
+    return [
+      'دعم المتصفح: ' + (DIAG.support ? 'نعم' : 'لا'),
+      'إذن المايك: ' + DIAG.perm,
+      'المايك مفتوح: ' + (DIAG.micReady ? 'نعم' : 'لا'),
+      'الاستماع مطلوب: ' + (DIAG.wantListen ? 'نعم' : 'لا'),
+      'بدأ التعرّف: ' + DIAG.started + (DIAG.startedAt ? ' (آخر مرة ' + DIAG.startedAt + ')' : ''),
+      'نتائج نهائية: ' + DIAG.results + ' · مؤقتة: ' + DIAG.interim,
+      'آخر خطأ: ' + (DIAG.lastErr ? DIAG.lastErr + ' @ ' + DIAG.lastErrAt : 'لا شيء'),
+      DIAG.note ? 'ملاحظة: ' + DIAG.note : ''
+    ].filter(Boolean).join('\n');
+  }
+  var diagBox = null, diagPre = null;
+  function buildDiag() {
+    var strip = document.querySelector('.mic-strip');
+    if (!strip || diagBox) return;
+    diagBox = el('div', 'diag');
+    diagBox.style.cssText = 'padding:6px 10px;border-bottom:1px solid var(--line);font-size:10px;color:var(--dim)';
+    var head = el('div');
+    head.style.cssText = 'display:flex;gap:8px;align-items:center;justify-content:space-between';
+    var ttl = el('b', '', 'تشخيص المايك');
+    ttl.style.cssText = 'font-size:10px;color:#9fe2ff';
+    var btn = el('button', 'chip', 'نسخ');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      var t = diagText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(function () { btn.textContent = 'تم النسخ'; },
+          function () { btn.textContent = 'انسخ يدويًا'; });
+      } else { btn.textContent = 'انسخ يدويًا'; }
+    });
+    head.appendChild(ttl); head.appendChild(btn);
+    diagPre = el('pre');
+    diagPre.style.cssText = 'margin:5px 0 0;white-space:pre-wrap;font:inherit;line-height:1.7';
+    diagBox.appendChild(head); diagBox.appendChild(diagPre);
+    strip.parentNode.insertBefore(diagBox, strip.nextSibling);
+  }
+  function diag(note) {
+    if (note != null) DIAG.note = note;
+    DIAG.micReady = micReady; DIAG.wantListen = wantListen;
+    buildDiag();
+    if (diagPre) diagPre.textContent = diagText();
+  }
+
   /* ---------- speech in (always listening) ---------- */
   var rec = null, listening = false, wantListen = false, micReady = false, restartT = null, audioCtx = null, analyser = null, meterRaf = null;
 
@@ -723,10 +800,26 @@
     clearTimeout(restartT);
     restartT = setTimeout(startListening, 450);
   }
+  var startWatch = null;
   function startListening() {
     if (!rec || !wantListen || busy || listening) return;
     if (window.speechSynthesis && window.speechSynthesis.speaking) { resumeListening(); return; }
-    try { rec.start(); } catch (e) { clearTimeout(restartT); restartT = setTimeout(startListening, 900); }
+    try {
+      rec.start();
+      // start() can resolve into silence: no onstart, no onerror. Without this
+      // the page looks alive while the recogniser never actually ran.
+      clearTimeout(startWatch);
+      startWatch = setTimeout(function () {
+        if (!listening && wantListen) {
+          diag('طُلب التعرّف ولم يبدأ خلال ٣ ثوانٍ — غالبًا المتصفح لا يصل لخدمة التعرّف');
+          note('التعرّف على الصوت لم يبدأ. الكتابة تعمل، والتفاصيل في «تشخيص المايك».', 'mic');
+        }
+      }, 3000);
+    } catch (e) {
+      diag('rec.start() رمى: ' + (e && e.message ? e.message : e));
+      clearTimeout(restartT);
+      restartT = setTimeout(startListening, 900);
+    }
   }
 
   function initVoice(forceOn) {
@@ -755,9 +848,13 @@
         rec.interimResults = true;
         rec.onstart = function () {
           listening = true;
+          clearTimeout(startWatch);
+          DIAG.started += 1;
+          DIAG.startedAt = stamp();
           setState('listening');
           note('', 'mic');
           $('meter').classList.add('on');
+          diag('');
         };
         rec.onresult = function (e) {
           var finalText = '', interim = '';
@@ -767,6 +864,9 @@
           }
           finalText = finalText.trim();
           interim = interim.trim();
+          if (interim) DIAG.interim += 1;
+          if (finalText) DIAG.results += 1;
+          diag();
           // Interim words were being thrown away, so nothing on screen moved
           // while the owner spoke and the page looked deaf. Write them into the
           // box as they arrive; the final result replaces them and is sent.
@@ -780,6 +880,10 @@
         };
         rec.onerror = function (e) {
           listening = false;
+          clearTimeout(startWatch);
+          DIAG.lastErr = (e && e.error) || 'unknown';
+          DIAG.lastErrAt = stamp();
+          diag();
           $('meter').classList.remove('on');
           if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
             wantListen = false;
@@ -808,6 +912,7 @@
         wantListen = false;
         micReady = false;
         micLabel();
+        diag('getUserMedia رفض: ' + (e && e.name ? e.name : '') + ' ' + (e && e.message ? e.message : ''));
         setState('micoff', e && e.name === 'NotAllowedError'
           ? 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة'
           : (e && e.message) || '');
@@ -938,9 +1043,24 @@
     autosize();
   });
   $('input').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(this.value); }
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    e.preventDefault();
+    var v = this.value;
+    if (busy) {
+      // Waiting on the previous reply must never swallow a new order.
+      cancelAsk();
+      setTimeout(function () { ask(v); }, 60);
+      return;
+    }
+    ask(v);
   });
-  $('btnSend').addEventListener('click', function () { ask($('input').value); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && busy) cancelAsk();
+  });
+  $('btnSend').addEventListener('click', function () {
+    if (busy) { cancelAsk(); return; }
+    ask($('input').value);
+  });
   $('btnRefresh').addEventListener('click', function () { loadData(true); });
   $('btnSpeak').addEventListener('click', function () {
     speakOn = !speakOn;
@@ -986,14 +1106,17 @@
   // browser will not prompt again, so re-arm listening by itself and spare him
   // pressing the button on every reload.
   micLabel();
+  diag('');
   if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
     setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
   } else if (!(navigator.permissions && navigator.permissions.query)) {
     armIfPreviouslyAllowed();
   } else if (navigator.permissions && navigator.permissions.query) {
     navigator.permissions.query({ name: 'microphone' }).then(function (st) {
+      DIAG.perm = (st && st.state) || '?';
+      diag();
       if (st && st.state === 'granted') initVoice(false);
-      else setState('needmic');
-    }).catch(function () { armIfPreviouslyAllowed(); });
+      else { setState('needmic'); diag('الإذن ليس ممنوحًا — اضغط «شغّل المايك»'); }
+    }).catch(function () { DIAG.perm = 'غير مدعوم'; armIfPreviouslyAllowed(); });
   }
 })();
