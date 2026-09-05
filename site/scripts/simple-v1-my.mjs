@@ -156,22 +156,22 @@ export function buildSimpleMy(sv1, ctx) {
 .my-side a .b{margin-inline-start:auto;background:#e11d48;color:#fff;font-size:.7rem;border-radius:999px;padding:2px 7px;font-weight:800}
 .my-side a.on .b{background:#fff;color:var(--n)}
 .my-side .who{padding:8px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.my-side .who b{display:block;color:var(--n)}
+.my-side .who b{display:block;color:#fff}
 .my-side .who small{color:var(--mut)}
 .my-main{background:var(--g);padding:24px}
-.my-main h1{margin:0 0 16px;color:var(--n);font-size:1.4rem}
+.my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
-.my-kpi b{display:block;font-size:1.7rem;color:var(--n);line-height:1.1}
+.my-kpi b{display:block;font-size:1.7rem;color:var(--ink);line-height:1.1;font-family:var(--fm);font-weight:500}
 .my-kpi span{color:var(--mut);font-size:.82rem}
 .my-kpi.hot{border-color:#f59e0b;background:#fffbeb}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
-.card h2,.card h3{margin:0 0 10px;color:var(--n);font-size:1.05rem}
+.card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:1.05rem;font-weight:500}
 .list{display:grid;gap:10px}
 .row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
 .row:hover{border-color:#b7c4e8}
 .row .tt{flex:1;min-width:0}
-.row .tt b{display:block;color:var(--n);font-size:.95rem}
+.row .tt b{display:block;color:var(--ink);font-size:.95rem;font-weight:500}
 .row .tt small{color:var(--mut);font-size:.78rem}
 .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:700;background:#eef2ff;color:#2b56c3;white-space:nowrap}
 .pill.warn{background:#fff3e6;color:#b45309}.pill.ok{background:#eaf7ef;color:#118657}.pill.bad{background:#fee2e2;color:#b91c1c}.pill.mut{background:#eef0f5;color:#5f6880}
@@ -183,7 +183,7 @@ export function buildSimpleMy(sv1, ctx) {
 .msgform{display:flex;gap:8px;margin-top:10px}
 .msgform input,.inp{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:.88rem;border:1px solid var(--n);background:var(--n);color:#fff;cursor:pointer;line-height:1.2}
-.btn.ghost{background:#fff;color:var(--n)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
+.btn.ghost{background:#fff;color:var(--ink)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
 .items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .items li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .items li .ic{width:24px;height:24px;border-radius:7px;background:#eaf7ef;color:#118657;display:grid;place-items:center;font-weight:900;flex:none;font-size:.8rem}
@@ -204,13 +204,13 @@ table.q tfoot td{font-weight:700}
 .doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
 .docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
 .docovl-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px 16px;background:#0B1B5A;color:#fff}
+  padding:10px 16px;background:var(--n2,#0D1017);color:#fff}
 .docovl-bar b{font-size:.95rem;font-weight:600}
 .docovl-bar .acts{display:flex;gap:8px}
 .docovl-bar button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
   border-radius:8px;padding:8px 14px;font:inherit;font-size:.82rem;cursor:pointer}
 .docovl-bar button:hover{background:rgba(255,255,255,.12)}
-.docovl-bar button.p{background:#fff;color:#0B1B5A;border-color:#fff;font-weight:600}
+.docovl-bar button.p{background:#fff;color:#0D1017;border-color:#fff;font-weight:600}
 .docovl iframe{flex:1;width:100%;border:0;background:#fff}
 @media print{body>*:not(.docovl){display:none!important}
   .docovl{position:static;background:#fff} .docovl-bar{display:none}}
@@ -221,7 +221,7 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
 .login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
 .login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
-.login h1{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
 .form{display:grid;gap:8px;max-width:520px}
