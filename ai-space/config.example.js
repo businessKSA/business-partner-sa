@@ -23,6 +23,11 @@ window.BP_SPACE_CONFIG = {
   // Leave empty or omit to keep using the browser's built-in voice.
   voicePath: '',
 
+  // POST { audio_b64, mime } -> { ok, text }
+  // Server-side transcription, used when the browser's own speech recognition
+  // starts and aborts without ever producing a result.
+  sttPath: '',
+
   // Browser aborts a chat request after this many ms.
   chatTimeoutMs: 150000,
 

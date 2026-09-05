@@ -9,7 +9,8 @@
     data: (CFG.n8n || '') + (CFG.dataPath || ''),
     chat: (CFG.n8n || '') + (CFG.chatPath || ''),
     action: (CFG.n8n || '') + (CFG.actionPath || ''),
-    voice: CFG.voicePath ? (CFG.n8n || '') + CFG.voicePath : ''
+    voice: CFG.voicePath ? (CFG.n8n || '') + CFG.voicePath : '',
+    stt: CFG.sttPath ? (CFG.n8n || '') + CFG.sttPath : ''
   };
   var CHAT_TIMEOUT = CFG.chatTimeoutMs || 150000;
   var REFRESH_MS = CFG.refreshMs === 0 ? 0 : (CFG.refreshMs || 45000);
@@ -762,6 +763,7 @@
   }
   function diagText() {
     return [
+      'محرّك السمع: ' + (serverMode ? 'خادمنا (تسجيل + تفريغ)' : 'متصفحك'),
       'دعم المتصفح: ' + (DIAG.support ? 'نعم' : 'لا'),
       'إذن المايك: ' + DIAG.perm,
       'المايك مفتوح: ' + (DIAG.micReady ? 'نعم' : 'لا'),
@@ -811,15 +813,22 @@
 
   function pauseListening() {
     listening = false;
+    if (serverMode) { stopRecorder(); chunks = []; speechSeen = false; return; }
     try { if (rec) rec.stop(); } catch (e) {}
     $('meter').classList.remove('on');
   }
   function resumeListening() {
+    if (serverMode) {
+      if (!wantListen) { if (!busy) setState('idle'); return; }
+      clearTimeout(restartT);
+      restartT = setTimeout(startListening, 350);
+      return;
+    }
     if (!rec || !wantListen) { if (!busy) setState(wantListen ? 'idle' : 'idle'); return; }
     clearTimeout(restartT);
     restartT = setTimeout(startListening, 450);
   }
-  var startWatch = null, speakBlocks = 0, busyBlocks = 0;
+  var startWatch = null, speakBlocks = 0, busyBlocks = 0, deadStarts = 0;
 
   /* Two unbounded waits used to silence the microphone permanently:
    *
@@ -832,7 +841,12 @@
    *
    * Both waits are now capped and recover themselves. */
   function startListening() {
-    if (!rec || !wantListen) return;
+    if (!wantListen) return;
+    if (serverMode) {
+      if (!busy && !sending && !recorder) startRecorder();
+      return;
+    }
+    if (!rec) return;
     if (listening) return;
 
     if (busy) {
@@ -866,8 +880,8 @@
       clearTimeout(startWatch);
       startWatch = setTimeout(function () {
         if (!listening && wantListen) {
-          diag('طُلب التعرّف ولم يبدأ خلال ٣ ثوانٍ — غالبًا المتصفح لا يصل لخدمة التعرّف');
-          note('التعرّف على الصوت لم يبدأ. الكتابة تعمل، والتفاصيل في «تشخيص المايك».', 'mic');
+          diag('طُلب التعرّف ولم يبدأ خلال ٣ ثوانٍ');
+          switchToServerStt('لم يبدأ إطلاقًا');
         }
       }, 3000);
     } catch (e) {
@@ -879,12 +893,13 @@
 
   function initVoice(forceOn) {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
+    if (!SR && !API.stt) {
       setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
       wantListen = false;
       micLabel();
       return;
     }
+    if (!SR || serverModeOn()) serverMode = true;
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (stream) {
         micReady = true;
@@ -897,6 +912,12 @@
         rememberListen(wantListen);
         micLabel();
         startMeter(stream);
+        if (serverMode) {
+          micBanner('');
+          if (wantListen) startRecorder(); else setState('idle', 'صفّق مرتين لأسمعك');
+          diag('وضع التفريغ على الخادم');
+          return;
+        }
         rec = new SR();
         rec.lang = 'ar-SA';
         rec.continuous = true;
@@ -946,11 +967,19 @@
             return;
           }
           if (e.error === 'network') {
-            note('التعرّف على الصوت يحتاج اتصالًا بخوادم المتصفح ولم يستجب — الكتابة تعمل', 'mic');
+            switchToServerStt('لا يصل لخوادم التعرّف');
+            return;
+          }
+          if (e.error === 'no-speech' || e.error === 'aborted') {
+            // Started and died with nothing heard, repeatedly: the browser's
+            // speech service is not answering. Stop pretending it will.
+            if (e.error === 'aborted' && DIAG.results === 0 && DIAG.interim === 0) {
+              deadStarts += 1;
+              if (deadStarts >= 3) { switchToServerStt('يبدأ ثم يُجهَض بلا نتيجة'); return; }
+            }
             resumeListening();
             return;
           }
-          if (e.error === 'no-speech' || e.error === 'aborted') { resumeListening(); return; }
           setState('error', e.error || '');
           note('المايك: ' + (e.error || 'خطأ غير معروف'), 'mic');
           resumeListening();
@@ -992,6 +1021,11 @@
     lvlHist.push(lvl);
     if (lvlHist.length > 18) lvlHist.shift();
 
+    // With an empty history the average is 0, so the very first sound after the
+    // microphone opens satisfies "three times the average" and registered as a
+    // clap — two of those and listening switched itself off at startup.
+    if (lvlHist.length < 12) return;
+
     if (now < clapDeafUntil) return;
     if (lvl < 0.34 || lvl < avg * 3 || now - lastClapAt < 180) return;
 
@@ -1024,6 +1058,7 @@
   }
 
   function startMeter(stream) {
+    mediaStream = stream;
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AC();
@@ -1041,11 +1076,153 @@
           bars[i].style.height = Math.max(3, Math.round(v * 22)) + 'px';
         }
         for (var k = 0; k < bins.length; k++) sum += bins[k];
-        detectClap(sum / bins.length / 255);
+        var lvl = sum / bins.length / 255;
+        detectClap(lvl);
+        voiceActivity(lvl);
         meterRaf = requestAnimationFrame(loop);
       };
       loop();
     } catch (e) { /* meter is decoration; ignore */ }
+  }
+
+  /* =====================================================================
+     SERVER LISTENING — the fallback that does not need the browser's
+     speech service.
+
+     The owner's diagnostics showed the truth: permission granted, microphone
+     open, recognition started 24 times, zero results, last error "aborted".
+     Chrome's SpeechRecognition talks to a Google service; where that service
+     does not answer it starts and dies instantly and no page code can fix it.
+     So this path ignores it entirely: MediaRecorder captures the audio, the
+     existing analyser marks where speech stops, and the clip goes to n8n for
+     transcription. Only the microphone permission is needed.
+     ===================================================================== */
+  var serverMode = false, mediaStream = null, recorder = null, chunks = [];
+  var speechSeen = false, silenceSince = 0, clipStart = 0, sending = false;
+  var SPEAK_LEVEL = 0.06, SILENCE_MS = 1200, MAX_CLIP_MS = 20000, MIN_CLIP_MS = 500;
+
+  function serverModeOn() {
+    try { return localStorage.getItem('bp_stt') === 'server'; } catch (e) { return false; }
+  }
+  function rememberServerMode() {
+    try { localStorage.setItem('bp_stt', 'server'); } catch (e) {}
+  }
+
+  function switchToServerStt(why) {
+    if (serverMode) return;
+    if (!API.stt) {
+      note('التعرّف في المتصفح لا يعمل (' + why + ') ولا يوجد مسار تفريغ بديل في الإعدادات.', 'mic');
+      return;
+    }
+    serverMode = true;
+    rememberServerMode();
+    try { if (rec) { rec.onend = null; rec.onerror = null; rec.abort(); } } catch (e) {}
+    rec = null;
+    diag('تحوّلت إلى التفريغ على الخادم لأن تعرّف المتصفح ' + why);
+    note('تعرّف المتصفح لا يستجيب — حوّلت التسجيل إلى خادمنا. تكلّم عاديًا.', 'mic');
+    if (mediaStream) startRecorder();
+  }
+
+  function pickMime() {
+    var opts = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+    for (var i = 0; i < opts.length; i++) {
+      try { if (window.MediaRecorder && MediaRecorder.isTypeSupported(opts[i])) return opts[i]; } catch (e) {}
+    }
+    return '';
+  }
+
+  function startRecorder() {
+    if (!serverMode || !wantListen || busy || sending || recorder || !mediaStream) return;
+    if (!window.MediaRecorder) { note('هذا المتصفح لا يدعم التسجيل (MediaRecorder).', 'mic'); return; }
+    try {
+      var mime = pickMime();
+      recorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
+      chunks = []; speechSeen = false; silenceSince = 0; clipStart = Date.now();
+      recorder.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      recorder.onstop = function () {
+        var blob = chunks.length ? new Blob(chunks, { type: recorder.mimeType || 'audio/webm' }) : null;
+        recorder = null;
+        var spoke = speechSeen;
+        if (spoke && blob && blob.size > 1200) sendClip(blob);
+        else if (wantListen && !busy) setTimeout(startRecorder, 200);
+      };
+      recorder.start(250);
+      listening = true;
+      setState('listening');
+      $('meter').classList.add('on');
+      DIAG.started += 1; DIAG.startedAt = stamp();
+      diag('');
+    } catch (e) {
+      recorder = null;
+      diag('تعذّر بدء التسجيل: ' + (e && e.message ? e.message : e));
+    }
+  }
+
+  function stopRecorder() {
+    listening = false;
+    $('meter').classList.remove('on');
+    try { if (recorder && recorder.state !== 'inactive') recorder.stop(); else recorder = null; } catch (e) { recorder = null; }
+  }
+
+  /* Called from the meter loop on every animation frame. */
+  function voiceActivity(lvl) {
+    if (!serverMode || !recorder) return;
+    var now = Date.now();
+    if (lvl >= SPEAK_LEVEL) { speechSeen = true; silenceSince = 0; }
+    else if (speechSeen) {
+      if (!silenceSince) silenceSince = now;
+      else if (now - silenceSince >= SILENCE_MS && now - clipStart >= MIN_CLIP_MS) { stopRecorder(); return; }
+    }
+    if (now - clipStart >= MAX_CLIP_MS) stopRecorder();
+  }
+
+  function sendClip(blob) {
+    sending = true;
+    setState('heard', 'أفرّغ الصوت…');
+    var fr = new FileReader();
+    fr.onload = function () {
+      var b64 = String(fr.result || '');
+      var ctl = new AbortController();
+      var tm = setTimeout(function () { ctl.abort(); }, 45000);
+      fetch(API.stt, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio_b64: b64, mime: blob.type || 'audio/webm' }),
+        signal: ctl.signal
+      })
+        .then(function (r) {
+          clearTimeout(tm);
+          return r.text().then(function (raw) {
+            var j = {};
+            try { j = JSON.parse(raw); } catch (e) { throw new Error('رد غير صالح · ' + raw.slice(0, 120)); }
+            if (!r.ok || j.ok === false) throw new Error(j.error || ('HTTP ' + r.status));
+            return String(j.text || '').trim();
+          });
+        })
+        .then(function (text) {
+          sending = false;
+          if (text.length > 1) {
+            DIAG.results += 1; diag('');
+            note('', 'mic');
+            showInterim(text);
+            setState('heard', text.slice(0, 60));
+            ask(text);
+          } else {
+            if (wantListen && !busy) setTimeout(startRecorder, 200);
+          }
+        })
+        .catch(function (e) {
+          sending = false;
+          clearTimeout(tm);
+          DIAG.lastErr = 'stt: ' + (e && e.message ? e.message : e);
+          DIAG.lastErrAt = stamp();
+          diag('');
+          note('تعذّر تفريغ الصوت: ' + (e && e.message ? e.message : e), 'mic');
+          if (wantListen && !busy) setTimeout(startRecorder, 1500);
+        });
+    };
+    fr.onerror = function () { sending = false; if (wantListen && !busy) setTimeout(startRecorder, 800); };
+    fr.readAsDataURL(blob);
   }
 
   /* ---------- controls ---------- */
