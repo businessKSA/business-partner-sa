@@ -761,7 +761,7 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
-  var BUILD_ID = 'stt-2';
+  var BUILD_ID = 'stt-3';
   function diagText() {
     return [
       'إصدار اللوحة: ' + BUILD_ID,
@@ -1183,7 +1183,8 @@
     setState('heard', 'أفرّغ الصوت…');
     var fr = new FileReader();
     fr.onload = function () {
-      var b64 = String(fr.result || '');
+      var raw64 = String(fr.result || '');
+      var b64 = raw64.slice(raw64.indexOf(',') + 1);
       var ctl = new AbortController();
       var tm = setTimeout(function () { ctl.abort(); }, 45000);
       fetch(API.stt, {
@@ -1203,6 +1204,7 @@
         })
         .then(function (text) {
           sending = false;
+          text = text.replace(/[\[(][^\])]*[\])]/g, ' ').replace(/\s+/g, ' ').trim();
           if (text.length > 1) {
             DIAG.results += 1; diag('');
             note('', 'mic');
