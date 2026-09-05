@@ -761,8 +761,10 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
+  var BUILD_ID = 'stt-2';
   function diagText() {
     return [
+      'إصدار اللوحة: ' + BUILD_ID,
       'محرّك السمع: ' + (serverMode ? 'خادمنا (تسجيل + تفريغ)' : 'متصفحك'),
       'دعم المتصفح: ' + (DIAG.support ? 'نعم' : 'لا'),
       'إذن المايك: ' + DIAG.perm,
