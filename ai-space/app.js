@@ -968,6 +968,7 @@
         micReady = false;
         micLabel();
         diag('getUserMedia رفض: ' + (e && e.name ? e.name : '') + ' ' + (e && e.message ? e.message : ''));
+        micBanner(e && e.name === 'NotAllowedError' ? 'denied' : 'prompt');
         setState('micoff', e && e.name === 'NotAllowedError'
           ? 'اضغط 🔒 بجانب الرابط → Microphone → Allow ثم حدّث الصفحة'
           : (e && e.message) || '');
@@ -1146,6 +1147,79 @@
   });
   window.addEventListener('resize', function () { clearTimeout(window.__rz); window.__rz = setTimeout(renderOrbs, 200); });
 
+  /* The state chip is small and easy to miss. A microphone that is blocked by
+   * the browser is not a subtle condition — no amount of page code can undo it,
+   * only the owner can, so it gets the loud red bar and exact instructions. */
+  function micBanner(kind) {
+    var n = $('linkLine');
+    n.hidden = false;
+    n.textContent = '';
+    n.style.cssText = 'padding:10px 16px;font-size:13px;line-height:1.9';
+    var b = el('b', '', '');
+    var p = el('div', '', '');
+    if (kind === 'denied') {
+      b.textContent = '🔴 المتصفح مانع المايك على هذا الموقع — لا يمكن إصلاحه من الكود.';
+      p.textContent = 'اضغط أيقونة 🔒 (أو ⓘ) بجانب العنوان أعلى المتصفح ← إعدادات الموقع ← الميكروفون ← اختر «سماح» أو «إعادة تعيين الأذونات» ← حدّث الصفحة.';
+    } else if (kind === 'prompt') {
+      b.textContent = '🎙️ المايك يحتاج إذنك مرة واحدة.';
+      p.textContent = 'اضغط زر «شغّل المايك» بالأسفل، ثم اختر «سماح / Allow» في نافذة المتصفح.';
+    } else if (kind === 'nosupport') {
+      b.textContent = '⚠️ هذا المتصفح لا يدعم التعرّف على الصوت.';
+      p.textContent = 'افتح اللوحة في Chrome على الحاسوب. الكتابة تعمل هنا على أي حال.';
+    } else { n.hidden = true; n.style.cssText = ''; return; }
+    n.appendChild(b);
+    n.appendChild(p);
+    var t = el('button', 'chip', 'افحص المايك الآن');
+    t.type = 'button';
+    t.style.cssText = 'margin-top:6px';
+    t.addEventListener('click', micSelfTest);
+    n.appendChild(t);
+    noteOwner = 'mic';
+  }
+
+  /* One button that answers "why is it not hearing me" with a fact, by actually
+   * trying — instead of the owner and me guessing at each other across a chat. */
+  function micSelfTest() {
+    var n = $('linkLine');
+    n.hidden = false;
+    n.textContent = 'جارٍ الفحص…';
+    noteOwner = 'mic';
+    var lines = [];
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    lines.push('دعم التعرّف: ' + (SR ? 'موجود' : 'غير موجود'));
+    lines.push('الاتصال آمن (https): ' + (window.isSecureContext ? 'نعم' : 'لا — الميكروفون ممنوع بدون https'));
+    var done = function () {
+      n.textContent = '';
+      lines.forEach(function (t) { n.appendChild(el('div', '', t)); });
+      var again = el('button', 'chip', 'أعد الفحص');
+      again.type = 'button';
+      again.style.cssText = 'margin-top:6px';
+      again.addEventListener('click', micSelfTest);
+      n.appendChild(again);
+    };
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      lines.push('getUserMedia: غير متاح في هذا المتصفح');
+      return done();
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      lines.push('فتح المايك: ✅ نجح');
+      try {
+        var tr = stream.getAudioTracks ? stream.getAudioTracks() : [];
+        lines.push('الجهاز: ' + (tr.length ? (tr[0].label || 'بلا اسم') : 'لا توجد قناة صوت'));
+        tr.forEach(function (x) { try { x.stop(); } catch (e) {} });
+      } catch (e) {}
+      lines.push('إذن المتصفح سليم — إن بقي لا يسمع فالمشكلة في خدمة التعرّف لا في الإذن.');
+      done();
+    }).catch(function (e) {
+      var nm = (e && e.name) || 'خطأ';
+      lines.push('فتح المايك: ❌ ' + nm + (e && e.message ? ' — ' + e.message : ''));
+      if (nm === 'NotAllowedError') lines.push('المتصفح مانع الإذن. اضغط 🔒 بجانب العنوان ← الميكروفون ← سماح ← حدّث.');
+      if (nm === 'NotFoundError') lines.push('لا يوجد ميكروفون موصول بالجهاز.');
+      if (nm === 'NotReadableError') lines.push('تطبيق آخر يستعمل المايك الآن (زوم/تيمز/تسجيل). أغلقه ثم أعد الفحص.');
+      done();
+    });
+  }
+
   /* ---------- boot ---------- */
   if (!API.data || API.data.indexOf('REPLACE') !== -1 || API.data.indexOf('YOUR-INSTANCE') !== -1) {
     note('config.js لم يُعبّأ بعد — انسخ config.example.js إلى config.js وضع مسارات n8n الحقيقية.');
@@ -1179,14 +1253,26 @@
   diag('');
   if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
     setState('error', 'المتصفح لا يدعم التعرّف على الصوت — الكتابة تعمل');
+    micBanner('nosupport');
   } else if (!(navigator.permissions && navigator.permissions.query)) {
     armIfPreviouslyAllowed();
-  } else if (navigator.permissions && navigator.permissions.query) {
+  } else {
     navigator.permissions.query({ name: 'microphone' }).then(function (st) {
-      DIAG.perm = (st && st.state) || '?';
+      var state = (st && st.state) || '?';
+      DIAG.perm = state;
       diag();
-      if (st && st.state === 'granted') initVoice(false);
-      else { setState('needmic'); diag('الإذن ليس ممنوحًا — اضغط «شغّل المايك»'); }
+      if (state === 'granted') { micBanner(''); initVoice(false); return; }
+      setState('needmic');
+      micBanner(state === 'denied' ? 'denied' : 'prompt');
+      // The state can change while the page is open (owner resets it in the
+      // browser); pick that up without needing a reload.
+      if (st && 'onchange' in st) {
+        st.onchange = function () {
+          DIAG.perm = st.state; diag();
+          if (st.state === 'granted') { micBanner(''); initVoice(true); }
+          else micBanner(st.state === 'denied' ? 'denied' : 'prompt');
+        };
+      }
     }).catch(function () { DIAG.perm = 'غير مدعوم'; armIfPreviouslyAllowed(); });
   }
 })();
