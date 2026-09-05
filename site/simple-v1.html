@@ -147,6 +147,17 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
 .sv1-compose textarea:focus{border-color:var(--ac)}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
 .sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
@@ -290,8 +301,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
         <div class="sv1-chat">
           <div class="sv1-chathead"><h3 id="sv1ChatTitle">Consulting</h3><p id="sv1ChatSub">A question, a challenge, a decision or any matter about your company.</p></div>
           <div class="sv1-msgs" id="sv1Msgs" aria-live="polite"></div>
+          <div class="sv1-voice" id="sv1Voice" role="status" aria-live="polite"></div>
           <form class="sv1-compose" id="sv1Form">
             <textarea id="sv1In" placeholder="Write your request here…" aria-label="Write your request here…"></textarea>
+            <button type="button" class="sv1-mic" id="sv1Mic" aria-label="Speak instead of typing" title="Speak instead of typing">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+            </button>
             <button type="submit" class="send" id="sv1Send" aria-label="Send">↑</button>
           </form>
         </div>
@@ -409,7 +424,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script><script>
 (function(){
-var LANG="en",TX={"thinking":"Working on it…","chatError":"We couldn't reply right now. Try again or reach us on WhatsApp.","scopeIn":"In scope","needScope":"Add at least one item before creating the request.","loginErr":"Couldn't send the code. Check the email or try later.","codeErr":"Wrong code.","creating":"Creating your request…","created":"Your request is created. Reference:","openPortal":"Open my account","stateReady":"Ready for review","docsEmpty":"These appear once the advisor understands your request.","titles":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"welcome":{"consulting":"Welcome 👋 Tell me the matter you'd like advice on.","government":"Welcome 👋 Tell me the transaction or the problem on the platform.","formation":"Welcome 👋 Tell me about the company you want to set up."},"chips":{"consulting":["A licensing question","A problem in the company","Which authorities are involved","A full company review"],"government":["A problem on Qiwa","Change a profession","Transfer of services","Visas","Nitaqat & Saudisation","Manage my platforms"],"formation":["Branch of a foreign company","Entrepreneurship licence","Investment registration","Formation requirements"]},"seed":{"consulting":["Understand the matter and the current position","Identify the authorities and requirements involved","Define the steps and recommendations"],"government":["Examine the problem or the transaction","Identify the government services required","Execute or follow up the agreed services"],"formation":["Define the formation route","Formation, commercial register and articles of association","Registration on the core government platforms","Appointing the company manager","Support with opening the bank account"]},"types":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"doorSub":{"consulting":"A question, a challenge, a decision or any matter about your company.","government":"A transaction, a problem on a platform, or running your government platforms.","formation":"A branch of a foreign company, or a company via the entrepreneurship route."}},PORTAL="/my";
+var LANG="en",TX={"thinking":"Working on it…","chatError":"We couldn't reply right now. Try again or reach us on WhatsApp.","scopeIn":"In scope","needScope":"Add at least one item before creating the request.","micStart":"Speak instead of typing","micStop":"Stop recording","micRec":"Listening…","micWork":"Writing what you said…","micDenied":"Microphone blocked. Allow it in your browser settings, or type instead.","micNone":"Your browser does not support recording — type your message.","micQuiet":"We heard no speech. Move closer and try again.","micFail":"Could not transcribe. Type your message or try again.","micLong":"The recording is too long. Record a shorter clip.","loginErr":"Couldn't send the code. Check the email or try later.","codeErr":"Wrong code.","creating":"Creating your request…","created":"Your request is created. Reference:","openPortal":"Open my account","stateReady":"Ready for review","docsEmpty":"These appear once the advisor understands your request.","titles":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"welcome":{"consulting":"Welcome 👋 Tell me the matter you'd like advice on.","government":"Welcome 👋 Tell me the transaction or the problem on the platform.","formation":"Welcome 👋 Tell me about the company you want to set up."},"chips":{"consulting":["A licensing question","A problem in the company","Which authorities are involved","A full company review"],"government":["A problem on Qiwa","Change a profession","Transfer of services","Visas","Nitaqat & Saudisation","Manage my platforms"],"formation":["Branch of a foreign company","Entrepreneurship licence","Investment registration","Formation requirements"]},"seed":{"consulting":["Understand the matter and the current position","Identify the authorities and requirements involved","Define the steps and recommendations"],"government":["Examine the problem or the transaction","Identify the government services required","Execute or follow up the agreed services"],"formation":["Define the formation route","Formation, commercial register and articles of association","Registration on the core government platforms","Appointing the company manager","Support with opening the bank account"]},"types":{"consulting":"Consulting","government":"Government services","formation":"Company formation"},"doorSub":{"consulting":"A question, a challenge, a decision or any matter about your company.","government":"A transaction, a problem on a platform, or running your government platforms.","formation":"A branch of a foreign company, or a company via the entrepreneurship route."}},PORTAL="/my";
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
@@ -444,10 +459,71 @@ var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace
 function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
 state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
-fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
+fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:state.voiceLang||LANG,messages:state.history.slice(-12)})})
 .then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);var o=parseOpts(p.text);if(o.text)add(o.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope);else drawChips(o.opts)})
 .catch(function(){th.remove();add(TX.chatError,'s')}).then(function(){state.busy=false;send.disabled=false})}
 function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.querySelector('.sv1-chips');if(c)c.remove();add(v,'u');state.history.push({role:'user',content:v});input.value='';save();ask()}
+// ---- الصوت: العميل يتكلم بلغته، فيُكتب كلامُه في المحادثة ثم يقرأه المستشار.
+// النص يهبط في صندوق الكتابة لا في المحادثة مباشرةً: تفريغٌ آليٌّ قد يخطئ
+// كلمة، وتصحيحُها قبل الإرسال أرخص من تصحيح نطاقٍ بُني على خطأ.
+(function(){
+ var mic=$('sv1Mic'),strip=$('sv1Voice');
+ if(!mic)return;
+ var rec=null,chunks=[],tick=null,t0=0,stream=null;
+ var CAN=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+ function say(cls,txt,timer){strip.className='sv1-voice on'+(cls?' '+cls:'');strip.textContent='';
+  if(cls!=='err'){var d=document.createElement('span');d.className='dot';strip.appendChild(d)}
+  var t=document.createElement('span');t.textContent=txt;strip.appendChild(t);
+  if(timer){var e=document.createElement('span');e.className='t';e.id='sv1VoiceT';e.textContent='0:00';strip.appendChild(e)}}
+ function hide(){strip.className='sv1-voice';strip.textContent=''}
+ function stopTracks(){if(stream){try{stream.getTracks().forEach(function(t){t.stop()})}catch(e){}stream=null}}
+ function pickType(){var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  for(var i=0;i<c.length;i++){try{if(window.MediaRecorder.isTypeSupported(c[i]))return c[i]}catch(e){}}return ''}
+ function reset(){mic.classList.remove('rec','busy');mic.disabled=false;mic.setAttribute('aria-label',TX.micStart);
+  if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
+ function send2(blob,type){
+  if(blob.size<1200){reset();say('err',TX.micQuiet);return}
+  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
+  var fr=new FileReader();
+  fr.onerror=function(){reset();say('err',TX.micFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+     body:JSON.stringify({mode:'voice',mime:type||'audio/webm',audio:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     reset();
+     if(!o||!o.ok){say('err',o&&o.error==='no_speech'?TX.micQuiet:o&&o.error==='too_large'?TX.micLong:TX.micFail);return}
+     hide();
+     // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
+     if(o.lang)state.voiceLang=o.lang;
+     input.value=(input.value?input.value.replace(/s*$/,' '):'')+o.text;
+     input.focus();
+     try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
+     input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
+    .catch(function(){reset();say('err',TX.micFail)})};
+  fr.readAsDataURL(blob)}
+ function start(){
+  if(!CAN){say('err',TX.micNone);return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+   stream=st;var type=pickType();chunks=[];
+   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   var used=rec.mimeType||type||'audio/webm';
+   rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
+   rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};
+   rec.start();
+   mic.classList.add('rec');mic.setAttribute('aria-label',TX.micStop);
+   t0=Date.now();say('',TX.micRec,true);
+   tick=setInterval(function(){
+    var sec=Math.floor((Date.now()-t0)/1000),el=document.getElementById('sv1VoiceT');
+    if(el)el.textContent=Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2);
+    if(sec>=180&&rec&&rec.state==='recording')rec.stop();   // سقفٌ ثلاث دقائق
+   },500);
+  }).catch(function(){say('err',TX.micDenied)})}
+ mic.onclick=function(){
+  if(rec&&rec.state==='recording'){if(tick){clearInterval(tick);tick=null}rec.stop();return}
+  hide();start()};
+})();
 form.addEventListener('submit',function(e){e.preventDefault();submit()});
 input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 $('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};

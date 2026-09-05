@@ -309,3 +309,69 @@ export async function readDocument(base64, mime) {
   const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
   return { ok: false, error: anyKey ? "read_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
 }
+
+
+// ---- speech ---------------------------------------------------------------
+// المستشار يسمع: العميل يتكلم بلغته، فيُكتب كلامه في المحادثة كما نطقه.
+// أنواع ما يُخرجه MediaRecorder في المتصفحات: webm/opus في كروم وأندرويد،
+// mp4/aac في سفاري. كلاهما مقبول هنا.
+export const AUDIO_MIME_OK = /^audio\/(webm|ogg|mp4|mpeg|mp3|m4a|x-m4a|wav|aac)(;|$)/i;
+export const MAX_AUDIO_BYTES = 12 * 1024 * 1024;   // نحو ١٠ دقائق كلام مضغوط
+const AUDIO_EXT = { webm: "webm", ogg: "ogg", mp4: "mp4", mpeg: "mp3", mp3: "mp3", m4a: "m4a", "x-m4a": "m4a", wav: "wav", aac: "aac" };
+
+const TRANSCRIBE_PROMPT = [
+  "فرِّغ هذا التسجيل الصوتي حرفياً بلغته التي نُطق بها — لا تترجمه ولا تلخّصه ولا تصحّح أسلوبه.",
+  'أعِد JSON فقط: {"text":"النص المنطوق","lang":"رمز اللغة ISO-639-1 مثل ar أو en أو fr أو zh"}.',
+  "إن لم يكن في التسجيل كلامٌ مفهوم فأعِد text فارغاً.",
+].join(" ");
+
+async function speechGemini(base64, mime) {
+  const key = envFrom(GEMINI_KEYS);
+  if (!key) throw new Error("no_key");
+  const model = process.env.GEMINI_AUDIO_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const { text } = await geminiCall(key, model,
+    [{ inline_data: { mime_type: String(mime).split(";")[0], data: base64 } }, { text: TRANSCRIBE_PROMPT }], 1400, 60000);
+  return parseJson(text);
+}
+
+// Whisper يعيد نصاً عادياً ولغةً مكتشفة في الاستجابة نفسها — لا JSON نطلبه.
+async function speechOpenAI(base64, mime) {
+  const key = envFrom(OPENAI_KEYS);
+  if (!key) throw new Error("no_key");
+  const clean = String(mime).split(";")[0];
+  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
+  const form = new FormData();
+  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
+  form.append("model", process.env.OPENAI_TRANSCRIBE_MODEL || "whisper-1");
+  form.append("response_format", "verbose_json");
+  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST", headers: { authorization: `Bearer ${key}` }, body: form,
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  const d = await r.json();
+  return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
+}
+
+const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
+
+export async function transcribeAudio(base64, mime) {
+  if (!base64) return { ok: false, error: "no_audio" };
+  if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
+  if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
+  for (const [name, call] of [["gemini", speechGemini], ["openai", speechOpenAI]]) {
+    try {
+      const out = await call(base64, mime);
+      const text = String((out && out.text) || "").trim();
+      if (!text) return { ok: false, error: "no_speech", provider: name };
+      let lang = String((out && out.lang) || "").trim().toLowerCase();
+      lang = LANG_ALIAS[lang] || lang.slice(0, 2);
+      return { ok: true, text: text.slice(0, 4000), lang: /^[a-z]{2}$/.test(lang) ? lang : "", provider: name };
+    } catch (e) {
+      const msg = String(e.message || e);
+      if (msg !== "no_key") console.error("transcribe", name, msg.slice(0, 160));
+    }
+  }
+  const anyKey = envFrom(GEMINI_KEYS) || envFrom(OPENAI_KEYS);
+  return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured" };
+}

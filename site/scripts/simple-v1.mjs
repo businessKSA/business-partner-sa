@@ -189,6 +189,30 @@ const D = {
                  en: "A ZATCA-compliant tax invoice for every paid order.",
                  fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
                  zh: "每笔已付订单均开具符合 ZATCA 规定的税务发票。" },
+  micStart: { ar: "تكلّم بدل الكتابة", en: "Speak instead of typing",
+              fr: "Parlez au lieu d'écrire", zh: "用语音代替打字" },
+  micStop:  { ar: "أوقف التسجيل", en: "Stop recording", fr: "Arrêter l'enregistrement", zh: "停止录音" },
+  micRec:   { ar: "يسمعك…", en: "Listening…", fr: "À l'écoute…", zh: "正在聆听…" },
+  micWork:  { ar: "نكتب ما قلته…", en: "Writing what you said…",
+              fr: "Transcription en cours…", zh: "正在转写…" },
+  micDenied:{ ar: "الميكروفون مرفوض. اسمح به من إعدادات المتصفح، أو اكتب رسالتك.",
+              en: "Microphone blocked. Allow it in your browser settings, or type instead.",
+              fr: "Micro bloqué. Autorisez-le dans le navigateur, ou écrivez.",
+              zh: "麦克风被阻止。请在浏览器中允许，或改为输入文字。" },
+  micNone:  { ar: "متصفحك لا يدعم التسجيل الصوتي — اكتب رسالتك.",
+              en: "Your browser does not support recording — type your message.",
+              fr: "Votre navigateur ne gère pas l'enregistrement — écrivez votre message.",
+              zh: "您的浏览器不支持录音 — 请输入文字。" },
+  micQuiet: { ar: "ما سمعنا كلاماً. قرّب الميكروفون وأعد المحاولة.",
+              en: "We heard no speech. Move closer and try again.",
+              fr: "Aucune parole détectée. Rapprochez-vous et réessayez.",
+              zh: "未检测到语音。请靠近后重试。" },
+  micFail:  { ar: "تعذّر تفريغ الصوت. اكتب رسالتك أو أعد المحاولة.",
+              en: "Could not transcribe. Type your message or try again.",
+              fr: "Transcription impossible. Écrivez ou réessayez.",
+              zh: "转写失败。请输入文字或重试。" },
+  micLong:  { ar: "التسجيل طويل. سجّل مقطعاً أقصر.", en: "The recording is too long. Record a shorter clip.",
+              fr: "Enregistrement trop long. Enregistrez plus court.", zh: "录音过长，请录短一些。" },
   barStatus: { ar: "جميع الأنظمة تعمل", en: "All systems operational",
                fr: "Tous les systèmes fonctionnent", zh: "所有系统运行正常" },
   barCity:   { ar: "الرياض · المملكة العربية السعودية", en: "Riyadh · Kingdom of Saudi Arabia",
@@ -336,6 +360,17 @@ export function simpleV1(ctx) {
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
 .sv1-compose textarea:focus{border-color:var(--ac)}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
 .sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
@@ -572,6 +607,8 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
+      micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
+      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
@@ -609,8 +646,12 @@ ${header(path)}
         <div class="sv1-chat">
           <div class="sv1-chathead"><h3 id="sv1ChatTitle">${t("ctxConsulting")}</h3><p id="sv1ChatSub">${t("doorConsulting")}</p></div>
           <div class="sv1-msgs" id="sv1Msgs" aria-live="polite"></div>
+          <div class="sv1-voice" id="sv1Voice" role="status" aria-live="polite"></div>
           <form class="sv1-compose" id="sv1Form">
             <textarea id="sv1In" placeholder="${esc(t("chatPlaceholder"))}" aria-label="${esc(t("chatPlaceholder"))}"></textarea>
+            <button type="button" class="sv1-mic" id="sv1Mic" aria-label="${esc(t("micStart"))}" title="${esc(t("micStart"))}">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+            </button>
             <button type="submit" class="send" id="sv1Send" aria-label="${esc(t("send"))}">↑</button>
           </form>
         </div>
@@ -734,10 +775,71 @@ var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace
 function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
 state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
-fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
+fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:state.voiceLang||LANG,messages:state.history.slice(-12)})})
 .then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);var o=parseOpts(p.text);if(o.text)add(o.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope);else drawChips(o.opts)})
 .catch(function(){th.remove();add(TX.chatError,'s')}).then(function(){state.busy=false;send.disabled=false})}
 function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.querySelector('.sv1-chips');if(c)c.remove();add(v,'u');state.history.push({role:'user',content:v});input.value='';save();ask()}
+// ---- الصوت: العميل يتكلم بلغته، فيُكتب كلامُه في المحادثة ثم يقرأه المستشار.
+// النص يهبط في صندوق الكتابة لا في المحادثة مباشرةً: تفريغٌ آليٌّ قد يخطئ
+// كلمة، وتصحيحُها قبل الإرسال أرخص من تصحيح نطاقٍ بُني على خطأ.
+(function(){
+ var mic=$('sv1Mic'),strip=$('sv1Voice');
+ if(!mic)return;
+ var rec=null,chunks=[],tick=null,t0=0,stream=null;
+ var CAN=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+ function say(cls,txt,timer){strip.className='sv1-voice on'+(cls?' '+cls:'');strip.textContent='';
+  if(cls!=='err'){var d=document.createElement('span');d.className='dot';strip.appendChild(d)}
+  var t=document.createElement('span');t.textContent=txt;strip.appendChild(t);
+  if(timer){var e=document.createElement('span');e.className='t';e.id='sv1VoiceT';e.textContent='0:00';strip.appendChild(e)}}
+ function hide(){strip.className='sv1-voice';strip.textContent=''}
+ function stopTracks(){if(stream){try{stream.getTracks().forEach(function(t){t.stop()})}catch(e){}stream=null}}
+ function pickType(){var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  for(var i=0;i<c.length;i++){try{if(window.MediaRecorder.isTypeSupported(c[i]))return c[i]}catch(e){}}return ''}
+ function reset(){mic.classList.remove('rec','busy');mic.disabled=false;mic.setAttribute('aria-label',TX.micStart);
+  if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
+ function send2(blob,type){
+  if(blob.size<1200){reset();say('err',TX.micQuiet);return}
+  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
+  var fr=new FileReader();
+  fr.onerror=function(){reset();say('err',TX.micFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+     body:JSON.stringify({mode:'voice',mime:type||'audio/webm',audio:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     reset();
+     if(!o||!o.ok){say('err',o&&o.error==='no_speech'?TX.micQuiet:o&&o.error==='too_large'?TX.micLong:TX.micFail);return}
+     hide();
+     // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
+     if(o.lang)state.voiceLang=o.lang;
+     input.value=(input.value?input.value.replace(/\s*$/,' '):'')+o.text;
+     input.focus();
+     try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
+     input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
+    .catch(function(){reset();say('err',TX.micFail)})};
+  fr.readAsDataURL(blob)}
+ function start(){
+  if(!CAN){say('err',TX.micNone);return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+   stream=st;var type=pickType();chunks=[];
+   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   var used=rec.mimeType||type||'audio/webm';
+   rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
+   rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};
+   rec.start();
+   mic.classList.add('rec');mic.setAttribute('aria-label',TX.micStop);
+   t0=Date.now();say('',TX.micRec,true);
+   tick=setInterval(function(){
+    var sec=Math.floor((Date.now()-t0)/1000),el=document.getElementById('sv1VoiceT');
+    if(el)el.textContent=Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2);
+    if(sec>=180&&rec&&rec.state==='recording')rec.stop();   // سقفٌ ثلاث دقائق
+   },500);
+  }).catch(function(){say('err',TX.micDenied)})}
+ mic.onclick=function(){
+  if(rec&&rec.state==='recording'){if(tick){clearInterval(tick);tick=null}rec.stop();return}
+  hide();start()};
+})();
 form.addEventListener('submit',function(e){e.preventDefault();submit()});
 input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 $('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};

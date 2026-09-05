@@ -531,18 +531,33 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "contract-view") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
-    // العقد مشتقٌّ من عرض السعر، فما دام غير موقّع يُعاد بناؤه من البيانات
-    // الحالية عند كل عرض: هذا ما يُصلح عقوداً حُفظت قبل إصلاح خطأ «٠ ريال»
-    // بلا تدخّل. أما الموقّع فيُعاد كما هو حرفياً — بصمته SHA-256 مأخوذة منه.
+    // العقد مشتقٌّ من عرض السعر، فيُعاد بناؤه من البيانات الحالية عند العرض.
+    // هذا ما يُصلح عقوداً حُفظت قبل إصلاح خطأ «٠ ريال» في كل سطر.
+    //
+    // وإن كان موقَّعاً: تُحفظ البايتات الموقَّعة الأصلية في html_signed قبل أي
+    // استبدال — بصمة SHA-256 في التوقيع مأخوذةٌ منها، ولا يجوز أن تختفي —
+    // ويُسجَّل حدث contract.corrected. عرضُ نسخةٍ مصحَّحة لا يجعل التوقيع
+    // ساريا عليها: عقدٌ صُحِّح بعد التوقيع يحتاج توقيعاً جديداً، ولوحة
+    // العمليات تقولها للمالك صراحةً.
     let html = row.contract.html;
-    if (!row.contract.signature && !row.signature && row.quote && row.quote.items) {
+    let contract = row.contract;
+    if (row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
       try {
         const rebuilt = buildContract(row, {});
-        html = rebuilt.html;
-        if (html !== row.contract.html) await patchRequest(row.id, { contract: { ...row.contract, html } });
+        if (rebuilt.html && rebuilt.html !== row.contract.html) {
+          const signed = !!row.contract.signature;
+          contract = {
+            ...row.contract, html: rebuilt.html,
+            ...(signed && !row.contract.html_signed ? { html_signed: row.contract.html, corrected_at: nowIso() } : {}),
+            ...(signed ? { needs_resign: true } : {}),
+          };
+          await patchRequest(row.id, { contract });
+          html = rebuilt.html;
+          if (signed) await logEvent(row.id, "system", "النظام", "contract.corrected", { number: row.contract.number, reason: "line_totals" });
+        }
       } catch (e) { console.error("contract rebuild", String(e.message || e).slice(0, 140)); }
     }
-    return json(res, 200, { ok: true, html, contract: { ...row.contract, html: undefined } });
+    return json(res, 200, { ok: true, html, needsResign: !!contract.needs_resign, contract: { ...contract, html: undefined, html_signed: undefined } });
   }
 
   if (action === "contract-sign") {
@@ -1171,7 +1186,28 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-contract-html") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
-    return json(res, 200, { ok: true, html: row.contract.html });
+    // اللوحة تقرأ ما يقرأه العميل — بما فيه النسخة المصحَّحة — وتُنبَّه إن
+    // كان العقد قد صُحِّح بعد التوقيع فيحتاج توقيعاً جديداً.
+    return json(res, 200, { ok: true, html: row.contract.html, needsResign: !!row.contract.needs_resign, correctedAt: row.contract.corrected_at || "" });
+  }
+
+  // إعادة إصدار العقد للتوقيع: تُستعمل حين صُحِّح عقدٌ بعد توقيعه. العقد
+  // يُبنى من عرض السعر المعتمد، والحالة تعود CONTRACT_SENT فيُوقّع العميل
+  // النسخة الصحيحة. سجلّ التوقيع القديم يبقى في الأحداث، ولا يُنسب إلى
+  // النسخة الجديدة.
+  if (action === "ops-contract-reissue") {
+    if (!row.quote || !Array.isArray(row.quote.items) || !row.quote.items.length) return json(res, 409, { ok: false, error: "no_quote" });
+    const built = buildContract(row, { lead_time: str(b.lead_time, 120), executor: str(b.executor, 120) });
+    const contract = { ...built, number: row.contract?.number || built.number, reissued_at: nowIso(), reissue_of: row.contract?.number || "" };
+    const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
+    await logEvent(row.id, "ops", actor, "contract.reissued", { number: contract.number });
+    await announce(upd, "contract", {
+      subject: `نسخة مصحَّحة من العقد ${contract.number} بانتظار توقيعك`,
+      clientLine: "صدرت نسخة مصحَّحة من العقد بنفس بنود عرض السعر المعتمد. راجعها ووقّعها لنكمل.",
+      opsLine: `أُعيد إصدار العقد ${contract.number} وعادت الحالة إلى بانتظار التوقيع.`,
+      cta: "افتح العقد ووقّعه",
+    });
+    return json(res, 200, { ok: true, status: upd.status, contract: { ...contract, html: undefined } });
   }
 
   if (action === "ops-mark-paid") {

@@ -22,6 +22,7 @@ import { sb, DB_ON, getSession } from "./_db.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
 import { priceSheetText } from "./_catalog.js";
+import { transcribeAudio } from "./_docread.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -312,14 +313,6 @@ export default async function handler(req, res) {
     res.statusCode = 405;
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
-  const chain = configured();
-  if (!chain.length) {
-    res.statusCode = 500;
-    // Locally the generic line reads like a bug; name the missing key instead.
-    const reply = LOCAL_DEV_CHAT() ? NO_KEY_HINT : "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً.";
-    return res.end(JSON.stringify({ error: "missing_api_key", reply }));
-  }
-
   // Parse body (Vercel may pass it parsed or raw)
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -328,6 +321,27 @@ export default async function handler(req, res) {
       let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } });
     });
   }
+
+  // mode:"voice" — العميل يتكلم بلغته فيُكتب كلامه في المحادثة. يُفرَّغ قبل
+  // فحص سلسلة الردّ لأنه يعتمد مزوّديه (Gemini / Whisper) لا مزوّدي الردّ:
+  // ميكروفونٌ يعمل ومستشارٌ متوقّف أوضحُ من توقّف الاثنين معاً.
+  if (body && body.mode === "voice") {
+    const out = await transcribeAudio(
+      String(body.audio || "").replace(/^data:[^;]+;base64,/, ""),
+      String(body.mime || "audio/webm"),
+    );
+    res.statusCode = out.error === "too_large" ? 413 : out.error === "bad_type" ? 400 : 200;
+    return res.end(JSON.stringify(out));
+  }
+
+  const chain = configured();
+  if (!chain.length) {
+    res.statusCode = 500;
+    // Locally the generic line reads like a bug; name the missing key instead.
+    const reply = LOCAL_DEV_CHAT() ? NO_KEY_HINT : "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً.";
+    return res.end(JSON.stringify({ error: "missing_api_key", reply }));
+  }
+
 
   // mode:"admin" flips the persona to the owner's writing/content assistant —
   // gated by the same key/ticket every panel action requires, so the public

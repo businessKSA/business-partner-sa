@@ -147,6 +147,17 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
 .sv1-compose textarea:focus{border-color:var(--ac)}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
 .sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
@@ -286,6 +297,7 @@ table.t input.inp{padding:6px 8px}
 .tabs button.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
 .note{font-size:.8rem;color:#5f6880}.ok-t{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.82rem}
 .stat{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem;color:#5f6880;margin-bottom:10px}.stat b{color:#1F2430}
+.warn-t{color:#B45309;font-size:.82rem;line-height:1.75;margin:10px 0 8px}
 .contract-frame{display:block;width:100%;height:380px;border:1px solid #e4e8f1;border-radius:10px;background:#fff}
 .gate{max-width:420px;margin:60px auto;background:#fff;border:1px solid #e4e8f1;border-radius:16px;padding:24px}
 .gate h1{color:#0B1B5A;font-size:1.2rem;margin:0 0 8px}
@@ -562,7 +574,7 @@ if(r.attachments&&r.attachments.length)left.appendChild(h('div',{class:'card'},[
 // contract
 var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},['العقد'+(r.contract?' — '+r.contract.number+' ('+r.contract.status+')':'')]));
 if(r.status==='QUOTE_APPROVED'){var lt=h('input',{class:'inp',placeholder:'مدة التنفيذ المتوقعة (مثال: 10 أيام عمل)'});cc.appendChild(h('div',{class:'frm'},[lt,h('button',{class:'btn',onclick:function(){api('ops-contract',{ref:r.ref,lead_time:lt.value}).then(function(o){if(o&&o.ok)reload(hd,box)})}},['توليد العقد وإرساله للتوقيع'])]))}
-if(r.contract&&r.contract.has_html!==false){var fr=h('iframe',{class:'contract-frame',title:'العقد'});cc.appendChild(fr);api('ops-contract-html',{ref:r.ref}).then(function(o){fr.srcdoc=o&&o.ok?o.html:''});if(r.contract.signature)cc.appendChild(h('p',{class:'ok-t'},['✓ وقّعه '+r.contract.signature.name+' · '+when(r.contract.signed_at)+' · '+(r.contract.signature.mode||'')+' · IP '+(r.contract.signature.ip||'')]))}
+if(r.contract&&r.contract.has_html!==false){var fr=h('iframe',{class:'contract-frame',title:'العقد'});cc.appendChild(fr);var warn=h('div',{});cc.appendChild(warn);api('ops-contract-html',{ref:r.ref}).then(function(o){fr.srcdoc=o&&o.ok?o.html:'';if(o&&o.needsResign){warn.appendChild(h('p',{class:'warn-t'},['⚠️ صُحِّح هذا العقد بعد توقيعه (كانت قيم البنود صفراً). التوقيع القديم ليس على هذه النسخة — أعد إصداره ليوقّع العميل النسخة الصحيحة.']));warn.appendChild(h('button',{class:'btn sm',onclick:function(){var b=this;b.disabled=true;api('ops-contract-reissue',{ref:r.ref}).then(function(x){b.disabled=false;if(x&&x.ok)location.reload()})}},['إعادة إصدار العقد للتوقيع']))}});if(r.contract.signature)cc.appendChild(h('p',{class:'ok-t'},['✓ وقّعه '+r.contract.signature.name+' · '+when(r.contract.signed_at)+' · '+(r.contract.signature.mode||'')+' · IP '+(r.contract.signature.ip||'')]))}
 right.appendChild(cc);
 // payment & invoice
 var pcard=h('div',{class:'card'});pcard.appendChild(h('h3',{},['الدفع والفاتورة']));
