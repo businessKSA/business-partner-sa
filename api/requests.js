@@ -1657,6 +1657,62 @@ export default async function handler(req, res) {
   // the leads feed (set LEADS_KEY in Vercel to the value you type in the inbox).
   // Returns a flat message array — same shape the WhatsApp feed uses — so the
   // monitor merges them into one list, tagged «المستشار».
+  // طلب عرض سعر من محادثة واتساب: الوكيل يفهم نطاق العمل ثم ينادي هنا.
+  //
+  // رحلة عميل الواتساب كانت تقف عند الوعد: «الفريق يتواصل خلال يومين». وكل
+  // ما بعد الوعد — عرض، موافقة، عقد، توقيع، دفع، فاتورة — موجود في لوحة
+  // العروض منذ شهور، لكن بابه بوابة تحتاج تسجيل دخول بالبريد. فالنقطة هنا
+  // تفتح الطريق نفسه من الواتساب: الرقم هوية العميل، والقرار قرار الكتالوج
+  // لا قرار الوكيل — ما سعره مثبّت يصدر عرضه فوراً برابطه، وما هو مفتوح
+  // السعر ينتظر تسعير المالك. فلا يسعّر وكيلٌ شيئاً بنفسه.
+  //
+  // السرّ (PANEL_BRIDGE_TOKEN) يبقى في خادم الموقع؛ n8n يستأذن بمفتاح اللوحة
+  // الذي يحمله أصلاً، فلا يُنسخ سرّ ثانٍ إلى نظام ثالث.
+  if ((q.action || "") === "wa-quote") {
+    res.setHeader("Cache-Control", "no-store");
+    let body = {};
+    try { body = await readBody(req); } catch { body = {}; }
+    if (!panelOk({ key: (body && body.key) || q.key })) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "unauthorized" }));
+    }
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: false, configured: false, error: "panel_not_configured",
+        ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات مشروع الموقع بالقيمة نفسها الموضوعة في لوحة العروض",
+      }));
+    }
+    const payload = {
+      phone: String((body && body.phone) || "").trim(),
+      name: String((body && body.name) || "").trim(),
+      email: String((body && body.email) || "").trim(),
+      serviceCode: String((body && body.serviceCode) || "").trim(),
+      scope: String((body && body.scope) || "").trim(),
+      qty: Number((body && body.qty) || 0) || undefined,
+    };
+    if (!payload.phone || !payload.serviceCode) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "phone_and_service_required" }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/wa-quote`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      const j = await r.json().catch(() => null);
+      if (r.status === 401) throw new Error("panel_token_mismatch");
+      if (!j) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = r.ok ? 200 : 502;
+      return res.end(JSON.stringify(j));
+    } catch (e) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: String((e && e.message) || e) }));
+    }
+  }
+
   if ((q.action || "") === "advisor-inbox") {
     res.setHeader("Cache-Control", "no-store");
     // The same gate as every other owner surface. This one endpoint used to
