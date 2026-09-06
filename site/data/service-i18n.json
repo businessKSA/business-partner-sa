@@ -562,5 +562,9 @@
   "REV-ENT": {
     "en": "Business Development — Revenue Operating System — Enterprise Package",
     "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى"
+  },
+  "BP-REF-01": {
+    "en": "Government Fee Refund Application",
+    "ar": "خدمة التقديم على استرداد الرسوم الحكومية"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-06T12:18:22.735Z",
+  "updatedAt": "2026-09-06T12:27:07.995Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3222,6 +3222,20 @@
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/rev-ent"
+    },
+    {
+      "code": "BP-REF-01",
+      "nameAr": "خدمة التقديم على استرداد الرسوم الحكومية",
+      "nameEn": "Government Fee Refund Application",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "منشآت",
+      "pricingModel": "One Time",
+      "amount": 600,
+      "priceLabel": "600 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ref-01"
     }
   ],
   "categories": [
@@ -3265,7 +3279,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 37
+      "count": 38
     },
     {
       "key": "Real Estate",
