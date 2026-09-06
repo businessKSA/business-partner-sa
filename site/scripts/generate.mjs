@@ -2311,7 +2311,7 @@ function buildBdaas() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Thirty days, free, the moment you register", "ثلاثون يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 30 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 30 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
-    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/business-development-dashboard")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/account?redirect=revenue")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
   <section class="section section--gray" id="paths"><div class="container">

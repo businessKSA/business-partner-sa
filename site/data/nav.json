@@ -75,7 +75,7 @@
               "ar": "الباقات والأسعار"
             },
             {
-              "href": "/business-development-dashboard",
+              "href": "/account?redirect=revenue",
               "en": "Client dashboard",
               "ar": "لوحة العميل"
             }
@@ -423,7 +423,7 @@
           "ar": "منصّة العملاء"
         },
         {
-          "href": "/business-development-dashboard",
+          "href": "/account?redirect=revenue",
           "en": "BD as a Service dashboard",
           "ar": "لوحة تطوير الأعمال كخدمة"
         },
