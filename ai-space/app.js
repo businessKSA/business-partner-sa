@@ -761,7 +761,7 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
-  var BUILD_ID = 'stt-3';
+  var BUILD_ID = 'stt-4';
   function diagText() {
     return [
       'إصدار اللوحة: ' + BUILD_ID,
@@ -1205,7 +1205,9 @@
         .then(function (text) {
           sending = false;
           text = text.replace(/[\[(][^\])]*[\])]/g, ' ').replace(/\s+/g, ' ').trim();
-          if (text.length > 1) {
+          // A live run returned "[صوت تنبيه]." — the label carried a full stop, and
+          // punctuation alone is not an order. Something readable has to survive.
+          if (text.length > 1 && /[\u0621-\u064A0-9A-Za-z]/.test(text)) {
             DIAG.results += 1; diag('');
             note('', 'mic');
             showInterim(text);
