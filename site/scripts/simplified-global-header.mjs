@@ -47,7 +47,13 @@ function labels(prefix){
   };
 }
 
-function href(prefix,p){ return `${prefix}${p}` || '/'; }
+// صفحاتٌ تُبنى بالإنجليزية والعربية وحدهما؛ إلصاق /fr أو /zh بها يصنع
+// رابطاً ميتاً. تُحال إلى نسختها الإنجليزية القائمة.
+const AR_EN_ONLY=new Set(['/connect']);
+function href(prefix,p){
+  if(AR_EN_ONLY.has(p) && prefix!=='' && prefix!=='/ar') return p;
+  return `${prefix}${p}` || '/';
+}
 
 const css=String.raw`<style id="bp-simple-header-css">
 .site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}

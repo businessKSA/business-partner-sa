@@ -299,6 +299,9 @@ const FULLY_READY_LANGS = ["fr", "zh"];
 // once for ar/en only — they're never part of the per-language build loop,
 // so even a "fully ready" language must not get a prefixed link to them.
 const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
+// صفحاتٌ تُبنى بلغةٍ واحدة ولا نسخة لها بغيرها: بدائل اللغة فيها تشير إلى
+// عناوين غير موجودة. لوحة العمليات عربية للفريق وحده.
+const SINGLE_LANG_PATHS = new Set(["/ops"]);
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
@@ -524,7 +527,8 @@ const EMBED_SNIPPET = `<script>if(/[?&]embed=1(?:&|$)/.test(location.search))doc
 
 function head(title, desc, path) {
   const canonical = path || "/";
-  const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
+  const oneLang = SINGLE_LANG_PATHS.has(canonical);
+  const langsForPage = oneLang ? [] : VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}"${SHOW_PRICES ? "" : ' data-prices="off"'}>
@@ -541,7 +545,7 @@ function head(title, desc, path) {
 <meta name="theme-color" content="#0B1B5A">
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
-<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+${oneLang ? "" : `<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">`}
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
 /* First visit (no explicit choice yet): follow the browser language when we
    have that translation — an Arabic browser lands on /ar automatically. Runs
@@ -2598,7 +2602,7 @@ function buildAiAgents() {
       tg: L("Customers, suppliers, partners and a pipeline that never sleeps — growth as an operating system.", "عملاء وموردون وشركاء وPipeline لا ينام — النمو كنظام تشغيل."),
       feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
       price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
-      acts: `<a class="btn btn-primary" href="${u("/revenue-os")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+      acts: `<a class="btn btn-primary" href="${u("/business-development")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
     },
     {
       tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),

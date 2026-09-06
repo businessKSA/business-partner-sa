@@ -483,7 +483,7 @@ export function simpleV1(ctx) {
   }
   // شريط الحالة: نبضةٌ حيّة واللغات الأربع بأكوادها. اللغات هنا إشارةٌ صادقة
   // — المنصّة كلها مترجمة، والروابط تفتح نفس الصفحة بلغتها لا الصفحة الأولى.
-  function statusBar(path) {
+  function statusBar(path, oneLang) {
     const codes = SIMPLE_LANGS.map((l) =>
       `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${l.toUpperCase()}</a>`).join("");
     return `<div class="sv1-bar"><div class="wrap">
@@ -492,19 +492,19 @@ export function simpleV1(ctx) {
     <span class="hide-s">${t("barCity")}</span>
   </div>
   <div class="sv1-bar-r">
-    <span class="hide-s">${t("barLangs")}</span>
-    <span class="sv1-bar-langs">${codes}</span>
+    ${oneLang ? "" : `<span class="hide-s">${t("barLangs")}</span>
+    <span class="sv1-bar-langs">${codes}</span>`}
   </div>
 </div></div>`;
   }
-  function header(path, { cta = true } = {}) {
-    return `${statusBar(path)}<header class="sv1-hdr"><div class="wrap">
+  function header(path, { cta = true, oneLang = false } = {}) {
+    return `${statusBar(path, oneLang)}<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="sv1-nav" id="sv1Nav">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
-    ${langSwitch(path)}
+    ${oneLang ? "" : langSwitch(path)}
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
@@ -593,7 +593,7 @@ export function simpleV1(ctx) {
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
 
-  function shell({ title, desc, path, body, script = "", noindex = false }) {
+  function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
     const h = head(title, desc, path)
       .replace("</head>", CSS + "</head>")
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")

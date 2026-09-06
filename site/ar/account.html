@@ -1658,7 +1658,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         var portalBadge = en ? 'Portal' : 'بوابة';
         var openLbl = en ? 'Open portal' : 'افتح البوابة';
         var pl = [
-          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/business-development-dashboard' },
+          { i: '🚀', n: en ? 'BD as a Service dashboard' : 'لوحة تطوير الأعمال كخدمة', u: '/account?redirect=revenue' },
           { i: '🛡️', n: en ? 'Compliance dashboard' : 'لوحة الامتثال', u: '/ar/compliance-dashboard' },
           { i: '🤖', n: en ? 'Smart employees portal' : 'بوابة الموظفين الأذكياء', u: '/ar/portal' },
           { i: '🧑‍💼', n: en ? 'Employer dashboard' : 'لوحة التوظيف', u: '/employer-dashboard' },
@@ -1671,7 +1671,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         // typed in here: two places holding it is how copy starts lying.
         var bd = state.bd || null;
         for (i = 0; i < pl.length; i++){
-          var isBd = pl[i].u === '/business-development-dashboard';
+          var isBd = pl[i].u === '/account?redirect=revenue';
           var badge = portalBadge, line = '', cta = openLbl;
           if (isBd && bd && bd.open){
             badge = en ? 'Open' : 'مفتوحة';
@@ -2205,7 +2205,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         ['🗂️', en ? 'Documents advisor' : 'مستشار المستندات', en ? 'Reads your documents, extracts their data and prepares your forms — inside the portal.' : 'يقرأ مستنداتك ويستخرج بياناتها ويجهّز نماذجك — داخل اللوحة.', 'docagent'],
         ['🛡️', en ? 'Compliance advisor' : 'مستشار الامتثال', en ? 'Tracks your compliance and violations, prepares objections and follows them up.' : 'يراقب امتثالك ومخالفاتك، يجهّز الاعتراضات ويتابعها.', '/ar/compliance-dashboard'],
         ['🧑‍💼', en ? 'Hiring dashboard' : 'لوحة التوظيف', en ? 'Post jobs, match candidates with AI and run your hiring pipeline.' : 'انشر وظائفك، طابق المرشحين بالذكاء، وأدر مسار توظيفك.', 'hiring'],
-        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/business-development-dashboard'],
+        ['📈', en ? 'Business development advisor' : 'مستشار تطوير الأعمال', en ? 'Your pipeline, meetings and opportunities through to revenue and collection.' : 'الـPipeline والاجتماعات والفرص حتى الإيراد والتحصيل.', '/account?redirect=revenue'],
         ['🤖', en ? 'Smart employee' : 'الموظف الذكي', en ? 'A 24/7 specialist — marketing, admin, sales or procurement. Open your smart-employees portal.' : 'متخصص يعمل 24/7 — تسويق، إداري، مبيعات أو مشتريات. افتح بوابة موظفيك الأذكياء.', '/ar/portal'],
         ['🤝', en ? 'Shared services team' : 'فريق الخدمات المشتركة', en ? 'Your executive team dashboard — HR, finance, legal and government relations.' : 'لوحة فريقك التنفيذي — موارد بشرية ومالية وقانونية وعلاقات حكومية.', '/ar/shared-services/dashboard'],
         ['💬', en ? 'Portal assistant' : 'مساعد لوحتك', en ? 'Knows your orders, wallet and every section — ask it anything.' : 'يعرف طلباتك ومحفظتك وكل أقسام اللوحة — اسأله أي شيء.', 'assistant']
@@ -2477,7 +2477,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
       // a window inside the portal — it opens as its own page, same session,
       // with the matching companies already inside it.
       if (v === 'bd'){
-        location.href = (state.lang === 'en' ? '' : '/ar') + '/business-development-dashboard';
+        location.href = (state.lang === 'en' ? '' : '/ar') + '/account?redirect=revenue';
         return;
       }
       if (EMBEDS[v]){
@@ -3490,7 +3490,7 @@ body{background:var(--bp6-soft)!important;color:var(--bp6-ink)!important}.side{w
         employees: '/ar/portal',
         employer: '/employer-dashboard',
         shared: '/shared-services/dashboard',
-        revenue: '/business-development-dashboard'
+        revenue: '/account?redirect=revenue'
       };
       var url = map[r] || (/^\/[A-Za-z0-9/_-]*$/.test(r) ? r : '');
       if (!url) return false;

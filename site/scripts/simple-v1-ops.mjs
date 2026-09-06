@@ -58,7 +58,9 @@ table.t input.inp{padding:6px 8px}
 .mob{display:none}
 @media(max-width:960px){.ops{grid-template-columns:1fr}.ops-side{display:none}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#0B1B5A}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.3);font-size:.8rem;font-weight:700;color:#fff}.mob a.on{background:#fff;color:#0B1B5A}.kpis{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}.ops-main{padding:12px}}
 </style>`;
-  const body = `${sv1.header("/ops", { cta: false })}<div id="app"></div>`;
+  // لوحة العمليات عربية وحدها ولا نسخة لها بلغة أخرى — فلا مبدّل لغة فيها،
+  // وإلا قاد إلى /ar/ops و/fr/ops و/zh/ops وهي غير موجودة.
+  const body = `${sv1.header("/ops", { cta: false, oneLang: true })}<div id="app"></div>`;
   const script = `<script>
 (function(){
 var ST={NEW:'جديد',REVIEWING:'قيد المراجعة',WAITING_CLIENT:'بانتظار العميل',QUOTE_SENT:'عرض مُرسل',QUOTE_APPROVED:'العرض معتمد',CONTRACT_SENT:'عقد مُرسل',SIGNED:'موقّع',PAYMENT_PENDING:'بانتظار الدفع',PAID:'مدفوع',IN_PROGRESS:'قيد التنفيذ',WAITING_INTERNAL:'بانتظار داخلي',COMPLETED:'مكتمل',CANCELLED:'ملغي'};
