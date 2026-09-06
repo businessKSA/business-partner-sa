@@ -29,6 +29,13 @@ const D = {
              en: "Pick what fits — the scope of work is built from your picks.",
              fr: "Choisissez ce qui convient — le périmètre est construit à partir de vos choix.",
              zh: "选择合适的项目 — 工作范围将据此生成。" },
+  yourVisit:{ ar: "زيارتك", en: "Your visit", fr: "Votre visite", zh: "您的行程" },
+  bespokeNote:{ ar: "لا سعر معروض هنا: كلفة الزيارة تتغيّر بدرجة الطيران وتصنيف الفندق وعدد المدن. نجمعها كلها ثم يصلك عرض سعر مفصّل.",
+             en: "No price is shown here: the cost changes with flight class, hotel grade and the number of cities. We collect it all, then send you a detailed quotation.",
+             fr: "Aucun prix ici : le coût dépend de la classe de vol, du niveau d'hôtel et du nombre de villes. Nous rassemblons le tout, puis vous recevez un devis détaillé.",
+             zh: "此处不显示价格：费用随舱位等级、酒店星级与城市数量而变。我们收集全部信息后向您发送详细报价。" },
+  visitDate:{ ar: "تاريخ الزيارة المتوقّع", en: "Expected visit date", fr: "Date de visite prévue", zh: "预计出行日期" },
+  reqMiss: { ar: "أكمل: ", en: "Still needed: ", fr: "Il manque : ", zh: "尚需：" },
   bespoke: { ar: "يُسعَّر بعرضٍ مخصّص", en: "Quoted bespoke", fr: "Devis sur mesure", zh: "定制报价" },
   sendReq: { ar: "أرسل طلبي", en: "Send my request", fr: "Envoyer ma demande", zh: "发送请求" },
   pickedN: { ar: "مختار", en: "selected", fr: "sélectionné", zh: "已选" },
@@ -72,16 +79,37 @@ const D = {
 
 // خطّا المستثمر والشركات بلا أسعار في أي مصدر، فلا سعر يُخترع لهما: كل بند
 // يدخل نطاق العمل ويُسعَّر بعرضٍ مخصّص عبر نفس المسار — لا سلة ولا دفع مباشر.
-const INVESTOR = [
-  ["لقاءات مع الجهات المشرِّعة", "وزارة الاستثمار والهيئات القطاعية والجهات التنظيمية ذات العلاقة بنشاطك."],
-  ["لقاءات مع أصحاب المصلحة", "شركاء محتملون، موزّعون، موردون، وجهات تمويل — مُرتَّبة قبل وصولك."],
-  ["جولة على القطاع الصناعي", "المدن الصناعية والمصانع القائمة في نشاطك، ومقابلة مشغّليها."],
-  ["جولة على القطاع التجاري", "الأسواق والمراكز والموزّعون وقنوات البيع في مدنٍ تختارها."],
-  ["جولة على قطاع الخدمات", "اللوجستيات والتقنية والخدمات المساندة التي سيعتمد عليها نشاطك."],
-  ["قراءة الفرص على الأرض", "زيارة المواقع المرشّحة وتقدير الكلف والمتطلبات قبل القرار."],
-  ["ترتيب الإقامة والتنقّل", "الفندق والتنقّل الداخلي والمرافق الميداني طوال الزيارة."],
-  ["الدعم بعد الزيارة", "تلخيص ما رأيته، وخطوات التأسيس والترخيص إن قرّرت المضي."],
+// ── مُهيّئ زيارة المستثمر ────────────────────────────────────────────────────
+// الزيارة تُفصَّل ولا تُشترى جاهزة: العميل يركّب رحلته من خياراتٍ حقيقية
+// (القطاع، الجهات، المدن، الطيران، المواصلات، السكن، المطاعم، العدد والمدة
+// والتاريخ)، فيخرج نطاقُ عملٍ مكتملٌ يكفي لتسعيرها.
+//
+// ولا سعر هنا: كلفة الزيارة تتغيّر بدرجة الطيران وتصنيف الفندق وعدد المدن —
+// وسعرٌ يُعرض قبل معرفة هذه ليس سعراً. المُهيّئ يجمعها ثم يصدر العرض.
+const INV_FORM = [
+  { k: "sector", t: "نوع النشاط", multi: true, req: true,
+    o: ["تجاري","خدمي","صناعي","تقني","لوجستي","سياحي وترفيهي","صحي","تعليمي","زراعي وغذائي","عقاري","مالي","تعدين وطاقة","غير ذلك"] },
+  { k: "entities", t: "الجهات التي تودّ لقاءها", multi: true,
+    o: ["وزارة الاستثمار","وزارة التجارة","وزارة الصناعة والثروة المعدنية","منشآت","مدن — هيئة المدن الصناعية",
+        "هيئة الزكاة والضريبة والجمارك","وزارة الموارد البشرية","الهيئة السعودية للملكية الفكرية",
+        "الهيئة العامة للغذاء والدواء","هيئة السوق المالية","الهيئة السعودية للسياحة","هيئة تنمية الصادرات",
+        "الغرفة التجارية","مدينة الملك عبدالعزيز للعلوم والتقنية","صندوق التنمية الصناعية","شركاء وموزّعون من القطاع الخاص"] },
+  { k: "cities", t: "المدن", multi: true, req: true,
+    o: ["الرياض","جدة","الدمام والخبر","نيوم","العلا","مكة المكرمة","المدينة المنورة","الطائف","الأحساء","الجبيل","ينبع","مدينة الملك عبدالله الاقتصادية"] },
+  { k: "flight", t: "الطيران الدولي", o: ["أحتاج تذاكر","لديّ تذاكري"] },
+  { k: "flightClass", t: "درجة الطيران", o: ["اقتصادية","رجال أعمال","أولى"], dep: ["flight","أحتاج تذاكر"] },
+  { k: "airline", t: "الناقل المفضّل", o: ["الخطوط السعودية","طيران الرياض","طيران ناس","طيران أديل","ناقل آخر","حسب الأفضل سعراً وتوقيتاً"], dep: ["flight","أحتاج تذاكر"] },
+  { k: "transport", t: "المواصلات داخل المملكة", multi: true, req: true,
+    o: ["سيارة خاصة بسائق","سيارة فاخرة بسائق","فان (حافلة صغيرة)","حافلة","قطار الحرمين","طيران داخلي","تأجير سيارة"] },
+  { k: "stay", t: "السكن", req: true,
+    o: ["شقق مخدومة","فندق ٣ نجوم","فندق ٤ نجوم","فندق ٥ نجوم","فندق فاخر"] },
+  { k: "food", t: "المطاعم", o: ["سعودية محلية","عالمية","مزيج من الاثنين"] },
 ];
+const INV_NUM = [
+  { k: "people", t: "عدد الأشخاص", min: 1, max: 60, def: 2 },
+  { k: "days", t: "عدد الأيام", min: 1, max: 30, def: 5 },
+];
+
 const CORPORATE = [
   ["اليوم الوطني", "احتفال داخل المنشأة أو خارجها بهوية اليوم الوطني وبرنامجه."],
   ["يوم التأسيس", "برنامج ومحتوى تراثي يناسب مناسبة يوم التأسيس."],
@@ -158,6 +186,33 @@ export function buildSimpleTrips(sv1, ctx, data) {
 .sv1-tr-pick input{margin:3px 0 0;width:17px;height:17px;accent-color:var(--ac);flex:none}
 .sv1-tr-pick b{display:block;font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.55}
 .sv1-tr-pick small{display:block;font-size:12px;color:var(--mut);line-height:1.8;margin-top:3px}
+.sv1-cfg{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+.sv1-cfg-main{display:flex;flex-direction:column;gap:14px}
+.sv1-cfg-g{border:1px solid var(--l);border-radius:13px;background:#fff;padding:16px 18px}
+.sv1-cfg-g h4{margin:0 0 11px;font-size:13.5px;font-weight:500;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+.sv1-cfg-g h4 i{font-style:normal;font-size:10.5px;color:var(--warn)}
+.sv1-cfg-opts{display:flex;gap:7px;flex-wrap:wrap}
+.sv1-cfg-o{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;
+ cursor:pointer;font-family:inherit;color:var(--mut);transition:.12s}
+.sv1-cfg-o:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-cfg-o.on{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:500}
+.sv1-cfg-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sv1-cfg-num label,.sv1-cfg-date label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:6px}
+.sv1-cfg-step{display:flex;align-items:center;border:1px solid var(--l);border-radius:10px;overflow:hidden;width:fit-content}
+.sv1-cfg-step button{border:0;background:#fff;width:36px;height:38px;cursor:pointer;font:inherit;font-size:16px;color:var(--ink)}
+.sv1-cfg-step button:hover{background:var(--soft)}
+.sv1-cfg-step span{width:46px;text-align:center;font-family:var(--fm);font-size:14px}
+.sv1-cfg-date input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13.5px;width:100%;outline:none}
+.sv1-cfg-date input:focus{border-color:var(--ac)}
+.sv1-cfg-sum{position:sticky;top:96px}
+.sv1-cfg-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.sv1-cfg-row:last-of-type{border-bottom:0}
+.sv1-cfg-row span{color:var(--mut);flex:none}
+.sv1-cfg-row b{font-weight:500;text-align:end}
+.sv1-cfg-empty{font-size:12.5px;color:var(--faint);padding:8px 0}
+.sv1-cfg-note{font-size:11.5px;color:var(--warn);margin-top:9px;line-height:1.7}
+.sv1-cfg-fine{font-size:11px;color:var(--faint);line-height:1.75;margin:10px 0 0}
+@media(max-width:900px){.sv1-cfg{grid-template-columns:1fr}.sv1-cfg-sum{position:static}}
 .sv1-tr-send{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:22px;flex-wrap:wrap}
 .sv1-tr-sendn{font-size:12.5px;color:var(--mut)}
 @media(max-width:600px){.sv1-tr-bar{top:72px}.sv1-tr-grid{grid-template-columns:1fr}.sv1-tr-picks{grid-template-columns:1fr}}
@@ -179,10 +234,16 @@ export function buildSimpleTrips(sv1, ctx, data) {
   </section>
 
   <section class="sv1-sec sv1-hide" id="trPanelInv" style="padding-top:0"><div class="wrap">
-    <p class="sv1-lead" style="max-width:70ch;margin:0 auto 22px;text-align:center">${esc(t("invLead"))}</p>
-    <div class="sv1-tr-picks" id="trInvList"></div>
-    <div class="sv1-tr-send"><span id="trInvN" class="sv1-tr-sendn"></span>
-      <button type="button" class="sv1-btn primary" id="trInvGo">${esc(t("sendReq"))}</button></div>
+    <p class="sv1-lead" style="max-width:70ch;margin:0 auto 24px;text-align:center">${esc(t("invLead"))}</p>
+    <div class="sv1-cfg"><div class="sv1-cfg-main" id="trInvForm"></div>
+      <aside class="sv1-cfg-side"><div class="sv1-panel sv1-cfg-sum">
+        <h4>${esc(t("yourVisit"))}</h4>
+        <div id="trInvSum"></div>
+        <div class="sv1-cfg-note" id="trInvErr"></div>
+        <button type="button" class="sv1-btn primary" id="trInvGo" style="width:100%;margin-top:12px">${esc(t("sendReq"))}</button>
+        <p class="sv1-cfg-fine">${esc(t("bespokeNote"))}</p>
+      </div></aside>
+    </div>
   </div></section>
 
   <section class="sv1-sec sv1-hide" id="trPanelCorp" style="padding-top:0"><div class="wrap">
@@ -231,6 +292,7 @@ export function buildSimpleTrips(sv1, ctx, data) {
     inclVat: t("inclVat"), details: t("details"),
     lineInv: t("lineInv"), lineCorp: t("lineCorp"), pickMore: t("pickMore"),
     pickedN: t("pickedN"), needPick: t("needPick"),
+    yourVisit: t("yourVisit"), visitDate: t("visitDate"), reqMiss: t("reqMiss"),
   };
 
   const script = `<script>
@@ -331,8 +393,8 @@ function draw(){
 }
 
 // ---- الخطوط الثلاثة
-var LISTS={inv:${JSON.stringify(INVESTOR)},corp:${JSON.stringify(CORPORATE)}};
-var picked={inv:[],corp:[]};
+var LISTS={corp:${JSON.stringify(CORPORATE)}};
+var picked={corp:[]};
 function pickList(host,key,countEl){
  var el=$(host);el.innerHTML='';
  LISTS[key].forEach(function(row,i){
@@ -365,10 +427,92 @@ Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),func
   Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),function(x){x.classList.toggle('on',x===b)});
   for(var n in lines)lines[n].classList.toggle('sv1-hide',n!==k);
   try{history.replaceState(null,'','?line='+k)}catch(e){}}});
-pickList('trInvList','inv','trInvN');
+// ---- مُهيّئ زيارة المستثمر
+var FORM=${JSON.stringify(INV_FORM)},NUMS=${JSON.stringify(INV_NUM)};
+var cfg={};NUMS.forEach(function(n){cfg[n.k]=n.def});cfg.date='';
+function visible(f){if(!f.dep)return true;return (cfg[f.dep[0]]||'')===f.dep[1]}
+function drawInv(){
+ var host=$('trInvForm');host.innerHTML='';
+ FORM.forEach(function(f){
+  if(!visible(f))return;
+  var g=document.createElement('div');g.className='sv1-cfg-g';
+  var h=document.createElement('h4');h.textContent=f.t;
+  if(f.req){var i=document.createElement('i');i.textContent='*';h.appendChild(i)}
+  g.appendChild(h);
+  var box=document.createElement('div');box.className='sv1-cfg-opts';
+  f.o.forEach(function(opt){
+   var b=document.createElement('button');b.type='button';b.className='sv1-cfg-o';b.textContent=opt;
+   var cur=cfg[f.k];
+   var on=f.multi?(cur||[]).indexOf(opt)>=0:cur===opt;
+   if(on)b.classList.add('on');
+   b.onclick=function(){
+    if(f.multi){var a=(cfg[f.k]||[]).slice();var j=a.indexOf(opt);if(j<0)a.push(opt);else a.splice(j,1);cfg[f.k]=a}
+    else cfg[f.k]=(cfg[f.k]===opt?'':opt);
+    drawInv();drawInvSum()};
+   box.appendChild(b)});
+  g.appendChild(box);host.appendChild(g)});
+ // الأعداد والتاريخ
+ var g2=document.createElement('div');g2.className='sv1-cfg-g';
+ var h2=document.createElement('h4');h2.textContent=TX.yourVisit;g2.appendChild(h2);
+ var nums=document.createElement('div');nums.className='sv1-cfg-nums';
+ NUMS.forEach(function(n){
+  var w=document.createElement('div');w.className='sv1-cfg-num';
+  var l=document.createElement('label');l.textContent=n.t;w.appendChild(l);
+  var st=document.createElement('div');st.className='sv1-cfg-step';
+  var mi=document.createElement('button');mi.type='button';mi.textContent='\u2212';
+  var v=document.createElement('span');v.textContent=String(cfg[n.k]);
+  var pl=document.createElement('button');pl.type='button';pl.textContent='+';
+  mi.onclick=function(){if(cfg[n.k]>n.min){cfg[n.k]--;v.textContent=String(cfg[n.k]);drawInvSum()}};
+  pl.onclick=function(){if(cfg[n.k]<n.max){cfg[n.k]++;v.textContent=String(cfg[n.k]);drawInvSum()}};
+  st.appendChild(mi);st.appendChild(v);st.appendChild(pl);w.appendChild(st);nums.appendChild(w)});
+ var dw=document.createElement('div');dw.className='sv1-cfg-date';
+ var dl=document.createElement('label');dl.textContent=TX.visitDate;dw.appendChild(dl);
+ var di=document.createElement('input');di.type='date';di.value=cfg.date||'';
+ di.min=new Date(Date.now()+864e5).toISOString().slice(0,10);
+ di.onchange=function(){cfg.date=di.value;drawInvSum()};
+ dw.appendChild(di);nums.appendChild(dw);
+ g2.appendChild(nums);host.appendChild(g2)}
+
+function invPairs(){
+ var out=[];
+ FORM.forEach(function(f){
+  if(!visible(f))return;
+  var v=cfg[f.k];
+  if(f.multi){if(v&&v.length)out.push([f.t,v.join('\u060C ')])}
+  else if(v)out.push([f.t,v])});
+ NUMS.forEach(function(n){out.push([n.t,String(cfg[n.k])])});
+ if(cfg.date)out.push([TX.visitDate,cfg.date]);
+ return out}
+
+function invMissing(){
+ return FORM.filter(function(f){
+  if(!f.req||!visible(f))return false;
+  var v=cfg[f.k];return f.multi?!(v&&v.length):!v}).map(function(f){return f.t})}
+
+function drawInvSum(){
+ var box=$('trInvSum');box.innerHTML='';
+ var p=invPairs();
+ if(!p.length){var e=document.createElement('p');e.className='sv1-cfg-empty';e.textContent=TX.pickMore;box.appendChild(e)}
+ else p.forEach(function(kv){
+  var r=document.createElement('div');r.className='sv1-cfg-row';
+  var a=document.createElement('span');a.textContent=kv[0];
+  var b=document.createElement('b');b.textContent=kv[1];
+  r.appendChild(a);r.appendChild(b);box.appendChild(r)});
+ var miss=invMissing();
+ $('trInvErr').textContent=miss.length?TX.reqMiss+miss.join('\u060C '):''}
+
+$('trInvGo').onclick=function(){
+ var miss=invMissing();
+ if(miss.length){$('trInvErr').textContent=TX.reqMiss+miss.join('\u060C ');return}
+ var p=invPairs();
+ try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
+   ctx:'consulting',name:TX.lineInv,platform:'محفول مكفول',
+   items:p.map(function(kv){return {title:kv[0]+': '+kv[1],why:TX.lineInv}})}))}catch(e){}
+ location.href=HOME+'#advisor'};
+
 pickList('trCorpList','corp','trCorpN');
-$('trInvGo').onclick=function(){sendPicks('inv','trInvN',TX.lineInv)};
 $('trCorpGo').onclick=function(){sendPicks('corp','trCorpN',TX.lineCorp)};
+drawInv();drawInvSum();
 (function(){try{var k=new URL(location.href).searchParams.get('line');
  if(k&&lines[k]){var b=document.querySelector('#trLines [data-line="'+k+'"]');if(b)b.click()}}catch(e){}})();
 
