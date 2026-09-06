@@ -36,6 +36,7 @@ const D = {
   heroTag: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
+  navTrips: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
   navSite: { ar: "العودة إلى الموقع", en: "Back to the site", fr: "Retour au site", zh: "返回网站" },
   logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
@@ -502,6 +503,7 @@ export function simpleV1(ctx) {
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="sv1-nav" id="sv1Nav">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
+    <a href="${href("/trips")}">${t("navTrips")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
     ${oneLang ? "" : langSwitch(path)}

@@ -302,12 +302,16 @@ const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
 // صفحاتٌ تُبنى بلغةٍ واحدة ولا نسخة لها بغيرها: بدائل اللغة فيها تشير إلى
 // عناوين غير موجودة. لوحة العمليات عربية للفريق وحده.
 const SINGLE_LANG_PATHS = new Set(["/ops"]);
+// لقطة قاعدة الرحلات في نوشن (site/data/trips.json). تُحدَّث بإعادة السحب
+// من نوشن، ولا تُحرَّر باليد كي لا يفترق الموقع عن مصدره.
+const TRIPS = read("data/trips.json");
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
+import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -12378,6 +12382,8 @@ function writeFullSite(pre) {
   if (SIMPLE_V1) {
     write(`${pre}checkout.html`, buildSimpleCheckout(SV1, { lang: () => LANG, esc }));
     write(`${pre}checkout-classic.html`, buildCheckout());
+    // الرحلات: كل رحلة منتجٌ برمزه وسعره من قاعدة نوشن، تدخل السلة مباشرةً.
+    write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
   } else {
     write(`${pre}checkout.html`, buildCheckout());
   }
@@ -12630,6 +12636,19 @@ const catalogJson = {
   // Codes are marketing artifacts — public by nature — managed in
   // site.json → commerce.discounts (editable from /admin → content → site).
   discounts: catalogDiscounts(),
+  // الرحلات خدماتٌ في الكتالوج كغيرها: رمزٌ وسعرٌ صافٍ، فينطبق عليها ما
+  // ينطبق على أي بند — التسعير الآلي وعرض السعر والعقد والفاتورة. سعرها
+  // المعلن شاملُ الضريبة، والصافي مشتقٌّ منه بدقّةٍ تكفي لأن يعود المعلن
+  // كما هو بعد إضافة ١٥٪.
+  trips: TRIPS.trips.map((t) => ({
+    code: t.code, nameAr: t.nameAr, nameEn: t.nameEn,
+    category: "Tourism", categoryAr: "الرحلات السياحية",
+    pricingModel: "One Time", amount: t.net, total: t.total,
+    priceLabel: `${t.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ﷼`,
+    dest: t.destAr, type: t.typeAr, duration: (t.duration && t.duration.label) || "",
+    audience: t.audienceAr || [], summary: t.summary || "", url: t.url || "",
+    govFeesSeparate: false, requiresProposal: false,
+  })),
   services: services.map((s) => {
     const m = svcI18n[s.code] || {};
     const ov = site.overrides[s.slug];
