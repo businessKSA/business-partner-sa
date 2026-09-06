@@ -1,0 +1,20 @@
+# كل يوم ٠٦:٠٠ بتوقيت الرياض: جولة متابعة العملاء (مازن + بدر بقيادة باهر)
+name: BP — الجولة الصباحية لمتابعة العملاء
+agent: ${AGENT_BAHER}
+environment_id: ${ENV_ID}
+budget:
+  type: limit
+  max_list_cost: { amount: "400", currency: USD }   # سقف 4 دولار للجولة
+initial_events:
+  - type: user.message
+    content:
+      - type: text
+        text: |
+          جولة الصباح. كلّف مازن بمتابعة كل عميل في Sales Pipeline لم يُتابَع خلال 48 ساعة أو له موعد متابعة اليوم،
+          وكلّف بدر بمراجعة الفرص التي اكتملت معلوماتها وتحويلها إلى مسودات عروض بانتظار الموافقة.
+          بعد اكتمالهما سلّم خلاصة واحدة: من تُوبع، من رد، ما العروض الجديدة، وما يحتاج قرار المالك اليوم.
+          أرسل الخلاصة للمالك عبر n8n على webhook bp-agent-send بقناة whatsapp وحقل to = ${OWNER_WHATSAPP}.
+schedule:
+  type: cron
+  expression: "0 6 * * *"
+  timezone: Asia/Riyadh

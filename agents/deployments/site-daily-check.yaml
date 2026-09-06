@@ -1,0 +1,19 @@
+# كل يوم ٠٧:٠٠ بتوقيت الرياض: فحص الموقع وإصلاح ما هو آمن (محمد)
+name: BP — فحص الموقع اليومي
+agent: ${AGENT_BAHER}
+environment_id: ${ENV_ID}
+budget:
+  type: limit
+  max_list_cost: { amount: "600", currency: USD }   # سقف 6 دولار للفحص والإصلاح
+initial_events:
+  - type: user.message
+    content:
+      - type: text
+        text: |
+          فحص الموقع اليومي. كلّف محمد بجولته الكاملة على www.businesspartner.sa واللوحات، إصلاح ما هو واضح وآمن،
+          وفتح Pull Request مسودة لكل إصلاح. إن احتاج نصًا لصفحة، خذه من فرح وسلّمه له.
+          سلّم المالك خلاصة قصيرة عبر n8n على webhook bp-agent-send (قناة whatsapp، to = ${OWNER_WHATSAPP}): ما فُحص، روابط الـ PRs، وما يحتاج قراره.
+schedule:
+  type: cron
+  expression: "0 7 * * *"
+  timezone: Asia/Riyadh

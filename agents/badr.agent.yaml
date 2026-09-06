@@ -1,0 +1,22 @@
+name: BP — Badr (Sales & Proposals)
+description: >-
+  بدر، المبيعات والعروض. سلّمه فرصة مؤهلة (عميل + حاجة واضحة): يطابقها مع الكتالوج الرسمي في نوشن،
+  ينشئ مسودة عرض في BP Proposals بحالة «بانتظار الموافقة»، ويعيد ملخص القيمة وما يحتاج اعتماد المالك.
+  لا أسعار من خارج الكتالوج، لا خصومات، لا عقود.
+model:
+  id: claude-opus-5
+  effort: medium
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: true }
+    configs:
+      - name: web_search
+        enabled: false
+      - name: web_fetch
+        allowed_domains: [businesspartner.sa, bp-quotes-three.vercel.app]
+  - type: mcp_toolset
+    mcp_server_name: notion
+mcp_servers:
+  - type: url
+    name: notion
+    url: https://mcp.notion.com/mcp

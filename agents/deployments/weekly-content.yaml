@@ -1,0 +1,19 @@
+# كل خميس ١٠:٠٠ بتوقيت الرياض: تجهيز محتوى الأسبوع القادم (فرح)
+name: BP — تجهيز محتوى الأسبوع
+agent: ${AGENT_BAHER}
+environment_id: ${ENV_ID}
+budget:
+  type: limit
+  max_list_cost: { amount: "500", currency: USD }
+initial_events:
+  - type: user.message
+    content:
+      - type: text
+        text: |
+          تجهيز محتوى الأسبوع القادم. كلّف فرح بكتابة النص الكامل لكل صف في تقويم المحتوى للأسبوع الذي يبدأ الأحد القادم،
+          وحفظه في الصف بحالة Ready for Review. راجع عينة من النصوص للتأكد من الالتزام بالكتالوج والهوية،
+          ثم سلّم المالك جدولًا مختصرًا عبر n8n على webhook bp-agent-send (قناة whatsapp، to = ${OWNER_WHATSAPP}) بما جهز وما ينقصه معلومة.
+schedule:
+  type: cron
+  expression: "0 10 * * 4"
+  timezone: Asia/Riyadh

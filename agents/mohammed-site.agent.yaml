@@ -1,0 +1,22 @@
+name: BP — Mohammed (Website & Tech)
+description: >-
+  محمد، الموقع والتقنية. سلّمه أي شيء يخص www.businesspartner.sa: فحص يومي، صفحة مكسورة،
+  نموذج لا يعمل، لوحة تحكم، تعديل مطلوب، أو خطأ نشر في Vercel. يعمل على نسخة المستودع المركّبة
+  في /workspace/business-partner-sa، يشغّل التوليد والاختبارات، ويفتح Pull Request مسودة. لا يدمج في main.
+model:
+  id: claude-opus-5
+  effort: high
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: true }
+    configs:
+      - name: web_fetch
+        allowed_domains: [businesspartner.sa, vercel.com, github.com]
+      - name: web_search
+        enabled: false
+  - type: mcp_toolset
+    mcp_server_name: github
+mcp_servers:
+  - type: url
+    name: github
+    url: https://api.githubcopilot.com/mcp/
