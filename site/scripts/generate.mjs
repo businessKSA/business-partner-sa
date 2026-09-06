@@ -312,6 +312,7 @@ import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
+import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -12384,14 +12385,19 @@ function writeFullSite(pre) {
     write(`${pre}checkout-classic.html`, buildCheckout());
     // الرحلات: كل رحلة منتجٌ برمزه وسعره من قاعدة نوشن، تدخل السلة مباشرةً.
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
+    // ‏حجز الاستشارة صار على التقويم: فترات حقيقية من /api/book?action=slots
+    // بدل حقل تاريخٍ حرّ. الصفحة القديمة تبقى مبنيّة على /consultation-classic
+    // لأن روابطها قد تكون في يد عميل، ولا شيء في الموقع يرسل إليها.
+    write(`${pre}consultation.html`, buildSimpleBook(SV1, { lang: () => LANG, esc }));
+    write(`${pre}consultation-classic.html`, buildConsultation());
   } else {
     write(`${pre}checkout.html`, buildCheckout());
+    write(`${pre}consultation.html`, buildConsultation());
   }
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
-  write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   write(`${pre}quote.html`, buildQuotePage());

@@ -37,6 +37,7 @@ const D = {
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
   navTrips: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
+  navBook: { ar: "احجز استشارة", en: "Book a call", fr: "Réserver", zh: "预约咨询" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
   navSite: { ar: "العودة إلى الموقع", en: "Back to the site", fr: "Retour au site", zh: "返回网站" },
   logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
@@ -420,6 +421,7 @@ export function simpleV1(ctx) {
 .sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
 .sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
 .sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
@@ -503,7 +505,7 @@ export function simpleV1(ctx) {
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="sv1-nav" id="sv1Nav">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
-    <a href="${href("/trips")}">${t("navTrips")}</a>
+    <a href="${href("/consultation")}">${t("navBook")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
     ${oneLang ? "" : langSwitch(path)}

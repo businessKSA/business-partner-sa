@@ -9,6 +9,9 @@
 // Without RESEND_API_KEY the endpoint still works: it returns ok + the
 // calendar link, and the front-end offers WhatsApp notification as fallback.
 
+import { gcalConfigured, busy as gcalBusy, createEvent as gcalCreate } from "./_gcal.js";
+import { sb, DB_ON } from "./_db.js";
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
@@ -69,13 +72,16 @@ async function addToAudience(email, name) {
   } catch {}
 }
 
-// Build a Google Calendar template URL for a 1-hour meeting (Riyadh time).
+// ‏رابط «أضِف إلى تقويمك» بطول الفترة نفسها. كان ساعةً ثابتة، فيحجز العميل
+// نصف ساعة ويجد في تقويمه ساعة — وحسابُ `h + 1` يتجاوز الرابعة والعشرين في
+// آخر فترة من اليوم فيخرج وقتٌ لا وجود له.
 function gcalUrl({ topic, date, time, notes }) {
   const [h, m] = time.split(":").map(Number);
   const d = date.replace(/-/g, "");
   const pad = (n) => String(n).padStart(2, "0");
+  const endMin = h * 60 + m + SLOT_MIN;
   const start = `${d}T${pad(h)}${pad(m)}00`;
-  const end = `${d}T${pad(h + 1)}${pad(m)}00`;
+  const end = `${d}T${pad(Math.floor(endMin / 60))}${pad(endMin % 60)}00`;
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: `استشارة Business Partner — ${topic}`,
@@ -109,11 +115,141 @@ async function readBody(req) {
   });
 }
 
+// ---- المواعيد المتاحة ------------------------------------------------------
+// أوقات العمل بتوقيت الرياض، والجمعة عطلة. القيم قابلة للضبط من المتغيّرات
+// دون تعديل شيفرة: BOOKING_START, BOOKING_END, BOOKING_SLOT_MIN, BOOKING_DAYS.
+const TZ_OFFSET = "+03:00";                        // الرياض بلا توقيت صيفي
+const WORK_FROM = Number(process.env.BOOKING_START || 10);      // ١٠ صباحاً
+const WORK_TO   = Number(process.env.BOOKING_END || 18);        // ٦ مساءً
+const SLOT_MIN  = Number(process.env.BOOKING_SLOT_MIN || 30);   // نصف ساعة
+const HORIZON   = Number(process.env.BOOKING_DAYS || 21);       // ثلاثة أسابيع
+const LEAD_MIN  = Number(process.env.BOOKING_LEAD_MIN || 120);  // ساعتان مهلة
+
+const iso = (date, hhmm) => `${date}T${hhmm}:00${TZ_OFFSET}`;
+const pad = (n) => String(n).padStart(2, "0");
+const dayOf = (date) => new Date(`${date}T12:00:00${TZ_OFFSET}`).getUTCDay();   // 5 = الجمعة
+
+function slotsOfDay(date) {
+  const out = [];
+  for (let m = WORK_FROM * 60; m + SLOT_MIN <= WORK_TO * 60; m += SLOT_MIN) {
+    out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  }
+  return out;
+}
+
+// ‏سجلّ ما حُجز عندنا. تقويم جوجل ليس المصدر الوحيد: قبل ربطه — وهو غير
+// مربوط حتى تُضبط مفاتيح حساب الخدمة — لا شيء يمنع أن يحجز اثنان الفترة
+// نفسها. الحجوزات تُكتب صفوفَ `requests` من نوع CONSULTATION بموعدٍ في
+// `appointment`، فتُطرح فتراتها من المعروض وتظهر في لوحة العمليات مع بقية
+// الطلبات. أي عطل هنا لا يُسقط الحجز — يُسجَّل ويُمضى.
+async function bookedSet() {
+  if (!DB_ON) return new Set();
+  try {
+    const rows = await sb(
+      "requests?select=appointment,status&type=eq.CONSULTATION&order=created_at.desc&limit=600",
+    );
+    const out = new Set();
+    for (const r of rows || []) {
+      const a = r && r.appointment;
+      if (!a || !a.date || !a.time) continue;
+      if (r.status === "CANCELLED" || a.status === "CANCELLED") continue;
+      out.add(a.date + " " + a.time);
+    }
+    return out;
+  } catch (e) {
+    console.error("booked read", String(e.message || e).slice(0, 160));
+    return new Set();
+  }
+}
+
+// ‏الحجز يُحفظ طلباً كامل الأركان: مرجعه ونوعه وبيانات صاحبه وموعده. بلا هذا
+// يبقى الحجز في البريد وحده — لا يراه الفريق في اللوحة ولا يمنع حجزاً ثانياً.
+async function saveBooking({ ref, name, phone, email, topic, date, time, notes, lang, eventId }) {
+  if (!DB_ON) return null;
+  try {
+    const rows = await sb("requests", {
+      method: "POST",
+      body: [{
+        ref, type: "CONSULTATION", source: "WEBSITE", status: "NEW",
+        lang: ["ar", "en", "fr", "zh"].includes(lang) ? lang : "ar",
+        title: topic ? `استشارة — ${topic}`.slice(0, 200) : "حجز استشارة",
+        summary: notes.slice(0, 2000),
+        appointment: { date, time, tz: "Asia/Riyadh", topic, status: "BOOKED", ref, gcal: eventId || "" },
+        client_name: name, client_email: email, client_phone: phone,
+      }],
+    });
+    return (rows && rows[0]) || null;
+  } catch (e) {
+    console.error("booking save", String(e.message || e).slice(0, 160));
+    return null;
+  }
+}
+
+/**
+ * الأيام المتاحة وفتراتها. تُحجب الجمعة، وما مضى، وما هو دون مهلة الحجز،
+ * وما هو مشغول في تقويم الشركة حين يكون التقويم مربوطاً.
+ */
+async function availability(days) {
+  const today = new Date();
+  const list = [];
+  for (let i = 0; i < Math.min(Math.max(days || HORIZON, 1), 60); i++) {
+    const d = new Date(today.getTime() + i * 86400000);
+    const date = d.toISOString().slice(0, 10);
+    if (dayOf(date) === 5) continue;                      // الجمعة
+    list.push({ date, slots: slotsOfDay(date) });
+  }
+  if (!list.length) return { days: [], calendar: gcalConfigured() ? "linked" : "off" };
+
+  // حجب ما مضى وما هو دون المهلة، ثم ما حُجز عندنا
+  const earliest = Date.now() + LEAD_MIN * 60000;
+  for (const d of list) d.slots = d.slots.filter((t) => new Date(iso(d.date, t)).getTime() >= earliest);
+  const mine = await bookedSet();
+  if (mine.size) for (const d of list) d.slots = d.slots.filter((t) => !mine.has(d.date + " " + t));
+
+  let calendar = "off";
+  if (gcalConfigured()) {
+    try {
+      const from = iso(list[0].date, `${pad(WORK_FROM)}:00`);
+      const to = iso(list[list.length - 1].date, `${pad(WORK_TO)}:00`);
+      const taken = await gcalBusy(from, to);
+      for (const d of list) {
+        d.slots = d.slots.filter((t) => {
+          const s = new Date(iso(d.date, t)).getTime();
+          const e = s + SLOT_MIN * 60000;
+          return !taken.some((b) => s < new Date(b.end).getTime() && e > new Date(b.start).getTime());
+        });
+      }
+      calendar = "linked";
+    } catch (e) {
+      // تقويمٌ مربوطٌ ومتعذّر القراءة: تُعرض كل الفترات ويُقال إن التحقق
+      // تعذّر — إخفاء اليوم كله أسوأ من احتمال تعارض يُعالجه الفريق.
+      console.error("gcal busy", String(e.message || e).slice(0, 160));
+      calendar = "error";
+    }
+  }
+  return { days: list.filter((d) => d.slots.length), calendar, slotMinutes: SLOT_MIN, tz: "Asia/Riyadh" };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ status: "ok", emailConfigured: !!RESEND_API_KEY, teamEmail: !!TEAM_EMAIL }));
+    // ?action=slots يعيد الأيام والفترات المتاحة؛ وبدونه فحص صحّة.
+    const u = new URL(req.url, "http://x");
+    if (u.searchParams.get("action") === "slots") {
+      try {
+        const a = await availability(Number(u.searchParams.get("days")) || HORIZON);
+        return res.end(JSON.stringify({ ok: true, ...a }));
+      } catch (e) {
+        res.statusCode = 500;
+        return res.end(JSON.stringify({ ok: false, error: "slots_failed", detail: String(e.message || e).slice(0, 160) }));
+      }
+    }
+    return res.end(JSON.stringify({
+      status: "ok", emailConfigured: !!RESEND_API_KEY, teamEmail: !!TEAM_EMAIL,
+      calendar: gcalConfigured() ? "linked" : "off",
+      hours: { from: WORK_FROM, to: WORK_TO, slotMinutes: SLOT_MIN, tz: "Asia/Riyadh", horizonDays: HORIZON },
+    }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
 
@@ -134,6 +270,46 @@ export default async function handler(req, res) {
   const ref = "BC-" + Date.now().toString().slice(-6);
   const cal = gcalUrl({ topic, date, time, notes });
 
+  // ‏الفترة قد تُحجز بين عرضها على الشاشة وضغط الزر، فتُفحص مرة أخرى — عندنا
+  // أولاً، لأن هذا الفحص يعمل سواء رُبط التقويم أم لا.
+  if ((await bookedSet()).has(date + " " + time)) {
+    res.statusCode = 409;
+    return res.end(JSON.stringify({ ok: false, error: "slot_taken",
+      message: "حُجزت هذه الفترة قبل قليل. اختر فترة أخرى." }));
+  }
+
+  // ---- التقويم: الموعد يُوضع في تقويم الشركة ويُدعى إليه العميل -------------
+  // ويُعاد التحقق من خلوّ الفترة قبل الإنشاء: بين عرض المواعيد على شاشة
+  // العميل وضغطه قد يكون آخرُ حجزها، فالفحص عند العرض وحده يسمح بحجزين
+  // على فترة واحدة.
+  const startIso = `${date}T${time}:00${TZ_OFFSET}`;
+  const endIso = new Date(new Date(startIso).getTime() + SLOT_MIN * 60000).toISOString();
+  let event = null, calendarState = gcalConfigured() ? "linked" : "off";
+  if (gcalConfigured()) {
+    try {
+      const clash = (await gcalBusy(startIso, endIso)).length > 0;
+      if (clash) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "slot_taken",
+          message: "حُجزت هذه الفترة قبل قليل. اختر فترة أخرى." }));
+      }
+      event = await gcalCreate({
+        summary: `استشارة — ${name}`,
+        description: [`الموضوع: ${topic || "—"}`, `الجوال: ${phone}`, `البريد: ${email}`,
+                      notes ? `ملاحظات: ${notes}` : "", `المرجع: ${ref}`].filter(Boolean).join("\n"),
+        startIso, endIso, attendees: [email, TEAM_EMAIL],
+      });
+    } catch (e) {
+      // التقويم متعذّر: الحجز لا يسقط — يُسجَّل ويصل بالبريد، ويُقال إن
+      // التقويم لم يُحدَّث كي يضعه الفريق يدوياً.
+      console.error("gcal create", String(e.message || e).slice(0, 180));
+      calendarState = "error";
+    }
+  }
+
+  await saveBooking({ ref, name, phone, email, topic, date, time, notes,
+                      lang: b.lang, eventId: (event && event.id) || "" });
+
   // Notify the team + confirm to the client (best-effort; booking succeeds regardless).
   const teamHtml = `<div style="font-family:Arial,sans-serif">
     <h2 style="color:#0B1B5A">حجز استشارة جديد — ${ref}</h2>
@@ -144,6 +320,7 @@ export default async function handler(req, res) {
   const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
     <h2 style="color:#0B1B5A">تم استلام حجزك — ${ref}</h2>
     <p>مرحباً ${esc(name)}، استلمنا طلب استشارتك (<b>${esc(topic)}</b>) بتاريخ <b>${esc(date)}</b> الساعة <b>${esc(time)}</b> بتوقيت الرياض، وسيتواصل معك مستشارنا لتأكيد الموعد.</p>
+    ${event && event.meet ? `<p>رابط الاجتماع: <a href="${event.meet}">${event.meet}</a></p>` : ""}
     <p><a href="${cal}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none">أضِف الموعد إلى تقويم Google</a></p>
     <p style="color:#666">Business Partner · Riyadh · wa.me/966507034157</p></div>`;
 
@@ -166,5 +343,9 @@ export default async function handler(req, res) {
   return res.end(JSON.stringify({
     ok: true, ref, gcalUrl: cal,
     emailSent: !!(teamSent.ok && clientSent.ok),
+    calendar: calendarState,
+    meet: (event && event.meet) || "",
+    eventId: (event && event.id) || "",
+    when: { date, time, tz: "Asia/Riyadh", minutes: SLOT_MIN },
   }));
 }

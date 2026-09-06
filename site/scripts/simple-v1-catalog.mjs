@@ -24,6 +24,7 @@ const T = {
             zh: "我们提供的全部服务，按领域分类。勾选所需项目，一次性发起申请。" },
   tabSvc: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   tabPkg: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
+  tabTrip:{ ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
   search: { ar: "ابحث: إقامة، رخصة، توظيف، سجل تجاري…", en: "Search: visa, licence, hiring, registration…",
             fr: "Rechercher : visa, licence, recrutement…", zh: "搜索：签证、许可、招聘…" },
   none:   { ar: "لا نتيجة بهذه الكلمة. جرّب كلمة أعمّ، أو اشرح احتياجك في المحادثة.",
@@ -118,6 +119,7 @@ export function buildSimpleCatalog(SV1, ctx) {
     <div class="sv1-tabs">
       <button type="button" class="sv1-tab on" id="tabSvc">${esc(t("tabSvc"))}</button>
       <button type="button" class="sv1-tab" id="tabPkg">${esc(t("tabPkg"))}</button>
+      <a class="sv1-tab" href="${(ar || lang !== "en" ? "/" + lang : "") + "/trips"}">${esc(t("tabTrip"))}</a>
     </div>
 
     <div id="paneSvc">
