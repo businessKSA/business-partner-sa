@@ -3835,11 +3835,11 @@ function buildDataPortal() {
 
   <section id="pricing" class="section"><div class="container">
     <div class="price-box">
-      <div><div class="price-amt">${L("375", "375")} <small>${L("SAR / monthly (~$100)", "ريال / شهرياً (≈ 100$)")}</small></div>
-      <div class="text-soft">${L("Full access to the companies database + monthly updates. After payment you receive your access code by email.", "وصول كامل لقاعدة الشركات + تحديثات شهرية. بعد الدفع يصلك كود الوصول على بريدك.")}</div></div>
-      ${cartBtns({ id: "companies-data-access", nameEn: "Companies Database — monthly access", nameAr: "قاعدة بيانات الشركات — اشتراك شهري", amount: 375, priceLabel: L("375 ﷼ / monthly", "375 ﷼ / شهرياً"), kind: "service" })}
+      <div><div>${L("Open — no fee", "مفتوحة بلا رسوم")}</div>
+      <div class="text-soft">${L("Full access to the companies database and its monthly updates, open to any signed-in client. No subscription, no access code.", "وصول كامل لقاعدة الشركات وتحديثاتها الشهرية، مفتوح لكل عميل مسجَّل. بلا اشتراك وبلا رمز دخول.")}</div></div>
+      <a class="btn btn-primary" href="${u("/my")}">${L("Open the database", "افتح القاعدة")}</a>
     </div>
-    <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع (B2B). استخدمها وفق نظام حماية البيانات السعودي وقواعد كل قناة، ويحق لأي جهة إلغاء الاشتراك في أي وقت.")}</p>
+    <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع. استخدمها وفق نظام حماية البيانات الشخصية وقواعد كل قناة، ولكل متلقٍّ أن يطلب إيقاف التواصل في أي وقت.")}</p>
   </div></section>
 
   <section class="section section--gray"><div class="container">
