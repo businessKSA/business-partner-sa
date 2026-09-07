@@ -300,7 +300,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
 textarea.sv1-bk-in{min-height:74px;resize:vertical}
 .sv1-bk-when{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;
  font-size:12.5px;color:var(--ink);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.sv1-bk-when b{font-family:var(--fm)}
+.sv1-bk-when b{font-weight:500}
 .sv1-bk-msg{font-size:12px;line-height:1.75;margin-top:9px}
 .sv1-bk-msg.err{color:#b42318}
 .sv1-bk-note{font-size:11.5px;color:var(--faint);line-height:1.8;margin-top:10px}
@@ -310,7 +310,7 @@ textarea.sv1-bk-in{min-height:74px;resize:vertical}
 .sv1-bk-done .ic{width:52px;height:52px;border-radius:50%;background:var(--okSoft);color:var(--ok);
  display:grid;place-items:center;font-size:24px;margin:0 auto 14px}
 .sv1-bk-done h3{font-size:21px;font-weight:400;margin:0 0 6px}
-.sv1-bk-done .when{font-family:var(--fm);font-size:17px;color:var(--ac);margin:14px 0 6px}
+.sv1-bk-done .when{font-size:17px;color:var(--ac);margin:14px 0 6px}
 .sv1-bk-done p{font-size:13px;color:var(--mut);line-height:1.85;margin:0}
 .sv1-bk-done .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
 @media(max-width:900px){.sv1-bk{grid-template-columns:1fr}}
@@ -420,7 +420,9 @@ function drawWhen(){
  var p=dparts(pick.date);
  el.classList.remove('sv1-hide');el.textContent='';
  var a=document.createElement('span');a.textContent=p.dow+' '+p.day+' '+p.mon;
- var b=document.createElement('b');b.textContent=pick.time+' · '+slotMin+' '+TX.mins;
+ var b=document.createElement('b');
+ var bt=document.createElement('span');bt.className='sv1-mono';bt.textContent=pick.time;
+ b.appendChild(bt);b.appendChild(document.createTextNode(' · '+slotMin+' '+TX.mins));
  el.appendChild(a);el.appendChild(b)}
 
 function load(){
@@ -462,7 +464,10 @@ function done(o){
  var h=document.createElement('h3');h.textContent=TX.doneT;box.appendChild(h);
  var p=dparts(pick.date);
  var w=document.createElement('div');w.className='when';
- w.textContent=p.dow+' '+p.day+' '+p.mon+' · '+pick.time+' ('+TX.tz+')';box.appendChild(w);
+ var wd=document.createElement('span');wd.textContent=p.dow+' '+p.day+' '+p.mon+' · ';
+ var wt=document.createElement('span');wt.className='sv1-mono';wt.textContent=pick.time;
+ var wz=document.createElement('span');wz.textContent=' ('+TX.tz+')';
+ w.appendChild(wd);w.appendChild(wt);w.appendChild(wz);box.appendChild(w);
  var t1=document.createElement('p');t1.textContent=o.emailSent?TX.mailed:TX.confirm;box.appendChild(t1);
  var acts=document.createElement('div');acts.className='acts';
  if(o.meet){var m=document.createElement('a');m.className='sv1-btn primary sm';m.href=o.meet;m.target='_blank';m.rel='noopener';m.textContent=TX.meet;acts.appendChild(m)}
