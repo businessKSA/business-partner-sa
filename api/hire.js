@@ -17,6 +17,8 @@ const NOTION_TOKEN = envFrom([
 ]);
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
+// ‏انظر api/chat.js: llama-3.3-70b-versatile أوقفته Groq في ٢٠٢٦/٠٨/١٦.
+const GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b";
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 
@@ -63,7 +65,7 @@ async function callAnthropic(prompt, maxTokens) {
 
 const PROVIDERS = [
   { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
-  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || "llama-3.3-70b-versatile", p, m) },
+  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || GROQ_DEFAULT_MODEL, p, m) },
   { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
   { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
 ];

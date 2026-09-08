@@ -180,6 +180,13 @@ async function callGemini(messages, system) {
   return parts.map((p) => p.text || "").join("").trim();
 }
 
+// ‏نموذج Groq الافتراضي. كان llama-3.3-70b-versatile وأوقفته Groq في
+// ٢٠٢٦/٠٨/١٦ على الطبقتين المجانية والمطوِّرة، فصار كل نداءٍ إليه 404
+// «model_not_found» — والمفتاح سليم، والاسم وحده هو الميت. هذا ما أسقط
+// المحادثة يوم ٢٠٢٦/٠٩/٠٨ حين كان مزوّدا Gemini وAnthropic بلا رصيد.
+// البديل الذي توصي به Groq نفسها. ويظل GROQ_MODEL يتقدّم عليه.
+const GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b";
+
 // Groq and OpenAI share the OpenAI chat-completions shape.
 async function callOpenAICompatible(url, apiKey, model, messages, system) {
   const r = await fetch(url, {
@@ -200,7 +207,7 @@ const callGroq = (messages, system) =>
   callOpenAICompatible(
     "https://api.groq.com/openai/v1/chat/completions",
     envFrom(GROQ_KEYS),
-    process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    process.env.GROQ_MODEL || GROQ_DEFAULT_MODEL,
     messages,
     system
   );
