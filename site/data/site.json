@@ -7587,6 +7587,216 @@
      "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
     }
    ]
+  },
+  "bp-labor-01": {
+   "name": "فتح ملف المنشأة في بوابة قطاع العمل",
+   "nameEn": "Opening the establishment file on the Labour Sector portal",
+   "description": "بوابة قطاع العمل هي نقطة التقاء المنشآت والعاملين في القطاع الخاص، ومنها يبدأ ملف منشأتك لدى الوزارة قبل قوى وما بعدها. نفتح الملف ونضبط بياناته ومفوّضيه ونسلّمك ما يثبت التفعيل.",
+   "descriptionEn": "The Labour Sector portal is where private-sector establishments and workers meet, and where your ministry establishment file begins — before Qiwa and everything after it. We open the file, set its data and authorised users, and hand over proof of activation.",
+   "audience": "المنشآت الجديدة أو التي لم تفتح ملفها لدى الوزارة",
+   "audienceEn": "New establishments, or those without a ministry file",
+   "duration": "يوم إلى يومي عمل",
+   "durationEn": "One to two business days",
+   "documents": [
+    "السجل التجاري",
+    "العنوان الوطني",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration",
+    "National Address",
+    "Authorised person's details"
+   ],
+   "features": [
+    "التحقق من بيانات المنشأة وسجلها التجاري",
+    "فتح ملف المنشأة وضبط بياناته",
+    "إضافة المفوّضين وصلاحياتهم",
+    "تسليم ما يثبت التفعيل ودليل مختصر لفريقك"
+   ],
+   "featuresEn": [
+    "Verifying the establishment's data and Commercial Registration",
+    "Opening the establishment file and setting its data",
+    "Adding authorised users and their permissions",
+    "Proof of activation and a short guide for your team"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون النتيجة؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the outcome?",
+     "a": "We review, prepare, file and follow through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-self-01": {
+   "name": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش",
+   "nameEn": "Compliance self-assessment before inspection",
+   "description": "التقييم الذاتي يمكّن المنشأة من قياس نسبة امتثالها لأنظمة الوزارة وقراراتها، ومعرفة مواضع الخلل وتصحيحها قبل زيارة المفتشين. نجري التقييم معك، ونسلّمك قائمة ما يحتاج تصحيحاً مرتّبةً بالأولوية، ونتابع الإغلاق.",
+   "descriptionEn": "Self-assessment lets an establishment measure its compliance with the ministry's regulations and decisions, find the gaps and correct them before inspectors visit. We run the assessment with you, hand over a prioritised list of what needs correcting, and follow the closure.",
+   "audience": "المنشآت التي تريد معرفة امتثالها قبل التفتيش",
+   "audienceEn": "Establishments wanting to know their compliance before an inspection",
+   "duration": "٣ إلى ٧ أيام عمل حسب حجم المنشأة",
+   "durationEn": "3–7 business days depending on the establishment's size",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "عقود العمل ولوائح المنشأة",
+    "بيانات الأجور والعمالة",
+    "أي ملاحظات أو مخالفات سابقة"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Employment contracts and internal bylaws",
+    "Wage and workforce data",
+    "Any earlier findings or violations"
+   ],
+   "features": [
+    "إجراء التقييم الذاتي على بنود الامتثال",
+    "تقرير بنسبة الامتثال ومواضع الخلل",
+    "قائمة تصحيح مرتّبة بالأولوية والأثر",
+    "متابعة إغلاق الملاحظات وإعادة التقييم"
+   ],
+   "featuresEn": [
+    "Running the self-assessment across the compliance items",
+    "A report on the compliance rate and where the gaps are",
+    "A correction list ordered by priority and impact",
+    "Following the closure of findings and re-assessing"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون النتيجة؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the outcome?",
+     "a": "We review, prepare, file and follow through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-mowa-01": {
+   "name": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة",
+   "nameEn": "Mowaamah certificate: an accessible workplace",
+   "description": "مواءمة تعنى ببيئة عملٍ ملائمة للأشخاص ذوي الإعاقة وتمكينهم من فرص العمل. نراجع بيئة عملك ومرافقك ومتطلبات المنصة، ونجهّز الملف ونقدّمه ونتابعه حتى صدور الشهادة أو التقرير.",
+   "descriptionEn": "Mowaamah is about a workplace suited to people with disabilities and their access to jobs. We review your workplace, facilities and the platform's requirements, prepare and file the case and follow it to a certificate or report.",
+   "audience": "المنشآت التي توظّف أشخاصاً ذوي إعاقة أو تعتزم ذلك",
+   "audienceEn": "Establishments employing people with disabilities, or planning to",
+   "duration": "المراجعة خلال ٥ أيام عمل، والشهادة حسب مدة الجهة",
+   "durationEn": "Review within 5 business days; the certificate per the authority's window",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "وصف مقر العمل ومرافقه",
+    "بيانات الموظفين ذوي الإعاقة إن وُجدوا"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A description of the premises and facilities",
+    "Details of employees with disabilities, if any"
+   ],
+   "features": [
+    "مراجعة بيئة العمل والمرافق مقابل متطلبات المنصة",
+    "بيان ما يحتاج تهيئةً قبل التقديم",
+    "تجهيز الملف وتقديمه على المنصة",
+    "المتابعة حتى صدور الشهادة أو التقرير"
+   ],
+   "featuresEn": [
+    "Reviewing the workplace and facilities against the platform's requirements",
+    "Setting out what needs adapting before filing",
+    "Preparing and filing the case on the platform",
+    "Following it to a certificate or a report"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون النتيجة؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the outcome?",
+     "a": "We review, prepare, file and follow through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-csr-01": {
+   "name": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها",
+   "nameEn": "Social Responsibility registration & initiative documentation",
+   "description": "المنصة الوطنية للمسؤولية الاجتماعية توثّق مساهمة الشركات في التنمية المجتمعية والاقتصادية والبيئية. نسجّل منشأتك، ونصوغ مبادراتها بلغةٍ قابلةٍ للقياس، ونوثّقها على المنصة ونتابع اعتمادها.",
+   "descriptionEn": "The National Social Responsibility platform documents companies' contribution to social, economic and environmental development. We register your establishment, frame its initiatives in measurable terms, document them on the platform and follow their approval.",
+   "audience": "الشركات التي لديها برامج مسؤولية اجتماعية",
+   "audienceEn": "Companies running social-responsibility programmes",
+   "duration": "٣ إلى ٥ أيام عمل للتسجيل والتوثيق",
+   "durationEn": "3–5 business days to register and document",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "وصف المبادرات وميزانياتها",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Descriptions of the initiatives and their budgets",
+    "Authorised person's details"
+   ],
+   "features": [
+    "تسجيل المنشأة على المنصة وضبط ملفها",
+    "صياغة المبادرات بأهدافٍ ومؤشراتٍ قابلة للقياس",
+    "توثيق المبادرات على المنصة",
+    "متابعة الاعتماد وتسليم ما يثبته"
+   ],
+   "featuresEn": [
+    "Registering the establishment and setting up its profile",
+    "Framing initiatives with measurable goals and indicators",
+    "Documenting the initiatives on the platform",
+    "Following approval and handing over the evidence"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون النتيجة؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the outcome?",
+     "a": "We review, prepare, file and follow through to a decision. The decision itself rests with the authority."
+    }
+   ]
   }
  },
  "social": {

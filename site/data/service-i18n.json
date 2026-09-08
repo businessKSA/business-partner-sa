@@ -690,5 +690,21 @@
   "BP-TAQAT-01": {
     "en": "Taqat registration & employment-support programmes",
     "ar": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف"
+  },
+  "BP-LABOR-01": {
+    "en": "Opening the establishment file on the Labour Sector portal",
+    "ar": "فتح ملف المنشأة في بوابة قطاع العمل"
+  },
+  "BP-SELF-01": {
+    "en": "Compliance self-assessment before inspection",
+    "ar": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش"
+  },
+  "BP-MOWA-01": {
+    "en": "Mowaamah certificate: an accessible workplace",
+    "ar": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة"
+  },
+  "BP-CSR-01": {
+    "en": "Social Responsibility registration & initiative documentation",
+    "ar": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها"
   }
 }

@@ -844,6 +844,10 @@ const GOV_EN = {
   "العمل المرن": "Flexible Work",
   "العمل عن بُعد": "Remote Work",
   "طاقات — هدف": "Taqat (HRDF)",
+  "بوابة قطاع العمل": "Labour Sector portal",
+  "منصة التقييم الذاتي": "Self Assessment platform",
+  "منصة مواءمة": "Mowaamah",
+  "المنصة الوطنية للمسؤولية الاجتماعية": "National Social Responsibility platform",
   "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };

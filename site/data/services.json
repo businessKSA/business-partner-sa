@@ -3352,5 +3352,97 @@
       "label": "750 ﷼",
       "amount": 750
     }
+  },
+  {
+    "code": "BP-LABOR-01",
+    "slug": "bp-labor-01",
+    "name": "فتح ملف المنشأة في بوابة قطاع العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة قطاع العمل",
+    "description": "",
+    "deliverables": [
+      "التحقق من بيانات المنشأة وسجلها التجاري",
+      "فتح ملف المنشأة وضبط بياناته",
+      "إضافة المفوّضين وصلاحياتهم",
+      "تسليم ما يثبت التفعيل ودليل مختصر لفريقك"
+    ],
+    "targetClient": "المنشآت الجديدة أو التي لم تفتح ملفها لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-SELF-01",
+    "slug": "bp-self-01",
+    "name": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "منصة التقييم الذاتي",
+    "description": "",
+    "deliverables": [
+      "إجراء التقييم الذاتي على بنود الامتثال",
+      "تقرير بنسبة الامتثال ومواضع الخلل",
+      "قائمة تصحيح مرتّبة بالأولوية والأثر",
+      "متابعة إغلاق الملاحظات وإعادة التقييم"
+    ],
+    "targetClient": "المنشآت التي تريد معرفة امتثالها قبل التفتيش",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-MOWA-01",
+    "slug": "bp-mowa-01",
+    "name": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "منصة مواءمة",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيئة العمل والمرافق مقابل متطلبات المنصة",
+      "بيان ما يحتاج تهيئةً قبل التقديم",
+      "تجهيز الملف وتقديمه على المنصة",
+      "المتابعة حتى صدور الشهادة أو التقرير"
+    ],
+    "targetClient": "المنشآت التي توظّف أشخاصاً ذوي إعاقة أو تعتزم ذلك",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-CSR-01",
+    "slug": "bp-csr-01",
+    "name": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "المنصة الوطنية للمسؤولية الاجتماعية",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة على المنصة وضبط ملفها",
+      "صياغة المبادرات بأهدافٍ ومؤشراتٍ قابلة للقياس",
+      "توثيق المبادرات على المنصة",
+      "متابعة الاعتماد وتسليم ما يثبته"
+    ],
+    "targetClient": "الشركات التي لديها برامج مسؤولية اجتماعية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
   }
 ]

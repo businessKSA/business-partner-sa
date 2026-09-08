@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T03:37:22.443Z",
+  "updatedAt": "2026-09-08T05:10:11.143Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3670,6 +3670,62 @@
       "govFeesSeparate": true,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-taqat-01"
+    },
+    {
+      "code": "BP-LABOR-01",
+      "nameAr": "فتح ملف المنشأة في بوابة قطاع العمل",
+      "nameEn": "Opening the establishment file on the Labour Sector portal",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة قطاع العمل",
+      "pricingModel": "One Time",
+      "amount": 400,
+      "priceLabel": "400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-labor-01"
+    },
+    {
+      "code": "BP-SELF-01",
+      "nameAr": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش",
+      "nameEn": "Compliance self-assessment before inspection",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "منصة التقييم الذاتي",
+      "pricingModel": "One Time",
+      "amount": 1200,
+      "priceLabel": "1,200 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-self-01"
+    },
+    {
+      "code": "BP-MOWA-01",
+      "nameAr": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة",
+      "nameEn": "Mowaamah certificate: an accessible workplace",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "منصة مواءمة",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-mowa-01"
+    },
+    {
+      "code": "BP-CSR-01",
+      "nameAr": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها",
+      "nameEn": "Social Responsibility registration & initiative documentation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "المنصة الوطنية للمسؤولية الاجتماعية",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-csr-01"
     }
   ],
   "categories": [
@@ -3695,7 +3751,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 65
+      "count": 69
     },
     {
       "key": "HR Services",
