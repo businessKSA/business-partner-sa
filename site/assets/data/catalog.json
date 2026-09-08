@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T02:49:59.254Z",
+  "updatedAt": "2026-09-08T03:22:38.074Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3376,6 +3376,188 @@
       "govFeesSeparate": false,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-ajeer-cs"
+    },
+    {
+      "code": "BP-HRSD-01",
+      "nameAr": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)",
+      "nameEn": "Escalation on the ministry's platforms",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-01"
+    },
+    {
+      "code": "BP-HRSD-02",
+      "nameAr": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها",
+      "nameEn": "Filing a complaint with the ministry",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 600,
+      "priceLabel": "600 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-02"
+    },
+    {
+      "code": "BP-HRSD-03",
+      "nameAr": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته",
+      "nameEn": "Filing a request with the ministry",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 600,
+      "priceLabel": "600 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-03"
+    },
+    {
+      "code": "BP-HRSD-04",
+      "nameAr": "الاعتراض على مخالفة نظام العمل",
+      "nameEn": "Objection to a labour-law violation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-04"
+    },
+    {
+      "code": "BP-HRSD-05",
+      "nameAr": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)",
+      "nameEn": "Establishment owner settlement (labour violations)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-05"
+    },
+    {
+      "code": "BP-HRSD-06",
+      "nameAr": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي",
+      "nameEn": "Work-permit debt exemption or instalment",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 1200,
+      "priceLabel": "1,200 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-06"
+    },
+    {
+      "code": "BP-HRSD-07",
+      "nameAr": "تصحيح بيانات المنشأة لدى الوزارة",
+      "nameEn": "Correcting establishment data with the ministry",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-07"
+    },
+    {
+      "code": "BP-HRSD-08",
+      "nameAr": "رفع تجميد حساب المنشأة ومعالجة الاشتباه",
+      "nameEn": "Lifting an establishment account freeze",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-08"
+    },
+    {
+      "code": "BP-HRSD-09",
+      "nameAr": "اعتماد لائحة تنظيم العمل",
+      "nameEn": "Work-regulation bylaw approval",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-09"
+    },
+    {
+      "code": "BP-HRSD-10",
+      "nameAr": "بلاغ التغيب وإلغاؤه",
+      "nameEn": "Absence report and its cancellation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-10"
+    },
+    {
+      "code": "BP-HRSD-11",
+      "nameAr": "طلب الخروج النهائي",
+      "nameEn": "Final exit request",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 400,
+      "priceLabel": "400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-11"
+    },
+    {
+      "code": "BP-HRSD-12",
+      "nameAr": "تسوية خلاف عمالي — تجهيز الملف والمتابعة",
+      "nameEn": "Labour dispute settlement — file and follow-up",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-12"
+    },
+    {
+      "code": "BP-HRSD-CS",
+      "nameAr": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟",
+      "nameEn": "Beneficiary-portal advisory: complaint, request or escalation",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بوابة المستفيد — الموارد البشرية",
+      "pricingModel": "One Time",
+      "amount": 750,
+      "priceLabel": "750 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-hrsd-cs"
     }
   ],
   "categories": [
@@ -3401,7 +3583,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 45
+      "count": 57
     },
     {
       "key": "HR Services",
@@ -3419,7 +3601,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 39
+      "count": 40
     },
     {
       "key": "Real Estate",

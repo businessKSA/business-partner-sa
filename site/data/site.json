@@ -6477,6 +6477,702 @@
      "a": "Yes — it is credited against the execution fee if you instruct us within thirty days."
     }
    ]
+  },
+  "bp-hrsd-01": {
+   "name": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)",
+   "nameEn": "Escalation on the ministry's platforms",
+   "description": "حين يتعطّل إجراءٌ على قوى أو أجير أو مدد أو مساند أو العمل الحر أو المرن أو عن بُعد ولا يُحلّ من المنصة نفسها، يُرفع تصعيدٌ لدى الوزارة. نصوغه ونرفعه ونتابعه حتى صدور الرد.",
+   "descriptionEn": "When a procedure stalls on Qiwa, Ajeer, Mudad, Musaned, Freelance, Flexible or Remote work and the platform itself cannot resolve it, an escalation is raised with the ministry. We draft it, file it and follow it to a response.",
+   "audience": "المنشآت التي تعطّل إجراؤها على إحدى منصات الوزارة",
+   "audienceEn": "Establishments with a procedure stalled on a ministry platform",
+   "duration": "الرفع خلال يوم عمل، والرد حسب مدة الجهة",
+   "durationEn": "Filed within one business day; the response per the authority's window",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة الإجراء المتعطّل وسجلّه على المنصة",
+    "اختيار المنصة والتصنيف الصحيحين للتصعيد",
+    "صياغة التصعيد ورفعه بمرفقاته",
+    "متابعته حتى صدور الرد وإبلاغك به"
+   ],
+   "featuresEn": [
+    "Reviewing the stalled procedure and its platform record",
+    "Choosing the right platform and escalation category",
+    "Drafting the escalation and filing it with attachments",
+    "Following it to a response and reporting back"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-02": {
+   "name": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها",
+   "nameEn": "Filing a complaint with the ministry",
+   "description": "نصوغ شكواك في تصنيفها الصحيح لدى الوزارة — تأمينات، رخص عمل، حماية أجور، بيانات منشأة، استقدام وغيرها — ونرفقها بمستنداتها ونتابعها حتى صدور الرد.",
+   "descriptionEn": "We draft your complaint under the right ministry category — GOSI, work permits, wage protection, establishment data, recruitment and others — attach its documents and follow it to a response.",
+   "audience": "المنشآت وأصحابها ممن لديهم شكوى لدى الوزارة",
+   "audienceEn": "Establishments and owners with a complaint before the ministry",
+   "duration": "الرفع خلال يوم إلى يومي عمل، والرد حسب مدة الجهة",
+   "durationEn": "Filed within one to two business days; the response per the authority's window",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة موضوع الشكوى ومستنداتها",
+    "اختيار التصنيف الرئيسي والفرعي الصحيح",
+    "صياغة الشكوى ورفعها بمرفقاتها",
+    "متابعتها حتى صدور الرد وإبلاغك به"
+   ],
+   "featuresEn": [
+    "Reviewing the subject of the complaint and its documents",
+    "Choosing the correct main and sub category",
+    "Drafting the complaint and filing it with attachments",
+    "Following it to a response and reporting back"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-03": {
+   "name": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته",
+   "nameEn": "Filing a request with the ministry",
+   "description": "نجهّز طلبك في تصنيفه الصحيح لدى الوزارة — رخص العمل، التوطين، الاستقدام، تعديل المهن، نقل الخدمات وغيرها — ونرفعه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "We prepare your request under the right ministry category — work permits, Saudisation, recruitment, profession amendment, transfer of services and others — file it and follow it to a decision.",
+   "audience": "المنشآت التي تحتاج طلباً لدى الوزارة",
+   "audienceEn": "Establishments needing to file a request with the ministry",
+   "duration": "الرفع خلال يوم إلى يومي عمل، والقرار حسب مدة الجهة",
+   "durationEn": "Filed within one to two business days; the decision per the authority's window",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "تحديد الطلب المناسب وتصنيفه لدى الوزارة",
+    "تجهيز المستندات والبيانات المطلوبة",
+    "رفع الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها"
+   ],
+   "featuresEn": [
+    "Identifying the right request and its ministry category",
+    "Preparing the required documents and data",
+    "Filing the request and following it to a decision",
+    "Reporting the outcome and what follows from it"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-04": {
+   "name": "الاعتراض على مخالفة نظام العمل",
+   "nameEn": "Objection to a labour-law violation",
+   "description": "نراجع المخالفة ومستندها، وندرس أهلية الاعتراض عليها ومدّته، ثم نجهّز الاعتراض ونقدّمه ونتابعه حتى صدور القرار. القرار يعود إلى الجهة المختصة ولا نَعِد بإلغاء المخالفة.",
+   "descriptionEn": "We review the violation and its record, assess whether an objection is available and within what window, then prepare, file and follow the objection to a decision. The decision rests with the authority; we do not promise the violation is cancelled.",
+   "audience": "المنشآت التي صدرت عليها مخالفة نظام عمل",
+   "audienceEn": "Establishments issued a labour-law violation",
+   "duration": "الرفع خلال مدة الاعتراض المتاحة، والقرار حسب مدة الجهة",
+   "durationEn": "Filed within the available objection window; the decision per the authority",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة المخالفة ومستندها وتاريخها",
+    "دراسة أهلية الاعتراض ومدّته المتاحة",
+    "تجهيز الاعتراض ومسوّغاته وتقديمه",
+    "متابعته حتى صدور القرار وإبلاغك به"
+   ],
+   "featuresEn": [
+    "Reviewing the violation, its record and its date",
+    "Assessing whether an objection is available and its window",
+    "Preparing the objection and its grounds and filing it",
+    "Following it to a decision and reporting back"
+   ],
+   "faq": [
+    {
+     "q": "هل تضمنون إلغاء المخالفة؟",
+     "a": "لا. ندرس أهلية الاعتراض ونجهّزه ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى الجهة المختصة. من يَعِدك بالإلغاء يَعِدك بما لا يملك."
+    },
+    {
+     "q": "ماذا لو انتهت مدة الاعتراض؟",
+     "a": "نخبرك بذلك صراحةً قبل أن تدفع، ونعرض عليك المسار البديل إن وُجد."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Do you guarantee the violation is cancelled?",
+     "a": "No. We assess whether an objection is available, prepare it, file it and follow it to a decision — which rests with the authority. Anyone promising cancellation is promising what they do not control."
+    },
+    {
+     "q": "What if the objection window has closed?",
+     "a": "We tell you plainly before you pay, and set out the alternative route if one exists."
+    }
+   ]
+  },
+  "bp-hrsd-05": {
+   "name": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)",
+   "nameEn": "Establishment owner settlement (labour violations)",
+   "description": "مسار التسوية المتاح لصاحب المنشأة في مخالفات نظام العمل: نراجع حالتك وأهليتك للتسوية ومدّتها، ونجهّز الطلب ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The settlement route available to an establishment owner on labour-law violations: we review your case and eligibility and its window, then prepare, file and follow the request to a decision.",
+   "audience": "أصحاب المنشآت المؤهلون لمسار التسوية",
+   "audienceEn": "Establishment owners eligible for the settlement route",
+   "duration": "الرفع خلال ٢ إلى ٣ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "Filed within 2–3 business days; the decision per the authority",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة المخالفات القائمة على المنشأة",
+    "دراسة أهلية التسوية ومدّتها",
+    "تجهيز طلب التسوية وتقديمه",
+    "متابعته حتى صدور القرار وإبلاغك به"
+   ],
+   "featuresEn": [
+    "Reviewing the violations standing against the establishment",
+    "Assessing settlement eligibility and its window",
+    "Preparing and filing the settlement request",
+    "Following it to a decision and reporting back"
+   ],
+   "faq": [
+    {
+     "q": "هل تضمنون إلغاء المخالفة؟",
+     "a": "لا. ندرس أهلية الاعتراض ونجهّزه ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى الجهة المختصة. من يَعِدك بالإلغاء يَعِدك بما لا يملك."
+    },
+    {
+     "q": "ماذا لو انتهت مدة الاعتراض؟",
+     "a": "نخبرك بذلك صراحةً قبل أن تدفع، ونعرض عليك المسار البديل إن وُجد."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Do you guarantee the violation is cancelled?",
+     "a": "No. We assess whether an objection is available, prepare it, file it and follow it to a decision — which rests with the authority. Anyone promising cancellation is promising what they do not control."
+    },
+    {
+     "q": "What if the objection window has closed?",
+     "a": "We tell you plainly before you pay, and set out the alternative route if one exists."
+    }
+   ]
+  },
+  "bp-hrsd-06": {
+   "name": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي",
+   "nameEn": "Work-permit debt exemption or instalment",
+   "description": "نراجع مديونية رخص العمل والمقابل المالي على منشأتك، وندرس أهليتها للإعفاء أو التقسيط وفق ما تعلنه الجهة، ونجهّز الطلب ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "We review your establishment's work-permit and financial-compensation debt, assess eligibility for exemption or instalment under what the authority publishes, then prepare, file and follow the request to a decision.",
+   "audience": "المنشآت التي عليها مديونية رخص عمل أو مقابل مالي",
+   "audienceEn": "Establishments carrying work-permit or financial-compensation debt",
+   "duration": "الرفع خلال ٣ إلى ٥ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "Filed within 3–5 business days; the decision per the authority",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "حصر المديونية على المنشأة وتاريخها",
+    "دراسة أهلية الإعفاء أو التقسيط",
+    "تجهيز الطلب بمستنداته وتقديمه",
+    "متابعته حتى صدور القرار وإبلاغك به"
+   ],
+   "featuresEn": [
+    "Totalling the establishment's debt and its history",
+    "Assessing eligibility for exemption or instalment",
+    "Preparing the request with its documents and filing it",
+    "Following it to a decision and reporting back"
+   ],
+   "faq": [
+    {
+     "q": "هل تضمنون إلغاء المخالفة؟",
+     "a": "لا. ندرس أهلية الاعتراض ونجهّزه ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى الجهة المختصة. من يَعِدك بالإلغاء يَعِدك بما لا يملك."
+    },
+    {
+     "q": "ماذا لو انتهت مدة الاعتراض؟",
+     "a": "نخبرك بذلك صراحةً قبل أن تدفع، ونعرض عليك المسار البديل إن وُجد."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Do you guarantee the violation is cancelled?",
+     "a": "No. We assess whether an objection is available, prepare it, file it and follow it to a decision — which rests with the authority. Anyone promising cancellation is promising what they do not control."
+    },
+    {
+     "q": "What if the objection window has closed?",
+     "a": "We tell you plainly before you pay, and set out the alternative route if one exists."
+    }
+   ]
+  },
+  "bp-hrsd-07": {
+   "name": "تصحيح بيانات المنشأة لدى الوزارة",
+   "nameEn": "Correcting establishment data with the ministry",
+   "description": "تصحيح ما هو خاطئ في ملف منشأتك لدى الوزارة: المسمّى، النشاط، حالة المنشأة، بيانات صاحبها، أو تراخيصها — تجهيزاً وتقديماً ومتابعةً حتى التحديث.",
+   "descriptionEn": "Correcting what is wrong in your establishment file with the ministry: its name, activity, status, owner data or licences — prepared, filed and followed to the update.",
+   "audience": "المنشآت التي في ملفها لدى الوزارة بيانٌ خاطئ",
+   "audienceEn": "Establishments with incorrect data in their ministry file",
+   "duration": "يوم إلى ٣ أيام عمل بعد اكتمال المستندات",
+   "durationEn": "One to three business days once documents are complete",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة ملف المنشأة وتحديد ما يحتاج تصحيحاً",
+    "تجهيز المستندات المثبتة للبيانات الصحيحة",
+    "رفع طلب التصحيح ومتابعته",
+    "تسليم ما يثبت التحديث بعد اعتماده"
+   ],
+   "featuresEn": [
+    "Reviewing the establishment file and what needs correcting",
+    "Preparing documents evidencing the correct data",
+    "Filing the correction request and following it",
+    "Handing over proof of the update once approved"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-08": {
+   "name": "رفع تجميد حساب المنشأة ومعالجة الاشتباه",
+   "nameEn": "Lifting an establishment account freeze",
+   "description": "حين يُجمَّد حساب المنشأة أو تُوضع تحت الاشتباه تتوقف معاملاتها. نراجع سبب التجميد، ونجهّز طلب الرفع بمستنداته، ونتابعه حتى صدور القرار.",
+   "descriptionEn": "A frozen or flagged establishment account stops its transactions. We review the reason, prepare the lifting request with its documents, and follow it to a decision.",
+   "audience": "المنشآت المجمَّد حسابها أو الموضوعة تحت الاشتباه",
+   "audienceEn": "Establishments whose account is frozen or flagged",
+   "duration": "الرفع خلال ٢ إلى ٤ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "Filed within 2–4 business days; the decision per the authority",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة سبب التجميد أو الاشتباه",
+    "تجهيز المستندات والردود المطلوبة",
+    "رفع طلب الرفع ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها"
+   ],
+   "featuresEn": [
+    "Reviewing the reason for the freeze or the flag",
+    "Preparing the required documents and responses",
+    "Filing the lifting request and following it to a decision",
+    "Reporting the outcome and what follows from it"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-09": {
+   "name": "اعتماد لائحة تنظيم العمل",
+   "nameEn": "Work-regulation bylaw approval",
+   "description": "صياغة لائحة تنظيم العمل الخاصة بمنشأتك بما يوافق نظام العمل ولائحته، ورفعها لاعتمادها لدى الوزارة، ومتابعتها حتى الاعتماد.",
+   "descriptionEn": "Drafting your establishment's work-regulation bylaw in line with the Labour Law and its regulations, filing it for ministry approval and following it through.",
+   "audience": "المنشآت الملزَمة بلائحة تنظيم عمل معتمدة",
+   "audienceEn": "Establishments required to hold an approved work-regulation bylaw",
+   "duration": "٥ إلى ١٠ أيام عمل للصياغة، والاعتماد حسب مدة الجهة",
+   "durationEn": "5–10 business days to draft; approval per the authority's window",
+   "documents": [
+    "السجل التجاري",
+    "عدد العمالة وأنشطة المنشأة",
+    "اللائحة الحالية إن وُجدت"
+   ],
+   "documentsEn": [
+    "Commercial Registration",
+    "Headcount and establishment activities",
+    "The current bylaw, if any"
+   ],
+   "features": [
+    "مراجعة واقع المنشأة وعدد عمالتها وأنشطتها",
+    "صياغة اللائحة بما يوافق نظام العمل ولائحته",
+    "رفعها للاعتماد ومتابعتها",
+    "تسليم اللائحة المعتمدة ونسخة للتعليق الداخلي"
+   ],
+   "featuresEn": [
+    "Reviewing the establishment's headcount and activities",
+    "Drafting the bylaw in line with the Labour Law and its regulations",
+    "Filing it for approval and following it",
+    "Handing over the approved bylaw and an internal notice copy"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-10": {
+   "name": "بلاغ التغيب وإلغاؤه",
+   "nameEn": "Absence report and its cancellation",
+   "description": "رفع بلاغ تغيّب عن عاملٍ انقطع عن العمل، أو إلغاء بلاغٍ سابق بعد عودته — تجهيزاً وتقديماً ومتابعةً حتى إتمام الإجراء.",
+   "descriptionEn": "Filing an absence report for a worker who stopped attending, or cancelling an earlier report after their return — prepared, filed and followed to completion.",
+   "audience": "المنشآت التي انقطع عندها عامل عن العمل",
+   "audienceEn": "Establishments where a worker has stopped attending",
+   "duration": "يوم عمل واحد عادةً",
+   "durationEn": "Usually one business day",
+   "documents": [
+    "بيانات العامل ورقم إقامته",
+    "ما يثبت الانقطاع أو العودة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "The worker's details and residency number",
+    "Evidence of the absence or the return",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة حالة العامل ومدة انقطاعه",
+    "تجهيز البلاغ أو طلب الإلغاء بمستنداته",
+    "رفعه ومتابعته حتى إتمام الإجراء",
+    "إبلاغك بما يترتب عليه"
+   ],
+   "featuresEn": [
+    "Reviewing the worker's status and length of absence",
+    "Preparing the report or the cancellation with its documents",
+    "Filing it and following it to completion",
+    "Reporting what follows from it"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-11": {
+   "name": "طلب الخروج النهائي",
+   "nameEn": "Final exit request",
+   "description": "تجهيز طلب الخروج النهائي للعامل ورفعه ومتابعته حتى إتمامه، مع مراجعة ما يسبقه من تصفية مستحقات وإنهاء علاقة تعاقدية.",
+   "descriptionEn": "Preparing the worker's final exit request, filing it and following it to completion, having reviewed the dues settlement and contract termination that precede it.",
+   "audience": "المنشآت المنهية علاقتها التعاقدية مع عامل",
+   "audienceEn": "Establishments ending a contractual relationship with a worker",
+   "duration": "يوم إلى يومي عمل بعد اكتمال المستندات",
+   "durationEn": "One to two business days once documents are complete",
+   "documents": [
+    "عقد العمل",
+    "ما يثبت تصفية المستحقات",
+    "بيانات العامل ورقم إقامته"
+   ],
+   "documentsEn": [
+    "The employment contract",
+    "Evidence that dues are settled",
+    "The worker's details and residency number"
+   ],
+   "features": [
+    "مراجعة العقد وتصفية المستحقات قبل الطلب",
+    "تجهيز طلب الخروج النهائي بمستنداته",
+    "رفعه ومتابعته حتى إتمامه",
+    "تسليم ما يثبت إتمام الإجراء"
+   ],
+   "featuresEn": [
+    "Reviewing the contract and dues settlement beforehand",
+    "Preparing the final exit request with its documents",
+    "Filing it and following it to completion",
+    "Handing over proof that the procedure is complete"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the request is accepted?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-hrsd-12": {
+   "name": "تسوية خلاف عمالي — تجهيز الملف والمتابعة",
+   "nameEn": "Labour dispute settlement — file and follow-up",
+   "description": "عند نشوء خلافٍ عمالي: نراجع الملف والعقود والمستندات، ونجهّز موقف المنشأة ومرفقاته، ونرفع الطلب ونتابع الجلسات إجرائياً حتى صدور القرار. لا نَعِد بنتيجةٍ بعينها.",
+   "descriptionEn": "When a labour dispute arises: we review the file, contracts and documents, prepare the establishment's position and attachments, file the request and follow the sessions procedurally to a decision. We do not promise a particular outcome.",
+   "audience": "المنشآت الطرف في خلاف عمالي",
+   "audienceEn": "Establishments party to a labour dispute",
+   "duration": "حسب جدول الجلسات لدى الجهة",
+   "durationEn": "Per the session schedule at the authority",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+    "المراسلات والمستندات المؤيدة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "A copy of the procedure, violation or claim at issue",
+    "Supporting correspondence and documents",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة الملف والعقود والمراسلات",
+    "تجهيز موقف المنشأة ومرفقاته",
+    "رفع الطلب ومتابعة الجلسات إجرائياً",
+    "إبلاغك بالقرار وما يترتب عليه"
+   ],
+   "featuresEn": [
+    "Reviewing the file, contracts and correspondence",
+    "Preparing the establishment's position and attachments",
+    "Filing the request and following the sessions procedurally",
+    "Reporting the decision and what follows from it"
+   ],
+   "faq": [
+    {
+     "q": "هل تضمنون إلغاء المخالفة؟",
+     "a": "لا. ندرس أهلية الاعتراض ونجهّزه ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى الجهة المختصة. من يَعِدك بالإلغاء يَعِدك بما لا يملك."
+    },
+    {
+     "q": "ماذا لو انتهت مدة الاعتراض؟",
+     "a": "نخبرك بذلك صراحةً قبل أن تدفع، ونعرض عليك المسار البديل إن وُجد."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Do you guarantee the violation is cancelled?",
+     "a": "No. We assess whether an objection is available, prepare it, file it and follow it to a decision — which rests with the authority. Anyone promising cancellation is promising what they do not control."
+    },
+    {
+     "q": "What if the objection window has closed?",
+     "a": "We tell you plainly before you pay, and set out the alternative route if one exists."
+    }
+   ]
+  },
+  "bp-hrsd-cs": {
+   "name": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟",
+   "nameEn": "Beneficiary-portal advisory: complaint, request or escalation",
+   "description": "بوابة المستفيد فيها ثلاثة مسارات — شكوى وطلب وتصعيد — ولكلٍّ تصنيفه ومدّته ومستنداته، واختيار المسار الخطأ يضيّع الوقت. جلسة يُحدَّد فيها مسارك الصحيح وتخرج بخطة مكتوبة.",
+   "descriptionEn": "The beneficiary portal has three routes — complaint, request and escalation — each with its own category, window and documents, and picking the wrong one costs weeks. A session that identifies your route and leaves you with a written plan.",
+   "audience": "من لا يعرف أي مسار يسلك في بوابة المستفيد",
+   "audienceEn": "Anyone unsure which portal route to take",
+   "duration": "جلسة واحدة، والتقرير خلال يومي عمل",
+   "durationEn": "One session; the report within two business days",
+   "documents": [
+    "نبذة عن الحالة والإجراء المتعطّل",
+    "ما لديك من مراسلات أو قرارات",
+    "بيانات المنشأة"
+   ],
+   "documentsEn": [
+    "A brief on the case and the stalled procedure",
+    "Any correspondence or decisions you hold",
+    "Establishment details"
+   ],
+   "features": [
+    "فهم حالتك والإجراء المتعطّل أو المطلوب",
+    "تحديد المسار الصحيح: شكوى أم طلب أم تصعيد",
+    "بيان التصنيف والمستندات والمدد التي تعلنها الجهة",
+    "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+    "تقدير الأتعاب قبل البدء"
+   ],
+   "featuresEn": [
+    "Understanding your case and the stalled or needed procedure",
+    "Identifying the right route: complaint, request or escalation",
+    "Setting out the category, documents and windows the authority publishes",
+    "A written execution plan with steps and responsibilities",
+    "A fee estimate before we start"
+   ],
+   "faq": [
+    {
+     "q": "ماذا أحصل عليه بعد الاستشارة؟",
+     "a": "تقرير مكتوب فيه المسار الصحيح لحالتك وتصنيفه ومستنداته ومدده وخطة التنفيذ وتقدير الأتعاب."
+    },
+    {
+     "q": "هل تُخصم قيمة الاستشارة إن تابعنا التنفيذ؟",
+     "a": "نعم، تُخصم من أتعاب التنفيذ إن كلّفتنا به خلال ثلاثين يوماً."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "What do I get after the session?",
+     "a": "A written report naming the right route for your case, its category, documents and windows, an execution plan and a fee estimate."
+    },
+    {
+     "q": "Is the advisory fee credited if we proceed?",
+     "a": "Yes — it is credited against the execution fee if you instruct us within thirty days."
+    }
+   ]
   }
  },
  "social": {

@@ -840,6 +840,8 @@ const GOV_EN = {
   "سُبل": "Subul",
   "الزكاة والضريبة ZATCA": "ZATCA",
   "وزارة الموارد البشرية": "Ministry of Human Resources",
+  "بوابة المستفيد — الموارد البشرية": "HRSD Beneficiary Portal",
+  "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };
 // g is always the Arabic authority name (from services.json); every call

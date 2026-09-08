@@ -606,5 +606,57 @@
   "BP-AJEER-CS": {
     "en": "Ajeer advisory: choosing the right permit",
     "ar": "استشارة أجير: التصريح المناسب لحالتك"
+  },
+  "BP-HRSD-01": {
+    "en": "Escalation on the ministry's platforms",
+    "ar": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)"
+  },
+  "BP-HRSD-02": {
+    "en": "Filing a complaint with the ministry",
+    "ar": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها"
+  },
+  "BP-HRSD-03": {
+    "en": "Filing a request with the ministry",
+    "ar": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته"
+  },
+  "BP-HRSD-04": {
+    "en": "Objection to a labour-law violation",
+    "ar": "الاعتراض على مخالفة نظام العمل"
+  },
+  "BP-HRSD-05": {
+    "en": "Establishment owner settlement (labour violations)",
+    "ar": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)"
+  },
+  "BP-HRSD-06": {
+    "en": "Work-permit debt exemption or instalment",
+    "ar": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي"
+  },
+  "BP-HRSD-07": {
+    "en": "Correcting establishment data with the ministry",
+    "ar": "تصحيح بيانات المنشأة لدى الوزارة"
+  },
+  "BP-HRSD-08": {
+    "en": "Lifting an establishment account freeze",
+    "ar": "رفع تجميد حساب المنشأة ومعالجة الاشتباه"
+  },
+  "BP-HRSD-09": {
+    "en": "Work-regulation bylaw approval",
+    "ar": "اعتماد لائحة تنظيم العمل"
+  },
+  "BP-HRSD-10": {
+    "en": "Absence report and its cancellation",
+    "ar": "بلاغ التغيب وإلغاؤه"
+  },
+  "BP-HRSD-11": {
+    "en": "Final exit request",
+    "ar": "طلب الخروج النهائي"
+  },
+  "BP-HRSD-12": {
+    "en": "Labour dispute settlement — file and follow-up",
+    "ar": "تسوية خلاف عمالي — تجهيز الملف والمتابعة"
+  },
+  "BP-HRSD-CS": {
+    "en": "Beneficiary-portal advisory: complaint, request or escalation",
+    "ar": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟"
   }
 }

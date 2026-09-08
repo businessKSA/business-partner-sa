@@ -2868,5 +2868,305 @@
       "label": "750 ﷼",
       "amount": 750
     }
+  },
+  {
+    "code": "BP-HRSD-01",
+    "slug": "bp-hrsd-01",
+    "name": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة الإجراء المتعطّل وسجلّه على المنصة",
+      "اختيار المنصة والتصنيف الصحيحين للتصعيد",
+      "صياغة التصعيد ورفعه بمرفقاته",
+      "متابعته حتى صدور الرد وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي تعطّل إجراؤها على إحدى منصات الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-02",
+    "slug": "bp-hrsd-02",
+    "name": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة موضوع الشكوى ومستنداتها",
+      "اختيار التصنيف الرئيسي والفرعي الصحيح",
+      "صياغة الشكوى ورفعها بمرفقاتها",
+      "متابعتها حتى صدور الرد وإبلاغك به"
+    ],
+    "targetClient": "المنشآت وأصحابها ممن لديهم شكوى لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-HRSD-03",
+    "slug": "bp-hrsd-03",
+    "name": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "تحديد الطلب المناسب وتصنيفه لدى الوزارة",
+      "تجهيز المستندات والبيانات المطلوبة",
+      "رفع الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "المنشآت التي تحتاج طلباً لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-HRSD-04",
+    "slug": "bp-hrsd-04",
+    "name": "الاعتراض على مخالفة نظام العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة المخالفة ومستندها وتاريخها",
+      "دراسة أهلية الاعتراض ومدّته المتاحة",
+      "تجهيز الاعتراض ومسوّغاته وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي صدرت عليها مخالفة نظام عمل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-05",
+    "slug": "bp-hrsd-05",
+    "name": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة المخالفات القائمة على المنشأة",
+      "دراسة أهلية التسوية ومدّتها",
+      "تجهيز طلب التسوية وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "أصحاب المنشآت المؤهلون لمسار التسوية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-06",
+    "slug": "bp-hrsd-06",
+    "name": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "حصر المديونية على المنشأة وتاريخها",
+      "دراسة أهلية الإعفاء أو التقسيط",
+      "تجهيز الطلب بمستنداته وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي عليها مديونية رخص عمل أو مقابل مالي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-HRSD-07",
+    "slug": "bp-hrsd-07",
+    "name": "تصحيح بيانات المنشأة لدى الوزارة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة ملف المنشأة وتحديد ما يحتاج تصحيحاً",
+      "تجهيز المستندات المثبتة للبيانات الصحيحة",
+      "رفع طلب التصحيح ومتابعته",
+      "تسليم ما يثبت التحديث بعد اعتماده"
+    ],
+    "targetClient": "المنشآت التي في ملفها لدى الوزارة بيانٌ خاطئ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-08",
+    "slug": "bp-hrsd-08",
+    "name": "رفع تجميد حساب المنشأة ومعالجة الاشتباه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة سبب التجميد أو الاشتباه",
+      "تجهيز المستندات والردود المطلوبة",
+      "رفع طلب الرفع ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "المنشآت المجمَّد حسابها أو الموضوعة تحت الاشتباه",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-09",
+    "slug": "bp-hrsd-09",
+    "name": "اعتماد لائحة تنظيم العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة واقع المنشأة وعدد عمالتها وأنشطتها",
+      "صياغة اللائحة بما يوافق نظام العمل ولائحته",
+      "رفعها للاعتماد ومتابعتها",
+      "تسليم اللائحة المعتمدة ونسخة للتعليق الداخلي"
+    ],
+    "targetClient": "المنشآت الملزَمة بلائحة تنظيم عمل معتمدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-HRSD-10",
+    "slug": "bp-hrsd-10",
+    "name": "بلاغ التغيب وإلغاؤه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة العامل ومدة انقطاعه",
+      "تجهيز البلاغ أو طلب الإلغاء بمستنداته",
+      "رفعه ومتابعته حتى إتمام الإجراء",
+      "إبلاغك بما يترتب عليه"
+    ],
+    "targetClient": "المنشآت التي انقطع عندها عامل عن العمل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-11",
+    "slug": "bp-hrsd-11",
+    "name": "طلب الخروج النهائي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة العقد وتصفية المستحقات قبل الطلب",
+      "تجهيز طلب الخروج النهائي بمستنداته",
+      "رفعه ومتابعته حتى إتمامه",
+      "تسليم ما يثبت إتمام الإجراء"
+    ],
+    "targetClient": "المنشآت المنهية علاقتها التعاقدية مع عامل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-HRSD-12",
+    "slug": "bp-hrsd-12",
+    "name": "تسوية خلاف عمالي — تجهيز الملف والمتابعة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة الملف والعقود والمراسلات",
+      "تجهيز موقف المنشأة ومرفقاته",
+      "رفع الطلب ومتابعة الجلسات إجرائياً",
+      "إبلاغك بالقرار وما يترتب عليه"
+    ],
+    "targetClient": "المنشآت الطرف في خلاف عمالي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-HRSD-CS",
+    "slug": "bp-hrsd-cs",
+    "name": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "فهم حالتك والإجراء المتعطّل أو المطلوب",
+      "تحديد المسار الصحيح: شكوى أم طلب أم تصعيد",
+      "بيان التصنيف والمستندات والمدد التي تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+      "تقدير الأتعاب قبل البدء"
+    ],
+    "targetClient": "من لا يعرف أي مسار يسلك في بوابة المستفيد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
   }
 ]
