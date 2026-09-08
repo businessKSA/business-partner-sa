@@ -658,5 +658,37 @@
   "BP-HRSD-CS": {
     "en": "Beneficiary-portal advisory: complaint, request or escalation",
     "ar": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟"
+  },
+  "BP-QIWA-05": {
+    "en": "Employment contract documentation on Qiwa",
+    "ar": "توثيق عقد العمل في قوى"
+  },
+  "BP-QIWA-06": {
+    "en": "Issuing or renewing an expatriate work permit",
+    "ar": "إصدار أو تجديد رخصة عمل للوافد"
+  },
+  "BP-QIWA-07": {
+    "en": "Cancelling a work permit",
+    "ar": "إلغاء رخصة عمل"
+  },
+  "BP-QIWA-08": {
+    "en": "Saudisation compliance certificate",
+    "ar": "إصدار شهادة الالتزام بالتوطين (السعودة)"
+  },
+  "BP-QIWA-09": {
+    "en": "Managing establishment branches on Qiwa",
+    "ar": "إدارة فروع المنشأة في قوى"
+  },
+  "BP-FLEX-01": {
+    "en": "Flexible Work registration & contract documentation",
+    "ar": "تسجيل المنشأة في العمل المرن وتوثيق عقوده"
+  },
+  "BP-REMOTE-01": {
+    "en": "Remote Work registration & contract documentation",
+    "ar": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده"
+  },
+  "BP-TAQAT-01": {
+    "en": "Taqat registration & employment-support programmes",
+    "ar": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T03:22:38.074Z",
+  "updatedAt": "2026-09-08T03:37:22.443Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3558,6 +3558,118 @@
       "govFeesSeparate": false,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-hrsd-cs"
+    },
+    {
+      "code": "BP-QIWA-05",
+      "nameAr": "توثيق عقد العمل في قوى",
+      "nameEn": "Employment contract documentation on Qiwa",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "قوى",
+      "pricingModel": "One Time",
+      "amount": 250,
+      "priceLabel": "250 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-qiwa-05"
+    },
+    {
+      "code": "BP-QIWA-06",
+      "nameAr": "إصدار أو تجديد رخصة عمل للوافد",
+      "nameEn": "Issuing or renewing an expatriate work permit",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "قوى",
+      "pricingModel": "One Time",
+      "amount": 300,
+      "priceLabel": "300 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-qiwa-06"
+    },
+    {
+      "code": "BP-QIWA-07",
+      "nameAr": "إلغاء رخصة عمل",
+      "nameEn": "Cancelling a work permit",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "قوى",
+      "pricingModel": "One Time",
+      "amount": 250,
+      "priceLabel": "250 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-qiwa-07"
+    },
+    {
+      "code": "BP-QIWA-08",
+      "nameAr": "إصدار شهادة الالتزام بالتوطين (السعودة)",
+      "nameEn": "Saudisation compliance certificate",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "قوى",
+      "pricingModel": "One Time",
+      "amount": 300,
+      "priceLabel": "300 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-qiwa-08"
+    },
+    {
+      "code": "BP-QIWA-09",
+      "nameAr": "إدارة فروع المنشأة في قوى",
+      "nameEn": "Managing establishment branches on Qiwa",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "قوى",
+      "pricingModel": "One Time",
+      "amount": 400,
+      "priceLabel": "400 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-qiwa-09"
+    },
+    {
+      "code": "BP-FLEX-01",
+      "nameAr": "تسجيل المنشأة في العمل المرن وتوثيق عقوده",
+      "nameEn": "Flexible Work registration & contract documentation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "العمل المرن",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-flex-01"
+    },
+    {
+      "code": "BP-REMOTE-01",
+      "nameAr": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده",
+      "nameEn": "Remote Work registration & contract documentation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "العمل عن بُعد",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-remote-01"
+    },
+    {
+      "code": "BP-TAQAT-01",
+      "nameAr": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف",
+      "nameEn": "Taqat registration & employment-support programmes",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "طاقات — هدف",
+      "pricingModel": "One Time",
+      "amount": 750,
+      "priceLabel": "750 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-taqat-01"
     }
   ],
   "categories": [
@@ -3583,7 +3695,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 57
+      "count": 65
     },
     {
       "key": "HR Services",

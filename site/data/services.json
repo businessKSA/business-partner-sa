@@ -3168,5 +3168,189 @@
       "label": "750 ﷼",
       "amount": 750
     }
+  },
+  {
+    "code": "BP-QIWA-05",
+    "slug": "bp-qiwa-05",
+    "name": "توثيق عقد العمل في قوى",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة بنود العقد ومطابقتها مع نظام العمل",
+      "إدخال العقد على قوى ببياناته الصحيحة",
+      "متابعة قبول العامل حتى التوثيق",
+      "تسليم نسخة العقد الموثّق"
+    ],
+    "targetClient": "المنشآت التي توظّف أو تجدّد عقود موظفيها",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "250 ﷼",
+      "amount": 250
+    }
+  },
+  {
+    "code": "BP-QIWA-06",
+    "slug": "bp-qiwa-06",
+    "name": "إصدار أو تجديد رخصة عمل للوافد",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيانات العامل وحالة رخصته",
+      "تجهيز الطلب والسداد المطلوب",
+      "رفعه ومتابعته حتى صدور الرخصة",
+      "تسليم الرخصة وتاريخ انتهائها"
+    ],
+    "targetClient": "المنشآت التي لديها عمالة وافدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-QIWA-07",
+    "slug": "bp-qiwa-07",
+    "name": "إلغاء رخصة عمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة العامل وعلاقته التعاقدية",
+      "تجهيز طلب الإلغاء بمستنداته",
+      "رفعه ومتابعته حتى إتمام الإجراء",
+      "تسليم ما يثبت الإلغاء"
+    ],
+    "targetClient": "المنشآت المنهية علاقتها بعاملٍ وافد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "250 ﷼",
+      "amount": 250
+    }
+  },
+  {
+    "code": "BP-QIWA-08",
+    "slug": "bp-qiwa-08",
+    "name": "إصدار شهادة الالتزام بالتوطين (السعودة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة المنشأة وبيانات عمالتها",
+      "إصدار شهادة الالتزام بالتوطين",
+      "تسليمها وبيان مدة صلاحيتها",
+      "تنبيهك قبل انتهائها إن كانت ضمن باقة متابعة"
+    ],
+    "targetClient": "المنشآت المطالَبة بشهادة سعودة لإتمام معاملة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-QIWA-09",
+    "slug": "bp-qiwa-09",
+    "name": "إدارة فروع المنشأة في قوى",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة فروع المنشأة وتوزيع عمالتها",
+      "تجهيز طلب الربط أو الفصل",
+      "رفعه ومتابعته حتى التحديث",
+      "بيان أثر التحديث على ملف كل فرع"
+    ],
+    "targetClient": "المنشآت متعددة الفروع",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-FLEX-01",
+    "slug": "bp-flex-01",
+    "name": "تسجيل المنشأة في العمل المرن وتوثيق عقوده",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "العمل المرن",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في منصة العمل المرن",
+      "ضبط المفوّضين والصلاحيات",
+      "توثيق عقود العمل المرن ومتابعة قبولها",
+      "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+    ],
+    "targetClient": "المنشآت التي توظّف بالساعة أو بدوامٍ مرن",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-REMOTE-01",
+    "slug": "bp-remote-01",
+    "name": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "العمل عن بُعد",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في منصة العمل عن بُعد",
+      "ضبط المفوّضين والصلاحيات",
+      "توثيق عقود العمل عن بُعد ومتابعة قبولها",
+      "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+    ],
+    "targetClient": "المنشآت التي توظّف عن بُعد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-TAQAT-01",
+    "slug": "bp-taqat-01",
+    "name": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "طاقات — هدف",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في طاقات وضبط ملفها",
+      "نشر الشواغر بوصفٍ مهنيٍّ سليم",
+      "مراجعة برامج الدعم المعلنة وأيّها ينطبق عليك",
+      "تقديم طلبات الدعم ومتابعتها حتى صدور القرار"
+    ],
+    "targetClient": "المنشآت الباحثة عن كفاءات وطنية أو عن دعم توظيف",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
   }
 ]

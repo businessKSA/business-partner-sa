@@ -841,6 +841,9 @@ const GOV_EN = {
   "الزكاة والضريبة ZATCA": "ZATCA",
   "وزارة الموارد البشرية": "Ministry of Human Resources",
   "بوابة المستفيد — الموارد البشرية": "HRSD Beneficiary Portal",
+  "العمل المرن": "Flexible Work",
+  "العمل عن بُعد": "Remote Work",
+  "طاقات — هدف": "Taqat (HRDF)",
   "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };

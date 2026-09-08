@@ -7173,6 +7173,420 @@
      "a": "Yes — it is credited against the execution fee if you instruct us within thirty days."
     }
    ]
+  },
+  "bp-qiwa-05": {
+   "name": "توثيق عقد العمل في قوى",
+   "nameEn": "Employment contract documentation on Qiwa",
+   "description": "توثيق عقد العمل بين المنشأة والعامل على قوى بما يوافق نظام العمل — صياغةً أو مراجعةً للبنود، ثم رفعاً ومتابعةً حتى قبول العامل وتوثيق العقد.",
+   "descriptionEn": "Documenting the employment contract between establishment and worker on Qiwa in line with the Labour Law — drafting or reviewing the clauses, then filing and following it until the worker accepts and the contract is documented.",
+   "audience": "المنشآت التي توظّف أو تجدّد عقود موظفيها",
+   "audienceEn": "Establishments hiring or renewing employee contracts",
+   "duration": "يوم عمل واحد عادةً، والتوثيق بقبول العامل",
+   "durationEn": "Usually one business day; documented on the worker's acceptance",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات العامل ورقم إقامته",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "The worker's details and residency number",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة بنود العقد ومطابقتها مع نظام العمل",
+    "إدخال العقد على قوى ببياناته الصحيحة",
+    "متابعة قبول العامل حتى التوثيق",
+    "تسليم نسخة العقد الموثّق"
+   ],
+   "featuresEn": [
+    "Reviewing the contract clauses against the Labour Law",
+    "Entering the contract on Qiwa with the correct data",
+    "Following the worker's acceptance through to documentation",
+    "Handing over a copy of the documented contract"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-qiwa-06": {
+   "name": "إصدار أو تجديد رخصة عمل للوافد",
+   "nameEn": "Issuing or renewing an expatriate work permit",
+   "description": "إصدار رخصة العمل للعامل الوافد أو تجديدها قبل انتهائها — تجهيزاً للبيانات والسداد ورفعاً ومتابعةً حتى صدور الرخصة.",
+   "descriptionEn": "Issuing an expatriate worker's work permit, or renewing it before it expires — preparing the data and payment, filing and following it until the permit is issued.",
+   "audience": "المنشآت التي لديها عمالة وافدة",
+   "audienceEn": "Establishments employing expatriate workers",
+   "duration": "يوم إلى يومي عمل بعد السداد",
+   "durationEn": "One to two business days after payment",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات العامل ورقم إقامته",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "The worker's details and residency number",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة بيانات العامل وحالة رخصته",
+    "تجهيز الطلب والسداد المطلوب",
+    "رفعه ومتابعته حتى صدور الرخصة",
+    "تسليم الرخصة وتاريخ انتهائها"
+   ],
+   "featuresEn": [
+    "Reviewing the worker's data and permit status",
+    "Preparing the request and the required payment",
+    "Filing and following it until the permit is issued",
+    "Handing over the permit and its expiry date"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-qiwa-07": {
+   "name": "إلغاء رخصة عمل",
+   "nameEn": "Cancelling a work permit",
+   "description": "إلغاء رخصة عمل عند انتهاء العلاقة التعاقدية أو مغادرة العامل، حتى لا تستمر مستحقاتها على المنشأة — تجهيزاً ورفعاً ومتابعةً حتى إتمام الإجراء.",
+   "descriptionEn": "Cancelling a work permit when the contract ends or the worker leaves, so its dues stop accruing against the establishment — prepared, filed and followed to completion.",
+   "audience": "المنشآت المنهية علاقتها بعاملٍ وافد",
+   "audienceEn": "Establishments ending a relationship with an expatriate worker",
+   "duration": "يوم إلى يومي عمل",
+   "durationEn": "One to two business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات العامل ورقم إقامته",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "The worker's details and residency number",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة حالة العامل وعلاقته التعاقدية",
+    "تجهيز طلب الإلغاء بمستنداته",
+    "رفعه ومتابعته حتى إتمام الإجراء",
+    "تسليم ما يثبت الإلغاء"
+   ],
+   "featuresEn": [
+    "Reviewing the worker's status and contractual relationship",
+    "Preparing the cancellation request with its documents",
+    "Filing and following it to completion",
+    "Handing over proof of cancellation"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-qiwa-08": {
+   "name": "إصدار شهادة الالتزام بالتوطين (السعودة)",
+   "nameEn": "Saudisation compliance certificate",
+   "description": "استخراج شهادة الالتزام بالتوطين (السعودة) التي تطلبها جهاتٌ عدة لإتمام معاملات المنشأة — مراجعةً لحالة المنشأة ثم إصداراً وتسليماً.",
+   "descriptionEn": "Obtaining the Saudisation compliance certificate that several authorities require to complete an establishment's transactions — reviewing the establishment's status, then issuing and handing it over.",
+   "audience": "المنشآت المطالَبة بشهادة سعودة لإتمام معاملة",
+   "audienceEn": "Establishments asked for a Saudisation certificate",
+   "duration": "يوم عمل واحد عادةً",
+   "durationEn": "Usually one business day",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة حالة المنشأة وبيانات عمالتها",
+    "إصدار شهادة الالتزام بالتوطين",
+    "تسليمها وبيان مدة صلاحيتها",
+    "تنبيهك قبل انتهائها إن كانت ضمن باقة متابعة"
+   ],
+   "featuresEn": [
+    "Reviewing the establishment's status and workforce data",
+    "Issuing the Saudisation compliance certificate",
+    "Handing it over with its validity period",
+    "Alerting you before it expires if you are on a follow-up package"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-qiwa-09": {
+   "name": "إدارة فروع المنشأة في قوى",
+   "nameEn": "Managing establishment branches on Qiwa",
+   "description": "ربط فروع المنشأة أو فصلها في قوى وتوزيع العمالة عليها، بما ينعكس على ملف كل فرع والتزاماته — تجهيزاً ورفعاً ومتابعةً حتى التحديث.",
+   "descriptionEn": "Linking or separating your establishment's branches on Qiwa and distributing workers across them, which flows through to each branch's file and obligations — prepared, filed and followed to the update.",
+   "audience": "المنشآت متعددة الفروع",
+   "audienceEn": "Multi-branch establishments",
+   "duration": "يوم إلى ٣ أيام عمل",
+   "durationEn": "One to three business days",
+   "documents": [
+    "السجلات التجارية للفروع",
+    "بيان توزيع العمالة المطلوب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "The branches' Commercial Registrations",
+    "The required worker distribution",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة فروع المنشأة وتوزيع عمالتها",
+    "تجهيز طلب الربط أو الفصل",
+    "رفعه ومتابعته حتى التحديث",
+    "بيان أثر التحديث على ملف كل فرع"
+   ],
+   "featuresEn": [
+    "Reviewing the branches and how workers are distributed",
+    "Preparing the linking or separation request",
+    "Filing and following it to the update",
+    "Explaining the effect on each branch's file"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-flex-01": {
+   "name": "تسجيل المنشأة في العمل المرن وتوثيق عقوده",
+   "nameEn": "Flexible Work registration & contract documentation",
+   "description": "تسجيل منشأتك في منصة العمل المرن وتوثيق عقود العمل المرن بالساعة، بما يوافق ضوابط الوزارة — تسجيلاً وضبطاً للصلاحيات وتوثيقاً للعقود ومتابعةً.",
+   "descriptionEn": "Registering your establishment on the Flexible Work platform and documenting hourly flexible-work contracts in line with the ministry's rules — registration, permissions, contract documentation and follow-up.",
+   "audience": "المنشآت التي توظّف بالساعة أو بدوامٍ مرن",
+   "audienceEn": "Establishments hiring hourly or on flexible shifts",
+   "duration": "يوم إلى يومي عمل للتسجيل",
+   "durationEn": "One to two business days to register",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات المفوّض المسؤول",
+    "بيانات العاملين والعقود المطلوبة"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Authorised person's details",
+    "Worker details and the contracts required"
+   ],
+   "features": [
+    "تسجيل المنشأة في منصة العمل المرن",
+    "ضبط المفوّضين والصلاحيات",
+    "توثيق عقود العمل المرن ومتابعة قبولها",
+    "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+   ],
+   "featuresEn": [
+    "Registering the establishment on the Flexible Work platform",
+    "Setting up authorised users and permissions",
+    "Documenting flexible-work contracts and following acceptance",
+    "A short guide so your team can manage contracts later"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-remote-01": {
+   "name": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده",
+   "nameEn": "Remote Work registration & contract documentation",
+   "description": "تسجيل منشأتك في منصة العمل عن بُعد وتوثيق عقودها، ليكون توظيفك عن بُعد موثّقاً ومحسوباً — تسجيلاً وضبطاً للصلاحيات وتوثيقاً للعقود ومتابعةً.",
+   "descriptionEn": "Registering your establishment on the Remote Work platform and documenting its contracts, so your remote hiring is documented and counted — registration, permissions, contract documentation and follow-up.",
+   "audience": "المنشآت التي توظّف عن بُعد",
+   "audienceEn": "Establishments hiring remotely",
+   "duration": "يوم إلى يومي عمل للتسجيل",
+   "durationEn": "One to two business days to register",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "بيانات المفوّض المسؤول",
+    "بيانات العاملين والعقود المطلوبة"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Authorised person's details",
+    "Worker details and the contracts required"
+   ],
+   "features": [
+    "تسجيل المنشأة في منصة العمل عن بُعد",
+    "ضبط المفوّضين والصلاحيات",
+    "توثيق عقود العمل عن بُعد ومتابعة قبولها",
+    "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+   ],
+   "featuresEn": [
+    "Registering the establishment on the Remote Work platform",
+    "Setting up authorised users and permissions",
+    "Documenting remote-work contracts and following acceptance",
+    "A short guide so your team can manage contracts later"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-taqat-01": {
+   "name": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف",
+   "nameEn": "Taqat registration & employment-support programmes",
+   "description": "تسجيل المنشأة في طاقات ونشر شواغرها، ومراجعة برامج دعم التوظيف والتدريب التي يعلنها صندوق تنمية الموارد البشرية وتقديم ما تنطبق عليه شروطها.",
+   "descriptionEn": "Registering the establishment on Taqat and publishing its vacancies, reviewing the employment and training support programmes announced by HRDF and applying to those whose conditions you meet.",
+   "audience": "المنشآت الباحثة عن كفاءات وطنية أو عن دعم توظيف",
+   "audienceEn": "Establishments seeking national talent or hiring support",
+   "duration": "يوم إلى ٣ أيام عمل للتسجيل، والدعم حسب مدة الجهة",
+   "durationEn": "One to three business days to register; support per the authority's window",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "وصف الشواغر ومتطلباتها",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Vacancy descriptions and requirements",
+    "Authorised person's details"
+   ],
+   "features": [
+    "تسجيل المنشأة في طاقات وضبط ملفها",
+    "نشر الشواغر بوصفٍ مهنيٍّ سليم",
+    "مراجعة برامج الدعم المعلنة وأيّها ينطبق عليك",
+    "تقديم طلبات الدعم ومتابعتها حتى صدور القرار"
+   ],
+   "featuresEn": [
+    "Registering the establishment on Taqat and setting up its profile",
+    "Publishing vacancies with sound occupational descriptions",
+    "Reviewing which announced support programmes apply to you",
+    "Filing support applications and following them to a decision"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية — إن وُجدت — منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون إتمام الإجراء؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees, where any apply, are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the procedure completes?",
+     "a": "We review, prepare, file and follow it through to a decision. The decision itself rests with the authority."
+    }
+   ]
   }
  },
  "social": {
