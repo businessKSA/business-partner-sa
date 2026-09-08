@@ -5939,6 +5939,544 @@
      "a": "Scoped to your case in a tailored proposal — book a consultation or request a quote."
     }
    ]
+  },
+  "bp-ajeer-01": {
+   "name": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة",
+   "nameEn": "Ajeer platform registration & activation",
+   "description": "نسجّل منشأتك في منصة أجير ونربطها بملف المنشأة في قوى، ونضبط المفوّضين والصلاحيات، ونسلّمك دليلاً مختصراً يمكّن فريقك من استخدام المنصة.",
+   "descriptionEn": "We register your establishment on Ajeer, link it to your Qiwa establishment file, set up authorised users and permissions, and hand over a short guide so your team can use the platform.",
+   "audience": "المنشآت التي تستخدم أجير لأول مرة",
+   "audienceEn": "Establishments using Ajeer for the first time",
+   "duration": "يوم إلى يومي عمل",
+   "durationEn": "One to two business days",
+   "documents": [
+    "السجل التجاري",
+    "رقم المنشأة في قوى",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration",
+    "Qiwa establishment number",
+    "Authorised person's details"
+   ],
+   "features": [
+    "التحقق من أهلية المنشأة وبياناتها في قوى",
+    "تسجيل المنشأة في منصة أجير وربطها بملف المنشأة",
+    "ضبط المفوّضين والصلاحيات على المنصة",
+    "تسليم دليل استخدام مختصر لفريقك"
+   ],
+   "featuresEn": [
+    "Checking the establishment's eligibility and Qiwa data",
+    "Registering it on Ajeer and linking it to the establishment file",
+    "Setting up authorised users and permissions",
+    "A short usage guide for your team"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-02": {
+   "name": "إصدار تصريح تعاقد أجير",
+   "nameEn": "Ajeer contracting permit (Taaqud)",
+   "description": "تصريح تعاقد أجير للمنشأة التي تقدّم عمالتها لمنشأة أخرى، فيثبت نظامية وجود العمالة خارج منشأتها. نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار.",
+   "descriptionEn": "The Ajeer contracting permit is for an establishment providing its workforce to another, evidencing that its workers are lawfully outside it. We prepare, file and follow the request to a decision.",
+   "audience": "المنشآت التي تقدّم عمالتها لمنشآت أخرى",
+   "audienceEn": "Establishments providing their workforce to others",
+   "duration": "٢ إلى ٥ أيام عمل بعد اكتمال المستندات",
+   "durationEn": "2–5 business days once documents are complete",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "دراسة حالتك وتحديد أن تصريح التعاقد هو المناسب",
+    "تجهيز بيانات المنشأتين والعمالة المشمولة",
+    "رفع طلب التصريح ومتابعته حتى صدور القرار",
+    "تسليم التصريح وبيان مدته وشروطه"
+   ],
+   "featuresEn": [
+    "Reviewing your case and confirming the contracting permit fits it",
+    "Preparing both establishments' data and the workers covered",
+    "Filing the permit request and following it to a decision",
+    "Handing over the permit with its term and conditions"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-03": {
+   "name": "إصدار تصريح إعارة أجير بين منشأتين",
+   "nameEn": "Ajeer secondment permit (Iara)",
+   "description": "تصريح إعارة أجير يمكّن منشأتك من إعارة عمالتها الفائضة لمنشأة أخرى لمدة محددة بموافقة العامل. نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار.",
+   "descriptionEn": "The Ajeer secondment permit lets your establishment second surplus workers to another for a defined term, with the worker's consent. We prepare, file and follow the request to a decision.",
+   "audience": "المنشآت التي لديها عمالة فائضة أو تحتاج عمالة مؤقتة",
+   "audienceEn": "Establishments with surplus workers, or needing temporary ones",
+   "duration": "٢ إلى ٥ أيام عمل بعد اكتمال المستندات",
+   "durationEn": "2–5 business days once documents are complete",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط الإعارة المعلنة من الجهة",
+    "تجهيز موافقة العامل وبيانات المنشأة المستفيدة",
+    "رفع طلب التصريح ومتابعته حتى صدور القرار",
+    "تسليم التصريح وبيان مدته وشروطه"
+   ],
+   "featuresEn": [
+    "Checking the secondment conditions published by the authority",
+    "Preparing the worker's consent and the beneficiary's data",
+    "Filing the permit request and following it to a decision",
+    "Handing over the permit with its term and conditions"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-04": {
+   "name": "إصدار تصريح إسناد السعوديين",
+   "nameEn": "Saudi assignment permit (Isnad)",
+   "description": "تصريح إسناد السعوديين يوثّق إسناد موظفين سعوديين من شركة موارد بشرية إلى منشأة مستفيدة لفترة محددة. نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار.",
+   "descriptionEn": "The Isnad permit documents the assignment of Saudi employees from an HR company to a beneficiary establishment for a defined term. We prepare, file and follow the request to a decision.",
+   "audience": "شركات الموارد البشرية ووكالات التشغيل المؤقت",
+   "audienceEn": "HR companies and temporary staffing agencies",
+   "duration": "٢ إلى ٥ أيام عمل بعد اكتمال المستندات",
+   "durationEn": "2–5 business days once documents are complete",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة نشاط المنشأة وأهليتها لإسناد السعوديين",
+    "تجهيز بيانات الموظفين والمنشأة المستفيدة",
+    "رفع طلب التصريح ومتابعته حتى صدور القرار",
+    "تسليم التصريح وبيان مدته وشروطه"
+   ],
+   "featuresEn": [
+    "Reviewing the establishment's activity and eligibility for Isnad",
+    "Preparing the employees' and beneficiary's data",
+    "Filing the permit request and following it to a decision",
+    "Handing over the permit with its term and conditions"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-05": {
+   "name": "إصدار تصريح مرافقين أجير (التعليم والصحة)",
+   "nameEn": "Ajeer companions permit (education & health)",
+   "description": "تصريح مرافقين أجير يمكّن منشآت التعليم والصحة من توظيف المرافقين المتواجدين في المملكة ضمن الشروط المعلنة. نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار.",
+   "descriptionEn": "The Ajeer companions permit lets education and health establishments employ dependents present in the Kingdom, within the published conditions. We prepare, file and follow the request to a decision.",
+   "audience": "منشآت قطاعي التعليم والصحة",
+   "audienceEn": "Establishments in the education and health sectors",
+   "duration": "٢ إلى ٥ أيام عمل بعد اكتمال المستندات",
+   "durationEn": "2–5 business days once documents are complete",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "التحقق من قطاع المنشأة وصلة القرابة المطلوبة",
+    "تجهيز مستندات المرافق والمنشأة",
+    "رفع طلب التصريح ومتابعته حتى صدور القرار",
+    "تسليم التصريح وبيان مدته وشروطه"
+   ],
+   "featuresEn": [
+    "Checking the sector and the required family relationship",
+    "Preparing the companion's and establishment's documents",
+    "Filing the permit request and following it to a decision",
+    "Handing over the permit with its term and conditions"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-06": {
+   "name": "إصدار تصاريح أجير المواسم (الحج والعمرة)",
+   "nameEn": "Ajeer seasonal permits (Hajj & Umrah)",
+   "description": "تصاريح أجير الموسمية للمنشآت المعتمدة في قطاع الحج والعمرة، لتشغيل العمالة الموسمية خلال الموسم. نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار.",
+   "descriptionEn": "Seasonal Ajeer permits for establishments accredited in the Hajj and Umrah sector, to run seasonal workers through the season. We prepare, file and follow the requests to a decision.",
+   "audience": "المنشآت المعتمدة في قطاع الحج والعمرة",
+   "audienceEn": "Establishments accredited in the Hajj & Umrah sector",
+   "duration": "حسب جدول الموسم المعلن من الجهة",
+   "durationEn": "Per the season schedule announced by the authority",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "التحقق من اعتماد المنشأة للعمل في قطاع الحج والعمرة",
+    "تجهيز قائمة العاملين الموسميين وبياناتهم",
+    "رفع طلبات التصاريح ومتابعتها حتى صدور القرار",
+    "تسليم التصاريح وجدول مددها قبل بدء الموسم"
+   ],
+   "featuresEn": [
+    "Checking the establishment's accreditation in the Hajj & Umrah sector",
+    "Preparing the seasonal workers list and their data",
+    "Filing the permit requests and following them to a decision",
+    "Handing over the permits and their term schedule before the season"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-07": {
+   "name": "تجديد تصريح أجير أو إنهاؤه",
+   "nameEn": "Ajeer permit renewal or termination",
+   "description": "تجديد تصريح أجير قبل انتهاء مدته أو إنهاؤه إن انتهت الحاجة إليه، مع تسليم ما يثبت الحالة الجديدة.",
+   "descriptionEn": "Renewing an Ajeer permit before it expires, or terminating it once it is no longer needed, with proof of the new status handed over.",
+   "audience": "من لديه تصريح أجير ساري",
+   "audienceEn": "Anyone holding a live Ajeer permit",
+   "duration": "يوم إلى ٣ أيام عمل",
+   "durationEn": "One to three business days",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة التصريح القائم ومدته وحالته",
+    "تجهيز طلب التجديد أو الإنهاء حسب رغبتك",
+    "رفعه ومتابعته حتى صدور القرار",
+    "تسليم ما يثبت الحالة الجديدة"
+   ],
+   "featuresEn": [
+    "Reviewing the existing permit, its term and status",
+    "Preparing the renewal or termination request as you decide",
+    "Filing it and following it to a decision",
+    "Handing over proof of the new status"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-08": {
+   "name": "توثيق عقد أجير بين المنشأتين ومتابعته",
+   "nameEn": "Ajeer inter-establishment contract documentation",
+   "description": "صياغة أو مراجعة العقد بين المنشأة المقدّمة والمستفيدة، ومطابقته مع التصريح الصادر ومدته، وتوثيقه ومتابعة اعتماده.",
+   "descriptionEn": "Drafting or reviewing the contract between the providing and the beneficiary establishment, matching it to the issued permit and its term, documenting it and following its approval.",
+   "audience": "طرفا التعاقد: المنشأة المقدّمة والمستفيدة",
+   "audienceEn": "Both parties: the providing and the beneficiary establishment",
+   "duration": "يومان إلى ٤ أيام عمل",
+   "durationEn": "Two to four business days",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "صياغة أو مراجعة العقد بين المنشأة المقدِّمة والمستفيدة",
+    "مطابقة بنوده مع التصريح الصادر ومدته",
+    "توثيقه على المنصة ومتابعة اعتماده",
+    "تسليم نسخة موثّقة لكل طرف"
+   ],
+   "featuresEn": [
+    "Drafting or reviewing the contract between provider and beneficiary",
+    "Matching its clauses to the issued permit and its term",
+    "Documenting it on the platform and following its approval",
+    "A documented copy for each party"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-10": {
+   "name": "إدارة تصاريح أجير — تشغيل شهري",
+   "nameEn": "Ajeer permits management — monthly operation",
+   "description": "تشغيل شهري لتصاريح أجير: متابعة السارية ومددها، وتنبيهك قبل انتهاء أيٍّ منها، وتنفيذ الإصدار والتجديد والإنهاء خلال الشهر، مع تقرير شهري.",
+   "descriptionEn": "Monthly operation of your Ajeer permits: tracking live permits and their terms, alerting you before any expires, issuing, renewing and terminating through the month, with a monthly report.",
+   "audience": "المنشآت التي تدير تصاريح أجير بشكل متكرر",
+   "audienceEn": "Establishments running Ajeer permits regularly",
+   "duration": "خدمة مستمرة شهرياً",
+   "durationEn": "Continuous monthly service",
+   "documents": [
+    "السجل التجاري للمنشأتين",
+    "بيانات العمالة المشمولة",
+    "العقد أو الاتفاق بين الطرفين",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration of both establishments",
+    "Data of the workers covered",
+    "The contract or agreement between the parties",
+    "Authorised person's details"
+   ],
+   "features": [
+    "متابعة تصاريح أجير السارية ومددها شهرياً",
+    "تنبيهك قبل انتهاء أي تصريح بوقت كافٍ",
+    "تنفيذ الإصدار والتجديد والإنهاء خلال الشهر",
+    "تقرير شهري بحالة التصاريح والعمالة المشمولة"
+   ],
+   "featuresEn": [
+    "Monthly monitoring of live Ajeer permits and their terms",
+    "Alerting you well before any permit expires",
+    "Issuing, renewing and terminating permits during the month",
+    "A monthly report on permit and covered-workforce status"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون صدور التصريح؟",
+     "a": "نتولّى التجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the permit is issued?",
+     "a": "We prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-ajeer-cs": {
+   "name": "استشارة أجير: التصريح المناسب لحالتك",
+   "nameEn": "Ajeer advisory: choosing the right permit",
+   "description": "جلسة يحدَّد فيها التصريح المناسب لحالتك من تصاريح أجير، وشروطه ومستنداته ومدده كما تعلنها الجهة، وتخرج بخطة تنفيذ مكتوبة وتقدير للأتعاب والرسوم قبل أن تبدأ.",
+   "descriptionEn": "A session that identifies which Ajeer permit fits your case, its conditions, documents and terms as published by the authority, leaving you with a written execution plan and a fee estimate before you start.",
+   "audience": "من يريد معرفة التصريح المناسب قبل أن يبدأ",
+   "audienceEn": "Anyone who wants the right permit identified before starting",
+   "duration": "جلسة واحدة، والتقرير خلال يومي عمل",
+   "durationEn": "One session; the report within two business days",
+   "documents": [
+    "نبذة عن نشاط المنشأة",
+    "بيان العمالة الحالية أو المطلوبة",
+    "أي تصاريح أو عقود قائمة"
+   ],
+   "documentsEn": [
+    "A brief on the establishment's activity",
+    "Current or required workforce",
+    "Any existing permits or contracts"
+   ],
+   "features": [
+    "فهم حالتك: نشاط المنشأة والعمالة المطلوبة أو الفائضة",
+    "تحديد التصريح المناسب من تصاريح أجير لحالتك",
+    "بيان الشروط والمستندات والمدد التي تعلنها الجهة",
+    "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+    "تقدير الأتعاب والرسوم قبل البدء"
+   ],
+   "featuresEn": [
+    "Understanding your case: activity, and the workforce needed or surplus",
+    "Identifying which Ajeer permit fits your case",
+    "Setting out the conditions, documents and terms the authority publishes",
+    "A written execution plan with steps and responsibilities",
+    "An estimate of fees and charges before we start"
+   ],
+   "faq": [
+    {
+     "q": "ماذا أحصل عليه بعد الاستشارة؟",
+     "a": "تقرير مكتوب فيه التصريح المناسب لحالتك وشروطه ومستنداته وخطة التنفيذ وتقدير الأتعاب."
+    },
+    {
+     "q": "هل تُخصم قيمة الاستشارة إن تابعنا التنفيذ؟",
+     "a": "نعم، تُخصم من أتعاب التنفيذ إن كلّفتنا به خلال ثلاثين يوماً."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "What do I get after the session?",
+     "a": "A written report naming the permit that fits your case, its conditions and documents, an execution plan and a fee estimate."
+    },
+    {
+     "q": "Is the advisory fee credited if we proceed?",
+     "a": "Yes — it is credited against the execution fee if you instruct us within thirty days."
+    }
+   ]
   }
  },
  "social": {

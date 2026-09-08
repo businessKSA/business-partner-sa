@@ -2637,5 +2637,236 @@
       "label": "600 ﷼",
       "amount": 600
     }
+  },
+  {
+    "code": "BP-AJEER-01",
+    "slug": "bp-ajeer-01",
+    "name": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من أهلية المنشأة وبياناتها في قوى",
+      "تسجيل المنشأة في منصة أجير وربطها بملف المنشأة",
+      "ضبط المفوّضين والصلاحيات على المنصة",
+      "تسليم دليل استخدام مختصر لفريقك"
+    ],
+    "targetClient": "المنشآت التي تستخدم أجير لأول مرة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "450 ﷼",
+      "amount": 450
+    }
+  },
+  {
+    "code": "BP-AJEER-02",
+    "slug": "bp-ajeer-02",
+    "name": "إصدار تصريح تعاقد أجير",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "دراسة حالتك وتحديد أن تصريح التعاقد هو المناسب",
+      "تجهيز بيانات المنشأتين والعمالة المشمولة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "المنشآت التي تقدّم عمالتها لمنشآت أخرى",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-AJEER-03",
+    "slug": "bp-ajeer-03",
+    "name": "إصدار تصريح إعارة أجير بين منشأتين",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط الإعارة المعلنة من الجهة",
+      "تجهيز موافقة العامل وبيانات المنشأة المستفيدة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "المنشآت التي لديها عمالة فائضة أو تحتاج عمالة مؤقتة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-AJEER-04",
+    "slug": "bp-ajeer-04",
+    "name": "إصدار تصريح إسناد السعوديين",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة نشاط المنشأة وأهليتها لإسناد السعوديين",
+      "تجهيز بيانات الموظفين والمنشأة المستفيدة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "شركات الموارد البشرية ووكالات التشغيل المؤقت",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-AJEER-05",
+    "slug": "bp-ajeer-05",
+    "name": "إصدار تصريح مرافقين أجير (التعليم والصحة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من قطاع المنشأة وصلة القرابة المطلوبة",
+      "تجهيز مستندات المرافق والمنشأة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "منشآت قطاعي التعليم والصحة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-AJEER-06",
+    "slug": "bp-ajeer-06",
+    "name": "إصدار تصاريح أجير المواسم (الحج والعمرة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من اعتماد المنشأة للعمل في قطاع الحج والعمرة",
+      "تجهيز قائمة العاملين الموسميين وبياناتهم",
+      "رفع طلبات التصاريح ومتابعتها حتى صدور القرار",
+      "تسليم التصاريح وجدول مددها قبل بدء الموسم"
+    ],
+    "targetClient": "المنشآت المعتمدة في قطاع الحج والعمرة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-AJEER-07",
+    "slug": "bp-ajeer-07",
+    "name": "تجديد تصريح أجير أو إنهاؤه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة التصريح القائم ومدته وحالته",
+      "تجهيز طلب التجديد أو الإنهاء حسب رغبتك",
+      "رفعه ومتابعته حتى صدور القرار",
+      "تسليم ما يثبت الحالة الجديدة"
+    ],
+    "targetClient": "من لديه تصريح أجير ساري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "350 ﷼",
+      "amount": 350
+    }
+  },
+  {
+    "code": "BP-AJEER-08",
+    "slug": "bp-ajeer-08",
+    "name": "توثيق عقد أجير بين المنشأتين ومتابعته",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "صياغة أو مراجعة العقد بين المنشأة المقدِّمة والمستفيدة",
+      "مطابقة بنوده مع التصريح الصادر ومدته",
+      "توثيقه على المنصة ومتابعة اعتماده",
+      "تسليم نسخة موثّقة لكل طرف"
+    ],
+    "targetClient": "طرفا التعاقد: المنشأة المقدّمة والمستفيدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-AJEER-10",
+    "slug": "bp-ajeer-10",
+    "name": "إدارة تصاريح أجير — تشغيل شهري",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "متابعة تصاريح أجير السارية ومددها شهرياً",
+      "تنبيهك قبل انتهاء أي تصريح بوقت كافٍ",
+      "تنفيذ الإصدار والتجديد والإنهاء خلال الشهر",
+      "تقرير شهري بحالة التصاريح والعمالة المشمولة"
+    ],
+    "targetClient": "المنشآت التي تدير تصاريح أجير بشكل متكرر",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼ / شهرياً",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-AJEER-CS",
+    "slug": "bp-ajeer-cs",
+    "name": "استشارة أجير: التصريح المناسب لحالتك",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "فهم حالتك: نشاط المنشأة والعمالة المطلوبة أو الفائضة",
+      "تحديد التصريح المناسب من تصاريح أجير لحالتك",
+      "بيان الشروط والمستندات والمدد التي تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+      "تقدير الأتعاب والرسوم قبل البدء"
+    ],
+    "targetClient": "من يريد معرفة التصريح المناسب قبل أن يبدأ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
   }
 ]

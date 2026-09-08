@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-06T12:27:07.995Z",
+  "updatedAt": "2026-09-08T02:49:59.254Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3236,6 +3236,146 @@
       "govFeesSeparate": false,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-ref-01"
+    },
+    {
+      "code": "BP-AJEER-01",
+      "nameAr": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة",
+      "nameEn": "Ajeer platform registration & activation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 450,
+      "priceLabel": "450 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-01"
+    },
+    {
+      "code": "BP-AJEER-02",
+      "nameAr": "إصدار تصريح تعاقد أجير",
+      "nameEn": "Ajeer contracting permit (Taaqud)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-02"
+    },
+    {
+      "code": "BP-AJEER-03",
+      "nameAr": "إصدار تصريح إعارة أجير بين منشأتين",
+      "nameEn": "Ajeer secondment permit (Iara)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 750,
+      "priceLabel": "750 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-03"
+    },
+    {
+      "code": "BP-AJEER-04",
+      "nameAr": "إصدار تصريح إسناد السعوديين",
+      "nameEn": "Saudi assignment permit (Isnad)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 900,
+      "priceLabel": "900 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-04"
+    },
+    {
+      "code": "BP-AJEER-05",
+      "nameAr": "إصدار تصريح مرافقين أجير (التعليم والصحة)",
+      "nameEn": "Ajeer companions permit (education & health)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 600,
+      "priceLabel": "600 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-05"
+    },
+    {
+      "code": "BP-AJEER-06",
+      "nameAr": "إصدار تصاريح أجير المواسم (الحج والعمرة)",
+      "nameEn": "Ajeer seasonal permits (Hajj & Umrah)",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 750,
+      "priceLabel": "750 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-06"
+    },
+    {
+      "code": "BP-AJEER-07",
+      "nameAr": "تجديد تصريح أجير أو إنهاؤه",
+      "nameEn": "Ajeer permit renewal or termination",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 350,
+      "priceLabel": "350 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-07"
+    },
+    {
+      "code": "BP-AJEER-08",
+      "nameAr": "توثيق عقد أجير بين المنشأتين ومتابعته",
+      "nameEn": "Ajeer inter-establishment contract documentation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 500,
+      "priceLabel": "500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-08"
+    },
+    {
+      "code": "BP-AJEER-10",
+      "nameAr": "إدارة تصاريح أجير — تشغيل شهري",
+      "nameEn": "Ajeer permits management — monthly operation",
+      "category": "Government Relations",
+      "categoryAr": "العلاقات الحكومية",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "Monthly",
+      "amount": 1200,
+      "priceLabel": "1,200 ﷼ / شهرياً",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-10"
+    },
+    {
+      "code": "BP-AJEER-CS",
+      "nameAr": "استشارة أجير: التصريح المناسب لحالتك",
+      "nameEn": "Ajeer advisory: choosing the right permit",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "أجير — قوى",
+      "pricingModel": "One Time",
+      "amount": 750,
+      "priceLabel": "750 ﷼",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-ajeer-cs"
     }
   ],
   "categories": [
@@ -3261,7 +3401,7 @@
       "key": "Government Relations",
       "nameAr": "العلاقات الحكومية",
       "nameEn": "Government Relations",
-      "count": 36
+      "count": 45
     },
     {
       "key": "HR Services",
@@ -3279,7 +3419,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 38
+      "count": 39
     },
     {
       "key": "Real Estate",

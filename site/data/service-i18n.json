@@ -566,5 +566,45 @@
   "BP-REF-01": {
     "en": "Government Fee Refund Application",
     "ar": "خدمة التقديم على استرداد الرسوم الحكومية"
+  },
+  "BP-AJEER-01": {
+    "en": "Ajeer platform registration & activation",
+    "ar": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة"
+  },
+  "BP-AJEER-02": {
+    "en": "Ajeer contracting permit (Taaqud)",
+    "ar": "إصدار تصريح تعاقد أجير"
+  },
+  "BP-AJEER-03": {
+    "en": "Ajeer secondment permit (Iara)",
+    "ar": "إصدار تصريح إعارة أجير بين منشأتين"
+  },
+  "BP-AJEER-04": {
+    "en": "Saudi assignment permit (Isnad)",
+    "ar": "إصدار تصريح إسناد السعوديين"
+  },
+  "BP-AJEER-05": {
+    "en": "Ajeer companions permit (education & health)",
+    "ar": "إصدار تصريح مرافقين أجير (التعليم والصحة)"
+  },
+  "BP-AJEER-06": {
+    "en": "Ajeer seasonal permits (Hajj & Umrah)",
+    "ar": "إصدار تصاريح أجير المواسم (الحج والعمرة)"
+  },
+  "BP-AJEER-07": {
+    "en": "Ajeer permit renewal or termination",
+    "ar": "تجديد تصريح أجير أو إنهاؤه"
+  },
+  "BP-AJEER-08": {
+    "en": "Ajeer inter-establishment contract documentation",
+    "ar": "توثيق عقد أجير بين المنشأتين ومتابعته"
+  },
+  "BP-AJEER-10": {
+    "en": "Ajeer permits management — monthly operation",
+    "ar": "إدارة تصاريح أجير — تشغيل شهري"
+  },
+  "BP-AJEER-CS": {
+    "en": "Ajeer advisory: choosing the right permit",
+    "ar": "استشارة أجير: التصريح المناسب لحالتك"
   }
 }

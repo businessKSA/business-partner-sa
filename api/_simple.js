@@ -1340,7 +1340,7 @@ async function priceItems(items) {
 function guessType(text) {
   const t = String(text || "");
   if (/تأسيس|فرع|رخصة استثمار|ريادة|MISA|سجل تجاري جديد|company|formation|branch/i.test(t)) return "COMPANY_FORMATION";
-  if (/قوى|التأمينات|مدد|مقيم|أبشر|بلدي|زاتكا|الزكاة|تأشير|نطاقات|مهنة|رخصة|qiwa|gosi|mudad|muqeem|zatca|visa/i.test(t)) return "GOVERNMENT_SERVICE";
+  if (/قوى|أجير|التأمينات|مدد|مقيم|أبشر|بلدي|زاتكا|الزكاة|تأشير|نطاقات|مهنة|رخصة|qiwa|ajeer|gosi|mudad|muqeem|zatca|visa/i.test(t)) return "GOVERNMENT_SERVICE";
   return "CONSULTATION";
 }
 // tasks.organization_id is NOT NULL: manual intake for a not-yet-registered
