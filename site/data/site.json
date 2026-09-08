@@ -7797,6 +7797,1272 @@
      "a": "We review, prepare, file and follow through to a decision. The decision itself rests with the authority."
     }
    ]
+  },
+  "bp-pr-03": {
+   "name": "تقييم أهلية الإقامة المميزة وتحديد مسارك",
+   "nameEn": "Premium Residency eligibility & route assessment",
+   "description": "مسارات الإقامة المميزة سبعة، ولكلٍّ شروطه ورسومه ومستنداته — واختيار المسار الخطأ يعني رفضاً بعد شهور. جلسة نقرأ فيها حالتك ونحدّد مسارك، وتخرج بتقرير مكتوب فيه الشروط والمستندات والرسوم وخطة التنفيذ.",
+   "descriptionEn": "There are seven Premium Residency routes, each with its own conditions, fees and documents — and picking the wrong one means a refusal months later. A session that reads your case, names your route, and leaves you with a written report of conditions, documents, fees and an execution plan.",
+   "audience": "من يفكّر في الإقامة المميزة ولا يعرف أي مسار يناسبه",
+   "audienceEn": "Anyone considering Premium Residency and unsure which route fits",
+   "duration": "جلسة واحدة، والتقرير خلال يومي عمل",
+   "durationEn": "One session; the report within two business days",
+   "documents": [
+    "نبذة عن جنسيتك ونشاطك",
+    "ما لديك من رخص أو أصول أو مؤهلات",
+    "أي طلب سابق أو قرار صادر بحقك"
+   ],
+   "documentsEn": [
+    "A brief on your nationality and activity",
+    "Any licences, assets or qualifications you hold",
+    "Any earlier application or decision concerning you"
+   ],
+   "features": [
+    "قراءة حالتك: جنسيتك ونشاطك وأصولك ومؤهلاتك",
+    "تحديد المسار المناسب من مسارات الإقامة المميزة",
+    "بيان شروط المسار ومستنداته ورسومه كما تعلنها الجهة",
+    "خطة تنفيذ مكتوبة بالخطوات والمدد والمسؤوليات",
+    "تقدير الأتعاب والرسوم قبل أن تبدأ"
+   ],
+   "featuresEn": [
+    "Reading your case: nationality, activity, assets and qualifications",
+    "Naming the right Premium Residency route for you",
+    "Setting out the route's conditions, documents and fees as published",
+    "A written execution plan with steps, timelines and responsibilities",
+    "An estimate of fees and charges before you start"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-04": {
+   "name": "الإقامة المميزة — مسار مستثمر الأعمال",
+   "nameEn": "Premium Residency — Business Investor route",
+   "description": "مسار مستثمر الأعمال في الإقامة المميزة، للمستثمر الذي يحمل رخصة استثمار مستوفية لشروط المسار. نتحقق من الأهلية، ونجهّز الملف ومستنداته، ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The Business Investor route, for an investor holding an investment licence that meets the route's conditions. We verify eligibility, prepare the file and its documents, file it and follow it to a decision.",
+   "audience": "المستثمرون أصحاب رخص الاستثمار المستوفية لشروط المسار",
+   "audienceEn": "Investors holding a licence meeting the route's conditions",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار ٤٬٠٠٠ ﷼، ويشترط المسار رخصة استثمار من وزارة الاستثمار برأس مال لا يقل عن ٧ ملايين ريال و١٠ موظفين — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-05": {
+   "name": "الإقامة المميزة — مسار رائد الأعمال",
+   "nameEn": "Premium Residency — Entrepreneur route",
+   "description": "مسار رائد الأعمال في الإقامة المميزة، لمن لديه مشروع ريادي مستوفٍ لشروط المسار. نتحقق من الأهلية، ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The Entrepreneur route, for a founder whose venture meets the route's conditions. We verify eligibility, prepare and file the case and follow it to a decision.",
+   "audience": "روّاد الأعمال أصحاب المشاريع المستوفية لشروط المسار",
+   "audienceEn": "Founders whose ventures meet the route's conditions",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار ٤٬٠٠٠ ﷼ — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-06": {
+   "name": "الإقامة المميزة — مسار مالك العقار",
+   "nameEn": "Premium Residency — Property Owner route",
+   "description": "مسار مالك العقار في الإقامة المميزة، لمن يملك أصولاً عقارية مستوفية لشرط المسار. نتحقق من الأهلية والأصول، ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The Property Owner route, for someone holding real-estate assets meeting the route's threshold. We verify eligibility and the assets, prepare and file the case and follow it to a decision.",
+   "audience": "ملّاك العقار المستوفون لشرط الأصول",
+   "audienceEn": "Property owners meeting the asset threshold",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار ٤٬٠٠٠ ﷼، ويشترط المسار أصولاً عقارية لا تقل عن ٤ ملايين ريال — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-07": {
+   "name": "الإقامة المميزة — مسار الموهبة",
+   "nameEn": "Premium Residency — Talent route",
+   "description": "مسار الموهبة في الإقامة المميزة، لأصحاب التخصصات والمواهب المستوفية لشروط المسار. نتحقق من الأهلية ونبني ملف الإنجازات، ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The Talent route, for specialists and talents meeting the route's conditions. We verify eligibility, build the achievements file, and file and follow it to a decision.",
+   "audience": "أصحاب المواهب والتخصصات المستوفون لشروط المسار",
+   "audienceEn": "Talents and specialists meeting the route's conditions",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار ٤٬٠٠٠ ﷼ — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-08": {
+   "name": "الإقامة المميزة — مسار الكفاءة الاستثنائية",
+   "nameEn": "Premium Residency — Exceptional Competence route",
+   "description": "مسار الكفاءة الاستثنائية في الإقامة المميزة، لأصحاب الكفاءات في المجالات ذات الأولوية. نتحقق من الأهلية ونبني ملف الكفاءة بأدلته، ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The Exceptional Competence route, for high-calibre specialists in priority fields. We verify eligibility, build the competence file with its evidence, and file and follow it to a decision.",
+   "audience": "أصحاب الكفاءات في المجالات ذات الأولوية",
+   "audienceEn": "High-calibre specialists in priority fields",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار ٤٬٠٠٠ ﷼ — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-09": {
+   "name": "الإقامة المميزة — المسار المالي (دائمة أو سنوية)",
+   "nameEn": "Premium Residency — Financial route (permanent or annual)",
+   "description": "المسار المالي في الإقامة المميزة — إقامة غير محددة المدة برسمٍ يُدفع مرة واحدة، أو محددة المدة برسمٍ سنوي. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار.",
+   "descriptionEn": "The financial route — permanent residency for a one-time fee, or fixed-term residency for an annual fee. We verify eligibility, prepare the file, file it and follow it to a decision.",
+   "audience": "من يختار المسار المالي دون اشتراط نشاطٍ أو أصول",
+   "audienceEn": "Applicants choosing the financial route without an activity or asset test",
+   "duration": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+   "durationEn": "File prepared in 5–10 business days; the decision per the authority's window",
+   "documents": [
+    "جواز السفر ساري المفعول",
+    "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+    "الفحص الطبي وشهادة السجل الجنائي",
+    "ما يثبت الملاءة المالية"
+   ],
+   "documentsEn": [
+    "A valid passport",
+    "Evidence the route's condition is met (licence, assets or qualifications)",
+    "Medical examination and criminal-record certificate",
+    "Evidence of financial standing"
+   ],
+   "features": [
+    "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+    "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+   ],
+   "featuresEn": [
+    "Confirming the route's published conditions are met before we start",
+    "Preparing the file and documents, translated and attested where required",
+    "Filing the application and following it to a decision",
+    "Reporting the outcome and the steps that follow"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة، ورسم هذا المسار غير محددة المدة ٨٠٠٬٠٠٠ ﷼ مرة واحدة · محددة المدة ١٠٠٬٠٠٠ ﷼ سنوياً — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-pr-10": {
+   "name": "ضمّ أفراد الأسرة تحت الإقامة المميزة",
+   "nameEn": "Adding family members under Premium Residency",
+   "description": "ضمّ الزوج أو الزوجة والأبناء تحت إقامتك المميزة. نراجع صلات القرابة والمستندات، ونجهّز الطلبات ونقدّمها ونتابعها حتى صدور القرار.",
+   "descriptionEn": "Adding your spouse and children under your Premium Residency. We review the relationships and documents, prepare and file the requests and follow them to a decision.",
+   "audience": "حاملو الإقامة المميزة الراغبون في ضمّ أسرهم",
+   "audienceEn": "Premium Residency holders adding their family",
+   "duration": "٣ إلى ٥ أيام عمل للتجهيز، والقرار حسب مدة الجهة",
+   "durationEn": "3–5 business days to prepare; the decision per the authority",
+   "documents": [
+    "إقامتك المميزة",
+    "عقد الزواج وشهادات ميلاد الأبناء",
+    "جوازات أفراد الأسرة"
+   ],
+   "documentsEn": [
+    "Your Premium Residency",
+    "Marriage certificate and children's birth certificates",
+    "Family members' passports"
+   ],
+   "features": [
+    "مراجعة صلات القرابة والمستندات المطلوبة",
+    "تجهيز طلبات الضمّ لكل فرد",
+    "تقديمها ومتابعتها حتى صدور القرار",
+    "إبلاغك بالنتيجة وما يترتب عليها"
+   ],
+   "featuresEn": [
+    "Reviewing the family relationships and required documents",
+    "Preparing an application for each member",
+    "Filing and following them to a decision",
+    "Reporting the outcome and what follows"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا. أتعابنا منفصلة عن رسوم مركز الإقامة المميزة — والرسوم تتغيّر بقرار الجهة، فنؤكّدها لك في عرض السعر قبل البدء."
+    },
+    {
+     "q": "هل تضمنون قبول الطلب؟",
+     "a": "لا. نتحقق من الأهلية ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار — والقرار يعود إلى مركز الإقامة المميزة وحده. وإن رأينا أن حالتك لا تستوفي شروط المسار قلنا لك ذلك قبل أن تدفع."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Our professional fees are separate from the Premium Residency Center's fees, and those fees change by the authority's decision — we confirm them in the quotation before we start."
+    },
+    {
+     "q": "Do you guarantee the application is accepted?",
+     "a": "No. We verify eligibility, prepare, file and follow the case to a decision — which rests with the Premium Residency Center alone. If your case does not meet the route's conditions, we say so before you pay."
+    }
+   ]
+  },
+  "bp-sbc-21": {
+   "name": "الإبلاغ عن المستفيد الحقيقي",
+   "nameEn": "Beneficial owner disclosure",
+   "description": "نظام المستفيد الحقيقي يُلزم المنشآت بالإفصاح عمّن يملك أو يسيطر عليها فعلياً، وعدم الإبلاغ يعرّضها لغرامات نظامية. نحدّد المستفيد الحقيقي وفق النظام، ونجهّز الإفصاح ونرفعه ونتابعه حتى الاعتماد.",
+   "descriptionEn": "The beneficial-owner regime requires establishments to disclose who really owns or controls them; failing to report exposes them to statutory fines. We identify the beneficial owner under the regime, prepare the disclosure, file it and follow it to approval.",
+   "audience": "الشركات الملزمة بالإفصاح عن المستفيد الحقيقي",
+   "audienceEn": "Companies subject to beneficial-owner disclosure",
+   "duration": "٣ إلى ٥ أيام عمل",
+   "durationEn": "3–5 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "تحديد المستفيد الحقيقي وفق معايير النظام",
+    "تجهيز الإفصاح ومستنداته المؤيدة",
+    "رفعه ومتابعته حتى الاعتماد",
+    "تنبيهك عند أي تغيّر يوجب تحديث الإفصاح"
+   ],
+   "featuresEn": [
+    "Identifying the beneficial owner under the regime's criteria",
+    "Preparing the disclosure and its supporting documents",
+    "Filing it and following it to approval",
+    "Alerting you when a change requires an update"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-22": {
+   "name": "التأكيد السنوي لبيانات السجل التجاري",
+   "nameEn": "Annual commercial-register confirmation",
+   "description": "السجل التجاري يحتاج تأكيداً سنوياً لبياناته، وإهماله يعطّل الخدمات المرتبطة به. نراجع بياناتك ونؤكّدها في موعدها ونسلّمك ما يثبت ذلك.",
+   "descriptionEn": "A commercial register needs its data confirmed annually; neglecting it disrupts the services linked to it. We review your data, confirm it on time, and hand over the evidence.",
+   "audience": "كل منشأة لديها سجل تجاري ساري",
+   "audienceEn": "Every establishment holding a live commercial register",
+   "duration": "يوم عمل واحد",
+   "durationEn": "One business day",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة بيانات السجل قبل التأكيد",
+    "تنفيذ التأكيد السنوي في موعده",
+    "تسليم ما يثبت التأكيد",
+    "تنبيهك قبل موعد السنة القادمة"
+   ],
+   "featuresEn": [
+    "Reviewing the register's data before confirming",
+    "Performing the annual confirmation on time",
+    "Handing over the evidence",
+    "Alerting you before next year's date"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-23": {
+   "name": "نقل ملكية السجل التجاري",
+   "nameEn": "Transferring ownership of a commercial register",
+   "description": "نقل ملكية السجل التجاري من مالك إلى آخر، بما يشمل مراجعة الالتزامات القائمة قبل النقل حتى لا تنتقل إلى المشتري على غفلة.",
+   "descriptionEn": "Transferring a commercial register from one owner to another, including a review of standing obligations before the transfer so they do not pass to the buyer unnoticed.",
+   "audience": "البائع والمشتري في نقل ملكية منشأة",
+   "audienceEn": "Seller and buyer in an establishment transfer",
+   "duration": "٣ إلى ٧ أيام عمل",
+   "durationEn": "3–7 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة الالتزامات القائمة على السجل قبل النقل",
+    "تجهيز مستندات النقل وموافقات الأطراف",
+    "تنفيذ النقل ومتابعته حتى التحديث",
+    "تسليم السجل بالبيانات الجديدة"
+   ],
+   "featuresEn": [
+    "Reviewing the register's standing obligations before transfer",
+    "Preparing the transfer documents and party approvals",
+    "Executing the transfer and following it to the update",
+    "Handing over the register with its new data"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-24": {
+   "name": "نشر قرارات الجمعية العامة",
+   "nameEn": "Publishing general-assembly resolutions",
+   "description": "قرارات الجمعية العامة تحتاج نشراً حتى تصير نافذة تجاه الغير. نصوغ القرار بما يوافق نظام الشركات ونتحقق من النصاب، ثم ننشره ونتابعه.",
+   "descriptionEn": "General-assembly resolutions must be published to take effect against third parties. We draft the resolution in line with the Companies Law, verify the quorum, then publish and follow it.",
+   "audience": "الشركات التي اتخذت قراراً يوجب النشر",
+   "audienceEn": "Companies that passed a resolution requiring publication",
+   "duration": "٢ إلى ٤ أيام عمل",
+   "durationEn": "2–4 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "صياغة القرار بما يوافق نظام الشركات",
+    "التحقق من النصاب وصحة الانعقاد",
+    "نشر القرار ومتابعته حتى الاعتماد",
+    "تسليم ما يثبت النشر"
+   ],
+   "featuresEn": [
+    "Drafting the resolution in line with the Companies Law",
+    "Verifying the quorum and the validity of the meeting",
+    "Publishing the resolution and following it to approval",
+    "Handing over proof of publication"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-25": {
+   "name": "اندماج شركتين أو استحواذ",
+   "nameEn": "Merger or acquisition",
+   "description": "اندماج شركتين أو استحواذ إحداهما على الأخرى: مراجعة الكيانين والتزاماتهما، وصياغة قرارات الشركاء والعقود، وتنفيذ الإجراء لدى الجهات ومتابعته حتى اكتمال الكيان الناتج.",
+   "descriptionEn": "A merger of two companies or one acquiring another: reviewing both entities and their obligations, drafting partner resolutions and agreements, executing the procedure with the authorities and following it until the resulting entity is complete.",
+   "audience": "الشركات المقبلة على اندماج أو استحواذ",
+   "audienceEn": "Companies undertaking a merger or acquisition",
+   "duration": "حسب حجم الكيانين — تُقدَّر بعد المراجعة",
+   "durationEn": "Per the size of both entities — estimated after review",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة الكيانين والتزاماتهما وسجلاتهما",
+    "صياغة قرارات الشركاء وعقود الاندماج",
+    "تنفيذ الإجراء لدى الجهات المختصة",
+    "متابعته حتى اكتمال الكيان الناتج وسجله"
+   ],
+   "featuresEn": [
+    "Reviewing both entities, their obligations and registers",
+    "Drafting partner resolutions and merger agreements",
+    "Executing the procedure with the competent authorities",
+    "Following it until the resulting entity and its register are complete"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-26": {
+   "name": "توثيق متجر إلكتروني (سجل التجارة الإلكترونية)",
+   "nameEn": "E-store documentation (e-commerce register)",
+   "description": "نظام التجارة الإلكترونية يُلزم المتاجر بالتوثيق. نراجع متجرك وبياناته وشروطه، ونوثّقه ونسلّمك شهادة التوثيق ووسمها على المتجر.",
+   "descriptionEn": "The e-commerce regime requires stores to be documented. We review your store, its data and terms, document it, and hand over the certificate and its badge for the store.",
+   "audience": "أصحاب المتاجر الإلكترونية",
+   "audienceEn": "E-store owners",
+   "duration": "٢ إلى ٥ أيام عمل",
+   "durationEn": "2–5 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة المتجر وبياناته وسياساته",
+    "مطابقة الشروط المطلوبة نظاماً",
+    "توثيق المتجر ومتابعته حتى الإصدار",
+    "تسليم الشهادة ووسمها على المتجر"
+   ],
+   "featuresEn": [
+    "Reviewing the store, its data and policies",
+    "Matching the conditions required by the regime",
+    "Documenting the store and following it to issuance",
+    "Handing over the certificate and its store badge"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-27": {
+   "name": "تسجيل ضمان في السجل العيني للحقوق",
+   "nameEn": "Registering a security interest",
+   "description": "تسجيل الضمان يحفظ حق الدائن على المنقولات ويجعله نافذاً تجاه الغير. نراجع عقد الضمان ونسجّله ونتابعه حتى القيد.",
+   "descriptionEn": "Registering a security interest preserves a creditor's right over movables and makes it effective against third parties. We review the security agreement, register it and follow it to entry.",
+   "audience": "الدائنون والممولون وأصحاب الضمانات",
+   "audienceEn": "Creditors, financiers and secured parties",
+   "duration": "٢ إلى ٤ أيام عمل",
+   "durationEn": "2–4 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة عقد الضمان والأطراف والمحل",
+    "تجهيز بيانات القيد ورفعها",
+    "متابعة القيد حتى إتمامه",
+    "تسليم ما يثبت التسجيل"
+   ],
+   "featuresEn": [
+    "Reviewing the security agreement, parties and collateral",
+    "Preparing and filing the entry data",
+    "Following the entry to completion",
+    "Handing over proof of registration"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-28": {
+   "name": "إيداع القوائم المالية لدى وزارة التجارة",
+   "nameEn": "Filing financial statements with the Ministry of Commerce",
+   "description": "إيداع القوائم المالية التزامٌ سنوي على الشركات. نراجع القوائم ومرفقاتها ونودعها في موعدها ونسلّمك ما يثبت الإيداع.",
+   "descriptionEn": "Filing financial statements is an annual obligation on companies. We review the statements and their attachments, file them on time, and hand over proof of filing.",
+   "audience": "الشركات الملزمة بإيداع قوائمها المالية",
+   "audienceEn": "Companies required to file financial statements",
+   "duration": "٢ إلى ٤ أيام عمل بعد اكتمال القوائم",
+   "durationEn": "2–4 business days once the statements are ready",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة القوائم ومرفقاتها قبل الإيداع",
+    "التحقق من موعد الالتزام",
+    "الإيداع ومتابعته حتى القبول",
+    "تسليم ما يثبت الإيداع"
+   ],
+   "featuresEn": [
+    "Reviewing the statements and attachments before filing",
+    "Checking the compliance deadline",
+    "Filing and following it to acceptance",
+    "Handing over proof of filing"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-29": {
+   "name": "ترجمة السجل التجاري وتوثيقها",
+   "nameEn": "Commercial register translation & attestation",
+   "description": "ترجمة السجل التجاري إلى الإنجليزية وتوثيقها، لاستخدامه لدى بنكٍ أو شريكٍ أو جهةٍ خارج المملكة.",
+   "descriptionEn": "Translating the commercial register into English and attesting it, for use with a bank, a partner or an authority outside the Kingdom.",
+   "audience": "من يحتاج سجله بالإنجليزية لجهةٍ أو بنك",
+   "audienceEn": "Anyone needing their register in English for an authority or bank",
+   "duration": "يوم إلى ٣ أيام عمل",
+   "durationEn": "One to three business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "استخراج نسخة السجل المطلوبة",
+    "ترجمتها ترجمةً معتمدة",
+    "توثيق الترجمة",
+    "تسليم النسخة جاهزةً للاستخدام"
+   ],
+   "featuresEn": [
+    "Obtaining the required copy of the register",
+    "Certified translation",
+    "Attesting the translation",
+    "Handing over a copy ready to use"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-30": {
+   "name": "تصديق المستندات وأبوستيل عبر الخارجية",
+   "nameEn": "Document attestation & apostille via MOFA",
+   "description": "المستندات المستخدمة خارج المملكة — أو الواردة إليها — تحتاج تصديقاً أو أبوستيل. نحدّد المسار المطلوب لكل مستند وننفّذه ونتابعه حتى التسليم.",
+   "descriptionEn": "Documents used outside the Kingdom — or arriving into it — need attestation or an apostille. We identify the route required for each document, execute it and follow it to delivery.",
+   "audience": "الشركات والمستثمرون الذين يستخدمون مستنداتهم عبر الحدود",
+   "audienceEn": "Companies and investors using documents across borders",
+   "duration": "٥ إلى ١٠ أيام عمل حسب المسار",
+   "durationEn": "5–10 business days depending on the route",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "تحديد مسار التصديق أو الأبوستيل لكل مستند",
+    "تجهيز المستندات وترجمتها عند اللزوم",
+    "تنفيذ التصديق ومتابعته",
+    "تسليم المستندات مصدّقة"
+   ],
+   "featuresEn": [
+    "Identifying the attestation or apostille route per document",
+    "Preparing the documents and translating where required",
+    "Executing the attestation and following it",
+    "Handing over the attested documents"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-08": {
+   "name": "المقر الإقليمي RHQ — التأهيل والتقديم",
+   "nameEn": "Regional Headquarters (RHQ) — qualification & filing",
+   "description": "برنامج المقر الإقليمي يمنح الشركات العالمية التي تجعل الرياض مقرها الإقليمي حوافز طويلة الأمد وتسهيلات. نراجع أهليتك وأنشطتك الاختيارية، ونجهّز الملف ونقدّمه ونتابعه حتى صدور القرار، ونرافقك في استيفاء الالتزامات بعد الإصدار.",
+   "descriptionEn": "The Regional Headquarters programme grants global companies that make Riyadh their regional base long-term incentives and facilitations. We review your eligibility and elective activities, prepare and file the case, follow it to a decision, and stay with you through the post-issuance obligations.",
+   "audience": "الشركات العالمية التي تجعل الرياض مقرها الإقليمي",
+   "audienceEn": "Global companies making Riyadh their regional base",
+   "duration": "٤ إلى ٨ أسابيع حسب اكتمال المستندات",
+   "durationEn": "4–8 weeks depending on document readiness",
+   "documents": [
+    "السجل التجاري للشركة الأم مصدّقاً",
+    "هيكل المجموعة وفروعها الإقليمية",
+    "القوائم المالية المدققة",
+    "خطة الأنشطة الاختيارية"
+   ],
+   "documentsEn": [
+    "The parent's attested commercial registration",
+    "The group structure and its regional branches",
+    "Audited financial statements",
+    "A plan for the elective activities"
+   ],
+   "features": [
+    "مراجعة أهلية المجموعة وهيكلها الإقليمي",
+    "تحديد الأنشطة الاختيارية المطلوبة وخطة استيفائها",
+    "تجهيز الملف وتقديمه ومتابعته حتى صدور القرار",
+    "مرافقتك في التزامات ما بعد الإصدار خلال السنة الأولى"
+   ],
+   "featuresEn": [
+    "Reviewing the group's eligibility and regional structure",
+    "Identifying the required elective activities and a plan to meet them",
+    "Preparing, filing and following the case to a decision",
+    "Accompanying you through the first year's post-issuance obligations"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-09": {
+   "name": "مكتب تمثيل لشركة أجنبية",
+   "nameEn": "Representative office for a foreign company",
+   "description": "مكتب التمثيل يمكّن الشركة الأجنبية من حضورٍ نظاميٍّ في المملكة لأغراض غير تجارية — دراسة السوق والتنسيق — دون نشاطٍ بيعي. نجهّز الملف ونقدّمه ونتابعه حتى صدور الترخيص.",
+   "descriptionEn": "A representative office gives a foreign company a lawful presence in the Kingdom for non-commercial purposes — market study and coordination — without selling. We prepare, file and follow the case to licence issuance.",
+   "audience": "الشركات الأجنبية التي تريد حضوراً غير تجاري",
+   "audienceEn": "Foreign companies wanting a non-commercial presence",
+   "duration": "٣ إلى ٦ أسابيع حسب اكتمال المستندات",
+   "durationEn": "3–6 weeks depending on document readiness",
+   "documents": [
+    "مستندات الشركة الأم مصدّقة ومترجمة",
+    "قرار الشركة الأم بفتح المكتب",
+    "جواز مدير المكتب"
+   ],
+   "documentsEn": [
+    "The parent's attested and translated documents",
+    "The parent's resolution to open the office",
+    "The office manager's passport"
+   ],
+   "features": [
+    "مراجعة أهلية الشركة الأم ونطاق المكتب",
+    "تجهيز مستندات الشركة الأم مصدّقة ومترجمة",
+    "تقديم الطلب ومتابعته حتى صدور الترخيص",
+    "بيان ما يجوز للمكتب وما لا يجوز"
+   ],
+   "featuresEn": [
+    "Reviewing the parent company's eligibility and the office's scope",
+    "Preparing the parent's documents, attested and translated",
+    "Filing and following the case to licence issuance",
+    "Setting out what the office may and may not do"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-10": {
+   "name": "تجديد ترخيص الاستثمار",
+   "nameEn": "Investment licence renewal",
+   "description": "التأخر في تجديد ترخيص الاستثمار يجمّد حسابات المنشأة ويوقف خدماتها على المنصات الحكومية. نتابع موعد التجديد ونجهّزه ونقدّمه قبل الانتهاء.",
+   "descriptionEn": "A late investment-licence renewal freezes the establishment's accounts and suspends its services on the government platforms. We track the renewal date, prepare it and file it before expiry.",
+   "audience": "كل منشأة تحمل ترخيص استثمار",
+   "audienceEn": "Every establishment holding an investment licence",
+   "duration": "٣ إلى ٧ أيام عمل",
+   "durationEn": "3–7 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "متابعة موعد انتهاء الترخيص وتنبيهك قبله",
+    "مراجعة استيفاء شروط التجديد",
+    "تقديم طلب التجديد ومتابعته",
+    "تسليم الترخيص المجدَّد وتاريخ انتهائه"
+   ],
+   "featuresEn": [
+    "Tracking the licence's expiry and alerting you before it",
+    "Reviewing that the renewal conditions are met",
+    "Filing the renewal and following it",
+    "Handing over the renewed licence and its expiry date"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-11": {
+   "name": "تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)",
+   "nameEn": "Amending an investment licence",
+   "description": "تعديل ترخيص الاستثمار عند إضافة نشاط أو تغيير ملكية أو تحويل كيان — تجهيزاً وتقديماً ومتابعةً حتى صدور الترخيص المعدَّل.",
+   "descriptionEn": "Amending an investment licence when adding an activity, changing ownership or converting the entity — prepared, filed and followed to the amended licence.",
+   "audience": "المنشآت المرخّصة التي تغيّر نشاطها أو ملكيتها",
+   "audienceEn": "Licensed establishments changing activity or ownership",
+   "duration": "٥ إلى ١٠ أيام عمل",
+   "durationEn": "5–10 business days",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "مراجعة التعديل المطلوب وأثره على الترخيص والسجل",
+    "تجهيز المستندات وقرارات الشركاء",
+    "تقديم الطلب ومتابعته حتى صدور القرار",
+    "بيان ما يتبع التعديل من تحديثاتٍ لدى الجهات"
+   ],
+   "featuresEn": [
+    "Reviewing the amendment and its effect on the licence and register",
+    "Preparing the documents and partner resolutions",
+    "Filing and following it to a decision",
+    "Setting out the downstream updates at other authorities"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-12": {
+   "name": "إلغاء ترخيص الاستثمار وإنهاء الكيان",
+   "nameEn": "Cancelling an investment licence and closing the entity",
+   "description": "إنهاء الاستثمار إنهاءً نظامياً: إلغاء الترخيص وتصفية الكيان وإغلاق ملفاته لدى الجهات، حتى لا تبقى التزاماتٌ قائمةٌ بعد التوقف.",
+   "descriptionEn": "Ending an investment properly: cancelling the licence, liquidating the entity and closing its files with the authorities, so no obligations remain standing after you stop.",
+   "audience": "المستثمرون المنهون نشاطهم في المملكة",
+   "audienceEn": "Investors ending their activity in the Kingdom",
+   "duration": "حسب الالتزامات القائمة — تُقدَّر بعد الحصر",
+   "durationEn": "Per the standing obligations — estimated after the review",
+   "documents": [
+    "السجل التجاري ورقم المنشأة",
+    "المستندات المؤيدة للطلب",
+    "بيانات المفوّض المسؤول"
+   ],
+   "documentsEn": [
+    "Commercial Registration and establishment number",
+    "Documents supporting the request",
+    "Authorised person's details"
+   ],
+   "features": [
+    "حصر الالتزامات القائمة قبل الإلغاء",
+    "تجهيز طلب الإلغاء ومستندات التصفية",
+    "إغلاق الملفات لدى الجهات المرتبطة",
+    "تسليم ما يثبت إنهاء الكيان"
+   ],
+   "featuresEn": [
+    "Totalling the standing obligations before cancellation",
+    "Preparing the cancellation request and liquidation documents",
+    "Closing the files at the related authorities",
+    "Handing over proof the entity is closed"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-fi-13": {
+   "name": "استشارة دخول السوق: أي ترخيص استثمار يناسبك",
+   "nameEn": "Market-entry advisory: which investment licence fits",
+   "description": "أنواع ترخيص الاستثمار كثيرة — خدمي وتجاري وصناعي وعقاري وزراعي ومهني وتعديني وسياحي وريادي ومقر إقليمي ومكتب تمثيل — ولكلٍّ شروطه ورأس ماله وقيوده. جلسة نحدّد فيها ترخيصك ونسلّمك خطة الدخول مكتوبة.",
+   "descriptionEn": "Investment licences come in many types — services, commercial, industrial, real estate, agricultural, professional, mining, tourism, entrepreneurial, RHQ and representative office — each with its own conditions, capital and restrictions. A session that names your licence and leaves you a written market-entry plan.",
+   "audience": "المستثمرون الأجانب قبل اختيار مسار الدخول",
+   "audienceEn": "Foreign investors before choosing an entry route",
+   "duration": "جلسة واحدة، والتقرير خلال ٣ أيام عمل",
+   "durationEn": "One session; the report within three business days",
+   "documents": [
+    "نبذة عن النشاط المستهدف",
+    "مستندات الشركة الأم إن وُجدت",
+    "تصوّرك لرأس المال والشراكة"
+   ],
+   "documentsEn": [
+    "A brief on the target activity",
+    "The parent company's documents, if any",
+    "Your view on capital and partnership"
+   ],
+   "features": [
+    "قراءة نشاطك المستهدف ومطابقته مع القائمة السلبية",
+    "تحديد نوع الترخيص المناسب وشروطه ورأس ماله",
+    "بيان المستندات والتصديقات المطلوبة من بلد المنشأ",
+    "خطة دخول مكتوبة بالخطوات والمدد والتكلفة التقديرية",
+    "تقدير الأتعاب والرسوم قبل أن تبدأ"
+   ],
+   "featuresEn": [
+    "Reading your target activity and checking it against the negative list",
+    "Naming the right licence type, its conditions and capital",
+    "Setting out the documents and attestations needed from the home country",
+    "A written market-entry plan with steps, timelines and an indicative cost",
+    "An estimate of fees and charges before you start"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
   }
  },
  "social": {

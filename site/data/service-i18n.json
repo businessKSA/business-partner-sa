@@ -706,5 +706,101 @@
   "BP-CSR-01": {
     "en": "Social Responsibility registration & initiative documentation",
     "ar": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها"
+  },
+  "BP-PR-03": {
+    "en": "Premium Residency eligibility & route assessment",
+    "ar": "تقييم أهلية الإقامة المميزة وتحديد مسارك"
+  },
+  "BP-PR-04": {
+    "en": "Premium Residency — Business Investor route",
+    "ar": "الإقامة المميزة — مسار مستثمر الأعمال"
+  },
+  "BP-PR-05": {
+    "en": "Premium Residency — Entrepreneur route",
+    "ar": "الإقامة المميزة — مسار رائد الأعمال"
+  },
+  "BP-PR-06": {
+    "en": "Premium Residency — Property Owner route",
+    "ar": "الإقامة المميزة — مسار مالك العقار"
+  },
+  "BP-PR-07": {
+    "en": "Premium Residency — Talent route",
+    "ar": "الإقامة المميزة — مسار الموهبة"
+  },
+  "BP-PR-08": {
+    "en": "Premium Residency — Exceptional Competence route",
+    "ar": "الإقامة المميزة — مسار الكفاءة الاستثنائية"
+  },
+  "BP-PR-09": {
+    "en": "Premium Residency — Financial route (permanent or annual)",
+    "ar": "الإقامة المميزة — المسار المالي (دائمة أو سنوية)"
+  },
+  "BP-PR-10": {
+    "en": "Adding family members under Premium Residency",
+    "ar": "ضمّ أفراد الأسرة تحت الإقامة المميزة"
+  },
+  "BP-SBC-21": {
+    "en": "Beneficial owner disclosure",
+    "ar": "الإبلاغ عن المستفيد الحقيقي"
+  },
+  "BP-SBC-22": {
+    "en": "Annual commercial-register confirmation",
+    "ar": "التأكيد السنوي لبيانات السجل التجاري"
+  },
+  "BP-SBC-23": {
+    "en": "Transferring ownership of a commercial register",
+    "ar": "نقل ملكية السجل التجاري"
+  },
+  "BP-SBC-24": {
+    "en": "Publishing general-assembly resolutions",
+    "ar": "نشر قرارات الجمعية العامة"
+  },
+  "BP-SBC-25": {
+    "en": "Merger or acquisition",
+    "ar": "اندماج شركتين أو استحواذ"
+  },
+  "BP-SBC-26": {
+    "en": "E-store documentation (e-commerce register)",
+    "ar": "توثيق متجر إلكتروني (سجل التجارة الإلكترونية)"
+  },
+  "BP-SBC-27": {
+    "en": "Registering a security interest",
+    "ar": "تسجيل ضمان في السجل العيني للحقوق"
+  },
+  "BP-SBC-28": {
+    "en": "Filing financial statements with the Ministry of Commerce",
+    "ar": "إيداع القوائم المالية لدى وزارة التجارة"
+  },
+  "BP-SBC-29": {
+    "en": "Commercial register translation & attestation",
+    "ar": "ترجمة السجل التجاري وتوثيقها"
+  },
+  "BP-SBC-30": {
+    "en": "Document attestation & apostille via MOFA",
+    "ar": "تصديق المستندات وأبوستيل عبر الخارجية"
+  },
+  "BP-FI-08": {
+    "en": "Regional Headquarters (RHQ) — qualification & filing",
+    "ar": "المقر الإقليمي RHQ — التأهيل والتقديم"
+  },
+  "BP-FI-09": {
+    "en": "Representative office for a foreign company",
+    "ar": "مكتب تمثيل لشركة أجنبية"
+  },
+  "BP-FI-10": {
+    "en": "Investment licence renewal",
+    "ar": "تجديد ترخيص الاستثمار"
+  },
+  "BP-FI-11": {
+    "en": "Amending an investment licence",
+    "ar": "تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)"
+  },
+  "BP-FI-12": {
+    "en": "Cancelling an investment licence and closing the entity",
+    "ar": "إلغاء ترخيص الاستثمار وإنهاء الكيان"
+  },
+  "BP-FI-13": {
+    "en": "Market-entry advisory: which investment licence fits",
+    "ar": "استشارة دخول السوق: أي ترخيص استثمار يناسبك"
   }
 }

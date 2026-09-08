@@ -3444,5 +3444,559 @@
       "label": "900 ﷼",
       "amount": 900
     }
+  },
+  {
+    "code": "BP-PR-03",
+    "slug": "bp-pr-03",
+    "name": "تقييم أهلية الإقامة المميزة وتحديد مسارك",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "قراءة حالتك: جنسيتك ونشاطك وأصولك ومؤهلاتك",
+      "تحديد المسار المناسب من مسارات الإقامة المميزة",
+      "بيان شروط المسار ومستنداته ورسومه كما تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمدد والمسؤوليات",
+      "تقدير الأتعاب والرسوم قبل أن تبدأ"
+    ],
+    "targetClient": "من يفكّر في الإقامة المميزة ولا يعرف أي مسار يناسبه",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-PR-04",
+    "slug": "bp-pr-04",
+    "name": "الإقامة المميزة — مسار مستثمر الأعمال",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "المستثمرون أصحاب رخص الاستثمار المستوفية لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "7,500 ﷼",
+      "amount": 7500
+    }
+  },
+  {
+    "code": "BP-PR-05",
+    "slug": "bp-pr-05",
+    "name": "الإقامة المميزة — مسار رائد الأعمال",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "روّاد الأعمال أصحاب المشاريع المستوفية لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,500 ﷼",
+      "amount": 6500
+    }
+  },
+  {
+    "code": "BP-PR-06",
+    "slug": "bp-pr-06",
+    "name": "الإقامة المميزة — مسار مالك العقار",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "ملّاك العقار المستوفون لشرط الأصول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-07",
+    "slug": "bp-pr-07",
+    "name": "الإقامة المميزة — مسار الموهبة",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "أصحاب المواهب والتخصصات المستوفون لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-08",
+    "slug": "bp-pr-08",
+    "name": "الإقامة المميزة — مسار الكفاءة الاستثنائية",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "أصحاب الكفاءات في المجالات ذات الأولوية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,500 ﷼",
+      "amount": 6500
+    }
+  },
+  {
+    "code": "BP-PR-09",
+    "slug": "bp-pr-09",
+    "name": "الإقامة المميزة — المسار المالي (دائمة أو سنوية)",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "من يختار المسار المالي دون اشتراط نشاطٍ أو أصول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-10",
+    "slug": "bp-pr-10",
+    "name": "ضمّ أفراد الأسرة تحت الإقامة المميزة",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "مراجعة صلات القرابة والمستندات المطلوبة",
+      "تجهيز طلبات الضمّ لكل فرد",
+      "تقديمها ومتابعتها حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "حاملو الإقامة المميزة الراغبون في ضمّ أسرهم",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "2,500 ﷼",
+      "amount": 2500
+    }
+  },
+  {
+    "code": "BP-SBC-21",
+    "slug": "bp-sbc-21",
+    "name": "الإبلاغ عن المستفيد الحقيقي",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "تحديد المستفيد الحقيقي وفق معايير النظام",
+      "تجهيز الإفصاح ومستنداته المؤيدة",
+      "رفعه ومتابعته حتى الاعتماد",
+      "تنبيهك عند أي تغيّر يوجب تحديث الإفصاح"
+    ],
+    "targetClient": "الشركات الملزمة بالإفصاح عن المستفيد الحقيقي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-SBC-22",
+    "slug": "bp-sbc-22",
+    "name": "التأكيد السنوي لبيانات السجل التجاري",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيانات السجل قبل التأكيد",
+      "تنفيذ التأكيد السنوي في موعده",
+      "تسليم ما يثبت التأكيد",
+      "تنبيهك قبل موعد السنة القادمة"
+    ],
+    "targetClient": "كل منشأة لديها سجل تجاري ساري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "200 ﷼",
+      "amount": 200
+    }
+  },
+  {
+    "code": "BP-SBC-23",
+    "slug": "bp-sbc-23",
+    "name": "نقل ملكية السجل التجاري",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة الالتزامات القائمة على السجل قبل النقل",
+      "تجهيز مستندات النقل وموافقات الأطراف",
+      "تنفيذ النقل ومتابعته حتى التحديث",
+      "تسليم السجل بالبيانات الجديدة"
+    ],
+    "targetClient": "البائع والمشتري في نقل ملكية منشأة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-SBC-24",
+    "slug": "bp-sbc-24",
+    "name": "نشر قرارات الجمعية العامة",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "صياغة القرار بما يوافق نظام الشركات",
+      "التحقق من النصاب وصحة الانعقاد",
+      "نشر القرار ومتابعته حتى الاعتماد",
+      "تسليم ما يثبت النشر"
+    ],
+    "targetClient": "الشركات التي اتخذت قراراً يوجب النشر",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "800 ﷼",
+      "amount": 800
+    }
+  },
+  {
+    "code": "BP-SBC-25",
+    "slug": "bp-sbc-25",
+    "name": "اندماج شركتين أو استحواذ",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة الكيانين والتزاماتهما وسجلاتهما",
+      "صياغة قرارات الشركاء وعقود الاندماج",
+      "تنفيذ الإجراء لدى الجهات المختصة",
+      "متابعته حتى اكتمال الكيان الناتج وسجله"
+    ],
+    "targetClient": "الشركات المقبلة على اندماج أو استحواذ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "12,000 ﷼",
+      "amount": 12000
+    }
+  },
+  {
+    "code": "BP-SBC-26",
+    "slug": "bp-sbc-26",
+    "name": "توثيق متجر إلكتروني (سجل التجارة الإلكترونية)",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة المتجر وبياناته وسياساته",
+      "مطابقة الشروط المطلوبة نظاماً",
+      "توثيق المتجر ومتابعته حتى الإصدار",
+      "تسليم الشهادة ووسمها على المتجر"
+    ],
+    "targetClient": "أصحاب المتاجر الإلكترونية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "700 ﷼",
+      "amount": 700
+    }
+  },
+  {
+    "code": "BP-SBC-27",
+    "slug": "bp-sbc-27",
+    "name": "تسجيل ضمان في السجل العيني للحقوق",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة عقد الضمان والأطراف والمحل",
+      "تجهيز بيانات القيد ورفعها",
+      "متابعة القيد حتى إتمامه",
+      "تسليم ما يثبت التسجيل"
+    ],
+    "targetClient": "الدائنون والممولون وأصحاب الضمانات",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-SBC-28",
+    "slug": "bp-sbc-28",
+    "name": "إيداع القوائم المالية لدى وزارة التجارة",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة القوائم ومرفقاتها قبل الإيداع",
+      "التحقق من موعد الالتزام",
+      "الإيداع ومتابعته حتى القبول",
+      "تسليم ما يثبت الإيداع"
+    ],
+    "targetClient": "الشركات الملزمة بإيداع قوائمها المالية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,000 ﷼",
+      "amount": 1000
+    }
+  },
+  {
+    "code": "BP-SBC-29",
+    "slug": "bp-sbc-29",
+    "name": "ترجمة السجل التجاري وتوثيقها",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "استخراج نسخة السجل المطلوبة",
+      "ترجمتها ترجمةً معتمدة",
+      "توثيق الترجمة",
+      "تسليم النسخة جاهزةً للاستخدام"
+    ],
+    "targetClient": "من يحتاج سجله بالإنجليزية لجهةٍ أو بنك",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-SBC-30",
+    "slug": "bp-sbc-30",
+    "name": "تصديق المستندات وأبوستيل عبر الخارجية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "وزارة الخارجية MOFA",
+    "description": "",
+    "deliverables": [
+      "تحديد مسار التصديق أو الأبوستيل لكل مستند",
+      "تجهيز المستندات وترجمتها عند اللزوم",
+      "تنفيذ التصديق ومتابعته",
+      "تسليم المستندات مصدّقة"
+    ],
+    "targetClient": "الشركات والمستثمرون الذين يستخدمون مستنداتهم عبر الحدود",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-FI-08",
+    "slug": "bp-fi-08",
+    "name": "المقر الإقليمي RHQ — التأهيل والتقديم",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة أهلية المجموعة وهيكلها الإقليمي",
+      "تحديد الأنشطة الاختيارية المطلوبة وخطة استيفائها",
+      "تجهيز الملف وتقديمه ومتابعته حتى صدور القرار",
+      "مرافقتك في التزامات ما بعد الإصدار خلال السنة الأولى"
+    ],
+    "targetClient": "الشركات العالمية التي تجعل الرياض مقرها الإقليمي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "35,000 ﷼",
+      "amount": 35000
+    }
+  },
+  {
+    "code": "BP-FI-09",
+    "slug": "bp-fi-09",
+    "name": "مكتب تمثيل لشركة أجنبية",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة أهلية الشركة الأم ونطاق المكتب",
+      "تجهيز مستندات الشركة الأم مصدّقة ومترجمة",
+      "تقديم الطلب ومتابعته حتى صدور الترخيص",
+      "بيان ما يجوز للمكتب وما لا يجوز"
+    ],
+    "targetClient": "الشركات الأجنبية التي تريد حضوراً غير تجاري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "15,000 ﷼",
+      "amount": 15000
+    }
+  },
+  {
+    "code": "BP-FI-10",
+    "slug": "bp-fi-10",
+    "name": "تجديد ترخيص الاستثمار",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "متابعة موعد انتهاء الترخيص وتنبيهك قبله",
+      "مراجعة استيفاء شروط التجديد",
+      "تقديم طلب التجديد ومتابعته",
+      "تسليم الترخيص المجدَّد وتاريخ انتهائه"
+    ],
+    "targetClient": "كل منشأة تحمل ترخيص استثمار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "3,000 ﷼",
+      "amount": 3000
+    }
+  },
+  {
+    "code": "BP-FI-11",
+    "slug": "bp-fi-11",
+    "name": "تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة التعديل المطلوب وأثره على الترخيص والسجل",
+      "تجهيز المستندات وقرارات الشركاء",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "بيان ما يتبع التعديل من تحديثاتٍ لدى الجهات"
+    ],
+    "targetClient": "المنشآت المرخّصة التي تغيّر نشاطها أو ملكيتها",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "4,000 ﷼",
+      "amount": 4000
+    }
+  },
+  {
+    "code": "BP-FI-12",
+    "slug": "bp-fi-12",
+    "name": "إلغاء ترخيص الاستثمار وإنهاء الكيان",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "حصر الالتزامات القائمة قبل الإلغاء",
+      "تجهيز طلب الإلغاء ومستندات التصفية",
+      "إغلاق الملفات لدى الجهات المرتبطة",
+      "تسليم ما يثبت إنهاء الكيان"
+    ],
+    "targetClient": "المستثمرون المنهون نشاطهم في المملكة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "5,000 ﷼",
+      "amount": 5000
+    }
+  },
+  {
+    "code": "BP-FI-13",
+    "slug": "bp-fi-13",
+    "name": "استشارة دخول السوق: أي ترخيص استثمار يناسبك",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "قراءة نشاطك المستهدف ومطابقته مع القائمة السلبية",
+      "تحديد نوع الترخيص المناسب وشروطه ورأس ماله",
+      "بيان المستندات والتصديقات المطلوبة من بلد المنشأ",
+      "خطة دخول مكتوبة بالخطوات والمدد والتكلفة التقديرية",
+      "تقدير الأتعاب والرسوم قبل أن تبدأ"
+    ],
+    "targetClient": "المستثمرون الأجانب قبل اختيار مسار الدخول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "2,500 ﷼",
+      "amount": 2500
+    }
   }
 ]

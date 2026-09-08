@@ -848,6 +848,7 @@ const GOV_EN = {
   "منصة التقييم الذاتي": "Self Assessment platform",
   "منصة مواءمة": "Mowaamah",
   "المنصة الوطنية للمسؤولية الاجتماعية": "National Social Responsibility platform",
+  "وزارة الخارجية MOFA": "Ministry of Foreign Affairs (MOFA)",
   "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };
