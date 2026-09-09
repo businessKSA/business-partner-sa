@@ -20,8 +20,11 @@ import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON, getSession } from "./_db.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
+// ‏قاعدة المعرفة لم تعد تُحقن كاملة. `pickKnowledge` تختار أقسامها التي
+// تخصّ سؤال العميل — انظر api/_knowledge.js لسبب ذلك ولحجم ما كان يُرسل.
+let KNOWLEDGE = "";
 import { priceSheetText } from "./_catalog.js";
+import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
@@ -33,7 +36,7 @@ const panelKeyOk = (k) => !panelRequiresNafath() && PANEL_KEYS.size > 0 && PANEL
 
 const WHATSAPP = process.env.WHATSAPP_URL || "https://wa.me/966507034157";
 
-const SYSTEM_INSTRUCTIONS = `أنت «باهر» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية). عرّف بنفسك باسم باهر إذا سُئلت.
+const SYSTEM_INSTRUCTIONS = () => `أنت «باهر» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية). عرّف بنفسك باسم باهر إذا سُئلت.
 
 مهمتك: تجاوب زوّار الموقع عن الإجراءات والخدمات الحكومية والأعمال في السعودية بدقة، ثم تقترح بلطف خدمة بيزنس بارتنر ذات العلاقة.
 
@@ -67,6 +70,7 @@ const INTAKE_CONTEXT = {
 };
 const INTAKE_LANG = { ar: "العربية", en: "English", fr: "le français", zh: "中文（简体）" };
 function intakeInstructions(context, lang) {
+  // ‏KNOWLEDGE مضبوطة قبل النداء إلى ما يخصّ هذا الدور — انظر الـhandler.
   return `أنت «مساعد شريك الأعمال» (Business Partner) على الموقع. الشركة تقدّم ثلاث خدمات فقط للعملاء: الاستشارات، الخدمات الحكومية، وتأسيس الشركات في السعودية.
 ${INTAKE_CONTEXT[context] || INTAKE_CONTEXT.consulting}
 
@@ -93,7 +97,7 @@ ${KNOWLEDGE}
 // «مساعد الإدارة» — a second persona over the same providers, unlocked only by
 // the owner's panel key/ticket. It writes FOR the owner (marketing copy, site
 // content, emails) and explains the control panel's own tools.
-const ADMIN_INSTRUCTIONS = `أنت «مساعد الإدارة» داخل لوحة تحكم موقع بيزنس بارتنر (businesspartner.sa). أنت تخاطب مالك المنصة نفسه — لا عميلاً — فكن مباشراً وعملياً وقدّم نتائج جاهزة للاستخدام.
+const ADMIN_INSTRUCTIONS = () => `أنت «مساعد الإدارة» داخل لوحة تحكم موقع بيزنس بارتنر (businesspartner.sa). أنت تخاطب مالك المنصة نفسه — لا عميلاً — فكن مباشراً وعملياً وقدّم نتائج جاهزة للاستخدام.
 
 مهامك الثلاث:
 1) الكتابة والمحتوى: صياغة وتحسين أي نص يطلبه — عناوين وأوصاف خدمات، فقرات تعريفية، رسائل بريد للعملاء، منشورات تسويقية ولينكدإن، نصوص إعلانات، أسماء وعروض أكواد خصم. اكتب بعربية فصيحة تسويقية واضحة (وبالإنجليزية عند الطلب)، وقدّم النص جاهزاً للنسخ، وعند الطلب قدّم أكثر من صيغة. المحتوى الحكومي والأسعار: اعتمد حصراً على قاعدة المعرفة أدناه ولا تخترع رسوماً أو مدداً أو اشتراطات.
@@ -116,7 +120,7 @@ ${KNOWLEDGE}
 // mode:"account" — the assistant INSIDE the client portal (/account). It
 // knows every section of the portal and answers from the client's own live
 // data (orders snapshot from the page + wallet/escrows read server-side).
-const ACCOUNT_INSTRUCTIONS = `أنت «مساعد لوحتك» داخل مركز عمليات العميل في بيزنس بارتنر (businesspartner.sa/account). أنت تخاطب عميلاً مسجلاً داخل لوحته الخاصة — كن ودوداً عملياً مختصراً، وردّ بلغة سؤاله (العربية غالباً).
+const ACCOUNT_INSTRUCTIONS = () => `أنت «مساعد لوحتك» داخل مركز عمليات العميل في بيزنس بارتنر (businesspartner.sa/account). أنت تخاطب عميلاً مسجلاً داخل لوحته الخاصة — كن ودوداً عملياً مختصراً، وردّ بلغة سؤاله (العربية غالباً).
 
 مهمتك: مساعدته على استخدام لوحته والإجابة من بياناته الحية المرفقة أدناه.
 
@@ -149,7 +153,10 @@ ${KNOWLEDGE}
 /* ---------- provider callers: each takes sanitized messages, returns reply text or throws ---------- */
 
 // Admin turns write whole drafts; customer turns stay short answers.
-const maxTokensFor = (system) => (system === ADMIN_INSTRUCTIONS ? 2048 : 1024);
+// ‏كان يقارن الثابت نفسه؛ والشخصيات صارت دوالّ تُبنى في كل دور، فصار
+// التمييز بعلامةٍ صريحة يضعها الـhandler.
+let WANT_LONG = false;
+const maxTokensFor = () => (WANT_LONG ? 2048 : 1024);
 
 // Resolve the first non-empty env var from a list of candidate names.
 const envFrom = (names) => { for (const n of names) { if (process.env[n]) return process.env[n]; } return ""; };
@@ -171,7 +178,7 @@ async function callGemini(messages, system) {
     body: JSON.stringify({
       system_instruction: { parts: [{ text: system }] },
       contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-      generationConfig: { maxOutputTokens: maxTokensFor(system) },
+      generationConfig: { maxOutputTokens: maxTokensFor() },
     }),
   });
   if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 300)}`);
@@ -194,7 +201,7 @@ async function callOpenAICompatible(url, apiKey, model, messages, system) {
     headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
     body: JSON.stringify({
       model,
-      max_tokens: maxTokensFor(system),
+      max_tokens: maxTokensFor(),
       messages: [{ role: "system", content: system }, ...messages],
     }),
   });
@@ -233,7 +240,7 @@ async function callAnthropic(messages, system) {
       // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — see api/hire.js
       // for why a generic name here is a real, confirmed failure mode.
       model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: maxTokensFor(system),
+      max_tokens: maxTokensFor(),
       // Big stable prompt first with a cache breakpoint → cheap cached reads.
       system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
       messages,
@@ -367,6 +374,15 @@ export default async function handler(req, res) {
   // their page already renders (their own data, echoed back to them).
   const isAccount = !isAdmin && body.mode === "account";
   const isIntake = !isAdmin && !isAccount && body.mode === "intake";
+  // ‏ما يُرسل من قاعدة المعرفة وقائمة الأسعار يتحدّد بآخر ما كتبه العميل.
+  // قبل هذا كانت القاعدة كلها (١٩٧ كيلوبايت) وقائمة الأسعار كلها تُحقَن في
+  // كل دور: ٤٥ ألف رمز للسؤال الواحد — أسقط Groq بـ413، وأكل رصيد Gemini
+  // وAnthropic أضعاف ما يلزم. ويجب أن يسبق بناءَ الشخصيات لأنها تقرأه.
+  const focus = (Array.isArray(body.messages) ? body.messages : [])
+    .filter((m) => m && typeof m.content === "string")
+    .slice(-2).map((m) => m.content).join(" ").slice(0, 1200);
+  KNOWLEDGE = pickKnowledge(focus, isAdmin ? 20000 : 9000);
+
   const intakeSystem = isIntake ? intakeInstructions(String(body.context || "consulting"), String(body.lang || "ar")) : null;
   let accountSystem = null;
   if (isAccount) {
@@ -387,7 +403,7 @@ export default async function handler(req, res) {
       }
     } catch {}
     const snap = body.ctx && typeof body.ctx === "object" ? JSON.stringify(body.ctx).slice(0, 4000) : "";
-    accountSystem = ACCOUNT_INSTRUCTIONS +
+    accountSystem = ACCOUNT_INSTRUCTIONS() +
       `\n\n## بيانات هذا العميل الحية (اعتمدها في الإجابة)\n` +
       `الاسم: ${(sess.user && sess.user.full_name) || "—"} · البريد: ${(sess.user && sess.user.email) || "—"} · المنشأة: ${(sess.organization && (sess.organization.name_ar || sess.organization.name_en)) || "—"}` +
       live +
@@ -398,9 +414,11 @@ export default async function handler(req, res) {
   // sheet is what stops the advisor quoting a figure the website no longer
   // shows; it degrades to the static knowledge base if the catalog is
   // unreachable, so a price outage never becomes an answering outage.
-  const priceSheet = await priceSheetText();
-  const base = isAdmin ? ADMIN_INSTRUCTIONS : isAccount ? accountSystem : isIntake ? intakeSystem : SYSTEM_INSTRUCTIONS;
+  const priceSheet = await priceSheetText(isAdmin ? 140 : 45, isAdmin ? "" : focus);
+  WANT_LONG = isAdmin;
+  const base = isAdmin ? ADMIN_INSTRUCTIONS() : isAccount ? accountSystem : isIntake ? intakeSystem : SYSTEM_INSTRUCTIONS();
   const system = priceSheet ? base + "\n\n" + priceSheet : base;
+  console.log(`chat system chars=${system.length} mode=${isAdmin ? "admin" : isAccount ? "account" : isIntake ? "intake" : "public"}`);
   // The n8n fallback is the customer-facing باهر agent with its own hardwired
   // persona — it cannot play the admin or in-portal role, so both skip it.
   const adminChain = (isAdmin || isAccount || isIntake) ? chain.filter((p) => p.name !== "baher-n8n") : chain;
