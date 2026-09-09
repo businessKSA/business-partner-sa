@@ -453,7 +453,17 @@ function localizeLabel(l) {
     .replace("/ شهرياً", "/ monthly")
     .replace("/ لكل مرشّح", "/ per candidate")
     .replace("شهرياً", "monthly")
-    .replace("لكل مرشّح", "per candidate");
+    .replace("لكل مرشّح", "per candidate")
+    // ‏وحداتٌ فاتت الجدول فظهرت عربيةً في الصفحة الإنجليزية:
+    // «2,500 ﷼ / شهر» و«100 ﷼ / سيرة ذاتية» و«30,000 ﷼ / كيان».
+    .replace("/ شهر", "/ month")
+    .replace("/ سيرة ذاتية", "/ CV")
+    .replace("/ كيان", "/ entity")
+    .replace("/ منشأة", "/ establishment")
+    .replace("/ لكل رحلة", "/ per trip")
+    .replace("عرض سعر مخصص", "Custom quotation")
+    .replace("سعر حسب حالتك", "Priced to your case")
+    .replace("﷼", "SAR");
 }
 const priceLabel = (s) => localizeLabel((s.price && s.price.label) || "");
 // ASCII-safe id from any string (keeps Arabic out of element ids / data-id).
@@ -849,6 +859,9 @@ const GOV_EN = {
   "منصة مواءمة": "Mowaamah",
   "المنصة الوطنية للمسؤولية الاجتماعية": "National Social Responsibility platform",
   "وزارة الخارجية MOFA": "Ministry of Foreign Affairs (MOFA)",
+  "وزارة التجارة": "Ministry of Commerce",
+  "منشآت": "Monsha'at",
+  "الهيئة العامة للعقار (REGA) · منصة عقارات السعودية": "REGA · Saudi Real Estate platform",
   "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };
@@ -1772,6 +1785,30 @@ const ECO_CATS = {
 };
 const ecoCatLabel = (k) => (ECO_CATS[k] ? L(ECO_CATS[k].en, ECO_CATS[k].ar) : esc(k));
 
+// ‏أسماء المدن السعودية بلغة الصفحة. كانت تُطبع بالعربية في كل شجرة، فيقرأ
+// زائر الصفحة الإنجليزية «أبها» و«الخبر» بين نصٍّ إنجليزي. للمدن أسماءٌ
+// إنجليزية متعارَفة فلا حاجة لترجمة آلية — هذا جدول تحويل لا ترجمة.
+const CITY_EN = {
+  "الرياض": "Riyadh", "جدة": "Jeddah", "مكة المكرمة": "Makkah", "مكة": "Makkah",
+  "المدينة المنورة": "Madinah", "المدينة": "Madinah", "الدمام": "Dammam",
+  "الخبر": "Khobar", "الظهران": "Dhahran", "الجبيل": "Jubail", "ينبع": "Yanbu",
+  "الأحساء": "Al-Ahsa", "الهفوف": "Hofuf", "بريدة": "Buraidah", "عنيزة": "Unaizah",
+  "أبها": "Abha", "خميس مشيط": "Khamis Mushait", "تبوك": "Tabuk", "حائل": "Hail",
+  "جازان": "Jazan", "جيزان": "Jazan", "نجران": "Najran", "الباحة": "Al-Baha",
+  "الطائف": "Taif", "الخرج": "Al-Kharj", "سكاكا": "Sakaka", "عرعر": "Arar",
+  "القصيم": "Qassim", "عسير": "Asir", "العلا": "AlUla", "نيوم": "NEOM",
+  "الشرقية": "Eastern Province", "المنطقة الشرقية": "Eastern Province",
+  "الرس": "Ar Rass", "رابغ": "Rabigh", "الأحساء - الهفوف": "Al-Ahsa",
+  "شقراء": "Shaqra", "ينبع البحر": "Yanbu Al Bahr", "الدرعية": "Diriyah",
+  "الزلفي": "Az Zulfi", "الدوادمي": "Dawadmi", "المجمعة": "Al Majmaah",
+};
+const cityLabel = (c) => {
+  const k = String(c || "").trim();
+  if (!k) return "";
+  return LANG === "ar" ? k : (CITY_EN[k] || T(k));
+};
+
+
 function buildDirectory() {
   const orgs = ecosystem.orgs || [];
   const programs = ecosystem.programs || [];
@@ -1804,7 +1841,7 @@ function buildDirectory() {
   // ----- city select -----
   const cityOpts =
     `<option value="all">${L("All cities", "كل المدن")}</option>` +
-    cities.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    cities.map((c) => `<option value="${esc(c)}">${esc(cityLabel(c))}</option>`).join("");
 
   // ----- entity cards -----
   const contactLinks = (o) => {
@@ -1821,7 +1858,7 @@ function buildDirectory() {
     return `<article class="eco-card" data-kind="orgs" data-cat="${o.cat}" data-city="${esc(o.city)}" data-text="${esc(text)}">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(o.cat)}</span>
-        ${o.city ? `<span class="eco-city">${I.pin}${esc(o.city)}</span>` : ""}
+        ${o.city ? `<span class="eco-city">${I.pin}${esc(cityLabel(o.city))}</span>` : ""}
       </div>
       <h3>${esc(o.name)}</h3>
       ${o.type ? `<p class="eco-type">${esc(o.type)}</p>` : ""}
@@ -6860,7 +6897,7 @@ function buildWorkerHousing() {
     [L("Move in & ongoing follow-up", "تسكين ومتابعة مستمرة"), L("Your workers move into ready housing; we track operations, compliance and renewals all year.", "عمالتك تنتقل لسكن جاهز، واحنا نتابع التشغيل والامتثال والتجديدات طول السنة.")],
   ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
 
-  const cities = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "بريدة", "أبها", "تبوك", "حائل", "جازان", "نجران", "الطائف", "الهفوف", "ينبع", "الجبيل"]
+  const cities = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "بريدة", "أبها", "تبوك", "حائل", "جازان", "نجران", "الطائف", "الهفوف", "ينبع", "الجبيل"].map(cityLabel)
     .map((c) => `<span class="chip">📍 ${c}</span>`).join("");
 
   const reqTypes = [["Ready housing (rent)", "سكن جاهز (إيجار)"], ["License my existing housing", "ترخيص وتوثيق سكن حالي"], ["Housing + catering + transport", "سكن + إعاشة + نقل"], ["Operate an existing housing", "إدارة وتشغيل سكن قائم"], ["Consultation / not sure", "استشارة / غير محدد"]]
@@ -7723,7 +7760,12 @@ function partnersBlock({ withShare = false } = {}) {
 // with the chosen bank, and set an ONLINE appointment with the bank officer —
 // every partner + the manager get the appointment by email.
 function buildBankAccount() {
-  const banks = ["الراجحي", "SNB الأهلي", "الرياض", "الإنماء", "ساب SAB", "البلاد", "الجزيرة", "العربي anb", "STC Bank", "بنك آخر"];
+  const banks = [
+    L("Al Rajhi Bank", "الراجحي"), L("Saudi National Bank (SNB)", "SNB الأهلي"),
+    L("Riyad Bank", "الرياض"), L("Alinma Bank", "الإنماء"), L("SAB", "ساب SAB"),
+    L("Bank Albilad", "البلاد"), L("Bank AlJazira", "الجزيرة"),
+    L("Arab National Bank (anb)", "العربي anb"), "STC Bank", L("Another bank", "بنك آخر"),
+  ];
   const steps = [
     [1, L("Complete your company profile", "أكمل بيانات منشأتك"), L("CR, activity, national address and contacts in your dashboard — this is the bank-file prerequisite.", "السجل والنشاط والعنوان الوطني وجهات الاتصال في لوحتك — هذا اشتراط ملف البنك.")],
     [2, L("Pick the bank & propose a time", "اختر البنك واقترح موعداً"), L("Choose your preferred bank and a time that suits all partners.", "اختر بنكك المفضل ووقتاً يناسب جميع الشركاء.")],
@@ -12588,15 +12630,26 @@ write("doc-agent-admin.html", buildDocAgentAdmin());
 // standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
 // buildAccount() output for en+ar; extra languages keep the legacy page until
 // the center is translated for them.
-function buildAccountCenter() {
+function buildAccountCenter(lang = "ar") {
   // The client id is public by design (it identifies the app, not the user),
   // but it still comes from the environment so a deployment without Google
   // configured simply never renders the button.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8')
+  let html = fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8')
     .replace("</head>", `<script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>`);
+  // ‏الصفحة مكتوبة بالعربية أصلاً ولها قاموسها الإنجليزي الكامل (١٦٨ مفتاحاً)،
+  // لكنها كانت تُنسخ حرفياً إلى الشجرة الإنجليزية بـ`lang="ar"` وبحالةٍ أوّلية
+  // عربية — فيصل الزائر الإنجليزي إلى «مركز عمليات العميل» وحقولٍ عربية.
+  // قلبُ السمتين وحالة اللغة يجعل قاموسها هي تُخرج الإنجليزية بنفسها، بلا
+  // طبقة ترجمةٍ فوقها. وتفضيل العميل المحفوظ يظل يعلو على هذا.
+  if (lang !== "ar") {
+    html = html
+      .replace('<html dir="rtl" lang="ar">', '<html dir="ltr" lang="en">')
+      .replace("      lang: 'ar',", "      lang: 'en',");
+  }
+  return html;
 }
-write("account.html", buildAccountCenter());
-write("ar/account.html", buildAccountCenter());
+write("account.html", buildAccountCenter("en"));
+write("ar/account.html", buildAccountCenter("ar"));
 
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());

@@ -36,6 +36,7 @@ const D = {
              zh: "此处不显示价格：费用随舱位等级、酒店星级与城市数量而变。我们收集全部信息后向您发送详细报价。" },
   visitDate:{ ar: "تاريخ الزيارة المتوقّع", en: "Expected visit date", fr: "Date de visite prévue", zh: "预计出行日期" },
   reqMiss: { ar: "أكمل: ", en: "Still needed: ", fr: "Il manque : ", zh: "尚需：" },
+  sep:     { ar: "\u060C ", en: ", ", fr: ", ", zh: "\u3001" },
   bespoke: { ar: "يُسعَّر بعرضٍ مخصّص", en: "Quoted bespoke", fr: "Devis sur mesure", zh: "定制报价" },
   sendReq: { ar: "أرسل طلبي", en: "Send my request", fr: "Envoyer ma demande", zh: "发送请求" },
   pickedN: { ar: "مختار", en: "selected", fr: "sélectionné", zh: "已选" },
@@ -86,6 +87,98 @@ const D = {
 //
 // ولا سعر هنا: كلفة الزيارة تتغيّر بدرجة الطيران وتصنيف الفندق وعدد المدن —
 // وسعرٌ يُعرض قبل معرفة هذه ليس سعراً. المُهيّئ يجمعها ثم يصدر العرض.
+// ‏قوائم المُهيّئ كُتبت بالعربية وحدها، فظهرت عربيةً كاملةً في الصفحة
+// الإنجليزية — أسماء القطاعات والجهات والمدن والفنادق. هذا جدول تحويل
+// للمسمّيات، وأسماء الجهات فيه رسميةٌ لا مترجمة. الترجمة تجري قبل تسليم
+// القوائم إلى الصفحة، فتبقى شيفرة الواجهة كما هي.
+const TRIP_TR = {
+  "نوع النشاط": "Business activity",
+  "الجهات التي تودّ لقاءها": "Entities you would like to meet",
+  "المدن": "Cities",
+  "الطيران الدولي": "International flights",
+  "درجة الطيران": "Cabin class",
+  "الناقل المفضّل": "Preferred airline",
+  "المواصلات داخل المملكة": "Ground transport in the Kingdom",
+  "السكن": "Accommodation",
+  "المطاعم": "Dining",
+  "عدد الأشخاص": "Number of people",
+  "عدد الأيام": "Number of days",
+  "تجاري": "Commercial",
+  "خدمي": "Services",
+  "صناعي": "Industrial",
+  "تقني": "Technology",
+  "لوجستي": "Logistics",
+  "سياحي وترفيهي": "Tourism & entertainment",
+  "صحي": "Healthcare",
+  "تعليمي": "Education",
+  "زراعي وغذائي": "Agriculture & food",
+  "عقاري": "Real estate",
+  "مالي": "Financial",
+  "تعدين وطاقة": "Mining & energy",
+  "غير ذلك": "Other",
+  "وزارة الاستثمار": "Ministry of Investment",
+  "وزارة التجارة": "Ministry of Commerce",
+  "وزارة الصناعة والثروة المعدنية": "Ministry of Industry & Mineral Resources",
+  "منشآت": "Monsha",
+  "مدن — هيئة المدن الصناعية": "MODON — Industrial Cities Authority",
+  "هيئة الزكاة والضريبة والجمارك": "ZATCA",
+  "وزارة الموارد البشرية": "Ministry of Human Resources",
+  "الهيئة السعودية للملكية الفكرية": "Saudi Authority for Intellectual Property (SAIP)",
+  "الهيئة العامة للغذاء والدواء": "Saudi Food & Drug Authority (SFDA)",
+  "هيئة السوق المالية": "Capital Market Authority (CMA)",
+  "الهيئة السعودية للسياحة": "Saudi Tourism Authority",
+  "هيئة تنمية الصادرات": "Saudi Export Development Authority",
+  "الغرفة التجارية": "Chamber of Commerce",
+  "مدينة الملك عبدالعزيز للعلوم والتقنية": "KACST",
+  "صندوق التنمية الصناعية": "Saudi Industrial Development Fund",
+  "شركاء وموزّعون من القطاع الخاص": "Private-sector partners & distributors",
+  "الرياض": "Riyadh",
+  "جدة": "Jeddah",
+  "الدمام والخبر": "Dammam & Khobar",
+  "نيوم": "NEOM",
+  "العلا": "AlUla",
+  "مكة المكرمة": "Makkah",
+  "المدينة المنورة": "Madinah",
+  "الطائف": "Taif",
+  "الأحساء": "Al-Ahsa",
+  "الجبيل": "Jubail",
+  "ينبع": "Yanbu",
+  "مدينة الملك عبدالله الاقتصادية": "King Abdullah Economic City",
+  "أحتاج تذاكر": "I need tickets",
+  "لديّ تذاكري": "I have my tickets",
+  "اقتصادية": "Economy",
+  "رجال أعمال": "Business",
+  "أولى": "First",
+  "الخطوط السعودية": "Saudia",
+  "طيران الرياض": "Riyadh Air",
+  "طيران ناس": "flynas",
+  "طيران أديل": "flyadeal",
+  "ناقل آخر": "Another airline",
+  "حسب الأفضل سعراً وتوقيتاً": "Best price and timing",
+  "سيارة خاصة بسائق": "Private car with driver",
+  "سيارة فاخرة بسائق": "Luxury car with driver",
+  "فان (حافلة صغيرة)": "Van (minibus)",
+  "حافلة": "Coach",
+  "قطار الحرمين": "Haramain train",
+  "طيران داخلي": "Domestic flights",
+  "تأجير سيارة": "Car rental",
+  "شقق مخدومة": "Serviced apartments",
+  "فندق ٣ نجوم": "3-star hotel",
+  "فندق ٤ نجوم": "4-star hotel",
+  "فندق ٥ نجوم": "5-star hotel",
+  "فندق فاخر": "Luxury hotel",
+  "سعودية محلية": "Saudi local",
+  "عالمية": "International",
+  "مزيج من الاثنين": "A mix of both"
+};
+const trip_t = (lang, v) => (lang === "ar" ? v : (TRIP_TR[v] || v));
+const trField = (lang, f) => (lang === "ar" ? f : {
+  ...f,
+  t: trip_t(lang, f.t),
+  ...(f.o ? { o: f.o.map((x) => trip_t(lang, x)) } : {}),
+  ...(f.dep ? { dep: [f.dep[0], trip_t(lang, f.dep[1])] } : {}),
+});
+
 const INV_FORM = [
   { k: "sector", t: "نوع النشاط", multi: true, req: true,
     o: ["تجاري","خدمي","صناعي","تقني","لوجستي","سياحي وترفيهي","صحي","تعليمي","زراعي وغذائي","عقاري","مالي","تعدين وطاقة","غير ذلك"] },
@@ -122,6 +215,54 @@ const CORPORATE = [
   ["افتتاح فرع", "تنظيم الافتتاح والإعلان عنه وتغطيته."],
   ["تكريم أداء الموظفين", "حفل تكريم ببرنامجه وجوائزه وتنظيمه."],
   ["فعالية داخل مقر الشركة", "تنظيم كامل داخل المقر: تجهيز، ضيافة، محتوى، تغطية."],
+];
+
+// ‏قائمة طلبات الشركات بالإنجليزية — نظيرةُ العربية أعلاه سطراً بسطر.
+const CORPORATE_EN = [
+  [
+    "National Day",
+    "A celebration inside or outside your premises, with National Day identity and programme."
+  ],
+  [
+    "Founding Day",
+    "A heritage programme and content suited to Founding Day."
+  ],
+  [
+    "Flag Day",
+    "A short event at your premises for Flag Day."
+  ],
+  [
+    "Ramadan iftar for staff",
+    "A group iftar at your premises or an external venue."
+  ],
+  [
+    "Staff suhoor",
+    "A group suhoor with its programme and organisation."
+  ],
+  [
+    "Team-building games",
+    "A team-building programme at your premises or an external venue."
+  ],
+  [
+    "Offsite day",
+    "A day out for the team — desert, sea, or a nearby destination."
+  ],
+  [
+    "Internal celebration",
+    "An internal occasion not tied to a particular date."
+  ],
+  [
+    "Branch opening",
+    "Organising the opening, announcing it and covering it."
+  ],
+  [
+    "Staff performance awards",
+    "An awards ceremony with its programme, prizes and organisation."
+  ],
+  [
+    "Event at your premises",
+    "Full organisation on site: setup, hospitality, content, coverage."
+  ]
 ];
 
 export function buildSimpleTrips(sv1, ctx, data) {
@@ -298,6 +439,8 @@ export function buildSimpleTrips(sv1, ctx, data) {
   const script = `<script>
 (function(){
 var DATA=${JSON.stringify({ trips, destinations: data.destinations || [], types: data.types || [] })};
+var DEST_L={},TYPE_L={};DATA.trips.forEach(function(t){if(t.destAr&&t.dest)DEST_L[t.destAr]=t.dest;if(t.typeAr&&t.type)TYPE_L[t.typeAr]=t.type});
+var dlab=function(v){return AR?v:(DEST_L[v]||v)},tlab=function(v){return AR?v:(TYPE_L[v]||v)};
 var TX=${JSON.stringify(T)},AR=${ar ? "true" : "false"},CART="bp_cart",HOME=${JSON.stringify(pre + "/")};
 var $=function(id){return document.getElementById(id)};
 var state={q:"",dest:"",type:"",len:""};
@@ -337,8 +480,9 @@ function card(t){
  var h=document.createElement('h3');h.textContent=name(t);top.appendChild(h);
  c.appendChild(top);
  var meta=document.createElement('div');meta.className='sv1-tr-meta';
- if(t.destAr){var d=document.createElement('span');d.className='sv1-tr-pill dest';d.textContent=t.destAr;meta.appendChild(d)}
- if(t.typeAr){var y=document.createElement('span');y.className='sv1-tr-pill';y.textContent=t.typeAr;meta.appendChild(y)}
+ var dv=AR?t.destAr:(t.dest||t.destAr), tv=AR?t.typeAr:(t.type||t.typeAr);
+ if(dv){var d=document.createElement('span');d.className='sv1-tr-pill dest';d.textContent=dv;meta.appendChild(d)}
+ if(tv){var y=document.createElement('span');y.className='sv1-tr-pill';y.textContent=tv;meta.appendChild(y)}
  if(t.duration&&t.duration.label){var u=document.createElement('span');u.className='sv1-tr-pill';u.textContent=t.duration.label;meta.appendChild(u)}
  c.appendChild(meta);
  if(t.summary){var p=document.createElement('p');p.textContent=t.summary;c.appendChild(p)}
@@ -387,13 +531,13 @@ function draw(){
  list.forEach(function(t){g.appendChild(card(t))});
  $('trEmpty').classList.toggle('sv1-hide',list.length>0);
  $('trCount').textContent=list.length+' '+TX.found;
- chips($('trDest'),DATA.destinations.map(function(d){return {v:d,l:d}}),'dest',TX.allDest);
- chips($('trType'),DATA.types.map(function(d){return {v:d,l:d}}),'type',TX.allType);
+ chips($('trDest'),DATA.destinations.map(function(d){return {v:d,l:dlab(d)}}),'dest',TX.allDest);
+ chips($('trType'),DATA.types.map(function(d){return {v:d,l:tlab(d)}}),'type',TX.allType);
  chips($('trLen'),[{v:'short',l:TX.short},{v:'day',l:TX.oneDay},{v:'multi',l:TX.multi}],'len',TX.allLen);
 }
 
 // ---- الخطوط الثلاثة
-var LISTS={corp:${JSON.stringify(CORPORATE)}};
+var LISTS={corp:${JSON.stringify(lang() === "ar" ? CORPORATE : CORPORATE_EN)}};
 var picked={corp:[]};
 function pickList(host,key,countEl){
  var el=$(host);el.innerHTML='';
@@ -428,7 +572,7 @@ Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),func
   for(var n in lines)lines[n].classList.toggle('sv1-hide',n!==k);
   try{history.replaceState(null,'','?line='+k)}catch(e){}}});
 // ---- مُهيّئ زيارة المستثمر
-var FORM=${JSON.stringify(INV_FORM)},NUMS=${JSON.stringify(INV_NUM)};
+var FORM=${JSON.stringify(INV_FORM.map((f) => trField(lang(), f)))},NUMS=${JSON.stringify(INV_NUM.map((f) => trField(lang(), f)))};
 var cfg={};NUMS.forEach(function(n){cfg[n.k]=n.def});cfg.date='';
 function visible(f){if(!f.dep)return true;return (cfg[f.dep[0]]||'')===f.dep[1]}
 function drawInv(){
@@ -499,11 +643,11 @@ function drawInvSum(){
   var b=document.createElement('b');b.textContent=kv[1];
   r.appendChild(a);r.appendChild(b);box.appendChild(r)});
  var miss=invMissing();
- $('trInvErr').textContent=miss.length?TX.reqMiss+miss.join('\u060C '):''}
+ $('trInvErr').textContent=miss.length?TX.reqMiss+miss.join(TX.sep):''}
 
 $('trInvGo').onclick=function(){
  var miss=invMissing();
- if(miss.length){$('trInvErr').textContent=TX.reqMiss+miss.join('\u060C ');return}
+ if(miss.length){$('trInvErr').textContent=TX.reqMiss+miss.join(TX.sep);return}
  var p=invPairs();
  try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
    ctx:'consulting',name:TX.lineInv,platform:'محفول مكفول',
