@@ -12324,7 +12324,7 @@ function writeFullSite(pre) {
   write(`${pre}my.html`, buildSimpleMy(SV1, { lang: () => LANG }));
   // «كل الخدمات» in this site's own design — where the footer link used to
   // send people to the classic homepage.
-  if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc }));
+  if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}business-development.html`, buildBdaas());

@@ -67,6 +67,8 @@ export function buildSimpleCatalog(SV1, ctx) {
   const lang = ctx.lang();
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
   const esc = ctx.esc;
+  const catLabel = ctx.catLabel;
+  const govLabel = ctx.govLabel;
   const ar = lang === "ar";
 
   let raw = { services: [], packages: [] };
@@ -75,8 +77,12 @@ export function buildSimpleCatalog(SV1, ctx) {
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
     name: (ar ? s.nameAr : s.nameEn) || s.nameAr || s.nameEn || "",
-    cat: s.categoryAr || "",
-    gov: s.govPlatform && s.govPlatform !== "بدون جهة حكومية" ? s.govPlatform : "",
+    // ‏التصنيف واسم الجهة بلغة الصفحة. كانا بالعربية دائماً، فتظهر في
+    // الصفحة الإنجليزية عناوين عربية فوق أسماء إنجليزية — لغتان في بطاقة
+    // واحدة.
+    cat: (catLabel ? catLabel(s.category || s.categoryAr) : s.categoryAr) || s.categoryAr || "",
+    gov: s.govPlatform && s.govPlatform !== "بدون جهة حكومية"
+      ? (govLabel ? govLabel(s.govPlatform) : s.govPlatform) : "",
     door: DOOR[s.categoryAr] || "consulting",
   })).filter((s) => s.name);
 
