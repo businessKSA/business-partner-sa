@@ -39,6 +39,11 @@ function countdown(n) {
   return { text: `باقٍ ${ar(n)} يوماً`, bg: "#eef1f6", fg: "#4a5170" };
 }
 
+// Two competitors' newsletters both hinge on the same device — TASC's "What this
+// means for you" and Etmam's «ما الذي يعنيه ذلك لك؟» — so a third copy of it reads
+// as the house style of the category, not ours. It is also the weaker move: both of
+// them explain what a ruling means and leave the reader to work out the step. We
+// run the transactions, so we name the step.
 function renderItem(item, issueDate) {
   const n = daysLeft(issueDate, item.deadline);
   const cd = countdown(n);
@@ -87,7 +92,7 @@ function renderItem(item, issueDate) {
           <tr>
             <td width="4" style="background:${BRAND.gold}; border-radius:2px;"></td>
             <td style="background:#faf7f1; padding:14px 16px;">
-              <div style="font-size:12.5px; font-weight:700; color:${BRAND.gold}; padding:0 0 6px 0;">ماذا يعني لك</div>
+              <div style="font-size:12.5px; font-weight:700; color:${BRAND.gold}; padding:0 0 6px 0;">ما الذي تفعله الآن</div>
               <div style="font-size:14.5px; line-height:1.9; color:#3d445e;">${esc(item.meaning)}</div>
             </td>
           </tr>
