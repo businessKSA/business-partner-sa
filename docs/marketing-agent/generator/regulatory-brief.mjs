@@ -6,6 +6,12 @@
 // tells an employer something that costs money if they miss it. Which is also why
 // every item carries a source link and why nothing is published from memory —
 // a wrong date in a compliance newsletter is worse than no newsletter.
+//
+// Every item must also carry an `exclusive` angle. The national headlines are
+// reported by KPMG, Fragomen, and every competitor's newsletter, so an item built
+// only on one of those is a copy no matter how well it is written — which is what
+// went wrong in issue 01. See briefs/EDITORIAL.md. The check below is a hard
+// failure, not a warning: an issue that cannot clear it should not go out.
 import fs from "node:fs";
 import path from "node:path";
 import { BRAND } from "./playbooks.mjs";
@@ -69,6 +75,16 @@ function renderItem(item, issueDate) {
 
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0 0 0;">
           <tr>
+            <td width="4" style="background:${BRAND.navy}; border-radius:2px;"></td>
+            <td style="background:#f2f4fa; padding:14px 16px;">
+              <div style="font-size:12.5px; font-weight:700; color:${BRAND.navy}; padding:0 0 6px 0;">ما لا تجده في الخبر</div>
+              <div style="font-size:14.5px; line-height:1.9; color:#3d445e;">${esc(item.exclusive)}</div>
+            </td>
+          </tr>
+        </table>
+
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0 0 0;">
+          <tr>
             <td width="4" style="background:${BRAND.gold}; border-radius:2px;"></td>
             <td style="background:#faf7f1; padding:14px 16px;">
               <div style="font-size:12.5px; font-weight:700; color:${BRAND.gold}; padding:0 0 6px 0;">ماذا يعني لك</div>
@@ -89,6 +105,13 @@ function renderItem(item, issueDate) {
 }
 
 // Arabic has a dual form, so "2 minutes" is one word and not a number plus a noun.
+function updates(n) {
+  if (n === 1) return "تحديث واحد";
+  if (n === 2) return "تحديثان";
+  if (n <= 10) return `${ar(n)} تحديثات`;
+  return `${ar(n)} تحديثاً`;
+}
+
 function readTime(n) {
   if (n === 1) return "دقيقة";
   if (n === 2) return "دقيقتين";
@@ -96,12 +119,22 @@ function readTime(n) {
 }
 
 export function renderBrief(brief) {
+  const bare = brief.items.filter((i) => !String(i.exclusive ?? "").trim());
+  if (bare.length) {
+    const titles = bare.map((i) => `  - ${i.headline}`).join("\n");
+    throw new Error(
+      `${bare.length} item(s) carry no exclusive angle, so they only restate coverage ` +
+      `everyone else already published:\n${titles}\n` +
+      `Give each one something the wire does not have, or drop it. See briefs/EDITORIAL.md.`
+    );
+  }
+
   const items = brief.items.map((i) => renderItem(i, brief.date)).join("");
   const soonest = brief.items
     .map((i) => daysLeft(brief.date, i.deadline))
     .filter((n) => n >= 0)
     .sort((a, b) => a - b)[0];
-  const preheader = `${ar(brief.items.length)} تحديثات نظامية${soonest === undefined ? "" : ` — أقربها بعد ${ar(soonest)} يوماً`}.`;
+  const preheader = `${updates(brief.items.length)} نظامية${soonest === undefined ? "" : ` — أقربها بعد ${ar(soonest)} يوماً`}.`;
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -129,7 +162,7 @@ export function renderBrief(brief) {
   <tr><td style="padding:30px 34px 6px 34px;" dir="rtl">
     <div style="font-size:24px; line-height:1.5; font-weight:700; color:${BRAND.ink};">ما الذي تغيّر هذا الأسبوع في أنظمة المملكة</div>
     <div style="font-size:13px; color:#7b839f; padding:10px 0 0 0;">
-      العدد ${ar(brief.issue)} · ${esc(brief.weekLabel)} · ${ar(brief.items.length)} تحديثات · قراءة ${esc(readTime(brief.readMinutes))}
+      العدد ${ar(brief.issue)} · ${esc(brief.weekLabel)} · ${esc(updates(brief.items.length))} · قراءة ${esc(readTime(brief.readMinutes))}
     </div>
   </td></tr>
   <tr><td style="height:22px; line-height:22px; font-size:0;">&nbsp;</td></tr>
