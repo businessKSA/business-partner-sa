@@ -1,0 +1,253 @@
+{
+  "name": "💼 BP Team — Ahmed (Procurement)",
+  "nodes": [
+    {
+      "id": "sticky-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, -260],
+      "parameters": {
+        "content": "## 💼 Ahmed — Procurement Agent (Skeleton)\n\n**Flow:** intake (webhook from team/Badr or manual test) → normalize → read Suppliers DB (Notion) → Claude prepares shortlist + comparison + draft outreach (system prompt: `bp-specialized-team/prompts/ahmed-procurement.md`) → if an outreach draft is ready, write it to Notion with status «بانتظار الموافقة» → reply to requester.\n\n**Internal-facing** — Ahmed serves the team (mainly Badr), never company clients. No message reaches a supplier, no offer is accepted, and no payment/commitment is made without Human Approval.\n\n**Resilience:** if the Claude call fails, a safe fallback reply is returned and the flow continues (Compliance Agent V1 pattern).",
+        "width": 560,
+        "height": 340
+      }
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, 120],
+      "parameters": {
+        "content": "## 🔧 Before activating\n1. Replace `REPLACE_WITH_SUPPLIERS_DB_ID` and `REPLACE_WITH_PROCUREMENT_REQUESTS_DB_ID` with the real Notion database IDs (create the DBs if they don't exist yet: الموردين / طلبات التوريد).\n2. Attach credentials: Notion API + Anthropic API key (Header Auth: `x-api-key`).\n3. Map the draft-outreach properties (Status = «بانتظار الموافقة», Requested By, Supplier) to the real property names.\n4. Team calls `POST /ahmed-procurement` with body: `{requested_by, service_needed, budget_ceiling, deadline, notes}`.\n5. Wire the approved-price-list update path to Badr's catalog after first live test.\n6. Test with the manual trigger, then activate after Baher's approval.",
+        "width": 560,
+        "height": 360
+      }
+    },
+    {
+      "id": "ahmed-webhook",
+      "name": "Intake Webhook (from Team)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, -120],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ahmed-procurement",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ahmed-manual",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 100]
+    },
+    {
+      "id": "ahmed-sample",
+      "name": "Sample Payload (Test)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [200, 100],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"requested_by\": \"Badr / Sales\",\n  \"service_needed\": \"خدمة ترجمة معتمدة للعقود\",\n  \"budget_ceiling\": \"\",\n  \"deadline\": \"أسبوع\",\n  \"notes\": \"يفضل مورد سبق التعامل معه\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ahmed-normalize",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, -10],
+      "parameters": {
+        "jsCode": "// Accept input from the webhook (fields under body) or the manual test (direct fields)\nconst src = $json.body ?? $json;\nreturn [{\n  json: {\n    requested_by: src.requested_by ?? 'unknown',\n    service_needed: src.service_needed ?? '',\n    budget_ceiling: src.budget_ceiling ?? '',\n    deadline: src.deadline ?? '',\n    notes: src.notes ?? ''\n  }\n}];"
+      }
+    },
+    {
+      "id": "ahmed-suppliers",
+      "name": "Get Suppliers (Notion)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [640, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_SUPPLIERS_DB_ID"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "ahmed-build-request",
+      "name": "Build Claude Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, -10],
+      "parameters": {
+        "jsCode": "// Condensed system prompt. The full authoritative version lives in\n// bp-specialized-team/prompts/ahmed-procurement.md — keep the two in sync.\nconst intake = $('Normalize Input').first().json;\n\nconst suppliers = $input.all()\n  .map(i => i.json)\n  .filter(j => j && (j.name || j.properties))\n  .slice(0, 50);\nconst suppliersText = suppliers.length\n  ? JSON.stringify(suppliers)\n  : 'SUPPLIERS_DB_UNAVAILABLE — note that no existing supplier data was found; propose the sourcing criteria instead of naming suppliers.';\n\nconst systemPrompt = [\n  'You are Ahmed, the internal Procurement Agent for Business Partner (بزنس بارتنر سلوشنز).',\n  'You serve the internal team (mainly Badr in Sales). You never talk to company clients.',\n  'Rules:',\n  '- Reply in Arabic, structured and brief.',\n  '- Prefer existing approved suppliers from the database before proposing new ones.',\n  '- Shortlist up to 3 options with a comparison (السعر / النطاق / الشروط / الجاهزية).',\n  '- Never commit, accept, pay, or promise anything to a supplier.',\n  '- Never invent supplier prices — if a price is not in the data, mark it \"يحتاج عرض سعر\".',\n  '- Never include client data or internal pricing strategy in supplier-facing text.',\n  '- Any supplier-facing message is a DRAFT pending approval — never written as sent.',\n  'If a supplier outreach draft is warranted, include it in your reply and end the reply with the exact marker [OUTREACH_READY] on its own line.',\n  '',\n  'Suppliers database (JSON):',\n  suppliersText\n].join('\\n');\n\nconst userContent = [\n  `Requested by: ${intake.requested_by}`,\n  `Service needed: ${intake.service_needed}`,\n  `Budget ceiling: ${intake.budget_ceiling || 'not set'}`,\n  `Deadline: ${intake.deadline || 'not set'}`,\n  `Notes: ${intake.notes || 'none'}`\n].join('\\n');\n\nreturn [{\n  json: {\n    anthropic_body: {\n      model: 'claude-sonnet-5',\n      max_tokens: 1500,\n      system: systemPrompt,\n      messages: [{ role: 'user', content: userContent }]\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "ahmed-claude",
+      "name": "Claude — Generate Ahmed Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.anthropic_body) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key (x-api-key)"
+        }
+      }
+    },
+    {
+      "id": "ahmed-parse",
+      "name": "Parse Reply + Safe Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, -10],
+      "parameters": {
+        "jsCode": "// Resilience (Compliance Agent V1 pattern): if the engine fails, use a safe fallback\n// reply and keep the flow alive.\nconst item = $input.first().json;\nconst fallback = 'تم استلام طلب التوريد وسيتم تجهيز المقارنة والمسودة. (تعذر توليد Claude حالياً — الطلب مسجل وسيراجعه الفريق يدوياً.)';\n\nlet text = '';\nif (item && Array.isArray(item.content) && item.content[0] && item.content[0].text) {\n  text = item.content[0].text;\n}\nconst engine_fallback = !text;\nif (engine_fallback) text = fallback;\n\nconst outreach_ready = !engine_fallback && text.includes('[OUTREACH_READY]');\nconst reply = text.replace('[OUTREACH_READY]', '').trim();\n\nconst intake = $('Normalize Input').first().json;\nreturn [{ json: { ...intake, reply, outreach_ready, engine_fallback } }];"
+      }
+    },
+    {
+      "id": "ahmed-if-outreach",
+      "name": "Outreach Draft Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1520, -10],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-outreach-ready",
+              "leftValue": "={{ $json.outreach_ready }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ahmed-draft-outreach",
+      "name": "Save Outreach Draft — بانتظار الموافقة",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [1760, -120],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_PROCUREMENT_REQUESTS_DB_ID"
+        },
+        "title": "={{ 'طلب توريد — ' + ($json.service_needed || 'غير محدد') + ' — من ' + $json.requested_by + ' — بانتظار الموافقة' }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "ahmed-respond",
+      "name": "Respond to Requester",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, -10],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: 'ahmed', reply: $json.reply, outreach_ready: $json.outreach_ready === true, human_required: $json.outreach_ready === true, engine_fallback: $json.engine_fallback === true }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Intake Webhook (from Team)": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Manual Test Trigger": {
+      "main": [[{ "node": "Sample Payload (Test)", "type": "main", "index": 0 }]]
+    },
+    "Sample Payload (Test)": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Normalize Input": {
+      "main": [[{ "node": "Get Suppliers (Notion)", "type": "main", "index": 0 }]]
+    },
+    "Get Suppliers (Notion)": {
+      "main": [[{ "node": "Build Claude Request", "type": "main", "index": 0 }]]
+    },
+    "Build Claude Request": {
+      "main": [[{ "node": "Claude — Generate Ahmed Reply", "type": "main", "index": 0 }]]
+    },
+    "Claude — Generate Ahmed Reply": {
+      "main": [[{ "node": "Parse Reply + Safe Fallback", "type": "main", "index": 0 }]]
+    },
+    "Parse Reply + Safe Fallback": {
+      "main": [[{ "node": "Outreach Draft Ready?", "type": "main", "index": 0 }]]
+    },
+    "Outreach Draft Ready?": {
+      "main": [
+        [{ "node": "Save Outreach Draft — بانتظار الموافقة", "type": "main", "index": 0 }],
+        [{ "node": "Respond to Requester", "type": "main", "index": 0 }]
+      ]
+    },
+    "Save Outreach Draft — بانتظار الموافقة": {
+      "main": [[{ "node": "Respond to Requester", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Riyadh"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
