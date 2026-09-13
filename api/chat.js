@@ -300,16 +300,69 @@ const hasModelKey = () => PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
 const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
+function intakeFallback(body, messages) {
+  const context = String(body.context || "consulting");
+  const lang = String(body.lang || "ar");
+  const userTurns = messages.filter((m) => m.role === "user").length;
+  const presets = {
+    ar: {
+      consulting: {
+        first: "تمام. وش النشاط أو نوع الشركة، ووش الموضوع اللي تبغى تركز عليه في الاستشارة؟",
+        intro: "رتبت لك نطاقاً مبدئياً للاستشارة. راجعه وعدّل عليه قبل عرض السعر.",
+        type: "CONSULTATION", title: "استشارة أعمال",
+        items: ["فهم الموضوع والحالة الحالية", "تحديد الجهات والمتطلبات ذات العلاقة", "تحديد الخطوات والتوصيات المطلوبة"],
+        needs: ["السجل التجاري أو بيانات المنشأة", "أي مستندات أو إشعارات مرتبطة بالحالة"]
+      },
+      government: {
+        first: "تمام. وش المنصة أو الجهة الحكومية، ووش الإجراء أو المشكلة اللي تواجهك فيها؟",
+        intro: "رتبت لك نطاقاً مبدئياً للخدمة الحكومية. راجعه وعدّل عليه قبل عرض السعر.",
+        type: "GOVERNMENT_SERVICE", title: "طلب خدمة حكومية",
+        items: ["فحص الحالة الحالية في المنصة", "تحديد المتطلبات والإجراء المناسب", "تجهيز ومتابعة المعاملة المطلوبة"],
+        needs: ["صورة رسالة الخطأ أو الإشعار إن وجد", "السجل التجاري", "بيانات المعاملة أو الموظفين المعنيين"]
+      },
+      formation: {
+        first: "ممتاز. هل التأسيس لفرع شركة أجنبية قائمة أو لمشروع ريادي، ووش النشاط المستهدف؟",
+        intro: "رتبت لك نطاقاً مبدئياً للتأسيس. راجعه وعدّل عليه قبل عرض السعر.",
+        type: "COMPANY_FORMATION", title: "تأسيس شركة في السعودية",
+        items: ["تحديد مسار التأسيس المناسب", "تجهيز متطلبات ووثائق التأسيس", "إجراءات التأسيس والتسجيلات الحكومية الأساسية"],
+        needs: ["جوازات أو هويات الملاك", "بيانات النشاط والمدينة", "مستندات الشركة الأم إن وجدت"]
+      }
+    },
+    en: {
+      consulting: { first: "Got it. What does the company do, and what should the consultation focus on?", intro: "I prepared an initial scope. Please review it before the quotation.", type: "CONSULTATION", title: "Business consultation", items: ["Review the current situation", "Identify relevant authorities and requirements", "Define the recommended next steps"], needs: ["Commercial registration or company details", "Relevant documents or notices"] },
+      government: { first: "Got it. Which government platform or authority is involved, and what action or error are you dealing with?", intro: "I prepared an initial government-service scope. Please review it before the quotation.", type: "GOVERNMENT_SERVICE", title: "Government service request", items: ["Review the current platform status", "Identify the required procedure and requirements", "Prepare and follow up the required transaction"], needs: ["Screenshot of any error or notice", "Commercial registration", "Relevant transaction or employee details"] },
+      formation: { first: "Great. Is this for a foreign company branch or an entrepreneurship setup, and what activity are you targeting?", intro: "I prepared an initial formation scope. Please review it before the quotation.", type: "COMPANY_FORMATION", title: "Company formation in Saudi Arabia", items: ["Determine the appropriate formation route", "Prepare formation requirements and documents", "Complete core formation and government registrations"], needs: ["Owners' passport or ID details", "Business activity and target city", "Parent company documents if applicable"] }
+    },
+    fr: {
+      consulting: { first: "D’accord. Quelle est l’activité de l’entreprise et quel sujet souhaitez-vous traiter ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "CONSULTATION", title: "Conseil aux entreprises", items: ["Analyser la situation actuelle", "Identifier les autorités et exigences concernées", "Définir les prochaines étapes"], needs: ["Registre commercial ou informations de l’entreprise", "Documents liés au dossier"] },
+      government: { first: "D’accord. Quelle plateforme ou autorité est concernée et quelle difficulté rencontrez-vous ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "GOVERNMENT_SERVICE", title: "Demande de service gouvernemental", items: ["Vérifier la situation actuelle", "Identifier la procédure et les exigences", "Préparer et suivre la démarche"], needs: ["Capture d’écran de l’erreur", "Registre commercial", "Informations liées au dossier"] },
+      formation: { first: "Très bien. S’agit-il d’une succursale étrangère ou d’un projet entrepreneurial, et quelle activité visez-vous ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "COMPANY_FORMATION", title: "Création d’entreprise en Arabie saoudite", items: ["Déterminer le parcours adapté", "Préparer les exigences et documents", "Réaliser les principales formalités"], needs: ["Passeports ou pièces d’identité", "Activité et ville ciblée", "Documents de la société mère le cas échéant"] }
+    },
+    zh: {
+      consulting: { first: "好的。请告诉我公司的业务类型，以及这次咨询最需要解决的问题。", intro: "我已整理初步服务范围，请在报价前检查。", type: "CONSULTATION", title: "企业咨询", items: ["了解当前情况", "确认相关政府部门和要求", "确定建议的下一步行动"], needs: ["商业登记或公司资料", "与事项有关的文件或通知"] },
+      government: { first: "好的。请告诉我涉及哪个政府平台或部门，以及遇到什么问题。", intro: "我已整理初步服务范围，请在报价前检查。", type: "GOVERNMENT_SERVICE", title: "政府服务申请", items: ["检查平台当前状态", "确认所需流程和要求", "准备并跟进相关事项"], needs: ["错误或通知截图", "商业登记", "相关交易或员工信息"] },
+      formation: { first: "好的。您计划设立外国公司分支机构还是创业公司？目标业务是什么？", intro: "我已整理初步设立范围，请在报价前检查。", type: "COMPANY_FORMATION", title: "在沙特设立公司", items: ["确定合适的设立路径", "准备设立要求和文件", "完成核心设立和政府登记流程"], needs: ["股东护照或身份证明", "业务活动和目标城市", "如适用，母公司文件"] }
+    }
+  };
+  const group = presets[lang] || presets.ar;
+  const p = group[context] || group.consulting;
+  if (userTurns < 2) return p.first;
+  const last = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+  const scope = {
+    ready: true,
+    type: p.type,
+    title: p.title,
+    summary: last.slice(0, 500),
+    items: p.items.map((title) => ({ code: "", title, why: "" })),
+    needs: p.needs,
+  };
+  return `${p.intro}\n\n<<SCOPE>>${JSON.stringify(scope)}<<END>>`;
+}
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
-    // Which env var actually satisfied each provider — names only, never values.
-    // The previous version guessed by pattern-matching env names, which missed
-    // any key stored under a name that does not read like one (the Gemini key
-    // here lives in «BusinessPartnerGimini»). It therefore reported a
-    // configured provider as missing, and that misreading cost real time.
     const detail = PROVIDERS.map((p) => ({
       name: p.name,
       configured: !p.keys || !!envFrom(p.keys),
@@ -328,7 +381,7 @@ export default async function handler(req, res) {
     res.statusCode = 405;
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
-  // Parse body (Vercel may pass it parsed or raw)
+
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
   if (!body) {
@@ -337,14 +390,11 @@ export default async function handler(req, res) {
     });
   }
 
-  // mode:"voice" — العميل يتكلم بلغته فيُكتب كلامه في المحادثة. يُفرَّغ قبل
-  // فحص سلسلة الردّ لأنه يعتمد مزوّديه (Gemini / Whisper) لا مزوّدي الردّ:
-  // ميكروفونٌ يعمل ومستشارٌ متوقّف أوضحُ من توقّف الاثنين معاً.
   if (body && body.mode === "voice") {
     const out = await transcribeAudio(
       String(body.audio || "").replace(/^data:[^;]+;base64,/, ""),
       String(body.mime || "audio/webm"),
-      String(body.lang || "").slice(0, 5),   // لغة الصفحة تلميحاً لا قيداً
+      String(body.lang || "").slice(0, 5),
     );
     res.statusCode = out.error === "too_large" ? 413 : out.error === "bad_type" ? 400 : 200;
     return res.end(JSON.stringify(out));
@@ -353,31 +403,18 @@ export default async function handler(req, res) {
   const chain = configured();
   if (!chain.length) {
     res.statusCode = 500;
-    // Locally the generic line reads like a bug; name the missing key instead.
     const reply = LOCAL_DEV_CHAT() ? NO_KEY_HINT : "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً.";
     return res.end(JSON.stringify({ error: "missing_api_key", reply }));
   }
 
-
-  // mode:"admin" flips the persona to the owner's writing/content assistant —
-  // gated by the same key/ticket every panel action requires, so the public
-  // endpoint stays exactly the public advisor for everyone else.
   const isAdmin = body.mode === "admin";
   if (isAdmin && !(ownerTicketOk(body.ticket) || panelKeyOk(body.key))) {
     res.statusCode = 401;
     return res.end(JSON.stringify({ error: "unauthorized" }));
   }
 
-  // mode:"account" — gated by the client's own portal session (httpOnly
-  // cookie), so only a logged-in client reaches this persona, and the live
-  // context is THEIR wallet/escrows read server-side plus the order snapshot
-  // their page already renders (their own data, echoed back to them).
   const isAccount = !isAdmin && body.mode === "account";
   const isIntake = !isAdmin && !isAccount && body.mode === "intake";
-  // ‏ما يُرسل من قاعدة المعرفة وقائمة الأسعار يتحدّد بآخر ما كتبه العميل.
-  // قبل هذا كانت القاعدة كلها (١٩٧ كيلوبايت) وقائمة الأسعار كلها تُحقَن في
-  // كل دور: ٤٥ ألف رمز للسؤال الواحد — أسقط Groq بـ413، وأكل رصيد Gemini
-  // وAnthropic أضعاف ما يلزم. ويجب أن يسبق بناءَ الشخصيات لأنها تقرأه.
   const focus = (Array.isArray(body.messages) ? body.messages : [])
     .filter((m) => m && typeof m.content === "string")
     .slice(-2).map((m) => m.content).join(" ").slice(0, 1200);
@@ -410,22 +447,19 @@ export default async function handler(req, res) {
       (snap ? `\nلقطة من لوحته الآن (طلبات/حالات): ${snap}` : "");
   }
 
-  // Prices are edited on the site, not in this prompt. Appending the live
-  // sheet is what stops the advisor quoting a figure the website no longer
-  // shows; it degrades to the static knowledge base if the catalog is
-  // unreachable, so a price outage never becomes an answering outage.
   const priceSheet = await priceSheetText(isAdmin ? 140 : 45, isAdmin ? "" : focus);
   WANT_LONG = isAdmin;
   const base = isAdmin ? ADMIN_INSTRUCTIONS() : isAccount ? accountSystem : isIntake ? intakeSystem : SYSTEM_INSTRUCTIONS();
   const system = priceSheet ? base + "\n\n" + priceSheet : base;
   console.log(`chat system chars=${system.length} mode=${isAdmin ? "admin" : isAccount ? "account" : isIntake ? "intake" : "public"}`);
-  // The n8n fallback is the customer-facing باهر agent with its own hardwired
-  // persona — it cannot play the admin or in-portal role, so both skip it.
-  const adminChain = (isAdmin || isAccount || isIntake) ? chain.filter((p) => p.name !== "baher-n8n") : chain;
+
+  const modelOnly = chain.filter((p) => p.name !== "baher-n8n");
+  const n8n = chain.find((p) => p.name === "baher-n8n");
+  const adminChain = isIntake
+    ? (n8n ? [n8n, ...modelOnly] : modelOnly)
+    : (isAdmin || isAccount) ? modelOnly : chain;
 
   const incoming = Array.isArray(body.messages) ? body.messages : [];
-  // Sanitize: keep only user/assistant text turns, cap history and length.
-  // The owner pastes whole drafts to rework — admin turns get a longer cap.
   const perTurn = isAdmin ? 12000 : 4000;
   const messages = incoming
     .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
@@ -437,17 +471,26 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "no_user_message" }));
   }
 
-  // ملاحظة: التقاط العميل وتسجيله والإشعارات يتم في /api/requests (advisor-chat)
-  // الذي يستدعيه الودجت مباشرة — حتى لا يتكرر الإشعار. هنا نرد فقط.
   for (const provider of adminChain) {
     try {
-      const reply = await provider.call(messages, system);
+      let reply = await provider.call(messages, system);
       if (!reply) throw new Error(`${provider.name} returned empty reply`);
+      if (isIntake && provider.name === "baher-n8n" && messages.filter((m) => m.role === "user").length >= 2 && !reply.includes("<<SCOPE>>")) {
+        reply = intakeFallback(body, messages);
+      }
       res.statusCode = 200;
       return res.end(JSON.stringify({ reply, provider: provider.name }));
     } catch (e) {
       console.error(`provider ${provider.name} failed, trying next:`, e.message || e);
     }
+  }
+
+  // Critical resilience: the public three-service intake must never look
+  // broken because external AI credits or keys are unavailable. It still
+  // collects the request and creates an editable scope deterministically.
+  if (isIntake) {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ reply: intakeFallback(body, messages), provider: "intake-fallback" }));
   }
 
   if (LOCAL_DEV_CHAT() && !hasModelKey()) {
