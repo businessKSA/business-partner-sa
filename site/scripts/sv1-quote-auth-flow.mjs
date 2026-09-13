@@ -44,4 +44,28 @@ for (const cfg of pages) {
   fs.writeFileSync(file,html);
   changed++;
 }
-console.log(`sv1-quote-auth-flow: ${changed} pages patched`);
+
+// A successful OTP / password / Google response sets an httpOnly session
+// cookie. Calling /api/simple immediately in the same JS turn proved racy in
+// production: /api/otp returned 200, then /api/simple could still see no
+// session and answer 401. Force one same-origin navigation after auth so the
+// browser commits Set-Cookie before the portal boot request. location.href
+// preserves ?next=, so the quotation-resume flow continues automatically.
+const portalPages = ['my.html', 'ar/my.html', 'fr/my.html', 'zh/my.html'];
+let portalChanged = 0;
+for (const rel of portalPages) {
+  const file = path.join(ROOT, rel);
+  if (!fs.existsSync(file)) continue;
+  let html = fs.readFileSync(file, 'utf8');
+  const before = html;
+  html = html.replace(
+    /try\{localStorage\.setItem\('bp_session','1'\)\}catch\(x\)\{\}boot\(\)/g,
+    "try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)"
+  );
+  if (html !== before) {
+    fs.writeFileSync(file, html);
+    portalChanged++;
+  }
+}
+
+console.log(`sv1-quote-auth-flow: ${changed} public pages patched; ${portalChanged} portal pages patched`);
