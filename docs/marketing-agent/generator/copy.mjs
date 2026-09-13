@@ -1,0 +1,246 @@
+// Per-service copy for every channel. One service per pack — never a service list.
+import fs from "node:fs";
+import path from "node:path";
+import { BRAND, playbookFor } from "./playbooks.mjs";
+import { toArabicDeliverable } from "./deliverables-ar.mjs";
+
+const ROOT = path.resolve(import.meta.dirname, "../../..");
+// The catalogue keeps names in English; the Arabic name lives in service-i18n.json,
+// keyed by service code. Arabic copy must never fall back to the English label.
+const I18N = JSON.parse(fs.readFileSync(path.join(ROOT, "site/data/service-i18n.json"), "utf8"));
+
+// "" is a deliberate blank line; null means "omit this line entirely".
+const keep = (l) => l !== null && l !== undefined;
+const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+
+// The catalogue stores names in English for most rows; the Arabic category is
+// always present, so the Arabic line leads and the English name stays as a label.
+export function serviceTitle(service) {
+  const ar = I18N[service.code]?.ar;
+  return clean(ar || service.nameAr || service.name);
+}
+
+export function serviceTitleEn(service) {
+  return clean(I18N[service.code]?.en || service.name);
+}
+
+export function checklist(service) {
+  const own = (service.deliverables ?? []).map(clean).filter(Boolean).map(toArabicDeliverable);
+  return own.length ? own.slice(0, 5) : playbookFor(service, serviceTitle(service)).steps;
+}
+
+// U+FDFC (﷼) is missing from the Noto Arabic faces used for rendering and comes out
+// as a broken glyph on the social cards, so the amount is always spelled out.
+const riyals = (amount) => `${Number(amount).toLocaleString("en-US")} ريال`;
+
+export function priceLine(service) {
+  const p = service.price ?? {};
+  if (!p.amount) return service.requiresProposal ? "بعرض سعر مخصّص" : "";
+  const fees = service.govFeesSeparate ? " · الرسوم الحكومية منفصلة" : "";
+  return `تبدأ من ${riyals(p.amount)}${fees}`;
+}
+
+// The social card pill has room for the number, not the caveat.
+export function priceShort(service) {
+  const p = service.price ?? {};
+  return p.amount ? `تبدأ من ${riyals(p.amount)}` : "اطلب عرض سعر";
+}
+
+// Every link a campaign emits is tagged, because the pipeline currently shows
+// 52 leads and effectively all of them attributed to "Website" — 1,000 outbound
+// emails produced no attributable lead. Untagged links make a channel invisible
+// rather than ineffective, and the two are indistinguishable without this.
+const MEDIUM = { email: "email", whatsapp: "messaging", telegram: "messaging" };
+
+export function trackedUrl(service, channel, campaign = "service-always-on") {
+  const u = new URL(`${BRAND.site}/service/${service.slug}`);
+  u.searchParams.set("utm_source", channel);
+  u.searchParams.set("utm_medium", MEDIUM[channel] ?? "organic-social");
+  u.searchParams.set("utm_campaign", campaign);
+  u.searchParams.set("utm_content", service.code);
+  return u.toString();
+}
+
+export function landingUrl(service) {
+  return `${BRAND.site}/service/${service.slug}`;
+}
+
+// The service code travels inside the WhatsApp first message so a chat lead can
+// be attributed to the exact service and channel that produced it.
+export function waLink(service, channel = "direct") {
+  const msg = `مرحباً، أرغب بالاستفسار عن: ${serviceTitle(service)}\n[${service.code}/${channel}]`;
+  return `${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`;
+}
+
+const HASHTAG_BASE = ["#بزنس_بارتنر", "#السعودية", "#أعمال"];
+const HASHTAGS_BY_CATEGORY = {
+  "تأسيس الشركات": ["#تأسيس_شركات", "#سجل_تجاري", "#ريادة_أعمال"],
+  "العلاقات الحكومية": ["#قوى", "#مقيم", "#التأمينات_الاجتماعية", "#امتثال"],
+  "دعم الأعمال": ["#خدمات_الأعمال", "#إجراءات_حكومية"],
+  "الموارد البشرية": ["#موارد_بشرية", "#نظام_العمل", "#توطين"],
+  "الاستثمار الأجنبي": ["#الاستثمار_الأجنبي", "#وزارة_الاستثمار", "#دخول_السوق_السعودي"],
+  "التوظيف والاستقدام": ["#توظيف", "#استقدام", "#وظائف"],
+  "العقارات": ["#عقارات_تجارية", "#مقر_الشركة"],
+  "الإقامة المميزة": ["#الإقامة_المميزة", "#بريميوم_ريزيدنسي"],
+  "الأتمتة والذكاء الاصطناعي": ["#أتمتة", "#ذكاء_اصطناعي", "#كفاءة_تشغيلية"],
+};
+
+export function hashtags(service) {
+  const extra = HASHTAGS_BY_CATEGORY[service.categoryAr] ?? [];
+  return [...extra, ...HASHTAG_BASE].slice(0, 6);
+}
+
+export function buildCopy(service) {
+  const title = serviceTitle(service);
+  // The title is what states the intent, so the playbook is picked from it — not
+  // from the category alone.
+  const pb = playbookFor(service, title);
+  const steps = checklist(service);
+  const price = priceLine(service);
+  const priceTag = priceShort(service);
+  const url = landingUrl(service);
+  const link = (ch) => trackedUrl(service, ch);
+  const wa = (ch) => waLink(service, ch);
+  const govRaw = clean(service.govPlatform);
+  // "عضوية الغرفة التجارية (الغرفة التجارية)" reads as a mistake — drop the
+  // platform whenever the service name already contains it.
+  const gov = govRaw && !title.includes(govRaw) ? govRaw : "";
+
+  return {
+    code: service.code,
+    slug: service.slug,
+    title,
+    category: service.categoryAr ?? service.category,
+    govPlatform: gov,
+    audience: pb.audience,
+    headline: pb.outcome,
+    pain: pb.pain,
+    steps,
+    price,
+    priceTag,
+    proof: pb.proof,
+    url: link("email"),
+    landingUrl: url,
+    whatsappLink: wa("email"),
+    links: { whatsapp: link("whatsapp"), linkedin: link("linkedin"), instagram: link("instagram"), tiktok: link("tiktok"), x: link("x"), email: link("email") },
+    whatsappLinks: { whatsapp: wa("whatsapp"), instagram: wa("instagram"), email: wa("email") },
+
+    // ── Email ───────────────────────────────────────────────────────────────
+    email: {
+      subject: `${title} — ${pb.outcome}`,
+      preheader: clean(pb.pain).slice(0, 110),
+    },
+
+    // ── WhatsApp channel: short, scannable, one link ────────────────────────
+    whatsapp: [
+      `*${pb.outcome}*`,
+      "",
+      pb.pain,
+      "",
+      `*${title}*${gov ? ` — عبر ${gov}` : ""}`,
+      ...steps.map((s) => `✅ ${s}`),
+      "",
+      price ? `💠 ${price}` : null,
+      `للاستفسار: ${wa("whatsapp")}`,
+      link("whatsapp"),
+    ].filter(keep).join("\n"),
+
+    // ── LinkedIn: problem-led, professional, no hashtag spam ────────────────
+    linkedin: [
+      pb.pain,
+      "",
+      `${title}${gov ? ` (${gov})` : ""} — ما ننجزه:`,
+      ...steps.map((s) => `• ${s}`),
+      "",
+      price ? `${price}.` : null,
+      `${pb.proof}`,
+      link("linkedin"),
+      "",
+      hashtags(service).slice(0, 3).join(" "),
+    ].filter(keep).join("\n"),
+
+    // ── Instagram caption ───────────────────────────────────────────────────
+    instagram: [
+      `${pb.outcome} ✨`,
+      "",
+      pb.pain,
+      "",
+      ...steps.map((s) => `✔︎ ${s}`),
+      "",
+      price ? `${price}` : null,
+      `الرابط في البايو أو واتساب ${BRAND.phone}`,
+      "",
+      hashtags(service).join(" "),
+    ].filter(keep).join("\n"),
+
+    // ── TikTok / Reels script: hook, body, CTA ──────────────────────────────
+    tiktok: {
+      hook: pb.pain,
+      body: [`${title}:`, ...steps.map((s) => `— ${s}`)].join("\n"),
+      cta: `${pb.proof} اكتب لنا على واتساب.`,
+      onScreen: pb.outcome,
+      caption: `${pb.outcome} | ${title}\n${hashtags(service).join(" ")}`,
+    },
+
+    // ── X: one line ─────────────────────────────────────────────────────────
+    x: `${pb.outcome}.\n${title}${price ? ` — ${price}` : ""}.\n${link("x")}`,
+
+    // ── Facebook: Instagram's audience, but the link is clickable here ──────
+    // So the CTA is the tracked link rather than "الرابط في البايو", and the
+    // hashtag block is trimmed — Facebook reach is not hashtag-driven.
+    facebook: [
+      `${pb.outcome} \u2728`,
+      "",
+      pb.pain,
+      "",
+      `${title}${gov ? ` (${gov})` : ""}:`,
+      ...steps.map((s) => `\u2714\ufe0e ${s}`),
+      "",
+      price ? `${price}` : null,
+      pb.proof,
+      link("facebook"),
+      "",
+      hashtags(service).slice(0, 2).join(" "),
+    ].filter(keep).join("\n"),
+
+    // ── Snapchat: a story frame, read in about three seconds ────────────────
+    // No link list: the swipe-up carries the URL, so the caption stays a hook.
+    snapchat: {
+      onScreen: pb.outcome,
+      caption: [
+        pb.outcome,
+        title,
+        priceTag,
+        `اسحب للأعلى أو واتساب ${BRAND.phone}`,
+      ].filter(keep).join(" · "),
+      swipeUrl: link("snapchat"),
+    },
+
+    // ── Telegram channel: same short format as WhatsApp ─────────────────────
+    // Both are messaging surfaces read in a feed of chats, so the shape is the
+    // same; only the tracked link differs, which is what keeps the two channels
+    // separable in attribution.
+    telegram: [
+      `*${pb.outcome}*`,
+      "",
+      pb.pain,
+      "",
+      `*${title}*${gov ? ` — عبر ${gov}` : ""}`,
+      ...steps.map((s) => `\u2705 ${s}`),
+      "",
+      price ? `\ud83d\udca0 ${price}` : null,
+      `للاستفسار: ${wa("telegram")}`,
+      link("telegram"),
+    ].filter(keep).join("\n"),
+
+    // ── What the designer (or the renderer) has to produce ──────────────────
+    designBrief: [
+      `بطاقة خدمة واحدة — ${title}.`,
+      `العنوان: «${pb.outcome}»، وتحته سطر الألم بخط أصغر.`,
+      steps.length ? `قائمة من ${steps.length} بنود بعلامة \u2713.` : null,
+      priceTag ? `شارة سعر: ${priceTag}.` : null,
+      `الهوية: كحلي ${BRAND.navy} وذهبي ${BRAND.gold}، خط Noto Kufi Arabic، اتجاه RTL.`,
+      `الأصل الجاهز: docs/marketing-agent/content-packs/${service.slug}/`,
+    ].filter(keep).join(" "),
+  };
+}

@@ -1,0 +1,126 @@
+/* Business Partner — Marketing Design System
+   Shared tokens + primitives for every social template in this folder.
+   Color: navy field + single gold anchor rule + one restrained geometric motif.
+   Type: Noto Kufi Arabic (display) / Noto Sans Arabic (body) / DejaVu Sans (Latin wordmark). */
+
+:root {
+  --navy: #0b1b5a;
+  --navy-deep: #060f38;
+  --gold: #c8973b;
+  --gold-soft: #e4c687;
+  --paper: #f2f4fa;
+  --ink: #0b1330;
+  --ink-soft: #4a5170;
+
+  --display: "Noto Kufi Arabic", sans-serif;
+  --body: "Noto Sans Arabic", sans-serif;
+  --latin: "DejaVu Sans", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.canvas {
+  position: relative;
+  overflow: hidden;
+  background: var(--navy);
+  color: var(--paper);
+  direction: rtl;
+}
+
+/* subtle vignette for depth without a loud gradient-hero look */
+.canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 12% 8%, var(--navy-deep) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* restrained geometric lattice motif — Islamic-grille reference, corner-anchored, low opacity */
+.motif {
+  position: absolute;
+  width: 46%;
+  aspect-ratio: 1;
+  opacity: 0.08;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(45deg, var(--gold-soft) 0 2px, transparent 2px 34px),
+    repeating-linear-gradient(-45deg, var(--gold-soft) 0 2px, transparent 2px 34px);
+}
+.motif.bottom-start { inset-inline-start: -8%; bottom: -10%; }
+.motif.top-end { inset-inline-end: -10%; top: -12%; }
+
+.rule {
+  height: 3px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--latin);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.wordmark .mark {
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 3px;
+  background: var(--gold);
+  flex: none;
+}
+.wordmark .ar {
+  font-family: var(--body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--paper);
+  opacity: 0.75;
+}
+
+.eyebrow {
+  font-family: var(--body);
+  font-weight: 700;
+  color: var(--gold-soft);
+  letter-spacing: 0.02em;
+}
+
+.headline {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--paper);
+  text-wrap: balance;
+  line-height: 1.22;
+}
+
+.support {
+  font-family: var(--body);
+  color: var(--paper);
+  opacity: 0.86;
+  line-height: 1.55;
+}
+
+.cta {
+  font-family: var(--body);
+  font-weight: 700;
+  color: var(--navy);
+  background: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+}
+
+/* light-ground variant, used only for the LinkedIn data-card to give the
+   7-piece set one deliberate tonal shift rather than five identical fields */
+.canvas.on-paper {
+  background: var(--paper);
+  color: var(--ink);
+}
+.canvas.on-paper::before { display: none; }
+.canvas.on-paper .headline { color: var(--navy); }
+.canvas.on-paper .support { color: var(--ink-soft); opacity: 1; }
+.canvas.on-paper .motif { opacity: 0.10; }
+.canvas.on-paper .wordmark .ar { color: var(--ink); }
