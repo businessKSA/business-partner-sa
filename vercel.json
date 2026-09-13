@@ -14,9 +14,6 @@
     "api/chat.js": {
       "maxDuration": 60
     },
-    "api/chat-safe.js": {
-      "maxDuration": 60
-    },
     "api/requests.js": {
       "maxDuration": 60
     },
@@ -79,7 +76,6 @@
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
   ],
   "rewrites": [
-    {"source":"/api/chat","destination":"/api/chat-safe"},
     {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
     {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
     {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
