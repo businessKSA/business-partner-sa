@@ -51,10 +51,15 @@ for (const cfg of pages) {
 // session and answer 401. Force one same-origin navigation after auth so the
 // browser commits Set-Cookie before the portal boot request. location.href
 // preserves ?next=, so the quotation-resume flow continues automatically.
-const portalPages = ['my.html', 'ar/my.html', 'fr/my.html', 'zh/my.html'];
+const portalPages = [
+  { file:'my.html', lang:'en' },
+  { file:'ar/my.html', lang:'ar' },
+  { file:'fr/my.html', lang:'fr' },
+  { file:'zh/my.html', lang:'zh' },
+];
 let portalChanged = 0;
-for (const rel of portalPages) {
-  const file = path.join(ROOT, rel);
+for (const cfg of portalPages) {
+  const file = path.join(ROOT, cfg.file);
   if (!fs.existsSync(file)) continue;
   let html = fs.readFileSync(file, 'utf8');
   const before = html;
@@ -62,6 +67,20 @@ for (const rel of portalPages) {
     /try\{localStorage\.setItem\('bp_session','1'\)\}catch\(x\)\{\}boot\(\)/g,
     "try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)"
   );
+
+  // The selected portal language controls all system-generated labels. Older
+  // requests may have been created from another language, so their stored title
+  // must not leak Arabic into English/French/Chinese (or vice versa). When the
+  // request language differs, show the localized request type instead. The
+  // original client conversation is intentionally preserved as client content.
+  if (!html.includes('function displayRequestTitle(r)')) {
+    const helper = "function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\\u0600-\\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\\u0600-\\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}\n";
+    html = html.replace('function reqRow(r){', helper+'function reqRow(r){');
+  }
+  html = html.replace(/h\('b',\{\},\[r\.title\]\)/g, "h('b',{},[displayRequestTitle(r)])");
+  html = html.replace(/hd\.textContent=r\.title;/g, 'hd.textContent=displayRequestTitle(r);');
+  html = html.replace(/value:\(a&&a\.topic\)\|\|r\.title/g, 'value:(a&&a.topic)||displayRequestTitle(r)');
+
   if (html !== before) {
     fs.writeFileSync(file, html);
     portalChanged++;
