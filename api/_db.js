@@ -41,27 +41,53 @@ export async function sb(path, { method = "GET", body, prefer } = {}) {
 
 export const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
-export function readCookie(req, name) {
+// Return all values for a cookie name. During the apex/www session-cookie
+// migration a browser can legitimately carry two bp_sid cookies: an older
+// host-only cookie and the newer Domain=.businesspartner.sa cookie. Reading
+// only the first value can therefore keep selecting a stale session forever.
+function cookieValues(req, name) {
   const raw = req.headers.cookie || "";
+  const out = [];
   for (const part of raw.split(";")) {
     const [k, ...v] = part.trim().split("=");
-    if (k === name) return decodeURIComponent(v.join("="));
+    if (k === name) {
+      const val = decodeURIComponent(v.join("="));
+      if (val && !out.includes(val)) out.push(val);
+    }
   }
-  return "";
+  return out;
+}
+
+export function readCookie(req, name) {
+  const vals = cookieValues(req, name);
+  // Newer cookies normally appear later when path specificity is equal. More
+  // importantly, callers that only need one value should prefer the most
+  // recently set candidate rather than the stale host-only value.
+  return vals.length ? vals[vals.length - 1] : "";
 }
 
 export const SESSION_COOKIE = "bp_sid";
 
 // Resolve the httpOnly session cookie into { sessionId, user, organization }.
 export async function getSession(req) {
-  const raw = readCookie(req, SESSION_COOKIE);
-  if (!raw || !DB_ON) return null;
-  const rows = await sb(
-    `user_sessions?token_hash=eq.${sha256(raw)}&revoked_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}` +
-    `&select=id,organization_id,expires_at,users(id,email,full_name,locale)&limit=1`
-  );
-  if (!rows.length) return null;
-  const s = rows[0];
+  if (!DB_ON) return null;
+  const candidates = cookieValues(req, SESSION_COOKIE).reverse();
+  if (!candidates.length) return null;
+
+  // Try every bp_sid candidate. This is intentional: browsers that visited the
+  // portal before the apex/www cookie fix may send both a stale host-only
+  // cookie and the current domain cookie. Authentication must not depend on
+  // whichever duplicate happens to be serialized first.
+  let s = null;
+  for (const raw of candidates) {
+    const rows = await sb(
+      `user_sessions?token_hash=eq.${sha256(raw)}&revoked_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}` +
+      `&select=id,organization_id,expires_at,users(id,email,full_name,locale)&limit=1`
+    );
+    if (rows.length) { s = rows[0]; break; }
+  }
+  if (!s) return null;
+
   let org = null;
   if (s.organization_id) {
     // created_at is the anchor for the 30-day Business Development trial —
@@ -126,7 +152,7 @@ export async function storageDelete(path) {
 }
 // Short-lived signed download URL (default 10 minutes).
 export async function storageSign(path, expiresIn) {
-  if (LOCAL_DB) return localStorageSign(path);
+  if (LOCAL_DB) return localStorageSign(path, expiresIn);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
     method: "POST",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },
