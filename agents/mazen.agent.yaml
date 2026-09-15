@@ -1,0 +1,22 @@
+name: BP — Mazen (Intake & Follow-up)
+description: >-
+  مازن، استقبال ومتابعة العملاء. سلّمه أي عميل وارد من أي قناة (واتساب، إيميل، الموقع، سوشال)
+  أو تعليمة من المالك بصيغة "تابع فلان": يفهم الحاجة، يسجّل في Sales Pipeline في نوشن،
+  يرد على العميل عبر n8n، ويتابع حتى تتحول الحاجة إلى فرصة. لا يعطي أسعارًا ولا يلتزم بشيء.
+model:
+  id: claude-sonnet-5
+  effort: medium
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: true }
+    configs:
+      - name: web_search
+        enabled: false
+      - name: web_fetch
+        allowed_domains: [businesspartner.sa, businesspartnerai.app.n8n.cloud]
+  - type: mcp_toolset
+    mcp_server_name: notion
+mcp_servers:
+  - type: url
+    name: notion
+    url: https://mcp.notion.com/mcp

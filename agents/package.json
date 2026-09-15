@@ -1,0 +1,15 @@
+{
+  "name": "bp-agents",
+  "private": true,
+  "type": "module",
+  "description": "فريق Business Partner الذكي على Claude Managed Agents: تعريفات الوكلاء والجدولات وسكربتات التشغيل",
+  "scripts": {
+    "apply": "bash scripts/apply.sh",
+    "vault": "bash scripts/vault.sh",
+    "schedule": "bash scripts/schedule.sh",
+    "run": "node scripts/run.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": ">=0.88.0"
+  }
+}
