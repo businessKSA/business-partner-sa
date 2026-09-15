@@ -567,15 +567,77 @@ function afterContract(){ think(800,()=>{turn('bp',`<p>${SCRIPT[L].pay}</p>`);pa
 function afterPay(){ think(1100,()=>{turn('bp',`<p>${SCRIPT[L].inv}</p>`);invoiceCard();step=5;drawSteps();addSub();
   think(900,()=>turn('bp',`<p>${SCRIPT[L].tail}</p>`))}); }
 
+let chatHistory=[],selectedService=null;
+async function callChat(userText){
+  try{
+    const r=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({
+        mode:'intake',
+        context:selectedService||'consulting',
+        lang:L,
+        messages:[...chatHistory,{role:'user',content:userText}]
+      })
+    });
+    if(!r.ok)throw new Error(`Chat API error: ${r.status}`);
+    const data=await r.json();
+    return data.reply||'حدث خطأ. اعذر.';
+  }catch(e){
+    console.error('Chat error:',e);
+    return L==='ar'?'حدث خطأ في الاتصال. تواصل معنا على واتساب (0530540231).':'Connection error. Contact us on WhatsApp (0530540231).';
+  }
+}
+function parseOpts(text){
+  const m=text.match(/<<OPTS>>\[(.*?)\]<<END>>/s);
+  if(!m)return{text,opts:null};
+  const opts=JSON.parse(m[1]||'[]');
+  return{text:text.replace(/<<OPTS>>.*?<<END>>/s,'').trim(),opts};
+}
+function parseScope(text){
+  const m=text.match(/<<SCOPE>>({.*?})<<END>>/s);
+  if(!m)return{text,scope:null};
+  const scope=JSON.parse(m[1]||'{}');
+  return{text:text.replace(/<<SCOPE>>.*?<<END>>/s,'').trim(),scope};
+}
 function advance(text){
   turn('me',text);
   $('grpJourney').hidden=false;
-  if(stage==='open'){stage='q1';think(900,()=>{turn('bp',`<p>${SCRIPT[L].q1}</p>`);chips(SCRIPT[L].q1c,advance)})}
-  else if(stage==='q1'){stage='q2';think(900,()=>{turn('bp',`<p>${SCRIPT[L].q2}</p>`);chips(SCRIPT[L].q2c,advance)})}
-  else if(stage==='q2'){stage='scope';think(1200,()=>{turn('bp',`<p>${SCRIPT[L].scope}</p>`);scopeCard()})}
-  else{think(800,()=>turn('bp',`<p>${SCRIPT[L].tail}</p>`))}
+  chatHistory.push({role:'user',content:text});
+  think(800,async()=>{
+    const reply=await callChat(text);
+    const{text:mainText,opts}=parseOpts(reply);
+    const{text:finalText,scope}=parseScope(mainText);
+    const p=turn('bp',`<p>${finalText}</p>`);
+    if(opts)chips(opts,advance);
+    if(scope){
+      scopeRowsFromScope(scope);
+      scopeCardFromScope(scope);
+    }
+    chatHistory.push({role:'assistant',content:reply});
+  });
+}
+function scopeRowsFromScope(scope){
+  scopeRows=(scope.items||[]).map(r=>({t:r.title,w:r.why,on:true}));
+}
+function scopeCardFromScope(scope){
+  const c=document.createElement('div'); c.className='card';
+  const R=()=>{ c.innerHTML=`<header><span class="k">${LBL[L].scopeK}</span><h4>${scope.title||LBL[L].scopeT}</h4></header>
+   <div class="card-body"><div class="rows">${scopeRows.map((r,i)=>`<div class="row${r.on?'':' gone'}">
+     <div><b>${r.t}</b><small>${r.w}</small></div><button class="x" data-i="${i}">${r.on?'−':'+'}</button></div>`).join('')}</div>
+   <div class="addline"><input id="sAdd" placeholder="${LBL[L].add}"><button class="btn" id="sAddB">${LBL[L].addB}</button></div></div>
+   <div class="card-foot"><button class="btn primary" id="sOk">${LBL[L].okScope}</button>
+   <button class="btn ghost" id="sMore">${LBL[L].more}</button></div>`;
+   c.querySelectorAll('.x').forEach(b=>b.onclick=()=>{scopeRows[b.dataset.i].on=!scopeRows[b.dataset.i].on;R()});
+   c.querySelector('#sAddB').onclick=()=>{const v=c.querySelector('#sAdd').value.trim();
+     if(v){scopeRows.push({t:v,w:L==='ar'?'أضفته بنفسك':'added by you',on:true});R()}};
+   c.querySelector('#sOk').onclick=()=>{c.querySelector('.card-foot').remove();afterScope()};
+   c.querySelector('#sMore').onclick=()=>$('cin').focus(); };
+  R(); attachCard(c);
+  addDoc('◻︎',(scope.title||LBL[L].scopeT),'',"wait",L==='ar'?'بانتظارك':'awaiting you');
 }
 
+const SERVICE_MAP={ar:{'عندي عمالة فائضة أبغى أعيرها':'government','أبغى أؤسس شركة':'formation','عندي مخالفة في قوى':'government','أبغى أفهم الإقامة المميزة':'government'},en:{'I have surplus workers to second':'government','I want to set up a company':'formation','I have a Qiwa violation':'government','Explain Premium Residency':'government'}};
 function boot(){
   const u=t();
   document.documentElement.setAttribute('dir',u.dir);
@@ -599,14 +661,20 @@ function boot(){
   drawSteps(); drawConvs();
   $('wrap').innerHTML=''; $('docs').innerHTML=''; $('subs').innerHTML='';
   $('grpDocs').hidden=true; $('grpSubs').hidden=true; $('grpJourney').hidden=true;
-  step=0; stage='open';
+  step=0; stage='open'; chatHistory=[]; selectedService=null;
   turn('bp',`<p class="who">${u.mdl}</p><p>${SCRIPT[L].open}</p>`);
-  chips(SCRIPT[L].chips,advance);
+  const chipList=SCRIPT[L].chips;
+  const box=document.createElement('div'); box.className='chips';
+  chipList.forEach(c=>{const b=document.createElement('button');b.className='chip';b.textContent=c;
+    b.onclick=()=>{selectedService=SERVICE_MAP[L][c]||'consulting';box.remove();advance(c)};box.appendChild(b)});
+  $('wrap').lastElementChild.querySelector('.msg').appendChild(box); scroll();
 }
 
 $('cin').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,180)+'px'});
 $('cin').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();
-  const v=$('cin').value.trim(); if(!v)return; $('cin').value=''; $('cin').style.height='auto'; advance(v);} });
+  const v=$('cin').value.trim(); if(!v)return; $('cin').value=''; $('cin').style.height='auto';
+  if(!selectedService)selectedService='consulting';
+  advance(v);} });
 let rec=false;
 $('mic').onclick=()=>{ rec=!rec; $('mic').classList.toggle('rec',rec);
   $('chint').textContent=rec?t().rec:t().hint;
