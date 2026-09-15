@@ -7,6 +7,8 @@
 //   task: "match" | "summary" | "interview" | "outreach"
 // GET  /api/hire  -> { status, providers }
 
+import { azureText, azureConfigured, azureOnly } from "./_azure.js";
+
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -64,12 +66,17 @@ async function callAnthropic(prompt, maxTokens) {
 }
 
 const PROVIDERS = [
+  { name: "azure", keys: null, call: (p, m) => azureText(p, m, SYSTEM), azure: true },
   { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
   { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || GROQ_DEFAULT_MODEL, p, m) },
   { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
   { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
 ];
-const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
+// Azure configured means Azure only — see azureOnly() for why the fallback
+// chain is dropped rather than kept behind it.
+const available = () => (azureOnly()
+  ? PROVIDERS.filter((p) => p.azure)
+  : PROVIDERS.filter((p) => (p.azure ? azureConfigured() : p.keys.some((k) => process.env[k]))));
 
 export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
 export const aiAvailable = () => available().length > 0;

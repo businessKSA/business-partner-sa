@@ -30,6 +30,8 @@ let KNOWLEDGE = "";
 import { priceSheetText } from "./_catalog.js";
 import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
+import { azureChat, azureConfigured, azureOnly } from "./_azure.js";
+import { withIntakeFallback } from "./_chatsafe.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -168,8 +170,6 @@ const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY"
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
-const AZURE_KEYS = ["AZURE_OPENAI_KEY", "AZURE_OPENAI_API_KEY", "AZURE_AI_KEY"];
-const AZURE_ENDPOINT = () => String(process.env.AZURE_OPENAI_ENDPOINT || process.env.AZURE_AI_ENDPOINT || "").trim().replace(/\/+$/, "");
 
 async function callGemini(messages, system) {
   // gemini-2.5-flash was retired: Google answers 404 with «no longer available
@@ -234,28 +234,6 @@ const callOpenAI = (messages, system) =>
     system
   );
 
-// ‏Azure OpenAI عبر مسار v1 الموحّد: `{endpoint}/openai/v1/chat/completions`
-// واسم النشر (deployment) في خانة model. المفتاح يُرسل بالرأسين معاً لأن
-// المسار القديم يقرأ `api-key` والجديد يقبل `Authorization`. و`max_completion_tokens`
-// لا `max_tokens` لأن نماذج gpt-5 وo-series ترفض الثانية.
-async function callAzure(messages, system) {
-  const endpoint = AZURE_ENDPOINT();
-  if (!endpoint) throw new Error("azure: AZURE_OPENAI_ENDPOINT missing");
-  const key = envFrom(AZURE_KEYS);
-  const r = await fetch(`${endpoint}/openai/v1/chat/completions`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "api-key": key, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini",
-      max_completion_tokens: maxTokensFor(),
-      messages: [{ role: "system", content: system }, ...messages],
-    }),
-  });
-  if (!r.ok) throw new Error(`azure ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  return (data?.choices?.[0]?.message?.content || "").trim();
-}
-
 async function callAnthropic(messages, system) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -310,22 +288,25 @@ async function callN8nBaher(messages) {
 }
 
 // Free providers first, then paid, then the keyless n8n agent as a last resort —
-// first provider that answers wins.
+// first provider that answers wins. Azure, when configured, replaces the whole
+// chain rather than leading it: see azureOnly().
 const PROVIDERS = [
-  { name: "azure", keys: AZURE_KEYS, call: callAzure },
+  { name: "azure", keys: null, call: (messages, system) => azureChat(messages, maxTokensFor(), system), azure: true },
   { name: "gemini", keys: GEMINI_KEYS, call: callGemini },
   { name: "groq", keys: GROQ_KEYS, call: callGroq },
   { name: "anthropic", keys: ANTHROPIC_KEYS, call: callAnthropic },
   { name: "openai", keys: OPENAI_KEYS, call: callOpenAI },
   { name: "baher-n8n", keys: null, call: callN8nBaher },
 ];
-const configured = () => PROVIDERS.filter((p) => !p.keys || !!envFrom(p.keys));
+const configured = () => (azureOnly()
+  ? PROVIDERS.filter((p) => p.azure)
+  : PROVIDERS.filter((p) => (p.azure ? azureConfigured() : !p.keys || !!envFrom(p.keys))));
 // The n8n provider carries no key, so `configured()` is never empty and the
 // "missing key" branch never fires: with no keys at all the chain still has one
 // member, it fails, and the customer-facing «صار خلل بسيط» is shown. On a
 // developer's machine that reads like a bug in the site rather than an absent
 // key, so locally we name what is missing instead.
-const hasModelKey = () => PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
+const hasModelKey = () => azureConfigured() || PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
 const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
@@ -388,7 +369,9 @@ function intakeFallback(body, messages) {
   return `${p.intro}\n\n<<SCOPE>>${JSON.stringify(scope)}<<END>>`;
 }
 
-export default async function handler(req, res) {
+// The advisor itself. Exported by name so the resilience wrapper below can
+// call it without a second Vercel function existing just to wrap it.
+export async function advisorHandler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
@@ -528,4 +511,12 @@ export default async function handler(req, res) {
   }
   res.statusCode = 502;
   return res.end(JSON.stringify({ error: "upstream_error", reply: "صار خلل بسيط. جرّب مرة ثانية أو تواصل معنا على واتساب." }));
+}
+
+// The public entry point. Every /api/chat request goes through the intake
+// fallback: a healthy or client-error response is passed through untouched,
+// and only a 5xx on the public intake is caught and answered deterministically
+// rather than showing an outage.
+export default async function handler(req, res) {
+  return withIntakeFallback(advisorHandler, req, res);
 }

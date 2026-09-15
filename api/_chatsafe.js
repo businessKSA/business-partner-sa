@@ -1,8 +1,13 @@
-// Resilient wrapper for /api/chat.
+// Resilient wrapper for /api/chat — helper, not a route.
 // Keeps the existing advisor implementation intact, but guarantees that the
-// public Simple V1 intake chat still answers when every external AI provider
-// is unavailable, out of credit, or misconfigured.
-import originalHandler from "./chat.js";
+// public Simple V1 intake chat still answers when every model provider is
+// unavailable, out of credit, or misconfigured.
+//
+// This began life as api/chat-safe.js, a second Vercel function that imported
+// chat.js and was reached through a rewrite. Two functions for one endpoint put
+// api/ at 13 against a cap of 12, which fails the build guard and would 500 the
+// whole API on deploy. The advisor handler is now passed in as an argument —
+// same behaviour, one function, and no import cycle between the two files.
 
 const N8N_URL = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
 
@@ -194,7 +199,7 @@ async function n8nReply(body) {
   return String(data?.output || data?.text || data?.reply || "").trim();
 }
 
-export default async function handler(req, res) {
+export async function withIntakeFallback(originalHandler, req, res) {
   const captured = captureResponse();
   try {
     await originalHandler(req, captured);
