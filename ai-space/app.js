@@ -761,7 +761,7 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
-  var BUILD_ID = 'stt-4';
+  var BUILD_ID = 'stt-5';
   function diagText() {
     return [
       'إصدار اللوحة: ' + BUILD_ID,
@@ -800,6 +800,14 @@
     head.appendChild(ttl); head.appendChild(btn);
     diagPre = el('pre');
     diagPre.style.cssText = 'margin:5px 0 0;white-space:pre-wrap;font:inherit;line-height:1.7';
+    diagPre.hidden = true;
+    ttl.style.cursor = 'pointer';
+    ttl.title = 'اضغط لعرض التشخيص';
+    ttl.textContent = 'تشخيص المايك ▾';
+    ttl.addEventListener('click', function () {
+      diagPre.hidden = !diagPre.hidden;
+      ttl.textContent = diagPre.hidden ? 'تشخيص المايك ▾' : 'تشخيص المايك ▴';
+    });
     diagBox.appendChild(head); diagBox.appendChild(diagPre);
     strip.parentNode.insertBefore(diagBox, strip.nextSibling);
   }
@@ -908,15 +916,15 @@
         try { localStorage.setItem('bp_mic_granted', '1'); } catch (e) {}
         // The stream (and with it the clap detector) stays open even when
         // recognition is off, otherwise two claps could never switch it back on.
-        var stored = '1';
-        try { stored = localStorage.getItem('bp_listen') || '1'; } catch (e) {}
-        wantListen = forceOn ? true : stored !== '0';
+        // Listening is never remembered as off across reloads: a single stray clap
+        // used to mute the panel permanently, and the owner had no visible sign of it.
+        wantListen = true;
         rememberListen(wantListen);
         micLabel();
         startMeter(stream);
         if (serverMode) {
           micBanner('');
-          if (wantListen) startRecorder(); else setState('idle', 'صفّق مرتين لأسمعك');
+          if (wantListen) startRecorder(); else { setState('idle', 'صفّق مرتين لأسمعك'); note('الاستماع متوقف — اضغط «اضغط ليسمعك»', 'mic'); }
           diag('وضع التفريغ على الخادم');
           return;
         }
