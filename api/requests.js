@@ -32,7 +32,9 @@ import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
 import { BANK } from "./_identity.js";
-import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK, azureReady, docIntelReady } from "./_docread.js";
+import { azureBlobReady, blobMissing } from "./_azblob.js";
+import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -3573,6 +3575,19 @@ export default async function handler(req, res) {
       const has = (...names) => names.find((n) => process.env[n] && String(process.env[n]).trim()) || null;
       const svc = (label, via, note = "") => ({ label, ok: !!via, via, note });
       const out = [
+        // Microsoft Azure is the digital infrastructure (owner decision,
+        // September 2026). These four lines say what of it is wired — names
+        // only, never values — so «is Azure connected?» has an answer here.
+        svc("Azure — الذكاء (OpenAI)", azureReady() ? "AZURE_OPENAI_*" : null,
+          azureReady()
+            ? (has("AZURE_OPENAI_DEPLOYMENT", "AZURE_OPENAI_TEXT_DEPLOYMENT") ? "المحادثة والصوت وقراءة المستندات والتوظيف — الأول دائماً" : "بلا اسم نشر — يُستخدم gpt-4o-mini")
+            : "ناقص: " + ["AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_KEY"].filter((n) => !has(n, n === "AZURE_OPENAI_KEY" ? "AZURE_OPENAI_API_KEY" : "AZURE_AI_ENDPOINT")).join(" + ")),
+        svc("Azure — قراءة الـPDF (Document Intelligence)", docIntelReady() ? "AZURE_DOCINTEL_*" : null,
+          docIntelReady() ? "OCR ثم Azure OpenAI — لا يغادر البنية" : "بدونه لا يُقرأ أي PDF: AZURE_DOCINTEL_ENDPOINT + AZURE_DOCINTEL_KEY"),
+        svc("Azure — الخزنة (Blob Storage)", azureBlobReady() ? "AZURE_STORAGE_*" : null,
+          azureBlobReady() ? "الكتابة إلى Azure؛ القراءة ترجع إلى Supabase عند 404 فقط" : "ناقص: " + blobMissing()),
+        svc("Microsoft 365 — مجلدات العملاء (SharePoint)", graphReady() ? "AZURE_TENANT_ID + AZURE_CLIENT_*" : null,
+          graphReady() ? "مجلد لكل منشأة عبر Microsoft Graph" : "ناقص: " + graphMissing()),
         svc("الذكاء — Gemini (مجاني)", has("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"), "يقرأ شهادة الضريبة والسجل"),
         svc("الذكاء — Anthropic", has("ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"), "بديل لقراءة المستندات"),
         svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
