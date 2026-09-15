@@ -3,6 +3,7 @@
 // functions by Vercel, so this stays a plain shared module (keeps us under
 // the 12-function plan cap).
 import crypto from "node:crypto";
+import { azureBlobReady, blobPut, blobGet, blobDelete, blobSign, blobExists } from "./_azblob.js";
 import {
   LOCAL_DB, localRest,
   localStoragePut, localStorageGet, localStorageDelete, localStorageSign,
@@ -119,8 +120,17 @@ async function ensureBucket() {
   } catch {}
   _bucketReady = true; // exists-already errors are fine
 }
+// ‏سبتمبر 2026: الخزنة انتقلت إلى Azure Blob Storage.
+//
+// الكتابة تذهب إلى Azure دائماً متى كان مُهيّأً. أمّا القراءة فتجرّب Azure ثم
+// ترجع إلى Supabase، لأن ملفات العملاء المرفوعة قبل النقل ما زالت هناك: عميلٌ
+// يفتح مستنده القديم يجب أن يجده، لا أن يُقال له إنه غير موجود. ومتى نُقلت
+// الملفات القديمة سقط هذا الرجوع من تلقاء نفسه بلا تغيير كود.
+const azureStorageOn = () => azureBlobReady();
+
 export async function storagePut(path, buffer, contentType) {
   if (LOCAL_DB) return localStoragePut(path, buffer);
+  if (azureStorageOn()) return blobPut(path, buffer, contentType);
   await ensureBucket();
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "POST",
@@ -134,6 +144,14 @@ export async function storagePut(path, buffer, contentType) {
 // The document agent needs the original form bytes to fill them.
 export async function storageGet(path) {
   if (LOCAL_DB) return localStorageGet(path);
+  if (azureStorageOn()) {
+    try { return await blobGet(path); }
+    catch (e) {
+      // 404 alone means "not migrated yet" — anything else is a real Azure
+      // fault and must not be masked by silently reading the old vault.
+      if (!/_404$/.test(String(e.message || "")) || !SUPABASE_URL) throw e;
+    }
+  }
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
@@ -144,6 +162,10 @@ export async function storageGet(path) {
 // Best-effort: a missing object is already gone, which is what we wanted.
 export async function storageDelete(path) {
   if (LOCAL_DB) return localStorageDelete(path);
+  if (azureStorageOn()) {
+    await blobDelete(path);
+    if (!SUPABASE_URL) return;   // and fall through to clear any legacy copy
+  }
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "DELETE",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
@@ -153,6 +175,7 @@ export async function storageDelete(path) {
 // Short-lived signed download URL (default 10 minutes).
 export async function storageSign(path, expiresIn) {
   if (LOCAL_DB) return localStorageSign(path, expiresIn);
+  if (azureStorageOn() && await blobExists(path)) return blobSign(path, expiresIn);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
     method: "POST",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },
