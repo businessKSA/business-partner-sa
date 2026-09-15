@@ -38,6 +38,7 @@ const D = {
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
   navTrips: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
   navBook: { ar: "احجز استشارة", en: "Book a call", fr: "Réserver", zh: "预约咨询" },
+  navCart: { ar: "السلة", en: "Cart", fr: "Panier", zh: "购物车" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
   navSite: { ar: "العودة إلى الموقع", en: "Back to the site", fr: "Retour au site", zh: "返回网站" },
   logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
@@ -422,6 +423,8 @@ export function simpleV1(ctx) {
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
+.sv1-cart{display:inline-flex;align-items:center;gap:6px}
+.sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
 .sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
 .sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
 .sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
@@ -512,6 +515,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="${href("/cart")}" aria-label="${t("navCart")}">
+      <span>${t("navCart")}</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="${href("/my")}">${t("login")}</a>
     <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="${href("/")}">${t("navSite")}</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t("logout")}</button>
@@ -595,7 +600,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
 
   function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
     const h = head(title, desc, path)
