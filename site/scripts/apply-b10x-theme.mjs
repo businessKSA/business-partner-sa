@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const ROOT = path.resolve('site');
 const files=[];
-function walk(dir){for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const st=fs.statSync(p);if(st.isDirectory())walk(p);else if(name.endsWith('.html'))files.push(p)}}
+function walk(dir){for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const st=fs.statSync(p);if(st.isDirectory()){if(p===path.join(ROOT,'scripts'))continue;walk(p)}else if(name.endsWith('.html'))files.push(p)}}
 walk(ROOT);
 
 const LINK='<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829c">';
@@ -97,7 +97,12 @@ const CHAT_JS=`<script id="b10x-home-js">
 </script>`;
 
 let changed=0;
+// ‏صفحة المحادثة الكاملة (/chat) نموذجٌ مستقلّ بقشرته وألوانه: قاعدة `body{`
+// و`.btn{` العامة هنا تكسر وضعها الداكن وأزرارها، فلا تُلمس. ومجلد
+// `site/scripts/` مصدرٌ لا ناتج: المشي فيه كان يحقن الرابط في قالب الصفحة نفسه.
+const STANDALONE=new Set([path.join(ROOT,'chat.html')]);
 for(const file of files){
+  if(STANDALONE.has(file)) continue;
   let html=fs.readFileSync(file,'utf8');
   if(!html.includes('b10x-theme.css')) html=html.replace('</head>',LINK+'\n</head>');
   else html=html.replace(/\/assets\/css\/b10x-theme\.css\?v=[^"']+/g,'/assets/css/b10x-theme.css?v=20260829c');
