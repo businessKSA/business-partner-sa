@@ -12648,6 +12648,11 @@ function buildAccountCenter(lang = "ar") {
   }
   return html;
 }
+// ‏Chat OS — نموذج «الموقع كله محادثة» الذي يجرّبه المالك على رابطٍ مخفي:
+// بلا رأس ولا تذييل، noindex، وغير موصول من أي مكان. سيناريو مكتوب لا
+// مزوّد ذكاء خلفه؛ يُربط بالمحرّك الحقيقي بعد الاعتماد. صفحة واحدة
+// تبدّل لغتها بنفسها فلا تُكتب في الأشجار الأخرى.
+write("chat.html", fs.readFileSync(path.join(__dirname, 'assets', 'chat.page.html'), 'utf8'));
 write("account.html", buildAccountCenter("en"));
 write("ar/account.html", buildAccountCenter("ar"));
 
