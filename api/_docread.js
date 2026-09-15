@@ -10,9 +10,16 @@
 // dropped. The extracted values are a starting point for a human to confirm —
 // a wrong VAT number on an issued tax invoice cannot be edited, only voided.
 
+import { azureChat, azureConfigured, azureOnly, azureEndpoint, azureKey, azureDeployment } from "./_azure.js";
+
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const AZURE_KEYS = ["AZURE_OPENAI_KEY", "AZURE_OPENAI_API_KEY", "AZURE_AI_KEY"];
-const AZURE_ENDPOINT = () => String(process.env.AZURE_OPENAI_ENDPOINT || process.env.AZURE_AI_ENDPOINT || "").trim().replace(/\/+$/, "");
+const AZURE_ENDPOINT = () => azureEndpoint();
+// ‏نشرُ الصوت غير نشر المحادثة. كان هذا الملف يمرّر `AZURE_OPENAI_DEPLOYMENT`
+// (وهو نشر gpt) إلى مسار التفريغ، فيردّ Azure بخطأ نشرٍ غير موجود على كل
+// رسالة صوتية. التفريغ له متغيّره الخاص، وتقصيره «whisper».
+const AZURE_ASR_DEPLOYMENT = () =>
+  String(process.env.AZURE_OPENAI_WHISPER_DEPLOYMENT || process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT || "whisper").trim();
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
@@ -157,6 +164,19 @@ async function readWithAnthropic(base64, mime, prompt, maxTokens) {
   return parseJson((data.content || []).map((c) => c.text || "").join(""));
 }
 
+// ‏Azure OpenAI يقرأ الصور بشكل OpenAI نفسه (image_url بترميز data:)، لكنه
+// لا يقبل PDF على مسار المحادثة — ذاك يحتاج Azure Document Intelligence وهو
+// موردٌ منفصل لم يُهيَّأ بعد. فالـPDF يرفع `pdf_unsupported` كغيره.
+async function readWithAzure(base64, mime, prompt, maxTokens) {
+  if (!azureConfigured()) throw new Error("no_key");
+  if (/pdf/i.test(mime)) throw new Error("pdf_unsupported");
+  const text = await azureChat(
+    [{ role: "user", content: [{ type: "text", text: prompt || PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
+    maxTokens || 900
+  );
+  return parseJson(text);
+}
+
 async function readWithOpenAI(base64, mime, prompt, maxTokens) {
   const key = envFrom(OPENAI_KEYS);
   if (!key) throw new Error("no_key");
@@ -220,15 +240,27 @@ function clean(raw) {
 // The AI Document Agent (api/_docagent.js) uses this for classification,
 // arbitrary-form field mapping and fill planning — tasks whose schema is not
 // the fixed invoice schema above.
+// ‏قرار المالك: البنية التحتية Azure وحدها. متى ما هُيّئ Azure فهو المزوّد
+// الوحيد — لا لأن غيره أضعف، بل لأن غيره غير مموَّل، ولأن رجوعاً صامتاً إلى
+// Google أو OpenAI يُخرج مستندات العملاء من Azure بلا قرارٍ من أحد.
+// AZURE_ALLOW_FALLBACK=1 يعيد السلسلة القديمة عمداً (انظر api/_azure.js).
+const docProviders = (all) => (azureOnly() ? all.filter(([n]) => n === "azure") : all);
+
+// ‏قراءة الصور تمرّ على Azure. أما PDF فمسار المحادثة لا يقبله، ويحتاج
+// Azure Document Intelligence — موردٌ منفصل لم يُهيَّأ. نقولها بالاسم بدل
+// «تعذّرت القراءة»، لأن الأول يُشترى والثاني يُعاد المحاولة فيه بلا طائل.
+const pdfOnlyGap = (mime) => azureOnly() && /pdf/i.test(String(mime || ""));
+
 export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
   if (!base64) return { ok: false, error: "no_file" };
   if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
-  const providers = [
+  const providers = docProviders([
+    ["azure", (b, m) => readWithAzure(b, m, prompt, maxTokens)],
     ["gemini", (b, m) => readWithGemini(b, m, prompt, maxTokens)],
     ["anthropic", (b, m) => readWithAnthropic(b, m, prompt, maxTokens)],
     ["openai", (b, m) => readWithOpenAI(b, m, prompt, maxTokens)],
-  ];
+  ]);
   for (const [name, call] of providers) {
     try {
       const raw = await call(base64, mime);
@@ -238,7 +270,8 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
       if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread raw", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  const anyKey = azureConfigured() || envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  if (pdfOnlyGap(mime)) return { ok: false, error: "pdf_needs_document_intelligence" };
   return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
 }
 
@@ -246,8 +279,17 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
 // the doc agent for reconciliation, gap analysis and fill planning where the
 // inputs are already extracted text, not bytes.
 export async function askModel(prompt, maxTokens) {
-  const gk = envFrom(GEMINI_KEYS);
   const errs = [];
+  // ‏Azure أولاً، ووحده متى ما هُيّئ — انظر docProviders أعلاه.
+  if (azureConfigured()) {
+    try {
+      const parsed = parseJson(await azureChat([{ role: "user", content: prompt }], maxTokens || 2000));
+      if (parsed) return { ok: true, data: parsed, provider: "azure" };
+      errs.push("azure: unparsable");
+    } catch (e) { const m = String(e.message || e); console.error("askModel azure", m.slice(0, 160)); errs.push(`azure: ${m.slice(0, 90)}`); }
+    if (azureOnly()) return { ok: false, error: "read_failed", detail: errs.join(" · ").slice(0, 300) };
+  }
+  const gk = envFrom(GEMINI_KEYS);
   if (gk) {
     try {
       const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
@@ -278,7 +320,7 @@ export async function askModel(prompt, maxTokens) {
       } else errs.push(`anthropic ${r.status}`);
     } catch (e) { const m = String(e.message || e); console.error("askModel anthropic", m.slice(0, 160)); errs.push(`anthropic: ${m.slice(0, 90)}`); }
   }
-  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
+  return { ok: false, error: (gk || ak || azureConfigured()) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
 }
 
 /**
@@ -291,11 +333,12 @@ export async function readDocument(base64, mime) {
   if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
 
-  const providers = [
+  const providers = docProviders([
+    ["azure", readWithAzure],
     ["gemini", readWithGemini],
     ["anthropic", readWithAnthropic],
     ["openai", readWithOpenAI],
-  ];
+  ]);
   const tried = [];
   for (const [name, call] of providers) {
     try {
@@ -308,7 +351,8 @@ export async function readDocument(base64, mime) {
       tried.push(`${name}: ${msg.slice(0, 60)}`);
     }
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  const anyKey = azureConfigured() || envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  if (pdfOnlyGap(mime)) return { ok: false, error: "pdf_needs_document_intelligence", detail: tried.join(" · ").slice(0, 300) };
   return { ok: false, error: anyKey ? "read_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
 }
 
@@ -410,7 +454,7 @@ async function speechAzure(base64, mime, hint) {
   const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
   const form = new FormData();
   form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model", process.env.AZURE_OPENAI_DEPLOYMENT || "whisper");
+  form.append("model", AZURE_ASR_DEPLOYMENT());
   form.append("response_format", "verbose_json");
   form.append("temperature", "0");
   if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
@@ -433,7 +477,8 @@ const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", m
 
 // تقريرٌ للفحص: أي مفرِّغٍ مُهيّأ وباسم أي متغيّر — الأسماء فقط، لا القيم.
 export function voiceProviders() {
-  return [["azure", AZURE_KEYS], ["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]]
+  const all = [["azure", AZURE_KEYS], ["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]];
+  return docProviders(all)
     .map(([name, keys]) => ({ name, configured: !keys || !!envFrom(keys), via: keys ? (keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed" }));
 }
 
@@ -442,7 +487,7 @@ export async function transcribeAudio(base64, mime, hint) {
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
-  for (const [name, call] of [["azure", speechAzure], ["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
+  for (const [name, call] of docProviders([["azure", speechAzure], ["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]])) {
     try {
       const out = await call(base64, mime, String(hint || "").slice(0, 2).toLowerCase());
       const text = String((out && out.text) || "").trim();
@@ -457,7 +502,7 @@ export async function transcribeAudio(base64, mime, hint) {
       if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(AZURE_KEYS) || envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
+  const anyKey = azureConfigured() || envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
