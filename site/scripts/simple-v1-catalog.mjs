@@ -25,6 +25,7 @@ const T = {
   tabSvc: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   tabPkg: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
   tabTrip:{ ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
+  details: { ar: "التفاصيل ←", en: "Details →", fr: "Détails →", zh: "详情 →" },
   search: { ar: "ابحث: إقامة، رخصة، توظيف، سجل تجاري…", en: "Search: visa, licence, hiring, registration…",
             fr: "Rechercher : visa, licence, recrutement…", zh: "搜索：签证、许可、招聘…" },
   none:   { ar: "لا نتيجة بهذه الكلمة. جرّب كلمة أعمّ، أو اشرح احتياجك في المحادثة.",
@@ -76,6 +77,10 @@ export function buildSimpleCatalog(SV1, ctx) {
 
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
+    // ‏رابط صفحة الخدمة. الصفحات الـ٢٠٠ تُبنى بنطاق عملها ومستنداتها وأسئلتها
+    // ثم لا يصلها أحد: هذه الصفحة — باب الخدمات في الموقع الجديد — كانت
+    // مربّعات اختيار بلا رابطٍ واحد إليها.
+    slug: (s.code || "").toLowerCase(),
     name: (ar ? s.nameAr : s.nameEn) || s.nameAr || s.nameEn || "",
     // ‏التصنيف واسم الجهة بلغة الصفحة. كانا بالعربية دائماً، فتظهر في
     // الصفحة الإنجليزية عناوين عربية فوق أسماء إنجليزية — لغتان في بطاقة
@@ -173,7 +178,10 @@ ${SV1.footer()}`;
 .sv1-grp.open>button .chev{transform:rotate(180deg)}
 .sv1-grp .body{display:none;border-top:1px solid var(--l);padding:8px}
 .sv1-grp.open .body{display:block}
-.sv1-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px;cursor:pointer}
+.sv1-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px}
+.sv1-pick-lab{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;cursor:pointer}
+.sv1-pick-more{flex:none;align-self:center;font-size:11.5px;color:var(--ac);text-decoration:none;border:1px solid var(--acLine);border-radius:8px;padding:4px 9px;background:var(--acSoft);white-space:nowrap}
+.sv1-pick-more:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
 .sv1-pick:hover{background:var(--soft)}
 .sv1-pick input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--n);flex:none}
 .sv1-pick .tx b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.55}
@@ -205,7 +213,7 @@ body.sv1-tray-on .sv1-wa-fab{bottom:78px}
   const script = `<script>
 (function(){
 var GROUPS=${JSON.stringify(groups)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
-var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly") })};
+var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details") })};
 var HOME=${JSON.stringify(lang === "en" ? "/" : "/" + lang + "/")};
 var $=function(id){return document.getElementById(id)};
 var list=$('svcList'),q=$('svcQ'),tray=$('svcTray'),cnt=$('trayCount');
@@ -254,13 +262,18 @@ function draw(){
   head.onclick=function(){box.classList.toggle('open')};
   var body=el('div','body');
   hits.forEach(function(s){
-   var row=el('label','sv1-pick');
+   var row=el('div','sv1-pick');
+   var lab=document.createElement('label');lab.className='sv1-pick-lab';
    var cb=document.createElement('input');cb.type='checkbox';cb.checked=isPicked(s.code,s.name);
    if(cb.checked)row.classList.add('on');
    cb.onchange=function(){row.classList.toggle('on',cb.checked);toggle(s,cb.checked)};
    var tx=el('span','tx');tx.appendChild(el('b',null,s.name));
    if(s.gov)tx.appendChild(el('small',null,s.gov));
-   row.appendChild(cb);row.appendChild(tx);
+   lab.appendChild(cb);lab.appendChild(tx);
+   row.appendChild(lab);
+   if(s.slug){var a=document.createElement('a');a.className='sv1-pick-more';
+    a.href=HOME+'services/'+s.slug;a.textContent=TX.details;
+    a.onclick=function(e){e.stopPropagation()};row.appendChild(a)}
    body.appendChild(row)});
   box.appendChild(head);box.appendChild(body);
   list.appendChild(box)});
