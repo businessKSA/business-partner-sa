@@ -255,7 +255,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
-</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829c">
+</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
 <body class="sv1-page"><div class="sv1"><style>
 .my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
@@ -421,12 +421,12 @@ function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location
 // ---------- login
 function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
 var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
-var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
+var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
 var s1=h('div',{},[e1,b1]),s2=h('div',{hidden:''},[e2,b2]);
 // Three doors to the same account: emailed code, password, Google. Only the
 // ones this deployment has configured are drawn.
 var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
-var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
+var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
 var sp=h('div',{hidden:''},[e3,b3]);
 var toPw=h('a',{class:'lnk',onclick:function(){sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
 var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
@@ -436,7 +436,7 @@ otp({action:'methods'}).then(function(m){if(!m||!m.ok)return;if(!m.password){toP
 // Google Identity Services is loaded only when a client id exists, so a
 // deployment without Google never pulls a script it cannot use.
 function mountGoogle(wrap,cid,errEl){wrap.hidden=false;wrap.appendChild(h('p',{class:'note'},[TX.orGoogle]));var slot=h('div',{id:'bpGoogleBtn'});wrap.appendChild(slot);
-window.__bpGoogleCb=function(resp){otp({action:'google',credential:resp&&resp.credential}).then(function(o){if(!o||!o.ok){errEl.textContent=TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()})};
+window.__bpGoogleCb=function(resp){otp({action:'google',credential:resp&&resp.credential}).then(function(o){if(!o||!o.ok){errEl.textContent=TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)})};
 function init(){try{google.accounts.id.initialize({client_id:cid,callback:window.__bpGoogleCb});google.accounts.id.renderButton(slot,{theme:'outline',size:'large',width:280,locale:LANG==='ar'?'ar':'en'})}catch(e){wrap.hidden=true}}
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
@@ -449,7 +449,8 @@ var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
 var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='company')viewCompany(main);else viewHome(main)}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
+function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\u0600-\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\u0600-\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
@@ -498,7 +499,7 @@ m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
-function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
+function drawRequest(hd,box){var r=state.req;hd.textContent=displayRequestTitle(r);box.innerHTML='';
 box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[(TY[r.type]||r.type)]),h('span',{},[when(r.created_at)])]));
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
@@ -557,7 +558,7 @@ if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'}
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[TX.download])]));
 // appointment
 if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
-var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
+var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||displayRequestTitle(r)}),ae=h('div',{class:'err'});
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));

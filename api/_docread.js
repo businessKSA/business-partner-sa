@@ -11,6 +11,8 @@
 // a wrong VAT number on an issued tax invoice cannot be edited, only voided.
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const AZURE_KEYS = ["AZURE_OPENAI_KEY", "AZURE_OPENAI_API_KEY", "AZURE_AI_KEY"];
+const AZURE_ENDPOINT = () => String(process.env.AZURE_OPENAI_ENDPOINT || process.env.AZURE_AI_ENDPOINT || "").trim().replace(/\/+$/, "");
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
@@ -399,6 +401,31 @@ async function whisperAt(host, keys, defModel, envModel, base64, mime, label, hi
   const d = await r.json();
   return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
 }
+// Azure OpenAI — accepts Whisper API calls via the v1/audio/transcriptions endpoint
+async function speechAzure(base64, mime, hint) {
+  const endpoint = AZURE_ENDPOINT();
+  if (!endpoint) throw new Error("no_key");
+  const key = envFrom(AZURE_KEYS);
+  const clean = String(mime).split(";")[0];
+  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
+  const form = new FormData();
+  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
+  form.append("model", process.env.AZURE_OPENAI_DEPLOYMENT || "whisper");
+  form.append("response_format", "verbose_json");
+  form.append("temperature", "0");
+  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
+  const prime = ASR_PROMPT[hint] || (hint === "ar" ? ASR_PROMPT_AR : "");
+  if (prime) form.append("prompt", prime);
+  const r = await fetch(`${endpoint}/openai/v1/audio/transcriptions`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${key}`, "api-key": key },
+    body: form,
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!r.ok) throw new Error(`azure ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  const d = await r.json();
+  return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
+}
 const speechGroq = (b, m, h) => whisperAt("https://api.groq.com/openai/v1", GROQ_KEYS, "whisper-large-v3", "GROQ_TRANSCRIBE_MODEL", b, m, "groq", h);
 const speechOpenAI = (b, m, h) => whisperAt("https://api.openai.com/v1", OPENAI_KEYS, "whisper-1", "OPENAI_TRANSCRIBE_MODEL", b, m, "openai", h);
 
@@ -406,8 +433,8 @@ const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", m
 
 // تقريرٌ للفحص: أي مفرِّغٍ مُهيّأ وباسم أي متغيّر — الأسماء فقط، لا القيم.
 export function voiceProviders() {
-  return [["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]]
-    .map(([name, keys]) => ({ name, configured: !!envFrom(keys), via: keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null }));
+  return [["azure", AZURE_KEYS], ["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]]
+    .map(([name, keys]) => ({ name, configured: !keys || !!envFrom(keys), via: keys ? (keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed" }));
 }
 
 export async function transcribeAudio(base64, mime, hint) {
@@ -415,7 +442,7 @@ export async function transcribeAudio(base64, mime, hint) {
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
-  for (const [name, call] of [["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
+  for (const [name, call] of [["azure", speechAzure], ["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
     try {
       const out = await call(base64, mime, String(hint || "").slice(0, 2).toLowerCase());
       const text = String((out && out.text) || "").trim();
@@ -430,7 +457,7 @@ export async function transcribeAudio(base64, mime, hint) {
       if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
+  const anyKey = envFrom(AZURE_KEYS) || envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };

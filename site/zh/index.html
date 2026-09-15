@@ -255,7 +255,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
-</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=20260829c">
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
 <body class="sv1-page"><div class="sv1">
 <div class="sv1-bar"><div class="wrap">
@@ -586,4 +586,63 @@ else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx]
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};var t=m.role==='assistant'?parseOpts(p.text).text:p.text;if(t)add(t,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
-})();</script></body></html>
+})();</script>
+<style id="sv1-portal-auth-flow-css">
+/* Authentication belongs in the client portal, never under the public advisor. */
+#sv1Login{display:none!important}
+</style>
+<script id="sv1-portal-auth-flow">
+(function(){
+  var PORTAL="/zh/my", HOME="/zh/", LANG="zh";
+  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+  var LABELS={"empty":"请先检查服务范围，再创建报价。","creating":"正在创建申请…","error":"无法创建申请，请重试。"};
+  function draft(){try{return JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){return null}}
+  function accountUrl(){
+    // The portal already supports ?next= and returns the signed-in customer to it.
+    var resume=HOME+'?resume=quote#advisor';
+    return PORTAL+'?next='+encodeURIComponent(resume);
+  }
+  function createFromDraft(btn){
+    var d=draft();
+    if(!d||!Array.isArray(d.items)||!d.items.length){alert(LABELS.empty);return}
+    var original=btn.textContent; btn.disabled=true; btn.textContent=LABELS.creating;
+    var sess=window.SV1_SESSION&&window.SV1_SESSION.user||{};
+    fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({
+      action:'request-create',type:TYPE[d.ctx]||'CONSULTATION',source:'WEBSITE',lang:LANG,
+      title:d.title||'',summary:d.summary||'',scope:d.items||[],documents:d.docs||[],conversation:d.history||[],
+      name:sess.full_name||'',phone:sess.phone||''
+    })}).then(function(r){return r.json()}).then(function(o){
+      if(!o||!o.ok)throw new Error((o&&o.message)||'request_failed');
+      try{sessionStorage.removeItem('sv1_chat');sessionStorage.removeItem('sv1_resume_quote')}catch(e){}
+      location.href=PORTAL+'?ref='+encodeURIComponent(o.ref);
+    }).catch(function(){btn.disabled=false;btn.textContent=original;alert(LABELS.error)});
+  }
+
+  // Capture before the legacy inline onclick. Guests are sent to the portal;
+  // signed-in users create the request directly and then open it in the portal.
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest&&e.target.closest('#sv1Create');
+    if(!btn)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    var d=draft();
+    if(!d||!Array.isArray(d.items)||!d.items.length){alert(LABELS.empty);return}
+    if(window.SV1_SESSION&&window.SV1_SESSION.user){createFromDraft(btn);return}
+    try{sessionStorage.setItem('sv1_resume_quote','1')}catch(_){}
+    location.href=accountUrl();
+  },true);
+
+  // After portal authentication, ?next= returns here. Finish the action the
+  // customer already asked for instead of making them click "Create quote" twice.
+  if(new URL(location.href).searchParams.get('resume')==='quote' && sessionStorage.getItem('sv1_resume_quote')==='1'){
+    var tries=0,t=setInterval(function(){
+      tries++;
+      if(window.SV1_SESSION&&window.SV1_SESSION.user){
+        clearInterval(t);
+        try{history.replaceState({},'',HOME+'#advisor')}catch(_){}
+        var b=document.getElementById('sv1Create');if(b)createFromDraft(b);
+      } else if(tries>40){clearInterval(t);location.href=accountUrl()}
+    },250);
+  }
+})();
+</script>
+</body></html>
