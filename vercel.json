@@ -169,6 +169,10 @@
       "destination": "/api/chat-safe"
     },
     {
+      "source": "/quotes/d/:token",
+      "destination": "/api/requests?__route=legacy-doc&t=:token"
+    },
+    {
       "source": "/quotes",
       "destination": "https://bp-quotes-three.vercel.app/quotes"
     },
@@ -182,7 +186,7 @@
     },
     {
       "source": "/api/live-catalog",
-      "destination": "https://bp-quotes-three.vercel.app/quotes/api/catalog"
+      "destination": "/api/requests?__route=live-catalog"
     },
     {
       "source": "/api/daftra-invoice",
