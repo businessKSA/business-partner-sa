@@ -34,6 +34,7 @@ import { sellerProfile } from "./_zatca.js";
 import { BANK } from "./_identity.js";
 import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK, azureReady, docIntelReady } from "./_docread.js";
 import { azureBlobReady, blobMissing } from "./_azblob.js";
+import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
@@ -786,6 +787,12 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 // attachments: [{ filename, content }] where content is base64 — Resend's own
 // attachment shape, passed straight through.
 async function sendEmail(to, subject, html, attachments) {
+  // البنية التحتية على Azure (قرار المالك): جرّب Azure Communication Services
+  // أولاً. عند نجاحه نكتفي به؛ وإن لم يكن مهيّأً أو فشل نرجع إلى Resend.
+  // (المرفقات عبر Resend فقط حالياً — تُترك للبديل.)
+  if (!attachments || !attachments.length) {
+    try { if (await azureSendEmail(to, subject, html)) return { ok: true, via: "azure" }; } catch (e) {}
+  }
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -3600,7 +3607,9 @@ export default async function handler(req, res) {
         svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
         svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
         svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
-        svc("البريد — Resend", has("RESEND_API_KEY"), "كل الرسائل والمرفقات"),
+        svc("Azure — البريد (Communication Services)", azureEmailReady() ? "ACS_CONNECTION_STRING + ACS_SENDER_ADDRESS" : null,
+          azureEmailReady() ? "كل إيميلات باهر تُرسل من Azure أولاً" : "ناقص: ACS_CONNECTION_STRING + ACS_SENDER_ADDRESS — بدونه يرجع للبريد عبر Resend"),
+        svc("البريد — Resend (بديل)", has("RESEND_API_KEY"), "بديل عند غياب Azure + المرفقات"),
         svc("نوشن — CRM", has("NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"), "الطلبات والموردون"),
         svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
