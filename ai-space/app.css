@@ -229,3 +229,42 @@ body{
   #orbs{grid-template-columns:1fr}
   .rail-talk .panel{min-height:70vh}
 }
+
+/* ===================== التحكم بالعين ===================== */
+
+/* المؤشّر لا يلتقط أحداث الفأر إطلاقاً: elementFromPoint تحته يجب أن ترى
+   الهدف الحقيقي لا المؤشّر نفسه، وإلا صار كل تثبيت يختار المؤشّر. */
+#eyeDot{position:fixed;left:0;top:0;width:48px;height:48px;z-index:9998;
+  pointer-events:none;opacity:0;transition:opacity .18s ease;will-change:transform}
+#eyeDot.live{opacity:1}
+#eyeDot svg{position:absolute;inset:0;width:48px;height:48px;transform:rotate(-90deg)}
+#eyeDot .ring-bg{fill:none;stroke:rgba(120,220,255,.18);stroke-width:3}
+#eyeDot .ring-fg{fill:none;stroke:var(--cyan,#4fd8ff);stroke-width:3;stroke-linecap:round;
+  transition:stroke-dashoffset .06s linear}
+#eyeDot i{position:absolute;left:19px;top:19px;width:10px;height:10px;border-radius:50%;
+  background:var(--cyan,#4fd8ff);box-shadow:0 0 12px rgba(79,216,255,.9)}
+
+/* الهدف تحت النظر يُعلَّم بوضوح: بلا هذا لا يعرف المالك أين سيقع الاختيار
+   قبل وقوعه، والاختيار المفاجئ في واجهة تنفيذية خطر لا إزعاج. */
+.eye-hover{outline:2px solid var(--cyan,#4fd8ff) !important;
+  outline-offset:2px;box-shadow:0 0 18px rgba(79,216,255,.35) !important}
+
+#eyeVideo{position:fixed;left:-9999px;top:-9999px;width:2px;height:2px}
+
+#eyeCal{position:fixed;inset:0;z-index:9999;background:rgba(2,6,15,.94);
+  display:flex;align-items:center;justify-content:center}
+.eye-cal-msg{text-align:center;color:#cfefff;font-size:15px;line-height:2}
+.eye-cal-msg b{display:block;font-size:19px;color:#fff;margin-bottom:4px}
+.eye-cal-x{position:absolute;top:18px;left:18px;border:1px solid var(--line2,#1e4468);
+  background:rgba(8,26,48,.9);color:#a9e9ff;border-radius:14px;padding:7px 14px;
+  font-size:12px;cursor:pointer;font-family:inherit}
+.eye-cal-pt{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;
+  background:var(--cyan,#4fd8ff);box-shadow:0 0 26px rgba(79,216,255,.95);
+  transition:left .3s ease,top .3s ease}
+.eye-cal-pt.hold{animation:eyePulse .7s ease-in-out infinite}
+@keyframes eyePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.55);opacity:.65}}
+
+@media (prefers-reduced-motion:reduce){
+  .eye-cal-pt,.eye-cal-pt.hold{transition:none;animation:none}
+  #eyeDot .ring-fg{transition:none}
+}

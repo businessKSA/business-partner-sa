@@ -125,6 +125,11 @@
   }
 
   /* ---------- derived ---------- */
+
+  /* جسر التحكم بالعين: eye.js وحدة مستقلة عمداً — لو سقطت لا تُسقط الصوت.
+     تتكلّم عبر note() نفسها حتى تظهر رسائل العين حيث ينظر المالك أصلاً. */
+  window.BP_EYE_NOTE = function (text, tone) { note(text, tone || 'eye'); };
+
   function openTasks() {
     return DATA.tasks.filter(function (t) { return OPEN_TASK.indexOf(low(t.status)) !== -1; });
   }
@@ -538,6 +543,16 @@
   function ask(text) {
     text = String(text || '').trim();
     if (!text || busy) return Promise.resolve();
+
+    /* أوامر العين تُبتلع هنا ولا تُرسل للمدراء: «شغّل العين» أمرٌ للوحة لا
+       سؤالٌ لمدير، وإرساله كان سيستهلك توكنز ويعيد جواباً لا معنى له.
+       الحارس على window.BPEye لا على الوحدة مباشرة، فلو لم يُحمّل eye.js
+       بقي الصوت يعمل كما هو. */
+    if (window.BPEye && typeof window.BPEye.command === 'function') {
+      try { if (window.BPEye.command(text)) return Promise.resolve(); }
+      catch (e) { /* عطل في العين لا يُسكِت الصوت */ }
+    }
+
     busy = true;
     busySince = Date.now();
     abortedByUser = false;
@@ -761,7 +776,7 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
-  var BUILD_ID = 'stt-5';
+  var BUILD_ID = 'eye-1';
   function diagText() {
     return [
       'إصدار اللوحة: ' + BUILD_ID,

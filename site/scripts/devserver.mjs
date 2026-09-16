@@ -18,6 +18,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SITE = path.join(ROOT, "site");
+const SPACE = path.join(ROOT, "ai-space");
 const PORT = Number(process.env.PORT || 3000);
 
 // ------------------------------------------------------------ environment --
@@ -161,6 +162,38 @@ const server = http.createServer(async (req, res) => {
       res.setHeader("content-type", "application/json; charset=utf-8");
       const { MODES } = await import(pathToFileURL(path.join(ROOT, "api", "_mode.js")).href);
       res.end(JSON.stringify({ ok: true, port: PORT, localDb: process.env.LOCAL_DB === "1", modes: MODES() }, null, 2));
+      return done(200);
+    }
+
+    // لوحة القيادة (ai-space) محلياً على /space — كانت تُنشر على Vercel فقط،
+    // فكان الصوت والعين لا يُجرَّبان إلا بنشرة، وهذا يخالف «التطوير المحلي أولاً».
+    // localhost سياق آمن، فالكاميرا والمايك يعملان بلا شهادة.
+    if (url.pathname === "/space") {
+      // بلا الشرطة الأخيرة تُحَل المسارات النسبية من الجذر فتسقط اللوحة
+      res.statusCode = 302; res.setHeader("location", "/space/"); res.end();
+      return done(302);
+    }
+    if (url.pathname.startsWith("/space/")) {
+      let rel = url.pathname.replace(/^\/space\/?/, "") || "index.html";
+      if (!path.extname(rel)) rel += ".html";
+      const f = path.join(SPACE, rel);
+      // منع الخروج من المجلد عبر ../ في المسار
+      if (!f.startsWith(SPACE + path.sep) && f !== path.join(SPACE, "index.html")) {
+        res.statusCode = 403; res.end("forbidden"); return done(403);
+      }
+      if (!fs.existsSync(f)) {
+        // config.js اختياري: غيابه كان يكسر اللوحة بـ404 في الكونسول
+        if (rel === "config.js") {
+          res.setHeader("content-type", "text/javascript; charset=utf-8");
+          res.setHeader("cache-control", "no-store");
+          res.end("/* local: no overrides */");
+          return done(200);
+        }
+        res.statusCode = 404; res.end("not found"); return done(404);
+      }
+      res.setHeader("content-type", MIME[path.extname(f)] || "application/octet-stream");
+      res.setHeader("cache-control", "no-store");
+      res.end(fs.readFileSync(f));
       return done(200);
     }
 
