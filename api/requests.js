@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign, storageDelete } from "./_db.js";
 
 import { loadCatalog, normalizeText } from "./_catalog.js";
+import { putOffer, getOffer, offerHtml } from "./_offer.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -1520,6 +1521,53 @@ async function handleDaftraInvoice(req, res) {
   });
 }
 
+
+/* صفحة العرض الخاصة بالعميل.
+   GET  ?__route=offer&t=TOKEN  → صفحة HTML للعميل، الرمز هو الإذن.
+   POST ?__route=offer          → n8n يحفظ حزمة عرض ويستلم الرابط.
+
+   الكتابة محميّة بمفتاح، والقراءة بالرمز وحده: العميل لا يملك حساباً ولن
+   ينشئ واحداً ليرى عرضاً، وإلزامه بذلك يقتل الغرض. لهذا لا يُوضع في الحزمة
+   سعر داخلي ولا هامش ولا بيانات عميل آخر — «سرّية بالرابط» لا «مصادَقة». */
+async function handleOffer(req, res) {
+  const q = req.query || {};
+
+  if (req.method === "POST") {
+    const key = String(req.headers["x-ops-key"] || q.key || "");
+    const want = String(process.env.OFFER_OPS_KEY || process.env.SIMPLE_OPS_KEY || "");
+    // بلا مفتاح مضبوط لا تُفتح الكتابة إطلاقاً: افتراض آمن بدل باب مفتوح
+    if (!want || key !== want) {
+      res.statusCode = 401;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.end(JSON.stringify({ ok: false, error: "unauthorized" }));
+    }
+    const pkg = req.body && typeof req.body === "object" ? req.body : {};
+    try {
+      const token = await putOffer(pkg);
+      const base = String(process.env.PUBLIC_BASE_URL || "https://www.businesspartner.sa").replace(/\/+$/, "");
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.end(JSON.stringify({ ok: true, token, url: `${base}/offer/${token}` }));
+    } catch (e) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.end(JSON.stringify({ ok: false, error: String(e && e.message || e) }));
+    }
+  }
+
+  const pkg = await getOffer(q.t || q.token);
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  // لا تخزين: الرابط سرّي، وبقاؤه في ذاكرة وسيط مشترك تسريب
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  if (!pkg) {
+    res.statusCode = 404;
+    return res.end(offerHtml({ client_name: "", offers: [] }));
+  }
+  return res.end(offerHtml(pkg));
+}
+
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1545,6 +1593,7 @@ export default async function handler(req, res) {
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
+  if ((q.__route || "") === "offer") return handleOffer(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }

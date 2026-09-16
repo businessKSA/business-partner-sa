@@ -74,6 +74,34 @@ const API_REWRITES = (vercel.rewrites || [])
   .filter((r) => r.source.startsWith("/api/") && r.destination.startsWith("/api/") && !r.has)
   .map((r) => ({ source: r.source, destination: r.destination }));
 
+// Pretty public paths that land on a function — /offer/:token and friends.
+// These were skipped locally because the filter above only kept /api/ sources,
+// so a URL the customer actually opens 404'd on localhost while working on
+// Vercel. A local 404 for a live path is exactly the gap "local-first" exists
+// to close. Host-based and external-destination rewrites still belong to Vercel.
+const PATH_REWRITES = (vercel.rewrites || [])
+  .filter((r) => !r.source.startsWith("/api/") && r.destination.startsWith("/api/") && !r.has)
+  .map((r) => ({
+    // "/offer/:token" → /^\/offer\/([^/]+)$/ with the param names kept in order
+    re: new RegExp("^" + r.source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/:([A-Za-z0-9_]+)/g, "([^/]+)") + "$"),
+    params: [...r.source.matchAll(/:([A-Za-z0-9_]+)/g)].map((m) => m[1]),
+    destination: r.destination,
+  }));
+
+// Returns the rewritten "/api/...?..." target for a public path, or null.
+function pathRewrite(pathname) {
+  for (const r of PATH_REWRITES) {
+    const m = pathname.match(r.re);
+    if (!m) continue;
+    let dest = r.destination;
+    r.params.forEach((name, i) => {
+      dest = dest.split(`:${name}`).join(encodeURIComponent(m[i + 1]));
+    });
+    return dest;
+  }
+  return null;
+}
+
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
@@ -217,6 +245,23 @@ const server = http.createServer(async (req, res) => {
       await handler(req, res);
       if (!res.writableEnded) res.end();
       return done(res.statusCode);
+    }
+
+    // A pretty public path that maps to a function must run the function,
+    // not fall through to the static 404.
+    const rewritten = pathRewrite(url.pathname);
+    if (rewritten) {
+      const tUrl = new URL(rewritten, `http://localhost:${PORT}`);
+      for (const [k, v] of url.searchParams.entries()) if (!tUrl.searchParams.has(k)) tUrl.searchParams.set(k, v);
+      const name = tUrl.pathname.replace(/^\/api\//, "").replace(/\/+$/, "");
+      const handler = await loadHandler(name);
+      if (handler) {
+        vercelify(req, res, tUrl);
+        req.body = await readRequestBody(req);
+        await handler(req, res);
+        if (!res.writableEnded) res.end();
+        return done(res.statusCode);
+      }
     }
 
     const file = staticFile(url.pathname);
