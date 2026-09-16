@@ -16,6 +16,7 @@
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
 
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -42,15 +43,9 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const NOTIFY = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
 
 async function sendMail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    return { ok: r.ok };
-  } catch { return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  return { ok: out.ok };
 }
 
 async function readBody(req) {

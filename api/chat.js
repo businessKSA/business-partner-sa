@@ -1,18 +1,17 @@
 // Vercel Serverless Function — "المستشار" (The Advisor) chatbot.
 // ESM module (repo package.json has "type": "module").
 //
-// Multi-provider with automatic failover: tries every configured provider in
-// order until one answers, so the advisor never stops because one provider
-// ran out of credit. System prompt = official BP knowledge base pulled from
-// Notion (api/knowledge.json). Government facts come only from that base —
-// the model is told not to invent them.
+// المزوّد واحد: Azure OpenAI عبر api/_ai.js (قرار المالك — البنية على أزور).
+// قبله كانت سلسلة احتياط من أربعة مزوّدين ووكيل n8n؛ أُزيلت لأنها كانت تبتلع
+// الأعطال: حين ردّ مزوّد 404 على نموذج متقاعد انتقلت السلسلة بصمت ولم يظهر
+// للمستخدم إلا «صار خلل بسيط». الآن يُسجَّل العطل باسمه.
 //
-// Providers (set whichever API keys you have; order of preference):
-//   1. GEMINI_API_KEY    — Google Gemini, FREE tier (aistudio.google.com/apikey)
-//   2. GROQ_API_KEY      — Groq Llama, FREE tier (console.groq.com/keys)
-//   3. ANTHROPIC_API_KEY — Claude (paid)
-//   4. OPENAI_API_KEY    — OpenAI (paid)
-// Optional model overrides: GEMINI_MODEL, GROQ_MODEL, MODEL (Claude), OPENAI_MODEL
+// تعليمات النظام = قاعدة معرفة بيزنس بارتنر الرسمية من نوشن
+// (api/knowledge.json)، والمعلومات الحكومية منها وحدها — والنموذج مأمور
+// بألا يخترعها.
+//
+// المتغيّرات: AZURE_OPENAI_ENDPOINT و AZURE_OPENAI_API_KEY و
+// AZURE_OPENAI_DEPLOYMENT، واختيارياً AZURE_OPENAI_API_VERSION.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -23,6 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
 import { priceSheetText } from "./_catalog.js";
 
+import { chat as aiChat, aiConfigured, aiStatus } from "./_ai.js";
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
 const PANEL_KEYS = new Set(
@@ -142,175 +142,37 @@ const ACCOUNT_INSTRUCTIONS = `أنت «مساعد لوحتك» داخل مركز
 ${KNOWLEDGE}
 === نهاية قاعدة المعرفة ===`;
 
-/* ---------- provider callers: each takes sanitized messages, returns reply text or throws ---------- */
+/* ---------- المزود: Azure OpenAI وحده ---------- */
 
-// Admin turns write whole drafts; customer turns stay short answers.
+// كانت هنا خمس دوال نداء وسلسلة احتياط بينها. أُزيلت كلها: النداء صار في
+// api/_ai.js، والمزوّد واحد. انظر تعليق رأس ذلك الملف لسبب إلغاء السلسلة.
+
+// أدوار الإدارة تكتب مسودات كاملة، وأدوار العميل تبقى إجابات قصيرة.
 const maxTokensFor = (system) => (system === ADMIN_INSTRUCTIONS ? 2048 : 1024);
 
-// Resolve the first non-empty env var from a list of candidate names.
-const envFrom = (names) => { for (const n of names) { if (process.env[n]) return process.env[n]; } return ""; };
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
-
-async function callGemini(messages, system) {
-  // gemini-2.5-flash was retired: Google answers 404 with «no longer available
-  // to new users … use models/gemini-3.6-flash». The failover hid it — the
-  // chain moved on to the next provider — so the only visible symptom was the
-  // generic «صار خلل بسيط» whenever Gemini was the only configured key.
-  // Override with GEMINI_MODEL when Google moves it again.
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: system }] },
-      contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-      generationConfig: { maxOutputTokens: maxTokensFor(system) },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  return parts.map((p) => p.text || "").join("").trim();
-}
-
-// Groq and OpenAI share the OpenAI chat-completions shape.
-async function callOpenAICompatible(url, apiKey, model, messages, system) {
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokensFor(system),
-      messages: [{ role: "system", content: system }, ...messages],
-    }),
-  });
-  if (!r.ok) throw new Error(`${new URL(url).hostname} ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  return (data?.choices?.[0]?.message?.content || "").trim();
-}
-
-const callGroq = (messages, system) =>
-  callOpenAICompatible(
-    "https://api.groq.com/openai/v1/chat/completions",
-    envFrom(GROQ_KEYS),
-    process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-    messages,
-    system
-  );
-
-const callOpenAI = (messages, system) =>
-  callOpenAICompatible(
-    "https://api.openai.com/v1/chat/completions",
-    envFrom(OPENAI_KEYS),
-    process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages,
-    system
-  );
-
-async function callAnthropic(messages, system) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": envFrom(ANTHROPIC_KEYS),
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — see api/hire.js
-      // for why a generic name here is a real, confirmed failure mode.
-      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: maxTokensFor(system),
-      // Big stable prompt first with a cache breakpoint → cheap cached reads.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-      messages,
-    }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  return Array.isArray(data.content)
-    ? data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim()
-    : "";
-}
-
-// وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
-// نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
-// عبر الويبهوك، لذا نمرر آخر أدوار المحادثة داخل نص السؤال نفسه.
-async function callN8nBaher(messages) {
-  const transcript = messages
-    .map((m) => (m.role === "user" ? "الزائر: " : "باهر: ") + m.content)
-    .join("\n")
-    .slice(-6000);
-  const r = await fetch(
-    "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat",
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        action: "sendMessage",
-        sessionId: "site-fallback-" + Math.random().toString(36).slice(2),
-        chatInput:
-          "زائر موقع بيزنس بارتنر يسأل (رُدَّ مباشرة وباختصار عملي، وبدون استدعاء زملاء إلا للضرورة):\n" + transcript,
-      }),
-    }
-  );
-  if (!r.ok) throw new Error(`n8n ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json().catch(() => ({}));
-  const reply = (data && (data.output || data.text || data.reply)) || "";
-  if (!reply) throw new Error("n8n empty reply");
-  return String(reply).trim();
-}
-
-// Free providers first, then paid, then the keyless n8n agent as a last resort —
-// first provider that answers wins.
-const PROVIDERS = [
-  { name: "gemini", keys: GEMINI_KEYS, call: callGemini },
-  { name: "groq", keys: GROQ_KEYS, call: callGroq },
-  { name: "anthropic", keys: ANTHROPIC_KEYS, call: callAnthropic },
-  { name: "openai", keys: OPENAI_KEYS, call: callOpenAI },
-  { name: "baher-n8n", keys: null, call: callN8nBaher },
-];
-const configured = () => PROVIDERS.filter((p) => !p.keys || !!envFrom(p.keys));
-// The n8n provider carries no key, so `configured()` is never empty and the
-// "missing key" branch never fires: with no keys at all the chain still has one
-// member, it fails, and the customer-facing «صار خلل بسيط» is shown. On a
-// developer's machine that reads like a bug in the site rather than an absent
-// key, so locally we name what is missing instead.
-const hasModelKey = () => PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
-const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
+const NO_KEY_HINT =
+  "المحادثة الذكية معطّلة محلياً: اضبط AZURE_OPENAI_ENDPOINT وAZURE_OPENAI_API_KEY وAZURE_OPENAI_DEPLOYMENT في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
-    // Which env var actually satisfied each provider — names only, never values.
-    // The previous version guessed by pattern-matching env names, which missed
-    // any key stored under a name that does not read like one (the Gemini key
-    // here lives in «BusinessPartnerGimini»). It therefore reported a
-    // configured provider as missing, and that misreading cost real time.
-    const detail = PROVIDERS.map((p) => ({
-      name: p.name,
-      configured: !p.keys || !!envFrom(p.keys),
-      via: p.keys ? (p.keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed",
-    }));
+    // أسماء الإعداد لا قيمه — تكفي لمعرفة أي متغيّر ناقص على هذه النشرة.
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: "ok",
-      providers: configured().map((p) => p.name),
-      keyConfigured: configured().length > 0,
-      detail,
+      providers: aiConfigured() ? ["azure-openai"] : [],
+      keyConfigured: aiConfigured(),
+      detail: aiStatus(),
     }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
-  const chain = configured();
-  if (!chain.length) {
+  if (!aiConfigured()) {
     res.statusCode = 500;
     // Locally the generic line reads like a bug; name the missing key instead.
     const reply = LOCAL_DEV_CHAT() ? NO_KEY_HINT : "المستشار غير مُفعّل حالياً. تواصل معنا على واتساب وسنساعدك فوراً.";
@@ -375,10 +237,6 @@ export default async function handler(req, res) {
   const priceSheet = await priceSheetText();
   const base = isAdmin ? ADMIN_INSTRUCTIONS : isAccount ? accountSystem : isIntake ? intakeSystem : SYSTEM_INSTRUCTIONS;
   const system = priceSheet ? base + "\n\n" + priceSheet : base;
-  // The n8n fallback is the customer-facing باهر agent with its own hardwired
-  // persona — it cannot play the admin or in-portal role, so both skip it.
-  const adminChain = (isAdmin || isAccount || isIntake) ? chain.filter((p) => p.name !== "baher-n8n") : chain;
-
   const incoming = Array.isArray(body.messages) ? body.messages : [];
   // Sanitize: keep only user/assistant text turns, cap history and length.
   // The owner pastes whole drafts to rework — admin turns get a longer cap.
@@ -395,18 +253,17 @@ export default async function handler(req, res) {
 
   // ملاحظة: التقاط العميل وتسجيله والإشعارات يتم في /api/requests (advisor-chat)
   // الذي يستدعيه الودجت مباشرة — حتى لا يتكرر الإشعار. هنا نرد فقط.
-  for (const provider of adminChain) {
-    try {
-      const reply = await provider.call(messages, system);
-      if (!reply) throw new Error(`${provider.name} returned empty reply`);
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ reply, provider: provider.name }));
-    } catch (e) {
-      console.error(`provider ${provider.name} failed, trying next:`, e.message || e);
-    }
+  try {
+    const reply = await aiChat(messages, system, { maxTokens: maxTokensFor(system) });
+    if (!reply) throw new Error("azure-openai returned empty reply");
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ reply, provider: "azure-openai" }));
+  } catch (e) {
+    // لا سلسلة بعده تبتلع الخطأ، فيُسجَّل باسمه كاملاً.
+    console.error("azure-openai failed:", (e && e.message) || e);
   }
 
-  if (LOCAL_DEV_CHAT() && !hasModelKey()) {
+  if (LOCAL_DEV_CHAT() && !aiConfigured()) {
     res.statusCode = 200;
     return res.end(JSON.stringify({ error: "missing_api_key", reply: NO_KEY_HINT }));
   }

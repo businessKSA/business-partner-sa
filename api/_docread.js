@@ -10,10 +10,7 @@
 // dropped. The extracted values are a starting point for a human to confirm —
 // a wrong VAT number on an issued tax invoice cannot be edited, only voided.
 
-const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
+import { chat as aiChat, vision as aiVision, aiConfigured } from "./_ai.js";
 
 export const MAX_DOC_BYTES = 6 * 1024 * 1024;
 export const DOC_MIME_OK = /^(image\/(jpeg|jpg|png|webp|heic|heif)|application\/pdf)$/i;
@@ -96,94 +93,18 @@ export function parseJson(text) {
 // returning an empty candidate. Every call here is structured extraction, so
 // thinking is switched off explicitly; models that reject the field are
 // retried once without it.
-async function geminiCall(key, model, parts, maxTokens, timeoutMs) {
-  const body = (withThinking) => JSON.stringify({
-    contents: [{ role: "user", parts }],
-    generationConfig: {
-      maxOutputTokens: maxTokens || 2000,
-      temperature: 0,
-      responseMimeType: "application/json",
-      ...(withThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-    },
-  });
-  const send = (withThinking) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": key, "content-type": "application/json" },
-    body: body(withThinking),
-    signal: AbortSignal.timeout(timeoutMs || 45000),
-  });
-  let r = await send(true);
-  if (r.status === 400) {
-    const t = await r.text();
-    if (/thinking/i.test(t)) r = await send(false);
-    else throw new Error(`gemini 400: ${t.slice(0, 200)}`);
-  }
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  const cand = (data && data.candidates && data.candidates[0]) || {};
-  const text = (((cand.content || {}).parts) || []).map((p) => p.text || "").join("");
-  if (!text) throw new Error(`gemini empty (${cand.finishReason || "no_candidate"})`);
-  return { text, truncated: cand.finishReason === "MAX_TOKENS" };
+// قراءة الصور عبر Azure OpenAI. وواجهة الرؤية على أزور تقبل الصور في
+// image_url ولا تقبل PDF — بخلاف جيميني الذي كان يبتلعه مباشرة. فالـPDF يُردّ
+// هنا بخطأ يسمّي سببه بدل أن يفشل فشلاً غامضاً: قراءته تحتاج
+// Azure AI Document Intelligence، وهي خدمة أخرى لم تُهيّأ بعد.
+const PDF_RE = /pdf/i;
+
+async function readWithAzure(base64, mime, prompt, maxTokens) {
+  if (!aiConfigured()) throw new Error("no_key");
+  if (PDF_RE.test(String(mime || ""))) throw new Error("pdf_needs_document_intelligence");
+  return parseJson(await aiVision(base64, mime, prompt || PROMPT, { maxTokens: maxTokens || 900 }));
 }
 
-async function readWithGemini(base64, mime, prompt, maxTokens) {
-  const key = envFrom(GEMINI_KEYS);
-  if (!key) throw new Error("no_key");
-  const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const { text } = await geminiCall(key, model, [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }], maxTokens || 900);
-  return parseJson(text);
-}
-
-async function readWithAnthropic(base64, mime, prompt, maxTokens) {
-  const key = envFrom(ANTHROPIC_KEYS);
-  if (!key) throw new Error("no_key");
-  const isPdf = /pdf/i.test(mime);
-  const block = isPdf
-    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64 } }
-    : { type: "image", source: { type: "base64", media_type: mime, data: base64 } };
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: maxTokens || 900,
-      messages: [{ role: "user", content: [block, { type: "text", text: prompt || PROMPT }] }],
-    }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  return parseJson((data.content || []).map((c) => c.text || "").join(""));
-}
-
-async function readWithOpenAI(base64, mime, prompt, maxTokens) {
-  const key = envFrom(OPENAI_KEYS);
-  if (!key) throw new Error("no_key");
-  if (/pdf/i.test(mime)) throw new Error("pdf_unsupported");
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini",
-      max_tokens: maxTokens || 900,
-      temperature: 0,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: [{ type: "text", text: prompt || PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
-    }),
-  });
-  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  return parseJson(data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content);
-}
-
-const digits = (v, len) => {
-  const d = String(v == null ? "" : v).replace(/\D/g, "");
-  return len ? (d.length === len ? d : "") : d;
-};
-const txt = (v, max = 160) => String(v == null ? "" : v).trim().slice(0, max);
-
-// The model is told to leave unseen fields blank, but a wrong VAT number on an
-// issued tax invoice cannot be edited — only voided and reissued. So anything
-// that is not the right shape is dropped here rather than offered as a value.
 function clean(raw) {
   const a = (raw && raw.address) || {};
   const vat = digits(raw && raw.vatNumber);
@@ -222,61 +143,34 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
   if (!base64) return { ok: false, error: "no_file" };
   if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
-  const providers = [
-    ["gemini", (b, m) => readWithGemini(b, m, prompt, maxTokens)],
-    ["anthropic", (b, m) => readWithAnthropic(b, m, prompt, maxTokens)],
-    ["openai", (b, m) => readWithOpenAI(b, m, prompt, maxTokens)],
-  ];
-  for (const [name, call] of providers) {
-    try {
-      const raw = await call(base64, mime);
-      if (raw) return { ok: true, data: raw, provider: name };
-    } catch (e) {
-      const msg = String(e.message || e);
-      if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread raw", name, msg.slice(0, 160));
-    }
+  try {
+    const raw = await readWithAzure(base64, mime, prompt, maxTokens);
+    if (raw) return { ok: true, data: raw, provider: "azure-openai" };
+    return { ok: false, error: "read_failed" };
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (msg === "no_key") return { ok: false, error: "not_configured" };
+    if (msg === "pdf_needs_document_intelligence") return { ok: false, error: msg };
+    console.error("docread raw azure-openai", msg.slice(0, 160));
+    return { ok: false, error: "read_failed" };
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
-  return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
 }
 
 // Text-only model call over the same provider chain (no attachment) — used by
 // the doc agent for reconciliation, gap analysis and fill planning where the
 // inputs are already extracted text, not bytes.
 export async function askModel(prompt, maxTokens) {
-  const gk = envFrom(GEMINI_KEYS);
-  const errs = [];
-  if (gk) {
-    try {
-      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-      const { text, truncated } = await geminiCall(gk, model, [{ text: prompt }], maxTokens || 2000);
-      const parsed = parseJson(text);
-      if (parsed) return { ok: true, data: parsed, provider: "gemini", truncated };
-      errs.push(`gemini: unparsable${truncated ? " (hit output cap)" : ""}`);
-    } catch (e) { const m = String(e.message || e); console.error("askModel gemini", m.slice(0, 160)); errs.push(`gemini: ${m.slice(0, 90)}`); }
+  if (!aiConfigured()) return { ok: false, error: "not_configured" };
+  try {
+    const text = await aiChat([{ role: "user", content: prompt }], null, { maxTokens: maxTokens || 2048 });
+    const parsed = parseJson(text);
+    if (parsed) return { ok: true, data: parsed, provider: "azure-openai" };
+    return { ok: false, error: "read_failed", detail: "azure-openai: unparsable" };
+  } catch (e) {
+    const msg = String((e && e.message) || e).slice(0, 300);
+    console.error("askModel azure-openai", msg.slice(0, 160));
+    return { ok: false, error: "read_failed", detail: `azure-openai: ${msg}` };
   }
-  const ak = envFrom(ANTHROPIC_KEYS);
-  if (ak) {
-    try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": ak, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-          max_tokens: maxTokens || 2000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-        signal: AbortSignal.timeout(45000),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        const parsed = parseJson((data.content || []).map((c) => c.text || "").join(""));
-        if (parsed) return { ok: true, data: parsed, provider: "anthropic", truncated: data.stop_reason === "max_tokens" };
-        errs.push("anthropic: unparsable");
-      } else errs.push(`anthropic ${r.status}`);
-    } catch (e) { const m = String(e.message || e); console.error("askModel anthropic", m.slice(0, 160)); errs.push(`anthropic: ${m.slice(0, 90)}`); }
-  }
-  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
 }
 
 /**
@@ -289,23 +183,15 @@ export async function readDocument(base64, mime) {
   if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
 
-  const providers = [
-    ["gemini", readWithGemini],
-    ["anthropic", readWithAnthropic],
-    ["openai", readWithOpenAI],
-  ];
-  const tried = [];
-  for (const [name, call] of providers) {
-    try {
-      const raw = await call(base64, mime);
-      if (raw) return { ok: true, fields: clean(raw), provider: name };
-      tried.push(`${name}: unparsable`);
-    } catch (e) {
-      const msg = String(e.message || e);
-      if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread", name, msg.slice(0, 160));
-      tried.push(`${name}: ${msg.slice(0, 60)}`);
-    }
+  try {
+    const raw = await readWithAzure(base64, mime, PROMPT, 900);
+    if (raw) return { ok: true, fields: clean(raw), provider: "azure-openai" };
+    return { ok: false, error: "read_failed", detail: "azure-openai: unparsable" };
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (msg === "no_key") return { ok: false, error: "not_configured" };
+    if (msg === "pdf_needs_document_intelligence") return { ok: false, error: msg, detail: "PDF يحتاج Azure AI Document Intelligence" };
+    console.error("docread azure-openai", msg.slice(0, 160));
+    return { ok: false, error: "read_failed", detail: `azure-openai: ${msg.slice(0, 200)}` };
   }
-  const anyKey = envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
-  return { ok: false, error: anyKey ? "read_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
 }

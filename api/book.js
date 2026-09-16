@@ -1,3 +1,4 @@
+import { sendMail as acsSend } from "./_mail.js";
 // Business Partner 3.0 — consultation booking serverless function (ESM).
 // Receives the /consultation form, emails the team + a confirmation to the
 // client (via Resend), and returns a Google-Calendar "add event" link.
@@ -88,16 +89,12 @@ function gcalUrl({ topic, date, time, notes }) {
 }
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    if (!r.ok) { console.error("Resend error", r.status, await r.text()); return { ok: false, error: "email_send_failed" }; }
-    return { ok: true };
-  } catch (e) { console.error("email exception", e); return { ok: false, error: "email_send_failed" }; }
+  const out = await acsSend({ to, subject, html, from: FROM });
+  if (!out.ok) {
+    console.error("ACS email", out.error, (out.detail || "").slice(0, 200));
+    return { ok: false, error: out.error === "email_not_configured" ? out.error : "email_send_failed" };
+  }
+  return { ok: true };
 }
 
 async function readBody(req) {

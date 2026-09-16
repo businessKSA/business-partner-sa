@@ -16,6 +16,7 @@ import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 import { getSession } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
   for (const n of names) {
@@ -460,14 +461,10 @@ const MAIL_FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@re
 const NOTIFY_EMAIL = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
 const htmlEsc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 async function sendMail(to, subject, html) {
-  if (!RESEND_KEY || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to || ""))) return false;
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to || ""))) return false;
   try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html }),
-    });
-    return r.ok;
+    const out = await acsSend({ to, subject, html, from: MAIL_FROM });
+    return out.ok;
   } catch (e) {
     console.error("candidates sendMail", String(e).slice(0, 160));
     return false;

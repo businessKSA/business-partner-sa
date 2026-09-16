@@ -28,6 +28,7 @@
 
 import { sb, DB_ON, notify } from "./_db.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -176,16 +177,10 @@ async function orgIdForEmail(email) {
 // Channels
 // ---------------------------------------------------------------------------
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: RESEND_API_KEY ? "bad_email" : "email_not_configured" };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    if (!r.ok) { const t = (await r.text()).slice(0, 200); console.error("stage email", r.status, t); return { ok: false, error: `http_${r.status}` }; }
-    return { ok: true };
-  } catch (e) { return { ok: false, error: String(e.message || "email_failed").slice(0, 80) }; }
+  if (!isEmail(to)) return { ok: false, error: "bad_email" };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  if (!out.ok) { console.error("stage email", out.error, (out.detail || "").slice(0, 200)); return { ok: false, error: out.error }; }
+  return { ok: true };
 }
 
 // Saudi mobiles get typed half a dozen ways; WhatsApp wants one.
