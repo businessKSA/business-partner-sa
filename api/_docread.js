@@ -13,9 +13,6 @@
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const AZURE_KEYS = ["AZURE_OPENAI_KEY", "AZURE_OPENAI_API_KEY", "AZURE_AI_KEY"];
 const AZURE_ENDPOINT = () => String(process.env.AZURE_OPENAI_ENDPOINT || process.env.AZURE_AI_ENDPOINT || "").trim().replace(/\/+$/, "");
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 
 export const MAX_DOC_BYTES = 6 * 1024 * 1024;
 export const DOC_MIME_OK = /^(image\/(jpeg|jpg|png|webp|heic|heif)|application\/pdf)$/i;
@@ -93,69 +90,8 @@ export function parseJson(text) {
   return repairJson(raw.slice(start));
 }
 
-// Gemini 2.5 models think by default and charge that thinking to the SAME
-// output budget as the answer — a 4k cap can be spent entirely on thoughts,
-// returning an empty candidate. Every call here is structured extraction, so
-// thinking is switched off explicitly; models that reject the field are
-// retried once without it.
-async function geminiCall(key, model, parts, maxTokens, timeoutMs) {
-  const body = (withThinking) => JSON.stringify({
-    contents: [{ role: "user", parts }],
-    generationConfig: {
-      maxOutputTokens: maxTokens || 2000,
-      temperature: 0,
-      responseMimeType: "application/json",
-      ...(withThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-    },
-  });
-  const send = (withThinking) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": key, "content-type": "application/json" },
-    body: body(withThinking),
-    signal: AbortSignal.timeout(timeoutMs || 45000),
-  });
-  let r = await send(true);
-  if (r.status === 400) {
-    const t = await r.text();
-    if (/thinking/i.test(t)) r = await send(false);
-    else throw new Error(`gemini 400: ${t.slice(0, 200)}`);
-  }
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  const cand = (data && data.candidates && data.candidates[0]) || {};
-  const text = (((cand.content || {}).parts) || []).map((p) => p.text || "").join("");
-  if (!text) throw new Error(`gemini empty (${cand.finishReason || "no_candidate"})`);
-  return { text, truncated: cand.finishReason === "MAX_TOKENS" };
-}
 
-async function readWithGemini(base64, mime, prompt, maxTokens) {
-  const key = envFrom(GEMINI_KEYS);
-  if (!key) throw new Error("no_key");
-  const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const { text } = await geminiCall(key, model, [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt || PROMPT }], maxTokens || 900);
-  return parseJson(text);
-}
 
-async function readWithAnthropic(base64, mime, prompt, maxTokens) {
-  const key = envFrom(ANTHROPIC_KEYS);
-  if (!key) throw new Error("no_key");
-  const isPdf = /pdf/i.test(mime);
-  const block = isPdf
-    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64 } }
-    : { type: "image", source: { type: "base64", media_type: mime, data: base64 } };
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: maxTokens || 900,
-      messages: [{ role: "user", content: [block, { type: "text", text: prompt || PROMPT }] }],
-    }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  return parseJson((data.content || []).map((c) => c.text || "").join(""));
-}
 
 // ‏Azure OpenAI — البنية التحتية الرقمية المعتمدة لدى Business Partner.
 // نفس مسار v1 الموحّد الذي تستخدمه المحادثة والصوت، فمفتاحٌ واحد ونقطةُ نهاية
@@ -173,19 +109,15 @@ const azureDeployment = (kind) => String(
 // فلا يُستدعى مزوّدٌ آخر ما دام Azure مُهيّأً. المزوّدون الآخرون يبقون في
 // الملف معطّلين، ولا يعملون إلا بتفعيلٍ صريح عبر DOC_AI_ALLOW_FALLBACK=1 —
 // صمّام أمانٍ لانقطاعٍ في Azure، لا مساراً افتراضياً.
-const legacyAllowed = () => String(process.env.DOC_AI_ALLOW_FALLBACK || "").trim() === "1";
 const azureMissing = () => {
   const miss = [];
   if (!AZURE_ENDPOINT()) miss.push("AZURE_OPENAI_ENDPOINT");
   if (!envFrom(AZURE_KEYS)) miss.push("AZURE_OPENAI_KEY");
   return `azure: ${miss.join(" + ")} غير مضبوط`;
 };
-// Azure وحده، إلا أن يُفتح الصمّام؛ وحين لا يكون Azure مُهيّأً يُترك الباب
-// مغلقاً عمداً حتى يظهر سبب العطل في الرسالة بدل أن يُصرف على مزوّدٍ آخر.
-const visionChain = (all) => {
-  const azure = all.filter(([n]) => n === "azure");
-  return legacyAllowed() ? all : azure;
-};
+// Azure وحده — بلا صمّام. حين لا يكون Azure مُهيّأً يُترك الباب مغلقاً عمداً
+// حتى يظهر سبب العطل في الرسالة بدل أن يُصرف على مزوّدٍ آخر.
+const visionChain = (all) => all.filter(([n]) => n === "azure");
 
 export const azureReady = () => !!(AZURE_ENDPOINT() && envFrom(AZURE_KEYS));
 
@@ -287,25 +219,6 @@ async function readWithAzure(base64, mime, prompt, maxTokens) {
   return parseJson(text);
 }
 
-async function readWithOpenAI(base64, mime, prompt, maxTokens) {
-  const key = envFrom(OPENAI_KEYS);
-  if (!key) throw new Error("no_key");
-  if (/pdf/i.test(mime)) throw new Error("pdf_unsupported");
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini",
-      max_tokens: maxTokens || 900,
-      temperature: 0,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: [{ type: "text", text: prompt || PROMPT }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }],
-    }),
-  });
-  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  return parseJson(data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content);
-}
 
 const digits = (v, len) => {
   const d = String(v == null ? "" : v).replace(/\D/g, "");
@@ -356,9 +269,6 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
   if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
   const providers = visionChain([
     ["azure", (b, m) => readWithAzure(b, m, prompt, maxTokens)],
-    ["gemini", (b, m) => readWithGemini(b, m, prompt, maxTokens)],
-    ["anthropic", (b, m) => readWithAnthropic(b, m, prompt, maxTokens)],
-    ["openai", (b, m) => readWithOpenAI(b, m, prompt, maxTokens)],
   ]);
   for (const [name, call] of providers) {
     try {
@@ -369,7 +279,7 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
       if (msg !== "no_key" && msg !== "pdf_unsupported") console.error("docread raw", name, msg.slice(0, 160));
     }
   }
-  const anyKey = azureReady() || envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  const anyKey = azureReady();
   return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
 }
 
@@ -392,41 +302,7 @@ export async function askModel(prompt, maxTokens) {
   } else {
     errs.push(azureMissing());
   }
-  if (!legacyAllowed()) {
-    return { ok: false, error: azureReady() ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
-  }
-  const gk = envFrom(GEMINI_KEYS);
-  if (gk) {
-    try {
-      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-      const { text, truncated } = await geminiCall(gk, model, [{ text: prompt }], maxTokens || 2000);
-      const parsed = parseJson(text);
-      if (parsed) return { ok: true, data: parsed, provider: "gemini", truncated };
-      errs.push(`gemini: unparsable${truncated ? " (hit output cap)" : ""}`);
-    } catch (e) { const m = String(e.message || e); console.error("askModel gemini", m.slice(0, 160)); errs.push(`gemini: ${m.slice(0, 90)}`); }
-  }
-  const ak = envFrom(ANTHROPIC_KEYS);
-  if (ak) {
-    try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": ak, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-          max_tokens: maxTokens || 2000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-        signal: AbortSignal.timeout(45000),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        const parsed = parseJson((data.content || []).map((c) => c.text || "").join(""));
-        if (parsed) return { ok: true, data: parsed, provider: "anthropic", truncated: data.stop_reason === "max_tokens" };
-        errs.push("anthropic: unparsable");
-      } else errs.push(`anthropic ${r.status}`);
-    } catch (e) { const m = String(e.message || e); console.error("askModel anthropic", m.slice(0, 160)); errs.push(`anthropic: ${m.slice(0, 90)}`); }
-  }
-  return { ok: false, error: (gk || ak) ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
+  return { ok: false, error: azureReady() ? "read_failed" : "not_configured", detail: errs.join(" · ").slice(0, 300) };
 }
 
 /**
@@ -441,9 +317,6 @@ export async function readDocument(base64, mime) {
 
   const providers = visionChain([
     ["azure", readWithAzure],
-    ["gemini", readWithGemini],
-    ["anthropic", readWithAnthropic],
-    ["openai", readWithOpenAI],
   ]);
   const tried = [];
   for (const [name, call] of providers) {
@@ -457,7 +330,7 @@ export async function readDocument(base64, mime) {
       tried.push(`${name}: ${msg.slice(0, 60)}`);
     }
   }
-  const anyKey = azureReady() || envFrom(GEMINI_KEYS) || envFrom(ANTHROPIC_KEYS) || envFrom(OPENAI_KEYS);
+  const anyKey = azureReady();
   return { ok: false, error: anyKey ? "read_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
 }
 
@@ -477,44 +350,12 @@ const TRANSCRIBE_PROMPT = [
 ].join(" ");
 
 const GEMINI_AUDIO_OK = /^audio\/(wav|x-wav|mpeg|mp3|ogg|aac|flac|aiff|mp4|m4a|x-m4a)$/i;
-async function speechGemini(base64, mime, hint) {
-  const key = envFrom(GEMINI_KEYS);
-  if (!key) throw new Error("no_key");
-  if (!GEMINI_AUDIO_OK.test(String(mime).split(";")[0])) throw new Error("unsupported_mime");
-  const model = process.env.GEMINI_AUDIO_MODEL || process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const { text } = await geminiCall(key, model,
-    [{ inline_data: { mime_type: String(mime).split(";")[0], data: base64 } },
-     { text: TRANSCRIBE_PROMPT + (hint === "ar" ? " " + ASR_PROMPT_AR : "") }], 1400, 60000);
-  return parseJson(text);
-}
 
 // Whisper يعيد نصاً عادياً ولغةً مكتشفة في الاستجابة نفسها — لا JSON نطلبه.
 // وواجهته واحدة عند OpenAI و Groq، فالدالة واحدة والمضيف هو الفرق.
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
 // اسم المتغيّر كما أدخله المالك في Vercel هو «ElevenLabs» — تُقرأ الأسماء
 // الشائعة كلها، كما يُقرأ مفتاح جيميناي من «BusinessPartnerGimini».
-const ELEVEN_KEYS = ["ELEVENLABS_API_KEY", "ELEVEN_API_KEY", "ELEVENLABS", "ElevenLabs", "elevenlabs", "XI_API_KEY", "ELEVEN_LABS_API_KEY"];
 
-// ElevenLabs Scribe: الأدق للعربية اليوم، ويقبل ما تسجّله المتصفحات كما هو.
-async function speechEleven(base64, mime, hint) {
-  const key = envFrom(ELEVEN_KEYS);
-  if (!key) throw new Error("no_key");
-  const clean = String(mime).split(";")[0];
-  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
-  const form = new FormData();
-  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model_id", process.env.ELEVENLABS_STT_MODEL || "scribe_v1");
-  form.append("tag_audio_events", "false");
-  form.append("diarize", "false");
-  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language_code", hint);
-  const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-    method: "POST", headers: { "xi-api-key": key }, body: form,
-    signal: AbortSignal.timeout(60000),
-  });
-  if (!r.ok) throw new Error(`eleven ${r.status}: ${(await r.text()).slice(0, 160)}`);
-  const d = await r.json();
-  return { text: String(d.text || "").trim(), lang: String(d.language_code || "").slice(0, 8).toLowerCase() };
-}
 // المفردات التي يُخطئها التفريغ في هذا المجال تحديداً: «منشأة» تُكتب
 // «موشاة»، و«كفالة» و«قوى» و«مقيم» أسماء منصّات لا كلمات عامة. Whisper
 // يقبل prompt يُهيّئ مفكّكه على هذه الألفاظ قبل أن يسمعها — وهذا ما يُصلح
@@ -528,28 +369,6 @@ const ASR_PROMPT_AR = [
 ].join(" ");
 const ASR_PROMPT = { ar: ASR_PROMPT_AR, en: "A conversation about business services in Saudi Arabia: commercial registration, sponsorship transfer, iqama, visas, licences, Qiwa, Muqeem, ZATCA, MISA." };
 
-async function whisperAt(host, keys, defModel, envModel, base64, mime, label, hint) {
-  const key = envFrom(keys);
-  if (!key) throw new Error("no_key");
-  const clean = String(mime).split(";")[0];
-  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
-  const form = new FormData();
-  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model", process.env[envModel] || defModel);
-  form.append("response_format", "verbose_json");
-  form.append("temperature", "0");
-  // تثبيت اللغة يمنع النموذج من «تخمين» لغةٍ أخرى على لهجةٍ محلية.
-  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
-  const prime = ASR_PROMPT[hint] || (hint === "ar" ? ASR_PROMPT_AR : "");
-  if (prime) form.append("prompt", prime);
-  const r = await fetch(`${host}/audio/transcriptions`, {
-    method: "POST", headers: { authorization: `Bearer ${key}` }, body: form,
-    signal: AbortSignal.timeout(60000),
-  });
-  if (!r.ok) throw new Error(`${label} ${r.status}: ${(await r.text()).slice(0, 160)}`);
-  const d = await r.json();
-  return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
-}
 // Azure OpenAI — accepts Whisper API calls via the v1/audio/transcriptions endpoint
 async function speechAzure(base64, mime, hint) {
   const endpoint = AZURE_ENDPOINT();
@@ -575,14 +394,12 @@ async function speechAzure(base64, mime, hint) {
   const d = await r.json();
   return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
 }
-const speechGroq = (b, m, h) => whisperAt("https://api.groq.com/openai/v1", GROQ_KEYS, "whisper-large-v3", "GROQ_TRANSCRIBE_MODEL", b, m, "groq", h);
-const speechOpenAI = (b, m, h) => whisperAt("https://api.openai.com/v1", OPENAI_KEYS, "whisper-1", "OPENAI_TRANSCRIBE_MODEL", b, m, "openai", h);
 
 const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
 
 // تقريرٌ للفحص: أي مفرِّغٍ مُهيّأ وباسم أي متغيّر — الأسماء فقط، لا القيم.
 export function voiceProviders() {
-  return [["azure", AZURE_KEYS], ["eleven", ELEVEN_KEYS], ["groq", GROQ_KEYS], ["openai", OPENAI_KEYS], ["gemini", GEMINI_KEYS]]
+  return [["azure", AZURE_KEYS]]
     .map(([name, keys]) => ({ name, configured: !keys || !!envFrom(keys), via: keys ? (keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed" }));
 }
 
@@ -591,7 +408,8 @@ export async function transcribeAudio(base64, mime, hint) {
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
-  for (const [name, call] of [["azure", speechAzure], ["eleven", speechEleven], ["groq", speechGroq], ["openai", speechOpenAI], ["gemini", speechGemini]]) {
+  // Azure Speech وحده — التفريغ الصوتي لا يخرج من Azure كبقية طبقة الذكاء.
+  for (const [name, call] of [["azure", speechAzure]]) {
     try {
       const out = await call(base64, mime, String(hint || "").slice(0, 2).toLowerCase());
       const text = String((out && out.text) || "").trim();
@@ -606,7 +424,7 @@ export async function transcribeAudio(base64, mime, hint) {
       if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
     }
   }
-  const anyKey = envFrom(AZURE_KEYS) || envFrom(ELEVEN_KEYS) || envFrom(GROQ_KEYS) || envFrom(OPENAI_KEYS) || envFrom(GEMINI_KEYS);
+  const anyKey = envFrom(AZURE_KEYS);
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
   return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
