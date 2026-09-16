@@ -1,3 +1,4 @@
+import { sendMail as acsSend } from "./_mail.js";
 // Business Partner 3.0 — workspace demand intake → Notion matching board (ESM).
 // Writes a client "Demand - Client Request" record into the unified
 // "Real Estate Demand & Supply Board" so the matchmaking engine can match it
@@ -48,16 +49,10 @@ const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 const numOr = (v) => { const n = parseFloat(String(v).replace(/[^\d.]/g, "")); return isFinite(n) && n > 0 ? n : null; };
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    if (!r.ok) { console.error("Resend error", r.status, await r.text()); return { ok: false }; }
-    return { ok: true };
-  } catch (e) { console.error("email exception", String(e).slice(0, 150)); return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  if (!out.ok) { console.error("ACS email", out.error, (out.detail || "").slice(0, 200)); return { ok: false }; }
+  return { ok: true };
 }
 
 async function crmLead({ title, phone, email, notes, ref }) {

@@ -15,70 +15,18 @@ const NOTION_TOKEN = envFrom([
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
   "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
+
+import { chat as aiChat, aiConfigured } from "./_ai.js";
 
 const SYSTEM = `أنت مساعد توظيف خبير لدى Business Partner (بيزنس بارتنر) في السعودية. تساعد أصحاب العمل على تقييم المرشّحين واتخاذ قرارات توظيف عملية وسريعة. كن دقيقاً وموجزاً ومهنياً، وراعِ أنظمة العمل والتوطين في السعودية. اكتب بلغة المستخدم (العربية افتراضياً). لا تختلق بيانات غير موجودة.`;
 
-async function callGemini(prompt, maxTokens) {
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 1200, temperature: 0.4 },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}`);
-  const d = await r.json();
-  return (d?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("").trim();
+// المزوّد واحد: Azure OpenAI عبر api/_ai.js. كانت هنا أربع دوال نداء وسلسلة
+// احتياط بينها، وهي نسخة ثانية من السلسلة نفسها التي في المحادثة — فتبديل
+// مزوّد كان يعني تعديلين متطابقين.
+export async function aiText(prompt, maxTokens) {
+  return aiChat([{ role: "user", content: prompt }], SYSTEM, { maxTokens });
 }
-async function callOAI(url, key, model, prompt, maxTokens) {
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: maxTokens || 1200, temperature: 0.4, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`${new URL(url).hostname} ${r.status}`);
-  const d = await r.json();
-  return (d?.choices?.[0]?.message?.content || "").trim();
-}
-async function callAnthropic(prompt, maxTokens) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": envFrom(ANTHROPIC_KEYS), "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — a generic name here
-    // is a confirmed collision risk with another integration on the same
-    // Vercel project, which broke every Anthropic call in production before.
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}`);
-  const d = await r.json();
-  return (d?.content || []).map((b) => b.text || "").join("").trim();
-}
-
-const PROVIDERS = [
-  { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
-  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || "llama-3.3-70b-versatile", p, m) },
-  { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
-  { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
-];
-const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
-
-export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
-export const aiAvailable = () => available().length > 0;
-
-async function ai(prompt, maxTokens) {
-  const errs = [];
-  for (const p of available()) {
-    try { const out = await p.call(prompt, maxTokens); if (out) return out; } catch (e) { errs.push(`${p.name}: ${String(e).slice(0, 80)}`); }
-  }
-  throw new Error(errs.join(" | ") || "no_provider");
-}
+export const aiAvailable = () => aiConfigured();
 
 async function readBody(req) {
   let b = req.body;
@@ -179,10 +127,10 @@ ${cv}`;
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
-    return res.end(JSON.stringify({ status: "ok", providers: available().map((p) => p.name) }));
+    return res.end(JSON.stringify({ status: "ok", providers: aiConfigured() ? ["azure-openai"] : [] }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" })); }
-  if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
+  if (!aiConfigured()) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
 
   const b = await readBody(req);
   const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate", "cv-boost"].includes(b.task) ? b.task : "";

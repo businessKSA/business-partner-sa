@@ -33,6 +33,7 @@ import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
 import { markRequestPaidByRef } from "./_simple.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
 // Its amount is the quote's net as stored on the request row — never the
 // browser's number — and it is only payable once the contract is signed.
@@ -110,15 +111,9 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
 async function sendMail(to, subject, html, attachments) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
-    });
-    return { ok: r.ok };
-  } catch { return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM, attachments });
+  return { ok: out.ok };
 }
 
 // ---- automatic tax invoice on a confirmed payment ---------------------------

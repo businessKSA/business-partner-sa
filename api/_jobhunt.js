@@ -1,3 +1,4 @@
+import { sendMail as acsSend } from "./_mail.js";
 // Business Partner — the job-search service and the agent behind it (ESM).
 //
 // A candidate in the pool can ask us to look for work on their behalf. Two
@@ -102,14 +103,10 @@ async function notion(path, method = "GET", body) {
 }
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return false;
+  if (!isEmail(to)) return false;
   try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    return r.ok;
+    const out = await acsSend({ to, subject, html, from: FROM });
+    return out.ok;
   } catch (e) {
     console.error("jobhunt sendEmail", String(e).slice(0, 160));
     return false;

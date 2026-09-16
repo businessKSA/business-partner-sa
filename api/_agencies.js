@@ -47,6 +47,7 @@ import { nafathPing } from "./_nafath.js";
 // structured data rather than a hand-typed row.
 import { forwardToN8n, applyN8nEnrichment, findExisting, guessField } from "./candidate.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -144,16 +145,10 @@ async function notion(path, method = "GET", body) {
 }
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    if (!r.ok) console.error("agencies email", r.status, (await r.text()).slice(0, 200));
-    return { ok: r.ok };
-  } catch (e) { return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  if (!out.ok) console.error("agencies email", out.error, (out.detail || "").slice(0, 200));
+  return { ok: out.ok };
 }
 
 // The access code is the bearer token for an approved agency's portal, so it

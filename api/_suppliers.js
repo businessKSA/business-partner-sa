@@ -38,6 +38,7 @@ import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
 import { DB_ON, sb, notify, storagePut, storageSign } from "./_db.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const NOTION_VERSION = "2022-06-28";
@@ -222,16 +223,10 @@ async function notion(path, method = "GET", body) {
 
 // attachments: [{ filename, content }] with content base64 — Resend's own shape.
 async function sendEmail(to, subject, html, attachments) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
-    });
-    if (!r.ok) console.error("Resend error", r.status, (await r.text()).slice(0, 200));
-    return { ok: r.ok };
-  } catch (e) { console.error("email exception", String(e).slice(0, 150)); return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM, attachments });
+  if (!out.ok) console.error("ACS email", out.error, (out.detail || "").slice(0, 200));
+  return { ok: out.ok };
 }
 
 export async function uploadToNotion(base64, filename, contentType) {

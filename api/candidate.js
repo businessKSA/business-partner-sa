@@ -16,10 +16,11 @@
 
 // Accept the token under any of these env-var names (people name it differently
 // in Vercel — be forgiving so a mis-named key never silently disables intake).
-// The AI provider chain lives in hire.js (gemini → groq → openai → anthropic
-// failover); reusing it directly avoids an HTTP hop to our own function.
+// نداء النموذج يعيش في hire.js (Azure OpenAI عبر api/_ai.js)؛ واستعماله
+// مباشرةً يوفّر قفزة HTTP إلى دالتنا نفسها.
 import { aiText, aiAvailable } from "./hire.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -45,15 +46,9 @@ const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8
 const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 async function sendMail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    return { ok: r.ok };
-  } catch { return { ok: false }; }
+  if (!isEmail(to)) return { ok: false };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  return { ok: out.ok };
 }
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);

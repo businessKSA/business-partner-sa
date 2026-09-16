@@ -23,6 +23,7 @@ import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftra
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 
+import { sendMail as acsSend } from "./_mail.js";
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 const NOTIFY_ON = process.env.SIMPLE_NOTIFY === "1";
 const SELF_BASE = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
@@ -83,14 +84,9 @@ async function sendEmail(to, subject, html) {
     await outbox({ kind: "email", to, subject, body: html });
     return { ok: false, skipped: EMAIL_LIVE ? "notify_off" : "email_mode_" + MODES().email };
   }
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: "email_not_configured" };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST", headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
-    });
-    return r.ok ? { ok: true } : { ok: false, error: `http_${r.status}` };
-  } catch (e) { return { ok: false, error: String(e.message || "email_failed").slice(0, 80) }; }
+  if (!isEmail(to)) return { ok: false, error: "email_not_configured" };
+  const out = await acsSend({ to, subject, html, from: FROM });
+  return out.ok ? { ok: true } : { ok: false, error: out.error };
 }
 
 async function logEvent(requestId, actorKind, actor, event, details) {

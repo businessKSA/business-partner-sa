@@ -16,7 +16,6 @@
     "demo": "tsx scripts/demo-seed.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.0",
     "@aws-sdk/client-s3": "^3.1114.0",
     "@aws-sdk/s3-request-presigner": "^3.1114.0",
     "@prisma/client": "^6.19.0",

@@ -35,6 +35,7 @@ import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } 
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+import { sendMail as acsSend } from "./_mail.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -783,16 +784,12 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 // attachments: [{ filename, content }] where content is base64 — Resend's own
 // attachment shape, passed straight through.
 async function sendEmail(to, subject, html, attachments) {
-  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html, ...(attachments && attachments.length ? { attachments } : {}) }),
-    });
-    if (!r.ok) { console.error("Resend error", r.status, await r.text()); return { ok: false, error: "email_send_failed" }; }
-    return { ok: true };
-  } catch (e) { console.error("email exception", e); return { ok: false, error: "email_send_failed" }; }
+  const out = await acsSend({ to, subject, html, from: FROM, attachments });
+  if (!out.ok) {
+    console.error("ACS email", out.error, (out.detail || "").slice(0, 200));
+    return { ok: false, error: out.error === "email_not_configured" ? out.error : "email_send_failed" };
+  }
+  return { ok: true };
 }
 
 async function readBody(req) {
@@ -3513,10 +3510,9 @@ export default async function handler(req, res) {
       const has = (...names) => names.find((n) => process.env[n] && String(process.env[n]).trim()) || null;
       const svc = (label, via, note = "") => ({ label, ok: !!via, via, note });
       const out = [
-        svc("الذكاء — Gemini (مجاني)", has("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"), "يقرأ شهادة الضريبة والسجل"),
-        svc("الذكاء — Anthropic", has("ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"), "بديل لقراءة المستندات"),
-        svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
-        svc("الذكاء — OpenAI", has("OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"), "بديل للصور فقط"),
+        svc("الذكاء — Azure OpenAI", has("AZURE_OPENAI_API_KEY"), "المستشار وقراءة شهادة الضريبة والسجل — المزوّد الوحيد"),
+        svc("الذكاء — نشر أزور", has("AZURE_OPENAI_DEPLOYMENT"), "اسم النشر الذي يُنادى"),
+        svc("الذكاء — مسار أزور", has("AZURE_OPENAI_ENDPOINT"), "عنوان مورد Azure OpenAI"),
         svc("الدفترة", has("DAFTRA_API_KEY"), "الفواتير وعروض الأسعار"),
         svc("DocuSign", has("DOCUSIGN_INTEGRATION_KEY") && has("DOCUSIGN_USER_ID") && has("DOCUSIGN_ACCOUNT_ID") && has("DOCUSIGN_PRIVATE_KEY") ? "DOCUSIGN_*" : null,
           /^prod/i.test(String(process.env.DOCUSIGN_ENV || "demo"))
@@ -3525,7 +3521,8 @@ export default async function handler(req, res) {
         svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
         svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
         svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
-        svc("البريد — Resend", has("RESEND_API_KEY"), "كل الرسائل والمرفقات"),
+        svc("البريد — Azure Communication Services", has("ACS_CONNECTION_STRING", "ACS_ACCESS_KEY"), "كل الرسائل والمرفقات"),
+        svc("البريد — عنوان المُرسِل", has("ACS_SENDER_ADDRESS", "MAIL_FROM"), "نطاق مُتحقَّق منه في أزور"),
         svc("نوشن — CRM", has("NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"), "الطلبات والموردون"),
         svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
