@@ -312,6 +312,7 @@ import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
+import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
@@ -12437,6 +12438,8 @@ function writeFullSite(pre) {
     write(`${pre}checkout-classic.html`, buildCheckout());
     // الرحلات: كل رحلة منتجٌ برمزه وسعره من قاعدة نوشن، تدخل السلة مباشرةً.
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
+    // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
+    write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
     // ‏حجز الاستشارة صار على التقويم: فترات حقيقية من /api/book?action=slots
     // بدل حقل تاريخٍ حرّ. الصفحة القديمة تبقى مبنيّة على /consultation-classic
     // لأن روابطها قد تكون في يد عميل، ولا شيء في الموقع يرسل إليها.
