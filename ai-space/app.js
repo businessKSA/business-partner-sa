@@ -540,6 +540,92 @@
     return true;
   }
 
+  /* ---------- حدّ المزوّد: انتظرْ بدل أن تستسلم ----------
+   *
+   * «مُعين» في n8n يردّ بـHTTP 200 حتى حين يفشل المحرّك: نصّ العطل يأتي
+   * داخل `reply`، فاللوحة كانت تعرضه كأنه جواب وتقف. والعطل الأشيع اليوم
+   * هو حدّ Groq المجاني — وهو **بالدقيقة**، أي أن الانتظار وحده يحلّه.
+   *
+   * فبدل «أعد الأمر بعد معالجة السبب» التي تُلقي العبء على صاحبها، تنتظر
+   * اللوحة وتعيد المحاولة مرة واحدة. مرة لا أكثر: إعادة المحاولة تستهلك
+   * من الحدّ نفسه، فالإلحاح يطيل العطل لا يقصّره.
+   *
+   * وهذا علاجُ عَرَض لا سبب: الدواء تحويل المحرّك إلى Azure (CLAUDE.md §2.6).
+   */
+  /* لا `429` مجرّدة في النمط: «الرسوم الحكومية 429 ريال» جوابٌ صحيح كانت
+     ستبتلعه اللوحة وتعيد المحاولة. وحالة HTTP 429 تُفحص وحدها أعلاه، فلا
+     حاجة للرقم هنا. وكذلك `quota` مقيّدة بـexceeded لا مطلقة. */
+  var RATE_RE = /too many requests|rate.?limit|rate_limit|tokens per minute|quota exceeded/i;
+  var RETRY_WAIT_MS = 25000;
+
+  function isRateLimited(text) { return RATE_RE.test(String(text || '')); }
+
+  function waitAndSay(ms, note) {
+    var until = Date.now() + ms;
+    setState('thinking', Math.ceil(ms / 1000) + 'ث');
+    addMsg(note, 'sys');
+    return new Promise(function (res) {
+      var iv = setInterval(function () {
+        var left = Math.ceil((until - Date.now()) / 1000);
+        if (left <= 0) { clearInterval(iv); return res(); }
+        setState('thinking', left + 'ث');
+      }, 1000);
+    });
+  }
+
+  var retrying = false;
+
+  /* نداء واحد إلى المدراء. فُصل عن ask() لأن إعادة المحاولة بعد حدّ المزوّد
+     تحتاج تكرار النداء وحده — لا إعادة رسم الرسالة ولا تصفير حالة الواجهة. */
+  function sendOnce(text) {
+    var ctl = new AbortController();
+    inflight = ctl;
+    var tm = setTimeout(function () { ctl.abort(); }, CHAT_TIMEOUT);
+
+    return fetch(API.chat, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, target_agent: target, source: 'command_space' }),
+      signal: ctl.signal
+    })
+      .then(function (r) {
+        return r.text().then(function (raw) {
+          // ٤٢٩ صريحة من الحافة قبل أن تصل السير أصلاً.
+          if (r.status === 429) throw new Error('RATE_LIMIT');
+          if (!r.ok) throw new Error('الخادم رجّع HTTP ' + r.status + (raw ? ' · ' + raw.slice(0, 180) : ''));
+          if (!raw.trim()) throw new Error('الخادم رجّع ردًا فارغًا (السير توقّف قبل عقدة الرد)');
+          try { return JSON.parse(raw); }
+          catch (e) { throw new Error('رد غير صالح من الخادم · ' + raw.slice(0, 180)); }
+        });
+      })
+      .then(function (j) {
+        var body = Array.isArray(j) ? (j[0] || {}) : j;
+        var reply = body.reply || body.output || body.text || body.message || 'تم استلام الطلب.';
+
+        // «مُعين» يردّ بـ200 حتى حين يفشل المحرّك، ونصّ العطل داخل reply —
+        // فالحدّ يُكشَف من النصّ لا من حالة HTTP. ويُرمى دائماً، والقرار في
+        // catch: يعيد المحاولة أو يشرح. وبلا هذا كانت المحاولة الثانية
+        // الفاشلة تعرض نصّ المزوّد الخام وكأنه جواب المدير.
+        if (isRateLimited(reply)) throw new Error('RATE_LIMIT');
+
+        retrying = false;
+        addMsg(reply, 'ai');
+        loadData();
+        return speak(reply);
+      })
+      .catch(function (e) {
+        clearTimeout(tm);
+        if (String(e.message) === 'RATE_LIMIT' && !retrying) {
+          retrying = true;
+          return waitAndSay(RETRY_WAIT_MS,
+            'حدّ المحرّك المجاني (طلبات كثيرة في الدقيقة). أنتظر ثم أعيد إرسال أمرك مرة واحدة — لا تعد كتابته.'
+          ).then(function () { return sendOnce(text); });
+        }
+        throw e;
+      })
+      .then(function (v) { clearTimeout(tm); return v; }, function (e) { clearTimeout(tm); throw e; });
+  }
+
   function ask(text) {
     text = String(text || '').trim();
     if (!text || busy) return Promise.resolve();
@@ -556,6 +642,7 @@
     busy = true;
     busySince = Date.now();
     abortedByUser = false;
+    retrying = false;
     $('btnSend').textContent = 'إيقاف';
     addMsg(text, 'me');
     var box = $('input');
@@ -567,50 +654,31 @@
     var t0 = Date.now();
     setState('thinking');
     var tick = setInterval(function () {
+      // أثناء انتظار الحدّ يعرض waitAndSay العدّ التنازلي، فلا يدهسه هذا.
+      if (retrying) return;
       var s = Math.round((Date.now() - t0) / 1000);
       setState(s > 12 ? 'deleg' : 'thinking', s + 'ث');
     }, 1500);
 
-    var ctl = new AbortController();
-    inflight = ctl;
-    var tm = setTimeout(function () { ctl.abort(); }, CHAT_TIMEOUT);
-
-    return fetch(API.chat, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, target_agent: target, source: 'command_space' }),
-      signal: ctl.signal
-    })
-      .then(function (r) {
-        return r.text().then(function (raw) {
-          if (!r.ok) throw new Error('الخادم رجّع HTTP ' + r.status + (raw ? ' · ' + raw.slice(0, 180) : ''));
-          if (!raw.trim()) throw new Error('الخادم رجّع ردًا فارغًا (السير توقّف قبل عقدة الرد)');
-          try { return JSON.parse(raw); }
-          catch (e) { throw new Error('رد غير صالح من الخادم · ' + raw.slice(0, 180)); }
-        });
-      })
-      .then(function (j) {
-        var body = Array.isArray(j) ? (j[0] || {}) : j;
-        var reply = body.reply || body.output || body.text || body.message || 'تم استلام الطلب.';
-        addMsg(reply, 'ai');
-        loadData();
-        return speak(reply);
-      })
+    return sendOnce(text)
       .catch(function (e) {
         var abort = e.name === 'AbortError';
         if (abort && abortedByUser) addMsg('أوقفت الطلب. تفضّل بالأمر الجديد.', 'sys');
+        else if (String(e.message) === 'RATE_LIMIT') addMsg(
+          'حدّ المحرّك المجاني ما زال قائماً بعد إعادة المحاولة. السبب أن «مُعين» على Groq '
+          + '(٨٠٠٠ توكن/دقيقة) — والعلاج تحويله إلى Azure، لا إعادة الأمر.', 'sys');
         else addMsg(abort
           ? 'انتهت المهلة بعد ' + Math.round(CHAT_TIMEOUT / 1000) + ' ثانية. الطلب طويل — جرّب سؤالًا أقصر.'
           : (e.message || String(e)), 'sys');
         setState(abortedByUser ? 'idle' : 'error');
       })
       .then(function () {
-        clearTimeout(tm);
         clearInterval(tick);
         inflight = null;
         busy = false;
         busySince = 0;
         abortedByUser = false;
+        retrying = false;
         $('btnSend').textContent = 'إرسال';
         $('btnSend').disabled = false;
         resumeListening();
@@ -776,7 +844,7 @@
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2);
   }
-  var BUILD_ID = 'eye-1';
+  var BUILD_ID = 'rate-1';
   function diagText() {
     return [
       'إصدار اللوحة: ' + BUILD_ID,
