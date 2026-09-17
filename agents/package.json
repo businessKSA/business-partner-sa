@@ -2,14 +2,10 @@
   "name": "bp-agents",
   "private": true,
   "type": "module",
-  "description": "فريق Business Partner الذكي على Claude Managed Agents: تعريفات الوكلاء والجدولات وسكربتات التشغيل",
+  "description": "فريق Business Partner الذكي على Azure OpenAI + Azure Container Apps Jobs: المنسّق والمتخصصون وأدواتهم وجولاتهم المجدولة",
   "scripts": {
-    "apply": "bash scripts/apply.sh",
-    "vault": "bash scripts/vault.sh",
-    "schedule": "bash scripts/schedule.sh",
-    "run": "node scripts/run.mjs"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": ">=0.88.0"
+    "run": "node azure/run.mjs",
+    "job": "node azure/job.mjs",
+    "rehearse": "AGENTS_DRY_RUN=1 LOCAL_DB=1 node azure/job.mjs morning"
   }
 }
