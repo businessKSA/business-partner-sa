@@ -35,13 +35,16 @@ if (!message) {
   process.exit(1);
 }
 if (!ENGINE_READY) {
-  console.error(`المحرّك غير مهيّأ — ${engineWhyNot()}`);
-  console.error(`النقطة: ${ENGINE_INFO.endpoint}  |  النشر: ${ENGINE_INFO.deployment || "(فارغ)"}`);
+  console.error(engineWhyNot());
   process.exit(2);
 }
+const engineLabel = [
+  ENGINE_INFO.azure ? `Azure:${ENGINE_INFO.azure.deployment}` : null,
+  ENGINE_INFO.ollama ? `Ollama:${ENGINE_INFO.ollama.model}` : null,
+].filter(Boolean).join(" ← ");
 
 const t0 = Date.now();
-console.error(`▸ ${agent} — ${ENGINE_INFO.deployment} @ ${ENGINE_INFO.endpoint}`);
+console.error(`▸ ${agent} — ${engineLabel}`);
 
 try {
   const out = agent === "baher"
