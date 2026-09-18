@@ -22,6 +22,7 @@ import { sb, DB_ON, getSession } from "./_db.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE = readFileSync(join(__dirname, "knowledge.json"), "utf8");
 import { priceSheetText } from "./_catalog.js";
+import { wrapChat } from "./_chatsafe.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -283,7 +284,10 @@ const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
 const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
 
-export default async function handler(req, res) {
+// The advisor itself. It is NOT the default export: wrapChat() below is, so a
+// 5xx from any model provider can never surface as an outage in the public
+// intake chat. See api/_chatsafe.js for why that wrapper is a module.
+async function coreChat(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Lightweight health check (never exposes the keys themselves).
   if (req.method === "GET") {
@@ -413,3 +417,8 @@ export default async function handler(req, res) {
   res.statusCode = 502;
   return res.end(JSON.stringify({ error: "upstream_error", reply: "صار خلل بسيط. جرّب مرة ثانية أو تواصل معنا على واتساب." }));
 }
+
+// /api/chat === the advisor behind the resilience layer. One endpoint, not two:
+// a second file here would be the thirteenth serverless function and Vercel
+// caps this plan at twelve.
+export default wrapChat(coreChat);
