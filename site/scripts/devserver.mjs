@@ -18,6 +18,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SITE = path.join(ROOT, "site");
+const SPACE = path.join(ROOT, "ai-space");
 const PORT = Number(process.env.PORT || 3000);
 
 // ------------------------------------------------------------ environment --
@@ -72,6 +73,34 @@ const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"
 const API_REWRITES = (vercel.rewrites || [])
   .filter((r) => r.source.startsWith("/api/") && r.destination.startsWith("/api/") && !r.has)
   .map((r) => ({ source: r.source, destination: r.destination }));
+
+// Pretty public paths that land on a function — /offer/:token and friends.
+// These were skipped locally because the filter above only kept /api/ sources,
+// so a URL the customer actually opens 404'd on localhost while working on
+// Vercel. A local 404 for a live path is exactly the gap "local-first" exists
+// to close. Host-based and external-destination rewrites still belong to Vercel.
+const PATH_REWRITES = (vercel.rewrites || [])
+  .filter((r) => !r.source.startsWith("/api/") && r.destination.startsWith("/api/") && !r.has)
+  .map((r) => ({
+    // "/offer/:token" → /^\/offer\/([^/]+)$/ with the param names kept in order
+    re: new RegExp("^" + r.source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/:([A-Za-z0-9_]+)/g, "([^/]+)") + "$"),
+    params: [...r.source.matchAll(/:([A-Za-z0-9_]+)/g)].map((m) => m[1]),
+    destination: r.destination,
+  }));
+
+// Returns the rewritten "/api/...?..." target for a public path, or null.
+function pathRewrite(pathname) {
+  for (const r of PATH_REWRITES) {
+    const m = pathname.match(r.re);
+    if (!m) continue;
+    let dest = r.destination;
+    r.params.forEach((name, i) => {
+      dest = dest.split(`:${name}`).join(encodeURIComponent(m[i + 1]));
+    });
+    return dest;
+  }
+  return null;
+}
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
@@ -164,6 +193,38 @@ const server = http.createServer(async (req, res) => {
       return done(200);
     }
 
+    // لوحة القيادة (ai-space) محلياً على /space — كانت تُنشر على Vercel فقط،
+    // فكان الصوت والعين لا يُجرَّبان إلا بنشرة، وهذا يخالف «التطوير المحلي أولاً».
+    // localhost سياق آمن، فالكاميرا والمايك يعملان بلا شهادة.
+    if (url.pathname === "/space") {
+      // بلا الشرطة الأخيرة تُحَل المسارات النسبية من الجذر فتسقط اللوحة
+      res.statusCode = 302; res.setHeader("location", "/space/"); res.end();
+      return done(302);
+    }
+    if (url.pathname.startsWith("/space/")) {
+      let rel = url.pathname.replace(/^\/space\/?/, "") || "index.html";
+      if (!path.extname(rel)) rel += ".html";
+      const f = path.join(SPACE, rel);
+      // منع الخروج من المجلد عبر ../ في المسار
+      if (!f.startsWith(SPACE + path.sep) && f !== path.join(SPACE, "index.html")) {
+        res.statusCode = 403; res.end("forbidden"); return done(403);
+      }
+      if (!fs.existsSync(f)) {
+        // config.js اختياري: غيابه كان يكسر اللوحة بـ404 في الكونسول
+        if (rel === "config.js") {
+          res.setHeader("content-type", "text/javascript; charset=utf-8");
+          res.setHeader("cache-control", "no-store");
+          res.end("/* local: no overrides */");
+          return done(200);
+        }
+        res.statusCode = 404; res.end("not found"); return done(404);
+      }
+      res.setHeader("content-type", MIME[path.extname(f)] || "application/octet-stream");
+      res.setHeader("cache-control", "no-store");
+      res.end(fs.readFileSync(f));
+      return done(200);
+    }
+
     if (url.pathname.startsWith("/api/")) {
       let target = url.pathname + url.search;
       for (const rw of API_REWRITES) {
@@ -184,6 +245,23 @@ const server = http.createServer(async (req, res) => {
       await handler(req, res);
       if (!res.writableEnded) res.end();
       return done(res.statusCode);
+    }
+
+    // A pretty public path that maps to a function must run the function,
+    // not fall through to the static 404.
+    const rewritten = pathRewrite(url.pathname);
+    if (rewritten) {
+      const tUrl = new URL(rewritten, `http://localhost:${PORT}`);
+      for (const [k, v] of url.searchParams.entries()) if (!tUrl.searchParams.has(k)) tUrl.searchParams.set(k, v);
+      const name = tUrl.pathname.replace(/^\/api\//, "").replace(/\/+$/, "");
+      const handler = await loadHandler(name);
+      if (handler) {
+        vercelify(req, res, tUrl);
+        req.body = await readRequestBody(req);
+        await handler(req, res);
+        if (!res.writableEnded) res.end();
+        return done(res.statusCode);
+      }
     }
 
     const file = staticFile(url.pathname);

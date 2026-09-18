@@ -816,3 +816,21 @@ alter table tasks add column if not exists priority text not null default 'norma
 alter table tasks add column if not exists assigned_to text;
 create index if not exists tasks_request_idx on tasks(request_id);
 create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');
+
+-- ── طيّ لوحة العروض (bp-quotes) داخل الموقع ───────────────────────────────
+--
+-- روابط `‏/quotes/d/<token>` أُرسلت في بريد وواتساب عملاء منذ أشهر. حذف
+-- اللوحة قبل أن يخدمها الموقع الرئيسي = مستند ميّت في يد عميل. هذا الجدول
+-- هو الجسر: يكتبه سكربت النقل (ops/quotes-migrate.mjs) فيصير كل رابط قديم
+-- قابلاً للخدمة من `requests` بعد الحذف.
+--
+-- الرمز هو المفتاح لأنه ما في يد العميل، ولا يُولَّد هنا بل يُنسَخ كما هو من
+-- اللوحة — أي رمز جديد يعني رابطاً قديماً لا يُطابَق.
+create table if not exists legacy_doc_links (
+  token text primary key,
+  ref text not null,
+  kind text not null check (kind in ('QUOTE','CONTRACT','INVOICE')),
+  source text not null default 'bp-quotes',
+  created_at timestamptz not null default now()
+);
+create index if not exists legacy_doc_links_ref_idx on legacy_doc_links (ref);

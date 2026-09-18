@@ -14,7 +14,12 @@
 - **ممنوع** تطوير ميزات جديدة داخل `quotes/` كتطبيق مستقل. أي عمل عليه يكون فقط لنقل ما فيه إلى الموقع الرئيسي (`site/` + `api/`) تمهيداً لحذفه. (`erp/` لم يعد موجوداً.)
 - المشاريع الثلاثة تُبنى مع كل دفعة على أي فرع، وهذا ما استنفد سقف المئة نشرة في اليوم على الخطة المجانية مراراً وعطّل إصلاحات جاهزة. لهذا يُصفّى كل شيء في مشروع واحد.
 - حذف المشروعين من Vercel يتم من لوحة Vercel (Project → Settings → Delete) بعد اكتمال الدمج — لا يحذفهما Claude من نفسه، ولا يوقفهما (pause) قبل الدمج حتى لا تنقطع خدمة قائمة.
-- **الوضع الحالي (2026-09-04):** `bp-erp` حُذف من اللوحة ثم من المستودع — بقي مشروعان. أما `bp-quotes` فما زال يشغّل لوحة العروض فعلياً؛ المسار `businesspartner.sa/quotes/*` هو **rewrite** إليه من `vercel.json` الرئيسي، وليس دمجاً. حذفه أو إيقافه الآن يكسر عروض الأسعار والعقود والفواتير حتى تُنقل جداوله ومساراته إلى `api/` + `db/` (المهمة القادمة).
+- **الوضع الحالي (2026-09-16):** `bp-erp` حُذف من اللوحة ثم من المستودع — بقي مشروعان. وقرار المالك في 2026-09-16: **`bp-quotes` يندمج في الرئيسي ولا يُستخدم مرة ثانية**. أُنجز من الدمج كل ما لا يحتاج قاعدة اللوحة:
+  - `‏/api/live-catalog` لم يَعُد تمريرةً إلى اللوحة — يُخدَم من `site/assets/data` عبر `api/_quotes.js`. **التبعية انتهت.**
+  - `‏/quotes/d/<token>` صار يمرّ بالموقع أولاً: ما في `legacy_doc_links` يُخدَم من `requests`، وما سواه يُحوَّل ٣٠٢ إلى اللوحة ما دامت حيّة، وبعد حذفها يُضبط `QUOTES_PANEL_RETIRED=1` فتظهر صفحة ٤١٠ تدلّ العميل على حسابه.
+  - قسم «عروضي وعقودي» في `/account` صار يقرأ قاعدتنا أولاً واللوحة ثانياً، فلا يموت بموتها.
+  - بقي **نقل التاريخ** وحده، ويحتاج `DATABASE_URL` الخاص باللوحة: `quotes/scripts/export-for-main.ts` ثم `ops/quotes-import.mjs`. يشغّلهما المالك بنفسه — لا يُطلب السرّ في محادثة.
+  ما زال حذف اللوحة أو إيقافها **قبل** النقل يكسر عروض الأسعار والعقود والفواتير. التفصيل والترتيب في `docs/quotes-cutover.md`.
 - شرط التجاهل: `quotes/vercel.json` يبني فقط إذا تغيّر `quotes/` أو `site/assets/data/catalog.json` في مدى الدفعة. لا تحذف `ignoreCommand` منه، ولا تحذف مجلداً هو جذرُ مشروع Vercel قائم — احذف المشروع من اللوحة أولاً (هذا ما جرى مع `erp/`).
 - **المشروع الرئيسي كذلك صار له `ignoreCommand` (2026-09-04):** يبني تلقائياً
   على `master` و`staging` وفي الإنتاج فقط. أي فرع آخر لا ينشر إلا إذا احتوت
@@ -43,6 +48,49 @@
   معاينة، العقد اختبار. لا بطاقة تُخصم ولا رسالة تصل عميلاً.
 - حسابات محلية: `client@test.local` و`admin@test.local` بالرمز `123456`،
   ومفتاح اللوحة `test-ops`.
+
+## 2.6) كل ما يستهلك رصيداً يتحوّل إلى Azure (قرار المالك 2026-09-15)
+
+**القاعدة الحاكمة: لا يُشحن رصيد على أي مزوّد بعد اليوم.** رصيد
+Microsoft for Startups (100,000 دولار، ينتهي 8 سبتمبر 2028، وله مهلة تفعيل
+ثلاثة أشهر من 8 سبتمبر 2026) هو مصدر التمويل الوحيد لكل استدعاء مدفوع.
+
+**الترتيب الإلزامي عند اختيار أي محرّك أو خدمة:**
+
+1. **Azure أولاً** — إن وُجدت خدمة Azure تؤدي الغرض فهي الخيار، ولو كان
+   غيرها أسهل. المحرّك اللغوي: `Azure OpenAI`. الصوت: `Azure Speech`.
+   الاستضافة: `Azure Container Apps`. البحث الدلالي: `Azure AI Search`.
+2. **مجاني حقيقي** — Groq وGemini، وهما احتياطي عند نفاد حصة Azure لا أساس.
+3. **مدفوع خارج Azure** — **ممنوع**. لا OpenAI ولا Anthropic ولا OpenRouter
+   ولا ElevenLabs بحساب مدفوع، ولا أي اشتراك جديد. من احتاج واحداً منها
+   فليطلب قراراً صريحاً من المالك قبل أي ربط.
+
+**ممنوع صراحةً:** إضافة وسيلة دفع جديدة، أو ترقية خطة، أو تفعيل فوترة
+استخدام، أو ربط بطاقة بأي مزوّد — بما فيها Vercel وn8n وNotion — دون إذن
+المالك المكتوب في الشات.
+
+**مراقبة الاستهلاك واجبة:** يُضبط Budget Alert في Azure Cost Management.
+سقف المئة نشرة اليومي في Vercel وسقف 8000 توكن/دقيقة في Groq درسان
+مدفوعان: المنظومة تُبنى أسرع مما تحتمله مواردها، فالحدّ يُراقَب قبل أن
+يُضرب لا بعده.
+
+**فريق الوكلاء أُعيد بناؤه على Azure (قرار المالك 2026-09-17).** كان على
+`Claude Managed Agents` وهي مدفوعة من Anthropic فتخالف هذه القاعدة نفسها؛
+فحُذفت تلك الطبقة وبُني البديل في `agents/azure/`: العقل `Azure OpenAI`،
+والمنطق كودٌ في git، والجولات `Azure Container Apps Jobs`، والحالة Supabase
+(قاعدة الموقع نفسها). و`n8n` نزل من «العقل والمنسّق» إلى **طبقة موصّلات**
+فقط (واتساب وLinkedIn وGmail) لأن تفويضاتها تعمل، ويُقلَّص كلما بُنيت أداة
+هنا. والحوكمة صارت في الكود لا في البرومبت: `commitmentIn()` في
+`agents/azure/tools.mjs` يرفض أي رسالة فيها سعر أو ضمان أو خصم قبل الشبكة،
+وتُسجَّل `pending_approval`. التفاصيل في `agents/README.md`.
+
+**حقل `model` في Azure هو اسم النشر (deployment) لا اسم الموديل** — الخلط
+بينهما أعطى `could not be found` مرتين وأوقف التحويل يوماً كاملاً.
+
+**عند تحويل سير عمل إلى Azure:** تُستبدل عقدة المحرّك وحدها — كل مدير في
+`n8n` له عقدة محرّك واحدة تغذّي `AI Engine` وكل متخصصيه، فاستبدالها يُصلح
+الإدارة كاملة. لا تُحذف عقدة المحرّك القديمة إلا بعد التحقق من تنفيذ حقيقي
+ناجح (`engine_fallback: false`).
 
 ## 3) البناء والتحقق
 
@@ -73,5 +121,19 @@
 with `LOCAL_DB=1` (JSON file under `.localdb/`, production Supabase untouched)
 and every integration in a safe mode (`api/_mode.js`). Vercel previews are for
 stable milestones only, never after every change. See `docs/local-development.md`.
+
+**Azure pays for everything (owner decision 2026-09-15):** the Microsoft for
+Startups grant ($100,000, expires 8 Sept 2028, activate within 3 months of
+8 Sept 2026) funds every paid call. Order of preference for any engine or
+service: (1) Azure — `Azure OpenAI` for LLMs, `Azure Speech` for voice,
+`Azure Container Apps` for hosting, `Azure AI Search` for retrieval;
+(2) genuinely free tiers (Groq, Gemini) as fallback only, never as the base;
+(3) paid non-Azure — **forbidden**. Never add a payment method, upgrade a
+plan, enable usage billing or attach a card to any provider — Vercel, n8n and
+Notion included — without the owner's explicit written approval in chat. Set a
+Budget Alert in Azure Cost Management. When migrating a workflow, swap only
+the model node: each n8n manager has ONE model node feeding its `AI Engine`
+and every specialist, so replacing it fixes the whole department; keep the old
+node until a real run returns `engine_fallback: false`.
 
 **One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
