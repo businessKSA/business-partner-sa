@@ -90,6 +90,22 @@ const opsOk = (src) => !!OPS_KEY && String((src && (src.key || src.opsKey)) || "
 const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
 const nowIso = () => new Date().toISOString();
 
+// العدد بالعربية يوافق معدوده: واحد، مثنّى، جمع قلّة (٣–١٠)، ثم تمييز
+// منصوب. «لدينا 1 عرضاً» جملةٌ تكشف أن الذي كتبها آلة، ورسائل وسيط مرخّص
+// تُقرأ على أنها منه هو.
+function countAr(n, one, two, few, many) {
+  const c = Number(n) || 0;
+  if (c === 1) return one;
+  if (c === 2) return two;
+  if (c >= 3 && c <= 10) return `${c} ${few}`;
+  return `${c} ${many}`;
+}
+// المثنّى يختلف بموقعه من الجملة: «لدينا عرضان» مرفوع، و«يطابق طلبين»
+// منصوب. لكل دالة صيغتها لأن لكل واحدة موقعاً واحداً في نصّها — ومن
+// غيّر النصّ لاحقاً فليراجع الصيغة معه.
+const offersAr = (n) => countAr(n, "عرض واحد", "عرضان", "عروض", "عرضاً");     // مرفوع: «لدينا …»
+const requestsAr = (n) => countAr(n, "طلباً واحداً", "طلبين", "طلبات", "طلباً"); // منصوب: «يطابق …»
+
 // ---------------------------------------------------------- أرقام مرجعية --
 // الشكل BD-T-000123. الحرف يقول ماذا تقرأ قبل أن تفتح الصفّ، وهذا وحده
 // يختصر نصف أسئلة الواتساب: «إيش رقم BD-A-000456؟» جوابها في الحرف.
@@ -462,7 +478,9 @@ export async function handleInbound(msg) {
       if (ranked.length) {
         reply = [
           `سجّلت طلبك برقم *${requestRow.ref}* ✅`,
-          `لدينا ${ranked.length} عرضاً مبدئياً يطابق مواصفاتك، وسيراجعها المستشار ويرسل لك المناسب منها.`,
+          // صيغة النقطتين تتجنّب مطابقة الفعل والصفة للعدد: تصحّ مع الواحد
+          // والمثنّى والجمع بلا ثلاث جمل.
+          `مبدئياً لدينا ما يطابق مواصفاتك: ${offersAr(ranked.length)}. ${ranked.length === 1 ? "يراجعه" : "يراجعها"} المستشار ويرسل لك المناسب.`,
           AUTO_SEND ? "" : "",
         ].filter(Boolean).join("\n");
         if (AUTO_SEND) {
@@ -506,7 +524,7 @@ export async function handleInbound(msg) {
 
     if (hits.length) {
       await alertOwner([
-        `🎯 *عرض يطابق ${hits.length} طلباً* ${listingRow.ref}`,
+        `🎯 *عرض يطابق ${requestsAr(hits.length)}* ${listingRow.ref}`,
         summarizeListing(listingRow),
         `من: ${msg.name || ""} ${from}`,
         "",
