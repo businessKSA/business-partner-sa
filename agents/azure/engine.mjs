@@ -15,8 +15,14 @@
 // **حقل `model` في Azure هو اسم النشر (deployment) لا اسم الموديل.** هذا
 // الخلط أسقط محاولتين سابقتين بـ«could not be found»، فيُقال صراحةً هنا.
 
+/* لا افتراض لاسم المورد. في هذا الحساب مَورِدان يصلحان كلاهما:
+   `bp-ai-ksa-2026` (Azure OpenAI، Sweden Central) و`drbahermagnas-6763-resource`
+   (مشروع Foundry، East US 2). وافتراضُ أحدهما يعني أن مفتاحاً صحيحاً على
+   المورد الآخر يفشل بـ«not found» — عطلٌ يبدو خطأ مفتاح وهو خطأ عنوان،
+   وهذا الصنف بالضبط أضاع يومين هنا. فيُطلب صراحةً ويُقال ذلك. */
+const AZ_RESOURCE = (process.env.AZURE_OPENAI_RESOURCE || "").trim();
 const AZ_ENDPOINT = (process.env.AZURE_OPENAI_ENDPOINT
-  || `https://${process.env.AZURE_OPENAI_RESOURCE || "bp-ai-ksa-2026"}.openai.azure.com`)
+  || (AZ_RESOURCE ? `https://${AZ_RESOURCE}.openai.azure.com` : ""))
   .replace(/\/+$/, "");
 const AZ_VERSION = process.env.AZURE_OPENAI_API_VERSION || "2025-03-01-preview";
 const AZ_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || "";
@@ -25,7 +31,7 @@ const AZ_KEY = (process.env.AZURE_OPENAI_API_KEY || "").trim();
 const OLLAMA_BASE = (process.env.OLLAMA_BASE || "http://127.0.0.1:11434").replace(/\/+$/, "");
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "";
 
-const AZURE_OK = !!(AZ_KEY && AZ_DEPLOYMENT);
+const AZURE_OK = !!(AZ_KEY && AZ_DEPLOYMENT && AZ_ENDPOINT);
 const OLLAMA_OK = !!OLLAMA_MODEL;
 
 export const ENGINE_READY = AZURE_OK || OLLAMA_OK;
@@ -36,6 +42,7 @@ export function engineWhyNot() {
   const az = [];
   if (!AZ_KEY) az.push("AZURE_OPENAI_API_KEY");
   if (!AZ_DEPLOYMENT) az.push("AZURE_OPENAI_DEPLOYMENT (اسم النشر من ai.azure.com ← Deployments ← عمود Name، لا اسم الموديل)");
+  if (!AZ_ENDPOINT) az.push("AZURE_OPENAI_RESOURCE (اسم المورد الذي فيه النشر — عندك bp-ai-ksa-2026 وdrbahermagnas-6763-resource، فحدّد أيّهما)");
   return `لا محرّك. للأساس ينقص: ${az.join("، ")}.`
     + ` وللاحتياطي المحلي: OLLAMA_MODEL (مثل qwen2.5:7b) وOllama يعمل على ${OLLAMA_BASE}.`;
 }

@@ -10,13 +10,16 @@
 set -euo pipefail
 
 RG="${BP_AZ_RG:-bp-agents-rg}"
-LOC="${BP_AZ_LOCATION:-uaenorth}"
+# اضبطها على منطقة مورد Azure OpenAI الذي ستستعمله: زمن الجولة يحكمه نداء
+# المحرّك لا موقع المستخدم، فالمجاورة تختصره.
+#   bp-ai-ksa-2026 → swedencentral   |   drbahermagnas-6763-resource → eastus2
+LOC="${BP_AZ_LOCATION:-swedencentral}"
 ENVIRONMENT="${BP_AZ_ENV:-bp-agents-env}"
 ACR="${BP_AZ_ACR:-bpagentsacr}"
 IMAGE="$ACR.azurecr.io/bp-agents:$(git rev-parse --short HEAD)"
 
 req() { [ -n "${!1:-}" ] || { echo "ينقص المتغيّر $1" >&2; exit 1; }; }
-for v in AZURE_OPENAI_API_KEY AZURE_OPENAI_DEPLOYMENT SUPABASE_URL SUPABASE_SERVICE_KEY; do req "$v"; done
+for v in AZURE_OPENAI_API_KEY AZURE_OPENAI_DEPLOYMENT AZURE_OPENAI_RESOURCE SUPABASE_URL SUPABASE_SERVICE_KEY; do req "$v"; done
 
 echo "▸ المجموعة والبيئة"
 az group create -n "$RG" -l "$LOC" -o none
@@ -49,7 +52,7 @@ create_job() {
       "SUPABASE_SERVICE_KEY=secretref:supabase-key" \
       ${BP_N8N_HOOK_KEY:+"BP_N8N_HOOK_KEY=secretref:n8n-hook-key"} \
       "AZURE_OPENAI_DEPLOYMENT=$AZURE_OPENAI_DEPLOYMENT" \
-      "AZURE_OPENAI_RESOURCE=${AZURE_OPENAI_RESOURCE:-bp-ai-ksa-2026}" \
+      "AZURE_OPENAI_RESOURCE=$AZURE_OPENAI_RESOURCE" \
       "AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2025-03-01-preview}" \
       "SUPABASE_URL=$SUPABASE_URL" \
       "BP_N8N_BASE=${BP_N8N_BASE:-}" \
