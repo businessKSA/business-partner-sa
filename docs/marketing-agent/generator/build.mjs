@@ -66,7 +66,14 @@ for (const service of picked) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(path.join(OUT, "index.json"), JSON.stringify(index, null, 2));
+
+// A partial run must not erase the index of everything built before it: building
+// three services used to leave an index listing three, silently losing the rest.
+const indexFile = path.join(OUT, "index.json");
+const previous = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, "utf8")) : [];
+const merged = new Map(previous.map((e) => [e.code, e]));
+for (const entry of index) merged.set(entry.code, entry);
+fs.writeFileSync(indexFile, JSON.stringify([...merged.values()].sort((a, b) => a.code.localeCompare(b.code)), null, 2));
 
 if (!noImages) await renderAll(jobs);
 
