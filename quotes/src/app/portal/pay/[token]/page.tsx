@@ -1,8 +1,12 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
 import { payments } from '@/lib/payments';
+import { tamaraEligible } from '@/lib/payments/tamara';
+import TamaraButton from './TamaraButton';
 import { COMPANY } from '@config/company';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,18 +18,42 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
   if (invoice.status === 'PAID') {
     return (
       <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
-        <h1>الفاتورة {invoice.number}</h1>
+        <h1>مطالبة السداد {invoice.number}</h1>
         <div className="notice ok">
-          سُددت هذه الفاتورة بتاريخ {fmtDate(invoice.paidAt, 'en')}
+          سُددت بتاريخ {fmtDate(invoice.paidAt, 'en')}
           {invoice.method ? ` عبر ${invoice.method}` : ''}.
         </div>
-        <a className="btn" href="/portal">بوابة العميل</a>
+        {/* الرقم أعلاه رقم المطالبة في هذه اللوحة، والفاتورة الضريبية المعتمدة
+            تصدر من نظام الدفترة بتسلسلها الواحد. عرضهما مفصولين يمنع أن يُقدَّم
+            رقم داخلي للعميل — أو لهيئة الزكاة والضريبة — على أنه رقم ضريبي. */}
+        {invoice.daftraNumber ? (
+          <p className="sub">
+            الفاتورة الضريبية: <b>{invoice.daftraNumber}</b>
+            {invoice.daftraPdfUrl ? (
+              <>
+                {' — '}
+                <a href={invoice.daftraPdfUrl} target="_blank" rel="noreferrer">افتحها</a>
+              </>
+            ) : null}
+          </p>
+        ) : (
+          <p className="sub">الفاتورة الضريبية تصلك على بريدك فور صدورها.</p>
+        )}
+        <Link className="btn" href="/portal">بوابة العميل</Link>
       </div>
     );
   }
 
   const provider = payments();
-  const base = process.env.APP_URL || 'http://localhost:3000';
+  const tamara = tamaraEligible({
+    total: invoice.total,
+    isGovFeeDeposit: invoice.isGovFeeDeposit,
+    depositKind: invoice.depositKind,
+    status: invoice.status,
+  });
+  // التكلفة تُذكر للعميل كحقيقة عن الخدمة لا كرسم يُضاف عليه — المستحق ثابت
+  const feeNote = 'تُقسَّم على دفعات وفق شروط تمارا.';
+  const base = appBase();
   const intent = await provider.createPayment({
     amount: invoice.total,
     description: `${invoice.number} — ${invoice.titleEn}`,
@@ -35,7 +63,7 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
 
   return (
     <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
-      <h1>سداد الفاتورة {invoice.number}</h1>
+      <h1>سداد المطالبة {invoice.number}</h1>
       <p className="sub">{invoice.titleAr}</p>
       <table>
         <tbody>
@@ -58,8 +86,11 @@ export default async function PayPage({ params }: { params: Promise<{ token: str
         <a className="btn" href={intent.url}>
           ادفع الآن {provider.supportsApplePay ? '— مدى، فيزا، آبل باي' : '(بيئة اختبار)'}
         </a>
-        
       </div>
+
+      {/* التقسيط لا يُعرض على العهدة: مبلغها يمرّ للجهات ولا إيراد فيه
+          يُغطّي خصم تمارا. الشرط في tamaraEligible لا هنا، وهذا عرضه فقط. */}
+      {tamara.ok ? <TamaraButton payToken={token} fee={feeNote} /> : null}
 
       <h3>التحويل البنكي</h3>
       <p className="muted">

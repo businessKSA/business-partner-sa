@@ -1,0 +1,334 @@
+{
+  "organizations": [
+    {
+      "id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "name_ar": "شركة الاختبار للتقنية",
+      "name_en": "Test Technology Co.",
+      "cr_number": "1010999001",
+      "city": "الرياض",
+      "profile_completeness": 60,
+      "created_at": "2026-07-25T22:44:16.582Z",
+      "updated_at": "2026-09-01T22:44:16.582Z"
+    },
+    {
+      "id": "31c1fef8-8ead-4007-acb1-3044a6b9dd29",
+      "name_ar": "مؤسسة نماء التجارية",
+      "name_en": "Namaa Trading",
+      "cr_number": "1010999002",
+      "city": "جدة",
+      "profile_completeness": 35,
+      "created_at": "2026-08-22T22:44:16.582Z",
+      "updated_at": "2026-09-02T22:44:16.582Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "7b2db20a-2404-41ce-b7af-8db1d3fabc95",
+      "email": "client@test.local",
+      "full_name": "عميل تجريبي",
+      "locale": "ar",
+      "is_bp_staff": false,
+      "email_verified_at": "2026-07-25T22:44:16.582Z",
+      "created_at": "2026-07-25T22:44:16.582Z",
+      "updated_at": "2026-09-01T22:44:16.582Z"
+    },
+    {
+      "id": "d50d9bc1-d014-4082-abc8-dbe1c52e9dc0",
+      "email": "admin@test.local",
+      "full_name": "مسؤول العمليات",
+      "locale": "ar",
+      "is_bp_staff": true,
+      "email_verified_at": "2026-07-25T22:44:16.582Z",
+      "created_at": "2026-07-25T22:44:16.582Z",
+      "updated_at": "2026-09-01T22:44:16.582Z"
+    }
+  ],
+  "organization_members": [
+    {
+      "id": "a5a4208b-9e90-4b56-ab27-8110a411fd0c",
+      "organization_id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "user_id": "7b2db20a-2404-41ce-b7af-8db1d3fabc95",
+      "role_id": "owner",
+      "status": "active",
+      "created_at": "2026-07-25T22:44:16.582Z"
+    },
+    {
+      "id": "65ade1b0-b4a9-438b-9263-82373bdac630",
+      "organization_id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "user_id": "d50d9bc1-d014-4082-abc8-dbe1c52e9dc0",
+      "role_id": "owner",
+      "status": "active",
+      "created_at": "2026-07-25T22:44:16.582Z"
+    }
+  ],
+  "roles": [
+    {
+      "id": "owner",
+      "name_ar": "مالك",
+      "name_en": "Owner"
+    },
+    {
+      "id": "staff",
+      "name_ar": "موظف",
+      "name_en": "Staff"
+    }
+  ],
+  "user_sessions": [],
+  "requests": [
+    {
+      "id": "d0535cfa-2d20-4e2b-b5af-211ebe0b27ff",
+      "ref": "BP-R-DEMO01",
+      "organization_id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "user_id": "7b2db20a-2404-41ce-b7af-8db1d3fabc95",
+      "type": "GOVERNMENT_SERVICE",
+      "source": "WEBSITE",
+      "status": "REVIEWING",
+      "lang": "ar",
+      "title": "مشكلة في منصة قوى",
+      "summary": "لا يمكن إصدار تأشيرة عمل والحساب يظهر مخالفة نطاقات.",
+      "ai_summary": "",
+      "conversation": [
+        {
+          "role": "user",
+          "content": "عندي مشكلة في قوى ما أقدر أصدر تأشيرة",
+          "at": "2026-08-31T22:44:16.582Z"
+        },
+        {
+          "role": "assistant",
+          "content": "وضّح لي: هل المخالفة على النطاقات أم على الاشتراك؟",
+          "at": "2026-08-31T22:44:16.582Z"
+        }
+      ],
+      "scope": [
+        {
+          "code": "",
+          "title": "فحص المشكلة والمعاملة",
+          "why": "تحديد سبب الإيقاف"
+        },
+        {
+          "code": "",
+          "title": "تحديد الخدمات الحكومية المطلوبة",
+          "why": ""
+        },
+        {
+          "code": "",
+          "title": "تنفيذ أو متابعة الخدمات المتفق عليها",
+          "why": ""
+        }
+      ],
+      "attachments": [],
+      "quote": null,
+      "contract": null,
+      "appointment": null,
+      "payment": null,
+      "invoice": null,
+      "client_name": "عميل تجريبي",
+      "client_email": "client@test.local",
+      "client_phone": "0500000000",
+      "company_name": "شركة الاختبار للتقنية",
+      "assigned_to": "",
+      "internal_notes": "",
+      "created_at": "2026-08-31T22:44:16.582Z",
+      "updated_at": "2026-09-02T22:44:16.582Z"
+    },
+    {
+      "id": "4b3765f9-5c1a-4c19-bd65-1eb7068bb165",
+      "ref": "BP-R-DEMO02",
+      "organization_id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "user_id": "7b2db20a-2404-41ce-b7af-8db1d3fabc95",
+      "type": "CONSULTATION",
+      "source": "WEBSITE",
+      "status": "QUOTE_SENT",
+      "lang": "ar",
+      "title": "استشارة تراخيص نشاط جديد",
+      "summary": "إضافة نشاط تدريب إلى السجل التجاري.",
+      "ai_summary": "",
+      "conversation": [
+        {
+          "role": "user",
+          "content": "أبغى أضيف نشاط تدريب للسجل",
+          "at": "2026-08-28T22:44:16.582Z"
+        }
+      ],
+      "scope": [
+        {
+          "code": "",
+          "title": "فهم الموضوع والحالة الحالية",
+          "why": ""
+        },
+        {
+          "code": "",
+          "title": "تحديد الجهات والمتطلبات ذات العلاقة",
+          "why": ""
+        }
+      ],
+      "attachments": [],
+      "quote": {
+        "number": "Q-DEMO02",
+        "status": "SENT",
+        "items": [
+          {
+            "title": "استشارة تراخيص",
+            "qty": 1,
+            "price": 1500,
+            "code": "",
+            "description": "",
+            "line": 1500.0
+          }
+        ],
+        "net": 1500,
+        "vat": 225,
+        "total": 1725,
+        "valid_until": "2026-09-17",
+        "payment_terms": "دفعة واحدة",
+        "notes": "",
+        "sent_at": "2026-09-01T22:44:16.582Z"
+      },
+      "contract": null,
+      "appointment": null,
+      "payment": null,
+      "invoice": null,
+      "client_name": "عميل تجريبي",
+      "client_email": "client@test.local",
+      "client_phone": "0500000000",
+      "company_name": "شركة الاختبار للتقنية",
+      "assigned_to": "",
+      "internal_notes": "",
+      "created_at": "2026-08-28T22:44:16.582Z",
+      "updated_at": "2026-09-01T22:44:16.582Z"
+    },
+    {
+      "id": "174838c3-53a6-41c7-a60f-72c69eb1f704",
+      "ref": "BP-R-DEMO03",
+      "organization_id": "31c1fef8-8ead-4007-acb1-3044a6b9dd29",
+      "user_id": null,
+      "type": "COMPANY_FORMATION",
+      "source": "WHATSAPP",
+      "status": "NEW",
+      "lang": "ar",
+      "title": "تأسيس فرع لشركة أجنبية",
+      "summary": "مستثمر يريد فرعاً لشركة إماراتية في الرياض.",
+      "ai_summary": "",
+      "conversation": [
+        {
+          "role": "user",
+          "content": "نبغى نفتح فرع لشركتنا في الرياض",
+          "at": "2026-09-02T22:44:16.582Z"
+        }
+      ],
+      "scope": [
+        {
+          "code": "",
+          "title": "تحديد مسار التأسيس",
+          "why": ""
+        },
+        {
+          "code": "",
+          "title": "إجراءات التأسيس والسجل وعقد التأسيس",
+          "why": ""
+        }
+      ],
+      "attachments": [],
+      "quote": null,
+      "contract": null,
+      "appointment": null,
+      "payment": null,
+      "invoice": null,
+      "client_name": "سعود الحربي",
+      "client_email": "lead@test.local",
+      "client_phone": "0555555555",
+      "company_name": "مؤسسة نماء التجارية",
+      "assigned_to": "",
+      "internal_notes": "",
+      "created_at": "2026-09-02T22:44:16.582Z",
+      "updated_at": "2026-09-02T22:44:16.582Z"
+    }
+  ],
+  "request_events": [
+    {
+      "id": "976efa3b-89e6-4cf7-830f-8e516293cd6b",
+      "request_id": "d0535cfa-2d20-4e2b-b5af-211ebe0b27ff",
+      "actor_kind": "customer",
+      "actor": "عميل تجريبي",
+      "event": "request.created",
+      "details": null,
+      "created_at": "2026-08-31T22:44:16.582Z"
+    },
+    {
+      "id": "c345cc8c-73ba-43bd-877a-1538a4182394",
+      "request_id": "d0535cfa-2d20-4e2b-b5af-211ebe0b27ff",
+      "actor_kind": "ai",
+      "actor": "المستشار الذكي",
+      "event": "scope.proposed",
+      "details": null,
+      "created_at": "2026-08-31T22:44:16.582Z"
+    },
+    {
+      "id": "e6df9878-57c8-4df2-9f57-a6959db44c89",
+      "request_id": "4b3765f9-5c1a-4c19-bd65-1eb7068bb165",
+      "actor_kind": "customer",
+      "actor": "عميل تجريبي",
+      "event": "request.created",
+      "details": null,
+      "created_at": "2026-08-28T22:44:16.582Z"
+    },
+    {
+      "id": "7a386e79-339e-4b66-ad3f-8ed19200b213",
+      "request_id": "4b3765f9-5c1a-4c19-bd65-1eb7068bb165",
+      "actor_kind": "human",
+      "actor": "مسؤول العمليات",
+      "event": "quote.sent",
+      "details": null,
+      "created_at": "2026-09-01T22:44:16.582Z"
+    },
+    {
+      "id": "f587ae31-8dde-45af-91ea-d46c82cc809c",
+      "request_id": "174838c3-53a6-41c7-a60f-72c69eb1f704",
+      "actor_kind": "system",
+      "actor": "whatsapp",
+      "event": "request.created",
+      "details": null,
+      "created_at": "2026-09-02T22:44:16.582Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "8eacd705-b196-45c7-a1b2-6a8425f67405",
+      "organization_id": "2fcd5b83-144c-4434-be82-aac28b9e19c6",
+      "request_id": "d0535cfa-2d20-4e2b-b5af-211ebe0b27ff",
+      "title": "مراجعة حساب قوى للعميل",
+      "details": "تحقق من حالة النطاقات قبل الرد",
+      "assignee": "bp",
+      "source": "manual",
+      "status": "open",
+      "urgency": "soon",
+      "priority": "high",
+      "human_action": true,
+      "assigned_to": "",
+      "due_at": "2026-09-04T22:44:16.582Z",
+      "created_at": "2026-08-31T22:44:16.582Z",
+      "completed_at": null
+    },
+    {
+      "id": "094d8db1-97d9-4d70-a05a-f85ec199347a",
+      "organization_id": "31c1fef8-8ead-4007-acb1-3044a6b9dd29",
+      "request_id": "174838c3-53a6-41c7-a60f-72c69eb1f704",
+      "title": "تجهيز عرض سعر التأسيس",
+      "details": "فرع شركة أجنبية — الرياض",
+      "assignee": "bp",
+      "source": "manual",
+      "status": "open",
+      "urgency": "normal",
+      "priority": "normal",
+      "human_action": true,
+      "assigned_to": "",
+      "due_at": "2026-09-06T22:44:16.582Z",
+      "created_at": "2026-09-02T22:44:16.582Z",
+      "completed_at": null
+    }
+  ],
+  "notifications": [],
+  "audit_logs": [],
+  "support_tickets": [],
+  "ticket_messages": []
+}

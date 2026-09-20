@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 import { useActionState } from 'react';
 import { actionCreateInvoice } from '@/app/actions';
@@ -54,7 +55,7 @@ export function NewInvoiceForm({ clients }: { clients: { id: string; label: stri
         <button className="btn" type="submit" disabled={pending}>
           {pending ? 'جارٍ الإصدار' : 'أصدر الفاتورة'}
         </button>
-        <a className="btn ghost" href="/admin/invoices">إلغاء</a>
+        <Link className="btn ghost" href="/admin/invoices">إلغاء</Link>
       </div>
     </form>
   );

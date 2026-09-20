@@ -38,11 +38,18 @@ type SitePackage = {
 
 type SiteCatalog = { services?: SiteService[]; packages?: SitePackage[] };
 
-/** السعر مفتوح متى كان الرقم المنشور بداية سعر لا سعراً نهائياً. */
+/**
+ * السعر مفتوح فقط حين لا يوجد رقم معلن، أو حين يكون التسعير نسبة من قيمة
+ * الصفقة فلا يُعرف رقمه قبل معرفتها.
+ *
+ * «يبدأ من» لم تعد سعراً مفتوحاً بقرار المالك (٢٥ أغسطس ٢٠٢٦): الرقم المنشور
+ * على الموقع هو السعر، والزيادة — إن وُجدت — تُضاف كبند مستقل في العرض.
+ * أثرها المباشر: كل خدمة وباقة عليها رقم صارت تُصدر عرضها تلقائياً.
+ */
 function isOpenPrice(pricingModel: string | undefined, amount: number | null | undefined): boolean {
   const m = (pricingModel || '').trim();
   if (!amount || amount <= 0) return true;
-  return m === 'Requires Proposal' || m === 'Starting From' || m === 'Percent';
+  return m === 'Requires Proposal' || m === 'Percent' || m === 'Custom Pricing';
 }
 
 function unitFor(pricingModel: string | undefined): { ar: string; en: string } {
@@ -83,6 +90,8 @@ export type CatalogRow = {
     paymentTermsEn: string;
     deliveryAr: string;
     deliveryEn: string;
+  siteSlug: string | null;
+  govPlatform: string | null;
   sortOrder: number;
 };
 
@@ -112,6 +121,8 @@ export function buildRows(cat: SiteCatalog): CatalogRow[] {
       paymentTermsEn: terms.en,
       deliveryAr: '10 أيام عمل',
       deliveryEn: '10 working days',
+      siteSlug: `/services/${code.toLowerCase()}`,
+      govPlatform: s.govPlatform ? String(s.govPlatform).trim() : null,
       sortOrder: 200,
     });
   }
@@ -131,13 +142,15 @@ export function buildRows(cat: SiteCatalog): CatalogRow[] {
       unitPrice: Number(p.amount) > 0 ? Number(p.amount) : 0,
       unitAr: monthly ? 'شهرياً' : 'سنوياً',
       unitEn: monthly ? 'per month' : 'per year',
-      // أرقام الباقات معلنة كـ«يبدأ من»، فالسعر النهائي يُحدَّد عند الإصدار.
-      openPrice: true,
+      // سعر الباقة المنشور صار سعراً ثابتاً. الباقة بلا رقم (المؤسسية) وحدها تبقى مفتوحة.
+      openPrice: !(Number(p.amount) > 0),
       attachGovFees: false,
       paymentTermsAr: monthly ? 'يُسدَّد شهرياً مقدماً' : 'يُسدَّد سنوياً مقدماً',
       paymentTermsEn: monthly ? 'Payable monthly in advance' : 'Payable annually in advance',
       deliveryAr: 'يبدأ التنفيذ خلال 3 أيام عمل من الاعتماد',
       deliveryEn: 'Delivery starts within 3 working days of approval',
+      siteSlug: '/packages',
+      govPlatform: null,
       sortOrder: 50,
     });
   }

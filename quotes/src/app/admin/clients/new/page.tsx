@@ -1,6 +1,9 @@
 'use client';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionCreateClient } from '@/app/actions';
+import PhoneField from '@/components/PhoneField';
+import { COUNTRIES } from '@/lib/countries';
 
 export default function NewClient() {
   const [state, action, pending] = useActionState(actionCreateClient, {});
@@ -38,13 +41,14 @@ export default function NewClient() {
             <label htmlFor="email">البريد الإلكتروني *</label>
             <input id="email" name="email" type="email" required dir="ltr" />
           </div>
-          <div>
-            <label htmlFor="phone">جوال واتساب *</label>
-            <input id="phone" name="phone" required dir="ltr" placeholder="0555123456 أو 966555123456" />
-          </div>
+          <PhoneField name="phone" required />
           <div>
             <label htmlFor="country">الدولة</label>
-            <input id="country" name="country" defaultValue="SA" dir="ltr" />
+            <select id="country" name="country" defaultValue="SA">
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.ar}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="city">المدينة</label>
@@ -69,7 +73,7 @@ export default function NewClient() {
         </div>
         <div className="row" style={{ marginTop: 14 }}>
           <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ العميل'}</button>
-          <a className="btn ghost" href="/admin/clients">إلغاء</a>
+          <Link className="btn ghost" href="/admin/clients">إلغاء</Link>
         </div>
         {state.error ? <div className="notice bad">{state.error}</div> : null}
       </form>

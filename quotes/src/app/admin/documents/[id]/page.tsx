@@ -24,7 +24,10 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
     include: {
       client: true,
       deliveries: { orderBy: { sentAt: 'desc' } },
-      envelopes: { orderBy: { createdAt: 'desc' } },
+      envelopes: {
+        orderBy: { createdAt: 'desc' },
+        include: { signatures: { orderBy: { recipientId: 'asc' } } },
+      },
       invoices: { orderBy: { sequence: 'asc' } },
       contract: { select: { id: true, number: true } },
       sourceQuote: { select: { id: true, number: true } },
@@ -149,7 +152,24 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
                   <td className="mono">{e.envelopeId}{e.demo ? <div className="muted">بيئة تجريبية</div> : null}</td>
                   <td><span className="pill">{ENVELOPE_STATUS_LABEL[e.status]?.ar ?? e.status}</span></td>
                   <td style={{ fontSize: 12 }} dir="ltr">
-                    1. {e.clientName} &lt;{e.clientEmail}&gt;<br />2. {e.bpName} &lt;{e.bpEmail}&gt;
+                    {e.signatures.length ? (
+                      // الأثر الفعلي من المنصة يسبق الأسماء المخزّنة عند الإنشاء
+                      e.signatures.map((g) => (
+                        <div key={g.id} style={{ marginBottom: 4 }}>
+                          {g.recipientId}. {g.name} &lt;{g.email}&gt;
+                          <div className="muted">
+                            {g.signedAt
+                              ? `وقّع ${fmtDateTime(g.signedAt, 'ar')}`
+                              : g.declinedAt
+                                ? `رفض ${fmtDateTime(g.declinedAt, 'ar')}`
+                                : 'لم يوقّع بعد'}
+                            {g.ipAddress ? ` — ${g.ipAddress}` : ''}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <>1. {e.clientName} &lt;{e.clientEmail}&gt;<br />2. {e.bpName} &lt;{e.bpEmail}&gt;</>
+                    )}
                   </td>
                   <td className="num">
                     {e.status !== 'completed' && e.clientClientUserId ? (

@@ -1,37 +1,103 @@
 {
-  "_readme": "قوالب رسائل البريد والواتساب. المتغيرات بين {{ }}. ممنوع الإيموجي والأيقونات في كل ما يصل العميل.",
+  "_readme": "قوالب رسائل البريد والواتساب. المتغيرات بين {{ }}. ممنوع الإيموجي والأيقونات في كل ما يصل العميل. الرسالة نص قصير فقط: البنود والمبالغ والأزرار تُبنى في mail-layout.ts من بيانات المستند نفسه، فلا تُكتب هنا مرتين.",
   "email": {
     "quote": {
       "subject": {
         "en": "Quotation {{number}} — Business Partner Solutions Company",
         "ar": "عرض سعر رقم {{number}} — شركة بزنس بارتنر سلوشنز"
       },
-      "bodyEn": "Dear {{clientName}},\n\nThank you for your interest in Business Partner Solutions Company. Please find below our quotation {{number}} for the services requested.\n\n{{itemsPlain}}\n\nSubtotal (excluding VAT): SAR {{subtotal}}\nValue added tax 15%: SAR {{vatAmount}}\nTotal including VAT: SAR {{total}}\n\nGovernment fees are excluded and are paid directly to the competent authorities at actual cost.\nThis quotation is valid until {{validUntil}}.\n\nYou may review the full bilingual quotation, download it as a PDF and accept it online here:\n{{link}}\n\nThe quotation in PDF form is attached to this message.\n\nKind regards,\n{{repNameEn}}\n{{repTitleEn}}\nBusiness Partner Solutions Company\n{{phone}} — {{email}}\n{{website}}",
-      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتحية طيبة وبعد،\n\nنشكر لكم اهتمامكم بشركة بزنس بارتنر سلوشنز، ونرفق لكم عرض السعر رقم {{number}} للخدمات المطلوبة.\n\n{{itemsPlainAr}}\n\nالمجموع غير شامل ضريبة القيمة المضافة: {{subtotal}} ريال سعودي\nضريبة القيمة المضافة 15%: {{vatAmount}} ريال سعودي\nالإجمالي شامل الضريبة: {{total}} ريال سعودي\n\nالرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.\nهذا العرض صالح حتى تاريخ {{validUntil}}.\n\nيمكنكم الاطلاع على العرض كاملاً وتنزيله بصيغة PDF وقبوله إلكترونياً عبر الرابط التالي:\n{{link}}\n\nونرفق نسخة PDF من العرض مع هذه الرسالة.\n\nوتفضلوا بقبول فائق الاحترام،\n{{repNameAr}}\n{{repTitleAr}}\nشركة بزنس بارتنر سلوشنز\n{{phone}} — {{email}}\n{{website}}"
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "نشكر لكم اهتمامكم بشركة بزنس بارتنر سلوشنز، ونرفق لكم عرض السعر رقم {{number}} للخدمات المطلوبة. العرض كاملاً بالعربية والإنجليزية في المرفق وعبر الرابط أدناه، ويمكنكم قبوله إلكترونياً من الصفحة نفسها.",
+      "cta": "الاطلاع على العرض وقبوله",
+      "notes": [
+        "هذا العرض صالح حتى تاريخ {{validUntil}}.",
+        "نسخة العرض بصيغة PDF مرفقة مع هذه الرسالة."
+      ],
+      "enHeading": "Quotation summary",
+      "enCta": "Review and accept the quotation"
     },
     "contract": {
       "subject": {
         "en": "Services Agreement {{number}} — Business Partner Solutions Company",
         "ar": "عقد خدمات رقم {{number}} — شركة بزنس بارتنر سلوشنز"
       },
-      "bodyEn": "Dear {{clientName}},\n\nPlease find below the services agreement {{number}}, issued in accordance with the quotation you approved.\n\nTotal fees excluding VAT: SAR {{subtotal}}\nValue added tax 15%: SAR {{vatAmount}}\nTotal including VAT: SAR {{total}}\n\nGovernment fees are excluded and are paid directly to the competent authorities at actual cost.\n\nYou may review the full bilingual agreement and download it as a PDF here:\n{{link}}\n\nA request for electronic signature will reach you separately.\n\nKind regards,\n{{repNameEn}}\n{{repTitleEn}}\nBusiness Partner Solutions Company\n{{phone}} — {{email}}\n{{website}}",
-      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتحية طيبة وبعد،\n\nنرفق لكم عقد الخدمات رقم {{number}} الصادر وفق عرض السعر المعتمد من طرفكم.\n\nإجمالي الأتعاب غير شامل ضريبة القيمة المضافة: {{subtotal}} ريال سعودي\nضريبة القيمة المضافة 15%: {{vatAmount}} ريال سعودي\nالإجمالي شامل الضريبة: {{total}} ريال سعودي\n\nالرسوم الحكومية مستثناة وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية.\n\nيمكنكم الاطلاع على العقد كاملاً وتنزيله بصيغة PDF عبر الرابط التالي:\n{{link}}\n\nوسيصلكم طلب التوقيع الإلكتروني في رسالة منفصلة.\n\nوتفضلوا بقبول فائق الاحترام،\n{{repNameAr}}\n{{repTitleAr}}\nشركة بزنس بارتنر سلوشنز\n{{phone}} — {{email}}\n{{website}}"
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "نرفق لكم عقد الخدمات رقم {{number}} الصادر وفق عرض السعر المعتمد من طرفكم. العقد كاملاً بالعربية والإنجليزية في المرفق وعبر الرابط أدناه.",
+      "cta": "الاطلاع على العقد",
+      "notes": [
+        "سيصلكم طلب التوقيع الإلكتروني في رسالة منفصلة.",
+        "نسخة العقد بصيغة PDF مرفقة مع هذه الرسالة."
+      ],
+      "enHeading": "Agreement summary",
+      "enCta": "Review the agreement"
+    },
+    "invoice": {
+      "subject": {
+        "en": "Invoice {{number}} — Business Partner Solutions Company",
+        "ar": "فاتورة رقم {{number}} — شركة بزنس بارتنر سلوشنز"
+      },
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "نرفق لكم الفاتورة رقم {{number}} عن {{title}}. يمكنكم السداد إلكترونياً عبر الرابط أدناه، وخيار التحويل البنكي متاح في الصفحة نفسها.",
+      "cta": "سداد الفاتورة",
+      "notes": [],
+      "enHeading": "Invoice summary",
+      "enCta": "Pay online"
+    },
+    "paymentReceipt": {
+      "subject": {
+        "en": "Payment received — invoice {{number}}",
+        "ar": "تم استلام السداد — الفاتورة رقم {{number}}"
+      },
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "نفيدكم باستلام سداد الفاتورة رقم {{number}} عن {{title}}. هذه الرسالة إشعار بالاستلام، والفاتورة الضريبية المعتمدة مبيّنة أدناه.",
+      "cta": "فتح بوابة العميل",
+      "notes": [
+        "لا يلزمكم أي إجراء إضافي بخصوص هذه الفاتورة."
+      ],
+      "enHeading": "Payment confirmation",
+      "enCta": "Open your client portal"
+    },
+    "quoteRequest": {
+      "subject": {
+        "en": "Request received {{number}} — Business Partner Solutions Company",
+        "ar": "تم استلام طلبكم رقم {{number}} — شركة بزنس بارتنر سلوشنز"
+      },
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "وصلنا طلبكم بخصوص {{serviceName}}. هذه الخدمة تُسعَّر حسب الحالة، فيُعدّ لها عرض سعر خاص ويصلكم على بريدكم هذا.",
+      "cta": "متابعة الطلب في بوابة العميل",
+      "notes": [
+        "احتفظوا برقم الطلب أعلاه للرجوع إليه في أي مراسلة بيننا.",
+        "لا يلزمكم أي إجراء الآن، وسنتواصل معكم إن احتجنا معلومة إضافية."
+      ],
+      "enHeading": "Request summary",
+      "enCta": "Track your request"
     },
     "portalInvite": {
       "subject": {
         "en": "Your client portal access — Business Partner Solutions Company",
         "ar": "رابط الدخول إلى بوابة العميل — شركة بزنس بارتنر سلوشنز"
       },
-      "bodyEn": "Dear {{clientName}},\n\nUse the secure link below to open your client portal. There you can review your quotations, agreements, attachments, invoices and wallet.\n\n{{link}}\n\nThe link is valid for {{validMinutes}} minutes and opens your portal without a password.\n\nKind regards,\nBusiness Partner Solutions Company",
-      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتفضلوا رابط الدخول الآمن إلى بوابة العميل، وفيها عروض الأسعار والعقود والمرفقات والفواتير والمحفظة.\n\n{{link}}\n\nالرابط صالح لمدة {{validMinutes}} دقيقة ويفتح البوابة دون كلمة مرور.\n\nوتفضلوا بقبول فائق الاحترام،\nشركة بزنس بارتنر سلوشنز"
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "تفضلوا رابط الدخول الآمن إلى بوابة العميل، وفيها عروض الأسعار والعقود والمرفقات والفواتير والمحفظة.",
+      "cta": "الدخول إلى البوابة",
+      "notes": [
+        "الرابط صالح لمدة {{validMinutes}} دقيقة ويفتح البوابة دون كلمة مرور.",
+        "إن لم تكونوا من طلب هذا الرابط فتجاهلوا هذه الرسالة، ولن يُفتح شيء من حسابكم."
+      ],
+      "enHeading": "Client portal access",
+      "enCta": "Open the portal"
     },
     "signedCopy": {
       "subject": {
         "en": "Signed agreement {{number}} and Certificate of Completion",
         "ar": "العقد الموقّع رقم {{number}} وشهادة الإتمام"
       },
-      "bodyEn": "Dear {{clientName}},\n\nThe agreement {{number}} has been signed by both parties. The final signed copy and the Certificate of Completion are attached to this message and archived in your client folder.\n\nKind regards,\nBusiness Partner Solutions Company",
-      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتم توقيع العقد رقم {{number}} من الطرفين. مرفق مع هذه الرسالة النسخة الموقّعة النهائية وشهادة الإتمام، وقد حُفظت نسخة منهما في مجلد العميل.\n\nوتفضلوا بقبول فائق الاحترام،\nشركة بزنس بارتنر سلوشنز"
+      "greeting": "السادة / {{clientName}} المحترمين",
+      "intro": "تم توقيع العقد رقم {{number}} من الطرفين. مرفق مع هذه الرسالة النسخة الموقّعة النهائية وشهادة الإتمام، وقد حُفظت نسخة منهما في مجلد العميل لديكم في البوابة.",
+      "cta": "فتح بوابة العميل",
+      "notes": [],
+      "enHeading": "Signed agreement",
+      "enCta": "Open your client portal"
     },
     "adminNotice": {
       "subject": {
@@ -39,14 +105,6 @@
         "ar": "[بزنس بارتنر] {{event}} — {{number}}"
       },
       "bodyEn": "Event: {{event}}\nDocument: {{number}}\nClient: {{clientName}}\nTime: {{time}}\nDetails: {{details}}\n\nOpen: {{link}}"
-    },
-    "invoice": {
-      "subject": {
-        "en": "Invoice {{number}} — Business Partner Solutions Company",
-        "ar": "فاتورة رقم {{number}} — شركة بزنس بارتنر سلوشنز"
-      },
-      "bodyEn": "Dear {{clientName}},\n\nPlease find invoice {{number}} for {{title}}.\n\nAmount excluding VAT: SAR {{amount}}\nValue Added Tax 15%: SAR {{vat}}\nTotal due: SAR {{total}}\n\nPay online using the secure link below:\n{{link}}\n\nA bank transfer option is available on the same page.\n\nBusiness Partner Solutions Company",
-      "bodyAr": "السادة / {{clientName}} المحترمين\n\nتحية طيبة وبعد،\n\nنرفق لكم الفاتورة رقم {{number}} عن {{title}}.\n\nالمبلغ غير شامل الضريبة: {{amount}} ريال\nضريبة القيمة المضافة 15%: {{vat}} ريال\nالإجمالي المستحق: {{total}} ريال\n\nيمكنكم السداد إلكترونياً عبر الرابط الآمن التالي:\n{{link}}\n\nوخيار التحويل البنكي متاح في الصفحة نفسها.\n\nشركة بزنس بارتنر سلوشنز"
     }
   },
   "whatsapp": {

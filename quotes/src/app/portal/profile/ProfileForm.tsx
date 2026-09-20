@@ -1,6 +1,8 @@
 'use client';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { actionUpdateOwnProfile } from '@/app/actions';
+import PhoneField from '@/components/PhoneField';
 
 export interface OwnProfile {
   nameAr: string;
@@ -48,10 +50,7 @@ export default function ProfileForm({ profile }: { profile: OwnProfile }) {
           <label htmlFor="nameEn">اسم مسؤول التواصل بالإنجليزي</label>
           <input id="nameEn" name="nameEn" dir="ltr" defaultValue={v(profile.nameEn)} />
         </div>
-        <div>
-          <label htmlFor="phone">جوال واتساب *</label>
-          <input id="phone" name="phone" required dir="ltr" defaultValue={profile.phone} placeholder="0555123456" />
-        </div>
+        <PhoneField name="phone" required defaultValue={profile.phone} />
         <div>
           <label htmlFor="city">المدينة</label>
           <input id="city" name="city" defaultValue={v(profile.city)} />
@@ -76,7 +75,7 @@ export default function ProfileForm({ profile }: { profile: OwnProfile }) {
 
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" type="submit" disabled={pending}>{pending ? 'جارٍ الحفظ' : 'حفظ بياناتي'}</button>
-        <a className="btn ghost" href="/portal">رجوع</a>
+        <Link className="btn ghost" href="/portal">رجوع</Link>
       </div>
       {state.error ? <div className="notice bad">{state.error}</div> : null}
       {state.ok ? <div className="notice good">{state.ok}</div> : null}

@@ -504,3 +504,390 @@ alter table plan_items enable row level security;
 create policy services_public on services for select using (true);
 create policy plans_public on plans for select using (true);
 create policy plan_items_public on plan_items for select using (true);
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-22: automatic document reading. The upload endpoint now runs the
+-- same extraction agent the checkout uses and stores what it read, so the
+-- client's dashboard shows every document parsed (dates, entity, numbers)
+-- and services can be bought with the company's own data pre-filled.
+alter table documents add column if not exists issue_date date;
+alter table documents add column if not exists extracted jsonb;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-23: escrow between client and supplier + supplier wallet.
+-- The client funds an escrow from their wallet (a signed 'payment' ledger row
+-- keyed by the escrow ref); when the client approves delivery, the amount is
+-- credited to the supplier's own ledger. Balances stay derived, never stored.
+create table if not exists escrows (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,
+  organization_id uuid not null references organizations(id) on delete cascade,
+  client_email text not null,
+  supplier_email text not null,
+  supplier_name text,
+  title text not null,
+  amount numeric(12,2) not null check (amount > 0),
+  status text not null default 'held' check (status in ('held','released','refund_requested','refunded','cancelled')),
+  note text,
+  created_at timestamptz not null default now(),
+  released_at timestamptz
+);
+create index if not exists escrows_org_idx on escrows(organization_id);
+create index if not exists escrows_supplier_idx on escrows(supplier_email);
+alter table escrows enable row level security;
+
+create table if not exists supplier_wallet_transactions (
+  id uuid primary key default gen_random_uuid(),
+  supplier_email text not null,
+  type text not null check (type in ('escrow_release','withdrawal','adjustment')),
+  amount numeric(12,2) not null,      -- signed: release > 0, withdrawal < 0
+  note text,
+  created_at timestamptz not null default now()
+);
+create index if not exists supplier_tx_email_idx on supplier_wallet_transactions(supplier_email);
+alter table supplier_wallet_transactions enable row level security;
+create or replace view supplier_wallet_balances as
+  select supplier_email, coalesce(sum(amount),0)::numeric(14,2) as balance
+  from supplier_wallet_transactions group by supplier_email;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-23 (b): escrow becomes a two-sided handshake, like freelance
+-- marketplaces. The supplier declares delivery (delivered_at), the client
+-- approves receipt to release; a refund reaches the client only with the
+-- supplier's consent or a Business Partner decision. Every step is stamped.
+alter table escrows drop constraint if exists escrows_status_check;
+alter table escrows add constraint escrows_status_check
+  check (status in ('held','delivered','refund_requested','released','refunded','cancelled'));
+alter table escrows add column if not exists delivered_at timestamptz;
+alter table escrows add column if not exists supplier_note text;
+
+-- 2026-08-24: n8n-driven automation timers. refund_requested_at anchors the
+-- auto-refund deadline (supplier silence on an UNDELIVERED job = consent);
+-- delivered_at already anchors auto-release (client silence = acceptance).
+alter table escrows add column if not exists refund_requested_at timestamptz;
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-27: الوكيل الذكي للمستندات (AI Document Agent).
+-- A request = one conversation-first case: the client uploads source documents
+-- (CR, AOA, IDs, bank letters…) and target forms (vendor/AML/KYC/NDA…); the
+-- agent classifies, extracts, reconciles across documents, maps form fields,
+-- asks only for what is missing, fills, stamps, QA-checks and packages.
+-- Every extracted value keeps its provenance (document, page, confidence,
+-- status) — nothing is ever assumed for legal declarations (PEP, sanctions…).
+-- Channel-agnostic: the same request continues across website, portal and
+-- WhatsApp through one conversation id.
+
+create table if not exists doc_agent_requests (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,                 -- DOC-###### (server-generated)
+  organization_id uuid references organizations(id) on delete cascade,
+  user_id uuid references users(id),
+  contact text,                             -- email/phone for pre-login WhatsApp cases
+  channel text not null default 'web' check (channel in ('web','portal','whatsapp','consultant')),
+  locale text not null default 'ar',
+  status text not null default 'NEW' check (status in
+    ('NEW','UPLOADING','ANALYZING','EXTRACTING','MAPPING','WAITING_FOR_CLIENT',
+     'READY_TO_GENERATE','GENERATING','QA','READY','DELIVERED','REVISION','COMPLETED')),
+  title text,
+  checklist jsonb not null default '[]',    -- requirement list parsed from emails/screenshots
+  fill_color text not null default 'blue' check (fill_color in ('blue','black','original')),
+  signature_mode text not null default 'leave_blank' check (signature_mode in
+    ('leave_blank','typed_electronic','external_esign')),
+  stamp_document_id uuid references documents(id),   -- transparent PNG stamp asset
+  qa_report jsonb,
+  package_storage_key text,                 -- final ZIP in the documents bucket
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  delivered_at timestamptz
+);
+create index if not exists doc_agent_requests_org_idx on doc_agent_requests(organization_id);
+create index if not exists doc_agent_requests_contact_idx on doc_agent_requests(contact);
+
+-- Every uploaded file, auto-classified. Bytes live in the documents vault
+-- (Supabase Storage, signed URLs only); rows here carry the agent's reading.
+create table if not exists doc_agent_files (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  document_id uuid references documents(id),         -- vault reuse across requests
+  role text not null default 'unknown' check (role in
+    ('source','target_form','supporting','signature_asset','stamp_asset','requirement','unknown')),
+  doc_kind text,                            -- cr/aoa/vat/bank/id/passport/license/form/…
+  file_name text not null,
+  mime text, size_bytes bigint, storage_key text not null,
+  pages int,
+  language text,                            -- dominant language detected (ar/en/…)
+  expiry_status text not null default 'UNKNOWN' check (expiry_status in
+    ('VALID','EXPIRING_SOON','EXPIRED','UNKNOWN')),
+  expiry_date date,
+  field_map jsonb,                          -- for target forms: detected fields/checkboxes/tables
+  extracted jsonb,                          -- for sources: raw extraction payload
+  analysis_note text,
+  created_at timestamptz not null default now()
+);
+create index if not exists doc_agent_files_req_idx on doc_agent_files(request_id);
+
+-- The unified client data profile: one row per fact, with provenance.
+-- Reconciliation rule: newest official source wins; conflicts are surfaced,
+-- never auto-resolved; legal declarations enter only as CLIENT_CONFIRMED.
+create table if not exists doc_agent_facts (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid references doc_agent_requests(id) on delete cascade,
+  organization_id uuid references organizations(id) on delete cascade,  -- vault-level reuse
+  fact_group text not null,                 -- company/people/ownership/banking/addresses/licenses/tax/employment/declarations
+  fact_key text not null,                   -- e.g. company.cr_number, people[0].name_en, banking.iban
+  value text,
+  value_lang text,                          -- keep official names untranslated per language
+  source_file_id uuid references doc_agent_files(id) on delete set null,
+  source_page int,
+  source_document_date date,
+  confidence text not null default 'MEDIUM' check (confidence in ('HIGH','MEDIUM','LOW')),
+  status text not null default 'INFERRED' check (status in
+    ('VERIFIED','CLIENT_CONFIRMED','INFERRED','CONFLICT','MISSING')),
+  conflict_with jsonb,                      -- [{value, source_file_id, document_date}] when CONFLICT
+  confirmed_via text,                       -- web/portal/whatsapp when CLIENT_CONFIRMED
+  confirmed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists doc_agent_facts_req_idx on doc_agent_facts(request_id);
+create index if not exists doc_agent_facts_org_key_idx on doc_agent_facts(organization_id, fact_key);
+
+-- Chat transcript for the request — the same thread whatever the channel,
+-- and the consultant dashboard's audit view of every question and answer.
+create table if not exists doc_agent_messages (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  author text not null check (author in ('client','agent','consultant','system')),
+  channel text not null default 'web' check (channel in ('web','portal','whatsapp','consultant')),
+  body text not null,
+  attachments uuid[],                       -- doc_agent_files ids
+  actions jsonb,                            -- structured effects applied (field edits, checkbox sets…)
+  created_at timestamptz not null default now()
+);
+create index if not exists doc_agent_messages_req_idx on doc_agent_messages(request_id, created_at);
+
+-- Generated deliverables: filled forms, ownership charts, the final package.
+-- version_no is append-only like document_versions — a REVISION never
+-- overwrites what was already delivered.
+create table if not exists doc_agent_outputs (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references doc_agent_requests(id) on delete cascade,
+  source_form_file_id uuid references doc_agent_files(id) on delete set null,
+  kind text not null default 'filled_form' check (kind in
+    ('filled_form','ownership_chart','package_zip','other')),
+  delivery_name text not null,              -- client-facing name from the checklist, never FINAL_v2
+  storage_key text not null,
+  mime text, size_bytes bigint,
+  version_no int not null default 1,
+  fill_summary jsonb,                       -- fields filled + their fact ids (blue-data trace)
+  qa_status text not null default 'pending' check (qa_status in ('pending','passed','failed','waived')),
+  qa_findings jsonb,
+  created_at timestamptz not null default now(),
+  unique (request_id, delivery_name, version_no)
+);
+create index if not exists doc_agent_outputs_req_idx on doc_agent_outputs(request_id);
+
+alter table doc_agent_requests enable row level security;
+alter table doc_agent_files enable row level security;
+alter table doc_agent_facts enable row level security;
+alter table doc_agent_messages enable row level security;
+alter table doc_agent_outputs enable row level security;
+create policy doc_agent_requests_read on doc_agent_requests for select using (organization_id in (select current_org_ids()));
+create policy doc_agent_files_read on doc_agent_files for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+create policy doc_agent_facts_read on doc_agent_facts for select using (organization_id in (select current_org_ids()));
+create policy doc_agent_messages_read on doc_agent_messages for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+create policy doc_agent_outputs_read on doc_agent_outputs for select using (request_id in (select id from doc_agent_requests where organization_id in (select current_org_ids())));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-28: الوكيل الذكي للمستندات — تجربة مجانية ١٤ يوماً لكل منشأة.
+-- الخدمة صارت داخل بوابة العميل بلا شراء: أول استخدام يبدأ العدّاد (لا تاريخ
+-- التسجيل — فالعميل القديم يستحق تجربته كاملة يوم يفتحها أول مرة)، وبعد
+-- انتهائها يبقى كل ما أُنتج محفوظاً ويُطلب الاشتراك للتوليد الجديد.
+alter table organizations add column if not exists doc_agent_trial_started_at timestamptz;
+
+-- 2026-08-31: الوكيل الذكي للمستندات — توقيع العميل وختم المنشأة.
+-- التوقيع والختم يُحفظان مرة واحدة على مستوى المنشأة ويُعاد استخدامهما في كل
+-- طلب لاحق. الموافقة الصريحة (signature_consent_at) شرط لتطبيق التوقيع: بلا
+-- تاريخ موافقة لا يُختم أي مستند بتوقيع العميل.
+alter table organizations add column if not exists signature_storage_key text;
+alter table organizations add column if not exists signature_mime text;
+alter table organizations add column if not exists signature_consent_at timestamptz;
+alter table organizations add column if not exists signature_updated_at timestamptz;
+alter table organizations add column if not exists stamp_storage_key text;
+alter table organizations add column if not exists stamp_mime text;
+alter table organizations add column if not exists stamp_updated_at timestamptz;
+
+-- 'client_image' يطبّق صورة توقيع العميل المحفوظة على حقول التوقيع في النموذج.
+alter table doc_agent_requests drop constraint if exists doc_agent_requests_signature_mode_check;
+alter table doc_agent_requests add constraint doc_agent_requests_signature_mode_check
+  check (signature_mode in ('leave_blank','typed_electronic','external_esign','client_image'));
+alter table doc_agent_requests add column if not exists stamp_mode text not null default 'auto'
+  check (stamp_mode in ('auto','off'));
+
+-- ---------------------------------------------------------------------------
+-- 2026-08-31: ملف تطوير الأعمال للعميل — مُدخل المطابقة.
+--
+-- العميل يكتب ماذا يبيع، ويرفق بروفايل منشأته، ويحدد القطاعات والمدن التي
+-- يستهدفها. هذه هي البيانات التي تُطابَق عليها قاعدة الشركات
+-- (قاعدة الشركات — مبيعات في نوشن، تخدمها /api/pay?resource=leads).
+--
+-- القطاعات والمدن تُخزَّن بالقيمة الإنجليزية الحرفية التي تُرشِّح بها نوشن،
+-- لا بالنص العربي الذي يراه العميل — انظر api/_bdprofile.js. النص العربي
+-- عرضٌ فقط، وتخزينه هنا يعني مطابقةً لا تُرجع شيئاً أبداً.
+--
+-- صفٌّ واحد لكل منشأة: البروفايل ملك المنشأة لا الموظف الذي كتبه.
+create table if not exists bd_profiles (
+  organization_id uuid primary key references organizations(id) on delete cascade,
+  services_text text,                       -- ماذا يبيع، بكلماته هو
+  ideal_customer text,                      -- وصف العميل المثالي
+  target_sectors text[] not null default '{}',  -- قيم Sector الحرفية
+  target_cities  text[] not null default '{}',  -- قيم City الحرفية
+  profile_path text,                        -- مسار البروفايل في المخزن
+  profile_name text,
+  profile_bytes int,
+  extracted jsonb,                          -- ما استخرجه القارئ من البروفايل
+  completeness int not null default 0 check (completeness between 0 and 100),
+  notified_at timestamptz,                  -- أول اكتمال أُشعر به المالك
+  created_by uuid references users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists bd_profiles_sectors_idx on bd_profiles using gin (target_sectors);
+
+alter table bd_profiles enable row level security;
+create policy bd_profiles_read on bd_profiles for select using (organization_id in (select current_org_ids()));
+
+-- ================================================================ Simple V1 --
+-- 2026-09-02: one request per customer need, carrying its whole transaction
+-- (conversation → scope → quote → contract → payment → invoice) as JSON
+-- snapshots on the row, so the client portal and the operations dashboard
+-- read one record. organization_id is nullable on purpose: a request phoned
+-- in before the client registered is attached the first time that e-mail
+-- signs in (api/_simple.js `me`). Tasks link back through tasks.request_id.
+create table if not exists requests (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null unique,                       -- BP-R-XXXXXX
+  organization_id uuid references organizations(id),
+  user_id uuid references users(id),
+  type text not null check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION')),
+  source text not null default 'WEBSITE' check (source in ('WEBSITE','WHATSAPP','EMAIL','PHONE','AI_ASSISTANT','MANUAL','REFERRAL')),
+  status text not null default 'NEW' check (status in ('NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','QUOTE_APPROVED','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','PAID','IN_PROGRESS','WAITING_INTERNAL','COMPLETED','CANCELLED')),
+  lang text not null default 'ar',
+  title text not null,
+  summary text,
+  ai_summary text,
+  conversation jsonb not null default '[]'::jsonb,   -- [{role:user|assistant|bp|system, content, at}]
+  scope jsonb not null default '[]'::jsonb,          -- [{code, title, why, qty}]
+  attachments jsonb not null default '[]'::jsonb,    -- [{name, url, note, at, by}]
+  quote jsonb,        -- {number, status, items[], net, vat, total, valid_until, payment_terms, notes, sent_at, decided_at}
+  contract jsonb,     -- {number, status, html, sent_at, signed_at, signature{name,email,ip,ua,at,contract_sha256,mode}}
+  appointment jsonb,  -- {date, time, tz, topic, status, ref, gcal}
+  payment jsonb,      -- {status, provider, ref, amount, currency, at, test}
+  invoice jsonb,      -- {number, mode, net, vat, total, issued_at, items[], bill_to}
+  client_name text, client_email text, client_phone text, company_name text,
+  assigned_to text,
+  internal_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists requests_org_idx on requests(organization_id);
+create index if not exists requests_email_idx on requests(client_email);
+create index if not exists requests_status_idx on requests(status);
+
+create table if not exists request_events (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references requests(id) on delete cascade,
+  actor_kind text not null check (actor_kind in ('ai','human','customer','system','internal')),
+  actor text,
+  event text not null,        -- request.created / scope.proposed / quote.sent / contract.signed / payment.paid / task.human_required …
+  details jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists request_events_req_idx on request_events(request_id, created_at);
+
+-- المستندات التي نطلبها من العميل لهذا الطلب. لكل خدمة نطاقها ومستنداتها،
+-- ويخرجها المستشار مع النطاق في الكتلة نفسها (needs) — كانت تُنتج ثم تُهمل.
+-- [{title, note, status: requested|received|waived, at}]
+alter table requests add column if not exists documents jsonb not null default '[]'::jsonb;
+
+alter table tasks add column if not exists request_id uuid references requests(id) on delete set null;
+alter table tasks add column if not exists human_action boolean not null default false;  -- «يحتاج تدخل بشري»
+alter table tasks add column if not exists priority text not null default 'normal' check (priority in ('low','normal','high','urgent'));
+alter table tasks add column if not exists assigned_to text;
+create index if not exists tasks_request_idx on tasks(request_id);
+create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');
+
+-- ---------------------------------------------------------------------------
+-- بوابة وكيل واتساب: من يردّ على هذا الرقم — الآلة أم إنسان؟
+--
+-- الروبوت على n8n يردّ على كل رسالة. حين يمسك موظف محادثة (عميل غاضب، حالة
+-- خاصة، صفقة تُقفل بالكلام) فردّ آلي في وسط الكلام يفسدها. هذا الجدول هو
+-- المفتاح: صفٌّ لكل رقم موقوف، والصف '*' يوقف الوكيل كله.
+--
+-- الافتراضي = لا صفّ = الوكيل يعمل. غياب الجدول أو تعذّر قراءته يعني كذلك
+-- «يعمل»: العطل يوقف التحكّم لا الخدمة.
+create table if not exists wa_agent_gate (
+  phone text primary key,                       -- أرقام فقط، أو '*' للمفتاح العام
+  paused boolean not null default true,
+  reason text,
+  actor text,
+  until timestamptz,                            -- استئناف تلقائي بعد هذا الوقت (null = يدوي)
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- 2026-09-16: Job recruitment system — integrated ATS for employer portal.
+-- Job postings are owned by organizations. Employers can post jobs for their
+-- organization; admins see all jobs across all organizations.
+--
+create table if not exists job_postings (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  title text not null,
+  description text not null,
+  requirements text,
+  salary_min numeric(10,2),
+  salary_max numeric(10,2),
+  city text not null default 'الرياض',
+  employment_type text not null default 'full_time' check (employment_type in ('full_time','part_time','contract','temporary')),
+  experience_level text check (experience_level in ('entry','mid','senior','executive')),
+  status text not null default 'active' check (status in ('draft','active','closed','archived')),
+  posted_by uuid references users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+create index if not exists job_postings_org_idx on job_postings(organization_id);
+create index if not exists job_postings_status_idx on job_postings(status);
+
+-- Job applications — candidates applying to job postings
+create table if not exists job_applications (
+  id uuid primary key default gen_random_uuid(),
+  job_posting_id uuid not null references job_postings(id) on delete cascade,
+  organization_id uuid not null references organizations(id) on delete cascade,
+  applicant_name text not null,
+  applicant_email text not null,
+  applicant_phone text,
+  cv_text text,
+  cover_letter text,
+  status text not null default 'received' check (status in ('received','reviewed','shortlisted','interviewed','offered','rejected','withdrawn')),
+  rating numeric(2,1) check (rating between 1 and 5),
+  notes text,
+  applied_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references users(id)
+);
+create index if not exists job_applications_job_idx on job_applications(job_posting_id);
+create index if not exists job_applications_org_idx on job_applications(organization_id);
+create index if not exists job_applications_status_idx on job_applications(status);
+create index if not exists job_applications_email_idx on job_applications(applicant_email);
+
+-- Enable RLS for recruitment tables
+alter table job_postings enable row level security;
+alter table job_applications enable row level security;
+
+-- Job posting RLS: employers see their org's jobs, admin sees all
+create policy job_postings_org_read on job_postings for select using (organization_id in (select current_org_ids()));
+
+-- Job applications RLS: employers see their org's applications, admin sees all
+create policy job_applications_org_read on job_applications for select using (organization_id in (select current_org_ids()));

@@ -16,6 +16,7 @@ import { logEvent, audit } from '../timeline';
 import { DOC_STATUS, DOC_TYPE } from '../enums';
 import { shortToken } from '../tokens';
 import { assertSendable } from '../documents';
+import { appBase } from '../base';
 
 const ANCHORS = {
   clientSign: '/sig_client/',
@@ -143,7 +144,7 @@ export async function sendForSignature(documentId: string, actor: string, embedd
     email: COMPANY.representative.email,
     clientUserId: embedded ? `bp-${doc.id}` : undefined,
   };
-  const webhookUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/docusign/webhook`;
+  const webhookUrl = `${appBase()}/api/docusign/webhook`;
 
   let envelopeId: string;
   const mode = docusignMode();

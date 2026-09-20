@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import jwt from 'jsonwebtoken';
+import { appBase } from '../base';
 
 export interface DocuSignConfig {
   mode: 'demo' | 'production' | 'mock';
@@ -126,7 +127,7 @@ export async function getAccessToken(): Promise<string> {
 /** رابط منح الموافقة لمرة واحدة (consent) — يُفتح في المتصفح ويُوافَق عليه. */
 export function consentUrl(): string {
   const cfg = { authBase: process.env.DOCUSIGN_AUTH_BASE || 'account-d.docusign.com', ik: process.env.DOCUSIGN_INTEGRATION_KEY || '' };
-  const redirect = `${process.env.APP_URL || 'http://localhost:3000'}/api/docusign/consent-callback`;
+  const redirect = `${appBase()}/api/docusign/consent-callback`;
   const q = new URLSearchParams({
     response_type: 'code',
     scope: 'signature impersonation',

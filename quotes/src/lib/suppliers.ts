@@ -24,6 +24,9 @@ export async function createSupplier(input: {
   email?: string | null;
   phone?: string | null;
   notes?: string | null;
+  /** أكواد التصنيف مفصولة بفواصل — بها يُوجَّه طلب العرض. */
+  categories?: string | null;
+  city?: string | null;
 }) {
   const supplier = await prisma.supplier.create({ data: { ...input } });
   await logEvent({
@@ -130,15 +133,25 @@ export async function selectBid(supplyRequestId: string, bidId: string, actor = 
     }),
   ]);
 
+  // في الوضع الثلاثي اسمُ المورد ومبلغُه حقٌّ للعميل يراه — تلك شفافية الاتفاقية.
+  // وفي إعادة البيع هما تكلفتنا واسم من نشتري منه، ولا يخرجان. والحدثُ يُكتب
+  // هنا بحسب الوضع لا في الصفحة التي تستدعيه: من نسي الوضع في نداءٍ آخر لا
+  // يُسرّب ما لا يجوز.
+  const resale = req.mode === 'RESALE';
   await logEvent({
     entityType: 'supply_request',
     entityId: supplyRequestId,
     clientId: req.clientId,
     code: 'BID_SELECTED',
-    titleAr: `اختير المورد ${bid.supplier.nameAr} بمبلغ ${fmtMoney(bid.amount)} ريال بعد مقارنة العروض`,
-    titleEn: `Supplier ${bid.supplier.nameEn || bid.supplier.nameAr} selected at SAR ${fmtMoney(bid.amount)} after bid comparison`,
+    titleAr: resale
+      ? `اختير مورد التنفيذ لطلب ${req.number} بتكلفة ${fmtMoney(bid.amount)} ريال — ${bid.supplier.nameAr}`
+      : `اختير المورد ${bid.supplier.nameAr} بمبلغ ${fmtMoney(bid.amount)} ريال بعد مقارنة العروض`,
+    titleEn: resale
+      ? `Execution supplier selected for ${req.number} at cost SAR ${fmtMoney(bid.amount)} — ${bid.supplier.nameEn || bid.supplier.nameAr}`
+      : `Supplier ${bid.supplier.nameEn || bid.supplier.nameAr} selected at SAR ${fmtMoney(bid.amount)} after bid comparison`,
     actor,
     actorKind: 'admin',
+    clientVisible: !resale,
   });
   await audit({
     action: 'SUPPLY_BID_SELECTED',

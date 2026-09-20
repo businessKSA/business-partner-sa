@@ -15,6 +15,39 @@
 import { execSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 
+/**
+ * قيود يرفض `db push` إنشاءها وحده.
+ *
+ * إضافة قيد تفرّد على جدولٍ فيه صفوف توقف `db push` ويطلب --accept-data-loss،
+ * لأنه لا يعلم إن كان في العمود تكرار. ووضع ذلك العَلَم في أمر البناء إذنٌ
+ * دائم لكل تغيير لاحق: أول تغييرٍ يحذف عموداً سيمرّ بلا سؤال، على قاعدة
+ * إنتاج، في نشرةٍ لا يقرأ أحد سجلّها. فتُكتب العبارة هنا صريحةً مقروءة،
+ * فيجد `db push` القيد قائماً ولا يشتكي.
+ *
+ * والعبارات تُعاد بلا أثر، وتُشترط بوجود جدولها: أول نشرة على قاعدة فارغة لا
+ * جدول فيها، و`db push` ينشئ عندها كل شيء بنفسه.
+ *
+ * والاتصال بالوصلة المباشرة لا بالمجمِّع: أوامر البنية لا تمرّ في pgbouncer.
+ */
+async function prepareConstraints() {
+  const db = new PrismaClient({ datasourceUrl: process.env.DIRECT_DATABASE_URL });
+  try {
+    const rows = await db.$queryRawUnsafe<{ present: boolean }[]>(
+      `SELECT to_regclass('public."Supplier"') IS NOT NULL AS present`,
+    );
+    if (!rows[0]?.present) return;
+
+    // صفّ المورد في نوشن — به تطابق المزامنة، فلا يصير المورد الواحد اثنين.
+    await db.$executeRawUnsafe(`ALTER TABLE "Supplier" ADD COLUMN IF NOT EXISTS "notionPageId" TEXT`);
+    await db.$executeRawUnsafe(
+      `CREATE UNIQUE INDEX IF NOT EXISTS "Supplier_notionPageId_key" ON "Supplier"("notionPageId")`,
+    );
+    console.log('قيد تفرّد notionPageId على الموردين: جاهز.');
+  } finally {
+    await db.$disconnect();
+  }
+}
+
 async function main() {
   const env = process.env.VERCEL_ENV;
   if (env && env !== 'production') {
@@ -28,6 +61,8 @@ async function main() {
         'اضبطهما في متغيرات بيئة المشروع ثم أعد النشر.',
     );
   }
+
+  await prepareConstraints();
 
   console.log('تطبيق المخطط على قاعدة البيانات...');
   execSync('prisma db push --skip-generate', { stdio: 'inherit' });

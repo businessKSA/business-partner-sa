@@ -3,6 +3,11 @@
 // functions by Vercel, so this stays a plain shared module (keeps us under
 // the 12-function plan cap).
 import crypto from "node:crypto";
+import { azureBlobReady, blobPut, blobGet, blobDelete, blobSign, blobExists } from "./_azblob.js";
+import {
+  LOCAL_DB, localRest,
+  localStoragePut, localStorageGet, localStorageDelete, localStorageSign,
+} from "./_localdb.js";
 
 // Normalize hand-pasted env values; fall back to the project's known URL
 // (a public identifier, not a secret) when the value isn't a valid
@@ -13,9 +18,12 @@ if (_su && !/^https?:\/\//i.test(_su)) _su = "https://" + _su;
 if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(_su)) _su = _su ? DEFAULT_SUPABASE_URL : "";
 export const SUPABASE_URL = _su;
 export const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-export const DB_ON = !!(SUPABASE_URL && SUPABASE_KEY);
+// LOCAL_DB=1 (npm run dev) swaps the whole persistence layer for a JSON file
+// under .localdb/ so localhost never reads or writes production data.
+export const DB_ON = LOCAL_DB || !!(SUPABASE_URL && SUPABASE_KEY);
 
 export async function sb(path, { method = "GET", body, prefer } = {}) {
+  if (LOCAL_DB) return localRest(path, { method, body, prefer });
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
@@ -34,30 +42,58 @@ export async function sb(path, { method = "GET", body, prefer } = {}) {
 
 export const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
-export function readCookie(req, name) {
+// Return all values for a cookie name. During the apex/www session-cookie
+// migration a browser can legitimately carry two bp_sid cookies: an older
+// host-only cookie and the newer Domain=.businesspartner.sa cookie. Reading
+// only the first value can therefore keep selecting a stale session forever.
+function cookieValues(req, name) {
   const raw = req.headers.cookie || "";
+  const out = [];
   for (const part of raw.split(";")) {
     const [k, ...v] = part.trim().split("=");
-    if (k === name) return decodeURIComponent(v.join("="));
+    if (k === name) {
+      const val = decodeURIComponent(v.join("="));
+      if (val && !out.includes(val)) out.push(val);
+    }
   }
-  return "";
+  return out;
+}
+
+export function readCookie(req, name) {
+  const vals = cookieValues(req, name);
+  // Newer cookies normally appear later when path specificity is equal. More
+  // importantly, callers that only need one value should prefer the most
+  // recently set candidate rather than the stale host-only value.
+  return vals.length ? vals[vals.length - 1] : "";
 }
 
 export const SESSION_COOKIE = "bp_sid";
 
 // Resolve the httpOnly session cookie into { sessionId, user, organization }.
 export async function getSession(req) {
-  const raw = readCookie(req, SESSION_COOKIE);
-  if (!raw || !DB_ON) return null;
-  const rows = await sb(
-    `user_sessions?token_hash=eq.${sha256(raw)}&revoked_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}` +
-    `&select=id,organization_id,expires_at,users(id,email,full_name,locale)&limit=1`
-  );
-  if (!rows.length) return null;
-  const s = rows[0];
+  if (!DB_ON) return null;
+  const candidates = cookieValues(req, SESSION_COOKIE).reverse();
+  if (!candidates.length) return null;
+
+  // Try every bp_sid candidate. This is intentional: browsers that visited the
+  // portal before the apex/www cookie fix may send both a stale host-only
+  // cookie and the current domain cookie. Authentication must not depend on
+  // whichever duplicate happens to be serialized first.
+  let s = null;
+  for (const raw of candidates) {
+    const rows = await sb(
+      `user_sessions?token_hash=eq.${sha256(raw)}&revoked_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}` +
+      `&select=id,organization_id,expires_at,users(id,email,full_name,locale)&limit=1`
+    );
+    if (rows.length) { s = rows[0]; break; }
+  }
+  if (!s) return null;
+
   let org = null;
   if (s.organization_id) {
-    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness&limit=1`);
+    // created_at is the anchor for the 30-day Business Development trial —
+    // see api/_trial.js. It has to come from the row, not the browser.
+    const orgs = await sb(`organizations?id=eq.${s.organization_id}&select=id,name_ar,name_en,cr_number,profile_completeness,created_at&limit=1`);
     org = orgs[0] || null;
   }
   return { sessionId: s.id, user: s.users, organization: org, expiresAt: s.expires_at };
@@ -84,7 +120,17 @@ async function ensureBucket() {
   } catch {}
   _bucketReady = true; // exists-already errors are fine
 }
+// ‏سبتمبر 2026: الخزنة انتقلت إلى Azure Blob Storage.
+//
+// الكتابة تذهب إلى Azure دائماً متى كان مُهيّأً. أمّا القراءة فتجرّب Azure ثم
+// ترجع إلى Supabase، لأن ملفات العملاء المرفوعة قبل النقل ما زالت هناك: عميلٌ
+// يفتح مستنده القديم يجب أن يجده، لا أن يُقال له إنه غير موجود. ومتى نُقلت
+// الملفات القديمة سقط هذا الرجوع من تلقاء نفسه بلا تغيير كود.
+const azureStorageOn = () => azureBlobReady();
+
 export async function storagePut(path, buffer, contentType) {
+  if (LOCAL_DB) return localStoragePut(path, buffer);
+  if (azureStorageOn()) return blobPut(path, buffer, contentType);
   await ensureBucket();
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "POST",
@@ -94,8 +140,42 @@ export async function storagePut(path, buffer, contentType) {
   if (!r.ok) { console.error("storage put error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
   return path;
 }
+// Fetch an object's bytes back from the vault (service key, server-side only).
+// The document agent needs the original form bytes to fill them.
+export async function storageGet(path) {
+  if (LOCAL_DB) return localStorageGet(path);
+  if (azureStorageOn()) {
+    try { return await blobGet(path); }
+    catch (e) {
+      // 404 alone means "not migrated yet" — anything else is a real Azure
+      // fault and must not be masked by silently reading the old vault.
+      if (!/_404$/.test(String(e.message || "")) || !SUPABASE_URL) throw e;
+    }
+  }
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!r.ok) { console.error("storage get error", r.status, (await r.text()).slice(0, 200)); throw new Error("storage_failed"); }
+  return Buffer.from(await r.arrayBuffer());
+}
+// Remove an object from the vault — used when the client deletes a document.
+// Best-effort: a missing object is already gone, which is what we wanted.
+export async function storageDelete(path) {
+  if (LOCAL_DB) return localStorageDelete(path);
+  if (azureStorageOn()) {
+    await blobDelete(path);
+    if (!SUPABASE_URL) return;   // and fall through to clear any legacy copy
+  }
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method: "DELETE",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!r.ok && r.status !== 404) console.error("storage delete error", r.status, (await r.text()).slice(0, 200));
+}
 // Short-lived signed download URL (default 10 minutes).
 export async function storageSign(path, expiresIn) {
+  if (LOCAL_DB) return localStorageSign(path, expiresIn);
+  if (azureStorageOn() && await blobExists(path)) return blobSign(path, expiresIn);
   const r = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
     method: "POST",
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "content-type": "application/json" },

@@ -12,12 +12,25 @@
 // Optional:
 //   OTP_DEV_ECHO=1   returns the code in the response (TESTING ONLY — never in production)
 import crypto from "node:crypto";
+import { verifyGoogleIdToken } from "./_suppliers.js";
+import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
 
+const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
 const SECRET = process.env.OTP_SECRET || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TTL_MS = 10 * 60 * 1000; // code valid for 10 minutes
 const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
+// Simple V1 preview testing: addresses under @test.businesspartner.sa sign in
+// with a fixed code and no e-mail is sent — only on Vercel previews or when
+// SIMPLE_TEST_MODE=1, never on production.
+const LOCAL_DEV = process.env.APP_ENV === "development";
+const TEST_LOGIN = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || LOCAL_DEV;
+// @test.local is the localhost pair documented in docs/local-development.md
+// (client@test.local / admin@test.local); the .businesspartner.sa domain is
+// the preview pair. Neither exists in production.
+const TEST_LOGIN_DOMAINS = ["@test.businesspartner.sa", "@test.local"];
+const TEST_LOGIN_CODE = String(process.env.SIMPLE_TEST_OTP || "123456").padStart(6, "0").slice(-6);
 
 // ---- Client Operations Center: real server-side sessions (Supabase) --------
 // When SUPABASE_URL + SUPABASE_SERVICE_KEY are set (db/schema.sql applied),
@@ -27,8 +40,52 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // Shared DB helpers live in api/_db.js (not a deployed function).
 import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+// The session must be the same on businesspartner.sa and www.businesspartner.sa:
+// a host-only cookie left a client signed in on one and locked out on the
+// other. Scoped to the apex on production hosts; preview hosts stay host-only.
+function cookieDomain(res) {
+  const host = String((res && res.__bpHost) || "").toLowerCase().split(":")[0];
+  return /(^|\.)businesspartner\.sa$/.test(host) ? "; Domain=.businesspartner.sa" : "";
+}
 function setSessionCookie(res, raw, maxAgeS) {
-  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}`);
+  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}${cookieDomain(res)}`);
+}
+
+// ---- password sign-in ---------------------------------------------------
+// A password is a second door to the same session, never a second identity:
+// it can only be set from inside an already-verified session (code or Google),
+// so nobody can claim an address by inventing a password for it. Salted scrypt,
+// stored as "salt:hash" in users.password_hash — the same scheme the supplier
+// and employer portals already use.
+function hashPassword(pw) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  return `${salt}:${crypto.scryptSync(pw, salt, 64).toString("hex")}`;
+}
+function verifyPassword(pw, stored) {
+  const [salt, hash] = String(stored || "").split(":");
+  if (!salt || !hash) return false;
+  const candidate = crypto.scryptSync(pw, salt, 64);
+  const expected = Buffer.from(hash, "hex");
+  if (candidate.length !== expected.length) return false;
+  return crypto.timingSafeEqual(candidate, expected);
+}
+const PASSWORD_MIN = 8;
+// In-memory throttle: one function instance, so this slows a burst rather than
+// standing in for a real lockout — enough to make guessing expensive without a
+// table write on every attempt.
+const pwTries = new Map();
+function pwThrottled(email) {
+  const now = Date.now();
+  const rec = pwTries.get(email) || { n: 0, at: now };
+  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
+  return rec.n >= 8;
+}
+function pwFailed(email) {
+  const now = Date.now();
+  const rec = pwTries.get(email) || { n: 0, at: now };
+  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
+  rec.n += 1; pwTries.set(email, rec);
+  if (pwTries.size > 500) pwTries.clear();
 }
 
 // Upsert user + ensure org membership + mint a session. Returns cookie payload.
@@ -129,6 +186,7 @@ async function readBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.__bpHost = req.headers["x-forwarded-host"] || req.headers.host || "";
   if (req.method === "GET") {
     res.statusCode = 200;
     // dbConfigured = env vars present; dbReachable = a live probe against the
@@ -178,6 +236,10 @@ export default async function handler(req, res) {
       usersCount,
       // Non-sensitive booleans so the owner can verify /admin gating without
       // exposing any value: is a panel key set, and did it need trimming?
+      // Nafath: whether the login screens should offer it at all, and whether
+      // the owner's panels are set to demand it.
+      nafath: nafathPing(),
+      panelRequiresNafath: /^(1|true|yes)$/i.test(String(process.env.PANEL_REQUIRE_NAFATH || "")),
       panelKeyConfigured: !!(process.env.PANEL_KEY || "").trim(),
       panelKeyHadWhitespace: (process.env.PANEL_KEY || "") !== (process.env.PANEL_KEY || "").trim(),
     }));
@@ -216,13 +278,74 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true }));
   }
 
+  // Which ways in this deployment actually offers — the sign-in card renders
+  // only the doors that are configured, instead of a Google button that fails.
+  if (action === "methods") {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
+  }
+
+  // Sign in with e-mail + password. Same session, same cookie, same everything
+  // downstream as the emailed code.
+  if (action === "password-login") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const pw = String(body.password || "");
+    if (!isEmail(email) || !pw) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off", message: "الدخول بكلمة المرور غير متاح الآن — استخدم رمز البريد." })); }
+    if (pwThrottled(email)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. جرّب بعد ربع ساعة أو ادخل برمز البريد." })); }
+    let rows = [];
+    try { rows = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id,email,full_name,password_hash&limit=1`); }
+    catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    const u = rows[0];
+    // One message for "no such account" and "wrong password": telling them
+    // apart hands an attacker a list of who banks here.
+    if (!u || !u.password_hash || !verifyPassword(pw, u.password_hash)) {
+      pwFailed(email);
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "bad_credentials", message: "البريد أو كلمة المرور غير صحيحة." }));
+    }
+    try {
+      const { raw, user, orgId } = await createSession(req, { email, name: u.full_name || "" });
+      setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, db: true, email, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+    }
+  }
+
+  // Set or change the password — only from inside a live session.
+  if (action === "password-set") {
+    const pw = String(body.password || "");
+    if (pw.length < PASSWORD_MIN) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak", message: `كلمة المرور ${PASSWORD_MIN} أحرف على الأقل.` })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch {}
+    if (!sess || !sess.user) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session", message: "سجّل دخولك أولاً." })); }
+    try {
+      await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { password_hash: hashPassword(pw) } });
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, email: sess.user.email }));
+  }
+
   // 1) Start: generate + send a code, return an opaque challenge.
   if (action === "start") {
     const email = String(body.email || "").trim().toLowerCase();
     const channel = body.channel === "sms" ? "sms" : "email";
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ error: "invalid_email" })); }
-    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    // Local development: no mail can leave the machine anyway, so every
+    // address signs in with the fixed code. Without this the owner types their
+    // own real address, falls through to the mail provider that is not
+    // configured locally, and gets «تعذّر إرسال الرمز» with no way forward.
+    const isTestLogin = TEST_LOGIN
+      && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
+    const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
     const challenge = seal({ email, code, channel, exp: Date.now() + TTL_MS });
+    if (isTestLogin) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true, ...(LOCAL_DEV ? { devCode: code } : {}) }));
+    }
     let delivery;
     if (channel === "sms") delivery = await sendSms(body.phone, code);
     else delivery = await sendEmail(email, code);
@@ -235,6 +358,234 @@ export default async function handler(req, res) {
   }
 
   // 2) Verify: unseal challenge, compare code + expiry.
+  // Google sign-in reaches the same place the emailed code does: Google has
+  // already verified the address, so a checked ID token stands in for the
+  // round trip and mints exactly the same session. Nothing downstream can tell
+  // the two apart, which is the point — one account, two ways in.
+  if (action === "google") {
+    let g = null;
+    try { g = await verifyGoogleIdToken(String(body.credential || "")); }
+    catch (e) { console.error("otp google verify", String(e.message || e).slice(0, 160)); }
+    if (!g || !g.email) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_token" })); }
+    const email = String(g.email).trim().toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, {
+          email,
+          name: String(g.name || body.name || "").slice(0, 120),
+          company: String(body.company || "").slice(0, 160),
+        });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, db: true, email,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      } catch {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
+  /* ---------------- Nafath: prove who you are, not what you know -----------
+   * Two purposes share one mechanism.
+   *
+   *   purpose "panel"  — the owner's own screens. Success is checked against
+   *                      OWNER_NATIONAL_IDS and answers with a sealed ticket.
+   *                      No account, no cookie: it is a door, not a login.
+   *   purpose "portal" — a client signing in. Nafath does not return an email
+   *                      and our accounts are keyed by one, so the first
+   *                      verification binds the identity to an account; every
+   *                      one after that is enough on its own.
+   *
+   * The national id never travels back to the browser. It goes out once, and
+   * what the browser holds afterwards is a sealed blob it cannot read.
+   */
+
+  // Nafath pushes a notification to a real person's phone. Anyone could
+  // therefore use this endpoint to pester an id they do not own, so the same
+  // id cannot be started twice in a minute and one address cannot start many.
+  // This counter lives in the lambda instance: it blunts a casual flood, and
+  // does nothing against a distributed one — Elm's own limits are the backstop.
+  const nafathSeen = (globalThis.__bpNafathSeen ||= new Map());
+  function nafathThrottle(key, windowMs, max) {
+    const now = Date.now();
+    for (const [k, v] of nafathSeen) if (now - v.at > 10 * 60 * 1000) nafathSeen.delete(k);
+    const hit = nafathSeen.get(key);
+    if (!hit || now - hit.at > windowMs) { nafathSeen.set(key, { at: now, n: 1 }); return true; }
+    hit.n += 1;
+    return hit.n <= max;
+  }
+
+  if (action === "nafath-start") {
+    const id = nationalIdState(body.nationalId);
+    if (!id.ok) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: id.reason, message:
+        id.reason === "must_be_10_digits" ? "رقم الهوية أو الإقامة عشرة أرقام."
+        : id.reason === "unsupported_prefix_9" ? "هذا الرقم لا تدعمه خدمة نفاذ للتحقق."
+        : "رقم الهوية غير صحيح." }));
+    }
+    const purpose = body.purpose === "panel" ? "panel" : "portal";
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
+    if (!nafathThrottle("id:" + id.value, 60 * 1000, 1) || !nafathThrottle("ip:" + ip, 10 * 60 * 1000, 5)) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. انتظر دقيقة ثم أعد المحاولة." }));
+    }
+    // An id that could never open the panel should not ring anyone's phone.
+    if (purpose === "panel" && !isOwnerId(id.value)) {
+      res.statusCode = 403;
+      return res.end(JSON.stringify({ ok: false, error: "not_owner", message: "هذه الهوية غير مصرّح لها بفتح هذه اللوحة." }));
+    }
+    let started;
+    try {
+      started = await nafathRequest({ nationalId: id.value, locale: body.locale === "en" ? "en" : "ar" });
+    } catch (e) {
+      const why = String(e.message || e);
+      console.error("nafath start", why, String(e.detail || "").slice(0, 200));
+      res.statusCode = why === "nafath_not_configured" || why === "nafath_service_not_configured" ? 503 : 502;
+      return res.end(JSON.stringify({ ok: false, error: why, message:
+        why === "nafath_not_configured" || why === "nafath_service_not_configured" ? "الدخول عبر نفاذ غير مُفعّل بعد."
+        : why === "nafath_unauthorized" ? "بيانات الاتصال بنفاذ مرفوضة."
+        : "تعذّر الوصول إلى نفاذ الآن." }));
+    }
+    if (!started.transId) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "no_transaction", message: "لم تُنشئ نفاذ طلباً. حاول مرة أخرى." }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
+      ok: true,
+      // The number the user must pick inside the Nafath app. Showing it is the
+      // whole anti-phishing device: a fake site cannot know the number the
+      // real request produced.
+      random: started.random,
+      challenge: nafathSeal({
+        t: "pending", nid: id.value, transId: started.transId, random: started.random,
+        purpose, exp: Date.now() + 10 * 60 * 1000,
+      }),
+    }));
+  }
+
+  if (action === "nafath-poll") {
+    const p = nafathUnseal(String(body.challenge || ""));
+    if (!p || p.t !== "pending") {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "expired_challenge", message: "انتهت مهلة الطلب. ابدأ من جديد." }));
+    }
+    let st;
+    try { st = await nafathStatus({ nationalId: p.nid, transId: p.transId, random: p.random }); }
+    catch (e) {
+      console.error("nafath poll", String(e.message || e), String(e.detail || "").slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "status_failed", message: "تعذّر قراءة حالة الطلب." }));
+    }
+    if (st.status === "WAITING") { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, status: "WAITING" })); }
+    if (st.status !== "COMPLETED") {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, status: st.status, message:
+        st.status === "REJECTED" ? "رُفض الطلب من تطبيق نفاذ." : "انتهت صلاحية الطلب. ابدأ من جديد." }));
+    }
+
+    // ---- verified from here on ----
+    if (p.purpose === "panel") {
+      const ticket = mintOwnerTicket(p.nid);
+      if (!ticket) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "not_owner" })); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, status: "COMPLETED", ticket }));
+    }
+
+    if (!DB_ON) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: "db_off", message: "تم التحقق، لكن قاعدة الحسابات غير مهيأة." }));
+    }
+    const hash = nafathIdHash(p.nid);
+    try {
+      // Returning by identity alone: this id has been bound to an account
+      // before, so there is nothing left to ask for.
+      const known = await sb(`users?nafath_id=eq.${encodeURIComponent(hash)}&select=id,email&limit=1`);
+      if (known.length) {
+        const { raw, user, orgId } = await createSession(req, { email: String(known[0].email) });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, status: "COMPLETED", db: true, email: user.email, verified: true,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      }
+
+      // First time. Nafath proves WHO someone is; it says nothing about which
+      // mailbox is theirs. Opening a session on an address typed at this point
+      // would let anyone with a valid Nafath identity sign in as any client by
+      // typing that client's e-mail — so the binding attaches to a session the
+      // person already holds, and never creates one from an unproven address.
+      const sess = await dbGetSession(req);
+      if (!sess || !sess.user || !sess.user.id) {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: false, status: "COMPLETED", error: "identity_not_linked",
+          // The verification really did happen, so it is not thrown away: this
+          // is our own sealed note that this identity passed, good for ten
+          // minutes. The client signs in the ordinary way and hands it back,
+          // and the binding completes without troubling Nafath again.
+          link: nafathSeal({ t: "verified", hash, exp: Date.now() + 10 * 60 * 1000 }),
+          message: "تم التحقق من هويتك عبر نفاذ ✓ — ادخل مرة واحدة بالبريد أو بحساب جوجل، وسنربط هويتك بحسابك تلقائياً." }));
+      }
+      try {
+        await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: hash } });
+      } catch (e) {
+        // A unique index guards the column, so the likeliest cause is that
+        // another account already claimed this identity between the lookup
+        // above and this write. The reason is logged; the client is not told
+        // which account, because that would leak one.
+        console.error("nafath bind", String(e.message || e).slice(0, 160));
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "bind_failed",
+          message: "تعذّر ربط الهوية بهذا الحساب. تواصل معنا إن تكرر." }));
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, status: "COMPLETED", db: true, linked: true, verified: true,
+        email: sess.user.email || "",
+        message: "تم ربط هويتك الوطنية بحسابك ✓ — تقدر تدخل بنفاذ مباشرة بعد الآن.",
+      }));
+    } catch (e) {
+      console.error("nafath session", String(e.message || e).slice(0, 160));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed", message: "تم التحقق، لكن تعذّر فتح الجلسة." }));
+    }
+  }
+
+  // Finish a binding that was verified before the client had a session.
+  if (action === "nafath-link") {
+    const v = nafathUnseal(String(body.link || ""));
+    if (!v || v.t !== "verified" || !v.hash) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "expired_proof" }));
+    }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off" })); }
+    try {
+      const sess = await dbGetSession(req);
+      if (!sess || !sess.user || !sess.user.id) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session" })); }
+      const taken = await sb(`users?nafath_id=eq.${encodeURIComponent(v.hash)}&select=id&limit=1`);
+      if (taken.length && taken[0].id !== sess.user.id) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "identity_already_linked", message: "هذه الهوية مرتبطة بحساب آخر." }));
+      }
+      if (!taken.length) await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: v.hash } });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, linked: true, message: "تم توثيق هويتك عبر نفاذ ✓" }));
+    } catch (e) {
+      console.error("nafath link", String(e.message || e).slice(0, 160));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "link_failed" }));
+    }
+  }
+
   if (action === "verify") {
     const code = String(body.code || "").trim();
     const email = String(body.email || "").trim().toLowerCase();

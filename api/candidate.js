@@ -16,6 +16,10 @@
 
 // Accept the token under any of these env-var names (people name it differently
 // in Vercel — be forgiving so a mis-named key never silently disables intake).
+// The AI provider chain lives in hire.js (gemini → groq → openai → anthropic
+// failover); reusing it directly avoids an HTTP hop to our own function.
+import { aiText, aiAvailable } from "./hire.js";
+
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -32,6 +36,25 @@ const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const NOTION_VERSION = "2022-06-28";
 const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP_ATS_WEBHOOK"])
   || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ats-application";
+// Job postings + employer subscriptions DBs — used to look up who owns a
+// posting so we can email them when a candidate applies to it.
+const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";
+const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
+
+// Email (Resend) — optional; activates once RESEND_API_KEY is set in Vercel.
+const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
+const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+async function sendMail(to, subject, html) {
+  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    return { ok: r.ok };
+  } catch { return { ok: false }; }
+}
 
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
@@ -89,7 +112,7 @@ const FIELD_RULES = [
   [/تجميل|مكياج|سبا|تدليك|يوغا|حلاق|مصفف|beauty|makeup|spa|massage|yoga|barber|hairstylist|esthetician|salon/i, "تجميل وعناية"],
   [/عاملة منزلية|مربية|جليسة|طباخ منزلي|بستاني|خادم|مرافق كبار سن|domestic worker|nanny|babysitter|private driver|private chef|butler|elderly caregiver/i, "خدمات منزلية"],
 ];
-function guessField(title) {
+export function guessField(title) {
   const t = String(title || "");
   for (const [re, cat] of FIELD_RULES) if (re.test(t)) return cat;
   return "";
@@ -116,14 +139,15 @@ async function notion(path, method, payload) {
 // AI screening, Drive storage links) so it can be folded into the same Notion
 // write below — n8n itself no longer writes to Notion, to avoid creating a
 // second candidate record for every submission (this handler is always the
-// sole Notion writer). A 25s cap keeps this under Vercel's function timeout
-// even though the full n8n chain (PDF parse + AI + Drive + emails) can run
-// close to that; on timeout/failure we just skip enrichment and continue —
-// the candidate record still gets created from the form fields alone.
-async function forwardToN8n(payload) {
+// sole Notion writer). A 50s cap — under this route's 60s maxDuration —
+// keeps us waiting long enough for the full n8n chain (PDF parse + AI +
+// Drive + emails), which regularly ran past the old 25s cap and left the
+// record with no ATS CV at all; on timeout/failure we skip enrichment and
+// continue, and the record still gets created from the form fields alone.
+export async function forwardToN8n(payload) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
+  const timer = setTimeout(() => controller.abort(), 50000);
   try {
     const r = await fetch(N8N_ATS_WEBHOOK, {
       method: "POST",
@@ -146,7 +170,7 @@ async function forwardToN8n(payload) {
 // into the Notion properties this handler is about to write. Safe no-op when
 // n8n didn't respond in time or found nothing — the base form-field record
 // still gets created either way.
-function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
+export function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
   const data = n8nResult && n8nResult.ok ? n8nResult.data : null;
   if (!data) return;
   const drive = data.drive || {};
@@ -160,7 +184,10 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
     props["مجلد المرشح (Drive)"] = { url: drive.candidateFolderUrl };
   }
   const ai = data.ai || {};
-  if (ai.candidate_summary) {
+  // Notes is create-only: on a resubmission (isNewCandidate false) we must not
+  // overwrite whatever the recruiter has since written into Notes, so the AI
+  // summary is folded in only for a brand-new candidate row.
+  if (isNewCandidate && ai.candidate_summary) {
     const notesSoFar = (props["Notes"]?.rich_text || []).map((t) => t.text.content).join("\n");
     props["Notes"] = { rich_text: rt([notesSoFar, `ملخص الذكاء الاصطناعي: ${ai.candidate_summary}`].filter(Boolean).join("\n\n")) };
   }
@@ -185,7 +212,7 @@ function applyN8nEnrichment(props, n8nResult, isNewCandidate) {
 // different device, etc). Match by email OR phone against the same DB
 // employers browse, so a repeat submission updates the existing row instead
 // of creating a duplicate candidate.
-async function findExisting(email, phone) {
+export async function findExisting(email, phone) {
   const or = [];
   if (isEmail(email)) or.push({ property: "Email", email: { equals: email } });
   if (phone) or.push({ property: "Phone", phone_number: { equals: phone } });
@@ -208,11 +235,381 @@ const txt = (p) => {
   return "";
 };
 
+// Renders the AI-written CV (markdown) as e-mail HTML. Deliberately tiny —
+// the generator only ever emits headings, list items, bold and blank lines.
+const n8nAi = (r) => (r && r.ok && r.data && r.data.ai) || {};
+
+function buildCvBoostPrompt(cv, targetRole) {
+  const target = String(targetRole || "").slice(0, 200);
+  return `You are an expert CV writer and an ATS (applicant tracking system) analyst.
+
+Below is a candidate's CV, in whatever language and shape they wrote it.
+
+TASK
+1. Detect the language it is written in.
+2. Rewrite it as an excellent, ATS-friendly CV **in English**. If the original is Arabic, this is also a translation.
+3. If the original was NOT English, also give the same improved CV in the original language.
+4. Score the ORIGINAL and the REWRITE, 0-100, on how well an ATS and a recruiter would read them.
+5. List what you actually improved.
+
+ABSOLUTE RULES — a violation makes the whole output useless:
+- Invent NOTHING. No employer, job title, date, degree, certificate, tool or skill that is not in the original.
+- Do not inflate seniority, do not extend dates, do not turn a duty into an achievement that was never claimed.
+- Numbers may only appear if the candidate gave them. Never estimate a metric.
+- If something is missing (no dates, no education), leave it out and name it in "missing" — do not paper over it.
+- You improve WORDING, STRUCTURE, ORDER and KEYWORDS. You never improve the FACTS.
+
+The rewrite should: lead with a short professional summary; use standard section headings (Summary, Skills, Work Experience, Education, Certifications, Languages); put the most relevant experience first; start bullets with strong action verbs; surface real keywords a recruiter would search for${target ? ` (target role: ${target})` : ""}; drop photos, tables, columns and graphics that ATS software cannot read.
+
+Scoring must be honest: score_before reflects the original as written. score_after reflects the rewrite. If the original was already strong, the gain is small — say so rather than manufacturing a jump.
+
+Return ONLY this JSON, no code fences, no commentary:
+{"source_language":"Arabic|English|other","cv_english":"<full rewritten CV in markdown>","cv_original_language":"<same CV in the original language, or empty string if the original was English>","score_before":0-100,"score_after":0-100,"improvements":["...","..."],"missing":["..."],"target_role_guess":"..."}
+
+CV:
+---
+${String(cv || "").slice(0, 14000)}`;
+}
+
+export function cvMarkdownToHtml(md) {
+  const e = (x) => String(x || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const inline = (x) => e(x).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const out = [];
+  let inList = false;
+  const closeList = () => { if (inList) { out.push("</ul>"); inList = false; } };
+  for (const raw of String(md || "").split(/\r?\n/)) {
+    // Drive exports escape markdown punctuation, so "\# Name" arrives as-is.
+    const line = raw.replace(/\\(?=[#*\-])/g, "").trim();
+    // A blank line does NOT end the list: the Drive export puts one between
+    // every bullet, so closing here would split each bullet into its own list.
+    if (!line) continue;
+    const heading = line.match(/^(#{1,6})\s*(.+)$/);
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    if (heading) {
+      closeList();
+      out.push(heading[1].length <= 1
+        ? `<h2 style="color:#0B1B5A;font-size:19px;margin:20px 0 4px">${inline(heading[2])}</h2>`
+        : `<h3 style="color:#0B1B5A;font-size:15px;margin:18px 0 6px;border-bottom:1px solid #E2E8F0;padding-bottom:4px">${inline(heading[2])}</h3>`);
+    } else if (bullet) {
+      if (!inList) { out.push('<ul style="margin:6px 0;padding-inline-start:20px">'); inList = true; }
+      out.push(`<li style="margin:4px 0;line-height:1.7">${inline(bullet[1])}</li>`);
+    } else {
+      closeList();
+      out.push(`<p style="margin:6px 0;line-height:1.7">${inline(line)}</p>`);
+    }
+  }
+  closeList();
+  return out.join("\n");
+}
+
+// The candidate's own copy of what our pipeline produced for them: the summary
+// the AI wrote about their profile, and their CV rewritten in ATS-friendly
+// form. Deliberately NOT a forward of the internal notification — the
+// screening score, the suggested pipeline stage and the internal Drive folder
+// are our working notes ABOUT a person, not something to hand the person.
+// Best-effort: never throws, never blocks the submission from succeeding.
+export async function sendCandidateCopy(to, name, opts) {
+  const o = opts || {};
+  if (!isEmail(to) || !RESEND_API_KEY) return false;
+  const ar = String(o.lang || "ar").toLowerCase().indexOf("en") !== 0;
+  const T = (en, arabic) => (ar ? arabic : en);
+  const e = (x) => String(x || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const first = String(name || "").trim().split(/\s+/)[0] || "";
+  const applied = o.jobTitle && !/candidate pool|قاعدة المرشحين/i.test(o.jobTitle);
+
+  const head = `<div dir="${ar ? "rtl" : "ltr"}" style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#1B2437">
+    <h2 style="color:#0B1B5A;margin:0 0 6px">${T(`Hi ${e(first)} 👋`, `أهلاً ${e(first)} 👋`)}</h2>
+    <p style="line-height:1.8;margin:0 0 14px">${applied
+      ? T(`We received your application for <strong>${e(o.jobTitle)}</strong>.`, `استلمنا تقديمك على وظيفة <strong>${e(o.jobTitle)}</strong>.`)
+      : T("You're now in the Business Partner candidate pool.", "أصبحت الآن ضمن قاعدة مرشحي Business Partner.")}${
+      o.ref ? T(` Your reference: <strong>${e(o.ref)}</strong>.`, ` رقمك المرجعي: <strong>${e(o.ref)}</strong>.`) : ""}</p>`;
+
+  const summaryBlock = o.summary ? `<div style="background:#F5F7FB;border-radius:12px;padding:14px 16px;margin:18px 0">
+      <h3 style="color:#0B1B5A;margin:0 0 6px;font-size:15px">${T("Your professional summary", "ملخص ملفك المهني")}</h3>
+      <p style="margin:0;line-height:1.8">${e(o.summary)}</p>
+    </div>` : "";
+
+  const bo = o.boost || null;
+  const gainBlock = bo && bo.before != null && bo.after != null && bo.after > bo.before
+    ? `<div style="background:#ecfdf5;border-radius:12px;padding:14px 16px;margin:18px 0">
+        <h3 style="color:#047857;margin:0 0 6px;font-size:15px">${T("How readable your CV is to hiring software", "مدى وضوح سيرتك لبرامج التوظيف")}</h3>
+        <p style="margin:0 0 8px;line-height:1.8;font-size:15px">${T("Before", "قبل")}: <b>${bo.before}/100</b> → ${T("after", "بعد")}: <b style="color:#047857">${bo.after}/100</b></p>
+        ${bo.improvements.length ? `<p style="margin:0 0 4px;font-size:13px;color:#5A6478">${T("What we changed:", "ما غيّرناه:")}</p><ul style="margin:0;padding-inline-start:20px;line-height:1.8;font-size:13px">${bo.improvements.slice(0, 5).map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}
+        <p style="margin:8px 0 0;font-size:12px;color:#5A6478">${T("We only changed the wording and the layout — none of your facts, dates or employers were altered.", "غيّرنا الصياغة والترتيب فقط — لم نغيّر أي معلومة أو تاريخ أو جهة عمل.")}</p>
+      </div>` : "";
+  const missingBlock = bo && bo.missing && bo.missing.length
+    ? `<div style="background:#fffbeb;border-radius:12px;padding:14px 16px;margin:18px 0">
+        <h3 style="color:#92400e;margin:0 0 6px;font-size:15px">${T("Add these and your CV gets stronger", "أضف هذه ليصير ملفك أقوى")}</h3>
+        <ul style="margin:0;padding-inline-start:20px;line-height:1.8;font-size:13px">${bo.missing.slice(0, 6).map((x) => `<li>${e(x)}</li>`).join("")}</ul>
+        <p style="margin:8px 0 0;font-size:12px;color:#5A6478">${T("Reply to this email with them and we'll update your profile.", "ردّ على هذه الرسالة بها ونحدّث ملفك.")}</p>
+      </div>` : "";
+
+  const cvBlock = o.atsCv ? `<div style="border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin:18px 0">
+      <p style="margin:0 0 2px;color:#5A6478;font-size:12px">${T("Yours to keep and send anywhere", "نسخة لك، استخدمها كيفما شئت")}</p>
+      <h3 style="color:#0B1B5A;margin:0 0 10px;font-size:17px">${bo && bo.lang === "Arabic"
+        ? T("Your CV, rewritten in English for applicant tracking systems", "سيرتك الذاتية بالإنجليزية بصيغة تقرأها أنظمة التوظيف (ATS)")
+        : T("Your CV, rewritten for applicant tracking systems", "سيرتك الذاتية بصيغة تقرأها أنظمة التوظيف (ATS)")}</h3>
+      <p style="margin:0 0 14px;line-height:1.8;color:#5A6478;font-size:13px">${T(
+        "Most employers filter CVs with software before a person ever reads them. This version is structured the way that software expects — copy it into a document and use it for any application, not only ours.",
+        "أغلب أصحاب العمل يفرزون السير الذاتية ببرامج قبل أن يقرأها إنسان. هذه النسخة مرتّبة بالشكل الذي تتوقعه تلك البرامج — انسخها في ملف واستخدمها في أي تقديم، وليس لدينا فقط.")}</p>
+      ${cvMarkdownToHtml(o.atsCv)}
+    </div>` : "";
+
+  const foot = `<h3 style="color:#0B1B5A;font-size:15px;margin:22px 0 6px">${T("What happens next", "ماذا بعد؟")}</h3>
+    <ul style="margin:0 0 16px;padding-inline-start:20px;line-height:1.9">
+      <li>${T("Our team reviews your profile against the roles we're hiring for.", "فريقنا يراجع ملفك مقابل الوظائف المفتوحة لدينا.")}</li>
+      <li>${T("If there's a match, we contact you to arrange an interview.", "إذا كان هناك تطابق نتواصل معك لترتيب مقابلة.")}</li>
+      <li>${T("Your profile stays with us for future openings — no need to reapply.", "ملفك يبقى محفوظاً للوظائف القادمة — لا حاجة لإعادة التقديم.")}</li>
+    </ul>
+    <p style="line-height:1.8;margin:0 0 6px">${T(
+      `Everything open right now: <a href="https://www.businesspartner.sa/careers" style="color:#0B1B5A">businesspartner.sa/careers</a>`,
+      `كل الوظائف المفتوحة: <a href="https://www.businesspartner.sa/ar/careers" style="color:#0B1B5A">businesspartner.sa/ar/careers</a>`)}</p>
+    <p style="line-height:1.8;margin:0 0 18px">${T(
+      `Want us to do the job hunting for you? <a href="https://www.businesspartner.sa/job-search-service" style="color:#0B1B5A">See how that works</a>.`,
+      `تبي نبحث لك عن الوظيفة بالنيابة عنك؟ <a href="https://www.businesspartner.sa/ar/job-search-service" style="color:#0B1B5A">شوف كيف تعمل الخدمة</a>.`)}</p>
+    <p style="color:#5A6478;font-size:12px;line-height:1.7;border-top:1px solid #E2E8F0;padding-top:12px;margin:0">
+      Business Partner · ${T("Riyadh, Saudi Arabia", "الرياض، السعودية")} · business@businesspartner.sa<br>
+      ${T("You're receiving this because you applied through businesspartner.sa.", "وصلتك هذه الرسالة لأنك تقدّمت عبر موقع businesspartner.sa.")}</p>
+  </div>`;
+
+  const subject = o.atsCv
+    ? T("Your ATS-ready CV — Business Partner", "سيرتك الذاتية بصيغة ATS جاهزة — Business Partner")
+    : T("We received your application — Business Partner", "استلمنا طلبك — Business Partner");
+  try {
+    return await sendMail(to, subject, head + summaryBlock + gainBlock + cvBlock + missingBlock + foot);
+  } catch (err) {
+    console.error("candidate copy failed", String(err).slice(0, 200));
+    return false;
+  }
+}
+
+// Best-effort — never throws, never blocks the candidate's own submission
+// from succeeding. jobId is the JOBS_DB page id the "Apply" button set, or
+// the "candidate-pool" placeholder for a general (not job-specific) signup,
+// which has no owner to notify.
+async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
+  if (!jobId || jobId === "candidate-pool" || !RESEND_API_KEY) return;
+  try {
+    const jobPage = await notion(`pages/${jobId}`, "GET");
+    if (!jobPage.ok) return;
+    const jobData = await jobPage.json();
+    const employerCode = txt(jobData.properties && jobData.properties["رمز صاحب العمل"]);
+    if (!employerCode) return;
+    const empR = await notion(`databases/${EMP_DB}/query`, "POST", {
+      page_size: 1,
+      filter: { property: "رمز الوصول", rich_text: { equals: employerCode } },
+    });
+    if (!empR.ok) return;
+    const empData = await empR.json();
+    const empRow = (empData.results || [])[0];
+    if (!empRow) return;
+    const employerEmail = txt(empRow.properties && empRow.properties["البريد"]);
+    if (!isEmail(employerEmail)) return;
+    const esc = (s) => String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const html = `<p>مرشّح جديد تقدّم على وظيفة <strong>${esc(jobTitle)}</strong> اللي نشرتها في نظام التوظيف.</p>
+      <p><strong>الاسم:</strong> ${esc(candidate.name)}<br><strong>الجوال:</strong> ${esc(candidate.phone)}${candidate.field ? `<br><strong>المجال:</strong> ${esc(candidate.field)}` : ""}${candidate.city ? `<br><strong>المدينة:</strong> ${esc(candidate.city)}` : ""}</p>
+      <p>سجّل الدخول للوحة التوظيف لمراجعة الملف الكامل والتواصل معه.</p>`;
+    await sendMail(employerEmail, `مرشّح جديد تقدّم على وظيفة ${jobTitle}`, html);
+  } catch (e) {
+    console.error("employer application notify error", String(e).slice(0, 200));
+  }
+}
+
+const OWNER_KEY = envFrom(["PANEL_KEY", "LEADS_KEY"]);
+
+// Rewrites a CV so applicant-tracking software can read it, translates it into
+// English when it wasn't, and scores it before and after. What it must never do
+// is invent a better candidate — the prompt forbids adding an employer, a date,
+// a degree or a metric the person didn't claim, because a CV that wins an
+// interview the candidate can't answer for has helped nobody. The score rises
+// because the same facts are finally legible, not because they changed.
+export async function boostCv(cvText, targetRole) {
+  const text = String(cvText || "").trim();
+  if (text.length < 120 || !aiAvailable()) return null;
+  let raw;
+  try {
+    raw = await aiText(buildCvBoostPrompt(text, targetRole), 6000);
+  } catch (e) {
+    console.error("cv boost ai failed", String(e).slice(0, 200));
+    return null;
+  }
+  const body = String(raw || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+  const start = body.indexOf("{"), end = body.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  let d;
+  try { d = JSON.parse(body.slice(start, end + 1)); } catch { return null; }
+  const clamp = (v) => { const n = Number(v); return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : null; };
+  const cvEn = String(d.cv_english || "").trim();
+  if (cvEn.length < 100) return null;
+  return {
+    lang: ["Arabic", "English"].includes(d.source_language) ? d.source_language : "other",
+    cvEn,
+    cvNative: String(d.cv_original_language || "").trim(),
+    before: clamp(d.score_before),
+    after: clamp(d.score_after),
+    improvements: Array.isArray(d.improvements) ? d.improvements.map(String).slice(0, 12) : [],
+    missing: Array.isArray(d.missing) ? d.missing.map(String).slice(0, 12) : [],
+    targetRole: String(d.target_role_guess || "").slice(0, 200),
+  };
+}
+
+// Maps a boost result onto the Notion properties, so the inline path and the
+// catch-up path write exactly the same shape.
+function applyCvBoost(props, boost) {
+  if (!boost) { props["حالة تحسين السيرة"] = { select: { name: "فشل" } }; return props; }
+  props["السيرة المحسّنة (EN)"] = { rich_text: rtChunks(boost.cvEn) };
+  if (boost.cvNative) props["السيرة المحسّنة (لغة المرشح)"] = { rich_text: rtChunks(boost.cvNative) };
+  props["لغة السيرة الأصلية"] = { select: { name: boost.lang } };
+  if (boost.before != null) props["الدرجة قبل التحسين"] = { number: boost.before };
+  if (boost.after != null) props["الدرجة بعد التحسين"] = { number: boost.after };
+  if (boost.improvements.length) props["تحسينات السيرة"] = { rich_text: rt(boost.improvements.map((x, i) => `${i + 1}. ${x}`).join("\n")) };
+  if (boost.missing.length) props["نواقص السيرة"] = { rich_text: rt(boost.missing.join(" · ")) };
+  props["حالة تحسين السيرة"] = { select: { name: "تم" } };
+  return props;
+}
+const CRON_SECRET = (process.env.CRON_SECRET || "").trim();
+const cronOk = (req) => !!CRON_SECRET && String((req.headers && req.headers.authorization) || "") === `Bearer ${CRON_SECRET}`;
+const SENT_FLAG = "أُرسلت نسخة المرشح";
+const SENT_DATE = "تاريخ إرسال نسخة المرشح";
+
+// Everyone who applied before this existed got nothing back — the pipeline's
+// output went only to us. This walks the applicants and sends each of them
+// their own copy, one bounded batch per call so a run can be watched, paused
+// and resumed rather than firing thousands of e-mails in one go.
+//
+// Scoped to people who actually applied through the site (Source = الموقع).
+// The imported/sourced rows are people who never gave us their address for
+// this, so mailing them would be unsolicited, not a service.
+async function backfillCandidateCopies(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  if (!authed) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  const dryRun = b.dryRun === true || b.dryRun === "true";
+  // 30 is what fits in the 60s budget at the send rate below, not a UI choice:
+  // each person costs a mail call, a pause, and one or more Notion writes.
+  const limit = Math.min(Math.max(Number(b.limit) || 25, 1), 30);
+  const requireCv = b.requireCv === true || b.requireCv === "true";
+
+  const filter = {
+    and: [
+      { property: "Source", select: { equals: "الموقع" } },
+      { property: "Email", email: { is_not_empty: true } },
+      { property: SENT_FLAG, checkbox: { equals: false } },
+    ],
+  };
+  if (requireCv) filter.and.push({ property: "ATS CV Text", rich_text: { is_not_empty: true } });
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit, filter, sorts: [{ timestamp: "created_time", direction: "descending" }],
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const rows = ((await q.json()).results) || [];
+
+  const results = [];
+  const seen = new Set();
+  for (const row of rows) {
+    const props = row.properties || {};
+    const to = txt(props["Email"]);
+    const name = txt(props["Candidate Name"]);
+    const atsCv = (props["ATS CV Text"] && props["ATS CV Text"].rich_text || []).map((t) => t.plain_text).join("");
+    // The AI summary was folded into Notes at intake, behind a known prefix.
+    const notes = txt(props["Notes"]);
+    const m = notes.match(/ملخص الذكاء الاصطناعي:\s*([\s\S]+?)(?:\n\n|$)/);
+    const summary = m ? m[1].trim() : "";
+    const jobStamp = txt(props["الوظيفة المتقدم لها"]);
+    const jobTitle = jobStamp.replace(/\s*\([^)]*\)\s*$/, "").trim();
+    if (!isEmail(to)) { results.push({ id: row.id, name, skipped: "no_email" }); continue; }
+
+    // 1,876 rows carry only 1,456 distinct addresses — people reapply, and a
+    // row is not a person. Sending per row would mail the same person up to
+    // four times, so a batch never mails one address twice...
+    const key = to.toLowerCase();
+    if (seen.has(key)) { results.push({ id: row.id, name, to, skipped: "duplicate" }); continue; }
+    seen.add(key);
+
+    if (dryRun) { results.push({ id: row.id, name, to, hasCv: !!atsCv, hasSummary: !!summary, jobTitle }); continue; }
+    const ok = await sendCandidateCopy(to, name, { jobTitle, ref: "CV-" + row.id.slice(-6), summary, atsCv });
+    if (ok) {
+      // ...and every other row for that address is flagged too, so the next
+      // batch doesn't pick the duplicates up again.
+      const dupes = await notion("databases/" + DB_ID + "/query", "POST", {
+        page_size: 20, filter: { property: "Email", email: { equals: to } },
+      });
+      const ids = dupes.ok ? (((await dupes.json()).results) || []).map((r) => r.id) : [row.id];
+      const stamp = { [SENT_FLAG]: { checkbox: true }, [SENT_DATE]: { date: { start: new Date().toISOString().slice(0, 10) } } };
+      for (const id of ids.length ? ids : [row.id]) await notion("pages/" + id, "PATCH", { properties: stamp });
+    }
+    results.push({ id: row.id, name, to, sent: !!ok, hadCv: !!atsCv });
+    // Resend allows 2 requests a second by default; 600ms keeps a margin under
+    // it, so a full batch is well inside the 60s function budget.
+    await new Promise((r) => setTimeout(r, 600));
+  }
+
+  const sent = results.filter((r) => r.sent).length;
+  return send(200, { ok: true, dryRun, batch: rows.length, sent, results });
+}
+
+// Catch-up pass for rows the inline attempt had no time for, and for anyone
+// whose CV predates this feature. One bounded batch per call, same shape as the
+// back-fill: the panel drives it, the flag on the row is what tracks progress.
+async function boostPendingCvs(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  if (!authed) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  if (!aiAvailable()) return send(503, { ok: false, error: "ai_not_configured" });
+  // A rewrite is one AI call of several seconds, so the batch is small — the
+  // panel loops it the same way it loops the back-fill.
+  const limit = Math.min(Math.max(Number(b.limit) || 5, 1), 8);
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit,
+    filter: {
+      and: [
+        { property: "ATS CV Text", rich_text: { is_not_empty: true } },
+        { or: [
+          { property: "حالة تحسين السيرة", select: { is_empty: true } },
+          { property: "حالة تحسين السيرة", select: { equals: "لم يبدأ" } },
+        ] },
+      ],
+    },
+    sorts: [{ timestamp: "created_time", direction: "descending" }],
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const rows = ((await q.json()).results) || [];
+
+  const results = [];
+  for (const row of rows) {
+    const props = row.properties || {};
+    const name = txt(props["Candidate Name"]);
+    const cvText = (props["ATS CV Text"] && props["ATS CV Text"].rich_text || []).map((t) => t.plain_text).join("");
+    const boost = await boostCv(cvText, txt(props["Target Role"]));
+    const patch = applyCvBoost({}, boost);
+    await notion("pages/" + row.id, "PATCH", { properties: patch });
+    results.push({ id: row.id, name, ok: !!boost, before: boost && boost.before, after: boost && boost.after, lang: boost && boost.lang });
+  }
+  return send(200, { ok: true, batch: rows.length, done: results.filter((r) => r.ok).length, results });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
   if (req.method === "GET") {
     const url = new URL(req.url, "http://x");
+    // Cron drains the back-fill queue on a schedule; the owner panel can also
+    // drive it by hand. Same handler, same batch limits, same de-duplication.
+    if (url.searchParams.get("action") === "boost-cvs") {
+      return boostPendingCvs({ key: url.searchParams.get("key") || "", limit: url.searchParams.get("limit") || 5 }, res, req);
+    }
+    if (url.searchParams.get("action") === "backfill") {
+      return backfillCandidateCopies({
+        key: url.searchParams.get("key") || "",
+        limit: url.searchParams.get("limit") || 25,
+        requireCv: url.searchParams.get("requireCv") || false,
+        dryRun: url.searchParams.get("dryRun") || false,
+      }, res, req);
+    }
     const checkPhone = clip(url.searchParams.get("phone"), 40);
     const checkEmail = clip(url.searchParams.get("email"), 160).toLowerCase();
     // Self-view: a candidate looks up their own record by the same
@@ -242,7 +639,9 @@ export default async function handler(req, res) {
           nationality: txt(p["Nationality"]),
           residenceStatus: txt(p["حالة الإقامة"]),
           experienceYears: txt(p["Experience Years"]),
-          expectedSalary: txt(p["Expected Salary"]),
+          // SECURITY: expected salary is deliberately NOT echoed here — this
+          // self-view is gated only by a phone+email pair (no OTP), so the
+          // most sensitive field must not be exposed on that weak check.
           pipelineStage: txt(p["Pipeline Stage"]),
           cvLink: txt(p["CV Link"]),
           atsCvLink: txt(p["ATS CV (Drive)"]),
@@ -251,9 +650,9 @@ export default async function handler(req, res) {
       }));
     }
     res.statusCode = 200;
-    // seenKeyNames helps diagnose a mis-named / wrong-project token without leaking it.
-    const seenKeyNames = Object.keys(process.env).filter((k) => /notion/i.test(k));
-    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK, seenKeyNames }));
+    // SECURITY: never enumerate env-var names to unauthenticated callers — it
+    // hands an attacker the secret-naming scheme. Booleans only.
+    return res.end(JSON.stringify({ status: "ok", configured: !!NOTION_TOKEN, n8n: !!N8N_ATS_WEBHOOK }));
   }
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -264,7 +663,13 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
   }
 
+  const startedAt = Date.now();
   const b = await readBody(req);
+
+  // Owner-only maintenance action, not part of the public application flow.
+  if (b.type === "backfill-copies") return backfillCandidateCopies(b, res, req);
+  if (b.type === "boost-cvs") return boostPendingCvs(b, res, req);
+
   const name = clip(b.name, 160);
   const phone = clip(b.phone, 40);
   const email = clip(b.email, 160).toLowerCase();
@@ -311,14 +716,30 @@ export default async function handler(req, res) {
     "Candidate Name": { title: [{ text: { content: name } }] },
     "Phone": { phone_number: phone },
     "City": { rich_text: rt(city) },
-    "Target Role": { rich_text: rt(field) },
+    // The ATS database's Target Role property is a select, not rich text —
+    // a select name must be non-empty, comma-free and at most 100 chars.
+    ...(field ? { "Target Role": { select: { name: String(field).replace(/,/g, "،").slice(0, 90) } } } : {}),
     "Experience Years": { number: expYears },
     "Skills": { rich_text: rt([field, linkedin].filter(Boolean).join(" · ")) },
     "Source": { select: { name: "الموقع" } },
+    // Job linkage the employer console groups by — "title (id)". Notes carries
+    // the same stamp for rows created before this property existed.
+    "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle} (${jobId})`) },
     "مخفي عن الموقع": { checkbox: false },
     "حالة القراءة": { select: { name: "مكتمل" } },
     "Notes": { rich_text: rt(answerLines) },
   };
+
+  // "Search for a job on my behalf" — ticked on the application form. This
+  // records the intent and the chosen plan; the service is activated by a
+  // human afterwards, so submitting an application never starts any billing.
+  const js = b.jobSearch && typeof b.jobSearch === "object" ? b.jobSearch : null;
+  if (js && js.interested) {
+    const PLANS = ["اشتراك شهري 100 ريال", "راتب شهر على 3 دفعات"];
+    props["خدمة البحث عن وظيفة"] = { select: { name: "مهتم — بانتظار الاختيار" } };
+    props["حالة الدفع"] = { select: { name: "لم يبدأ" } };
+    if (PLANS.includes(js.plan)) props["باقة الخدمة"] = { select: { name: js.plan } };
+  }
   if (isEmail(email)) props["Email"] = { email };
   if (fieldCat) props["Field"] = { select: { name: fieldCat } };
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
@@ -347,6 +768,12 @@ export default async function handler(req, res) {
     const n8n = await forwardToN8n(n8nPayload);
     const existing = await findExisting(email, phone);
     if (existing) {
+      // SECURITY / data-integrity: a resubmission must NOT re-expose a
+      // candidate an admin deliberately hid, nor wipe recruiter notes. Both
+      // props are create-only — drop them from the update so the existing
+      // hide flag and Notes are left exactly as the recruiter left them.
+      delete props["مخفي عن الموقع"];
+      delete props["Notes"];
       applyN8nEnrichment(props, n8n, false);
       const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
       if (!r.ok) {
@@ -354,6 +781,11 @@ export default async function handler(req, res) {
         res.statusCode = 502;
         return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
       }
+      await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
+      await sendCandidateCopy(email, name, {
+        jobTitle, ref: "CV-" + existing.id.slice(-6), lang: b.lang,
+        summary: n8nAi(n8n).candidate_summary, atsCv: n8nAi(n8n).ats_cv_markdown,
+      });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ref: "CV-" + existing.id.slice(-6), updated: true, n8n }));
     }
@@ -361,6 +793,20 @@ export default async function handler(req, res) {
     // applyN8nEnrichment may raise this to an AI-informed stage below.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
     applyN8nEnrichment(props, n8n, true);
+    // n8n has already spent most of the budget, so the rewrite only runs inline
+    // when there is real time left; otherwise the row is queued and the catch-up
+    // pass picks it up. Either way the candidate's mail carries the best CV we
+    // have at the moment it is sent.
+    const cvText = n8nAi(n8n).ats_cv_markdown || "";
+    let boost = null;
+    if (cvText && Date.now() - startedAt < 30000) {
+      boost = await boostCv(cvText, field);
+      applyCvBoost(props, boost);
+    } else if (cvText) {
+      props["حالة تحسين السيرة"] = { select: { name: "لم يبدأ" } };
+    } else {
+      props["حالة تحسين السيرة"] = { select: { name: "لا توجد سيرة" } };
+    }
     const r = await notion("pages", "POST", { parent: { database_id: DB_ID }, properties: props });
     if (!r.ok) {
       console.error("Notion create error", r.status, (await r.text()).slice(0, 400));
@@ -369,6 +815,16 @@ export default async function handler(req, res) {
     }
     const page = await r.json();
     const ref = "CV-" + page.id.slice(-6);
+    await notifyEmployerOfApplication(jobId, jobTitle, { name, phone, field, city });
+    // Everything the pipeline just produced about this person also goes to the
+    // person. When n8n didn't answer in time there's no CV yet, and this is
+    // still a confirmation they applied — which is more than they used to get.
+    await sendCandidateCopy(email, name, {
+      jobTitle, ref, lang: b.lang,
+      summary: n8nAi(n8n).candidate_summary,
+      atsCv: (boost && boost.cvEn) || cvText,
+      boost,
+    });
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, ref, updated: false, n8n }));
   } catch (e) {

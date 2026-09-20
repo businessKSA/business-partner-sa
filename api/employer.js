@@ -14,7 +14,7 @@
 // POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -65,13 +65,16 @@ async function readBody(req) {
 // A short human reference like BP-EMP-3F9K. Mixes in the current time (and a
 // random component) so repeat/duplicate registrations never collide on the
 // same code — each submission gets its own row and its own access code.
-function makeRef(seed) {
+function makeRef(_seed) {
+  // SECURITY: the access code is the sole bearer token that unlocks all
+  // candidate PII once the row is activated, so it must be unguessable. The
+  // old 4-char hash (~9.5e5 space, derived deterministically from the form
+  // fields) was brute-forceable and predictable — replaced with 12 chars of
+  // CSPRNG entropy from a 31-symbol alphabet (~2.5e17 combinations).
   const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const salted = seed + "|" + Date.now() + "|" + Math.random();
-  let h = 0;
-  for (let i = 0; i < salted.length; i++) h = (h * 31 + salted.charCodeAt(i)) >>> 0;
+  const bytes = randomBytes(12);
   let out = "";
-  for (let i = 0; i < 4; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + salted.length * (i + 7); }
+  for (let i = 0; i < 12; i++) out += abc[bytes[i] % abc.length];
   return "BP-EMP-" + out;
 }
 
@@ -129,6 +132,75 @@ export default async function handler(req, res) {
 
   const b = await readBody(req);
 
+  // Stateless password reset: step 1 emails a 6-digit code and returns an
+  // HMAC-sealed token (email|code|exp — verifying requires the code, so the
+  // token is safe client-side). Step 2 verifies code+token and stores the new
+  // scrypt hash. Responses never reveal whether an email is registered.
+  if (b.action === "reset-password") {
+    const email = clip(b.email, 160).toLowerCase();
+    const SECRET = (process.env.OTP_SECRET || "").trim();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    if (!SECRET || !NOTION_TOKEN || !DB_ID) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    const sealOf = (exp, code) => createHmac("sha256", SECRET).update(`emp-reset|${email}|${code}|${exp}`).digest("hex");
+    const code = String(b.code || "").trim();
+    const token = String(b.t || "").trim();
+    const newPassword = String(b.password || "").slice(0, 200);
+    if (!code || !token) {
+      // step 1 — send the code
+      try {
+        const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+        if (q.ok) {
+          const row = ((await q.json()).results || [])[0];
+          if (row) {
+            const c = String(randomInt(100000, 1000000));
+            const exp = Date.now() + 15 * 60 * 1000;
+            await sendMail(email, `رمز استعادة كلمة المرور — Business Partner`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+              <h2 style="color:#0B1B5A">استعادة كلمة المرور</h2>
+              <p>رمز الاستعادة الخاص بك (صالح 15 دقيقة):</p>
+              <p style="font-size:28px;font-weight:bold;letter-spacing:3px;color:#0B1B5A">${c}</p>
+              <p style="color:#666">إذا لم تطلب استعادة كلمة المرور، تجاهل هذه الرسالة.</p>
+            </div>`);
+            res.statusCode = 200;
+            return res.end(JSON.stringify({ ok: true, t: `${exp}.${sealOf(exp, c)}`, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الاستعادة خلال دقائق." }));
+          }
+        }
+      } catch (e) { console.error("reset send error", String(e).slice(0, 200)); }
+      // same shape whether or not the account exists (dummy token)
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, t: `${Date.now() + 15 * 60 * 1000}.${randomBytes(32).toString("hex")}`, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الاستعادة خلال دقائق." }));
+    }
+    // step 2 — verify and set the new password
+    if (!newPassword || newPassword.length < 8) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak_password" })); }
+    const dot = token.indexOf(".");
+    const exp = dot > 0 ? Number(token.slice(0, dot)) : 0;
+    const mac = dot > 0 ? token.slice(dot + 1) : "";
+    const expected = sealOf(exp, code);
+    const macBuf = Buffer.from(mac.padEnd(expected.length, "0").slice(0, expected.length), "utf8");
+    const expBuf = Buffer.from(expected, "utf8");
+    if (!exp || Date.now() > exp || !timingSafeEqual(macBuf, expBuf)) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_code", message: "الرمز غير صحيح أو انتهت صلاحيته." }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) throw new Error("notion_failed");
+      const row = ((await q.json()).results || [])[0];
+      if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const u = await fetch(`https://api.notion.com/v1/pages/${row.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "بيانات الدخول": { rich_text: rt(hashPassword(newPassword)) } } }),
+      });
+      if (!u.ok) throw new Error("notion_failed");
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, message: "تم تعيين كلمة المرور الجديدة — سجّل دخولك بها الآن." }));
+    } catch (e) {
+      console.error("reset set error", String(e).slice(0, 200));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
   if (b.action === "login") {
     const email = clip(b.email, 160).toLowerCase();
     const password = String(b.password || "");
@@ -163,6 +235,42 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
   }
+  // «أرسل رمزي إلى بريدي» — emails the registered access code to the
+  // account's own email address. The response is identical whether or not
+  // the email exists, so this can't be used to probe which emails are
+  // registered; the code only ever travels to the address stored in Notion.
+  if (b.action === "send-code") {
+    const email = clip(b.email, 160).toLowerCase();
+    if (!isEmail(email)) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_email" }));
+    }
+    if (!NOTION_TOKEN || !DB_ID) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (q.ok) {
+        const data = await q.json();
+        const row = (data.results || [])[0];
+        const code = row ? txtProp(row.properties["رمز الوصول"]) : "";
+        const company = (row ? txtProp(row.properties["اسم الشركة"], "title") : "").replace(/[<>&]/g, "");
+        if (code) {
+          await sendMail(email, `رمز الوصول: ${code} — Business Partner`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+            <h2 style="color:#0B1B5A">رمز الوصول للوحة التوظيف</h2>
+            <p>${company ? "حساب: " + company + "<br>" : ""}رمز الوصول الخاص بك هو:</p>
+            <p style="font-size:28px;font-weight:bold;letter-spacing:3px;color:#0B1B5A">${code}</p>
+            <p>ادخل به من صفحة <a href="https://www.businesspartner.sa/ar/employer-login">تسجيل دخول أصحاب العمل</a> لفتح لوحة التوظيف.</p>
+            <p style="color:#666">إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.</p>
+          </div>`);
+        }
+      }
+    } catch (e) { console.error("send-code error", String(e).slice(0, 200)); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, message: "إذا كان البريد مسجلاً لدينا فسيصلك رمز الوصول خلال دقائق." }));
+  }
+
   const company = clip(b.company, 200);
   const cr = clip(b.cr, 60);
   const contact = clip(b.contact, 160);
@@ -173,10 +281,16 @@ export default async function handler(req, res) {
   const billing = b.billing === "yearly" ? "سنوي" : "شهري";
   const notes = clip(b.notes, 600);
 
-  // Owner testing override — the owner's own registrations activate instantly
-  // (top-tier plan, no manual Notion approval) so they can test live.
-  const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toLowerCase();
-  const isOwner = email === OWNER_EMAIL;
+  // SECURITY: registration is fully unauthenticated, so no email value may
+  // grant an instantly-active subscription — matching a well-known owner email
+  // was a full auth bypass (anyone POSTing that email received an ACTIVE code
+  // that unlocks all candidate PII). Every registration is now created as
+  // "بانتظار الدفع" and is activated only by flipping the row to "مفعّل" in
+  // Notion (the same manual step the confirmation screen already instructs).
+  // An operator email may still be set via OWNER_EMAIL purely to auto-assign
+  // the enterprise plan LABEL — it never activates access on its own.
+  const OWNER_EMAIL = (process.env.OWNER_EMAIL || "").toLowerCase();
+  const isOwner = !!OWNER_EMAIL && email === OWNER_EMAIL;
   const planAr = isOwner ? PLAN_AR.enterprise : (PLAN_AR[planKey] || "");
 
   if (!company || !phone) {
@@ -201,7 +315,7 @@ export default async function handler(req, res) {
       const props = {
         "اسم الشركة": { title: [{ text: { content: company } }] },
         "الجوال": { phone_number: phone },
-        "الحالة": { select: { name: isOwner ? "مفعّل" : "بانتظار الدفع" } },
+        "الحالة": { select: { name: "بانتظار الدفع" } },
         "رمز الوصول": { rich_text: rt(ref) },
       };
       if (cr) props["السجل التجاري"] = { rich_text: rt(cr) };
@@ -209,7 +323,7 @@ export default async function handler(req, res) {
       if (isEmail(email)) props["البريد"] = { email };
       if (password) props["بيانات الدخول"] = { rich_text: rt(hashPassword(password)) };
       if (planAr) props["الباقة"] = { select: { name: planAr } };
-      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}` + (isOwner ? " — تفعيل تلقائي (مالك)" : "")) };
+      props["ملاحظات"] = { rich_text: rt((notes ? notes + " — " : "") + `الفوترة: ${billing}`) };
       r = await notion("pages", { parent: { database_id: DB_ID }, properties: props });
     } else {
       // No dedicated DB: create a child page under the HR center page.
@@ -225,7 +339,7 @@ export default async function handler(req, res) {
         line("الجوال", phone),
         line("البريد", email || "—"),
         line("السجل التجاري", cr || "—"),
-        line("الحالة", isOwner ? "مفعّل" : "بانتظار الدفع"),
+        line("الحالة", "بانتظار الدفع"),
       ];
       if (notes) children.push(line("ملاحظات", notes));
       r = await notion("pages", {

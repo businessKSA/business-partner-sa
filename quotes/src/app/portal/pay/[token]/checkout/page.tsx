@@ -2,7 +2,9 @@ import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { fmtMoney } from '@/lib/money';
 import { COMPANY } from '@config/company';
+import { gatewayMethods } from '@/lib/payment-methods';
 import MoyasarForm from './MoyasarForm';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +20,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
   if (invoice.status === 'PAID') redirect(`/portal/pay/${token}`);
 
   const key = process.env.MOYASAR_PUBLISHABLE_KEY;
-  const base = process.env.APP_URL || 'http://localhost:3000';
-  const methods = ['creditcard'];
-  if (process.env.MOYASAR_APPLE_PAY === '1') methods.push('applepay');
+  const base = appBase();
+  // القائمة من تعريف واحد يشترك فيه النموذج وخريطة الكتالوج (lib/payment-methods).
+  const methods = gatewayMethods();
 
   return (
     <div className="card" style={{ maxWidth: 620, margin: '40px auto' }}>
@@ -54,6 +56,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ token
       )}
 
       <h3>التحويل البنكي</h3>
+      <p className="muted" style={{ marginTop: -6 }}>
+        لمن يفضّل التحويل بدل البطاقة. أرسل إشعار التحويل بعد السداد ليُقيَّد على الفاتورة.
+      </p>
       <p className="muted">
         {COMPANY.bank.name.ar} — المستفيد {COMPANY.bank.beneficiary.ar}
         <br />

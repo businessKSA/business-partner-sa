@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { guardAdmin } from '@/lib/guard';
 import { prisma } from '@/lib/db';
 import { fmtMoney, fmtDate } from '@/lib/money';
+import { tamaraFee } from '@/lib/payments/tamara';
 import { payUrl } from '@/lib/send';
 import { SendInvoiceLink } from './InvoiceActions';
 
@@ -61,7 +62,7 @@ export default async function InvoicesPage({
         <table>
           <thead>
             <tr>
-              <th>الفاتورة</th>
+              <th>المطالبة</th>
               <th>العميل</th>
               <th className="num">غير شامل الضريبة</th>
               <th className="num">الضريبة</th>
@@ -77,6 +78,26 @@ export default async function InvoicesPage({
                 <td>
                   <b>{inv.number}</b>
                   <div className="sub">{inv.titleAr}</div>
+                  {/* رقم المنشأة الضريبي من الدفترة، وسبب التعذّر إن وُجد —
+                      يُعرض هنا بدل أن يُبتلع في السجلات. */}
+                  {inv.daftraNumber ? (
+                    <div className="sub">الفاتورة الضريبية <b className="mono">{inv.daftraNumber}</b></div>
+                  ) : inv.daftraError ? (
+                    <div className="sub" style={{ color: 'var(--bad, #9C4620)' }}>
+                      تعذّر إصدار الفاتورة الضريبية: {inv.daftraError}
+                    </div>
+                  ) : null}
+                  {/* خصم تمارا تكلفةٌ علينا لا على العميل، فيُعرض هنا وحده.
+                      إخفاؤه يجعل الهامش يتآكل بلا أن يظهر في أي شاشة. */}
+                  {inv.method === 'tamara' || inv.tamaraStatus ? (
+                    <div className="sub">
+                      تمارا: {inv.tamaraStatus || '—'}
+                      {inv.status === 'PAID' ? ` — تكلفة القبول ${fmtMoney(tamaraFee(inv.total))} ريال` : ''}
+                    </div>
+                  ) : null}
+                  {inv.tamaraError ? (
+                    <div className="sub" style={{ color: 'var(--bad, #9C4620)' }}>{inv.tamaraError}</div>
+                  ) : null}
                 </td>
                 <td>{inv.client.companyAr || inv.client.nameAr}</td>
                 <td className="num">{fmtMoney(inv.amountExclVat)}</td>
