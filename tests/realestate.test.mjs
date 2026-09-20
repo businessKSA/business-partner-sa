@@ -172,3 +172,134 @@ test("لا رسالة غادرت الجهاز — كلها في صندوق ال�
   assert.ok(rows.length > 0);
   assert.ok(rows.every((r) => r.kind === "whatsapp"));
 });
+
+// ------------------------------------------------- الصفقات والدراسات --
+// ما يهم هنا ليس أن الصفّ كُتب، بل أن ما حوله تحرّك معه: عرضٌ يُسحب من
+// السوق، وطلبٌ يُغلق أو يعود للبحث، وعدّادٌ يزيد. لوحة تسجّل مرحلةً ويبقى
+// ما حولها كاذباً أسوأ من لا لوحة.
+
+test("الصفقة تُفتح من زوج طلب وعرض، وتنقل الطلب إلى التفاوض", async () => {
+  const lst = (await call("GET", { action: "list", of: "listings", key: "test-bd" })).json.rows[0];
+  const req = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.completeness === 100);
+  assert.ok(lst && req);
+  const res = await call("POST", {}, {
+    action: "deal", key: "test-bd", requestRef: req.ref, listingRef: lst.ref, commissionPct: 2.5,
+  });
+  assert.equal(res.json.ok, true);
+  assert.match(res.json.ref, /^BD-D-\d{6}$/);
+  assert.equal(res.json.deal.stage, "OFFER");
+  // العمولة محسوبة من قيمة العرض
+  assert.equal(res.json.deal.commission_amount, Math.round(lst.price * 0.025 * 100) / 100);
+
+  const after = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.ref === req.ref);
+  assert.equal(after.status, "NEGOTIATING", "الطلب الذي عليه صفقة لا يبقى معروضاً على السوق");
+});
+
+test("الزوج نفسه لا يُفتح له صفقتان", async () => {
+  const deal = (await call("GET", { action: "list", of: "deals", key: "test-bd" })).json.rows[0];
+  const lst = (await call("GET", { action: "list", of: "listings", key: "test-bd" })).json.rows
+    .find((l) => l.id === deal.listing_id);
+  const req = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.id === deal.request_id);
+  const res = await call("POST", {}, { action: "deal", key: "test-bd", requestRef: req.ref, listingRef: lst.ref });
+  assert.equal(res.statusCode, 409, "العمولة تُحسب مرتين لو فُتحت الصفقة مرتين");
+});
+
+test("الخسارة تحتاج سبباً، وتعيد الطلب إلى البحث", async () => {
+  const deal = (await call("GET", { action: "list", of: "deals", key: "test-bd" })).json.rows[0];
+  const bad = await call("POST", {}, { action: "deal-stage", key: "test-bd", ref: deal.ref, stage: "LOST" });
+  assert.equal(bad.statusCode, 400);
+  assert.equal(bad.json.error, "lost_reason_required");
+
+  const ok = await call("POST", {}, {
+    action: "deal-stage", key: "test-bd", ref: deal.ref, stage: "LOST", lostReason: "المالك رفع السعر",
+  });
+  assert.equal(ok.json.ok, true);
+  assert.equal(ok.json.deal.lost_reason, "المالك رفع السعر");
+  const req = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.id === deal.request_id);
+  assert.equal(req.status, "SEARCHING", "العميل ما زال يريد — الطلب يعود للمطابقة");
+});
+
+test("الإقفال يسحب العرض من السوق ويغلق الطلب ويزيد العدّاد", async () => {
+  const lst = (await call("GET", { action: "list", of: "listings", key: "test-bd" })).json.rows
+    .find((l) => l.status !== "SOLD");
+  const req = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.status === "SEARCHING" || r.status === "OPEN");
+  assert.ok(lst && req);
+  const opened = await call("POST", {}, {
+    action: "deal", key: "test-bd", requestRef: req.ref, listingRef: lst.ref, amount: 9_000_000, commissionPct: 2.5,
+  });
+  assert.equal(opened.json.ok, true);
+
+  const closed = await call("POST", {}, { action: "deal-stage", key: "test-bd", ref: opened.json.ref, stage: "CLOSED" });
+  assert.equal(closed.json.deal.stage, "CLOSED");
+  assert.equal(closed.json.deal.commission_amount, 225000);
+  assert.ok(closed.json.deal.closed_at);
+
+  const lstAfter = (await call("GET", { action: "list", of: "listings", key: "test-bd" })).json.rows
+    .find((l) => l.id === lst.id);
+  assert.equal(lstAfter.status, "SOLD");
+  assert.equal(lstAfter.available, false, "المُباع لا يُرسل لعميل آخر");
+  const reqAfter = (await call("GET", { action: "list", of: "requests", key: "test-bd" })).json.rows
+    .find((r) => r.id === req.id);
+  assert.equal(reqAfter.status, "WON");
+  const seller = (await call("GET", { action: "list", of: "contacts", key: "test-bd" })).json.rows
+    .find((c) => c.id === lst.contact_id);
+  assert.equal(seller.deals_count, 1);
+});
+
+test("مرحلة خارج القائمة تُرفض", async () => {
+  const deal = (await call("GET", { action: "list", of: "deals", key: "test-bd" })).json.rows[0];
+  const res = await call("POST", {}, { action: "deal-stage", key: "test-bd", ref: deal.ref, stage: "WHATEVER" });
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.json.error, "bad_stage");
+});
+
+test("الدراسة تُفتح وتتدرّج، و«مُسلَّمة» تحتاج مخرجاً", async () => {
+  const created = await call("POST", {}, {
+    action: "study", key: "test-bd", kind: "FEASIBILITY", title: "دراسة جدوى مشروع سكني شمال الرياض",
+    city: "الرياض", phone: "0551110000", name: "خالد", fee: 45000,
+  });
+  assert.equal(created.json.ok, true);
+  assert.match(created.json.ref, /^BD-C-\d{6}$/);
+  assert.equal(created.json.study.status, "NEW");
+
+  const ref = created.json.ref;
+  for (const st of ["SCOPED", "QUOTED", "APPROVED", "IN_PROGRESS"]) {
+    const r = await call("POST", {}, { action: "study-status", key: "test-bd", ref, status: st });
+    assert.equal(r.json.study.status, st);
+  }
+  const noOutput = await call("POST", {}, { action: "study-status", key: "test-bd", ref, status: "DELIVERED" });
+  assert.equal(noOutput.statusCode, 400);
+  assert.equal(noOutput.json.error, "output_required", "«سُلِّمت» بلا ملف ادعاء");
+
+  const done = await call("POST", {}, {
+    action: "study-status", key: "test-bd", ref, status: "DELIVERED", outputUrl: "https://example.com/study.pdf",
+  });
+  assert.equal(done.json.study.status, "DELIVERED");
+  assert.equal(done.json.study.output_url, "https://example.com/study.pdf");
+});
+
+test("الدراسة بلا عنوان أو بنوع مجهول تُرفض", async () => {
+  const noTitle = await call("POST", {}, { action: "study", key: "test-bd", kind: "ANALYSIS" });
+  assert.equal(noTitle.json.error, "title_required");
+  const badKind = await call("POST", {}, { action: "study", key: "test-bd", kind: "SOMETHING", title: "س" });
+  assert.equal(badKind.json.error, "bad_kind");
+});
+
+test("اللوحة تعرض خطّ الأنابيب والعمولة المحقّقة ومسمّياتها", async () => {
+  const d = (await call("GET", { action: "dashboard", key: "test-bd" })).json;
+  assert.ok(d.pipeline.CLOSED >= 1);
+  assert.ok(d.pipeline.LOST >= 1);
+  assert.equal(d.money.wonCommission, 225000);
+  assert.ok(d.recent.deals.length >= 2);
+  assert.ok(d.recent.studies.length >= 1);
+
+  const st = (await call("GET", { action: "status", key: "test-bd" })).json;
+  assert.equal(st.labels.dealStages.CLOSED, "مُقفلة");
+  assert.equal(st.labels.studyKinds.FEASIBILITY, "دراسة جدوى");
+  assert.equal(st.labels.propertyTypes.LAND, "أرض خام");
+});

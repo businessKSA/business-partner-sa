@@ -106,6 +106,44 @@ function countAr(n, one, two, few, many) {
 const offersAr = (n) => countAr(n, "عرض واحد", "عرضان", "عروض", "عرضاً");     // مرفوع: «لدينا …»
 const requestsAr = (n) => countAr(n, "طلباً واحداً", "طلبين", "طلبات", "طلباً"); // منصوب: «يطابق …»
 
+// ------------------------------------------------- مراحل الصفقة والدراسة --
+// المفاتيح إنجليزية لأنها تُخزَّن وتُقيَّد بـcheck في db/schema.sql، والعربية
+// للعرض. تُصدَّر مع «status» فتقرأها اللوحة من هنا بدل أن تكرّرها عندها —
+// قائمتان تنحرفان عن بعضهما تعنيان لوحةً تعرض مرحلةً لا تقبلها القاعدة.
+export const DEAL_STAGES = {
+  OFFER:       "عرض مقدَّم",
+  NEGOTIATION: "تفاوض",
+  AGREED:      "اتفاق مبدئي",
+  DEPOSIT:     "عربون",
+  CONTRACT:    "عقد",
+  EJAR:        "توثيق إيجار",
+  TRANSFERRED: "إفراغ",
+  CLOSED:      "مُقفلة",
+  LOST:        "خسرت",
+};
+export const STUDY_KINDS = {
+  ANALYSIS:              "تحليل عقاري",
+  FEASIBILITY:           "دراسة جدوى",
+  VALUATION:             "تقييم",
+  FINANCIAL_STRUCTURING: "هندسة مالية",
+  STRATEGY:              "استشارة استراتيجية",
+  MARKET_STUDY:          "دراسة سوق",
+};
+export const STUDY_STATUSES = {
+  NEW:         "جديدة",
+  SCOPED:      "حُدِّد النطاق",
+  QUOTED:      "عرض أتعاب",
+  APPROVED:    "معتمدة",
+  IN_PROGRESS: "تحت التنفيذ",
+  DELIVERED:   "مُسلَّمة",
+  CANCELLED:   "ملغاة",
+};
+// المرحلتان اللتان تُنهيان الصفقة، ولكلٍّ أثرها على الطلب والعرض.
+const DEAL_DONE = new Set(["CLOSED", "LOST"]);
+// نسبة العمولة الافتراضية تأتي من البيئة لا من الشيفرة: النسبة تفاوضية
+// وتختلف بالصفقة، ورقمٌ مكتوبٌ هنا يصير «سعراً» لم يقرّه أحد.
+const DEFAULT_COMMISSION = num(env("BD_COMMISSION_PCT", ""));
+
 // ---------------------------------------------------------- أرقام مرجعية --
 // الشكل BD-T-000123. الحرف يقول ماذا تقرأ قبل أن تفتح الصفّ، وهذا وحده
 // يختصر نصف أسئلة الواتساب: «إيش رقم BD-A-000456؟» جوابها في الحرف.
@@ -417,6 +455,176 @@ export async function broadcastRequest(request, { limit = 40, actor = "ops" } = 
     try { await sb(`re_requests?id=eq.${request.id}`, { method: "PATCH", body: { status: "SEARCHING", updated_at: nowIso() } }); } catch {}
   }
   return row;
+}
+
+// ------------------------------------------------------ الصفقة والدراسة --
+// نهاية المسار. الصفقة تُفتح من زوج (طلب، عرض) لأن سؤال «من أين جاءت هذه
+// الصفقة» جوابه الطلب الذي بدأها لا العرض الذي أغلقها، والعمولة في هذا
+// السوق تُحسب على الطرفين أحياناً فيُحفظ الطرفان.
+
+/** العمولة: تُحسب حين يتوفر مبلغ ونسبة، وتبقى null حين ينقص أحدهما. */
+function commissionOf(amount, pct) {
+  const a = num(amount), p = num(pct);
+  if (a == null || p == null) return null;
+  return Math.round(a * (p / 100) * 100) / 100;
+}
+
+/**
+ * فتح صفقة على زوج (طلب، عرض).
+ * تنقل الطلب إلى التفاوض وتعلّم المطابقة صفقةً، فلا يبقى الطلب معروضاً
+ * على السوق وصفقته جارية.
+ */
+export async function openDeal({ requestRef, listingRef, amount, commissionPct, notes, actor = "ops" }) {
+  const request = await byRef("re_requests", requestRef);
+  const listing = await byRef("re_listings", listingRef);
+  if (!request || !listing) return { error: "not_found" };
+
+  // صفقة واحدة لكل زوج: فتحها مرتين يعني عمولةً محسوبةً مرتين في اللوحة.
+  if (DB_ON) {
+    try {
+      const dup = await sb(`re_deals?request_id=eq.${request.id}&listing_id=eq.${listing.id}&stage=not.in.(CLOSED,LOST)&select=*&limit=1`);
+      if (dup && dup.length) return { error: "already_open", deal: dup[0] };
+    } catch {}
+  }
+
+  let matchId = null;
+  if (DB_ON) {
+    try {
+      const m = await sb(`re_matches?request_id=eq.${request.id}&listing_id=eq.${listing.id}&select=id&limit=1`);
+      matchId = m && m[0] ? m[0].id : null;
+    } catch {}
+  }
+
+  const amt = num(amount) != null ? num(amount) : num(listing.price);
+  const pct = num(commissionPct) != null ? num(commissionPct)
+    : num(listing.commission_pct) != null ? num(listing.commission_pct)
+    : DEFAULT_COMMISSION;
+  const ref = await nextRef("deal");
+  const row = {
+    ref,
+    request_id: request.id, listing_id: listing.id, match_id: matchId,
+    buyer_contact_id: request.contact_id || null,
+    seller_contact_id: listing.contact_id || null,
+    amount: amt, commission_pct: pct, commission_amount: commissionOf(amt, pct),
+    stage: "OFFER", notes: notes || null, lost_reason: null, closed_at: null,
+  };
+  if (!DB_ON) return { deal: { ...row, id: crypto.randomUUID() }, request, listing };
+
+  const ins = await sb("re_deals", { method: "POST", body: [row] });
+  const deal = (ins && ins[0]) || row;
+  try { await sb(`re_requests?id=eq.${request.id}`, { method: "PATCH", body: { status: "NEGOTIATING", updated_at: nowIso() } }); } catch {}
+  if (matchId) { try { await sb(`re_matches?id=eq.${matchId}`, { method: "PATCH", body: { status: "DEAL", updated_at: nowIso() } }); } catch {} }
+  await audit({ action: "re.deal.open", entity_type: "re_deals", entity_id: deal.id, details: { ref, request: request.ref, listing: listing.ref, actor } });
+  await alertOwner([
+    `🤝 *صفقة جديدة* ${ref}`,
+    `الطلب ${request.ref} · العرض ${listing.ref}`,
+    summarizeListing(listing),
+    amt != null ? `القيمة: ${Number(amt).toLocaleString("en-US")} ريال` : "",
+    row.commission_amount != null ? `العمولة: ${Number(row.commission_amount).toLocaleString("en-US")} ريال (${pct}%)` : "",
+  ].filter(Boolean).join("\n"));
+  return { deal, request, listing };
+}
+
+/**
+ * نقل صفقة بين المراحل، بآثارها لا بتغيير حقل وحده.
+ *
+ * الإقفال يسحب العرض من السوق ويغلق الطلب ويزيد عدّاد الطرفين؛ والخسارة
+ * تُعيد الطلب إلى البحث فيدخل المطابقة من جديد — وهذا هو الفرق بين لوحة
+ * تعكس الواقع ولوحة تسجّل حالةً ويبقى ما حولها كاذباً.
+ */
+export async function moveDealStage({ ref, stage, lostReason, amount, commissionPct, notes, actor = "ops" }) {
+  if (!DEAL_STAGES[stage]) return { error: "bad_stage" };
+  const deal = await byRef("re_deals", ref);
+  if (!deal) return { error: "not_found" };
+  if (stage === "LOST" && !String(lostReason || "").trim()) return { error: "lost_reason_required" };
+
+  const amt = num(amount) != null ? num(amount) : num(deal.amount);
+  const pct = num(commissionPct) != null ? num(commissionPct) : num(deal.commission_pct);
+  const patch = {
+    stage,
+    amount: amt, commission_pct: pct, commission_amount: commissionOf(amt, pct),
+    updated_at: nowIso(),
+  };
+  if (notes != null) patch.notes = String(notes).slice(0, 2000);
+  if (stage === "LOST") patch.lost_reason = String(lostReason).slice(0, 500);
+  if (DEAL_DONE.has(stage)) patch.closed_at = nowIso();
+  else patch.closed_at = null;   // صفقة أُعيد فتحها لا تحمل تاريخ إقفال
+
+  if (!DB_ON) return { deal: { ...deal, ...patch } };
+  const upd = await sb(`re_deals?id=eq.${deal.id}`, { method: "PATCH", body: patch });
+  const after = (upd && upd[0]) || { ...deal, ...patch };
+
+  if (stage === "CLOSED") {
+    if (deal.listing_id) { try { await sb(`re_listings?id=eq.${deal.listing_id}`, { method: "PATCH", body: { status: "SOLD", available: false, updated_at: nowIso() } }); } catch {} }
+    if (deal.request_id) { try { await sb(`re_requests?id=eq.${deal.request_id}`, { method: "PATCH", body: { status: "WON", updated_at: nowIso() } }); } catch {} }
+    for (const id of [deal.buyer_contact_id, deal.seller_contact_id].filter(Boolean)) {
+      try {
+        const c = (await sb(`re_contacts?id=eq.${id}&select=deals_count&limit=1`))[0];
+        await sb(`re_contacts?id=eq.${id}`, { method: "PATCH", body: { deals_count: ((c && c.deals_count) || 0) + 1, updated_at: nowIso() } });
+      } catch {}
+    }
+  } else if (stage === "LOST") {
+    // العرض يعود للسوق، والطلب يعود للبحث لا إلى «مُغلق»: العميل ما زال يريد.
+    if (deal.request_id) { try { await sb(`re_requests?id=eq.${deal.request_id}`, { method: "PATCH", body: { status: "SEARCHING", updated_at: nowIso() } }); } catch {} }
+    if (deal.match_id) { try { await sb(`re_matches?id=eq.${deal.match_id}`, { method: "PATCH", body: { status: "REJECTED", updated_at: nowIso() } }); } catch {} }
+  }
+
+  await audit({ action: "re.deal.stage", entity_type: "re_deals", entity_id: deal.id, details: { ref, stage, actor } });
+  if (DEAL_DONE.has(stage)) {
+    await alertOwner([
+      stage === "CLOSED" ? `✅ *صفقة مُقفلة* ${ref}` : `❌ *صفقة خسرت* ${ref}`,
+      after.amount != null ? `القيمة: ${Number(after.amount).toLocaleString("en-US")} ريال` : "",
+      stage === "CLOSED" && after.commission_amount != null ? `العمولة: ${Number(after.commission_amount).toLocaleString("en-US")} ريال` : "",
+      stage === "LOST" ? `السبب: ${after.lost_reason}` : "",
+    ].filter(Boolean).join("\n"));
+  }
+  return { deal: after };
+}
+
+/** فتح ملف دراسة/تحليل — الخدمة الأخرى للمكتب خارج مسار الطلب والعرض. */
+export async function openStudy({ phone, name, kind, title, city, propertyType, brief, fee, dueAt, actor = "ops" }) {
+  if (kind && !STUDY_KINDS[kind]) return { error: "bad_kind" };
+  const t = String(title || "").trim();
+  if (!t) return { error: "title_required" };
+  const contact = phone ? await upsertContact({ phone, name, roles: ["CLIENT"] }) : null;
+  const ref = await nextRef("study");
+  const row = {
+    ref, contact_id: contact ? contact.id : null,
+    kind: kind || "ANALYSIS", title: t.slice(0, 200),
+    city: city || null, property_type: propertyType || null,
+    brief: brief ? String(brief).slice(0, 2000) : null,
+    fee: num(fee), status: "NEW", due_at: dueAt || null, output_url: null,
+  };
+  if (!DB_ON) return { study: { ...row, id: crypto.randomUUID() } };
+  const ins = await sb("re_studies", { method: "POST", body: [row] });
+  const study = (ins && ins[0]) || row;
+  await audit({ action: "re.study.open", entity_type: "re_studies", entity_id: study.id, details: { ref, kind: row.kind, actor } });
+  await alertOwner([
+    `📊 *${STUDY_KINDS[row.kind]}* ${ref}`,
+    row.title,
+    row.city ? `المدينة: ${row.city}` : "",
+    row.fee != null ? `الأتعاب: ${Number(row.fee).toLocaleString("en-US")} ريال` : "",
+  ].filter(Boolean).join("\n"));
+  return { study };
+}
+
+/** تحديث حالة دراسة. التسليم يحتاج مخرجاً — «مُسلَّمة» بلا ملف ادعاء. */
+export async function setStudyStatus({ ref, status, fee, outputUrl, dueAt, actor = "ops" }) {
+  if (!STUDY_STATUSES[status]) return { error: "bad_status" };
+  const study = await byRef("re_studies", ref);
+  if (!study) return { error: "not_found" };
+  const out = outputUrl != null ? String(outputUrl).trim() : (study.output_url || "");
+  if (status === "DELIVERED" && !out) return { error: "output_required" };
+
+  const patch = { status, updated_at: nowIso() };
+  if (num(fee) != null) patch.fee = num(fee);
+  if (outputUrl != null) patch.output_url = out || null;
+  if (dueAt != null) patch.due_at = dueAt || null;
+  if (!DB_ON) return { study: { ...study, ...patch } };
+  const upd = await sb(`re_studies?id=eq.${study.id}`, { method: "PATCH", body: patch });
+  await audit({ action: "re.study.status", entity_type: "re_studies", entity_id: study.id, details: { ref, status, actor } });
+  if (status === "DELIVERED") await alertOwner(`📦 *سُلِّمت* ${ref} — ${study.title}`);
+  return { study: (upd && upd[0]) || { ...study, ...patch } };
 }
 
 // ------------------------------------------------- المستشار على واتساب --
@@ -804,6 +1012,45 @@ export async function handleRealEstate(req, res) {
     return json(res, 200, { ok: true, row: (upd && upd[0]) || null });
   }
 
+  if (action === "deal" && req.method === "POST") {
+    const out = await openDeal({
+      requestRef: b.requestRef, listingRef: b.listingRef,
+      amount: b.amount, commissionPct: b.commissionPct, notes: b.notes, actor: b.actor || "ops",
+    });
+    if (out.error === "not_found") return json(res, 404, { error: "not_found" });
+    if (out.error === "already_open") return json(res, 409, { error: "already_open", ref: out.deal.ref });
+    if (out.error) return json(res, 400, out);
+    return json(res, 200, { ok: true, ref: out.deal.ref, deal: out.deal });
+  }
+
+  if (action === "deal-stage" && req.method === "POST") {
+    const out = await moveDealStage({
+      ref: b.ref, stage: b.stage, lostReason: b.lostReason,
+      amount: b.amount, commissionPct: b.commissionPct, notes: b.notes, actor: b.actor || "ops",
+    });
+    if (out.error === "not_found") return json(res, 404, { error: "not_found" });
+    if (out.error) return json(res, 400, out);
+    return json(res, 200, { ok: true, deal: out.deal });
+  }
+
+  if (action === "study" && req.method === "POST") {
+    const out = await openStudy({
+      phone: b.phone, name: b.name, kind: b.kind, title: b.title, city: b.city,
+      propertyType: b.propertyType, brief: b.brief, fee: b.fee, dueAt: b.dueAt, actor: b.actor || "ops",
+    });
+    if (out.error) return json(res, 400, out);
+    return json(res, 200, { ok: true, ref: out.study.ref, study: out.study });
+  }
+
+  if (action === "study-status" && req.method === "POST") {
+    const out = await setStudyStatus({
+      ref: b.ref, status: b.status, fee: b.fee, outputUrl: b.outputUrl, dueAt: b.dueAt, actor: b.actor || "ops",
+    });
+    if (out.error === "not_found") return json(res, 404, { error: "not_found" });
+    if (out.error) return json(res, 400, out);
+    return json(res, 200, { ok: true, study: out.study });
+  }
+
   // محاكاة رسالة واردة — الطريق لتجربة المسار كاملاً محلياً بلا ربط ميتا.
   if (action === "simulate" && req.method === "POST") {
     const out = await handleInbound({ from: b.from || "966500000000", text: b.text || "", name: b.name || "تجربة", messageId: b.messageId || `sim-${Date.now()}` });
@@ -820,6 +1067,10 @@ export async function handleRealEstate(req, res) {
       ai: !!ANTHROPIC_KEY,
       autoSend: AUTO_SEND,
       matchMin: MATCH_MIN,
+      commissionPct: DEFAULT_COMMISSION,
+      // اللوحة تقرأ مسمّياتها من هنا: قائمة تُكتب مرتين تنحرف مرةً واحدة.
+      labels: { dealStages: DEAL_STAGES, studyKinds: STUDY_KINDS, studyStatuses: STUDY_STATUSES,
+                propertyTypes: Object.fromEntries(Object.entries(PROPERTY_TYPES).map(([k, v]) => [k, v.ar])) },
       missing: [
         DB_ON ? null : "SUPABASE_SERVICE_KEY",
         VERIFY_TOKEN ? null : "BD_WA_VERIFY_TOKEN",
@@ -856,13 +1107,27 @@ async function dashboard() {
     count("re_deals", "stage=not.in.(CLOSED,LOST)"),
     count("re_studies", "status=not.in.(DELIVERED,CANCELLED)"),
   ]);
-  const [requests, listings, matches, messages] = await Promise.all([
+  const [requests, listings, matches, messages, dealRows, studyRows] = await Promise.all([
     recent("re_requests"), recent("re_listings"), recent("re_matches", 15), recent("re_messages", 15),
+    recent("re_deals", 40), recent("re_studies", 40),
   ]);
+
+  // خطّ الأنابيب: كم صفقة في كل مرحلة وبكم. يُحسب هنا لا في المتصفح لأن
+  // اللوحة تعرض أربعين صفاً وقد تكون الصفقات أكثر — فيصير المجموع ناقصاً.
+  const pipeline = {};
+  let openValue = 0, wonValue = 0, wonCommission = 0;
+  for (const d of dealRows) {
+    const st = d.stage || "OFFER";
+    pipeline[st] = (pipeline[st] || 0) + 1;
+    if (st === "CLOSED") { wonValue += Number(d.amount) || 0; wonCommission += Number(d.commission_amount) || 0; }
+    else if (st !== "LOST") openValue += Number(d.amount) || 0;
+  }
+
   return {
     db: true,
     counts: { openRequests: openReq, activeListings: activeLst, newMatches, contacts, openDeals: deals, openStudies: studies },
-    recent: { requests, listings, matches, messages },
+    pipeline, money: { openValue, wonValue, wonCommission },
+    recent: { requests, listings, matches, messages, deals: dealRows, studies: studyRows },
   };
 }
 

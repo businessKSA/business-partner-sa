@@ -162,7 +162,7 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
 
 <section style="padding-top:28px"><div class="wrap">
   <span class="eyebrow">لوحة العمل الداخلية</span>
-  <h2>الطلبات · العروض · المطابقات</h2>
+  <h2>الطلبات · العروض · المطابقات · الصفقات · الدراسات</h2>
 
   <div class="form" style="margin:18px 0" id="gate">
     <div class="row">
@@ -192,9 +192,40 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
       <div style="overflow-x:auto"><table class="bd" id="treq"></table></div>
     </div>
 
+    <div class="card" id="mcard" style="margin-bottom:18px" hidden>
+      <h3 id="mtitle">المطابقات</h3>
+      <div id="mbody"></div>
+    </div>
+
     <div class="card" style="margin-bottom:18px">
       <h3>العروض</h3>
       <div style="overflow-x:auto"><table class="bd" id="tlst"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الصفقات</h3>
+      <p class="hint" style="margin-top:0">تُفتح الصفقة من مطابقة أعلاه. تغيير المرحلة يحرّك ما حولها: الإقفال يسحب العرض من السوق ويغلق الطلب، والخسارة تعيد الطلب إلى البحث.</p>
+      <div id="pipe" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0"></div>
+      <div style="overflow-x:auto"><table class="bd" id="tdeal"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الدراسات والتحليل العقاري</h3>
+      <div class="row" style="margin:12px 0">
+        <div><label for="skind">النوع</label><select id="skind"></select></div>
+        <div><label for="stitle">العنوان *</label><input id="stitle" placeholder="دراسة جدوى مشروع سكني شمال الرياض"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="scity">المدينة</label><input id="scity"></div>
+        <div><label for="sfee">الأتعاب (ريال)</label><input id="sfee" inputmode="numeric"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="sname">اسم العميل</label><input id="sname"></div>
+        <div><label for="sphone">جوال العميل</label><input id="sphone" inputmode="tel" placeholder="05xxxxxxxx"></div>
+      </div>
+      <button class="btn btn-primary" id="snew" type="button">افتح ملف دراسة</button>
+      <div id="smsg" hidden style="margin-top:12px"></div>
+      <div style="overflow-x:auto;margin-top:16px"><table class="bd" id="tstudy"></table></div>
     </div>
 
     <div class="card">
@@ -240,10 +271,13 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
 <script>
 const $=s=>document.querySelector(s);
 let KEY=localStorage.getItem('bd_ops_key')||'';
+let LAB={dealStages:{},studyKinds:{},studyStatuses:{},propertyTypes:{}};
 const n=x=>x==null?'—':Number(x).toLocaleString('en-US');
-const LBL={LAND:'أرض خام',RESIDENTIAL_BUILDING:'عمارة سكنية',COMMERCIAL_BUILDING:'مبنى تجاري',VILLA:'فيلا',APARTMENT:'شقة',SHOWROOM:'معرض',WAREHOUSE:'مستودع',TOWER:'برج',HOTEL:'فندق',FARM:'مزرعة',COMPOUND:'مجمع',OFFICE:'مكتب',MIXED:'مختلط'};
-const t=c=>LBL[c]||c||'—';
+const t=c=>LAB.propertyTypes[c]||c||'—';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const opts=(map,sel)=>Object.entries(map).map(([k,v])=>'<option value="'+esc(k)+'"'+(k===sel?' selected':'')+'>'+esc(v)+'</option>').join('');
+const short=d=>d?String(d).slice(0,10):'—';
+const DONE_REQ=new Set(['WON','LOST','CANCELLED']);
 
 async function api(q,body){
   const qs=new URLSearchParams({...q,key:KEY}).toString();
@@ -254,12 +288,15 @@ function table(el,cols,rows,render){
   el.innerHTML='<thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
     (rows.length?rows.map(render).join(''):'<tr><td colspan="'+cols.length+'">لا يوجد</td></tr>')+'</tbody>'}
 
+function say(el,text,cls){el.hidden=false;el.className='note '+(cls||'');el.textContent=text}
+
 async function load(){
   const d=(await api({action:'dashboard'})).data;
-  const c=d.counts||{};
+  const c=d.counts||{},m=d.money||{};
   $('#stats').innerHTML=[['الطلبات المفتوحة',c.openRequests],['العروض المتاحة',c.activeListings],
-    ['مطابقات جديدة',c.newMatches],['جهات الاتصال',c.contacts],['صفقات جارية',c.openDeals],['دراسات مفتوحة',c.openStudies]]
-    .map(([k,v])=>'<div class="card stat"><b>'+(v||0)+'</b><span>'+k+'</span></div>').join('');
+    ['مطابقات جديدة',c.newMatches],['جهات الاتصال',c.contacts],['صفقات جارية',c.openDeals],['دراسات مفتوحة',c.openStudies],
+    ['قيمة الصفقات الجارية',n(m.openValue)],['قيمة الصفقات المُقفلة',n(m.wonValue)],['العمولة المحقّقة',n(m.wonCommission)]]
+    .map(([k,v])=>'<div class="card stat"><b>'+(v===0?0:(v||0))+'</b><span>'+k+'</span></div>').join('');
 
   const reqs=(await api({action:'list',of:'requests',limit:'40'})).data.rows||[];
   table($('#treq'),['المرجع','النوع','المدينة','المساحة','الميزانية','مدر؟','الاكتمال','الحالة','إجراء'],reqs,r=>
@@ -268,8 +305,12 @@ async function load(){
     '<td>'+(r.budget_max?'حتى '+n(r.budget_max):'—')+'</td>'+
     '<td>'+(r.income_producing===true?'نعم':r.income_producing===false?'لا':'—')+'</td>'+
     '<td>'+(r.completeness||0)+'%</td><td><span class="pill">'+esc(r.status)+'</span></td>'+
-    '<td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-m="'+esc(r.ref)+'">طابِق</button> '+
-    '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-b="'+esc(r.ref)+'">اطرح على السوق</button></td></tr>');
+    // الطلب المنتهي لا يُطابَق ولا يُطرح على السوق: طرح طلبٍ رُبحت صفقته
+    // يرسل «مطلوب لعميل» إلى الشبكة كلها عن حاجةٍ انتهت.
+    '<td>'+(DONE_REQ.has(r.status)?'<span class="hint">انتهى</span>':
+      ('<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-m="'+esc(r.ref)+'">طابِق</button> '+
+       '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-b="'+esc(r.ref)+'">اطرح على السوق</button>'))+
+    '</td></tr>');
 
   const lsts=(await api({action:'list',of:'listings',limit:'40'})).data.rows||[];
   table($('#tlst'),['المرجع','النوع','المدينة','المساحة','السعر','ريال/م²','العائد','الحالة'],lsts,r=>
@@ -278,21 +319,103 @@ async function load(){
     '<td>'+n(r.price)+'</td><td>'+n(r.price_per_m)+'</td><td>'+(r.yield_pct?r.yield_pct+'%':'—')+'</td>'+
     '<td><span class="pill">'+esc(r.status)+'</span></td></tr>');
 
+  // خطّ الأنابيب: المرحلة وعددها، بالترتيب الذي تمرّ به الصفقة فعلاً.
+  const pipe=d.pipeline||{};
+  $('#pipe').innerHTML=Object.keys(LAB.dealStages).map(k=>
+    '<span class="pill" style="'+(pipe[k]?'':'opacity:.45')+'">'+esc(LAB.dealStages[k])+': '+(pipe[k]||0)+'</span>').join('');
+
+  const deals=(d.recent&&d.recent.deals)||[];
+  const byId=Object.fromEntries(lsts.map(l=>[l.id,l])),reqById=Object.fromEntries(reqs.map(r=>[r.id,r]));
+  table($('#tdeal'),['المرجع','العقار','الطلب','القيمة','العمولة','المرحلة','السبب/الإقفال'],deals,r=>{
+    const l=byId[r.listing_id],q=reqById[r.request_id];
+    return '<tr><td><b>'+esc(r.ref)+'</b></td>'+
+    '<td>'+(l?esc(l.ref)+' — '+esc(t(l.property_type))+(l.city?' · '+esc(l.city):''):'—')+'</td>'+
+    '<td>'+(q?esc(q.ref):'—')+'</td><td>'+n(r.amount)+'</td>'+
+    '<td>'+n(r.commission_amount)+(r.commission_pct?' <span class="hint">('+r.commission_pct+'%)</span>':'')+'</td>'+
+    '<td><select data-deal="'+esc(r.ref)+'" style="padding:6px 8px;font-size:12px">'+opts(LAB.dealStages,r.stage)+'</select></td>'+
+    '<td>'+(r.lost_reason?esc(r.lost_reason):short(r.closed_at))+'</td></tr>'});
+
+  const studies=(d.recent&&d.recent.studies)||[];
+  table($('#tstudy'),['المرجع','النوع','العنوان','المدينة','الأتعاب','الحالة','المخرج'],studies,r=>
+    '<tr><td><b>'+esc(r.ref)+'</b></td><td>'+esc(LAB.studyKinds[r.kind]||r.kind)+'</td>'+
+    '<td>'+esc(r.title)+'</td><td>'+esc(r.city||'—')+'</td><td>'+n(r.fee)+'</td>'+
+    '<td><select data-study="'+esc(r.ref)+'" style="padding:6px 8px;font-size:12px">'+opts(LAB.studyStatuses,r.status)+'</select></td>'+
+    '<td>'+(r.output_url?'<a href="'+esc(r.output_url)+'" target="_blank" rel="noopener">الملف</a>':'—')+'</td></tr>');
+
   const cons=(await api({action:'list',of:'contacts',limit:'40'})).data.rows||[];
-  table($('#tcon'),['الاسم','الجوال','الأدوار','المدينة','عروض','مطابقات'],cons,r=>
+  table($('#tcon'),['الاسم','الجوال','الأدوار','المدينة','عروض','مطابقات','صفقات'],cons,r=>
     '<tr><td>'+esc(r.name||'—')+'</td><td>'+esc(r.wa_phone)+'</td>'+
     '<td>'+(r.roles||[]).map(x=>'<span class="pill">'+esc(x)+'</span>').join(' ')+'</td>'+
-    '<td>'+esc(r.city||'—')+'</td><td>'+(r.offers_count||0)+'</td><td>'+(r.matched_count||0)+'</td></tr>');
+    '<td>'+esc(r.city||'—')+'</td><td>'+(r.offers_count||0)+'</td><td>'+(r.matched_count||0)+'</td>'+
+    '<td>'+(r.deals_count||0)+'</td></tr>');
+}
+
+// المطابقات تُعرض في اللوحة لا في نافذة تنبيه: من نافذة لا يمكن فتح صفقة
+// ولا إرسال بطاقة، وكتابة مرجعين باليد لفتح صفقة عملٌ لا يقوم به أحد.
+async function showMatches(ref){
+  const r=await api({},{action:'match',ref:ref});
+  const card=$('#mcard');card.hidden=false;
+  $('#mtitle').textContent='مطابقات '+ref+' — '+(r.data.count||0);
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(!r.data.count){$('#mbody').innerHTML='<p class="hint">لا مطابقات في المخزون. اطرح الطلب على السوق.</p>';return}
+  $('#mbody').innerHTML=r.data.matches.map(x=>{
+    const l=x.listing||{};
+    return '<div style="border:1px solid var(--bd-line);border-radius:12px;padding:14px;margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">'+
+      '<b>'+esc(x.ref)+' — '+esc(t(l.property_type))+(l.city?' · '+esc(l.city):'')+'</b>'+
+      '<span class="score">'+x.score+'%</span></div>'+
+      '<div class="hint">'+n(l.area)+' م² · '+n(l.price)+' ريال'+(l.yield_pct?' · عائد '+l.yield_pct+'%':'')+'</div>'+
+      ((x.reasons||[]).length?'<div class="hint" style="color:#16A34A">✅ '+esc(x.reasons.join(' · '))+'</div>':'')+
+      ((x.gaps||[]).length?'<div class="hint" style="color:#B45309">⚠️ '+esc(x.gaps.join(' · '))+'</div>':'')+
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+      '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-send="'+esc(ref)+'" data-lid="'+esc(x.id||'')+'">أرسل للعميل</button>'+
+      '<button class="btn btn-primary" style="padding:6px 12px;font-size:12px" data-open="'+esc(ref)+'" data-lref="'+esc(x.ref)+'">افتح صفقة</button>'+
+      '</div></div>'}).join('');
 }
 
 document.addEventListener('click',async e=>{
-  const m=e.target.getAttribute&&e.target.getAttribute('data-m');
-  const b=e.target.getAttribute&&e.target.getAttribute('data-b');
-  if(m){const r=await api({},{action:'match',ref:m});
-    alert(r.data.count?('مطابقات '+m+': '+r.data.count+'\n\n'+r.data.matches.map(x=>x.ref+' — '+x.score+'%\n'+(x.reasons||[]).join(' · ')).join('\n\n')):'لا مطابقات — اطرحه على السوق.')}
+  const g=k=>e.target.getAttribute&&e.target.getAttribute(k);
+  const m=g('data-m'),b=g('data-b'),send=g('data-send'),open=g('data-open');
+  if(m)await showMatches(m);
   if(b){if(!confirm('يُرسل نص الطلب '+b+' إلى المسوّقين والمطوّرين في القاعدة. متابعة؟'))return;
     const r=await api({},{action:'broadcast',ref:b});
-    alert(r.data.ok?('أُرسل إلى '+r.data.sent+' من '+r.data.audience+'\n\n'+r.data.message):'تعذّر الإرسال')}});
+    alert(r.data.ok?('أُرسل إلى '+r.data.sent+' من '+r.data.audience+'\n\n'+r.data.message):'تعذّر الإرسال')}
+  if(send){const r=await api({},{action:'send-matches',ref:send,listingIds:[g('data-lid')]});
+    alert(r.data.ok?('أُرسلت '+r.data.sent+' بطاقة للعميل.'):('تعذّر الإرسال: '+(r.data.error||'')))}
+  if(open){const r=await api({},{action:'deal',requestRef:open,listingRef:g('data-lref')});
+    if(r.status===409){alert('على هذا الزوج صفقة مفتوحة أصلاً: '+r.data.ref);return}
+    if(!r.data.ok){alert('تعذّر فتح الصفقة: '+(r.data.error||''));return}
+    alert('فُتحت الصفقة '+r.data.ref);await load()}});
+
+document.addEventListener('change',async e=>{
+  const dealRef=e.target.getAttribute&&e.target.getAttribute('data-deal');
+  const studyRef=e.target.getAttribute&&e.target.getAttribute('data-study');
+  if(dealRef){
+    const stage=e.target.value;const body={action:'deal-stage',ref:dealRef,stage:stage};
+    // الخسارة تُسجَّل بسببها: صفقةٌ خسرت بلا سبب لا تعلّم المكتب شيئاً.
+    if(stage==='LOST'){const why=prompt('سبب خسارة الصفقة '+dealRef+'؟');
+      if(!why){await load();return} body.lostReason=why}
+    if(stage==='CLOSED'&&!confirm('إقفال '+dealRef+' يسحب العرض من السوق ويغلق الطلب. متابعة؟')){await load();return}
+    const r=await api({},body);
+    if(!r.data.ok)alert('تعذّر التحديث: '+(r.data.error||''));
+    await load()}
+  if(studyRef){
+    const status=e.target.value;const body={action:'study-status',ref:studyRef,status:status};
+    if(status==='DELIVERED'){const url=prompt('رابط المخرج المُسلَّم للعميل؟');
+      if(!url){await load();return} body.outputUrl=url}
+    const r=await api({},body);
+    if(!r.data.ok)alert('تعذّر التحديث: '+(r.data.error||''));
+    await load()}});
+
+$('#snew').onclick=async()=>{
+  const v=id=>($(id).value||'').trim();
+  if(!v('#stitle')){say($('#smsg'),'العنوان مطلوب.','err');return}
+  const r=await api({},{action:'study',kind:v('#skind'),title:v('#stitle'),city:v('#scity')||null,
+    fee:v('#sfee')?Number(v('#sfee').replace(/[^\d.]/g,'')):null,name:v('#sname')||null,phone:v('#sphone')||null});
+  if(!r.data.ok){say($('#smsg'),'تعذّر الفتح: '+(r.data.error||''),'err');return}
+  say($('#smsg'),'فُتح الملف '+r.data.ref,'ok');
+  ['#stitle','#scity','#sfee','#sname','#sphone'].forEach(id=>{$(id).value=''});
+  await load()};
 
 $('#pgo').onclick=async()=>{const r=await api({},{action:'parse',text:$('#ptext').value});
   $('#pout').textContent=JSON.stringify(r.data,null,1)};
@@ -303,6 +426,8 @@ async function enter(){
   KEY=($('#key').value||KEY||'').trim();
   const r=await api({action:'status'});
   if(r.status!==200){$('#gmsg').hidden=false;$('#gmsg').className='note err';$('#gmsg').textContent='مفتاح غير صحيح.';return}
+  LAB=r.data.labels||LAB;
+  $('#skind').innerHTML=opts(LAB.studyKinds,'ANALYSIS');
   localStorage.setItem('bd_ops_key',KEY);
   $('#gate').hidden=true;$('#app').hidden=false;load()}
 $('#enter').onclick=enter;
