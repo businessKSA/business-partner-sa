@@ -3,22 +3,41 @@
 اللوحة الحيّة لفريق Business Partner الذكي: باهر الافتراضي في المركز، والأقسام
 تدور حوله، ومحادثة واحدة بالصوت والكتابة تصل إلى نفس نقطة النهاية.
 
-تُستضاف على Vercel كمشروع مستقل، وn8n صار **واجهة بيانات فقط** بدل أن يولّد الصفحة.
+تُستضاف على **Azure Static Web Apps**، وn8n صار **واجهة بيانات فقط** بدل أن يولّد الصفحة.
 
 ## المنشور حاليًا
 
-- المشروع على Vercel: `bp-ai-space` (`prj_YzzIBa8YOy9VATC24xiNsFWgAASa`)
-- الرابط: https://bp-ai-space.vercel.app
-- الحماية: **Vercel Authentication مفعّلة** على كل النشرات عدا النطاقات المخصّصة،
-  فلا يفتحها إلا من هو داخل على حساب Vercel المالك.
-- النشر تم بملفات مباشرة (`deploy_to_vercel`) لا من git، لأن `config.js` لا يدخل
-  المستودع. لتحديث الصفحة: عدّل الملفات هنا، ثم أعد النشر بنفس اسم المشروع مع
-  `config.js` الحقيقي.
+- المستضيف: Azure Static Web Apps (الخطة المجانية) — قرار المالك 2026-09-20.
+- **الحماية: تسجيل دخول Microsoft Entra حقيقي.** كل مسار يتطلب الدور `owner`،
+  ومزوّد GitHub مُغلق عمدًا، فلا يكفي أن يملك أحدهم الرابط. راجع
+  `staticwebapp.config.json`.
+- النشر آلي من git عبر `.github/workflows/azure-ai-space.yml` عند أي تغيير في
+  `ai-space/`. لا حاجة لرفع ملفات باليد بعد اليوم.
+- **`config.js` ما زال خارج المستودع.** يُكتب في الـrunner وقت النشر من سرّ
+  GitHub اسمه `AI_SPACE_CONFIG` (محتواه نفس شكل `config.example.js`)، ولا يبقى
+  له أثر بعد انتهاء التشغيل.
+
+### ما يحتاجه أول نشر (مرة واحدة)
+
+1. أنشئ Static Web App في Azure (Free) داخل مجموعة `bp-ai`، ومصدر النشر
+   **Other** لا GitHub — الـworkflow هنا يتكفّل بالباقي.
+2. انسخ الـ deployment token إلى سرّ GitHub `AZURE_STATIC_WEB_APPS_API_TOKEN`.
+3. ضع محتوى `config.js` الحقيقي في سرّ GitHub `AI_SPACE_CONFIG`.
+4. في المورد: Role management ← Invite ← بريد المالك ← الدور `owner`.
+
+قبل اكتمال الخطوتين ٢ و٣ يتخطّى الـworkflow النشر بدل أن يفشل، فلا تتلوّث
+الدفعات بأخطاء.
+
+### قبل ذلك
+
+كان مشروع Vercel مستقلًا (`bp-ai-space`)، وحُذف لأنه كان رابع مشروع Vercel
+خارج ما يسمح به `CLAUDE.md`، ولأن حمايته كانت Vercel Authentication لا بوابة
+مالك حقيقية.
 
 ## البنية
 
 ```
-المتصفح (Vercel)                       n8n
+المتصفح (Azure SWA)                    n8n
   app.js ── GET  dataPath   ─────────▶ 🛰️ BP AI Space — Data API   (3B9PXV0YhcLOgMqi)
          │                              يقرأ ٦ جداول ويرجّع JSON واحد
          └─ POST chatPath   ─────────▶ 🧠 مُعين Chief of Staff      (YgRwn40v1CqsscJw)
@@ -68,7 +87,7 @@ npx http-server . -p 8080 -s
 
 ## الحماية
 
-الصفحة **مالكية**، ليست عامة: تُنشر خلف Vercel Authentication، وتحمل
+الصفحة **مالكية**، ليست عامة: تُنشر خلف تسجيل دخول Entra بالدور `owner`، وتحمل
 `noindex, nofollow`. مسارات n8n لا تُكتب في المستودع.
 
 ## حالات الواجهة

@@ -1,0 +1,68 @@
+# BP AI Command Space → Azure Static Web Apps.
+#
+# The Space used to be its own Vercel project, deployed by hand because
+# config.js carries the unauthenticated n8n webhook paths and this repository
+# is public. That project was deleted (owner decision 2026-09-20). Azure hosts
+# it now: the grant pays for it, and Static Web Apps puts a real sign-in in
+# front of a panel that can pause agents and create tasks.
+#
+# config.js is still never committed. It is written here from a secret, at
+# deploy time, and only ever exists inside the runner.
+
+name: Deploy AI Space to Azure
+
+on:
+  push:
+    branches:
+      - master
+      - claude/intelligent-agents-collaboration-y788ck
+    paths:
+      - 'ai-space/**'
+      - '.github/workflows/azure-ai-space.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-space-azure
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The secrets context is not available in a job-level `if`, so the gate
+      # lives here: before the Static Web App exists, every push would
+      # otherwise fail on a missing token.
+      - id: gate
+        name: Check Azure wiring
+        env:
+          TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          CONFIG: ${{ secrets.AI_SPACE_CONFIG }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$CONFIG" ]; then
+            echo "::notice::Azure Static Web App not wired up yet (missing AZURE_STATIC_WEB_APPS_API_TOKEN or AI_SPACE_CONFIG) — skipping deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write runtime config
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          AI_SPACE_CONFIG: ${{ secrets.AI_SPACE_CONFIG }}
+        run: printf '%s\n' "$AI_SPACE_CONFIG" > ai-space/config.js
+
+      - name: Deploy
+        if: steps.gate.outputs.ready == 'true'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: ai-space
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true
