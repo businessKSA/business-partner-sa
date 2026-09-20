@@ -11,9 +11,6 @@
     "api/candidate.js": {
       "maxDuration": 60
     },
-    "api/chat.js": {
-      "maxDuration": 60
-    },
     "api/chat-safe.js": {
       "maxDuration": 60
     },
@@ -91,6 +88,7 @@
     {"source":"/api/jobhunt","destination":"/api/requests?__route=jobhunt"},
     {"source":"/api/doc-agent","destination":"/api/requests?__route=doc-agent"},
     {"source":"/api/simple","destination":"/api/requests?__route=simple"},
+    {"source":"/api/pr-intake","destination":"/api/requests?__route=pr-intake"},
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal","destination":"/assets/data/revenue-command-center"},

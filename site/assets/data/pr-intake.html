@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- صفحة عملاء بالرابط فقط: لا تُفهرس ولا تدخل خريطة الموقع ولا أي قائمة تنقّل. -->
+<meta name="robots" content="noindex, nofollow">
+<title>تجهيز ملف الإقامة المميزة — Business Partner</title>
+<link rel="icon" href="/logo.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+  :root{--navy:#0B1B5A;--navy-2:#16296F;--ground:#F5F7FA;--surface:#fff;--ink:#101828;--ink-2:#54607A;--ink-3:#8A94A6;--line:#E3E8EF;--line-2:#CBD3E1;--ok:#0E7A52;--ok-soft:#E4F3EC;--warn:#8A4B12;--warn-soft:#FDF0E2;--r:12px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:0 56px}
+  header.bar{background:var(--navy);color:#fff;padding-block:14px;padding-inline:16px}
+  header.bar .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header.bar b{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  header.bar span{font-size:13px;opacity:.82;margin-inline-start:auto}
+  h1{font-size:clamp(21px,4.6vw,28px);line-height:1.3;margin:22px 0 6px;font-weight:700}
+  .lede{color:var(--ink-2);margin:0 0 4px;max-width:62ch;font-size:14.5px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px}
+  label.f{display:block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--ink)}
+  label.f .hint{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3);margin-top:2px;line-height:1.5}
+  label.f .flag{color:var(--warn);font-weight:600}
+  input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{width:100%;margin-top:6px;font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1.5px solid var(--line-2);border-radius:9px;padding:10px 12px}
+  textarea{min-height:86px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,27,90,.10)}
+  .seg{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .seg button{font:inherit;font-size:14px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+  .btn{font:inherit;font-size:15px;font-weight:600;padding:11px 22px;border-radius:9px;border:0;background:var(--navy);color:#fff;cursor:pointer}
+  .btn:hover{background:var(--navy-2)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  nav.tabs{display:flex;gap:6px;overflow-x:auto;margin-top:18px;padding-bottom:4px}
+  nav.tabs button{flex:none;font:inherit;font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer;white-space:nowrap}
+  nav.tabs button[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:#fff}
+  nav.tabs button .n{font-variant-numeric:tabular-nums;opacity:.65;margin-inline-end:5px}
+  .meter{position:sticky;top:0;z-index:5;background:var(--ground);padding-block:12px}
+  .meter .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 15px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+  .meter .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .meter .pct{font-size:19px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;margin-inline-start:auto}
+  .bar{height:6px;background:var(--ground);border-radius:99px;margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .25s}
+  .status{font-size:12.5px;color:var(--ink-3);margin-top:8px;min-height:1.3em}
+  .note{background:var(--warn-soft);border-radius:9px;padding:11px 14px;margin-top:14px;font-size:13.5px;line-height:1.6}
+  .note b{color:var(--warn)}
+  .ok{background:var(--ok-soft);color:#0B4F36;border-radius:9px;padding:11px 14px;margin-top:14px;font-size:13.5px}
+  .files{margin-top:8px;display:grid;gap:6px}
+  .file{display:flex;align-items:center;gap:9px;font-size:13px;background:var(--ground);border-radius:8px;padding:7px 11px}
+  .file b{font-weight:600;color:var(--ok)}
+  .file span{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .up{display:block;margin-top:6px}
+  .up input[type=file]{font:inherit;font-size:13px;width:100%}
+  h2.sec{font-size:15px;font-weight:700;margin:22px 0 2px;padding-top:16px;border-top:1px solid var(--line)}
+  h2.sec:first-of-type{border-top:0;padding-top:0;margin-top:4px}
+  footer{margin-top:26px;font-size:12.5px;color:var(--ink-3);line-height:1.7}
+  [hidden]{display:none!important}
+  @media(max-width:600px){.wrap{padding-inline:16px}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+</head>
+<body>
+<header class="bar"><div class="in"><b>Business Partner</b><span>تجهيز ملف الإقامة المميزة — رائد أعمال</span></div></header>
+
+<div class="wrap">
+
+  <section id="gate">
+    <h1>ادخل بريدك للمتابعة</h1>
+    <p class="lede">نرسل لك رمزاً من ستة أرقام. الرمز يربط الملف ببريدك حتى تعود إليه في أي وقت وتُكمل من حيث توقفت.</p>
+    <div class="card">
+      <label class="f">البريد الإلكتروني
+        <input type="email" id="email" autocomplete="email" placeholder="name@example.com" inputmode="email">
+      </label>
+      <div id="codeWrap" hidden>
+        <label class="f">رمز التحقق
+          <span class="hint">أُرسل إلى بريدك. صالح عشر دقائق.</span>
+          <input type="text" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="------">
+        </label>
+      </div>
+      <p style="margin:16px 0 0"><button class="btn" id="gateBtn" type="button">أرسل الرمز</button></p>
+      <p class="status" id="gateMsg"></p>
+    </div>
+    <footer>بياناتك تُحفظ لدى Business Partner لغرض تجهيز ملفك فقط، ولا تُرسل إلى مركز الإقامة المميزة إلا بعد مراجعتها معك.</footer>
+  </section>
+
+  <section id="form" hidden>
+    <h1>ملف الإقامة المميزة — رائد أعمال</h1>
+    <p class="lede">ستة تبويبات مطابقة لنموذج مركز الإقامة المميزة. كل حقل يُحفظ تلقائياً، ويمكنك التوقف والعودة لاحقاً.</p>
+
+    <div class="meter">
+      <div class="box">
+        <div class="top"><b id="who"></b><span class="pct" id="pct">0%</span></div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="status" id="saveMsg">جاهز.</div>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div id="panel"></div>
+
+    <div class="card">
+      <h2 class="sec">الإرسال</h2>
+      <p class="lede" style="margin-top:6px">راجع التبويبات الستة قبل الإرسال. بعد الإرسال يصلنا ملفك ونتواصل معك لاستكمال أي ناقص.</p>
+      <div class="note"><b>قبل أن ترسل:</b> تأكد أن كل مرفق في خانته الصحيحة، وأن الاسم الرباعي بالإنجليزي مطابق لصفحة جواز السفر حرفاً بحرف.</div>
+      <p style="margin:16px 0 0"><button class="btn" id="submitBtn" type="button">أرسل الملف</button></p>
+      <p class="status" id="submitMsg"></p>
+    </div>
+
+    <footer>Business Partner — خدمات وحلول الأعمال · لسنا جهة رسمية، والمرجع النهائي هو مركز الإقامة المميزة.</footer>
+  </section>
+</div>
+
+<script>
+var API = "/api/pr-intake", OTP = "/api/otp";
+function $(id){ return document.getElementById(id); }
+async function post(url, body){
+  var r = await fetch(url, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) });
+  var j = {}; try { j = await r.json(); } catch(e){}
+  return Object.assign({ status: r.status }, j);
+}
+
+/* الحقول: مصدر واحد يبني الواجهة ويُخزَّن بنفس مفاتيحه في الخادم ونوشن،
+   فلا يتفرّع اسم الحقل بين الصفحة والسجل. */
+var TABS = [
+  { id:"applicant", label:"بيانات المتقدم", fields:[
+    { s:"بيانات التقديم" },
+    { k:"editorName", t:"text", l:"اسم محرر الطلب", h:"إن كان غيرك يقدّم نيابةً عنك" },
+    { k:"email2", t:"email", l:"بريد إلكتروني للتواصل", h:"كل إشعار رسمي يصل هنا: الموافقة، مهلة الثلاثين يوماً، الرفض", flag:1 },
+    { k:"phone", t:"tel", l:"رقم الجوال" },
+    { k:"poaFile", t:"file", l:"مرفق التوكيل / الوكالة الشرعية", h:"إن قُدّم الطلب نيابةً عنك" },
+    { s:"الإقامة الحالية" },
+    { k:"country", t:"text", l:"دولة الإقامة الحالية" },
+    { k:"residency", t:"seg", l:"مقيم أم زائر؟", o:[["resident","مقيم"],["visitor","زائر"]] },
+    { k:"iqamaNo", t:"text", l:"رقم الإقامة" },
+    { k:"iqamaExpiry", t:"date", l:"تاريخ انتهاء الإقامة", h:"لا تقل عن 90 يوماً من تاريخ التقديم", flag:1 },
+    { k:"iqamaFile", t:"file", l:"صورة الإقامة" },
+    { k:"nationalAddressFile", t:"file", l:"العنوان الوطني", h:"يُستخرج من أبشر أو سبل" },
+    { k:"city", t:"text", l:"المدينة" },
+    { k:"district", t:"text", l:"الحي" },
+    { k:"street", t:"text", l:"الشارع" },
+    { k:"postal", t:"text", l:"الرمز البريدي" },
+    { s:"جواز السفر" },
+    { k:"passportNo", t:"text", l:"رقم جواز السفر" },
+    { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز", h:"لا يقل عن 180 يوماً من تاريخ التقديم", flag:1 },
+    { k:"nationality", t:"text", l:"الجنسية" },
+    { k:"nationalIdHome", t:"text", l:"رقم الهوية في بلد الجنسية", h:"للمصريين: رقم البطاقة القومية" },
+    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة الجواز حرفاً بحرف", flag:1 },
+    { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)" },
+    { k:"grandNameEn", t:"text", l:"اسم الجد (بالإنجليزي)" },
+    { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)" },
+    { k:"birthDate", t:"date", l:"تاريخ الميلاد" },
+    { k:"birthPlace", t:"text", l:"مكان الولادة" },
+    { k:"marital", t:"select", l:"الحالة الاجتماعية", o:["أعزب / عزباء","متزوج / متزوجة","مطلق / مطلقة","أرمل / أرملة"] },
+    { k:"gender", t:"seg", l:"الجنس", o:[["male","ذكر"],["female","أنثى"]] },
+    { k:"religion", t:"text", l:"الديانة" },
+    { k:"passportFile", t:"file", l:"صورة جواز السفر" },
+    { k:"photoFile", t:"file", l:"صورة شخصية ملونة" },
+    { s:"بيانات إضافية" },
+    { k:"employment", t:"select", l:"الحالة الوظيفية", o:["مُوظَّف","مستثمر","غير موظف"], h:"يجب أن تطابق وضعك الفعلي في قوى ومقيم" },
+    { k:"otherNationality", t:"seg", l:"هل لديك جنسية أخرى؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"social", t:"text", l:"حسابات التواصل الاجتماعي", h:"فيسبوك · تويتر · لينكدإن" }
+  ]},
+  { id:"family", label:"بيانات الأسرة", fields:[
+    { k:"hasDependents", t:"seg", l:"هل لديك تابعون؟", o:[["yes","نعم"],["no","لا"]], h:"الأزواج والأبناء. الوالدان لهما تبويب مستقل" },
+    { k:"dependentsCount", t:"number", l:"عدد التابعين" },
+    { k:"dependents", t:"textarea", l:"بيانات كل تابع", h:"لكل تابع: الاسم رباعياً بالإنجليزي · صلة القرابة · تاريخ ومكان الميلاد · الجنسية · رقم الجواز وتاريخ انتهائه · مقيم أم زائر · رقم الإقامة أو رقم الحدود" },
+    { k:"dependentWorks", t:"seg", l:"هل أي تابع موظف في منشأة داخل المملكة؟", o:[["yes","نعم"],["no","لا"]], h:"الإجابة بنعم تستلزم خطاب موافقة جهة العمل مصدّقاً من الغرفة التجارية", flag:1 },
+    { k:"birthCertsFile", t:"file", l:"شهادات ميلاد التابعين", h:"الصادرة من خارج المملكة تحتاج ترجمة وتصديق" },
+    { k:"depPassportsFile", t:"file", l:"جوازات التابعين" },
+    { k:"employerLetterFile", t:"file", l:"خطاب موافقة جهة العمل مصدّقاً من الغرفة" },
+    { k:"insuranceFile", t:"file", l:"وثائق التأمين الطبي", h:"مطلوبة قبل دفع المقابل المالي لا بعده", flag:1 }
+  ]},
+  { id:"parents", label:"بيانات الوالدين", fields:[
+    { k:"includeFather", t:"seg", l:"هل ترغب بإصدار الإقامة للأب؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"includeMother", t:"seg", l:"هل ترغب بإصدار الإقامة للأم؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"parentsWork", t:"seg", l:"هل أي منهما يعمل في المملكة؟", o:[["yes","نعم"],["no","لا"]], h:"تعريف الأسرة يشترط أن يكون الوالدان غير عاملين في المملكة", flag:1 },
+    { k:"parentsData", t:"textarea", l:"بيانات كل والد تختاره", h:"الاسم رباعياً بالإنجليزي · تاريخ ومكان الميلاد · الحالة الاجتماعية · الجنسية · رقم الجواز وتاريخ انتهائه" },
+    { k:"parentsDocsFile", t:"file", l:"جوازات الوالدين وصورهما الشخصية" }
+  ]},
+  { id:"academic", label:"البيانات العلمية", fields:[
+    { k:"degree", t:"text", l:"الدرجة العلمية", h:"أدخل آخر مؤهل صادر فعلاً. لا تُدخل درجة لم تُمنح بعد", flag:1 },
+    { k:"institution", t:"text", l:"المنشأة التعليمية", h:"بالصيغة الواردة في الشهادة" },
+    { k:"eduCountry", t:"text", l:"الدولة" },
+    { k:"studyFrom", t:"date", l:"فترة الدراسة من" },
+    { k:"studyTo", t:"date", l:"فترة الدراسة إلى" },
+    { k:"degreeFile", t:"file", l:"إرفاق الشهادة", h:"الصادرة من خارج المملكة تحتاج ترجمة معتمدة وتصديق" },
+    { k:"otherCertFile", t:"file", l:"شهادة أخرى أو إفادة جامعية" }
+  ]},
+  { id:"entrepreneur", label:"رائد أعمال", fields:[
+    { s:"الجولة الاستثمارية" },
+    { k:"tier", t:"seg", l:"حجم الاستثمار", o:[["first","400,000 ﷼ أو أعلى"],["second","15,000,000 ﷼ أو أعلى"]], h:"الأولى: إقامة 5 سنوات · الثانية: دائمة مشروطة سنتين", flag:1 },
+    { k:"investorLicensedName", t:"text", l:"اسم الجهة الاستثمارية", h:"الاسم المرخّص (السجل التجاري) كما في قائمة الجهات المعتمدة — لا الاسم التجاري", flag:1 },
+    { k:"subFund", t:"text", l:"اسم الصندوق الفرعي", h:"الذي تم الاستثمار من خلاله" },
+    { k:"roundAmount", t:"number", l:"قيمة الجولة بالريال" },
+    { k:"stakeDiluted", t:"number", l:"حصة المتقدم بعد التحويل %", h:"بافتراض تحويل جميع الديون إلى حصص — لا نسبة سجل المساهمين الحالية", flag:1 },
+    { s:"الكيان والترخيص" },
+    { k:"startupName", t:"text", l:"اسم الشركة الناشئة", h:"كما ورد في الرخصة الريادية حرفياً", flag:1 },
+    { k:"licenceNo", t:"text", l:"رقم الرخصة الريادية" },
+    { k:"crNo", t:"text", l:"رقم السجل التجاري" },
+    { k:"unifiedNo", t:"text", l:"الرقم الوطني الموحد" },
+    { s:"المستندات" },
+    { k:"licenceFile", t:"file", l:"الرخصة الريادية من وزارة الاستثمار", h:"شرط في الفئتين — لا بديل عنه", flag:1 },
+    { k:"crFile", t:"file", l:"السجل التجاري" },
+    { k:"aoaFile", t:"file", l:"عقد التأسيس" },
+    { k:"capTableFile", t:"file", l:"سجل المساهمين", h:"يُظهر مجموع الأسهم المصدرة وحصة رائد الأعمال" },
+    { k:"convertiblesFile", t:"file", l:"الأوراق المالية والسندات القابلة للتحويل" },
+    { k:"letterFile", t:"file", l:"خطاب الجهة الاستثمارية", h:"بالنموذج المعتمد من المركز — تملؤه الجهة وتوقّعه بختمها", flag:1 },
+    { k:"transferFile", t:"file", l:"نسخة معتمدة للحوالة البنكية من الصندوق" },
+    { k:"solvencyFile", t:"file", l:"كشف حساب بنكي حديث", h:"إثبات الملاءة المالية" }
+  ]},
+  { id:"declaration", label:"بيان عام", fields:[
+    { k:"visitedKsa", t:"seg", l:"هل سبق أن زرت المملكة؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"visaRefused", t:"seg", l:"هل سبق أن رُفضت لك فيزا؟", o:[["yes","نعم"],["no","لا"]], h:"رفض تأشيرة قديمة لأي دولة يظل رفضاً" },
+    { k:"deported", t:"seg", l:"هل سبق ترحيلك أو استبعادك من أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"asylumRefused", t:"seg", l:"هل سبق أن رُفض طلبك للجوء أو للجنسية؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"convicted", t:"seg", l:"هل صدرت بحقك عقوبة في أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"citizenOfResidence", t:"seg", l:"هل أنت مواطن بالدولة التي تعيش بها؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"relativesKsa", t:"seg", l:"هل لديك أقارب في المملكة؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"arrested", t:"seg", l:"هل سبق أن قُبض عليك أو وُجهت لك تهمة؟", o:[["yes","نعم"],["no","لا"]], h:"القبض وحده يُقرّ به ولو لم تصدر إدانة" },
+    { k:"accusedNow", t:"seg", l:"هل أنت متهم حالياً في أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"insolvency", t:"seg", l:"هل دخلت في قضايا إعسار مالي أو تعثّر سداد؟", o:[["yes","نعم"],["no","لا"]], h:"يشمل شركة سابقة متعثرة أو قرضاً متأخراً" },
+    { k:"securityCharges", t:"seg", l:"هل وُجهت لك تهم في الإرهاب أو العنف أو التطرف أو المخدرات؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"notes", t:"textarea", l:"ملاحظات توضيحية", h:"إقرار بنعم ليس رفضاً تلقائياً. اشرح الواقعة هنا وأرفق ما يثبت انتهاءها" },
+    { k:"supportFile", t:"file", l:"مرفقات تقوّي الملف", h:"ملخص الشركة · عقود أو عملاء · تغطية إعلامية · شهادات حاضنات" }
+  ]}
+];
+
+var draft = null, current = 0, timer = null, challenge = null;
+
+async function gate(){
+  var btn = $("gateBtn"), msg = $("gateMsg"), email = $("email").value.trim().toLowerCase();
+  if (!email) { msg.textContent = "اكتب بريدك أولاً."; return; }
+  btn.disabled = true;
+  if (!challenge) {
+    msg.textContent = "جارٍ الإرسال…";
+    var r = await post(OTP, { action:"start", email: email });
+    btn.disabled = false;
+    if (!r.ok) { msg.textContent = r.message || "تعذّر إرسال الرمز. تأكد من البريد."; return; }
+    challenge = r.challenge; $("codeWrap").hidden = false; $("code").focus();
+    btn.textContent = "تأكيد الرمز";
+    msg.textContent = r.devCode ? ("رمز التطوير: " + r.devCode) : ("أُرسل الرمز إلى " + (r.to || email));
+    return;
+  }
+  msg.textContent = "جارٍ التحقق…";
+  var v = await post(OTP, { action:"verify", email: email, code: $("code").value.trim(), challenge: challenge });
+  btn.disabled = false;
+  if (!v.ok) { msg.textContent = "الرمز غير صحيح أو منتهي."; return; }
+  open_();
+}
+
+async function open_(){
+  var r = await post(API, { action:"me" });
+  if (!r.ok) { $("gateMsg").textContent = r.message || "تعذّر فتح الملف."; return; }
+  draft = r.draft;
+  $("gate").hidden = true; $("form").hidden = false;
+  $("who").textContent = draft.email || "";
+  renderTabs(); show(0); paint();
+}
+
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]; }); }
+
+function renderTabs(){
+  $("tabs").innerHTML = TABS.map(function(t,i){
+    return '<button role="tab" aria-selected="' + (i===0) + '" data-i="' + i + '"><span class="n">' + (i+1) + '</span>' + esc(t.label) + '</button>';
+  }).join("");
+  Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b){
+    b.addEventListener("click", function(){ show(+b.dataset.i); });
+  });
+}
+
+function show(i){
+  current = i;
+  Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b,j){ b.setAttribute("aria-selected", String(j===i)); });
+  var tab = TABS[i], vals = draft.tabs[tab.id] || {};
+  var html = tab.fields.map(function(f){
+    if (f.s) return '<h2 class="sec">' + esc(f.s) + '</h2>';
+    var hint = f.h ? '<span class="hint' + (f.flag ? " flag" : "") + '">' + esc(f.h) + '</span>' : "";
+    var v = vals[f.k] == null ? "" : vals[f.k];
+    if (f.t === "seg") return '<label class="f">' + esc(f.l) + hint + '<span class="seg" data-k="' + f.k + '">' +
+      f.o.map(function(p){ return '<button type="button" data-v="' + p[0] + '" aria-pressed="' + (v===p[0]) + '">' + esc(p[1]) + '</button>'; }).join("") + '</span></label>';
+    if (f.t === "select") return '<label class="f">' + esc(f.l) + hint + '<select data-k="' + f.k + '"><option value="">— اختر —</option>' +
+      f.o.map(function(o){ return '<option value="' + esc(o) + '"' + (v===o ? " selected" : "") + '>' + esc(o) + '</option>'; }).join("") + '</select></label>';
+    if (f.t === "textarea") return '<label class="f">' + esc(f.l) + hint + '<textarea data-k="' + f.k + '">' + esc(v) + '</textarea></label>';
+    if (f.t === "file") {
+      var got = (draft.files || []).filter(function(x){ return x.tab === tab.id && x.label === f.l; });
+      return '<label class="f">' + esc(f.l) + hint + '<span class="up"><input type="file" data-file="' + esc(f.l) + '"></span></label>' +
+        (got.length ? '<div class="files">' + got.map(function(g){ return '<div class="file"><b>✓</b><span>' + esc(g.name || g.label) + '</span></div>'; }).join("") + '</div>' : "");
+    }
+    return '<label class="f">' + esc(f.l) + hint + '<input type="' + f.t + '" data-k="' + f.k + '" value="' + esc(v) + '"></label>';
+  }).join("");
+  $("panel").innerHTML = '<div class="card">' + html + '</div>';
+  wire(tab.id);
+}
+
+function wire(tabId){
+  var p = $("panel");
+  Array.prototype.forEach.call(p.querySelectorAll("[data-k]"), function(el){
+    if (el.classList.contains("seg")) {
+      Array.prototype.forEach.call(el.querySelectorAll("button"), function(b){
+        b.addEventListener("click", function(){
+          Array.prototype.forEach.call(el.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed","false"); });
+          b.setAttribute("aria-pressed","true");
+          set(tabId, el.dataset.k, b.dataset.v);
+        });
+      });
+    } else {
+      el.addEventListener("input", function(){ set(tabId, el.dataset.k, el.value); });
+      el.addEventListener("change", function(){ set(tabId, el.dataset.k, el.value); });
+    }
+  });
+  Array.prototype.forEach.call(p.querySelectorAll("[data-file]"), function(el){
+    el.addEventListener("change", function(){ upload(el, tabId); });
+  });
+}
+
+function set(tabId, k, v){
+  draft.tabs[tabId] = draft.tabs[tabId] || {};
+  draft.tabs[tabId][k] = v;
+  clearTimeout(timer);
+  $("saveMsg").textContent = "يُحفظ…";
+  timer = setTimeout(save, 900);
+}
+
+async function save(){
+  var r = await post(API, { action:"save", tabs: draft.tabs });
+  if (r.ok) { $("saveMsg").textContent = "حُفظ ✓"; if (typeof r.completeness === "number") paint(r.completeness); }
+  else $("saveMsg").textContent = r.status === 401 ? "انتهت الجلسة — حدّث الصفحة وسجّل الدخول." : "تعذّر الحفظ — نعيد المحاولة مع أول تعديل.";
+}
+
+function upload(el, tabId){
+  var file = el.files && el.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { $("saveMsg").textContent = "الملف أكبر من 8 ميغابايت."; el.value = ""; return; }
+  $("saveMsg").textContent = "جارٍ رفع المرفق…";
+  var fr = new FileReader();
+  fr.onload = async function(){
+    var r = await post(API, { action:"upload", tab: tabId, label: el.dataset.file, name: file.name, type: file.type, base64: String(fr.result).split(",")[1] || "" });
+    if (!r.ok) { $("saveMsg").textContent = r.message || "تعذّر رفع المرفق."; return; }
+    draft.files = (draft.files || []).filter(function(f){ return !(f.tab === tabId && f.label === el.dataset.file); });
+    draft.files.push(r.file);
+    $("saveMsg").textContent = "رُفع المرفق ✓";
+    show(current); paint();
+  };
+  fr.onerror = function(){ $("saveMsg").textContent = "تعذّرت قراءة الملف."; };
+  fr.readAsDataURL(file);
+}
+
+function paint(pct){
+  if (typeof pct !== "number") {
+    var f = 0, t = 0;
+    TABS.forEach(function(tab){
+      tab.fields.forEach(function(fd){
+        if (fd.s || fd.t === "file") return;
+        t += 1; if ((draft.tabs[tab.id] || {})[fd.k]) f += 1;
+      });
+    });
+    t += 10; f += Math.min(10, (draft.files || []).length);
+    pct = t ? f / t : 0;
+  }
+  var n = Math.round(pct * 100);
+  $("pct").textContent = n + "%";
+  $("barFill").style.width = n + "%";
+}
+
+$("gateBtn").addEventListener("click", gate);
+$("code").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
+$("email").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
+
+$("submitBtn").addEventListener("click", async function(){
+  var b = $("submitBtn"), m = $("submitMsg");
+  b.disabled = true; m.textContent = "جارٍ الإرسال…";
+  var r = await post(API, { action:"submit", tabs: draft.tabs });
+  b.disabled = false;
+  if (!r.ok) { m.textContent = r.message || "تعذّر الإرسال. حاول مرة أخرى."; return; }
+  draft.submittedAt = r.submittedAt;
+  m.innerHTML = '<span class="ok" style="display:block">وصلنا ملفك ✓ سنراجعه ونتواصل معك. يمكنك العودة لهذه الصفحة وتعديل أي بيان — التعديل يصلنا تلقائياً.</span>';
+  paint(r.completeness);
+});
+
+/* جلسة قائمة؟ افتح الملف مباشرة بدل أن نطلب رمزاً من عميل مسجّل أصلاً. */
+post(API, { action:"me" }).then(function(r){ if (r.ok) { draft = r.draft; $("gate").hidden = true; $("form").hidden = false; $("who").textContent = draft.email || ""; renderTabs(); show(0); paint(); } });
+</script>
+</body>
+</html>

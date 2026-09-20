@@ -9,11 +9,13 @@
 
 On-site AI chat widget that answers visitors' questions about Saudi government
 procedures and BP services, then gently suggests a relevant Business Partner
-service. Backend: `api/chat.js`, a Vercel serverless function that proxies to the
+service. Backend: `api/_chat.js`, reached through the `api/chat-safe.js` wrapper, which proxies to the
 Claude Messages API.
 
 ## Files
-- `chat.js` — the serverless function (`POST /api/chat`). Zero npm dependencies
+- `_chat.js` — the advisor implementation, imported by `chat-safe.js` (`POST /api/chat`
+  rewrites to `/api/chat-safe`). A helper, not a deployed function: the plan caps
+  the deployment at 12 and a bare name would spend one of them. Zero npm dependencies
   (uses the global `fetch`; Node 18+ on Vercel).
 - `knowledge.json` — the system prompt's knowledge base, **pulled from Notion
   page `38dd108dee5c81fb80eeef9960017aab`** (BP services reference: government

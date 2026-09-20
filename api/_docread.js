@@ -1,7 +1,7 @@
 // Read a client's VAT certificate, commercial registration or national address
 // document and return the fields an invoice needs, so nobody types them.
 //
-// Every provider here is already configured for the site's advisor (api/chat.js)
+// Every provider here is already configured for the site's advisor (api/_chat.js)
 // — this module adds the vision/document calls that file does not make. Gemini
 // goes first: it is on a free tier, reads Arabic scans well, and accepts PDFs
 // directly. Anthropic is the fallback for PDFs and images, OpenAI for images.
