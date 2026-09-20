@@ -30,7 +30,32 @@ const P = {
   open: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
   back: { ar: "رجوع", en: "Back", fr: "Retour", zh: "返回" },
   conversation: { ar: "المحادثة", en: "Conversation", fr: "Conversation", zh: "对话" },
-  scope: { ar: "النطاق", en: "Scope", fr: "Périmètre", zh: "服务范围" },
+  // One name for one thing: the homepage, the portal and the operations board
+  // all say «نطاق الخدمات» / "Scope of Work". The portal was still saying
+  // «النطاق» after the rename, so a customer met two names for the same list.
+  scope: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
+  cancelTitle:{ ar: "إلغاء الطلب", en: "Cancel this request", fr: "Annuler la demande", zh: "取消此请求" },
+  cancelAsk:  { ar: "اطلب الإلغاء", en: "Request cancellation", fr: "Demander l'annulation", zh: "申请取消" },
+  cancelWhy:  { ar: "سبب الإلغاء (اختياري)", en: "Reason (optional)", fr: "Motif (facultatif)", zh: "原因（可选）" },
+  cancelEarly:{ ar: "الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.",
+                en: "Nothing is committed yet — cancelling takes effect immediately.",
+                fr: "Rien n'est encore engage — l'annulation prend effet immediatement.",
+                zh: "尚无任何约束 — 取消将立即生效。" },
+  cancelLate: { ar: "الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.",
+                en: "This request has reached a stage with commitments (contract, payment or execution). We take your request and the team reviews it and gets back to you.",
+                fr: "Cette demande comporte des engagements (contrat, paiement ou execution). Nous enregistrons votre demande et l'equipe revient vers vous.",
+                zh: "此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。" },
+  cancelSent: { ar: "استلمنا طلب الإلغاء ويراجعه الفريق.", en: "Cancellation request received and under review.",
+                fr: "Demande d'annulation recue et en cours d'examen.", zh: "已收到取消申请，正在审核。" },
+  cancelDone: { ar: "أُلغي الطلب", en: "Request cancelled", fr: "Demande annulee", zh: "请求已取消" },
+  resign: { ar: "صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.",
+            en: "A corrected version of this contract was issued after your signature — we will send it to you to sign again.",
+            fr: "Une version corrigee de ce contrat a ete emise apres votre signature — nous vous l'enverrons a signer de nouveau.",
+            zh: "本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。" },
+  openFull: { ar: "افتح بالحجم الكامل", en: "Open full size", fr: "Ouvrir en grand", zh: "全屏打开" },
+  docPrint: { ar: "طباعة / حفظ PDF", en: "Print / Save PDF", fr: "Imprimer / PDF", zh: "打印 / 保存 PDF" },
+  docClose: { ar: "إغلاق", en: "Close", fr: "Fermer", zh: "关闭" },
+  docWait:  { ar: "نجهّز المستند…", en: "Preparing the document…", fr: "Préparation du document…", zh: "正在准备文件…" },
   attachments: { ar: "المرفقات", en: "Attachments", fr: "Pièces jointes", zh: "附件" },
   quote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   contract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
@@ -149,22 +174,22 @@ export function buildSimpleMy(sv1, ctx) {
 .my-side a .b{margin-inline-start:auto;background:#e11d48;color:#fff;font-size:.7rem;border-radius:999px;padding:2px 7px;font-weight:800}
 .my-side a.on .b{background:#fff;color:var(--n)}
 .my-side .who{padding:8px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.my-side .who b{display:block;color:var(--n)}
+.my-side .who b{display:block;color:#fff}
 .my-side .who small{color:var(--mut)}
 .my-main{background:var(--g);padding:24px}
-.my-main h1{margin:0 0 16px;color:var(--n);font-size:1.4rem}
+.my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
-.my-kpi b{display:block;font-size:1.7rem;color:var(--n);line-height:1.1}
+.my-kpi b{display:block;font-size:1.7rem;color:var(--ink);line-height:1.1;font-family:var(--fm);font-weight:500}
 .my-kpi span{color:var(--mut);font-size:.82rem}
 .my-kpi.hot{border-color:#f59e0b;background:#fffbeb}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
-.card h2,.card h3{margin:0 0 10px;color:var(--n);font-size:1.05rem}
+.card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:1.05rem;font-weight:500}
 .list{display:grid;gap:10px}
 .row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
 .row:hover{border-color:#b7c4e8}
 .row .tt{flex:1;min-width:0}
-.row .tt b{display:block;color:var(--n);font-size:.95rem}
+.row .tt b{display:block;color:var(--ink);font-size:.95rem;font-weight:500}
 .row .tt small{color:var(--mut);font-size:.78rem}
 .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:700;background:#eef2ff;color:#2b56c3;white-space:nowrap}
 .pill.warn{background:#fff3e6;color:#b45309}.pill.ok{background:#eaf7ef;color:#118657}.pill.bad{background:#fee2e2;color:#b91c1c}.pill.mut{background:#eef0f5;color:#5f6880}
@@ -176,7 +201,7 @@ export function buildSimpleMy(sv1, ctx) {
 .msgform{display:flex;gap:8px;margin-top:10px}
 .msgform input,.inp{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:.88rem;border:1px solid var(--n);background:var(--n);color:#fff;cursor:pointer;line-height:1.2}
-.btn.ghost{background:#fff;color:var(--n)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
+.btn.ghost{background:#fff;color:var(--ink)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
 .items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .items li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .items li .ic{width:24px;height:24px;border-radius:7px;background:#eaf7ef;color:#118657;display:grid;place-items:center;font-weight:900;flex:none;font-size:.8rem}
@@ -193,7 +218,20 @@ table.q tfoot td{font-weight:700}
 .tl li i.ai{background:#efe7ff}.tl li i.human{background:#e6f4ea}.tl li i.customer{background:#eef2ff}.tl li i.system{background:#fff3e6}
 .stat{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.86rem;color:var(--mut);margin-bottom:12px}
 .stat b{color:var(--ink)}
-.contract-frame{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;max-height:420px;overflow:auto;font-size:.9rem;line-height:1.8}
+.contract-frame{display:block;width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
+.docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
+.docovl-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;background:var(--n2,#081345);color:#fff}
+.docovl-bar b{font-size:.95rem;font-weight:600}
+.docovl-bar .acts{display:flex;gap:8px}
+.docovl-bar button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
+  border-radius:8px;padding:8px 14px;font:inherit;font-size:.82rem;cursor:pointer}
+.docovl-bar button:hover{background:rgba(255,255,255,.12)}
+.docovl-bar button.p{background:#fff;color:#0B1B5A;border-color:#fff;font-weight:600}
+.docovl iframe{flex:1;width:100%;border:0;background:#fff}
+@media print{body>*:not(.docovl){display:none!important}
+  .docovl{position:static;background:#fff} .docovl-bar{display:none}}
 canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
 .note{font-size:.82rem;color:var(--mut)}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
@@ -201,7 +239,7 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
 .login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
 .login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
-.login h1{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
 .form{display:grid;gap:8px;max-width:520px}
@@ -274,6 +312,28 @@ m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'}
 var others=state.me.requests.filter(function(r){return need.indexOf(r)<0}).slice(0,6);
 if(others.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.navRequests]),h('div',{class:'list'},others.map(reqRow))]))}
 function viewNew(m){m.appendChild(h('h1',{},[TX.navNew]));m.appendChild(h('div',{class:'card'},[h('p',{},[TX.today]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]))}
+// المستند بالحجم الكامل: طبقةٌ فوق اللوحة، والمستند داخل iframe معزول فلا
+// تُصادر أنماطُه أنماطَ اللوحة ولا العكس، ويطبع وحده.
+function docOverlay(title,loader){
+ var ovl=h('div',{class:'docovl'});
+ var frame=h('iframe',{title:title,srcdoc:'<!doctype html><meta charset=utf-8><body style="font:14px system-ui;padding:24px;color:#64748b">'+TX.docWait+'</body>'});
+ function close(){document.removeEventListener('keydown',esc2);ovl.remove()}
+ function esc2(e){if(e.key==='Escape')close()}
+ var bar=h('div',{class:'docovl-bar'},[
+   h('b',{},[title]),
+   h('div',{class:'acts'},[
+     h('button',{class:'p',onclick:function(){try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){window.print()}}},[TX.docPrint]),
+     h('button',{onclick:close},[TX.docClose])])]);
+ ovl.appendChild(bar);ovl.appendChild(frame);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ document.addEventListener('keydown',esc2);
+ document.body.appendChild(ovl);
+ loader().then(function(html){if(html)frame.srcdoc=html});
+ return ovl}
+
+function docBtn(label,title,loader){
+ return h('button',{class:'btn ghost sm doc-open',onclick:function(){docOverlay(title,loader)}},[label])}
+
 function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me.requests.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);if(r.quote&&title===TX.navQuotes)row.insertBefore(h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)]),row.children[1]);if(r.contract&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?TX.signed:TX.contract)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
@@ -318,12 +378,12 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 // quote — while it is being priced the customer sees the step, not silence
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
-qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
+qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
 if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
-if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('div',{class:'contract-frame'},['…']);cc.appendChild(frame);api('contract-view',{ref:r.ref}).then(function(o){frame.innerHTML=o&&o.ok?o.html:'';state.contractHtml=o&&o.html||''});
+if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
 var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
@@ -354,7 +414,7 @@ var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
-if(['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT'].indexOf(r.status)>=0)right.appendChild(h('button',{class:'btn danger sm',onclick:function(){if(!confirm(TX.cancelReq+'?'))return;api('request-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status='CANCELLED';refreshMe();drawRequest(hd,box)}})}},[TX.cancelReq]))}
+if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
 function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
@@ -370,7 +430,16 @@ function settleReturn(u){
     u.searchParams.delete('payment');u.searchParams.delete('id');u.searchParams.delete('amount');u.searchParams.delete('provider');
     history.replaceState({},'',u.pathname+u.search);return true}).catch(function(){return false});
 }
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
+// A visitor sent here to sign in (from /ops, say) lands back where he was
+// going. Only a same-origin path is honoured — never a full URL, and never a
+// protocol-relative «//host», which a browser reads as another site.
+// بمقارنة الحروف لا بتعبير نمطي: هذا السطر يُكتب داخل قالب نصّي، والقالب
+// يلتهم الشرطة المائلة العكسية عند البناء — فيخرج /^/[^/]/ إلى الصفحة، وهو
+// خطأ نحوي يُسقط سكربت اللوحة كله فلا تُفتح البوابة أصلاً. المقارنة تفعل
+// الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
+// المتصفح موقعاً آخر).
+function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

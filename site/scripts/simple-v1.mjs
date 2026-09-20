@@ -4,8 +4,9 @@
 // (consulting, government services, company formation) through ONE chat, a
 // client portal (/my) and an operations dashboard (/ops). Built by
 // generate.mjs alongside the classic site; nothing here removes a classic
-// route. The homepage replaces "/" only when the SIMPLE_V1=1 build flag is
-// set — otherwise it is previewed at /simple-v1 and the classic home stays.
+// route. This homepage IS "/" as of the owner's approval on 2026-09-04; the
+// classic homepage moved to /classic-home and still builds. SIMPLE_V1=0 puts
+// the classic page back at "/" without touching any code.
 //
 // Layout follows the approved concept file business_partner_simple_v1_refined
 // .html (2026-09-03): hero text beside three service doors, a three-step
@@ -20,7 +21,12 @@
 // Four languages (ar/en/fr/zh) from the dictionary below — the pages are
 // authored once and rendered per language by generate.mjs' language loop.
 
-export const SIMPLE_V1 = process.env.SIMPLE_V1 === "1";
+// Owner approval 2026-09-04: Simple V1 is the site. The flag flipped from
+// opt-in to opt-out, so the switch lives in the repository where it shows up
+// in a diff, instead of a dashboard field nobody can review. Rollback stays
+// one step — SIMPLE_V1=0 in the environment, or revert this line — and the
+// classic homepage comes back untouched at "/".
+export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -30,7 +36,12 @@ const D = {
   heroTag: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
+  navTrips: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
+  navBook: { ar: "احجز استشارة", en: "Book a call", fr: "Réserver", zh: "预约咨询" },
+  navCart: { ar: "السلة", en: "Cart", fr: "Panier", zh: "购物车" },
   navAccount: { ar: "حسابي", en: "My account", fr: "Mon compte", zh: "我的账户" },
+  navSite: { ar: "العودة إلى الموقع", en: "Back to the site", fr: "Retour au site", zh: "返回网站" },
+  logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
   login: { ar: "دخول", en: "Sign in", fr: "Connexion", zh: "登录" },
   navStart: { ar: "ابدأ طلبك", en: "Start your request", fr: "Démarrer une demande", zh: "开始申请" },
   heroTitle: { ar: "قل لنا وش تحتاج،<br>ونبدأ معك من هنا.", en: "Tell us what you need,<br>and we start here with you.", fr: "Dites-nous ce qu'il vous faut,<br>et nous commençons ici.", zh: "告诉我们您的需求，<br>我们从这里开始。" },
@@ -158,13 +169,74 @@ const D = {
   testMode: { ar: "وضع الاختبار — لا مدفوعات حقيقية ولا رسائل للعملاء", en: "TEST MODE — no real payments, no customer messages", fr: "MODE TEST — aucun paiement réel, aucun message client", zh: "测试模式 — 无真实付款，不向客户发送消息" },
   footContact: { ar: "تواصل", en: "Contact", fr: "Contact", zh: "联系我们" },
   footLine: { ar: "الاستشارات، الخدمات الحكومية، وتأسيس الشركات.", en: "Consulting, government services and company formation.", fr: "Conseil, services gouvernementaux et création d'entreprise.", zh: "咨询、政府服务与公司注册。" },
-  footClassic: { ar: "الموقع الكامل", en: "Full website", fr: "Site complet", zh: "完整网站" },
+  // Was «الموقع الكامل» pointing at /classic-home. People clicked it expecting
+  // more of this site and landed on the old one — another layout, another
+  // voice, another spelling of the brand. It now names what it actually
+  // gives and stays inside this design.
+  footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
+  footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
+  footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
+  footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
+  footVat: { ar: "الرقم الضريبي", en: "VAT number", fr: "Numéro de TVA", zh: "增值税号" },
+  footPhone: { ar: "الهاتف", en: "Phone", fr: "Téléphone", zh: "电话" },
+  footEmail: { ar: "البريد", en: "E-mail", fr: "E-mail", zh: "邮箱" },
+  footAddress: { ar: "العنوان الوطني", en: "National address", fr: "Adresse nationale", zh: "国家地址" },
+  footShortAddr: { ar: "العنوان الوطني المختصر", en: "Short national address", fr: "Adresse nationale abrégée", zh: "国家简短地址" },
+  footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
+  footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
+  footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
+  footPayLine: { ar: "مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.",
+                 en: "mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.",
+                 fr: "mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.",
+                 zh: "mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。" },
+  footInvoice: { ar: "فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.",
+                 en: "A ZATCA-compliant tax invoice for every paid order.",
+                 fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
+                 zh: "每笔已付订单均开具符合 ZATCA 规定的税务发票。" },
+  composeHint: { ar: "اكتب طلبك، أو اطلبه بصوتك من خلال المايك.",
+                 en: "Type your request, or say it out loud using the mic.",
+                 fr: "Écrivez votre demande, ou dictez-la avec le micro.",
+                 zh: "输入您的请求，或使用麦克风口述。" },
+  micStart: { ar: "تكلّم بدل الكتابة", en: "Speak instead of typing",
+              fr: "Parlez au lieu d'écrire", zh: "用语音代替打字" },
+  micStop:  { ar: "أوقف التسجيل", en: "Stop recording", fr: "Arrêter l'enregistrement", zh: "停止录音" },
+  micRec:   { ar: "يسمعك…", en: "Listening…", fr: "À l'écoute…", zh: "正在聆听…" },
+  micWork:  { ar: "نكتب ما قلته…", en: "Writing what you said…",
+              fr: "Transcription en cours…", zh: "正在转写…" },
+  micDenied:{ ar: "الميكروفون مرفوض. اسمح به من إعدادات المتصفح، أو اكتب رسالتك.",
+              en: "Microphone blocked. Allow it in your browser settings, or type instead.",
+              fr: "Micro bloqué. Autorisez-le dans le navigateur, ou écrivez.",
+              zh: "麦克风被阻止。请在浏览器中允许，或改为输入文字。" },
+  micNone:  { ar: "متصفحك لا يدعم التسجيل الصوتي — اكتب رسالتك.",
+              en: "Your browser does not support recording — type your message.",
+              fr: "Votre navigateur ne gère pas l'enregistrement — écrivez votre message.",
+              zh: "您的浏览器不支持录音 — 请输入文字。" },
+  micQuiet: { ar: "ما سمعنا كلاماً. قرّب الميكروفون وأعد المحاولة.",
+              en: "We heard no speech. Move closer and try again.",
+              fr: "Aucune parole détectée. Rapprochez-vous et réessayez.",
+              zh: "未检测到语音。请靠近后重试。" },
+  micOff:   { ar: "التفريغ الصوتي غير مُفعَّل على الخادم بعد. اكتب رسالتك.",
+              en: "Voice transcription is not enabled on the server yet. Please type instead.",
+              fr: "La transcription vocale n'est pas encore activée sur le serveur. Écrivez votre message.",
+              zh: "服务器尚未启用语音转写。请输入文字。" },
+  micFail:  { ar: "تعذّر تفريغ الصوت. اكتب رسالتك أو أعد المحاولة.",
+              en: "Could not transcribe. Type your message or try again.",
+              fr: "Transcription impossible. Écrivez ou réessayez.",
+              zh: "转写失败。请输入文字或重试。" },
+  micLong:  { ar: "التسجيل طويل. سجّل مقطعاً أقصر.", en: "The recording is too long. Record a shorter clip.",
+              fr: "Enregistrement trop long. Enregistrez plus court.", zh: "录音过长，请录短一些。" },
+  barStatus: { ar: "جميع الأنظمة تعمل", en: "All systems operational",
+               fr: "Tous les systèmes fonctionnent", zh: "所有系统运行正常" },
+  barCity:   { ar: "الرياض · المملكة العربية السعودية", en: "Riyadh · Kingdom of Saudi Arabia",
+               fr: "Riyad · Royaume d'Arabie saoudite", zh: "利雅得 · 沙特阿拉伯王国" },
+  barLangs:  { ar: "منصّة واحدة · أربع لغات", en: "One platform · four languages",
+               fr: "Une plateforme · quatre langues", zh: "一个平台 · 四种语言" },
   footRights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved", fr: "Tous droits réservés", zh: "版权所有" },
 
   // Quick chips shown before the first message.
-  chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "公司全面检查"] },
-  chipsGovernment: { ar: ["مشكلة في قوى", "تغيير مهنة", "نقل خدمات", "تأشيرات", "النطاقات والتوطين", "إدارة المنصات"], en: ["A problem on Qiwa", "Change a profession", "Transfer of services", "Visas", "Nitaqat & Saudisation", "Manage my platforms"], fr: ["Un problème sur Qiwa", "Changer une profession", "Transfert de services", "Visas", "Nitaqat et saoudisation", "Gérer mes plateformes"], zh: ["Qiwa 平台问题", "变更职业", "服务转移", "签证", "Nitaqat 与本地化", "代管平台"] },
+  chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "عمالة مؤقتة وتصاريح أجير", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "Temporary labour & Ajeer permits", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Main-d'œuvre temporaire et permis Ajeer", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "临时用工与 Ajeer 许可", "公司全面检查"] },
+  chipsGovernment: { ar: ["مشكلة في قوى", "تصاريح أجير", "تصعيد أو شكوى لدى الوزارة", "مخالفة أو مديونية", "تغيير مهنة", "نقل خدمات", "تأشيرات", "النطاقات والتوطين", "إدارة المنصات"], en: ["A problem on Qiwa", "Ajeer permits", "An escalation or complaint", "A violation or a debt", "Change a profession", "Transfer of services", "Visas", "Nitaqat & Saudisation", "Manage my platforms"], fr: ["Un problème sur Qiwa", "Permis Ajeer", "Une escalade ou une plainte", "Une infraction ou une dette", "Changer une profession", "Transfert de services", "Visas", "Nitaqat et saoudisation", "Gérer mes plateformes"], zh: ["Qiwa 平台问题", "Ajeer 许可", "升级或投诉", "违规或欠款", "变更职业", "服务转移", "签证", "Nitaqat 与本地化", "代管平台"] },
   chipsFormation: { ar: ["فرع شركة أجنبية", "شركة ريادة أعمال", "التسجيل الاستثماري", "متطلبات التأسيس"], en: ["Branch of a foreign company", "Entrepreneurship licence", "Investment registration", "Formation requirements"], fr: ["Succursale étrangère", "Licence entrepreneur", "Enregistrement d'investissement", "Conditions de création"], zh: ["外国公司分支", "创业许可", "投资注册", "设立要求"] },
 
   // The scope the customer sees the moment they pick a door — the assistant
@@ -188,21 +260,50 @@ export function simpleV1(ctx) {
   // customer in the quotation for the scope they approved.
 
   const CSS = `<style id="sv1-css">
-.sv1{--n:#0B1B5A;--n2:#081345;--g:#F5F6FA;--l:#E4E7F0;--t:#1F2430;--s:#4a4f5e;--ok:#16815A;--wa:#25D366;--sh:0 12px 34px rgba(11,27,90,.10);--line:#E4E7F0;--ink:#1F2430;--mut:#5f6880;--soft:#f7f9fd;font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh}
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
+.sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
+ --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
+ --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
+ --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+ font-family:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh;
+ -webkit-font-smoothing:antialiased}
+.sv1 .sv1-mono,.sv1 .en{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.sv1 .en{direction:ltr;unicode-bidi:isolate}
+.sv1 :focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:5px}
 .sv1 *{box-sizing:border-box}
 .sv1 a{color:inherit;text-decoration:none}
 .sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
 .sv1-ribbon{background:#b45309;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700}
-.sv1-hdr{border-bottom:1px solid var(--l);background:#fff;position:sticky;top:0;z-index:20}
+.sv1-bar{background:var(--ac);color:#B7C0DC;font-size:11.5px}
+.sv1-bar .wrap{height:32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-bar-l,.sv1-bar-r{display:flex;align-items:center;gap:18px;min-width:0}
+.sv1-bar b{color:#fff;font-weight:400}
+.sv1-pulse{width:5px;height:5px;border-radius:50%;background:#34D399;display:inline-block;
+ margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
+@keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
+.sv1-bar-langs a{opacity:.5}
+.sv1-bar-langs a:hover{opacity:.85}
+.sv1-bar-langs a.on{opacity:1;color:#fff}
+@media(max-width:760px){.sv1-bar .hide-s{display:none}}
+.sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
 .sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .sv1-hdr .logo img{height:34px;width:auto;display:block}
 .sv1-nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:#39405a}
 .sv1-nav a{padding:6px 2px}
 .sv1-nav a:hover{color:var(--n)}
 .sv1-hdr .right{display:flex;align-items:center;gap:8px}
-.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--n);padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;line-height:1.2;font-family:inherit}
-.sv1-btn.primary{background:var(--n);border-color:var(--n);color:#fff}
-.sv1-btn.primary:hover{background:#13246e}
+.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--ink);padding:11px 19px;border-radius:9px;font-weight:500;font-size:13.5px;cursor:pointer;line-height:1.2;font-family:inherit;transition:transform .12s ease,background .2s ease,border-color .2s ease}
+.sv1-btn:hover{border-color:var(--ink)}
+.sv1-btn.primary{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 6px 18px -6px rgba(11,27,90,.45)}
+.sv1-btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
 .sv1-btn.wa{background:var(--wa);border-color:var(--wa);color:#073A17}
 .sv1-btn.sm{padding:7px 12px;font-size:12px}
 .sv1-btn[disabled]{opacity:.55;cursor:default}
@@ -213,12 +314,23 @@ export function simpleV1(ctx) {
 .sv1-lang .menu a{padding:8px 10px;border-radius:8px;font-size:13px}
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
-.sv1 h1,.sv1 h2,.sv1 h3{color:var(--n);margin-top:0}
-.sv1-hero{background:linear-gradient(180deg,#fff,var(--g));padding:72px 0}
+.sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
 .sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
-.sv1-tag{display:inline-block;background:#edf0f8;color:var(--n);padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
-.sv1-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.18;margin:14px 0 17px;letter-spacing:-.01em}
-.sv1-lead{font-size:17px;color:var(--s);margin:0}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
 .sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
 .sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
 .sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
@@ -227,23 +339,23 @@ export function simpleV1(ctx) {
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
 .sv1-doors{display:grid;gap:10px}
-.sv1-door{background:#fff;border:1px solid var(--l);border-radius:15px;padding:18px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
-.sv1-door:hover,.sv1-door.on{border-color:#99a7d4;transform:translateY(-2px)}
-.sv1-door .ico{width:42px;height:42px;border-radius:11px;background:#edf0f8;display:grid;place-items:center;font-size:19px}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
 .sv1-door h3{font-size:18px;margin:13px 0 5px}
 .sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
-.sv1-door span{font-size:12px;color:var(--n);font-weight:700}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
 .sv1-sec{padding:64px 0}
 .sv1-gray{background:var(--g)}
 .sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
-.sv1-title h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:8px}
-.sv1-title p{color:var(--s);margin:0}
-.sv1-app{border:1px solid var(--l);border-radius:20px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
 .sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.sv1-appbar b{color:var(--n)}
+.sv1-appbar b{color:var(--ink)}
 .sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
-.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:#777;font-weight:700}
-.sv1-steps .active{background:var(--n);color:#fff}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
 .sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
 .sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
@@ -252,14 +364,27 @@ export function simpleV1(ctx) {
 .sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
 .sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
 .sv1-msg.a{background:#fff;border:1px solid var(--l)}
-.sv1-msg.u{background:var(--n);color:#fff;margin-inline-start:auto}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
 .sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
 .sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
-.sv1-chips button{border:1px solid #d9dfeb;background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:inherit;color:#39405a}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
 .sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
 .sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
-.sv1-compose textarea:focus{border-color:var(--n)}
-.sv1-compose .send{width:46px;border:0;border-radius:11px;background:var(--n);color:#fff;font-size:17px;cursor:pointer}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
 .sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
@@ -271,18 +396,18 @@ export function simpleV1(ctx) {
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
 .sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
-.sv1-docs h4{margin:0 0 2px;color:var(--n);font-size:15px}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
 .sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
 .sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
 .sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
 .sv1-doc span::before{content:"📄";font-size:13px}
 .sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
 .sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
-.sv1-summary{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:11px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.sv1-summary strong{font-size:16px;color:var(--n)}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
 .sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
-.sv1-login h4{margin:0 0 4px;color:var(--n);font-size:15px}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
 .sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
 .sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
@@ -290,46 +415,64 @@ export function simpleV1(ctx) {
 .sv1-err{color:#b42318;font-size:12px;margin-top:6px}
 .sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
-.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:13px;padding:15px;text-align:center}
-.sv1-flow i{font-style:normal;width:35px;height:35px;background:#edf0f8;color:var(--n);border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;font-weight:700;font-size:13px}
-.sv1-flow b{display:block;font-size:12.5px;color:var(--n)}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
 .sv1-flow small{font-size:10px;color:#888}
 .sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
-.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 16px;font-weight:700;color:#666;cursor:pointer;font-family:inherit;font-size:13px}
-.sv1-tab.on{background:var(--n);color:#fff;border-color:var(--n)}
-.sv1-portal{border:1px solid var(--l);border-radius:18px;overflow:hidden;box-shadow:var(--sh);background:#fff}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
+.sv1-cart{display:inline-flex;align-items:center;gap:6px}
+.sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
 .sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
 .sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
 .sv1-side strong{color:#fff;display:block;font-size:14px}
 .sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
 .sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
-.sv1-mi.on{background:#fff;color:var(--n);font-weight:700}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
 .sv1-pmain{padding:22px;background:#fbfcfe}
 .sv1-pmain h3{font-size:21px;margin:0 0 2px}
 .sv1-muted{color:#777;font-size:11.5px}
 .sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
-.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:13px}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
 .sv1-stat span{font-size:9.5px;color:#777;display:block}
-.sv1-stat b{font-size:20px;color:var(--n)}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
 .sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sv1-panel h4{color:var(--n);margin:0 0 8px;font-size:13px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
 .sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
 .sv1-prow:last-child{border-bottom:0}
-.sv1-status{font-size:9px;border-radius:999px;padding:3px 8px;background:#edf0f8;color:var(--n);white-space:nowrap}
-.sv1-status.done{background:#e8f7ef;color:var(--ok)}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
 .sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
-.sv1-foot{margin-top:auto;padding:28px 0;background:var(--n2);color:#ccd4ed;font-size:12px}
-.sv1-foot .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center}
+.sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
-.sv1-foot a{color:#fff}
-.sv1-foot .end{margin-inline-start:auto;color:rgba(255,255,255,.6)}
+.sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
+.sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
+.sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
+.sv1-foot-row span:first-child{color:rgba(255,255,255,.55);font-size:11px;flex:none;min-width:78px}
+.sv1-foot-row.id{flex-direction:column;gap:0;align-items:flex-start;padding:5px 0}
+.sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
+.sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
+.sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
+.sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
+.sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+@media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
 .sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
- .sv1-hdr .right .sv1-btn:not(.primary){display:none}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
  .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
@@ -337,45 +480,129 @@ export function simpleV1(ctx) {
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}.sv1-foot .end{margin-inline-start:0}}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
   function langSwitch(path) {
     const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${LANG_NAMES[l]}</a>`).join("");
     return `<details class="sv1-lang"><summary>🌐 ${LANG_NAMES[lang()]}</summary><div class="menu">${items}</div></details>`;
   }
-  function header(path, { cta = true } = {}) {
-    return `<header class="sv1-hdr"><div class="wrap">
+  // شريط الحالة: نبضةٌ حيّة واللغات الأربع بأكوادها. اللغات هنا إشارةٌ صادقة
+  // — المنصّة كلها مترجمة، والروابط تفتح نفس الصفحة بلغتها لا الصفحة الأولى.
+  function statusBar(path, oneLang) {
+    const codes = SIMPLE_LANGS.map((l) =>
+      `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${l.toUpperCase()}</a>`).join("");
+    return `<div class="sv1-bar"><div class="wrap">
+  <div class="sv1-bar-l">
+    <span><span class="sv1-pulse"></span><b>${t("barStatus")}</b></span>
+    <span class="hide-s">${t("barCity")}</span>
+  </div>
+  <div class="sv1-bar-r">
+    ${oneLang ? "" : `<span class="hide-s">${t("barLangs")}</span>
+    <span class="sv1-bar-langs">${codes}</span>`}
+  </div>
+</div></div>`;
+  }
+  function header(path, { cta = true, oneLang = false } = {}) {
+    return `${statusBar(path, oneLang)}<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
   <nav class="sv1-nav" id="sv1Nav">
-    <a href="${href("/")}#doors">${t("navServices")}</a>
+    <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
+    <a href="${href("/consultation")}">${t("navBook")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
-    ${langSwitch(path)}
+    ${oneLang ? "" : langSwitch(path)}
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
-    <a class="sv1-btn" href="${href("/my")}">${t("login")}</a>
+    <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="${href("/cart")}" aria-label="${t("navCart")}">
+      <span>${t("navCart")}</span><b id="sv1CartN">0</b></a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="${href("/my")}">${t("login")}</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="${href("/")}">${t("navSite")}</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t("logout")}</button>
     ${cta ? `<a class="sv1-btn primary" href="${href("/")}#advisor">${t("navStart")}</a>` : ""}
   </div>
 </div></header>`;
   }
+  // Who we legally are. Every value comes from configuration — site/data/site.json
+  // first, then the same build-time environment variables the ZATCA invoice
+  // already uses (api/_zatca.js), so a number is entered once and appears both
+  // on the invoice and in the footer.
+  //
+  // A missing number renders nothing at all. A registration number is a
+  // government fact: showing a wrong or placeholder one is worse than showing
+  // none, and worse still on the page whose whole job is to be believed. The
+  // shape checks below are the same rule the tax authority applies — 15 digits
+  // beginning and ending with 3 for VAT, 10 digits starting with 7 for the
+  // unified number — so a typo is dropped rather than published.
+  const legal = site.legal || {};
+  const digits = (v) => String(v == null ? "" : v).replace(/\D/g, "");
+  const env = (k) => String(process.env[k] || "").trim();
+  function legalIdentity() {
+    const name = String(legal[lang() === "ar" ? "name" : "nameEn"] || legal.name || env("COMPANY_LEGAL_NAME") || "").trim();
+    const cr = digits(legal.cr || env("COMPANY_CR_NUMBER"));
+    const unified = digits(legal.unified || env("COMPANY_UNIFIED_NUMBER"));
+    const vat = digits(legal.vat || env("COMPANY_VAT_NUMBER"));
+    return {
+      name,
+      cr: cr.length === 10 ? cr : "",
+      unified: unified.length === 10 && unified.startsWith("7") ? unified : "",
+      vat: vat.length === 15 && vat.startsWith("3") && vat.endsWith("3") ? vat : "",
+      shortAddress: String(legal.shortAddress || "").trim().toUpperCase(),
+    };
+  }
+
   function footer() {
     const year = new Date().getFullYear();
+    const id = legalIdentity();
+    // Latin digits, and marked as such: an Arabic page renders a bare number
+    // right-to-left, and a registration number read backwards is a wrong
+    // registration number.
+    const num = (v) => `<bdi dir="ltr">${esc(v)}</bdi>`;
+    const row = (label, value) => (value ? `<div class="sv1-foot-row id"><span>${label}</span>${num(value)}</div>` : "");
+    const identity = [
+      id.name ? `<div class="sv1-foot-row id"><span>${t("footLegalName")}</span><b>${esc(id.name)}</b></div>` : "",
+      row(t("footCr"), id.cr),
+      row(t("footUnified"), id.unified),
+      row(t("footVat"), id.vat),
+      id.shortAddress ? `<div class="sv1-foot-row id"><span>${t("footShortAddr")}</span><bdi dir="ltr">${esc(id.shortAddress)}</bdi></div>` : "",
+    ].join("");
     return `<footer class="sv1-foot"><div class="wrap">
-  <span><b>${t("brand")}</b> — ${t("footLine")}</span>
-  <span>${t("footContact")}: ${esc(contact.phone || "")} · ${esc(contact.email || "")}</span>
-  <a href="${href("/terms")}">${t("footTerms")}</a>
-  ${SIMPLE_V1 ? `<a href="${href("/classic-home")}">${t("footClassic")}</a>` : ""}
-  <span class="end">© ${year} Business Partner · ${t("footRights")}</span>
+  <div class="sv1-foot-grid">
+    <div class="sv1-foot-col">
+      <b class="sv1-foot-brand">${t("brand")}</b>
+      <p>${t("footLine")}</p>
+      <p class="sv1-foot-note">${t("footInvoice")}</p>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footIdentity")}</h4>
+      ${identity || `<p class="sv1-foot-note">${esc(id.name || "")}</p>`}
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footContact")}</h4>
+      <div class="sv1-foot-row"><span>${t("footPhone")}</span><a href="tel:${esc(contact.phoneIntl || contact.phone || "")}">${num(contact.phone || "")}</a></div>
+      <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
+      ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
+      ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
+    </div>
+    <div class="sv1-foot-col">
+      <h4>${t("footPay")}</h4>
+      <p class="sv1-foot-note">${t("footPayLine")}</p>
+      <div class="sv1-foot-links">
+        <a href="${href("/terms")}">${t("footTerms")}</a>
+        ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
+      </div>
+    </div>
+  </div>
+  <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
 </div></footer>
 <a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a>`;
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(o&&o.session&&o.session.user){window.SV1_SESSION=o.session;var a=document.getElementById('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}}}).catch(function(){});})();</script>`;
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
 
-  function shell({ title, desc, path, body, script = "", noindex = false }) {
+  function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
     const h = head(title, desc, path)
       .replace("</head>", CSS + "</head>")
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
@@ -403,6 +630,8 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
+      micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
+      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
@@ -434,16 +663,21 @@ ${header(path)}
     <div class="sv1-title"><h2>${t("advisorTitle")}</h2><p>${t("advisorSub")}</p></div>
     <div class="sv1-app">
       <div class="sv1-appbar"><b>${t("brand")}</b>
-        <div class="sv1-steps"><span class="active">${t("stepReq")}</span><span>${t("stepQuote")}</span><span>${t("stepContract")}</span><span>${t("stepPay")}</span><span>${t("stepInvoice")}</span></div>
+        <div class="sv1-steps">${[1,2,3,4,5,6].map((n) => `<span${n === 1 ? ' class="active"' : ""}>${n} · ${t("j" + n)}</span>`).join("")}</div>
       </div>
       <div class="sv1-appgrid">
         <div class="sv1-chat">
           <div class="sv1-chathead"><h3 id="sv1ChatTitle">${t("ctxConsulting")}</h3><p id="sv1ChatSub">${t("doorConsulting")}</p></div>
           <div class="sv1-msgs" id="sv1Msgs" aria-live="polite"></div>
+          <div class="sv1-voice" id="sv1Voice" role="status" aria-live="polite"></div>
           <form class="sv1-compose" id="sv1Form">
             <textarea id="sv1In" placeholder="${esc(t("chatPlaceholder"))}" aria-label="${esc(t("chatPlaceholder"))}"></textarea>
+            <button type="button" class="sv1-mic" id="sv1Mic" aria-label="${esc(t("micStart"))}" title="${esc(t("micStart"))}">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+            </button>
             <button type="submit" class="send" id="sv1Send" aria-label="${esc(t("send"))}">↑</button>
           </form>
+          <p class="sv1-composehint">${esc(t("composeHint"))}</p>
         </div>
         <div class="sv1-scope">
           <span class="sv1-tag">${t("scopeTag")}</span>
@@ -538,7 +772,18 @@ var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',read
 try{var sv=JSON.parse(sessionStorage.getItem('sv1_chat')||'null');if(sv&&sv.lang===LANG&&sv.ctx){state.ctx=sv.ctx;state.history=sv.history||[];state.items=sv.items||[];state.docs=sv.docs||[];state.summary=sv.summary||'';state.title=sv.title||'';state.ready=!!sv.ready}}catch(e){}
 function save(){try{sessionStorage.setItem('sv1_chat',JSON.stringify({lang:LANG,ctx:state.ctx,history:state.history,items:state.items,docs:state.docs,summary:state.summary,title:state.title,ready:state.ready}))}catch(e){}}
 function add(text,role){var d=document.createElement('div');d.className='sv1-msg '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
-function chips(){var list=TX.chips[state.ctx]||[];if(state.history.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w)}
+function drawChips(list){if(!list||!list.length)return;var w=document.createElement('div');w.className='sv1-chips';list.forEach(function(c){var b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=function(){var box=b.parentNode;if(box&&box.parentNode)box.parentNode.removeChild(box);input.value=c;submit()};w.appendChild(b)});msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight}
+function chips(){if(state.history.length)return;drawChips(TX.chips[state.ctx]||[])}
+// The advisor asks ONE question a turn and may offer ready answers, so a
+// customer on a phone taps instead of typing. The block is machine-only —
+// same loose matching as the scope block, because a model that drops a
+// bracket must not leave «OPTS>>» sitting in a chat bubble.
+function parseOpts(text){var m=/<*\\s*OPTS\\s*>>/i.exec(text);if(!m)return{text:text,opts:null};var i=m.index,after=i+m[0].length;var e=/<*\\s*END\\s*>>/i.exec(text.slice(after));var raw=e?text.slice(after,after+e.index):text.slice(after);var list=null;
+try{list=JSON.parse(raw)}catch(err){var b=raw.indexOf('['),d=raw.lastIndexOf(']');if(b>=0&&d>b){try{list=JSON.parse(raw.slice(b,d+1))}catch(e2){}}}
+var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace(/<*\\s*(?:OPTS|END)\\s*>>/gi,'').trim();
+if(!Array.isArray(list))return{text:clean,opts:null};
+list=list.map(function(x){return String(x==null?'':x).trim()}).filter(function(x){return x&&x.length<=60}).slice(0,4);
+return{text:clean,opts:list.length?list:null}}
 function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(function(it,i){var row=document.createElement('div');row.className='sv1-item';var tx=document.createElement('div');var b=document.createElement('b');b.textContent=it.title;b.setAttribute('contenteditable','true');b.setAttribute('spellcheck','false');b.addEventListener('input',function(){state.items[i].title=this.textContent.trim();save()});var s=document.createElement('small');s.textContent=it.why||TX.scopeIn;tx.appendChild(b);tx.appendChild(s);var del=document.createElement('button');del.className='del';del.type='button';del.textContent='×';del.onclick=function(){state.items.splice(i,1);drawItems();save()};row.appendChild(tx);row.appendChild(del);box.appendChild(row)})}
 function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
 state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='\u00d7';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
@@ -554,10 +799,71 @@ var clean=(text.slice(0,i)+(e?text.slice(after+e.index+e[0].length):'')).replace
 function applyScope(sc){if(sc.items&&sc.items.length)state.items=sc.items.map(function(x){return {code:x.code||'',title:x.title||'',why:x.why||''}}).filter(function(x){return x.title});if(sc.needs&&sc.needs.length)state.docs=sc.needs.map(function(n){return {title:(typeof n==='string'?n:(n&&n.title)||''),note:(n&&n.note)||''}}).filter(function(d){return d.title});
 state.summary=sc.summary||'';state.title=sc.title||'';state.ready=true;drawItems();drawDocs();save();var box=document.querySelector('.sv1-scope');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function ask(){if(state.busy)return;state.busy=true;send.disabled=true;var th=add(TX.thinking,'a');th.style.opacity='.6';
-fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:LANG,messages:state.history.slice(-12)})})
-.then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);if(p.text)add(p.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope)})
+fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'intake',context:state.ctx,lang:state.voiceLang||LANG,messages:state.history.slice(-12)})})
+.then(function(r){return r.json()}).then(function(j){var reply=(j&&(j.reply||j.message))||'';if(!reply)throw new Error('empty');th.remove();var p=parseScope(reply);var o=parseOpts(p.text);if(o.text)add(o.text,'a');state.history.push({role:'assistant',content:reply});save();if(p.scope)applyScope(p.scope);else drawChips(o.opts)})
 .catch(function(){th.remove();add(TX.chatError,'s')}).then(function(){state.busy=false;send.disabled=false})}
 function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.querySelector('.sv1-chips');if(c)c.remove();add(v,'u');state.history.push({role:'user',content:v});input.value='';save();ask()}
+// ---- الصوت: العميل يتكلم بلغته، فيُكتب كلامُه في المحادثة ثم يقرأه المستشار.
+// النص يهبط في صندوق الكتابة لا في المحادثة مباشرةً: تفريغٌ آليٌّ قد يخطئ
+// كلمة، وتصحيحُها قبل الإرسال أرخص من تصحيح نطاقٍ بُني على خطأ.
+(function(){
+ var mic=$('sv1Mic'),strip=$('sv1Voice');
+ if(!mic)return;
+ var rec=null,chunks=[],tick=null,t0=0,stream=null;
+ var CAN=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+ function say(cls,txt,timer){strip.className='sv1-voice on'+(cls?' '+cls:'');strip.textContent='';
+  if(cls!=='err'){var d=document.createElement('span');d.className='dot';strip.appendChild(d)}
+  var t=document.createElement('span');t.textContent=txt;strip.appendChild(t);
+  if(timer){var e=document.createElement('span');e.className='t';e.id='sv1VoiceT';e.textContent='0:00';strip.appendChild(e)}}
+ function hide(){strip.className='sv1-voice';strip.textContent=''}
+ function stopTracks(){if(stream){try{stream.getTracks().forEach(function(t){t.stop()})}catch(e){}stream=null}}
+ function pickType(){var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  for(var i=0;i<c.length;i++){try{if(window.MediaRecorder.isTypeSupported(c[i]))return c[i]}catch(e){}}return ''}
+ function reset(){mic.classList.remove('rec','busy');mic.disabled=false;mic.setAttribute('aria-label',TX.micStart);
+  if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
+ function send2(blob,type){
+  if(blob.size<1200){reset();say('err',TX.micQuiet);return}
+  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
+  var fr=new FileReader();
+  fr.onerror=function(){reset();say('err',TX.micFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+     body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     reset();
+     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
+     hide();
+     // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
+     if(o.lang)state.voiceLang=o.lang;
+     input.value=(input.value?input.value.replace(/\s*$/,' '):'')+o.text;
+     input.focus();
+     try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
+     input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
+    .catch(function(){reset();say('err',TX.micFail)})};
+  fr.readAsDataURL(blob)}
+ function start(){
+  if(!CAN){say('err',TX.micNone);return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+   stream=st;var type=pickType();chunks=[];
+   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   var used=rec.mimeType||type||'audio/webm';
+   rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
+   rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};
+   rec.start();
+   mic.classList.add('rec');mic.setAttribute('aria-label',TX.micStop);
+   t0=Date.now();say('',TX.micRec,true);
+   tick=setInterval(function(){
+    var sec=Math.floor((Date.now()-t0)/1000),el=document.getElementById('sv1VoiceT');
+    if(el)el.textContent=Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2);
+    if(sec>=180&&rec&&rec.state==='recording')rec.stop();   // سقفٌ ثلاث دقائق
+   },500);
+  }).catch(function(){say('err',TX.micDenied)})}
+ mic.onclick=function(){
+  if(rec&&rec.state==='recording'){if(tick){clearInterval(tick);tick=null}rec.stop();return}
+  hide();start()};
+})();
 form.addEventListener('submit',function(e){e.preventDefault();submit()});
 input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit()}});
 $('sv1Add').onclick=function(){var v=$('sv1AddIn').value.trim();if(!v)return;state.items.push({code:'',title:v,why:''});$('sv1AddIn').value='';drawItems();save()};
@@ -576,23 +882,38 @@ fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-t
 ok.innerHTML='';ok.appendChild(document.createTextNode(TX.created+' '+o.ref));var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=PORTAL+'?ref='+encodeURIComponent(o.ref);a.textContent=TX.openPortal;ok.appendChild(a);
 try{sessionStorage.removeItem('sv1_chat')}catch(e){}setTimeout(function(){location.href=a.href},1400)})
 .catch(function(){ok.classList.add('sv1-hide');$('sv1LoginStep1').classList.remove('sv1-hide');$('sv1LoginErr').textContent=TX.chatError})}
-// Handoff from the per-service assistant (site/scripts/service-advisor.mjs):
-// the visitor already answered the short questions on a service page, so the
-// chat opens in the right context with that service already in the scope.
-var handoff=false;
-try{var hx=JSON.parse(sessionStorage.getItem('bp_sva_request')||'null');
-if(hx&&hx.name&&Date.now()-(hx.at||0)<36e5){sessionStorage.removeItem('bp_sva_request');
-state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=hx.name;state.ready=false;
-state.items=[{code:hx.code||'',title:hx.name,why:hx.platform||''}].concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
+// Handoff from «كل الخدمات» (/catalog) and from the per-service assistant
+// (site/scripts/service-advisor.mjs): the visitor already picked the service,
+// so the chat opens in the right context with it already in the scope.
+//
+// The key is read AND deleted in one step, before anything is parsed, so the
+// handoff stays one-shot even if the parse or the render below throws. A key
+// that outlived its landing would replay: the visitor returns to the homepage
+// within the hour and finds the conversation he had started reset to a service
+// he clicked once.
+var handoff=false,hxRaw=null;
+try{hxRaw=sessionStorage.getItem('bp_sva_request');if(hxRaw)sessionStorage.removeItem('bp_sva_request')}catch(e){}
+try{var hx=JSON.parse(hxRaw||'null');
+var hxItems=hx&&Array.isArray(hx.items)?hx.items.filter(function(x){return x&&x.title}):null;
+if(hx&&(hx.name||(hxItems&&hxItems.length))&&Date.now()-(hx.at||0)<36e5){
+state.ctx=TYPE[hx.door]?hx.door:'consulting';state.history=[];state.summary=hx.text||'';state.title=(hxItems&&hxItems.length>1)?(hx.text||hxItems[0].title):(hx.name||hxItems[0].title);state.ready=false;
+// اختيار متعدد من /catalog: البنود المؤشَّرة هي النطاق كما هي. اختيارٌ واحد
+// يُسند إليه بندان من البذرة ليكون للطلب هيكل يراجعه العميل؛ وأربعة بنود
+// اختارها بنفسه لا تحتاج حشواً — هي ما طلبه بالضبط.
+state.items=(hxItems&&hxItems.length)
+ ?hxItems.map(function(x){return {code:x.code||'',title:x.title,why:x.why||''}})
+ :[{code:hx.code||'',title:hx.name,why:hx.platform||''}];
+if(state.items.length===1)state.items=state.items.concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 $('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
-msgs.innerHTML='';add(hx.text||hx.name,'u');state.history.push({role:'user',content:hx.text||hx.name});drawItems();drawDocs();save();ask();
+var opener=hx.text||hx.name||state.items.map(function(x){return x.title}).join('، ');
+msgs.innerHTML='';add(opener,'u');state.history.push({role:'user',content:opener});drawItems();drawDocs();save();ask();
 handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'})},200)}}catch(e){}
 // boot
 if(handoff){/* already rendered from the service-page handoff */}
 else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
-msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};if(p.text)add(p.text,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
+msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};var t=m.role==='assistant'?parseOpts(p.text).text:p.text;if(t)add(t,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({

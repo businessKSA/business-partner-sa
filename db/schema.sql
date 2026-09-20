@@ -816,3 +816,78 @@ alter table tasks add column if not exists priority text not null default 'norma
 alter table tasks add column if not exists assigned_to text;
 create index if not exists tasks_request_idx on tasks(request_id);
 create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');
+
+-- ---------------------------------------------------------------------------
+-- بوابة وكيل واتساب: من يردّ على هذا الرقم — الآلة أم إنسان؟
+--
+-- الروبوت على n8n يردّ على كل رسالة. حين يمسك موظف محادثة (عميل غاضب، حالة
+-- خاصة، صفقة تُقفل بالكلام) فردّ آلي في وسط الكلام يفسدها. هذا الجدول هو
+-- المفتاح: صفٌّ لكل رقم موقوف، والصف '*' يوقف الوكيل كله.
+--
+-- الافتراضي = لا صفّ = الوكيل يعمل. غياب الجدول أو تعذّر قراءته يعني كذلك
+-- «يعمل»: العطل يوقف التحكّم لا الخدمة.
+create table if not exists wa_agent_gate (
+  phone text primary key,                       -- أرقام فقط، أو '*' للمفتاح العام
+  paused boolean not null default true,
+  reason text,
+  actor text,
+  until timestamptz,                            -- استئناف تلقائي بعد هذا الوقت (null = يدوي)
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- 2026-09-16: Job recruitment system — integrated ATS for employer portal.
+-- Job postings are owned by organizations. Employers can post jobs for their
+-- organization; admins see all jobs across all organizations.
+--
+create table if not exists job_postings (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  title text not null,
+  description text not null,
+  requirements text,
+  salary_min numeric(10,2),
+  salary_max numeric(10,2),
+  city text not null default 'الرياض',
+  employment_type text not null default 'full_time' check (employment_type in ('full_time','part_time','contract','temporary')),
+  experience_level text check (experience_level in ('entry','mid','senior','executive')),
+  status text not null default 'active' check (status in ('draft','active','closed','archived')),
+  posted_by uuid references users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+create index if not exists job_postings_org_idx on job_postings(organization_id);
+create index if not exists job_postings_status_idx on job_postings(status);
+
+-- Job applications — candidates applying to job postings
+create table if not exists job_applications (
+  id uuid primary key default gen_random_uuid(),
+  job_posting_id uuid not null references job_postings(id) on delete cascade,
+  organization_id uuid not null references organizations(id) on delete cascade,
+  applicant_name text not null,
+  applicant_email text not null,
+  applicant_phone text,
+  cv_text text,
+  cover_letter text,
+  status text not null default 'received' check (status in ('received','reviewed','shortlisted','interviewed','offered','rejected','withdrawn')),
+  rating numeric(2,1) check (rating between 1 and 5),
+  notes text,
+  applied_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references users(id)
+);
+create index if not exists job_applications_job_idx on job_applications(job_posting_id);
+create index if not exists job_applications_org_idx on job_applications(organization_id);
+create index if not exists job_applications_status_idx on job_applications(status);
+create index if not exists job_applications_email_idx on job_applications(applicant_email);
+
+-- Enable RLS for recruitment tables
+alter table job_postings enable row level security;
+alter table job_applications enable row level security;
+
+-- Job posting RLS: employers see their org's jobs, admin sees all
+create policy job_postings_org_read on job_postings for select using (organization_id in (select current_org_ids()));
+
+-- Job applications RLS: employers see their org's applications, admin sees all
+create policy job_applications_org_read on job_applications for select using (organization_id in (select current_org_ids()));

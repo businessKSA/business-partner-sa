@@ -109,7 +109,12 @@ function makeOrFilter(expr) {
 }
 
 function makeFilter(col, expr) {
-  const m = /^([a-z.]+)\.(.*)$/s.exec(expr);
+  // The operator is the FIRST segment, exactly as PostgREST reads it — plus
+  // the two-segment "not." prefix. A greedy [a-z.]+ swallowed values that
+  // themselves contain a dot: "event=eq.followup.reminded" parsed as the
+  // operator "eq.followup", threw, and the caller's catch turned a broken
+  // filter into a silently empty result.
+  const m = /^(not\.[a-z]+|[a-z]+)\.(.*)$/s.exec(expr);
   if (!m) throw new Error(`localdb: bad filter "${col}=${expr}"`);
   const [, op, rest] = m;
   if (op === "is") { const want = rest === "null"; return (r) => (r[col] === null || r[col] === undefined) === want; }

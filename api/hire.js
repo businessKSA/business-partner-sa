@@ -1,12 +1,17 @@
 // Business Partner 3.0 — AI Hiring assistant (ESM). Powers the "AI Hiring OS"
 // employer dashboard: match candidates to a role, summarise a candidate, draft
 // interview questions, and write outreach messages. Free-first provider
-// failover (Gemini → Groq → OpenAI → Anthropic), same keys as the advisor.
+// Azure OpenAI first (owner policy, September 2026: the digital infrastructure
+// is Microsoft Azure). Once Azure is configured the other providers stay
+// dormant unless DOC_AI_ALLOW_FALLBACK=1 — the same valve document reading
+// uses. Until Azure is configured the old free-first chain keeps working, so
+// the employer dashboard never goes dark waiting for an env var.
 //
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"
 // GET  /api/hire  -> { status, providers }
 
+import { AZURE_KEYS, azureChat, azureConfigured } from "./_azure.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -17,6 +22,8 @@ const NOTION_TOKEN = envFrom([
 ]);
 const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
 const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
+// ‏انظر api/chat.js: llama-3.3-70b-versatile أوقفته Groq في ٢٠٢٦/٠٨/١٦.
+const GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b";
 const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
 const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 
@@ -62,12 +69,17 @@ async function callAnthropic(prompt, maxTokens) {
 }
 
 const PROVIDERS = [
+  { name: "azure", keys: AZURE_KEYS, call: (p, m) => azureChat({ system: SYSTEM, messages: [{ role: "user", content: p }], maxTokens: m || 1200, temperature: 0.4 }) },
   { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
-  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || "llama-3.3-70b-versatile", p, m) },
+  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || GROQ_DEFAULT_MODEL, p, m) },
   { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
   { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
 ];
-const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
+const legacyAllowed = () => String(process.env.DOC_AI_ALLOW_FALLBACK || "").trim() === "1";
+const available = () => PROVIDERS
+  .filter((p) => p.keys.some((k) => process.env[k]))
+  // Azure configured → Azure only, unless the fallback valve is open.
+  .filter((p) => p.name === "azure" || !azureConfigured() || legacyAllowed());
 
 export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
 export const aiAvailable = () => available().length > 0;

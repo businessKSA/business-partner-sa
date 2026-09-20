@@ -299,10 +299,21 @@ const FULLY_READY_LANGS = ["fr", "zh"];
 // once for ar/en only — they're never part of the per-language build loop,
 // so even a "fully ready" language must not get a prefixed link to them.
 const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
+// صفحاتٌ تُبنى بلغةٍ واحدة ولا نسخة لها بغيرها: بدائل اللغة فيها تشير إلى
+// عناوين غير موجودة. لوحة العمليات عربية للفريق وحده.
+const SINGLE_LANG_PATHS = new Set(["/ops"]);
+// لقطة قاعدة الرحلات في نوشن (site/data/trips.json). تُحدَّث بإعادة السحب
+// من نوشن، ولا تُحرَّر باليد كي لا يفترق الموقع عن مصدره.
+const TRIPS = read("data/trips.json");
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
+import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
+import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
+import { buildSimpleTrips } from "./simple-v1-trips.mjs";
+import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
+import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
@@ -319,6 +330,15 @@ const Lraw = (en, ar) => {
   if (LANG === "en") return en;
   return T(en);
 };
+// نصٌّ مترجَم يُوضع داخل نصّ جافاسكربت. `Lraw` يعطي النص خاماً، وهو الصواب
+// في سمة HTML وخطأٌ هنا: الترجمة الفرنسية «pour l'instant» فاصلتها العليا
+// تُنهي النص المفرد فتُسقط السكربت كلّه — وهو ما أعمى لوحة الخدمات المشتركة
+// الفرنسية بلا أن يفشل بناء. يهرب هذا ما يكسر النص، و`</script` كذلك لأنه
+// ينهي الوسم من داخل النص.
+const Ljs = (en, ar) => String(Lraw(en, ar))
+  .replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"')
+  .replace(/\r?\n/g, "\\n").replace(/<\/script/gi, "<\\/script");
+
 // Arabic numeral-noun agreement: 1 → singular ("خدمة"), 2 → dual ("خدمتان"),
 // 3-10 → plural ("خدمات"), 11+ → singular again (classical counted-noun rule).
 function arCount(n, singular, dual, plural) {
@@ -434,7 +454,17 @@ function localizeLabel(l) {
     .replace("/ شهرياً", "/ monthly")
     .replace("/ لكل مرشّح", "/ per candidate")
     .replace("شهرياً", "monthly")
-    .replace("لكل مرشّح", "per candidate");
+    .replace("لكل مرشّح", "per candidate")
+    // ‏وحداتٌ فاتت الجدول فظهرت عربيةً في الصفحة الإنجليزية:
+    // «2,500 ﷼ / شهر» و«100 ﷼ / سيرة ذاتية» و«30,000 ﷼ / كيان».
+    .replace("/ شهر", "/ month")
+    .replace("/ سيرة ذاتية", "/ CV")
+    .replace("/ كيان", "/ entity")
+    .replace("/ منشأة", "/ establishment")
+    .replace("/ لكل رحلة", "/ per trip")
+    .replace("عرض سعر مخصص", "Custom quotation")
+    .replace("سعر حسب حالتك", "Priced to your case")
+    .replace("﷼", "SAR");
 }
 const priceLabel = (s) => localizeLabel((s.price && s.price.label) || "");
 // ASCII-safe id from any string (keeps Arabic out of element ids / data-id).
@@ -513,7 +543,8 @@ const EMBED_SNIPPET = `<script>if(/[?&]embed=1(?:&|$)/.test(location.search))doc
 
 function head(title, desc, path) {
   const canonical = path || "/";
-  const langsForPage = VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
+  const oneLang = SINGLE_LANG_PATHS.has(canonical);
+  const langsForPage = oneLang ? [] : VISIBLE_LANGS.filter((l) => l === "en" || l === "ar" || langPathReady(l, canonical));
   const hreflangs = langsForPage.map((l) => `<link rel="alternate" hreflang="${l}" href="${pathInLang(canonical, l)}">`).join("\n");
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${LANG === "ar" ? "rtl" : "ltr"}"${SHOW_PRICES ? "" : ' data-prices="off"'}>
@@ -530,7 +561,7 @@ function head(title, desc, path) {
 <meta name="theme-color" content="#0B1B5A">
 <meta name="generator" content="Business Partner 3.0 Website">
 ${hreflangs}
-<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">
+${oneLang ? "" : `<link rel="alternate" hreflang="x-default" href="${pathInLang(canonical, "en")}">`}
 <script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
 /* First visit (no explicit choice yet): follow the browser language when we
    have that translation — an Arabic browser lands on /ar automatically. Runs
@@ -542,7 +573,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/styles.css?v=${CSS_V}">
 ${SHOW_PRICES ? "" : '<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>'}
 ${EMBED_SNIPPET}
@@ -772,6 +803,29 @@ function advisorWidget() {
   </section>`;
 }
 
+// Service pages are where every marketing link lands. They were still rendering
+// in the old site chrome while the homepage had moved to the Simple V1 design,
+// so a visitor arriving from a campaign met a different site than the one on /ar
+// — different header, different navigation, different design language.
+//
+// This renders them through the same shell, header and footer as the homepage.
+// The page body keeps its own markup and classes; only the chrome changes. The
+// shell wraps everything in .sv1, whose base rule strips colour and underline
+// from every link, so the content area restores its own link styling rather than
+// inheriting a reset meant for the landing page.
+const SV1_CONTENT_CSS = `<style>.sv1 main a{color:var(--brand,#0B1B5A);text-decoration:revert}.sv1 main a.btn,.sv1 main a.btn-white,.sv1 main a.btn-wa,.sv1 main a[class*="btn"]{text-decoration:none}.sv1 main{display:block;width:100%}</style>`;
+
+function servicePage({ title, desc, path, body, script = "", noindex = false }) {
+  return SV1.shell({
+    title,
+    desc,
+    path,
+    noindex,
+    script,
+    body: SV1.header(path) + SV1_CONTENT_CSS + `<main>${body}</main>` + SV1.footer(),
+  });
+}
+
 function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "", bodyClass = "" }) {
   const p = path || active || "/";
   return (
@@ -820,6 +874,19 @@ const GOV_EN = {
   "سُبل": "Subul",
   "الزكاة والضريبة ZATCA": "ZATCA",
   "وزارة الموارد البشرية": "Ministry of Human Resources",
+  "بوابة المستفيد — الموارد البشرية": "HRSD Beneficiary Portal",
+  "العمل المرن": "Flexible Work",
+  "العمل عن بُعد": "Remote Work",
+  "طاقات — هدف": "Taqat (HRDF)",
+  "بوابة قطاع العمل": "Labour Sector portal",
+  "منصة التقييم الذاتي": "Self Assessment platform",
+  "منصة مواءمة": "Mowaamah",
+  "المنصة الوطنية للمسؤولية الاجتماعية": "National Social Responsibility platform",
+  "وزارة الخارجية MOFA": "Ministry of Foreign Affairs (MOFA)",
+  "وزارة التجارة": "Ministry of Commerce",
+  "منشآت": "Monsha'at",
+  "الهيئة العامة للعقار (REGA) · منصة عقارات السعودية": "REGA · Saudi Real Estate platform",
+  "أجير — قوى": "Ajeer (Qiwa)",
   "بدون جهة حكومية": "No government authority",
 };
 // g is always the Arabic authority name (from services.json); every call
@@ -1742,6 +1809,30 @@ const ECO_CATS = {
 };
 const ecoCatLabel = (k) => (ECO_CATS[k] ? L(ECO_CATS[k].en, ECO_CATS[k].ar) : esc(k));
 
+// ‏أسماء المدن السعودية بلغة الصفحة. كانت تُطبع بالعربية في كل شجرة، فيقرأ
+// زائر الصفحة الإنجليزية «أبها» و«الخبر» بين نصٍّ إنجليزي. للمدن أسماءٌ
+// إنجليزية متعارَفة فلا حاجة لترجمة آلية — هذا جدول تحويل لا ترجمة.
+const CITY_EN = {
+  "الرياض": "Riyadh", "جدة": "Jeddah", "مكة المكرمة": "Makkah", "مكة": "Makkah",
+  "المدينة المنورة": "Madinah", "المدينة": "Madinah", "الدمام": "Dammam",
+  "الخبر": "Khobar", "الظهران": "Dhahran", "الجبيل": "Jubail", "ينبع": "Yanbu",
+  "الأحساء": "Al-Ahsa", "الهفوف": "Hofuf", "بريدة": "Buraidah", "عنيزة": "Unaizah",
+  "أبها": "Abha", "خميس مشيط": "Khamis Mushait", "تبوك": "Tabuk", "حائل": "Hail",
+  "جازان": "Jazan", "جيزان": "Jazan", "نجران": "Najran", "الباحة": "Al-Baha",
+  "الطائف": "Taif", "الخرج": "Al-Kharj", "سكاكا": "Sakaka", "عرعر": "Arar",
+  "القصيم": "Qassim", "عسير": "Asir", "العلا": "AlUla", "نيوم": "NEOM",
+  "الشرقية": "Eastern Province", "المنطقة الشرقية": "Eastern Province",
+  "الرس": "Ar Rass", "رابغ": "Rabigh", "الأحساء - الهفوف": "Al-Ahsa",
+  "شقراء": "Shaqra", "ينبع البحر": "Yanbu Al Bahr", "الدرعية": "Diriyah",
+  "الزلفي": "Az Zulfi", "الدوادمي": "Dawadmi", "المجمعة": "Al Majmaah",
+};
+const cityLabel = (c) => {
+  const k = String(c || "").trim();
+  if (!k) return "";
+  return LANG === "ar" ? k : (CITY_EN[k] || T(k));
+};
+
+
 function buildDirectory() {
   const orgs = ecosystem.orgs || [];
   const programs = ecosystem.programs || [];
@@ -1774,7 +1865,7 @@ function buildDirectory() {
   // ----- city select -----
   const cityOpts =
     `<option value="all">${L("All cities", "كل المدن")}</option>` +
-    cities.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    cities.map((c) => `<option value="${esc(c)}">${esc(cityLabel(c))}</option>`).join("");
 
   // ----- entity cards -----
   const contactLinks = (o) => {
@@ -1791,7 +1882,7 @@ function buildDirectory() {
     return `<article class="eco-card" data-kind="orgs" data-cat="${o.cat}" data-city="${esc(o.city)}" data-text="${esc(text)}">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:${cat.c}">${ecoCatLabel(o.cat)}</span>
-        ${o.city ? `<span class="eco-city">${I.pin}${esc(o.city)}</span>` : ""}
+        ${o.city ? `<span class="eco-city">${I.pin}${esc(cityLabel(o.city))}</span>` : ""}
       </div>
       <h3>${esc(o.name)}</h3>
       ${o.type ? `<p class="eco-type">${esc(o.type)}</p>` : ""}
@@ -2012,7 +2103,7 @@ function buildServicesIndex() {
     apply();
   })();
   </script>`;
-  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  return servicePage({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), path: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -2056,10 +2147,9 @@ function buildServiceCategory(cat) {
     <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
     <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({
+  return servicePage({
     title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
     desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
-    active: "/services",
     path: "/services/category/" + catSlugUrl(cat.key),
     body,
   });
@@ -2135,7 +2225,7 @@ function buildServiceDetail(s) {
     </aside>
   </div></div>`;
   const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  return servicePage({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, path: `/services/${s.slug}`, body });
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
@@ -2300,7 +2390,7 @@ function buildBdaas() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Thirty days, free, the moment you register", "ثلاثون يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 30 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 30 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
-    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/business-development-dashboard")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/account?redirect=revenue")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
   <section class="section section--gray" id="paths"><div class="container">
@@ -2587,7 +2677,7 @@ function buildAiAgents() {
       tg: L("Customers, suppliers, partners and a pipeline that never sleeps — growth as an operating system.", "عملاء وموردون وشركاء وPipeline لا ينام — النمو كنظام تشغيل."),
       feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
       price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
-      acts: `<a class="btn btn-primary" href="${u("/revenue-os")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+      acts: `<a class="btn btn-primary" href="${u("/business-development")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
     },
     {
       tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),
@@ -3461,10 +3551,12 @@ function buildGovernmentCostCalculator() {
           <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
         </tr></thead><tbody id="cc-tbody"></tbody></table></div>
       </div>
+      ${calcLeadCapture('gc', 'government-cost', 'cc-fees-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. الرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
   <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('gc', 'government-cost', 'cc-fees-result').script}
   <script>
   (function(){
     var isAr = window.BP_CC_LANG === "ar";
@@ -3530,6 +3622,7 @@ function buildProfessionChecker() {
       <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
       <div class="cc-prof-chips" id="cc-prof-chips"></div>
       <div id="cc-prof-results"></div>
+      ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
@@ -3558,7 +3651,8 @@ function buildProfessionChecker() {
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
   })();
-  </script>`;
+  </script>
+  ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').script}`;
   return page({
     title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
     desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
@@ -3816,11 +3910,11 @@ function buildDataPortal() {
 
   <section id="pricing" class="section"><div class="container">
     <div class="price-box">
-      <div><div class="price-amt">${L("375", "375")} <small>${L("SAR / monthly (~$100)", "ريال / شهرياً (≈ 100$)")}</small></div>
-      <div class="text-soft">${L("Full access to the companies database + monthly updates. After payment you receive your access code by email.", "وصول كامل لقاعدة الشركات + تحديثات شهرية. بعد الدفع يصلك كود الوصول على بريدك.")}</div></div>
-      ${cartBtns({ id: "companies-data-access", nameEn: "Companies Database — monthly access", nameAr: "قاعدة بيانات الشركات — اشتراك شهري", amount: 375, priceLabel: L("375 ﷼ / monthly", "375 ﷼ / شهرياً"), kind: "service" })}
+      <div><div>${L("Open — no fee", "مفتوحة بلا رسوم")}</div>
+      <div class="text-soft">${L("Full access to the companies database and its monthly updates, open to any signed-in client. No subscription, no access code.", "وصول كامل لقاعدة الشركات وتحديثاتها الشهرية، مفتوح لكل عميل مسجَّل. بلا اشتراك وبلا رمز دخول.")}</div></div>
+      <a class="btn btn-primary" href="${u("/my")}">${L("Open the database", "افتح القاعدة")}</a>
     </div>
-    <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع (B2B). استخدمها وفق نظام حماية البيانات السعودي وقواعد كل قناة، ويحق لأي جهة إلغاء الاشتراك في أي وقت.")}</p>
+    <p class="text-soft" style="max-width:820px;margin:1rem auto 0;text-align:center">${L("Data is for legitimate B2B outreach. Use it in line with Saudi PDPL and each channel's rules; recipients can opt out at any time.", "البيانات للتواصل التجاري المشروع. استخدمها وفق نظام حماية البيانات الشخصية وقواعد كل قناة، ولكل متلقٍّ أن يطلب إيقاف التواصل في أي وقت.")}</p>
   </div></section>
 
   <section class="section section--gray"><div class="container">
@@ -4108,6 +4202,79 @@ function buildTeamAgent(agent) {
   });
 }
 
+// Lead capture shown *under* a calculator result.
+//
+// The six calculators are the highest-intent traffic on the site — somebody working out
+// an end-of-service settlement has a live HR problem right now — and until this existed
+// every one of those visitors left anonymous. The pipeline reflected that: 52
+// opportunities, none attributed to a calculator.
+//
+// It never gates the result. Gating a free calculator behind an email would damage the
+// one channel that is already converting; the offer only appears once the visitor has
+// what they came for. The rendered result is posted along with the contact details so
+// whoever follows up can see the actual numbers.
+// revealOn: "hidden" watches the result box being un-hidden (five of the six
+// calculators). "content" watches it gaining children — the profession checker renders
+// matches straight into an always-visible div, so there is no hidden flag to observe.
+function calcLeadCapture(prefix, service, resultId, revealOn = "hidden") {
+  const id = (k) => `${prefix}-cap-${k}`;
+  const markup = `
+      <div class="cc-capture" id="${id("box")}" hidden>
+        <div class="cc-capture-head">
+          <strong>${L("Want this in writing?", "تبغى النتيجة مكتوبة؟")}</strong>
+          <span>${L("We email you the full breakdown plus a free review of your case.", "نرسل لك التفصيل كاملاً مع مراجعة مجانية لحالتك.")}</span>
+        </div>
+        <div class="cc-capture-row">
+          <input id="${id("name")}" type="text" autocomplete="name" placeholder="${L("Name", "الاسم")}">
+          <input id="${id("email")}" type="email" autocomplete="email" placeholder="${L("Email", "البريد الإلكتروني")}">
+          <input id="${id("phone")}" type="tel" autocomplete="tel" placeholder="${L("Mobile (optional)", "الجوال (اختياري)")}">
+          <button class="btn btn-primary" id="${id("send")}">${L("Send it to me", "أرسلها لي")}</button>
+        </div>
+        <p class="cc-capture-note" id="${id("msg")}" hidden></p>
+      </div>`;
+
+  const script = `<script>(function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var $=function(i){return document.getElementById(i);};
+    var box=$(${JSON.stringify(id("box"))}),res=$(${JSON.stringify(resultId)});
+    if(!box||!res)return;
+    // Reveal the offer only once the visitor actually has a result.
+    var mode=${JSON.stringify(revealOn)};
+    if(mode==="content"){
+      new MutationObserver(function(){
+        // Any rendered answer counts, including "no localization decision found" —
+        // that page already tells the visitor to contact us to confirm, which makes it
+        // the highest-intent moment on the tool, not a dead end.
+        if(res.children.length)box.hidden=false;
+      }).observe(res,{childList:true,subtree:true});
+    } else {
+      new MutationObserver(function(){if(!res.hidden)box.hidden=false;})
+        .observe(res,{attributes:true,attributeFilter:["hidden"]});
+    }
+    var msg=$(${JSON.stringify(id("msg"))});
+    var show=function(t,ok){msg.hidden=false;msg.textContent=t;msg.style.color=ok?"#137a3e":"#b3261e";};
+    $(${JSON.stringify(id("send"))}).addEventListener("click",function(){
+      var v=function(i){var e=$(i);return e?e.value.trim():"";};
+      var name=v(${JSON.stringify(id("name"))}),email=v(${JSON.stringify(id("email"))}),phone=v(${JSON.stringify(id("phone"))});
+      if(!email||email.indexOf("@")<1){show(isAr?"اكتب بريداً صحيحاً.":"Enter a valid email.",false);return;}
+      var fd=new FormData();
+      fd.append("name",name||(isAr?"زائر الحاسبة":"Calculator visitor"));
+      fd.append("email",email);
+      fd.append("whatsapp",phone);
+      fd.append("service",${JSON.stringify(service)});
+      fd.append("source","website-calculator-"+${JSON.stringify(service)});
+      fd.append("notes",(isAr?"نتيجة الحاسبة: ":"Calculator result: ")+(res.innerText||"").replace(/\s+/g," ").slice(0,600));
+      var b=$(${JSON.stringify(id("send"))});b.disabled=true;
+      fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd})
+        .then(function(r){if(!r.ok)throw 0;show(isAr?"تم — تصلك النتيجة والمراجعة خلال يوم عمل.":"Done — you'll get the breakdown and review within one working day.",true);})
+        .catch(function(){show(isAr?"تعذّر الإرسال. جرّب مرة أخرى أو راسلنا واتساب.":"Sending failed — try again or message us on WhatsApp.",false);})
+        .finally(function(){b.disabled=false;});
+    });
+  })();</script>`;
+
+  return { markup, script };
+}
+
 function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -4133,10 +4300,12 @@ function buildEndOfServiceCalculator() {
         </div>
         <div class="cc-advice ok" id="lc-eos-note"></div>
       </div>
+      ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Individual cases may vary by contract terms. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4189,10 +4358,12 @@ function buildAnnualLeaveCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('lv', 'annual-leave', 'lv-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lv', 'annual-leave', 'lv-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4238,10 +4409,12 @@ function buildOvertimeCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('ot', 'overtime', 'ot-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('ot', 'overtime', 'ot-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4294,10 +4467,12 @@ function buildGosiCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('gs', 'gosi', 'gs-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on GOSI regulations for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على لوائح التأمينات لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('gs', 'gosi', 'gs-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -6830,7 +7005,7 @@ function buildWorkerHousing() {
     [L("Move in & ongoing follow-up", "تسكين ومتابعة مستمرة"), L("Your workers move into ready housing; we track operations, compliance and renewals all year.", "عمالتك تنتقل لسكن جاهز، واحنا نتابع التشغيل والامتثال والتجديدات طول السنة.")],
   ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
 
-  const cities = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "بريدة", "أبها", "تبوك", "حائل", "جازان", "نجران", "الطائف", "الهفوف", "ينبع", "الجبيل"]
+  const cities = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الظهران", "بريدة", "أبها", "تبوك", "حائل", "جازان", "نجران", "الطائف", "الهفوف", "ينبع", "الجبيل"].map(cityLabel)
     .map((c) => `<span class="chip">📍 ${c}</span>`).join("");
 
   const reqTypes = [["Ready housing (rent)", "سكن جاهز (إيجار)"], ["License my existing housing", "ترخيص وتوثيق سكن حالي"], ["Housing + catering + transport", "سكن + إعاشة + نقل"], ["Operate an existing housing", "إدارة وتشغيل سكن قائم"], ["Consultation / not sure", "استشارة / غير محدد"]]
@@ -7693,7 +7868,12 @@ function partnersBlock({ withShare = false } = {}) {
 // with the chosen bank, and set an ONLINE appointment with the bank officer —
 // every partner + the manager get the appointment by email.
 function buildBankAccount() {
-  const banks = ["الراجحي", "SNB الأهلي", "الرياض", "الإنماء", "ساب SAB", "البلاد", "الجزيرة", "العربي anb", "STC Bank", "بنك آخر"];
+  const banks = [
+    L("Al Rajhi Bank", "الراجحي"), L("Saudi National Bank (SNB)", "SNB الأهلي"),
+    L("Riyad Bank", "الرياض"), L("Alinma Bank", "الإنماء"), L("SAB", "ساب SAB"),
+    L("Bank Albilad", "البلاد"), L("Bank AlJazira", "الجزيرة"),
+    L("Arab National Bank (anb)", "العربي anb"), "STC Bank", L("Another bank", "بنك آخر"),
+  ];
   const steps = [
     [1, L("Complete your company profile", "أكمل بيانات منشأتك"), L("CR, activity, national address and contacts in your dashboard — this is the bank-file prerequisite.", "السجل والنشاط والعنوان الوطني وجهات الاتصال في لوحتك — هذا اشتراط ملف البنك.")],
     [2, L("Pick the bank & propose a time", "اختر البنك واقترح موعداً"), L("Choose your preferred bank and a time that suits all partners.", "اختر بنكك المفضل ووقتاً يناسب جميع الشركاء.")],
@@ -11662,28 +11842,28 @@ function buildSharedServicesPortal() {
       var tiles=document.getElementById('ss-kpis');
       var inprog=(d.tasks_by_status&&(d.tasks_by_status[${JSON.stringify(Lraw("In progress", "قيد التنفيذ"))}]||d.tasks_by_status['قيد التنفيذ']))||0;
       var last=(d.last_activity||'').slice(0,10)||'—';
-      tiles.innerHTML='<div class="ss-ktile"><div class="n">'+(d.conv_total||0)+'</div><div class="l">${Lraw("Conversations", "محادثة مع الفريق")}</div></div>'
-        +'<div class="ss-ktile"><div class="n">'+(d.tasks_total||0)+'</div><div class="l">${Lraw("Documented tasks", "مهمة موثقة")}</div></div>'
-        +'<div class="ss-ktile"><div class="n">'+inprog+'</div><div class="l">${Lraw("In progress", "قيد التنفيذ")}</div></div>'
-        +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">${Lraw("Last activity", "آخر نشاط")}</div></div>';
+      tiles.innerHTML='<div class="ss-ktile"><div class="n">'+(d.conv_total||0)+'</div><div class="l">${Ljs("Conversations", "محادثة مع الفريق")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+(d.tasks_total||0)+'</div><div class="l">${Ljs("Documented tasks", "مهمة موثقة")}</div></div>'
+        +'<div class="ss-ktile"><div class="n">'+inprog+'</div><div class="l">${Ljs("In progress", "قيد التنفيذ")}</div></div>'
+        +'<div class="ss-ktile"><div class="n" style="font-size:1.05rem;padding-top:8px">'+last+'</div><div class="l">${Ljs("Last activity", "آخر نشاط")}</div></div>';
       var ag=document.getElementById('ss-kagents');ag.innerHTML='';
       var keys=Object.keys(d.agents||{}).sort(function(a,b){return d.agents[b]-d.agents[a];});
-      if(!keys.length)ag.innerHTML='<div class="ss-kempty">${Lraw("No interactions yet — start from the Team tab.", "لا تفاعلات بعد — ابدأ من تبويب الفريق.")}</div>';
+      if(!keys.length)ag.innerHTML='<div class="ss-kempty">${Ljs("No interactions yet — start from the Team tab.", "لا تفاعلات بعد — ابدأ من تبويب الفريق.")}</div>';
       keys.forEach(function(k){var r=document.createElement('div');r.innerHTML='<span>'+agentLabel(k)+'</span><span class="c">'+d.agents[k]+'</span>';ag.appendChild(r);});
       var rc=document.getElementById('ss-krecent');rc.innerHTML='';
       var recent=d.recent||[];
-      if(!recent.length)rc.innerHTML='<div class="ss-kempty">${Lraw("Nothing yet.", "لا يوجد بعد.")}</div>';
+      if(!recent.length)rc.innerHTML='<div class="ss-kempty">${Ljs("Nothing yet.", "لا يوجد بعد.")}</div>';
       recent.forEach(function(m){var r=document.createElement('div');r.innerHTML='<span>'+(m.t||'')+'</span><span class="c">'+agentLabel(m.agent)+' · '+(m.date||'')+'</span>';rc.appendChild(r);});
     }
     function loadStats(){
       if(statsLoaded)return;statsLoaded=true;
       var c=getClient()||{};
       if(c.demo){renderStats({conv_total:12,tasks_total:5,tasks_by_status:{'قيد التنفيذ':2},agents:{khaled:5,mishari:3,farah:2,mohammed:2},recent:[{t:${JSON.stringify(Lraw("Quarterly marketing plan", "خطة تسويقية للربع"))},agent:'farah',date:'2026-07-15'},{t:${JSON.stringify(Lraw("Nitaqat check before hiring", "فحص النطاقات قبل توظيف عامل"))},agent:'mishari',date:'2026-07-14'}],last_activity:'2026-07-16'});return;}
-      document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Loading your numbers…", "نحمّل أرقامك…")}</div>';
+      document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Loading your numbers…", "نحمّل أرقامك…")}</div>';
       fetch(N8N+'/ss-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c.code})})
         .then(function(r){return r.json();})
-        .then(function(d){if(d&&d.ok){renderStats(d);}else{document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;}})
-        .catch(function(){document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Lraw("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;});
+        .then(function(d){if(d&&d.ok){renderStats(d);}else{document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;}})
+        .catch(function(){document.getElementById('ss-kpis').innerHTML='<div class="ss-kempty">${Ljs("Could not load reports right now.", "تعذر تحميل التقارير حالياً.")}</div>';statsLoaded=false;});
     }
     (function(){var tabs=document.querySelectorAll('.ss-tab');for(var i=0;i<tabs.length;i++){(function(b){b.onclick=function(){switchTab(b.getAttribute('data-tab'));};})(tabs[i]);}})();
 
@@ -12185,7 +12365,7 @@ function buildB10X() {
       fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(o) })
         .then(function(r2){ return r2.json().catch(function(){ return {}; }); })
         .then(function(out){
-          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Lraw("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Lraw("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
+          if (out && out.ok){ m.style.color = '#047857'; m.textContent = '${Ljs("Received! Your reference:", "استلمنا طلبك! رقمك المرجعي:")} ' + out.ref + ' — ${Ljs("we reply within one business day.", "نرد عليك خلال يوم عمل.")}'; f.reset(); }
           else { m.style.color = '#b91c1c'; m.textContent = '${Lraw("Something went wrong — contact us on WhatsApp: 966530540231", "تعذّر الإرسال — تواصل واتساب: 966530540231")}'; }
         })
         .catch(function(){ m.style.color = '#b91c1c'; m.textContent = '${Lraw("Connection failed — try again.", "تعذّر الاتصال — أعد المحاولة.")}'; });
@@ -12292,6 +12472,9 @@ function writeFullSite(pre) {
   }
   write(`${pre}simple-v1.html`, SV1.buildHome("/simple-v1"));
   write(`${pre}my.html`, buildSimpleMy(SV1, { lang: () => LANG }));
+  // «كل الخدمات» in this site's own design — where the footer link used to
+  // send people to the classic homepage.
+  if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   write(`${pre}business-development.html`, buildBdaas());
@@ -12355,12 +12538,28 @@ function writeFullSite(pre) {
   write(`${pre}estrdad.html`, buildEstrdad());
   write(`${pre}bank-account.html`, buildBankAccount());
   write(`${pre}formation-contract.html`, buildFormationContract());
-  write(`${pre}checkout.html`, buildCheckout());
+  // الدفع بتصميم الموقع الجديد. القديم يبقى مبنيّاً على /checkout-classic
+  // لأن روابطه قد تكون في يد عميل الآن — لكن لا شيء في الموقع الجديد يرسل إليه.
+  if (SIMPLE_V1) {
+    write(`${pre}checkout.html`, buildSimpleCheckout(SV1, { lang: () => LANG, esc }));
+    write(`${pre}checkout-classic.html`, buildCheckout());
+    // الرحلات: كل رحلة منتجٌ برمزه وسعره من قاعدة نوشن، تدخل السلة مباشرةً.
+    write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
+    // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
+    write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
+    // ‏حجز الاستشارة صار على التقويم: فترات حقيقية من /api/book?action=slots
+    // بدل حقل تاريخٍ حرّ. الصفحة القديمة تبقى مبنيّة على /consultation-classic
+    // لأن روابطها قد تكون في يد عميل، ولا شيء في الموقع يرسل إليها.
+    write(`${pre}consultation.html`, buildSimpleBook(SV1, { lang: () => LANG, esc }));
+    write(`${pre}consultation-classic.html`, buildConsultation());
+  } else {
+    write(`${pre}checkout.html`, buildCheckout());
+    write(`${pre}consultation.html`, buildConsultation());
+  }
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
-  write(`${pre}consultation.html`, buildConsultation());
   write(`${pre}suppliers.html`, buildSuppliers());
   write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   write(`${pre}quote.html`, buildQuotePage());
@@ -12541,15 +12740,31 @@ write("doc-agent-admin.html", buildDocAgentAdmin());
 // standalone page (AR default, ع/E toggle) emitted verbatim over the legacy
 // buildAccount() output for en+ar; extra languages keep the legacy page until
 // the center is translated for them.
-function buildAccountCenter() {
+function buildAccountCenter(lang = "ar") {
   // The client id is public by design (it identifies the app, not the user),
   // but it still comes from the environment so a deployment without Google
   // configured simply never renders the button.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8')
+  let html = fs.readFileSync(path.join(__dirname, 'assets', 'account.page.html'), 'utf8')
     .replace("</head>", `<script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script><script src="https://accounts.google.com/gsi/client" async defer></script></head>`);
+  // ‏الصفحة مكتوبة بالعربية أصلاً ولها قاموسها الإنجليزي الكامل (١٦٨ مفتاحاً)،
+  // لكنها كانت تُنسخ حرفياً إلى الشجرة الإنجليزية بـ`lang="ar"` وبحالةٍ أوّلية
+  // عربية — فيصل الزائر الإنجليزي إلى «مركز عمليات العميل» وحقولٍ عربية.
+  // قلبُ السمتين وحالة اللغة يجعل قاموسها هي تُخرج الإنجليزية بنفسها، بلا
+  // طبقة ترجمةٍ فوقها. وتفضيل العميل المحفوظ يظل يعلو على هذا.
+  if (lang !== "ar") {
+    html = html
+      .replace('<html dir="rtl" lang="ar">', '<html dir="ltr" lang="en">')
+      .replace("      lang: 'ar',", "      lang: 'en',");
+  }
+  return html;
 }
-write("account.html", buildAccountCenter());
-write("ar/account.html", buildAccountCenter());
+// ‏Chat OS — نموذج «الموقع كله محادثة» الذي يجرّبه المالك على رابطٍ مخفي:
+// بلا رأس ولا تذييل، noindex، وغير موصول من أي مكان. سيناريو مكتوب لا
+// مزوّد ذكاء خلفه؛ يُربط بالمحرّك الحقيقي بعد الاعتماد. صفحة واحدة
+// تبدّل لغتها بنفسها فلا تُكتب في الأشجار الأخرى.
+write("chat.html", fs.readFileSync(path.join(__dirname, 'assets', 'chat.page.html'), 'utf8'));
+write("account.html", buildAccountCenter("en"));
+write("ar/account.html", buildAccountCenter("ar"));
 
 // Owner-only control + live-test dashboard for the specialized-team agents (noindex)
 write("dashboard.html", buildDashboard());
@@ -12605,6 +12820,19 @@ const catalogJson = {
   // Codes are marketing artifacts — public by nature — managed in
   // site.json → commerce.discounts (editable from /admin → content → site).
   discounts: catalogDiscounts(),
+  // الرحلات خدماتٌ في الكتالوج كغيرها: رمزٌ وسعرٌ صافٍ، فينطبق عليها ما
+  // ينطبق على أي بند — التسعير الآلي وعرض السعر والعقد والفاتورة. سعرها
+  // المعلن شاملُ الضريبة، والصافي مشتقٌّ منه بدقّةٍ تكفي لأن يعود المعلن
+  // كما هو بعد إضافة ١٥٪.
+  trips: TRIPS.trips.map((t) => ({
+    code: t.code, nameAr: t.nameAr, nameEn: t.nameEn,
+    category: "Tourism", categoryAr: "الرحلات السياحية",
+    pricingModel: "One Time", amount: t.net, total: t.total,
+    priceLabel: `${t.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ﷼`,
+    dest: t.destAr, type: t.typeAr, duration: (t.duration && t.duration.label) || "",
+    audience: t.audienceAr || [], summary: t.summary || "", url: t.url || "",
+    govFeesSeparate: false, requiresProposal: false,
+  })),
   services: services.map((s) => {
     const m = svcI18n[s.code] || {};
     const ov = site.overrides[s.slug];

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html data-sv1-test="MODE TEST — aucun paiement réel, aucun message client" lang="fr" dir="ltr" data-prices="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services et forfaits — Business Partner</title>
+<meta name="description" content="Tout ce que nous réalisons, par domaine. Cochez vos besoins et lancez une seule demande.">
+<meta property="og:title" content="Services et forfaits — Business Partner">
+<meta property="og:description" content="Tout ce que nous réalisons, par domaine. Cochez vos besoins et lancez une seule demande.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/assets/img/cover.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="theme-color" content="#0B1B5A">
+<meta name="generator" content="Business Partner 3.0 Website">
+<link rel="alternate" hreflang="en" href="/catalog">
+<link rel="alternate" hreflang="ar" href="/ar/catalog">
+<link rel="alternate" hreflang="fr" href="/fr/catalog">
+<link rel="alternate" hreflang="zh" href="/zh/catalog">
+<link rel="alternate" hreflang="x-default" href="/catalog">
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/styles.css?v=7fedcef540">
+<style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
+.sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
+ --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
+ --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
+ --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+ font-family:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh;
+ -webkit-font-smoothing:antialiased}
+.sv1 .sv1-mono,.sv1 .en{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.sv1 .en{direction:ltr;unicode-bidi:isolate}
+.sv1 :focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:5px}
+.sv1 *{box-sizing:border-box}
+.sv1 a{color:inherit;text-decoration:none}
+.sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
+.sv1-ribbon{background:#b45309;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700}
+.sv1-bar{background:var(--ac);color:#B7C0DC;font-size:11.5px}
+.sv1-bar .wrap{height:32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-bar-l,.sv1-bar-r{display:flex;align-items:center;gap:18px;min-width:0}
+.sv1-bar b{color:#fff;font-weight:400}
+.sv1-pulse{width:5px;height:5px;border-radius:50%;background:#34D399;display:inline-block;
+ margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
+@keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
+.sv1-bar-langs a{opacity:.5}
+.sv1-bar-langs a:hover{opacity:.85}
+.sv1-bar-langs a.on{opacity:1;color:#fff}
+@media(max-width:760px){.sv1-bar .hide-s{display:none}}
+.sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
+.sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-hdr .logo img{height:34px;width:auto;display:block}
+.sv1-nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:#39405a}
+.sv1-nav a{padding:6px 2px}
+.sv1-nav a:hover{color:var(--n)}
+.sv1-hdr .right{display:flex;align-items:center;gap:8px}
+.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--ink);padding:11px 19px;border-radius:9px;font-weight:500;font-size:13.5px;cursor:pointer;line-height:1.2;font-family:inherit;transition:transform .12s ease,background .2s ease,border-color .2s ease}
+.sv1-btn:hover{border-color:var(--ink)}
+.sv1-btn.primary{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 6px 18px -6px rgba(11,27,90,.45)}
+.sv1-btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.sv1-btn.wa{background:var(--wa);border-color:var(--wa);color:#073A17}
+.sv1-btn.sm{padding:7px 12px;font-size:12px}
+.sv1-btn[disabled]{opacity:.55;cursor:default}
+.sv1-lang{position:relative}
+.sv1-lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 8px;border-radius:999px}
+.sv1-lang summary::-webkit-details-marker{display:none}
+.sv1-lang .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh);min-width:150px;padding:6px;display:grid;z-index:5}
+.sv1-lang .menu a{padding:8px 10px;border-radius:8px;font-size:13px}
+.sv1-lang .menu a.on{background:var(--g);font-weight:700}
+.sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+.sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;gap:10px}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
+.sv1-cart{display:inline-flex;align-items:center;gap:6px}
+.sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
+.sv1-foot b{color:#fff}
+.sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
+.sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
+.sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
+.sv1-foot-row span:first-child{color:rgba(255,255,255,.55);font-size:11px;flex:none;min-width:78px}
+.sv1-foot-row.id{flex-direction:column;gap:0;align-items:flex-start;padding:5px 0}
+.sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
+.sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
+.sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
+.sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
+.sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+@media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+.sv1-hide{display:none!important}
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style></head>
+<body class="sv1-page"><div class="sv1"><style id="sv1-cat-css">
+.sv1-cat-journey{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;background:var(--soft);border:1px solid var(--l);border-radius:14px;padding:12px 16px;margin-bottom:22px}
+.sv1-cat-journey .lbl{font-size:12px;color:var(--mut);font-weight:700}
+.sv1-cat-journey ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;counter-reset:j}
+.sv1-cat-journey li{counter-increment:j;font-size:11.5px;color:var(--ink);background:#fff;border:1px solid var(--l);border-radius:999px;padding:5px 11px;font-weight:600}
+.sv1-cat-journey li::before{content:counter(j) " · ";color:var(--mut);font-weight:700}
+.sv1-cat-tools{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.sv1-cat-q{flex:1;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff}
+.sv1-cat-q:focus{border-color:var(--n)}
+.sv1-grp{border:1px solid var(--l);border-radius:14px;background:#fff;margin-bottom:9px;overflow:hidden}
+.sv1-grp>button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:15px 17px;cursor:pointer;font-family:inherit;text-align:start}
+.sv1-grp>button b{font-size:14.5px;color:var(--ink);font-weight:500}
+.sv1-grp>button .meta{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px}
+.sv1-grp>button .chev{transition:.2s;display:inline-block}
+.sv1-grp.open>button .chev{transform:rotate(180deg)}
+.sv1-grp .body{display:none;border-top:1px solid var(--l);padding:8px}
+.sv1-grp.open .body{display:block}
+.sv1-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px}
+.sv1-pick-lab{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;cursor:pointer}
+.sv1-pick-more{flex:none;align-self:center;font-size:11.5px;color:var(--ac);text-decoration:none;border:1px solid var(--acLine);border-radius:8px;padding:4px 9px;background:var(--acSoft);white-space:nowrap}
+.sv1-pick-more:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.sv1-pick:hover{background:var(--soft)}
+.sv1-pick input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--n);flex:none}
+.sv1-pick .tx b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.55}
+.sv1-pick .tx small{font-size:11.5px;color:var(--mut)}
+.sv1-pick.on{background:#eef1f9}
+.sv1-grp .badge{background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:500;font-family:var(--fm)}
+.sv1-tray{position:sticky;bottom:0;z-index:25;background:var(--n);color:#fff;box-shadow:0 -8px 24px rgba(11,27,90,.22)}
+.sv1-tray .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 22px}
+.sv1-tray #trayCount{font-weight:700;font-size:13.5px}
+.sv1-tray .acts{display:flex;gap:8px}
+.sv1-tray .sv1-btn{border-color:rgba(255,255,255,.35);background:transparent;color:#fff}
+.sv1-tray .sv1-btn.primary{background:#fff;color:var(--n);border-color:#fff}
+/* شريط الاختيار يجلس فوق زر واتساب العائم؛ يُرفع الزر ما دام الشريط ظاهراً. */
+body.sv1-tray-on .sv1-wa-fab{bottom:78px}
+.sv1-pkg{border:1px solid var(--l);border-radius:16px;background:#fff;padding:20px;display:flex;flex-direction:column;gap:10px}
+.sv1-pkg h3{font-size:17px;margin:0}
+.sv1-pkg .grp{font-size:11px;color:var(--mut);font-weight:700}
+.sv1-pkg .amt{font-size:21px;font-weight:500;color:var(--ink);font-family:var(--fm)}
+.sv1-pkg ul{margin:0;padding-inline-start:18px;display:grid;gap:5px}
+.sv1-pkg li{font-size:12.5px;color:var(--s);line-height:1.65}
+.sv1-pkg .sv1-btn{margin-top:auto}
+.sv1-pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.sv1-pkg-h{font-size:14px;margin:22px 0 10px;color:var(--ink)}
+.sv1-cat-ask{margin-top:30px;text-align:center}
+.sv1-cat-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
+@media(max-width:600px){.sv1-cat-journey{display:none}.sv1-tray .wrap{padding:10px 14px}.sv1-tray #trayCount{font-size:12.5px}}
+</style><div class="sv1-bar"><div class="wrap">
+  <div class="sv1-bar-l">
+    <span><span class="sv1-pulse"></span><b>Tous les systèmes fonctionnent</b></span>
+    <span class="hide-s">Riyad · Royaume d'Arabie saoudite</span>
+  </div>
+  <div class="sv1-bar-r">
+    <span class="hide-s">Une plateforme · quatre langues</span>
+    <span class="sv1-bar-langs"><a href="/ar/catalog" data-lang="ar">AR</a><a href="/catalog" data-lang="en">EN</a><a href="/fr/catalog" data-lang="fr" class="on">FR</a><a href="/zh/catalog" data-lang="zh">ZH</a></span>
+  </div>
+</div></div><header class="sv1-hdr"><div class="wrap">
+  <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
+  <nav class="sv1-nav" id="sv1Nav">
+    <a href="/fr/catalog">Services</a>
+    <a href="/fr/consultation">Réserver</a>
+    <a href="/fr/#how">Comment ça marche</a>
+    <a href="/fr/my" id="sv1AccountLink">Mon compte</a>
+    <details class="sv1-lang"><summary>🌐 Français</summary><div class="menu"><a href="/ar/catalog" data-lang="ar">العربية</a><a href="/catalog" data-lang="en">English</a><a href="/fr/catalog" data-lang="fr" class="on">Français</a><a href="/zh/catalog" data-lang="zh">中文</a></div></details>
+  </nav>
+  <div class="right">
+    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/fr/cart" aria-label="Panier">
+      <span>Panier</span><b id="sv1CartN">0</b></a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="/fr/my">Connexion</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/fr/">Retour au site</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">Déconnexion</button>
+    <a class="sv1-btn primary" href="/fr/#advisor">Démarrer une demande</a>
+  </div>
+</div></header>
+  <main>
+  <section class="sv1-sec"><div class="wrap">
+    <div class="sv1-title">
+      <span class="sv1-tag">200 services · 15 Forfaits</span>
+      <h2>Services et forfaits</h2>
+      <p>Tout ce que nous réalisons, par domaine. Cochez vos besoins et lancez une seule demande.</p>
+    </div>
+
+    <div class="sv1-cat-journey" aria-label="Chaque service suit le même parcours">
+      <span class="lbl">Chaque service suit le même parcours</span>
+      <ol><li>Discussion</li><li>Périmètre</li><li>Devis</li><li>Contrat</li><li>Paiement</li><li>Facture</li></ol>
+    </div>
+
+    <div class="sv1-tabs">
+      <button type="button" class="sv1-tab on" id="tabSvc">Services</button>
+      <button type="button" class="sv1-tab" id="tabPkg">Forfaits</button>
+      <a class="sv1-tab" href="/fr/trips">Voyages</a>
+      <a class="sv1-tab" href="/fr/hiring">Recrutement</a>
+    </div>
+
+    <div id="paneSvc">
+      <div class="sv1-cat-tools">
+        <input id="svcQ" class="sv1-cat-q" type="search" placeholder="Rechercher : visa, licence, recrutement…" aria-label="Rechercher : visa, licence, recrutement…">
+        <button type="button" class="sv1-btn sm ghost" id="svcToggleAll">Tout ouvrir</button>
+      </div>
+      <div id="svcList"></div>
+    </div>
+
+    <div id="panePkg" class="sv1-hide">
+      <p class="sv1-muted" style="text-align:center;max-width:640px;margin:0 auto 18px">Un forfait est un abonnement mensuel géré depuis votre compte — demande, devis, contrat et facture comme tout service.</p>
+      <div id="pkgList"></div>
+    </div>
+
+    <div class="sv1-panel sv1-cat-ask">
+      <h4>Vous ne trouvez pas ?</h4>
+      <a class="sv1-btn primary sm" href="/fr/#advisor">Décrivez votre besoin</a>
+    </div>
+  </div></section>
+  </main>
+  <div class="sv1-tray sv1-hide" id="svcTray"><div class="wrap">
+    <span id="trayCount"></span>
+    <div class="acts">
+      <button type="button" class="sv1-btn sm" id="trayClear">Effacer</button>
+      <button type="button" class="sv1-btn primary sm" id="trayGo">Lancer la demande</button>
+    </div>
+  </div></div>
+<footer class="sv1-foot"><div class="wrap">
+  <div class="sv1-foot-grid">
+    <div class="sv1-foot-col">
+      <b class="sv1-foot-brand">Business Partner</b>
+      <p>Conseil, services gouvernementaux et création d'entreprise.</p>
+      <p class="sv1-foot-note">Une facture fiscale conforme ZATCA pour chaque commande payée.</p>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Informations légales</h4>
+      <div class="sv1-foot-row id"><span>Raison sociale</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Numéro unifié</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>Numéro de TVA</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Adresse nationale abrégée</span><bdi dir="ltr">RHSC2978</bdi></div>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Contact</h4>
+      <div class="sv1-foot-row"><span>Téléphone</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
+      <div class="sv1-foot-row"><span>E-mail</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
+      <div class="sv1-foot-row"><span>Adresse nationale</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>Horaires</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Paiements</h4>
+      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.</p>
+      <div class="sv1-foot-links">
+        <a href="/fr/terms">Conditions</a>
+        <a href="/fr/catalog">Tous les services</a>
+      </div>
+    </div>
+  </div>
+  <div class="sv1-foot-end">© 2026 Business Partner · Tous droits réservés</div>
+</div></footer>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script><script>
+(function(){
+var GROUPS=[{"cat":"Création d'entreprise","items":[{"code":"BP-CHAMBER-01","slug":"bp-chamber-01","name":"Chamber of Commerce membership","cat":"Création d'entreprise","gov":"Chambre de commerce","door":"formation"},{"code":"BP-PL-0066","slug":"bp-pl-0066","name":"Pre-incorporation consultation","cat":"Création d'entreprise","gov":"","door":"formation"},{"code":"BP-SBC-01","slug":"bp-sbc-01","name":"Saudi Company Formation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-02","slug":"bp-sbc-02","name":"New Commercial Registration Issuance","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-03","slug":"bp-sbc-03","name":"AoA Issuance & Notarization (new company)","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-04","slug":"bp-sbc-04","name":"Commercial Registration Issuance","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-05","slug":"bp-sbc-05","name":"Company Name Reservation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-06","slug":"bp-sbc-06","name":"Company Account on Absher Business","cat":"Création d'entreprise","gov":"Absher Business","door":"formation"},{"code":"BP-SBC-07","slug":"bp-sbc-07","name":"Opening a Branch for an Existing Company","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-08","slug":"bp-sbc-08","name":"Company Liquidation (CR cancellation & closure)","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-09","slug":"bp-sbc-09","name":"CR Cancellation Certificate Issuance","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-10","slug":"bp-sbc-10","name":"Amending AoA / Partners' Resolutions","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-11","slug":"bp-sbc-11","name":"Commercial Registration Amendment","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-12","slug":"bp-sbc-12","name":"Trade Name Reservation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-13","slug":"bp-sbc-13","name":"Commercial Registration Cancellation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-14","slug":"bp-sbc-14","name":"Legal Form Transformation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-15","slug":"bp-sbc-15","name":"AoA Drafting & Notarization Support","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-16","slug":"bp-sbc-16","name":"Factory setup & industrial licensing services","cat":"Création d'entreprise","gov":"Plusieurs autorités","door":"formation"},{"code":"BP-SBC-17","slug":"bp-sbc-17","name":"Commercial Statement Request","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-18","slug":"bp-sbc-18","name":"Converting an Establishment into a Company","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-19","slug":"bp-sbc-19","name":"Commercial Registration Renewal","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-20","slug":"bp-sbc-20","name":"Detailed CR Extract Issuance","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"CF-GEN","slug":"cf-gen","name":"Company Formation — Bespoke Service","cat":"Création d'entreprise","gov":"","door":"formation"},{"code":"BP-SBC-21","slug":"bp-sbc-21","name":"Beneficial owner disclosure","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-22","slug":"bp-sbc-22","name":"Annual commercial-register confirmation","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-23","slug":"bp-sbc-23","name":"Transferring ownership of a commercial register","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-24","slug":"bp-sbc-24","name":"Publishing general-assembly resolutions","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"},{"code":"BP-SBC-25","slug":"bp-sbc-25","name":"Merger or acquisition","cat":"Création d'entreprise","gov":"Saudi Business Center","door":"formation"}]},{"cat":"Investissement étranger","items":[{"code":"BP-FI-01","slug":"bp-fi-01","name":"Foreign Investor Company Formation","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-02","slug":"bp-fi-02","name":"Foreign Investment License Issuance","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-03","slug":"bp-fi-03","name":"100%-owned foreign company formation (foreign branch)","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-04","slug":"bp-fi-04","name":"Joint-Venture Company Formation","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-05","slug":"bp-fi-05","name":"Entrepreneur-License Company Formation","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-06","slug":"bp-fi-06","name":"Foreign Company Branch Registration","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-07","slug":"bp-fi-07","name":"Foreign Investor Entry","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"FI-100","slug":"fi-100","name":"Foreign Investment Setup — 100% Foreign Owned Company","cat":"Investissement étranger","gov":"","door":"formation"},{"code":"BP-FI-08","slug":"bp-fi-08","name":"Regional Headquarters (RHQ) — qualification & filing","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-09","slug":"bp-fi-09","name":"Representative office for a foreign company","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-10","slug":"bp-fi-10","name":"Investment licence renewal","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-11","slug":"bp-fi-11","name":"Amending an investment licence","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-12","slug":"bp-fi-12","name":"Cancelling an investment licence and closing the entity","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"},{"code":"BP-FI-13","slug":"bp-fi-13","name":"Market-entry advisory: which investment licence fits","cat":"Investissement étranger","gov":"Ministère de l'Investissement (MISA)","door":"formation"}]},{"cat":"Résidence Premium","items":[{"code":"BP-PR-01","slug":"bp-pr-01","name":"Premium Residency service (procedures + application)","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-02","slug":"bp-pr-02","name":"Premium Residency Consultation","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"PR-GEN","slug":"pr-gen","name":"Premium Residency — Bespoke Service","cat":"Résidence Premium","gov":"","door":"government"},{"code":"BP-PR-03","slug":"bp-pr-03","name":"Premium Residency eligibility & route assessment","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-04","slug":"bp-pr-04","name":"Premium Residency — Business Investor route","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-05","slug":"bp-pr-05","name":"Premium Residency — Entrepreneur route","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-06","slug":"bp-pr-06","name":"Premium Residency — Property Owner route","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-07","slug":"bp-pr-07","name":"Premium Residency — Talent route","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-08","slug":"bp-pr-08","name":"Premium Residency — Exceptional Competence route","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-09","slug":"bp-pr-09","name":"Premium Residency — Financial route (permanent or annual)","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"},{"code":"BP-PR-10","slug":"bp-pr-10","name":"Adding family members under Premium Residency","cat":"Résidence Premium","gov":"Centre de la résidence premium","door":"government"}]},{"cat":"Relations gouvernementales","items":[{"code":"BP-ABSHER-01","slug":"bp-absher-01","name":"Absher Business Setup","cat":"Relations gouvernementales","gov":"Absher Business","door":"government"},{"code":"BP-BALADY-01","slug":"bp-balady-01","name":"Municipal License Issuance","cat":"Relations gouvernementales","gov":"Balady","door":"government"},{"code":"BP-BALADY-02","slug":"bp-balady-02","name":"E-cleaning contract (municipal requirement)","cat":"Relations gouvernementales","gov":"Balady","door":"government"},{"code":"BP-GOSI-01","slug":"bp-gosi-01","name":"GOSI Registration","cat":"Relations gouvernementales","gov":"GOSI","door":"government"},{"code":"BP-GOSI-02","slug":"bp-gosi-02","name":"Add a Saudi Employee in GOSI","cat":"Relations gouvernementales","gov":"GOSI","door":"government"},{"code":"BP-GOSI-03","slug":"bp-gosi-03","name":"GOSI Certificate Issuance","cat":"Relations gouvernementales","gov":"GOSI","door":"government"},{"code":"BP-GR-01","slug":"bp-gr-01","name":"Contractor Classification Certificate","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-MOD-01","slug":"bp-mod-01","name":"Civil Defense Permit & Safety Certificate","cat":"Relations gouvernementales","gov":"Défense civile","door":"government"},{"code":"BP-MOD-02","slug":"bp-mod-02","name":"Technical Safety Report","cat":"Relations gouvernementales","gov":"Défense civile","door":"government"},{"code":"BP-MUDAD-01","slug":"bp-mudad-01","name":"Mudad WPS Setup","cat":"Relations gouvernementales","gov":"Mudad","door":"government"},{"code":"BP-MUQEEM-01","slug":"bp-muqeem-01","name":"Exit & Re-entry Visa Issuance","cat":"Relations gouvernementales","gov":"Muqeem","door":"government"},{"code":"BP-QIWA-01","slug":"bp-qiwa-01","name":"Qiwa Setup & Onboarding","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-02","slug":"bp-qiwa-02","name":"Employee Sponsorship Transfer","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-03","slug":"bp-qiwa-03","name":"Employee Profession Change","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-04","slug":"bp-qiwa-04","name":"Adding an Authorized Representative","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-SAIP-01","slug":"bp-saip-01","name":"New trademark registration","cat":"Relations gouvernementales","gov":"SAIP (Intellectual Property)","door":"government"},{"code":"BP-SUBL-01","slug":"bp-subl-01","name":"National Address Registration","cat":"Relations gouvernementales","gov":"Subul","door":"government"},{"code":"BP-ZATCA-01","slug":"bp-zatca-01","name":"VAT & Zakat Registration","cat":"Relations gouvernementales","gov":"ZATCA","door":"government"},{"code":"BP-ZATCA-02","slug":"bp-zatca-02","name":"VAT Number Issuance","cat":"Relations gouvernementales","gov":"ZATCA","door":"government"},{"code":"BP-ZATCA-03","slug":"bp-zatca-03","name":"Annual Zakat Return Filing","cat":"Relations gouvernementales","gov":"ZATCA","door":"government"},{"code":"BP-ZATCA-04","slug":"bp-zatca-04","name":"ZATCA VAT Registration","cat":"Relations gouvernementales","gov":"ZATCA","door":"government"},{"code":"BP-ZATCA-05","slug":"bp-zatca-05","name":"VAT Return Filing","cat":"Relations gouvernementales","gov":"ZATCA","door":"government"},{"code":"BP-PL-0076","slug":"bp-pl-0076","name":"Industrial License Issuance for Establishment","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0077","slug":"bp-pl-0077","name":"Industrial License Renewal","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0078","slug":"bp-pl-0078","name":"Industrial License Amendment","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0079","slug":"bp-pl-0079","name":"Industrial License Ownership Transfer","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0080","slug":"bp-pl-0080","name":"Labor Endorsement Request","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0081","slug":"bp-pl-0081","name":"Customs Exemption for Materials, Machinery, and Spare Parts","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0082","slug":"bp-pl-0082","name":"Certificate of Origin Issuance","cat":"Relations gouvernementales","gov":"Chambre de commerce","door":"government"},{"code":"BP-PL-0083","slug":"bp-pl-0083","name":"Chemical Clearance Request","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0084","slug":"bp-pl-0084","name":"Customs Tariff Items Upgrade","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0085","slug":"bp-pl-0085","name":"Mining Reconnaissance License","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0086","slug":"bp-pl-0086","name":"Industrial Survey","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"BP-PL-0087","slug":"bp-pl-0087","name":"Security Consulting Permit","cat":"Relations gouvernementales","gov":"Plusieurs autorités","door":"government"},{"code":"GOV-GEN","slug":"gov-gen","name":"Government Transactions — Bespoke Service","cat":"Relations gouvernementales","gov":"","door":"government"},{"code":"GR-GEN","slug":"gr-gen","name":"Government Relations Representative","cat":"Relations gouvernementales","gov":"","door":"government"},{"code":"BP-AJEER-01","slug":"bp-ajeer-01","name":"Ajeer platform registration & activation","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-02","slug":"bp-ajeer-02","name":"Ajeer contracting permit (Taaqud)","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-03","slug":"bp-ajeer-03","name":"Ajeer secondment permit (Iara)","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-04","slug":"bp-ajeer-04","name":"Saudi assignment permit (Isnad)","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-05","slug":"bp-ajeer-05","name":"Ajeer companions permit (education & health)","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-06","slug":"bp-ajeer-06","name":"Ajeer seasonal permits (Hajj & Umrah)","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-07","slug":"bp-ajeer-07","name":"Ajeer permit renewal or termination","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-08","slug":"bp-ajeer-08","name":"Ajeer inter-establishment contract documentation","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-AJEER-10","slug":"bp-ajeer-10","name":"Ajeer permits management — monthly operation","cat":"Relations gouvernementales","gov":"Ajeer (Qiwa)","door":"government"},{"code":"BP-HRSD-01","slug":"bp-hrsd-01","name":"Escalation on the ministry's platforms","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-02","slug":"bp-hrsd-02","name":"Filing a complaint with the ministry","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-03","slug":"bp-hrsd-03","name":"Filing a request with the ministry","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-04","slug":"bp-hrsd-04","name":"Objection to a labour-law violation","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-05","slug":"bp-hrsd-05","name":"Establishment owner settlement (labour violations)","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-06","slug":"bp-hrsd-06","name":"Work-permit debt exemption or instalment","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-07","slug":"bp-hrsd-07","name":"Correcting establishment data with the ministry","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-08","slug":"bp-hrsd-08","name":"Lifting an establishment account freeze","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-09","slug":"bp-hrsd-09","name":"Work-regulation bylaw approval","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-10","slug":"bp-hrsd-10","name":"Absence report and its cancellation","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-11","slug":"bp-hrsd-11","name":"Final exit request","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-HRSD-12","slug":"bp-hrsd-12","name":"Labour dispute settlement — file and follow-up","cat":"Relations gouvernementales","gov":"HRSD Beneficiary Portal","door":"government"},{"code":"BP-QIWA-05","slug":"bp-qiwa-05","name":"Employment contract documentation on Qiwa","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-06","slug":"bp-qiwa-06","name":"Issuing or renewing an expatriate work permit","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-07","slug":"bp-qiwa-07","name":"Cancelling a work permit","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-08","slug":"bp-qiwa-08","name":"Saudisation compliance certificate","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-QIWA-09","slug":"bp-qiwa-09","name":"Managing establishment branches on Qiwa","cat":"Relations gouvernementales","gov":"Qiwa","door":"government"},{"code":"BP-FLEX-01","slug":"bp-flex-01","name":"Flexible Work registration & contract documentation","cat":"Relations gouvernementales","gov":"Flexible Work","door":"government"},{"code":"BP-REMOTE-01","slug":"bp-remote-01","name":"Remote Work registration & contract documentation","cat":"Relations gouvernementales","gov":"Remote Work","door":"government"},{"code":"BP-TAQAT-01","slug":"bp-taqat-01","name":"Taqat registration & employment-support programmes","cat":"Relations gouvernementales","gov":"Taqat (HRDF)","door":"government"},{"code":"BP-LABOR-01","slug":"bp-labor-01","name":"Opening the establishment file on the Labour Sector portal","cat":"Relations gouvernementales","gov":"Labour Sector portal","door":"government"},{"code":"BP-SELF-01","slug":"bp-self-01","name":"Compliance self-assessment before inspection","cat":"Relations gouvernementales","gov":"Self Assessment platform","door":"government"},{"code":"BP-MOWA-01","slug":"bp-mowa-01","name":"Mowaamah certificate: an accessible workplace","cat":"Relations gouvernementales","gov":"Mowaamah","door":"government"},{"code":"BP-CSR-01","slug":"bp-csr-01","name":"Social Responsibility registration & initiative documentation","cat":"Relations gouvernementales","gov":"National Social Responsibility platform","door":"government"}]},{"cat":"Services RH","items":[{"code":"BP-HR-01","slug":"bp-hr-01","name":"Employee Health Certificate Issuance","cat":"Services RH","gov":"Ministère des Ressources humaines","door":"government"},{"code":"BP-HR-02","slug":"bp-hr-02","name":"Establishment File Opening at MHRSD","cat":"Services RH","gov":"Ministère des Ressources humaines","door":"government"},{"code":"BP-HR-03","slug":"bp-hr-03","name":"HR & Employee Management Services","cat":"Services RH","gov":"","door":"government"},{"code":"BP-MUDAD-02","slug":"bp-mudad-02","name":"Mudad Wage Protection File Upload","cat":"Services RH","gov":"Mudad","door":"government"},{"code":"BP-MUDAD-03","slug":"bp-mudad-03","name":"Wage Protection System Notes Resolution","cat":"Services RH","gov":"Mudad","door":"government"},{"code":"BP-MUQEEM-02","slug":"bp-muqeem-02","name":"New Iqama Issuance","cat":"Services RH","gov":"Muqeem","door":"government"},{"code":"BP-MUQEEM-03","slug":"bp-muqeem-03","name":"Iqama Renewal","cat":"Services RH","gov":"Muqeem","door":"government"},{"code":"BP-MUQEEM-04","slug":"bp-muqeem-04","name":"Family Visit Visa Issuance","cat":"Services RH","gov":"Muqeem","door":"government"},{"code":"BP-HOUSING-01","slug":"bp-housing-01","name":"Worker housing — licensed collective housing","cat":"Services RH","gov":"Balady","door":"government"},{"code":"BP-HOUSING-02","slug":"bp-housing-02","name":"Worker transport — housing to work sites","cat":"Services RH","gov":"","door":"government"},{"code":"HR-GEN","slug":"hr-gen","name":"Human Resources — Bespoke Service","cat":"Services RH","gov":"","door":"government"},{"code":"QW-EST","slug":"qw-est","name":"Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development","cat":"Services RH","gov":"","door":"government"}]},{"cat":"Recrutement et embauche","items":[{"code":"BP-REC-01","slug":"bp-rec-01","name":"Recruitment Services & Work Visa Issuance","cat":"Recrutement et embauche","gov":"Qiwa","door":"government"},{"code":"BP-REC-02","slug":"bp-rec-02","name":"Work Visa Issuance","cat":"Recrutement et embauche","gov":"Qiwa","door":"government"},{"code":"BP-REC-03","slug":"bp-rec-03","name":"Outsourced Employment & Contracting (PEO/EOR)","cat":"Recrutement et embauche","gov":"","door":"government"},{"code":"BP-REC-04","slug":"bp-rec-04","name":"Executive Search","cat":"Recrutement et embauche","gov":"","door":"government"},{"code":"BP-REC-05","slug":"bp-rec-05","name":"Local Recruitment","cat":"Recrutement et embauche","gov":"","door":"government"},{"code":"BP-REC-06","slug":"bp-rec-06","name":"Bulk Recruitment","cat":"Recrutement et embauche","gov":"","door":"government"},{"code":"REC-GEN","slug":"rec-gen","name":"Recruitment and Manpower — Bespoke Service","cat":"Recrutement et embauche","gov":"","door":"government"},{"code":"CV-10","slug":"cv-10","name":"Candidate CV Sourcing","cat":"Recrutement et embauche","gov":"","door":"government"}]},{"cat":"Support aux entreprises","items":[{"code":"BP-BS-01","slug":"bp-bs-01","name":"Digital Marketing & Advertising","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0019","slug":"bp-pl-0019","name":"Franchise Law compliance & registration","cat":"Support aux entreprises","gov":"Ministère du Commerce","door":"consulting"},{"code":"BP-PL-0035","slug":"bp-pl-0035","name":"Muqeem Account Management","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0050","slug":"bp-pl-0050","name":"VIP Transaction Processing","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0051","slug":"bp-pl-0051","name":"Corporate Bank Account Opening","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0052","slug":"bp-pl-0052","name":"Internal Company Regulations (Governance)","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0053","slug":"bp-pl-0053","name":"Company Restructuring & Organization","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0054","slug":"bp-pl-0054","name":"Corporate Legal Representation","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0055","slug":"bp-pl-0055","name":"Corporate Law Consultation","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0056","slug":"bp-pl-0056","name":"General Business & Investment Consultation","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0057","slug":"bp-pl-0057","name":"Economic feasibility study preparation","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0058","slug":"bp-pl-0058","name":"Business Plan & Strategy Development","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0059","slug":"bp-pl-0059","name":"Financial Advisor (Accounting & Bookkeeping)","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0060","slug":"bp-pl-0060","name":"Audit & Tax Review","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0063","slug":"bp-pl-0063","name":"Public Relations & Corporate Communications","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-DIAG-01","slug":"bp-diag-01","name":"Diagnostic Report","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-GUIDE-01","slug":"bp-guide-01","name":"General Industry Guide","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-GUIDE-02","slug":"bp-guide-02","name":"Custom Guide","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-PL-0088","slug":"bp-pl-0088","name":"Commercial Agency Registration","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-PL-0089","slug":"bp-pl-0089","name":"Commercial Agency Registration Amendment","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-PL-0090","slug":"bp-pl-0090","name":"Commercial Agency Registration Renewal","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-PL-0091","slug":"bp-pl-0091","name":"Commercial Agency Registration Cancellation","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-PL-0092","slug":"bp-pl-0092","name":"Discount License Issuance","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-PL-0093","slug":"bp-pl-0093","name":"Precious Stones and Precious Metals Licenses","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-SUB-01","slug":"bp-sub-01","name":"Updates Subscription","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-VENDOR-01","slug":"bp-vendor-01","name":"Vendor Qualification","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-VENDOR-02","slug":"bp-vendor-02","name":"Vendor Follow-up","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"SBC-GEN","slug":"sbc-gen","name":"Shared Services — Bespoke Service","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"SUP-GEN","slug":"sup-gen","name":"Support and Advisory — Bespoke Service","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"TR-GEN","slug":"tr-gen","name":"Tourism — Bespoke Service","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"MA-BRK","slug":"ma-brk","name":"Mergers and Acquisitions Brokerage","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-LAUNCH","slug":"rev-launch","name":"Business Development — Revenue Operating System — Launch Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-START","slug":"rev-start","name":"Business Development — Revenue Operating System — Starter Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-GROWTH","slug":"rev-growth","name":"Business Development — Revenue Operating System — Growth Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-PRO","slug":"rev-pro","name":"Business Development — Revenue Operating System — Professional Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-TEAM","slug":"rev-team","name":"Business Development — Revenue Operating System — Dedicated Team Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"REV-ENT","slug":"rev-ent","name":"Business Development — Revenue Operating System — Enterprise Package","cat":"Support aux entreprises","gov":"","door":"consulting"},{"code":"BP-REF-01","slug":"bp-ref-01","name":"Government Fee Refund Application","cat":"Support aux entreprises","gov":"Monsha'at","door":"consulting"},{"code":"BP-AJEER-CS","slug":"bp-ajeer-cs","name":"Ajeer advisory: choosing the right permit","cat":"Support aux entreprises","gov":"Ajeer (Qiwa)","door":"consulting"},{"code":"BP-HRSD-CS","slug":"bp-hrsd-cs","name":"Beneficiary-portal advisory: complaint, request or escalation","cat":"Support aux entreprises","gov":"HRSD Beneficiary Portal","door":"consulting"},{"code":"BP-SBC-26","slug":"bp-sbc-26","name":"E-store documentation (e-commerce register)","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-SBC-27","slug":"bp-sbc-27","name":"Registering a security interest","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-SBC-28","slug":"bp-sbc-28","name":"Filing financial statements with the Ministry of Commerce","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-SBC-29","slug":"bp-sbc-29","name":"Commercial register translation & attestation","cat":"Support aux entreprises","gov":"Saudi Business Center","door":"consulting"},{"code":"BP-SBC-30","slug":"bp-sbc-30","name":"Document attestation & apostille via MOFA","cat":"Support aux entreprises","gov":"Ministry of Foreign Affairs (MOFA)","door":"consulting"}]},{"cat":"Immobilier","items":[{"code":"BP-RE-01","slug":"bp-re-01","name":"Private Office","cat":"Immobilier","gov":"","door":"consulting"},{"code":"BP-RE-02","slug":"bp-re-02","name":"Coworking Space","cat":"Immobilier","gov":"","door":"consulting"},{"code":"BP-RE-03","slug":"bp-re-03","name":"Virtual Office with National Address","cat":"Immobilier","gov":"Subul","door":"consulting"},{"code":"BP-RE-04","slug":"bp-re-04","name":"Dedicated Desk","cat":"Immobilier","gov":"","door":"consulting"},{"code":"BP-RE-05","slug":"bp-re-05","name":"Office Search Service","cat":"Immobilier","gov":"","door":"consulting"},{"code":"BP-RE-06","slug":"bp-re-06","name":"Foreign Property Ownership","cat":"Immobilier","gov":"REGA · Saudi Real Estate platform","door":"consulting"},{"code":"RE-GEN","slug":"re-gen","name":"Real Estate — Bespoke Service","cat":"Immobilier","gov":"","door":"consulting"}]},{"cat":"IA et automatisation","items":[{"code":"BP-AI-01","slug":"bp-ai-01","name":"AI Business Partner Enterprise","cat":"IA et automatisation","gov":"","door":"consulting"},{"code":"BP-AI-02","slug":"bp-ai-02","name":"AI Agent Setup","cat":"IA et automatisation","gov":"","door":"consulting"},{"code":"BP-AI-03","slug":"bp-ai-03","name":"Compliance & obligations agent","cat":"IA et automatisation","gov":"","door":"consulting"},{"code":"BP-AI-SMART-EMPLOYEE","slug":"bp-ai-smart-employee","name":"Specialist smart employee","cat":"IA et automatisation","gov":"","door":"consulting"},{"code":"BP-AI-04","slug":"bp-ai-04","name":"Shared services team","cat":"IA et automatisation","gov":"","door":"consulting"},{"code":"AI-GEN","slug":"ai-gen","name":"Artificial Intelligence Automation — Bespoke Service","cat":"IA et automatisation","gov":"","door":"consulting"}]}],PKGS=[{"code":"BP-PKG-SVC-STARTER","name":"Small Establishment Package","group":"Service packages","price":2500,"period":"par mois","features":["Commercial registration management and renewal","Qiwa establishment account activation and follow-up","GOSI subscription management","Employee medical insurance arrangement","Core zakat and tax compliance follow-up","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-LAUNCH","name":"Launch Package","group":"Service packages","price":6000,"period":"par mois","features":["Commercial Registration operation & renewal follow-up","Activating & monitoring your Qiwa establishment account","GOSI subscription management","Employee medical insurance setup","Follow-up on core Zakat & tax compliance","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-GROWTH","name":"Growth Package","group":"Service packages","price":10000,"period":"par mois","features":["Everything in the Launch package","Digital employee files & contracts management","Payroll management & Wage Protection System enrollment","Periodic follow-up on your regulatory obligations","Extended operational support throughout the subscription","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-SCALE","name":"Scale Package","group":"Service packages","price":20000,"period":"par mois","features":["Everything in the Growth package","Advanced HR file management","Preparing & tracking filings and full compliance","Periodic operational & regulatory reports","Ongoing legal & operational consultations","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-ENTERPRISE","name":"Enterprise Package","group":"Service packages","price":null,"period":"","features":["Everything in the Scale package","Dedicated account manager for your establishment","Priority execution & instant follow-up","Solutions tailored to your business activity","Comprehensive proactive support with no client follow-up needed","Dedicated operational support team monitoring your platforms","Reports & KPIs to track your activity and performance","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-FORM-FOREIGN","name":"Foreign Companies Formation Package","group":"Company Formation","price":30000,"period":"","features":["Application for the foreign investment license","Drafting & notarizing the articles of association","Commercial Registration issuance","Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem","Follow-up on procedures until formation is complete","Issuance of 3 management visas","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-FORM-SAUDI","name":"Saudi & Gulf Companies Formation Package","group":"Company Formation","price":15000,"period":"","features":["Drafting & notarizing the articles of association","Commercial Registration issuance","Zakat/tax registration","Registration in GOSI, Qiwa, Mudad and Muqeem","Municipal license issuance (if required)","Legal consultation to choose the right entity type","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-LEGAL-BASIC","name":"Basic Package","group":"Legal Packages","price":8000,"period":"par mois","features":["Unlimited phone consultations","Written consultations: 4 / year","Contract drafting & review: 6 contracts","Litigation representation: up to 2 labor cases / year","10% discount on notarization services","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-LEGAL-ADV","name":"Advanced Package","group":"Legal Packages","price":15000,"period":"par mois","features":["Unlimited phone consultations","Written consultations: 8 / year","Contract drafting & review: 12 contracts","IP services: 2","Entity formation/amendment: 1 service","Litigation representation: up to 4 labor cases / year","15% discount on notarization services","Compliance monitoring across every government platform — warned before a breach, so no fines reach you"]},{"code":"BP-PKG-LEGAL-COMP","name":"Comprehensive Package","group":"Legal Packages","price":30000,"period":"par mois","features":["Unlimited phone consultations","Written consultations: 15 / year","Contract drafting & review: 15 contracts","Legal memos & pleadings: 10","IP services: 4","Entity formation/conversion: 2 services","Meetings with a lawyer: 2 meetings","Litigation representation: up to 6 labor cases"]},{"code":"BP-PKG-LEGAL-STRAT","name":"Strategic Package","group":"Legal Packages","price":50000,"period":"par mois","features":["Unlimited phone consultations","Written consultations: 25 / year","Contract drafting & review: 20 contracts","Legal memos & pleadings: 15","IP services: 4","Entity formation/conversion/merger: 3 services","Meetings with a lawyer: 4 meetings","Litigation representation: up to 10 labor cases / year"]},{"code":"revos-connect","name":"BD as a Service — Connect (monthly)","group":"Business Development as a Service","price":499,"period":"par mois","features":["قائمة شركات مستهدفة بالقطاع والمدينة","التقاط عملاء وحجز مواعيد على موقعك","لوحة عميل وتقرير شهري"]},{"code":"revos-launch","name":"BD as a Service — Launch (monthly)","group":"Business Development as a Service","price":2500,"period":"par mois","features":["Pipeline مستهدف حتى 1M","قاعدة بيانات محددة","تأهيل وتقرير شهري"]},{"code":"revos-growth","name":"BD as a Service — Growth (monthly)","group":"Business Development as a Service","price":5000,"period":"par mois","features":["Pipeline مستهدف حتى 3M","CRM وتقارير أسبوعية","حملات متعددة القنوات","سعر ثابت بدون أي عمولة"]},{"code":"revos-professional","name":"BD as a Service — Professional (monthly)","group":"Business Development as a Service","price":9500,"period":"par mois","features":["Pipeline مستهدف حتى 10M","Forecast وإدارة عروض","دعم التفاوض والإغلاق"]}],LANG="fr";
+var TX={"none":"Aucun résultat. Essayez un terme plus large, ou décrivez votre besoin.","picked":"Sélectionné","svcWord":"services","openAll":"Tout ouvrir","closeAll":"Tout fermer","pkgAsk":"Demander ce forfait","monthly":"par mois","details":"Détails →"};
+var HOME="/fr/";
+var $=function(id){return document.getElementById(id)};
+var list=$('svcList'),q=$('svcQ'),tray=$('svcTray'),cnt=$('trayCount');
+var picked=[];   // [{code,title,why,door}]
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function isPicked(code,name){return picked.some(function(p){return p.code===code&&p.title===name})}
+function drawTray(){
+ if(!picked.length){tray.classList.add('sv1-hide');document.body.classList.remove('sv1-tray-on');return}
+ tray.classList.remove('sv1-hide');document.body.classList.add('sv1-tray-on');
+ cnt.textContent=TX.picked+' '+picked.length+' '+TX.svcWord;
+}
+function toggle(s,on){
+ if(on){if(!isPicked(s.code,s.name))picked.push({code:s.code,title:s.name,why:s.gov||'',door:s.door})}
+ else picked=picked.filter(function(p){return !(p.code===s.code&&p.title===s.name)});
+ drawTray();
+}
+// التسليم إلى محادثة الصفحة الرئيسية: البنود المختارة تصير نطاق الطلب، والباب
+// يُختار بالأغلبية حتى يفتح المستشار في السياق الذي يخدم أكثر ما اختير.
+function handoff(items,door,text){
+ try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:items,door:door,text:text,name:items[0]&&items[0].title,code:items[0]&&items[0].code,at:Date.now()}))}catch(e){}
+ location.href=HOME+'#advisor';
+}
+function go(){
+ if(!picked.length)return;
+ var tally={};picked.forEach(function(p){tally[p.door]=(tally[p.door]||0)+1});
+ var door=Object.keys(tally).sort(function(a,b){return tally[b]-tally[a]})[0]||'consulting';
+ handoff(picked.map(function(p){return {code:p.code,title:p.title,why:p.why}}),door,picked.map(function(p){return p.title}).join('، '));
+}
+function draw(){
+ var f=(q.value||'').trim().toLowerCase();
+ list.innerHTML='';
+ var any=false;
+ GROUPS.forEach(function(g){
+  var hits=g.items.filter(function(s){return !f||(s.name+' '+s.code+' '+s.cat+' '+s.gov).toLowerCase().indexOf(f)>=0});
+  if(!hits.length)return;
+  any=true;
+  var box=el('div','sv1-grp');
+  // البحث يفتح ما طابق: نتيجةٌ مخبّأة خلف عنوان مطويّ ليست نتيجة.
+  if(f)box.classList.add('open');
+  var head=el('button');head.type='button';
+  var left=el('span');left.appendChild(el('b',null,g.cat));
+  var meta=el('span','meta');
+  meta.appendChild(el('span','badge',String(hits.length)));
+  meta.appendChild(el('span','chev','⌄'));
+  head.appendChild(left);head.appendChild(meta);
+  head.onclick=function(){box.classList.toggle('open')};
+  var body=el('div','body');
+  hits.forEach(function(s){
+   var row=el('div','sv1-pick');
+   var lab=document.createElement('label');lab.className='sv1-pick-lab';
+   var cb=document.createElement('input');cb.type='checkbox';cb.checked=isPicked(s.code,s.name);
+   if(cb.checked)row.classList.add('on');
+   cb.onchange=function(){row.classList.toggle('on',cb.checked);toggle(s,cb.checked)};
+   var tx=el('span','tx');tx.appendChild(el('b',null,s.name));
+   if(s.gov)tx.appendChild(el('small',null,s.gov));
+   lab.appendChild(cb);lab.appendChild(tx);
+   row.appendChild(lab);
+   if(s.slug){var a=document.createElement('a');a.className='sv1-pick-more';
+    a.href=HOME+'services/'+s.slug;a.textContent=TX.details;
+    a.onclick=function(e){e.stopPropagation()};row.appendChild(a)}
+   body.appendChild(row)});
+  box.appendChild(head);box.appendChild(body);
+  list.appendChild(box)});
+ if(!any)list.appendChild(el('p','sv1-muted',TX.none));
+}
+q.addEventListener('input',draw);
+$('svcToggleAll').onclick=function(){
+ var boxes=list.querySelectorAll('.sv1-grp');
+ var open=list.querySelectorAll('.sv1-grp.open').length>=boxes.length/2;
+ Array.prototype.forEach.call(boxes,function(b){b.classList.toggle('open',!open)});
+ this.textContent=open?TX.openAll:TX.closeAll;
+};
+$('trayClear').onclick=function(){picked=[];drawTray();draw()};
+$('trayGo').onclick=go;
+
+// ---- الباقات
+var pkgBox=$('pkgList');
+function drawPkgs(){
+ pkgBox.innerHTML='';
+ var seen=[];
+ PKGS.forEach(function(p){if(seen.indexOf(p.group)<0)seen.push(p.group)});
+ seen.forEach(function(gname){
+  if(gname)pkgBox.appendChild(el('h3','sv1-pkg-h',gname));
+  var grid=el('div','sv1-pkg-grid');
+  PKGS.filter(function(p){return p.group===gname}).forEach(function(p){
+   var c=el('div','sv1-pkg');
+   c.appendChild(el('h3',null,p.name));
+   if(p.price!=null){
+    // صنف price-amt: القاعدة العامة تخفيه عن الزائر وتظهره للعميل المسجَّل.
+    var amt=el('div','amt price-amt',Number(p.price).toLocaleString('en-US')+' ﷼'+(p.period?' / '+p.period:''));
+    c.appendChild(amt)}
+   if(p.features.length){var ul=el('ul');p.features.forEach(function(x){ul.appendChild(el('li',null,x))});c.appendChild(ul)}
+   var b=el('button','sv1-btn primary sm',TX.pkgAsk);b.type='button';
+   b.onclick=function(){handoff([{code:p.code,title:p.name,why:p.group||''}],'consulting',p.name)};
+   c.appendChild(b);
+   grid.appendChild(c)});
+  pkgBox.appendChild(grid)});
+}
+$('tabSvc').onclick=function(){this.classList.add('on');$('tabPkg').classList.remove('on');$('paneSvc').classList.remove('sv1-hide');$('panePkg').classList.add('sv1-hide')};
+$('tabPkg').onclick=function(){this.classList.add('on');$('tabSvc').classList.remove('on');$('panePkg').classList.remove('sv1-hide');$('paneSvc').classList.add('sv1-hide')};
+draw();drawPkgs();drawTray();
+if(/[?&]tab=packages/.test(location.search))$('tabPkg').click();
+})();</script></body></html>
