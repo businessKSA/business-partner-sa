@@ -803,6 +803,29 @@ function advisorWidget() {
   </section>`;
 }
 
+// Service pages are where every marketing link lands. They were still rendering
+// in the old site chrome while the homepage had moved to the Simple V1 design,
+// so a visitor arriving from a campaign met a different site than the one on /ar
+// — different header, different navigation, different design language.
+//
+// This renders them through the same shell, header and footer as the homepage.
+// The page body keeps its own markup and classes; only the chrome changes. The
+// shell wraps everything in .sv1, whose base rule strips colour and underline
+// from every link, so the content area restores its own link styling rather than
+// inheriting a reset meant for the landing page.
+const SV1_CONTENT_CSS = `<style>.sv1 main a{color:var(--brand,#0B1B5A);text-decoration:revert}.sv1 main a.btn,.sv1 main a.btn-white,.sv1 main a.btn-wa,.sv1 main a[class*="btn"]{text-decoration:none}.sv1 main{display:block;width:100%}</style>`;
+
+function servicePage({ title, desc, path, body, script = "", noindex = false }) {
+  return SV1.shell({
+    title,
+    desc,
+    path,
+    noindex,
+    script,
+    body: SV1.header(path) + SV1_CONTENT_CSS + `<main>${body}</main>` + SV1.footer(),
+  });
+}
+
 function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "", bodyClass = "" }) {
   const p = path || active || "/";
   return (
@@ -2080,7 +2103,7 @@ function buildServicesIndex() {
     apply();
   })();
   </script>`;
-  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  return servicePage({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), path: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -2124,10 +2147,9 @@ function buildServiceCategory(cat) {
     <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
     <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({
+  return servicePage({
     title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
     desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
-    active: "/services",
     path: "/services/category/" + catSlugUrl(cat.key),
     body,
   });
@@ -2203,7 +2225,7 @@ function buildServiceDetail(s) {
     </aside>
   </div></div>`;
   const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  return servicePage({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, path: `/services/${s.slug}`, body });
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
