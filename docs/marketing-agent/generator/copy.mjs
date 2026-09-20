@@ -50,10 +50,17 @@ export function priceShort(service) {
 // 52 leads and effectively all of them attributed to "Website" — 1,000 outbound
 // emails produced no attributable lead. Untagged links make a channel invisible
 // rather than ineffective, and the two are indistinguishable without this.
+// The site generator writes service pages to `services/<slug>.html` (plural) and
+// the Arabic build under `ar/`. Every campaign link pointed at `/service/<slug>`
+// — singular, English — which is a 404 with no redirect behind it, and would have
+// made the whole campaign click through to nothing. The audience reads Arabic, so
+// the Arabic page is the landing page.
+const SERVICE_PATH = "/ar/services/";
+
 const MEDIUM = { email: "email", whatsapp: "messaging", telegram: "messaging" };
 
 export function trackedUrl(service, channel, campaign = "service-always-on") {
-  const u = new URL(`${BRAND.site}/service/${service.slug}`);
+  const u = new URL(`${BRAND.site}${SERVICE_PATH}${service.slug}`);
   u.searchParams.set("utm_source", channel);
   u.searchParams.set("utm_medium", MEDIUM[channel] ?? "organic-social");
   u.searchParams.set("utm_campaign", campaign);
@@ -62,7 +69,7 @@ export function trackedUrl(service, channel, campaign = "service-always-on") {
 }
 
 export function landingUrl(service) {
-  return `${BRAND.site}/service/${service.slug}`;
+  return `${BRAND.site}${SERVICE_PATH}${service.slug}`;
 }
 
 // The service code travels inside the WhatsApp first message so a chat lead can
