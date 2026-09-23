@@ -1,12 +1,17 @@
 // Business Partner 3.0 — AI Hiring assistant (ESM). Powers the "AI Hiring OS"
 // employer dashboard: match candidates to a role, summarise a candidate, draft
 // interview questions, and write outreach messages. Free-first provider
-// failover (Gemini → Groq → OpenAI → Anthropic), same keys as the advisor.
+// Azure OpenAI first (owner policy, September 2026: the digital infrastructure
+// is Microsoft Azure). Once Azure is configured the other providers stay
+// dormant unless DOC_AI_ALLOW_FALLBACK=1 — the same valve document reading
+// uses. Until Azure is configured the old free-first chain keeps working, so
+// the employer dashboard never goes dark waiting for an env var.
 //
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"
 // GET  /api/hire  -> { status, providers }
 
+import { AZURE_KEYS, azureChat, azureConfigured } from "./_azure.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -15,59 +20,17 @@ const NOTION_TOKEN = envFrom([
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
   "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
+// ‏انظر api/chat.js: llama-3.3-70b-versatile أوقفته Groq في ٢٠٢٦/٠٨/١٦.
 
 const SYSTEM = `أنت مساعد توظيف خبير لدى Business Partner (بيزنس بارتنر) في السعودية. تساعد أصحاب العمل على تقييم المرشّحين واتخاذ قرارات توظيف عملية وسريعة. كن دقيقاً وموجزاً ومهنياً، وراعِ أنظمة العمل والتوطين في السعودية. اكتب بلغة المستخدم (العربية افتراضياً). لا تختلق بيانات غير موجودة.`;
 
-async function callGemini(prompt, maxTokens) {
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 1200, temperature: 0.4 },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}`);
-  const d = await r.json();
-  return (d?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("").trim();
-}
-async function callOAI(url, key, model, prompt, maxTokens) {
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: maxTokens || 1200, temperature: 0.4, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`${new URL(url).hostname} ${r.status}`);
-  const d = await r.json();
-  return (d?.choices?.[0]?.message?.content || "").trim();
-}
-async function callAnthropic(prompt, maxTokens) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": envFrom(ANTHROPIC_KEYS), "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — a generic name here
-    // is a confirmed collision risk with another integration on the same
-    // Vercel project, which broke every Anthropic call in production before.
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}`);
-  const d = await r.json();
-  return (d?.content || []).map((b) => b.text || "").join("").trim();
-}
-
+// Azure only. The Gemini/Groq/OpenAI/Anthropic callers and the
+// DOC_AI_ALLOW_FALLBACK valve are gone on the owner's instruction: resilience
+// belongs to the second Azure region (api/_azure.js), not to a second vendor.
 const PROVIDERS = [
-  { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
-  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || "llama-3.3-70b-versatile", p, m) },
-  { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
-  { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
+  { name: "azure", keys: AZURE_KEYS, call: (p, m) => azureChat({ system: SYSTEM, messages: [{ role: "user", content: p }], maxTokens: m || 1200, temperature: 0.4 }) },
 ];
-const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
+const available = () => (azureConfigured() ? PROVIDERS : []);
 
 export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
 export const aiAvailable = () => available().length > 0;
