@@ -31,7 +31,11 @@ import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { etimadPing, etimadConfigured } from "./_etimad.js";
 import { sellerProfile } from "./_zatca.js";
-import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK } from "./_docread.js";
+import { BANK } from "./_identity.js";
+import { readDocument, readDocumentRaw, parseJson, MAX_DOC_BYTES, DOC_MIME_OK, azureReady, docIntelReady } from "./_docread.js";
+import { azureBlobReady, blobMissing } from "./_azblob.js";
+import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
+import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -783,6 +787,12 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 // attachments: [{ filename, content }] where content is base64 — Resend's own
 // attachment shape, passed straight through.
 async function sendEmail(to, subject, html, attachments) {
+  // البنية التحتية على Azure (قرار المالك): جرّب Azure Communication Services
+  // أولاً. عند نجاحه نكتفي به؛ وإن لم يكن مهيّأً أو فشل نرجع إلى Resend.
+  // (المرفقات عبر Resend فقط حالياً — تُترك للبديل.)
+  if (!attachments || !attachments.length) {
+    try { if (await azureSendEmail(to, subject, html)) return { ok: true, via: "azure" }; } catch (e) {}
+  }
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -821,7 +831,10 @@ const OTP_SECRET = process.env.OTP_SECRET || "";
 // عند تساويه مع TEAM_EMAIL تصبح النسخ المكررة أدناه no-op تلقائياً.
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
 const SITE_BASE = process.env.SITE_BASE || "https://businesspartner.sa";
-const SS_BANK = { beneficiary: process.env.BP_BANK_BENEFICIARY || "شركة بيزنس بارتنر", bank: process.env.BP_BANK_NAME || "مصرف الراجحي", iban: process.env.BP_BANK_IBAN || "SA5380000511608016228498" };
+// اسم المستفيد والآيبان من مصدر واحد (api/_identity.js ← site/data/site.json).
+// كان الاسم مكتوباً هنا بيد ومخالفاً لسجل البنك، وهذا البريد هو الذي يطلب
+// من العميل أن يحوّل — فالخطأ فيه يُرفض عند الصرّاف لا عندنا.
+const SS_BANK = BANK;
 const ssKey = () => crypto.createHash("sha256").update(OTP_SECRET).digest();
 function ssSeal(o) { const iv = crypto.randomBytes(12); const c = crypto.createCipheriv("aes-256-gcm", ssKey(), iv); const ct = Buffer.concat([c.update(JSON.stringify(o), "utf8"), c.final()]); return Buffer.concat([iv, c.getAuthTag(), ct]).toString("base64url"); }
 function ssUnseal(t) { const raw = Buffer.from(String(t), "base64url"); const d = crypto.createDecipheriv("aes-256-gcm", ssKey(), raw.subarray(0, 12)); d.setAuthTag(raw.subarray(12, 28)); return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8")); }
@@ -1653,6 +1666,62 @@ export default async function handler(req, res) {
   // the leads feed (set LEADS_KEY in Vercel to the value you type in the inbox).
   // Returns a flat message array — same shape the WhatsApp feed uses — so the
   // monitor merges them into one list, tagged «المستشار».
+  // طلب عرض سعر من محادثة واتساب: الوكيل يفهم نطاق العمل ثم ينادي هنا.
+  //
+  // رحلة عميل الواتساب كانت تقف عند الوعد: «الفريق يتواصل خلال يومين». وكل
+  // ما بعد الوعد — عرض، موافقة، عقد، توقيع، دفع، فاتورة — موجود في لوحة
+  // العروض منذ شهور، لكن بابه بوابة تحتاج تسجيل دخول بالبريد. فالنقطة هنا
+  // تفتح الطريق نفسه من الواتساب: الرقم هوية العميل، والقرار قرار الكتالوج
+  // لا قرار الوكيل — ما سعره مثبّت يصدر عرضه فوراً برابطه، وما هو مفتوح
+  // السعر ينتظر تسعير المالك. فلا يسعّر وكيلٌ شيئاً بنفسه.
+  //
+  // السرّ (PANEL_BRIDGE_TOKEN) يبقى في خادم الموقع؛ n8n يستأذن بمفتاح اللوحة
+  // الذي يحمله أصلاً، فلا يُنسخ سرّ ثانٍ إلى نظام ثالث.
+  if ((q.action || "") === "wa-quote") {
+    res.setHeader("Cache-Control", "no-store");
+    let body = {};
+    try { body = await readBody(req); } catch { body = {}; }
+    if (!panelOk({ key: (body && body.key) || q.key })) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "unauthorized" }));
+    }
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: false, configured: false, error: "panel_not_configured",
+        ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات مشروع الموقع بالقيمة نفسها الموضوعة في لوحة العروض",
+      }));
+    }
+    const payload = {
+      phone: String((body && body.phone) || "").trim(),
+      name: String((body && body.name) || "").trim(),
+      email: String((body && body.email) || "").trim(),
+      serviceCode: String((body && body.serviceCode) || "").trim(),
+      scope: String((body && body.scope) || "").trim(),
+      qty: Number((body && body.qty) || 0) || undefined,
+    };
+    if (!payload.phone || !payload.serviceCode) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "phone_and_service_required" }));
+    }
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/wa-quote`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      const j = await r.json().catch(() => null);
+      if (r.status === 401) throw new Error("panel_token_mismatch");
+      if (!j) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = r.ok ? 200 : 502;
+      return res.end(JSON.stringify(j));
+    } catch (e) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: String((e && e.message) || e) }));
+    }
+  }
+
   if ((q.action || "") === "advisor-inbox") {
     res.setHeader("Cache-Control", "no-store");
     // The same gate as every other owner surface. This one endpoint used to
@@ -3513,6 +3582,19 @@ export default async function handler(req, res) {
       const has = (...names) => names.find((n) => process.env[n] && String(process.env[n]).trim()) || null;
       const svc = (label, via, note = "") => ({ label, ok: !!via, via, note });
       const out = [
+        // Microsoft Azure is the digital infrastructure (owner decision,
+        // September 2026). These four lines say what of it is wired — names
+        // only, never values — so «is Azure connected?» has an answer here.
+        svc("Azure — الذكاء (OpenAI)", azureReady() ? "AZURE_OPENAI_*" : null,
+          azureReady()
+            ? (has("AZURE_OPENAI_DEPLOYMENT", "AZURE_OPENAI_TEXT_DEPLOYMENT") ? "المحادثة والصوت وقراءة المستندات والتوظيف — الأول دائماً" : "بلا اسم نشر — يُستخدم gpt-4o-mini")
+            : "ناقص: " + ["AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_KEY"].filter((n) => !has(n, n === "AZURE_OPENAI_KEY" ? "AZURE_OPENAI_API_KEY" : "AZURE_AI_ENDPOINT")).join(" + ")),
+        svc("Azure — قراءة الـPDF (Document Intelligence)", docIntelReady() ? "AZURE_DOCINTEL_*" : null,
+          docIntelReady() ? "OCR ثم Azure OpenAI — لا يغادر البنية" : "بدونه لا يُقرأ أي PDF: AZURE_DOCINTEL_ENDPOINT + AZURE_DOCINTEL_KEY"),
+        svc("Azure — الخزنة (Blob Storage)", azureBlobReady() ? "AZURE_STORAGE_*" : null,
+          azureBlobReady() ? "الكتابة إلى Azure؛ القراءة ترجع إلى Supabase عند 404 فقط" : "ناقص: " + blobMissing()),
+        svc("Microsoft 365 — مجلدات العملاء (SharePoint)", graphReady() ? "AZURE_TENANT_ID + AZURE_CLIENT_*" : null,
+          graphReady() ? "مجلد لكل منشأة عبر Microsoft Graph" : "ناقص: " + graphMissing()),
         svc("الذكاء — Gemini (مجاني)", has("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"), "يقرأ شهادة الضريبة والسجل"),
         svc("الذكاء — Anthropic", has("ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"), "بديل لقراءة المستندات"),
         svc("الذكاء — Groq (مجاني)", has("GROQ_API_KEY", "GROQ_KEY", "GROQ"), "بديل سريع للمستشار"),
@@ -3525,7 +3607,9 @@ export default async function handler(req, res) {
         svc("مُيسّر — نموذج الدفع", has("MOYASAR_PUBLISHABLE_KEY"), "يظهر نموذج البطاقة للعميل"),
         svc("مُيسّر — تأكيد الدفع", has("MOYASAR_SECRET_KEY"), "يتحقق من الدفعة ويصدر الفاتورة"),
         svc("مُيسّر — Webhook", has("MOYASAR_WEBHOOK_SECRET"), "يلتقط الدفعة لو أغلق العميل الصفحة"),
-        svc("البريد — Resend", has("RESEND_API_KEY"), "كل الرسائل والمرفقات"),
+        svc("Azure — البريد (Communication Services)", azureEmailReady() ? "ACS_CONNECTION_STRING + ACS_SENDER_ADDRESS" : null,
+          azureEmailReady() ? "كل إيميلات باهر تُرسل من Azure أولاً" : "ناقص: ACS_CONNECTION_STRING + ACS_SENDER_ADDRESS — بدونه يرجع للبريد عبر Resend"),
+        svc("البريد — Resend (بديل)", has("RESEND_API_KEY"), "بديل عند غياب Azure + المرفقات"),
         svc("نوشن — CRM", has("NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"), "الطلبات والموردون"),
         svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),

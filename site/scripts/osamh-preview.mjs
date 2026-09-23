@@ -1,9 +1,12 @@
 // Copies the Dr. Osamh Almulla site prototype into the build output.
 //
-// It runs LAST in `npm run build`, on purpose. Every other build step walks
-// site/ and rewrites any .html it finds — b10x theme, global header, brand
-// layer. Those belong to Business Partner's own site; this page is a client
-// prototype with its own identity, so it must land after they have all run.
+// Its position in `npm run build` is deliberate: after every step that
+// rewrites HTML (b10x theme, global header, brand layer, baher-support), and
+// before verify-pages.mjs. Those rewriting steps walk site/ and stamp Business
+// Partner's own identity onto any .html they find; this page carries the
+// client's identity instead, so it must land after them. verify-pages.mjs only
+// parses inline scripts, so running last of all would skip this page's script
+// — better to sit just before it and be checked like every other page.
 //
 // The source lives outside site/ (ops/osamh-demo/) so no walker ever sees it.
 // Preview-only: the page carries a noindex meta and a visible prototype
