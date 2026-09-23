@@ -16,14 +16,32 @@
 - حذف المشروعين من Vercel يتم من لوحة Vercel (Project → Settings → Delete) بعد اكتمال الدمج — لا يحذفهما Claude من نفسه، ولا يوقفهما (pause) قبل الدمج حتى لا تنقطع خدمة قائمة.
 - **الوضع الحالي (2026-09-04):** `bp-erp` حُذف من اللوحة ثم من المستودع — بقي مشروعان. أما `bp-quotes` فما زال يشغّل لوحة العروض فعلياً؛ المسار `businesspartner.sa/quotes/*` هو **rewrite** إليه من `vercel.json` الرئيسي، وليس دمجاً. حذفه أو إيقافه الآن يكسر عروض الأسعار والعقود والفواتير حتى تُنقل جداوله ومساراته إلى `api/` + `db/` (المهمة القادمة).
 - شرط التجاهل: `quotes/vercel.json` يبني فقط إذا تغيّر `quotes/` أو `site/assets/data/catalog.json` في مدى الدفعة. لا تحذف `ignoreCommand` منه، ولا تحذف مجلداً هو جذرُ مشروع Vercel قائم — احذف المشروع من اللوحة أولاً (هذا ما جرى مع `erp/`).
-- **المشروع الرئيسي كذلك صار له `ignoreCommand` (2026-09-04):** يبني تلقائياً
-  على `master` و`staging` وفي الإنتاج فقط. أي فرع آخر لا ينشر إلا إذا احتوت
-  رسالة آخر كوميت على العلامة المتفق عليها (انظر `ignoreCommand` في
-  `vercel.json`). هذا هو حل «اللخبطة» وسقف المئة نشرة: الفروع تُدفع بحرية،
-  والمعاينة تُطلب عمداً. لحذفه أثر مباشر على الفاتورة والسقف.
-- **لا تكتب العلامة في رسالة كوميت إلا وأنت تريد نشرة فعلاً.** أول محاولة
-  استعملت `[preview]` فطابقت الكوميت الذي يشرحها نفسه وبنَت بلا داعٍ؛ لذلك صارت
-  العلامة كلمة لا تَرِد في الكلام العادي، والمطابقة نصية `grep -qF` بلا أنماط.
+- **⚠️ فرع العمل هو نفسه فرع الإنتاج في Vercel — ليس `master`.** تُحقِّق منه
+  2026-09-23 من إعدادات المشروع، ومن أن كل نشرات
+  `claude/bpic-marketing-site-jvrnga` تحمل `target: "production"` بينما نشرات
+  الفروع الأخرى `CANCELED`. و`master` فرعٌ لا يُنشر منه شيء، فالدمج فيه ليس
+  آلية النشر. كل دفعة على فرع العمل كانت تصل `businesspartner.sa` خلال دقيقة
+  تقريباً، بلا مراجعة. هذه أخطر حقيقة في المستودع ولم تكن مكتوبة هنا، فضلَّلت
+  جلسةً كاملة ظنّت أن ثمانين كوميتاً محجوزةٌ تنتظر الدمج وهي حيّة أمام العملاء.
+- **المشروع الرئيسي له `ignoreCommand` (2026-09-04):** يبني تلقائياً على
+  `master` و`staging`. أي فرع آخر لا ينشر إلا إذا احتوت رسالة آخر كوميت على
+  العلامة المتفق عليها (انظر `ignoreCommand` في `vercel.json`). هذا هو حل
+  «اللخبطة» وسقف المئة نشرة: الفروع تُدفع بحرية، والنشر يُطلب عمداً. لحذفه أثر
+  مباشر على الفاتورة والسقف.
+- **بوابة الإنتاج (قرار المالك 2026-09-23):** كان الشرط يستثني الإنتاج
+  (`if [ "$VERCEL_ENV" = "production" ]; then exit 1; fi`) — ولأن فرع العمل هو
+  الإنتاج، كان الاستثناء يعني أن **كل** دفعة نشرةٌ حيّة تلقائياً. حُذف
+  الاستثناء، فصار الإنتاج يمرّ بالبوابة نفسها. يوم القرار دفعت جلستان في
+  أربعين دقيقة ونشرتا على موقعٍ حيّ دون أن يعلم المالك؛ البوابة تمنع ذلك.
+- **لا تكتب العلامة في رسالة كوميت إلا وأنت تريد نشرة فعلاً — وهي تعني الآن
+  نشرة على الموقع الحيّ، لا معاينة.** أول محاولة استعملت `[preview]` فطابقت
+  الكوميت الذي يشرحها نفسه وبنَت بلا داعٍ؛ لذلك صارت العلامة كلمة لا تَرِد في
+  الكلام العادي، والمطابقة نصية `grep -qF` بلا أنماط. بقي اسمها كما هو رغم أن
+  «preview» صارت تسميةً ناقصة، لأن تغييره يُبطل ما تعرفه الجلسات الأخرى.
+- **كيف تنشر عمداً:** ضع العلامة في رسالة الكوميت الذي تريد نشره، بعد
+  `npm run build` كاملاً ومراجعةٍ على `npm run dev`. وللنشر بلا تغييرٍ في
+  الكود: كوميتٌ فارغ يحملها. وبلا علامة، يُدفع العمل ويُراجَع في طلب الدمج
+  ولا يصل عميلاً.
 
 ## 2) فرع واحد و Pull Request واحد
 
@@ -75,5 +93,7 @@
 with `LOCAL_DB=1` (JSON file under `.localdb/`, production Supabase untouched)
 and every integration in a safe mode (`api/_mode.js`). Vercel previews are for
 stable milestones only, never after every change. See `docs/local-development.md`.
+
+**The working branch IS the Vercel production branch (2026-09-23).** `claude/bpic-marketing-site-jvrnga`, not `master`, is what `businesspartner.sa` serves — `master` deploys nothing, so merging into it does not publish. Every push to the working branch used to reach the live site in about a minute, unreviewed; two sessions did exactly that within forty minutes on 2026-09-23. The `ignoreCommand` in `vercel.json` no longer exempts production, so a deployment now happens only when the last commit message carries the agreed marker. Push freely; publish deliberately.
 
 **One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (**#323** — #271 was merged into `master` on 2026-09-04; a merged PR is never reused, open a new one and update this number in the same push); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
