@@ -20,6 +20,7 @@
 // GET  /api/workspace  -> { status, configured }
 // POST /api/workspace  -> { ok, ref } | { ok:false, error }
 
+import { azureSendMail } from "./_azure_notify.js";
 const envFrom = (names) => {
   for (const n of names) { const v = process.env[n]; if (v && String(v).trim()) return String(v).trim(); }
   return "";
@@ -48,7 +49,10 @@ const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 const numOr = (v) => { const n = parseFloat(String(v).replace(/[^\d.]/g, "")); return isFinite(n) && n > 0 ? n : null; };
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  if (!isEmail(to)) return { ok: false };
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

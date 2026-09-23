@@ -15,6 +15,7 @@
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
+import { azureSendMail } from "./_azure_notify.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -42,7 +43,10 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 const NOTIFY = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
 
 async function sendMail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  if (!isEmail(to)) return { ok: false };
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

@@ -19,6 +19,7 @@
 // The AI provider chain lives in hire.js (gemini → groq → openai → anthropic
 // failover); reusing it directly avoids an HTTP hop to our own function.
 import { aiText, aiAvailable } from "./hire.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -45,7 +46,10 @@ const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8
 const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 async function sendMail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  if (!isEmail(to)) return { ok: false };
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

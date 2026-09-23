@@ -37,6 +37,7 @@ import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing,
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
 import { DB_ON, sb, notify, storagePut, storageSign } from "./_db.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -222,7 +223,10 @@ async function notion(path, method = "GET", body) {
 
 // attachments: [{ filename, content }] with content base64 — Resend's own shape.
 async function sendEmail(to, subject, html, attachments) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  if (!isEmail(to)) return { ok: false };
+  // أزور أولاً — ويقبل المرفقات، فلا استثناء لها كما كان.
+  if ((await azureSendMail({ to, subject, html, attachments })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

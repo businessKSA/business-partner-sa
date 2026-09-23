@@ -15,6 +15,7 @@
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 import { getSession } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -461,7 +462,10 @@ const MAIL_FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@re
 const NOTIFY_EMAIL = process.env.BP_NOTIFY_EMAIL || "business@businesspartner.sa";
 const htmlEsc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 async function sendMail(to, subject, html) {
-  if (!RESEND_KEY || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to || ""))) return false;
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(to || ""))) return false;
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html, from: MAIL_FROM })).ok) return true;
+  if (!RESEND_KEY) return false;
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

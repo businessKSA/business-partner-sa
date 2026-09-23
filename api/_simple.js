@@ -26,6 +26,7 @@ import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -100,7 +101,11 @@ async function sendEmail(to, subject, html) {
     await outbox({ kind: "email", to, subject, body: html });
     return { ok: false, skipped: !EMAIL_LIVE ? "email_mode_" + MODES().email : SIMPLE_TEST_MODE ? "test_mode" : "notify_off" };
   }
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: "email_not_configured" };
+  if (!isEmail(to)) return { ok: false, error: "email_not_configured" };
+  // ‏أزور أولاً — وبعد بوابات الصمت أعلاه لا قبلها: معاينةٌ مكتومة يجب ألّا
+  // تصل عميلاً مهما كان المزوّد.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST", headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },

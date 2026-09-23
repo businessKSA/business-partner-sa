@@ -27,6 +27,7 @@
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
 import { sb, DB_ON, notify } from "./_db.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 
@@ -176,7 +177,10 @@ async function orgIdForEmail(email) {
 // Channels
 // ---------------------------------------------------------------------------
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: RESEND_API_KEY ? "bad_email" : "email_not_configured" };
+  if (!isEmail(to)) return { ok: false, error: "bad_email" };
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
