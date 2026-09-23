@@ -13,10 +13,15 @@
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
   .wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:0 56px}
-  header.bar{background:var(--navy);color:#fff;padding-block:14px;padding-inline:16px}
-  header.bar .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  header.bar b{font-size:17px;font-weight:700;letter-spacing:-.01em}
-  header.bar span{font-size:13px;opacity:.82;margin-inline-start:auto}
+  /* ترويسة بيضاء لأن الشعار الرسمي كحلي على شفاف — يختفي على خلفية داكنة. */
+  header.brandbar{background:var(--surface);border-bottom:1px solid var(--line);padding-block:12px;padding-inline:16px}
+  header.brandbar .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header.brandbar img{display:block;width:168px;height:auto}
+  header.brandbar span{font-size:13px;color:var(--ink-2);margin-inline-start:auto;padding-inline-start:14px;border-inline-start:1px solid var(--line)}
+  @media(max-width:560px){
+    header.brandbar img{width:140px}
+    header.brandbar span{margin-inline-start:0;padding-inline-start:0;border-inline-start:0;flex-basis:100%}
+  }
   h1{font-size:clamp(21px,4.6vw,28px);line-height:1.3;margin:22px 0 6px;font-weight:700}
   .lede{color:var(--ink-2);margin:0 0 4px;max-width:62ch;font-size:14.5px}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px}
@@ -41,8 +46,10 @@
   .meter .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 15px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
   .meter .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .meter .pct{font-size:19px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;margin-inline-start:auto}
-  .bar{height:6px;background:var(--ground);border-radius:99px;margin-top:9px;overflow:hidden}
-  .bar i{display:block;height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .25s}
+  /* اسم مميّز: قاعدة `.bar` العامة كانت تلتقط `header.bar` فتجعل ارتفاعها
+     ٦ بكسل مع `overflow:hidden` فيُقصّ اسم العلامة. */
+  .pbar{height:6px;background:var(--ground);border-radius:99px;margin-top:9px;overflow:hidden}
+  .pbar i{display:block;height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .25s}
   .status{font-size:12.5px;color:var(--ink-3);margin-top:8px;min-height:1.3em}
   .note{background:var(--warn-soft);border-radius:9px;padding:11px 14px;margin-top:14px;font-size:13.5px;line-height:1.6}
   .note b{color:var(--warn)}
@@ -55,6 +62,26 @@
   .up input[type=file]{font:inherit;font-size:13px;width:100%}
   h2.sec{font-size:15px;font-weight:700;margin:22px 0 2px;padding-top:16px;border-top:1px solid var(--line)}
   h2.sec:first-of-type{border-top:0;padding-top:0;margin-top:4px}
+  /* بطاقة مستقلة لكل تابع، ومجموعة لكل والد — ليقرأ العميل السجل كوحدة. */
+  .rep,.grp{border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;margin-top:12px;background:var(--ground)}
+  .rep .f:first-of-type,.grp h2.sec{margin-top:0}
+  .grp h2.sec{border-top:0;padding-top:0}
+  .rep-h{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+  .rep-h b{font-size:14px;font-weight:700;color:var(--navy)}
+  .rm{font:inherit;font-size:12.5px;padding:4px 11px;border-radius:7px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;margin-inline-start:auto}
+  .rm:hover{border-color:#C0392B;color:#C0392B}
+  .btn.ghost{background:var(--surface);color:var(--navy);border:1.5px solid var(--navy)}
+  .btn.ghost:hover{background:var(--ground)}
+  .req{color:#C0392B;margin-inline-start:3px;font-weight:700}
+  .badge{display:inline-block;min-width:18px;margin-inline-start:6px;padding:0 5px;border-radius:99px;font-size:11.5px;font-weight:700;line-height:18px;text-align:center}
+  .badge.warn{background:#FDECEA;color:#C0392B}
+  .badge.done{background:var(--ok-soft);color:var(--ok)}
+  nav.tabs button[aria-selected=true] .badge.done{background:rgba(255,255,255,.22);color:#fff}
+  nav.tabs button[aria-selected=true] .badge.warn{background:#fff;color:#C0392B}
+  .gaps{margin-top:10px;display:grid;gap:7px}
+  .gap{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+  .jump{font:inherit;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:7px;border:1px solid var(--line-2);background:var(--surface);color:var(--navy);cursor:pointer;flex:none}
+  .jump:hover{border-color:var(--navy)}
   footer{margin-top:26px;font-size:12.5px;color:var(--ink-3);line-height:1.7}
   [hidden]{display:none!important}
   @media(max-width:600px){.wrap{padding-inline:16px}}
@@ -63,7 +90,9 @@
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
 <body>
-<header class="bar"><div class="in"><b>Business Partner</b><span>تجهيز ملف الإقامة المميزة — رائد أعمال</span></div></header>
+<header class="brandbar"><div class="in"><img src="/assets/img/logo.png" alt="Business Partner" width="168" height="32"><span>تجهيز ملف الإقامة المميزة — رائد أعمال</span></div></header>
+
+<div id="datalists" hidden></div>
 
 <div class="wrap">
 
@@ -93,7 +122,7 @@
     <div class="meter">
       <div class="box">
         <div class="top"><b id="who"></b><span class="pct" id="pct">0%</span></div>
-        <div class="bar"><i id="barFill"></i></div>
+        <div class="pbar"><i id="barFill"></i></div>
         <div class="status" id="saveMsg">جاهز.</div>
       </div>
     </div>
@@ -104,8 +133,12 @@
     <div class="card">
       <h2 class="sec">الإرسال</h2>
       <p class="lede" style="margin-top:6px">راجع التبويبات الستة قبل الإرسال. بعد الإرسال يصلنا ملفك ونتواصل معك لاستكمال أي ناقص.</p>
+      <div id="gapBox"></div>
       <div class="note"><b>قبل أن ترسل:</b> تأكد أن كل مرفق في خانته الصحيحة، وأن الاسم الرباعي بالإنجليزي مطابق لصفحة جواز السفر حرفاً بحرف.</div>
-      <p style="margin:16px 0 0"><button class="btn" id="submitBtn" type="button">أرسل الملف</button></p>
+      <p style="margin:16px 0 0;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" id="draftBtn" type="button">احفظ كمسودة وأكمل لاحقاً</button>
+        <button class="btn" id="submitBtn" type="button" disabled>أرسل الملف</button>
+      </p>
       <p class="status" id="submitMsg"></p>
     </div>
 
@@ -115,6 +148,37 @@
 
 <script>
 var API = "/api/pr-intake", OTP = "/api/otp";
+var LANG = "ar";
+
+/* القوائم الطويلة تُحمَّل كبيانات لا تُكتب في الصفحة: 253 جهة استثمارية،
+   و280 دولة بست لغات، وقائمة جامعات. `datalist` يعطي بحثاً بالكتابة بلا
+   مكتبة، ويقبل قيمة خارج القائمة — فالمتقدم ليس محبوساً فيها. */
+var LISTS = { countries: [], universities: [], investors: [] };
+
+function loadLists(){
+  function get(u){ return fetch(u).then(function(r){ return r.json(); }).catch(function(){ return null; }); }
+  return Promise.all([
+    get("/assets/data/countries.json"),
+    get("/assets/data/universities.json"),
+    get("/assets/data/pr-investors.json")
+  ]).then(function(r){
+    var c = r[0], u = r[1], i = r[2];
+    if (c) { var m = c[LANG] || c.ar || {}; LISTS.countries = Object.keys(m).map(function(k){ return m[k]; }).sort(); }
+    if (u) LISTS.universities = [].concat(u.ksa_public || [], u.ksa_private || [], u.international || [])
+      .map(function(x){ return LANG === "ar" ? x.ar : x.en; });
+    if (i) LISTS.investors = i.names || [];
+    renderDatalists();
+  });
+}
+
+function renderDatalists(){
+  var host = $("datalists");
+  if (!host) return;
+  host.innerHTML = ["countries","universities","investors"].map(function(name){
+    return '<datalist id="dl-' + name + '">' +
+      LISTS[name].map(function(v){ return '<option value="' + esc(v) + '"></option>'; }).join("") + '</datalist>';
+  }).join("");
+}
 function $(id){ return document.getElementById(id); }
 async function post(url, body){
   var r = await fetch(url, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) });
@@ -124,16 +188,42 @@ async function post(url, body){
 
 /* الحقول: مصدر واحد يبني الواجهة ويُخزَّن بنفس مفاتيحه في الخادم ونوشن،
    فلا يتفرّع اسم الحقل بين الصفحة والسجل. */
+
+/* الأب والأم يأخذان الحقول نفسها؛ يتغيّر النداء في التلميح فقط. */
+function PARENT_FIELDS(who){
+  return [
+    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة جواز " + who + " حرفاً بحرف", flag:1 },
+    { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)" },
+    { k:"grandNameEn", t:"text", l:"اسم الجد (بالإنجليزي)" },
+    { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)" },
+    { k:"birthDate", t:"date", l:"تاريخ الميلاد" },
+    { k:"birthPlace", t:"text", l:"مكان الولادة" },
+    { k:"marital", t:"select", l:"الحالة الاجتماعية", o:["أعزب / عزباء","متزوج / متزوجة","مطلق / مطلقة","أرمل / أرملة"] },
+    { k:"nationality", t:"combo", src:"countries", l:"الجنسية", req:1 },
+    { k:"passportNo", t:"text", l:"رقم جواز السفر" },
+    { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز" },
+    { k:"works", t:"seg", l:"هل يعمل " + who + " في منشأة داخل المملكة؟", o:[["yes","نعم"],["no","لا"]],
+      h:"تعريف الأسرة يشترط أن يكون الوالدان غير عاملين في المملكة", flag:1, re:1 },
+    { k:"worksNote", t:"textarea", l:"وضّح جهة العمل والوضع النظامي",
+      h:"الإجابة بنعم لا تُغلق الباب، لكنها تحتاج بياناً واضحاً وما يثبت وضعه",
+      when:function(v){ return v.works === "yes"; } },
+    { k:"employerLetterFile", t:"file", l:"خطاب جهة العمل مصدّقاً من الغرفة",
+      when:function(v){ return v.works === "yes"; } },
+    { k:"passportFile", t:"file", l:"صورة الجواز" },
+    { k:"photoFile", t:"file", l:"صورة شخصية ملونة" }
+  ];
+}
+
 var TABS = [
   { id:"applicant", label:"بيانات المتقدم", fields:[
     { s:"بيانات التقديم" },
     { k:"editorName", t:"text", l:"اسم محرر الطلب", h:"إن كان غيرك يقدّم نيابةً عنك" },
-    { k:"email2", t:"email", l:"بريد إلكتروني للتواصل", h:"كل إشعار رسمي يصل هنا: الموافقة، مهلة الثلاثين يوماً، الرفض", flag:1 },
-    { k:"phone", t:"tel", l:"رقم الجوال" },
+    { k:"email2", t:"email", l:"بريد إلكتروني للتواصل", h:"كل إشعار رسمي يصل هنا: الموافقة، مهلة الثلاثين يوماً، الرفض", flag:1, req:1 },
+    { k:"phone", t:"tel", l:"رقم الجوال", req:1 },
     { k:"poaFile", t:"file", l:"مرفق التوكيل / الوكالة الشرعية", h:"إن قُدّم الطلب نيابةً عنك" },
     { s:"الإقامة الحالية" },
-    { k:"country", t:"text", l:"دولة الإقامة الحالية" },
-    { k:"residency", t:"seg", l:"مقيم أم زائر؟", o:[["resident","مقيم"],["visitor","زائر"]] },
+    { k:"country", t:"combo", src:"countries", l:"دولة الإقامة الحالية", req:1 },
+    { k:"residency", t:"seg", l:"مقيم أم زائر؟", o:[["resident","مقيم"],["visitor","زائر"]], req:1 },
     { k:"iqamaNo", t:"text", l:"رقم الإقامة" },
     { k:"iqamaExpiry", t:"date", l:"تاريخ انتهاء الإقامة", h:"لا تقل عن 90 يوماً من تاريخ التقديم", flag:1 },
     { k:"iqamaFile", t:"file", l:"صورة الإقامة" },
@@ -143,86 +233,104 @@ var TABS = [
     { k:"street", t:"text", l:"الشارع" },
     { k:"postal", t:"text", l:"الرمز البريدي" },
     { s:"جواز السفر" },
-    { k:"passportNo", t:"text", l:"رقم جواز السفر" },
-    { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز", h:"لا يقل عن 180 يوماً من تاريخ التقديم", flag:1 },
-    { k:"nationality", t:"text", l:"الجنسية" },
+    { k:"passportNo", t:"text", l:"رقم جواز السفر", req:1 },
+    { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز", h:"لا يقل عن 180 يوماً من تاريخ التقديم", flag:1, req:1 },
+    { k:"nationality", t:"combo", src:"countries", l:"الجنسية", req:1 },
     { k:"nationalIdHome", t:"text", l:"رقم الهوية في بلد الجنسية", h:"للمصريين: رقم البطاقة القومية" },
-    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة الجواز حرفاً بحرف", flag:1 },
-    { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)" },
+    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة الجواز حرفاً بحرف", flag:1, req:1 },
+    { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)", req:1 },
     { k:"grandNameEn", t:"text", l:"اسم الجد (بالإنجليزي)" },
-    { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)" },
-    { k:"birthDate", t:"date", l:"تاريخ الميلاد" },
+    { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)", req:1 },
+    { k:"birthDate", t:"date", l:"تاريخ الميلاد", req:1 },
     { k:"birthPlace", t:"text", l:"مكان الولادة" },
     { k:"marital", t:"select", l:"الحالة الاجتماعية", o:["أعزب / عزباء","متزوج / متزوجة","مطلق / مطلقة","أرمل / أرملة"] },
     { k:"gender", t:"seg", l:"الجنس", o:[["male","ذكر"],["female","أنثى"]] },
     { k:"religion", t:"text", l:"الديانة" },
-    { k:"passportFile", t:"file", l:"صورة جواز السفر" },
-    { k:"photoFile", t:"file", l:"صورة شخصية ملونة" },
+    { k:"passportFile", t:"file", l:"صورة جواز السفر", req:1 },
+    { k:"photoFile", t:"file", l:"صورة شخصية ملونة", req:1 },
     { s:"بيانات إضافية" },
     { k:"employment", t:"select", l:"الحالة الوظيفية", o:["مُوظَّف","مستثمر","غير موظف"], h:"يجب أن تطابق وضعك الفعلي في قوى ومقيم" },
     { k:"otherNationality", t:"seg", l:"هل لديك جنسية أخرى؟", o:[["yes","نعم"],["no","لا"]] },
     { k:"social", t:"text", l:"حسابات التواصل الاجتماعي", h:"فيسبوك · تويتر · لينكدإن" }
   ]},
   { id:"family", label:"بيانات الأسرة", fields:[
-    { k:"hasDependents", t:"seg", l:"هل لديك تابعون؟", o:[["yes","نعم"],["no","لا"]], h:"الأزواج والأبناء. الوالدان لهما تبويب مستقل" },
-    { k:"dependentsCount", t:"number", l:"عدد التابعين" },
-    { k:"dependents", t:"textarea", l:"بيانات كل تابع", h:"لكل تابع: الاسم رباعياً بالإنجليزي · صلة القرابة · تاريخ ومكان الميلاد · الجنسية · رقم الجواز وتاريخ انتهائه · مقيم أم زائر · رقم الإقامة أو رقم الحدود" },
-    { k:"dependentWorks", t:"seg", l:"هل أي تابع موظف في منشأة داخل المملكة؟", o:[["yes","نعم"],["no","لا"]], h:"الإجابة بنعم تستلزم خطاب موافقة جهة العمل مصدّقاً من الغرفة التجارية", flag:1 },
-    { k:"birthCertsFile", t:"file", l:"شهادات ميلاد التابعين", h:"الصادرة من خارج المملكة تحتاج ترجمة وتصديق" },
-    { k:"depPassportsFile", t:"file", l:"جوازات التابعين" },
-    { k:"employerLetterFile", t:"file", l:"خطاب موافقة جهة العمل مصدّقاً من الغرفة" },
+    { k:"hasDependents", t:"seg", l:"هل لديك تابعون؟", o:[["yes","نعم"],["no","لا"]], h:"الأزواج والأبناء. الوالدان لهما تبويب مستقل", re:1, req:1 },
+    /* بطاقة مستقلة لكل تابع كما في نموذج المركز — لا خانة نصّية واحدة،
+       فالمرفقات تُنسب لصاحبها بدل أن تتكوّم بلا تصنيف. */
+    { k:"dependents", t:"rep", l:"التابعون", one:"التابع", add:"إضافة تابع",
+      when:function(v){ return v.hasDependents === "yes"; },
+      item:[
+        { k:"relation", t:"select", l:"صلة القرابة", o:["زوج","زوجة","ابن","ابنة"] },
+        { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة الجواز حرفاً بحرف", flag:1 },
+        { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)" },
+        { k:"grandNameEn", t:"text", l:"اسم الجد (بالإنجليزي)" },
+        { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)" },
+        { k:"birthDate", t:"date", l:"تاريخ الميلاد" },
+        { k:"birthPlace", t:"text", l:"مكان الولادة" },
+        { k:"nationality", t:"combo", src:"countries", l:"الجنسية", req:1 },
+        { k:"passportNo", t:"text", l:"رقم جواز السفر" },
+        { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز" },
+        { k:"residency", t:"seg", l:"مقيم أم زائر؟", o:[["resident","مقيم"],["visitor","زائر"]], re:1 },
+        { k:"iqamaNo", t:"text", l:"رقم الإقامة", when:function(v){ return v.residency === "resident"; } },
+        { k:"borderNo", t:"text", l:"رقم الحدود", when:function(v){ return v.residency === "visitor"; } },
+        { k:"works", t:"seg", l:"هل يعمل في منشأة داخل المملكة؟", o:[["yes","نعم"],["no","لا"]], h:"الإجابة بنعم تستلزم خطاب موافقة جهة العمل مصدّقاً من الغرفة التجارية", flag:1, re:1 },
+        { k:"passportFile", t:"file", l:"صورة الجواز" },
+        { k:"birthCertFile", t:"file", l:"شهادة الميلاد", h:"الصادرة من خارج المملكة تحتاج ترجمة وتصديق" },
+        { k:"employerLetterFile", t:"file", l:"خطاب موافقة جهة العمل مصدّقاً من الغرفة", when:function(v){ return v.works === "yes"; } }
+      ] },
     { k:"insuranceFile", t:"file", l:"وثائق التأمين الطبي", h:"مطلوبة قبل دفع المقابل المالي لا بعده", flag:1 }
   ]},
   { id:"parents", label:"بيانات الوالدين", fields:[
-    { k:"includeFather", t:"seg", l:"هل ترغب بإصدار الإقامة للأب؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"includeMother", t:"seg", l:"هل ترغب بإصدار الإقامة للأم؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"parentsWork", t:"seg", l:"هل أي منهما يعمل في المملكة؟", o:[["yes","نعم"],["no","لا"]], h:"تعريف الأسرة يشترط أن يكون الوالدان غير عاملين في المملكة", flag:1 },
-    { k:"parentsData", t:"textarea", l:"بيانات كل والد تختاره", h:"الاسم رباعياً بالإنجليزي · تاريخ ومكان الميلاد · الحالة الاجتماعية · الجنسية · رقم الجواز وتاريخ انتهائه" },
-    { k:"parentsDocsFile", t:"file", l:"جوازات الوالدين وصورهما الشخصية" }
+    /* سؤال العمل داخل بطاقة كل والد لا مشتركاً بينهما — فالأب قد يعمل والأم لا،
+       وجواب واحد عنهما يخفي أيّهما المقصود. */
+    { k:"includeFather", t:"seg", l:"هل ترغب بإصدار الإقامة للأب؟", o:[["yes","نعم"],["no","لا"]], re:1, req:1 },
+    { k:"father", t:"grp", l:"بيانات الأب", when:function(v){ return v.includeFather === "yes"; }, item:PARENT_FIELDS("الأب") },
+    { k:"includeMother", t:"seg", l:"هل ترغب بإصدار الإقامة للأم؟", o:[["yes","نعم"],["no","لا"]], re:1, req:1 },
+    { k:"mother", t:"grp", l:"بيانات الأم", when:function(v){ return v.includeMother === "yes"; }, item:PARENT_FIELDS("الأم") }
   ]},
   { id:"academic", label:"البيانات العلمية", fields:[
-    { k:"degree", t:"text", l:"الدرجة العلمية", h:"أدخل آخر مؤهل صادر فعلاً. لا تُدخل درجة لم تُمنح بعد", flag:1 },
-    { k:"institution", t:"text", l:"المنشأة التعليمية", h:"بالصيغة الواردة في الشهادة" },
-    { k:"eduCountry", t:"text", l:"الدولة" },
+    { k:"degree", t:"text", l:"الدرجة العلمية", h:"أدخل آخر مؤهل صادر فعلاً. لا تُدخل درجة لم تُمنح بعد", flag:1, req:1 },
+    { k:"institution", t:"combo", src:"universities", l:"المنشأة التعليمية", h:"ابحث بالاسم أو اكتبه كما ورد في الشهادة — القائمة اقتراحات لا حصر" },
+    { k:"eduCountry", t:"combo", src:"countries", l:"الدولة" },
     { k:"studyFrom", t:"date", l:"فترة الدراسة من" },
     { k:"studyTo", t:"date", l:"فترة الدراسة إلى" },
-    { k:"degreeFile", t:"file", l:"إرفاق الشهادة", h:"الصادرة من خارج المملكة تحتاج ترجمة معتمدة وتصديق" },
+    { k:"degreeFile", t:"file", l:"إرفاق الشهادة", h:"الصادرة من خارج المملكة تحتاج ترجمة معتمدة وتصديق", req:1 },
     { k:"otherCertFile", t:"file", l:"شهادة أخرى أو إفادة جامعية" }
   ]},
   { id:"entrepreneur", label:"رائد أعمال", fields:[
     { s:"الجولة الاستثمارية" },
-    { k:"tier", t:"seg", l:"حجم الاستثمار", o:[["first","400,000 ﷼ أو أعلى"],["second","15,000,000 ﷼ أو أعلى"]], h:"الأولى: إقامة 5 سنوات · الثانية: دائمة مشروطة سنتين", flag:1 },
-    { k:"investorLicensedName", t:"text", l:"اسم الجهة الاستثمارية", h:"الاسم المرخّص (السجل التجاري) كما في قائمة الجهات المعتمدة — لا الاسم التجاري", flag:1 },
+    { k:"tier", t:"seg", l:"حجم الاستثمار", o:[["first","400,000 ﷼ أو أعلى"],["second","15,000,000 ﷼ أو أعلى"]], h:"الأولى: إقامة 5 سنوات · الثانية: دائمة مشروطة سنتين", flag:1, req:1 },
+    { k:"investorLicensedName", t:"combo", src:"investors", l:"اسم الجهة الاستثمارية", h:"ابحث في الـ253 جهة المعتمدة لدى المركز. الاسم المرخّص (السجل التجاري) لا الاسم التجاري", flag:1, req:1 },
     { k:"subFund", t:"text", l:"اسم الصندوق الفرعي", h:"الذي تم الاستثمار من خلاله" },
-    { k:"roundAmount", t:"number", l:"قيمة الجولة بالريال" },
-    { k:"stakeDiluted", t:"number", l:"حصة المتقدم بعد التحويل %", h:"بافتراض تحويل جميع الديون إلى حصص — لا نسبة سجل المساهمين الحالية", flag:1 },
+    { k:"roundAmount", t:"number", l:"قيمة الجولة بالريال", req:1 },
+    { k:"stakeDiluted", t:"number", l:"حصة المتقدم بعد التحويل %", h:"بافتراض تحويل جميع الديون إلى حصص — لا نسبة سجل المساهمين الحالية", flag:1, req:1 },
     { s:"الكيان والترخيص" },
-    { k:"startupName", t:"text", l:"اسم الشركة الناشئة", h:"كما ورد في الرخصة الريادية حرفياً", flag:1 },
-    { k:"licenceNo", t:"text", l:"رقم الرخصة الريادية" },
-    { k:"crNo", t:"text", l:"رقم السجل التجاري" },
+    { k:"startupName", t:"text", l:"اسم الشركة الناشئة", h:"كما ورد في الرخصة الريادية حرفياً", flag:1, req:1 },
+    { k:"licenceNo", t:"text", l:"رقم الرخصة الريادية", req:1 },
+    { k:"crNo", t:"text", l:"رقم السجل التجاري", req:1 },
     { k:"unifiedNo", t:"text", l:"الرقم الوطني الموحد" },
     { s:"المستندات" },
-    { k:"licenceFile", t:"file", l:"الرخصة الريادية من وزارة الاستثمار", h:"شرط في الفئتين — لا بديل عنه", flag:1 },
-    { k:"crFile", t:"file", l:"السجل التجاري" },
+    { k:"licenceFile", t:"file", l:"الرخصة الريادية من وزارة الاستثمار", h:"شرط في الفئتين — لا بديل عنه", flag:1, req:1 },
+    { k:"crFile", t:"file", l:"السجل التجاري", req:1 },
     { k:"aoaFile", t:"file", l:"عقد التأسيس" },
-    { k:"capTableFile", t:"file", l:"سجل المساهمين", h:"يُظهر مجموع الأسهم المصدرة وحصة رائد الأعمال" },
+    { k:"capTableFile", t:"file", l:"سجل المساهمين", h:"يُظهر مجموع الأسهم المصدرة وحصة رائد الأعمال", req:1 },
     { k:"convertiblesFile", t:"file", l:"الأوراق المالية والسندات القابلة للتحويل" },
-    { k:"letterFile", t:"file", l:"خطاب الجهة الاستثمارية", h:"بالنموذج المعتمد من المركز — تملؤه الجهة وتوقّعه بختمها", flag:1 },
-    { k:"transferFile", t:"file", l:"نسخة معتمدة للحوالة البنكية من الصندوق" },
+    { k:"letterFile", t:"file", l:"خطاب الجهة الاستثمارية", h:"بالنموذج المعتمد من المركز — تملؤه الجهة وتوقّعه بختمها", flag:1, req:1 },
+    { k:"transferFile", t:"file", l:"نسخة معتمدة للحوالة البنكية من الصندوق", req:1 },
     { k:"solvencyFile", t:"file", l:"كشف حساب بنكي حديث", h:"إثبات الملاءة المالية" }
   ]},
   { id:"declaration", label:"بيان عام", fields:[
-    { k:"visitedKsa", t:"seg", l:"هل سبق أن زرت المملكة؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"visaRefused", t:"seg", l:"هل سبق أن رُفضت لك فيزا؟", o:[["yes","نعم"],["no","لا"]], h:"رفض تأشيرة قديمة لأي دولة يظل رفضاً" },
-    { k:"deported", t:"seg", l:"هل سبق ترحيلك أو استبعادك من أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"asylumRefused", t:"seg", l:"هل سبق أن رُفض طلبك للجوء أو للجنسية؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"convicted", t:"seg", l:"هل صدرت بحقك عقوبة في أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"citizenOfResidence", t:"seg", l:"هل أنت مواطن بالدولة التي تعيش بها؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"relativesKsa", t:"seg", l:"هل لديك أقارب في المملكة؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"arrested", t:"seg", l:"هل سبق أن قُبض عليك أو وُجهت لك تهمة؟", o:[["yes","نعم"],["no","لا"]], h:"القبض وحده يُقرّ به ولو لم تصدر إدانة" },
-    { k:"accusedNow", t:"seg", l:"هل أنت متهم حالياً في أي بلد؟", o:[["yes","نعم"],["no","لا"]] },
-    { k:"insolvency", t:"seg", l:"هل دخلت في قضايا إعسار مالي أو تعثّر سداد؟", o:[["yes","نعم"],["no","لا"]], h:"يشمل شركة سابقة متعثرة أو قرضاً متأخراً" },
-    { k:"securityCharges", t:"seg", l:"هل وُجهت لك تهم في الإرهاب أو العنف أو التطرف أو المخدرات؟", o:[["yes","نعم"],["no","لا"]] },
+    { k:"visitedKsa", t:"seg", l:"هل سبق أن زرت المملكة؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"visaRefused", t:"seg", l:"هل سبق أن رُفضت لك فيزا؟", o:[["yes","نعم"],["no","لا"]], h:"رفض تأشيرة قديمة لأي دولة يظل رفضاً" , req:1 },
+    { k:"deported", t:"seg", l:"هل سبق ترحيلك أو استبعادك من أي بلد؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"asylumRefused", t:"seg", l:"هل سبق أن رُفض طلبك للجوء أو للجنسية؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"convicted", t:"seg", l:"هل صدرت بحقك عقوبة في أي بلد؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"citizenOfResidence", t:"seg", l:"هل أنت مواطن بالدولة التي تعيش بها؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"relativesKsa", t:"seg", l:"هل لديك أقارب في المملكة؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"arrested", t:"seg", l:"هل سبق أن قُبض عليك أو وُجهت لك تهمة؟", o:[["yes","نعم"],["no","لا"]], h:"القبض وحده يُقرّ به ولو لم تصدر إدانة" , req:1 },
+    { k:"accusedNow", t:"seg", l:"هل أنت متهم حالياً في أي بلد؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
+    { k:"insolvency", t:"seg", l:"هل دخلت في قضايا إعسار مالي أو تعثّر سداد؟", o:[["yes","نعم"],["no","لا"]], h:"يشمل شركة سابقة متعثرة أو قرضاً متأخراً" , req:1 },
+    { k:"securityCharges", t:"seg", l:"هل وُجهت لك تهم في الإرهاب أو العنف أو التطرف أو المخدرات؟", o:[["yes","نعم"],["no","لا"]] , req:1 },
     { k:"notes", t:"textarea", l:"ملاحظات توضيحية", h:"إقرار بنعم ليس رفضاً تلقائياً. اشرح الواقعة هنا وأرفق ما يثبت انتهاءها" },
     { k:"supportFile", t:"file", l:"مرفقات تقوّي الملف", h:"ملخص الشركة · عقود أو عملاء · تغطية إعلامية · شهادات حاضنات" }
   ]}
@@ -257,76 +365,238 @@ async function open_(){
   draft = r.draft;
   $("gate").hidden = true; $("form").hidden = false;
   $("who").textContent = draft.email || "";
-  renderTabs(); show(0); paint();
+  renderTabs(); show(0); paint(); loadLists().then(function(){ show(current); });
 }
 
 function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]; }); }
 
+function star(f){ return f.req ? '<span class="req" title="إلزامي">*</span>' : ""; }
+
+function hasValue(v){ return v !== "" && v !== null && v !== undefined && v !== false; }
+
+/* النواقص تُحسب على نفس شجرة الحقول التي تُرسم منها الصفحة، مع احترام `when`
+   — فحقل مخفي لأن شرطه لم يتحقق لا يُعدّ ناقصاً. */
+function missing(tabId, fields, vals, suffix, out){
+  fields.forEach(function(f){
+    if (f.s) return;
+    if (f.when && !f.when(vals)) return;
+    var label = suffix ? f.l + " — " + suffix : f.l;
+    if (f.t === "grp") { missing(tabId, f.item, (vals[f.k] && typeof vals[f.k] === "object") ? vals[f.k] : {}, f.l, out); return; }
+    if (f.t === "rep") {
+      var rows = Array.isArray(vals[f.k]) ? vals[f.k] : [];
+      if (f.req && !rows.length) out.push(f.l);
+      rows.forEach(function(row, i){ missing(tabId, f.item, row || {}, f.one + " " + (i + 1), out); });
+      return;
+    }
+    if (!f.req) return;
+    if (f.t === "file") {
+      var got = (draft.files || []).some(function(x){ return x.tab === tabId && x.label === label; });
+      if (!got) out.push(label);
+      return;
+    }
+    if (!hasValue(vals[f.k])) out.push(label);
+  });
+  return out;
+}
+
+function missingInTab(i){
+  var tab = TABS[i];
+  return missing(tab.id, tab.fields, draft.tabs[tab.id] || {}, "", []);
+}
+
+function allMissing(){
+  var all = [];
+  TABS.forEach(function(tab, i){
+    var m = missingInTab(i);
+    if (m.length) all.push({ tab: tab.label, i: i, items: m });
+  });
+  return all;
+}
+
 function renderTabs(){
   $("tabs").innerHTML = TABS.map(function(t,i){
-    return '<button role="tab" aria-selected="' + (i===0) + '" data-i="' + i + '"><span class="n">' + (i+1) + '</span>' + esc(t.label) + '</button>';
+    return '<button role="tab" aria-selected="' + (i===current) + '" data-i="' + i + '"><span class="n">' + (i+1) + '</span>' + esc(t.label) +
+      '<span class="badge" data-badge="' + i + '"></span></button>';
   }).join("");
   Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b){
     b.addEventListener("click", function(){ show(+b.dataset.i); });
   });
+  paintBadges();
+}
+
+/* عدّاد النواقص على كل تبويب — لئلا يكتشف العميل النقص عند الإرسال فقط. */
+function paintBadges(){
+  TABS.forEach(function(t,i){
+    var el = $("tabs").querySelector('[data-badge="' + i + '"]');
+    if (!el) return;
+    var n = missingInTab(i).length;
+    el.textContent = n ? String(n) : "✓";
+    el.className = "badge " + (n ? "warn" : "done");
+  });
+}
+
+/* الإرسال لا يُتاح إلا بعد اكتمال الإلزاميات في التبويبات الستة، ومعه
+   قائمة صريحة بما ينقص وزرّ يقفز إلى تبويبه. */
+function paintGate(){
+  var gaps = allMissing(), box = $("gapBox"), btn = $("submitBtn");
+  if (!gaps.length) {
+    box.innerHTML = '<div class="ok">كل الحقول الإلزامية مكتملة. يمكنك الإرسال.</div>';
+    btn.disabled = false;
+    btn.title = "";
+    return;
+  }
+  var total = gaps.reduce(function(a,g){ return a + g.items.length; }, 0);
+  box.innerHTML = '<div class="note"><b>ينقص ' + total + ' حقلاً إلزامياً</b> قبل أن يُتاح الإرسال:</div>' +
+    '<div class="gaps">' + gaps.map(function(g){
+      return '<div class="gap"><button type="button" class="jump" data-jump="' + g.i + '">' + esc(g.tab) + ' (' + g.items.length + ')</button>' +
+        '<span>' + g.items.slice(0,6).map(esc).join(" · ") + (g.items.length > 6 ? " …" : "") + '</span></div>';
+    }).join("") + '</div>';
+  btn.disabled = true;
+  btn.title = "أكمل الحقول الإلزامية أولاً";
+  Array.prototype.forEach.call(box.querySelectorAll("[data-jump]"), function(b){
+    b.addEventListener("click", function(){ show(+b.dataset.jump); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  });
+}
+
+/* البيانات صارت متداخلة (بطاقة لكل تابع، ومجموعة لكل والد)، فالحقل يُعنون
+   بمسار نقطي مثل `dependents.0.passportNo` بدل مفتاح مسطّح. */
+function getP(o, path){
+  var parts = String(path).split("."), cur = o;
+  for (var i = 0; i < parts.length; i++){ if (cur == null) return undefined; cur = cur[parts[i]]; }
+  return cur;
+}
+function setP(o, path, v){
+  var parts = String(path).split("."), cur = o, i;
+  for (i = 0; i < parts.length - 1; i++){
+    var k = parts[i];
+    if (cur[k] == null || typeof cur[k] !== "object") cur[k] = /^\d+$/.test(parts[i+1]) ? [] : {};
+    cur = cur[k];
+  }
+  cur[parts[parts.length - 1]] = v;
+}
+
+/* `vals` هو الكائن الذي يعيش فيه الحقل (التبويب أو بطاقة التابع أو مجموعة
+   الوالد)، فشرط `when` يُقاس على جيرانه لا على جذر التبويب. */
+function fieldHtml(tabId, f, vals, base, suffix){
+  if (f.s) return '<h2 class="sec">' + esc(f.s) + '</h2>';
+  if (f.when && !f.when(vals)) return "";
+  var path = base ? base + "." + f.k : f.k;
+  var hint = f.h ? '<span class="hint' + (f.flag ? " flag" : "") + '">' + esc(f.h) + '</span>' : "";
+  var v = vals[f.k] == null ? "" : vals[f.k];
+  var re = f.re ? ' data-re="1"' : "";
+
+  if (f.t === "grp") {
+    var sub = (vals[f.k] && typeof vals[f.k] === "object") ? vals[f.k] : {};
+    return '<div class="grp"><h2 class="sec">' + esc(f.l) + '</h2>' +
+      f.item.map(function(sf){ return fieldHtml(tabId, sf, sub, path, f.l); }).join("") + '</div>';
+  }
+
+  if (f.t === "rep") {
+    var rows = Array.isArray(vals[f.k]) ? vals[f.k] : [];
+    var body = rows.map(function(row, i){
+      var title = f.one + " " + (i + 1);
+      return '<div class="rep"><div class="rep-h"><b>' + esc(title) + '</b>' +
+        '<button type="button" class="rm" data-rm="' + path + '" data-i="' + i + '">حذف</button></div>' +
+        f.item.map(function(sf){ return fieldHtml(tabId, sf, row || {}, path + "." + i, title); }).join("") + '</div>';
+    }).join("");
+    return '<h2 class="sec">' + esc(f.l) + '</h2>' +
+      (rows.length ? body : '<p class="lede" style="margin:8px 0 0">لم تُضف أحداً بعد.</p>') +
+      '<p style="margin:14px 0 0"><button type="button" class="btn ghost" data-add="' + path + '">+ ' + esc(f.add) + '</button></p>';
+  }
+
+  if (f.t === "file") {
+    /* التسمية تحمل صاحبها، فيصل المرفق إلى نوشن منسوباً لا مكوَّماً. */
+    var label = suffix ? f.l + " — " + suffix : f.l;
+    var got = (draft.files || []).filter(function(x){ return x.tab === tabId && x.label === label; });
+    return '<label class="f">' + esc(f.l) + star(f) + hint + '<span class="up"><input type="file" data-file="' + esc(label) + '"></span></label>' +
+      (got.length ? '<div class="files">' + got.map(function(g){ return '<div class="file"><b>✓</b><span>' + esc(g.name || g.label) + '</span></div>'; }).join("") + '</div>' : "");
+  }
+
+  if (f.t === "seg") return '<label class="f">' + esc(f.l) + star(f) + hint + '<span class="seg" data-p="' + path + '"' + re + '>' +
+    f.o.map(function(p){ return '<button type="button" data-v="' + p[0] + '" aria-pressed="' + (v === p[0]) + '">' + esc(p[1]) + '</button>'; }).join("") + '</span></label>';
+
+  if (f.t === "select") return '<label class="f">' + esc(f.l) + star(f) + hint + '<select data-p="' + path + '"' + re + '><option value="">— اختر —</option>' +
+    f.o.map(function(o){ return '<option value="' + esc(o) + '"' + (v === o ? " selected" : "") + '>' + esc(o) + '</option>'; }).join("") + '</select></label>';
+
+  if (f.t === "textarea") return '<label class="f">' + esc(f.l) + star(f) + hint + '<textarea data-p="' + path + '">' + esc(v) + '</textarea></label>';
+
+  /* قائمة بحث: `list` يعطي فلترة بالكتابة ويسمح بقيمة خارجها. */
+  if (f.t === "combo") return '<label class="f">' + esc(f.l) + star(f) + hint +
+    '<input type="text" list="dl-' + f.src + '" data-p="' + path + '" value="' + esc(v) + '" autocomplete="off"></label>';
+
+  return '<label class="f">' + esc(f.l) + star(f) + hint + '<input type="' + f.t + '" data-p="' + path + '" value="' + esc(v) + '"></label>';
 }
 
 function show(i){
   current = i;
   Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b,j){ b.setAttribute("aria-selected", String(j===i)); });
-  var tab = TABS[i], vals = draft.tabs[tab.id] || {};
-  var html = tab.fields.map(function(f){
-    if (f.s) return '<h2 class="sec">' + esc(f.s) + '</h2>';
-    var hint = f.h ? '<span class="hint' + (f.flag ? " flag" : "") + '">' + esc(f.h) + '</span>' : "";
-    var v = vals[f.k] == null ? "" : vals[f.k];
-    if (f.t === "seg") return '<label class="f">' + esc(f.l) + hint + '<span class="seg" data-k="' + f.k + '">' +
-      f.o.map(function(p){ return '<button type="button" data-v="' + p[0] + '" aria-pressed="' + (v===p[0]) + '">' + esc(p[1]) + '</button>'; }).join("") + '</span></label>';
-    if (f.t === "select") return '<label class="f">' + esc(f.l) + hint + '<select data-k="' + f.k + '"><option value="">— اختر —</option>' +
-      f.o.map(function(o){ return '<option value="' + esc(o) + '"' + (v===o ? " selected" : "") + '>' + esc(o) + '</option>'; }).join("") + '</select></label>';
-    if (f.t === "textarea") return '<label class="f">' + esc(f.l) + hint + '<textarea data-k="' + f.k + '">' + esc(v) + '</textarea></label>';
-    if (f.t === "file") {
-      var got = (draft.files || []).filter(function(x){ return x.tab === tab.id && x.label === f.l; });
-      return '<label class="f">' + esc(f.l) + hint + '<span class="up"><input type="file" data-file="' + esc(f.l) + '"></span></label>' +
-        (got.length ? '<div class="files">' + got.map(function(g){ return '<div class="file"><b>✓</b><span>' + esc(g.name || g.label) + '</span></div>'; }).join("") + '</div>' : "");
-    }
-    return '<label class="f">' + esc(f.l) + hint + '<input type="' + f.t + '" data-k="' + f.k + '" value="' + esc(v) + '"></label>';
-  }).join("");
+  var tab = TABS[i];
+  draft.tabs[tab.id] = draft.tabs[tab.id] || {};
+  var vals = draft.tabs[tab.id];
+  var html = tab.fields.map(function(f){ return fieldHtml(tab.id, f, vals, "", ""); }).join("");
   $("panel").innerHTML = '<div class="card">' + html + '</div>';
   wire(tab.id);
+  Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b,j){ b.setAttribute("aria-selected", String(j === i)); });
+  paintBadges(); paintGate();
 }
 
 function wire(tabId){
   var p = $("panel");
-  Array.prototype.forEach.call(p.querySelectorAll("[data-k]"), function(el){
+  Array.prototype.forEach.call(p.querySelectorAll("[data-p]"), function(el){
+    var path = el.dataset.p, redraw = el.dataset.re === "1";
     if (el.classList.contains("seg")) {
       Array.prototype.forEach.call(el.querySelectorAll("button"), function(b){
         b.addEventListener("click", function(){
           Array.prototype.forEach.call(el.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed","false"); });
           b.setAttribute("aria-pressed","true");
-          set(tabId, el.dataset.k, b.dataset.v);
+          set(tabId, path, b.dataset.v, redraw);
         });
       });
     } else {
-      el.addEventListener("input", function(){ set(tabId, el.dataset.k, el.value); });
-      el.addEventListener("change", function(){ set(tabId, el.dataset.k, el.value); });
+      el.addEventListener("input", function(){ set(tabId, path, el.value, false); });
+      /* الإدخال النصّي لا يُعيد الرسم وإلا ضاع مؤشر الكتابة؛ القوائم تُعيده. */
+      el.addEventListener("change", function(){ set(tabId, path, el.value, redraw); });
     }
   });
   Array.prototype.forEach.call(p.querySelectorAll("[data-file]"), function(el){
     el.addEventListener("change", function(){ upload(el, tabId); });
   });
+  Array.prototype.forEach.call(p.querySelectorAll("[data-add]"), function(el){
+    el.addEventListener("click", function(){
+      var arr = getP(draft.tabs[tabId], el.dataset.add);
+      if (!Array.isArray(arr)) { arr = []; setP(draft.tabs[tabId], el.dataset.add, arr); }
+      arr.push({});
+      show(current); queueSave();
+    });
+  });
+  Array.prototype.forEach.call(p.querySelectorAll("[data-rm]"), function(el){
+    el.addEventListener("click", function(){
+      var arr = getP(draft.tabs[tabId], el.dataset.rm);
+      if (!Array.isArray(arr)) return;
+      var i = +el.dataset.i, title = arr.length > 1 ? ("رقم " + (i + 1)) : "";
+      if (!confirm("حذف هذا السجل " + title + "؟ ما كُتب فيه لا يعود.")) return;
+      arr.splice(i, 1);
+      show(current); queueSave();
+    });
+  });
 }
 
-function set(tabId, k, v){
-  draft.tabs[tabId] = draft.tabs[tabId] || {};
-  draft.tabs[tabId][k] = v;
+function queueSave(){
   clearTimeout(timer);
   $("saveMsg").textContent = "يُحفظ…";
   timer = setTimeout(save, 900);
 }
 
+function set(tabId, path, v, redraw){
+  draft.tabs[tabId] = draft.tabs[tabId] || {};
+  setP(draft.tabs[tabId], path, v);
+  if (redraw) show(current);
+  queueSave();
+}
+
 async function save(){
   var r = await post(API, { action:"save", tabs: draft.tabs });
-  if (r.ok) { $("saveMsg").textContent = "حُفظ ✓"; if (typeof r.completeness === "number") paint(r.completeness); }
+  if (r.ok) { $("saveMsg").textContent = "حُفظ ✓"; if (typeof r.completeness === "number") paint(r.completeness); paintBadges(); paintGate(); }
   else $("saveMsg").textContent = r.status === 401 ? "انتهت الجلسة — حدّث الصفحة وسجّل الدخول." : "تعذّر الحفظ — نعيد المحاولة مع أول تعديل.";
 }
 
@@ -369,8 +639,22 @@ $("gateBtn").addEventListener("click", gate);
 $("code").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
 $("email").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
 
+/* الحفظ تلقائي أصلاً، لكن زرّاً صريحاً يطمئن من يغادر الصفحة وهو غير واثق. */
+$("draftBtn").addEventListener("click", async function(){
+  var b = $("draftBtn"), m = $("submitMsg");
+  b.disabled = true; clearTimeout(timer);
+  var r = await post(API, { action:"save", tabs: draft.tabs });
+  b.disabled = false;
+  if (!r.ok) { m.textContent = r.status === 401 ? "انتهت الجلسة — حدّث الصفحة وسجّل الدخول." : "تعذّر الحفظ. حاول مرة أخرى."; return; }
+  if (typeof r.completeness === "number") paint(r.completeness);
+  paintBadges(); paintGate();
+  m.innerHTML = '<span class="ok" style="display:block">حُفظت المسودة ✓ ارجع لهذا الرابط بنفس البريد في أي وقت وأكمل من حيث توقفت.</span>';
+});
+
 $("submitBtn").addEventListener("click", async function(){
   var b = $("submitBtn"), m = $("submitMsg");
+  var gaps = allMissing();
+  if (gaps.length) { paintGate(); m.textContent = "أكمل الحقول الإلزامية أولاً."; return; }
   b.disabled = true; m.textContent = "جارٍ الإرسال…";
   var r = await post(API, { action:"submit", tabs: draft.tabs });
   b.disabled = false;
@@ -381,7 +665,7 @@ $("submitBtn").addEventListener("click", async function(){
 });
 
 /* جلسة قائمة؟ افتح الملف مباشرة بدل أن نطلب رمزاً من عميل مسجّل أصلاً. */
-post(API, { action:"me" }).then(function(r){ if (r.ok) { draft = r.draft; $("gate").hidden = true; $("form").hidden = false; $("who").textContent = draft.email || ""; renderTabs(); show(0); paint(); } });
+post(API, { action:"me" }).then(function(r){ if (r.ok) { draft = r.draft; $("gate").hidden = true; $("form").hidden = false; $("who").textContent = draft.email || ""; renderTabs(); show(0); paint(); loadLists().then(function(){ show(current); }); } });
 </script>
 </body>
 </html>

@@ -112,14 +112,20 @@ const num = (v) => { const n = Number(String(v).replace(/[^\d.-]/g, "")); return
 
 // نسبة الاكتمال تُحتسب على الخادم لا على المتصفح: هي ما يراه الفريق في نوشن
 // ويقرّر عليه، فلا تُترك لقيمة يرسلها العميل.
+// البيانات متداخلة: بطاقة لكل تابع ومجموعة لكل والد. عدّ سطحي يحسب مصفوفة
+// التابعين كقيمة واحدة مهما كبرت، فتقفز النسبة أو تجمد بلا معنى.
+function countLeaves(node, acc) {
+  if (Array.isArray(node)) { for (const v of node) countLeaves(v, acc); return acc; }
+  if (node && typeof node === "object") { for (const v of Object.values(node)) countLeaves(v, acc); return acc; }
+  acc.total += 1;
+  if (node !== "" && node !== null && node !== undefined && node !== false) acc.filled += 1;
+  return acc;
+}
+
 function completeness(draft) {
-  let filled = 0, total = 0;
-  for (const tab of PR_TABS) {
-    for (const v of Object.values(draft.tabs[tab] || {})) {
-      total += 1;
-      if (v !== "" && v !== null && v !== undefined && v !== false) filled += 1;
-    }
-  }
+  const acc = { filled: 0, total: 0 };
+  for (const tab of PR_TABS) countLeaves(draft.tabs[tab] || {}, acc);
+  let { filled, total } = acc;
   total += 10; // المرفقات الحرجة: بلا وزن ثابت تقفز النسبة لـ100% بلا مستند واحد
   filled += Math.min(10, (draft.files || []).length);
   return total ? Math.round((filled / total) * 100) / 100 : 0;
@@ -131,9 +137,11 @@ function notionProps(draft) {
   const fam = draft.tabs.family || {};
   const par = draft.tabs.parents || {};
   const name = [a.firstNameEn, a.fatherNameEn, a.grandNameEn, a.familyNameEn].filter(Boolean).join(" ").trim();
+  // الاختيار يُخزَّن نصّاً ("yes"/"no")، و"no" نصٌّ صادق — فالفحص بالصدق
+  // وحده كان يرسل الوالد إلى نوشن رغم اختيار «لا».
   const parents = [];
-  if (par.includeFather) parents.push({ name: "الأب" });
-  if (par.includeMother) parents.push({ name: "الأم" });
+  if (par.includeFather === "yes") parents.push({ name: "الأب" });
+  if (par.includeMother === "yes") parents.push({ name: "الأم" });
   const tier = e.tier === "second" ? "الفئة الثانية" : e.tier === "first" ? "الفئة الأولى" : "لم تُحدد";
   const props = {
     "اسم العميل": { title: [{ text: { content: clip(name || draft.email || "ملف بلا اسم", 190) } }] },
@@ -150,7 +158,9 @@ function notionProps(draft) {
     "قيمة الجولة": num(e.roundAmount),
     "الجنسية": txt(a.nationality),
     "مقيم في المملكة": { checkbox: a.residency === "resident" },
-    "عدد التابعين": num(fam.dependentsCount || 0),
+    // العدد يُشتق من عدد البطاقات المعبّأة فعلاً، فلا يتناقض رقمٌ كتبه العميل
+    // بيده مع ما رفعه من بيانات.
+    "عدد التابعين": num(Array.isArray(fam.dependents) ? fam.dependents.length : 0),
     "الوالدان": { multi_select: parents },
     "تاريخ بدء التعبئة": { date: draft.startedAt ? { start: draft.startedAt.slice(0, 10) } : null },
   };
