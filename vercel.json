@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "echo \"no dependencies\"",
+  "installCommand": "npm install --omit=dev --no-audit --no-fund",
   "buildCommand": "npm run build",
   "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
   "outputDirectory": "site",
@@ -12,9 +12,6 @@
       "maxDuration": 60
     },
     "api/chat.js": {
-      "maxDuration": 60
-    },
-    "api/chat-safe.js": {
       "maxDuration": 60
     },
     "api/requests.js": {
@@ -79,7 +76,6 @@
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
   ],
   "rewrites": [
-    {"source":"/api/chat","destination":"/api/chat-safe"},
     {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
     {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
     {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
