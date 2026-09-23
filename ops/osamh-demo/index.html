@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>د. أسامة الملا — القيادة التحويلية وحوكمة المجالس</title>
+<meta name="description" content="نموذج أولي غير منشور. تشخيص وبناء قدرات قيادية لمجالس الإدارات والقيادات التنفيذية، بأدلة قابلة للقياس.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Readex+Pro:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ground:#F7F5F1; --surface:#FFFFFF; --panel:#EFEBE4; --edge:#E2DCD1;
+  --ink:#141C22; --ink-2:#26343D; --txt:#4C5A62; --mut:#7C8A90;
+  --bronze:#8A6A3C; --bronze-d:#6E5330; --deep:#111B21;
+  --ok:#2E6B52; --ok-bg:#E8F0EB; --ok-edge:#BFD8CB;
+  --disp:"Noto Naskh Arabic", "Times New Roman", serif;
+  --body:"Readex Pro", "Segoe UI", Tahoma, sans-serif;
+  --gut:clamp(20px,5vw,64px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--txt);font-family:var(--body);font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+
+.proto{position:sticky;top:0;z-index:60;background:var(--bronze);color:#fff;
+  padding:9px var(--gut);font-size:12.5px;font-weight:500;letter-spacing:.02em;
+  display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;justify-content:center;text-align:center}
+.proto b{font-weight:600}
+
+.wrap{max-width:1100px;margin:0 auto;padding-inline:var(--gut)}
+section{padding-block:clamp(56px,8vw,104px)}
+.eyebrow{font-family:var(--body);font-size:11.5px;font-weight:600;letter-spacing:.2em;color:var(--bronze);margin:0 0 16px}
+h1,h2,h3{font-family:var(--disp);color:var(--ink);margin:0;text-wrap:balance;font-weight:700}
+h1{font-size:clamp(32px,6vw,58px);line-height:1.28}
+h2{font-size:clamp(25px,4vw,38px);line-height:1.35;margin-bottom:14px}
+h3{font-size:19px;line-height:1.5;font-weight:700}
+p{margin:0 0 15px;max-width:66ch}
+.lead{font-size:clamp(17px,2.3vw,20px);line-height:1.8;color:var(--ink-2);max-width:60ch}
+
+nav.top{border-bottom:1px solid var(--edge);background:var(--ground)}
+nav.top .in{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;justify-content:space-between;padding-block:18px}
+.brand{font-family:var(--disp);font-size:19px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand span{display:block;font-family:var(--body);font-size:10.5px;font-weight:500;letter-spacing:.16em;color:var(--bronze);margin-top:2px}
+nav.top ul{display:flex;flex-wrap:wrap;gap:6px 22px;list-style:none;margin:0;padding:0}
+nav.top a{font-size:14px;color:var(--txt);text-decoration:none;font-weight:400}
+nav.top a:hover{color:var(--bronze)}
+nav.top a:focus-visible,.btn:focus-visible{outline:2px solid var(--bronze);outline-offset:3px}
+
+.hero{background:var(--deep);color:#C9D3D8;padding-block:clamp(64px,10vw,120px)}
+.hero h1{color:#F4F1EC}
+.hero .lead{color:#AFBDC4}
+.hero .rule{width:64px;height:2px;background:var(--bronze);margin:0 0 26px}
+.hero .sig{margin-top:34px;display:flex;flex-wrap:wrap;gap:12px 34px;font-size:13.5px;color:#8FA0A8}
+.hero .sig b{color:#D9C9AC;font-weight:500;display:block;font-size:22px;font-family:var(--disp)}
+
+.btn{display:inline-block;background:var(--bronze);color:#fff;text-decoration:none;
+  font-family:var(--body);font-size:15px;font-weight:500;padding:13px 30px;border:0;border-radius:2px;cursor:pointer}
+.btn:hover{background:var(--bronze-d)}
+.btn.ghost{background:transparent;color:#D9C9AC;border:1px solid #3B4A53}
+.btn.ghost:hover{border-color:var(--bronze);color:#fff;background:transparent}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+
+.alt{background:var(--panel)}
+.grid{display:grid;gap:18px;margin-top:34px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.card{background:var(--surface);border:1px solid var(--edge);border-radius:3px;padding:26px 24px}
+.card .tag{font-family:var(--body);font-size:10.5px;font-weight:600;letter-spacing:.16em;color:var(--bronze);margin:0 0 9px}
+.card p{font-size:14.5px;margin:9px 0 0;color:var(--txt)}
+.card h3{font-size:17.5px}
+
+.num{display:flex;gap:18px;padding:20px 0;border-bottom:1px solid var(--edge)}
+.num:last-child{border-bottom:0}
+.num .i{flex:none;font-family:var(--disp);font-size:26px;font-weight:700;color:var(--bronze);width:42px;line-height:1.2}
+.num h3{margin-bottom:5px}
+.num p{margin:0;font-size:14.5px}
+
+.tw{overflow-x:auto;border:1px solid var(--edge);background:var(--surface);border-radius:3px;margin-top:30px}
+table{border-collapse:collapse;width:100%;min-width:540px;font-size:14.5px}
+th{background:var(--panel);color:var(--ink);font-family:var(--disp);font-weight:700;text-align:right;padding:13px 16px;border-bottom:1px solid var(--edge);white-space:nowrap}
+td{padding:13px 16px;border-bottom:1px solid var(--edge);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n{white-space:nowrap;font-weight:500;color:var(--ink)}
+
+.quote{border-right:2px solid var(--bronze);padding-right:22px;margin:30px 0 0;font-family:var(--disp);font-size:clamp(18px,2.6vw,23px);line-height:1.7;color:var(--ink)}
+
+.note{background:var(--surface);border:1px solid var(--edge);border-right:3px solid var(--bronze);border-radius:0 3px 3px 0;padding:20px 22px;margin-top:28px}
+.note p{margin:0;font-size:14.5px}
+.note b{color:var(--ink);font-weight:600}
+
+form{margin-top:30px;display:grid;gap:14px;max-width:560px}
+label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:6px}
+input,textarea,select{width:100%;font-family:var(--body);font-size:15px;color:var(--ink);
+  background:var(--surface);border:1px solid var(--edge);border-radius:2px;padding:11px 13px}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--bronze);outline-offset:0;border-color:var(--bronze)}
+textarea{min-height:110px;resize:vertical}
+.ok{display:none;background:var(--ok-bg);border:1px solid var(--ok-edge);color:var(--ok);border-radius:2px;padding:14px 16px;font-size:14.5px}
+.ok[data-on="1"]{display:block}
+
+footer{background:var(--deep);color:#8FA0A8;padding-block:44px;font-size:13.5px}
+footer .in{display:flex;flex-wrap:wrap;gap:18px 40px;justify-content:space-between}
+footer b{color:#D9C9AC;font-weight:500}
+footer a{color:#AFBDC4}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="proto">
+  <span><b>نموذج أولي — غير منشور ولم يُعتمد بعد.</b></span>
+  <span>المحتوى مبني على وثائق د. أسامة الملا لغرض العرض والمراجعة فقط.</span>
+</div>
+
+<nav class="top"><div class="wrap in">
+  <a class="brand" href="#top">د. أسامة الملا<span>LEADERSHIP &amp; BOARD GOVERNANCE</span></a>
+  <ul>
+    <li><a href="#collapse">العطل الصامت</a></li>
+    <li><a href="#methods">المنهجيات</a></li>
+    <li><a href="#tracks">مسارات القيادة</a></li>
+    <li><a href="#impact">قياس الأثر</a></li>
+    <li><a href="#journey">الرحلة</a></li>
+    <li><a href="#contact">جلسة استكشاف</a></li>
+  </ul>
+</div></nav>
+
+<section class="hero" id="top"><div class="wrap">
+  <p class="eyebrow">تشخيص · بناء قدرة · أثر قابل للإثبات</p>
+  <div class="rule"></div>
+  <h1>المنظمات نادراً ما تنهار فجأة.<br>تتآكل بهدوء قبل ذلك بسنوات.</h1>
+  <p class="lead">أعمل مع مجالس الإدارات والقيادات التنفيذية على ما لا تلتقطه التقارير: جودة القرار، وضوح الدور، الثقة بين الصف الأول، وقدرة المنظمة على حمل التغيير. لا محتوى يُلقى — بل تشخيص يُبنى عليه، وأدلة تُقاس.</p>
+  <div class="acts">
+    <a class="btn" href="#contact">اطلب جلسة استكشاف</a>
+    <a class="btn ghost" href="#methods">استعرض المنهجيات</a>
+  </div>
+  <div class="sig">
+    <span><b>٢٠+</b>عاماً في القيادة والحوكمة</span>
+    <span><b>١٢</b>منهجية موثّقة الأثر</span>
+    <span><b>T0→T3</b>إطار قياس متدرّج</span>
+  </div>
+</div></section>
+
+<section id="collapse"><div class="wrap">
+  <p class="eyebrow">THE SILENT COLLAPSE</p>
+  <h2>العطل الصامت</h2>
+  <p class="lead">حين يُطلب التدخل، تكون المنظمة قد دفعت الثمن مرتين: مرة في الأداء، ومرة في الناس الذين غادروا قبل أن يُسألوا.</p>
+  <div class="grid g3">
+    <div class="card"><p class="tag">المؤشر الأول</p><h3>قرارات تُؤجَّل بلا سبب معلن</h3><p>المجلس ينعقد، والبنود تُرحَّل. التأجيل هنا ليس حذراً — بل غياب وضوح في من يملك القرار.</p></div>
+    <div class="card"><p class="tag">المؤشر الثاني</p><h3>اجتماعات بلا أثر يُتتبَّع</h3><p>الحضور مرتفع والالتزامات غير مكتوبة. لا أحد يعرف ما الذي تغيّر بين اجتماعين.</p></div>
+    <div class="card"><p class="tag">المؤشر الثالث</p><h3>صمت الصف الثاني</h3><p>حين يتوقف الناس عن الاعتراض، لا يعني أنهم اقتنعوا — بل أنهم قدّروا كلفة الاعتراض.</p></div>
+  </div>
+  <blockquote class="quote">القيادة لا تُقاس بما يُقال في القاعة، بل بما يُفعل بعد أن تُغلق أبوابها.</blockquote>
+</div></section>
+
+<section class="alt" id="methods"><div class="wrap">
+  <p class="eyebrow">أدوات العمل</p>
+  <h2>المنهجيات</h2>
+  <p class="lead">كل منهجية تعالج عطلاً محدداً، وتُنتج مخرجاً مسمّى يمكن مراجعته بعد انتهاء العمل.</p>
+  <div class="grid g2">
+    <div class="card"><p class="tag">ONE BOARD</p><h3>فاعلية المجلس</h3><p>مراجعة تكوين المجلس ولجانه وإيقاع اجتماعاته وجودة قراراته، بمخرج واحد: خريطة قرار واضحة المالك.</p></div>
+    <div class="card"><p class="tag">M.E.A.D</p><h3>نضج القرار التنفيذي</h3><p>تشخيص كيف تُصنع القرارات فعلاً — لا كيف يُفترض أن تُصنع — وأين تضيع المفاضلات.</p></div>
+    <div class="card"><p class="tag">C.O.R.E</p><h3>الهوية القيادية</h3><p>ربط السلوك القيادي بالقيم والغاية، حتى يصبح الاتساق قابلاً للملاحظة من الفريق لا من صاحبه فقط.</p></div>
+    <div class="card"><p class="tag">A.L.I.G.N</p><h3>مواءمة الثقافة بالاستراتيجية</h3><p>حين تسير الاستراتيجية في اتجاه والثقافة في اتجاه آخر، الثقافة تفوز. هذه المنهجية تعالج الفجوة قبل أن تُكلّف.</p></div>
+    <div class="card"><p class="tag">C.A.L.M</p><h3>القيادة تحت الضغط</h3><p>الأمان النفسي والتنظيم الذاتي والمحادثات الصعبة — بوصفها قدرات تُبنى لا سمات تُورَث.</p></div>
+    <div class="card"><p class="tag">ECHO</p><h3>التواصل والتأثير</h3><p>من الإبلاغ إلى الإقناع: الاستماع، الحضور، والتغذية الراجعة التي يُعمل بها.</p></div>
+    <div class="card"><p class="tag">VANGUARD</p><h3>قيادة التغيير</h3><p>أصحاب المصلحة، ومصادر المقاومة، وخطة تنفيذ لا تعتمد على حماس اللحظة.</p></div>
+    <div class="card"><p class="tag">H-CAMP</p><h3>بناء الصف القادم</h3><p>التعاقب القيادي كعملية مؤسسية موثّقة، لا كقرار فردي يُتخذ عند الحاجة.</p></div>
+    <div class="card"><p class="tag">PULSE</p><h3>الحرارة الشعورية للمنظمة</h3><p>قياس دوري قصير للاحتراق والارتباط والثقة بالقيادة — إشارة إنذار مبكر قبل أن تصبح أزمة.</p></div>
+  </div>
+  <div class="note"><p><b>ملاحظة تحريرية:</b> التسميات أعلاه أسماء عمل داخلية، ولا تُعرض كعلامات تجارية مسجّلة إلا بعد اكتمال إجراءات التسجيل لدى الجهة المختصة.</p></div>
+</div></section>
+
+<section id="tracks"><div class="wrap">
+  <p class="eyebrow">الإطار الجامع</p>
+  <h2>مسارات القيادة الخمسة</h2>
+  <p class="lead">القيادة تُبنى عبر رحلة متصلة، لا عبر موضوعات منفصلة. نقطة الدخول تتحدد بالاحتياج والجاهزية، ويمكن العمل على أكثر من مسار في الوقت نفسه.</p>
+  <div class="grid">
+    <div class="num"><span class="i">٠١</span><div><h3>قيادة الذات</h3><p>الوعي، الغاية، النزاهة، والاتساق بين ما يُعلن وما يُمارَس.</p></div></div>
+    <div class="num"><span class="i">٠٢</span><div><h3>قيادة العلاقات</h3><p>الثقة، التأثير، المحادثات الصعبة، وبناء رأس المال الاجتماعي داخل المنظمة.</p></div></div>
+    <div class="num"><span class="i">٠٣</span><div><h3>قيادة الفرق</h3><p>الأمان النفسي، المساءلة، إدارة الأداء، والتعامل مع الصراع بوصفه معلومة لا تهديداً.</p></div></div>
+    <div class="num"><span class="i">٠٤</span><div><h3>قيادة المنظمات</h3><p>التفكير الاستراتيجي، المفاضلات، الحوكمة، ومواءمة الثقافة بالاتجاه.</p></div></div>
+    <div class="num"><span class="i">٠٥</span><div><h3>قيادة الأثر</h3><p>التعاقب، الإرث، والأثر الذي يبقى بعد انتهاء الدور.</p></div></div>
+  </div>
+</div></section>
+
+<section class="alt" id="impact"><div class="wrap">
+  <p class="eyebrow">أدلة لا حضور</p>
+  <h2>كيف يُقاس الأثر</h2>
+  <p class="lead">لا أقيس الرضا في نهاية اليوم. أقيس ما تغيّر في السلوك والقرار بعد أن انتهى العمل — مقارنةً بخط أساس سُجِّل قبل أن يبدأ.</p>
+  <div class="tw"><table>
+    <tr><th>النقطة</th><th>التوقيت</th><th>ما يُقاس</th><th>المخرج</th></tr>
+    <tr><td class="n">T0</td><td class="n">قبل البدء</td><td>خط الأساس: جودة القرار، وضوح الدور، الثقة، إيقاع الحوكمة</td><td>تقرير التشخيص</td></tr>
+    <tr><td class="n">T1</td><td class="n">منتصف المسار</td><td>أدلة التطبيق الميداني بين اللقاءات</td><td>قرار: استمرار أو تعديل</td></tr>
+    <tr><td class="n">T2</td><td class="n">عند الإنهاء</td><td>المخرجات المعتمدة ومشروع التحول</td><td>محضر اعتماد</td></tr>
+    <tr><td class="n">T3</td><td class="n">بعد ٩٠ يوماً</td><td>ما بقي من التغيير بعد انتهاء المتابعة</td><td>تقرير الأثر</td></tr>
+  </table></div>
+  <div class="note"><p><b>حدود القياس — تُذكر في كل تقرير:</b> لا يُنسب للعمل أثرٌ سببه قرار تجاري أو تغيير في السوق أو في هيكل المنظمة. وحين لا يتوفر مؤشر مباشر، يُستخدم مؤشر قريب موثّق ويُعلن أنه كذلك. والأرقام التي لا مصدر لها تُكتب [غير متوفر] ولا تُقدَّر.</p></div>
+</div></section>
+
+<section id="journey"><div class="wrap">
+  <p class="eyebrow">SIGNATURE TRANSFORMATIONAL LEADERSHIP</p>
+  <h2>رحلة اثني عشر أسبوعاً</h2>
+  <p class="lead">ليست سلسلة لقاءات منفصلة، بل مسار واحد ينقل القائد من المعرفة إلى تغيير السلوك. كل محطة تُنتج مخرجاً ملموساً، وكل مرحلة تنتهي بقرار.</p>
+  <div class="tw"><table>
+    <tr><th>الأسبوع</th><th>المحطة</th><th>المخرج</th></tr>
+    <tr><td class="n">٠</td><td>التشخيص واختيار مشروع التحول</td><td>Baseline Report</td></tr>
+    <tr><td class="n">١–٤</td><td>الهوية القيادية · الوعي · الغاية · النزاهة</td><td>Character Commitments</td></tr>
+    <tr><td class="n">٥–٨</td><td>التواصل والتأثير · تطوير الآخرين · الأداء والثقة · الفرق والثقافة</td><td>Culture Blueprint</td></tr>
+    <tr><td class="n">٩–١٢</td><td>التفكير الاستراتيجي · قيادة التغيير · الازدهار الإنساني · الأثر والإرث</td><td>Legacy Blueprint</td></tr>
+    <tr><td class="n">+٩٠ يوماً</td><td>المتابعة وقياس ما بقي</td><td>تقرير الأثر T3</td></tr>
+  </table></div>
+  <p style="margin-top:22px;font-size:14.5px;color:var(--mut)">المجموعة الواحدة ١٢–٢٠ قائداً. وللمجموعات الأكبر تُقسَّم إلى دفعات حفاظاً على جودة التطبيق.</p>
+</div></section>
+
+<section class="alt"><div class="wrap">
+  <p class="eyebrow">نطاق العمل</p>
+  <h2>لمن أعمل</h2>
+  <div class="grid g2">
+    <div class="card"><h3>مجالس الإدارات ولجانها</h3><p>مراجعة الفاعلية، وتطوير أعضاء المجلس، وإيقاع الحوكمة.</p></div>
+    <div class="card"><h3>الجهات والهيئات الحكومية</h3><p>بناء قدرات القيادات الوسطى والعليا، وربط التطوير بالأثر المؤسسي.</p></div>
+    <div class="card"><h3>الشركات والمنشآت</h3><p>الصف الأول والثاني، وإدارة التغيير، وبناء الثقافة القابلة للحمل.</p></div>
+    <div class="card"><h3>الأسر التجارية والمكاتب العائلية</h3><p>الحوكمة الأسرية، والتعاقب، والفصل بين الملكية والإدارة.</p></div>
+  </div>
+  <div class="note"><p><b>أسماء الجهات:</b> لا تُنشر إلا بموافقة مكتوبة من الجهة نفسها. ويُتاح سجل المراجع كاملاً عند الطلب ضمن إجراءات التأهيل.</p></div>
+</div></section>
+
+<section id="contact"><div class="wrap">
+  <p class="eyebrow">الخطوة الأولى</p>
+  <h2>اطلب جلسة استكشاف</h2>
+  <p class="lead">تسعون دقيقة نراجع فيها وضعك الحالي ونتفق على أولوية واحدة. لا عرض بيع، ولا التزام بعدها.</p>
+
+  <form id="explore" novalidate>
+    <div>
+      <label for="f-name">الاسم</label>
+      <input id="f-name" name="name" type="text" autocomplete="name" required>
+    </div>
+    <div>
+      <label for="f-org">الجهة</label>
+      <input id="f-org" name="org" type="text" autocomplete="organization">
+    </div>
+    <div>
+      <label for="f-role">الدور</label>
+      <select id="f-role" name="role">
+        <option>عضو مجلس إدارة</option>
+        <option>رئيس تنفيذي</option>
+        <option>قيادة تنفيذية</option>
+        <option>مسؤول تطوير القيادات</option>
+        <option>أخرى</option>
+      </select>
+    </div>
+    <div>
+      <label for="f-email">البريد</label>
+      <input id="f-email" name="email" type="email" autocomplete="email" required>
+    </div>
+    <div>
+      <label for="f-ctx">ما العطل الذي تريد تشخيصه؟</label>
+      <textarea id="f-ctx" name="context" placeholder="اكتب بإيجاز ما تلاحظه اليوم، وما جرّبته سابقاً."></textarea>
+    </div>
+    <div><button class="btn" type="submit">أرسل الطلب</button></div>
+    <div class="ok" id="okmsg" role="status"></div>
+  </form>
+
+  <div class="note"><p><b>في هذا النموذج الأولي:</b> النموذج لا يرسل شيئاً ولا يحفظ أي بيانات. وفي النسخة المعتمدة يُربط ببوابة العميل، ويُسجَّل فيها إذن التواصل وإذن النشر كحقلين منفصلين وفق نظام حماية البيانات الشخصية.</p></div>
+</div></section>
+
+<footer><div class="wrap in">
+  <div>
+    <b>د. أسامة الملا</b><br>
+    القيادة التحويلية · حوكمة مجالس الإدارات
+  </div>
+  <div>
+    نموذج أولي للمراجعة — لا يُفهرس ولا يُشارك.<br>
+    أعدّه <a href="https://businesspartner.sa">Business Partner</a> لغرض العرض.
+  </div>
+</div></footer>
+
+<script>
+(function(){
+  var f=document.getElementById('explore'), ok=document.getElementById('okmsg');
+  if(!f) return;
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name=(document.getElementById('f-name').value||'').trim();
+    var mail=(document.getElementById('f-email').value||'').trim();
+    if(!name || !mail){
+      ok.textContent='الرجاء إكمال الاسم والبريد قبل الإرسال.';
+      ok.setAttribute('data-on','1');
+      return;
+    }
+    ok.textContent='شكراً '+name+'. هذا نموذج أولي — لم يُرسل الطلب ولم تُحفظ بياناتك.';
+    ok.setAttribute('data-on','1');
+  });
+})();
+</script>
+
+</body>
+</html>
