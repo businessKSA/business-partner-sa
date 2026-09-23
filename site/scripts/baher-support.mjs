@@ -12,7 +12,11 @@ const WA_HUMAN = "https://wa.me/966530540231"; // واتساب المستشار/
 const IMG = "/assets/img/baher.jpg";
 
 // صفحات لا نضع فيها ودجت الدعم العام (لوحات داخلية/مضمّنة/مونيتور).
-const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/];
+const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/,
+  // نسخة المصدر في assets/data — المولّد ينسخها إلى جذر الموقع وهناك
+  // تُحقن. الحقن في المصدر نفسه يجمّد الودجت فيه: الحاقن يتخطّى كل ملف
+  // فيه `bpsFab`، فلا يصله تعديلٌ لاحق على الودجت أبداً.
+  /^\/assets\/data\/pr-intake\.html$/];
 
 function widget(ar) {
   const greet = ar

@@ -12678,6 +12678,11 @@ write("ar/portal.html", buildPortal("/ar/"));
 // cleanHtml never touches) and is copied into the ar/ tree on every build;
 // editing it in place under ar/ would be silently deleted by the next run.
 write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
+// بوابة تعبئة ملف الإقامة المميزة (منتج رائد الأعمال): صفحة عملاء بالرابط
+// فقط. تُكتب يدوياً في assets/data/ وتُنسخ كما هي — نموذج بستة تبويبات لا
+// يستفيد من قوالب هذا المولّد، ولا يدخل في paths أدناه فلا يظهر في خريطة
+// الموقع ولا في أي قائمة تنقّل.
+write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.html"), "utf8"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
