@@ -94,13 +94,51 @@ test("unconfigured Azure names the missing variable instead of using a legacy ke
   });
 });
 
-test("the escape hatch is off by default and opens only on an explicit 1", async () => {
-  await withEnv({ GEMINI_API_KEY: "g", DOC_AI_ALLOW_FALLBACK: "1" }, async () => {
+// #319 deleted the four fallback providers and the DOC_AI_ALLOW_FALLBACK valve
+// that gated them: the owner asked for a structural guarantee, not a
+// configurable one. This test used to assert the opposite — that setting the
+// valve reopened the Gemini chain — and had been failing on master ever since,
+// because the chain it reached for no longer exists.
+//
+// It now holds the line that replaced it, which is the stronger one: the valve
+// is a dead name, and setting it buys nothing. A future session that reads the
+// stale comments elsewhere and "restores" the escape hatch fails here.
+test("the deleted escape hatch is a dead name and cannot reopen the old chain", async () => {
+  await withEnv({
+    GEMINI_API_KEY: "g", ANTHROPIC_API_KEY: "a", OPENAI_API_KEY: "o",
+    DOC_AI_ALLOW_FALLBACK: "1",
+  }, async () => {
     const { askModel } = await import(`../api/_docread.js?t=${Date.now()}`);
     const f = stubFetch(() => json({ candidates: [{ content: { parts: [{ text: '{"ok":1}' }] }, finishReason: "STOP" }] }));
     try {
       const r = await askModel("plan this", 2000);
-      assert.equal(r.provider, "gemini", "with the valve open the old chain is reachable");
+      // Unconfigured Azure with the valve open is still unconfigured Azure —
+      // not a silent hand-off to whichever legacy key happens to be present.
+      assert.equal(r.ok, false);
+      assert.equal(r.error, "not_configured");
+      assert.match(r.detail, /AZURE_OPENAI_ENDPOINT/);
+      assert.equal(f.calls.length, 0, "the valve did not summon a provider");
+      assertAzureOnly(f.calls);
+    } finally { f.restore(); }
+  });
+});
+
+test("with Azure configured the valve still changes nothing", async () => {
+  await withEnv({
+    AZURE_OPENAI_ENDPOINT: AZ, AZURE_OPENAI_KEY: "k", AZURE_OPENAI_TEXT_DEPLOYMENT: "gpt-4o-mini",
+    GEMINI_API_KEY: "g", ANTHROPIC_API_KEY: "a", OPENAI_API_KEY: "o",
+    DOC_AI_ALLOW_FALLBACK: "1",
+  }, async () => {
+    const { askModel } = await import(`../api/_docread.js?t=${Date.now()}`);
+    // Azure answers unparsably, which under the old chain was exactly the cue
+    // to move on to the next provider. Nothing may move on now.
+    const f = stubFetch(() => json({ choices: [{ message: { content: "not json" }, finish_reason: "stop" }] }));
+    try {
+      const r = await askModel("plan this", 2000);
+      assert.equal(r.ok, false);
+      assert.equal(f.calls.length, 1, "it stopped at Azure instead of shopping around");
+      assert.equal(f.calls[0].url, `${AZ}/openai/v1/chat/completions`);
+      assertAzureOnly(f.calls);
     } finally { f.restore(); }
   });
 });

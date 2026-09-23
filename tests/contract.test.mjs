@@ -59,8 +59,8 @@ const once = contractHtml({ ...base, leadTime: "5 أيام عمل" });
 ok(/مدة التنفيذ/.test(once) && /5 أيام عمل/.test(once), "still has the delivery clause");
 ok(!/عمولة النجاح/.test(once) && !/يتجدد الاشتراك/.test(once), "no subscription language leaks in");
 const o2 = [...once.matchAll(/<h2>([^:]+):/g)].map((m) => m[1]);
-ok(new Set(o2).size === o2.length && o2[o2.length - 1] === "تاسعاً",
-  "nine clauses, last is تاسعاً: " + o2.join(" / "));
+ok(new Set(o2).size === o2.length && o2[o2.length - 1] === "عاشراً",
+  "ten clauses, last is عاشراً: " + o2.join(" / "));
 
 console.log(fail.length ? "\nFAILED: " + fail.length : "\nALL PASS");
 process.exit(fail.length ? 1 : 0);
