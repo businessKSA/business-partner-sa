@@ -127,9 +127,6 @@ const txt = (p) => {
   return "";
 };
 
-const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
-const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")
 const maskName = (n) => {
   const parts = String(n || "").trim().split(/\s+/).filter(Boolean);
@@ -283,61 +280,6 @@ const SITE_ROLES = [
 // that description via /api/hire (task:"match") on the client side.
 async function handlePostings(req, res) {
   const b = await readBody(req);
-
-  // PUBLIC job posting and applications (no auth required for basic info)
-  if (b.action === "public-post-job") {
-    const title = clip(b.title, 200);
-    const city = clip(b.city || "الرياض", 120);
-    const description = clip(b.description, 4000);
-    const employerEmail = clip(b.employerEmail, 120);
-    const employerPhone = clip(b.employerPhone, 20);
-    if (!title || !description || !employerEmail) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const code = generateId();
-    const props = {
-      "العنوان الوظيفي": { title: [{ text: { content: title } }] },
-      "رمز صاحب العمل": { rich_text: [{ text: { content: code } }] },
-      "الشركة": { rich_text: [{ text: { content: clip(b.company, 200) } }] },
-      "المدينة": { rich_text: [{ text: { content: city } }] },
-      "الوصف والمتطلبات": { rich_text: [{ text: { content: description } }] },
-      "الحالة": { select: { name: "نشطة" } },
-      "بريد صاحب العمل": { email: employerEmail },
-      "هاتف صاحب العمل": { phone_number: employerPhone },
-      "تاريخ النشر": { date: { start: new Date().toISOString().split("T")[0] } },
-    };
-    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
-    if (!r.ok) { console.error("public job create error", r.status); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const jobId = (await r.json()).id;
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, jobId, code, applyLink: `/apply?job=${jobId}` }));
-  }
-
-  // PUBLIC job application (no auth required)
-  if (b.action === "public-apply-job") {
-    const jobId = clip(b.jobId, 50);
-    const name = clip(b.name, 120);
-    const email = clip(b.email, 120);
-    const phone = clip(b.phone, 20);
-    const cvText = clip(b.cvText || b.cv, 8000);
-    if (!jobId || !name || !email || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const pgr = await notionFetch(`pages/${jobId}`, "GET");
-    if (!pgr.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "job_not_found" })); }
-    const jobData = await pgr.json();
-    const jobTitle = txt(jobData.properties?.["العنوان الوظيفي"]);
-    const field = guessField(clip(b.role, 200) || jobTitle);
-    const atsProps = {
-      "Candidate Name": { title: [{ text: { content: name } }] },
-      "Email": { email },
-      "Phone": { phone_number: phone },
-      "City": { rich_text: [{ text: { content: clip(b.city, 120) } }] },
-      "Target Role": { rich_text: [{ text: { content: clip(b.role, 200) || jobTitle } }] },
-      "Field": { select: { name: field } },
-      "ATS CV Text": { rich_text: [{ text: { content: cvText } }] },
-    };
-    const atsr = await notionFetch("pages", "POST", { parent: { database_id: DB_ID }, properties: atsProps });
-    if (!atsr.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "application_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, message: "تم استقبال طلبك" }));
-  }
 
   let code = String(b.code || "").trim();
   let unlocked = false, owner = false;
@@ -620,30 +562,6 @@ export default async function handler(req, res) {
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 
   const url0 = new URL(req.url, "http://x");
-
-  // Public single job posting by ID (for apply page)
-  if (url0.searchParams.get("publicJob")) {
-    try {
-      const jobId = clip(url0.searchParams.get("publicJob"), 50);
-      const r = await notionFetch(`pages/${jobId}`, "GET");
-      if (!r.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
-      const p = (await r.json()).properties || {};
-      const posting = {
-        id: jobId,
-        title: txt(p["العنوان الوظيفي"]),
-        company: txt(p["الشركة"]),
-        city: txt(p["المدينة"]),
-        field: txt(p["المجال"]),
-        description: txt(p["الوصف والمتطلبات"]),
-      };
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, posting }));
-    } catch (e) {
-      console.error("public job get error", e);
-      res.statusCode = 500;
-      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
-    }
-  }
 
   // Public Indeed XML job feed — no code/auth (served at /jobs-feed.xml & /indeed.xml).
   if (url0.searchParams.get("feed") === "jobs") {
