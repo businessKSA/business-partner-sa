@@ -164,8 +164,14 @@ CLAUDE.md §4 («لا أزرار واتساب داخل المحتوى»): الر
 
 ```bash
 npm run dev                       # LOCAL_DB=1، واتساب محاكى، لا شيء يغادر الجهاز
-# ثم
-BD_OPS_KEY=test-ops BD_OWNER_WA=966500000001 node site/scripts/devserver.mjs
+```
+
+`npm run dev` يضبط `BD_OPS_KEY=test-ops` تلقائياً (انظر `DEFAULTS` في
+`site/scripts/devserver.mjs`)، فتفتح اللوحة بلا إعداد. ولتجربة تنبيهات
+المالك أضف رقماً:
+
+```bash
+BD_OWNER_WA=966500000001 npm run dev
 ```
 
 - الموقع: <http://localhost:3000/bluediamond/>
@@ -187,7 +193,7 @@ curl -s localhost:3000/api/realestate -H 'content-type: application/json' -d '{
 
 | المتغيّر | لازم | ماذا يفعل |
 |---|---|---|
-| `BD_OPS_KEY` | ✅ | مفتاح لوحة العمل. بدونه كل مسارات اللوحة تردّ 401. |
+| `BD_OPS_KEY` | ✅ | مفتاح لوحة العمل. بدونه تردّ مسارات اللوحة 503 `ops_key_unset` وتقولها اللوحة صراحةً. محلياً قيمته `test-ops` افتراضاً. |
 | `BD_OWNER_WA` | ✅ | رقم واتساب بندر — كل التنبيهات إليه. بدونه تعمل المنظومة وتُسجّل ولا يُنبَّه أحد. |
 | `BD_WA_VERIFY_TOKEN` | للويبهوك | الرمز الذي تتحقق به ميتا عند ربط الويبهوك. |
 | `WHATSAPP_TOKEN` / `WHATSAPP_PHONE_ID` | للإنتاج | واجهة ميتا (نفس مفاتيح `api/_stage.js`). |

@@ -836,7 +836,10 @@ $('#sgo').onclick=async()=>{const r=await api({},{action:'simulate',text:$('#pte
 async function enter(){
   KEY=($('#key').value||KEY||'').trim();
   const r=await api({action:'status'});
-  if(r.status!==200){$('#gmsg').hidden=false;$('#gmsg').className='note err';$('#gmsg').textContent='مفتاح غير صحيح.';return}
+  if(r.status!==200){$('#gmsg').hidden=false;$('#gmsg').className='note err';
+    $('#gmsg').textContent=(r.data&&r.data.error==='ops_key_unset')
+      ?'مفتاح اللوحة غير مضبوط على الخادم (BD_OPS_KEY). اضبطه ثم أعد التشغيل.'
+      :'مفتاح غير صحيح.';return}
   LAB=r.data.labels||LAB;
   $('#skind').innerHTML=opts(LAB.studyKinds,'ANALYSIS');
   localStorage.setItem('bd_ops_key',KEY);

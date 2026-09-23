@@ -41,6 +41,9 @@ const DEFAULTS = {
   SIMPLE_V1: "1",
   SIMPLE_TEST_MODE: "1",
   SIMPLE_OPS_KEY: "test-ops",
+  // The Blue Diamond dashboard reads BD_OPS_KEY (falling back to PANEL_KEY).
+  // Without a local default its gate rejects every key, panel unusable.
+  BD_OPS_KEY: "test-ops",
   SIMPLE_TEST_OTP: "123456",
   // Signs the local OTP challenge only. Fixed so sessions survive a restart;
   // it is a development constant, not a secret, and never used in production.
@@ -214,6 +217,7 @@ server.listen(PORT, () => {
   Client portal      http://localhost:${PORT}/ar/my
   Operations         http://localhost:${PORT}/ops        (key: ${process.env.SIMPLE_OPS_KEY})
   Classic homepage   http://localhost:${PORT}/ar/classic-home
+  Blue Diamond       http://localhost:${PORT}/bluediamond/   (CRM key: ${process.env.BD_OPS_KEY})
   Dev status         http://localhost:${PORT}/__dev
 
   Test sign-in       client@test.local  /  admin@test.local   code ${process.env.SIMPLE_TEST_OTP}

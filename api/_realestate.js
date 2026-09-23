@@ -936,6 +936,9 @@ export async function handleRealEstate(req, res) {
   }
 
   // ---- ما بعده للوحة فقط ----
+  // مفتاح غير مضبوط على الخادم يرفض كل مفتاح يكتبه المستخدم، فتبدو اللوحة
+  // معطوبة بلا سبب ظاهر. يُفصل السببان حتى يعرف من يشغّلها أيّهما وقع.
+  if (!OPS_KEY) return json(res, 503, { error: "ops_key_unset" });
   if (!opsOk({ ...q, ...b })) return json(res, 401, { error: "unauthorized" });
 
   if (action === "dashboard") return json(res, 200, await dashboard());
