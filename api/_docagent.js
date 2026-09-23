@@ -32,6 +32,7 @@ import { zip, unzip } from "./_zip.js";
 import { xlsxCells, xlsxApply, xlsxBlanks } from "./_xlsx.js";
 import { pdfFields, pdfFill, pdfStamp } from "./_pdfform.js";
 import { docxPlaceImages, xlsxPlaceImages } from "./_ooxmlimg.js";
+import { graphReady, graphUpload, graphMissing } from "./_msgraph.js";
 
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -288,15 +289,39 @@ ${beforeAfter}`;
 // folder + per-client Notion page with one row per file). Best-effort with a
 // hard timeout: a sync failure never touches the client's own flow — the
 // Supabase vault stays the source of truth, Notion/Drive are the ops mirror.
+// مزامنة خزنة العميل. الوجهة الآن SharePoint عبر Microsoft Graph بدل Notion
+// وGoogle Drive. تبقى «أفضل جهد» كما كانت: مزامنة متعثّرة لا يجوز أن تُفشِل
+// رفع العميل لملفه — الملف محفوظ في Blob قبل أن تُستدعى هذه الدالة أصلاً.
+async function orgDisplayName(request) {
+  if (!request.organization_id) return null;
+  try {
+    const orgs = await sb(`organizations?id=eq.${request.organization_id}&select=name_ar,name_en&limit=1`);
+    return orgs[0] ? (orgs[0].name_ar || orgs[0].name_en) : null;
+  } catch { return null; }
+}
+
 async function vaultSync(request, kind, file, storageKey) {
+  const orgName = await orgDisplayName(request);
+  if (graphReady()) {
+    try {
+      const bytes = await storageGet(storageKey);
+      const folder = kind === "output" ? "المخرجات" : kind === "package" ? "الحزم" : "المستندات المرفوعة";
+      const up = await graphUpload({
+        orgName, orgId: request.organization_id, subFolder: `${folder}/${request.ref}`,
+        fileName: file.name, mime: file.mime, bytes,
+      });
+      await audit({
+        organization_id: request.organization_id, action: "doc_agent.vault_synced",
+        entity_type: "doc_agent_request", entity_id: request.id,
+        after: { kind, file: file.name, sharepoint: up.webUrl },
+      });
+    } catch (e) {
+      console.error("vaultSync graph", String(e.message || e).slice(0, 200));
+    }
+  }
   const url = (process.env.DOC_AGENT_SYNC_URL || "").trim();
   if (!url) return;
   try {
-    let orgName = null;
-    if (request.organization_id) {
-      const orgs = await sb(`organizations?id=eq.${request.organization_id}&select=name_ar,name_en&limit=1`);
-      orgName = orgs[0] ? (orgs[0].name_ar || orgs[0].name_en) : null;
-    }
     await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json", "x-doc-agent-key": (process.env.DOC_AGENT_HOOK_KEY || "").trim() },

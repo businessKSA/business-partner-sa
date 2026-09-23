@@ -562,5 +562,245 @@
   "REV-ENT": {
     "en": "Business Development — Revenue Operating System — Enterprise Package",
     "ar": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى"
+  },
+  "BP-REF-01": {
+    "en": "Government Fee Refund Application",
+    "ar": "خدمة التقديم على استرداد الرسوم الحكومية"
+  },
+  "BP-AJEER-01": {
+    "en": "Ajeer platform registration & activation",
+    "ar": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة"
+  },
+  "BP-AJEER-02": {
+    "en": "Ajeer contracting permit (Taaqud)",
+    "ar": "إصدار تصريح تعاقد أجير"
+  },
+  "BP-AJEER-03": {
+    "en": "Ajeer secondment permit (Iara)",
+    "ar": "إصدار تصريح إعارة أجير بين منشأتين"
+  },
+  "BP-AJEER-04": {
+    "en": "Saudi assignment permit (Isnad)",
+    "ar": "إصدار تصريح إسناد السعوديين"
+  },
+  "BP-AJEER-05": {
+    "en": "Ajeer companions permit (education & health)",
+    "ar": "إصدار تصريح مرافقين أجير (التعليم والصحة)"
+  },
+  "BP-AJEER-06": {
+    "en": "Ajeer seasonal permits (Hajj & Umrah)",
+    "ar": "إصدار تصاريح أجير المواسم (الحج والعمرة)"
+  },
+  "BP-AJEER-07": {
+    "en": "Ajeer permit renewal or termination",
+    "ar": "تجديد تصريح أجير أو إنهاؤه"
+  },
+  "BP-AJEER-08": {
+    "en": "Ajeer inter-establishment contract documentation",
+    "ar": "توثيق عقد أجير بين المنشأتين ومتابعته"
+  },
+  "BP-AJEER-10": {
+    "en": "Ajeer permits management — monthly operation",
+    "ar": "إدارة تصاريح أجير — تشغيل شهري"
+  },
+  "BP-AJEER-CS": {
+    "en": "Ajeer advisory: choosing the right permit",
+    "ar": "استشارة أجير: التصريح المناسب لحالتك"
+  },
+  "BP-HRSD-01": {
+    "en": "Escalation on the ministry's platforms",
+    "ar": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)"
+  },
+  "BP-HRSD-02": {
+    "en": "Filing a complaint with the ministry",
+    "ar": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها"
+  },
+  "BP-HRSD-03": {
+    "en": "Filing a request with the ministry",
+    "ar": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته"
+  },
+  "BP-HRSD-04": {
+    "en": "Objection to a labour-law violation",
+    "ar": "الاعتراض على مخالفة نظام العمل"
+  },
+  "BP-HRSD-05": {
+    "en": "Establishment owner settlement (labour violations)",
+    "ar": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)"
+  },
+  "BP-HRSD-06": {
+    "en": "Work-permit debt exemption or instalment",
+    "ar": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي"
+  },
+  "BP-HRSD-07": {
+    "en": "Correcting establishment data with the ministry",
+    "ar": "تصحيح بيانات المنشأة لدى الوزارة"
+  },
+  "BP-HRSD-08": {
+    "en": "Lifting an establishment account freeze",
+    "ar": "رفع تجميد حساب المنشأة ومعالجة الاشتباه"
+  },
+  "BP-HRSD-09": {
+    "en": "Work-regulation bylaw approval",
+    "ar": "اعتماد لائحة تنظيم العمل"
+  },
+  "BP-HRSD-10": {
+    "en": "Absence report and its cancellation",
+    "ar": "بلاغ التغيب وإلغاؤه"
+  },
+  "BP-HRSD-11": {
+    "en": "Final exit request",
+    "ar": "طلب الخروج النهائي"
+  },
+  "BP-HRSD-12": {
+    "en": "Labour dispute settlement — file and follow-up",
+    "ar": "تسوية خلاف عمالي — تجهيز الملف والمتابعة"
+  },
+  "BP-HRSD-CS": {
+    "en": "Beneficiary-portal advisory: complaint, request or escalation",
+    "ar": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟"
+  },
+  "BP-QIWA-05": {
+    "en": "Employment contract documentation on Qiwa",
+    "ar": "توثيق عقد العمل في قوى"
+  },
+  "BP-QIWA-06": {
+    "en": "Issuing or renewing an expatriate work permit",
+    "ar": "إصدار أو تجديد رخصة عمل للوافد"
+  },
+  "BP-QIWA-07": {
+    "en": "Cancelling a work permit",
+    "ar": "إلغاء رخصة عمل"
+  },
+  "BP-QIWA-08": {
+    "en": "Saudisation compliance certificate",
+    "ar": "إصدار شهادة الالتزام بالتوطين (السعودة)"
+  },
+  "BP-QIWA-09": {
+    "en": "Managing establishment branches on Qiwa",
+    "ar": "إدارة فروع المنشأة في قوى"
+  },
+  "BP-FLEX-01": {
+    "en": "Flexible Work registration & contract documentation",
+    "ar": "تسجيل المنشأة في العمل المرن وتوثيق عقوده"
+  },
+  "BP-REMOTE-01": {
+    "en": "Remote Work registration & contract documentation",
+    "ar": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده"
+  },
+  "BP-TAQAT-01": {
+    "en": "Taqat registration & employment-support programmes",
+    "ar": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف"
+  },
+  "BP-LABOR-01": {
+    "en": "Opening the establishment file on the Labour Sector portal",
+    "ar": "فتح ملف المنشأة في بوابة قطاع العمل"
+  },
+  "BP-SELF-01": {
+    "en": "Compliance self-assessment before inspection",
+    "ar": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش"
+  },
+  "BP-MOWA-01": {
+    "en": "Mowaamah certificate: an accessible workplace",
+    "ar": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة"
+  },
+  "BP-CSR-01": {
+    "en": "Social Responsibility registration & initiative documentation",
+    "ar": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها"
+  },
+  "BP-PR-03": {
+    "en": "Premium Residency eligibility & route assessment",
+    "ar": "تقييم أهلية الإقامة المميزة وتحديد مسارك"
+  },
+  "BP-PR-04": {
+    "en": "Premium Residency — Business Investor route",
+    "ar": "الإقامة المميزة — مسار مستثمر الأعمال"
+  },
+  "BP-PR-05": {
+    "en": "Premium Residency — Entrepreneur route",
+    "ar": "الإقامة المميزة — مسار رائد الأعمال"
+  },
+  "BP-PR-06": {
+    "en": "Premium Residency — Property Owner route",
+    "ar": "الإقامة المميزة — مسار مالك العقار"
+  },
+  "BP-PR-07": {
+    "en": "Premium Residency — Talent route",
+    "ar": "الإقامة المميزة — مسار الموهبة"
+  },
+  "BP-PR-08": {
+    "en": "Premium Residency — Exceptional Competence route",
+    "ar": "الإقامة المميزة — مسار الكفاءة الاستثنائية"
+  },
+  "BP-PR-09": {
+    "en": "Premium Residency — Financial route (permanent or annual)",
+    "ar": "الإقامة المميزة — المسار المالي (دائمة أو سنوية)"
+  },
+  "BP-PR-10": {
+    "en": "Adding family members under Premium Residency",
+    "ar": "ضمّ أفراد الأسرة تحت الإقامة المميزة"
+  },
+  "BP-SBC-21": {
+    "en": "Beneficial owner disclosure",
+    "ar": "الإبلاغ عن المستفيد الحقيقي"
+  },
+  "BP-SBC-22": {
+    "en": "Annual commercial-register confirmation",
+    "ar": "التأكيد السنوي لبيانات السجل التجاري"
+  },
+  "BP-SBC-23": {
+    "en": "Transferring ownership of a commercial register",
+    "ar": "نقل ملكية السجل التجاري"
+  },
+  "BP-SBC-24": {
+    "en": "Publishing general-assembly resolutions",
+    "ar": "نشر قرارات الجمعية العامة"
+  },
+  "BP-SBC-25": {
+    "en": "Merger or acquisition",
+    "ar": "اندماج شركتين أو استحواذ"
+  },
+  "BP-SBC-26": {
+    "en": "E-store documentation (e-commerce register)",
+    "ar": "توثيق متجر إلكتروني (سجل التجارة الإلكترونية)"
+  },
+  "BP-SBC-27": {
+    "en": "Registering a security interest",
+    "ar": "تسجيل ضمان في السجل العيني للحقوق"
+  },
+  "BP-SBC-28": {
+    "en": "Filing financial statements with the Ministry of Commerce",
+    "ar": "إيداع القوائم المالية لدى وزارة التجارة"
+  },
+  "BP-SBC-29": {
+    "en": "Commercial register translation & attestation",
+    "ar": "ترجمة السجل التجاري وتوثيقها"
+  },
+  "BP-SBC-30": {
+    "en": "Document attestation & apostille via MOFA",
+    "ar": "تصديق المستندات وأبوستيل عبر الخارجية"
+  },
+  "BP-FI-08": {
+    "en": "Regional Headquarters (RHQ) — qualification & filing",
+    "ar": "المقر الإقليمي RHQ — التأهيل والتقديم"
+  },
+  "BP-FI-09": {
+    "en": "Representative office for a foreign company",
+    "ar": "مكتب تمثيل لشركة أجنبية"
+  },
+  "BP-FI-10": {
+    "en": "Investment licence renewal",
+    "ar": "تجديد ترخيص الاستثمار"
+  },
+  "BP-FI-11": {
+    "en": "Amending an investment licence",
+    "ar": "تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)"
+  },
+  "BP-FI-12": {
+    "en": "Cancelling an investment licence and closing the entity",
+    "ar": "إلغاء ترخيص الاستثمار وإنهاء الكيان"
+  },
+  "BP-FI-13": {
+    "en": "Market-entry advisory: which investment licence fits",
+    "ar": "استشارة دخول السوق: أي ترخيص استثمار يناسبك"
   }
 }

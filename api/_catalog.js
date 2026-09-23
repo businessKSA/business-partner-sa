@@ -161,13 +161,31 @@ export async function loadCatalog() {
 // prices are advertised and quotable as-is) and the priced services as one
 // line each. Returns "" on any failure: an agent with no sheet answers from
 // its own instructions, which is better than an agent that fails to answer.
-export async function priceSheetText(limit = 140) {
+// ‏قائمة الأسعار: ما يخصّ سؤال العميل لا الكتالوج كله.
+// الكتالوج تجاوز المئتي خدمة، وإرسالها جميعاً في كل رسالة كان يضخّم
+// التعليمات بلا طائل — ومعظمها لا صلة له بما يسأل عنه. الفلترة نصية على
+// اسم الخدمة ورمزها، وحين لا يطابق شيء تُرسل الأولى كما كان.
+const priceTokens = (t) => String(t || "").toLowerCase()
+  .split(/[^\p{L}\p{N}]+/u)
+  .map((w) => (w.length > 3 && w.startsWith("ال") ? w.slice(2) : w))
+  .filter((w) => w.length >= 3);
+
+export async function priceSheetText(limit = 140, query = "") {
   try {
     const cat = await loadCatalog();
     const pkgs = cat.packages.map((p) =>
       `- ${p.nameAr} (${p.groupAr}) — ${p.priceAr}${p.forAr ? ` · ${p.forAr}` : ""}`).join("\n");
-    const svcs = cat.services
-      .filter((s) => s.priceLabel)
+    const priced = cat.services.filter((s) => s.priceLabel);
+    const qs = [...new Set(priceTokens(query))];
+    let picked = priced;
+    if (qs.length) {
+      const hit = priced.filter((s) => {
+        const hay = `${s.code} ${s.nameAr} ${s.nameEn || ""} ${s.categoryAr || ""}`.toLowerCase();
+        return qs.some((q) => hay.includes(q));
+      });
+      if (hit.length) picked = hit;
+    }
+    const svcs = picked
       .slice(0, limit)
       .map((s) => `- ${s.code} ${s.nameAr} — ${s.priceLabel}${s.govFeesSeparate ? " (+ الرسوم الحكومية)" : ""}`)
       .join("\n");

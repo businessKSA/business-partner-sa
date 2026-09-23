@@ -280,6 +280,7 @@ const SITE_ROLES = [
 // that description via /api/hire (task:"match") on the client side.
 async function handlePostings(req, res) {
   const b = await readBody(req);
+
   let code = String(b.code || "").trim();
   let unlocked = false, owner = false;
   if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
@@ -561,6 +562,7 @@ export default async function handler(req, res) {
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 
   const url0 = new URL(req.url, "http://x");
+
   // Public Indeed XML job feed — no code/auth (served at /jobs-feed.xml & /indeed.xml).
   if (url0.searchParams.get("feed") === "jobs") {
     try { return await jobsFeed(res); }

@@ -17,14 +17,28 @@
 // SIMPLE_NOTIFY=1 is set explicitly.
 import crypto from "node:crypto";
 import { sb, DB_ON, getSession, audit, notify } from "./_db.js";
-import { contractHtml } from "./_docusign.js";
+import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { isOwnerEmail } from "./_trial.js";
+import { waSend, waNumber } from "./_stage.js";
+import { storagePut, storageSign } from "./_db.js";
+import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
-const NOTIFY_ON = process.env.SIMPLE_NOTIFY === "1";
+// Live since 2026-09-04: a customer who approves a quotation must be told the
+// contract is waiting, and operations must hear about a new request. This was
+// opt-in (SIMPLE_NOTIFY=1) while the layer was in preview — unset in
+// production it meant every notice went silently to the outbox instead of an
+// inbox. It is opt-out now; the real safety gate is below and unchanged:
+// nothing leaves the machine unless EMAIL_MODE is live AND this is not a test
+// deployment, so previews and localhost still cannot e-mail a real customer.
+const NOTIFY_ON = process.env.SIMPLE_NOTIFY !== "0";
+// عرض السعر الآلي (قرار المالك 2026-09-04): يصدر فوراً حين يسعّر الكتالوج كل
+// بند. `SIMPLE_AUTO_QUOTE=0` يعيده يدوياً من اللوحة بلا نشرة عكسية.
+const AUTO_QUOTE = process.env.SIMPLE_AUTO_QUOTE !== "0";
 const SELF_BASE = (process.env.MKT_SITE_BASE || "https://www.businesspartner.sa").replace(/\/+$/, "");
 const RESEND_API_KEY = (process.env.RESEND_API_KEY || process.env.RESEND_KEY || "").trim();
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
@@ -78,10 +92,13 @@ async function sendEmail(to, subject, html) {
     return out.find((r) => r.ok) || out[0] || { ok: false, error: "no_recipient" };
   }
   to = list[0] || "";
-  // Local/preview: record it in the dev outbox instead of mailing a person.
-  if (!EMAIL_LIVE || !NOTIFY_ON) {
+  // Local, preview, or an explicitly muted deployment: record it in the outbox
+  // instead of mailing a person. SIMPLE_TEST_MODE is named here as well as in
+  // EMAIL_LIVE because a preview that someone points at production e-mail
+  // settings must still not reach a customer.
+  if (!EMAIL_LIVE || SIMPLE_TEST_MODE || !NOTIFY_ON) {
     await outbox({ kind: "email", to, subject, body: html });
-    return { ok: false, skipped: EMAIL_LIVE ? "notify_off" : "email_mode_" + MODES().email };
+    return { ok: false, skipped: !EMAIL_LIVE ? "email_mode_" + MODES().email : SIMPLE_TEST_MODE ? "test_mode" : "notify_off" };
   }
   if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: "email_not_configured" };
   try {
@@ -126,7 +143,7 @@ function ownedBy(row, sess) {
 // The public view of a request — no internal notes, no assignment.
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
-  if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, has_html: true };
+  if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   return { ...pub, events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
@@ -149,9 +166,11 @@ function buildContract(row, opts = {}) {
   const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
   const html = contractHtml({
     ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
-    lines: row.quote.items.map((l) => ({ name: l.title, qty: l.qty, amount: l.line })),
+    lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
     leadTime: str(opts.lead_time, 120), executor: str(opts.executor, 120) || "Business Partner", today,
+    // لغة العميل تُطبع مقابل العربية — والعربية هي المرجع في نص العقد نفسه.
+    lang: row.lang || "ar",
   });
   return {
     number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html,
@@ -164,8 +183,12 @@ async function issueContract(row, actorKind, actor, opts) {
   const contract = buildContract(row, opts);
   const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
   await logEvent(row.id, actorKind, actor, "contract.sent", { number: contract.number });
-  if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_contract", title: `عقد بانتظار توقيعك — ${row.ref}`, body: contract.number, idempotency_key: `simple_contract_${contract.number}` });
-  if (row.client_email) await sendEmail(row.client_email, `عقد ${contract.number} بانتظار توقيعك`, `<p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">افتح العقد ووقّعه</a></p>`);
+  await announce(row, "contract", {
+    subject: `عقد ${contract.number} بانتظار توقيعك`,
+    clientLine: "عقدك جاهز للتوقيع الإلكتروني من حسابك — بعد التوقيع تنتقل مباشرة إلى الدفع.",
+    opsLine: `صدر العقد ${contract.number} وأُرسل للتوقيع.`,
+    cta: "افتح العقد ووقّعه",
+  });
   return { contract, status: upd.status };
 }
 
@@ -181,8 +204,12 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
   const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
   await logEvent(row.id, actorKind, actor, send ? "quote.sent" : "quote.drafted", { number: quote.number, total: quote.total });
-  if (send && row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_quote", title: `عرض سعر جاهز — ${row.ref}`, body: `${quote.number} · ${quote.total} ر.س`, idempotency_key: `simple_quote_${quote.number}` });
-  if (send && row.client_email) await sendEmail(row.client_email, `عرض سعر ${quote.number} — ${row.title}`, `<p>الإجمالي ${quote.total} ر.س شامل الضريبة.</p><p><a href="${SELF_BASE}/ar/my?ref=${row.ref}">راجع العرض واعتمده</a></p>`);
+  if (send) await announce(row, "quote", {
+    subject: `عرض سعر ${quote.number} — ${row.title}`,
+    clientLine: `عرض سعرك جاهز: ${quote.total} ر.س شامل ضريبة القيمة المضافة. راجعه واعتمده من حسابك.`,
+    opsLine: `صدر عرض السعر ${quote.number} بإجمالي ${quote.total} ر.س.`,
+    cta: "راجع العرض واعتمده",
+  });
   return { ok: true, quote, status: upd.status };
 }
 
@@ -220,7 +247,7 @@ function computeQuote(items, opts = {}) {
   const lines = (Array.isArray(items) ? items : []).slice(0, 30).map((it) => {
     const qty = Math.max(1, Math.min(99, Math.round(num(it.qty) || 1)));
     const price = round2(Math.max(0, num(it.price)));
-    return { code: str(it.code, 40), title: str(it.title, 200), description: str(it.description, 600), qty, price, line: round2(qty * price) };
+    return { code: str(it.code, 40), title: str(it.title, 200), titleEn: str(it.titleEn, 200), description: str(it.description, 600), qty, price, line: round2(qty * price) };
   }).filter((l) => l.title);
   const net = round2(lines.reduce((s, l) => s + l.line, 0));
   const vat = round2(net * VAT_RATE);
@@ -249,8 +276,19 @@ export async function handleSimple(req, res) {
       return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, notify: NOTIFY_ON, modes: MODES(), types: REQUEST_TYPES, statuses: REQUEST_STATUSES, sources: REQUEST_SOURCES });
     }
     if (isOps) {
-      if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) return json(res, 401, { ok: false, error: "unauthorized" });
-      return opsAction(action, body, qs, req, res);
+      // Two doors into operations. The panel key is for automation (n8n) and
+      // for staff who have no account. The owner's own session is the other:
+      // he asked for the dashboard to open from his company e-mail, and a
+      // secret string he has to carry between devices is not that.
+      let opsUser = null;
+      if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
+        const sess = await getSession(req);
+        if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
+          return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
+        }
+        opsUser = { email: String(sess.user.email).toLowerCase(), name: sess.user.full_name || "" };
+      }
+      return opsAction(action, body, qs, req, res, opsUser);
     }
     const sess = await getSession(req);
     if (!sess) return json(res, 401, { ok: false, error: "no_session", message: "سجّل دخولك أولاً." });
@@ -355,14 +393,34 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.confirmed", { items: scope.map((it) => it.title) });
 
-    // Lines with no catalogue price are flagged for whoever prices the quote,
-    // so /ops sees at a glance what still needs a decision.
     const priced = await priceItems(scope);
     const unpriced = priced.filter((l) => !(num(l.price) > 0)).map((l) => l.title);
+
+    // كل بند له سعر في الكتالوج ⇒ عرض السعر يصدر فوراً. الكتالوج هو القرار
+    // الذي اتُّخذ مسبقاً؛ إعادة اتخاذه يدوياً في كل طلب تأخيرٌ بلا حكم مضاف،
+    // والعميل ينتظره ساعات.
+    //
+    // وبندٌ واحد بلا سعر يُعيد الطلب إلى اللوحة كما كان: السعر يأتي من الرمز
+    // في الكتالوج أو من إنسان، ولا يُخترع بينهما. هذا هو الشرط الذي جعل
+    // الأتمتة ممكنة — «طالما في كاتالوج للأسعار والعروض واضحة».
+    if (!unpriced.length && AUTO_QUOTE) {
+      const issued = await issueQuote({ ...row, scope }, scope, {}, "system", "التسعير الآلي");
+      if (issued.ok) {
+        await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: issued.quote.number, total: issued.quote.total });
+        return json(res, 200, { ok: true, stage: "QUOTE", status: issued.status, scope, quote: issued.quote, auto: true });
+      }
+    }
+
+    // Lines with no catalogue price are flagged for whoever prices the quote,
+    // so /ops sees at a glance what still needs a decision.
     const upd = await patchRequest(row.id, { status: "REVIEWING" });
     await pricingTask(row, unpriced);
     await logEvent(row.id, "system", "النظام", "quote.pending", { unpriced });
-    if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_scope", title: `نطاق معتمد بانتظار التسعير — ${row.ref}`, body: scope.map((it) => it.title).join(" · ").slice(0, 200), idempotency_key: `simple_scope_${row.ref}` });
+    await announce({ ...row, scope }, "scope", {
+      subject: `نطاق معتمد بانتظار التسعير — ${row.ref}`,
+      clientLine: "اعتمدنا نطاق خدماتك، والفريق يجهّز عرض السعر — بندٌ أو أكثر يحتاج تسعيراً بشرياً.",
+      opsLine: `بنود بلا سعر في الكتالوج: ${unpriced.join(" · ") || "—"}`,
+    });
     return json(res, 200, { ok: true, stage: "PRICING", status: upd.status, scope, unpriced });
   }
 
@@ -373,6 +431,72 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { attachments });
     await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
     return json(res, 200, { ok: true, attachments });
+  }
+
+  // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
+  // بإجمالي الطلب. القراءة ليست إثباتاً لوصول المال — ولذلك لا تُعلَّم الحالة
+  // «مدفوعة» هنا أبداً؛ تُفتح مهمة تأكيد على لوحة العمليات بنتيجة المقارنة.
+  if (action === "receipt-upload") {
+    const total = round2(num(row.quote?.total));
+    if (!total) return json(res, 409, { ok: false, error: "no_quote" });
+    const mime = str(b.mime, 80);
+    const base64 = String(b.base64 || "").replace(/^data:[^;]+;base64,/, "");
+    if (!base64) return json(res, 400, { ok: false, error: "no_file" });
+    if (!DOC_MIME_OK.test(mime)) return json(res, 400, { ok: false, error: "bad_type" });
+    const bytes = Buffer.byteLength(base64, "base64");
+    if (bytes > MAX_DOC_BYTES) return json(res, 413, { ok: false, error: "too_large", max: MAX_DOC_BYTES });
+
+    const safe = (str(b.name, 90) || "receipt").replace(/[^\w.\-\u0600-\u06FF ]+/g, "_");
+    const path = `receipts/${row.ref}/${Date.now()}-${safe}`;
+    let url = "";
+    try {
+      await storagePut(path, Buffer.from(base64, "base64"), mime || "application/octet-stream");
+      url = (await storageSign(path, 60 * 60 * 24 * 60)) || "";
+    } catch (e) { console.error("receipt store", String(e.message || e).slice(0, 160)); }
+
+    const prompt = [
+      "هذا إيصال/إشعار تحويل بنكي. أعِد JSON فقط بلا أي نص آخر بالمفاتيح:",
+      '{"amount":number|null,"currency":string|null,"date":string|null,"sender":string|null,',
+      '"beneficiary":string|null,"bank":string|null,"reference":string|null,"is_receipt":boolean}',
+      "amount هو المبلغ المحوَّل بالأرقام بلا فواصل. إن لم تجد قيمة ضعها null. لا تخمّن.",
+    ].join(" ");
+    let read = null, provider = "";
+    try {
+      const raw = await readDocumentRaw(base64, mime, prompt, 500);
+      if (raw && raw.ok) { read = parseJson(String(raw.data || "")); provider = raw.provider || ""; }
+    } catch (e) { console.error("receipt read", String(e.message || e).slice(0, 160)); }
+
+    const amount = read && Number.isFinite(Number(read.amount)) ? round2(Number(read.amount)) : null;
+    const diff = amount == null ? null : round2(amount - total);
+    const verdict = amount == null ? "unreadable" : Math.abs(diff) <= 1 ? "match" : amount > total ? "over" : "short";
+
+    const receipt = {
+      name: safe, url, size: bytes, mime, at: nowIso(), provider,
+      read: read ? { amount, currency: read.currency || null, date: read.date || null,
+                     sender: read.sender || null, beneficiary: read.beneficiary || null,
+                     bank: read.bank || null, reference: read.reference || null } : null,
+      expected: total, diff, verdict,
+    };
+    const attachments = [...(row.attachments || []), { name: safe, url, note: "إيصال تحويل بنكي", kind: "receipt", at: receipt.at, by: "customer" }].slice(-40);
+    const payment = { ...(row.payment || {}), status: "REVIEW", provider: "bank", amount, currency: "SAR", at: receipt.at, receipt };
+    const upd = await patchRequest(row.id, { attachments, payment, status: "PAYMENT_PENDING" });
+    await logEvent(row.id, "ai", "المستشار الذكي", "payment.receipt", { verdict, amount, expected: total });
+    await sweepTask(upd, {
+      source: "receipt.verify", urgency: "high", human: true,
+      title: () => `تأكيد وصول تحويل بنكي — ${row.ref}`,
+      details: () => `قراءة الإيصال: ${amount == null ? "تعذّرت" : amount + " ر.س"} · المطلوب: ${total} ر.س · النتيجة: ${verdict}. افتح الحساب البنكي وأكّد الوصول قبل التفعيل — قراءة الصورة ليست إثباتاً.`,
+    }, "المستشار الذكي");
+
+    const VER = { match: "مطابق للإجمالي", over: "أعلى من الإجمالي", short: "أقل من الإجمالي", unreadable: "تعذّرت قراءة المبلغ" };
+    await announce(upd, "receipt", {
+      subject: `إيصال تحويل مرفوع — ${row.ref}`,
+      clientLine: amount == null
+        ? "استلمنا إيصالك ويراجعه الفريق الآن. نبلغك فور تأكيد وصول المبلغ."
+        : `استلمنا إيصالك: ${amount} ر.س (${VER[verdict]}). نؤكّد لك وصول المبلغ بعد التحقق من الحساب البنكي.`,
+      opsLine: `${row.client_name} رفع إيصالاً. القراءة: ${amount == null ? "—" : amount + " ر.س"} · المطلوب: ${total} ر.س · ${VER[verdict]}${url ? ` · الملف: ${url}` : " · تعذّر حفظ الملف"}`,
+      cta: "افتح الطلب في لوحة العمليات",
+    });
+    return json(res, 200, { ok: true, status: upd.status, receipt: { ...receipt, url: undefined }, verdict, amount, expected: total });
   }
 
   if (action === "quote-approve" || action === "quote-reject") {
@@ -391,9 +515,49 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, status: upd.status, quote });
   }
 
+  // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
+  if (action === "quote-view") {
+    if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
+    const html = quoteHtml({
+      ref: row.ref, number: row.quote.number,
+      clientName: row.company_name || row.client_name || row.client_email,
+      items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
+      validUntil: row.quote.valid_until || "", paymentTerms: row.quote.payment_terms || "",
+      notes: row.quote.notes || "", lang: row.lang || "ar",
+      today: new Date(row.quote.created_at || Date.now()).toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" }),
+    });
+    return json(res, 200, { ok: true, html, number: row.quote.number });
+  }
+
   if (action === "contract-view") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
-    return json(res, 200, { ok: true, html: row.contract.html, contract: { ...row.contract, html: undefined } });
+    // العقد مشتقٌّ من عرض السعر، فيُعاد بناؤه من البيانات الحالية عند العرض.
+    // هذا ما يُصلح عقوداً حُفظت قبل إصلاح خطأ «٠ ريال» في كل سطر.
+    //
+    // وإن كان موقَّعاً: تُحفظ البايتات الموقَّعة الأصلية في html_signed قبل أي
+    // استبدال — بصمة SHA-256 في التوقيع مأخوذةٌ منها، ولا يجوز أن تختفي —
+    // ويُسجَّل حدث contract.corrected. عرضُ نسخةٍ مصحَّحة لا يجعل التوقيع
+    // ساريا عليها: عقدٌ صُحِّح بعد التوقيع يحتاج توقيعاً جديداً، ولوحة
+    // العمليات تقولها للمالك صراحةً.
+    let html = row.contract.html;
+    let contract = row.contract;
+    if (row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
+      try {
+        const rebuilt = buildContract(row, {});
+        if (rebuilt.html && rebuilt.html !== row.contract.html) {
+          const signed = !!row.contract.signature;
+          contract = {
+            ...row.contract, html: rebuilt.html,
+            ...(signed && !row.contract.html_signed ? { html_signed: row.contract.html, corrected_at: nowIso() } : {}),
+            ...(signed ? { needs_resign: true } : {}),
+          };
+          await patchRequest(row.id, { contract });
+          html = rebuilt.html;
+          if (signed) await logEvent(row.id, "system", "النظام", "contract.corrected", { number: row.contract.number, reason: "line_totals" });
+        }
+      } catch (e) { console.error("contract rebuild", String(e.message || e).slice(0, 140)); }
+    }
+    return json(res, 200, { ok: true, html, needsResign: !!contract.needs_resign, contract: { ...contract, html: undefined, html_signed: undefined } });
   }
 
   if (action === "contract-sign") {
@@ -410,7 +574,12 @@ async function clientAction(action, b, qs, req, res, sess) {
     const upd = await patchRequest(row.id, { contract, status: "SIGNED", payment: { status: "PENDING", amount: row.quote?.total || 0, currency: "SAR", provider: null } });
     await logEvent(row.id, "customer", who, "contract.signed", { number: contract.number, mode: signature.mode, sha256: hash.slice(0, 16) });
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.contract.sign", entity: "requests", entity_id: row.id, meta: { ref, sha256: hash } });
-    await sendEmail(OWNER_EMAIL, `عقد موقّع ${contract.number} (${ref})`, `<p>${esc(signerName)} وقّع العقد إلكترونياً.</p>`);
+    await announce(upd, "signed", {
+      subject: `تم توقيع العقد ${contract.number} — الخطوة التالية الدفع`,
+      clientLine: `شكراً لك، استلمنا توقيعك. يبقى الدفع لنبدأ التنفيذ: ${num(row.quote?.total) || 0} ر.س.`,
+      opsLine: `${signerName} وقّع العقد إلكترونياً. بانتظار الدفع.`,
+      cta: "ادفع الآن من حسابك",
+    });
     return json(res, 200, { ok: true, status: upd.status, contract: { ...contract, html: undefined } });
   }
 
@@ -474,11 +643,38 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, appointment });
   }
 
+  // الإلغاء من جهة العميل. قبل اعتماد العرض يُلغى فوراً — لا شيء يترتّب عليه.
+  // بعده لا يُلغى بضغطة: هناك عقدٌ أو دفعةٌ أو تنفيذٌ جارٍ، فيُسجَّل طلب
+  // إلغاء ويُفتح على الفريق ويُشعر الطرفان. رفضُ الطلب بـ409 كان يترك
+  // العميل بلا مخرج، وهذا ليس إلغاءً «متاحاً».
   if (action === "request-cancel") {
-    if (!["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT"].includes(row.status)) return json(res, 409, { ok: false, error: "cannot_cancel", message: "تعذّر الإلغاء بعد اعتماد العرض — افتح تذكرة ويتولاها الفريق." });
-    await patchRequest(row.id, { status: "CANCELLED" });
-    await logEvent(row.id, "customer", who, "request.cancelled", { note: str(b.note, 300) });
-    return json(res, 200, { ok: true, status: "CANCELLED" });
+    const note = str(b.note, 500);
+    if (["CANCELLED", "COMPLETED"].includes(row.status)) return json(res, 409, { ok: false, error: "already_closed" });
+    if (["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING"].includes(row.status)) {
+      const upd = await patchRequest(row.id, { status: "CANCELLED", cancel: { at: nowIso(), by: "customer", actor: who, note, stage: row.status } });
+      await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
+      await announce(upd, "cancelled", {
+        subject: `أُلغي الطلب ${row.ref}`,
+        clientLine: "ألغينا طلبك كما طلبت. تقدر تبدأ طلباً جديداً في أي وقت.",
+        opsLine: `${row.client_name || who} ألغى الطلب بنفسه قبل اعتماد العرض.${note ? ` السبب: ${note}` : ""}`,
+      });
+      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true });
+    }
+    const pending = { at: nowIso(), by: "customer", actor: who, note, stage: row.status };
+    const upd = await patchRequest(row.id, { cancel_request: pending });
+    await logEvent(row.id, "customer", who, "cancel.requested", { note, stage: row.status });
+    await sweepTask(upd, {
+      source: "cancel.request", urgency: "high", human: true,
+      title: () => `طلب إلغاء — ${row.ref}`,
+      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه أو تواصل معه.`,
+    }, "المستشار الذكي");
+    await announce(upd, "cancel-request", {
+      subject: `طلب إلغاء ${row.ref} بانتظار مراجعة الفريق`,
+      clientLine: "استلمنا طلب الإلغاء. الطلب وصل مرحلةً يترتّب عليها التزامات، فيراجعه الفريق ويعود لك.",
+      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""}`,
+      cta: "افتح الطلب في لوحة العمليات",
+    });
+    return json(res, 200, { ok: true, status: row.status, requested: true });
   }
 
   return json(res, 400, { ok: false, error: "unknown_action" });
@@ -574,7 +770,12 @@ export async function markPaid(row, { provider, payId, amount, test, actor }) {
   if (row.organization_id) {
     await notify({ organization_id: row.organization_id, event: "simple_paid", title: `تم استلام الدفع — ${row.ref}`, body: `الفاتورة ${invoice.number}`, idempotency_key: `simple_paid_${row.ref}` });
   }
-  await sendEmail(OWNER_EMAIL, `دفع مستلم ${row.ref} — ${invoice.total} ر.س`, `<p>${esc(actor || row.client_name || "")} · ${esc(provider)} · ${esc(payId)}</p>`);
+  await announce(upd, "paid", {
+    subject: `تم استلام الدفع — فاتورتك ${invoice.number}`,
+    clientLine: `استلمنا ${payment.amount} ر.س. فاتورتك الضريبية ${invoice.number} جاهزة في حسابك، وبدأنا التنفيذ.`,
+    opsLine: `دفع مستلم ${payment.amount} ر.س عبر ${provider} (${payId}). الفاتورة ${invoice.number}${invoice.daftra && invoice.daftra.issued === false ? " — لم تصدر من الدفترة: " + (invoice.daftra.reason || "") : ""}.`,
+    cta: "افتح فاتورتك",
+  });
   return upd;
 }
 export async function markRequestPaidByRef(ref, info) {
@@ -583,9 +784,180 @@ export async function markRequestPaidByRef(ref, info) {
   return markPaid(row, info);
 }
 
+// ------------------------------------------------------- the follow-up sweep --
+// A request that nobody touches dies quietly: the quotation goes out and the
+// answer never comes, the contract sits unsigned, the paid job waits for
+// someone to start it. Nobody notices, because nothing on a dashboard says
+// «this one has been still for four days».
+//
+// The sweep is that noticing. It walks every open request, and for each stage
+// that has been still too long it does exactly two things: it opens ONE task
+// for the team, and — when the ball is in the customer's court — it sends ONE
+// reminder per window. Both are idempotent: an open task of the same kind, or
+// a reminder already logged inside the window, means it does nothing at all.
+// It is meant to be run repeatedly (panel load, n8n schedule, cron) and to be
+// boring when there is nothing to do.
+//
+// It never invents a fact: a reminder carries the request number, its stage
+// and a link. Prices come from the quotation that was already issued, and the
+// sweep issues no quotation, signs nothing and charges nothing.
+
+const DAY = 864e5;
+// How long a stage may sit still before the agent speaks up. Days.
+const SLA = {
+  NEW: 0,                 // a new request is looked at today
+  REVIEWING: 1,           // scope in hand → price it
+  WAITING_CLIENT: 2,
+  QUOTE_SENT: 3,
+  QUOTE_APPROVED: 1,      // approved → the contract is owed
+  CONTRACT_SENT: 2,
+  SIGNED: 2,
+  PAYMENT_PENDING: 2,
+  PAID: 1,                // paid → execution starts
+  IN_PROGRESS: 7,
+  WAITING_INTERNAL: 3,
+};
+// What the agent says and does at each stage. `client` marks the stages where
+// the customer is the one we are waiting for — only those get a reminder.
+const PLAY = {
+  NEW:            { source: "sweep-new",      title: (r) => `راجع الطلب الجديد ${r.ref}`,        details: () => "اقرأ المحادثة، ثبّت النطاق، وجهّز التسعير.", human: true,  urgency: "high" },
+  REVIEWING:      { source: "pricing",        title: (r) => `تسعير نطاق ${r.ref}`,               details: () => "النطاق جاهز — أصدر عرض السعر من اللوحة.", human: true,  urgency: "high" },
+  WAITING_CLIENT: { source: "sweep-client",   title: (r) => `تابع العميل — ${r.ref}`,            details: () => "الطلب بانتظار رد العميل.", client: true, subject: (r) => `تذكير بطلبك ${r.ref}`, body: () => "طلبك بانتظار ردّك حتى نكمل الخطوة التالية." },
+  QUOTE_SENT:     { source: "sweep-quote",    title: (r) => `عرض السعر بلا رد — ${r.ref}`,       details: (r) => `العرض ${r.quote && r.quote.number || ""} أُرسل ولم يُعتمد بعد.`, client: true, subject: (r) => `عرض السعر ${(r.quote && r.quote.number) || r.ref} بانتظار اعتمادك`, body: () => "عرض السعر جاهز في حسابك — اعتمده أو اطلب تعديله." },
+  QUOTE_APPROVED: { source: "sweep-contract", title: (r) => `جهّز العقد — ${r.ref}`,              details: () => "العميل اعتمد العرض؛ أصدر العقد.", human: true, urgency: "high" },
+  CONTRACT_SENT:  { source: "sweep-sign",     title: (r) => `عقد بلا توقيع — ${r.ref}`,          details: () => "العقد أُرسل ولم يُوقّع بعد.", client: true, subject: (r) => `العقد ${(r.contract && r.contract.number) || r.ref} بانتظار توقيعك`, body: () => "العقد جاهز للتوقيع الإلكتروني في حسابك." },
+  SIGNED:         { source: "sweep-pay",      title: (r) => `بانتظار الدفع — ${r.ref}`,          details: () => "العقد موقّع ولم يصل الدفع.", client: true, subject: (r) => `بانتظار الدفع — ${r.ref}`, body: () => "العقد موقّع؛ يبقى الدفع لنبدأ التنفيذ." },
+  PAYMENT_PENDING:{ source: "sweep-pay",      title: (r) => `دفع معلّق — ${r.ref}`,              details: () => "بدأ الدفع ولم يكتمل — تأكد من البوابة.", human: true, urgency: "high", client: true, subject: (r) => `دفعتك لم تكتمل — ${r.ref}`, body: () => "لم يكتمل الدفع. أعد المحاولة من حسابك، أو راسلنا." },
+  PAID:           { source: "sweep-start",    title: (r) => `ابدأ تنفيذ ${r.ref}`,               details: () => "الدفع وصل — ابدأ التنفيذ وحدّث الحالة.", human: true, urgency: "high" },
+  IN_PROGRESS:    { source: "sweep-progress", title: (r) => `حدّث العميل — ${r.ref}`,            details: () => "أسبوع بلا تحديث على طلب جارٍ.", human: true },
+  WAITING_INTERNAL:{source: "sweep-internal", title: (r) => `عالق داخلياً — ${r.ref}`,           details: () => "الطلب بانتظار جهة داخلية منذ أيام — صعّد.", human: true, urgency: "high" },
+};
+const SWEEP_DONE = ["COMPLETED", "CANCELLED"];
+
+// One open task per request per kind. The second run of the day must not add a
+// second copy of yesterday's task — a queue that grows on a timer is noise,
+// and noise is how a real task gets missed.
+async function sweepTask(row, play, actor) {
+  const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.${q(play.source)}&status=in.(open,in_progress,blocked)&select=id&limit=1`);
+  if (open && open[0]) return false;
+  await sb("tasks", { method: "POST", prefer: "return=minimal", body: [{
+    organization_id: row.organization_id || await fallbackOrg(),
+    title: play.title(row), details: play.details(row),
+    assignee: "bp", source: play.source, status: "open",
+    urgency: play.urgency || "normal", priority: play.urgency === "high" ? "high" : "normal",
+    human_action: !!play.human, assigned_to: row.assigned_to || null, request_id: row.id,
+  }] });
+  await logEvent(row.id, "ai", actor, "followup.task", { stage: row.status, title: play.title(row) });
+  return true;
+}
+
+// One reminder per stage per window. The proof lives in request_events, so a
+// restart, a second panel load or a duplicated schedule cannot turn a courteous
+// nudge into three e-mails in a minute.
+async function sweepRemind(row, play, windowDays, actor) {
+  if (!row.client_email) return false;
+  const since = new Date(Date.now() - windowDays * DAY).toISOString();
+  const sent = await sb(`request_events?request_id=eq.${row.id}&event=eq.followup.reminded&created_at=gte.${since}&select=id&limit=1`);
+  if (sent && sent[0]) return false;
+  const link = `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+  await sendEmail(row.client_email, play.subject(row),
+    `<p>${esc(play.body(row))}</p><p><a href="${link}">فتح الطلب ${esc(row.ref)}</a></p>`);
+  await logEvent(row.id, "ai", actor, "followup.reminded", { stage: row.status });
+  if (row.organization_id) {
+    await notify({ organization_id: row.organization_id, event: "simple_followup", title: play.subject(row), body: play.body(row), idempotency_key: `simple_follow_${row.ref}_${row.status}_${Math.floor(Date.now() / DAY)}` });
+  }
+  return true;
+}
+
+// The whole board in one pass. Returns what it did, so the panel can show it
+// and a scheduler can log it.
+async function runSweep({ actor = "المتابعة الذكية", limit = 400, dry = false } = {}) {
+  const rows = await sb(`requests?status=not.in.(${SWEEP_DONE.join(",")})&select=id,ref,status,title,lang,quote,contract,payment,appointment,client_name,client_email,organization_id,assigned_to,created_at,updated_at&order=updated_at.asc&limit=${limit}`);
+  const now = Date.now();
+  const acted = [], skipped = [];
+  for (const row of rows) {
+    const play = PLAY[row.status];
+    if (!play) continue;
+    const idle = (now - new Date(row.updated_at || row.created_at).getTime()) / DAY;
+    const due = SLA[row.status];
+    if (!(idle >= due)) { skipped.push({ ref: row.ref, status: row.status, idle_days: round2(idle), due_in_days: round2(due - idle) }); continue; }
+    const did = { ref: row.ref, status: row.status, idle_days: round2(idle), task: false, reminded: false };
+    if (!dry) {
+      // Failures are recorded, not swallowed. A sweep that quietly does nothing
+      // looks exactly like a sweep with nothing to do — and that is how a whole
+      // stage stops being followed up without anyone noticing.
+      try { did.task = await sweepTask(row, play, actor); }
+      catch (e) { did.error = "task: " + String(e && e.message || e).slice(0, 80); }
+      // The reminder window is the SLA itself, never under two days: a stage
+      // with a same-day SLA must not mean a same-day second e-mail.
+      if (play.client) {
+        try { did.reminded = await sweepRemind(row, play, Math.max(due, 2), actor); }
+        catch (e) { did.error = (did.error ? did.error + " · " : "") + "remind: " + String(e && e.message || e).slice(0, 80); }
+      }
+    }
+    acted.push(did);
+  }
+  return {
+    ran_at: nowIso(), scanned: rows.length, dry: !!dry,
+    tasks_opened: acted.filter((a) => a.task).length,
+    reminders_sent: acted.filter((a) => a.reminded).length,
+    errors: acted.filter((a) => a.error).map((a) => ({ ref: a.ref, error: a.error })),
+    due: acted, waiting: skipped.slice(0, 60),
+  };
+}
+
+// ------------------------------------------------- WhatsApp agent gate --
+// Who answers this number — the machine or a person? No row means the agent
+// answers; that is also what a missing table or a failed read means, so a
+// fault here disables the control, never the service.
+const WA_ALL = "*";
+function waKey(raw) {
+  const s = String(raw == null ? "" : raw).trim();
+  if (s === WA_ALL) return WA_ALL;
+  return waNumber(s) || "";
+}
+function waConfigured() {
+  return !!((process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_WHATSAPP_TOKEN || process.env.WA_TOKEN) &&
+            (process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.WA_PHONE_ID));
+}
+function waFailMessage(err) {
+  if (err === "wa_not_configured") return "واتساب غير مربوط: ينقص WHATSAPP_TOKEN أو WHATSAPP_PHONE_ID.";
+  if (err === "no_phone") return "رقم الجوال غير صالح.";
+  if (/^wa_1310/.test(String(err))) return "مضت ٢٤ ساعة على آخر رسالة من العميل — واتساب لا يسمح إلا بقالب معتمد (WHATSAPP_TEMPLATE_NAME).";
+  return "تعذّر الإرسال عبر واتساب.";
+}
+async function waGateRows() {
+  try { return await sb("wa_agent_gate?select=*&order=updated_at.desc&limit=200"); } catch { return []; }
+}
+// A pause with an expiry that has passed is no pause: the operator who muted
+// the agent for an hour must not have to remember to switch it back on.
+function gateLive(r) {
+  if (!r || !r.paused) return false;
+  if (r.until && new Date(r.until).getTime() <= Date.now()) return false;
+  return true;
+}
+async function waGateSet(phone, { paused, minutes, reason, actor }) {
+  const key = waKey(phone);
+  if (!key) return null;
+  const mins = Math.min(Math.max(num(minutes), 0), 60 * 24 * 30);
+  const row = {
+    phone: key, paused: !!paused,
+    reason: str(reason, 300) || null, actor: str(actor, 80) || null,
+    until: paused && mins > 0 ? new Date(Date.now() + mins * 6e4).toISOString() : null,
+    updated_at: nowIso(),
+  };
+  // on_conflict is spelled out rather than left to the primary key, because
+  // the local JSON database matches on it literally and would otherwise append
+  // a second row for the same number on every click.
+  const out = await sb("wa_agent_gate?on_conflict=phone", { method: "POST", prefer: "resolution=merge-duplicates,return=representation", body: [row] });
+  return (Array.isArray(out) ? out[0] : out) || row;
+}
+
 // --------------------------------------------------------------- ops side --
-async function opsAction(action, b, qs, req, res) {
-  const actor = str(b.actor || qs.actor, 80) || "المالك";
+async function opsAction(action, b, qs, req, res, opsUser) {
+  // Who did this, in the audit trail. A named owner beats the generic
+  // «المالك» that a shared panel key can only ever produce.
+  const actor = (opsUser && (opsUser.name || opsUser.email)) || str(b.actor || qs.actor, 80) || "المالك";
 
   if (action === "ops-summary") {
     const all = await sb("requests?select=ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to&order=created_at.desc&limit=500");
@@ -617,7 +989,7 @@ async function opsAction(action, b, qs, req, res) {
       paid_orders: paid.length,
       new_clients_month: new Set(all.filter((r) => (r.created_at || "").slice(0, 7) === month).map((r) => r.client_name || r.ref)).size,
     };
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, recent: all.slice(0, 12).map(summary) });
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, integrations: integrationStatus(), recent: all.slice(0, 12).map(summary) });
   }
 
   // Development only: what would have been emailed / sent on WhatsApp.
@@ -705,6 +1077,85 @@ async function opsAction(action, b, qs, req, res) {
     return json(res, 200, { ok: true, ref, request: summary(created), task });
   }
 
+  // --------------------------------------------------------- the follow-up --
+
+  // Read-only: what is overdue right now, and what the agents did last. Safe
+  // to call on every panel load, because it changes nothing.
+  if (action === "ops-follow") {
+    const [board, log] = await Promise.all([
+      runSweep({ dry: true, limit: 400 }),
+      sb("request_events?event=in.(followup.task,followup.reminded)&select=event,actor,details,created_at,requests(ref,title,status)&order=created_at.desc&limit=60").catch(() => []),
+    ]);
+    return json(res, 200, { ok: true, board, log });
+  }
+
+  // The run itself. Opens tasks and sends the reminders. Idempotent by design,
+  // so a double click, a second panel and a scheduler firing together cannot
+  // produce a second task or a second e-mail.
+  if (action === "ops-sweep") {
+    const out = await runSweep({ actor, limit: 400, dry: b.dry === true });
+    return json(res, 200, { ok: true, ...out });
+  }
+
+  // ------------------------------------------------ WhatsApp agent control --
+  // The bot on n8n answers every message. When a human takes a conversation
+  // over, an automatic reply landing in the middle of it is worse than no
+  // reply at all — so operations must be able to silence the agent for one
+  // number, or for everyone, from the panel.
+
+  if (action === "ops-wa-gate") {
+    const rows = await waGateRows();
+    const all = rows.find((r) => r.phone === WA_ALL) || null;
+    return json(res, 200, {
+      ok: true,
+      agent: { paused: gateLive(all), row: all },
+      paused: rows.filter((r) => r.phone !== WA_ALL && gateLive(r)),
+      recent: rows.filter((r) => r.phone !== WA_ALL).slice(0, 40),
+      canSend: waConfigured(),
+    });
+  }
+
+  if (action === "ops-wa-pause") {
+    const gate = await waGateSet(b.phone, { paused: b.paused !== false, minutes: b.minutes, reason: b.reason, actor });
+    if (!gate) return json(res, 400, { ok: false, error: "bad_phone" });
+    return json(res, 200, { ok: true, gate });
+  }
+
+  // n8n calls this before it answers: one number in, one boolean out. It is an
+  // ops- action so it goes through the same panel key — no second door.
+  if (action === "ops-wa-check") {
+    const rows = await waGateRows();
+    const key = waKey(b.phone || qs.phone);
+    const all = rows.find((r) => r.phone === WA_ALL);
+    const one = key && key !== WA_ALL ? rows.find((r) => r.phone === key) : null;
+    const paused = gateLive(all) || gateLive(one);
+    return json(res, 200, { ok: true, paused, scope: gateLive(all) ? "all" : paused ? "number" : null, reason: (gateLive(all) ? all.reason : one && one.reason) || null });
+  }
+
+  // A message typed in the panel and sent to the customer on WhatsApp. Sending
+  // it means a human is in the conversation, so the agent is paused on that
+  // number for an hour unless told otherwise — the operator should not have to
+  // remember two clicks to avoid the bot talking over them.
+  if (action === "ops-wa-send") {
+    const text = str(b.text, 3000);
+    if (!text) return json(res, 400, { ok: false, error: "empty" });
+    let target = null, reqRow = null;
+    const ref0 = str(b.ref || qs.ref, 40);
+    if (ref0) { reqRow = await getByRef(ref0); if (!reqRow) return json(res, 404, { ok: false, error: "not_found" }); target = reqRow.client_phone; }
+    if (b.phone) target = b.phone;
+    const to = waKey(target);
+    if (!to || to === WA_ALL) return json(res, 400, { ok: false, error: "no_phone", message: "لا يوجد رقم جوال لهذا الطلب." });
+    const sent = await waSend(to, text);
+    if (sent.ok && b.hold !== false) await waGateSet(to, { paused: true, minutes: num(b.minutes) > 0 ? b.minutes : 60, reason: "ردّ يدوي من اللوحة", actor });
+    if (reqRow) {
+      const conversation = normConversation([...(reqRow.conversation || []), { role: "bp", content: text, at: nowIso() }]);
+      await patchRequest(reqRow.id, { conversation });
+      await logEvent(reqRow.id, "human", actor, sent.ok ? "message.whatsapp" : "message.whatsapp.failed", { preview: text.slice(0, 140), error: sent.ok ? undefined : sent.error });
+    }
+    if (!sent.ok) return json(res, 502, { ok: false, error: sent.error || "wa_failed", message: waFailMessage(sent.error) });
+    return json(res, 200, { ok: true, mode: sent.mode, held: b.hold !== false });
+  }
+
   // Everything below acts on one request.
   const ref = str(b.ref || qs.ref, 40);
   if (!ref) return json(res, 400, { ok: false, error: "missing_ref" });
@@ -762,7 +1213,67 @@ async function opsAction(action, b, qs, req, res) {
 
   if (action === "ops-contract-html") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
-    return json(res, 200, { ok: true, html: row.contract.html });
+    // اللوحة تقرأ ما يقرأه العميل — بما فيه النسخة المصحَّحة — وتُنبَّه إن
+    // كان العقد قد صُحِّح بعد التوقيع فيحتاج توقيعاً جديداً.
+    return json(res, 200, { ok: true, html: row.contract.html, needsResign: !!row.contract.needs_resign, correctedAt: row.contract.corrected_at || "" });
+  }
+
+  // الإلغاء من لوحة العمليات: في أي مرحلة، بسببٍ مُدوَّن، وبإشعار الطرفين.
+  // المال لا يُمَسّ هنا: طلبٌ مدفوع يُلغى ويبقى الاسترداد خطوةً منفصلة
+  // يقرّرها المالك في البوابة — إلغاءٌ يحرّك مبلغاً بلا قرارٍ صريح أسوأ من
+  // إلغاءٍ لا يحرّكه.
+  if (action === "ops-cancel") {
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "already_cancelled" });
+    const note = str(b.note, 500);
+    const wasPaid = row.payment && row.payment.status === "PAID";
+    const upd = await patchRequest(row.id, {
+      status: "CANCELLED",
+      cancel: { at: nowIso(), by: "ops", actor, note, stage: row.status, was_paid: !!wasPaid },
+      cancel_request: null,
+    });
+    await logEvent(row.id, "ops", actor, "request.cancelled", { note, stage: row.status, by: "ops" });
+    await audit({ organization_id: row.organization_id, action: "simple.request.cancel", entity: "requests", entity_id: row.id, meta: { ref: row.ref, note } });
+    await announce(upd, "cancelled", {
+      subject: `أُلغي الطلب ${row.ref}`,
+      clientLine: `ألغينا الطلب.${note ? ` السبب: ${note}` : ""} إن كان لديك استفسار راسلنا وسنساعدك.`,
+      opsLine: `${actor} ألغى الطلب من مرحلة ${row.status}.${wasPaid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل لم يُنفَّذ." : ""}`,
+    });
+    return json(res, 200, { ok: true, status: "CANCELLED", wasPaid: !!wasPaid, refundPending: !!wasPaid });
+  }
+
+  // التراجع عن الإلغاء: الأخطاء تقع، وطلبٌ أُلغي بالخطأ يجب أن يعود بلا
+  // إعادة إنشاء تفقد تاريخه كله.
+  if (action === "ops-reopen") {
+    if (row.status !== "CANCELLED") return json(res, 409, { ok: false, error: "not_cancelled" });
+    const back = REQUEST_STATUSES.includes(str(b.status, 40)) ? str(b.status, 40)
+      : (row.cancel && REQUEST_STATUSES.includes(row.cancel.stage) ? row.cancel.stage : "REVIEWING");
+    const upd = await patchRequest(row.id, { status: back, cancel: null, cancel_request: null });
+    await logEvent(row.id, "ops", actor, "request.reopened", { to: back });
+    await announce(upd, "reopened", {
+      subject: `أُعيد فتح الطلب ${row.ref}`,
+      clientLine: "أعدنا فتح طلبك ونكمل من حيث توقّفنا.",
+      opsLine: `${actor} أعاد فتح الطلب إلى ${back}.`,
+    });
+    return json(res, 200, { ok: true, status: back });
+  }
+
+  // إعادة إصدار العقد للتوقيع: تُستعمل حين صُحِّح عقدٌ بعد توقيعه. العقد
+  // يُبنى من عرض السعر المعتمد، والحالة تعود CONTRACT_SENT فيُوقّع العميل
+  // النسخة الصحيحة. سجلّ التوقيع القديم يبقى في الأحداث، ولا يُنسب إلى
+  // النسخة الجديدة.
+  if (action === "ops-contract-reissue") {
+    if (!row.quote || !Array.isArray(row.quote.items) || !row.quote.items.length) return json(res, 409, { ok: false, error: "no_quote" });
+    const built = buildContract(row, { lead_time: str(b.lead_time, 120), executor: str(b.executor, 120) });
+    const contract = { ...built, number: row.contract?.number || built.number, reissued_at: nowIso(), reissue_of: row.contract?.number || "" };
+    const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
+    await logEvent(row.id, "ops", actor, "contract.reissued", { number: contract.number });
+    await announce(upd, "contract", {
+      subject: `نسخة مصحَّحة من العقد ${contract.number} بانتظار توقيعك`,
+      clientLine: "صدرت نسخة مصحَّحة من العقد بنفس بنود عرض السعر المعتمد. راجعها ووقّعها لنكمل.",
+      opsLine: `أُعيد إصدار العقد ${contract.number} وعادت الحالة إلى بانتظار التوقيع.`,
+      cta: "افتح العقد ووقّعه",
+    });
+    return json(res, 200, { ok: true, status: upd.status, contract: { ...contract, html: undefined } });
   }
 
   if (action === "ops-mark-paid") {
@@ -817,13 +1328,19 @@ async function priceItems(items) {
     // it as {amount,label}. Reading only the object shape silently priced
     // every catalogue line at zero.
     const catPrice = svc ? num(svc.price && typeof svc.price === "object" ? svc.price.amount : (svc.price != null ? svc.price : svc.amount)) : 0;
-    return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "", description: it.description || it.why || "", qty: it.qty || 1, price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
+    // الاسم الإنجليزي من الكتالوج يُحمل مع البند ليُطبع في العمود المقابل
+    // بلغة العميل. ما لا اسم إنجليزي له يبقى بالعربية في العمودين — أفضل من
+    // ترجمةٍ آلية لاسم خدمة حكومية داخل عقد.
+    return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "",
+      titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
+      description: it.description || it.why || "", qty: it.qty || 1,
+      price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
   });
 }
 function guessType(text) {
   const t = String(text || "");
   if (/تأسيس|فرع|رخصة استثمار|ريادة|MISA|سجل تجاري جديد|company|formation|branch/i.test(t)) return "COMPANY_FORMATION";
-  if (/قوى|التأمينات|مدد|مقيم|أبشر|بلدي|زاتكا|الزكاة|تأشير|نطاقات|مهنة|رخصة|qiwa|gosi|mudad|muqeem|zatca|visa/i.test(t)) return "GOVERNMENT_SERVICE";
+  if (/قوى|أجير|مساند|التأمينات|مدد|مقيم|أبشر|بلدي|زاتكا|الزكاة|تأشير|نطاقات|مهنة|رخصة|تصعيد|شكوى|مخالفة|مديونية|تغيب|خروج نهائي|لائحة تنظيم العمل|qiwa|ajeer|musaned|gosi|mudad|muqeem|zatca|visa|escalation/i.test(t)) return "GOVERNMENT_SERVICE";
   return "CONSULTATION";
 }
 // tasks.organization_id is NOT NULL: manual intake for a not-yet-registered
@@ -831,6 +1348,80 @@ function guessType(text) {
 let _fallbackOrg = null;
 // One open pricing task per request — pressing «اعتمد النطاق» twice must not
 // fill the operations queue with duplicates.
+// "Is the payment connected? and Tamara? and the invoice?" — a question that
+// used to have no answer but a guess, because every key is server-side with no
+// surface. This reports whether each one is configured, never what it is: a
+// boolean cannot be replayed, a key can. Behind the panel key, because telling
+// the world which integrations are unset is itself a hint worth withholding.
+function integrationStatus() {
+  const on = (v) => !!String(v || "").trim();
+  const pk = process.env.MOYASAR_PUBLISHABLE_KEY || "";
+  const sk = process.env.MOYASAR_SECRET_KEY || "";
+  const live = (k) => /^(pk|sk)_live_/.test(String(k).trim());
+  return {
+    card: { ready: on(pk) && on(sk), mode: live(pk) || live(sk) ? "live" : on(pk) ? "test" : "—",
+      publishable: on(pk), secret: on(sk),
+      // Without the webhook secret a payment is only confirmed by the browser
+      // coming back. A customer who pays and closes the tab is then paid in the
+      // gateway and unpaid here — worth naming, not hiding.
+      webhook: on(process.env.MOYASAR_WEBHOOK_SECRET) },
+    tamara: { ready: on(process.env.TAMARA_API_TOKEN), base: (process.env.TAMARA_API_BASE || "").includes("sandbox") ? "sandbox" : "live" },
+    daftra: { ready: daftraConfigured(), subdomain: (process.env.DAFTRA_SUBDOMAIN || "businesspartner").trim() },
+    email: { ready: on(process.env.RESEND_API_KEY) || on(process.env.RESEND_KEY), notify: NOTIFY_ON, from: on(process.env.OTP_FROM_EMAIL) },
+    google: { ready: on(process.env.GOOGLE_CLIENT_ID) },
+    database: { ready: DB_ON },
+    modes: MODES(),
+  };
+}
+
+// ------------------------------------------------------------ الإشعارات --
+// كل خطوة في الرحلة يعلمها الطرفان: العميل بالبريد وواتساب، والشركة بالبريد
+// وواتساب. صفقةٌ تتقدّم بلا أن يعلم أحد ليست تقدّماً — العميل ينتظر ما وصله،
+// والفريق يكتشف الدفعة بعد يومين.
+//
+// كل قناة في محاولتها: فشل واتساب لا يمنع البريد، وفشل بريد العميل لا يمنع
+// إشعار الفريق. وما نجح وما فشل يُسجَّل في أحداث الطلب، فتظهر في اللوحة —
+// إشعارٌ يُظنّ أنه وصل وهو لم يصل أسوأ من إشعار لم يُرسل.
+const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
+
+async function announce(row, step, { subject, clientLine, opsLine, cta }) {
+  const url = `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+  // «لم يُرسل» و«أُرسل إلى صندوق المعاينة» و«رفضته البوابة» ثلاثة أشياء
+  // مختلفة. تسجيلها كلها `false` يجعل اللوحة تقول «فشل» حيث لا فشل، ويخفي
+  // الفشل الحقيقي بين مثله.
+  const mark = (r) => (r && r.ok ? true : (r && (r.skipped || r.error)) || false);
+  const out = { email: "—", wa: "—", ops_email: false, ops_wa: false };
+  try {
+    if (row.client_email) {
+      out.email = mark(await sendEmail(row.client_email, subject,
+        `<p>${esc(clientLine)}</p><p><a href="${url}">${esc(cta || "فتح الطلب")} ${esc(row.ref)}</a></p>`));
+    } else out.email = "no_email";
+  } catch (e) { out.email = String(e.message || "failed").slice(0, 60); }
+  try {
+    if (row.client_phone) out.wa = mark(await waSend(row.client_phone, `${clientLine}\n${url}`));
+    else out.wa = "no_phone";
+  } catch (e) { out.wa = String(e.message || "failed").slice(0, 60); }
+  const who = [row.client_name, row.company_name, row.client_email, row.client_phone].filter(Boolean).join(" · ");
+  try {
+    const r = await sendEmail(OWNER_EMAIL, `[${row.ref}] ${subject}`,
+      `<p>${esc(opsLine || clientLine)}</p><p>${esc(who)}</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب في اللوحة</a></p>`);
+    out.ops_email = mark(r);
+  } catch {}
+  try {
+    if (OWNER_WA) {
+      const r = await waSend(OWNER_WA, `${row.ref} — ${opsLine || clientLine}\n${SELF_BASE}/ops?ref=${row.ref}`);
+      out.ops_wa = mark(r);
+    }
+  } catch {}
+  try {
+    if (row.organization_id) {
+      await notify({ organization_id: row.organization_id, event: `simple_${step}`, title: subject, body: clientLine.slice(0, 200), idempotency_key: `simple_${step}_${row.ref}_${Math.floor(Date.now() / 6e4)}` });
+    }
+  } catch {}
+  await logEvent(row.id, "system", "الإشعارات", `notify.${step}`, out);
+  return out;
+}
+
 async function pricingTask(row, unpriced) {
   try {
     const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)&select=id&limit=1`);
