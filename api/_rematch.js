@@ -265,14 +265,23 @@ export function extractDeedType(text) {
 // ومساحة وسعراً — بل في اتجاه الفعل: «أبغى/مطلوب/أدور» طلب، و«لدينا/للبيع/
 // معروض» عرض. الكلمات الحاسمة تُوزن، ولا يُحسم إلا بفارق واضح.
 const REQUEST_CUES = [
-  ["ابغي", 3], ["ابي", 3], ["اريد", 3], ["ادور", 3], ["نبحث", 3], ["ابحث", 3], ["مطلوب", 4],
+  ["ابغي", 5], ["ابي", 5], ["اريد", 5], ["ادور", 5], ["نبحث", 5], ["ابحث", 5], ["مطلوب", 5],
   ["عميلي يبحث", 5], ["عميل يبحث", 5], ["لدي عميل", 5], ["عندي عميل", 5], ["احتاج", 3],
   ["ميزانيه", 2], ["ميزانيتي", 2], ["تتوفر", 1], ["يوجد لديكم", 3], ["تبحث عن", 3],
+  // الوسيط يتكلم عن عميله بضمير الغائب: «يبغى… يدوّر… ناوي يشتري». وهذا
+  // أكثر ما يصل فعلاً، لأن أغلب ما يدخل المكتب يدخله وسيط لا صاحب الطلب.
+  // و«يبي» يجب ألا تلتقط «يبيع» — حرفٌ واحد يقلب الطلب عرضاً.
+  // وزنها ٥ لا ٣: فعل الإرادة صريحٌ حاسم، و«أبغى شقة للإيجار» طلبٌ لا
+  // عرض — لولا ذلك لغلبته «للإيجار» (٤) فانقلب معنى الرسالة رأساً.
+  [/يبغي|يبي(?!ع)|يدور|يطلب|ناوي\s*(?:يشتري|ياخذ)|راغب/, 5],
+  [/يريد|يبحث|تبحث|يحتاج/, 5],
 ];
 const LISTING_CUES = [
   ["للبيع", 4], ["للايجار", 4], ["معروض", 4], ["لدينا", 3], ["عندنا", 3], ["متوفر", 3],
   ["يتوفر لدينا", 4], ["فرصه", 2], ["فرصة", 2], ["السعر", 2], ["المطلوب", 1], ["الموقع", 1],
   ["حصري", 3], ["مباشر من المالك", 4], ["من المالك", 3], ["صك", 1], ["واجهه", 1], ["للاستثمار", 2],
+  // فعل البيع بضمير الغائب والمتكلم: «يبيع… نبيع… أبيع… للتنازل».
+  [/يبيع|نبيع|ابيع|للتنازل|نعرض|اعرض/, 3],
 ];
 const STUDY_CUES = [
   ["دراسه جدوي", 5], ["دراسة جدوى", 5], ["تحليل عقاري", 5], ["تقييم", 4], ["تثمين", 4],
@@ -281,7 +290,10 @@ const STUDY_CUES = [
 
 function weigh(s, cues) {
   let score = 0;
-  for (const [w, pts] of cues) if (s.includes(normalizeAr(w))) score += pts;
+  for (const [w, pts] of cues) {
+    const hit = w instanceof RegExp ? w.test(s) : s.includes(normalizeAr(w));
+    if (hit) score += pts;
+  }
   return score;
 }
 
@@ -292,10 +304,15 @@ function weigh(s, cues) {
 export function classifyMessage(text) {
   const s = normalizeAr(text);
   const scores = { REQUEST: weigh(s, REQUEST_CUES), LISTING: weigh(s, LISTING_CUES), STUDY: weigh(s, STUDY_CUES) };
-  // رسالة قصيرة بلا رقم ولا نوع عقار سؤالٌ غالباً، لا طلب ولا عرض.
-  const hasSubstance = !!detectPropertyType(s) || extractPrice(s) != null || extractArea(s).value != null;
+  // رسالة بلا نوع عقار ولا مساحة ولا سعر ولا مدينة ليست طلباً ولا عرضاً
+  // مهما بلغت قوة فعلها. «تمام أبحث لك» جوابُ المكتب نفسه، وقد دخل
+  // الأرشيف طلباً يوم كان الحدّ رقماً تتجاوزه أوزان الكلمات — فالحدّ الآن
+  // وجودُ وصفٍ عقاري لا وزنُ كلمة. والدراسة مستثناة: «أبغى استشارة
+  // عقارية» طلبُ دراسةٍ صحيح بلا متر ولا ريال.
+  const hasSubstance = !!detectPropertyType(s) || extractPrice(s) != null
+    || extractArea(s).value != null || extractArea(s).min != null || !!detectCity(s);
   const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
-  if (!top || top[1] === 0 || (!hasSubstance && top[1] < 4)) {
+  if (!top || top[1] === 0 || (!hasSubstance && top[0] !== "STUDY")) {
     return { intent: "QUESTION", confidence: 0.3, scores };
   }
   const second = Object.entries(scores).sort((a, b) => b[1] - a[1])[1];
@@ -598,4 +615,272 @@ export function broadcastText(req, officeName = "الألماس الأزرق ا�
     "من لديه ما يطابق، يرسل: النوع · المدينة والحي · المساحة · السعر · الدخل السنوي إن وُجد · نوع الصك · موقع الخريطة.",
     r.ref ? `مرجع الطلب: ${r.ref}` : "",
   ].filter(Boolean).join("\n");
+}
+
+// ============================================================ الاستقبال ==
+// الطلب لا يصل من قناة واحدة. يصل من واتساب في أغلبه، ومن نموذج الموقع،
+// ومن رسائل الحسابات الاجتماعية، ومن البريد، ومن مكالمة يدوّنها أحد
+// الفريق، ومن وسيط ينقل طلب وسيط آخر. القنوات تختلف في شكل ما يصل، ولا
+// تختلف فيما يُستخرج منه: كلها نصّ عربي حرّ يُقرأ بالقواعد نفسها. لذلك
+// القناة حقلٌ على الوارد، لا مسارٌ منفصل بمحلّل خاص لكل قناة.
+export const CHANNELS = {
+  WHATSAPP: "واتساب",
+  WEBSITE: "نموذج الموقع",
+  INSTAGRAM: "إنستقرام",
+  X: "إكس",
+  SNAPCHAT: "سناب شات",
+  TIKTOK: "تيك توك",
+  LINKEDIN: "لينكدإن",
+  FACEBOOK: "فيسبوك",
+  EMAIL: "البريد",
+  CALL: "مكالمة",
+  TEAM: "فريق العمل",
+  BROKER: "وسيط",
+  WALK_IN: "زيارة للمكتب",
+  IMPORT: "إدخال سابق",
+  OTHER: "أخرى",
+};
+export const SOCIAL_CHANNELS = ["INSTAGRAM", "X", "SNAPCHAT", "TIKTOK", "LINKEDIN", "FACEBOOK"];
+export function channelLabel(code) {
+  return CHANNELS[String(code || "").toUpperCase()] || CHANNELS.OTHER;
+}
+
+// أدوار من يقف في سلسلة الطلب. الترتيب هنا ترتيب القرب منا: من نكلّمه
+// نحن أولاً، ثم من خلفه، حتى صاحب الطلب الأصلي إن وصلنا إليه.
+export const CHAIN_ROLES = {
+  CLIENT: "صاحب الطلب",
+  BROKER: "وسيط",
+  MARKETER: "مسوّق",
+  AGENT: "وكيل",
+  OWNER: "مالك",
+  DEVELOPER: "مطوّر",
+  COLLEAGUE: "زميل في المكتب",
+};
+export function chainRoleLabel(code) {
+  return CHAIN_ROLES[String(code || "").toUpperCase()] || CHAIN_ROLES.BROKER;
+}
+
+// ------------------------------------------------- تصدير محادثة واتساب --
+// تصدير واتساب سطرٌ لكل رسالة يبدأ بتاريخ ووقت، ثم اسم المرسل، ثم النص؛
+// والرسالة الواحدة قد تمتد أسطراً، فكل سطر لا يبدأ بطابع زمني هو تتمّة
+// لما قبله. الصيغتان الشائعتان تختلفان في القوسين والفاصل، والتاريخ قد
+// يكون يوماً/شهراً أو شهراً/يوماً حسب إعداد الجهاز — وهذا وحده يقلب
+// ٠٣/٠٤ من مارس إلى أبريل، فيُترك الترتيب خياراً لا تخميناً.
+const WA_LINE = new RegExp(
+  "^\\u200e?\\[?" +
+  "(\\d{1,4})[/\\-.](\\d{1,2})[/\\-.](\\d{2,4})" +   // التاريخ
+  ",?\\s+" +
+  "(\\d{1,2}):(\\d{2})(?::(\\d{2}))?" +               // الوقت
+  "\\s*([صم]|[APap]\\.?[Mm]\\.?)?" +                  // ص/م أو AM/PM
+  "\\]?\\s*[-–]?\\s*" +
+  "([^:]{1,60}?):\\s*" +                              // المرسل
+  "([\\s\\S]*)$"
+);
+// أسطر يكتبها واتساب نفسه لا إنسان. إدخالها كطلبات يملأ اللوحة ضجيجاً.
+const WA_SYSTEM = /(تم استبعاد الوسائط|الوسائط مستبعدة|<Media omitted>|هذه الرسالة تم حذفها|تم حذف هذه الرسالة|This message was deleted|الرسائل والمكالمات مشفرة|Messages and calls are end-to-end|تم تغيير رقم|changed the subject|أضافك|انضم عبر رابط|joined using this group|image omitted|video omitted|sticker omitted|audio omitted|ملصق مستبعد)/i;
+
+function fourDigitYear(y) {
+  const n = Number(y);
+  if (!Number.isFinite(n)) return null;
+  return n < 100 ? 2000 + n : n;
+}
+
+/**
+ * قراءة تصدير محادثة واتساب إلى رسائل مرتّبة.
+ * `dayFirst` افتراضه true لأن أجهزة المنطقة تصدّر يوماً/شهراً؛ ومن صدّر
+ * بإعداد أمريكي يقلبه، ولا يُخمَّن له.
+ */
+export function parseChatExport(text, { dayFirst = true } = {}) {
+  const out = [];
+  const lines = String(text || "").split(/\r?\n/);
+  let cur = null;
+  const push = () => {
+    if (!cur) return;
+    cur.text = cur.text.trim();
+    if (cur.text && !WA_SYSTEM.test(cur.text)) out.push(cur);
+    cur = null;
+  };
+  for (const line of lines) {
+    const m = WA_LINE.exec(line);
+    if (m) {
+      push();
+      const [, a, b, c, hh, mm, ss, mer, sender, rest] = m;
+      let year, month, day;
+      if (String(a).length === 4) { year = Number(a); month = Number(b); day = Number(c); }
+      else if (dayFirst) { day = Number(a); month = Number(b); year = fourDigitYear(c); }
+      else { month = Number(a); day = Number(b); year = fourDigitYear(c); }
+      let hour = Number(hh);
+      const pm = /^(م|[Pp])/.test(mer || "");
+      const am = /^(ص|[Aa])/.test(mer || "");
+      if (pm && hour < 12) hour += 12;
+      if (am && hour === 12) hour = 0;
+      // تاريخ مستحيل يعني أن ترتيب اليوم والشهر مقلوب أو السطر ليس رسالة.
+      const ok = year >= 2000 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31;
+      const at = ok
+        ? new Date(Date.UTC(year, month - 1, day, hour, Number(mm), Number(ss || 0))).toISOString()
+        : null;
+      cur = { at, sender: String(sender).trim(), text: String(rest || "") };
+    } else if (cur) {
+      cur.text += "\n" + line;
+    }
+  }
+  push();
+  return out;
+}
+
+/**
+ * تقسيم لصقة حرّة إلى كتل، كل كتلة طلب. الفاصل سطر فارغ أو سطر شُرَط —
+ * وهو ما يفعله الناس فعلاً حين ينسخون عدة طلبات في رسالة واحدة.
+ */
+export function splitBlocks(text) {
+  return String(text || "")
+    .split(/\n\s*(?:-{3,}|={3,}|\*{3,}|#{3,})\s*\n|\n{2,}/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 8);
+}
+
+// ------------------------------------------------------ سلسلة الوسطاء --
+// «الطلب من أبو سعد عن وسيط ثاني عن المالك» — جملة تُقال يومياً، ومعناها
+// أن بيننا وبين صاحب الطلب اثنين. من لا يسجّل السلسلة يظن الطلبين طلبين
+// مختلفين حين يصلان من طرفيها، ويكلّم صاحب الطلب من فوق رأس وسيطه فيخسر
+// الاثنين. الاستخراج هنا يلتقط الأسماء والأرقام الظاهرة في النص، وما خفي
+// يُكمله من يراجع الوارد.
+const CHAIN_CUES = /(عن طريق|بواسطة|من عند|جاني من|وصلني من|محوّل من|محول من|عن وسيط|وسيط عن|من وسيط|نيابه عن|نيابة عن|لصالح|لحساب|باسم)/;
+const PHONE_IN_TEXT = /(?:\+?966|0)?5\d{8}/g;
+
+/** هل يذكر النص وسيطاً أو أكثر بيننا وبين صاحب الطلب؟ */
+export function detectChainHint(text) {
+  const s = normalizeAr(text);
+  if (!CHAIN_CUES.test(s)) return { hinted: false, mentions: 0 };
+  let mentions = 0;
+  for (const re of [/وسيط/g, /مسوق/g, /وكيل/g]) mentions += (s.match(re) || []).length;
+  return { hinted: true, mentions: Math.max(1, mentions) };
+}
+
+/** الأرقام الظاهرة في النص — مرشّحو السلسلة الذين لا يحتاجون سؤالاً. */
+export function extractPhones(text) {
+  const found = String(text || "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .match(PHONE_IN_TEXT) || [];
+  const seen = new Set();
+  const out = [];
+  for (const raw of found) {
+    const digits = String(raw).replace(/\D/g, "");
+    const wa = digits.startsWith("966") ? digits
+      : digits.startsWith("05") ? "966" + digits.slice(1)
+      : digits.startsWith("5") ? "966" + digits
+      : null;
+    if (wa && wa.length === 12 && !seen.has(wa)) { seen.add(wa); out.push(wa); }
+  }
+  return out;
+}
+
+/**
+ * بناء سلسلة مرتّبة من مدخلات اللوحة. الموضع ١ هو الأقرب إلينا — من
+ * نكلّمه نحن — ثم من خلفه. ترتيبٌ مقلوب هنا يعني أن العمولة تُحسب
+ * لمن لا يستحقها، فلا يُترك للاجتهاد.
+ */
+export function buildChain(entries = []) {
+  const rows = (Array.isArray(entries) ? entries : [])
+    .map((e, i) => ({
+      position: Number(e.position) > 0 ? Number(e.position) : i + 1,
+      role: String(e.role || "BROKER").toUpperCase(),
+      name: (e.name || "").trim() || null,
+      phone: (extractPhones(e.phone || "")[0]) || null,
+      share_pct: Number.isFinite(Number(e.share_pct)) ? Number(e.share_pct) : null,
+      notes: (e.notes || "").trim() || null,
+    }))
+    .filter((e) => e.name || e.phone)
+    .sort((a, b) => a.position - b.position)
+    .map((e, i) => ({ ...e, position: i + 1 }));
+  const shares = rows.map((r) => r.share_pct).filter((n) => n != null);
+  const sum = shares.reduce((a, b) => a + b, 0);
+  return {
+    chain: rows,
+    length: rows.length,
+    // صاحب الطلب معروفٌ لنا فقط إن كان أحد أفراد السلسلة هو هو.
+    principal_known: rows.some((r) => r.role === "CLIENT" || r.role === "OWNER"),
+    // مجموع الحصص لا يُصحَّح آلياً — تصحيحه اختراعُ اتفاقٍ لم يجرِ.
+    share_warning: shares.length > 0 && Math.abs(sum - 100) > 0.5
+      ? `مجموع الحصص ${Math.round(sum * 10) / 10}% لا 100%`
+      : null,
+  };
+}
+
+// ----------------------------------------------------------- التكرار ---
+// الطلب نفسه يصل مرتين وثلاثاً من وسطاء مختلفين. اثنان يسجَّلان طلبين
+// فيُطرح الطلب على السوق مرتين، فيُعرف أن المكتب لا يعرف سوقه. المفتاح
+// يُبنى من الوصف لا من المرسل: النوع والمدينة وشريحة المساحة وشريحة
+// الميزانية. الشرائح لا القيم، لأن «٥٠٠٠ متر» و«٥١٠٠ متر» طلبٌ واحد.
+const bucket = (n, step) => (n == null || !Number.isFinite(Number(n)) ? "-" : String(Math.round(Number(n) / step)));
+export function dedupKey(fields = {}) {
+  const area = fields.area_min != null ? fields.area_min : fields.area_max;
+  const budget = fields.budget_max != null ? fields.budget_max : fields.budget_min;
+  return [
+    fields.property_type || "-",
+    normalizeAr(fields.city || "-"),
+    bucket(area, 500),
+    bucket(budget, 500000),
+    fields.income_producing === true ? "Y" : fields.income_producing === false ? "N" : "-",
+  ].join("|");
+}
+
+/**
+ * مرشّحو التكرار بين طلب جديد وطلبات قائمة. لا يُدمج شيء آلياً: القرار
+ * بيد من يعرف السوق، والدالة تعرض السبب ليقرّر عليه.
+ *
+ * المطابقة بالتشابه لا بتطابق المفتاح. جُرّب المفتاح أولاً فسقط على أول
+ * حالة حقيقية: طلبٌ «من ٥٠٠٠ إلى ٦٠٠٠ متر بميزانية ٩ مليون» وصل ثانيةً من
+ * وسيط آخر بصيغة «٥٥٠٠ متر» بلا ميزانية — نفس الطلب، ومفتاحان مختلفان،
+ * فطُرح على السوق مرتين. الوصف يصل ناقصاً ومقرَّباً لأن كل وسيط ينقله
+ * بكلماته، والتشابه وحده يصمد لذلك.
+ */
+const overlaps = (aMin, aMax, bMin, bMax, tol = 0.2) => {
+  // حدٌّ غائب يعني مفتوحاً: «فوق ٥٠٠٠ متر» لا سقف له، ولا يصح أن يُفهم صفراً.
+  const lo1 = aMin == null ? -Infinity : Number(aMin) * (1 - tol);
+  const hi1 = aMax == null ? Infinity : Number(aMax) * (1 + tol);
+  const lo2 = bMin == null ? -Infinity : Number(bMin);
+  const hi2 = bMax == null ? Infinity : Number(bMax);
+  if (!Number.isFinite(lo1) && !Number.isFinite(hi1)) return null;   // لا معلومة
+  if (!Number.isFinite(lo2) && !Number.isFinite(hi2)) return null;
+  return lo1 <= hi2 && lo2 <= hi1;
+};
+
+export function findDuplicates(fields, requests = [], { days = 120, min = 0.6 } = {}) {
+  const now = Date.now();
+  const out = [];
+  const city = normalizeAr(fields.city || "");
+  for (const r of requests) {
+    if (!r || r.status === "CANCELLED" || r.status === "LOST" || r.status === "WON") continue;
+    if (fields.id && r.id === fields.id) continue;
+    // العمر يُقاس بعمر الصفّ عندنا لا بتاريخ الرسالة. أرشيفٌ أُدخل اليوم
+    // عن رسالة قبل سنة صفٌّ حيٌّ في نظامنا، ولو قيس بتاريخ الرسالة لسقط
+    // من نافذة التكرار فور إدخاله — وهو أحوج ما يكون إلى الفحص.
+    const age = r.updated_at || r.created_at;
+    if (age && days && (now - new Date(age).getTime()) / 86400000 > days) continue;
+
+    const why = [];
+    let score = 0;
+    if (fields.property_type && r.property_type) {
+      if (fields.property_type !== r.property_type) continue;        // نوعان مختلفان ليسا طلباً واحداً
+      score += 0.4; why.push("نفس النوع");
+    } else score += 0.15;
+    if (city && r.city) {
+      if (city !== normalizeAr(r.city)) continue;                    // ولا مدينتان
+      score += 0.3; why.push("نفس المدينة");
+    } else score += 0.1;
+
+    const areaHit = overlaps(fields.area_min, fields.area_max, r.area_min, r.area_max);
+    if (areaHit === true) { score += 0.2; why.push("مساحة متقاربة"); }
+    else if (areaHit === false) continue;                            // مساحتان لا تلتقيان
+    const budgetHit = overlaps(fields.budget_min, fields.budget_max, r.budget_min, r.budget_max, 0.15);
+    if (budgetHit === true) { score += 0.1; why.push("ميزانية متقاربة"); }
+    else if (budgetHit === false) score -= 0.25;                     // تُضعف ولا تُقصي: الميزانية تتغيّر
+
+    const sameContact = fields.contact_id && r.contact_id && fields.contact_id === r.contact_id;
+    if (sameContact) { score += 0.3; why.push("نفس جهة الاتصال"); }
+
+    if (score < min) continue;
+    out.push({ ref: r.ref, id: r.id, reason: why.join(" · "), confidence: Math.min(0.99, Math.round(score * 100) / 100) });
+  }
+  return out.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
 }

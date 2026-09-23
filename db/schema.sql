@@ -1050,3 +1050,96 @@ create policy re_broadcasts_read on re_broadcasts for select using (organization
 create policy re_messages_read  on re_messages  for select using (organization_id in (select current_org_ids()));
 create policy re_deals_read     on re_deals     for select using (organization_id in (select current_org_ids()));
 create policy re_studies_read   on re_studies   for select using (organization_id in (select current_org_ids()));
+
+-- ============================================================ الاستقبال ==
+-- الوارد: قمع واحد لكل القنوات. واتساب ونموذج الموقع والرسائل الاجتماعية
+-- والبريد والمكالمات وما يدوّنه الفريق ومـا ينقله الوسطاء — كلها تنزل
+-- صفّاً هنا أولاً، ثم تُقرأ، ثم تُحوَّل إلى طلب أو عرض. الفائدة أن ما لم
+-- يُفهم لا يضيع: يبقى في الوارد بحالته حتى يراجعه إنسان، بدل أن يُرمى أو
+-- يُسجَّل طلباً ناقصاً يلوّث المطابقة.
+create table if not exists re_intake (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-W-000123 (وارد)
+  channel text not null default 'WHATSAPP',
+  channel_detail text,                        -- المعرّف في القناة: @حساب، بريد، رقم
+  contact_id uuid references re_contacts(id) on delete set null,
+  sender_name text,
+  sender_phone text,
+  sender_email text,
+  raw_text text not null,
+  -- وقت وصول الرسالة فعلاً، لا وقت إدخالها. إدخال أرشيف سنة كاملة اليوم
+  -- بـ created_at اليوم يجعل كل طلب قديم يبدو طازجاً، فتُطرح على السوق
+  -- طلبات انتهت، ويصير ترتيب الأقدمية بلا معنى.
+  received_at timestamptz not null default now(),
+  entered_by text,                            -- من أدخله من الفريق
+  intent text,                                -- REQUEST | LISTING | STUDY | QUESTION | UNKNOWN
+  parsed jsonb not null default '{}'::jsonb,  -- ما فهمته القواعد، للمراجعة قبل التحويل
+  status text not null default 'NEW' check (status in ('NEW','NEEDS_INFO','LINKED','DUPLICATE','DISCARDED')),
+  linked_kind text,                           -- REQUEST | LISTING | STUDY
+  linked_ref text,                            -- BD-T-… أو BD-A-… بعد التحويل
+  dup_of text,                                -- مرجع الصفّ الذي تبيّن أنه تكراره
+  -- الأرشيف يُدخل صامتاً: لا رسالة تُرسل، ولا تنبيه، ولا طرح على السوق.
+  -- إدخال ثلاثمئة طلب قديم بلا هذا الحقل يعني ثلاثمئة رسالة تصل أصحابها.
+  backlog boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_intake_status_idx on re_intake(status, received_at desc);
+create index if not exists re_intake_channel_idx on re_intake(channel);
+create index if not exists re_intake_contact_idx on re_intake(contact_id);
+
+-- سلسلة الوسطاء: من يقف بيننا وبين صاحب الطلب، مرتّبين. الموضع ١ هو من
+-- نكلّمه نحن. صفٌّ لكل واحد لا حقلٌ نصّي، لأن السلسلة تُستعلم: «كل ما جاء
+-- عن طريق أبو سعد»، و«ما نسبته من العمولة»، وهذان سؤالان لا يجيبهما نص.
+create table if not exists re_chain (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  subject_kind text not null check (subject_kind in ('REQUEST','LISTING')),
+  subject_ref text not null,                  -- BD-T-… أو BD-A-…
+  position int not null default 1,            -- ١ = الأقرب إلينا
+  contact_id uuid references re_contacts(id) on delete set null,
+  name text,
+  phone text,
+  role text not null default 'BROKER' check (role in ('CLIENT','BROKER','MARKETER','AGENT','OWNER','DEVELOPER','COLLEAGUE')),
+  share_pct numeric,                          -- حصته من العمولة إن اتُّفق عليها
+  notes text,
+  created_at timestamptz not null default now(),
+  unique (subject_ref, position)
+);
+create index if not exists re_chain_subject_idx on re_chain(subject_ref);
+create index if not exists re_chain_contact_idx on re_chain(contact_id);
+
+-- القنوات اتّسعت بعد أن صار الاستقبال من كل مكان، والقيد القديم كان
+-- يرفض 'INSTAGRAM' و'CALL' و'IMPORT' فيسقط الإدخال كله.
+alter table re_requests drop constraint if exists re_requests_source_check;
+alter table re_requests add constraint re_requests_source_check
+  check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','REFERRAL','INSTAGRAM','X','SNAPCHAT','TIKTOK','LINKEDIN','FACEBOOK','CALL','TEAM','BROKER','WALK_IN','IMPORT','OTHER'));
+alter table re_listings drop constraint if exists re_listings_source_check;
+alter table re_listings add constraint re_listings_source_check
+  check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','PORTAL','FIELD','INSTAGRAM','X','SNAPCHAT','TIKTOK','LINKEDIN','FACEBOOK','CALL','TEAM','BROKER','WALK_IN','IMPORT','OTHER'));
+
+alter table re_requests add column if not exists source_detail text;
+alter table re_requests add column if not exists received_at timestamptz;
+alter table re_requests add column if not exists entered_by text;
+alter table re_requests add column if not exists intake_ref text;
+alter table re_requests add column if not exists dedup_key text;
+alter table re_requests add column if not exists dup_of text;
+alter table re_requests add column if not exists chain_len int not null default 0;
+alter table re_requests add column if not exists principal_known boolean not null default true;
+alter table re_requests add column if not exists backlog boolean not null default false;
+create index if not exists re_requests_dedup_idx on re_requests(dedup_key);
+
+alter table re_listings add column if not exists source_detail text;
+alter table re_listings add column if not exists received_at timestamptz;
+alter table re_listings add column if not exists entered_by text;
+alter table re_listings add column if not exists intake_ref text;
+alter table re_listings add column if not exists chain_len int not null default 0;
+alter table re_listings add column if not exists backlog boolean not null default false;
+
+alter table re_intake enable row level security;
+alter table re_chain  enable row level security;
+drop policy if exists re_intake_read on re_intake;
+drop policy if exists re_chain_read  on re_chain;
+create policy re_intake_read on re_intake for select using (organization_id in (select current_org_ids()));
+create policy re_chain_read  on re_chain  for select using (organization_id in (select current_org_ids()));

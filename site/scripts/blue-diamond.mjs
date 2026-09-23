@@ -629,6 +629,54 @@ function crmPage() {
     </div>
 
     <div class="card" style="margin-bottom:18px">
+      <h3>الوارد — كل القنوات</h3>
+      <p class="hint" style="margin-top:0">كل ما يصل ينزل هنا أولاً: واتساب، نموذج الموقع، رسائل الحسابات الاجتماعية، البريد، المكالمات، ما يدوّنه الفريق، وما ينقله الوسطاء. يُقرأ ويُراجَع ثم يُحوَّل إلى طلب أو عرض — فلا يضيع ما لم يُفهم، ولا يُسجَّل ناقصاً.</p>
+      <div class="row" style="margin:12px 0">
+        <div><label for="ichan">القناة</label><select id="ichan"></select></div>
+        <div><label for="idetail">المعرّف في القناة</label><input id="idetail" placeholder="@الحساب · البريد · رقم المتصل"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="iname">اسم المرسل</label><input id="iname"></div>
+        <div><label for="iphone">جواله</label><input id="iphone" inputmode="tel" placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="iemail">بريده</label><input id="iemail" inputmode="email"></div>
+        <div><label for="idate">تاريخ الوصول</label><input id="idate" type="date"></div>
+      </div>
+      <label for="itext">نص ما وصل</label>
+      <textarea id="itext" placeholder="مطلوب عمارة سكنية في الرياض حي الملقا 5000 متر مؤجرة والدخل السنوي 700 ألف — الطلب عن طريق أبو سعد عن وسيط ثاني"></textarea>
+      <label class="hint" style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <input type="checkbox" id="iback"> طلب سابق (أرشيف) — يُسجَّل ويُطابَق بلا أي رسالة تُرسل
+      </label>
+      <button class="btn btn-primary" id="isave" type="button" style="margin-top:10px">سجّل في الوارد</button>
+      <div id="imsg" hidden style="margin-top:12px"></div>
+      <div id="idups" hidden style="margin-top:12px"></div>
+      <div style="overflow-x:auto;margin-top:16px"><table class="bd" id="tintake"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>إدخال الطلبات السابقة — دفعة واحدة</h3>
+      <p class="hint" style="margin-top:0">الصق تصدير محادثة واتساب (Export chat) أو عدة طلبات يفصلها سطر فارغ. كل رسالة تُسجَّل بتاريخها هي لا بتاريخ اليوم. الدفعة أرشيف: تُطابَق في القاعدة ولا تُرسل رسالة واحدة.</p>
+      <div class="row" style="margin:12px 0">
+        <div><label for="bfmt">الشكل</label><select id="bfmt">
+          <option value="whatsapp">تصدير محادثة واتساب</option>
+          <option value="blocks">كتل يفصلها سطر فارغ</option>
+        </select></div>
+        <div><label for="bfrom">فقط رسائل هذا المرسل</label><input id="bfrom" placeholder="اتركه فارغاً لكل المرسلين"></div>
+      </div>
+      <label class="hint" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="checkbox" id="bday" checked> التاريخ يوم/شهر (أجهزة المنطقة). أزل العلامة إن كان التصدير شهر/يوم
+      </label>
+      <textarea id="btext" style="min-height:160px" placeholder="[12/03/2025, 9:41:22 ص] أبو سعد: مطلوب أرض خام شمال الرياض 5000 متر"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="bprev" type="button">اقرأ بلا حفظ</button>
+        <button class="btn btn-primary" id="bgo" type="button">أدخل الدفعة</button>
+      </div>
+      <div id="bmsg" hidden style="margin-top:12px"></div>
+      <div id="bout" style="margin-top:12px;font-size:12px;color:var(--bd-mute)"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
       <h3>الطلبات المفتوحة</h3>
       <div style="overflow-x:auto"><table class="bd" id="treq"></table></div>
     </div>
@@ -682,7 +730,7 @@ function crmPage() {
   const script = `
 const $=s=>document.querySelector(s);
 let KEY=localStorage.getItem('bd_ops_key')||'';
-let LAB={dealStages:{},studyKinds:{},studyStatuses:{},propertyTypes:{}};
+let LAB={dealStages:{},studyKinds:{},studyStatuses:{},propertyTypes:{},channels:{},chainRoles:{}};
 const n=x=>x==null?'—':Number(x).toLocaleString('en-US');
 const t=c=>LAB.propertyTypes[c]||c||'—';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -704,7 +752,7 @@ function say(el,text,cls){el.hidden=false;el.className='note '+(cls||'');el.text
 async function load(){
   const d=(await api({action:'dashboard'})).data;
   const c=d.counts||{},m=d.money||{};
-  $('#stats').innerHTML=[['الطلبات المفتوحة',c.openRequests],['العروض المتاحة',c.activeListings],
+  $('#stats').innerHTML=[['وارد ينتظر المراجعة',c.inbox],['الطلبات المفتوحة',c.openRequests],['العروض المتاحة',c.activeListings],
     ['مطابقات جديدة',c.newMatches],['جهات الاتصال',c.contacts],['صفقات جارية',c.openDeals],['دراسات مفتوحة',c.openStudies],
     ['قيمة الصفقات الجارية',n(m.openValue)],['قيمة الصفقات المُقفلة',n(m.wonValue)],['العمولة المحقّقة',n(m.wonCommission)]]
     .map(([k,v])=>'<div class="card stat"><b>'+(v===0?0:(v||0))+'</b><span>'+k+'</span></div>').join('');
@@ -753,6 +801,8 @@ async function load(){
     '<td><select data-study="'+esc(r.ref)+'" style="padding:6px 8px;font-size:12px">'+opts(LAB.studyStatuses,r.status)+'</select></td>'+
     '<td>'+(r.output_url?'<a href="'+esc(r.output_url)+'" target="_blank" rel="noopener">الملف</a>':'—')+'</td></tr>');
 
+  await loadIntake();
+
   const cons=(await api({action:'list',of:'contacts',limit:'40'})).data.rows||[];
   table($('#tcon'),['الاسم','الجوال','الأدوار','المدينة','عروض','مطابقات','صفقات'],cons,r=>
     '<tr><td>'+esc(r.name||'—')+'</td><td>'+esc(r.wa_phone)+'</td>'+
@@ -760,6 +810,94 @@ async function load(){
     '<td>'+esc(r.city||'—')+'</td><td>'+(r.offers_count||0)+'</td><td>'+(r.matched_count||0)+'</td>'+
     '<td>'+(r.deals_count||0)+'</td></tr>');
 }
+
+// ------------------------------------------------------------- الوارد --
+// السلسلة تُكتب سطراً لكل وسيط: الاسم | الجوال | الدور | الحصة٪. صيغةٌ
+// تُكتب بسرعة الواتساب، ونموذجٌ بحقول لكل وسيط لا يملؤه أحد وهو يعمل.
+function parseChainLines(text){
+  return String(text||'').split(/\n/).map(l=>l.trim()).filter(Boolean).map((l,i)=>{
+    const p=l.split('|').map(x=>x.trim());
+    return {position:i+1,name:p[0]||'',phone:p[1]||'',role:(p[2]||'BROKER').toUpperCase(),share_pct:p[3]?Number(String(p[3]).replace('%','')):null}})
+    .filter(x=>x.name||x.phone)}
+
+function dupLine(d){return '<div class="hint">⚠️ قد يكون تكراراً لـ <b>'+esc(d.ref)+'</b> — '+esc(d.reason)+' ('+Math.round(d.confidence*100)+'%)</div>'}
+
+async function loadIntake(){
+  const rows=(await api({action:'list',of:'intake',limit:'40'})).data.rows||[];
+  const open=rows.filter(r=>r.status==='NEW'||r.status==='NEEDS_INFO');
+  table($('#tintake'),['المرجع','القناة','وصل','المرسل','ما فُهم','النص','إجراء'],open,r=>{
+    const pr=r.parsed||{};
+    const hint=(pr.chain_hint&&pr.chain_hint.hinted)?' <span class="pill">وسيط</span>':'';
+    const back=r.backlog?' <span class="pill">أرشيف</span>':'';
+    return '<tr><td><b>'+esc(r.ref)+'</b>'+back+'</td>'+
+      '<td>'+esc(LAB.channels[r.channel]||r.channel)+'</td>'+
+      '<td>'+short(r.received_at)+'</td>'+
+      '<td>'+esc(r.sender_name||r.sender_phone||r.sender_email||'—')+hint+'</td>'+
+      '<td>'+esc(r.intent==='LISTING'?'عرض':r.intent==='REQUEST'?'طلب':r.intent==='STUDY'?'دراسة':'غير واضح')+
+        '<div class="hint">'+esc(t(pr.property_type))+(pr.city?' · '+esc(pr.city):'')+'</div></td>'+
+      '<td style="max-width:280px"><div class="hint" style="white-space:pre-wrap">'+esc(String(r.raw_text||'').slice(0,160))+'</div></td>'+
+      '<td style="white-space:nowrap">'+
+        '<button class="btn btn-primary" style="padding:6px 10px;font-size:12px" data-conv="'+esc(r.ref)+'" data-kind="REQUEST">طلب</button> '+
+        '<button class="btn btn-ghost" style="padding:6px 10px;font-size:12px" data-conv="'+esc(r.ref)+'" data-kind="LISTING">عرض</button> '+
+        '<button class="btn btn-ghost" style="padding:6px 10px;font-size:12px" data-drop="'+esc(r.ref)+'">تجاهل</button>'+
+      '</td></tr>'});
+}
+
+$('#isave').onclick=async()=>{
+  const msg=$('#imsg'),dups=$('#idups');dups.hidden=true;
+  const text=$('#itext').value.trim();
+  if(!text){say(msg,'اكتب نص ما وصل.','err');return}
+  const d=$('#idate').value;
+  const r=await api({},{action:'intake',text:text,channel:$('#ichan').value,
+    channelDetail:$('#idetail').value.trim(),name:$('#iname').value.trim(),
+    phone:$('#iphone').value.trim(),email:$('#iemail').value.trim(),
+    receivedAt:d?new Date(d+'T12:00:00Z').toISOString():null,backlog:$('#iback').checked});
+  if(r.status!==200){say(msg,'تعذّر التسجيل: '+esc((r.data&&r.data.error)||r.status),'err');return}
+  say(msg,'سُجّل في الوارد: '+r.data.row.ref+' — راجعه في الجدول ثم حوّله.','ok');
+  const list=(r.data.duplicates||[]);
+  if(list.length){dups.hidden=false;dups.innerHTML=list.map(dupLine).join('')}
+  $('#itext').value='';loadIntake()};
+
+// التحويل يسأل عن السلسلة أولاً: بعد الحفظ يصير السؤال تصحيحاً، وقبله
+// هو الوقت الوحيد الذي يكون فيه من أدخل الصفّ يذكر من نقله.
+async function convert(ref,kind){
+  const hint=kind==='REQUEST'?'سلسلة الوسطاء (اختياري) — سطر لكل واحد:\nالاسم | الجوال | الدور | الحصة٪\nالأدوار: BROKER وسيط · MARKETER مسوّق · CLIENT صاحب الطلب · OWNER مالك':'سلسلة من نقل العرض (اختياري) — سطر لكل واحد:\nالاسم | الجوال | الدور | الحصة٪';
+  const raw=prompt(hint,'');
+  if(raw===null)return;
+  const chain=parseChainLines(raw);
+  const r=await api({},{action:'intake-convert',ref:ref,kind:kind,chain:chain});
+  const msg=$('#imsg');
+  if(r.status!==200){say(msg,'تعذّر التحويل: '+esc((r.data&&r.data.error)||r.status),'err');return}
+  say(msg,'تحوّل '+ref+' إلى '+r.data.ref+(r.data.matches?' — '+r.data.matches+' مطابقة':' — بلا مطابقة بعد'),'ok');
+  loadIntake();load()}
+
+// ------------------------------------------------- إدخال الأرشيف ------
+$('#bprev').onclick=async()=>{
+  const msg=$('#bmsg');
+  const r=await api({},{action:'intake-preview',text:$('#btext').value,format:$('#bfmt').value,dayFirst:$('#bday').checked});
+  if(r.status!==200){say(msg,'تعذّرت القراءة.','err');return}
+  const d=r.data;
+  const senders=Object.entries(d.senders||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  say(msg,'قُرئت '+d.total+' رسالة. لا شيء حُفظ.','ok');
+  $('#bout').innerHTML=(senders.length?'<div><b>المرسلون:</b> '+senders.map(([k,v])=>esc(k)+' ('+v+')').join(' · ')+'</div>':'')+
+    '<div style="margin-top:8px"><b>عيّنة:</b></div>'+
+    (d.sample||[]).map(x=>'<div style="border-bottom:1px solid var(--bd-line);padding:6px 0">'+
+      '<span class="pill">'+esc(x.intent==='LISTING'?'عرض':x.intent==='REQUEST'?'طلب':x.intent==='STUDY'?'دراسة':'يُتجاهل')+'</span> '+
+      short(x.at)+' — '+esc(x.sender||'')+': '+esc(x.text)+'</div>').join('')};
+
+$('#bgo').onclick=async()=>{
+  const msg=$('#bmsg'),text=$('#btext').value.trim();
+  if(!text){say(msg,'الصق التصدير أو الطلبات أولاً.','err');return}
+  if(!confirm('سيُسجَّل ما يُقرأ في الوارد كأرشيف — بلا إرسال أي رسالة. متابعة؟'))return;
+  say(msg,'جارٍ الإدخال…','');
+  const r=await api({},{action:'intake-bulk',text:text,format:$('#bfmt').value,
+    onlyFrom:$('#bfrom').value.trim()||null,dayFirst:$('#bday').checked,backlog:true});
+  if(r.status!==200){say(msg,'تعذّر الإدخال.','err');return}
+  const d=r.data;
+  say(msg,'قُرئت '+d.read+' · سُجّلت '+d.saved+' · تُجوهلت '+d.skipped+(d.truncated?' · بقي '+d.truncated+' لدفعة تالية':''),'ok');
+  $('#bout').innerHTML=(d.skippedRows||[]).length?'<div><b>ما لم يُسجَّل:</b></div>'+
+    d.skippedRows.map(x=>'<div class="hint">'+esc(x.why)+' — '+esc(x.text)+'</div>').join(''):'';
+  loadIntake();load()};
 
 // المطابقات تُعرض في اللوحة لا في نافذة تنبيه: من نافذة لا يمكن فتح صفقة
 // ولا إرسال بطاقة، وكتابة مرجعين باليد لفتح صفقة عملٌ لا يقوم به أحد.
@@ -787,6 +925,16 @@ async function showMatches(ref){
 document.addEventListener('click',async e=>{
   const g=k=>e.target.getAttribute&&e.target.getAttribute(k);
   const m=g('data-m'),b=g('data-b'),send=g('data-send'),open=g('data-open');
+  const conv=g('data-conv'),drop=g('data-drop');
+  if(conv)await convert(conv,g('data-kind')||'REQUEST');
+  if(drop){
+    // «مكرر» يحتاج مرجع الصفّ الأصلي، وإلا صار التجاهل نسياناً لا قراراً.
+    const dup=prompt('مرجع الطلب الذي يكرّره (BD-T-…)، أو اتركه فارغاً للتجاهل:','');
+    if(dup===null)return;
+    const r=await api({},dup.trim()?{action:'intake-close',ref:drop,status:'DUPLICATE',dupOf:dup.trim()}
+                                   :{action:'intake-close',ref:drop,status:'DISCARDED'});
+    if(r.status!==200){alert('تعذّر: '+((r.data&&r.data.error)||r.status));return}
+    loadIntake()}
   if(m)await showMatches(m);
   if(b){if(!confirm('يُرسل نص الطلب '+b+' إلى المسوّقين والمطوّرين في القاعدة. متابعة؟'))return;
     const r=await api({},{action:'broadcast',ref:b});
@@ -842,6 +990,7 @@ async function enter(){
       :'مفتاح غير صحيح.';return}
   LAB=r.data.labels||LAB;
   $('#skind').innerHTML=opts(LAB.studyKinds,'ANALYSIS');
+  $('#ichan').innerHTML=opts(LAB.channels,'WHATSAPP');
   localStorage.setItem('bd_ops_key',KEY);
   $('#gate').hidden=true;$('#app').hidden=false;load()}
 $('#enter').onclick=enter;

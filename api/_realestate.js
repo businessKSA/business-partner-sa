@@ -45,6 +45,9 @@ import {
   classifyMessage, parseRequestText, parseListingText, propertyTypeLabel,
   requestCompleteness, nextQuestion, rankListings, rankRequests, scoreMatch,
   listingCard, broadcastText, PROPERTY_TYPES, CITIES, normalizeAr,
+  CHANNELS, SOCIAL_CHANNELS, channelLabel, CHAIN_ROLES, chainRoleLabel,
+  parseChatExport, splitBlocks, detectChainHint, extractPhones, buildChain,
+  dedupKey, findDuplicates,
 } from "./_rematch.js";
 
 const env = (k, d = "") => String(process.env[k] || d).trim();
@@ -147,10 +150,10 @@ const DEFAULT_COMMISSION = num(env("BD_COMMISSION_PCT", ""));
 // ---------------------------------------------------------- أرقام مرجعية --
 // الشكل BD-T-000123. الحرف يقول ماذا تقرأ قبل أن تفتح الصفّ، وهذا وحده
 // يختصر نصف أسئلة الواتساب: «إيش رقم BD-A-000456؟» جوابها في الحرف.
-const SERIES = { request: "T", listing: "A", broadcast: "S", deal: "D", study: "C" };
+const SERIES = { request: "T", listing: "A", broadcast: "S", deal: "D", study: "C", intake: "W" };
 async function nextRef(kind) {
   const letter = SERIES[kind] || "X";
-  const table = { request: "re_requests", listing: "re_listings", broadcast: "re_broadcasts", deal: "re_deals", study: "re_studies" }[kind];
+  const table = { request: "re_requests", listing: "re_listings", broadcast: "re_broadcasts", deal: "re_deals", study: "re_studies", intake: "re_intake" }[kind];
   let n = 1;
   if (DB_ON && table) {
     try {
@@ -273,13 +276,24 @@ async function alertOwner(text) {
 }
 
 // --------------------------------------------------------- حفظ ومطابقة --
-async function saveRequest(fields, { contact, source = "WHATSAPP" }) {
+async function saveRequest(fields, { contact, source = "WHATSAPP", sourceDetail = null, receivedAt = null, enteredBy = null, intakeRef = null, chain = null, backlog = false }) {
   const { completeness } = requestCompleteness(fields);
   const ref = await nextRef("request");
+  const built = chain ? buildChain(chain) : null;
   const row = {
     ref,
     contact_id: contact ? contact.id : null,
     source,
+    source_detail: sourceDetail || null,
+    // وقت الوصول الفعلي لا وقت الإدخال: أرشيفُ سنةٍ يُدخل اليوم يحمل
+    // تواريخه هو، وإلا بدا كل طلب قديم طازجاً وضاع ترتيب الأقدمية.
+    received_at: receivedAt || nowIso(),
+    entered_by: enteredBy || null,
+    intake_ref: intakeRef || null,
+    dedup_key: dedupKey(fields),
+    chain_len: built ? built.length : 0,
+    principal_known: built ? built.principal_known : true,
+    backlog: !!backlog,
     purpose: fields.purpose || "BUY",
     property_type: fields.property_type || null,
     city: fields.city || null,
@@ -302,12 +316,19 @@ async function saveRequest(fields, { contact, source = "WHATSAPP" }) {
   return (ins && ins[0]) || row;
 }
 
-async function saveListing(fields, { contact, source = "WHATSAPP" }) {
+async function saveListing(fields, { contact, source = "WHATSAPP", sourceDetail = null, receivedAt = null, enteredBy = null, intakeRef = null, chain = null, backlog = false }) {
   const ref = await nextRef("listing");
+  const built = chain ? buildChain(chain) : null;
   const row = {
     ref,
     contact_id: contact ? contact.id : null,
     source,
+    source_detail: sourceDetail || null,
+    received_at: receivedAt || nowIso(),
+    entered_by: enteredBy || null,
+    intake_ref: intakeRef || null,
+    chain_len: built ? built.length : 0,
+    backlog: !!backlog,
     offer_kind: fields.offer_kind || "SALE",
     property_type: fields.property_type || null,
     city: fields.city || null,
@@ -908,7 +929,10 @@ export async function handleRealEstate(req, res) {
     const fields = { ...parseRequestText(b.notes || b.text || ""), ...pickRequestFields(b) };
     if (!fields.property_type && !fields.city) return json(res, 400, { error: "incomplete" });
     const contact = await upsertContact({ phone: b.phone, name: b.name, email: b.email, city: b.city, roles: ["CLIENT"] });
-    const row = await saveRequest({ ...fields, raw_text: b.notes || null }, { contact, source: "WEBSITE" });
+    const row = await saveRequest({ ...fields, raw_text: b.notes || null }, {
+      contact, source: "WEBSITE", sourceDetail: b.page || null, chain: b.chain || null,
+    });
+    if (b.chain && b.chain.length) await setChain({ subjectRef: row.ref, kind: "REQUEST", entries: b.chain });
     const ranked = await matchRequest(row);
     await alertOwner(`🌐 *طلب من الموقع* ${row.ref}\n${b.name || ""} ${b.phone || ""}\n${summarizeRequest(row)}\nمطابقات: ${ranked.length}`);
     return json(res, 200, { ok: true, ref: row.ref, matches: ranked.length });
@@ -918,7 +942,10 @@ export async function handleRealEstate(req, res) {
     const fields = { ...parseListingText(b.notes || b.text || ""), ...pickListingFields(b) };
     if (!fields.property_type && !fields.city) return json(res, 400, { error: "incomplete" });
     const contact = await upsertContact({ phone: b.phone, name: b.name, company: b.company, email: b.email, roles: [b.role === "OWNER" ? "OWNER" : b.role === "DEVELOPER" ? "DEVELOPER" : "MARKETER"] });
-    const row = await saveListing({ ...fields, raw_text: b.notes || null }, { contact, source: "WEBSITE" });
+    const row = await saveListing({ ...fields, raw_text: b.notes || null }, {
+      contact, source: "WEBSITE", sourceDetail: b.page || null, chain: b.chain || null,
+    });
+    if (b.chain && b.chain.length) await setChain({ subjectRef: row.ref, kind: "LISTING", entries: b.chain });
     const hits = await matchListing(row);
     await alertOwner(`🌐 *عرض من الموقع* ${row.ref}\n${b.name || ""} ${b.phone || ""}\n${summarizeListing(row)}\nيطابق: ${hits.length} طلباً`);
     return json(res, 200, { ok: true, ref: row.ref, matchedRequests: hits.length });
@@ -944,7 +971,7 @@ export async function handleRealEstate(req, res) {
   if (action === "dashboard") return json(res, 200, await dashboard());
 
   if (action === "list") {
-    const table = { requests: "re_requests", listings: "re_listings", contacts: "re_contacts", matches: "re_matches", deals: "re_deals", studies: "re_studies", messages: "re_messages" }[String(q.of || b.of || "")];
+    const table = { requests: "re_requests", listings: "re_listings", contacts: "re_contacts", matches: "re_matches", deals: "re_deals", studies: "re_studies", messages: "re_messages", intake: "re_intake", chain: "re_chain" }[String(q.of || b.of || "")];
     if (!table) return json(res, 400, { error: "unknown_list" });
     if (!DB_ON) return json(res, 200, { rows: [] });
     const limit = Math.min(200, Number(q.limit || b.limit || 50) || 50);
@@ -1015,6 +1042,73 @@ export async function handleRealEstate(req, res) {
     return json(res, 200, { ok: true, row: (upd && upd[0]) || null });
   }
 
+  // ------------------------------------------------------ الوارد ------
+  if (action === "intake" && req.method === "POST") {
+    const row = await saveIntake({
+      text: b.text, channel: b.channel, channelDetail: b.channelDetail || b.detail,
+      name: b.name, phone: b.phone, email: b.email,
+      receivedAt: b.receivedAt || b.received_at, enteredBy: b.actor || b.enteredBy,
+      backlog: !!b.backlog,
+    });
+    if (row && row.error) return json(res, row.error === "unknown_channel" ? 400 : 422, row);
+    // التكرار يُعرض مع الصفّ لا بعده: من يراجع الوارد يقرّر وهو يراه.
+    const dups = row.intent === "LISTING" ? [] : await duplicatesFor(row.parsed || {}, row.contact_id);
+    return json(res, 200, { ok: true, row, duplicates: dups });
+  }
+
+  if (action === "intake-bulk" && req.method === "POST") {
+    const out = await bulkIntake({
+      text: b.text, format: b.format || "blocks", channel: b.channel || "IMPORT",
+      enteredBy: b.actor || b.enteredBy, onlyFrom: b.onlyFrom || null,
+      dayFirst: b.dayFirst !== false, backlog: b.backlog !== false,
+      limit: Math.min(Number(b.limit) || 300, 500),
+    });
+    return json(res, 200, out);
+  }
+
+  // قراءة التصدير بلا حفظ — معاينة قبل الالتزام بثلاثمئة صفّ.
+  if (action === "intake-preview" && req.method === "POST") {
+    const format = b.format || "blocks";
+    const items = format === "whatsapp"
+      ? parseChatExport(b.text, { dayFirst: b.dayFirst !== false })
+      : splitBlocks(b.text).map((t) => ({ at: null, sender: null, text: t }));
+    const senders = {};
+    for (const m of items) if (m.sender) senders[m.sender] = (senders[m.sender] || 0) + 1;
+    const sample = items.slice(0, 25).map((m) => ({
+      at: m.at, sender: m.sender, text: m.text.slice(0, 220),
+      intent: classifyMessage(m.text).intent,
+    }));
+    return json(res, 200, { total: items.length, senders, sample });
+  }
+
+  if (action === "intake-convert" && req.method === "POST") {
+    const out = await convertIntake({ ref: b.ref, kind: b.kind, overrides: b.fields || {}, chain: b.chain || null, actor: b.actor || null });
+    if (out && out.error) return json(res, out.error === "not_found" ? 404 : 409, out);
+    return json(res, 200, out);
+  }
+
+  if (action === "intake-close" && req.method === "POST") {
+    const out = await closeIntake({ ref: b.ref, status: b.status, dupOf: b.dupOf || null, actor: b.actor || null });
+    if (out && out.error) return json(res, 400, out);
+    return json(res, 200, out);
+  }
+
+  // ------------------------------------------------- سلسلة الوسطاء ----
+  if (action === "chain" && req.method === "POST") {
+    const kind = String(b.kind || "REQUEST").toUpperCase();
+    if (!b.ref) return json(res, 400, { error: "ref_required" });
+    const built = await setChain({ subjectRef: b.ref, kind, entries: b.chain || [] });
+    return json(res, 200, { ok: true, ...built });
+  }
+  if (action === "chain") {
+    if (!q.ref) return json(res, 400, { error: "ref_required" });
+    return json(res, 200, { rows: await chainFor(q.ref) });
+  }
+
+  if (action === "duplicates" && req.method === "POST") {
+    return json(res, 200, { rows: await duplicatesFor(b.fields || parseRequestText(b.text || ""), b.contactId || null) });
+  }
+
   if (action === "deal" && req.method === "POST") {
     const out = await openDeal({
       requestRef: b.requestRef, listingRef: b.listingRef,
@@ -1073,6 +1167,7 @@ export async function handleRealEstate(req, res) {
       commissionPct: DEFAULT_COMMISSION,
       // اللوحة تقرأ مسمّياتها من هنا: قائمة تُكتب مرتين تنحرف مرةً واحدة.
       labels: { dealStages: DEAL_STAGES, studyKinds: STUDY_KINDS, studyStatuses: STUDY_STATUSES,
+                channels: CHANNELS, social: SOCIAL_CHANNELS, chainRoles: CHAIN_ROLES,
                 propertyTypes: Object.fromEntries(Object.entries(PROPERTY_TYPES).map(([k, v]) => [k, v.ar])) },
       missing: [
         DB_ON ? null : "SUPABASE_SERVICE_KEY",
@@ -1094,6 +1189,194 @@ async function byRef(table, ref) {
   } catch { return null; }
 }
 
+// ============================================================ الاستقبال ==
+// قمع واحد لكل القنوات. واتساب هو الأغلب، لكن الطلب يصل أيضاً من نموذج
+// الموقع، ومن رسالة إنستقرام، ومن بريد، ومن مكالمة يدوّنها أحد الفريق،
+// ومن وسيط ينقل عن وسيط. القنوات تختلف في الغلاف لا في المضمون: كلها نصّ
+// عربي حرّ. لذلك لا محلّل لكل قناة — محلّل واحد، وحقلُ قناة على الصفّ.
+//
+// ولماذا صفّ وسيط (re_intake) بدل الحفظ مباشرةً طلباً؟ لأن ما لم يُفهم لا
+// يجوز أن يضيع ولا أن يُسجَّل طلباً ناقصاً يلوّث المطابقة. يبقى في الوارد
+// بنصّه حتى يراه إنسان. ولأن الأرشيف يُدخل مئاتٍ دفعةً واحدة، ومراجعتها
+// قبل التحويل أرخص من تنظيفها بعده.
+
+/** صفّ وارد جديد — لا يُرسل شيئاً ولا يطابق؛ الفهم أولاً ثم التحويل. */
+export async function saveIntake({
+  text, channel = "WHATSAPP", channelDetail = null, name = null, phone = null,
+  email = null, receivedAt = null, enteredBy = null, backlog = false,
+}) {
+  const raw = String(text || "").trim();
+  if (!raw) return { error: "empty" };
+  const ch = String(channel || "WHATSAPP").toUpperCase();
+  if (!CHANNELS[ch]) return { error: "unknown_channel" };
+  const cls = classifyMessage(raw);
+  const intent = cls.intent || "UNKNOWN";
+  const parsed = intent === "LISTING" ? parseListingText(raw) : parseRequestText(raw);
+  const hint = detectChainHint(raw);
+  const ref = await nextRef("intake");
+  // جهة الاتصال تُنشأ فقط حين يوجد رقم. وارد من بريد أو حساب اجتماعي بلا
+  // رقم يبقى بلا جهة اتصال حتى تُعرف — ولا يُخترع له رقم ليكتمل الصفّ.
+  const contact = phone ? await upsertContact({ phone, name, email, roles: [] }) : null;
+  const row = {
+    ref, channel: ch, channel_detail: channelDetail || null,
+    contact_id: contact ? contact.id : null,
+    sender_name: name || null,
+    sender_phone: phone ? waNumber(phone) : null,
+    sender_email: email || null,
+    raw_text: raw.slice(0, 4000),
+    received_at: receivedAt || nowIso(),
+    entered_by: enteredBy || null,
+    intent,
+    parsed: { ...parsed, chain_hint: hint, phones_in_text: extractPhones(raw), confidence: cls.confidence },
+    status: "NEW",
+    backlog: !!backlog,
+  };
+  if (!DB_ON) return { ...row, id: crypto.randomUUID() };
+  try {
+    const ins = await sb("re_intake", { method: "POST", body: [row] });
+    return (ins && ins[0]) || row;
+  } catch (e) { console.error("re intake", e.message); return { error: "save_failed" }; }
+}
+
+/**
+ * إدخال دفعة: إمّا تصدير محادثة واتساب، وإمّا لصقة كتلٍ يفصلها سطر فارغ.
+ * كل رسالة تحمل تاريخها هي. والدفعة تُدخل أرشيفاً افتراضاً — لأن هذا هو
+ * سببها: تسجيل ما مضى. أرشيفٌ يُرسل رسائلَ لأصحابه بعد شهور عطلٌ لا ميزة.
+ */
+export async function bulkIntake({
+  text, format = "blocks", channel = "IMPORT", enteredBy = null,
+  onlyFrom = null, dayFirst = true, backlog = true, limit = 300,
+}) {
+  const items = [];
+  if (format === "whatsapp") {
+    for (const m of parseChatExport(text, { dayFirst })) {
+      // «فقط من» يستبعد رسائل بندر نفسه من أرشيفه: تصدير محادثة فيه
+      // طرفاها، ونصفها منه هو، وليست طلبات.
+      if (onlyFrom && normalizeAr(m.sender) !== normalizeAr(onlyFrom)) continue;
+      items.push({ text: m.text, name: m.sender, receivedAt: m.at });
+    }
+  } else {
+    for (const b of splitBlocks(text)) items.push({ text: b, name: null, receivedAt: null });
+  }
+  const chosen = items.slice(0, limit);
+  const saved = [], skipped = [];
+  for (const it of chosen) {
+    const cls = classifyMessage(it.text);
+    // سؤالٌ عامّ أو كلامٌ لا يحمل وصفاً عقارياً ليس طلباً. يُحصى ولا يُدخل.
+    if (cls.intent === "QUESTION" || cls.intent === "UNKNOWN") { skipped.push({ text: it.text.slice(0, 80), why: "ليست طلباً ولا عرضاً" }); continue; }
+    const row = await saveIntake({
+      text: it.text, channel, name: it.name, receivedAt: it.receivedAt,
+      enteredBy, backlog,
+      // رقم ظاهر في النص أولى من لا شيء: أرشيف الواتساب يحمل أرقام
+      // أصحابه في متنه كثيراً («رقمه 0555…»).
+      phone: extractPhones(it.text)[0] || null,
+    });
+    if (row && !row.error) saved.push(row); else skipped.push({ text: it.text.slice(0, 80), why: row && row.error ? row.error : "تعذّر الحفظ" });
+  }
+  return {
+    read: items.length, saved: saved.length, skipped: skipped.length,
+    truncated: items.length > chosen.length ? items.length - chosen.length : 0,
+    rows: saved, skippedRows: skipped.slice(0, 20),
+  };
+}
+
+/** حفظ سلسلة الوسطاء لطلب أو عرض. تُستبدل كاملةً لا تُضاف إليها. */
+export async function setChain({ subjectRef, kind = "REQUEST", entries = [] }) {
+  const built = buildChain(entries);
+  if (!DB_ON) return built;
+  try {
+    await sb(`re_chain?subject_ref=eq.${encodeURIComponent(subjectRef)}`, { method: "DELETE" });
+    if (built.chain.length) {
+      const rows = [];
+      for (const e of built.chain) {
+        // كل فرد في السلسلة جهةُ اتصال إن كان له رقم: هكذا يصير السؤال
+        // «ما الذي جاءنا عن طريق أبو سعد؟» قابلاً للإجابة.
+        const c = e.phone ? await upsertContact({ phone: e.phone, name: e.name, roles: [e.role === "CLIENT" ? "CLIENT" : e.role === "OWNER" ? "OWNER" : "BROKER"] }) : null;
+        rows.push({
+          subject_kind: kind, subject_ref: subjectRef, position: e.position,
+          contact_id: c ? c.id : null, name: e.name, phone: e.phone,
+          role: e.role, share_pct: e.share_pct, notes: e.notes,
+        });
+      }
+      await sb("re_chain", { method: "POST", body: rows });
+    }
+    const table = kind === "LISTING" ? "re_listings" : "re_requests";
+    const patch = { chain_len: built.length, updated_at: nowIso() };
+    if (kind === "REQUEST") patch.principal_known = built.principal_known;
+    await sb(`${table}?ref=eq.${encodeURIComponent(subjectRef)}`, { method: "PATCH", body: patch });
+  } catch (e) { console.error("re chain", e.message); }
+  return built;
+}
+
+/** السلسلة كما هي مخزّنة، مرتّبة من الأقرب إلينا. */
+export async function chainFor(subjectRef) {
+  if (!DB_ON) return [];
+  try {
+    return await sb(`re_chain?subject_ref=eq.${encodeURIComponent(subjectRef)}&select=*&order=position.asc`) || [];
+  } catch { return []; }
+}
+
+/** طلبات قريبة من هذا الوصف — لعرضها قبل التحويل، لا لدمجها آلياً. */
+export async function duplicatesFor(fields, contactId = null) {
+  if (!DB_ON) return [];
+  try {
+    const rows = await sb("re_requests?select=id,ref,contact_id,property_type,city,area_min,area_max,budget_min,budget_max,income_producing,status,created_at,received_at&order=created_at.desc&limit=400") || [];
+    return findDuplicates({ ...fields, contact_id: contactId }, rows);
+  } catch { return []; }
+}
+
+/**
+ * تحويل وارد إلى طلب أو عرض. هنا وحدها يبدأ أثر المنظومة: المطابقة
+ * والتنبيه. والأرشيف يُحوَّل صامتاً — يُسجَّل ويُطابَق في القاعدة، ولا
+ * تُرسل عنه رسالة ولا يُنبَّه أحد، لأن أصحابه أُجيبوا قبل شهور.
+ */
+export async function convertIntake({ ref, kind = null, overrides = {}, chain = null, actor = null }) {
+  if (!DB_ON) return { error: "db_off" };
+  const rows = await sb(`re_intake?ref=eq.${encodeURIComponent(ref)}&select=*&limit=1`);
+  const row = rows && rows[0];
+  if (!row) return { error: "not_found" };
+  if (row.status === "LINKED") return { error: "already_linked", linked_ref: row.linked_ref };
+  const target = String(kind || (row.intent === "LISTING" ? "LISTING" : "REQUEST")).toUpperCase();
+  const contact = row.sender_phone
+    ? await upsertContact({ phone: row.sender_phone, name: row.sender_name, email: row.sender_email, roles: [target === "LISTING" ? "MARKETER" : "CLIENT"] })
+    : null;
+  const base = target === "LISTING" ? parseListingText(row.raw_text) : parseRequestText(row.raw_text);
+  const fields = { ...base, ...(overrides || {}) };
+  const opts = {
+    contact, source: row.channel, sourceDetail: row.channel_detail,
+    receivedAt: row.received_at, enteredBy: actor || row.entered_by,
+    intakeRef: row.ref, chain, backlog: row.backlog,
+  };
+  const saved = target === "LISTING" ? await saveListing(fields, opts) : await saveRequest(fields, opts);
+  if (chain && chain.length) await setChain({ subjectRef: saved.ref, kind: target, entries: chain });
+  await sb(`re_intake?id=eq.${row.id}`, { method: "PATCH", body: {
+    status: "LINKED", linked_kind: target, linked_ref: saved.ref, updated_at: nowIso(),
+  } });
+  // المطابقة تجري للأرشيف أيضاً — فطلبٌ قديم قد يطابق عرضاً قائماً اليوم،
+  // وهذا بالضبط ما يجعل إدخال الأرشيف مربحاً لا توثيقاً.
+  const matches = target === "LISTING" ? await matchListing(saved) : await matchRequest(saved);
+  if (!row.backlog) await alertOwner(
+    target === "LISTING"
+      ? `عرض جديد ${saved.ref} من ${channelLabel(row.channel)}${matches.length ? ` — يطابق ${matches.length}` : ""}`
+      : `طلب جديد ${saved.ref} من ${channelLabel(row.channel)}${matches.length ? ` — ${matches.length} مطابقة` : ""}`
+  );
+  await audit("re.intake.convert", { ref: row.ref, to: saved.ref, kind: target, actor });
+  return { ok: true, kind: target, ref: saved.ref, row: saved, matches: matches.length };
+}
+
+/** إغلاق وارد بلا تحويل: مكرر أو ليس طلباً. لا يُحذف، ليبقى أثره. */
+export async function closeIntake({ ref, status = "DISCARDED", dupOf = null, actor = null }) {
+  if (!DB_ON) return { error: "db_off" };
+  const allowed = new Set(["DISCARDED", "DUPLICATE", "NEEDS_INFO", "NEW"]);
+  if (!allowed.has(status)) return { error: "bad_status" };
+  if (status === "DUPLICATE" && !dupOf) return { error: "dup_of_required" };
+  const upd = await sb(`re_intake?ref=eq.${encodeURIComponent(ref)}`, { method: "PATCH", body: {
+    status, dup_of: dupOf || null, updated_at: nowIso(),
+  } });
+  await audit("re.intake.close", { ref, status, dupOf, actor });
+  return { ok: true, row: (upd && upd[0]) || null };
+}
+
 async function dashboard() {
   if (!DB_ON) return { db: false, counts: {}, recent: {} };
   const count = async (table, filter) => {
@@ -1102,18 +1385,32 @@ async function dashboard() {
   const recent = async (table, limit = 10) => {
     try { return await sb(`${table}?select=*&order=created_at.desc&limit=${limit}`) || []; } catch { return []; }
   };
-  const [openReq, activeLst, newMatches, contacts, deals, studies] = await Promise.all([
+  const [openReq, activeLst, newMatches, contacts, deals, studies, inbox] = await Promise.all([
     count("re_requests", "status=in.(OPEN,SEARCHING,MATCHED,VIEWING,NEGOTIATING)"),
     count("re_listings", "status=in.(ACTIVE,UNVERIFIED)"),
     count("re_matches", "status=eq.NEW"),
     count("re_contacts"),
     count("re_deals", "stage=not.in.(CLOSED,LOST)"),
     count("re_studies", "status=not.in.(DELIVERED,CANCELLED)"),
+    count("re_intake", "status=in.(NEW,NEEDS_INFO)"),
   ]);
   const [requests, listings, matches, messages, dealRows, studyRows] = await Promise.all([
     recent("re_requests"), recent("re_listings"), recent("re_matches", 15), recent("re_messages", 15),
     recent("re_deals", 40), recent("re_studies", 40),
   ]);
+  // الوارد يُرتَّب بوقت الوصول لا بوقت الإدخال: أرشيفٌ أُدخل اليوم يجب
+  // أن يقع في مكانه من الزمن، لا أن يتصدّر ما وصل فعلاً هذا الصباح.
+  let intakeRows = [];
+  try {
+    intakeRows = await sb("re_intake?status=in.(NEW,NEEDS_INFO)&select=*&order=received_at.desc&limit=40") || [];
+  } catch {}
+
+  // توزيع القنوات — يجيب سؤالاً تشغيلياً: من أين يأتي الشغل فعلاً؟
+  const channels = {};
+  for (const r of [...requests, ...intakeRows]) {
+    const c = r.channel || r.source;
+    if (c) channels[c] = (channels[c] || 0) + 1;
+  }
 
   // خطّ الأنابيب: كم صفقة في كل مرحلة وبكم. يُحسب هنا لا في المتصفح لأن
   // اللوحة تعرض أربعين صفاً وقد تكون الصفقات أكثر — فيصير المجموع ناقصاً.
@@ -1128,9 +1425,9 @@ async function dashboard() {
 
   return {
     db: true,
-    counts: { openRequests: openReq, activeListings: activeLst, newMatches, contacts, openDeals: deals, openStudies: studies },
-    pipeline, money: { openValue, wonValue, wonCommission },
-    recent: { requests, listings, matches, messages, deals: dealRows, studies: studyRows },
+    counts: { openRequests: openReq, activeListings: activeLst, newMatches, contacts, openDeals: deals, openStudies: studies, inbox },
+    pipeline, money: { openValue, wonValue, wonCommission }, channels,
+    recent: { requests, listings, matches, messages, deals: dealRows, studies: studyRows, intake: intakeRows },
   };
 }
 
