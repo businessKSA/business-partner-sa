@@ -171,10 +171,11 @@ const envFrom = (names) => { for (const n of names) { if (process.env[n]) return
 
 
 
-// يمرّ عبر api/_azure.js — البابُ الوحيد إلى Azure. كانت هنا نسخةٌ ثانية من
-// نفس النداء، فتفوتها احتياطية المنطقة الثانية وتتباعد عن الأصل مع الوقت.
-const callAzure = (messages, system) =>
-  azureChat({ system, messages, maxTokens: maxTokensFor() });
+
+// ‏شكل النداء وتفاصيله في api/_azure.js — نسخةٌ هنا ونسخةٌ هناك تعني إصلاحاً
+// يُطبَّق على واحدة فقط، وهذا ما حدث فعلاً مع نشر التفريغ الصوتي. وعبوره من
+// هناك يمنحه كذلك احتياطية المنطقة الثانية.
+const callAzure = (messages, system) => azureChat({ system, messages, maxTokens: maxTokensFor() });
 
 
 // وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
@@ -205,22 +206,24 @@ async function callN8nBaher(messages) {
   return String(reply).trim();
 }
 
-// Free providers first, then paid, then the keyless n8n agent as a last resort —
-// first provider that answers wins.
-// Azure only, then the keyless n8n agent as a last resort. The Gemini, Groq,
-// Anthropic and OpenAI providers were removed on the owner's instruction:
-// resilience is the second Azure region (api/_azure.js), not a second vendor.
+// ‏سياسة المالك (سبتمبر 2026): البنية التحتية على Azure، فلا مزوّدَ غيره.
+// المحادثة كانت آخر مسارٍ يضع Azure أولاً ثم يسقط إلى Google أو OpenAI أو
+// Anthropic — وهي حساباتٌ بلا رصيد أصلاً، فالسقوط إليها ليس إنقاذاً بل تسريب
+// كلام العميل خارج Azure بلا قرارٍ من أحد. حُذفت الأربعة وحُذف معها صمّام
+// DOC_AI_ALLOW_FALLBACK، فصار المنع بنيوياً لا إعدادياً، والصمود منطقةَ
+// Azure ثانية داخل api/_azure.js. ويبقى وكيل n8n احتياطاً بلا مفتاح، ودماغه
+// Azure أيضاً.
 const PROVIDERS = [
   { name: "azure", keys: AZURE_KEYS, call: callAzure },
   { name: "baher-n8n", keys: null, call: callN8nBaher },
 ];
-const configured = () => PROVIDERS.filter((p) => !p.keys || (p.name === "azure" ? azureConfigured() : !!envFrom(p.keys)));
+const configured = () => PROVIDERS.filter((p) => (p.name === "azure" ? azureConfigured() : !p.keys || !!envFrom(p.keys)));
 // The n8n provider carries no key, so `configured()` is never empty and the
 // "missing key" branch never fires: with no keys at all the chain still has one
 // member, it fails, and the customer-facing «صار خلل بسيط» is shown. On a
 // developer's machine that reads like a bug in the site rather than an absent
 // key, so locally we name what is missing instead.
-const hasModelKey = () => PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
+const hasModelKey = () => azureConfigured() || PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
 const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 

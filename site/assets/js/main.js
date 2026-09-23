@@ -3433,7 +3433,7 @@ var BP = window.BP = window.BP || {};
     VIEWS.forEach(function (v) { var el = $(v); if (el) el.hidden = v !== view; });
     if (backBtn) backBtn.hidden = !canBack;
     if (statusEl) statusEl.textContent = view === "advisor-chat"
-      ? T("Your smart partner — online now", "شريكك الذكي — متصل الآن")
+      ? T("Support — online now", "الدعم — متصل الآن")
       : T("Support desk", "مكتب الدعم");
   }
   function goHome() {
@@ -3622,7 +3622,7 @@ var BP = window.BP = window.BP || {};
     if (!EMAIL_RE.test(email)) return fail(T("Enter a valid email.", "أدخل بريداً صحيحاً."));
     if (err) err.hidden = true;
     saveContact({ name: name, phone: phone, email: email });
-    goHome();
+    openChat(); // دعم فقط: ندخل مباشرة لمحادثة الدعم (بلا تصفّح خدمات/حجز)
   }
 
   // ---- chat (available after intake) ----
@@ -3632,7 +3632,7 @@ var BP = window.BP = window.BP || {};
   }
   var historyReplayed = false;
   function openChat() {
-    show("advisor-chat", true);
+    show("advisor-chat", false);
     if (!historyReplayed) {
       history.forEach(function (m) { addMsg(m.content, m.role === "user" ? "me" : "bot"); });
       if (chips && history.length) chips.hidden = true;
@@ -3669,7 +3669,12 @@ var BP = window.BP = window.BP || {};
   }
 
   // ---- open/close + back + teaser ----
-  function open() { panel.hidden = false; fab.classList.add("hide"); hideTeaser(); goHome(); }
+  function open() {
+    panel.hidden = false; fab.classList.add("hide"); hideTeaser();
+    // دعم فقط: العائد (بياناته محفوظة) يدخل محادثة الدعم مباشرة، والجديد يعطي بياناته أولاً
+    if (contact) openChat();
+    else { show("advisor-intake", false); setTimeout(function () { var n = $("adv-in-name"); if (n) n.focus(); }, 50); }
+  }
   function close() { panel.hidden = true; fab.classList.remove("hide"); }
   function back() {
     if (current === "advisor-sub" || current === "advisor-chat") goHome();

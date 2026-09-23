@@ -100,6 +100,14 @@ export function parseJson(text) {
 //
 // النشر (deployment) قد يختلف بين المهام: نموذج بصري لقراءة المستندات وآخر
 // نصيّ أرخص للتخطيط، فلكلٍّ متغيّره مع رجوعٍ إلى النشر العام.
+// ‏نشرُ الصوت غير نشر المحادثة، ولا يُشتقّ منه. كان هذا الملف يمرّر
+// `AZURE_OPENAI_DEPLOYMENT` — وهو نشر gpt — إلى مسار `audio/transcriptions`،
+// فيردّ Azure بخطأ نشرٍ غير موجود على كل رسالة صوتية. للتفريغ متغيّره الخاص.
+const AZURE_ASR_DEPLOYMENT = () => String(
+  process.env.AZURE_OPENAI_WHISPER_DEPLOYMENT ||
+  process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT || "whisper"
+).trim();
+
 const azureDeployment = (kind) => String(
   (kind === "vision" ? process.env.AZURE_OPENAI_VISION_DEPLOYMENT : process.env.AZURE_OPENAI_TEXT_DEPLOYMENT) ||
   process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini",
@@ -378,7 +386,7 @@ async function speechAzure(base64, mime, hint) {
   const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
   const form = new FormData();
   form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model", process.env.AZURE_OPENAI_DEPLOYMENT || "whisper");
+  form.append("model", AZURE_ASR_DEPLOYMENT());
   form.append("response_format", "verbose_json");
   form.append("temperature", "0");
   if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);

@@ -34,72 +34,86 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
-<style id="bp-public-v4-css">
-:root{--v4-n:#07163f;--v4-b:#2856d6;--v4-ink:#101828;--v4-muted:#667085;--v4-line:#e5eaf2;--v4-soft:#f7f9fd;--v4-green:#12a66a}
-body.bp-public-v4{background:radial-gradient(circle at 88% 0,rgba(40,86,214,.08),transparent 24%),#f8faff;color:var(--v4-ink)}
-body.bp-public-v4 main{background:transparent}
-body.bp-public-v4 .container{max-width:1180px}
-body.bp-public-v4 .site-header{background:rgba(255,255,255,.92)!important;backdrop-filter:blur(16px);border-bottom:1px solid rgba(7,22,63,.07)}
-body.bp-public-v4 .site-header .nav{gap:16px}
-body.bp-public-v4 .site-header .nav>a,body.bp-public-v4 .nav-drop{font-size:13px!important}
+<style id="sv1-css">
+/* Simple V1 Service Pages — unified modern design */
+.sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
+ --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
+ --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
+ --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+ font-family:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh;
+ -webkit-font-smoothing:antialiased}
+.sv1 main{flex:1;padding:40px 0}
+.sv1 .sv1-mono,.sv1 .en{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.sv1 .en{direction:ltr;unicode-bidi:isolate}
+.sv1 :focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:5px}
+.sv1 *{box-sizing:border-box}
+.sv1 a{color:inherit;text-decoration:none}
+.sv1 .container{max-width:1160px;margin:auto;padding:0 22px;width:100%}
+.sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
 
-/* Shared B10X mast */
-.bp-v4-mast{max-width:1180px;margin:22px auto 0;padding:0 22px}.bp-v4-mast-in{border-radius:24px;padding:22px 24px;background:linear-gradient(135deg,#07163f,#123b8e);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;box-shadow:0 18px 50px rgba(20,51,125,.14)}
-.bp-v4-mast small{display:block;font-size:10px;font-weight:900;letter-spacing:.11em;color:#bcd0ff;margin-bottom:6px}.bp-v4-mast strong{display:block;font-size:18px;line-height:1.4}.bp-v4-mast p{margin:4px 0 0;color:#d8e4ff;font-size:11px;line-height:1.65}.bp-v4-mast a{flex:0 0 auto;text-decoration:none;background:#fff;color:#123675;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:900}
+/* Hero section */
+.sv1-hero,.svc-hero{background:#fff;padding:40px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero h1,.svc-hero h1{font-size:clamp(30px,4.4vw,52px);line-height:1.08;letter-spacing:-.035em;color:var(--ink);max-width:900px;margin:15px 0;font-weight:200}
+.sv1-hero p,.svc-hero p{font-size:16px;color:var(--mut);max-width:600px;line-height:1.8}
 
-/* Service detail */
-body.bp-v4-service .svc-hero{background:transparent!important;padding:54px 0 26px!important}
-body.bp-v4-service .svc-hero .container{background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:28px;padding:30px!important;box-shadow:0 16px 50px rgba(16,24,40,.06)}
-body.bp-v4-service .svc-hero h1{font-size:clamp(30px,4.4vw,52px)!important;line-height:1.08!important;letter-spacing:-1.5px!important;color:var(--v4-n)!important;max-width:900px;margin:15px 0!important}
-body.bp-v4-service .breadcrumb,body.bp-v4-category .back-link{font-size:11px!important;color:#74809a!important}
-body.bp-v4-service .svc-meta{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
-body.bp-v4-service .svc-meta .chip{border:1px solid #dde5f4!important;background:#fff!important;border-radius:999px!important;color:#41506d!important;font-size:10.5px!important;padding:7px 10px!important}
-body.bp-v4-service .svc-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 330px!important;gap:22px!important;align-items:start!important;margin-top:20px!important}
-body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section,body.bp-v4-service main section:not(.svc-hero){border-radius:20px}
-body.bp-v4-service .svc-content>section,body.bp-v4-service .svc-main>section{background:#fff;border:1px solid var(--v4-line);padding:20px!important;margin-bottom:12px!important;box-shadow:0 7px 24px rgba(16,24,40,.035)}
-body.bp-v4-service .svc-content h2,body.bp-v4-service .svc-main h2{color:var(--v4-n)!important;font-size:19px!important;margin:0 0 12px!important}
-body.bp-v4-service .svc-content p,body.bp-v4-service .svc-main p,body.bp-v4-service .svc-content li{font-size:12.5px!important;line-height:1.9!important;color:#56627a!important}
-body.bp-v4-service .svc-aside{position:sticky!important;top:92px!important}
-body.bp-v4-service .order-box{border:1px solid #dce5f5!important;border-radius:22px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;padding:20px!important;box-shadow:0 18px 48px rgba(16,49,120,.11)!important}
-body.bp-v4-service .order-box:before{content:'B10X · SERVICE EXECUTION';display:block;font-size:9px;letter-spacing:.1em;font-weight:900;color:var(--v4-b);margin-bottom:12px}
-body.bp-v4-service .order-box .btn{border-radius:12px!important;min-height:44px!important}
-body.bp-v4-service .callout{background:linear-gradient(135deg,#eef4ff,#f9fbff)!important;border:1px solid #d5e1fb!important;border-radius:16px!important;padding:14px!important}
-body.bp-v4-service .callout strong:before{content:'B10X · ';color:var(--v4-b)}
+/* Service content layout */
+.sv1 .svc-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start;margin-top:20px}
+.sv1 .svc-content>section,.sv1 .svc-main>section{background:#fff;border:1px solid var(--l);border-radius:16px;padding:24px;margin-bottom:14px;box-shadow:var(--sh)}
+.sv1 .svc-content>section:hover,.sv1 .svc-main>section:hover{border-color:var(--acLine);box-shadow:var(--sh2)}
 
-/* Category and services catalog */
-body.bp-v4-category .hero--sm,body.bp-v4-catalog .page-hero{background:transparent!important;padding:44px 0 18px!important}
-body.bp-v4-category .hero--sm .hero-inner{max-width:1180px!important;background:linear-gradient(145deg,#fff,#f2f6ff);border:1px solid var(--v4-line);border-radius:26px;padding:28px!important}
-body.bp-v4-category .hero--sm h1{font-size:clamp(32px,4vw,48px)!important;color:var(--v4-n)!important;margin:10px 0!important}
-body.bp-v4-category .hero--sm .lead{font-size:13px!important;line-height:1.8!important;color:var(--v4-muted)!important;max-width:760px!important}
-body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
-body.bp-v4-category [class*="service-card"],body.bp-v4-catalog [class*="service-card"]{background:#fff!important;border:1px solid var(--v4-line)!important;border-radius:18px!important;padding:16px!important;box-shadow:0 7px 25px rgba(16,24,40,.035)!important;transition:.18s ease!important}
-body.bp-v4-category [class*="service-card"]:hover,body.bp-v4-catalog [class*="service-card"]:hover{transform:translateY(-3px)!important;border-color:#b9caf2!important;box-shadow:0 14px 34px rgba(16,24,40,.075)!important}
-body.bp-v4-category [class*="service-card"] h3,body.bp-v4-catalog [class*="service-card"] h3{font-size:14px!important;color:var(--v4-n)!important;line-height:1.45!important}
-body.bp-v4-category [class*="service-card"] p,body.bp-v4-catalog [class*="service-card"] p{font-size:10.7px!important;line-height:1.65!important;color:var(--v4-muted)!important}
+/* Headings and typography */
+.sv1 h2,.sv1 h3{color:var(--ink);margin:0 0 12px;letter-spacing:-.025em;font-weight:300}
+.sv1 h2{font-size:22px}
+.sv1 h3{font-size:18px;font-weight:500}
+.sv1 p,.sv1 li{font-size:15px;line-height:1.8;color:var(--s)}
 
-/* Packages */
-body.bp-v4-packages main{background:transparent!important}
-body.bp-v4-packages [id^="pkg-"]{scroll-margin-top:95px}
-body.bp-v4-packages .pkg-card,body.bp-v4-packages [class*="package-card"]{border:1px solid var(--v4-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 32px rgba(16,24,40,.05)!important;padding:20px!important}
-body.bp-v4-packages .pkg-card:hover,body.bp-v4-packages [class*="package-card"]:hover{transform:translateY(-3px)!important;box-shadow:0 17px 42px rgba(16,24,40,.085)!important}
+/* Buttons */
+.sv1 .btn,.sv1 button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--ink);padding:11px 19px;border-radius:9px;font-weight:500;font-size:13.5px;cursor:pointer;line-height:1.2;font-family:inherit;transition:transform .12s ease,background .2s ease,border-color .2s ease}
+.sv1 .btn:hover,.sv1 button:hover{border-color:var(--ink)}
+.sv1 .btn.primary,.sv1 button.primary{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 6px 18px -6px rgba(11,27,90,.45)}
+.sv1 .btn.primary:hover,.sv1 button.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.sv1 .btn.sm{padding:7px 12px;font-size:12px}
 
-/* AI pages */
-body.bp-v4-ai main>section{border-radius:0}
-body.bp-v4-ai main .hero,body.bp-v4-ai main [class*="hero"]{background:radial-gradient(circle at 78% 10%,rgba(66,215,246,.14),transparent 26%),linear-gradient(135deg,#07163f,#123b8e)!important;color:#fff!important}
-body.bp-v4-ai main .hero h1,body.bp-v4-ai main [class*="hero"] h1{color:#fff!important}
-body.bp-v4-ai main .hero p,body.bp-v4-ai main [class*="hero"] p{color:#dbe5ff!important}
-body.bp-v4-ai .card,body.bp-v4-ai [class*="card"]{border-radius:20px!important;border-color:var(--v4-line)!important;box-shadow:0 8px 28px rgba(16,24,40,.04)!important}
+/* Service cards */
+.sv1 .service-card,.sv1 [class*="service-card"]{background:#fff;border:1px solid var(--l);border-radius:14px;padding:18px;box-shadow:var(--sh);transition:.18s ease}
+.sv1 .service-card:hover,.sv1 [class*="service-card"]:hover{transform:translateY(-2px);border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1 .service-card h3{font-size:16px;margin:0 0 8px;color:var(--ink)}
+.sv1 .service-card p{font-size:13px;color:var(--mut);margin:0}
 
-/* Buttons + footer */
-body.bp-public-v4 .btn-primary{background:linear-gradient(135deg,#07163f,#2856d6)!important;border-color:transparent!important;box-shadow:none!important}
-body.bp-public-v4 .btn,body.bp-public-v4 button{border-radius:12px}
-body.bp-public-v4 .site-footer{background:#07143b!important;padding:0!important;min-height:48px!important}
-body.bp-public-v4 .site-footer .newsletter-band,body.bp-public-v4 .site-footer .footer-grid{display:none!important}
-body.bp-public-v4 .site-footer>.container{padding-top:0!important;padding-bottom:0!important}
-body.bp-public-v4 .site-footer .footer-bottom{min-height:48px!important;margin:0!important;padding:8px 0!important;border:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;color:rgba(255,255,255,.6)!important;font-size:10px!important}
+/* Grid layouts */
+.sv1 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.sv1 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sv1 .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 
-@media(max-width:900px){body.bp-v4-service .svc-layout{grid-template-columns:1fr!important}body.bp-v4-service .svc-aside{position:static!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bp-v4-mast-in{align-items:flex-start;flex-direction:column}}
-@media(max-width:620px){.bp-v4-mast{padding:0 14px}.bp-v4-mast-in{padding:18px;border-radius:18px}body.bp-v4-service .svc-hero{padding-top:28px!important}body.bp-v4-service .svc-hero .container,body.bp-v4-category .hero--sm .hero-inner{border-radius:20px;padding:20px!important}body.bp-v4-category .grid,body.bp-v4-category .service-grid,body.bp-v4-category .services-grid,body.bp-v4-catalog .service-grid,body.bp-v4-catalog .services-grid{grid-template-columns:1fr!important}body.bp-public-v4 .site-footer .footer-bottom{flex-direction:column!important;justify-content:center!important;text-align:center!important}}
+/* Sidebar sticky order box */
+.sv1 .svc-aside{position:sticky;top:92px}
+.sv1 .order-box{border:1px solid var(--acLine);border-radius:16px;background:linear-gradient(180deg,#fff,var(--soft));padding:20px;box-shadow:var(--sh2)}
+.sv1 .order-box::before{content:'SERVICE REQUEST';display:block;font-size:9px;letter-spacing:.1em;font-weight:900;color:var(--ac);margin-bottom:12px}
+
+/* Responsive */
+@media(max-width:900px){
+  .sv1 .svc-layout{grid-template-columns:1fr}
+  .sv1 .svc-aside{position:static}
+  .sv1 .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:640px){
+  .sv1 main{padding:20px 0}
+  .sv1 .svc-hero{padding:24px 0}
+  .sv1 .svc-hero h1{font-size:28px}
+  .sv1 .grid-2,.sv1 .grid-3{grid-template-columns:1fr}
+  .sv1 .svc-content>section,.sv1 .svc-main>section{padding:16px}
+}
+</style><style>
+/* Service detail page overrides */
+.sv1 .breadcrumb{font-size:12px;color:var(--mut);margin:0 0 16px}
+.sv1 .svc-meta{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.sv1 .svc-meta .chip{border:1px solid var(--acLine);background:#fff;border-radius:999px;color:var(--ink);font-size:12px;padding:6px 12px}
+.sv1 .callout{background:linear-gradient(135deg,var(--acSoft),var(--soft));border:1px solid var(--acLine);border-radius:12px;padding:16px;margin:16px 0}
+.sv1 .callout strong::before{content:'💡 '}
 </style><style id="bp-simple-header-css">
 .site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
 .bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
@@ -170,7 +184,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
 .bp-sva-hide{display:none!important}
 @media(max-width:560px){.bp-sva-acts{grid-template-columns:1fr}}
 </style></head>
-<body class="bp-public-brand-v5" class="bp-public-v4 bp-v4-service"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/tourism">السياحة والفعاليات</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/b10x">B10X</a><a href="/ar/#bp-consultant">المستشار الذكي</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/smart-employee">الموظف الذكي المتخصص</a><a href="/ar/business-development">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/agency-portal">بوابة وكالات التوظيف</a><a href="/ar/connect">مركز الربط</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><details class="bp-dd"><summary>التوظيف</summary><div class="bp-mini-menu"><a href="/ar/careers">الوظائف المتاحة</a><a href="/ar/employer-dashboard">لوحة صاحب العمل</a><a href="/ar/employer-join">تسجيل صاحب عمل جديد</a><a href="/ar/employers">خدمات أصحاب العمل</a><a href="/ar/job-search-service">خدمة البحث عن وظيفة</a><a href="/ar/recruitment-agencies">وكالات التوظيف</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/account">ابدأ الآن</a></div></div></header><section class="bp-v4-mast"><div class="bp-v4-mast-in"><div><small>B10X · BUSINESS PARTNER</small><strong>كل خدمة جزء من B10X.</strong><p>المستشار الذكي يحدد الخدمة والمتطلبات، وفريقنا ينفذ ويتابع داخل حساب العميل.</p></div><a href="/ar/services">استعرض كل الخدمات</a></div></section><main>
+<body class="bp-public-brand-v5" class="sv1"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/ar/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/ar/#bp-consultant">B10X</a><details class="bp-dd"><summary>خدماتنا</summary><div class="bp-mega"><div class="bp-mega-col"><strong>الشركات والتأسيس</strong><a href="/ar/services/category/company-formation">تأسيس الشركات</a><a href="/ar/services/category/foreign-investment">الاستثمار الأجنبي</a><a href="/ar/services/category/premium-residency">الإقامة المميزة</a><a href="/ar/packages#pkg-legal">القانونية والعقود</a></div><div class="bp-mega-col"><strong>التشغيل والامتثال</strong><a href="/ar/services/category/government-relations">الخدمات الحكومية</a><a href="/ar/compliance-agent">الامتثال والمخالفات</a><a href="/ar/services/category/hr-services">الموارد البشرية</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div><div class="bp-mega-col"><strong>المكان والانتقال</strong><a href="/ar/workspaces">مساحات الأعمال</a><a href="/ar/worker-housing">سكن العمالة</a><a href="/ar/tourism">السياحة والفعاليات</a><a href="/ar/farina">التموين والضيافة</a></div><div class="bp-mega-col"><strong>النمو والذكاء الاصطناعي</strong><a href="/ar/b10x">B10X</a><a href="/ar/#bp-consultant">المستشار الذكي</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/smart-employee">الموظف الذكي المتخصص</a><a href="/ar/business-development">تطوير الأعمال</a><a href="/ar/services">كل الخدمات</a></div><div class="bp-mega-col"><strong>الشركاء والموردون</strong><a href="/ar/suppliers">تسجيل الشركاء</a><a href="/ar/partner-dashboard">بوابة الشركاء</a><a href="/ar/agency-portal">بوابة وكالات التوظيف</a><a href="/ar/connect">مركز الربط</a><a href="/ar/careers">الوظائف</a></div></div></details><a href="/ar/packages">الباقات</a><details class="bp-dd"><summary>المستشارون الأذكياء</summary><div class="bp-mini-menu"><a href="/ar/ai-agents">كل المستشارين</a><a href="/ar/compliance-agent">مستشار الامتثال</a><a href="/ar/ai-document-agent">مستشار المستندات</a><a href="/ar/shared-services">الخدمات المشتركة</a></div></details><details class="bp-dd"><summary>التوظيف</summary><div class="bp-mini-menu"><a href="/ar/careers">الوظائف المتاحة</a><a href="/ar/employer-dashboard">لوحة صاحب العمل</a><a href="/ar/employer-join">تسجيل صاحب عمل جديد</a><a href="/ar/employers">خدمات أصحاب العمل</a><a href="/ar/job-search-service">خدمة البحث عن وظيفة</a><a href="/ar/recruitment-agencies">وكالات التوظيف</a><a href="/ar/services/category/recruitment">التوظيف والاستقدام</a></div></details><a href="/ar/about">من نحن</a><a href="/ar/contact">تواصل معنا</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>العربية</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/ar/cart" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/ar/account"><span data-account-label>تسجيل الدخول</span></a><a class="bp-start" href="/ar/account">ابدأ الآن</a></div></div></header><main>
   <section class="svc-hero"><div class="container">
     <div class="breadcrumb"><a href="/ar/">الرئيسية</a> ← <a href="/ar/services">الخدمات</a> ← <a href="/ar/services/category/ai-automation">الأتمتة والذكاء الاصطناعي</a></div>
     <h1>إعداد المستشار الذكي</h1>
@@ -339,4 +353,53 @@ step1();
     <span>© 2026 بيزنس بارتنر · جميع الحقوق محفوظة</span>
     <span>الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">تواصل عبر واتساب</span></a><script src="/assets/js/main.js?v=229542fd1a"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="تواصل عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">تواصل عبر واتساب</span></a><script src="/assets/js/main.js?v=66a755b1f7"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><style>
+.bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
+[dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
+.bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-fab .bps-dot{position:absolute;inset-inline-start:40px;top:8px;width:11px;height:11px;border-radius:50%;background:var(--wa,#25D366);border:2px solid var(--ink,#0B1B5A)}
+.bps-fab.bps-hide{display:none}
+.bps-panel{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483001;width:min(380px,calc(100vw - 24px));height:min(600px,calc(100vh - 40px));background:#fff;border:1px solid var(--line,#E5E9F0);border-radius:20px;box-shadow:0 24px 60px rgba(11,27,90,.28);display:none;flex-direction:column;overflow:hidden}
+.bps-panel.bps-on{display:flex}
+.bps-hd{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--ink,#0B1B5A);color:#fff}
+.bps-hd img{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-hd b{font-size:1.02rem;display:block}
+.bps-hd small{font-size:.76rem;opacity:.9;display:flex;align-items:center;gap:5px}
+.bps-hd em{width:7px;height:7px;border-radius:50%;background:var(--wa,#25D366);display:inline-block;font-style:normal}
+.bps-x{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1.05rem;line-height:1}
+.bps-intake{padding:16px;overflow-y:auto}
+.bps-intake .bps-in{width:100%;box-sizing:border-box;margin-bottom:9px;padding:12px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-intake h4{color:var(--ink,#0B1B5A);margin:0 0 12px;font-size:1rem;line-height:1.6;font-weight:700}
+.bps-go{width:100%;padding:13px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:12px;font-family:inherit;font-weight:700;font-size:.98rem;cursor:pointer}
+.bps-note{color:#64748b;font-size:.78rem;margin:10px 2px 0}
+.bps-err{color:#b91c1c;font-size:.82rem;margin-top:8px;display:none}
+.bps-chat{display:none;flex-direction:column;height:100%;min-height:0}
+.bps-msgs{flex:1;overflow-y:auto;padding:15px;background:#f6f8fc;display:flex;flex-direction:column;gap:9px}
+.bps-msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.bps-msg.bps-bot{background:#fff;border:1px solid var(--line,#E5E9F0);color:#1f2430;align-self:flex-start;border-end-start-radius:4px}
+.bps-msg.bps-me{background:var(--ink,#0B1B5A);color:#fff;align-self:flex-end;border-end-end-radius:4px}
+.bps-msg.bps-ty{opacity:.6}
+.bps-wa{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:#eafaf0;color:#0b7a3b;border-top:1px solid var(--line,#E5E9F0);font-size:.85rem;font-weight:600;text-decoration:none}
+.bps-form{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line,#E5E9F0);background:#fff}
+.bps-form input{flex:1;padding:11px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-form button{flex:0 0 auto;width:44px;border:0;border-radius:12px;background:var(--ink,#0B1B5A);color:#fff;cursor:pointer;font-size:1.05rem}
+html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
+</style>
+<button class="bps-fab" id="bpsFab" aria-label="افتح محادثة الدعم مع باهر"><img src="/assets/img/baher.jpg" alt=""><span class="bps-dot"></span><span>الدعم</span></button>
+<section class="bps-panel" id="bpsPanel" role="dialog" aria-label="دعم باهر">
+  <div class="bps-hd"><img src="/assets/img/baher.jpg" alt=""><div><b>باهر</b><small><em></em>الدعم — متصل الآن</small></div><button class="bps-x" id="bpsClose" aria-label="إغلاق">✕</button></div>
+  <div class="bps-intake" id="bpsIntake">
+    <h4>أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.</h4>
+    <input class="bps-in" id="bpsName" type="text" placeholder="الاسم الكامل *" autocomplete="name">
+    <input class="bps-in" id="bpsPhone" type="tel" placeholder="الجوال 05XXXXXXXX *" autocomplete="tel">
+    <button class="bps-go" id="bpsStart">ابدأ الدعم ›</button>
+    <div class="bps-err" id="bpsErr"></div>
+    <p class="bps-note">🔒 بياناتك تُستخدم فقط لخدمتك ومتابعة طلبك.</p>
+  </div>
+  <div class="bps-chat" id="bpsChat">
+    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك؟</div></div>
+    <a class="bps-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">أو تواصل مع فريق الدعم على واتساب</a>
+    <form class="bps-form" id="bpsForm"><input id="bpsInput" type="text" autocomplete="off" placeholder="اكتب رسالتك…"><button type="submit" aria-label="إرسال">➤</button></form>
+  </div>
+</section>
+<script>(function(){var AR=document.documentElement.lang!=='en';var fab=document.getElementById('bpsFab'),panel=document.getElementById('bpsPanel');if(!fab||!panel)return;var msgs=document.getElementById('bpsMsgs'),form=document.getElementById('bpsForm'),input=document.getElementById('bpsInput'),intake=document.getElementById('bpsIntake'),chat=document.getElementById('bpsChat');var sid='';try{sid=sessionStorage.getItem('bps_sid')||''}catch(e){}if(!sid){sid='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{sessionStorage.setItem('bps_sid',sid)}catch(e){}}var contact=null;try{contact=JSON.parse(sessionStorage.getItem('bps_contact')||'null')}catch(e){}var history=[],busy=false;function view(){if(contact){intake.style.display='none';chat.style.display='flex';setTimeout(function(){input.focus()},60)}else{intake.style.display='block';chat.style.display='none'}}function open(){panel.classList.add('bps-on');fab.classList.add('bps-hide');view()}function close(){panel.classList.remove('bps-on');fab.classList.remove('bps-hide')}function add(txt,who){var d=document.createElement('div');d.className='bps-msg '+who;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}fab.onclick=open;document.getElementById('bpsClose').onclick=close;document.getElementById('bpsStart').onclick=function(){var n=document.getElementById('bpsName').value.trim(),p=document.getElementById('bpsPhone').value.trim(),err=document.getElementById('bpsErr');if(!n){err.textContent=AR?'الرجاء إدخال اسمك.':'Enter your name.';err.style.display='block';return}if(!/^(?:\+?966|0)?5\d{8}$/.test(p.replace(/\s/g,''))){err.textContent=AR?'أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).':'Enter a valid Saudi mobile.';err.style.display='block';return}err.style.display='none';contact={name:n,phone:p};try{sessionStorage.setItem('bps_contact',JSON.stringify(contact))}catch(e){}view()};function sync(notify){try{fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},keepalive:true,body:JSON.stringify({type:'advisor-chat',sid:sid,messages:history.slice(-24),notify:!!notify,contact:contact})}).catch(function(){})}catch(e){}}form.onsubmit=function(e){e.preventDefault();var v=input.value.trim();if(!v||busy)return;input.value='';add(v,'bps-me');history.push({role:'user',content:v});busy=true;var ty=add(AR?'يكتب…':'Typing…','bps-bot bps-ty');fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})}).then(function(r){return r.json().catch(function(){return{}})}).then(function(d){ty.remove();var rep=(d&&d.reply)||(AR?'تعذّر الرد الآن. تواصل معنا على واتساب.':'Could not reply now. Reach us on WhatsApp.');add(rep,'bps-bot');history.push({role:'assistant',content:rep});sync(true)}).catch(function(){ty.remove();add(AR?'صار خلل بسيط، جرّب واتساب.':'Something went wrong, try WhatsApp.','bps-bot')}).finally(function(){busy=false;input.focus()})};})();</script></body></html>
