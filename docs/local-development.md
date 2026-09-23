@@ -17,6 +17,7 @@ npm run dev
 الموقع العام        http://localhost:3000/ar
 بوابة العميل        http://localhost:3000/ar/my
 لوحة العمليات       http://localhost:3000/ops        (المفتاح: test-ops)
+الألماس الأزرق      http://localhost:3000/bluediamond/  (مفتاح اللوحة: test-ops)
 الصفحة القديمة      http://localhost:3000/ar/classic-home
 حالة البيئة         http://localhost:3000/__dev
 ```
@@ -40,6 +41,7 @@ npm run dev
 | عميل | `client@test.local` — الرمز `123456` |
 | مسؤول | `admin@test.local` — الرمز `123456` |
 | لوحة العمليات | المفتاح `test-ops` |
+| لوحة الألماس الأزرق | المفتاح `test-ops` (`BD_OPS_KEY`) |
 
 لا تُستخدم أي بيانات عميل حقيقية. البذرة في `db/seed.local.json`: منشأتان،
 مستخدمان، ثلاثة طلبات في حالات مختلفة، ومهمتان.

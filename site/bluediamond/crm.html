@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة العمل — شركة الألماس الأزرق العقارية</title>
+<meta name="description" content="لوحة داخلية.">
+<meta property="og:title" content="لوحة العمل — شركة الألماس الأزرق العقارية">
+<meta property="og:description" content="لوحة داخلية.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20fill%3D%22%231F6FD0%22%20d%3D%22M20%206h24l12%2016-24%2036L8%2022z%22%2F%3E%3C%2Fsvg%3E">
+<style>
+:root{
+  --bd-navy:#071A3C; --bd-blue:#0E3A7B; --bd-bright:#1F6FD0; --bd-ice:#6FC3F7;
+  --bd-gold:#C8A96A; --bd-ink:#0F172A; --bd-mute:#5B6880; --bd-line:#E3E9F3;
+  --bd-bg:#FFFFFF; --bd-soft:#F5F8FD; --bd-card:#FFFFFF;
+  --bd-shadow:0 18px 50px rgba(7,26,60,.10);
+  --bd-radius:18px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bd-ink:#EAF1FB; --bd-mute:#9DACC4; --bd-line:#1B2A46;
+    --bd-bg:#060E1F; --bd-soft:#0B1830; --bd-card:#0C1A33;
+    --bd-shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bd-ink:#EAF1FB; --bd-mute:#9DACC4; --bd-line:#1B2A46;
+  --bd-bg:#060E1F; --bd-soft:#0B1830; --bd-card:#0C1A33;
+  --bd-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+/* [hidden] سمةٌ في HTML لكن display المعلن في قاعدة صنف يغلبها: بوابة
+   المفتاح تحمل .form{display:grid} فبقيت ظاهرةً بعد الدخول. !important هنا
+   في محلّه — «مخفي» ليست تنسيقاً يُناقش. */
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bd-bg);color:var(--bd-ink);
+  font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  line-height:1.9;-webkit-font-smoothing:antialiased}
+.wrap{width:min(1160px,100% - 32px);margin-inline:auto}
+a{color:var(--bd-bright);text-decoration:none}
+h1,h2,h3{line-height:1.35;margin:0 0 14px;font-weight:800;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5vw,50px)}
+h2{font-size:clamp(23px,3.4vw,34px)}
+h3{font-size:clamp(17px,2.2vw,21px)}
+p{margin:0 0 14px;color:var(--bd-mute)}
+section{padding:68px 0;border-top:1px solid var(--bd-line)}
+section:first-of-type{border-top:0}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:.08em;color:var(--bd-bright);margin-bottom:10px;text-transform:uppercase}
+.eyebrow::before{content:"";width:9px;height:9px;transform:rotate(45deg);
+  background:linear-gradient(135deg,var(--bd-ice),var(--bd-bright))}
+.en{font-size:13px;color:var(--bd-mute);opacity:.85;direction:ltr;text-align:left;
+  border-top:1px dashed var(--bd-line);margin-top:14px;padding-top:12px}
+
+/* الترويسة */
+header.bd{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bd-bg) 88%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--bd-line)}
+header.bd .bar{display:flex;align-items:center;gap:18px;min-height:70px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;color:var(--bd-ink);font-size:17px}
+.brand .gem{width:30px;height:30px;flex:none}
+nav.bd{display:flex;gap:20px;margin-inline-start:auto;flex-wrap:wrap}
+nav.bd a{color:var(--bd-ink);font-size:14px;font-weight:700;opacity:.82}
+nav.bd a:hover{opacity:1;color:var(--bd-bright)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 24px;border-radius:12px;font-weight:800;font-size:14px;border:1px solid transparent;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,var(--bd-blue),var(--bd-bright));color:#fff;
+  box-shadow:0 10px 26px rgba(31,111,208,.28)}
+.btn-ghost{border-color:var(--bd-line);color:var(--bd-ink);background:var(--bd-card)}
+
+/* البطل */
+.hero{position:relative;overflow:hidden;padding:88px 0 76px;
+  background:radial-gradient(1100px 420px at 78% -10%,rgba(31,111,208,.20),transparent 60%),
+             linear-gradient(180deg,var(--bd-soft),var(--bd-bg))}
+.hero h1 span{background:linear-gradient(120deg,var(--bd-bright),var(--bd-ice));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{font-size:clamp(15px,2vw,19px);max-width:58ch}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:44px;align-items:center}
+.gem-art{width:100%;max-width:330px;margin-inline:auto;filter:drop-shadow(0 22px 44px rgba(31,111,208,.34))}
+
+/* البطاقات */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--bd-card);border:1px solid var(--bd-line);border-radius:var(--bd-radius);
+  padding:24px;box-shadow:var(--bd-shadow)}
+.card h3{margin-bottom:8px}
+.card .n{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+  border-radius:10px;background:linear-gradient(135deg,var(--bd-blue),var(--bd-bright));
+  color:#fff;font-weight:900;font-size:14px;margin-bottom:12px}
+.stat{text-align:center}
+.stat b{display:block;font-size:30px;color:var(--bd-bright)}
+.stat span{font-size:13px;color:var(--bd-mute)}
+
+/* النماذج */
+.form{display:grid;gap:16px;background:var(--bd-card);border:1px solid var(--bd-line);
+  border-radius:var(--bd-radius);padding:26px;box-shadow:var(--bd-shadow)}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--bd-line);border-radius:11px;
+  background:var(--bd-bg);color:var(--bd-ink);font:inherit;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--bd-bright);outline-offset:1px;border-color:transparent}
+textarea{min-height:110px;resize:vertical}
+.hint{font-size:12px;color:var(--bd-mute);margin-top:6px}
+.note{background:var(--bd-soft);border-inline-start:3px solid var(--bd-bright);
+  border-radius:10px;padding:12px 15px;font-size:13px;color:var(--bd-mute)}
+.ok{background:#E9F8EF;border-inline-start-color:#16A34A;color:#14532D}
+.err{background:#FEF0F0;border-inline-start-color:#DC2626;color:#7F1D1D}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ok{background:#0C2C1A;color:#BBF7D0}
+  :root:not([data-theme="light"]) .err{background:#331316;color:#FECACA}}
+
+/* التذييل */
+footer.bd{background:var(--bd-navy);color:#CBD9F0;padding:52px 0 30px;margin-top:20px}
+footer.bd a{color:#9EC7F5}
+footer.bd .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}
+footer.bd .fine{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;padding-top:18px;
+  font-size:12px;color:#8FA4C6;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* زر واتساب العائم */
+.wa-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:60;width:56px;height:56px;
+  border-radius:50%;background:#25D366;display:grid;place-items:center;
+  box-shadow:0 12px 30px rgba(37,211,102,.4)}
+.wa-fab svg{width:29px;height:29px;fill:#fff}
+
+table.bd{width:100%;border-collapse:collapse;font-size:13px}
+table.bd th,table.bd td{padding:10px 12px;border-bottom:1px solid var(--bd-line);text-align:start}
+table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(--bd-soft)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;
+  background:var(--bd-soft);color:var(--bd-bright);border:1px solid var(--bd-line)}
+.score{font-weight:900;color:var(--bd-bright)}
+
+@media(max-width:900px){
+  .hero-grid,.g3,.g2,.row,footer.bd .cols{grid-template-columns:1fr}
+  .gem-art{max-width:200px}
+  nav.bd{display:none}
+  section{padding:48px 0}
+}
+</style>
+
+</head>
+<body>
+<header class="bd"><div class="wrap bar">
+  <a class="brand" href="/bluediamond/"><svg class="gem" viewBox="0 0 64 64" aria-hidden="true">
+  <defs><linearGradient id="bdg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6FC3F7"/><stop offset=".55" stop-color="#1F6FD0"/><stop offset="1" stop-color="#0E3A7B"/>
+  </linearGradient></defs>
+  <path fill="url(#bdg)" d="M20 6h24l12 16-24 36L8 22z"/>
+  <path fill="#fff" opacity=".22" d="M20 6h12L20 22H8z"/>
+  <path fill="#fff" opacity=".12" d="M32 22h24L32 58z"/>
+</svg><span>الألماس الأزرق</span></a>
+  <nav class="bd">
+    <a href="/bluediamond/#about">من نحن</a>
+    <a href="/bluediamond/#services">خدماتنا</a>
+    <a href="/bluediamond/#advisory">الاستشارات والتحليل</a>
+    <a href="/bluediamond/#methodology">منهجيتنا</a>
+    <a href="/bluediamond/#contact">تواصل</a>
+  </nav>
+  <a class="btn btn-primary" href="/bluediamond/request">سجّل طلبك العقاري</a>
+</div></header>
+
+<section style="padding-top:28px"><div class="wrap">
+  <span class="eyebrow">لوحة العمل الداخلية</span>
+  <h2>الطلبات · العروض · المطابقات · الصفقات · الدراسات</h2>
+
+  <div class="form" style="margin:18px 0" id="gate">
+    <div class="row">
+      <div><label for="key">مفتاح اللوحة</label><input id="key" type="password" placeholder="BD_OPS_KEY"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn btn-primary" id="enter" type="button">دخول</button></div>
+    </div>
+    <div class="hint">المفتاح يُحفظ في هذا المتصفح فقط ويُرسل مع كل طلب. لا يُخزَّن على الخادم.</div>
+    <div id="gmsg" hidden></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="grid g3" id="stats" style="margin-bottom:22px"></div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>تجربة رسالة واتساب</h3>
+      <p class="hint" style="margin-top:0">الصق رسالة كما تصلك من عميل أو مسوّق لترى كيف يقرأها المستشار — بلا حفظ.</p>
+      <textarea id="ptext" placeholder="للبيع أرض خام شمال الرياض 5000م السعر 8 مليون"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="pgo" type="button">اقرأ</button>
+        <button class="btn btn-primary" id="sgo" type="button">حاكِ رسالة واردة (تُحفظ)</button>
+      </div>
+      <pre id="pout" style="white-space:pre-wrap;font-size:12px;color:var(--bd-mute);margin-top:12px"></pre>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الوارد — كل القنوات</h3>
+      <p class="hint" style="margin-top:0">كل ما يصل ينزل هنا أولاً: واتساب، نموذج الموقع، رسائل الحسابات الاجتماعية، البريد، المكالمات، ما يدوّنه الفريق، وما ينقله الوسطاء. يُقرأ ويُراجَع ثم يُحوَّل إلى طلب أو عرض — فلا يضيع ما لم يُفهم، ولا يُسجَّل ناقصاً.</p>
+      <div class="row" style="margin:12px 0">
+        <div><label for="ichan">القناة</label><select id="ichan"></select></div>
+        <div><label for="idetail">المعرّف في القناة</label><input id="idetail" placeholder="@الحساب · البريد · رقم المتصل"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="iname">اسم المرسل</label><input id="iname"></div>
+        <div><label for="iphone">جواله</label><input id="iphone" inputmode="tel" placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="iemail">بريده</label><input id="iemail" inputmode="email"></div>
+        <div><label for="idate">تاريخ الوصول</label><input id="idate" type="date"></div>
+      </div>
+      <label for="itext">نص ما وصل</label>
+      <textarea id="itext" placeholder="مطلوب عمارة سكنية في الرياض حي الملقا 5000 متر مؤجرة والدخل السنوي 700 ألف — الطلب عن طريق أبو سعد عن وسيط ثاني"></textarea>
+      <label class="hint" style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <input type="checkbox" id="iback"> طلب سابق (أرشيف) — يُسجَّل ويُطابَق بلا أي رسالة تُرسل
+      </label>
+      <button class="btn btn-primary" id="isave" type="button" style="margin-top:10px">سجّل في الوارد</button>
+      <div id="imsg" hidden style="margin-top:12px"></div>
+      <div id="idups" hidden style="margin-top:12px"></div>
+      <div style="overflow-x:auto;margin-top:16px"><table class="bd" id="tintake"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>إدخال الطلبات السابقة — دفعة واحدة</h3>
+      <p class="hint" style="margin-top:0">الصق تصدير محادثة واتساب (Export chat) أو عدة طلبات يفصلها سطر فارغ. كل رسالة تُسجَّل بتاريخها هي لا بتاريخ اليوم. الدفعة أرشيف: تُطابَق في القاعدة ولا تُرسل رسالة واحدة.</p>
+      <div class="row" style="margin:12px 0">
+        <div><label for="bfmt">الشكل</label><select id="bfmt">
+          <option value="whatsapp">تصدير محادثة واتساب</option>
+          <option value="blocks">كتل يفصلها سطر فارغ</option>
+        </select></div>
+        <div><label for="bfrom">فقط رسائل هذا المرسل</label><input id="bfrom" placeholder="اتركه فارغاً لكل المرسلين"></div>
+      </div>
+      <label class="hint" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="checkbox" id="bday" checked> التاريخ يوم/شهر (أجهزة المنطقة). أزل العلامة إن كان التصدير شهر/يوم
+      </label>
+      <textarea id="btext" style="min-height:160px" placeholder="[12/03/2025, 9:41:22 ص] أبو سعد: مطلوب أرض خام شمال الرياض 5000 متر"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="bprev" type="button">اقرأ بلا حفظ</button>
+        <button class="btn btn-primary" id="bgo" type="button">أدخل الدفعة</button>
+      </div>
+      <div id="bmsg" hidden style="margin-top:12px"></div>
+      <div id="bout" style="margin-top:12px;font-size:12px;color:var(--bd-mute)"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الطلبات المفتوحة</h3>
+      <div style="overflow-x:auto"><table class="bd" id="treq"></table></div>
+    </div>
+
+    <div class="card" id="mcard" style="margin-bottom:18px" hidden>
+      <h3 id="mtitle">المطابقات</h3>
+      <div id="mbody"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>العروض</h3>
+      <div style="overflow-x:auto"><table class="bd" id="tlst"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الصفقات</h3>
+      <p class="hint" style="margin-top:0">تُفتح الصفقة من مطابقة أعلاه. تغيير المرحلة يحرّك ما حولها: الإقفال يسحب العرض من السوق ويغلق الطلب، والخسارة تعيد الطلب إلى البحث.</p>
+      <div id="pipe" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0"></div>
+      <div style="overflow-x:auto"><table class="bd" id="tdeal"></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>الدراسات والتحليل العقاري</h3>
+      <div class="row" style="margin:12px 0">
+        <div><label for="skind">النوع</label><select id="skind"></select></div>
+        <div><label for="stitle">العنوان *</label><input id="stitle" placeholder="دراسة جدوى مشروع سكني شمال الرياض"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="scity">المدينة</label><input id="scity"></div>
+        <div><label for="sfee">الأتعاب (ريال)</label><input id="sfee" inputmode="numeric"></div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <div><label for="sname">اسم العميل</label><input id="sname"></div>
+        <div><label for="sphone">جوال العميل</label><input id="sphone" inputmode="tel" placeholder="05xxxxxxxx"></div>
+      </div>
+      <button class="btn btn-primary" id="snew" type="button">افتح ملف دراسة</button>
+      <div id="smsg" hidden style="margin-top:12px"></div>
+      <div style="overflow-x:auto;margin-top:16px"><table class="bd" id="tstudy"></table></div>
+    </div>
+
+    <div class="card">
+      <h3>جهات الاتصال</h3>
+      <div style="overflow-x:auto"><table class="bd" id="tcon"></table></div>
+    </div>
+  </div>
+</div></section>
+<footer class="bd"><div class="wrap">
+  <div class="cols">
+    <div>
+      <div class="brand" style="color:#fff"><svg class="gem" viewBox="0 0 64 64" aria-hidden="true">
+  <defs><linearGradient id="bdg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6FC3F7"/><stop offset=".55" stop-color="#1F6FD0"/><stop offset="1" stop-color="#0E3A7B"/>
+  </linearGradient></defs>
+  <path fill="url(#bdg)" d="M20 6h24l12 16-24 36L8 22z"/>
+  <path fill="#fff" opacity=".22" d="M20 6h12L20 22H8z"/>
+  <path fill="#fff" opacity=".12" d="M32 22h24L32 58z"/>
+</svg><span>شركة الألماس الأزرق العقارية</span></div>
+      <p style="color:#9FB3D4;margin-top:12px">قيمةٌ تُبنى، ومستقبلٌ يُصاغ — خدمات وحلول عقارية متكاملة وفق تراخيص معتمدة من الهيئة العامة للعقار.</p>
+    </div>
+    <div>
+      <h3 style="color:#fff;font-size:15px">روابط</h3>
+      <p><a href="/bluediamond/">الرئيسية</a><br>
+         <a href="/bluediamond/request">تسجيل طلب عقاري</a><br>
+         <a href="/bluediamond/offer">عرض عقار للبيع أو التأجير</a></p>
+    </div>
+    <div>
+      <h3 style="color:#fff;font-size:15px">تواصل</h3>
+      <p><a href="tel:+966505556150"><bdi dir="ltr">+966505556150</bdi></a><br>
+         <a href="mailto:info@bluediamond.sa">info@bluediamond.sa</a><br>
+         المملكة العربية السعودية — الرياض</p>
+    </div>
+  </div>
+  <div class="fine">
+    <span>شركة الألماس الأزرق العقارية — ذات مسؤولية محدودة · السجل التجاري 1009029650</span>
+    <span>Blue Diamond Real Estate · www.bluediamond.sa</span>
+  </div>
+</div></footer>
+<a class="wa-fab" href="https://wa.me/966505556150" target="_blank" rel="noopener" aria-label="واتساب">
+  <svg viewBox="0 0 24 24"><path d="M.06 24l1.69-6.16A11.87 11.87 0 010 11.93C0 5.35 5.35 0 11.93 0a11.86 11.86 0 018.43 3.49 11.82 11.82 0 013.49 8.44c0 6.57-5.35 11.92-11.93 11.92a11.9 11.9 0 01-5.7-1.45L.06 24zM6.6 20.2l.36.21a9.9 9.9 0 004.97 1.36c5.46 0 9.91-4.44 9.91-9.9a9.85 9.85 0 00-2.9-7.01 9.82 9.82 0 00-7-2.91c-5.47 0-9.91 4.44-9.91 9.9a9.87 9.87 0 001.51 5.26l.24.38-1 3.65 3.82-.94zm11.1-5.63c-.07-.12-.27-.2-.57-.35-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48a9 9 0 01-1.66-2.06c-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.7.25-1.29.18-1.41z"/></svg>
+</a>
+<script>
+const $=s=>document.querySelector(s);
+let KEY=localStorage.getItem('bd_ops_key')||'';
+let LAB={dealStages:{},studyKinds:{},studyStatuses:{},propertyTypes:{},channels:{},chainRoles:{}};
+const n=x=>x==null?'—':Number(x).toLocaleString('en-US');
+const t=c=>LAB.propertyTypes[c]||c||'—';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const opts=(map,sel)=>Object.entries(map).map(([k,v])=>'<option value="'+esc(k)+'"'+(k===sel?' selected':'')+'>'+esc(v)+'</option>').join('');
+const short=d=>d?String(d).slice(0,10):'—';
+const DONE_REQ=new Set(['WON','LOST','CANCELLED']);
+
+async function api(q,body){
+  const qs=new URLSearchParams({...q,key:KEY}).toString();
+  const r=await fetch('/api/realestate?'+qs,body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...body,key:KEY})}:{});
+  return {status:r.status,data:await r.json().catch(()=>({}))}}
+
+function table(el,cols,rows,render){
+  el.innerHTML='<thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
+    (rows.length?rows.map(render).join(''):'<tr><td colspan="'+cols.length+'">لا يوجد</td></tr>')+'</tbody>'}
+
+function say(el,text,cls){el.hidden=false;el.className='note '+(cls||'');el.textContent=text}
+
+async function load(){
+  const d=(await api({action:'dashboard'})).data;
+  const c=d.counts||{},m=d.money||{};
+  $('#stats').innerHTML=[['وارد ينتظر المراجعة',c.inbox],['الطلبات المفتوحة',c.openRequests],['العروض المتاحة',c.activeListings],
+    ['مطابقات جديدة',c.newMatches],['جهات الاتصال',c.contacts],['صفقات جارية',c.openDeals],['دراسات مفتوحة',c.openStudies],
+    ['قيمة الصفقات الجارية',n(m.openValue)],['قيمة الصفقات المُقفلة',n(m.wonValue)],['العمولة المحقّقة',n(m.wonCommission)]]
+    .map(([k,v])=>'<div class="card stat"><b>'+(v===0?0:(v||0))+'</b><span>'+k+'</span></div>').join('');
+
+  const reqs=(await api({action:'list',of:'requests',limit:'40'})).data.rows||[];
+  table($('#treq'),['المرجع','النوع','المدينة','المساحة','الميزانية','مدر؟','الاكتمال','الحالة','إجراء'],reqs,r=>
+    '<tr><td><b>'+esc(r.ref)+'</b></td><td>'+esc(t(r.property_type))+'</td><td>'+esc(r.city||'—')+'</td>'+
+    '<td>'+n(r.area_min)+(r.area_max&&r.area_max!==r.area_min?' – '+n(r.area_max):'')+'</td>'+
+    '<td>'+(r.budget_max?'حتى '+n(r.budget_max):'—')+'</td>'+
+    '<td>'+(r.income_producing===true?'نعم':r.income_producing===false?'لا':'—')+'</td>'+
+    '<td>'+(r.completeness||0)+'%</td><td><span class="pill">'+esc(r.status)+'</span></td>'+
+    // الطلب المنتهي لا يُطابَق ولا يُطرح على السوق: طرح طلبٍ رُبحت صفقته
+    // يرسل «مطلوب لعميل» إلى الشبكة كلها عن حاجةٍ انتهت.
+    '<td>'+(DONE_REQ.has(r.status)?'<span class="hint">انتهى</span>':
+      ('<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-m="'+esc(r.ref)+'">طابِق</button> '+
+       '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-b="'+esc(r.ref)+'">اطرح على السوق</button>'))+
+    '</td></tr>');
+
+  const lsts=(await api({action:'list',of:'listings',limit:'40'})).data.rows||[];
+  table($('#tlst'),['المرجع','النوع','المدينة','المساحة','السعر','ريال/م²','العائد','الحالة'],lsts,r=>
+    '<tr><td><b>'+esc(r.ref)+'</b></td><td>'+esc(t(r.property_type))+'</td>'+
+    '<td>'+esc(r.city||'—')+(r.district?' — '+esc(r.district):'')+'</td><td>'+n(r.area)+'</td>'+
+    '<td>'+n(r.price)+'</td><td>'+n(r.price_per_m)+'</td><td>'+(r.yield_pct?r.yield_pct+'%':'—')+'</td>'+
+    '<td><span class="pill">'+esc(r.status)+'</span></td></tr>');
+
+  // خطّ الأنابيب: المرحلة وعددها، بالترتيب الذي تمرّ به الصفقة فعلاً.
+  const pipe=d.pipeline||{};
+  $('#pipe').innerHTML=Object.keys(LAB.dealStages).map(k=>
+    '<span class="pill" style="'+(pipe[k]?'':'opacity:.45')+'">'+esc(LAB.dealStages[k])+': '+(pipe[k]||0)+'</span>').join('');
+
+  const deals=(d.recent&&d.recent.deals)||[];
+  const byId=Object.fromEntries(lsts.map(l=>[l.id,l])),reqById=Object.fromEntries(reqs.map(r=>[r.id,r]));
+  table($('#tdeal'),['المرجع','العقار','الطلب','القيمة','العمولة','المرحلة','السبب/الإقفال'],deals,r=>{
+    const l=byId[r.listing_id],q=reqById[r.request_id];
+    return '<tr><td><b>'+esc(r.ref)+'</b></td>'+
+    '<td>'+(l?esc(l.ref)+' — '+esc(t(l.property_type))+(l.city?' · '+esc(l.city):''):'—')+'</td>'+
+    '<td>'+(q?esc(q.ref):'—')+'</td><td>'+n(r.amount)+'</td>'+
+    '<td>'+n(r.commission_amount)+(r.commission_pct?' <span class="hint">('+r.commission_pct+'%)</span>':'')+'</td>'+
+    '<td><select data-deal="'+esc(r.ref)+'" style="padding:6px 8px;font-size:12px">'+opts(LAB.dealStages,r.stage)+'</select></td>'+
+    '<td>'+(r.lost_reason?esc(r.lost_reason):short(r.closed_at))+'</td></tr>'});
+
+  const studies=(d.recent&&d.recent.studies)||[];
+  table($('#tstudy'),['المرجع','النوع','العنوان','المدينة','الأتعاب','الحالة','المخرج'],studies,r=>
+    '<tr><td><b>'+esc(r.ref)+'</b></td><td>'+esc(LAB.studyKinds[r.kind]||r.kind)+'</td>'+
+    '<td>'+esc(r.title)+'</td><td>'+esc(r.city||'—')+'</td><td>'+n(r.fee)+'</td>'+
+    '<td><select data-study="'+esc(r.ref)+'" style="padding:6px 8px;font-size:12px">'+opts(LAB.studyStatuses,r.status)+'</select></td>'+
+    '<td>'+(r.output_url?'<a href="'+esc(r.output_url)+'" target="_blank" rel="noopener">الملف</a>':'—')+'</td></tr>');
+
+  await loadIntake();
+
+  const cons=(await api({action:'list',of:'contacts',limit:'40'})).data.rows||[];
+  table($('#tcon'),['الاسم','الجوال','الأدوار','المدينة','عروض','مطابقات','صفقات'],cons,r=>
+    '<tr><td>'+esc(r.name||'—')+'</td><td>'+esc(r.wa_phone)+'</td>'+
+    '<td>'+(r.roles||[]).map(x=>'<span class="pill">'+esc(x)+'</span>').join(' ')+'</td>'+
+    '<td>'+esc(r.city||'—')+'</td><td>'+(r.offers_count||0)+'</td><td>'+(r.matched_count||0)+'</td>'+
+    '<td>'+(r.deals_count||0)+'</td></tr>');
+}
+
+// ------------------------------------------------------------- الوارد --
+// السلسلة تُكتب سطراً لكل وسيط: الاسم | الجوال | الدور | الحصة٪. صيغةٌ
+// تُكتب بسرعة الواتساب، ونموذجٌ بحقول لكل وسيط لا يملؤه أحد وهو يعمل.
+function parseChainLines(text){
+  return String(text||'').split(/
+/).map(l=>l.trim()).filter(Boolean).map((l,i)=>{
+    const p=l.split('|').map(x=>x.trim());
+    return {position:i+1,name:p[0]||'',phone:p[1]||'',role:(p[2]||'BROKER').toUpperCase(),share_pct:p[3]?Number(String(p[3]).replace('%','')):null}})
+    .filter(x=>x.name||x.phone)}
+
+function dupLine(d){return '<div class="hint">⚠️ قد يكون تكراراً لـ <b>'+esc(d.ref)+'</b> — '+esc(d.reason)+' ('+Math.round(d.confidence*100)+'%)</div>'}
+
+async function loadIntake(){
+  const rows=(await api({action:'list',of:'intake',limit:'40'})).data.rows||[];
+  const open=rows.filter(r=>r.status==='NEW'||r.status==='NEEDS_INFO');
+  table($('#tintake'),['المرجع','القناة','وصل','المرسل','ما فُهم','النص','إجراء'],open,r=>{
+    const pr=r.parsed||{};
+    const hint=(pr.chain_hint&&pr.chain_hint.hinted)?' <span class="pill">وسيط</span>':'';
+    const back=r.backlog?' <span class="pill">أرشيف</span>':'';
+    return '<tr><td><b>'+esc(r.ref)+'</b>'+back+'</td>'+
+      '<td>'+esc(LAB.channels[r.channel]||r.channel)+'</td>'+
+      '<td>'+short(r.received_at)+'</td>'+
+      '<td>'+esc(r.sender_name||r.sender_phone||r.sender_email||'—')+hint+'</td>'+
+      '<td>'+esc(r.intent==='LISTING'?'عرض':r.intent==='REQUEST'?'طلب':r.intent==='STUDY'?'دراسة':'غير واضح')+
+        '<div class="hint">'+esc(t(pr.property_type))+(pr.city?' · '+esc(pr.city):'')+'</div></td>'+
+      '<td style="max-width:280px"><div class="hint" style="white-space:pre-wrap">'+esc(String(r.raw_text||'').slice(0,160))+'</div></td>'+
+      '<td style="white-space:nowrap">'+
+        '<button class="btn btn-primary" style="padding:6px 10px;font-size:12px" data-conv="'+esc(r.ref)+'" data-kind="REQUEST">طلب</button> '+
+        '<button class="btn btn-ghost" style="padding:6px 10px;font-size:12px" data-conv="'+esc(r.ref)+'" data-kind="LISTING">عرض</button> '+
+        '<button class="btn btn-ghost" style="padding:6px 10px;font-size:12px" data-drop="'+esc(r.ref)+'">تجاهل</button>'+
+      '</td></tr>'});
+}
+
+$('#isave').onclick=async()=>{
+  const msg=$('#imsg'),dups=$('#idups');dups.hidden=true;
+  const text=$('#itext').value.trim();
+  if(!text){say(msg,'اكتب نص ما وصل.','err');return}
+  const d=$('#idate').value;
+  const r=await api({},{action:'intake',text:text,channel:$('#ichan').value,
+    channelDetail:$('#idetail').value.trim(),name:$('#iname').value.trim(),
+    phone:$('#iphone').value.trim(),email:$('#iemail').value.trim(),
+    receivedAt:d?new Date(d+'T12:00:00Z').toISOString():null,backlog:$('#iback').checked});
+  if(r.status!==200){say(msg,'تعذّر التسجيل: '+esc((r.data&&r.data.error)||r.status),'err');return}
+  say(msg,'سُجّل في الوارد: '+r.data.row.ref+' — راجعه في الجدول ثم حوّله.','ok');
+  const list=(r.data.duplicates||[]);
+  if(list.length){dups.hidden=false;dups.innerHTML=list.map(dupLine).join('')}
+  $('#itext').value='';loadIntake()};
+
+// التحويل يسأل عن السلسلة أولاً: بعد الحفظ يصير السؤال تصحيحاً، وقبله
+// هو الوقت الوحيد الذي يكون فيه من أدخل الصفّ يذكر من نقله.
+async function convert(ref,kind){
+  const hint=kind==='REQUEST'?'سلسلة الوسطاء (اختياري) — سطر لكل واحد:
+الاسم | الجوال | الدور | الحصة٪
+الأدوار: BROKER وسيط · MARKETER مسوّق · CLIENT صاحب الطلب · OWNER مالك':'سلسلة من نقل العرض (اختياري) — سطر لكل واحد:
+الاسم | الجوال | الدور | الحصة٪';
+  const raw=prompt(hint,'');
+  if(raw===null)return;
+  const chain=parseChainLines(raw);
+  const r=await api({},{action:'intake-convert',ref:ref,kind:kind,chain:chain});
+  const msg=$('#imsg');
+  if(r.status!==200){say(msg,'تعذّر التحويل: '+esc((r.data&&r.data.error)||r.status),'err');return}
+  say(msg,'تحوّل '+ref+' إلى '+r.data.ref+(r.data.matches?' — '+r.data.matches+' مطابقة':' — بلا مطابقة بعد'),'ok');
+  loadIntake();load()}
+
+// ------------------------------------------------- إدخال الأرشيف ------
+$('#bprev').onclick=async()=>{
+  const msg=$('#bmsg');
+  const r=await api({},{action:'intake-preview',text:$('#btext').value,format:$('#bfmt').value,dayFirst:$('#bday').checked});
+  if(r.status!==200){say(msg,'تعذّرت القراءة.','err');return}
+  const d=r.data;
+  const senders=Object.entries(d.senders||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  say(msg,'قُرئت '+d.total+' رسالة. لا شيء حُفظ.','ok');
+  $('#bout').innerHTML=(senders.length?'<div><b>المرسلون:</b> '+senders.map(([k,v])=>esc(k)+' ('+v+')').join(' · ')+'</div>':'')+
+    '<div style="margin-top:8px"><b>عيّنة:</b></div>'+
+    (d.sample||[]).map(x=>'<div style="border-bottom:1px solid var(--bd-line);padding:6px 0">'+
+      '<span class="pill">'+esc(x.intent==='LISTING'?'عرض':x.intent==='REQUEST'?'طلب':x.intent==='STUDY'?'دراسة':'يُتجاهل')+'</span> '+
+      short(x.at)+' — '+esc(x.sender||'')+': '+esc(x.text)+'</div>').join('')};
+
+$('#bgo').onclick=async()=>{
+  const msg=$('#bmsg'),text=$('#btext').value.trim();
+  if(!text){say(msg,'الصق التصدير أو الطلبات أولاً.','err');return}
+  if(!confirm('سيُسجَّل ما يُقرأ في الوارد كأرشيف — بلا إرسال أي رسالة. متابعة؟'))return;
+  say(msg,'جارٍ الإدخال…','');
+  const r=await api({},{action:'intake-bulk',text:text,format:$('#bfmt').value,
+    onlyFrom:$('#bfrom').value.trim()||null,dayFirst:$('#bday').checked,backlog:true});
+  if(r.status!==200){say(msg,'تعذّر الإدخال.','err');return}
+  const d=r.data;
+  say(msg,'قُرئت '+d.read+' · سُجّلت '+d.saved+' · تُجوهلت '+d.skipped+(d.truncated?' · بقي '+d.truncated+' لدفعة تالية':''),'ok');
+  $('#bout').innerHTML=(d.skippedRows||[]).length?'<div><b>ما لم يُسجَّل:</b></div>'+
+    d.skippedRows.map(x=>'<div class="hint">'+esc(x.why)+' — '+esc(x.text)+'</div>').join(''):'';
+  loadIntake();load()};
+
+// المطابقات تُعرض في اللوحة لا في نافذة تنبيه: من نافذة لا يمكن فتح صفقة
+// ولا إرسال بطاقة، وكتابة مرجعين باليد لفتح صفقة عملٌ لا يقوم به أحد.
+async function showMatches(ref){
+  const r=await api({},{action:'match',ref:ref});
+  const card=$('#mcard');card.hidden=false;
+  $('#mtitle').textContent='مطابقات '+ref+' — '+(r.data.count||0);
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(!r.data.count){$('#mbody').innerHTML='<p class="hint">لا مطابقات في المخزون. اطرح الطلب على السوق.</p>';return}
+  $('#mbody').innerHTML=r.data.matches.map(x=>{
+    const l=x.listing||{};
+    return '<div style="border:1px solid var(--bd-line);border-radius:12px;padding:14px;margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">'+
+      '<b>'+esc(x.ref)+' — '+esc(t(l.property_type))+(l.city?' · '+esc(l.city):'')+'</b>'+
+      '<span class="score">'+x.score+'%</span></div>'+
+      '<div class="hint">'+n(l.area)+' م² · '+n(l.price)+' ريال'+(l.yield_pct?' · عائد '+l.yield_pct+'%':'')+'</div>'+
+      ((x.reasons||[]).length?'<div class="hint" style="color:#16A34A">✅ '+esc(x.reasons.join(' · '))+'</div>':'')+
+      ((x.gaps||[]).length?'<div class="hint" style="color:#B45309">⚠️ '+esc(x.gaps.join(' · '))+'</div>':'')+
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+      '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" data-send="'+esc(ref)+'" data-lid="'+esc(x.id||'')+'">أرسل للعميل</button>'+
+      '<button class="btn btn-primary" style="padding:6px 12px;font-size:12px" data-open="'+esc(ref)+'" data-lref="'+esc(x.ref)+'">افتح صفقة</button>'+
+      '</div></div>'}).join('');
+}
+
+document.addEventListener('click',async e=>{
+  const g=k=>e.target.getAttribute&&e.target.getAttribute(k);
+  const m=g('data-m'),b=g('data-b'),send=g('data-send'),open=g('data-open');
+  const conv=g('data-conv'),drop=g('data-drop');
+  if(conv)await convert(conv,g('data-kind')||'REQUEST');
+  if(drop){
+    // «مكرر» يحتاج مرجع الصفّ الأصلي، وإلا صار التجاهل نسياناً لا قراراً.
+    const dup=prompt('مرجع الطلب الذي يكرّره (BD-T-…)، أو اتركه فارغاً للتجاهل:','');
+    if(dup===null)return;
+    const r=await api({},dup.trim()?{action:'intake-close',ref:drop,status:'DUPLICATE',dupOf:dup.trim()}
+                                   :{action:'intake-close',ref:drop,status:'DISCARDED'});
+    if(r.status!==200){alert('تعذّر: '+((r.data&&r.data.error)||r.status));return}
+    loadIntake()}
+  if(m)await showMatches(m);
+  if(b){if(!confirm('يُرسل نص الطلب '+b+' إلى المسوّقين والمطوّرين في القاعدة. متابعة؟'))return;
+    const r=await api({},{action:'broadcast',ref:b});
+    alert(r.data.ok?('أُرسل إلى '+r.data.sent+' من '+r.data.audience+'\n\n'+r.data.message):'تعذّر الإرسال')}
+  if(send){const r=await api({},{action:'send-matches',ref:send,listingIds:[g('data-lid')]});
+    alert(r.data.ok?('أُرسلت '+r.data.sent+' بطاقة للعميل.'):('تعذّر الإرسال: '+(r.data.error||'')))}
+  if(open){const r=await api({},{action:'deal',requestRef:open,listingRef:g('data-lref')});
+    if(r.status===409){alert('على هذا الزوج صفقة مفتوحة أصلاً: '+r.data.ref);return}
+    if(!r.data.ok){alert('تعذّر فتح الصفقة: '+(r.data.error||''));return}
+    alert('فُتحت الصفقة '+r.data.ref);await load()}});
+
+document.addEventListener('change',async e=>{
+  const dealRef=e.target.getAttribute&&e.target.getAttribute('data-deal');
+  const studyRef=e.target.getAttribute&&e.target.getAttribute('data-study');
+  if(dealRef){
+    const stage=e.target.value;const body={action:'deal-stage',ref:dealRef,stage:stage};
+    // الخسارة تُسجَّل بسببها: صفقةٌ خسرت بلا سبب لا تعلّم المكتب شيئاً.
+    if(stage==='LOST'){const why=prompt('سبب خسارة الصفقة '+dealRef+'؟');
+      if(!why){await load();return} body.lostReason=why}
+    if(stage==='CLOSED'&&!confirm('إقفال '+dealRef+' يسحب العرض من السوق ويغلق الطلب. متابعة؟')){await load();return}
+    const r=await api({},body);
+    if(!r.data.ok)alert('تعذّر التحديث: '+(r.data.error||''));
+    await load()}
+  if(studyRef){
+    const status=e.target.value;const body={action:'study-status',ref:studyRef,status:status};
+    if(status==='DELIVERED'){const url=prompt('رابط المخرج المُسلَّم للعميل؟');
+      if(!url){await load();return} body.outputUrl=url}
+    const r=await api({},body);
+    if(!r.data.ok)alert('تعذّر التحديث: '+(r.data.error||''));
+    await load()}});
+
+$('#snew').onclick=async()=>{
+  const v=id=>($(id).value||'').trim();
+  if(!v('#stitle')){say($('#smsg'),'العنوان مطلوب.','err');return}
+  const r=await api({},{action:'study',kind:v('#skind'),title:v('#stitle'),city:v('#scity')||null,
+    fee:v('#sfee')?Number(v('#sfee').replace(/[^\d.]/g,'')):null,name:v('#sname')||null,phone:v('#sphone')||null});
+  if(!r.data.ok){say($('#smsg'),'تعذّر الفتح: '+(r.data.error||''),'err');return}
+  say($('#smsg'),'فُتح الملف '+r.data.ref,'ok');
+  ['#stitle','#scity','#sfee','#sname','#sphone'].forEach(id=>{$(id).value=''});
+  await load()};
+
+$('#pgo').onclick=async()=>{const r=await api({},{action:'parse',text:$('#ptext').value});
+  $('#pout').textContent=JSON.stringify(r.data,null,1)};
+$('#sgo').onclick=async()=>{const r=await api({},{action:'simulate',text:$('#ptext').value,from:'966500000000',name:'تجربة'});
+  $('#pout').textContent=JSON.stringify(r.data,null,1);load()};
+
+async function enter(){
+  KEY=($('#key').value||KEY||'').trim();
+  const r=await api({action:'status'});
+  if(r.status!==200){$('#gmsg').hidden=false;$('#gmsg').className='note err';
+    $('#gmsg').textContent=(r.data&&r.data.error==='ops_key_unset')
+      ?'مفتاح اللوحة غير مضبوط على الخادم (BD_OPS_KEY). اضبطه ثم أعد التشغيل.'
+      :'مفتاح غير صحيح.';return}
+  LAB=r.data.labels||LAB;
+  $('#skind').innerHTML=opts(LAB.studyKinds,'ANALYSIS');
+  $('#ichan').innerHTML=opts(LAB.channels,'WHATSAPP');
+  localStorage.setItem('bd_ops_key',KEY);
+  $('#gate').hidden=true;$('#app').hidden=false;load()}
+$('#enter').onclick=enter;
+$('#key').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
+if(KEY){$('#key').value=KEY;enter()}</script>
+</body>
+</html>

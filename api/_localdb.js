@@ -108,10 +108,19 @@ function makeOrFilter(expr) {
   return (r) => fns.some((f) => f(r));
 }
 
+// The operator is matched against the known list, longest first — NOT with a
+// greedy /^([a-z.]+)\./. That pattern ate the value whenever the value itself
+// contained a dot: "email=eq.ali.hassan@x.com" parsed its operator as "eq.ali"
+// and threw "unsupported operator", and a WhatsApp message id ("eq.wamid.abc")
+// did the same. Both are values this repo really queries by, so the emulator
+// failed on rows that Supabase serves fine — the worst kind of divergence,
+// because it only ever shows up on the developer's machine.
+const OP_NAMES = ["not.in", "not.is", "ilike", "like", "gte", "lte", "neq", "eq", "gt", "lt", "is", "in"];
+
 function makeFilter(col, expr) {
-  const m = /^([a-z.]+)\.(.*)$/s.exec(expr);
-  if (!m) throw new Error(`localdb: bad filter "${col}=${expr}"`);
-  const [, op, rest] = m;
+  const op = OP_NAMES.find((o) => expr.startsWith(o + "."));
+  if (!op) throw new Error(`localdb: bad filter "${col}=${expr}"`);
+  const rest = expr.slice(op.length + 1);
   if (op === "is") { const want = rest === "null"; return (r) => (r[col] === null || r[col] === undefined) === want; }
   if (op === "in") { const set = new Set(listValues(rest)); return (r) => set.has(String(r[col] ?? "")); }
   if (op === "not.in") { const set = new Set(listValues(rest)); return (r) => !set.has(String(r[col] ?? "")); }

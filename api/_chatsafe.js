@@ -1,8 +1,14 @@
-// Resilient wrapper for /api/chat.
-// Keeps the existing advisor implementation intact, but guarantees that the
-// public Simple V1 intake chat still answers when every external AI provider
-// is unavailable, out of credit, or misconfigured.
-import originalHandler from "./chat.js";
+// The resilience layer that sits in front of the advisor handler in api/chat.js.
+//
+// Why it is a module and not its own endpoint: it used to be api/chat-safe.js
+// with a rewrite pointing /api/chat at it. That made it the THIRTEENTH file in
+// api/, and Vercel caps this plan at twelve — the guard in
+// site/scripts/verify-api.mjs failed every build on master from the commit
+// that added it, so nothing shipped at all. Same behaviour, one file fewer:
+// api/chat.js now exports `wrapChat(coreChat)` as its default handler, so
+// /api/chat IS the safe path and there is nothing to rewrite.
+// It still guarantees that the public Simple V1 intake chat answers when every
+// external AI provider is unavailable, out of credit, or misconfigured.
 
 const N8N_URL = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
 
@@ -194,14 +200,21 @@ async function n8nReply(body) {
   return String(data?.output || data?.text || data?.reply || "").trim();
 }
 
-export default async function handler(req, res) {
+/**
+ * Wrap the advisor handler so a 5xx from it never reaches the intake chat.
+ *
+ * @param {(req:any,res:any)=>Promise<any>} originalHandler the real advisor
+ * @returns {(req:any,res:any)=>Promise<any>} a drop-in Vercel handler
+ */
+export function wrapChat(originalHandler) {
+  return async function handler(req, res) {
   const captured = captureResponse();
   try {
     await originalHandler(req, captured);
   } catch (e) {
     captured.statusCode = 502;
     captured.body = JSON.stringify({ error: "upstream_exception", reply: "" });
-    console.error("chat-safe original handler exception:", e?.message || e);
+    console.error("chat original handler exception:", e?.message || e);
   }
 
   // Healthy responses, auth errors, bad requests, etc. are preserved exactly.
@@ -217,7 +230,7 @@ export default async function handler(req, res) {
   // creates an editable scope after the second customer turn.
   let reply = "";
   try { reply = await n8nReply(body); } catch (e) {
-    console.error("chat-safe n8n fallback failed:", e?.message || e);
+    console.error("chat n8n fallback failed:", e?.message || e);
   }
 
   const userTurns = Array.isArray(body.messages)
@@ -232,4 +245,5 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.statusCode = 200;
   return res.end(JSON.stringify({ reply, provider: reply.includes("<<SCOPE>>") ? "safe-intake" : "baher-n8n" }));
+  };
 }

@@ -14,9 +14,6 @@
     "api/chat.js": {
       "maxDuration": 60
     },
-    "api/chat-safe.js": {
-      "maxDuration": 60
-    },
     "api/requests.js": {
       "maxDuration": 60
     },
@@ -79,7 +76,6 @@
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
   ],
   "rewrites": [
-    {"source":"/api/chat","destination":"/api/chat-safe"},
     {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
     {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
     {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
@@ -91,6 +87,7 @@
     {"source":"/api/jobhunt","destination":"/api/requests?__route=jobhunt"},
     {"source":"/api/doc-agent","destination":"/api/requests?__route=doc-agent"},
     {"source":"/api/simple","destination":"/api/requests?__route=simple"},
+    {"source":"/api/realestate","destination":"/api/requests?__route=realestate"},
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal","destination":"/assets/data/revenue-command-center"},

@@ -816,3 +816,330 @@ alter table tasks add column if not exists priority text not null default 'norma
 alter table tasks add column if not exists assigned_to text;
 create index if not exists tasks_request_idx on tasks(request_id);
 create index if not exists tasks_human_idx on tasks(human_action) where human_action and status in ('open','in_progress','blocked');
+
+-- ======================================================= الألماس الأزرق العقارية --
+-- 2026-09-18: منظومة العميل «بندر الأحمد — شركة الألماس الأزرق العقارية»
+-- (وسيط ومحلل عقاري مرخّص من الهيئة العامة للعقار، السجل 1009029650).
+--
+-- شغل المكتب كله يجري اليوم في واتساب: العميل يكتب ما يريده، والمسوّقون
+-- والمطوّرون يرسلون ما لديهم، وبندر هو من يربط بين الاثنين من ذاكرته. هذه
+-- الجداول تحوّل ذلك الربط من ذاكرة إلى قاعدة: كل طلب صفّ، وكل عرض صفّ،
+-- والمطابقة بينهما صفٌّ ثالث له سبب مكتوب.
+--
+-- لماذا جدول جهات اتصال واحد لا ثلاثة: المسوّق في صفقة هو المشتري في
+-- صفقة أخرى، والمالك الذي باع اليوم يطلب شراء غداً. فصلهم في ثلاثة
+-- جداول يعني تكرار الرقم نفسه ثلاث مرات، وثلاث نسخ من تاريخ التعامل معه
+-- بدل واحدة — والرقم هو المفتاح الحقيقي في هذا السوق لا الاسم.
+create table if not exists re_contacts (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  wa_phone text not null,                     -- الرقم بصيغة واتساب (966…) — هو المفتاح
+  name text,
+  company text,
+  -- دور واحد أو أكثر: العميل الذي يشتري قد يكون هو المالك الذي يبيع.
+  roles text[] not null default '{}',         -- CLIENT | OWNER | MARKETER | DEVELOPER | BROKER | INVESTOR | TENANT | VENDOR
+  city text,
+  email text,
+  notes text,
+  -- تقييم يبنيه العمل لا المزاج: كم عرضاً أرسله، وكم منها طابق فعلاً.
+  offers_count int not null default 0,
+  matched_count int not null default 0,
+  deals_count int not null default 0,
+  last_seen_at timestamptz,
+  blocked boolean not null default false,     -- من يرسل عروضاً وهمية يُسكت، ولا يُحذف تاريخه
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (organization_id, wa_phone)
+);
+create index if not exists re_contacts_roles_idx on re_contacts using gin (roles);
+create index if not exists re_contacts_phone_idx on re_contacts(wa_phone);
+
+-- الطلبات — ما يبحث عنه العميل. المصدر الغالب واتساب، ولذلك يُقبل الصفّ
+-- ناقصاً: طلب وصل فيه نوع العقار والمدينة فقط أفضل من طلب لم يُسجَّل حتى
+-- تكتمل حقوله. الاكتمال رقم على الصفّ (completeness) يقود سؤال المستشار
+-- التالي، ولا يمنع الحفظ.
+create table if not exists re_requests (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-T-000123 (طلب)
+  contact_id uuid references re_contacts(id) on delete set null,
+  source text not null default 'WHATSAPP' check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','REFERRAL')),
+  purpose text not null default 'BUY' check (purpose in ('BUY','RENT','INVEST','DEVELOP')),
+  property_type text,                         -- LAND | RESIDENTIAL_BUILDING | COMMERCIAL_BUILDING | VILLA | APARTMENT | SHOWROOM | WAREHOUSE | TOWER | HOTEL | FARM | COMPOUND | OFFICE | MIXED
+  city text,
+  districts text[] not null default '{}',     -- أحياء مفضّلة — تُرجّح ولا تُقصي
+  area_min numeric, area_max numeric,         -- بالمتر المربع
+  budget_min numeric, budget_max numeric,     -- بالريال
+  -- «مدر للدخل أو غير مدر» — ثلاث حالات لا اثنتان: نعم شرط، لا شرط،
+  -- و NULL أي «ما يفرق». خزن NULL كـ false يعني إقصاء نصف السوق بلا سبب.
+  income_producing boolean,
+  target_yield numeric,                       -- العائد السنوي المطلوب %
+  deed_type text,                             -- صك إلكتروني / زراعي / منحة / حجة استحكام
+  timeline text,                              -- IMMEDIATE | 3M | 6M | 12M | OPEN
+  financing text,                             -- CASH | BANK | FUND | MIXED
+  notes text,                                 -- تفاصيل بكلمات العميل نفسه
+  raw_text text,                              -- نص الواتساب الأصلي كما وصل
+  completeness int not null default 0 check (completeness between 0 and 100),
+  status text not null default 'OPEN' check (status in ('OPEN','SEARCHING','MATCHED','VIEWING','NEGOTIATING','WON','LOST','ON_HOLD','CANCELLED')),
+  priority text not null default 'normal' check (priority in ('low','normal','high','urgent')),
+  assigned_to text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_requests_status_idx on re_requests(status);
+create index if not exists re_requests_city_idx on re_requests(city, property_type);
+create index if not exists re_requests_contact_idx on re_requests(contact_id);
+
+-- العروض — ما يُعرض في السوق. يصل أغلبه كنص واتساب من مسوّقين ومطوّرين،
+-- ولذلك يُحفظ النص الأصلي دائماً إلى جانب الحقول المستخرجة: الاستخراج قد
+-- يخطئ، والنص الأصلي هو المرجع الذي يُراجَع عليه.
+create table if not exists re_listings (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-A-000456 (عرض)
+  contact_id uuid references re_contacts(id) on delete set null,  -- من أرسله
+  source text not null default 'WHATSAPP' check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','PORTAL','FIELD')),
+  offer_kind text not null default 'SALE' check (offer_kind in ('SALE','RENT','INVESTMENT')),
+  property_type text,
+  city text,
+  district text,
+  area numeric,                               -- م²
+  price numeric,                              -- ريال (الإجمالي)
+  price_per_m numeric,                        -- يُحسب حين يغيب، ويُخزَّن لأن السوق يساوم عليه
+  annual_income numeric,                      -- الدخل السنوي للعقار المدر
+  yield_pct numeric,                          -- العائد % — محسوب أو مُصرّح
+  income_producing boolean,
+  deed_no text, deed_type text,
+  frontage text,                              -- الواجهة/الشوارع
+  age_years int,
+  units int,                                  -- عدد الوحدات في العمارة
+  location_url text,                          -- رابط الموقع (خرائط)
+  lat numeric, lng numeric,
+  exclusive boolean not null default false,   -- حصري للمكتب
+  commission_pct numeric,
+  available boolean not null default true,
+  raw_text text,                              -- نص العرض كما وصل
+  media jsonb not null default '[]'::jsonb,   -- [{kind, url, name}]
+  status text not null default 'ACTIVE' check (status in ('ACTIVE','RESERVED','SOLD','WITHDRAWN','EXPIRED','UNVERIFIED')),
+  verified_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_listings_search_idx on re_listings(city, property_type, status);
+create index if not exists re_listings_contact_idx on re_listings(contact_id);
+create index if not exists re_listings_price_idx on re_listings(price);
+
+-- المطابقة — صفٌّ لكل (طلب، عرض) نُظر فيه. الدرجة والأسباب تُخزَّن لا تُحسب
+-- عند العرض: العرض قد يُسحب أو يُعدَّل سعره بعد أسبوع، والسبب الذي أُرسل
+-- للعميل يوم أُرسل يجب أن يبقى كما كان — وإلا صار سجل المراسلات يكذب.
+create table if not exists re_matches (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  request_id uuid not null references re_requests(id) on delete cascade,
+  listing_id uuid not null references re_listings(id) on delete cascade,
+  score int not null check (score between 0 and 100),
+  reasons jsonb not null default '[]'::jsonb, -- ["المساحة داخل المدى", "السعر أقل من السقف بـ٨٪"]
+  gaps jsonb not null default '[]'::jsonb,    -- ما لا يطابق — يُقال للعميل قبل أن يكتشفه بنفسه
+  status text not null default 'NEW' check (status in ('NEW','SENT','VIEWED','INTERESTED','VISIT','REJECTED','DEAL','EXPIRED')),
+  sent_at timestamptz,
+  client_reply text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (request_id, listing_id)
+);
+create index if not exists re_matches_req_idx on re_matches(request_id, score desc);
+create index if not exists re_matches_listing_idx on re_matches(listing_id);
+
+-- طلب السوق — حين لا يوجد في القاعدة ما يطابق، يخرج الطلب إلى الشبكة:
+-- رسالة واحدة موحّدة تُرسل لشريحة من المسوّقين والمطوّرين (مدينة + نوع).
+-- هذا هو «كيف يبحث عن عروض في السوق» مكتوباً: لا بحث عشوائي، بل نداء
+-- موجّه يعود جوابه عرضاً يدخل re_listings ويُطابَق تلقائياً بالطلب نفسه.
+create table if not exists re_broadcasts (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  request_id uuid references re_requests(id) on delete set null,
+  ref text not null unique,                   -- BD-S-000789 (سوق)
+  message text not null,                      -- النص الذي أُرسل حرفياً
+  audience jsonb not null default '[]'::jsonb,-- [{contact_id, phone, name, ok, error}]
+  sent_count int not null default 0,
+  reply_count int not null default 0,
+  created_by text,
+  created_at timestamptz not null default now()
+);
+create index if not exists re_broadcasts_req_idx on re_broadcasts(request_id);
+
+-- سجل الواتساب — كل رسالة داخلة أو خارجة، مع ما فهمه المستشار منها.
+-- بدون هذا السجل لا طريقة لمعرفة لماذا صُنّفت رسالة عرضاً لا طلباً، ولا
+-- لإصلاح تصنيف خاطئ بعد وقوعه.
+create table if not exists re_messages (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  contact_id uuid references re_contacts(id) on delete set null,
+  wa_phone text,
+  direction text not null check (direction in ('in','out')),
+  wa_message_id text,                         -- معرّف ميتا — يمنع المعالجة مرتين
+  body text,
+  intent text,                                -- REQUEST | LISTING | QUESTION | REPLY | ANALYSIS | OTHER
+  parsed jsonb,                               -- ما استُخرج، للمراجعة
+  request_id uuid references re_requests(id) on delete set null,
+  listing_id uuid references re_listings(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create unique index if not exists re_messages_wa_id_idx on re_messages(wa_message_id) where wa_message_id is not null;
+create index if not exists re_messages_contact_idx on re_messages(contact_id, created_at desc);
+
+-- الصفقات والعمولة — نهاية المسار. تُربط بالطلب والعرض معاً لأن العمولة
+-- في هذا السوق تُحسب على الطرفين أحياناً، ولأن سؤال «من أين جاءت هذه
+-- الصفقة» جوابه الطلب الذي بدأها لا العرض الذي أغلقها.
+create table if not exists re_deals (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-D-000321
+  request_id uuid references re_requests(id) on delete set null,
+  listing_id uuid references re_listings(id) on delete set null,
+  match_id uuid references re_matches(id) on delete set null,
+  buyer_contact_id uuid references re_contacts(id) on delete set null,
+  seller_contact_id uuid references re_contacts(id) on delete set null,
+  amount numeric,
+  commission_pct numeric,
+  commission_amount numeric,
+  stage text not null default 'OFFER' check (stage in ('OFFER','NEGOTIATION','AGREED','DEPOSIT','CONTRACT','EJAR','TRANSFERRED','CLOSED','LOST')),
+  lost_reason text,
+  notes text,
+  closed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_deals_stage_idx on re_deals(stage);
+
+-- الخدمات الأخرى (التحليل العقاري، دراسة الجدوى، التقييم، الهندسة المالية)
+-- التي يقدّمها المكتب خارج مسار الطلب/العرض. تُسجَّل هنا لتظهر في اللوحة
+-- نفسها بدل أن تعيش في محادثة واتساب لا أحد يستطيع تتبّعها.
+create table if not exists re_studies (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-C-000654
+  contact_id uuid references re_contacts(id) on delete set null,
+  kind text not null default 'ANALYSIS' check (kind in ('ANALYSIS','FEASIBILITY','VALUATION','FINANCIAL_STRUCTURING','STRATEGY','MARKET_STUDY')),
+  title text not null,
+  city text,
+  property_type text,
+  brief text,                                 -- ما طلبه العميل بكلماته
+  fee numeric,
+  status text not null default 'NEW' check (status in ('NEW','SCOPED','QUOTED','APPROVED','IN_PROGRESS','DELIVERED','CANCELLED')),
+  due_at timestamptz,
+  output_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_studies_status_idx on re_studies(status);
+
+alter table re_contacts  enable row level security;
+alter table re_requests  enable row level security;
+alter table re_listings  enable row level security;
+alter table re_matches   enable row level security;
+alter table re_broadcasts enable row level security;
+alter table re_messages  enable row level security;
+alter table re_deals     enable row level security;
+alter table re_studies   enable row level security;
+create policy re_contacts_read  on re_contacts  for select using (organization_id in (select current_org_ids()));
+create policy re_requests_read  on re_requests  for select using (organization_id in (select current_org_ids()));
+create policy re_listings_read  on re_listings  for select using (organization_id in (select current_org_ids()));
+create policy re_matches_read   on re_matches   for select using (organization_id in (select current_org_ids()));
+create policy re_broadcasts_read on re_broadcasts for select using (organization_id in (select current_org_ids()));
+create policy re_messages_read  on re_messages  for select using (organization_id in (select current_org_ids()));
+create policy re_deals_read     on re_deals     for select using (organization_id in (select current_org_ids()));
+create policy re_studies_read   on re_studies   for select using (organization_id in (select current_org_ids()));
+
+-- ============================================================ الاستقبال ==
+-- الوارد: قمع واحد لكل القنوات. واتساب ونموذج الموقع والرسائل الاجتماعية
+-- والبريد والمكالمات وما يدوّنه الفريق ومـا ينقله الوسطاء — كلها تنزل
+-- صفّاً هنا أولاً، ثم تُقرأ، ثم تُحوَّل إلى طلب أو عرض. الفائدة أن ما لم
+-- يُفهم لا يضيع: يبقى في الوارد بحالته حتى يراجعه إنسان، بدل أن يُرمى أو
+-- يُسجَّل طلباً ناقصاً يلوّث المطابقة.
+create table if not exists re_intake (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  ref text not null unique,                   -- BD-W-000123 (وارد)
+  channel text not null default 'WHATSAPP',
+  channel_detail text,                        -- المعرّف في القناة: @حساب، بريد، رقم
+  contact_id uuid references re_contacts(id) on delete set null,
+  sender_name text,
+  sender_phone text,
+  sender_email text,
+  raw_text text not null,
+  -- وقت وصول الرسالة فعلاً، لا وقت إدخالها. إدخال أرشيف سنة كاملة اليوم
+  -- بـ created_at اليوم يجعل كل طلب قديم يبدو طازجاً، فتُطرح على السوق
+  -- طلبات انتهت، ويصير ترتيب الأقدمية بلا معنى.
+  received_at timestamptz not null default now(),
+  entered_by text,                            -- من أدخله من الفريق
+  intent text,                                -- REQUEST | LISTING | STUDY | QUESTION | UNKNOWN
+  parsed jsonb not null default '{}'::jsonb,  -- ما فهمته القواعد، للمراجعة قبل التحويل
+  status text not null default 'NEW' check (status in ('NEW','NEEDS_INFO','LINKED','DUPLICATE','DISCARDED')),
+  linked_kind text,                           -- REQUEST | LISTING | STUDY
+  linked_ref text,                            -- BD-T-… أو BD-A-… بعد التحويل
+  dup_of text,                                -- مرجع الصفّ الذي تبيّن أنه تكراره
+  -- الأرشيف يُدخل صامتاً: لا رسالة تُرسل، ولا تنبيه، ولا طرح على السوق.
+  -- إدخال ثلاثمئة طلب قديم بلا هذا الحقل يعني ثلاثمئة رسالة تصل أصحابها.
+  backlog boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists re_intake_status_idx on re_intake(status, received_at desc);
+create index if not exists re_intake_channel_idx on re_intake(channel);
+create index if not exists re_intake_contact_idx on re_intake(contact_id);
+
+-- سلسلة الوسطاء: من يقف بيننا وبين صاحب الطلب، مرتّبين. الموضع ١ هو من
+-- نكلّمه نحن. صفٌّ لكل واحد لا حقلٌ نصّي، لأن السلسلة تُستعلم: «كل ما جاء
+-- عن طريق أبو سعد»، و«ما نسبته من العمولة»، وهذان سؤالان لا يجيبهما نص.
+create table if not exists re_chain (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade,
+  subject_kind text not null check (subject_kind in ('REQUEST','LISTING')),
+  subject_ref text not null,                  -- BD-T-… أو BD-A-…
+  position int not null default 1,            -- ١ = الأقرب إلينا
+  contact_id uuid references re_contacts(id) on delete set null,
+  name text,
+  phone text,
+  role text not null default 'BROKER' check (role in ('CLIENT','BROKER','MARKETER','AGENT','OWNER','DEVELOPER','COLLEAGUE')),
+  share_pct numeric,                          -- حصته من العمولة إن اتُّفق عليها
+  notes text,
+  created_at timestamptz not null default now(),
+  unique (subject_ref, position)
+);
+create index if not exists re_chain_subject_idx on re_chain(subject_ref);
+create index if not exists re_chain_contact_idx on re_chain(contact_id);
+
+-- القنوات اتّسعت بعد أن صار الاستقبال من كل مكان، والقيد القديم كان
+-- يرفض 'INSTAGRAM' و'CALL' و'IMPORT' فيسقط الإدخال كله.
+alter table re_requests drop constraint if exists re_requests_source_check;
+alter table re_requests add constraint re_requests_source_check
+  check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','REFERRAL','INSTAGRAM','X','SNAPCHAT','TIKTOK','LINKEDIN','FACEBOOK','CALL','TEAM','BROKER','WALK_IN','IMPORT','OTHER'));
+alter table re_listings drop constraint if exists re_listings_source_check;
+alter table re_listings add constraint re_listings_source_check
+  check (source in ('WHATSAPP','WEBSITE','PHONE','EMAIL','MANUAL','PORTAL','FIELD','INSTAGRAM','X','SNAPCHAT','TIKTOK','LINKEDIN','FACEBOOK','CALL','TEAM','BROKER','WALK_IN','IMPORT','OTHER'));
+
+alter table re_requests add column if not exists source_detail text;
+alter table re_requests add column if not exists received_at timestamptz;
+alter table re_requests add column if not exists entered_by text;
+alter table re_requests add column if not exists intake_ref text;
+alter table re_requests add column if not exists dedup_key text;
+alter table re_requests add column if not exists dup_of text;
+alter table re_requests add column if not exists chain_len int not null default 0;
+alter table re_requests add column if not exists principal_known boolean not null default true;
+alter table re_requests add column if not exists backlog boolean not null default false;
+create index if not exists re_requests_dedup_idx on re_requests(dedup_key);
+
+alter table re_listings add column if not exists source_detail text;
+alter table re_listings add column if not exists received_at timestamptz;
+alter table re_listings add column if not exists entered_by text;
+alter table re_listings add column if not exists intake_ref text;
+alter table re_listings add column if not exists chain_len int not null default 0;
+alter table re_listings add column if not exists backlog boolean not null default false;
+
+alter table re_intake enable row level security;
+alter table re_chain  enable row level security;
+drop policy if exists re_intake_read on re_intake;
+drop policy if exists re_chain_read  on re_chain;
+create policy re_intake_read on re_intake for select using (organization_id in (select current_org_ids()));
+create policy re_chain_read  on re_chain  for select using (organization_id in (select current_org_ids()));
