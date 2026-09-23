@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "npm install --omit=dev --no-audit --no-fund",
   "buildCommand": "npm run build",
-  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; [ \"$VERCEL_ENV\" = \"production\" ] && exit 1; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
