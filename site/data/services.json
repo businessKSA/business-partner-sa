@@ -2170,7 +2170,7 @@
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
-    "description": "وكيل ذكي يراقب منصاتك الحكومية على مدار الساعة — قوى ومقيم والتأمينات الاجتماعية ومدد والنطاقات — ويرصد المهل والمخالفات والالتزامات فور ظهورها، ويجهّز المستندات ويرفع الطلب، ويصلك تنبيه واضح بالتكلفة والمهلة قبل كل خطوة. دورك: الاعتماد والسداد.",
+    "description": "مستشار ذكي يراقب منصاتك الحكومية على مدار الساعة — قوى ومقيم والتأمينات الاجتماعية ومدد والنطاقات — ويرصد المهل والمخالفات والالتزامات فور ظهورها، ويجهّز المستندات ويرفع الطلب، ويصلك تنبيه واضح بالتكلفة والمهلة قبل كل خطوة. دورك: الاعتماد والسداد.",
     "deliverables": [
       "مراقبة مستمرة لمنصاتك الحكومية على مدار الساعة",
       "رصد المهل والمخالفات والالتزامات فور ظهورها",
@@ -2219,9 +2219,9 @@
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
-    "description": "يدمج وكيل الامتثال والالتزام مع فريق الموظفين الأذكياء في منظومة واحدة، بلوحة موحّدة لكل منصاتك وفرقك، وأولوية في التنفيذ والدعم، وتكامل مع خدمات بيزنس بارتنر كاملة. متاح للمنشآت وللأفراد وقابل للتوسّع مع نمو أعمالك.",
+    "description": "يدمج مستشار الامتثال والالتزام مع فريق الموظفين الأذكياء في منظومة واحدة، بلوحة موحّدة لكل منصاتك وفرقك، وأولوية في التنفيذ والدعم، وتكامل مع خدمات بيزنس بارتنر كاملة. متاح للمنشآت وللأفراد وقابل للتوسّع مع نمو أعمالك.",
     "deliverables": [
-      "دمج وكيل الامتثال والالتزام مع فريق الموظفين الأذكياء",
+      "دمج مستشار الامتثال والالتزام مع فريق الموظفين الأذكياء",
       "لوحة موحّدة لكل منصاتك وفرقك",
       "متاح للمنشآت وللأفراد",
       "قابل للتوسّع مع نمو أعمالك",
@@ -2613,6 +2613,1390 @@
     "price": {
       "label": "سعر حسب حالتك",
       "amount": null
+    }
+  },
+  {
+    "code": "BP-REF-01",
+    "slug": "bp-ref-01",
+    "name": "خدمة التقديم على استرداد الرسوم الحكومية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "منشآت",
+    "description": "نتولّى في Business Partner دراسة أهلية منشأتك لمبادرة استرداد الرسوم الحكومية، وتجهيز الطلب وتقديمه ومتابعته لدى الجهة حتى صدور القرار — بأتعاب واضحة ومتابعة كاملة. القرار والمبلغ المسترد يعودان إلى الجهة المختصة.",
+    "deliverables": [
+      "دراسة أهلية المنشأة للمبادرة",
+      "تجهيز المستندات والبيانات المطلوبة",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "المنشآت المستوفية لشروط المبادرة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-AJEER-01",
+    "slug": "bp-ajeer-01",
+    "name": "تسجيل المنشأة في منصة أجير وتفعيل الخدمة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من أهلية المنشأة وبياناتها في قوى",
+      "تسجيل المنشأة في منصة أجير وربطها بملف المنشأة",
+      "ضبط المفوّضين والصلاحيات على المنصة",
+      "تسليم دليل استخدام مختصر لفريقك"
+    ],
+    "targetClient": "المنشآت التي تستخدم أجير لأول مرة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "450 ﷼",
+      "amount": 450
+    }
+  },
+  {
+    "code": "BP-AJEER-02",
+    "slug": "bp-ajeer-02",
+    "name": "إصدار تصريح تعاقد أجير",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "دراسة حالتك وتحديد أن تصريح التعاقد هو المناسب",
+      "تجهيز بيانات المنشأتين والعمالة المشمولة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "المنشآت التي تقدّم عمالتها لمنشآت أخرى",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-AJEER-03",
+    "slug": "bp-ajeer-03",
+    "name": "إصدار تصريح إعارة أجير بين منشأتين",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط الإعارة المعلنة من الجهة",
+      "تجهيز موافقة العامل وبيانات المنشأة المستفيدة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "المنشآت التي لديها عمالة فائضة أو تحتاج عمالة مؤقتة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-AJEER-04",
+    "slug": "bp-ajeer-04",
+    "name": "إصدار تصريح إسناد السعوديين",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة نشاط المنشأة وأهليتها لإسناد السعوديين",
+      "تجهيز بيانات الموظفين والمنشأة المستفيدة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "شركات الموارد البشرية ووكالات التشغيل المؤقت",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-AJEER-05",
+    "slug": "bp-ajeer-05",
+    "name": "إصدار تصريح مرافقين أجير (التعليم والصحة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من قطاع المنشأة وصلة القرابة المطلوبة",
+      "تجهيز مستندات المرافق والمنشأة",
+      "رفع طلب التصريح ومتابعته حتى صدور القرار",
+      "تسليم التصريح وبيان مدته وشروطه"
+    ],
+    "targetClient": "منشآت قطاعي التعليم والصحة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-AJEER-06",
+    "slug": "bp-ajeer-06",
+    "name": "إصدار تصاريح أجير المواسم (الحج والعمرة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "التحقق من اعتماد المنشأة للعمل في قطاع الحج والعمرة",
+      "تجهيز قائمة العاملين الموسميين وبياناتهم",
+      "رفع طلبات التصاريح ومتابعتها حتى صدور القرار",
+      "تسليم التصاريح وجدول مددها قبل بدء الموسم"
+    ],
+    "targetClient": "المنشآت المعتمدة في قطاع الحج والعمرة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-AJEER-07",
+    "slug": "bp-ajeer-07",
+    "name": "تجديد تصريح أجير أو إنهاؤه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة التصريح القائم ومدته وحالته",
+      "تجهيز طلب التجديد أو الإنهاء حسب رغبتك",
+      "رفعه ومتابعته حتى صدور القرار",
+      "تسليم ما يثبت الحالة الجديدة"
+    ],
+    "targetClient": "من لديه تصريح أجير ساري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "350 ﷼",
+      "amount": 350
+    }
+  },
+  {
+    "code": "BP-AJEER-08",
+    "slug": "bp-ajeer-08",
+    "name": "توثيق عقد أجير بين المنشأتين ومتابعته",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "صياغة أو مراجعة العقد بين المنشأة المقدِّمة والمستفيدة",
+      "مطابقة بنوده مع التصريح الصادر ومدته",
+      "توثيقه على المنصة ومتابعة اعتماده",
+      "تسليم نسخة موثّقة لكل طرف"
+    ],
+    "targetClient": "طرفا التعاقد: المنشأة المقدّمة والمستفيدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-AJEER-10",
+    "slug": "bp-ajeer-10",
+    "name": "إدارة تصاريح أجير — تشغيل شهري",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "متابعة تصاريح أجير السارية ومددها شهرياً",
+      "تنبيهك قبل انتهاء أي تصريح بوقت كافٍ",
+      "تنفيذ الإصدار والتجديد والإنهاء خلال الشهر",
+      "تقرير شهري بحالة التصاريح والعمالة المشمولة"
+    ],
+    "targetClient": "المنشآت التي تدير تصاريح أجير بشكل متكرر",
+    "pricingModel": "Monthly",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼ / شهرياً",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-AJEER-CS",
+    "slug": "bp-ajeer-cs",
+    "name": "استشارة أجير: التصريح المناسب لحالتك",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "أجير — قوى",
+    "description": "",
+    "deliverables": [
+      "فهم حالتك: نشاط المنشأة والعمالة المطلوبة أو الفائضة",
+      "تحديد التصريح المناسب من تصاريح أجير لحالتك",
+      "بيان الشروط والمستندات والمدد التي تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+      "تقدير الأتعاب والرسوم قبل البدء"
+    ],
+    "targetClient": "من يريد معرفة التصريح المناسب قبل أن يبدأ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-HRSD-01",
+    "slug": "bp-hrsd-01",
+    "name": "التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة الإجراء المتعطّل وسجلّه على المنصة",
+      "اختيار المنصة والتصنيف الصحيحين للتصعيد",
+      "صياغة التصعيد ورفعه بمرفقاته",
+      "متابعته حتى صدور الرد وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي تعطّل إجراؤها على إحدى منصات الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-02",
+    "slug": "bp-hrsd-02",
+    "name": "تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة موضوع الشكوى ومستنداتها",
+      "اختيار التصنيف الرئيسي والفرعي الصحيح",
+      "صياغة الشكوى ورفعها بمرفقاتها",
+      "متابعتها حتى صدور الرد وإبلاغك به"
+    ],
+    "targetClient": "المنشآت وأصحابها ممن لديهم شكوى لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-HRSD-03",
+    "slug": "bp-hrsd-03",
+    "name": "تقديم طلب لدى وزارة الموارد البشرية ومتابعته",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "تحديد الطلب المناسب وتصنيفه لدى الوزارة",
+      "تجهيز المستندات والبيانات المطلوبة",
+      "رفع الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "المنشآت التي تحتاج طلباً لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "600 ﷼",
+      "amount": 600
+    }
+  },
+  {
+    "code": "BP-HRSD-04",
+    "slug": "bp-hrsd-04",
+    "name": "الاعتراض على مخالفة نظام العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة المخالفة ومستندها وتاريخها",
+      "دراسة أهلية الاعتراض ومدّته المتاحة",
+      "تجهيز الاعتراض ومسوّغاته وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي صدرت عليها مخالفة نظام عمل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-05",
+    "slug": "bp-hrsd-05",
+    "name": "التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة المخالفات القائمة على المنشأة",
+      "دراسة أهلية التسوية ومدّتها",
+      "تجهيز طلب التسوية وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "أصحاب المنشآت المؤهلون لمسار التسوية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-06",
+    "slug": "bp-hrsd-06",
+    "name": "إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "حصر المديونية على المنشأة وتاريخها",
+      "دراسة أهلية الإعفاء أو التقسيط",
+      "تجهيز الطلب بمستنداته وتقديمه",
+      "متابعته حتى صدور القرار وإبلاغك به"
+    ],
+    "targetClient": "المنشآت التي عليها مديونية رخص عمل أو مقابل مالي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-HRSD-07",
+    "slug": "bp-hrsd-07",
+    "name": "تصحيح بيانات المنشأة لدى الوزارة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة ملف المنشأة وتحديد ما يحتاج تصحيحاً",
+      "تجهيز المستندات المثبتة للبيانات الصحيحة",
+      "رفع طلب التصحيح ومتابعته",
+      "تسليم ما يثبت التحديث بعد اعتماده"
+    ],
+    "targetClient": "المنشآت التي في ملفها لدى الوزارة بيانٌ خاطئ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-08",
+    "slug": "bp-hrsd-08",
+    "name": "رفع تجميد حساب المنشأة ومعالجة الاشتباه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة سبب التجميد أو الاشتباه",
+      "تجهيز المستندات والردود المطلوبة",
+      "رفع طلب الرفع ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "المنشآت المجمَّد حسابها أو الموضوعة تحت الاشتباه",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-HRSD-09",
+    "slug": "bp-hrsd-09",
+    "name": "اعتماد لائحة تنظيم العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة واقع المنشأة وعدد عمالتها وأنشطتها",
+      "صياغة اللائحة بما يوافق نظام العمل ولائحته",
+      "رفعها للاعتماد ومتابعتها",
+      "تسليم اللائحة المعتمدة ونسخة للتعليق الداخلي"
+    ],
+    "targetClient": "المنشآت الملزَمة بلائحة تنظيم عمل معتمدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-HRSD-10",
+    "slug": "bp-hrsd-10",
+    "name": "بلاغ التغيب وإلغاؤه",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة العامل ومدة انقطاعه",
+      "تجهيز البلاغ أو طلب الإلغاء بمستنداته",
+      "رفعه ومتابعته حتى إتمام الإجراء",
+      "إبلاغك بما يترتب عليه"
+    ],
+    "targetClient": "المنشآت التي انقطع عندها عامل عن العمل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-HRSD-11",
+    "slug": "bp-hrsd-11",
+    "name": "طلب الخروج النهائي",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة العقد وتصفية المستحقات قبل الطلب",
+      "تجهيز طلب الخروج النهائي بمستنداته",
+      "رفعه ومتابعته حتى إتمامه",
+      "تسليم ما يثبت إتمام الإجراء"
+    ],
+    "targetClient": "المنشآت المنهية علاقتها التعاقدية مع عامل",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-HRSD-12",
+    "slug": "bp-hrsd-12",
+    "name": "تسوية خلاف عمالي — تجهيز الملف والمتابعة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "مراجعة الملف والعقود والمراسلات",
+      "تجهيز موقف المنشأة ومرفقاته",
+      "رفع الطلب ومتابعة الجلسات إجرائياً",
+      "إبلاغك بالقرار وما يترتب عليه"
+    ],
+    "targetClient": "المنشآت الطرف في خلاف عمالي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-HRSD-CS",
+    "slug": "bp-hrsd-cs",
+    "name": "استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "بوابة المستفيد — الموارد البشرية",
+    "description": "",
+    "deliverables": [
+      "فهم حالتك والإجراء المتعطّل أو المطلوب",
+      "تحديد المسار الصحيح: شكوى أم طلب أم تصعيد",
+      "بيان التصنيف والمستندات والمدد التي تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمسؤوليات",
+      "تقدير الأتعاب قبل البدء"
+    ],
+    "targetClient": "من لا يعرف أي مسار يسلك في بوابة المستفيد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": false,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-QIWA-05",
+    "slug": "bp-qiwa-05",
+    "name": "توثيق عقد العمل في قوى",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة بنود العقد ومطابقتها مع نظام العمل",
+      "إدخال العقد على قوى ببياناته الصحيحة",
+      "متابعة قبول العامل حتى التوثيق",
+      "تسليم نسخة العقد الموثّق"
+    ],
+    "targetClient": "المنشآت التي توظّف أو تجدّد عقود موظفيها",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "250 ﷼",
+      "amount": 250
+    }
+  },
+  {
+    "code": "BP-QIWA-06",
+    "slug": "bp-qiwa-06",
+    "name": "إصدار أو تجديد رخصة عمل للوافد",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيانات العامل وحالة رخصته",
+      "تجهيز الطلب والسداد المطلوب",
+      "رفعه ومتابعته حتى صدور الرخصة",
+      "تسليم الرخصة وتاريخ انتهائها"
+    ],
+    "targetClient": "المنشآت التي لديها عمالة وافدة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-QIWA-07",
+    "slug": "bp-qiwa-07",
+    "name": "إلغاء رخصة عمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة العامل وعلاقته التعاقدية",
+      "تجهيز طلب الإلغاء بمستنداته",
+      "رفعه ومتابعته حتى إتمام الإجراء",
+      "تسليم ما يثبت الإلغاء"
+    ],
+    "targetClient": "المنشآت المنهية علاقتها بعاملٍ وافد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "250 ﷼",
+      "amount": 250
+    }
+  },
+  {
+    "code": "BP-QIWA-08",
+    "slug": "bp-qiwa-08",
+    "name": "إصدار شهادة الالتزام بالتوطين (السعودة)",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة حالة المنشأة وبيانات عمالتها",
+      "إصدار شهادة الالتزام بالتوطين",
+      "تسليمها وبيان مدة صلاحيتها",
+      "تنبيهك قبل انتهائها إن كانت ضمن باقة متابعة"
+    ],
+    "targetClient": "المنشآت المطالَبة بشهادة سعودة لإتمام معاملة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-QIWA-09",
+    "slug": "bp-qiwa-09",
+    "name": "إدارة فروع المنشأة في قوى",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "قوى",
+    "description": "",
+    "deliverables": [
+      "مراجعة فروع المنشأة وتوزيع عمالتها",
+      "تجهيز طلب الربط أو الفصل",
+      "رفعه ومتابعته حتى التحديث",
+      "بيان أثر التحديث على ملف كل فرع"
+    ],
+    "targetClient": "المنشآت متعددة الفروع",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-FLEX-01",
+    "slug": "bp-flex-01",
+    "name": "تسجيل المنشأة في العمل المرن وتوثيق عقوده",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "العمل المرن",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في منصة العمل المرن",
+      "ضبط المفوّضين والصلاحيات",
+      "توثيق عقود العمل المرن ومتابعة قبولها",
+      "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+    ],
+    "targetClient": "المنشآت التي توظّف بالساعة أو بدوامٍ مرن",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-REMOTE-01",
+    "slug": "bp-remote-01",
+    "name": "تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "العمل عن بُعد",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في منصة العمل عن بُعد",
+      "ضبط المفوّضين والصلاحيات",
+      "توثيق عقود العمل عن بُعد ومتابعة قبولها",
+      "دليل مختصر لفريقك لإدارة العقود لاحقاً"
+    ],
+    "targetClient": "المنشآت التي توظّف عن بُعد",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-TAQAT-01",
+    "slug": "bp-taqat-01",
+    "name": "تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "طاقات — هدف",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة في طاقات وضبط ملفها",
+      "نشر الشواغر بوصفٍ مهنيٍّ سليم",
+      "مراجعة برامج الدعم المعلنة وأيّها ينطبق عليك",
+      "تقديم طلبات الدعم ومتابعتها حتى صدور القرار"
+    ],
+    "targetClient": "المنشآت الباحثة عن كفاءات وطنية أو عن دعم توظيف",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "750 ﷼",
+      "amount": 750
+    }
+  },
+  {
+    "code": "BP-LABOR-01",
+    "slug": "bp-labor-01",
+    "name": "فتح ملف المنشأة في بوابة قطاع العمل",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "بوابة قطاع العمل",
+    "description": "",
+    "deliverables": [
+      "التحقق من بيانات المنشأة وسجلها التجاري",
+      "فتح ملف المنشأة وضبط بياناته",
+      "إضافة المفوّضين وصلاحياتهم",
+      "تسليم ما يثبت التفعيل ودليل مختصر لفريقك"
+    ],
+    "targetClient": "المنشآت الجديدة أو التي لم تفتح ملفها لدى الوزارة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "400 ﷼",
+      "amount": 400
+    }
+  },
+  {
+    "code": "BP-SELF-01",
+    "slug": "bp-self-01",
+    "name": "التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "منصة التقييم الذاتي",
+    "description": "",
+    "deliverables": [
+      "إجراء التقييم الذاتي على بنود الامتثال",
+      "تقرير بنسبة الامتثال ومواضع الخلل",
+      "قائمة تصحيح مرتّبة بالأولوية والأثر",
+      "متابعة إغلاق الملاحظات وإعادة التقييم"
+    ],
+    "targetClient": "المنشآت التي تريد معرفة امتثالها قبل التفتيش",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-MOWA-01",
+    "slug": "bp-mowa-01",
+    "name": "شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "منصة مواءمة",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيئة العمل والمرافق مقابل متطلبات المنصة",
+      "بيان ما يحتاج تهيئةً قبل التقديم",
+      "تجهيز الملف وتقديمه على المنصة",
+      "المتابعة حتى صدور الشهادة أو التقرير"
+    ],
+    "targetClient": "المنشآت التي توظّف أشخاصاً ذوي إعاقة أو تعتزم ذلك",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-CSR-01",
+    "slug": "bp-csr-01",
+    "name": "تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها",
+    "category": "Government Relations",
+    "categoryAr": "العلاقات الحكومية",
+    "govPlatform": "المنصة الوطنية للمسؤولية الاجتماعية",
+    "description": "",
+    "deliverables": [
+      "تسجيل المنشأة على المنصة وضبط ملفها",
+      "صياغة المبادرات بأهدافٍ ومؤشراتٍ قابلة للقياس",
+      "توثيق المبادرات على المنصة",
+      "متابعة الاعتماد وتسليم ما يثبته"
+    ],
+    "targetClient": "الشركات التي لديها برامج مسؤولية اجتماعية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "900 ﷼",
+      "amount": 900
+    }
+  },
+  {
+    "code": "BP-PR-03",
+    "slug": "bp-pr-03",
+    "name": "تقييم أهلية الإقامة المميزة وتحديد مسارك",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "قراءة حالتك: جنسيتك ونشاطك وأصولك ومؤهلاتك",
+      "تحديد المسار المناسب من مسارات الإقامة المميزة",
+      "بيان شروط المسار ومستنداته ورسومه كما تعلنها الجهة",
+      "خطة تنفيذ مكتوبة بالخطوات والمدد والمسؤوليات",
+      "تقدير الأتعاب والرسوم قبل أن تبدأ"
+    ],
+    "targetClient": "من يفكّر في الإقامة المميزة ولا يعرف أي مسار يناسبه",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-PR-04",
+    "slug": "bp-pr-04",
+    "name": "الإقامة المميزة — مسار مستثمر الأعمال",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "المستثمرون أصحاب رخص الاستثمار المستوفية لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "7,500 ﷼",
+      "amount": 7500
+    }
+  },
+  {
+    "code": "BP-PR-05",
+    "slug": "bp-pr-05",
+    "name": "الإقامة المميزة — مسار رائد الأعمال",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "روّاد الأعمال أصحاب المشاريع المستوفية لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,500 ﷼",
+      "amount": 6500
+    }
+  },
+  {
+    "code": "BP-PR-06",
+    "slug": "bp-pr-06",
+    "name": "الإقامة المميزة — مسار مالك العقار",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "ملّاك العقار المستوفون لشرط الأصول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-07",
+    "slug": "bp-pr-07",
+    "name": "الإقامة المميزة — مسار الموهبة",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "أصحاب المواهب والتخصصات المستوفون لشروط المسار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-08",
+    "slug": "bp-pr-08",
+    "name": "الإقامة المميزة — مسار الكفاءة الاستثنائية",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "أصحاب الكفاءات في المجالات ذات الأولوية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,500 ﷼",
+      "amount": 6500
+    }
+  },
+  {
+    "code": "BP-PR-09",
+    "slug": "bp-pr-09",
+    "name": "الإقامة المميزة — المسار المالي (دائمة أو سنوية)",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "التحقق من استيفاء شروط المسار المعلنة قبل البدء",
+      "تجهيز الملف والمستندات وترجمتها وتصديقها عند اللزوم",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها من خطوات"
+    ],
+    "targetClient": "من يختار المسار المالي دون اشتراط نشاطٍ أو أصول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "6,000 ﷼",
+      "amount": 6000
+    }
+  },
+  {
+    "code": "BP-PR-10",
+    "slug": "bp-pr-10",
+    "name": "ضمّ أفراد الأسرة تحت الإقامة المميزة",
+    "category": "Premium Residency",
+    "categoryAr": "الإقامة المميزة",
+    "govPlatform": "الإقامة المميزة",
+    "description": "",
+    "deliverables": [
+      "مراجعة صلات القرابة والمستندات المطلوبة",
+      "تجهيز طلبات الضمّ لكل فرد",
+      "تقديمها ومتابعتها حتى صدور القرار",
+      "إبلاغك بالنتيجة وما يترتب عليها"
+    ],
+    "targetClient": "حاملو الإقامة المميزة الراغبون في ضمّ أسرهم",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "2,500 ﷼",
+      "amount": 2500
+    }
+  },
+  {
+    "code": "BP-SBC-21",
+    "slug": "bp-sbc-21",
+    "name": "الإبلاغ عن المستفيد الحقيقي",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "تحديد المستفيد الحقيقي وفق معايير النظام",
+      "تجهيز الإفصاح ومستنداته المؤيدة",
+      "رفعه ومتابعته حتى الاعتماد",
+      "تنبيهك عند أي تغيّر يوجب تحديث الإفصاح"
+    ],
+    "targetClient": "الشركات الملزمة بالإفصاح عن المستفيد الحقيقي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "500 ﷼",
+      "amount": 500
+    }
+  },
+  {
+    "code": "BP-SBC-22",
+    "slug": "bp-sbc-22",
+    "name": "التأكيد السنوي لبيانات السجل التجاري",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة بيانات السجل قبل التأكيد",
+      "تنفيذ التأكيد السنوي في موعده",
+      "تسليم ما يثبت التأكيد",
+      "تنبيهك قبل موعد السنة القادمة"
+    ],
+    "targetClient": "كل منشأة لديها سجل تجاري ساري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "200 ﷼",
+      "amount": 200
+    }
+  },
+  {
+    "code": "BP-SBC-23",
+    "slug": "bp-sbc-23",
+    "name": "نقل ملكية السجل التجاري",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة الالتزامات القائمة على السجل قبل النقل",
+      "تجهيز مستندات النقل وموافقات الأطراف",
+      "تنفيذ النقل ومتابعته حتى التحديث",
+      "تسليم السجل بالبيانات الجديدة"
+    ],
+    "targetClient": "البائع والمشتري في نقل ملكية منشأة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
+    }
+  },
+  {
+    "code": "BP-SBC-24",
+    "slug": "bp-sbc-24",
+    "name": "نشر قرارات الجمعية العامة",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "صياغة القرار بما يوافق نظام الشركات",
+      "التحقق من النصاب وصحة الانعقاد",
+      "نشر القرار ومتابعته حتى الاعتماد",
+      "تسليم ما يثبت النشر"
+    ],
+    "targetClient": "الشركات التي اتخذت قراراً يوجب النشر",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "800 ﷼",
+      "amount": 800
+    }
+  },
+  {
+    "code": "BP-SBC-25",
+    "slug": "bp-sbc-25",
+    "name": "اندماج شركتين أو استحواذ",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة الكيانين والتزاماتهما وسجلاتهما",
+      "صياغة قرارات الشركاء وعقود الاندماج",
+      "تنفيذ الإجراء لدى الجهات المختصة",
+      "متابعته حتى اكتمال الكيان الناتج وسجله"
+    ],
+    "targetClient": "الشركات المقبلة على اندماج أو استحواذ",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "12,000 ﷼",
+      "amount": 12000
+    }
+  },
+  {
+    "code": "BP-SBC-26",
+    "slug": "bp-sbc-26",
+    "name": "توثيق متجر إلكتروني (سجل التجارة الإلكترونية)",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة المتجر وبياناته وسياساته",
+      "مطابقة الشروط المطلوبة نظاماً",
+      "توثيق المتجر ومتابعته حتى الإصدار",
+      "تسليم الشهادة ووسمها على المتجر"
+    ],
+    "targetClient": "أصحاب المتاجر الإلكترونية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "700 ﷼",
+      "amount": 700
+    }
+  },
+  {
+    "code": "BP-SBC-27",
+    "slug": "bp-sbc-27",
+    "name": "تسجيل ضمان في السجل العيني للحقوق",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة عقد الضمان والأطراف والمحل",
+      "تجهيز بيانات القيد ورفعها",
+      "متابعة القيد حتى إتمامه",
+      "تسليم ما يثبت التسجيل"
+    ],
+    "targetClient": "الدائنون والممولون وأصحاب الضمانات",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-SBC-28",
+    "slug": "bp-sbc-28",
+    "name": "إيداع القوائم المالية لدى وزارة التجارة",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "مراجعة القوائم ومرفقاتها قبل الإيداع",
+      "التحقق من موعد الالتزام",
+      "الإيداع ومتابعته حتى القبول",
+      "تسليم ما يثبت الإيداع"
+    ],
+    "targetClient": "الشركات الملزمة بإيداع قوائمها المالية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,000 ﷼",
+      "amount": 1000
+    }
+  },
+  {
+    "code": "BP-SBC-29",
+    "slug": "bp-sbc-29",
+    "name": "ترجمة السجل التجاري وتوثيقها",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "",
+    "deliverables": [
+      "استخراج نسخة السجل المطلوبة",
+      "ترجمتها ترجمةً معتمدة",
+      "توثيق الترجمة",
+      "تسليم النسخة جاهزةً للاستخدام"
+    ],
+    "targetClient": "من يحتاج سجله بالإنجليزية لجهةٍ أو بنك",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "300 ﷼",
+      "amount": 300
+    }
+  },
+  {
+    "code": "BP-SBC-30",
+    "slug": "bp-sbc-30",
+    "name": "تصديق المستندات وأبوستيل عبر الخارجية",
+    "category": "Business Support",
+    "categoryAr": "دعم الأعمال",
+    "govPlatform": "وزارة الخارجية MOFA",
+    "description": "",
+    "deliverables": [
+      "تحديد مسار التصديق أو الأبوستيل لكل مستند",
+      "تجهيز المستندات وترجمتها عند اللزوم",
+      "تنفيذ التصديق ومتابعته",
+      "تسليم المستندات مصدّقة"
+    ],
+    "targetClient": "الشركات والمستثمرون الذين يستخدمون مستنداتهم عبر الحدود",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,200 ﷼",
+      "amount": 1200
+    }
+  },
+  {
+    "code": "BP-FI-08",
+    "slug": "bp-fi-08",
+    "name": "المقر الإقليمي RHQ — التأهيل والتقديم",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة أهلية المجموعة وهيكلها الإقليمي",
+      "تحديد الأنشطة الاختيارية المطلوبة وخطة استيفائها",
+      "تجهيز الملف وتقديمه ومتابعته حتى صدور القرار",
+      "مرافقتك في التزامات ما بعد الإصدار خلال السنة الأولى"
+    ],
+    "targetClient": "الشركات العالمية التي تجعل الرياض مقرها الإقليمي",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "35,000 ﷼",
+      "amount": 35000
+    }
+  },
+  {
+    "code": "BP-FI-09",
+    "slug": "bp-fi-09",
+    "name": "مكتب تمثيل لشركة أجنبية",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة أهلية الشركة الأم ونطاق المكتب",
+      "تجهيز مستندات الشركة الأم مصدّقة ومترجمة",
+      "تقديم الطلب ومتابعته حتى صدور الترخيص",
+      "بيان ما يجوز للمكتب وما لا يجوز"
+    ],
+    "targetClient": "الشركات الأجنبية التي تريد حضوراً غير تجاري",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "15,000 ﷼",
+      "amount": 15000
+    }
+  },
+  {
+    "code": "BP-FI-10",
+    "slug": "bp-fi-10",
+    "name": "تجديد ترخيص الاستثمار",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "متابعة موعد انتهاء الترخيص وتنبيهك قبله",
+      "مراجعة استيفاء شروط التجديد",
+      "تقديم طلب التجديد ومتابعته",
+      "تسليم الترخيص المجدَّد وتاريخ انتهائه"
+    ],
+    "targetClient": "كل منشأة تحمل ترخيص استثمار",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "3,000 ﷼",
+      "amount": 3000
+    }
+  },
+  {
+    "code": "BP-FI-11",
+    "slug": "bp-fi-11",
+    "name": "تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "مراجعة التعديل المطلوب وأثره على الترخيص والسجل",
+      "تجهيز المستندات وقرارات الشركاء",
+      "تقديم الطلب ومتابعته حتى صدور القرار",
+      "بيان ما يتبع التعديل من تحديثاتٍ لدى الجهات"
+    ],
+    "targetClient": "المنشآت المرخّصة التي تغيّر نشاطها أو ملكيتها",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "4,000 ﷼",
+      "amount": 4000
+    }
+  },
+  {
+    "code": "BP-FI-12",
+    "slug": "bp-fi-12",
+    "name": "إلغاء ترخيص الاستثمار وإنهاء الكيان",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "حصر الالتزامات القائمة قبل الإلغاء",
+      "تجهيز طلب الإلغاء ومستندات التصفية",
+      "إغلاق الملفات لدى الجهات المرتبطة",
+      "تسليم ما يثبت إنهاء الكيان"
+    ],
+    "targetClient": "المستثمرون المنهون نشاطهم في المملكة",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "5,000 ﷼",
+      "amount": 5000
+    }
+  },
+  {
+    "code": "BP-FI-13",
+    "slug": "bp-fi-13",
+    "name": "استشارة دخول السوق: أي ترخيص استثمار يناسبك",
+    "category": "Foreign Investment",
+    "categoryAr": "الاستثمار الأجنبي",
+    "govPlatform": "وزارة الاستثمار MISA",
+    "description": "",
+    "deliverables": [
+      "قراءة نشاطك المستهدف ومطابقته مع القائمة السلبية",
+      "تحديد نوع الترخيص المناسب وشروطه ورأس ماله",
+      "بيان المستندات والتصديقات المطلوبة من بلد المنشأ",
+      "خطة دخول مكتوبة بالخطوات والمدد والتكلفة التقديرية",
+      "تقدير الأتعاب والرسوم قبل أن تبدأ"
+    ],
+    "targetClient": "المستثمرون الأجانب قبل اختيار مسار الدخول",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "2,500 ﷼",
+      "amount": 2500
     }
   }
 ]

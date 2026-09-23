@@ -43,6 +43,30 @@ export interface ContractClause {
   title: Bi;
   body: Bi;
   renderItemsTable?: boolean;
+  /**
+   * بند مشروط: لا يظهر إلا إذا احتوى المستند على بند خدمة من هذه العائلة.
+   * عقد اشتراك تطوير الأعمال يحتاج بنود التجديد وعمولة النجاح ونسبة الصفقة،
+   * وإقحامها في عقد تأسيس شركة يجعله يعد بما لم يُتفق عليه. البنود المشروطة
+   * تُلحق دائماً في آخر القائمة لأن ترقيم البنود يأتي من ترتيبها.
+   */
+  appliesTo?: string;
+}
+
+/** أي عائلة خدمات ينتمي إليها بند المستند — من كود الخدمة. */
+function itemFamilies(items: { code: string }[]): Set<string> {
+  const fams = new Set<string>();
+  for (const it of items) {
+    const c = String(it.code || '').toUpperCase();
+    // أكواد باقات تطوير الأعمال كخدمة: REV-* في نظام العروض، revos-* في سلة الموقع.
+    if (c.startsWith('REV-') || c.startsWith('BD-') || c.startsWith('REVOS-')) fams.add('bdaas');
+  }
+  return fams;
+}
+
+/** يُسقط البنود المشروطة التي لا يخص المستندَ موضوعُها. */
+function applicableClauses(clauses: ContractClause[], items: { code: string }[]): ContractClause[] {
+  const fams = itemFamilies(items);
+  return clauses.filter((c) => !c.appliesTo || fams.has(c.appliesTo));
 }
 
 export interface DocModel {
@@ -250,7 +274,7 @@ export async function buildDocModel(documentId: string): Promise<DocModel | null
           preamble: contractTpl.preamble,
           recitalsTitle: contractTpl.recitalsTitle,
           recitals: contractTpl.recitals,
-          clauses: contractTpl.clauses,
+          clauses: applicableClauses(contractTpl.clauses, doc.items),
           partyFirstLabel: contractTpl.partyFirstLabel,
           partySecondLabel: contractTpl.partySecondLabel,
           partyFirstRole: contractTpl.partyFirstRole,

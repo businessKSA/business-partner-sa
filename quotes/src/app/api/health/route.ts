@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { tamaraStatus } from '@/lib/payments/tamara';
 import { daftraStatus } from '@/lib/daftra';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,9 @@ export async function GET() {
         siteUrlSet: Boolean(process.env.SITE_API_URL),
       },
       appUrlSet: Boolean(process.env.APP_URL),
+      // العنوان بعد التقويم: هو ما يُكتب في كل رابطٍ يصل العميل، فيُقرأ
+      // من هنا بدل فتح إعدادات النشر. عنوانٌ عام لا سرّ فيه.
+      "عنوان الروابط": appBase(),
     },
     {
       headers: {

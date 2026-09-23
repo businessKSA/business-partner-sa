@@ -15,11 +15,22 @@ import crypto from "node:crypto";
 import { verifyGoogleIdToken } from "./_suppliers.js";
 import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
 
+const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
 const SECRET = process.env.OTP_SECRET || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TTL_MS = 10 * 60 * 1000; // code valid for 10 minutes
 const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
+// Simple V1 preview testing: addresses under @test.businesspartner.sa sign in
+// with a fixed code and no e-mail is sent — only on Vercel previews or when
+// SIMPLE_TEST_MODE=1, never on production.
+const LOCAL_DEV = process.env.APP_ENV === "development";
+const TEST_LOGIN = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || LOCAL_DEV;
+// @test.local is the localhost pair documented in docs/local-development.md
+// (client@test.local / admin@test.local); the .businesspartner.sa domain is
+// the preview pair. Neither exists in production.
+const TEST_LOGIN_DOMAINS = ["@test.businesspartner.sa", "@test.local"];
+const TEST_LOGIN_CODE = String(process.env.SIMPLE_TEST_OTP || "123456").padStart(6, "0").slice(-6);
 
 // ---- Client Operations Center: real server-side sessions (Supabase) --------
 // When SUPABASE_URL + SUPABASE_SERVICE_KEY are set (db/schema.sql applied),
@@ -29,8 +40,52 @@ const DEV_ECHO = process.env.OTP_DEV_ECHO === "1";
 // Shared DB helpers live in api/_db.js (not a deployed function).
 import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+// The session must be the same on businesspartner.sa and www.businesspartner.sa:
+// a host-only cookie left a client signed in on one and locked out on the
+// other. Scoped to the apex on production hosts; preview hosts stay host-only.
+function cookieDomain(res) {
+  const host = String((res && res.__bpHost) || "").toLowerCase().split(":")[0];
+  return /(^|\.)businesspartner\.sa$/.test(host) ? "; Domain=.businesspartner.sa" : "";
+}
 function setSessionCookie(res, raw, maxAgeS) {
-  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}`);
+  res.setHeader("Set-Cookie", `${COOKIE}=${raw}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeS}${cookieDomain(res)}`);
+}
+
+// ---- password sign-in ---------------------------------------------------
+// A password is a second door to the same session, never a second identity:
+// it can only be set from inside an already-verified session (code or Google),
+// so nobody can claim an address by inventing a password for it. Salted scrypt,
+// stored as "salt:hash" in users.password_hash — the same scheme the supplier
+// and employer portals already use.
+function hashPassword(pw) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  return `${salt}:${crypto.scryptSync(pw, salt, 64).toString("hex")}`;
+}
+function verifyPassword(pw, stored) {
+  const [salt, hash] = String(stored || "").split(":");
+  if (!salt || !hash) return false;
+  const candidate = crypto.scryptSync(pw, salt, 64);
+  const expected = Buffer.from(hash, "hex");
+  if (candidate.length !== expected.length) return false;
+  return crypto.timingSafeEqual(candidate, expected);
+}
+const PASSWORD_MIN = 8;
+// In-memory throttle: one function instance, so this slows a burst rather than
+// standing in for a real lockout — enough to make guessing expensive without a
+// table write on every attempt.
+const pwTries = new Map();
+function pwThrottled(email) {
+  const now = Date.now();
+  const rec = pwTries.get(email) || { n: 0, at: now };
+  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
+  return rec.n >= 8;
+}
+function pwFailed(email) {
+  const now = Date.now();
+  const rec = pwTries.get(email) || { n: 0, at: now };
+  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
+  rec.n += 1; pwTries.set(email, rec);
+  if (pwTries.size > 500) pwTries.clear();
 }
 
 // Upsert user + ensure org membership + mint a session. Returns cookie payload.
@@ -131,6 +186,7 @@ async function readBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.__bpHost = req.headers["x-forwarded-host"] || req.headers.host || "";
   if (req.method === "GET") {
     res.statusCode = 200;
     // dbConfigured = env vars present; dbReachable = a live probe against the
@@ -222,13 +278,74 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true }));
   }
 
+  // Which ways in this deployment actually offers — the sign-in card renders
+  // only the doors that are configured, instead of a Google button that fails.
+  if (action === "methods") {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
+  }
+
+  // Sign in with e-mail + password. Same session, same cookie, same everything
+  // downstream as the emailed code.
+  if (action === "password-login") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const pw = String(body.password || "");
+    if (!isEmail(email) || !pw) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off", message: "الدخول بكلمة المرور غير متاح الآن — استخدم رمز البريد." })); }
+    if (pwThrottled(email)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. جرّب بعد ربع ساعة أو ادخل برمز البريد." })); }
+    let rows = [];
+    try { rows = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id,email,full_name,password_hash&limit=1`); }
+    catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    const u = rows[0];
+    // One message for "no such account" and "wrong password": telling them
+    // apart hands an attacker a list of who banks here.
+    if (!u || !u.password_hash || !verifyPassword(pw, u.password_hash)) {
+      pwFailed(email);
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "bad_credentials", message: "البريد أو كلمة المرور غير صحيحة." }));
+    }
+    try {
+      const { raw, user, orgId } = await createSession(req, { email, name: u.full_name || "" });
+      setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, db: true, email, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+    }
+  }
+
+  // Set or change the password — only from inside a live session.
+  if (action === "password-set") {
+    const pw = String(body.password || "");
+    if (pw.length < PASSWORD_MIN) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak", message: `كلمة المرور ${PASSWORD_MIN} أحرف على الأقل.` })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch {}
+    if (!sess || !sess.user) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session", message: "سجّل دخولك أولاً." })); }
+    try {
+      await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { password_hash: hashPassword(pw) } });
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, email: sess.user.email }));
+  }
+
   // 1) Start: generate + send a code, return an opaque challenge.
   if (action === "start") {
     const email = String(body.email || "").trim().toLowerCase();
     const channel = body.channel === "sms" ? "sms" : "email";
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ error: "invalid_email" })); }
-    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    // Local development: no mail can leave the machine anyway, so every
+    // address signs in with the fixed code. Without this the owner types their
+    // own real address, falls through to the mail provider that is not
+    // configured locally, and gets «تعذّر إرسال الرمز» with no way forward.
+    const isTestLogin = TEST_LOGIN
+      && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
+    const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
     const challenge = seal({ email, code, channel, exp: Date.now() + TTL_MS });
+    if (isTestLogin) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true, ...(LOCAL_DEV ? { devCode: code } : {}) }));
+    }
     let delivery;
     if (channel === "sms") delivery = await sendSms(body.phone, code);
     else delivery = await sendEmail(email, code);

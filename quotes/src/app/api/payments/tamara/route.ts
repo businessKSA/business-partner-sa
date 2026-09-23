@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { markInvoicePaid } from '@/lib/billing';
 import { logEvent } from '@/lib/timeline';
+import { appBase } from '@/lib/base';
 import {
   authoriseTamaraOrder,
   captureTamaraOrder,
@@ -168,7 +169,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const base = process.env.APP_URL || url.origin;
+  const base = appBase(req);
   const token = url.searchParams.get('pay') || '';
   const outcome = url.searchParams.get('outcome') || '';
 

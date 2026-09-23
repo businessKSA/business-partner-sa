@@ -4,11 +4,26 @@
     "ar": "إنه في يوم {{contractDate}} الموافق بمدينة الرياض، المملكة العربية السعودية، تم الاتفاق بين كل من:",
     "en": "On {{contractDate}}, in the city of Riyadh, Kingdom of Saudi Arabia, this Agreement is entered into by and between:"
   },
-  "partyFirstLabel": { "ar": "الطرف الأول", "en": "First Party" },
-  "partySecondLabel": { "ar": "الطرف الثاني", "en": "Second Party" },
-  "partyFirstRole": { "ar": "مقدّم الخدمة", "en": "Service Provider" },
-  "partySecondRole": { "ar": "العميل", "en": "Client" },
-  "recitalsTitle": { "ar": "تمهيد", "en": "Recitals" },
+  "partyFirstLabel": {
+    "ar": "الطرف الأول",
+    "en": "First Party"
+  },
+  "partySecondLabel": {
+    "ar": "الطرف الثاني",
+    "en": "Second Party"
+  },
+  "partyFirstRole": {
+    "ar": "مقدّم الخدمة",
+    "en": "Service Provider"
+  },
+  "partySecondRole": {
+    "ar": "العميل",
+    "en": "Client"
+  },
+  "recitalsTitle": {
+    "ar": "تمهيد",
+    "en": "Recitals"
+  },
   "recitals": [
     {
       "ar": "حيث إن الطرف الأول شركة مرخّصة في المملكة العربية السعودية وتزاول تقديم خدمات تأسيس الشركات والاستثمار الأجنبي والموارد البشرية والمعاملات الحكومية والاستشارات، ويملك الخبرة والكوادر اللازمة لتنفيذ نطاق العمل الموضح في هذا العقد.",
@@ -26,7 +41,10 @@
   "clauses": [
     {
       "key": "appointment",
-      "title": { "ar": "التعيين والمدة", "en": "Appointment and Term" },
+      "title": {
+        "ar": "التعيين والمدة",
+        "en": "Appointment and Term"
+      },
       "body": {
         "ar": "1.1 يعيّن الطرف الثاني الطرف الأول لتنفيذ الخدمات المبينة في البند (2)، ويقبل الطرف الأول هذا التعيين.\n1.2 يعتبر التمهيد أعلاه وملحق الأتعاب وملحق الرسوم الحكومية — إن وجد — جزءاً لا يتجزأ من هذا العقد ومكملاً لأحكامه.\n1.3 يبدأ سريان هذا العقد من تاريخ توقيعه من الطرفين وسداد الدفعة الأولى المستحقة، ويستمر حتى إتمام الخدمات محل التعاقد أو إنهائه وفق البند (5).\n1.4 مدد التنفيذ المذكورة في جدول الخدمات مدد تقديرية تُحتسب بأيام العمل الرسمية، وتبدأ من تاريخ استلام الطرف الأول كامل المستندات والبيانات المطلوبة من الطرف الثاني، ولا يُسأل الطرف الأول عن أي تأخير يعود إلى الجهات الحكومية أو إلى تأخر الطرف الثاني في تزويده بالمستندات.",
         "en": "1.1 The Second Party appoints the First Party to perform the services described in Clause (2), and the First Party accepts such appointment.\n1.2 The Recitals above, the Fee Schedule and the Government Fees Schedule — where applicable — form an integral part of this Agreement.\n1.3 This Agreement takes effect from the date of its signature by both Parties and payment of the first instalment due, and continues until completion of the contracted services or its termination pursuant to Clause (5).\n1.4 The delivery periods stated in the services table are estimates calculated in official working days, commencing from the date the First Party receives all required documents and information from the Second Party. The First Party shall not be liable for any delay attributable to government authorities or to the Second Party's delay in providing documents."
@@ -34,7 +52,10 @@
     },
     {
       "key": "services",
-      "title": { "ar": "الخدمات ونطاق العمل", "en": "Services and Scope of Work" },
+      "title": {
+        "ar": "الخدمات ونطاق العمل",
+        "en": "Services and Scope of Work"
+      },
       "body": {
         "ar": "2.1 يلتزم الطرف الأول بتنفيذ الخدمات المبينة في الجدول أدناه وفق الكميات والأسعار الموضحة.\n2.2 يقتصر نطاق العمل على ما ورد في الجدول صراحةً، وأي خدمة إضافية تتطلب اتفاقاً مكتوباً منفصلاً وأتعاباً مستقلة.\n2.3 يلتزم الطرف الثاني بتزويد الطرف الأول بكل المستندات والبيانات والتفويضات اللازمة وبصحتها، ويتحمل وحده مسؤولية صحة ما يقدمه.",
         "en": "2.1 The First Party shall perform the services set out in the table below in accordance with the quantities and prices stated.\n2.2 The scope of work is limited to what is expressly stated in the table; any additional service requires a separate written agreement and separate fees.\n2.3 The Second Party shall provide the First Party with all required documents, information and authorisations and warrants their accuracy, bearing sole responsibility for the correctness of what it submits."
@@ -43,7 +64,10 @@
     },
     {
       "key": "fees",
-      "title": { "ar": "الأتعاب وطريقة الدفع", "en": "Fees and Payment" },
+      "title": {
+        "ar": "الأتعاب وطريقة الدفع",
+        "en": "Fees and Payment"
+      },
       "body": {
         "ar": "3.1 إجمالي أتعاب الخدمات محل هذا العقد مبلغ وقدره {{subtotal}} ريال سعودي غير شامل ضريبة القيمة المضافة.\n3.2 تُضاف ضريبة القيمة المضافة بنسبة 15% بمبلغ {{vatAmount}} ريال سعودي، ليصبح الإجمالي شاملاً الضريبة {{total}} ريال سعودي.\n3.3 تُسدَّد الأتعاب وفق شروط الدفع الموضحة أمام كل بند في جدول الخدمات وملحق الأتعاب.\n3.4 جميع الرسوم الحكومية مستثناة من الأتعاب أعلاه وتُسدَّد للجهات المختصة مباشرة بالتكلفة الفعلية، ولا يتحمل الطرف الأول أي جزء منها.\n3.5 تتم المدفوعات لحساب الطرف الأول: {{bankName}} — المستفيد {{bankBeneficiary}} — رقم الحساب {{bankAccount}} — الآيبان {{bankIban}}، أو عبر بوابة الدفع الإلكتروني المتاحة في بوابة العميل.\n3.6 لا يبدأ الطرف الأول بتنفيذ أي مرحلة قبل تحصيل الدفعة الخاصة بها.",
         "en": "3.1 The total fees for the services under this Agreement amount to SAR {{subtotal}}, exclusive of value added tax.\n3.2 Value added tax at 15% is added in the amount of SAR {{vatAmount}}, bringing the total inclusive of tax to SAR {{total}}.\n3.3 Fees are payable in accordance with the payment terms stated against each item in the services table and the Fee Schedule.\n3.4 All government fees are excluded from the above fees and are paid directly to the competent authorities at actual cost; the First Party bears no part thereof.\n3.5 Payments shall be made to the First Party's account: {{bankName}} — Beneficiary {{bankBeneficiary}} — Account {{bankAccount}} — IBAN {{bankIban}}, or through the electronic payment gateway available in the client portal.\n3.6 The First Party shall not commence any phase before collecting the instalment relating to it."
@@ -51,7 +75,10 @@
     },
     {
       "key": "refund",
-      "title": { "ar": "سياسة الاسترداد", "en": "Refund Policy" },
+      "title": {
+        "ar": "سياسة الاسترداد",
+        "en": "Refund Policy"
+      },
       "body": {
         "ar": "4.1 المبالغ المسددة عن أي مرحلة بُوشر في تنفيذها غير قابلة للاسترداد.\n4.2 إذا تعذّر تنفيذ الخدمة لسبب يعود إلى الطرف الأول وحده، يُرد للطرف الثاني ما سُدِّد عن المراحل التي لم يُباشر فيها، خلال ثلاثين يوماً من تاريخ الطلب المكتوب.\n4.3 الرسوم الحكومية المسددة للجهات المختصة غير قابلة للاسترداد من الطرف الأول في جميع الأحوال، وتخضع لأنظمة تلك الجهات.\n4.4 رفض أي جهة حكومية للطلب لأسباب تتعلق بالطرف الثاني أو بمستنداته لا يُنشئ حقاً في استرداد الأتعاب.",
         "en": "4.1 Amounts paid for any phase that has commenced are non-refundable.\n4.2 If performance becomes impossible for reasons attributable solely to the First Party, amounts paid for phases not yet commenced shall be refunded to the Second Party within thirty days of a written request.\n4.3 Government fees paid to the competent authorities are non-refundable by the First Party in all cases and are governed by the regulations of those authorities.\n4.4 Rejection of an application by any government authority for reasons relating to the Second Party or its documents does not create any right to a refund of fees."
@@ -59,7 +86,10 @@
     },
     {
       "key": "termination",
-      "title": { "ar": "الإنهاء وآثاره", "en": "Termination and Its Effects" },
+      "title": {
+        "ar": "الإنهاء وآثاره",
+        "en": "Termination and Its Effects"
+      },
       "body": {
         "ar": "5.1 يجوز لأي من الطرفين إنهاء هذا العقد بإشعار كتابي مسبق مدته خمسة عشر يوماً.\n5.2 يجوز للطرف الأول إنهاء العقد فوراً عند تأخر الطرف الثاني في السداد أكثر من ثلاثين يوماً من تاريخ الاستحقاق، أو عند تقديمه مستندات غير صحيحة أو مخالفة للأنظمة.\n5.3 عند الإنهاء يستحق الطرف الأول أتعاب الأعمال المنجزة فعلاً حتى تاريخ الإنهاء، ويسلّم الطرف الثاني ما أُنجز من مستندات.\n5.4 لا يُخلّ الإنهاء بالحقوق الناشئة قبل تاريخه، وتبقى بنود السرية وحدود المسؤولية والقانون الواجب التطبيق سارية بعده.",
         "en": "5.1 Either Party may terminate this Agreement upon fifteen days' prior written notice.\n5.2 The First Party may terminate immediately if the Second Party delays payment by more than thirty days from the due date, or submits incorrect or non-compliant documents.\n5.3 Upon termination the First Party is entitled to fees for work actually performed up to the termination date, and shall hand over the documents completed.\n5.4 Termination does not prejudice rights accrued prior to its date; the clauses on confidentiality, limitation of liability and governing law survive termination."
@@ -67,7 +97,10 @@
     },
     {
       "key": "confidentiality",
-      "title": { "ar": "السرية", "en": "Confidentiality" },
+      "title": {
+        "ar": "السرية",
+        "en": "Confidentiality"
+      },
       "body": {
         "ar": "6.1 يلتزم كل طرف بالمحافظة على سرية كل المعلومات والمستندات التي يطّلع عليها بمناسبة هذا العقد، وعدم إفشائها للغير دون موافقة كتابية من الطرف الآخر.\n6.2 يُستثنى من ذلك ما يُفصح عنه بموجب أمر من جهة قضائية أو نظامية مختصة، أو ما يكون متاحاً للعموم دون مخالفة.\n6.3 يستمر التزام السرية لمدة ثلاث سنوات من تاريخ انتهاء العقد أو إنهائه.",
         "en": "6.1 Each Party shall maintain the confidentiality of all information and documents it accesses in connection with this Agreement and shall not disclose them to third parties without the other Party's written consent.\n6.2 Excluded from the foregoing is any disclosure required by order of a competent judicial or regulatory authority, or information available to the public without breach.\n6.3 The confidentiality obligation continues for three years from the expiry or termination of this Agreement."
@@ -75,7 +108,10 @@
     },
     {
       "key": "liability",
-      "title": { "ar": "حدود المسؤولية", "en": "Limitation of Liability" },
+      "title": {
+        "ar": "حدود المسؤولية",
+        "en": "Limitation of Liability"
+      },
       "body": {
         "ar": "7.1 تقتصر مسؤولية الطرف الأول في جميع الأحوال على قيمة المبالغ المستلمة فعلياً من الطرف الثاني بموجب هذا العقد، ولا تتجاوزها بأي حال.\n7.2 لا يُسأل الطرف الأول عن أي أضرار غير مباشرة أو تبعية أو فوات كسب أو خسارة فرصة.\n7.3 لا يضمن الطرف الأول نتيجة قرارات الجهات الحكومية، والتزامه التزام ببذل عناية لا بتحقيق نتيجة، ويشمل ذلك دون حصر وزارة الاستثمار ووزارة التجارة ووزارة الموارد البشرية والتنمية الاجتماعية والمؤسسة العامة للتأمينات الاجتماعية وهيئة الزكاة والضريبة والجمارك ووزارة الخارجية والبريد السعودي.",
         "en": "7.1 The First Party's liability shall in all cases be limited to the amounts actually received from the Second Party under this Agreement and shall not exceed them under any circumstances.\n7.2 The First Party shall not be liable for any indirect or consequential damages, loss of profit or loss of opportunity.\n7.3 The First Party does not guarantee the outcome of decisions of government authorities; its obligation is one of means and not of result, including without limitation the Ministry of Investment, the Ministry of Commerce, the Ministry of Human Resources and Social Development, the General Organization for Social Insurance, the Zakat, Tax and Customs Authority, the Ministry of Foreign Affairs and Saudi Post."
@@ -83,7 +119,10 @@
     },
     {
       "key": "force-majeure",
-      "title": { "ar": "القوة القاهرة", "en": "Force Majeure" },
+      "title": {
+        "ar": "القوة القاهرة",
+        "en": "Force Majeure"
+      },
       "body": {
         "ar": "8.1 لا يُسأل أي طرف عن الإخلال بالتزاماته إذا كان ذلك ناتجاً عن قوة قاهرة خارجة عن إرادته، ومنها الكوارث الطبيعية والأوبئة والقرارات الحكومية المانعة وانقطاع الأنظمة الحكومية الإلكترونية.\n8.2 يلتزم الطرف المتأثر بإشعار الطرف الآخر خلال سبعة أيام من وقوع الحدث، وتُعلَّق الالتزامات مدة استمراره.\n8.3 إذا استمرت القوة القاهرة أكثر من تسعين يوماً جاز لأي طرف إنهاء العقد دون تعويض.",
         "en": "8.1 Neither Party shall be liable for breach of its obligations where such breach results from force majeure beyond its control, including natural disasters, epidemics, prohibitive government decisions and outages of government electronic systems.\n8.2 The affected Party shall notify the other Party within seven days of the event, and obligations are suspended for its duration.\n8.3 If force majeure continues for more than ninety days, either Party may terminate this Agreement without compensation."
@@ -91,7 +130,10 @@
     },
     {
       "key": "general",
-      "title": { "ar": "أحكام عامة", "en": "General Provisions" },
+      "title": {
+        "ar": "أحكام عامة",
+        "en": "General Provisions"
+      },
       "body": {
         "ar": "9.1 لا يجوز لأي طرف التنازل عن هذا العقد أو أي جزء منه للغير دون موافقة كتابية مسبقة من الطرف الآخر.\n9.2 لا يُعد أي تعديل على هذا العقد نافذاً ما لم يكن مكتوباً وموقعاً من الطرفين.\n9.3 يمثل هذا العقد وملاحقه كامل الاتفاق بين الطرفين ويحل محل أي تفاهمات أو مراسلات سابقة.\n9.4 إذا بطل أي بند من بنود هذا العقد بقي باقي البنود صحيحاً ونافذاً.\n9.5 العلاقة بين الطرفين علاقة تعاقد مستقل، ولا تُنشئ وكالة أو شراكة أو علاقة عمل.\n9.6 تكون المراسلات على العناوين ووسائل الاتصال المدونة في هذا العقد، ويُعد الإشعار عبر البريد الإلكتروني إشعاراً صحيحاً.\n9.7 حُرّر هذا العقد باللغتين العربية والإنجليزية، وعند الاختلاف في التفسير يُعتد بالنص العربي.\n9.8 وقّع الطرفان هذا العقد إلكترونياً، ويُعد التوقيع الإلكتروني معتبراً ومنتجاً لآثاره وفق نظام التعاملات الإلكترونية في المملكة العربية السعودية.",
         "en": "9.1 Neither Party may assign this Agreement or any part of it to a third party without the other Party's prior written consent.\n9.2 No amendment to this Agreement is effective unless made in writing and signed by both Parties.\n9.3 This Agreement and its schedules constitute the entire agreement between the Parties and supersede any prior understandings or correspondence.\n9.4 If any provision of this Agreement is held invalid, the remaining provisions remain valid and effective.\n9.5 The relationship between the Parties is that of independent contracting and does not create an agency, partnership or employment relationship.\n9.6 Notices shall be sent to the addresses and contact details stated in this Agreement, and notice by electronic mail constitutes valid notice.\n9.7 This Agreement is executed in Arabic and English; in the event of a discrepancy in interpretation, the Arabic text prevails.\n9.8 The Parties have signed this Agreement electronically, and the electronic signature is valid and effective pursuant to the Electronic Transactions Law of the Kingdom of Saudi Arabia."
@@ -99,19 +141,64 @@
     },
     {
       "key": "law",
-      "title": { "ar": "القانون الواجب التطبيق والاختصاص القضائي", "en": "Governing Law and Jurisdiction" },
+      "title": {
+        "ar": "القانون الواجب التطبيق والاختصاص القضائي",
+        "en": "Governing Law and Jurisdiction"
+      },
       "body": {
         "ar": "10.1 يخضع هذا العقد في تفسيره وتنفيذه لأنظمة المملكة العربية السعودية.\n10.2 يسعى الطرفان لتسوية أي نزاع ودياً خلال ثلاثين يوماً، فإن تعذّر ذلك ينعقد الاختصاص للمحاكم المختصة بمدينة الرياض.",
         "en": "10.1 This Agreement is governed and construed in accordance with the laws of the Kingdom of Saudi Arabia.\n10.2 The Parties shall seek to settle any dispute amicably within thirty days; failing which, jurisdiction lies with the competent courts in the city of Riyadh."
       }
+    },
+    {
+      "key": "bd-term",
+      "appliesTo": "bdaas",
+      "title": {
+        "ar": "مدة الاشتراك الشهري وتجديده وإنهاؤه",
+        "en": "Monthly Subscription Term, Renewal and Termination"
+      },
+      "body": {
+        "ar": "11.1 خدمة تطوير الأعمال كخدمة اشتراك شهري تبدأ من تاريخ سداد أول دفعة، ويتجدد تلقائياً لمدد شهرية مماثلة بالسعر الموضح في جدول الخدمات ما لم يُخطر أحد الطرفين الآخر برغبته في عدم التجديد.\n11.2 يجوز لأي من الطرفين إنهاء الاشتراك بإشعار كتابي قبل سبعة أيام على الأقل من نهاية الشهر الجاري، ويسري الإنهاء من بداية الشهر التالي.\n11.3 لا يترتب على الإنهاء استرداد رسوم الشهر الجاري، ويستمر الطرف الأول في تسليم ما تبقى من التزامات ذلك الشهر.\n11.4 إذا كان الاشتراك قد بدأ بسعر تعريفي لشهر أول، فإن التجديد يتم بالسعر الشهري المعلن الموضح في جدول الخدمات دون حاجة إلى إشعار إضافي.",
+        "en": "11.1 Business Development as a Service is a monthly subscription commencing on the date the first payment is received, renewing automatically for successive monthly terms at the price stated in the services table unless either Party notifies the other that it does not wish to renew.\n11.2 Either Party may terminate the subscription by written notice given at least seven days before the end of the current month, with effect from the start of the following month.\n11.3 Termination does not give rise to a refund of the current month's fees, and the First Party shall continue to deliver the remaining obligations for that month.\n11.4 Where the subscription commenced at an introductory price for a first month, it renews at the published monthly price stated in the services table without further notice."
+      }
+    },
+    {
+      "key": "bd-success-fee",
+      "appliesTo": "bdaas",
+      "title": {
+        "ar": "عمولة النجاح وأساس احتسابها",
+        "en": "Success Fee and Basis of Calculation"
+      },
+      "body": {
+        "ar": "12.1 تستحق للطرف الأول عمولة نجاح بالنسبة الموضحة أمام الباقة في جدول الخدمات، وتُحتسب على الإيراد الذي حصّله الطرف الثاني فعلياً من الصفقات المشمولة وفق البند (13).\n12.2 لا تستحق العمولة على عقد موقّع لم يُحصّل، ولا على فاتورة صادرة لم تُدفع، ولا على أي مبلغ رُدّ إلى العميل النهائي.\n12.3 لا تستحق العمولة على إيراد متحقق من عملاء الطرف الثاني القائمين قبل بدء الاشتراك، ولا على فرص لم يولّدها الطرف الأول.\n12.4 تُستحق العمولة خلال خمسة عشر يوماً من تاريخ تحصيل الطرف الثاني للإيراد، ويصدر الطرف الأول بها فاتورة ضريبية مستقلة عن رسوم الاشتراك الشهري.\n12.5 يوفّر الطرف الثاني للطرف الأول ما يثبت قيمة التحصيل عند الطلب، ويقتصر ذلك على الصفقات المشمولة دون سواها.\n12.6 الباقات التي يُذكر أمامها في جدول الخدمات أنها بدون عمولة لا تستحق عنها أي نسبة مهما بلغ الإيراد، مقابل اقتصار نطاق العمل على التوليد والتأهيل دون المشاركة في الإغلاق.",
+        "en": "12.1 The First Party is entitled to a success fee at the rate stated against the package in the services table, calculated on revenue actually collected by the Second Party from Covered Deals under Clause (13).\n12.2 No success fee is due on a signed but uncollected contract, on an issued but unpaid invoice, or on any amount refunded to the end client.\n12.3 No success fee is due on revenue from the Second Party's clients existing before the subscription commenced, nor on opportunities not generated by the First Party.\n12.4 The success fee falls due within fifteen days of the Second Party's collection of the revenue, and the First Party shall issue a tax invoice for it separate from the monthly subscription fees.\n12.5 The Second Party shall provide evidence of the amount collected on request, limited to Covered Deals.\n12.6 Packages stated in the services table as carrying no commission attract no percentage whatever the revenue, in consideration of the scope of work being limited to generation and qualification without participation in closing."
+      }
+    },
+    {
+      "key": "bd-attribution",
+      "appliesTo": "bdaas",
+      "title": {
+        "ar": "الصفقات المشمولة ونسبتها إلى الطرف الأول",
+        "en": "Covered Deals and Attribution"
+      },
+      "body": {
+        "ar": "13.1 يُقصد بالصفقة المشمولة كل صفقة مع جهة أدرجها الطرف الأول في نظام إدارة العلاقات وسجّل عليها أول تواصل قبل بدء التفاوض، ولم تكن الجهة عميلاً قائماً للطرف الثاني ولا على قائمة استثناء متفق عليها كتابة عند بدء الاشتراك.\n13.2 يُعدّ السجل المدوَّن في نظام إدارة العلاقات لدى الطرف الأول هو المرجع في إثبات مصدر الفرصة وتاريخ أول تواصل.\n13.3 تظل الصفقة مشمولة لمدة اثني عشر شهراً من تاريخ أول تواصل موثّق، ولو أُبرمت بعد انتهاء الاشتراك.\n13.4 للطرف الثاني أن يعترض كتابة على شمول أي صفقة خلال عشرة أيام من إدراجها، ويُبتّ الاعتراض بالرجوع إلى السجل المشار إليه في البند 13.2.",
+        "en": "13.1 A Covered Deal means any deal with a party that the First Party entered into the customer relationship management system and recorded first contact with before negotiations began, where that party was not an existing client of the Second Party nor on an exclusion list agreed in writing at the commencement of the subscription.\n13.2 The record held in the First Party's customer relationship management system is the reference for establishing the source of the opportunity and the date of first contact.\n13.3 A deal remains covered for twelve months from the date of documented first contact, even if concluded after the subscription ends.\n13.4 The Second Party may object in writing to the coverage of any deal within ten days of its listing, and the objection is determined by reference to the record described in Clause 13.2."
+      }
     }
   ],
-  "signatureTitle": { "ar": "التوقيعات", "en": "Signatures" },
+  "signatureTitle": {
+    "ar": "التوقيعات",
+    "en": "Signatures"
+  },
   "signatureNote": {
     "ar": "وقّع الطرفان على هذا العقد إقراراً بقبول كل ما ورد فيه.",
     "en": "The Parties have signed this Agreement in acknowledgement of their acceptance of all its provisions."
   },
-  "feeAppendixTitle": { "ar": "ملحق (أ) — ملحق الأتعاب", "en": "Schedule (A) — Fee Schedule" },
+  "feeAppendixTitle": {
+    "ar": "ملحق (أ) — ملحق الأتعاب",
+    "en": "Schedule (A) — Fee Schedule"
+  },
   "govAppendixTitle": {
     "ar": "ملحق (ب) — جدول الرسوم الحكومية المقدّرة",
     "en": "Schedule (B) — Estimated Government Fees"

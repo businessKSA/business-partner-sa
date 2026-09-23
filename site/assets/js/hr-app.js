@@ -265,15 +265,35 @@
     return c && ["BP-DEMO", "BP-EMP-DEMO"].indexOf(c.toUpperCase()) < 0 ? c : "";
   }
   if (!CODE && !DEMO_OK) {
+    // Before showing a login wall, ask the server whether this browser already
+    // carries a client-portal session. The employer dashboard answers the same
+    // question through validate=1 with no code, and reusing that endpoint keeps
+    // one mechanism rather than two: the server re-derives the account from its
+    // own httpOnly session cookie and hands back an "org:…" code.
     var content = $("hr-content");
-    if (content) {
-      content.innerHTML = '<div class="hr-gate"><div style="font-size:2rem">🔐</div>' +
-        "<h2>سجّل الدخول للوحة صاحب العمل</h2>" +
-        "<p>وظائفك ومتقدموك ومسار التوظيف في مكان واحد. سجّل الدخول بحساب شركتك أو استكشف اللوحة بالبيانات التجريبية.</p>" +
-        '<a class="hr-btn hr-btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>' +
-        '<button class="hr-btn hr-btn-ghost" style="width:100%;margin-top:10px" id="hr-gate-demo">استكشف بالبيانات التجريبية</button></div>';
-      var gd = $("hr-gate-demo");
-      if (gd) gd.addEventListener("click", function () { writeLS("bp_hr_demo", true); location.reload(); });
+    if (content) content.innerHTML = '<div class="hr-gate"><p>جارٍ فتح لوحتك…</p></div>';
+    fetch("/api/candidates?validate=1", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.unlocked && d.code) {
+          try { localStorage.setItem("bp_emp_code", d.code); } catch (e) {}
+          return location.reload();
+        }
+        showHrGate();
+      })
+      .catch(showHrGate);
+
+    function showHrGate() {
+      var box = $("hr-content");
+      if (box) {
+        box.innerHTML = '<div class="hr-gate"><div style="font-size:2rem">🔐</div>' +
+          "<h2>سجّل الدخول للوحة صاحب العمل</h2>" +
+          "<p>وظائفك ومتقدموك ومسار التوظيف في مكان واحد. سجّل الدخول بحساب شركتك أو استكشف اللوحة بالبيانات التجريبية.</p>" +
+          '<a class="hr-btn hr-btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>' +
+          '<button class="hr-btn hr-btn-ghost" style="width:100%;margin-top:10px" id="hr-gate-demo">استكشف بالبيانات التجريبية</button></div>';
+        var gd = $("hr-gate-demo");
+        if (gd) gd.addEventListener("click", function () { writeLS("bp_hr_demo", true); location.reload(); });
+      }
     }
     initChrome(false);
     return;
@@ -2052,6 +2072,24 @@
         '<div class="hr-field" style="max-width:280px"><label>اللغة</label><select id="st-lang"><option>العربية</option><option disabled>English (قريباً)</option></select></div>' +
         '<button class="hr-btn hr-btn-primary hr-btn-sm" id="st-save">حفظ</button></div></section>' +
         '<section class="hr-card" style="margin-top:14px"><div class="hd"><h2>البيانات</h2></div><div class="bd"><p class="hr-hint" style="margin-bottom:10px">تعمل اللوحة حالياً على بيانات تجريبية + تعديلاتك المحفوظة على هذا الجهاز.</p><button class="hr-btn hr-btn-danger hr-btn-sm" id="st-reset">مسح بيانات التجربة وإعادة الضبط</button></div></section>';
+      // Owner (2026-09): the console had no way out — a signed-in employer
+      // could neither leave nor switch to another employer account.
+      var acct = document.createElement("section");
+      acct.className = "hr-card"; acct.style.marginTop = "14px";
+      acct.innerHTML = '<div class="hd"><h2>الحساب</h2></div><div class="bd"><p class="hr-hint" style="margin-bottom:10px">' +
+        (CODE ? "أنت داخل بحساب صاحب العمل المرتبط بهذا الجهاز." : "تتصفح اللوحة في وضع التجربة.") +
+        '</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="hr-btn hr-btn-sm" id="st-logout">🚪 تسجيل الخروج من لوحة التوظيف</button>' +
+        '<button class="hr-btn hr-btn-sm" id="st-switch">👤 الدخول بحساب صاحب عمل آخر</button></div></div>';
+      $("st-root").appendChild(acct);
+      function hrSignOut() {
+        try {
+          ["bp_emp_code", "bp_emp_company", "bp_emp_status", "bp_emp_email", "bp_hr_overlay", "bp_hr_invites", "bp_hr_match_runs"].forEach(function (k) { localStorage.removeItem(k); });
+        } catch (e) {}
+        var embed = /[?&]embed=1(?:&|$)/.test(location.search) ? "?embed=1" : "";
+        location.href = "/ar/employer-login" + embed;
+      }
+      $("st-logout").addEventListener("click", hrSignOut);
+      $("st-switch").addEventListener("click", hrSignOut);
       $("st-save").addEventListener("click", function () {
         HRStore.setBag("prefs", { notif: $("st-notif").checked, digest: $("st-digest").checked });
         toast("حُفظت التفضيلات.");

@@ -1,12 +1,17 @@
 // Business Partner 3.0 — AI Hiring assistant (ESM). Powers the "AI Hiring OS"
 // employer dashboard: match candidates to a role, summarise a candidate, draft
 // interview questions, and write outreach messages. Free-first provider
-// failover (Gemini → Groq → OpenAI → Anthropic), same keys as the advisor.
+// Azure OpenAI first (owner policy, September 2026: the digital infrastructure
+// is Microsoft Azure). Once Azure is configured the other providers stay
+// dormant unless DOC_AI_ALLOW_FALLBACK=1 — the same valve document reading
+// uses. Until Azure is configured the old free-first chain keeps working, so
+// the employer dashboard never goes dark waiting for an env var.
 //
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"
 // GET  /api/hire  -> { status, providers }
 
+import { AZURE_KEYS, azureChat, azureConfigured } from "./_azure.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -15,59 +20,20 @@ const NOTION_TOKEN = envFrom([
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion",
   "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
+// ‏انظر api/chat.js: llama-3.3-70b-versatile أوقفته Groq في ٢٠٢٦/٠٨/١٦.
 
 const SYSTEM = `أنت مساعد توظيف خبير لدى Business Partner (بيزنس بارتنر) في السعودية. تساعد أصحاب العمل على تقييم المرشّحين واتخاذ قرارات توظيف عملية وسريعة. كن دقيقاً وموجزاً ومهنياً، وراعِ أنظمة العمل والتوطين في السعودية. اكتب بلغة المستخدم (العربية افتراضياً). لا تختلق بيانات غير موجودة.`;
 
-async function callGemini(prompt, maxTokens) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 1200, temperature: 0.4 },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}`);
-  const d = await r.json();
-  return (d?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("").trim();
-}
-async function callOAI(url, key, model, prompt, maxTokens) {
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: maxTokens || 1200, temperature: 0.4, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`${new URL(url).hostname} ${r.status}`);
-  const d = await r.json();
-  return (d?.choices?.[0]?.message?.content || "").trim();
-}
-async function callAnthropic(prompt, maxTokens) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": envFrom(ANTHROPIC_KEYS), "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — a generic name here
-    // is a confirmed collision risk with another integration on the same
-    // Vercel project, which broke every Anthropic call in production before.
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5", max_tokens: maxTokens || 1200, system: SYSTEM, messages: [{ role: "user", content: prompt }] }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}`);
-  const d = await r.json();
-  return (d?.content || []).map((b) => b.text || "").join("").trim();
-}
-
+// Azure only. The Gemini/Groq/OpenAI/Anthropic callers and the
+// DOC_AI_ALLOW_FALLBACK valve are gone on the owner's instruction: resilience
+// belongs to the second Azure region (api/_azure.js), not to a second vendor.
 const PROVIDERS = [
-  { name: "gemini", keys: GEMINI_KEYS, call: (p, m) => callGemini(p, m) },
-  { name: "groq", keys: GROQ_KEYS, call: (p, m) => callOAI("https://api.groq.com/openai/v1/chat/completions", envFrom(GROQ_KEYS), process.env.GROQ_MODEL || "llama-3.3-70b-versatile", p, m) },
-  { name: "openai", keys: OPENAI_KEYS, call: (p, m) => callOAI("https://api.openai.com/v1/chat/completions", envFrom(OPENAI_KEYS), process.env.OPENAI_MODEL || "gpt-4o-mini", p, m) },
-  { name: "anthropic", keys: ANTHROPIC_KEYS, call: (p, m) => callAnthropic(p, m) },
+  { name: "azure", keys: AZURE_KEYS, call: (p, m) => azureChat({ system: SYSTEM, messages: [{ role: "user", content: p }], maxTokens: m || 1200, temperature: 0.4 }) },
 ];
-const available = () => PROVIDERS.filter((p) => p.keys.some((k) => process.env[k]));
+const available = () => (azureConfigured() ? PROVIDERS : []);
+
+export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
+export const aiAvailable = () => available().length > 0;
 
 async function ai(prompt, maxTokens) {
   const errs = [];
@@ -127,6 +93,43 @@ function buildPrompt(b) {
     }
     return `Translate the job advert below into ${target}.\n\nRules: translate faithfully, keep the same paragraph and line breaks, keep job titles natural for that language's job market, do not add or remove any information, do not add commentary. Output only the translation.\n\n---\n${String(b.text || "").slice(0, 12000)}`;
   }
+  // Rewrites a CV so it survives applicant-tracking software and reads well in
+  // English, and scores it before and after. The rules exist because the
+  // tempting version of this feature — inventing a better candidate — would
+  // put a person's name on claims they never made, and send them into
+  // interviews they cannot answer for.
+  if (b.task === "cv-boost") {
+    const cv = String(b.cvText || "").slice(0, 14000);
+    const target = String(b.targetRole || "").slice(0, 200);
+    return `You are an expert CV writer and an ATS (applicant tracking system) analyst.
+
+Below is a candidate's CV, in whatever language and shape they wrote it.
+
+TASK
+1. Detect the language it is written in.
+2. Rewrite it as an excellent, ATS-friendly CV **in English**. If the original is Arabic, this is also a translation.
+3. If the original was NOT English, also give the same improved CV in the original language.
+4. Score the ORIGINAL and the REWRITE, 0-100, on how well an ATS and a recruiter would read them.
+5. List what you actually improved.
+
+ABSOLUTE RULES — a violation makes the whole output useless:
+- Invent NOTHING. No employer, job title, date, degree, certificate, tool or skill that is not in the original.
+- Do not inflate seniority, do not extend dates, do not turn a duty into an achievement that was never claimed.
+- Numbers may only appear if the candidate gave them. Never estimate a metric.
+- If something is missing (no dates, no education), leave it out and name it in "missing" — do not paper over it.
+- You improve WORDING, STRUCTURE, ORDER and KEYWORDS. You never improve the FACTS.
+
+The rewrite should: lead with a short professional summary; use standard section headings (Summary, Skills, Work Experience, Education, Certifications, Languages); put the most relevant experience first; start bullets with strong action verbs; surface real keywords a recruiter would search for${target ? ` (target role: ${target})` : ""}; drop photos, tables, columns and graphics that ATS software cannot read.
+
+Scoring must be honest: score_before reflects the original as written. score_after reflects the rewrite. If the original was already strong, the gain is small — say so rather than manufacturing a jump.
+
+Return ONLY this JSON, no code fences, no commentary:
+{"source_language":"Arabic|English|other","cv_english":"<full rewritten CV in markdown>","cv_original_language":"<same CV in the original language, or empty string if the original was English>","score_before":0-100,"score_after":0-100,"improvements":["...","..."],"missing":["..."],"target_role_guess":"..."}
+
+CV:
+---
+${cv}`;
+  }
   if (b.task === "jobdesc") {
     const title = String(b.title || "").slice(0, 200);
     const field = String(b.field || "").slice(0, 100);
@@ -145,11 +148,11 @@ export default async function handler(req, res) {
   if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }
 
   const b = await readBody(req);
-  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate"].includes(b.task) ? b.task : "";
+  const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate", "cv-boost"].includes(b.task) ? b.task : "";
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
   try {
-    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : 900);
+    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : task === "cv-boost" ? 6000 : 900);
     if (task === "match") {
       let ranked = [];
       try {

@@ -186,7 +186,8 @@
       .cp-notes:focus { border-color: var(--navy); }
       #cpCrm { display: inline-flex; width: 100%; justify-content: center; }
     </style>
-  </head>
+  <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+</head>
   <body>
     <div id="gate">
       <div class="gate-card">
@@ -355,9 +356,12 @@
       // WhatsApp inbox still works when this fails, but the failure is now
       // stated instead of being read as absence.
       var advisorProblem = '';
+      var advisorStatus = 0;
       function fetchAdvisor() {
+        advisorStatus = 0;
         return fetch(ADVISOR_URL + '&key=' + encodeURIComponent(accessKey), { cache: 'no-store' })
           .then(function (res) {
+            advisorStatus = res.status;
             if (res.ok) return res.json();
             advisorProblem = res.status === 401
               ? 'محادثات الموقع محجوبة: مفتاح الوصول لا يفتحها.'
@@ -369,6 +373,46 @@
             return (d && d.ok && d.messages) || [];
           })
           .catch(function () { advisorProblem = 'تعذّر الوصول إلى محادثات الموقع.'; return []; });
+      }
+      // Login used to be proven by the n8n feed alone: when that webhook was
+      // down, unpublished, or holding a different key, a correct key was
+      // announced as "wrong" and the site's own conversations were unreachable
+      // too. Now either source proves the key; a source that is missing keeps
+      // its last known messages on screen and is named in the status line.
+      var feedProblem = '';
+      var lastFeed = [], lastWeb = [];
+      function loadBoth() {
+        var feedP = fetchFeed().then(function (d) {
+          if (!d || !d.ok) throw new Error('unauthorized');
+          feedProblem = ''; return d;
+        }).catch(function (e) {
+          var un = String(e.message) === 'unauthorized';
+          feedProblem = un
+            ? 'واتساب: n8n يرفض هذا المفتاح — تأكد أن مفتاح BP-Chat-Monitor-API مطابق لمفتاح الموقع.'
+            : 'واتساب: تعذّر الوصول إلى n8n (' + e.message + ').';
+          return { ok: false, unauthorized: un, messages: [], count: 0 };
+        });
+        return Promise.all([feedP, fetchAdvisor()]).then(function (r) {
+          var data = r[0], web = r[1] || [], webOk = advisorStatus === 200;
+          return {
+            feed: data, web: web, webOk: webOk,
+            authorized: !!data.ok || webOk,
+            rejected: !!data.unauthorized && advisorStatus === 401
+          };
+        });
+      }
+      function applyBoth(r) {
+        if (r.feed.ok) lastFeed = r.feed.messages || [];
+        if (r.webOk) lastWeb = r.web || [];
+        var total = lastFeed.length + lastWeb.length;
+        var grew = total > lastCount && lastCount > 0;
+        lastCount = total;
+        messages = lastFeed.concat(lastWeb);
+        if (grew) { beep(); if (document.hidden) { flashTitle(total); } }
+        render();
+        if (r.feed.ok && r.webOk) { $('connDot').className = 'dot'; $('connText').textContent = 'متصل'; }
+        else if (r.feed.ok) { $('connDot').className = 'dot off'; $('connText').textContent = 'واتساب متصل — محادثات الموقع لا تصل'; }
+        else { $('connDot').className = 'dot off'; $('connText').textContent = 'محادثات الموقع متصلة — واتساب (n8n) غير متصل'; }
       }
 
       function groupByPhone() {
@@ -593,8 +637,9 @@
           var list = document.getElementById('convList');
           if (list && list.parentNode) list.parentNode.insertBefore(box, list);
         }
-        box.textContent = advisorProblem;
-        box.style.display = advisorProblem ? 'block' : 'none';
+        var problems = [feedProblem, advisorProblem].filter(Boolean).join(' · ');
+        box.textContent = problems;
+        box.style.display = problems ? 'block' : 'none';
       }
 
       function beep() {
@@ -609,19 +654,11 @@
       window.addEventListener('focus', stopFlash);
 
       function poll() {
-        return Promise.all([fetchFeed(), fetchAdvisor()]).then(function (r) {
-          var data = r[0], web = r[1] || [];
-          if (data && data.ok) {
-            var total = (data.count || 0) + web.length;
-            var grew = total > lastCount && lastCount > 0;
-            lastCount = total;
-            messages = (data.messages || []).concat(web);
-            if (grew) { beep(); if (document.hidden) { flashTitle(total); } }
-            render();
-            $('connDot').className = 'dot'; $('connText').textContent = 'متصل';
-          }
-        }).catch(function (e) {
-          if (String(e.message) === 'unauthorized') { logout(); return; }
+        return loadBoth().then(function (r) {
+          if (r.rejected) { logout(); return; }
+          if (!r.authorized) { render(); $('connDot').className = 'dot off'; $('connText').textContent = 'انقطع — إعادة محاولة'; return; }
+          applyBoth(r);
+        }).catch(function () {
           $('connDot').className = 'dot off'; $('connText').textContent = 'انقطع — إعادة محاولة';
         });
       }
@@ -778,15 +815,18 @@
         var k = $('keyInput').value.trim();
         if (!k) { $('gateErr').textContent = 'أدخل مفتاح الوصول'; return; }
         $('gateErr').textContent = 'جاري التحقق…'; accessKey = k;
-        fetchFeed().then(function (data) {
-          if (!data.ok) throw new Error('unauthorized');
-          localStorage.setItem(KEY_STORE, k); startApp(data);
-        }).catch(function () { accessKey = ''; $('gateErr').textContent = 'مفتاح غير صحيح ❌'; });
+        loadBoth().then(function (r) {
+          if (r.authorized) { localStorage.setItem(KEY_STORE, k); startApp(r); return; }
+          accessKey = '';
+          $('gateErr').textContent = r.rejected
+            ? 'مفتاح غير صحيح ❌'
+            : 'تعذّر الاتصال بالخوادم ⚠️ ' + [feedProblem, advisorProblem].filter(Boolean).join(' · ') + ' — حاول مرة أخرى';
+        }).catch(function () { accessKey = ''; $('gateErr').textContent = 'تعذّر الاتصال — حاول مرة أخرى ⚠️'; });
       }
-      function startApp(data) {
+      function startApp(r) {
         $('gate').style.display = 'none'; $('app').classList.add('on');
-        if (data) { messages = data.messages || []; lastCount = data.count || 0; render(); }
-        poll(); pollTimer = setInterval(poll, POLL_MS);
+        if (r) applyBoth(r);
+        pollTimer = setInterval(poll, POLL_MS);
       }
       function logout() { localStorage.removeItem(KEY_STORE); if (pollTimer) clearInterval(pollTimer); location.reload(); }
 
@@ -811,8 +851,12 @@
       $('backBtn').onclick = function () { $('cols').classList.remove('chat-open'); activePhone = null; };
 
       if (accessKey) {
-        fetchFeed().then(function (d) { if (d.ok) startApp(d); else logout(); })
-          .catch(function () { $('gate').style.display = 'flex'; localStorage.removeItem(KEY_STORE); accessKey = ''; });
+        loadBoth().then(function (r) {
+          if (r.authorized) { startApp(r); return; }
+          $('gate').style.display = 'flex';
+          if (r.rejected) localStorage.removeItem(KEY_STORE);
+          accessKey = '';
+        }).catch(function () { $('gate').style.display = 'flex'; accessKey = ''; });
       }
     </script>
 <script src="/assets/js/bp-i18n.js" defer data-mode="auto" data-toggle="1"></script>

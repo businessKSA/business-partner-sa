@@ -1,13 +1,16 @@
 // Unit tests for the AI Document Agent's in-place fill engines:
 //   * api/_xlsx.js    — Excel cells written as blue inline strings
 //   * api/_pdfform.js — AcroForm /V values via incremental update
+//   * api/_img.js     — PNG/JPEG decoded for signature & stamp embedding
 // Pure node:test, no dependencies — `npm test` runs them anywhere.
 import test from "node:test";
 import assert from "node:assert/strict";
 import zlib from "node:zlib";
 import { zip, unzip } from "../api/_zip.js";
 import { xlsxCells, xlsxApply, parseRef } from "../api/_xlsx.js";
-import { pdfFields, pdfFill } from "../api/_pdfform.js";
+import { pdfFields, pdfFill, pdfStamp } from "../api/_pdfform.js";
+import { pdfImage, imageSize } from "../api/_img.js";
+import { docxPlaceImages, xlsxPlaceImages } from "../api/_ooxmlimg.js";
 
 /* ------------------------------------------------------------------ XLSX -- */
 const XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`;
@@ -245,4 +248,227 @@ test("a confirmation unlocks its own declaration and no other", () => {
   assert.equal(declarationUnlocked("Company name", "Work Force Trading", [], false), true, "ordinary fields are unaffected");
   assert.equal(declarationUnlocked("Declaration", "I confirm", confirmed, true), false,
     "a sensitive field with no identifiable subject is refused, not guessed");
+});
+
+/* ------------------------------------------------- signature & stamp images -- */
+
+// A minimal PNG encoder, so the decoder is tested against bytes this file
+// produced rather than a checked-in blob nobody can read.
+function makePng(w, h, px, colorType = 6) {
+  const samples = colorType === 6 ? 4 : 3;
+  const rowBytes = w * samples;
+  const raw = Buffer.alloc(h * (1 + rowBytes));
+  for (let y = 0; y < h; y++) {
+    raw[y * (1 + rowBytes)] = 0; // filter: none
+    for (let x = 0; x < w; x++) {
+      const o = y * (1 + rowBytes) + 1 + x * samples;
+      const [r, g, b, a] = px(x, y);
+      raw[o] = r; raw[o + 1] = g; raw[o + 2] = b;
+      if (colorType === 6) raw[o + 3] = a;
+    }
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; ihdr[9] = colorType;
+  const tbl = [...Array(256)].map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc = (b) => { let c = 0xFFFFFFFF; for (const v of b) c = tbl[(c ^ v) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  const chunk = (t, d) => {
+    const l = Buffer.alloc(4); l.writeUInt32BE(d.length);
+    const td = Buffer.concat([Buffer.from(t, "latin1"), d]);
+    const c = Buffer.alloc(4); c.writeUInt32BE(crc(td));
+    return Buffer.concat([l, td, c]);
+  };
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(raw)), chunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+test("png with alpha decodes to exact RGB plus a separate soft mask", () => {
+  // x drives red, y drives green, column 0 is fully transparent.
+  const src = makePng(4, 3, (x, y) => [x * 60, y * 80, 10, x === 0 ? 0 : 255]);
+  assert.deepEqual(imageSize(src), { kind: "png", w: 4, h: 3 });
+
+  const img = pdfImage(src);
+  assert.equal(img.filter, "/FlateDecode");
+  assert.equal(img.colorSpace, "/DeviceRGB");
+  assert.ok(img.smask, "alpha channel split into an /SMask");
+
+  const rgb = zlib.inflateSync(img.data);
+  const alpha = zlib.inflateSync(img.smask);
+  assert.equal(rgb.length, 4 * 3 * 3);
+  for (let y = 0; y < 3; y++) {
+    for (let x = 0; x < 4; x++) {
+      const o = (y * 4 + x) * 3;
+      assert.deepEqual([rgb[o], rgb[o + 1], rgb[o + 2]], [x * 60, y * 80, 10], `pixel ${x},${y}`);
+      assert.equal(alpha[y * 4 + x], x === 0 ? 0 : 255, `alpha ${x},${y}`);
+    }
+  }
+});
+
+test("opaque png carries no soft mask", () => {
+  const img = pdfImage(makePng(2, 2, () => [1, 2, 3], 2));
+  assert.equal(img.smask, null);
+});
+
+test("jpeg passes through as DCTDecode at its own dimensions", () => {
+  // SOI, APP0, SOF0 (3 components, 7x11), EOI — enough for the size probe.
+  const jpg = Buffer.from([
+    0xff, 0xd8,
+    0xff, 0xe0, 0x00, 0x04, 0x00, 0x00,
+    0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0x0b, 0x00, 0x07, 0x03,
+    0x01, 0x11, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01,
+    0xff, 0xd9,
+  ]);
+  const img = pdfImage(jpg);
+  assert.equal(img.filter, "/DCTDecode");
+  assert.equal(img.colorSpace, "/DeviceRGB");
+  assert.deepEqual([img.w, img.h], [7, 11]);
+  assert.deepEqual(img.data, jpg, "original JPEG bytes embedded untouched");
+});
+
+for (const kind of ["classic", "stream", "objstm"]) {
+  test(`pdf ${kind}: signature lands in its field, original bytes intact`, () => {
+    const orig = buildPdf(kind);
+    const sig = makePng(20, 10, (x) => [0, 0, 0, x < 10 ? 255 : 0]);
+    const { buf, applied } = pdfStamp(orig, [{ image: sig, field: "company_name" }]);
+
+    assert.deepEqual(applied, ["company_name"]);
+    assert.deepEqual(buf.slice(0, orig.length), orig, "incremental: original is an untouched prefix");
+
+    const tail = buf.slice(orig.length).toString("latin1");
+    assert.match(tail, /\/Subtype \/Image/);
+    assert.match(tail, /\/SMask \d+ 0 R/, "transparency preserved");
+    assert.match(tail, /\/XObject << \/BPSig\d+ \d+ 0 R/);
+    assert.match(tail, /\/BPSig\d+ Do/, "drawn by the appended content stream");
+    assert.match(tail, /\/Contents \[/, "appended to the page's content array");
+    assert.match(tail, kind === "classic" ? /trailer/ : /\/Type \/XRef/);
+
+    // Placed inside the widget rect [100 700 400 720] and never stretched:
+    // 20x10 fitted into 300x20 is 40x20, centred.
+    const cm = /q ([\d.]+) 0 0 ([\d.]+) ([\d.]+) ([\d.]+) cm/.exec(tail);
+    assert.ok(cm, "a placement matrix was written");
+    const [w, h, x, y] = cm.slice(1, 5).map(Number);
+    assert.equal((w / h).toFixed(2), "2.00", "aspect ratio preserved");
+    assert.ok(x >= 100 && x + w <= 400, `x ${x} w ${w} inside the field`);
+    assert.ok(y >= 700 && y + h <= 720, `y ${y} h ${h} inside the field`);
+
+    // The stamped file still re-scans as a valid form.
+    assert.equal(pdfFields(buf).length, 2);
+  });
+}
+
+test("stamp falls back to explicit page coordinates when no field is named", () => {
+  const orig = buildPdf("classic");
+  const stamp = makePng(30, 30, () => [10, 20, 30, 255]);
+  const { buf, applied } = pdfStamp(orig, [{ image: stamp, page: 1, x: 40, y: 60, width: 90, height: 90, label: "stamp" }]);
+  assert.deepEqual(applied, ["stamp"]);
+  const tail = buf.slice(orig.length).toString("latin1");
+  const cm = /q ([\d.]+) 0 0 ([\d.]+) ([\d.]+) ([\d.]+) cm/.exec(tail);
+  assert.deepEqual(cm.slice(1, 5).map(Number), [90, 90, 40, 60]);
+});
+
+test("stamping is a no-op on an unreadable image rather than a corrupt file", () => {
+  const orig = buildPdf("classic");
+  const { buf, applied } = pdfStamp(orig, [{ image: Buffer.from("not an image"), field: "company_name" }]);
+  assert.deepEqual(applied, []);
+  assert.deepEqual(buf, orig, "the client's file comes back byte-identical");
+});
+
+/* ------------------------------------------------ signature in docx / xlsx -- */
+
+const CT_BASE = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n` +
+  `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
+  `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
+  `<Default Extension="xml" ContentType="application/xml"/></Types>`;
+
+test("docx: signature lands in the paragraph that asks for it, wired end to end", () => {
+  const doc = `<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">` +
+    `<w:body><w:p><w:r><w:t>Company Name: Qowa Trading</w:t></w:r></w:p>` +
+    `<w:p><w:r><w:t>Authorised Signature:</w:t></w:r></w:p>` +
+    `<w:p><w:r><w:t>Date</w:t></w:r></w:p></w:body></w:document>`;
+  const entries = new Map([
+    ["[Content_Types].xml", Buffer.from(CT_BASE, "utf8")],
+    ["word/document.xml", Buffer.from(doc, "utf8")],
+    ["word/_rels/document.xml.rels", Buffer.from(
+      `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+      `<Relationship Id="rId1" Type="x" Target="styles.xml"/></Relationships>`, "utf8")],
+  ]);
+  const sig = makePng(200, 80, () => [0, 0, 0, 255]);
+  const { xml, applied } = docxPlaceImages(entries, doc, [
+    { image: sig, mime: "image/png", widthPt: 120, afterText: "Authorised Signature", label: "signature" },
+  ]);
+  assert.deepEqual(applied, ["signature"]);
+
+  // The media part, the relationship and the content type all exist.
+  assert.ok(entries.has("word/media/bp_sig1.png"), "image part added");
+  assert.deepEqual(entries.get("word/media/bp_sig1.png"), sig, "original image bytes");
+  const rels = entries.get("word/_rels/document.xml.rels").toString("utf8");
+  const rid = /Id="(rId\d+)"[^>]*Target="media\/bp_sig1\.png"/.exec(rels);
+  assert.ok(rid, "relationship written");
+  assert.notEqual(rid[1], "rId1", "a fresh id, not one already in use");
+  assert.match(entries.get("[Content_Types].xml").toString("utf8"), /Extension="png"/);
+
+  // The drawing references that same relationship, at the right size and place.
+  assert.ok(xml.includes(`r:embed="${rid[1]}"`), "drawing points at the new image");
+  assert.match(xml, /cx="1524000" cy="609600"/); // 120pt wide, 200x80 → 48pt tall
+  const sigPara = xml.indexOf("Authorised Signature");
+  const drawAt = xml.indexOf("<w:drawing>");
+  assert.ok(drawAt > sigPara, "placed after the signature label");
+  assert.ok(drawAt < xml.indexOf("<w:t>Date</w:t>"), "and before the next paragraph");
+});
+
+test("docx: with no anchor text the image is appended inside the body", () => {
+  const doc = `<w:document xmlns:w="w"><w:body><w:p><w:r><w:t>x</w:t></w:r></w:p></w:body></w:document>`;
+  const entries = new Map([["[Content_Types].xml", Buffer.from(CT_BASE, "utf8")]]);
+  const { xml } = docxPlaceImages(entries, doc, [{ image: makePng(10, 10, () => [0, 0, 0, 255]), mime: "image/png" }]);
+  assert.ok(xml.indexOf("<w:drawing>") < xml.indexOf("</w:body>"), "still inside the body");
+  assert.match(xml, /<\/w:drawing><\/w:r><\/w:p><\/w:body>/);
+});
+
+test("xlsx: signature anchors to its cell and builds the whole drawing chain", () => {
+  const entries = new Map([
+    ["[Content_Types].xml", Buffer.from(CT_BASE, "utf8")],
+    ["xl/worksheets/sheet1.xml", Buffer.from(
+      `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/></worksheet>`, "utf8")],
+  ]);
+  const sig = makePng(300, 100, () => [0, 0, 0, 255]);
+  const { applied } = xlsxPlaceImages(entries, [
+    { image: sig, mime: "image/png", ref: "C12", widthPt: 100, label: "signature" },
+  ]);
+  assert.deepEqual(applied, ["signature"]);
+
+  const sheet = entries.get("xl/worksheets/sheet1.xml").toString("utf8");
+  const drawRid = /<drawing r:id="(rId\d+)"\/>/.exec(sheet);
+  assert.ok(drawRid, "sheet references a drawing");
+  assert.ok(sheet.indexOf("<drawing") < sheet.indexOf("</worksheet>"));
+  assert.match(sheet, /xmlns:r=/, "the r: prefix the drawing element needs is declared");
+
+  const sheetRels = entries.get("xl/worksheets/_rels/sheet1.xml.rels").toString("utf8");
+  assert.match(sheetRels, new RegExp(`Id="${drawRid[1]}"[^>]*relationships/drawing"`), "typed as a drawing, not an image");
+
+  const drawing = entries.get("xl/drawings/drawing1.xml").toString("utf8");
+  assert.match(drawing, /<xdr:col>2<\/xdr:col>/); // C → 0-based 2
+  assert.match(drawing, /<xdr:row>11<\/xdr:row>/); // 12 → 0-based 11
+  assert.match(drawing, /cx="1270000" cy="423333"/); // 100pt wide, 3:1
+  const imgRid = /r:embed="(rId\d+)"/.exec(drawing);
+  const drawRels = entries.get("xl/drawings/_rels/drawing1.xml.rels").toString("utf8");
+  assert.match(drawRels, new RegExp(`Id="${imgRid[1]}"[^>]*Target="\\.\\./media/bp_sig1\\.png"`));
+  assert.deepEqual(entries.get("xl/media/bp_sig1.png"), sig);
+  assert.match(entries.get("[Content_Types].xml").toString("utf8"), /PartName="\/xl\/drawings\/drawing1\.xml"/);
+});
+
+test("xlsx: a second image reuses the sheet's existing drawing part", () => {
+  const entries = new Map([
+    ["[Content_Types].xml", Buffer.from(CT_BASE, "utf8")],
+    ["xl/worksheets/sheet1.xml", Buffer.from(`<worksheet xmlns:r="r"><sheetData/></worksheet>`, "utf8")],
+  ]);
+  const img = makePng(10, 10, () => [0, 0, 0, 255]);
+  xlsxPlaceImages(entries, [{ image: img, mime: "image/png", ref: "A1", label: "sig" }]);
+  xlsxPlaceImages(entries, [{ image: img, mime: "image/png", ref: "B2", label: "stamp" }]);
+  assert.ok(!entries.has("xl/drawings/drawing2.xml"), "no second drawing part");
+  const drawing = entries.get("xl/drawings/drawing1.xml").toString("utf8");
+  assert.equal((drawing.match(/<xdr:oneCellAnchor>/g) || []).length, 2, "both anchors in one part");
+  const sheet = entries.get("xl/worksheets/sheet1.xml").toString("utf8");
+  assert.equal((sheet.match(/<drawing /g) || []).length, 1, "sheet still names one drawing");
 });

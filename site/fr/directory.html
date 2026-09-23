@@ -17,70 +17,68 @@
 <link rel="alternate" hreflang="fr" href="/fr/directory">
 <link rel="alternate" hreflang="zh" href="/zh/directory">
 <link rel="alternate" hreflang="x-default" href="/directory">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<style id="bp-simple-header-css">
+.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
+.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
+.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
+.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
+.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
+.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
+.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
+.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
+.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
+.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
+.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
+.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
+.bp-simple-header .bp-cart svg{width:19px;height:19px}
+.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
+@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
+@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
+@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+</style>
+<style id="bp-public-brand-v5-css">
+body.bp-public-brand-v5{--bp-navy:#07163f;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
+body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
+body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
+body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
+body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
+body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
+body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
+body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
+body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
+body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
+body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
+body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
+body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
+body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
+body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
+body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
+body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
+body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
+body.bp-public-brand-v5 .wa-fab{display:none!important}
+@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
+</style>
 </head>
-<body><header class="site-header"><div class="container header-inner">
-  <a class="logo" href="/fr/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/fr/">Accueil</a><a href="/fr/about">À propos de nous</a><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Nos services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Services de conseil administratif <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/services">All services (140)</a><a href="/fr/services/category/company-formation">🏢 Création d'entreprise</a><a href="/fr/services/category/foreign-investment">🌍 Investissement étranger</a><a href="/fr/services/category/premium-residency">🪪 Résidence Premium</a><a href="/fr/services/category/government-relations">🏛️ Relations gouvernementales</a><a href="/fr/services/category/hr-services">👥 Services RH</a><a href="/fr/services/category/recruitment">🧑‍💼 Recrutement et embauche</a><a href="/fr/services/category/business-support">📊 Support aux entreprises</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Forfaits <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/packages">Toutes les formules</a><a href="/fr/packages#pkg-management">Formules de services</a><a href="/fr/packages#pkg-formation">Création d'entreprise</a><a href="/fr/packages#pkg-legal">Formules juridiques</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Agents IA ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/ai-agents">Tous les agents IA</a><a href="/fr/compliance-agent">Conformité</a><a href="/fr/ai-document-agent">Documents</a><a href="/portal">Collaborateurs intelligents</a><a href="/fr/shared-services">Équipe de services partagés</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/revenue-os">Comment ça marche</a><a href="/fr/revenue-os#pricing">Offres et tarifs</a><a href="/fr/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/fr/services/category/ai-automation">IA et automatisation ⚡</a><a href="/fr/task-force">Cellule d'intervention ⚡</a><a href="/fr/data">Base de prospects B2B ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recrutement <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/hr">Services de recrutement</a><a href="/fr/employers">Pour les employeurs</a><a href="/fr/careers">Offres ouvertes</a><a href="/fr/job-search-service">We search for a job for you</a><a href="/fr/recruitment-agencies">Recruitment agencies</a><a href="/fr/agency-portal">Agency portal</a></div>
-  </div><a href="/fr/deals">Affaires ⚡</a><a href="/fr/estrdad">Remboursement des frais (Estrdad) ⚡</a><a href="/fr/bank-account">Compte bancaire d'entreprise ⚡</a><a href="/fr/formation-contract">Création avec associés ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Tourisme d'affaires <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/mahfol-makfol">Pour les investisseurs</a><a href="/fr/mahfol-makfol/trips">Voyages et expériences</a><a href="/fr/tourism">Événements d'entreprise</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Espaces professionnels <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/workspaces">Parcourir les espaces</a><a href="/fr/workspace-request">Demander un espace de travail</a><a href="/fr/services/bp-re-01">Bureau privatif</a><a href="/fr/services/bp-re-02">Espace de coworking</a><a href="/fr/services/bp-re-03">Bureau virtuel + adresse nationale</a><a href="/fr/services/bp-re-04">Poste de travail dédié</a><a href="/fr/services/bp-re-05">Service de recherche de bureaux</a><a href="/fr/services/bp-re-06">Propriété immobilière étrangère</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Traiteur et accueil <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/farina">Vue d'ensemble</a><a href="/fr/farina#coffee-break">Pause café</a><a href="/fr/farina#vip-coffee">Pause café VIP</a><a href="/fr/farina#executive-lunch">Déjeuner de direction</a><a href="/fr/farina#vip-hospitality">Accueil VIP</a><a href="/fr/farina#workforce">Restauration des équipes</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Logement des travailleurs ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/worker-housing">Vue d'ensemble</a><a href="/fr/worker-housing#wh-request">Demander un logement</a><a href="/fr/worker-housing#wh-fines">Réglementation et amendes</a><a href="/fr/services/bp-housing-01">Service de licences</a><a href="/fr/services/bp-housing-02">Transport des travailleurs</a></div>
-  </div><a href="/fr/consultation">Réserver une consultation gratuite</a></div>
-    </div><div class="nav-group active">
-      <button type="button" class="nav-drop active" aria-expanded="false">Centre de connaissances <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested active">
-    <button type="button" class="nav-drop active" aria-expanded="false">Guide Arabie saoudite <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/saudi-arabia">Investir en Arabie saoudite</a><a href="/fr/guide/saudi-market">Le marché saoudien</a><a href="/fr/guide/business-setup">Créer son entreprise</a><a href="/fr/guide/run-your-business">Gérer votre entreprise</a><a href="/fr/directory" class="active">Guide de l'entrepreneuriat</a><a href="/fr/guide/live-in-saudi">Vivre en Arabie saoudite</a><a href="/fr/guide/residency">La résidence en Arabie saoudite</a></div>
-  </div><a href="/fr/opportunities">Opportunités d'investissement</a><a href="/fr/news">Actualités et analyses</a><a href="/fr/newsletter">Newsletter</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Outils et calculateurs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/fr/tools-and-calculators">Tous les outils</a><a href="/fr/calculator">Calculateur de coûts</a><a href="/fr/calculators/government-cost">Coûts gouvernementaux</a><a href="/fr/calculators/profession-checker">Vérificateur de professions</a><a href="/fr/calculators/end-of-service">Fin de service</a><a href="/fr/calculators/annual-leave">Congé annuel</a><a href="/fr/calculators/overtime">Heures supplémentaires</a><a href="/fr/calculators/gosi">Calculateur GOSI</a></div>
-  </div><a href="/fr/magazine">Magazine (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Plateformes et portails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/fr/account">Espace client</a><a href="/fr/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Portail des collaborateurs intelligents</a><a href="/fr/employer-join">Employeurs — nous rejoindre</a><a href="/fr/employer-login">Employeurs — se connecter</a></div>
-    </div><a href="/fr/contact">Contactez-nous</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span class="lang-label">Français</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/directory" data-lang="en"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/directory" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/directory" data-lang="fr" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/directory" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
-  </div>
-    <a class="hdr-btn" data-account-link href="/fr/account" aria-label="Se connecter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Se connecter</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/fr/suppliers" aria-label="Inscription des associés"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Associés</span></a>
-    <a class="icon-btn cart-link" href="/fr/cart" aria-label="Panier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
+<body class="bp-public-brand-v5"><header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="/fr/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="/fr/#bp-consultant">B10X</a><details class="bp-dd"><summary>Services</summary><div class="bp-mega"><div class="bp-mega-col"><strong>Company & Setup</strong><a href="/fr/services/category/company-formation">Company Formation</a><a href="/fr/services/category/foreign-investment">Foreign Investment</a><a href="/fr/services/category/premium-residency">Premium Residency</a><a href="/fr/packages#pkg-legal">Legal Packages</a></div><div class="bp-mega-col"><strong>Operations & Compliance</strong><a href="/fr/services/category/government-relations">Government Services</a><a href="/fr/compliance-agent">Compliance & Violations</a><a href="/fr/services/category/hr-services">HR Services</a><a href="/fr/services/category/recruitment">Recruitment</a></div><div class="bp-mega-col"><strong>Workplace & Relocation</strong><a href="/fr/workspaces">Workspaces</a><a href="/fr/worker-housing">Worker Housing</a><a href="/fr/tourism">Tourism & Events</a><a href="/fr/farina">Corporate Hospitality</a></div><div class="bp-mega-col"><strong>Growth & AI</strong><a href="/fr/b10x">B10X</a><a href="/fr/#bp-consultant">Smart Advisor</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/smart-employee">Specialised Smart Employee</a><a href="/fr/business-development">Business Development</a><a href="/fr/services">All Services</a></div><div class="bp-mega-col"><strong>Partners & Suppliers</strong><a href="/fr/suppliers">Partner Registration</a><a href="/fr/partner-dashboard">Partner Portal</a><a href="/fr/agency-portal">Recruitment Agency Portal</a><a href="/connect">Connect Hub</a><a href="/fr/careers">Jobs</a></div></div></details><a href="/fr/packages">Packages</a><details class="bp-dd"><summary>AI Advisors</summary><div class="bp-mini-menu"><a href="/fr/ai-agents">All AI Advisors</a><a href="/fr/compliance-agent">Compliance Advisor</a><a href="/fr/ai-document-agent">Document AI</a><a href="/fr/shared-services">Shared Services</a></div></details><details class="bp-dd"><summary>Recrutement</summary><div class="bp-mini-menu"><a href="/fr/careers">Open jobs</a><a href="/fr/employer-dashboard">Employer dashboard</a><a href="/fr/employer-join">Register as employer</a><a href="/fr/employers">Employer services</a><a href="/fr/job-search-service">Job search service</a><a href="/fr/recruitment-agencies">Recruitment agencies</a><a href="/fr/services/category/recruitment">Recruitment services</a></div></details><a href="/fr/about">About</a><a href="/fr/contact">Contact</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>Français</summary><div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div></details><a class="bp-cart cart-link" href="/fr/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="/fr/account"><span data-account-label>Sign in</span></a><a class="bp-start" href="/fr/account">Get started</a></div></div></header><main>
   <section class="hero hero--sm eco-hero"><div class="container hero-inner">
     <span class="eyebrow">Centre de connaissances</span>
     <h1>Annuaire de l'écosystème des startups en Arabie saoudite</h1>
@@ -91,7 +89,7 @@
   <section class="section eco-wrap"><div class="container" id="eco">
     <div class="eco-controls">
       <div class="eco-search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><input type="search" id="eco-search" placeholder="Rechercher par nom, ville ou spécialité…" aria-label="Rechercher dans l'annuaire"></div>
-      <div class="eco-city-box" id="eco-city-box"><label for="eco-city" class="sr-only">Ville</label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><select id="eco-city" aria-label="Filtrer par ville"><option value="all">Toutes les villes</option><option value="أبها">أبها</option><option value="الأحساء">الأحساء</option><option value="الباحة">الباحة</option><option value="الجبيل">الجبيل</option><option value="الخبر">الخبر</option><option value="الخرج">الخرج</option><option value="الدمام">الدمام</option><option value="الرياض">الرياض</option><option value="الطائف">الطائف</option><option value="الظهران">الظهران</option><option value="العلا">العلا</option><option value="المدينة المنورة">المدينة المنورة</option><option value="بريدة">بريدة</option><option value="تبوك">تبوك</option><option value="جدة">جدة</option><option value="جيزان">جيزان</option><option value="حائل">حائل</option><option value="خميس مشيط">خميس مشيط</option><option value="سكاكا">سكاكا</option><option value="شقراء">شقراء</option><option value="مكة المكرمة">مكة المكرمة</option><option value="ينبع البحر">ينبع البحر</option></select></div>
+      <div class="eco-city-box" id="eco-city-box"><label for="eco-city" class="sr-only">Ville</label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><select id="eco-city" aria-label="Filtrer par ville"><option value="all">Toutes les villes</option><option value="أبها">Abha</option><option value="الأحساء">Al-Ahsa</option><option value="الباحة">Al-Baha</option><option value="الجبيل">Jubail</option><option value="الخبر">Khobar</option><option value="الخرج">Al-Kharj</option><option value="الدمام">Dammam</option><option value="الرياض">Riyadh</option><option value="الطائف">Taif</option><option value="الظهران">Dhahran</option><option value="العلا">AlUla</option><option value="المدينة المنورة">Madinah</option><option value="بريدة">Buraidah</option><option value="تبوك">Tabuk</option><option value="جدة">Jeddah</option><option value="جيزان">Jazan</option><option value="حائل">Hail</option><option value="خميس مشيط">Khamis Mushait</option><option value="سكاكا">Sakaka</option><option value="شقراء">Shaqra</option><option value="مكة المكرمة">Makkah</option><option value="ينبع البحر">Yanbu Al Bahr</option></select></div>
     </div>
 
     <div class="eco-tabs" role="tablist">
@@ -133,7 +131,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="6722 مساحة عمل مشتركة تستهدف المشاريع الريادية والشركات الناشئة والمستقلين.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>6722</h3>
       
@@ -142,7 +140,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="Online" data-text="7 سنابل رؤيتنا: تصبح منصة 7سنابل وجهة عصرية إقليمية موثوقة. حاضنة أعمال online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>7 سنابل</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -151,7 +149,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="اب سكيل ابسكيل شركة استشارية تعمل على تقديم الخدمات اللازمة لتنمية الأعمال.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>اب سكيل</h3>
       
@@ -160,7 +158,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="اتحاد نورين - سبارك هوب منصة أعمال تسعى لخلق مجتمع ريادي فعال وطموح.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>اتحاد نورين - سبارك هوب</h3>
       
@@ -169,7 +167,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="مكة المكرمة" data-text="أرُب للأعمال والاستثمار شركة استشارات إدارية ومالية وتسويقية، تسعى لتمكين رواد ورائدات الأعمال. مسرعة أعمال مكة المكرمة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>مكة المكرمة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Makkah</span>
       </div>
       <h3>أرُب للأعمال والاستثمار</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -178,7 +176,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="استرولابز نقوم بتوفير خدماتنا للشركات الناشئة في مراحلها المختلفة: مساحات عمل مشتركة ومستشارين.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>استرولابز</h3>
       
@@ -196,7 +194,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="اعقلها حاضنة ومسرعة اعمال افتراضية تقدم خدمات الاحتضان والدعم والارشاد عبر خطة مدروسه حسب احتياج العميل ووقته عن بعد &quot;افتراضياً... حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>اعقلها</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -205,7 +203,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="الصفحة الواحدة | حاضنة محرك الأعمال محرك الأعمال اطار عمل سعودي متخصص في إدارة الحاضنات التقنية عن بعد. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>الصفحة الواحدة | حاضنة محرك الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -214,7 +212,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="العبقري مساحات عمل مشتركة، مكاتب و غرف اجتماعات لرواد الأعمال.  الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>العبقري</h3>
       
@@ -232,7 +230,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="المكان حاضنة و مسرعة اعمال و مساحات عمل مشتركة.  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>المكان</h3>
       
@@ -241,7 +239,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="ألور هب allure hub is a leading coworking space in the kingdom  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>ألور هب</h3>
       
@@ -250,7 +248,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="أنظمة ريادة أنظمة ريادة بيت تطوير سعودي متخصص بتطوير الحلول والانظمة القيادية. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>أنظمة ريادة</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -259,7 +257,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="باكورة الأعمال احتضان المشاريع الناشئة و تقديم الاستشارات الادارية و التسهيلات و ورش العمل التي تساعد في تطوير اعمالهم ... حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>باكورة الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -268,7 +266,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الخرج" data-text="برنامج ريادة الأعمال - رواد بجامعة الأمير سطام بن عبدالعزيز انطلاقاً من رؤية المملكة 2030 التي ركزت على الابتكار والريادة من خلال دعم وتزويد الطلبة بالمعارف والمهارات والخبرات وتنم... حاضنة أعمال الخرج">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الخرج</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Kharj</span>
       </div>
       <h3>برنامج ريادة الأعمال - رواد بجامعة الأمير سطام بن عبدالعزيز</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -277,7 +275,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="المدينة المنورة" data-text="بزنس هب بزنس هب هي عبارة مساحات عمل مشتركة تهتم بدعم وتطوير رواد الأعمال والمشاريع الناشئة في المدينة المنورة عن طريق توفير بيئة...  المدينة المنورة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>المدينة المنورة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Madinah</span>
       </div>
       <h3>بزنس هب</h3>
       
@@ -286,7 +284,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="بوابة الأعمال حاضنة ومسرعة اعمال ومساحة عمل مشتركة حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>بوابة الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -295,7 +293,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="بيئة الأعمال بيئة الأعمال حاضنة أعمال ومساحة عمل مشتركة تدعم مجالات العمارة والتصميم. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>بيئة الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -304,7 +302,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="جدة" data-text="بيت المنشآت | startups house نتعاون مع منظمات دعم ريادة الأعمال الوطنية والإقليمية والعالمية. مسرعة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>بيت المنشآت | Startups House</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -313,7 +311,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="بيهايف برنامج بيهايف لمسرعات الأعمال، جلسات استشارية مجانية. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>بيهايف</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -322,7 +320,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="تسامي لصناعة الأثر تسامي هي منظمة تعنى بتمكين الأثر وصانعيه عبر تبني الحلول المسـتدامة وتعزيز انتشارها وتنميتها بمختلف الخدمات.... مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>تسامي لصناعة الأثر</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -340,7 +338,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="تبوك" data-text="جامعة تبوك أنشات جامعة تبوك عام 1427 هـ 2006 م. حاضنة أعمال تبوك">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>تبوك</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Tabuk</span>
       </div>
       <h3>جامعة تبوك</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -349,7 +347,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="المدينة المنورة" data-text="جامعة طيبة ادارة الابتكار وريادة الأعمال في جامعة طيبة تقدم سنويا مسابقة ريادة الأعمال. حاضنة أعمال المدينة المنورة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>المدينة المنورة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Madinah</span>
       </div>
       <h3>جامعة طيبة</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -367,7 +365,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="المدينة المنورة" data-text="جمعية البر بالمدينة المنورة حاضنة عذق للجمعيات الناشئة حاضنة أعمال المدينة المنورة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>المدينة المنورة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Madinah</span>
       </div>
       <h3>جمعية البر بالمدينة المنورة</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -376,7 +374,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="جمعية بناء للإرشاد الأسري  حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>جمعية بناء للإرشاد الأسري</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -385,7 +383,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الدمام" data-text="جوفيا جوفيا هي أول مساحات عمل مشتركة في المنطقة الشرقية - الخبر.  الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>جوفيا</h3>
       
@@ -403,7 +401,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="چرا ڤيتا لمساحات العمل المشتركة چرا ڤيتا لمساحات العمل المشتركة هو مركز للإبداع بالنسبة للشركات الصغيرة والمتوسطة وكبرى الشركات ورواد الأعمال، ويعتبر مؤ...  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>چرا ڤيتا لمساحات العمل المشتركة</h3>
       
@@ -412,7 +410,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="بريدة" data-text="حاضنة &quot;ابتكار&quot; (النسخة 5) ومركز &quot;كود&quot; (جامعة القصيم) حاضنة &quot;ابتكار&quot; التابعة لمركز الابتكار والملكية الفكرية بجامعة القصيم ببريدة. حاضنة أعمال بريدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>بريدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Buraidah</span>
       </div>
       <h3>حاضنة &quot;ابتكار&quot; (النسخة 5) ومركز &quot;كود&quot; (جامعة القصيم)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -421,7 +419,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الباحة" data-text="حاضنة أعمال جامعة الباحة تسعى حاضنة أعمال جامعة الباحة على توفير بيئة ريادية محفزة. حاضنة أعمال الباحة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الباحة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Baha</span>
       </div>
       <h3>حاضنة أعمال جامعة الباحة</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -430,7 +428,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="حاضنة أعمال جامعة الملك فيصل (مركز الابتكار وريادة الأعمال) حاضنة أعمال تابعة لمركز الابتكار وريادة الأعمال بجامعة الملك فيصل في الأحساء. حاضنة أعمال الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>حاضنة أعمال جامعة الملك فيصل (مركز الابتكار وريادة الأعمال)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -439,7 +437,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جيزان" data-text="حاضنة أعمال عشرة أضعاف عشرة أضعاف هي حاضنة أعمال ومساحة عمل مشتركة سعودية تأسست عام 2020 في منطقة جازان. حاضنة أعمال جيزان">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جيزان</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jazan</span>
       </div>
       <h3>حاضنة أعمال عشرة أضعاف</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -448,7 +446,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="شقراء" data-text="حاضنة الأعمال &quot;سحابة الوشم&quot; (جامعة شقراء) حاضنة أعمال تابعة لقسم إدارة الأعمال بجامعة شقراء. حاضنة أعمال شقراء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>شقراء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Shaqra</span>
       </div>
       <h3>حاضنة الأعمال &quot;سحابة الوشم&quot; (جامعة شقراء)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -457,7 +455,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="حاضنة المسيرات الخضراء حاضنة اعمال متخصصة في مجال الطائرات بدون طيار حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>حاضنة المسيرات الخضراء</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -475,7 +473,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الدمام" data-text="حاضنة بادر الدمام بالشراكة مع الشركة السعودية للكهرباء تهدف إلى تعزيز نمو المشاريع ذات الجانب التقني. حاضنة أعمال الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>حاضنة بادر الدمام بالشراكة مع الشركة السعودية للكهرباء</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -484,7 +482,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="حاضنة بادر الرياض للتقنية الحيوية تتخذ من مدينة الملك فهد الطبية في الرياض مقرًّا لها، وتعمل على دعم قطاع التقنية الحيوية. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>حاضنة بادر الرياض للتقنية الحيوية</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -511,7 +509,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="حاضنة بادر جدة تأسست حاضنة جدة في العام 2013م بالتعاون مع الغرفة التجارية الصناعية بجدة. حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>حاضنة بادر جدة</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -520,7 +518,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="حاضنة بزنس قروث حاضنة اعمال ومساحة عمل مشتركة حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>حاضنة بزنس قروث</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -529,7 +527,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الظهران" data-text="حاضنة حلول لتطوير الأعمال برنامج تطوير يختص في تطوير الشباب من اصحاب الافكار والمهارات التجارية. حاضنة أعمال الظهران">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الظهران</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dhahran</span>
       </div>
       <h3>حاضنة حلول لتطوير الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -538,7 +536,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="حاضنة رواد المستقبل الرؤية أن نكون روا ًدا وطنيين في مجال الابتكار وريادة ا􏰁عمال الرسالة مهمتنا هي تعزيز الابتكار وريادة ا􏰁عمال بين طـلاب... حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>حاضنة رواد المستقبل</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -547,7 +545,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="حاضنة قِوام الرقمية قِوام هي حاضنة أعمال افتراضية تتكون من فريق متخصص من خبراء تطوير الأعمال الذين يتمتعون بسنوات من الخبرة في العمل مع الشر... حاضنة رقمية جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>حاضنة قِوام الرقمية</h3>
       <p class="eco-type">حاضنة رقمية</p>
@@ -556,7 +554,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="أبها" data-text="حاضنة نكون تقديم برامج متخصصة ومتكاملة في الاحتضان ومسرعات الأعمال حاضنة أعمال أبها">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>أبها</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Abha</span>
       </div>
       <h3>حاضنة نكون</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -574,7 +572,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جيزان" data-text="حاضنة ومسرعة الأعمال الناشئة &quot;jnnov8&quot; (جامعة جازان) حاضنة ومسرعة الأعمال الناشئة &quot;jnnov8&quot; التابعة لمركز الابتكار وريادة الأعمال بجامعة جازان. حاضنة أعمال جيزان">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جيزان</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jazan</span>
       </div>
       <h3>حاضنة ومسرعة الأعمال الناشئة &quot;jnnov8&quot; (جامعة جازان)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -592,7 +590,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="خارطة الصناع شركة ميكرز ماب مساحة عمل متخصصة في التقنية والذكاء الاصطناعي.  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>خارطة الصناع</h3>
       
@@ -601,7 +599,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="أبها" data-text="خبراء حاضنة أعمال تقدم خدمات التدريب والاستشارات والخدمات والسلع. حاضنة أعمال أبها">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>أبها</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Abha</span>
       </div>
       <h3>خبراء</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -610,7 +608,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="مكة المكرمة" data-text="خطوة أولى مكاتب خطوة أولى هي أول مساحة عمل مشتركة بأيدي سعودية في مكة المكرمة في بيئة مريحة عملية وجذابة ومناسبة للأنشطة الصغيرة...  مكة المكرمة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>مكة المكرمة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Makkah</span>
       </div>
       <h3>خطوة أولى</h3>
       
@@ -619,7 +617,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="دار راء آر هاوس مساحة حيوية معاصرة بتصاميم تحاكي التفكير العصري للمبتكرين.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>دار راء</h3>
       
@@ -628,7 +626,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الطائف" data-text="دور الريادة دور الريادة أول حاضنة أعمال ومساحات عمل مشتركة بالطائف. حاضنة أعمال الطائف">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الطائف</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Taif</span>
       </div>
       <h3>دور الريادة</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -637,7 +635,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="ديوم مساحات عمل إحترافية للمستقلين, رواد الأعمال والعاملين عن بعد.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>ديوم</h3>
       
@@ -646,7 +644,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="ذا ستيج ذا ستيج &quot;منصة العمل&quot; هي مساحة هدفها بدء شراكات جديدة بين رواد الأعمال.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>ذا ستيج</h3>
       
@@ -673,7 +671,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="رياديون ورواد لحاضنات ومسرعات الأعمال  مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>رياديون ورواد لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -691,7 +689,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="سحابة الامام حاضنة أعمال جامعة الامام محمد بن سعود الاسلامية. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>سحابة الامام</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -700,7 +698,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="سمارت اوفيس مساحة للعمل - للتعلم - للتواصل - للتعاون في بيئة عمل ريادية ذكية  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>سمارت اوفيس</h3>
       
@@ -709,7 +707,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="بريدة" data-text="سند بيئة عمل تحفز على الإبداع من خلال مساحة العمل المشتركة.  بريدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>بريدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Buraidah</span>
       </div>
       <h3>سند</h3>
       
@@ -718,7 +716,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الخبر" data-text="شارك هب شارك هب هي شركة سعودية متخصصة بتوفير مساحات عمل مشتركة في عدة مراكز بالمملكة.  الخبر">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الخبر</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Khobar</span>
       </div>
       <h3>شارك هب</h3>
       
@@ -736,7 +734,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="شركة أبعاد لحاضنات ومسرعات الاعمال انضم إلى أول مجتمع أعمال في الاحساء • التعرف على أشخاص جدد • الالتقاء بالمنشآت المحلية • مشاركة الآراء والأفكار ... حاضنة أعمال الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>شركة أبعاد لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -745,7 +743,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="شركة أسس الأعمال لخدمات الأعمال مساحة عمل مشتركة  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>شركة أسس الأعمال لخدمات الأعمال</h3>
       
@@ -754,7 +752,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة الأدوات والحلول t&amp;s is a business solutions company based in saudi arabia. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة الأدوات والحلول</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -763,7 +761,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة الأعمال المبتكرة لحاضنات ومسرعات الاعمال تقديم خدمات إستشارية وفنية وإدارية ولوجستية حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة الأعمال المبتكرة لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -772,7 +770,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة الجهاز للاستثمار شركة الجهاز للاستثمار هي شركة رائدة في مجال تقديم خدمات مساحات العمل المشتركة. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة الجهاز للاستثمار</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -781,7 +779,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="Online" data-text="شركة الحالمون لحاضنات ومسرعات الأعمال الحالمون هي حاضنة أعمال تم تأسيسها في المملكة العربية السعودية بهدف تقديم الاستشارات والتوجيه وتوفير مساحة العمل، نعمل... حاضنة أعمال online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>شركة الحالمون لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -799,7 +797,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة المراسم التجارية توفير بيئة محفزه للعمل مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة المراسم التجارية</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -808,7 +806,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="Online" data-text="شركة المساحات المشتركة لحاضنات و مسرعات الأعمال مساحة عمل مشتركة وقاعات للاجتماعات  online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>شركة المساحات المشتركة لحاضنات و مسرعات الأعمال</h3>
       
@@ -817,7 +815,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الباحة" data-text="شركة الهيدب لحاضنات ومسرعات الأعمال جهة متخصصة في مجال تطوير الأعمال والاستشارات والأبحاث والتسويق. حاضنة أعمال الباحة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الباحة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Baha</span>
       </div>
       <h3>شركة الهيدب لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -826,7 +824,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="المدينة المنورة" data-text="شركة باسقات للأعمال منصة متكاملة تقدم دعما شاملا لرواد الاعمال لتاسيس مشاريعهم. حاضنة أعمال المدينة المنورة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>المدينة المنورة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Madinah</span>
       </div>
       <h3>شركة باسقات للأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -835,7 +833,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة تدرج لحاضنات ومسرعات الأعمال  مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة تدرج لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -844,7 +842,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="شركة جيرة لحاضنات ومسرعات الأعمال توفير مساحات عمل مشتركة وبرامج إرشادية وتقديم إستشارات لرواد ورائدات الأعمال وخدمات تقنية من برمجة المواقع والتطبيقات وا... حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>شركة جيرة لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -853,7 +851,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة حاضة الابداع للاعمال شركة تدعم الشركات والمؤسسات والافراد ورواد الاعمال ضمن رؤية 2030. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة حاضة الابداع للاعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -862,7 +860,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة ذكي لحاضنات ومسرعات الأعمال ذكي لحاضنات ومسرعات الأعمال عبارة عن مساحة عمل مشتركة.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة ذكي لحاضنات ومسرعات الأعمال</h3>
       
@@ -871,7 +869,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="Online" data-text="شركة ساحات التنموية لحاضنات ومسرعات الاعمال استوديو شركات ناشئة اجتماعية، يجتمع فيه المبتكرون والمبدعون بالخبراء. مسرعة أعمال online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>شركة ساحات التنموية لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -880,7 +878,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة ساحات التنموية لحاضنات ومسرعات الاعمال استوديو شركات ناشئة، يجتمع فيه المبتكرون والمبدعون بالخبراء. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة ساحات التنموية لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -889,7 +887,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة سبع سنابل لحاضنات و مسرعات الأعمال رؤيتنا تصبح منصة 7سنابل وجهة عصرية إقليمية موثوقة للباحثين عن الفرص الاستثمارية. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة سبع سنابل لحاضنات و مسرعات الأعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -898,7 +896,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الدمام" data-text="شركة شركاء الشباب لحاضنات ومسرعات الاعمال حاضنة ومسرعة أعمال توفر حلول وخدمات غير تقليدية منها التمويل المباشر. حاضنة أعمال الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>شركة شركاء الشباب لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -916,7 +914,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة فلات سيكس لابز العربية للاستشارات الادارية شركة شخص واحد برنامج الرياض للتمويل الأولي هو بنامج مسرعة افتراضية مدتها 4 أشهر. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة فلات سيكس لابز العربية للاستشارات الادارية شركة شخص واحد</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -925,7 +923,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة متكامل لحاضنات ومسرعات الاعمال شركه محلية توفر مجموعة متنوعة من المساحات الإبداعية المشتركة.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة متكامل لحاضنات ومسرعات الاعمال</h3>
       
@@ -934,7 +932,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="شركة محاكاة لحاضنات ومسرعات الاعمال مساحة تحاكي احتياجات روّاد ورائدات الاعمال في الشركات الناشئة.  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>شركة محاكاة لحاضنات ومسرعات الاعمال</h3>
       
@@ -943,7 +941,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة محرك الأعمال مساحة عمل مشتركة تضم أكثر من شركة ناشئة الى متوسطة.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة محرك الأعمال</h3>
       
@@ -952,7 +950,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الخبر" data-text="شركة مزج العمرانية لحاضنات ومسرعات الأعمال مساحات عمل مشتركة تشكل بيئة تفاعلية تعلمية للمجتمع العمراني.  الخبر">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الخبر</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Khobar</span>
       </div>
       <h3>شركة مزج العمرانية لحاضنات ومسرعات الأعمال</h3>
       
@@ -961,7 +959,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="شركة مساحات لحاضنات ومسرعات الأعمال الهدف من إنشاء حاضنة الأعمال هو خلق بيئة مناسبة لاحتضان شركات ناشئة. حاضنة أعمال الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>شركة مساحات لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -970,7 +968,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="شركة مساحة تحول لحاضنات ومسرعات الأعمال مساحة سويتش، بيئة تساعدك على الإنجاز بشكل مريح وهادئ.  الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>شركة مساحة تحول لحاضنات ومسرعات الأعمال</h3>
       
@@ -979,7 +977,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="شركة مسار الأعمال للتطوير والاستثمار التجاري شركة مسار الأعمال هي شركة حاضنة ومسرعة للأعمال عبر دعم صاحب المشروع ومشاركته الهدف النهائي ذاته وهو تحويل الأفكار المبتك... مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة مسار الأعمال للتطوير والاستثمار التجاري</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -997,7 +995,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة نيلوفر لحاضنات ومسرعات الأعمال ترخيص حاضنة أعمال، النشاط مساحة عمل مشتركة، مسرعات أعمل. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة نيلوفر لحاضنات ومسرعات الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1006,7 +1004,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شركة هاد مرشد الاعمال للخدمات التجارية دعم الشركات والمؤسسات والافراد ورواد الاعمال ضمن رؤية 2030.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شركة هاد مرشد الاعمال للخدمات التجارية</h3>
       
@@ -1024,7 +1022,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="مكة المكرمة" data-text="شركة وادي مكة للتقنية شركة استثمارية تمتلكها بالكامل جامعة أم القرى. مسرعة أعمال مكة المكرمة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>مكة المكرمة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Makkah</span>
       </div>
       <h3>شركة وادي مكة للتقنية</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1033,7 +1031,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="شي ووركس شي ووركس هي مساحة العمل المشتركة الوحيدة المخصصة للسيدات في مدينة الرياض ، حيث تختص بتوفير بيئة عمل متكاملة للمرأة و لرا...  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>شي ووركس</h3>
       
@@ -1051,7 +1049,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="Online" data-text="عُقدة || uqda عُقدة تأسست من الشغف، وتخصصت في عقد الخيط الأساسي لأي مشروع. مسرعة أعمال online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>عُقدة || UQDA</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1069,7 +1067,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="فلك الأعمال للاستثمار برنامج مدته 12 أسبوع يتم فيه استثمار مبلغ لايقل عن ٤مليون ريال سعودي. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>فلك الأعمال للاستثمار</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1087,7 +1085,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الدمام" data-text="قيادة مهمتنا توفير بيئة داعمة لدراسة وتطوير المشاريع من خلال توفير المكاتب. مسرعة أعمال الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>قيادة</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1105,7 +1103,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="كوالتا كوالتا هو استيديو شركات ناشئة متخصص بالتطبيقات الاجتماعية. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>كوالتا</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1132,7 +1130,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="لون ستوديو لون ستوديو هو كيان يهدف لصناعة الشركات التقنية الناشئة بشكل مستمر ومتكرر. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>لون ستوديو</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1150,7 +1148,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="مجمع ريادة الأعمال بالرياض | startup hub riyadh مجمع ريادة الأعمال بالرياض تحت مظلة الهيئة العامة للمنشآت الصغيرة والمتوسطة.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>مجمع ريادة الأعمال بالرياض | Startup Hub Riyadh</h3>
       
@@ -1159,7 +1157,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="مجموعة أي زد المحدودة تأسسـنا فـي عـام 2020 مـع الرؤية لنكون واحد من أقوى الشـركات التي تقدم المكاتب المجهـزة الملائمة والمريحة نحـن مـن أفض...  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مجموعة أي زد المحدودة</h3>
       
@@ -1168,7 +1166,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="مداد للحلول المكتبية المحدودة تقدم مداد حلول مكتبية شاملة بالإضافة لكونها شريك امتياز تجاري.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>مداد للحلول المكتبية المحدودة</h3>
       
@@ -1186,7 +1184,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="المدينة المنورة" data-text="مركز إبرام للأعمال مركز إبرام للأعمال مركز متكامل الخدمات في المدينة المنورة لدعم المنشآت الناشئة والصغيرة والريادية من خلال تقديم مساحات ع... حاضنة أعمال المدينة المنورة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>المدينة المنورة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Madinah</span>
       </div>
       <h3>مركز إبرام للأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1195,7 +1193,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الظهران" data-text="مركز أرامكو السعودية لريادة الأعمال - واعد أنشأت أرامكو مركز واعد في العام 2011 لبث روح ريادة الأعمال في المملكة. حاضنة أعمال الظهران">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الظهران</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dhahran</span>
       </div>
       <h3>مركز أرامكو السعودية لريادة الأعمال - واعد</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1204,7 +1202,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="مركز أعمال | to be مركز أعمال | to be يقدم العديد من الخدمات لتسهيل ودعم الأعمال التجارية من مساحات عمل مشتركة واستشارات في جميع المجالات ا...  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>مركز أعمال | To Be</h3>
       
@@ -1213,7 +1211,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الجبيل" data-text="مركز الابتكار السعودي لتقنيات المياه مشروع داعم ومعزز للابتكارات في مجال تقنيات المياه. حاضنة أعمال الجبيل">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الجبيل</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jubail</span>
       </div>
       <h3>مركز الابتكار السعودي لتقنيات المياه</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1222,7 +1220,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="سكاكا" data-text="مركز الابتكار وريادة الأعمال خدمات يتم تقديمها من قبل وحدة حاضنة الأعمال، برامج تدريبية ومساحات عمل. حاضنة أعمال سكاكا">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>سكاكا</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Sakaka</span>
       </div>
       <h3>مركز الابتكار وريادة الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1240,7 +1238,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="مركز الابداع وريادة الأعمال انطلاقا من رؤية المملكة 2030 والتي أكدت على التركيز على الابتكار في التقنيات المتطورة. حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مركز الابداع وريادة الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1249,7 +1247,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="مركز الابداع وريادة الاعمال بجامعة الملك عبد العزيز مسرعة وحاضنة اعمال حكومية تحت مظلة جامعة الملك عبدالعزيز حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مركز الابداع وريادة الاعمال بجامعة الملك عبد العزيز</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1258,7 +1256,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الأحساء" data-text="مركز الأمير أحمد بن فهد بن سلمان لتطوير الأعمال (سنا) يتطلع المركز إلى بناء مجتمع أعمال ريادي ومبتكر يجعل من الأحساء مركز لريادة الأعمال في المملكة ونموذج مثالي يحتذى به، يسا... حاضنة أعمال الأحساء">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الأحساء</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Ahsa</span>
       </div>
       <h3>مركز الأمير أحمد بن فهد بن سلمان لتطوير الأعمال (سنا)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1267,7 +1265,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="ينبع البحر" data-text="مركز التنمية الصناعية - ينبع الصناعية مركز متخصص في ريادة الأعمال تحت مظلة الإدارة العامة للتعليم بالهيئة الملكية بينبع. حاضنة أعمال ينبع البحر">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>ينبع البحر</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Yanbu Al Bahr</span>
       </div>
       <h3>مركز التنمية الصناعية - ينبع الصناعية</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1276,7 +1274,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الجبيل" data-text="مركز التنمية الصناعية بالهيئة الملكية بالجبيل يقوم مركز التنمية الصناعية بالجبيل بدعم المشروعات الصغيرة للشباب السعوديين التي تقوم على أفكار جديدة قابلة للتطبيق في ال... حاضنة أعمال الجبيل">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الجبيل</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jubail</span>
       </div>
       <h3>مركز التنمية الصناعية بالهيئة الملكية بالجبيل</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1285,7 +1283,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="أبها" data-text="مركز الموهبة والإبداع وريادة الأعمال &quot;مدارك&quot; (جامعة الملك خالد) مركز تابع لجامعة الملك خالد في أبها يُعنى برعاية موهبة وإبداع وريادة أعمال الطلاب. حاضنة أعمال أبها">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>أبها</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Abha</span>
       </div>
       <h3>مركز الموهبة والإبداع وريادة الأعمال &quot;مدارك&quot; (جامعة الملك خالد)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1294,7 +1292,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الدمام" data-text="مركز بيادر لخدمات الأعمال برنامج نمو - مسرعات اعمال - برنامج start up business. مسرعة أعمال الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>مركز بيادر لخدمات الأعمال</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1303,7 +1301,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="مركز دور الأعمال برامج احتضان مشاريع استشارات ادارية وتطويرية استشارات قانونية تجارية. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>مركز دور الأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1321,7 +1319,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الدمام" data-text="مزج العمرانية مزج العمرانية مساحة عمل مشتركة متخصصة، تهدف لتنمية المجتمع العمراني.  الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>مزج العمرانية</h3>
       
@@ -1339,7 +1337,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="مساحة كون للتصنيع كون هي مساحة تصنيع مشتركة، توفر الأدوات اللازمة للابتكار والابداع.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>مساحة كون للتصنيع</h3>
       
@@ -1348,7 +1346,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="مساحتي لحاضنات و مسرعات الأعمال ( myspace ) مساحات عمل مشتركة ( مكاتب مشتركة ، مكاتب مغلقة ، مكاتب مخصصة ، قاعات اجتماعات ، قاعات تدريب ، اسنديوهات ، مقهى ، فعاليات...  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مساحتي لحاضنات و مسرعات الأعمال ( MYSPACE )</h3>
       
@@ -1357,7 +1355,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الظهران" data-text="مُستقَر مستقَر المساحة الأولى في المنطقة الشرقية المخصصة لشابات ورائدات الأعمال.  الظهران">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الظهران</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dhahran</span>
       </div>
       <h3>مُستقَر</h3>
       
@@ -1366,7 +1364,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="جدة" data-text="مسرعة أعمال جامعة الملك عبدالعزيز تقدم مسرعة الأعمال مجموعة من البرامج وورش العمل لمدة 4 شهور. مسرعة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مسرعة أعمال جامعة الملك عبدالعزيز</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1384,7 +1382,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الظهران" data-text="معهد الريادة في الأعمال في جامعة الملك فهد للبترول والمعادن أنشأت جامعة الملك فهد للبترول والمعادن معهد الريادة في الأعمال بتاريخ 28/5/1431هـ. حاضنة أعمال الظهران">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الظهران</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dhahran</span>
       </div>
       <h3>معهد الريادة في الأعمال في جامعة الملك فهد للبترول والمعادن</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1393,7 +1391,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="معهد ريادة الاعمال بجامعة الملك سعود (خطى) يوفر مركز حاضنات ومسرعات الأعمال بيئة عمل مناسبة لدعم المبدعين. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>معهد ريادة الاعمال بجامعة الملك سعود (خطى)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1402,7 +1400,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="مكاتب فايبز نحن في فايبز نؤمن بإضافة القيم لأعضائنا وشراكائنا مهما كان المشروع. ويعد هدفنا الأساسي كمجتمع وأفراد ورواد أعمال هو دعم...  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>مكاتب فايبز</h3>
       
@@ -1411,7 +1409,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="منصة الريادة شركة منصة الريادة تدعم رواد الاعمال والاسر المنتجة. مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>منصة الريادة</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1420,7 +1418,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="منصة ثيتا مساحة عمل لجميع المبدعين، تجمع بين كونها مساحة عمل، معمل ابتكار، ومقهى.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>منصة ثيتا</h3>
       
@@ -1438,7 +1436,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="نادي بايونيرز للأعمال شركة سعودية متخصصة في مجال المكاتب الخاصة ومساحات العمل المشتركة بالإضافة إلى حاضنات ومسرعات الأعمال, التي تقدم خدماتها ... حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>نادي بايونيرز للأعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1447,7 +1445,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="نفيسة شمس على ضوء رؤية 2030 وبهدف دعم مسيرة ريادة الأعمال للفتيات. حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>نفيسة شمس</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1456,7 +1454,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="خميس مشيط" data-text="نوافذ نوافذ ريادية شركة سعودية تم إنشاؤها على أيدي شباب سعوديين.  خميس مشيط">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>خميس مشيط</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Khamis Mushait</span>
       </div>
       <h3>نوافذ</h3>
       
@@ -1465,7 +1463,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="حائل" data-text="واحة أجا للتعليم والتكنولوجيا (جامعة حائل) مركز ابتكار واحتضان تابع لجامعة حائل، دشّنه أمير منطقة حائل في مايو 2024. حاضنة أعمال حائل">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>حائل</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Hail</span>
       </div>
       <h3>واحة أجا للتعليم والتكنولوجيا (جامعة حائل)</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1645,7 +1643,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="blossom accelerator بلوسوم الشركة الأولى والرائدة في برامج الابتكار ذو طابع شمولي على مستوى منطقة الشرق الأوسط وشمال إفريقيا. نحن نوفر المعر... مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Blossom Accelerator</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1654,7 +1652,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="business valley حاضنة و مسرعة ومساحات عمل مشتركة حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Business Valley</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1672,7 +1670,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="city hub تم تأسيس city hub للأشخاص المبدعين الاجتماعيين الذين يمتلكون الشغف ويعملون بجد من أجل ترك أثر جيد على المجتمع. هُم أفراد...  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>CITY Hub</h3>
       
@@ -1699,7 +1697,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الخرج" data-text="coworking space 67|22 مكتب لأعمالكم أو مكان لتنظيم لقاءاتكم ودوراتكم وورش العمل.  الخرج">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الخرج</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Al-Kharj</span>
       </div>
       <h3>Coworking Space 67|22</h3>
       
@@ -1708,7 +1706,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="cyberme studio سايبر مي أحد ستوديوهات إنشاء وتطوير الشركات الناشئة بالمملكة. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>CyberME Studio</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1717,7 +1715,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="accelerator" data-city="الرياض" data-text="deem space استكمالًا لدور ديم المناهل التنموي &quot;صندوق الأميرة مضاوي بنت مساعد بن عبد العزيز للتنمية&quot; في دعم ممارسة العمل الحر وامتلا... مسرعة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#1E88C7">Accélérateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Deem Space</h3>
       <p class="eco-type">مسرعة أعمال</p>
@@ -1735,7 +1733,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="مكة المكرمة" data-text="ecaps space مساحات عمل مشتركة يمكنكم من خلالها العمل أو الدراسة وقضاء وقت ممتع ،كل ذلك في مكان واحد. رؤيتنا : جلب الإلهام لكل ريا...  مكة المكرمة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>مكة المكرمة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Makkah</span>
       </div>
       <h3>ECAPS SPACE</h3>
       
@@ -1744,7 +1742,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الخبر" data-text="efficiency center مركز الكفاءة هي حاضنة ومسرعة أعمال توفر مكاتب ومساحات عمل مشتركة وفردية. حاضنة أعمال الخبر">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الخبر</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Khobar</span>
       </div>
       <h3>Efficiency Center</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1780,7 +1778,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الدمام" data-text="enw | شبكة الإنجاز لحاضنات ومسرعات الاعمال قبل 13 عاما تأسست مجموعة شبكة الانجاز لتكون احدى الكيانات الرائدة. حاضنة أعمال الدمام">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الدمام</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Dammam</span>
       </div>
       <h3>ENW | شبكة الإنجاز لحاضنات ومسرعات الاعمال</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1834,7 +1832,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="garagena قراجنا محطة انطلاق اصحاب الشغف ومصدر الهامهم مساحة امنة للتجارب.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Garagena</h3>
       
@@ -1888,7 +1886,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="i-be hub i-be هي حاضنة ومسرعة أعمال تعمل تحت شعار &quot;إطلاق شركة ناجحة كل يوم&quot;. حاضنة أعمال الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>i-be hub</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -1933,7 +1931,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="iwg تُعد ريجس أكبر موفر للمكاتب المجهّزة في العالم.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>IWG</h3>
       
@@ -1996,7 +1994,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="link hub   الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Link Hub</h3>
       
@@ -2068,7 +2066,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="Online" data-text="nmohub حاضنة أعمال ، مسرعة أعمال ، حاضنة افتراضية ، مساحات عمل مشتركة حاضنة أعمال online">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Online</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>En ligne</span>
       </div>
       <h3>NmoHub</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -2104,7 +2102,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="plexus توفير مساحات عمل مشتركة مغلقة ومفتوحة مع خدمات سكرتارية.  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>PLEXUS</h3>
       
@@ -2230,7 +2228,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="scale business solutions مساحة عمل مشتركة، تُقدم العديد من الخدمات المُتميزة.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Scale Business Solutions</h3>
       
@@ -2239,7 +2237,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="sea ventures حاضنة ومسرعة الأعمال سي فنشرز تعمل على تمكين رواد الأعمال. حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>SEA Ventures</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -2257,7 +2255,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="الرياض" data-text="servcorp نحن نؤمن بضرورة الإهتمام الفعلي بتنمية ونجاح أعمالك.  الرياض">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>الرياض</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Riyadh</span>
       </div>
       <h3>Servcorp</h3>
       
@@ -2392,7 +2390,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="venture center يتبع مركز المشروع الريادي venture center إلى كلية الأمير محمد بن سلمان للإدارة وريادة الأعمال، أول مؤسّسة أكاديميّة بحثي... حاضنة أعمال جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>Venture Center</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -2410,7 +2408,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="العلا" data-text="vibes alula vibes alula is an entrepreneurship hub, owned by the royal commission of alula.  العلا">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>العلا</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>AlUla</span>
       </div>
       <h3>Vibes AlUla</h3>
       
@@ -2437,7 +2435,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="ًwhite space وايت سبيس هي مساحة عمل مشتركة مقرها السعودية تقدم حلولاً متنوعة للمساحات مصممة خصيصاً لأصحاب الأعمال والمستقلين والشركات...  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>ًWhite Space</h3>
       
@@ -2455,7 +2453,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="أبها" data-text="work corner هي حاضنة للأعمال فئة أ التي تتضمن برنامج متكامل لدعم رواد الأعمال على برامج توجيه وارشاد وتطوير الأعمال , كما نسعى لتهي... حاضنة أعمال أبها">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>أبها</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Abha</span>
       </div>
       <h3>Work corner</h3>
       <p class="eco-type">حاضنة أعمال</p>
@@ -2464,7 +2462,7 @@
     </article><article class="eco-card" data-kind="orgs" data-cat="incubator" data-city="جدة" data-text="work&amp;co ورك آند كو مصمم لمساعدتك على العمل بطريقة أفضل من خلال خلق مجتمع.  جدة">
       <div class="eco-card-top">
         <span class="eco-badge" style="--bc:#0B1B5A">Incubateurs</span>
-        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>جدة</span>
+        <span class="eco-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Jeddah</span>
       </div>
       <h3>WORK&amp;CO</h3>
       
@@ -3377,7 +3375,7 @@
     <div class="footer-col"><h4>Nos services</h4><ul>
       <li><a href="/fr/services">Tous les services</a></li>
       <li><a href="/fr/packages">Forfaits</a></li>
-      <li><a href="/fr/revenue-os">Revenue OS</a></li>
+      <li><a href="/fr/business-development">BD as a Service</a></li>
       <li><a href="/fr/ai-agents">Agents IA</a></li>
       <li><a href="/fr/task-force">Task Force</a></li>
       <li><a href="/fr/hr">Recrutement</a></li>
@@ -3395,7 +3393,7 @@
     </ul></div>
     <div class="footer-col"><h4>Plateformes et portails</h4><ul>
       <li><a href="/fr/account">Espace client</a></li>
-      <li><a href="/fr/revenue-dashboard">Revenue OS dashboard</a></li>
+      <li><a href="/fr/account">BD as a Service dashboard</a></li>
       <li><a href="/fr/suppliers">Inscription des partenaires</a></li>
       <li><a href="/fr/employer-join">Pour les employeurs</a></li>
       <li><a href="/portal">Portail des collaborateurs intelligents</a></li>
@@ -3428,9 +3426,9 @@
       <li><a href="/fr/contact">Contactez-nous</a></li>
     </ul></div>
     <div class="footer-col"><h4>Contact</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0530540231</span></li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyad — quartier Al Malqa — rue Prince Mohammed bin Saad — complexe Touq Ward</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></li>
     </ul>
     <div class="footer-social" aria-label="Réseaux sociaux">
       <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
@@ -3442,82 +3440,7 @@
     <span>© 2026 Business Partner · Tous droits réservés</span>
     <span>Dim.–jeu. · 9h – 18h · et l'agent intelligent 24h/24</span>
   </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contactez-nous sur WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Fermer">✕</button>
-    <p>Bonjour 👋 Je suis Baher, votre assistant intelligent. Des questions sur la création d'entreprise ou les plateformes gouvernementales ?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Ouvrir la discussion avec Baher, l'assistant intelligent">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Demander à Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Demander à Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Retour" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Votre partenaire intelligent — en ligne maintenant</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
-
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Bienvenue 👋 Pour commencer, présentez-vous afin que nous puissions vous servir et suivre votre demande.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Nom complet *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="E-mail *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Commencer ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Vos coordonnées servent uniquement à vous servir et à suivre votre demande.</p>
-    </div>
-
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Choisissez le service dont vous avez besoin :</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Chargement des services…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Réserver une consultation gratuite</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Ou demandez directement à Baher</button>
-    </div>
-
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 Réserver une consultation gratuite</div>
-      <div class="adv-book-sub">Choisissez un jour et une heure (Riyad · 9h–18h · fermé le vendredi) :</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirmer le rendez-vous</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
-
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Décrivez votre demande (facultatif)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Demander un devis</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Bonjour 👋 Je suis Baher, votre assistant intelligent chez Business Partner. Posez-moi vos questions sur la création d'entreprise, l'investissement étranger, les licences ou toute démarche administrative — et je vous orienterai vers le bon service.</div>
-      </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Création d'une société à investissement étranger">🏢 Création à investissement étranger</button>
-        <button type="button" class="advisor-chip" data-q="Gestion des plateformes gouvernementales">💼 Plateformes gouvernementales</button>
-        <button type="button" class="advisor-chip" data-q="Offres et tarifs">💰 Offres et tarifs</button>
-        <button type="button" class="advisor-chip" data-q="Je souhaite une consultation gratuite">📞 Consultation gratuite</button>
-      </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="Écrivez votre question ici…" aria-label="Écrivez votre question">
-        <button type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
-    </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><script>
+</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contacter sur WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contactez-nous sur WhatsApp</span></a><script src="/assets/js/main.js?v=66a755b1f7"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><script>
   (function(){
     var root=document.getElementById('eco'); if(!root)return;
     var search=root.querySelector('#eco-search');
@@ -3562,4 +3485,53 @@
     });});
     apply();
   })();
-  </script></body></html>
+  </script><style>
+.bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
+[dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
+.bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-fab .bps-dot{position:absolute;inset-inline-start:40px;top:8px;width:11px;height:11px;border-radius:50%;background:var(--wa,#25D366);border:2px solid var(--ink,#0B1B5A)}
+.bps-fab.bps-hide{display:none}
+.bps-panel{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483001;width:min(380px,calc(100vw - 24px));height:min(600px,calc(100vh - 40px));background:#fff;border:1px solid var(--line,#E5E9F0);border-radius:20px;box-shadow:0 24px 60px rgba(11,27,90,.28);display:none;flex-direction:column;overflow:hidden}
+.bps-panel.bps-on{display:flex}
+.bps-hd{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--ink,#0B1B5A);color:#fff}
+.bps-hd img{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-hd b{font-size:1.02rem;display:block}
+.bps-hd small{font-size:.76rem;opacity:.9;display:flex;align-items:center;gap:5px}
+.bps-hd em{width:7px;height:7px;border-radius:50%;background:var(--wa,#25D366);display:inline-block;font-style:normal}
+.bps-x{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1.05rem;line-height:1}
+.bps-intake{padding:16px;overflow-y:auto}
+.bps-intake .bps-in{width:100%;box-sizing:border-box;margin-bottom:9px;padding:12px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-intake h4{color:var(--ink,#0B1B5A);margin:0 0 12px;font-size:1rem;line-height:1.6;font-weight:700}
+.bps-go{width:100%;padding:13px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:12px;font-family:inherit;font-weight:700;font-size:.98rem;cursor:pointer}
+.bps-note{color:#64748b;font-size:.78rem;margin:10px 2px 0}
+.bps-err{color:#b91c1c;font-size:.82rem;margin-top:8px;display:none}
+.bps-chat{display:none;flex-direction:column;height:100%;min-height:0}
+.bps-msgs{flex:1;overflow-y:auto;padding:15px;background:#f6f8fc;display:flex;flex-direction:column;gap:9px}
+.bps-msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.bps-msg.bps-bot{background:#fff;border:1px solid var(--line,#E5E9F0);color:#1f2430;align-self:flex-start;border-end-start-radius:4px}
+.bps-msg.bps-me{background:var(--ink,#0B1B5A);color:#fff;align-self:flex-end;border-end-end-radius:4px}
+.bps-msg.bps-ty{opacity:.6}
+.bps-wa{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:#eafaf0;color:#0b7a3b;border-top:1px solid var(--line,#E5E9F0);font-size:.85rem;font-weight:600;text-decoration:none}
+.bps-form{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line,#E5E9F0);background:#fff}
+.bps-form input{flex:1;padding:11px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-form button{flex:0 0 auto;width:44px;border:0;border-radius:12px;background:var(--ink,#0B1B5A);color:#fff;cursor:pointer;font-size:1.05rem}
+html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
+</style>
+<button class="bps-fab" id="bpsFab" aria-label="Open support chat with Baher"><img src="/assets/img/baher.jpg" alt=""><span class="bps-dot"></span><span>Support</span></button>
+<section class="bps-panel" id="bpsPanel" role="dialog" aria-label="Baher support">
+  <div class="bps-hd"><img src="/assets/img/baher.jpg" alt=""><div><b>Baher</b><small><em></em>Support — online now</small></div><button class="bps-x" id="bpsClose" aria-label="Close">✕</button></div>
+  <div class="bps-intake" id="bpsIntake">
+    <h4>Welcome to Business Partner support 👋 Tell us about yourself so we can help and follow up.</h4>
+    <input class="bps-in" id="bpsName" type="text" placeholder="Full name *" autocomplete="name">
+    <input class="bps-in" id="bpsPhone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
+    <button class="bps-go" id="bpsStart">Start support ›</button>
+    <div class="bps-err" id="bpsErr"></div>
+    <p class="bps-note">🔒 Your details are used only to help and follow up on your request.</p>
+  </div>
+  <div class="bps-chat" id="bpsChat">
+    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">Hi 👋 I'm Baher, Business Partner's support assistant. How can we help?</div></div>
+    <a class="bps-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">Or reach the support team on WhatsApp</a>
+    <form class="bps-form" id="bpsForm"><input id="bpsInput" type="text" autocomplete="off" placeholder="Type your message…"><button type="submit" aria-label="Send">➤</button></form>
+  </div>
+</section>
+<script>(function(){var AR=document.documentElement.lang!=='en';var fab=document.getElementById('bpsFab'),panel=document.getElementById('bpsPanel');if(!fab||!panel)return;var msgs=document.getElementById('bpsMsgs'),form=document.getElementById('bpsForm'),input=document.getElementById('bpsInput'),intake=document.getElementById('bpsIntake'),chat=document.getElementById('bpsChat');var sid='';try{sid=sessionStorage.getItem('bps_sid')||''}catch(e){}if(!sid){sid='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{sessionStorage.setItem('bps_sid',sid)}catch(e){}}var contact=null;try{contact=JSON.parse(sessionStorage.getItem('bps_contact')||'null')}catch(e){}var history=[],busy=false;function view(){if(contact){intake.style.display='none';chat.style.display='flex';setTimeout(function(){input.focus()},60)}else{intake.style.display='block';chat.style.display='none'}}function open(){panel.classList.add('bps-on');fab.classList.add('bps-hide');view()}function close(){panel.classList.remove('bps-on');fab.classList.remove('bps-hide')}function add(txt,who){var d=document.createElement('div');d.className='bps-msg '+who;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}fab.onclick=open;document.getElementById('bpsClose').onclick=close;document.getElementById('bpsStart').onclick=function(){var n=document.getElementById('bpsName').value.trim(),p=document.getElementById('bpsPhone').value.trim(),err=document.getElementById('bpsErr');if(!n){err.textContent=AR?'الرجاء إدخال اسمك.':'Enter your name.';err.style.display='block';return}if(!/^(?:\+?966|0)?5\d{8}$/.test(p.replace(/\s/g,''))){err.textContent=AR?'أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).':'Enter a valid Saudi mobile.';err.style.display='block';return}err.style.display='none';contact={name:n,phone:p};try{sessionStorage.setItem('bps_contact',JSON.stringify(contact))}catch(e){}view()};function sync(notify){try{fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},keepalive:true,body:JSON.stringify({type:'advisor-chat',sid:sid,messages:history.slice(-24),notify:!!notify,contact:contact})}).catch(function(){})}catch(e){}}form.onsubmit=function(e){e.preventDefault();var v=input.value.trim();if(!v||busy)return;input.value='';add(v,'bps-me');history.push({role:'user',content:v});busy=true;var ty=add(AR?'يكتب…':'Typing…','bps-bot bps-ty');fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})}).then(function(r){return r.json().catch(function(){return{}})}).then(function(d){ty.remove();var rep=(d&&d.reply)||(AR?'تعذّر الرد الآن. تواصل معنا على واتساب.':'Could not reply now. Reach us on WhatsApp.');add(rep,'bps-bot');history.push({role:'assistant',content:rep});sync(true)}).catch(function(){ty.remove();add(AR?'صار خلل بسيط، جرّب واتساب.':'Something went wrong, try WhatsApp.','bps-bot')}).finally(function(){busy=false;input.focus()})};})();</script></body></html>

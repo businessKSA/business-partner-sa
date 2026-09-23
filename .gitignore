@@ -30,3 +30,7 @@ dist-portable/
 business-partner-site.zip
 business-partner-onefile.html
 *.bundle
+
+# local development database + outbox (never committed)
+.localdb/
+.env.local

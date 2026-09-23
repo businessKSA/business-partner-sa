@@ -81,7 +81,7 @@ export function xlsxCells(buf) {
       const ref = /(?:^|\s)r="([^"]+)"/.exec(m[1]);
       if (!ref) continue;
       const text = m[2] ? cellText(m[1], m[2], shared) : "";
-      if (text.trim()) cells.push({ sheet: s.name, ref: ref[1], text });
+      if (text.trim()) cells.push({ sheet: s.name, sheetPath: s.path, ref: ref[1], text });
     }
   }
   return cells;

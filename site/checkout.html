@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-prices="off">
+<html data-sv1-test="TEST MODE — no real payments, no customer messages" lang="en" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Checkout — Business Partner</title>
-<meta name="description" content="Complete your order by bank transfer and upload your documents and the transfer receipt.">
+<meta name="description" content="Pay by card, Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.">
 <meta property="og:title" content="Checkout — Business Partner">
-<meta property="og:description" content="Complete your order by bank transfer and upload your documents and the transfer receipt.">
+<meta property="og:description" content="Pay by card, Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -17,368 +17,595 @@
 <link rel="alternate" hreflang="fr" href="/fr/checkout">
 <link rel="alternate" hreflang="zh" href="/zh/checkout">
 <link rel="alternate" hreflang="x-default" href="/checkout">
-<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");if(!s)return;var c=document.documentElement.getAttribute("lang")||"en";if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
+<script>/* language persistence: remember the visitor's chosen language and keep it across navigation (only changes when they pick another language) */(function(){try{document.addEventListener("click",function(e){var t=e.target;while(t&&t.nodeType===1){var dl=t.getAttribute&&t.getAttribute("data-lang");if(dl){try{localStorage.setItem("bp_lang",dl);}catch(_){}break;}t=t.parentNode;}},true);var s=localStorage.getItem("bp_lang");var c=document.documentElement.getAttribute("lang")||"en";
+/* First visit (no explicit choice yet): follow the browser language when we
+   have that translation — an Arabic browser lands on /ar automatically. Runs
+   once per tab (sessionStorage guard) and never outranks a stored choice.
+   Only from the default-language page: a visitor who opened /ar/... asked
+   for Arabic, and an English phone UI must not bounce them back to English. */
+if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
+if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=55c556a489">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
+<script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
+<style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
+.sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
+ --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
+ --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
+ --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+ font-family:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:var(--t);line-height:1.7;background:#fff;display:flex;flex-direction:column;min-height:100vh;
+ -webkit-font-smoothing:antialiased}
+.sv1 .sv1-mono,.sv1 .en{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.sv1 .en{direction:ltr;unicode-bidi:isolate}
+.sv1 :focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:5px}
+.sv1 *{box-sizing:border-box}
+.sv1 a{color:inherit;text-decoration:none}
+.sv1 .wrap{max-width:1160px;margin:auto;padding:0 22px;width:100%}
+.sv1-ribbon{background:#b45309;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700}
+.sv1-bar{background:var(--ac);color:#B7C0DC;font-size:11.5px}
+.sv1-bar .wrap{height:32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-bar-l,.sv1-bar-r{display:flex;align-items:center;gap:18px;min-width:0}
+.sv1-bar b{color:#fff;font-weight:400}
+.sv1-pulse{width:5px;height:5px;border-radius:50%;background:#34D399;display:inline-block;
+ margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
+@keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
+.sv1-bar-langs a{opacity:.5}
+.sv1-bar-langs a:hover{opacity:.85}
+.sv1-bar-langs a.on{opacity:1;color:#fff}
+@media(max-width:760px){.sv1-bar .hide-s{display:none}}
+.sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
+.sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sv1-hdr .logo img{height:34px;width:auto;display:block}
+.sv1-nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:#39405a}
+.sv1-nav a{padding:6px 2px}
+.sv1-nav a:hover{color:var(--n)}
+.sv1-hdr .right{display:flex;align-items:center;gap:8px}
+.sv1-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l);background:#fff;color:var(--ink);padding:11px 19px;border-radius:9px;font-weight:500;font-size:13.5px;cursor:pointer;line-height:1.2;font-family:inherit;transition:transform .12s ease,background .2s ease,border-color .2s ease}
+.sv1-btn:hover{border-color:var(--ink)}
+.sv1-btn.primary{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 6px 18px -6px rgba(11,27,90,.45)}
+.sv1-btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.sv1-btn.wa{background:var(--wa);border-color:var(--wa);color:#073A17}
+.sv1-btn.sm{padding:7px 12px;font-size:12px}
+.sv1-btn[disabled]{opacity:.55;cursor:default}
+.sv1-lang{position:relative}
+.sv1-lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 8px;border-radius:999px}
+.sv1-lang summary::-webkit-details-marker{display:none}
+.sv1-lang .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh);min-width:150px;padding:6px;display:grid;z-index:5}
+.sv1-lang .menu a{padding:8px 10px;border-radius:8px;font-size:13px}
+.sv1-lang .menu a.on{background:var(--g);font-weight:700}
+.sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+.sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;gap:10px}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
+.sv1-cart{display:inline-flex;align-items:center;gap:6px}
+.sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
+.sv1-foot b{color:#fff}
+.sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
+.sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
+.sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
+.sv1-foot-row span:first-child{color:rgba(255,255,255,.55);font-size:11px;flex:none;min-width:78px}
+.sv1-foot-row.id{flex-direction:column;gap:0;align-items:flex-start;padding:5px 0}
+.sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
+.sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
+.sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
+.sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
+.sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+@media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+.sv1-hide{display:none!important}
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
-<body><header class="site-header"><div class="container header-inner">
+<body class="sv1-page"><div class="sv1"><style id="sv1-co-css">
+.sv1-co-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.sv1-co-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sv1-co-fields label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
+.sv1-co-in{width:100%;border:1px solid var(--l);border-radius:11px;padding:12px 13px;font:inherit;font-size:14px;outline:none;background:#fff}
+.sv1-co-in:focus{border-color:var(--n)}
+.sv1-co-ways{display:grid;gap:8px;margin-bottom:16px}
+.sv1-co-way{display:flex;align-items:center;gap:12px;text-align:start;background:#fff;border:1px solid var(--l);border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.sv1-co-way .ico{width:38px;height:38px;border-radius:10px;background:var(--acSoft);display:grid;place-items:center;color:var(--n);flex:none}
+.sv1-co-way .tx b{display:block;font-size:13.5px;color:var(--ink);font-weight:500}
+.sv1-co-way .tx small{font-size:11.5px;color:var(--mut)}
+.sv1-co-way.on{border-color:var(--n);box-shadow:0 0 0 3px rgba(67,56,245,.10)}
+.sv1-co-way[disabled]{opacity:.45;cursor:default}
+.sv1-co-mount{min-height:120px}
+.sv1-co-wait{font-size:12.5px;color:var(--mut);padding:22px 0;text-align:center}
+.sv1-co-fine{font-size:11.5px;color:var(--mut);line-height:1.75;margin:10px 0 0}
+.sv1-co-bank{display:grid;gap:9px;background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:14px}
+.sv1-co-bank div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.sv1-co-bank span{font-size:11.5px;color:var(--mut)}
+.sv1-co-bank b{font-size:13px;color:var(--ink);font-weight:500}
+.sv1-co-sum{position:sticky;top:88px}
+.sv1-co-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef1f8;font-size:12.5px}
+.sv1-co-row:last-of-type{border-bottom:0}
+.sv1-co-row small{display:block;font-size:10.5px;color:var(--mut);margin-top:2px}
+.sv1-co-tot{border-top:1px dashed #cfd6e6;margin-top:10px;padding-top:12px;display:grid;gap:7px}
+.sv1-co-tot div{display:flex;justify-content:space-between;font-size:12.5px;color:var(--s)}
+.sv1-co-tot .big{align-items:baseline;margin-top:4px}
+.sv1-co-tot .big span{font-size:13.5px;font-weight:500;color:var(--ink)}
+.sv1-co-tot .big b{font-size:23px;color:var(--ac);font-family:var(--fm);font-weight:500}
+.sv1-co-trust{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid #eef1f8}
+.sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
+.sv1-co-rc{margin-top:14px;padding-top:13px;border-top:1px dashed #cfd6e6}
+.sv1-co-rc h5{margin:0 0 3px;font-size:13.5px;color:var(--ink);font-weight:500}
+.sv1-co-rcrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
+.sv1-co-rcrow label{cursor:pointer}
+.sv1-co-rcname{font-size:11.5px;color:var(--mut);flex:1;min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-co-rcout{margin-top:11px;border:1px solid var(--l);border-radius:11px;padding:11px 13px;background:var(--soft);font-size:12.5px;line-height:1.8}
+.sv1-co-rcout.ok{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-rcout.warn{border-color:#f0d9b8;background:#fdf7ef}
+.sv1-co-rcout .cmp{display:flex;justify-content:space-between;gap:12px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--mut)}
+.sv1-co-rcout .cmp b{color:var(--ink)}
+@media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
+@media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
+</style><div class="sv1-bar"><div class="wrap">
+  <div class="sv1-bar-l">
+    <span><span class="sv1-pulse"></span><b>All systems operational</b></span>
+    <span class="hide-s">Riyadh · Kingdom of Saudi Arabia</span>
+  </div>
+  <div class="sv1-bar-r">
+    <span class="hide-s">One platform · four languages</span>
+    <span class="sv1-bar-langs"><a href="/ar/checkout" data-lang="ar">AR</a><a href="/checkout" data-lang="en" class="on">EN</a><a href="/fr/checkout" data-lang="fr">FR</a><a href="/zh/checkout" data-lang="zh">ZH</a></span>
+  </div>
+</div></div><header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="nav" aria-label="Main navigation"><a href="/">Home</a><a href="/about">About us</a><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Our services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Government Consulting Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/services">All services (140)</a><a href="/services/category/company-formation">🏢 Company Formation</a><a href="/services/category/foreign-investment">🌍 Foreign Investment</a><a href="/services/category/premium-residency">🪪 Premium Residency</a><a href="/services/category/government-relations">🏛️ Government Relations</a><a href="/services/category/hr-services">👥 HR Services</a><a href="/services/category/recruitment">🧑‍💼 Recruitment &amp; Hiring</a><a href="/services/category/business-support">📊 Business Support</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Packages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/packages">All packages</a><a href="/packages#pkg-management">Service packages</a><a href="/packages#pkg-formation">Company Formation</a><a href="/packages#pkg-legal">Legal Packages</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">AI Agents ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/ai-agents">All AI Agents</a><a href="/compliance-agent">Compliance</a><a href="/ai-document-agent">Documents</a><a href="/portal">Smart Employees</a><a href="/shared-services">Shared Services Team</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Revenue OS ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/revenue-os">How it works</a><a href="/revenue-os#pricing">Packages &amp; pricing</a><a href="/revenue-dashboard">Client dashboard</a></div>
-  </div><a href="/services/category/ai-automation">AI &amp; Automation ⚡</a><a href="/task-force">Task Force ⚡</a><a href="/data">B2B Leads Database ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Recruitment <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/hr">Recruitment services</a><a href="/employers">For employers</a><a href="/careers">Open jobs</a><a href="/job-search-service">We search for a job for you</a><a href="/recruitment-agencies">Recruitment agencies</a><a href="/agency-portal">Agency portal</a></div>
-  </div><a href="/deals">Deals ⚡</a><a href="/estrdad">Fee refunds (Estrdad) ⚡</a><a href="/bank-account">Corporate bank account ⚡</a><a href="/formation-contract">Formation with partners ⚡</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Tourism <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/mahfol-makfol">For investors</a><a href="/mahfol-makfol/trips">Trips &amp; experiences</a><a href="/tourism">Corporate events</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Business Spaces <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/workspaces">Browse spaces</a><a href="/workspace-request">Request a workspace</a><a href="/services/bp-re-01">Private office</a><a href="/services/bp-re-02">Coworking space</a><a href="/services/bp-re-03">Virtual office + National Address</a><a href="/services/bp-re-04">Dedicated desk</a><a href="/services/bp-re-05">Office search service</a><a href="/services/bp-re-06">Foreign property ownership</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Catering &amp; Hospitality <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/farina">Overview</a><a href="/farina#coffee-break">Coffee Break</a><a href="/farina#vip-coffee">VIP Coffee Break</a><a href="/farina#executive-lunch">Executive Lunch</a><a href="/farina#vip-hospitality">VIP Hospitality</a><a href="/farina#workforce">Workforce Catering</a></div>
-  </div><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Worker Housing ⚡ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/worker-housing">Overview</a><a href="/worker-housing#wh-request">Request housing</a><a href="/worker-housing#wh-fines">Regulations &amp; fines</a><a href="/services/bp-housing-01">Licensing service</a><a href="/services/bp-housing-02">Worker transport</a></div>
-  </div><a href="/consultation">Book a free consultation</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Knowledge Center <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Saudi Guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/saudi-arabia">Invest in Saudi</a><a href="/guide/saudi-market">The Saudi Market</a><a href="/guide/business-setup">Business Setup</a><a href="/guide/run-your-business">Run Your Business</a><a href="/directory">Entrepreneurship guide</a><a href="/guide/live-in-saudi">Live in Saudi</a><a href="/guide/residency">Residency in KSA</a></div>
-  </div><a href="/opportunities">Investment Opportunities</a><a href="/news">Insights &amp; news</a><a href="/newsletter">Newsletter</a><div class="nav-group nested">
-    <button type="button" class="nav-drop" aria-expanded="false">Tools &amp; calculators <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/tools-and-calculators">All tools</a><a href="/calculator">Cost calculator</a><a href="/calculators/government-cost">Government cost</a><a href="/calculators/profession-checker">Profession checker</a><a href="/calculators/end-of-service">End of service</a><a href="/calculators/annual-leave">Annual leave</a><a href="/calculators/overtime">Overtime</a><a href="/calculators/gosi">GOSI calculator</a></div>
-  </div><a href="/magazine">Magazine (PDF)</a></div>
-    </div><div class="nav-group">
-      <button type="button" class="nav-drop" aria-expanded="false">Platforms &amp; portals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="nav-menu"><a href="/account">Client portal</a><a href="/revenue-dashboard">Revenue OS dashboard</a><a href="/portal">Smart employees portal</a><a href="/employer-join">Employers — join</a><a href="/employer-login">Employers — sign in</a></div>
-    </div><a href="/contact">Contact us</a></nav>
-  <div class="header-cta">
-    <div class="nav-group lang-group">
-    <button type="button" class="nav-drop lang-drop" aria-expanded="false" aria-label="Switch language / تبديل اللغة"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg5"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg5)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span class="lang-label">English</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="nav-menu"><a href="/checkout" data-lang="en" class="active"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg1"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg1)"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.8"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.2"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></g></svg><span>English</span></a><a href="/ar/checkout" data-lang="ar"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg2"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg2)"><rect width="24" height="16" fill="#006C35"/><path d="M5 5.4h11v.9H5zM5 10.1h11v.9H5z" fill="#fff"/><rect x="5" y="6.9" width="11" height="2.3" fill="none" stroke="#fff" stroke-width=".6"/></g></svg><span>العربية</span></a><a href="/fr/checkout" data-lang="fr"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg3"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg3)"><rect width="24" height="16" fill="#fff"/><rect width="8" height="16" fill="#002395"/><rect x="16" width="8" height="16" fill="#ED2939"/></g></svg><span>Français</span></a><a href="/zh/checkout" data-lang="zh"><svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true"><clipPath id="flg4"><rect width="24" height="16" rx="2"/></clipPath><g clip-path="url(#flg4)"><rect width="24" height="16" fill="#DE2910"/><g fill="#FFDE00"><circle cx="5" cy="4.6" r="2.1"/><circle cx="9.4" cy="2" r=".8"/><circle cx="11.2" cy="4" r=".8"/><circle cx="11.2" cy="6.6" r=".8"/><circle cx="9.4" cy="8.5" r=".8"/></g></g></svg><span>中文</span></a></div>
+  <nav class="sv1-nav" id="sv1Nav">
+    <a href="/catalog">Services</a>
+    <a href="/consultation">Book a call</a>
+    <a href="/#how">How it works</a>
+    <a href="/my" id="sv1AccountLink">My account</a>
+    <details class="sv1-lang"><summary>🌐 English</summary><div class="menu"><a href="/ar/checkout" data-lang="ar">العربية</a><a href="/checkout" data-lang="en" class="on">English</a><a href="/fr/checkout" data-lang="fr">Français</a><a href="/zh/checkout" data-lang="zh">中文</a></div></details>
+  </nav>
+  <div class="right">
+    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/cart" aria-label="Cart">
+      <span>Cart</span><b id="sv1CartN">0</b></a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="/my">Sign in</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/">Back to the site</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">Sign out</button>
+    
   </div>
-    <a class="hdr-btn" data-account-link href="/account" aria-label="Sign in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="hdr-btn-t" data-account-label>Sign in</span></a>
-    <a class="hdr-btn hdr-btn--partners" href="/suppliers" aria-label="Partners registration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span class="hdr-btn-t">Partners</span></a>
-    <a class="icon-btn cart-link" href="/cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L23 7H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  </div>
-</div></header><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">Checkout</span>
-    <h1>Checkout</h1>
-    <p class="lead">Pay online (mada / Visa / Mastercard) and your order activates automatically the moment the payment is confirmed — or pay by bank transfer, upload the receipt, and we activate it as soon as it is verified.</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="steps-grid" style="margin-bottom:36px"><div class="step"><div class="step-n">1</div><div><h3>Review your cart</h3><p>Confirm your selected services, packages and the total amount.</p></div></div><div class="step"><div class="step-n">2</div><div><h3>Your details &amp; documents</h3><p>Name, mobile and email, plus any required documents for your service.</p></div></div><div class="step"><div class="step-n">3</div><div><h3>Transfer &amp; upload receipt</h3><p>Transfer the amount to our bank account, then upload the receipt image.</p></div></div><div class="step"><div class="step-n">4</div><div><h3>We start execution</h3><p>We review your order and contact you on WhatsApp to begin the service.</p></div></div></div>
-    <div class="cart-layout">
-      <div class="cart-main">
-        <form class="calc-form" id="checkout-form" novalidate>
-          <h2>Your details</h2>
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-name">Full name</label><input id="co-name" name="name" type="text" required></div>
-            <div class="field"><label for="co-phone">Mobile</label><input id="co-phone" name="phone" type="tel" required></div>
-          </div>
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="co-email">Email *</label><input id="co-email" name="email" type="email" required></div>
-            <div class="field"><label for="co-entity" id="co-entity-label">Company / entity (optional)</label><input id="co-entity" name="entity" type="text"></div>
-          </div>
-          <h2>Tax invoice details</h2>
-          <p class="calc-note">Choose whose name the tax invoice is issued in. A company invoice needs the buyer's VAT number and national address — without them the invoice is not ZATCA-compliant and cannot be corrected after issuance.</p>
-          <div class="tax-choice">
-            <label class="tax-opt"><input type="radio" name="taxkind" value="personal" checked><span><strong>Personal invoice</strong><small>Simplified tax invoice in your own name.</small></span></label>
-            <label class="tax-opt"><input type="radio" name="taxkind" value="company"><span><strong>Company invoice</strong><small>Standard tax invoice you can claim VAT on.</small></span></label>
-          </div>
-          <div id="co-tax-company" class="field-group" hidden>
-            <div class="doc-read">
-              <label class="file-drop" for="co-tax-doc" id="taxdoc-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-                <span class="file-text" id="taxdoc-filename">Upload your VAT certificate or commercial registration — we read it and fill the fields below for you</span></label>
-              <input id="co-tax-doc" type="file" accept=".pdf,image/*" hidden>
-              <p class="calc-note" id="taxdoc-msg" hidden></p>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-tax-name">Company name in Arabic (as registered) <span class="req-star">*</span></label><input id="co-tax-name" name="taxName" type="text"></div>
-              <div class="field"><label for="co-tax-vat">VAT number (15 digits) <span class="req-star">*</span></label><input id="co-tax-vat" name="taxVat" type="text" inputmode="numeric" maxlength="15" dir="ltr"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-tax-cr">Commercial Registration number</label><input id="co-tax-cr" name="taxCr" type="text" inputmode="numeric" dir="ltr"></div>
-              <div class="field"><label for="co-tax-contact">Responsible person <span class="req-star">*</span></label><input id="co-tax-contact" name="taxContact" type="text"></div>
-            </div>
-            <div class="field"><label for="co-tax-mobile">Responsible person's mobile <span class="req-star">*</span></label><input id="co-tax-mobile" name="taxMobile" type="tel" dir="ltr"></div>
-            <h3 style="margin:18px 0 8px;color:var(--navy);font-size:1rem">National address <span class="req-star">*</span></h3>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-bno">Building number</label><input id="co-na-bno" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
-              <div class="field"><label for="co-na-street">Street</label><input id="co-na-street" type="text"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-district">District</label><input id="co-na-district" type="text"></div>
-              <div class="field"><label for="co-na-city">City</label><input id="co-na-city" type="text"></div>
-            </div>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-na-post">Postal code</label><input id="co-na-post" type="text" inputmode="numeric" maxlength="5" dir="ltr"></div>
-              <div class="field"><label for="co-na-add">Additional number</label><input id="co-na-add" type="text" inputmode="numeric" maxlength="4" dir="ltr"></div>
-            </div>
-          </div>
+</div></header>
+  <main>
+  <section class="sv1-sec"><div class="wrap">
+    <div class="sv1-title" style="margin-bottom:26px;">
+      <span class="sv1-tag">Checkout</span>
+      <h2>Checkout</h2>
+      <p>Pay by card, Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.</p>
+    </div>
 
-          <div id="pkg-details-box" class="field-group" hidden>
-            <h2>Establishment details</h2>
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="co-cr">Commercial Registration (unified) number</label><input id="co-cr" name="cr" type="text" inputmode="numeric"></div>
-              <div class="field"><label for="co-headcount">Number of employees</label><input id="co-headcount" name="headcount" type="number" min="1" value="1"></div>
-            </div>
-            <div class="field"><label for="co-address">National address (optional)</label><input id="co-address" name="address" type="text"></div>
-            <p class="calc-note" id="pkg-surcharge-note" hidden></p>
+    <div class="sv1-co-grid">
+
+      <div class="sv1-co-main">
+        <div class="sv1-panel">
+          <h4>Your details</h4>
+          <div class="sv1-co-fields">
+            <div><label for="coName">Full name</label><input id="coName" class="sv1-co-in" autocomplete="name"></div>
+            <div><label for="coPhone">Mobile</label><input id="coPhone" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
+            <div><label for="coEmail">E-mail</label><input id="coEmail" class="sv1-co-in" type="email" autocomplete="email"></div>
+            <div><label for="coCo">Company (optional)</label><input id="coCo" class="sv1-co-in" autocomplete="organization"></div>
           </div>
-          <h2>Upload your documents</h2>
-          <div class="field">
-            <label class="file-drop" for="co-docs" id="docs-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-              <span class="file-text" id="docs-filename">Required documents for your service (PDF/images) — optional now</span></label>
-            <input id="co-docs" name="docs" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple hidden>
-          </div>
-          <h2>How would you like to pay?</h2>
-          <div class="tax-choice" id="pay-choice">
-            <label class="tax-opt" id="pay-opt-online"><input type="radio" name="paymethod" value="online" checked><span><strong>Pay online</strong><small>mada / Visa / Apple Pay — confirmed instantly, and your tax invoice follows straight away.</small></span></label>
-            <label class="tax-opt" id="pay-opt-bank"><input type="radio" name="paymethod" value="bank"><span><strong>Bank transfer</strong><small>Transfer to our account and upload the receipt — we verify it and activate your order.</small></span></label>
-            <label class="tax-opt" id="pay-opt-bnpl"><input type="radio" name="paymethod" value="bnpl"><span><strong>Installments — Tamara <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-inline-start:4px"><span style="background:#2E1657;color:#fff;font-weight:800;border-radius:6px;padding:0 7px;font-size:11px;line-height:1.7;direction:ltr">tamara</span></span></strong><small>Split into 4 interest-free payments — instant activation once approved.</small></span></label>
-          </div>
-          <div id="bnpl-box" class="bank-box" hidden>
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><strong>Pay in installments</strong></div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 2px">
-              <button type="button" id="bnpl-tamara" style="flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid #2E1657;background:#2E1657;color:#fff;border-radius:12px;padding:.8rem 1rem;font:inherit;font-weight:800;cursor:pointer">
-                <span style="font-size:1.05rem;direction:ltr">tamara</span><span style="font-weight:600;font-size:.85rem">· split it your way</span>
-              </button>
-            </div>
-            <p class="calc-note" id="bnpl-help">You are redirected to the provider's secure page to approve the plan — your order activates automatically the moment the payment succeeds.</p>
-          </div>
-          <div id="epay-box" class="bank-box" hidden>
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><strong>Pay online (mada / Visa / Apple Pay)</strong></div>
-            <div id="epay-form" class="mysr-form"></div>
-            <p class="calc-note" id="epay-help">Secure payment. Nothing is charged until you confirm.</p>
-          </div>
-          <div id="bank-pay">
-          <div class="bank-box">
-            <div class="bank-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v8M20 10v8M8 10v8M16 10v8M3 21h18"/></svg><strong>Bank transfer details</strong></div>
-            <ul class="bank-list">
-              <li><span class="k">Beneficiary</span><span class="v">Business Partner Co.</span></li>
-              <li><span class="k">Bank</span><span class="v">Al Rajhi Bank</span></li>
-              <li><span class="k">Account no.</span><span class="v mono">511000010006086228498</span><button type="button" class="copy-btn" data-copy="511000010006086228498">📋 Copy</button></li>
-              <li><span class="k">IBAN</span><span class="v mono">SA5380000511608016228498</span><button type="button" class="copy-btn" data-copy="SA5380000511608016228498">📋 Copy</button></li>
-            </ul>
-            <p class="calc-note">Transfer the total to the account above, then upload the receipt image so your order is approved. You will receive a confirmation once reviewed.</p>
-          </div>
-          <h2>Upload transfer receipt <span class="req-star">*</span></h2>
-          <div class="field">
-            <label class="file-drop" for="co-receipt" id="receipt-drop"><span class="file-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg></span>
-              <span class="file-text" id="receipt-filename">Bank transfer receipt — a screenshot/image is fastest (auto-verified), or PDF — same amount as your order total</span></label>
-            <input id="co-receipt" name="receipt" type="file" accept=".pdf,application/pdf,.jpg,.jpeg,.png,.webp,image/*" required hidden>
-          </div>
-          <p class="calc-note" id="receipt-required-note">Required: a bank receipt (image or PDF) showing a transfer of the exact order total. An image (screenshot) is verified automatically in minutes; PDF may need a short manual check. Orders without a matching receipt won't be activated.</p>
-          </div>
-          <label class="req-checkbox"><input type="checkbox" id="co-terms" required><span>I acknowledge and agree to the <a href="/terms" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
-          <button type="submit" class="btn btn-primary btn-lg" id="co-submit" style="width:100%">Submit order</button>
-          <p class="calc-note" id="online-submit-note" hidden>Complete your payment in the card form above — your order is recorded the moment the payment succeeds.</p>
-          <p class="form-note">On submit we save your order to your account on this device, upload your receipt to our team's system for verification, and open WhatsApp to notify our team.</p>
-          <div class="form-success" id="checkout-success" hidden></div>
-        </form>
-      </div>
-      <aside class="cart-aside">
-        <div class="order-box">
-          <h3>Order summary</h3>
-          <div id="checkout-items"></div>
-          <div class="disc-box" style="margin:10px 0 6px;padding:10px 12px;border:1.5px dashed #CBD5E1;border-radius:12px;background:#F8FAFC">
-            <label for="disc-code" style="display:block;font-size:.82rem;font-weight:700;margin-bottom:6px">🎟️ Have a discount code?</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <input id="disc-code" placeholder="e.g. WELCOME10" autocomplete="off" style="flex:1 1 140px;min-width:140px;border:1.5px solid #E2E8F0;border-radius:10px;padding:.55rem .7rem;font:inherit;text-transform:uppercase;background:#fff" />
-              <button type="button" class="btn btn-ghost" id="disc-apply" style="width:auto;flex:0 0 auto;margin-bottom:0;white-space:nowrap">Apply</button>
-            </div>
-            <div id="disc-msg" style="font-size:12px;margin-top:6px;display:none"></div>
-          </div>
-          <div class="cart-totals-block">
-          <div class="calc-line"><span class="k">Subtotal (fees)</span><span class="v" id="co-subtotal">—</span></div>
-          <div class="calc-line" id="co-disc-row" style="display:none;color:#047857"><span class="k">Discount <span id="co-disc-code"></span></span><span class="v" id="co-discount">—</span></div>
-          <div class="calc-line"><span class="k">VAT 15%</span><span class="v" id="co-vat">—</span></div>
-          <div class="calc-total"><span class="k">Total</span><span class="v" id="co-total">—</span></div>
-          </div>
-          <a class="btn btn-ghost" href="/cart" style="width:100%">Edit cart</a>
         </div>
-      </aside>
-    </div>
-  </div></section><script>window.BP_DISCOUNTS=[{"code":"WELCOME10","percent":10,"amount":0,"expires":"","note":"خصم ترحيبي 10%","services":[]}];</script></main><footer class="site-footer"><div class="container">
-  <div class="newsletter-band">
-    <div class="nl-copy">
-      <h3>Subscribe to our newsletter</h3>
-      <p>The latest business &amp; regulatory news in Saudi Arabia — weekly, in both Arabic and English, straight to your inbox.</p>
-    </div>
-    <form class="newsletter-form" data-nl>
-      <input type="email" placeholder="Your email" aria-label="Email" data-nl-email required>
-      <button type="submit" class="btn btn-white">Subscribe now</button>
-    </form>
-    <p class="nl-msg" data-nl-msg hidden></p>
-  </div>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-logo"><img src="/assets/img/logo.png" alt="Business Partner" width="160" height="30"></div>
-      <p>Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services.</p>
-      <p class="footer-tag">Partnering for your success</p>
-    </div>
-    <div class="footer-col"><h4>Our services</h4><ul>
-      <li><a href="/services">All services</a></li>
-      <li><a href="/packages">Packages</a></li>
-      <li><a href="/revenue-os">Revenue OS</a></li>
-      <li><a href="/ai-agents">AI Agents</a></li>
-      <li><a href="/task-force">Task Force</a></li>
-      <li><a href="/hr">Recruitment</a></li>
-      <li><a href="/deals">Deals</a></li>
-      <li><a href="/mahfol-makfol">Business Tourism</a></li>
-      <li><a href="/workspaces">Business Spaces</a></li>
-      <li><a href="/farina">Catering &amp; Hospitality</a></li>
-      <li><a href="/worker-housing">Worker Housing</a></li>
-      <li><a href="/estrdad">Fee refunds (Estrdad)</a></li>
-      <li><a href="/bank-account">Corporate bank account</a></li>
-      <li><a href="/formation-contract">Formation with partners</a></li>
-      <li><a href="/data">B2B Leads Database</a></li>
-      <li><a href="/compliance-agent">Compliance Agent</a></li>
-      <li><a href="/ai-document-agent">AI Document Agent</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Platforms &amp; portals</h4><ul>
-      <li><a href="/account">Client portal</a></li>
-      <li><a href="/revenue-dashboard">Revenue OS dashboard</a></li>
-      <li><a href="/suppliers">Partner registration</a></li>
-      <li><a href="/employer-join">For employers</a></li>
-      <li><a href="/portal">Smart employees portal</a></li>
-      <li><a href="/employer-login">Employers — sign in</a></li>
-      <li><a href="/shared-services">Shared Services Team</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Knowledge Center</h4><ul>
-      <li><a href="/saudi-arabia">Invest in Saudi</a></li>
-      <li><a href="/opportunities">Investment Opportunities</a></li>
-      <li><a href="/directory">Startup Ecosystem Directory</a></li>
-      <li><a href="/tools-and-calculators">Tools &amp; calculators</a></li>
-      <li><a href="/news">Insights &amp; news</a></li>
-      <li><a href="/magazine">Magazine (PDF)</a></li>
-      <li><a href="/newsletter">Newsletter</a></li>
-      <li><a href="/calculator">Cost calculator</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Saudi guides</h4><ul>
-      <li><a href="/saudi-arabia">Invest in Saudi</a></li>
-      <li><a href="/guide/saudi-market">The Saudi Market</a></li>
-      <li><a href="/guide/business-setup">Business Setup</a></li>
-      <li><a href="/guide/run-your-business">Run Your Business</a></li>
-      <li><a href="/guide/live-in-saudi">Live in Saudi</a></li>
-      <li><a href="/guide/residency">Residency in KSA</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Company</h4><ul>
-      <li><a href="/about">About us</a></li>
-      <li><a href="/consultation">Book a consultation</a></li>
-      <li><a href="/careers">Careers</a></li>
-      <li><a href="/terms">Terms &amp; Conditions</a></li>
-      <li><a href="/contact">Contact us</a></li>
-    </ul></div>
-    <div class="footer-col"><h4>Contact</h4><ul class="footer-contact">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg><span>0503793356</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>business@businesspartner.sa</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Riyadh — Al Malqa District — Prince Mohammed bin Saad St. — Touq Ward Complex</span></li>
-    </ul>
-    <div class="footer-social" aria-label="Social media">
-      <a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
-      <a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a>
-      <a href="https://www.facebook.com/BusinessPartnerKsa/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a>
-    </div></div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 Business Partner · All rights reserved</span>
-    <span>Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span>
-  </div>
-</div></footer><a class="wa-fab" href="https://wa.me/966507034157" target="_blank" rel="noopener" aria-label="Contact on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span class="lbl">Contact us on WhatsApp</span></a><div class="advisor-teaser" id="advisor-teaser" hidden>
-    <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="Close">✕</button>
-    <p>Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?</p>
-  </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="Open chat with Baher, the smart assistant">
-    <span class="advisor-fab-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span><span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">Ask Baher</span>
-  </button>
-  <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="Ask Baher">
-    <header class="advisor-head">
-      <button class="advisor-back" id="advisor-back" aria-label="Back" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <div class="advisor-title"><span class="advisor-head-avatar"><span class="kh-avatar kh-photo" aria-hidden="true"><img src="/assets/img/baher.jpg" alt="" loading="lazy"></span></span><div><strong>Baher</strong><span><i class="advisor-online" aria-hidden="true"></i><span id="advisor-status">Your smart partner — online now</span></span></div></div>
-      <button class="advisor-close" id="advisor-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </header>
 
-    <!-- Step 1: contact intake (required first) -->
-    <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.</div>
-      <input class="adv-in" id="adv-in-name" type="text" placeholder="Full name *" autocomplete="name">
-      <input class="adv-in" id="adv-in-phone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
-      <input class="adv-in" id="adv-in-email" type="email" placeholder="Email *" autocomplete="email">
-      <button type="button" class="adv-primary" id="advisor-intake-go">Start ›</button>
-      <div class="adv-err" id="adv-intake-err" hidden></div>
-      <p class="adv-note">🔒 Your details are used only to serve you and follow up on your request.</p>
-    </div>
+        <div class="sv1-panel" style="margin-top:14px;">
+          <h4>Payment method</h4>
+          <div class="sv1-co-ways" id="coWays">
+            <button type="button" class="sv1-co-way on" data-way="card">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg></span>
+              <span class="tx"><b>Card · Apple Pay</b><small>mada · Visa · Mastercard</small></span>
+            </button>
+            <button type="button" class="sv1-co-way" data-way="tamara" id="coWayTamara">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
+              <span class="tx"><b>Tamara — split it</b><small>Interest-free instalments</small></span>
+            </button>
+            <button type="button" class="sv1-co-way" data-way="bank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg></span>
+              <span class="tx"><b>Bank transfer</b><small>Transfer, then send the receipt</small></span>
+            </button>
+          </div>
 
-    <!-- Step 2: home — service windows (main → sub) -->
-    <div class="advisor-view" id="advisor-home" hidden>
-      <div class="adv-home-hd" id="advisor-hello"></div>
-      <div class="adv-home-sub">Pick the service you need:</div>
-      <div class="adv-cats" id="advisor-cats"><div class="adv-loading">Loading services…</div></div>
-      <button type="button" class="adv-book-open" id="advisor-book-open">📅 Book a free consultation</button>
-      <button type="button" class="adv-chat-open" id="advisor-chat-open">💬 Or ask Baher directly</button>
-    </div>
+          <div id="coPaneCard" class="sv1-co-pane">
+            <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">Preparing the payment form…</div></div>
+            <p class="sv1-co-fine">Payment runs on the licensed gateway — card details never touch our servers.</p>
+          </div>
 
-    <!-- Step 2c: book a consultation — pick a day + time within BP hours (9am–6pm, closed Friday) -->
-    <div class="advisor-view" id="advisor-book" hidden>
-      <div class="adv-book-hd">📅 Book a free consultation</div>
-      <div class="adv-book-sub">Pick a day and time (Riyadh · 9am–6pm · closed Friday):</div>
-      <div class="adv-book-days" id="advisor-book-days"></div>
-      <div class="adv-book-slots" id="advisor-book-slots"></div>
-      <button type="button" class="adv-primary" id="advisor-book-go" hidden>✅ Confirm appointment</button>
-      <div class="adv-ticket-done" id="advisor-book-done" hidden></div>
-    </div>
+          <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
+            <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">Tamara — split it</button>
+            <p class="sv1-co-fine" id="coTamaraNote">Interest-free instalments</p>
+          </div>
 
-    <!-- Step 2b: sub-services of a chosen category -->
-    <div class="advisor-view" id="advisor-sub" hidden>
-      <div class="adv-sub-hd" id="advisor-sub-hd"></div>
-      <div class="adv-svcs" id="advisor-svcs"></div>
-    </div>
-
-    <!-- Step 3: open a support ticket for the chosen service -->
-    <div class="advisor-view" id="advisor-ticket" hidden>
-      <div class="adv-ticket-hd" id="advisor-ticket-hd"></div>
-      <textarea class="adv-in" id="advisor-ticket-note" rows="3" placeholder="Describe your request (optional)"></textarea>
-      <button type="button" class="adv-primary" id="advisor-ticket-go">💬 Request a price quote</button>
-      <div class="adv-ticket-done" id="advisor-ticket-done" hidden></div>
-    </div>
-
-    <!-- Chat with Baher (available after intake) -->
-    <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
-      <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.</div>
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <div class="sv1-co-bank">
+              <div><span>Beneficiary</span><b>Business Partner Solutions Company</b></div>
+              <div><span>Bank</span><b>Al Rajhi Bank</b></div>
+              <div><span>IBAN</span><b><bdi dir="ltr">SA5380000511608016228498</bdi></b></div>
+            </div>
+            <p class="sv1-co-fine">After transferring, send the receipt on WhatsApp or by e-mail — we activate on verification.</p>
+            <div class="sv1-co-rc">
+              <h5>Attach the transfer receipt</h5>
+              <p class="sv1-co-fine">Image or PDF, up to 6 MB — the advisor reads it and compares the amount with your total.</p>
+              <div class="sv1-co-rcrow">
+                <label class="sv1-btn sm" for="coReceipt">Choose a file
+                  <input id="coReceipt" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden></label>
+                <span class="sv1-co-rcname" id="coReceiptName">—</span>
+                <button type="button" class="sv1-btn primary sm" id="coReceiptGo" disabled>Send the receipt</button>
+              </div>
+              <div class="sv1-co-rcout" id="coReceiptOut" hidden></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="Foreign investment company setup">🏢 Foreign investment setup</button>
-        <button type="button" class="advisor-chip" data-q="Government platforms management">💼 Government platforms</button>
-        <button type="button" class="advisor-chip" data-q="Packages & pricing">💰 Packages &amp; pricing</button>
-        <button type="button" class="advisor-chip" data-q="I want a free consultation">📞 Free consultation</button>
+
+      <div class="sv1-co-side">
+        <div class="sv1-panel sv1-co-sum">
+          <h4>Order summary</h4>
+          <div id="coItems"></div>
+          <div class="sv1-co-tot">
+            <div><span>Subtotal</span><b class="price-amt" id="coNet">—</b></div>
+            <div><span>VAT 15%</span><b class="price-amt" id="coVat">—</b></div>
+            <div class="big"><span>Total</span><b class="price-amt" id="coTotal">—</b></div>
+          </div>
+          <div class="sv1-co-trust">
+            <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Encrypted</div>
+            <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>ZATCA tax invoice</div>
+          </div>
+        </div>
       </div>
-      <form class="advisor-form" id="advisor-form">
-        <input id="advisor-input" type="text" autocomplete="off" placeholder="Type your question here…" aria-label="Type your question">
-        <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-      </form>
+
     </div>
-  </section><script src="/assets/js/main.js?v=c406f42f96"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script></body></html>
+  </div></section>
+  </main>
+<footer class="sv1-foot"><div class="wrap">
+  <div class="sv1-foot-grid">
+    <div class="sv1-foot-col">
+      <b class="sv1-foot-brand">Business Partner</b>
+      <p>Consulting, government services and company formation.</p>
+      <p class="sv1-foot-note">A ZATCA-compliant tax invoice for every paid order.</p>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Company details</h4>
+      <div class="sv1-foot-row id"><span>Registered name</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Unified number</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>VAT number</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Short national address</span><bdi dir="ltr">RHSC2978</bdi></div>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Contact</h4>
+      <div class="sv1-foot-row"><span>Phone</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
+      <div class="sv1-foot-row"><span>E-mail</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
+      <div class="sv1-foot-row"><span>National address</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>Hours</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
+    </div>
+    <div class="sv1-foot-col">
+      <h4>Payments</h4>
+      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.</p>
+      <div class="sv1-foot-links">
+        <a href="/terms">Terms</a>
+        <a href="/catalog">All services</a>
+      </div>
+    </div>
+  </div>
+  <div class="sv1-foot-end">© 2026 Business Partner · All rights reserved</div>
+</div></footer>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script><script>
+(function(){
+var LANG="en",HOME="/";
+var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara or bank transfer, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","rcBusy":"Uploading and reading…","rcBig":"The file is larger than 6 MB.","rcType":"Accepted: JPG, PNG, WEBP or PDF.","rcNoRef":"Upload opens once a quotation is approved — open your request from your account.","rcFail":"The receipt could not be uploaded. Try again or send it on WhatsApp.","rcOkM":"Receipt received — the amount matches your total. We confirm arrival after checking the bank account.","rcOkD":"Receipt received — the amount read does not match your total; the team is reviewing it.","rcOkU":"Receipt received and under review — the amount could not be read automatically.","rcRead":"Receipt reading","rcWant":"Your total"};
+var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+var $=function(id){return document.getElementById(id)};
+function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
+function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
+// شكل بند السلة يكتبه main.js و api/_simple.js: {id,nameAr,nameEn,amount,price,qty}.
+// «price» عنوانٌ نصي («3,038 ر.س») لا رقم — قراءته كرقم كانت تُخرج NaN فصفراً،
+// فيظهر الإجمالي 0.00 ويرفض مُيسّر التركيب. الرقم في «amount» وحده.
+function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
+function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
+var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
+function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
+var cart=readCart(),net=0;
+var unpriced=cart.filter(function(i){return !Number(i.amount)}).length;   // بنودٌ تُسعّر عند المراجعة
+var hidden=cart.filter(function(i){return Number(i.amount)&&!shown(i)}).length; // مسعّرة لكنها محجوبة عن غير المسجّل
+cart.forEach(function(i){net+=lineOf(i)});
+var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
+var payable=cart.length&&!unpriced&&!hidden&&total>0;
+
+(function draw(){
+ var box=$('coItems');box.innerHTML='';
+ if(!cart.length){
+  var e=document.createElement('p');e.className='sv1-muted';e.textContent=TX.empty;box.appendChild(e);
+  var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'catalog';a.textContent=TX.browse;a.style.marginTop='10px';box.appendChild(a);
+  return}
+ cart.forEach(function(i){
+  var r=document.createElement('div');r.className='sv1-co-row';
+  var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=nameOf(i);
+  l.appendChild(b);
+  if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
+  var v=document.createElement('b');
+  if(shown(i)){v.textContent=money(lineOf(i))}else{v.style.fontWeight='400';v.style.color='var(--mut)';v.style.fontSize='11.5px';v.textContent=Number(i.amount)?TX.signIn:TX.quoted}
+  r.appendChild(l);r.appendChild(v);box.appendChild(r)});
+ if(payable){$('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total)}
+ else{var q=unpriced?TX.quoted:TX.signIn;$('coNet').textContent=q;$('coVat').textContent='—';$('coTotal').textContent=q;
+  $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
+})();
+
+// تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+ .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+  if(!$('coEmail').value)$('coEmail').value=u.email||'';
+  if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
+
+// اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
+// بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
+function snapshot(){
+ var prev='';try{prev=(JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{}).ref||''}catch(e){}
+ var o={ref:prev||'BP-'+Date.now().toString().slice(-6),
+   name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
+   items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
+   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
+ try{sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}
+ return o}
+function meta(){
+ var s=snapshot(),items='';
+ try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
+ return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
+   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
+function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+
+// ---- اختيار الطريقة
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b){
+ b.onclick=function(){if(b.disabled)return;
+  Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(x){x.classList.toggle('on',x===b)});
+  for(var k in panes)panes[k].classList.toggle('sv1-hide',k!==b.getAttribute('data-way'))}});
+
+// ---- تمارا
+$('coTamaraGo').onclick=function(){
+ var n=$('coTamaraNote');
+ if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
+ if(!ready()){n.textContent=TX.needFill;return}
+ var self=this;self.disabled=true;n.textContent=TX.loading;
+ fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
+ .then(function(r){return r.json()}).then(function(o){
+  if(o&&o.ok&&o.url){location.href=o.url;return}
+  self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
+ .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- إيصال التحويل البنكي
+// المرجع يأتي من بند العرض في السلة (sv1:BP-R-XXXXXX)؛ بدونه لا طلبَ نُرفق به.
+var RCREF=(function(){for(var i=0;i<cart.length;i++){var id=String(cart[i].id||'');if(id.indexOf('sv1:')===0)return id.slice(4)}return ''})();
+(function(){
+ var inp=$('coReceipt'),nm=$('coReceiptName'),go=$('coReceiptGo'),out=$('coReceiptOut'),file=null;
+ if(!inp)return;
+ function say(cls,txt,extra){out.hidden=false;out.className='sv1-co-rcout'+(cls?' '+cls:'');out.textContent='';
+  var p=document.createElement('div');p.textContent=txt;out.appendChild(p);
+  if(extra){var c=document.createElement('div');c.className='cmp';
+   var a=document.createElement('span');a.textContent=TX.rcRead+': ';var ab=document.createElement('b');ab.textContent=extra.read;a.appendChild(ab);
+   var d=document.createElement('span');d.textContent=TX.rcWant+': ';var db=document.createElement('b');db.textContent=extra.want;d.appendChild(db);
+   c.appendChild(a);c.appendChild(d);out.appendChild(c)}}
+ inp.onchange=function(){file=inp.files&&inp.files[0]?inp.files[0]:null;
+  if(!file){nm.textContent='—';go.disabled=true;return}
+  nm.textContent=file.name;
+  if(file.size>6*1024*1024){say('warn',TX.rcBig);go.disabled=true;file=null;return}
+  var OKT=['image/jpeg','image/png','image/webp','application/pdf'];
+  if(OKT.indexOf(String(file.type).toLowerCase())<0){say('warn',TX.rcType);go.disabled=true;file=null;return}
+  out.hidden=true;go.disabled=false};
+ go.onclick=function(){
+  if(!file)return;
+  if(!RCREF){say('warn',TX.rcNoRef);return}
+  go.disabled=true;say('',TX.rcBusy);
+  var fr=new FileReader();
+  fr.onerror=function(){go.disabled=false;say('warn',TX.rcFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},
+     body:JSON.stringify({action:'receipt-upload',ref:RCREF,name:file.name,mime:file.type,base64:b64})})
+    .then(function(r){return r.json()}).then(function(o){
+     if(!o||!o.ok){go.disabled=false;say('warn',o&&o.error==='too_large'?TX.rcBig:o&&o.error==='bad_type'?TX.rcType:TX.rcFail);return}
+     var msg=o.verdict==='match'?TX.rcOkM:o.verdict==='unreadable'?TX.rcOkU:TX.rcOkD;
+     say(o.verdict==='match'?'ok':'warn',msg,o.amount!=null?{read:money(o.amount),want:money(o.expected)}:null)})
+    .catch(function(){go.disabled=false;say('warn',TX.rcFail)})};
+  fr.readAsDataURL(file)};
+})();
+
+// ---- البطاقة (مُيسّر) — نفس نداء التركيب في الموقع القديم
+var mount=$('coPayMount');
+function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+// مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
+// لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
+function payBlocked(msg,href,label){
+ mount.innerHTML='';
+ var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
+ if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
+ var tg=$('coTamaraGo');if(tg)tg.disabled=true}
+if(!cart.length){mount.innerHTML='';}
+else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
+else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
+else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+ if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
+ if(cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
+ if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
+ var s=document.createElement('script');s.src=cfg.scriptUrl;
+ s.onerror=payFailed;
+ s.onload=function(){
+  if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
+  var wanted=(cfg.methods||['creditcard']).slice();
+  var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
+  if(!canAP)wanted=wanted.filter(function(m){return m!=='applepay'});
+  if(!wanted.length)wanted=['creditcard'];
+  function boot(methods,applePay){
+   mount.innerHTML='<div id="epay-form"></div>';
+   window.Moyasar.init({element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+    callback_url:location.origin+location.pathname,metadata:meta(),
+    on_initiating:async function(){return {metadata:meta()}},
+    methods:methods,apple_pay:applePay||undefined});
+   // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
+   // المشتري بلا وسيلة دفع ولا رسالة.
+   setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
+  try{boot(wanted,canAP?cfg.applePay:null)}
+  catch(e){try{boot(['creditcard'],null)}catch(e2){payFailed()}}};
+ document.head.appendChild(s)}).catch(payFailed);
+})();</script></body></html>

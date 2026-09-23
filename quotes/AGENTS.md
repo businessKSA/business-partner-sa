@@ -1,3 +1,5 @@
+> **قرار المالك (2026-09-01):** هذا المجلد يُدمج في الموقع الرئيسي (`site/` + `api/`) ثم يُحذف مع مشروعه على Vercel نهائياً. لا ميزات جديدة هنا كتطبيق مستقل، ولا نشر إلا على مشروع Vercel الرئيسي `business-partner-sa-businessksa`. التفاصيل في `../CLAUDE.md`.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

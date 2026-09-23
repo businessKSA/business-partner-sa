@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { embeddedSigningUrl } from '@/lib/docusign/service';
 import { currentAdmin, currentClientId } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { appBase } from '@/lib/base';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
     }
   }
 
-  const base = process.env.APP_URL || url.origin;
+  const base = appBase(req);
   const returnUrl = `${base}/d/${env.document.publicToken}?signed=1`;
   try {
     const signUrl = await embeddedSigningUrl(envelope, who, returnUrl);
