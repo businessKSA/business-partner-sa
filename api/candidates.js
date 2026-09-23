@@ -13,7 +13,7 @@
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
-import { getSession, sb } from "./_db.js";
+import { getSession } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
@@ -126,9 +126,6 @@ const txt = (p) => {
   if (p.type === "url") return p.url || "";
   return "";
 };
-
-const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
-const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")
 const maskName = (n) => {
@@ -281,210 +278,8 @@ const SITE_ROLES = [
 // Job postings: an employer can open more than one, each with its own title/
 // city/description, and pull an AI-screened shortlist against the pool from
 // that description via /api/hire (task:"match") on the client side.
-// Helper: Check if user is admin or has access to organization
-async function checkOrgAccess(req, res, orgId) {
-  try {
-    const sess = await getSession(req);
-    if (!sess || !sess.user) return null;
-    if (!orgId) return sess; // No org check needed
-    // Check if user is member of this organization
-    const members = await sb(`organization_members?organization_id=eq.${orgId}&user_id=eq.${sess.user.id}&status=eq.active`);
-    return members.length > 0 ? sess : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Helper: Check if user is BP staff (admin)
-async function isAdmin(req) {
-  try {
-    const sess = await getSession(req);
-    if (!sess || !sess.user) return false;
-    const users = await sb(`users?id=eq.${sess.user.id}&select=is_bp_staff`);
-    return users.length > 0 && users[0].is_bp_staff === true;
-  } catch { return false; }
-}
-
-// Authenticated job posting (use Supabase, not Notion)
-async function handleAuthPostJob(req, res, b) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const title = clip(b.title, 200);
-  const city = clip(b.city || "الرياض", 120);
-  const description = clip(b.description, 4000);
-  const requirements = clip(b.requirements, 2000);
-  const employmentType = (b.employment_type || "full_time");
-
-  if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
-
-  try {
-    const jobs = await sb("job_postings", {
-      method: "POST",
-      prefer: "return=representation",
-      body: [{
-        organization_id: sess.organizationId,
-        title, description, requirements,
-        city, employment_type: employmentType,
-        experience_level: clip(b.experience_level, 20),
-        salary_min: b.salary_min,
-        salary_max: b.salary_max,
-        posted_by: sess.user.id,
-        status: "active"
-      }]
-    });
-    if (!jobs.length) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "creation_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, job: jobs[0] }));
-  } catch (e) {
-    console.error("auth post job", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated job listing (Supabase, with org filtering)
-async function handleAuthListJobs(req, res, query) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const isAd = await isAdmin(req);
-  const filter = isAd ? "" : `organization_id=eq.${sess.organizationId}&`;
-
-  try {
-    const jobs = await sb(`job_postings?${filter}status=eq.active&order=created_at.desc`);
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, jobs }));
-  } catch (e) {
-    console.error("auth list jobs", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated job application (Supabase)
-async function handleAuthApplyJob(req, res, b) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const jobId = clip(b.job_id, 50);
-  const cvText = clip(b.cv || b.cv_text, 8000);
-  const coverLetter = clip(b.cover_letter, 2000);
-
-  if (!jobId || !cvText) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
-
-  try {
-    // Verify job exists and get organization
-    const jobs = await sb(`job_postings?id=eq.${jobId}&select=id,organization_id`);
-    if (!jobs.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "job_not_found" })); }
-    const job = jobs[0];
-
-    const apps = await sb("job_applications", {
-      method: "POST",
-      prefer: "return=representation",
-      body: [{
-        job_posting_id: jobId,
-        organization_id: job.organization_id,
-        applicant_name: clip(b.name || sess.user.full_name || sess.user.email, 120),
-        applicant_email: clip(b.email || sess.user.email, 120),
-        applicant_phone: clip(b.phone, 20),
-        cv_text: cvText,
-        cover_letter: coverLetter,
-        status: "received"
-      }]
-    });
-    if (!apps.length) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "creation_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, application: apps[0] }));
-  } catch (e) {
-    console.error("auth apply job", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated applications listing (Supabase, with org filtering)
-async function handleAuthListApplications(req, res, query) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const isAd = await isAdmin(req);
-  const filter = isAd ? "" : `organization_id=eq.${sess.organizationId}&`;
-
-  try {
-    const apps = await sb(`job_applications?${filter}order=applied_at.desc`);
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, applications: apps }));
-  } catch (e) {
-    console.error("auth list applications", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
 async function handlePostings(req, res) {
   const b = await readBody(req);
-
-  // Authenticated job operations (new)
-  if (b.action === "auth-post-job") return await handleAuthPostJob(req, res, b);
-  if (b.action === "auth-list-jobs") return await handleAuthListJobs(req, res, "");
-  if (b.action === "auth-apply-job") return await handleAuthApplyJob(req, res, b);
-  if (b.action === "auth-list-applications") return await handleAuthListApplications(req, res, "");
-
-  // PUBLIC job posting and applications (no auth required for basic info)
-  if (b.action === "public-post-job") {
-    const title = clip(b.title, 200);
-    const city = clip(b.city || "الرياض", 120);
-    const description = clip(b.description, 4000);
-    const employerEmail = clip(b.employerEmail, 120);
-    const employerPhone = clip(b.employerPhone, 20);
-    if (!title || !description || !employerEmail) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const code = generateId();
-    const props = {
-      "العنوان الوظيفي": { title: [{ text: { content: title } }] },
-      "رمز صاحب العمل": { rich_text: [{ text: { content: code } }] },
-      "الشركة": { rich_text: [{ text: { content: clip(b.company, 200) } }] },
-      "المدينة": { rich_text: [{ text: { content: city } }] },
-      "الوصف والمتطلبات": { rich_text: [{ text: { content: description } }] },
-      "الحالة": { select: { name: "نشطة" } },
-      "بريد صاحب العمل": { email: employerEmail },
-      "هاتف صاحب العمل": { phone_number: employerPhone },
-      "تاريخ النشر": { date: { start: new Date().toISOString().split("T")[0] } },
-    };
-    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
-    if (!r.ok) { console.error("public job create error", r.status); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const jobId = (await r.json()).id;
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, jobId, code, applyLink: `/apply?job=${jobId}` }));
-  }
-
-  // PUBLIC job application (no auth required)
-  if (b.action === "public-apply-job") {
-    const jobId = clip(b.jobId, 50);
-    const name = clip(b.name, 120);
-    const email = clip(b.email, 120);
-    const phone = clip(b.phone, 20);
-    const cvText = clip(b.cvText || b.cv, 8000);
-    if (!jobId || !name || !email || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const pgr = await notionFetch(`pages/${jobId}`, "GET");
-    if (!pgr.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "job_not_found" })); }
-    const jobData = await pgr.json();
-    const jobTitle = txt(jobData.properties?.["العنوان الوظيفي"]);
-    const field = guessField(clip(b.role, 200) || jobTitle);
-    const atsProps = {
-      "Candidate Name": { title: [{ text: { content: name } }] },
-      "Email": { email },
-      "Phone": { phone_number: phone },
-      "City": { rich_text: [{ text: { content: clip(b.city, 120) } }] },
-      "Target Role": { rich_text: [{ text: { content: clip(b.role, 200) || jobTitle } }] },
-      "Field": { select: { name: field } },
-      "ATS CV Text": { rich_text: [{ text: { content: cvText } }] },
-    };
-    const atsr = await notionFetch("pages", "POST", { parent: { database_id: DB_ID }, properties: atsProps });
-    if (!atsr.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "application_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, message: "تم استقبال طلبك" }));
-  }
 
   let code = String(b.code || "").trim();
   let unlocked = false, owner = false;
@@ -767,30 +562,6 @@ export default async function handler(req, res) {
   if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
 
   const url0 = new URL(req.url, "http://x");
-
-  // Public single job posting by ID (for apply page)
-  if (url0.searchParams.get("publicJob")) {
-    try {
-      const jobId = clip(url0.searchParams.get("publicJob"), 50);
-      const r = await notionFetch(`pages/${jobId}`, "GET");
-      if (!r.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
-      const p = (await r.json()).properties || {};
-      const posting = {
-        id: jobId,
-        title: txt(p["العنوان الوظيفي"]),
-        company: txt(p["الشركة"]),
-        city: txt(p["المدينة"]),
-        field: txt(p["المجال"]),
-        description: txt(p["الوصف والمتطلبات"]),
-      };
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, posting }));
-    } catch (e) {
-      console.error("public job get error", e);
-      res.statusCode = 500;
-      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
-    }
-  }
 
   // Public Indeed XML job feed — no code/auth (served at /jobs-feed.xml & /indeed.xml).
   if (url0.searchParams.get("feed") === "jobs") {
