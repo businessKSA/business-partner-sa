@@ -189,13 +189,21 @@ const WA_FAB = `<a class="wa-fab" href="https://wa.me/${OFFICE.waPhone}" target=
   <svg viewBox="0 0 24 24"><path d="M.06 24l1.69-6.16A11.87 11.87 0 010 11.93C0 5.35 5.35 0 11.93 0a11.86 11.86 0 018.43 3.49 11.82 11.82 0 013.49 8.44c0 6.57-5.35 11.92-11.93 11.92a11.9 11.9 0 01-5.7-1.45L.06 24zM6.6 20.2l.36.21a9.9 9.9 0 004.97 1.36c5.46 0 9.91-4.44 9.91-9.9a9.85 9.85 0 00-2.9-7.01 9.82 9.82 0 00-7-2.91c-5.47 0-9.91 4.44-9.91 9.9a9.87 9.87 0 001.51 5.26l.24.38-1 3.65 3.82-.94zm11.1-5.63c-.07-.12-.27-.2-.57-.35-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48a9 9 0 01-1.66-2.06c-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.7.25-1.29.18-1.41z"/></svg>
 </a>`;
 
-function page({ title, desc, body, nav = true, extraHead = "", script = "" }) {
+// الموقع كله غير مفهرس ما دام يُعرض على العميل قبل اعتماده. صفحة تُعرض
+// للمراجعة ثم تظهر في نتائج البحث باسم الشركة قبل أن يوافق صاحبها عليها
+// ضررٌ لا يُستدرك — ولذلك `indexable` افتراضه false، ويُقلب صراحةً يوم
+// يُطلق الموقع على نطاقه.
+//
+// ولم يُكتب `Disallow: /bluediamond/` في robots.txt عمداً: ذلك الملف
+// عامّ يقرأه أي أحد، فيصير إعلاناً عن المسار الذي نريد إخفاءه. الإخفاء
+// هنا = noindex + لا رابط وارد + غياب عن خريطة الموقع.
+function page({ title, desc, body, nav = true, extraHead = "", script = "", indexable = false }) {
   return `<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}</title>
+${indexable ? "" : '<meta name="robots" content="noindex,nofollow">\n'}<title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
@@ -1001,7 +1009,6 @@ if(KEY){$('#key').value=KEY;enter()}`;
     title: `لوحة العمل — ${OFFICE.nameAr}`,
     desc: "لوحة داخلية.",
     body, script,
-    extraHead: '<meta name="robots" content="noindex,nofollow">',
   });
 }
 
