@@ -1,11 +1,11 @@
 // Business Partner 3.0 — AI Hiring assistant (ESM). Powers the "AI Hiring OS"
 // employer dashboard: match candidates to a role, summarise a candidate, draft
-// interview questions, and write outreach messages. Free-first provider
-// Azure OpenAI first (owner policy, September 2026: the digital infrastructure
-// is Microsoft Azure). Once Azure is configured the other providers stay
-// dormant unless DOC_AI_ALLOW_FALLBACK=1 — the same valve document reading
-// uses. Until Azure is configured the old free-first chain keeps working, so
-// the employer dashboard never goes dark waiting for an env var.
+// interview questions, and write outreach messages. Azure OpenAI is the only
+// provider (owner policy, September 2026: the digital infrastructure is
+// Microsoft Azure). The Gemini/Groq/OpenAI/Anthropic chain and the
+// DOC_AI_ALLOW_FALLBACK valve that gated it were deleted, not disabled — see
+// the note above PROVIDERS below. Unconfigured Azure names the missing
+// variable rather than reaching for a legacy key.
 //
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"

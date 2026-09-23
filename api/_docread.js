@@ -114,9 +114,11 @@ const azureDeployment = (kind) => String(
 ).trim();
 
 // سياسة المالك (سبتمبر 2026): البنية التحتية الرقمية على Microsoft Azure،
-// فلا يُستدعى مزوّدٌ آخر ما دام Azure مُهيّأً. المزوّدون الآخرون يبقون في
-// الملف معطّلين، ولا يعملون إلا بتفعيلٍ صريح عبر DOC_AI_ALLOW_FALLBACK=1 —
-// صمّام أمانٍ لانقطاعٍ في Azure، لا مساراً افتراضياً.
+// فلا يُستدعى مزوّدٌ آخر البتة. لم يبقَ في الملف مزوّدٌ معطّل ولا صمّام
+// `DOC_AI_ALLOW_FALLBACK` يفتحه — حُذف الاثنان، فصار المنع بنيوياً لا
+// إعدادياً. والصمود منطقةُ Azure الثانية في `api/_azure.js`، لا مزوّدٌ ثانٍ:
+// رصيدٌ ينفد عند واحد كان يُسقط الفريق كله. يثبّت هذا
+// `tests/azure-provider.test.mjs`.
 const azureMissing = () => {
   const miss = [];
   if (!AZURE_ENDPOINT()) miss.push("AZURE_OPENAI_ENDPOINT");
