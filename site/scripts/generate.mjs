@@ -1006,12 +1006,12 @@ const HOME_QUICK_CODES = ["BP-SBC-02", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", 
    now decided once, here, by the order of the sections in `body` — there is
    nothing left to re-sort at runtime.
 
-   Design tokens are the brand set: navy #07163F, B10X blue #3159D8, AI cyan
+   Design tokens are the brand set: navy #0B1B5A, B10X blue #3159D8, AI cyan
    #43D6F4, success mint #16B875, background #F7F9FD.
    ========================================================================== */
 
 const homeCss = `<style>
-.bph{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.bph{--n:#0B1B5A;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
 .bph *{box-sizing:border-box}
 .bph a{text-decoration:none}
 .bph .bph-wrap{width:min(1180px,calc(100% - 40px));margin:0 auto}
@@ -2456,7 +2456,7 @@ const advPrice = (code) => {
 };
 
 const ADV_CSS = `<style>
-.adv{--n:#07163f;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
+.adv{--n:#0B1B5A;--b:#3159d8;--c:#43d6f4;--m:#16b875;--ink:#101a35;--mut:#68748d;--line:#e5e9f2;--soft:#f7f9fd;color:var(--ink)}
 .adv .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto}
 .adv section{padding:64px 0}
 .adv-hero{padding:60px 0 40px;text-align:center;background:radial-gradient(circle at 82% 6%,rgba(58,92,224,.10),transparent 24%),radial-gradient(circle at 14% 2%,rgba(67,214,244,.09),transparent 20%),#fff}
