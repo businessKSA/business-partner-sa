@@ -71,6 +71,8 @@
     {"source":"/services/bp-pl-0094","destination":"/services/bp-pl-0019","permanent":true},
     {"source":"/ar/services/bp-pl-0094","destination":"/ar/services/bp-pl-0019","permanent":true},
     {"source":"/ar/admin","destination":"/admin","permanent":false},
+    {"source":"/client-portal","destination":"/account","permanent":false},
+    {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal","destination":"/:lang/account","permanent":false},
     {"source":"/ar/monitor","destination":"/monitor","permanent":false},
     {"source":"/inbox","destination":"/monitor","permanent":false},
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
@@ -90,8 +92,6 @@
     {"source":"/api/spaces","destination":"/api/requests?__route=spaces"},
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
-    {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal","destination":"/assets/data/revenue-command-center"},
-    {"source":"/client-portal","destination":"/assets/data/revenue-command-center"},
     {"source":"/","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/index"},
     {"source":"/join","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/join"},
     {"source":"/dashboard","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/dashboard"},
