@@ -8,7 +8,7 @@ import {
   normalizeAr, detectPropertyType, detectCity, extractPrice, extractArea,
   extractIncomeProducing, extractYield, classifyMessage, parseRequestText,
   parseListingText, scoreMatch, rankListings, rankRequests, requestCompleteness,
-  nextQuestion, broadcastText, listingCard,
+  nextQuestion, broadcastText, listingCard, detectDistricts,
 } from "../api/_rematch.js";
 
 test("التطبيع يوحّد الهمزة والتاء المربوطة والأرقام الهندية", () => {
@@ -213,4 +213,36 @@ test("العرض غير الموثّق يُطابَق ويُذكر تحفّظه�
   assert.ok(m.gaps.some((g) => /لم يُوثَّق/.test(g)), "التحفّظ يُقال لا يُخفى");
   // أما المُباع فيُقصى فعلاً.
   assert.match(scoreMatch(req, { ...fresh, status: "SOLD" }).rejected, /غير متاح/);
+});
+
+test("اسم الحي لا يبتلع الكلمة التي بعده", () => {
+  // «حي الملقا من ٥٠٠٠ متر» كانت تُقرأ حياً اسمه «الملقا من»، و«حي الملقا
+  // الرياض» حياً اسمه «الملقا الرياض» — فلا يطابق الحيُّ نفسَه، وتخرج
+  // فجوة «خارج الأحياء المفضّلة» والحيّان واحد.
+  assert.deepEqual(detectDistricts("حي الملقا من 5000 إلى 6000 متر"), ["الملقا"]);
+  assert.deepEqual(detectDistricts("حي الملقا الرياض 5600 متر"), ["الملقا"]);
+  // والكلمتان تُؤخذان حيث تلزمان فعلاً.
+  assert.deepEqual(detectDistricts("حي الملك فهد"), ["الملك فهد"]);
+  assert.deepEqual(detectDistricts("حي النسيم الشرقي"), ["النسيم الشرقي"]);
+});
+
+test("دخل العقار ليس ميزانية الطلب", () => {
+  // «مؤجرة والدخل السنوي ٧٠٠ ألف» طلبٌ بلا ميزانية مذكورة. قراءتها سقفاً
+  // تعني قياس طلبٍ عن عمارة بأحد عشر مليوناً بسقفٍ من سبعمئة ألف، فيُرفض
+  // كل عرض في السوق.
+  const r = parseRequestText("مطلوب عمارة سكنية في الرياض حي الملقا من 5000 إلى 6000 متر مؤجرة والدخل السنوي 700 الف");
+  assert.equal(r.budget_max, null);
+  assert.equal(r.budget_min, null);
+  assert.equal(r.income_producing, true);
+  // والميزانية حين تُذكر صراحةً تُقرأ كما هي.
+  assert.equal(parseRequestText("مطلوب أرض شمال الرياض بميزانية 8 مليون").budget_max, 8000000);
+});
+
+test("المطابقة الكاملة للعمارة المؤجرة تُعطي درجة عالية بفجوة صادقة واحدة", () => {
+  const req = parseRequestText("مطلوب عمارة سكنية في الرياض حي الملقا من 5000 إلى 6000 متر مؤجرة والدخل السنوي 700 الف");
+  const lst = parseListingText("للبيع عمارة سكنية حي الملقا الرياض 5600 متر مؤجرة بالكامل الدخل السنوي 715 الف السعر 11 مليون صك إلكتروني");
+  const m = scoreMatch(req, { ...lst, status: "UNVERIFIED", available: true });
+  assert.ok(m.score >= 80, `الدرجة ${m.score} أقل من المتوقع`);
+  assert.ok(m.reasons.some((r) => /الملقا/.test(r)), "الحي المطابق يجب أن يُذكر سبباً");
+  assert.ok(!m.gaps.some((g) => /السقف/.test(g)), "لا يصح أن تظهر فجوة سقف لطلب بلا ميزانية");
 });

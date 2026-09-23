@@ -130,10 +130,21 @@ export function detectDistricts(text) {
     const re = new RegExp(`${k}\\s+(ال)?[\\u0621-\\u064A]+`);
     if (re.test(s)) out.push(v);
   }
-  // «حي كذا» — الكلمة التالية لكلمة «حي» هي اسم الحي.
+  // «حي كذا» — الكلمة التالية لكلمة «حي» هي اسم الحي. وكانت تُؤخذ كلمتان
+  // دائماً من أجل «حي الملك فهد»، فابتلع الاسمُ ما بعده: «حي الملقا من
+  // ٥٠٠٠ متر» صارت «الملقا من»، و«حي الملقا الرياض» صارت «الملقا الرياض»
+  // — فلا يطابق الحيُّ نفسه نفسَه، ويخرج في الفجوات «خارج الأحياء
+  // المفضّلة» والحيّان واحد. الكلمة الثانية تُؤخذ الآن فقط حيث تلزم:
+  // بعد «الملك/الأمير/ولي»، أو حين تكون جهةً («النسيم الشرقي»).
+  const COMPOUND_HEAD = /^(الملك|الملكه|الامير|الاميره|ولي|بن|ابن)$/;
+  const DIRECTION_TAIL = /^(الشمالي|الجنوبي|الشرقي|الغربي|الاوسط|الشماليه|الجنوبيه|الشرقيه|الغربيه)$/;
   const m = s.match(/حي\s+([ء-ي]+(?:\s+[ء-ي]+)?)/g) || [];
   for (const one of m) {
-    const name = one.replace(/^حي\s+/, "").trim();
+    const words = one.replace(/^حي\s+/, "").trim().split(/\s+/);
+    let name = words[0] || "";
+    if (words[1] && (COMPOUND_HEAD.test(words[0]) || DIRECTION_TAIL.test(words[1]))) {
+      name += " " + words[1];
+    }
     if (name && name.length >= 3 && !out.includes(name)) out.push(name);
   }
   return out;
@@ -198,7 +209,11 @@ export function extractBudgetRange(text) {
     const a = numAt(range[1]), b = numAt(range[2]);
     if (a != null && b != null) return { min: Math.min(a, b) * mul, max: Math.max(a, b) * mul };
   }
-  const one = extractPrice(s);
+  // عبارة الدخل تُحجب قبل البحث عن رقم مفرد. «مؤجرة والدخل السنوي ٧٠٠
+  // ألف» طلبٌ بلا ميزانية مذكورة — لا طلبٌ سقفه ٧٠٠ ألف. ولولا الحجب
+  // لرُفض كل عرضٍ فوق ذلك الرقم، وهو دخلُ العقار لا ثمنه: أي أن الطلب
+  // الذي يبحث عن عمارة بأحد عشر مليوناً يُقاس بسقفٍ من سبعمئة ألف.
+  const one = extractPrice(s.replace(INCOME_PHRASE, " "));
   if (one == null) return { min: null, max: null };
   // رقم واحد في طلب = سقف، إلا أن يُقال «ابتداءً من».
   if (/(ابتداء|يبدا|فوق|اكثر من)/.test(s)) return { min: one, max: null };
@@ -221,9 +236,12 @@ export function extractArea(text) {
 }
 
 /** الدخل السنوي للعقار المدر. */
+// عبارة الدخل — يُستخرج منها الدخل، وتُحجب عن مستخرج الميزانية. نمطٌ
+// واحد يخدم الاثنين حتى لا ينحرف أحدهما عن الآخر بعد تعديل.
+const INCOME_PHRASE = /(?:الدخل|دخل|الايجار|ايجار|العايد|عايد|ريع)(?:\s*(?:السنوي|سنوي|السنه|سنويا))?\s*:?\s*([\d.,]+)\s*(مليون|الف|م(?![ء-ي])|ك(?![ء-ي]))?/;
 export function extractIncome(text) {
   const s = normalizeAr(text);
-  const m = s.match(/(?:الدخل|دخل|الايجار|ايجار|العايد|عايد|ريع)(?:\s*(?:السنوي|سنوي|السنه|سنويا))?\s*:?\s*([\d.,]+)\s*(مليون|الف|م(?![ء-ي])|ك(?![ء-ي]))?/);
+  const m = s.match(INCOME_PHRASE);
   if (!m) return null;
   const b = numAt(m[1]);
   if (b == null) return null;
