@@ -1,0 +1,98 @@
+# فريق الوكلاء → Azure Container Apps Jobs.
+#
+# لماذا هذا الملف موجود: `agents/azure/deploy.sh` يفعل كل شيء، لكنه يفترض
+# جهازاً عليه `az CLI` مسجّل الدخول. المالك غير تقني، فكان ذلك سطر أوامر
+# يعطّل النقل كله. هنا يعمل السكربت نفسه داخل GitHub: المالك يضيف الأسرار
+# من صفحة ويب، ثم يضغط Run. لا تثبيت ولا طرفية.
+#
+# التشغيل يدوي عمداً (workflow_dispatch وحده، لا push): هذا السير يُنشئ موارد
+# على Azure وتُحتسب من المنحة. إنشاء موارد لا يحدث بالمصادفة مع كل دفعة.
+#
+# الأسرار المطلوبة (Settings → Secrets and variables → Actions):
+#   AZURE_CREDENTIALS      — مخرَج `az ad sp create-for-rbac --sdk-auth` كاملاً
+#   AZURE_OPENAI_API_KEY   — مفتاح المورد bp-ai-ksa-2026
+#   SUPABASE_URL           — رابط قاعدة الموقع
+#   SUPABASE_SERVICE_KEY   — مفتاح خدمة Supabase
+# واختيارية: BP_N8N_BASE · BP_N8N_HOOK_KEY · OWNER_WHATSAPP
+#
+# اسم النشر والمورد ليسا سرّاً (مكتوبان في CLAUDE.md)، فهما قيمتان ثابتتان
+# هنا — كل سرّ أقل هو خطوة أقل على المالك.
+
+name: Deploy AI Agents to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'اكتب deploy للتأكيد'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agents-azure
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: تأكيد النية
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy" ]; then
+            echo "::error::اكتب deploy في خانة التأكيد لتشغيل النشر."
+            exit 1
+          fi
+
+      # سياق secrets غير متاح في `if` على مستوى الوظيفة، فالبوابة خطوة.
+      - id: gate
+        name: فحص الأسرار
+        env:
+          AZ: ${{ secrets.AZURE_CREDENTIALS }}
+          KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          SB_URL: ${{ secrets.SUPABASE_URL }}
+          SB_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          missing=""
+          [ -z "$AZ" ]     && missing="$missing AZURE_CREDENTIALS"
+          [ -z "$KEY" ]    && missing="$missing AZURE_OPENAI_API_KEY"
+          [ -z "$SB_URL" ] && missing="$missing SUPABASE_URL"
+          [ -z "$SB_KEY" ] && missing="$missing SUPABASE_SERVICE_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::ينقص:$missing — أضفها في Settings → Secrets → Actions ثم أعد التشغيل."
+            exit 1
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: تسجيل الدخول إلى Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: نشر المهام المجدولة
+        env:
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_DEPLOYMENT: bp-main
+          AZURE_OPENAI_RESOURCE: bp-ai-ksa-2026
+          AZURE_OPENAI_API_VERSION: 2025-03-01-preview
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BP_N8N_BASE: ${{ secrets.BP_N8N_BASE }}
+          BP_N8N_HOOK_KEY: ${{ secrets.BP_N8N_HOOK_KEY }}
+          OWNER_WHATSAPP: ${{ secrets.OWNER_WHATSAPP }}
+          BP_AZ_LOCATION: swedencentral
+        run: bash agents/azure/deploy.sh
+
+      - name: إثبات أن المهام موجودة
+        run: |
+          echo "### المهام على Azure" >> "$GITHUB_STEP_SUMMARY"
+          az containerapp job list -g "${BP_AZ_RG:-bp-agents-rg}" \
+            --query "[].{name:name,schedule:properties.configuration.scheduleTriggerConfig.cronExpression}" \
+            -o table >> "$GITHUB_STEP_SUMMARY" 2>&1 || \
+            echo "تعذّر السرد — راجع سجلّ الخطوة السابقة." >> "$GITHUB_STEP_SUMMARY"

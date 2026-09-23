@@ -2,9 +2,11 @@
 #
 # The Space used to be its own Vercel project, deployed by hand because
 # config.js carries the unauthenticated n8n webhook paths and this repository
-# is public. That project was deleted (owner decision 2026-09-20). Azure hosts
-# it now: the grant pays for it, and Static Web Apps puts a real sign-in in
-# front of a panel that can pause agents and create tasks.
+# is public. That Vercel project still exists behind Vercel Authentication
+# (checked 2026-09-23 — an earlier note here claimed it was deleted; it was
+# not). Azure is the target regardless: the grant pays for it, and Static Web
+# Apps puts a real role check (`owner`) in front of a panel that can pause
+# agents and create tasks, which team-level Vercel Auth does not.
 #
 # config.js is still never committed. It is written here from a secret, at
 # deploy time, and only ever exists inside the runner.
