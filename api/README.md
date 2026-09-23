@@ -10,7 +10,7 @@
 On-site AI chat widget that answers visitors' questions about Saudi government
 procedures and BP services, then gently suggests a relevant Business Partner
 service. Backend: `api/chat.js`, a Vercel serverless function that proxies to the
-Claude Messages API.
+**Azure OpenAI** — the platform's only intelligence provider (`api/_azure.js`).
 
 ## Files
 - `chat.js` — the serverless function (`POST /api/chat`). Zero npm dependencies
@@ -23,7 +23,11 @@ Claude Messages API.
 ## Required environment variables (set in Vercel → Project → Settings → Environment Variables)
 | Variable | Required | Default | Notes |
 |---|---|---|---|
-| `ANTHROPIC_API_KEY` | ✅ | — | Claude API key. Without it the widget shows a WhatsApp fallback. |
+| `AZURE_OPENAI_ENDPOINT` | ✅ | — | `https://<resource>.openai.azure.com`. Without it the widget falls back to the n8n agent, then WhatsApp. |
+| `AZURE_OPENAI_KEY` | ✅ | — | The Azure OpenAI resource key. |
+| `AZURE_OPENAI_DEPLOYMENT` | ✅ | — | The **deployment** name, not the model name. |
+| `AZURE_OPENAI_ENDPOINT_2` / `_KEY_2` / `_DEPLOYMENT_2` | recommended | — | Second Azure region. Failover on 429/408/5xx keeps the agents up without a second vendor; a 4xx stops instead, since a wrong deployment name fails identically everywhere. |
+| `AZURE_OPENAI_VISION_DEPLOYMENT` | optional | chat deployment | Only if images use a different deployment. |
 | `MODEL` | optional | `claude-opus-4-8` | Set to `claude-haiku-4-5` for lower cost/latency on a high-traffic site. |
 | `WHATSAPP_URL` | optional | `https://wa.me/966507034157` | The agent WhatsApp link the advisor points to. |
 | `MOYASAR_PUBLISHABLE_KEY` | optional | — | `pk_live_…` / `pk_test_…`. Shows the card form on checkout and on step 3 of a quote. Public by design — it ships in page source. |

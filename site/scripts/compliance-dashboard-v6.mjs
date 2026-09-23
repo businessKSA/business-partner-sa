@@ -21,7 +21,61 @@ function boot(){addPortalBar();rerouteActions();addRenewButtons();relabel()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();</script>`;
 
-html = html.replace(/<style id="bp-compliance-v6-css">[\s\S]*?<\/style>/g,'').replace(/<script id="bp-compliance-v6-js">[\s\S]*?<\/script>/g,'');
-html = html.replace('</head>',css+'\n</head>').replace('</body>',js+'\n</body>');
+
+// ===== وضع التضمين =====
+// اللوحة صفحة مستقلة، لكن بوابة الخدمات المشتركة تحمّلها داخل تبويب. كل ما
+// توفّره البوابة أصلاً — شريط الموقع، الشعار، أزرار الحساب، بطاقة «افتح بوابة
+// العميل»، التذييل والزر العائم — تكرارٌ في ذلك السياق، فيُسقط ويبقى المحتوى.
+// العلامة تُوضع قبل أول رسم حتى لا يومض الرأس المكرر ثم يختفي.
+const embedHead = String.raw`<script id="bp-compliance-embed-flag">(function(){try{var e=/[?&]embed=1/.test(location.search)||window.self!==window.top;if(e)document.documentElement.classList.add('bp6-embed')}catch(x){document.documentElement.classList.add('bp6-embed')}})();</script>`;
+
+const embedCss = String.raw`<style id="bp-compliance-embed-css">
+.bp6-embed .site-bar,
+.bp6-embed .topbar,
+.bp6-embed .bp6-portalbar,
+.bp6-embed .fab,
+.bp6-embed .foot{display:none!important}
+.bp6-embed body{background:#FAFBFE!important}
+.bp6-embed .hero{padding:0 0 20px!important;background:transparent!important;border-bottom:0!important}
+.bp6-embed .hero-grid{margin-top:0!important;padding-top:18px!important}
+.bp6-embed .hero-copy{border-radius:20px!important;padding:22px 24px!important}
+.bp6-embed .hero-copy h1{font-size:clamp(1.35rem,2.3vw,1.9rem)!important}
+.bp6-embed .snav{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--c6-line)!important}
+.bp6-embed .wrap,.bp6-embed .snav-in,.bp6-embed .hero-grid{padding-inline:18px!important}
+.bp6-embed .bp6-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.bp6-embed .bp6-acts button{border:0;font-family:inherit;font-weight:800;font-size:12.5px;
+  border-radius:11px;padding:9px 13px;cursor:pointer;background:rgba(255,255,255,.14);color:#fff}
+.bp6-embed .bp6-acts button.pri{background:#fff;color:#0b275f}
+/* الجداول العريضة تمرّر داخل صندوقها بدل أن تدفع الإطار جانبياً */
+.bp6-embed .bp6-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.bp6-embed .bp6-scroll>table{min-width:100%}
+@media(max-width:640px){.bp6-embed .hero-copy{padding:18px!important}
+  /* زرٌّ بـnowrap أعرض من إطار الجوال — يلتفّ بدل أن يدفع الصفحة */
+  .bp6-embed .btn-navy{white-space:normal!important;max-width:100%}
+  .bp6-embed .wrap,.bp6-embed .snav-in,.bp6-embed .hero-grid{padding-inline:12px!important}}
+</style>`;
+
+const embedJs = String.raw`<script id="bp-compliance-embed-js">(function(){
+if(!document.documentElement.classList.contains('bp6-embed'))return;
+function acts(){if(document.getElementById('bp6Acts'))return;var copy=document.querySelector('.hero-copy');if(!copy)return;
+  var d=document.createElement('div');d.id='bp6Acts';d.className='bp6-acts';
+  var up=document.createElement('button');up.className='pri';up.textContent='\u{1F4E4} رفع الملفات';
+  up.onclick=function(){top.location.href='/ar/account?view=documents'};
+  var rf=document.createElement('button');rf.textContent='↻ تحديث';
+  rf.onclick=function(){location.reload()};
+  d.appendChild(up);d.appendChild(rf);copy.appendChild(d)}
+function breakout(){document.querySelectorAll('a[href^="/"],a[href^="http"]').forEach(function(a){a.target='_top'})}
+function scrollTables(){document.querySelectorAll('table').forEach(function(t){
+  if(t.parentNode&&t.parentNode.classList&&t.parentNode.classList.contains('bp6-scroll'))return;
+  var w=document.createElement('div');w.className='bp6-scroll';t.parentNode.insertBefore(w,t);w.appendChild(t)})}
+function boot(){acts();breakout();scrollTables()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+new MutationObserver(function(){breakout();scrollTables()}).observe(document.body,{childList:true,subtree:true});
+})();</script>`;
+
+html = html.replace(/<style id="bp-compliance-v6-css">[\s\S]*?<\/style>/g,'').replace(/<script id="bp-compliance-v6-js">[\s\S]*?<\/script>/g,'')
+  .replace(/<script id="bp-compliance-embed-flag">[\s\S]*?<\/script>/g,'').replace(/<style id="bp-compliance-embed-css">[\s\S]*?<\/style>/g,'')
+  .replace(/<script id="bp-compliance-embed-js">[\s\S]*?<\/script>/g,'');
+html = html.replace('</head>',embedHead+'\n'+css+'\n'+embedCss+'\n</head>').replace('</body>',js+'\n'+embedJs+'\n</body>');
 fs.writeFileSync(file,html);
 console.log('Compliance dashboard v6 applied');
