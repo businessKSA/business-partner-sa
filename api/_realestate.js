@@ -157,7 +157,13 @@ async function nextRef(kind) {
   let n = 1;
   if (DB_ON && table) {
     try {
-      const rows = await sb(`${table}?select=ref&order=created_at.desc&limit=1`);
+      // الترتيب بالمرجع لا بوقت الإنشاء. صفّان يُدرجان في الملّي ثانية
+      // نفسها — وهذا ما يجري في إدخال الأرشيف دفعةً — يتساوى وقتهما،
+      // فيعيد ترتيبُ الوقت الأقدمَ منهما، فيتكرّر المرجع. محلياً مرّ
+      // التكرار بصمت؛ وفي الإنتاج `ref` فريدٌ فيسقط الإدراج وتتوقف
+      // الدفعة في منتصفها. والمرجع مصفوف بأصفار، فترتيبه النصّي هو
+      // ترتيبه العددي.
+      const rows = await sb(`${table}?select=ref&order=ref.desc&limit=1`);
       const last = rows && rows[0] && rows[0].ref;
       const m = last && String(last).match(/(\d+)$/);
       if (m) n = Number(m[1]) + 1;
@@ -1052,7 +1058,10 @@ export async function handleRealEstate(req, res) {
     });
     if (row && row.error) return json(res, row.error === "unknown_channel" ? 400 : 422, row);
     // التكرار يُعرض مع الصفّ لا بعده: من يراجع الوارد يقرّر وهو يراه.
-    const dups = row.intent === "LISTING" ? [] : await duplicatesFor(row.parsed || {}, row.contact_id);
+    // والفحص للطلبات وحدها: طلبُ دراسةٍ عن أرضٍ ليس طلبَ شراءٍ لها، وقد
+    // وُسم في أول تشغيل للديمو بأنه يكرّر طلب شراء — تنبيهٌ خاطئ يُفقد
+    // بقيةَ التنبيهات قيمتَها.
+    const dups = row.intent === "REQUEST" ? await duplicatesFor(row.parsed || {}, row.contact_id) : [];
     return json(res, 200, { ok: true, row, duplicates: dups });
   }
 

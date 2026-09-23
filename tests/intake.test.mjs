@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import {
   parseChatExport, splitBlocks, detectChainHint, extractPhones,
   buildChain, dedupKey, findDuplicates, channelLabel, chainRoleLabel, CHANNELS,
@@ -183,4 +186,23 @@ test("جواب المكتب نفسه لا يدخل الأرشيف طلباً", (
   assert.equal(classifyMessage("عميلي يبحث عن فرصة").intent, "QUESTION");
   // والدراسة مستثناة: لا متر فيها ولا ريال وهي طلب صحيح.
   assert.equal(classifyMessage("أبغى استشارة عقارية").intent, "STUDY");
+});
+
+test("المرجع التالي يُشتقّ بترتيب المرجع لا بوقت الإنشاء", async () => {
+  // صفّان يُدرجان في الملّي ثانية نفسها — وهذا ما يجري فعلاً في إدخال
+  // الأرشيف دفعةً — يتساوى وقتهما، فيعيد ترتيبُ الوقت أيّهما اتفق.
+  // وقع هذا في أول تشغيل للبذرة: تكرّر BD-W-000004 مرتين.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "bd-localdb-"));
+  process.env.LOCAL_DB = "1";
+  process.env.LOCAL_DB_DIR = dir;
+  const { localRest } = await import("../api/_localdb.js");
+  const at = new Date().toISOString();
+  await localRest("re_intake", { method: "POST", body: [
+    { ref: "BD-W-000001", raw_text: "أ", created_at: at },
+    { ref: "BD-W-000002", raw_text: "ب", created_at: at },
+    { ref: "BD-W-000003", raw_text: "ج", created_at: at },
+  ] });
+  const byRef = await localRest("re_intake?select=ref&order=ref.desc&limit=1");
+  assert.equal(byRef[0].ref, "BD-W-000003");
+  await fs.rm(dir, { recursive: true, force: true });
 });
