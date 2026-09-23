@@ -9,6 +9,11 @@
 <meta property="og:title" content="تسجيل طلب عقاري — شركة الألماس الأزرق العقارية">
 <meta property="og:description" content="سجّل طلبك العقاري: نوع العقار، المدينة، المساحة، الميزانية، ومدى الحاجة إلى عقار مدر للدخل — ونطابقه على المعروض في السوق.">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="ar">
+<link rel="alternate" hreflang="ar" href="/bluediamond/request">
+<link rel="alternate" hreflang="en" href="/bluediamond/en/request">
+<link rel="alternate" hreflang="zh-Hans" href="/bluediamond/zh/request">
+<link rel="alternate" hreflang="x-default" href="/bluediamond/request">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
@@ -77,12 +82,14 @@ header.bd{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bd
   backdrop-filter:blur(12px);border-bottom:1px solid var(--bd-line)}
 header.bd .bar{display:flex;align-items:center;gap:18px;min-height:70px}
 .brand{display:flex;align-items:center;gap:11px;font-weight:900;color:var(--bd-ink);font-size:17px}
+.brand span{white-space:nowrap}
 .brand .gem{width:30px;height:30px;flex:none;color:var(--bd-mark)}
-nav.bd{display:flex;gap:20px;margin-inline-start:auto;flex-wrap:wrap}
+nav.bd{display:flex;gap:18px;margin-inline-start:auto;flex-wrap:nowrap}
 nav.bd a{color:var(--bd-ink);font-size:14px;font-weight:700;opacity:.82}
 nav.bd a:hover{opacity:1;color:var(--bd-blue)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:13px 24px;border-radius:12px;font-weight:800;font-size:14px;border:1px solid transparent;cursor:pointer}
+  padding:13px 24px;border-radius:12px;font-weight:800;font-size:14px;border:1px solid transparent;
+  cursor:pointer;white-space:nowrap}
 .btn-primary{background:linear-gradient(135deg,var(--bd-indigo),var(--bd-blue));color:#fff;
   box-shadow:0 10px 26px rgba(37,33,89,.26)}
 .btn-ghost{border-color:var(--bd-line);color:var(--bd-ink);background:var(--bd-card)}
@@ -164,9 +171,38 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
 @media(max-width:900px){
   .hero-grid,.g3,.g2,.row,footer.bd .cols{grid-template-columns:1fr}
   .gem-art{max-width:200px}
+  /* النڤ يختفي، ومبدّل اللغة لا يختفي — فيرث دفعه إلى الطرف. ودخوله
+     الشريط يُفيض الزرّ خارج الشاشة عند ٣٩٠ بكسل، فيلفّ الشريط سطرين:
+     العلامة واللغة فوق، والزرّ بعرض الشاشة تحت. ضغطُهم في سطر واحد كان
+     سيعطي زرّاً بحجمٍ لا يُنقر. */
   nav.bd{display:none}
+  header.bd .bar{flex-wrap:wrap;row-gap:10px;padding-block:10px}
+  .langs{margin-inline-start:auto}
+  header.bd .bar>.btn{flex-basis:100%}
   section{padding:48px 0}
 }
+/* مبدّل اللغة. ثلاث لغات في شريط واحد — لا قائمة منسدلة: ثلاثة خيارات
+   لا تستحق نقرتين. */
+.langs{display:flex;gap:2px;border:1px solid var(--bd-line);border-radius:10px;
+  padding:2px;background:var(--bd-card);flex:none}
+.langs a{font-size:12px;font-weight:800;padding:5px 10px;border-radius:8px;
+  color:var(--bd-ink);opacity:.66;line-height:1.5;white-space:nowrap}
+.langs a:hover{opacity:1}
+.langs a[aria-current]{background:linear-gradient(135deg,var(--bd-indigo),var(--bd-blue));
+  color:#fff;opacity:1}
+
+/* الصينية تحتاج محرفاً صينياً — Markazi وIBM Plex لا يحملان الهانتسي،
+   فبدونهما يسقط المتصفح إلى خطٍّ افتراضي لا علاقة له بالهوية. */
+html[lang="zh-Hans"] body{font-family:"Noto Sans SC","IBM Plex Sans Arabic",system-ui,sans-serif;
+  line-height:1.85}
+html[lang="zh-Hans"] h1,html[lang="zh-Hans"] h2,html[lang="zh-Hans"] h3,
+html[lang="zh-Hans"] .brand span,html[lang="zh-Hans"] .stat b{
+  font-family:"Noto Serif SC","Markazi Text",serif;letter-spacing:0;font-weight:700}
+html[lang="zh-Hans"] h1{font-size:clamp(30px,4.8vw,48px)}
+html[lang="zh-Hans"] h2{font-size:clamp(24px,3.4vw,34px)}
+/* Markazi رحبٌ في العربية وضيّقٌ في اللاتينية — معايرةٌ طفيفة تعيد التوازن. */
+html[lang="en"] h1,html[lang="en"] h2{letter-spacing:-.02em}
+html[lang="en"] .eyebrow,html[lang="zh-Hans"] .eyebrow{letter-spacing:.1em}
 </style>
 
 </head>
@@ -176,11 +212,12 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
   <nav class="bd">
     <a href="/bluediamond/#about">من نحن</a>
     <a href="/bluediamond/#services">خدماتنا</a>
-    <a href="/bluediamond/#advisory">الاستشارات والتحليل</a>
+    <a href="/bluediamond/#advisory">الاستشارات</a>
     <a href="/bluediamond/#methodology">منهجيتنا</a>
     <a href="/bluediamond/#contact">تواصل</a>
   </nav>
-  <a class="btn btn-primary" href="/bluediamond/request">سجّل طلبك العقاري</a>
+  <div class="langs" role="group" aria-label="اللغة"><a href="/bluediamond/request" lang="ar" hreflang="ar" aria-current="page">العربية</a><a href="/bluediamond/en/request" lang="en" hreflang="en">English</a><a href="/bluediamond/zh/request" lang="zh-Hans" hreflang="zh-Hans">中文</a></div>
+  <a class="btn btn-primary" href="/bluediamond/request">سجّل طلبك</a>
 </div></header>
 
 <section><div class="wrap" style="max-width:840px">
@@ -203,12 +240,8 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
       <div class="hint">تُرجّح ولا تُقصي — العرض الممتاز خارجها يصلك مع تنبيه بأن موقعه ليس ما طلبته.</div>
     </div>
     <div class="row">
-      <div><label for="purpose">الغرض</label><select id="purpose" name="purpose">
-        <option value="BUY">شراء</option><option value="INVEST">استثمار</option>
-        <option value="RENT">استئجار</option><option value="DEVELOP">تطوير</option></select></div>
-      <div><label for="income_producing">مدر للدخل؟</label><select id="income_producing" name="income_producing">
-        <option value="">لا يفرق</option><option value="true">نعم — مؤجر بعقود قائمة</option>
-        <option value="false">لا — شاغر / خام</option></select></div>
+      <div><label for="purpose">الغرض</label><select id="purpose" name="purpose"><option value="BUY">شراء</option><option value="INVEST">استثمار</option><option value="RENT">استئجار</option><option value="DEVELOP">تطوير</option></select></div>
+      <div><label for="income_producing">مدر للدخل؟</label><select id="income_producing" name="income_producing"><option value="">لا يفرق</option><option value="true">نعم — مؤجر بعقود قائمة</option><option value="false">لا — شاغر / خام</option></select></div>
     </div>
     <div class="row">
       <div><label for="area_min">المساحة من (م²)</label><input id="area_min" name="area_min" inputmode="numeric"></div>
@@ -220,9 +253,7 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
     </div>
     <div class="row">
       <div><label for="target_yield">العائد السنوي المستهدف %</label><input id="target_yield" name="target_yield" inputmode="decimal" placeholder="مثال: 7"></div>
-      <div><label for="timeline">الجاهزية</label><select id="timeline" name="timeline">
-        <option value="">غير محدد</option><option value="IMMEDIATE">فوري</option>
-        <option value="3M">خلال ٣ أشهر</option><option value="6M">خلال ٦ أشهر</option><option value="12M">خلال سنة</option></select></div>
+      <div><label for="timeline">الجاهزية</label><select id="timeline" name="timeline"><option value="">غير محدد</option><option value="IMMEDIATE">فوري</option><option value="3M">خلال ٣ أشهر</option><option value="6M">خلال ٦ أشهر</option><option value="12M">خلال سنة</option></select></div>
     </div>
     <div>
       <label for="notes">تفاصيل إضافية</label>
@@ -263,7 +294,14 @@ table.bd th{font-weight:800;color:var(--bd-mute);font-size:12px;background:var(-
 <a class="wa-fab" href="https://wa.me/966505556150" target="_blank" rel="noopener" aria-label="واتساب">
   <svg viewBox="0 0 24 24"><path d="M.06 24l1.69-6.16A11.87 11.87 0 010 11.93C0 5.35 5.35 0 11.93 0a11.86 11.86 0 018.43 3.49 11.82 11.82 0 013.49 8.44c0 6.57-5.35 11.92-11.93 11.92a11.9 11.9 0 01-5.7-1.45L.06 24zM6.6 20.2l.36.21a9.9 9.9 0 004.97 1.36c5.46 0 9.91-4.44 9.91-9.9a9.85 9.85 0 00-2.9-7.01 9.82 9.82 0 00-7-2.91c-5.47 0-9.91 4.44-9.91 9.9a9.87 9.87 0 001.51 5.26l.24.38-1 3.65 3.82-.94zm11.1-5.63c-.07-.12-.27-.2-.57-.35-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48a9 9 0 01-1.66-2.06c-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.42.25-.7.25-1.29.18-1.41z"/></svg>
 </a>
-<script>
+<script>const T={sending:'جارٍ الإرسال…',
+  pickFirst:'اختر نوع العقار والمدينة أولاً.',
+  failReq:'تعذّر إرسال الطلب الآن. جرّب زر واتساب بالأسفل ويصلنا طلبك مباشرة.',
+  failOff:'تعذّر إرسال العرض الآن. جرّب زر واتساب ويصلنا مباشرة.',
+  netReq:'تعذّر الاتصال. استخدم زر واتساب ويصلنا طلبك مباشرة.',
+  netOff:'تعذّر الاتصال. استخدم زر واتساب ويصلنا العرض مباشرة.',
+  okReq:(r,m)=>'وصلنا طلبك ✅ رقمه '+r+(m?('، ولدينا '+(m===1?'عرض واحد':m===2?'عرضان':m<=10?m+' عروض':m+' عرضاً')+' مبدئياً يطابقه — يراجعه المستشار ويتواصل معك.'):'، ويتواصل معك المستشار قريباً.'),
+  okOff:(r,m)=>'وصلنا عرضك ✅ رقمه '+r+(m?('، ويطابق '+(m===1?'طلباً واحداً':m===2?'طلبين':m<=10?m+' طلبات':m+' طلباً')+' قائماً لدينا — يتواصل معك المستشار.'):'، وهو الآن ضمن مخزوننا ونرجع لك عند أول طلب يناسبه.')};
 const F=document.getElementById('f'),M=document.getElementById('msg');
 const val=k=>((F[k]&&F[k].value)||'').trim();
 function payload(){const p={action:'request'};
@@ -282,15 +320,15 @@ function asText(){const p=payload();const n=x=>Number(x).toLocaleString('en-US')
     p.target_yield?'العائد المستهدف: '+p.target_yield+'%':'',
     p.notes?'تفاصيل: '+p.notes:'', p.name?'الاسم: '+p.name:''].filter(Boolean).join('\n')}
 document.getElementById('wa').onclick=()=>{
-  if(!val('property_type')||!val('city')){say('اختر نوع العقار والمدينة أولاً.','err');return}
+  if(!val('property_type')||!val('city')){say(T.pickFirst,'err');return}
   window.open('https://wa.me/966505556150?text='+encodeURIComponent(asText()),'_blank','noopener')};
 F.onsubmit=async e=>{e.preventDefault();const b=document.getElementById('go');
-  b.disabled=true;b.textContent='جارٍ الإرسال…';
+  b.disabled=true;b.textContent=T.sending;
   try{const r=await fetch('/api/realestate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload())});
     const d=await r.json().catch(()=>({}));
-    if(r.ok&&d.ok){say('وصلنا طلبك ✅ رقمه '+d.ref+(d.matches?('، ولدينا '+(d.matches===1?'عرض واحد':d.matches===2?'عرضان':d.matches<=10?d.matches+' عروض':d.matches+' عرضاً')+' مبدئياً يطابقه — يراجعه المستشار ويتواصل معك.'):'، ويتواصل معك المستشار قريباً.'),'ok');F.reset()}
-    else say('تعذّر إرسال الطلب الآن. جرّب زر واتساب بالأسفل ويصلنا طلبك مباشرة.','err')}
-  catch(_){say('تعذّر الاتصال. استخدم زر واتساب ويصلنا طلبك مباشرة.','err')}
-  finally{b.disabled=false;b.textContent='أرسل الطلب'}};</script>
+    if(r.ok&&d.ok){say(T.okReq(d.ref,d.matches),'ok');F.reset()}
+    else say(T.failReq,'err')}
+  catch(_){say(T.netReq,'err')}
+  finally{b.disabled=false;b.textContent="أرسل الطلب"}};</script>
 </body>
 </html>
