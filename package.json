@@ -11,5 +11,8 @@
     "wa:menu": "node site/scripts/wa-menu.mjs",
     "wa:check": "node site/scripts/wa-menu.mjs --check",
     "verify:pages": "node site/scripts/verify-pages.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
   }
 }
