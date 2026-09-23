@@ -1,17 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
 import { COMPANY } from '../../config/company';
+import { BASE_PATH } from '../lib/base';
 import { STATUS_LABEL } from '../lib/enums';
 
 export function AdminBar({ email }: { email: string }) {
   return (
     <nav className="bar no-print">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={COMPANY.brand.logo} alt="Business Partner" />
+      <img src={`${BASE_PATH}${COMPANY.brand.logo}`} alt="Business Partner" />
       <Link href="/admin">لوحة التحكم</Link>
       <Link href="/admin/documents/new">عرض سعر جديد</Link>
       <Link href="/admin/clients">العملاء</Link>
       <Link href="/admin/invoices">الفواتير</Link>
+      <Link href="/admin/finance">المالية</Link>
       <Link href="/admin/catalog">الكتالوج</Link>
       <Link href="/admin/catalog/map">الخريطة</Link>
       <Link href="/admin/agent">الوكيل الذكي</Link>
@@ -30,7 +32,7 @@ export function PortalBar({ name }: { name: string }) {
   return (
     <nav className="bar no-print">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={COMPANY.brand.logo} alt="Business Partner" />
+      <img src={`${BASE_PATH}${COMPANY.brand.logo}`} alt="Business Partner" />
       <Link href="/portal">بوابة العميل</Link>
       <span className="spacer" />
       <span style={{ fontSize: 13, opacity: 0.85 }}>{name}</span>
