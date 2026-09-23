@@ -1,5 +1,14 @@
 # Business Partner — قواعد العمل لكل جلسات Claude (اقرأها قبل أي تعديل)
 
+## 0) أين تقرأ حالة المنظومة قبل أن تبدأ
+
+تدقيق كامل لسبتمبر 2026 — ما بُني، وما عُلّق، وخرائط الوكلاء والتحكم والتكاملات، وجرد السيران والاعتمادات والروابط:
+<https://claude.ai/code/artifact/9af225cc-9ec9-45ae-b977-408053f452cf>
+
+أرقام محسومة فيه ولا تُخمَّن: **101 سير عمل** في n8n (83 نشطاً)، لا 18 — الـ18 هي الموسومة `AI Team` وحدها. و**35 اعتماداً**، فيها اعتماد OpenAI ميت واعتماد `Header Auth account 2` مكسور. و`api/` بلغ سقف **12 دالة** بالضبط.
+
+والبنية الحرجة: المدراء الـ12 **لا مؤقّت لأيٍّ منهم** — كلهم يستيقظون حين يناديهم الموزّع `LZ5BqoVTwlYv3LOI` كل خمس دقائق. توقُّفه يوقف الشركة كلها.
+
 ## 1) هدف واحد للنشر: مشروع Vercel الرئيسي فقط
 
 قرار المالك (2026-09-01): **لا عمل ولا نشر إلا على مشروع Vercel الرئيسي**:
@@ -48,8 +57,9 @@
 
 ## 2) فرع واحد و Pull Request واحد
 
-- فرع الإنتاج للعمل: `claude/bpic-marketing-site-jvrnga`، والـ PR المفتوح هو **#271** — لا يُفتح PR آخر لهذا العمل.
-- قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/bpic-marketing-site-jvrnga`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
+- فرع الإنتاج للعمل: `claude/intelligent-agents-collaboration-y788ck`، والـ PR المفتوح هو **#315** — لا يُفتح PR آخر لهذا العمل.
+- **تصحيح 2026-09-23:** كان هذا البند يقول الفرع `claude/bpic-marketing-site-jvrnga` والطلب **#271**. و**#271 دُمج فعلاً في 2026-09-04** (`merged_at`)، فبقي البند يوجّه الجلسات إلى فرعٍ وطلبٍ منتهيين تسعة عشر يوماً. الطلب المدموج لا يُعاد استعماله ولا يتتبّع عملاً جديداً. تحقّق من الفرع بـ`git rev-parse --abbrev-ref HEAD` قبل أن تصدّق أي اسم مكتوب هنا.
+- قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/intelligent-agents-collaboration-y788ck`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
 - **لا تدفع أبداً إلى فرع آخر** دون إذن صريح من المالك.
 
 ## 2.5) التطوير المحلي أولاً (قرار المالك 2026-09-04)
@@ -189,4 +199,4 @@ the model node: each n8n manager has ONE model node feeding its `AI Engine`
 and every specialist, so replacing it fixes the whole department; keep the old
 node until a real run returns `engine_fallback: false`.
 
-**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
+**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/intelligent-agents-collaboration-y788ck`), one PR (#315 — #271 was merged on 2026-09-04 and must not be reused); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
