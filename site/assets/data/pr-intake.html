@@ -18,9 +18,11 @@
   header.brandbar .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   header.brandbar img{display:block;width:168px;height:auto}
   header.brandbar span{font-size:13px;color:var(--ink-2);margin-inline-start:auto;padding-inline-start:14px;border-inline-start:1px solid var(--line)}
+  header.brandbar select{width:auto;margin:0;font-size:13px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer}
   @media(max-width:560px){
     header.brandbar img{width:140px}
-    header.brandbar span{margin-inline-start:0;padding-inline-start:0;border-inline-start:0;flex-basis:100%}
+    header.brandbar span{margin-inline-start:0;padding-inline-start:0;border-inline-start:0;order:3;flex-basis:100%}
+    header.brandbar select{margin-inline-start:auto}
   }
   h1{font-size:clamp(21px,4.6vw,28px);line-height:1.3;margin:22px 0 6px;font-weight:700}
   .lede{color:var(--ink-2);margin:0 0 4px;max-width:62ch;font-size:14.5px}
@@ -90,40 +92,40 @@
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
 </head>
 <body>
-<header class="brandbar"><div class="in"><img src="/assets/img/logo.png" alt="Business Partner" width="168" height="32"><span>تجهيز ملف الإقامة المميزة — رائد أعمال</span></div></header>
+<header class="brandbar"><div class="in"><img src="/assets/img/logo.png" alt="Business Partner" width="168" height="32"><span data-i18n="تجهيز ملف الإقامة المميزة — رائد أعمال">تجهيز ملف الإقامة المميزة — رائد أعمال</span><select id="langSel" aria-label="Language"></select></div></header>
 
 <div id="datalists" hidden></div>
 
 <div class="wrap">
 
   <section id="gate">
-    <h1>ادخل بريدك للمتابعة</h1>
-    <p class="lede">نرسل لك رمزاً من ستة أرقام. الرمز يربط الملف ببريدك حتى تعود إليه في أي وقت وتُكمل من حيث توقفت.</p>
+    <h1 data-i18n="ادخل بريدك للمتابعة">ادخل بريدك للمتابعة</h1>
+    <p class="lede" data-i18n="نرسل لك رمزاً من ستة أرقام. الرمز يربط الملف ببريدك حتى تعود إليه في أي وقت وتُكمل من حيث توقفت.">نرسل لك رمزاً من ستة أرقام. الرمز يربط الملف ببريدك حتى تعود إليه في أي وقت وتُكمل من حيث توقفت.</p>
     <div class="card">
-      <label class="f">البريد الإلكتروني
+      <label class="f"><span data-i18n="البريد الإلكتروني">البريد الإلكتروني</span>
         <input type="email" id="email" autocomplete="email" placeholder="name@example.com" inputmode="email">
       </label>
       <div id="codeWrap" hidden>
-        <label class="f">رمز التحقق
-          <span class="hint">أُرسل إلى بريدك. صالح عشر دقائق.</span>
+        <label class="f"><span data-i18n="رمز التحقق">رمز التحقق</span>
+          <span class="hint" data-i18n="أُرسل إلى بريدك. صالح عشر دقائق.">أُرسل إلى بريدك. صالح عشر دقائق.</span>
           <input type="text" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="------">
         </label>
       </div>
-      <p style="margin:16px 0 0"><button class="btn" id="gateBtn" type="button">أرسل الرمز</button></p>
+      <p style="margin:16px 0 0"><button class="btn" id="gateBtn" type="button" data-i18n="أرسل الرمز">أرسل الرمز</button></p>
       <p class="status" id="gateMsg"></p>
     </div>
-    <footer>بياناتك تُحفظ لدى Business Partner لغرض تجهيز ملفك فقط، ولا تُرسل إلى مركز الإقامة المميزة إلا بعد مراجعتها معك.</footer>
+    <footer data-i18n="بياناتك تُحفظ لدى Business Partner لغرض تجهيز ملفك فقط، ولا تُرسل إلى مركز الإقامة المميزة إلا بعد مراجعتها معك.">بياناتك تُحفظ لدى Business Partner لغرض تجهيز ملفك فقط، ولا تُرسل إلى مركز الإقامة المميزة إلا بعد مراجعتها معك.</footer>
   </section>
 
   <section id="form" hidden>
-    <h1>ملف الإقامة المميزة — رائد أعمال</h1>
-    <p class="lede">ستة تبويبات مطابقة لنموذج مركز الإقامة المميزة. كل حقل يُحفظ تلقائياً، ويمكنك التوقف والعودة لاحقاً.</p>
+    <h1 data-i18n="ملف الإقامة المميزة — رائد أعمال">ملف الإقامة المميزة — رائد أعمال</h1>
+    <p class="lede" data-i18n="ستة تبويبات مطابقة لنموذج مركز الإقامة المميزة. كل حقل يُحفظ تلقائياً، ويمكنك التوقف والعودة لاحقاً.">ستة تبويبات مطابقة لنموذج مركز الإقامة المميزة. كل حقل يُحفظ تلقائياً، ويمكنك التوقف والعودة لاحقاً.</p>
 
     <div class="meter">
       <div class="box">
         <div class="top"><b id="who"></b><span class="pct" id="pct">0%</span></div>
         <div class="pbar"><i id="barFill"></i></div>
-        <div class="status" id="saveMsg">جاهز.</div>
+        <div class="status" id="saveMsg" data-i18n="جاهز.">جاهز.</div>
       </div>
     </div>
 
@@ -131,24 +133,38 @@
     <div id="panel"></div>
 
     <div class="card">
-      <h2 class="sec">الإرسال</h2>
-      <p class="lede" style="margin-top:6px">راجع التبويبات الستة قبل الإرسال. بعد الإرسال يصلنا ملفك ونتواصل معك لاستكمال أي ناقص.</p>
+      <h2 class="sec" data-i18n="الإرسال">الإرسال</h2>
+      <p class="lede" style="margin-top:6px" data-i18n="راجع التبويبات الستة قبل الإرسال. بعد الإرسال يصلنا ملفك ونتواصل معك لاستكمال أي ناقص.">راجع التبويبات الستة قبل الإرسال. بعد الإرسال يصلنا ملفك ونتواصل معك لاستكمال أي ناقص.</p>
       <div id="gapBox"></div>
-      <div class="note"><b>قبل أن ترسل:</b> تأكد أن كل مرفق في خانته الصحيحة، وأن الاسم الرباعي بالإنجليزي مطابق لصفحة جواز السفر حرفاً بحرف.</div>
+      <div class="note"><b data-i18n="قبل أن ترسل:">قبل أن ترسل:</b> <span data-i18n="تأكد أن كل مرفق في خانته الصحيحة، وأن الاسم الرباعي بالإنجليزي مطابق لصفحة جواز السفر حرفاً بحرف.">تأكد أن كل مرفق في خانته الصحيحة، وأن الاسم الرباعي بالإنجليزي مطابق لصفحة جواز السفر حرفاً بحرف.</span></div>
       <p style="margin:16px 0 0;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn ghost" id="draftBtn" type="button">احفظ كمسودة وأكمل لاحقاً</button>
-        <button class="btn" id="submitBtn" type="button" disabled>أرسل الملف</button>
+        <button class="btn ghost" id="draftBtn" type="button" data-i18n="احفظ كمسودة وأكمل لاحقاً">احفظ كمسودة وأكمل لاحقاً</button>
+        <button class="btn" id="submitBtn" type="button" disabled data-i18n="أرسل الملف">أرسل الملف</button>
       </p>
       <p class="status" id="submitMsg"></p>
     </div>
 
-    <footer>Business Partner — خدمات وحلول الأعمال · لسنا جهة رسمية، والمرجع النهائي هو مركز الإقامة المميزة.</footer>
+    <footer data-i18n="Business Partner — خدمات وحلول الأعمال · لسنا جهة رسمية، والمرجع النهائي هو مركز الإقامة المميزة.">Business Partner — خدمات وحلول الأعمال · لسنا جهة رسمية، والمرجع النهائي هو مركز الإقامة المميزة.</footer>
   </section>
 </div>
 
 <script>
 var API = "/api/pr-intake", OTP = "/api/otp";
-var LANG = "ar";
+
+/* اللغات الست. العربية هي المصدر: مفتاح الترجمة هو النص العربي نفسه، فلا
+   يوجد معرّف وسيط ينفصل عن النص ولا حقل يفلت بلا ترجمة. */
+var LANGS = [["ar","العربية"],["en","English"],["zh","中文"],["hi","हिन्दी"],["fr","Français"],["ru","Русский"]];
+var RTL = { ar: 1 };
+var LANG = "ar", I18N = {};
+
+try { var saved = localStorage.getItem("pr-lang"); if (saved && RTL[saved] !== undefined || saved && /^(ar|en|zh|hi|fr|ru)$/.test(saved)) LANG = saved; } catch(e){}
+
+function t(ar, vars){
+  if (ar && typeof ar === "object" && ar.tpl) return t(ar.tpl, { who: t(ar.who) });
+  var row = I18N[ar], out = (LANG === "ar" || !row || !row[LANG]) ? ar : row[LANG];
+  if (vars) for (var k in vars) out = out.split("{" + k + "}").join(vars[k]);
+  return out;
+}
 
 /* القوائم الطويلة تُحمَّل كبيانات لا تُكتب في الصفحة: 253 جهة استثمارية،
    و280 دولة بست لغات، وقائمة جامعات. `datalist` يعطي بحثاً بالكتابة بلا
@@ -160,15 +176,47 @@ function loadLists(){
   return Promise.all([
     get("/assets/data/countries.json"),
     get("/assets/data/universities.json"),
-    get("/assets/data/pr-investors.json")
+    get("/assets/data/pr-investors.json"),
+    get("/assets/data/pr-intake-i18n.json")
   ]).then(function(r){
     var c = r[0], u = r[1], i = r[2];
+    if (r[3]) I18N = r[3];
+    LISTS._countriesRaw = c; LISTS._uniRaw = u;
+    if (i) LISTS.investors = i.names || [];
+    return relist();
+  });
+}
+
+/* تبديل اللغة يُعيد بناء الصفحة كاملة: الاتجاه، والنصوص الثابتة،
+   والتبويبات، والقوائم — لأن أسماء الدول والجامعات تتغيّر باللغة أيضاً. */
+function applyLang(lang){
+  LANG = lang;
+  try { localStorage.setItem("pr-lang", lang); } catch(e){}
+  document.documentElement.lang = lang;
+  document.documentElement.dir = RTL[lang] ? "rtl" : "ltr";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function(el){
+    el.textContent = t(el.dataset.i18n);
+  });
+  var sel = $("langSel"); if (sel) sel.value = lang;
+  if (draft) { renderTabs(); show(current); }
+  relist();
+}
+
+function relist(){
+  return Promise.resolve().then(function(){
+    var c = LISTS._countriesRaw, u = LISTS._uniRaw;
     if (c) { var m = c[LANG] || c.ar || {}; LISTS.countries = Object.keys(m).map(function(k){ return m[k]; }).sort(); }
     if (u) LISTS.universities = [].concat(u.ksa_public || [], u.ksa_private || [], u.international || [])
       .map(function(x){ return LANG === "ar" ? x.ar : x.en; });
-    if (i) LISTS.investors = i.names || [];
     renderDatalists();
   });
+}
+
+function renderLangSel(){
+  var sel = $("langSel");
+  if (!sel) return;
+  sel.innerHTML = LANGS.map(function(l){ return '<option value="' + l[0] + '"' + (l[0] === LANG ? " selected" : "") + '>' + l[1] + '</option>'; }).join("");
+  sel.addEventListener("change", function(){ applyLang(sel.value); });
 }
 
 function renderDatalists(){
@@ -192,7 +240,7 @@ async function post(url, body){
 /* الأب والأم يأخذان الحقول نفسها؛ يتغيّر النداء في التلميح فقط. */
 function PARENT_FIELDS(who){
   return [
-    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:"مطابق لصفحة جواز " + who + " حرفاً بحرف", flag:1 },
+    { k:"firstNameEn", t:"text", l:"الاسم الأول (بالإنجليزي)", h:{ tpl:"مطابق لصفحة جواز {who} حرفاً بحرف", who:who }, flag:1, req:1 },
     { k:"fatherNameEn", t:"text", l:"اسم الأب (بالإنجليزي)" },
     { k:"grandNameEn", t:"text", l:"اسم الجد (بالإنجليزي)" },
     { k:"familyNameEn", t:"text", l:"اسم العائلة (بالإنجليزي)" },
@@ -202,7 +250,7 @@ function PARENT_FIELDS(who){
     { k:"nationality", t:"combo", src:"countries", l:"الجنسية", req:1 },
     { k:"passportNo", t:"text", l:"رقم جواز السفر" },
     { k:"passportExpiry", t:"date", l:"تاريخ انتهاء الجواز" },
-    { k:"works", t:"seg", l:"هل يعمل " + who + " في منشأة داخل المملكة؟", o:[["yes","نعم"],["no","لا"]],
+    { k:"works", t:"seg", l:{ tpl:"هل يعمل {who} في منشأة داخل المملكة؟", who:who }, o:[["yes","نعم"],["no","لا"]],
       h:"تعريف الأسرة يشترط أن يكون الوالدان غير عاملين في المملكة", flag:1, re:1 },
     { k:"worksNote", t:"textarea", l:"وضّح جهة العمل والوضع النظامي",
       h:"الإجابة بنعم لا تُغلق الباب، لكنها تحتاج بياناً واضحاً وما يثبت وضعه",
@@ -340,37 +388,37 @@ var draft = null, current = 0, timer = null, challenge = null;
 
 async function gate(){
   var btn = $("gateBtn"), msg = $("gateMsg"), email = $("email").value.trim().toLowerCase();
-  if (!email) { msg.textContent = "اكتب بريدك أولاً."; return; }
+  if (!email) { msg.textContent = t("اكتب بريدك أولاً."); return; }
   btn.disabled = true;
   if (!challenge) {
-    msg.textContent = "جارٍ الإرسال…";
+    msg.textContent = t("جارٍ الإرسال…");
     var r = await post(OTP, { action:"start", email: email });
     btn.disabled = false;
-    if (!r.ok) { msg.textContent = r.message || "تعذّر إرسال الرمز. تأكد من البريد."; return; }
+    if (!r.ok) { msg.textContent = r.message || t("تعذّر إرسال الرمز. تأكد من البريد."); return; }
     challenge = r.challenge; $("codeWrap").hidden = false; $("code").focus();
-    btn.textContent = "تأكيد الرمز";
-    msg.textContent = r.devCode ? ("رمز التطوير: " + r.devCode) : ("أُرسل الرمز إلى " + (r.to || email));
+    btn.textContent = t("تأكيد الرمز");
+    msg.textContent = r.devCode ? ("رمز التطوير: " + r.devCode) : (t("أُرسل الرمز إلى ") + " " + (r.to || email));
     return;
   }
-  msg.textContent = "جارٍ التحقق…";
+  msg.textContent = t("جارٍ التحقق…");
   var v = await post(OTP, { action:"verify", email: email, code: $("code").value.trim(), challenge: challenge });
   btn.disabled = false;
-  if (!v.ok) { msg.textContent = "الرمز غير صحيح أو منتهي."; return; }
+  if (!v.ok) { msg.textContent = t("الرمز غير صحيح أو منتهي."); return; }
   open_();
 }
 
 async function open_(){
   var r = await post(API, { action:"me" });
-  if (!r.ok) { $("gateMsg").textContent = r.message || "تعذّر فتح الملف."; return; }
+  if (!r.ok) { $("gateMsg").textContent = r.message || t("تعذّر فتح الملف."); return; }
   draft = r.draft;
   $("gate").hidden = true; $("form").hidden = false;
   $("who").textContent = draft.email || "";
-  renderTabs(); show(0); paint(); loadLists().then(function(){ show(current); });
+  renderTabs(); show(0); paint(); applyLang(LANG);
 }
 
 function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]; }); }
 
-function star(f){ return f.req ? '<span class="req" title="إلزامي">*</span>' : ""; }
+function star(f){ return f.req ? '<span class="req" title="' + esc(t("إلزامي")) + '">*</span>' : ""; }
 
 function hasValue(v){ return v !== "" && v !== null && v !== undefined && v !== false; }
 
@@ -408,14 +456,14 @@ function allMissing(){
   var all = [];
   TABS.forEach(function(tab, i){
     var m = missingInTab(i);
-    if (m.length) all.push({ tab: tab.label, i: i, items: m });
+    if (m.length) all.push({ tab: t(tab.label), i: i, items: m });
   });
   return all;
 }
 
 function renderTabs(){
-  $("tabs").innerHTML = TABS.map(function(t,i){
-    return '<button role="tab" aria-selected="' + (i===current) + '" data-i="' + i + '"><span class="n">' + (i+1) + '</span>' + esc(t.label) +
+  $("tabs").innerHTML = TABS.map(function(tab,i){
+    return '<button role="tab" aria-selected="' + (i===current) + '" data-i="' + i + '"><span class="n">' + (i+1) + '</span>' + esc(t(tab.label)) +
       '<span class="badge" data-badge="' + i + '"></span></button>';
   }).join("");
   Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b){
@@ -426,7 +474,7 @@ function renderTabs(){
 
 /* عدّاد النواقص على كل تبويب — لئلا يكتشف العميل النقص عند الإرسال فقط. */
 function paintBadges(){
-  TABS.forEach(function(t,i){
+  TABS.forEach(function(tab,i){
     var el = $("tabs").querySelector('[data-badge="' + i + '"]');
     if (!el) return;
     var n = missingInTab(i).length;
@@ -440,19 +488,19 @@ function paintBadges(){
 function paintGate(){
   var gaps = allMissing(), box = $("gapBox"), btn = $("submitBtn");
   if (!gaps.length) {
-    box.innerHTML = '<div class="ok">كل الحقول الإلزامية مكتملة. يمكنك الإرسال.</div>';
+    box.innerHTML = '<div class="ok">' + esc(t("كل الحقول الإلزامية مكتملة. يمكنك الإرسال.")) + '</div>';
     btn.disabled = false;
     btn.title = "";
     return;
   }
   var total = gaps.reduce(function(a,g){ return a + g.items.length; }, 0);
-  box.innerHTML = '<div class="note"><b>ينقص ' + total + ' حقلاً إلزامياً</b> قبل أن يُتاح الإرسال:</div>' +
+  box.innerHTML = '<div class="note"><b>' + esc(t("ينقص {n} حقلاً إلزامياً", { n: total })) + '</b> ' + esc(t("قبل أن يُتاح الإرسال:")) + '</div>' +
     '<div class="gaps">' + gaps.map(function(g){
       return '<div class="gap"><button type="button" class="jump" data-jump="' + g.i + '">' + esc(g.tab) + ' (' + g.items.length + ')</button>' +
         '<span>' + g.items.slice(0,6).map(esc).join(" · ") + (g.items.length > 6 ? " …" : "") + '</span></div>';
     }).join("") + '</div>';
   btn.disabled = true;
-  btn.title = "أكمل الحقول الإلزامية أولاً";
+  btn.title = t("أكمل الحقول الإلزامية أولاً");
   Array.prototype.forEach.call(box.querySelectorAll("[data-jump]"), function(b){
     b.addEventListener("click", function(){ show(+b.dataset.jump); window.scrollTo({ top: 0, behavior: "smooth" }); });
   });
@@ -478,53 +526,54 @@ function setP(o, path, v){
 /* `vals` هو الكائن الذي يعيش فيه الحقل (التبويب أو بطاقة التابع أو مجموعة
    الوالد)، فشرط `when` يُقاس على جيرانه لا على جذر التبويب. */
 function fieldHtml(tabId, f, vals, base, suffix){
-  if (f.s) return '<h2 class="sec">' + esc(f.s) + '</h2>';
+  if (f.s) return '<h2 class="sec">' + esc(t(f.s)) + '</h2>';
   if (f.when && !f.when(vals)) return "";
   var path = base ? base + "." + f.k : f.k;
-  var hint = f.h ? '<span class="hint' + (f.flag ? " flag" : "") + '">' + esc(f.h) + '</span>' : "";
+  var hint = f.h ? '<span class="hint' + (f.flag ? " flag" : "") + '">' + esc(t(f.h)) + '</span>' : "";
   var v = vals[f.k] == null ? "" : vals[f.k];
   var re = f.re ? ' data-re="1"' : "";
 
   if (f.t === "grp") {
     var sub = (vals[f.k] && typeof vals[f.k] === "object") ? vals[f.k] : {};
-    return '<div class="grp"><h2 class="sec">' + esc(f.l) + '</h2>' +
+    return '<div class="grp"><h2 class="sec">' + esc(t(f.l)) + '</h2>' +
       f.item.map(function(sf){ return fieldHtml(tabId, sf, sub, path, f.l); }).join("") + '</div>';
   }
 
   if (f.t === "rep") {
     var rows = Array.isArray(vals[f.k]) ? vals[f.k] : [];
     var body = rows.map(function(row, i){
-      var title = f.one + " " + (i + 1);
+      var title = t(f.one) + " " + (i + 1);
       return '<div class="rep"><div class="rep-h"><b>' + esc(title) + '</b>' +
-        '<button type="button" class="rm" data-rm="' + path + '" data-i="' + i + '">حذف</button></div>' +
+        '<button type="button" class="rm" data-rm="' + path + '" data-i="' + i + '">' + esc(t("حذف")) + '</button></div>' +
         f.item.map(function(sf){ return fieldHtml(tabId, sf, row || {}, path + "." + i, title); }).join("") + '</div>';
     }).join("");
-    return '<h2 class="sec">' + esc(f.l) + '</h2>' +
-      (rows.length ? body : '<p class="lede" style="margin:8px 0 0">لم تُضف أحداً بعد.</p>') +
-      '<p style="margin:14px 0 0"><button type="button" class="btn ghost" data-add="' + path + '">+ ' + esc(f.add) + '</button></p>';
+    return '<h2 class="sec">' + esc(t(f.l)) + '</h2>' +
+      (rows.length ? body : '<p class="lede" style="margin:8px 0 0">' + esc(t("لم تُضف أحداً بعد.")) + '</p>') +
+      '<p style="margin:14px 0 0"><button type="button" class="btn ghost" data-add="' + path + '">+ ' + esc(t(f.add)) + '</button></p>';
   }
 
   if (f.t === "file") {
     /* التسمية تحمل صاحبها، فيصل المرفق إلى نوشن منسوباً لا مكوَّماً. */
     var label = suffix ? f.l + " — " + suffix : f.l;
+    var shown = suffix ? t(f.l) + " — " + t(suffix) : t(f.l);
     var got = (draft.files || []).filter(function(x){ return x.tab === tabId && x.label === label; });
-    return '<label class="f">' + esc(f.l) + star(f) + hint + '<span class="up"><input type="file" data-file="' + esc(label) + '"></span></label>' +
+    return '<label class="f">' + esc(shown) + star(f) + hint + '<span class="up"><input type="file" data-file="' + esc(label) + '"></span></label>' +
       (got.length ? '<div class="files">' + got.map(function(g){ return '<div class="file"><b>✓</b><span>' + esc(g.name || g.label) + '</span></div>'; }).join("") + '</div>' : "");
   }
 
-  if (f.t === "seg") return '<label class="f">' + esc(f.l) + star(f) + hint + '<span class="seg" data-p="' + path + '"' + re + '>' +
-    f.o.map(function(p){ return '<button type="button" data-v="' + p[0] + '" aria-pressed="' + (v === p[0]) + '">' + esc(p[1]) + '</button>'; }).join("") + '</span></label>';
+  if (f.t === "seg") return '<label class="f">' + esc(t(f.l)) + star(f) + hint + '<span class="seg" data-p="' + path + '"' + re + '>' +
+    f.o.map(function(p){ return '<button type="button" data-v="' + p[0] + '" aria-pressed="' + (v === p[0]) + '">' + esc(t(p[1])) + '</button>'; }).join("") + '</span></label>';
 
-  if (f.t === "select") return '<label class="f">' + esc(f.l) + star(f) + hint + '<select data-p="' + path + '"' + re + '><option value="">— اختر —</option>' +
-    f.o.map(function(o){ return '<option value="' + esc(o) + '"' + (v === o ? " selected" : "") + '>' + esc(o) + '</option>'; }).join("") + '</select></label>';
+  if (f.t === "select") return '<label class="f">' + esc(t(f.l)) + star(f) + hint + '<select data-p="' + path + '"' + re + '><option value="">' + esc(t("— اختر —")) + '</option>' +
+    f.o.map(function(o){ return '<option value="' + esc(o) + '"' + (v === o ? " selected" : "") + '>' + esc(t(o)) + '</option>'; }).join("") + '</select></label>';
 
-  if (f.t === "textarea") return '<label class="f">' + esc(f.l) + star(f) + hint + '<textarea data-p="' + path + '">' + esc(v) + '</textarea></label>';
+  if (f.t === "textarea") return '<label class="f">' + esc(t(f.l)) + star(f) + hint + '<textarea data-p="' + path + '">' + esc(v) + '</textarea></label>';
 
   /* قائمة بحث: `list` يعطي فلترة بالكتابة ويسمح بقيمة خارجها. */
-  if (f.t === "combo") return '<label class="f">' + esc(f.l) + star(f) + hint +
+  if (f.t === "combo") return '<label class="f">' + esc(t(f.l)) + star(f) + hint +
     '<input type="text" list="dl-' + f.src + '" data-p="' + path + '" value="' + esc(v) + '" autocomplete="off"></label>';
 
-  return '<label class="f">' + esc(f.l) + star(f) + hint + '<input type="' + f.t + '" data-p="' + path + '" value="' + esc(v) + '"></label>';
+  return '<label class="f">' + esc(t(f.l)) + star(f) + hint + '<input type="' + f.t + '" data-p="' + path + '" value="' + esc(v) + '"></label>';
 }
 
 function show(i){
@@ -573,8 +622,8 @@ function wire(tabId){
     el.addEventListener("click", function(){
       var arr = getP(draft.tabs[tabId], el.dataset.rm);
       if (!Array.isArray(arr)) return;
-      var i = +el.dataset.i, title = arr.length > 1 ? ("رقم " + (i + 1)) : "";
-      if (!confirm("حذف هذا السجل " + title + "؟ ما كُتب فيه لا يعود.")) return;
+      var i = +el.dataset.i, title = arr.length > 1 ? (t("رقم") + " " + (i + 1)) : "";
+      if (!confirm(t("حذف هذا السجل") + " " + title + t("؟ ما كُتب فيه لا يعود."))) return;
       arr.splice(i, 1);
       show(current); queueSave();
     });
@@ -583,7 +632,7 @@ function wire(tabId){
 
 function queueSave(){
   clearTimeout(timer);
-  $("saveMsg").textContent = "يُحفظ…";
+  $("saveMsg").textContent = t("يُحفظ…");
   timer = setTimeout(save, 900);
 }
 
@@ -596,25 +645,25 @@ function set(tabId, path, v, redraw){
 
 async function save(){
   var r = await post(API, { action:"save", tabs: draft.tabs });
-  if (r.ok) { $("saveMsg").textContent = "حُفظ ✓"; if (typeof r.completeness === "number") paint(r.completeness); paintBadges(); paintGate(); }
-  else $("saveMsg").textContent = r.status === 401 ? "انتهت الجلسة — حدّث الصفحة وسجّل الدخول." : "تعذّر الحفظ — نعيد المحاولة مع أول تعديل.";
+  if (r.ok) { $("saveMsg").textContent = t("حُفظ ✓"); if (typeof r.completeness === "number") paint(r.completeness); paintBadges(); paintGate(); }
+  else $("saveMsg").textContent = r.status === 401 ? t("انتهت الجلسة — حدّث الصفحة وسجّل الدخول.") : t("تعذّر الحفظ — نعيد المحاولة مع أول تعديل.");
 }
 
 function upload(el, tabId){
   var file = el.files && el.files[0];
   if (!file) return;
-  if (file.size > 8 * 1024 * 1024) { $("saveMsg").textContent = "الملف أكبر من 8 ميغابايت."; el.value = ""; return; }
-  $("saveMsg").textContent = "جارٍ رفع المرفق…";
+  if (file.size > 8 * 1024 * 1024) { $("saveMsg").textContent = t("الملف أكبر من 8 ميغابايت."); el.value = ""; return; }
+  $("saveMsg").textContent = t("جارٍ رفع المرفق…");
   var fr = new FileReader();
   fr.onload = async function(){
     var r = await post(API, { action:"upload", tab: tabId, label: el.dataset.file, name: file.name, type: file.type, base64: String(fr.result).split(",")[1] || "" });
-    if (!r.ok) { $("saveMsg").textContent = r.message || "تعذّر رفع المرفق."; return; }
+    if (!r.ok) { $("saveMsg").textContent = r.message || t("تعذّر رفع المرفق."); return; }
     draft.files = (draft.files || []).filter(function(f){ return !(f.tab === tabId && f.label === el.dataset.file); });
     draft.files.push(r.file);
-    $("saveMsg").textContent = "رُفع المرفق ✓";
+    $("saveMsg").textContent = t("رُفع المرفق ✓");
     show(current); paint();
   };
-  fr.onerror = function(){ $("saveMsg").textContent = "تعذّرت قراءة الملف."; };
+  fr.onerror = function(){ $("saveMsg").textContent = t("تعذّرت قراءة الملف."); };
   fr.readAsDataURL(file);
 }
 
@@ -635,6 +684,9 @@ function paint(pct){
   $("barFill").style.width = n + "%";
 }
 
+renderLangSel();
+loadLists().then(function(){ applyLang(LANG); });
+
 $("gateBtn").addEventListener("click", gate);
 $("code").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
 $("email").addEventListener("keydown", function(e){ if (e.key === "Enter") gate(); });
@@ -645,27 +697,27 @@ $("draftBtn").addEventListener("click", async function(){
   b.disabled = true; clearTimeout(timer);
   var r = await post(API, { action:"save", tabs: draft.tabs });
   b.disabled = false;
-  if (!r.ok) { m.textContent = r.status === 401 ? "انتهت الجلسة — حدّث الصفحة وسجّل الدخول." : "تعذّر الحفظ. حاول مرة أخرى."; return; }
+  if (!r.ok) { m.textContent = r.status === 401 ? t("انتهت الجلسة — حدّث الصفحة وسجّل الدخول.") : t("تعذّر الحفظ. حاول مرة أخرى."); return; }
   if (typeof r.completeness === "number") paint(r.completeness);
   paintBadges(); paintGate();
-  m.innerHTML = '<span class="ok" style="display:block">حُفظت المسودة ✓ ارجع لهذا الرابط بنفس البريد في أي وقت وأكمل من حيث توقفت.</span>';
+  m.innerHTML = '<span class="ok" style="display:block">' + esc(t("حُفظت المسودة ✓ ارجع لهذا الرابط بنفس البريد في أي وقت وأكمل من حيث توقفت.")) + '</span>';
 });
 
 $("submitBtn").addEventListener("click", async function(){
   var b = $("submitBtn"), m = $("submitMsg");
   var gaps = allMissing();
-  if (gaps.length) { paintGate(); m.textContent = "أكمل الحقول الإلزامية أولاً."; return; }
+  if (gaps.length) { paintGate(); m.textContent = t("أكمل الحقول الإلزامية أولاً."); return; }
   b.disabled = true; m.textContent = "جارٍ الإرسال…";
   var r = await post(API, { action:"submit", tabs: draft.tabs });
   b.disabled = false;
-  if (!r.ok) { m.textContent = r.message || "تعذّر الإرسال. حاول مرة أخرى."; return; }
+  if (!r.ok) { m.textContent = r.message || t("تعذّر الإرسال. حاول مرة أخرى."); return; }
   draft.submittedAt = r.submittedAt;
-  m.innerHTML = '<span class="ok" style="display:block">وصلنا ملفك ✓ سنراجعه ونتواصل معك. يمكنك العودة لهذه الصفحة وتعديل أي بيان — التعديل يصلنا تلقائياً.</span>';
+  m.innerHTML = '<span class="ok" style="display:block">' + esc(t("وصلنا ملفك ✓ سنراجعه ونتواصل معك. يمكنك العودة لهذه الصفحة وتعديل أي بيان — التعديل يصلنا تلقائياً.")) + '</span>';
   paint(r.completeness);
 });
 
 /* جلسة قائمة؟ افتح الملف مباشرة بدل أن نطلب رمزاً من عميل مسجّل أصلاً. */
-post(API, { action:"me" }).then(function(r){ if (r.ok) { draft = r.draft; $("gate").hidden = true; $("form").hidden = false; $("who").textContent = draft.email || ""; renderTabs(); show(0); paint(); loadLists().then(function(){ show(current); }); } });
+post(API, { action:"me" }).then(function(r){ if (r.ok) { draft = r.draft; $("gate").hidden = true; $("form").hidden = false; $("who").textContent = draft.email || ""; renderTabs(); show(0); paint(); applyLang(LANG); } });
 </script>
 </body>
 </html>
