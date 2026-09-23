@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>الرايات الثلاث</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800&family=Reem+Kufi:wght@500;700&display=swap">
 <style>
 :root{
   --sand:#e8d5a8; --sand-deep:#c9a86a; --clay:#8b5a2b; --clay-dark:#4a2f17;
@@ -18,12 +18,22 @@
 html,body{height:100%;margin:0;background:var(--night);color:var(--paper);font-family:var(--font-ui);overflow:hidden}
 button{font-family:inherit}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-#c.insight{filter:saturate(.25) contrast(1.15) brightness(.9)}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;overflow-y:auto;padding:24px 16px;text-align:center;z-index:20}
 .screen[hidden]{display:none!important}
 .veil{background:radial-gradient(ellipse at center,rgba(14,20,32,.55),rgba(14,20,32,.94))}
-.brand{font-family:var(--font-display);font-weight:700;font-size:clamp(40px,min(9vw,10vh),92px);line-height:1;color:var(--paper);text-shadow:0 2px 0 var(--clay-dark),0 0 40px rgba(217,164,65,.35);margin:0}
-.brand small{display:block;font-size:.32em;font-weight:400;letter-spacing:.12em;color:var(--gold);margin-top:10px;font-family:var(--font-ui)}
+#menu{isolation:isolate;background:#0a0e16}
+#menu::before{content:"";position:absolute;inset:-6%;background:url(concept/01-diriyah-1744.jpg) center/cover no-repeat;z-index:-2;animation:kb 50s ease-in-out infinite alternate;transform-origin:60% 40%}
+#menu::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(8,12,20,.25) 0%,rgba(8,12,20,.55) 40%,rgba(8,12,20,.95) 100%),radial-gradient(ellipse at 50% 100%,rgba(217,164,65,.18),transparent 60%)}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.14)}}
+@media (prefers-reduced-motion:reduce){#menu::before{animation:none}}
+#loading{background:#0a0e16 url(concept/02-masmak-1902.jpg) center/cover no-repeat;flex-direction:column;gap:10px;text-shadow:0 2px 12px #000}
+#loading::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,12,20,.2),rgba(8,12,20,.85));z-index:-1}
+#loading{isolation:isolate}
+#loading .tip{font-family:var(--font-ui);font-size:14px;color:#cbbd9a;max-width:60ch;text-align:center;line-height:1.7;padding:0 16px}
+#chapterEnd .panel{background:linear-gradient(rgba(20,14,8,.9),rgba(20,14,8,.97)),url(concept/03-key-art.jpg) center/cover}
+.brand{font-family:"Reem Kufi",var(--font-display);font-weight:700;font-size:clamp(46px,min(10vw,12vh),110px);line-height:1.1;color:#f6ecd2;text-shadow:0 3px 0 #3a2410,0 0 50px rgba(217,164,65,.45),0 12px 40px rgba(0,0,0,.8);margin:0;letter-spacing:.01em}
+.brand small{display:block;font-size:.26em;font-weight:600;letter-spacing:.18em;color:var(--gold);margin-top:8px;font-family:var(--font-ui)}
+.brand::before{content:"";display:block;width:120px;height:2px;margin:0 auto 14px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .tagline{max-width:60ch;font-family:var(--font-display);font-size:clamp(17px,2.4vw,22px);line-height:1.8;color:#e7d9b5;margin:18px 0 26px}
 .menu{display:flex;flex-direction:column;gap:10px;width:min(360px,100%)}
 .btn{background:linear-gradient(180deg,rgba(217,164,65,.18),rgba(217,164,65,.06));border:1px solid var(--ui-line);color:var(--paper);padding:12px 18px;border-radius:4px;font-size:17px;font-weight:600;cursor:pointer;transition:.15s;letter-spacing:.02em}
@@ -102,14 +112,14 @@ kbd{font-family:var(--font-ui);background:#2a2115;border:1px solid #6b5230;borde
 table.keys{border-collapse:collapse;width:100%;font-size:14px}
 table.keys td{padding:5px 6px;border-bottom:1px solid rgba(217,164,65,.15)}
 video{width:100%;max-height:50vh;background:#000;border-radius:4px;margin-top:10px}
-#loading{position:fixed;inset:0;z-index:40;background:var(--night);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--gold)}
+#loading{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:26px;color:var(--gold)}
 #loading[hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.btn,.era{transition:none}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="loading">جارٍ تجهيز الدرعية…</div>
+<div id="loading"><div id="loadingTxt">جارٍ تجهيز الدرعية…</div><div class="tip" id="loadingTip">الحرّاس لا يرون فوق الأسطح. اصطدم بأي جدار واضغط Space لتتسلّقه.</div></div>
 
 <!-- MAIN MENU -->
 <section id="menu" class="screen veil" hidden>
@@ -392,15 +402,49 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 600);
-function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+const hiScene = new THREE.Scene();          // الأهداف والمخطوطات وأشباح الحرّاس (تُرسم فوق كل شيء في البصيرة)
+const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 700);
+/* معالجة لاحقة: تظليل حواف، حبيبات فيلم، انحراف لوني خفيف، تدرّج لوني لكل حقبة، وبصيرة الكشّاف */
+const postScene = new THREE.Scene(); const postCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+const post = new THREE.ShaderMaterial({ toneMapped:false, depthTest:false, depthWrite:false,
+  uniforms:{ tDiffuse:{value:null}, time:{value:0}, insight:{value:0}, pulse:{value:2}, vig:{value:.55}, grain:{value:.045}, tint:{value:new THREE.Vector3(1,1,1)} },
+  vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }',
+  fragmentShader:`uniform sampler2D tDiffuse; uniform float time,insight,pulse,vig,grain; uniform vec3 tint; varying vec2 vUv;
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+    void main(){ vec2 uv=vUv; vec2 d=uv-.5; float r=dot(d,d);
+      float ca = .0022*(1.+insight*2.5);
+      vec3 c; c.r=texture2D(tDiffuse, uv+d*ca).r; c.g=texture2D(tDiffuse,uv).g; c.b=texture2D(tDiffuse, uv-d*ca).b;
+      c*=tint;
+      float l=dot(c,vec3(.299,.587,.114));
+      vec3 ins = pow(mix(vec3(l), c, .12)*vec3(.5,.66,1.0), vec3(1.25))*1.15;
+      float ring = smoothstep(.06,.0,abs(sqrt(r)*1.6 - pulse)) * step(pulse, 1.4);
+      c = mix(c, ins, insight); c += ring*vec3(.4,.6,1.)*insight;
+      c *= 1.0 - vig*smoothstep(.12,.7,r);
+      c += (hash(uv*vec2(1920.,1080.)+fract(time*7.))-.5)*grain;
+      gl_FragColor=vec4(c,1.); }` });
+postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), post));
+let rt=null;
+function makeRT(){ if(rt) rt.dispose(); const pr=renderer.getPixelRatio(); const w=Math.max(2,Math.floor(innerWidth*pr)), h=Math.max(2,Math.floor(innerHeight*pr));
+  rt = (renderer.capabilities.isWebGL2 && THREE.WebGLMultisampleRenderTarget) ? new THREE.WebGLMultisampleRenderTarget(w,h) : new THREE.WebGLRenderTarget(w,h);
+  rt.texture.minFilter=THREE.LinearFilter; rt.texture.magFilter=THREE.LinearFilter; rt.texture.generateMipmaps=false; post.uniforms.tDiffuse.value=rt.texture; }
+function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); makeRT(); }
 addEventListener('resize', resize); resize();
+function renderFrame(now){
+  insightMix = lerp(insightMix, insightOn?1:0, .12); insightPulse=Math.min(2,insightPulse+.02);
+  post.uniforms.time.value=now/1000; post.uniforms.insight.value=insightMix; post.uniforms.pulse.value=insightPulse;
+  renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene,camera);
+  renderer.autoClear=false; renderer.render(hiScene,camera); renderer.autoClear=true;
+  renderer.setRenderTarget(null); renderer.render(postScene,postCam);
+  if(insightMix>.02){ renderer.autoClear=false; renderer.clearDepth(); renderer.render(hiScene,camera); renderer.autoClear=true; }
+}
 
+const TINTS = { day:[1.03,.99,.93], dusk:[1.06,.93,.84], dawn:[.98,.99,1.04], night:[.86,.92,1.12] };
+const TIPS = ['الحرّاس لا يرون فوق الأسطح. اصطدم بأي جدار واضغط Space لتتسلّقه.','اضغط V لتفعيل بصيرة الكشّاف: الحرّاس بالأحمر عبر الجدران، والمخطوطات بالذهبي.','عربات القش مخبأ آمن. اقترب منها والحارس يقترب.','الشماغ الأحمر للبطل، والغترة البيضاء للحرّاس: ميّزهم من بعيد.','إن امتلأ مقياس الشُبهة أُطلق الإنذار؛ اقطع خط النظر ثمانِ ثوانٍ يهدأ.','كل مخطوطة تحمل حقيقة تاريخية موثّقة وتُحفظ في السجلّ.'];
 const PALETTES = {
-  day:  {sky:0xb9d4ee, horizon:0xe9cf9e, fog:0xdcc59a, fogNear:70, fogFar:260, sun:[60,90,40], sunColor:0xffe9c4, sunI:1.0, hemiSky:0xa9c6e6, hemiGround:0x8a6a3e, hemiI:.45, ground:0xc4a066, wallTint:0xb8905c},
-  dusk: {sky:0x6a4f6e, horizon:0xf0a05a, fog:0xd9a06a, fogNear:40, fogFar:200, sun:[-70,25,30], sunColor:0xffb070, sunI:.9, hemiSky:0x6a5a8a, hemiGround:0x7a5a3a, hemiI:.5, ground:0xb98f5a, wallTint:0xb88a58},
-  dawn: {sky:0x8fa8c8, horizon:0xf3c49a, fog:0xd7bfa4, fogNear:40, fogFar:210, sun:[80,18,-30], sunColor:0xffd3a8, sunI:.85, hemiSky:0x9fb2d0, hemiGround:0x7a5a3a, hemiI:.55, ground:0xcaa46c, wallTint:0xbf9862},
-  night:{sky:0x0b1220, horizon:0x243652, fog:0x121a2c, fogNear:45, fogFar:190, sun:[-40,60,-20], sunColor:0x9fb4dd, sunI:.42, hemiSky:0x2c3f63, hemiGround:0x161a22, hemiI:.45, ground:0x4e4e5a, wallTint:0x74707a}
+  day:  {sky:0xb9d4ee, horizon:0xe9cf9e, fog:0xdcc59a, fogNear:70, fogFar:260, sun:[60,90,40], sunColor:0xffe9c4, sunI:1.0, hemiSky:0xa9c6e6, hemiGround:0x8a6a3e, hemiI:.5, ground:0xc9a66c, wallTint:0xe0c49a},
+  dusk: {sky:0x6a4f6e, horizon:0xf0a05a, fog:0xd9a06a, fogNear:40, fogFar:200, sun:[-70,25,30], sunColor:0xffb070, sunI:.9, hemiSky:0x6a5a8a, hemiGround:0x7a5a3a, hemiI:.5, ground:0xbf955e, wallTint:0xdcb488},
+  dawn: {sky:0x8fa8c8, horizon:0xf3c49a, fog:0xd7bfa4, fogNear:40, fogFar:210, sun:[80,18,-30], sunColor:0xffd3a8, sunI:.85, hemiSky:0x9fb2d0, hemiGround:0x7a5a3a, hemiI:.55, ground:0xcaa46c, wallTint:0xdfbe92},
+  night:{sky:0x0b1220, horizon:0x243652, fog:0x121a2c, fogNear:45, fogFar:190, sun:[-40,60,-20], sunColor:0x9fb4dd, sunI:.42, hemiSky:0x2c3f63, hemiGround:0x161a22, hemiI:.6, ground:0x555562, wallTint:0x9a949e}
 };
 
 let hemi, sun, skyMesh;
@@ -425,18 +469,64 @@ function setupLights(pal){
 
 /* ---------- 4) مولّد المدينة النجدية ---------- */
 const R = 48;                      // نصف عرض السور
-const world = { solids:[], hides:[], group:null, palms:null, torches:[], special:{} };
-const MAT = {};
+const world = { solids:[], hides:[], group:null, palms:null, torches:[], special:{}, life:[], dust:null, stars:null, sunSprite:null, clouds:[] };
+const MAT = {}; const TEX = {};
+function cnv(w,h,fn){ const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); fn(x,w,h); return c; }
+function toTex(c,rx,ry,srgb=true){ const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rx||1,ry||1); t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy()); if(srgb) t.encoding=THREE.sRGBEncoding; return t; }
+function speckle(x,w,h,n,a,dark){ for(let i=0;i<n;i++){ const v=Math.random(); x.fillStyle=`rgba(${dark?0:255},${dark?0:255},${dark?0:255},${v*a})`; x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1+Math.random()*3); } }
+function makeTextures(){
+  if(TEX.clay) return;
+  const rnd=mulberry(42);
+  // طين ولِبن: صفوف لِبن بمونة، تآكل، بقع
+  TEX.clay = toTex(cnv(512,512,(x,w,h)=>{ x.fillStyle='#e6d6ba'; x.fillRect(0,0,w,h);
+    for(let i=0;i<1400;i++){ x.fillStyle=`rgba(120,80,40,${rnd()*.09})`; x.beginPath(); x.arc(rnd()*w,rnd()*h,2+rnd()*14,0,7); x.fill(); }
+    for(let y=0;y<h;y+=32){ x.fillStyle='rgba(90,60,30,.09)'; x.fillRect(0,y,w,2); const off=(y/32)%2?48:0; for(let bx=off;bx<w;bx+=96){ x.fillRect(bx,y,2,32); } }
+    for(let i=0;i<40;i++){ x.strokeStyle=`rgba(70,45,20,${.15+rnd()*.2})`; x.lineWidth=1; x.beginPath(); let px=rnd()*w,py=rnd()*h; x.moveTo(px,py); for(let k=0;k<6;k++){ px+=(rnd()-.5)*30; py+=rnd()*25; x.lineTo(px,py);} x.stroke(); }
+    speckle(x,w,h,6000,.12,true); speckle(x,w,h,3000,.10,false);
+    const g=x.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(60,40,20,.12)'); x.fillStyle=g; x.fillRect(0,0,w,h);
+  }),1,1);
+  TEX.clayBump = toTex(cnv(512,512,(x,w,h)=>{ x.fillStyle='#808080'; x.fillRect(0,0,w,h); speckle(x,w,h,9000,.5,true); speckle(x,w,h,9000,.5,false);
+    for(let y=0;y<h;y+=32){ x.fillStyle='rgba(0,0,0,.5)'; x.fillRect(0,y,w,3); const off=(y/32)%2?48:0; for(let bx=off;bx<w;bx+=96){ x.fillRect(bx,y,3,32); } } }),1,1,false);
+  TEX.sand = toTex(cnv(512,512,(x,w,h)=>{ x.fillStyle='#e8dcc0'; x.fillRect(0,0,w,h);
+    for(let i=0;i<500;i++){ x.fillStyle=`rgba(150,110,60,${rnd()*.12})`; x.beginPath(); x.ellipse(rnd()*w,rnd()*h,6+rnd()*40,3+rnd()*14,rnd()*3,0,7); x.fill(); }
+    for(let y=0;y<h;y+=9){ x.strokeStyle=`rgba(120,90,50,${.05+rnd()*.05})`; x.beginPath(); for(let px=0;px<=w;px+=8){ x.lineTo(px, y+Math.sin(px/37+y)*3); } x.stroke(); }
+    speckle(x,w,h,7000,.15,true); speckle(x,w,h,5000,.12,false); }),80,80);
+  TEX.wood = toTex(cnv(256,256,(x,w,h)=>{ x.fillStyle='#8a5a30'; x.fillRect(0,0,w,h);
+    for(let i=0;i<120;i++){ x.strokeStyle=`rgba(40,20,5,${.1+rnd()*.3})`; x.lineWidth=1+rnd()*2; x.beginPath(); const px=rnd()*w; x.moveTo(px,0); x.bezierCurveTo(px+(rnd()-.5)*20,h/3,px+(rnd()-.5)*20,h*2/3,px+(rnd()-.5)*10,h); x.stroke(); }
+    for(let bx=0;bx<w;bx+=64){ x.fillStyle='rgba(20,10,0,.5)'; x.fillRect(bx,0,3,h); } speckle(x,w,h,2000,.2,true); }),1,1);
+  TEX.door = toTex(cnv(256,512,(x,w,h)=>{ x.fillStyle='#4a2f17'; x.fillRect(0,0,w,h); x.drawImage(TEX.wood.image,0,0,w,h);
+    x.fillStyle='rgba(0,0,0,.35)'; x.fillRect(0,0,w,h); x.globalCompositeOperation='destination-in'; x.beginPath(); x.moveTo(0,h); x.lineTo(0,h*.22); x.quadraticCurveTo(w/2,-h*.12,w,h*.22); x.lineTo(w,h); x.closePath(); x.fill(); x.globalCompositeOperation='source-over';
+    for(let y=h*.3;y<h;y+=48){ for(let bx=24;bx<w;bx+=48){ x.fillStyle='#2a1a0a'; x.beginPath(); x.arc(bx,y,4,0,7); x.fill(); x.fillStyle='#9a8a70'; x.beginPath(); x.arc(bx-1,y-1,2,0,7); x.fill(); } }
+    x.fillStyle='#d9a441'; x.fillRect(w*.32,h*.5,w*.36,6); }),1,1); TEX.door.wrapS=TEX.door.wrapT=THREE.ClampToEdgeWrapping;
+  // سدو: نقش نجدي هندسي
+  TEX.sadu = toTex(cnv(256,128,(x,w,h)=>{ const cols=['#8a1f1f','#1b1b1b','#e8dcc0','#c77a2a','#1b1b1b','#8a1f1f']; let y=0; const rows=[14,6,22,6,40,6,22,6,6];
+    rows.forEach((rh,i)=>{ x.fillStyle=cols[i%cols.length]; x.fillRect(0,y,w,rh); if(rh>=22){ x.fillStyle= i%2?'#e8dcc0':'#1b1b1b'; for(let bx=0;bx<w;bx+=32){ x.beginPath(); x.moveTo(bx,y+rh/2); x.lineTo(bx+16,y+3); x.lineTo(bx+32,y+rh/2); x.lineTo(bx+16,y+rh-3); x.closePath(); x.fill(); } } y+=rh; });
+    x.fillStyle='#8a1f1f'; x.fillRect(0,y,w,h-y); }),2,1);
+  // شماغ أحمر مرقّط
+  TEX.shemagh = toTex(cnv(128,128,(x,w,h)=>{ x.fillStyle='#f1e9d6'; x.fillRect(0,0,w,h); x.fillStyle='#b8322c'; for(let py=0;py<h;py+=8) for(let px=0;px<w;px+=8){ if(((px+py)/8)%2===0) x.fillRect(px,py,8,8); } x.fillStyle='rgba(255,255,255,.35)'; for(let py=0;py<h;py+=16) for(let px=0;px<w;px+=16) x.fillRect(px+6,py+6,4,4); }),4,4);
+  TEX.ao = toTex(cnv(128,128,(x,w,h)=>{ const g=x.createRadialGradient(64,64,10,64,64,64); g.addColorStop(0,'rgba(0,0,0,.6)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); }),1,1,false); TEX.ao.wrapS=TEX.ao.wrapT=THREE.ClampToEdgeWrapping;
+  TEX.glow = toTex(cnv(128,128,(x,w,h)=>{ const g=x.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.35,'rgba(255,255,255,.5)'); g.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); }),1,1,false);
+  TEX.cloud = toTex(cnv(256,128,(x,w,h)=>{ for(let i=0;i<26;i++){ const g=x.createRadialGradient(40+rnd()*176,40+rnd()*48,0,128,64,60); const r=20+rnd()*40; const cx=40+rnd()*176, cy=44+rnd()*40; const gg=x.createRadialGradient(cx,cy,0,cx,cy,r); gg.addColorStop(0,'rgba(255,255,255,.55)'); gg.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=gg; x.fillRect(0,0,w,h); } }),1,1,false); TEX.cloud.wrapS=TEX.cloud.wrapT=THREE.ClampToEdgeWrapping;
+}
+/* إسقاط صندوقي: إحداثيات النسيج من موضع العالم حتى تتناسق الطوب على كل الأحجام */
+function boxMapped(mat, scale){ mat.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace('#include <uv_vertex>', `
+    vec3 bwp = (modelMatrix * vec4(position,1.0)).xyz; vec3 bwn = normalize(mat3(modelMatrix) * normal);
+    vUv = (abs(bwn.y) > .5 ? bwp.xz : (abs(bwn.x) > .5 ? bwp.zy : bwp.xy)) * ${scale.toFixed(4)};`); }; mat.customProgramCacheKey=()=>'box'+scale; return mat; }
 function makeMaterials(pal){
-  MAT.clay = new THREE.MeshStandardMaterial({color:pal.wallTint, roughness:.95, metalness:0});
-  MAT.clayDark = new THREE.MeshStandardMaterial({color:new THREE.Color(pal.wallTint).multiplyScalar(.75), roughness:.95});
-  MAT.wood = new THREE.MeshStandardMaterial({color:0x5a3a1e, roughness:.9});
-  MAT.cloth = new THREE.MeshStandardMaterial({color:0x8a3b2c, roughness:1, side:THREE.DoubleSide});
+  makeTextures();
+  MAT.clay = boxMapped(new THREE.MeshStandardMaterial({color:pal.wallTint, map:TEX.clay, bumpMap:TEX.clayBump, bumpScale:.035, roughness:.96, metalness:0}), .22);
+  MAT.clayDark = boxMapped(new THREE.MeshStandardMaterial({color:new THREE.Color(pal.wallTint).multiplyScalar(.78), map:TEX.clay, roughness:.95}), .3);
+  MAT.wood = new THREE.MeshStandardMaterial({color:0x8a6a48, map:TEX.wood, roughness:.9});
+  MAT.door = new THREE.MeshStandardMaterial({color:0xa08060, map:TEX.door, transparent:true, roughness:.9});
+  MAT.cloth = new THREE.MeshStandardMaterial({color:0xffffff, map:TEX.sadu, roughness:1, side:THREE.DoubleSide});
   MAT.cloth2 = new THREE.MeshStandardMaterial({color:0x3b5a8a, roughness:1, side:THREE.DoubleSide});
+  MAT.ao = new THREE.MeshBasicMaterial({map:TEX.ao, transparent:true, depthWrite:false});
+  MAT.sand = new THREE.MeshStandardMaterial({color:pal.ground, map:TEX.sand, roughness:1});
+  MAT.shemagh = new THREE.MeshStandardMaterial({map:TEX.shemagh, roughness:.9, side:THREE.DoubleSide});
   MAT.hay = new THREE.MeshStandardMaterial({color:0xd8c27a, roughness:1});
   MAT.window = new THREE.MeshStandardMaterial({color:0x1a120a, roughness:1});
   MAT.palmTrunk = new THREE.MeshStandardMaterial({color:0x6b4a2a, roughness:1});
-  MAT.palmLeaf = new THREE.MeshStandardMaterial({color:0x2f6b33, roughness:.9, side:THREE.DoubleSide});
+  MAT.palmLeaf = new THREE.MeshStandardMaterial({color:0x3a7a3a, roughness:.85, side:THREE.DoubleSide});
   MAT.gold = new THREE.MeshStandardMaterial({color:0xd9a441, emissive:0x8a5a10, emissiveIntensity:.6, roughness:.3, metalness:.6});
   MAT.green = new THREE.MeshStandardMaterial({color:0x1f6b3a, roughness:.8, side:THREE.DoubleSide});
   MAT.fire = new THREE.MeshBasicMaterial({color:0xffa030});
@@ -448,6 +538,7 @@ function addSolid(x,y,z,w,h,d, opts={}){
   const mesh = new THREE.Mesh(geo, opts.mat||MAT.clay);
   mesh.position.set(x, y+h/2, z); mesh.castShadow = true; mesh.receiveShadow = true;
   world.group.add(mesh);
+  if(y===0 && h>2){ const ao=new THREE.Mesh(new THREE.PlaneGeometry(w+2.4,d+2.4), MAT.ao); ao.rotation.x=-Math.PI/2; ao.position.set(x,.04,z); world.group.add(ao); }
   const s = {minX:x-w/2,maxX:x+w/2,minZ:z-d/2,maxZ:z+d/2,minY:y,maxY:y+h, climbable:opts.climbable!==false, mesh, kind:opts.kind||'building'};
   world.solids.push(s); return s;
 }
@@ -482,13 +573,22 @@ function flushInstances(){
 
 function palms(points){
   const tg = new THREE.CylinderGeometry(.18,.28,6,6); const tm = new THREE.InstancedMesh(tg, MAT.palmTrunk, points.length);
-  const lg = new THREE.ConeGeometry(2.2,1.6,7,1,true); const lm = new THREE.InstancedMesh(lg, MAT.palmLeaf, points.length);
+  const lg = frondGeometry(); const lm = new THREE.InstancedMesh(lg, MAT.palmLeaf, points.length);
   const o = new THREE.Object3D();
   points.forEach((p,i)=>{ const h=p[2]||1; o.position.set(p[0],3*h,p[1]); o.scale.set(1,h,1); o.rotation.set(0,0,0); o.updateMatrix(); tm.setMatrixAt(i,o.matrix);
-    o.position.set(p[0],6*h+.2,p[1]); o.scale.set(1,1,1); o.rotation.set(Math.PI,p[0]*.3,0); o.updateMatrix(); lm.setMatrixAt(i,o.matrix); });
+    o.position.set(p[0],6*h+.1,p[1]); o.scale.set(1,1,1); o.rotation.set(0,p[0]*.3,0); o.updateMatrix(); lm.setMatrixAt(i,o.matrix); });
   tm.castShadow=true; lm.castShadow=true; world.group.add(tm); world.group.add(lm);
 }
 
+function frondGeometry(){
+  // ٩ سعفات متدلية، كل سعفة شريطان مثلثان
+  const pos=[], uv=[], n=9; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2, ca=Math.cos(a), sa=Math.sin(a); const L=2.8, W=.42;
+    const pts=[[0,.15,0],[L*.45,.35,0],[L,-.9,0]]; // مسار السعفة: يرتفع ثم يتدلى
+    for(let k=0;k<pts.length-1;k++){ const [x0,y0]=pts[k],[x1,y1]=pts[k+1]; const w0=W*(1-k*.35), w1=W*(1-(k+1)*.45);
+      const q=[[x0*ca - (-w0)*sa, y0, x0*sa + (-w0)*ca],[x0*ca - w0*sa, y0, x0*sa + w0*ca],[x1*ca - w1*sa, y1, x1*sa + w1*ca],[x1*ca - (-w1)*sa, y1, x1*sa + (-w1)*ca]];
+      pos.push(...q[0],...q[1],...q[2], ...q[0],...q[2],...q[3]); uv.push(0,0,1,0,1,1, 0,0,1,1,0,1); } }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv,2)); g.computeVertexNormals(); return g;
+}
 function addTorch(x,y,z){
   const pole = new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.6,5), MAT.wood); pole.position.set(x,y+.8,z); world.group.add(pole);
   const flame = new THREE.Mesh(new THREE.SphereGeometry(.22,6,6), MAT.fire); flame.position.set(x,y+1.7,z); world.group.add(flame);
@@ -498,16 +598,16 @@ function addTorch(x,y,z){
 
 function buildCity(level){
   if(world.group){ scene.remove(world.group); world.group.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); }
-  world.group = new THREE.Group(); world.solids=[]; world.hides=[]; world.torches=[]; world.special={};
+  world.group = new THREE.Group(); world.solids=[]; world.hides=[]; world.torches=[]; world.special={}; world.life=[]; world.clouds=[]; world.dust=null; world.stars=null; world.sunSprite=null;
   scene.add(world.group);
   const pal = PALETTES[level.time]; makeMaterials(pal);
   const rnd = mulberry(level.id.length*7919 + level.title.length*31);
 
   // الأرض
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(600,600), new THREE.MeshStandardMaterial({color:pal.ground, roughness:1}));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(600,600), MAT.sand);
   ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; world.group.add(ground);
   // شوارع أغمق داخل السور
-  const streets = new THREE.Mesh(new THREE.PlaneGeometry(R*2-2,R*2-2), new THREE.MeshStandardMaterial({color:new THREE.Color(pal.ground).multiplyScalar(.88), roughness:1}));
+  const streets = new THREE.Mesh(new THREE.PlaneGeometry(R*2-2,R*2-2), new THREE.MeshStandardMaterial({color:new THREE.Color(pal.ground).multiplyScalar(.86), map:TEX.sand, roughness:1}));
   streets.rotation.x=-Math.PI/2; streets.position.y=.02; streets.receiveShadow=true; world.group.add(streets);
 
   // السور والبوابة (جنوب z=+R) — قابل للتسلّق
@@ -606,6 +706,8 @@ function buildCity(level){
   }
   palms(pts);
   flushInstances();
+  decorateCity(level, rnd);
+  buildSky(level);
   if(level.time==='night'){ addTorch(-GW/2-2.4,0,R-2); addTorch(GW/2+2.4,0,R-2); }
 }
 
@@ -634,6 +736,100 @@ function losBlocked(ax,az,bx,bz,h){
   return false;
 }
 
+/* ---------- 4.5) تفاصيل المدينة والسماء والحياة ---------- */
+function decorateCity(level, rnd){
+  const night = level.time==='night';
+  const beamGeo = new THREE.CylinderGeometry(.09,.09,1.3,5); const jarGeo = new THREE.SphereGeometry(.32,8,8); const neckGeo=new THREE.CylinderGeometry(.14,.18,.3,8);
+  const jarMat = new THREE.MeshStandardMaterial({color:0x9c6b46, roughness:.9});
+  let decoBudget = isTouch? 140 : 400;
+  for(const s of world.solids){
+    if(s.kind!=='building' || s.maxY<3 || s.minY>0) continue;
+    const w=s.maxX-s.minX, d=s.maxZ-s.minZ, cx=(s.minX+s.maxX)/2, cz=(s.minZ+s.maxZ)/2;
+    // مرازيم: عوارض بارزة تحت السطح
+    const faceZ = cz>0 ? s.maxZ : s.minZ; const dir = cz>0?1:-1;
+    for(let i=0;i<3 && decoBudget>0;i++){ const b=new THREE.Mesh(beamGeo, MAT.wood); b.rotation.x=Math.PI/2; b.position.set(s.minX+1+i*(w-2)/2, s.maxY-.7, faceZ+dir*.5); world.group.add(b); decoBudget--; }
+    // باب مقوّس على الواجهة
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(1.3,2.3), MAT.door); door.position.set(cx+(rnd()-.5)*(w-2), 1.15, faceZ+dir*.03); if(dir<0) door.rotation.y=Math.PI; world.group.add(door);
+    // مظلّة قماش فوق الباب أحياناً
+    if(rnd()<.3 && decoBudget>0){ const aw=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.3), MAT.cloth); aw.position.set(door.position.x, 2.7, faceZ+dir*.7); aw.rotation.x = -dir*Math.PI/2*.75; world.group.add(aw); decoBudget--; }
+    // سجادة سدو معلّقة على الشرفة
+    if(rnd()<.35 && decoBudget>0){ const rug=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.5), MAT.cloth); const side=rnd()<.5; rug.position.set(side? s.maxX+.02 : cx, s.maxY-.7, side? cz : s.minZ-.02); if(side) rug.rotation.y=Math.PI/2; world.group.add(rug); decoBudget--; }
+    // جرار ماء على السطح
+    if(rnd()<.45 && decoBudget>0){ const j=new THREE.Mesh(jarGeo,jarMat); const n=new THREE.Mesh(neckGeo,jarMat); const jx=cx+(rnd()-.5)*(w-1.6), jz=cz+(rnd()-.5)*(d-1.6); j.position.set(jx,s.maxY+.3,jz); n.position.set(jx,s.maxY+.65,jz); j.castShadow=true; world.group.add(j); world.group.add(n); decoBudget--; }
+  }
+  // رايات صغيرة على حبال فوق الشارع الرئيسي
+  const left = world.solids.filter(s=>s.kind==='building'&&s.maxX<-4&&s.maxX>-12&&s.minY===0), right=world.solids.filter(s=>s.kind==='building'&&s.minX>4&&s.minX<12&&s.minY===0);
+  const penMat=[new THREE.MeshStandardMaterial({color:0x1f6b3a,side:THREE.DoubleSide}), new THREE.MeshStandardMaterial({color:0xe8dcc0,side:THREE.DoubleSide}), new THREE.MeshStandardMaterial({color:0x8a1f1f,side:THREE.DoubleSide})];
+  const penGeo=new THREE.PlaneGeometry(.35,.55); let ropes=0;
+  for(const a of left){ if(ropes>=5) break; const b=right.find(r=>Math.abs(((r.minZ+r.maxZ)/2)-((a.minZ+a.maxZ)/2))<3); if(!b) continue; ropes++;
+    const y=Math.min(a.maxY,b.maxY)-.3, az=(a.minZ+a.maxZ)/2, bz=(b.minZ+b.maxZ)/2;
+    const pts=[]; for(let t=0;t<=10;t++){ const f=t/10; pts.push(new THREE.Vector3(lerp(a.maxX,b.minX,f), y-Math.sin(f*Math.PI)*.8, lerp(az,bz,f))); }
+    world.group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({color:0x3a2a1a})));
+    for(let t=1;t<10;t++){ const p=pts[t]; const pen=new THREE.Mesh(penGeo, penMat[t%3]); pen.position.set(p.x,p.y-.3,p.z); world.group.add(pen); world.life.push({kind:'pennant',mesh:pen,phase:t}); }
+  }
+  // السوق: سجاد أرضي وأكياس
+  for(let i=0;i<6;i++){ const rug=new THREE.Mesh(new THREE.PlaneGeometry(2.2,3), MAT.cloth); rug.rotation.x=-Math.PI/2; rug.rotation.z=(rnd()-.5)*.4; rug.position.set((i%2?1:-1)*(11+rnd()*2), .06, R-9-i*3.5); world.group.add(rug);
+    const sack=new THREE.Mesh(new THREE.SphereGeometry(.45,8,6), new THREE.MeshStandardMaterial({color:0xc9b48a,roughness:1})); sack.scale.y=.7; sack.position.set(rug.position.x+(rnd()-.5)*1.5,.3,rug.position.z+(rnd()-.5)*2); sack.castShadow=true; world.group.add(sack); }
+  // جِمال
+  const camelSpots = [[-14,R-6],[15,R-14],[-16,R-16]]; if(level.wadi) camelSpots.push([-22,R+14],[26,R+18],[8,R+26]);
+  camelSpots.forEach((p,i)=>{ const c=makeCamel(); c.position.set(p[0],0,p[1]); c.rotation.y=rnd()*6.28; world.group.add(c); world.life.push({kind:'camel',mesh:c,phase:i}); });
+  // سكّان
+  const nCiv = level.guards===0 ? 14 : (night? 4 : (isTouch? 8 : 14));
+  for(let i=0;i<nCiv;i++){ const woman=rnd()<.35; const m=makeCharacter(woman?{thobe:0x151515,bisht:0x111111,ghutra:0x111111}:{thobe:[0xf1e9d6,0xd9d0bd,0xc9bda0][i%3],bisht:[0xf1e9d6,0x6b5a3a,0x3a2a1a][i%3],ghutra:i%2?0xffffff:0xb8322c,shemagh:!!(i%2)});
+    const sp=freeSpot((rnd()-.5)*(R*2-14),(rnd()-.5)*(R*2-14)); m.position.set(sp[0],0,sp[1]); world.group.add(m); world.life.push({kind:'civ',mesh:m,x:sp[0],z:sp[1],tx:sp[0],tz:sp[1],wait:rnd()*3,phase:rnd()*6,speed:.9+rnd()*.5}); }
+  // طيور
+  for(let i=0;i<(isTouch?6:12);i++){ const bird=new THREE.Group(); const wm=new THREE.MeshBasicMaterial({color:night?0x0a0d14:0x2a2622,side:THREE.DoubleSide}); const wl=new THREE.Mesh(new THREE.PlaneGeometry(.9,.3),wm); wl.position.x=-.45; const wr=wl.clone(); wr.position.x=.45; bird.add(wl); bird.add(wr); bird.userData={wl,wr}; world.group.add(bird);
+    world.life.push({kind:'bird',mesh:bird,cx:(rnd()-.5)*80,cz:-10+(rnd()-.5)*80,r:12+rnd()*25,h:28+rnd()*18,a:rnd()*6.28,spd:.25+rnd()*.25,phase:rnd()*6}); }
+  // غبار يتطاير حول اللاعب
+  const n=isTouch?150:350; const pos=new Float32Array(n*3); for(let i=0;i<n;i++){ pos[i*3]=(Math.random()-.5)*30; pos[i*3+1]=Math.random()*8; pos[i*3+2]=(Math.random()-.5)*30; }
+  const dg=new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  world.dust=new THREE.Points(dg, new THREE.PointsMaterial({color:night?0x9fb4dd:0xf1dcb0, size:.12, transparent:true, opacity:night?.35:.5, map:TEX.glow, depthWrite:false, blending:THREE.AdditiveBlending})); world.group.add(world.dust);
+}
+function makeCamel(){
+  const g=new THREE.Group(); const m=new THREE.MeshStandardMaterial({color:0xb99668, roughness:.95});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(.9,.9,2.0), m); body.position.y=1.45; g.add(body);
+  const hump=new THREE.Mesh(new THREE.SphereGeometry(.5,10,8), m); hump.position.set(0,1.95,-.1); hump.scale.set(.9,.8,1.1); g.add(hump);
+  const neck=new THREE.Mesh(new THREE.BoxGeometry(.4,1.2,.45), m); neck.position.set(0,2.1,1.1); neck.rotation.x=-.5; g.add(neck);
+  const head=new THREE.Mesh(new THREE.BoxGeometry(.35,.35,.7), m); head.position.set(0,2.65,1.55); g.add(head); g.userData.head=head; g.userData.neck=neck;
+  [[-.3,.7],[.3,.7],[-.3,-.7],[.3,-.7]].forEach(([x,z])=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(.2,1.1,.22), m); l.position.set(x,.55,z); g.add(l); });
+  const saddle=new THREE.Mesh(new THREE.BoxGeometry(.95,.2,.9), MAT.cloth); saddle.position.set(0,2.05,.25); g.add(saddle);
+  g.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); return g;
+}
+function buildSky(level){
+  const pal=PALETTES[level.time]; const night=level.time==='night';
+  // قرص الشمس أو القمر
+  const sm=new THREE.SpriteMaterial({map:TEX.glow, color: night?0xdfe8ff: (level.time==='day'?0xfff4d6:0xffc890), transparent:true, opacity: night?.9:1, fog:false, depthWrite:false, blending:THREE.AdditiveBlending});
+  const sp=new THREE.Sprite(sm); const dir=new THREE.Vector3(...pal.sun).normalize(); sp.position.copy(dir.multiplyScalar(420)); sp.scale.setScalar(night?26:(level.time==='day'?70:110)); scene.add(sp); world.sunSprite=sp; world.group.add(sp);
+  // نجوم
+  if(night||level.time==='dusk'){ const n=night?900:200; const pos=new Float32Array(n*3); for(let i=0;i<n;i++){ const a=Math.random()*6.283, b=Math.acos(Math.random()); const r=470; pos[i*3]=Math.cos(a)*Math.sin(b)*r; pos[i*3+1]=Math.cos(b)*r+5; pos[i*3+2]=Math.sin(a)*Math.sin(b)*r; }
+    const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.BufferAttribute(pos,3)); world.stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xdfe8ff,size:night?1.8:1.2,sizeAttenuation:false,fog:false,transparent:true,opacity:night?.9:.4})); world.group.add(world.stars); }
+  // غيوم
+  const nc = night?4:9; for(let i=0;i<nc;i++){ const cm=new THREE.SpriteMaterial({map:TEX.cloud, color: night?0x2a3650:(level.time==='day'?0xffffff:0xffc4a0), transparent:true, opacity:night?.5:.55, fog:false, depthWrite:false}); const c=new THREE.Sprite(cm); c.position.set((Math.random()-.5)*500, 120+Math.random()*60, -60+(Math.random()-.5)*500); c.scale.set(140+Math.random()*120, 50+Math.random()*30, 1); world.group.add(c); world.clouds.push(c); }
+}
+function moveAgent(a, spd, dt){
+  const dx=a.tx-a.x, dz=a.tz-a.z, d=Math.hypot(dx,dz); if(d<.3) return true;
+  const s=Math.min(spd*dt,d), nx=dx/d, nz=dz/d; let px=a.x+nx*s, pz=a.z+nz*s;
+  const blocked=(qx,qz)=>world.solids.some(so=>so.kind!=='hay'&&so.maxY>1&&qx>so.minX-.4&&qx<so.maxX+.4&&qz>so.minZ-.4&&qz<so.maxZ+.4);
+  if(blocked(px,pz)){ const sx=a.x-nz*s, sz=a.z+nx*s; if(!blocked(sx,sz)){px=sx;pz=sz;} else { px=a.x+nz*s; pz=a.z-nx*s; if(blocked(px,pz)) return true; } }
+  a.x=px; a.z=pz; a.mesh.position.set(px,0,pz); a.mesh.rotation.y=Math.atan2(nx,nz); return false;
+}
+function updateLife(dt, now){
+  for(const l of world.life){
+    if(l.kind==='civ'){ if(l.wait>0){ l.wait-=dt; const p=l.mesh.userData.parts; p.legL.rotation.x*=.8; p.legR.rotation.x*=.8; }
+      else { const arrived=moveAgent(l, l.speed, dt); l.phase+=dt*7; const a=Math.sin(l.phase)*.5; const p=l.mesh.userData.parts; p.legL.rotation.x=a; p.legR.rotation.x=-a; p.armL.rotation.x=-a*.6; p.armR.rotation.x=a*.6;
+        if(arrived){ l.wait=1+Math.random()*4; const sp=freeSpot(clamp(l.x+(Math.random()-.5)*30,-R+3,R-3), clamp(l.z+(Math.random()-.5)*30,-R+3,R-3)); l.tx=sp[0]; l.tz=sp[1]; } }
+      swayCloth(l.mesh.userData.cape, now, .2); }
+    else if(l.kind==='camel'){ const h=l.mesh.userData.head; h.position.y=2.65+Math.sin(now/900+l.phase)*.06; l.mesh.userData.neck.rotation.x=-.5+Math.sin(now/1300+l.phase)*.05; }
+    else if(l.kind==='bird'){ l.a+=dt*l.spd; l.mesh.position.set(l.cx+Math.cos(l.a)*l.r, l.h+Math.sin(now/700+l.phase)*1.5, l.cz+Math.sin(l.a)*l.r); l.mesh.rotation.y=-l.a; const f=Math.sin(now/90+l.phase)*.7; l.mesh.userData.wl.rotation.z=f; l.mesh.userData.wr.rotation.z=-f; }
+    else if(l.kind==='pennant'){ l.mesh.rotation.y=Math.sin(now/350+l.phase)*.5; }
+  }
+  if(world.dust && player.mesh){ const p=world.dust.geometry.attributes.position; const arr=p.array; for(let i=0;i<p.count;i++){ arr[i*3]+=dt*(.8+Math.sin(now/1000+i)*.3); arr[i*3+1]+=dt*Math.sin(now/600+i*1.7)*.25; arr[i*3+2]+=dt*.3;
+      const dx=arr[i*3]-player.x, dz=arr[i*3+2]-player.z; if(dx>15) arr[i*3]-=30; if(dx<-15) arr[i*3]+=30; if(dz>15) arr[i*3+2]-=30; if(dz<-15) arr[i*3+2]+=30; if(arr[i*3+1]>9) arr[i*3+1]=0; if(arr[i*3+1]<0) arr[i*3+1]=9; }
+    p.needsUpdate=true; }
+  for(const c of world.clouds){ c.position.x+=dt*1.2; if(c.position.x>300) c.position.x=-300; }
+  if(world.sunSprite && sun){ world.sunSprite.position.copy(camera.position).add(new THREE.Vector3(...PALETTES[game.level?game.level.time:'day'].sun).normalize().multiplyScalar(420)); }
+}
+
 /* ---------- 5) الشخصيات ---------- */
 function makeCharacter(opts){
   const g = new THREE.Group();
@@ -643,11 +839,21 @@ function makeCharacter(opts){
   const ghutra = new THREE.MeshStandardMaterial({color:opts.ghutra, roughness:.9, side:THREE.DoubleSide});
   const torso = new THREE.Mesh(new THREE.BoxGeometry(.6,.8,.36), thobe); torso.position.y=1.15; g.add(torso);
   const cloak = new THREE.Mesh(new THREE.BoxGeometry(.7,.95,.42), bisht); cloak.position.set(0,1.1,.03); g.add(cloak);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(.2,10,10), skin); head.position.y=1.78; g.add(head);
-  const gh = new THREE.Mesh(new THREE.BoxGeometry(.46,.2,.46), ghutra); gh.position.set(0,1.9,.03); g.add(gh);
-  const tail = new THREE.Mesh(new THREE.PlaneGeometry(.46,.5), ghutra); tail.position.set(0,1.62,.25); g.add(tail);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(.2,12,12), skin); head.position.y=1.78; g.add(head);
+  const beard = new THREE.Mesh(new THREE.BoxGeometry(.2,.12,.08), new THREE.MeshStandardMaterial({color:0x2a1a10})); beard.position.set(0,1.66,-.15); g.add(beard);
+  const gm = opts.shemagh ? MAT.shemagh : ghutra;
+  const gh = new THREE.Mesh(new THREE.BoxGeometry(.48,.16,.48), gm); gh.position.set(0,1.92,.02); g.add(gh);
+  const tail = new THREE.Mesh(new THREE.PlaneGeometry(.5,.62,1,4), gm); tail.position.set(0,1.6,.27); g.add(tail);
+  const sideL = new THREE.Mesh(new THREE.PlaneGeometry(.3,.5), gm); sideL.rotation.y=Math.PI/2; sideL.position.set(-.25,1.7,.05); g.add(sideL);
+  const sideR = sideL.clone(); sideR.position.x=.25; g.add(sideR);
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(.64,.08,.4), new THREE.MeshStandardMaterial({color:opts.hero?0x8a5a10:0x3a2a1a, metalness:opts.hero?.5:0, roughness:.6})); belt.position.y=.92; g.add(belt);
+  if(opts.hero){ const trimL=new THREE.Mesh(new THREE.BoxGeometry(.03,.95,.03), MAT.gold); trimL.position.set(-.2,1.1,-.21); g.add(trimL); const trimR=trimL.clone(); trimR.position.x=.2; g.add(trimR);
+    const dagger=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.04), new THREE.MeshStandardMaterial({color:0xcfc4a0,metalness:.6,roughness:.3})); dagger.position.set(.12,.85,-.22); dagger.rotation.z=.5; g.add(dagger); }
+  const cape = new THREE.Mesh(new THREE.PlaneGeometry(.66,1.15,4,6), bisht); cape.position.set(0,1.05,.24); g.add(cape); g.userData.cape=cape;
+  if(opts.hero){ const ct=new THREE.Mesh(new THREE.BoxGeometry(.7,.04,.03), MAT.gold); ct.position.set(0,1.6,.25); g.add(ct); }
   const agal = new THREE.Mesh(new THREE.TorusGeometry(.22,.035,6,16), new THREE.MeshStandardMaterial({color:0x111111})); agal.rotation.x=Math.PI/2; agal.position.y=1.97; g.add(agal);
   const legL = new THREE.Mesh(new THREE.BoxGeometry(.22,.75,.24), thobe); legL.position.set(-.15,.38,0); g.add(legL);
+  const bootL = new THREE.Mesh(new THREE.BoxGeometry(.24,.14,.3), new THREE.MeshStandardMaterial({color:0x3a2416})); bootL.position.set(-.15,.07,.02); g.add(bootL); const bootR=bootL.clone(); bootR.position.x=.15; g.add(bootR);
   const legR = legL.clone(); legR.position.x=.15; g.add(legR);
   const armL = new THREE.Mesh(new THREE.BoxGeometry(.16,.7,.18), bisht); armL.position.set(-.42,1.15,0); g.add(armL);
   const armR = armL.clone(); armR.position.x=.42; g.add(armR);
@@ -686,7 +892,7 @@ addEventListener('pointermove', e=>{ if(!dragging||e.pointerType==='touch') retu
 })();
 
 function spawnPlayer(x,z){
-  if(!player.mesh){ player.mesh = makeCharacter({thobe:0xf1e9d6, bisht:0x2b1d12, ghutra:0xb8322c}); scene.add(player.mesh); }
+  if(!player.mesh){ player.mesh = makeCharacter({thobe:0xf1e9d6, bisht:0x4a3220, ghutra:0xb8322c, shemagh:true, hero:true}); scene.add(player.mesh); }
   player.x=x; player.z=z; player.y=groundAt(x,z,0); player.vy=0; player.state='ground'; player.climb=null; player.hidden=false;
   player.mesh.position.set(x,player.y,z);
 }
@@ -754,7 +960,12 @@ function updatePlayer(dt){
   else if(moving&&player.state==='ground'){ player.phase+=dt*(running?13:9); const a=Math.sin(player.phase)*(running?.9:.55); p.legL.rotation.x=a; p.legR.rotation.x=-a; p.armL.rotation.x=-a*.8; p.armR.rotation.x=a*.8; if(Math.abs(Math.sin(player.phase))>.98) audio.step(false); }
   else { p.legL.rotation.x*=.8; p.legR.rotation.x*=.8; p.armL.rotation.x*=.8; p.armR.rotation.x*=.8; }
   m.scale.y = player.hidden? .6 : 1;
+  swayCloth(m.userData.cape, performance.now(), player.speed/6.2 + (player.state==='air'?.6:0));
+  if(player.state==='ground' && player._wasAir && player._lastVy<-9){ camShake=.25; audio.step(true); } player._wasAir = player.state==='air'; player._lastVy=player.vy;
+  const wantFov = running? 66 : 58; if(Math.abs(camera.fov-wantFov)>.1){ camera.fov=lerp(camera.fov,wantFov,dt*4); camera.updateProjectionMatrix(); }
 }
+let camShake=0;
+function swayCloth(mesh, now, amp){ if(!mesh) return; const pos=mesh.geometry.attributes.position; for(let i=0;i<pos.count;i++){ const x=pos.getX(i), y=pos.getY(i); const t=(.575-y)/1.15; pos.setZ(i, Math.sin(now/220+x*3+t*4)*.05*t*(1+amp*2) + t*t*.25*amp); } pos.needsUpdate=true; }
 
 function updateCamera(dt, instant){
   const tx=player.x, ty=player.y+1.5, tz=player.z;
@@ -764,6 +975,7 @@ function updateCamera(dt, instant){
   // لا تدخل الكاميرا في المباني
   const g=groundAt(cx,cz,999); if(cy<g+.6) cy=g+.6;
   if(instant) camera.position.set(cx,cy,cz); else camera.position.lerp(new THREE.Vector3(cx,cy,cz), Math.min(1,dt*8));
+  if(camShake>0){ camShake=Math.max(0,camShake-dt); camera.position.x+=(Math.random()-.5)*camShake*.5; camera.position.y+=(Math.random()-.5)*camShake*.5; }
   camera.lookAt(tx,ty,tz);
 }
 
@@ -776,10 +988,12 @@ function makeGuard(waypoints, night){
   scene.add(g.mesh);
   const cone = new THREE.Mesh(new THREE.CircleGeometry(g.range, 16, -g.fov/2 + Math.PI/2, g.fov), new THREE.MeshBasicMaterial({color:0xe34a3f, transparent:true, opacity:.18, side:THREE.DoubleSide, depthWrite:false}));
   cone.rotation.x=-Math.PI/2; cone.position.y=.05; cone.visible=false; g.mesh.add(cone); g.cone=cone;
+  const ghost=new THREE.Group(); const gb=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,1.9,8), new THREE.MeshBasicMaterial({color:0xff3b30, transparent:true, opacity:.55, depthTest:false})); gb.position.y=.95; ghost.add(gb);
+  const gc=new THREE.Mesh(new THREE.CircleGeometry(g.range, 16, -g.fov/2 + Math.PI/2, g.fov), new THREE.MeshBasicMaterial({color:0xff3b30, transparent:true, opacity:.14, side:THREE.DoubleSide, depthTest:false, depthWrite:false})); gc.rotation.x=-Math.PI/2; gc.position.y=.06; ghost.add(gc); ghost.visible=false; hiScene.add(ghost); g.ghost=ghost;
   guards.push(g); return g;
 }
 function spawnGuards(level){
-  guards.forEach(g=>scene.remove(g.mesh)); guards.length=0; suspicion=0; alarm={active:false,timer:0,seen:false};
+  guards.forEach(g=>{ scene.remove(g.mesh); hiScene.remove(g.ghost); }); guards.length=0; suspicion=0; alarm={active:false,timer:0,seen:false};
   const rnd=mulberry(level.id.length*131);
   const night=level.time==='night';
   const spots=[];
@@ -818,7 +1032,8 @@ function updateGuards(dt){
       if(sees){ seenNow=true; suspicion+= dt*(pd<4?1.6:.7); g.target=[player.x,player.z]; if(alarm.active) g.state='chase'; if(pd<1.1&&alarm.active) caught(); }
     }
     g.mesh.position.set(g.x,0,g.z); g.mesh.rotation.y=g.yaw;
-    g.cone.visible = insight || g.state==='chase';
+    g.cone.visible = g.state==='chase';
+    g.ghost.visible = insight; g.ghost.position.set(g.x,0,g.z); g.ghost.rotation.y=g.yaw;
     g.cone.material.color.set(g.state==='chase'?0xff2a1a:0xe34a3f);
     const p=g.mesh.userData.parts; g.phase+=dt*(g.state==='chase'?12:7); const a=Math.sin(g.phase)*(g.state==='chase'?.8:.4); p.legL.rotation.x=a; p.legR.rotation.x=-a;
     if(alarm.active && g.state!=='chase' && dist2(g.x,g.z,player.x,player.z)<34){ g.state='chase'; g.target=[player.x,player.z]; }
@@ -847,14 +1062,14 @@ function resolvePos(pos, roof){
   if(roof){ const s=nearestSolidTop(pos[0],pos[1]); return [ (s.minX+s.maxX)/2, s.maxY, (s.minZ+s.maxZ)/2 ]; }
   const p=freeSpot(pos[0],pos[1]); return [p[0], groundAt(p[0],p[1],0), p[1]];
 }
-function clearMarkers(){ game.markers.forEach(m=>scene.remove(m)); game.markers=[]; game.items.forEach(m=>scene.remove(m.mesh)); game.items=[]; }
+function clearMarkers(){ game.markers.forEach(m=>hiScene.remove(m)); game.markers=[]; game.items.forEach(m=>hiScene.remove(m.mesh)); game.items=[]; }
 function setObjective(i){
   clearMarkers(); game.oi=i; game.holdT=0; game.stealthFailed=false;
   const o=game.level.objectives[i];
   if(!o){ finishLevel(); return; }
   game.checkpoint={x:player.x,z:player.z,y:player.y,oi:i};
-  if(o.type==='collect'){ o.items.forEach((p,j)=>{ const r=resolvePos(p,false); const m=markerMesh(0xd9a441); m.position.set(r[0],r[1],r[2]); m.scale.set(.6,.6,.6); scene.add(m); game.items.push({mesh:m,pos:r,done:false}); }); }
-  else { const r=resolvePos(o.pos, o.roof||o.type==='roof'); o._pos=r; const m=markerMesh(o.type==='stealth'?0x2fa457:0xd9a441); m.position.set(r[0],r[1],r[2]); scene.add(m); game.markers.push(m); }
+  if(o.type==='collect'){ o.items.forEach((p,j)=>{ const r=resolvePos(p,false); const m=markerMesh(0xd9a441); m.position.set(r[0],r[1],r[2]); m.scale.set(.6,.6,.6); hiScene.add(m); game.items.push({mesh:m,pos:r,done:false}); }); }
+  else { const r=resolvePos(o.pos, o.roof||o.type==='roof'); o._pos=r; const m=markerMesh(o.type==='stealth'?0x2fa457:0xd9a441); m.position.set(r[0],r[1],r[2]); hiScene.add(m); game.markers.push(m); }
   $('#hudObj').textContent = o.text;
   if(o.hint) toast(o.hint);
   $('#prompt').hidden=true;
@@ -870,14 +1085,14 @@ function updateObjective(dt){
     case 'goto': if(near(o._pos)) completeObjective(); break;
     case 'roof': if(near(o._pos,3.2) && player.y>o._pos[1]-.6) completeObjective(); break;
     case 'stealth': if(alarm.active && !game.stealthFailed){ game.stealthFailed=true; toast('كُشفت! أفلت من الحرس قبل أن تكمل'); } if(near(o._pos,2.6) && !alarm.active) completeObjective(); break;
-    case 'collect': for(const it of game.items){ if(!it.done && near(it.pos,1.8)){ it.done=true; scene.remove(it.mesh); audio.chime(); toast(`${o.label}: ${AR_NUM(game.items.filter(i=>i.done).length)} / ${AR_NUM(game.items.length)}`); } } if(game.items.every(i=>i.done)) completeObjective(); break;
+    case 'collect': for(const it of game.items){ if(!it.done && near(it.pos,1.8)){ it.done=true; hiScene.remove(it.mesh); audio.chime(); toast(`${o.label}: ${AR_NUM(game.items.filter(i=>i.done).length)} / ${AR_NUM(game.items.length)}`); } } if(game.items.every(i=>i.done)) completeObjective(); break;
     case 'hold': { const n=near(o._pos,2.6); $('#prompt').hidden=!n; if(n){ $('#promptTxt').textContent=`${isTouch?'اضغط تفاعل':'اضغط E'} مطوّلاً: ${o.label}`; $('#promptHold').hidden=false;
         if(input.keys.KeyE){ game.holdT+=dt; } else game.holdT=Math.max(0,game.holdT-dt*2);
         $('#promptFill').style.width=(game.holdT/o.seconds*100)+'%';
         if(game.holdT>=o.seconds){ $('#prompt').hidden=true; applyEffect(o.effect); if(o.alarm){ suspicion=1; raiseAlarm(); } completeObjective(); } } else game.holdT=0; } break;
   }
   // المخطوطات
-  for(const m of game.manus){ if(m.done) continue; m.mesh.rotation.y+=dt; if(dist2(player.x,player.z,m.pos[0],m.pos[2])<1.6&&Math.abs(player.y-m.pos[1])<1.6){ m.done=true; scene.remove(m.mesh); if(!save.codex.includes(m.data.id)) save.codex.push(m.data.id); writeSave(); audio.chime(); showFact(m.data); } }
+  for(const m of game.manus){ if(m.done) continue; m.mesh.rotation.y+=dt; if(dist2(player.x,player.z,m.pos[0],m.pos[2])<1.6&&Math.abs(player.y-m.pos[1])<1.6){ m.done=true; hiScene.remove(m.mesh); if(!save.codex.includes(m.data.id)) save.codex.push(m.data.id); writeSave(); audio.chime(); showFact(m.data); } }
 }
 function applyEffect(e){
   if(e==='gate'){ const g=world.special.gate; if(g){ g.rotation.y=Math.PI/2*.9; g.position.x=-2.6; g.position.z=R-1.3; } }
@@ -887,13 +1102,14 @@ function applyEffect(e){
 function completeObjective(){ audio.chime(); toast('أُنجز الهدف'); setObjective(game.oi+1); }
 function restoreCheckpoint(){ const c=game.checkpoint; if(!c) return; spawnPlayer(c.x,c.z); player.y=c.y; alarm.active=false; alarm.timer=0; suspicion=0; guards.forEach(g=>{g.state='patrol'; if(dist2(g.x,g.z,c.x,c.z)<8){ g.x=g.wps[0][0]; g.z=g.wps[0][1]; }}); $('#alarmFlash').classList.remove('on'); $('#meter').classList.remove('alarm'); updateCamera(0,true); }
 function spawnManuscripts(level){
-  game.manus.forEach(m=>scene.remove(m.mesh)); game.manus=[];
-  level.manuscripts.forEach(d=>{ const r=resolvePos(d.pos,false); const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.12), MAT.gold); m.position.set(r[0],r[1]+1.1,r[2]); scene.add(m); game.manus.push({mesh:m,pos:[r[0],r[1],r[2]],data:d,done:false}); });
+  game.manus.forEach(m=>hiScene.remove(m.mesh)); game.manus=[];
+  level.manuscripts.forEach(d=>{ const r=resolvePos(d.pos,false); const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.12), MAT.gold); m.position.set(r[0],r[1]+1.1,r[2]); hiScene.add(m); game.manus.push({mesh:m,pos:[r[0],r[1],r[2]],data:d,done:false}); });
 }
 let toastT=null;
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2600); }
 function showFact(d){ const el=$('#toast'); el.innerHTML=`<div style="color:var(--gold);font-family:var(--font-ui);font-size:13px">مخطوطة: ${d.title}</div><div style="font-size:17px">${d.fact}</div>`; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),9000); }
-function toggleInsight(){ insightOn=!insightOn; canvas.classList.toggle('insight',insightOn); game.manus.forEach(m=>{ m.mesh.scale.setScalar(insightOn?2.2:1); }); }
+function toggleInsight(){ insightOn=!insightOn; insightPulse=0; game.manus.forEach(m=>{ m.mesh.scale.setScalar(insightOn?2.2:1); }); audio.chime(); }
+let insightPulse=2, insightMix=0;
 
 /* ---------- 8) السينما والتسجيل ---------- */
 const cine = { active:false, skip:false, recorder:null, chunks:[] };
@@ -933,7 +1149,7 @@ function stopRecording(){ return new Promise(res=>{ const r=cine.recorder; $('#c
 
 async function playTrailer(){
   // مقدمة من كل المراحل، وتُسجَّل فيديو
-  hideAll(); $('#loading').hidden=false; $('#loading').textContent='جارٍ تجهيز المشاهد…';
+  hideAll(); $('#loading').hidden=false; $('#loadingTxt').textContent='جارٍ تجهيز المشاهد…';
   await new Promise(r=>setTimeout(r,50));
   const rec=startRecording();
   for(const lv of LEVELS){
@@ -1006,11 +1222,11 @@ function showMenu(){ hideAll(); $('#hud').hidden=true; $('#touch').hidden=true; 
   // خلفية حية خلف القائمة
   if(!world.group){ loadWorld(LEVELS[0]); spawnPlayer(0,66); } camCtl.yaw=Math.PI; menuCam=true; }
 let menuCam=false, menuT=0;
-function loadWorld(level){ game.level=level; setupLights(PALETTES[level.time]); buildCity(level); }
+function loadWorld(level){ game.level=level; setupLights(PALETTES[level.time]); buildCity(level); post.uniforms.tint.value.fromArray(TINTS[level.time]); post.uniforms.vig.value = level.time==='night'?.7:.55; }
 async function startLevel(i){
-  hideAll(); $('#loading').hidden=false; $('#loading').textContent=`جارٍ تجهيز ${LEVELS[i].title}…`; menuCam=false;
+  hideAll(); $('#loading').hidden=false; $('#loadingTxt').textContent=`${LEVELS[i].era} · ${LEVELS[i].title}`; $('#loadingTip').textContent=TIPS[i%TIPS.length]; menuCam=false;
   await new Promise(r=>setTimeout(r,30));
-  game.li=i; const lv=LEVELS[i]; loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); spawnGuards(lv); spawnManuscripts(lv); insightOn=false; canvas.classList.remove('insight');
+  game.li=i; const lv=LEVELS[i]; loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); spawnGuards(lv); spawnManuscripts(lv); insightOn=false;
   $('#hudEra').textContent=`${lv.era} · ${lv.year} · ${lv.hijri}`; $('#hudObj').textContent=''; $('#hudDist').textContent='';
   $('#loading').hidden=true; game.running=true; game.paused=false;
   await playCinematic(lv.intro, {hudAfter: lv.objectives.length>0});
@@ -1050,6 +1266,7 @@ function frame(now){
   // مشاعل
   for(const t of world.torches){ const f=.85+Math.sin(now/90+t.phase)*.15+Math.sin(now/37+t.phase)*.07; t.light.intensity=1.6*f; t.flame.scale.setScalar(f); }
   const fl=world.special.flag; if(fl&&fl.visible){ const pos=fl.geometry.attributes.position; for(let i=0;i<pos.count;i++){ const x=pos.getX(i); pos.setZ(i, Math.sin(now/300 + x*2)*.15*(x+1.6)/3.2); } pos.needsUpdate=true; }
+  if(skyMesh){ skyMesh.position.copy(camera.position); if(world.stars) world.stars.position.copy(camera.position); }
   if(menuCam){ menuT+=dt*.08; const rr=70; camera.position.set(Math.sin(menuT)*rr, 22+Math.sin(menuT*.7)*4, -20+Math.cos(menuT)*rr); camera.lookAt(0,8,-20); }
   else if(game.running && !game.paused && !cine.active){
     if(input.insightPressed){ toggleInsight(); input.insightPressed=false; }
@@ -1058,7 +1275,8 @@ function frame(now){
     if(sun){ sun.position.set(player.x+PALETTES[game.level.time].sun[0]*.6, PALETTES[game.level.time].sun[1], player.z+PALETTES[game.level.time].sun[2]*.6); sun.target.position.set(player.x,0,player.z); }
   }
   input.jumpPressed=false; input.interactPressed=false;
-  renderer.render(scene,camera);
+  updateLife(dt, now);
+  renderFrame(now);
 }
 
 /* ---------- 12) الإقلاع ---------- */
