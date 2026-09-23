@@ -727,11 +727,11 @@ function khaledSvg() {
 function advisorWidget() {
   return `<div class="advisor-teaser" id="advisor-teaser" hidden>
     <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="${Lraw("Close", "إغلاق")}">✕</button>
-    <p>${L("Hi 👋 I'm Baher, your smart assistant. Questions about formation or government platforms?", "حياك الله 👋 أنا باهر، مساعدك الذكي. عندك سؤال عن التأسيس أو المنصات الحكومية؟")}</p>
+    <p>${L("Hi 👋 I'm Baher, Business Partner's support assistant. How can we help you today?", "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك اليوم؟")}</p>
   </div>
-  <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open chat with Baher, the smart assistant", "افتح المحادثة مع باهر، المساعد الذكي")}">
+  <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open support chat with Baher", "افتح محادثة الدعم مع باهر")}">
     <span class="advisor-fab-avatar">${khaledSvg("fab")}<span class="advisor-dot" aria-hidden="true"></span></span>
-    <span class="lbl">${L("Ask Baher", "اسأل باهر")}</span>
+    <span class="lbl">${L("Support", "الدعم")}</span>
   </button>
   <section class="advisor-panel" id="advisor-panel" hidden role="dialog" aria-label="${Lraw("Ask Baher", "اسأل باهر")}">
     <header class="advisor-head">
@@ -742,7 +742,7 @@ function advisorWidget() {
 
     <!-- Step 1: contact intake (required first) -->
     <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">${L("Welcome 👋 First, tell us about yourself so we can serve you and follow up on your request.", "أهلاً بك 👋 أولاً عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
+      <div class="adv-intake-hd">${L("Welcome to Business Partner support 👋 Tell us about yourself so we can help you and follow up on your request.", "أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
       <input class="adv-in" id="adv-in-name" type="text" placeholder="${Lraw("Full name *", "الاسم الكامل *")}" autocomplete="name">
       <input class="adv-in" id="adv-in-phone" type="tel" placeholder="${Lraw("Mobile 05XXXXXXXX *", "الجوال 05XXXXXXXX *")}" autocomplete="tel">
       <input class="adv-in" id="adv-in-email" type="email" placeholder="${Lraw("Email *", "البريد الإلكتروني *")}" autocomplete="email">
@@ -787,13 +787,13 @@ function advisorWidget() {
     <!-- Chat with Baher (available after intake) -->
     <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
       <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, your smart assistant at Business Partner. Ask me about company formation, foreign investment, licensing, or any government procedure — and I'll point you to the right service.", "حياك الله 👋 أنا باهر، مساعدك الذكي في بيزنس بارتنر. اسألني عن التأسيس، الاستثمار الأجنبي، التراخيص، أو أي إجراء حكومي — وأدلّك على الخدمة المناسبة.")}</div>
+        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, Business Partner's support assistant. Tell me how we can help — a question, an issue with a transaction, or following up on a request — and I'll assist you right away or connect you with the team.", "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. قل لي كيف نقدر ندعمك — استفسار، مشكلة في معاملة، أو متابعة طلب — وأساعدك فوراً أو أوصلك بالفريق.")}</div>
       </div>
       <div class="advisor-chips" id="advisor-chips">
-        <button type="button" class="advisor-chip" data-q="${Lraw("Foreign investment company setup", "تأسيس شركة باستثمار أجنبي")}">🏢 ${L("Foreign investment setup", "تأسيس شركة باستثمار أجنبي")}</button>
-        <button type="button" class="advisor-chip" data-q="${Lraw("Government platforms management", "إدارة المنصات الحكومية")}">💼 ${L("Government platforms", "إدارة المنصات الحكومية")}</button>
-        <button type="button" class="advisor-chip" data-q="${Lraw("Packages & pricing", "الباقات والأسعار")}">💰 ${L("Packages & pricing", "الباقات والأسعار")}</button>
-        <button type="button" class="advisor-chip" data-q="${Lraw("I want a free consultation", "أبغى استشارة مجانية")}">📞 ${L("Free consultation", "أبغى استشارة مجانية")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I have a question about a service", "عندي استفسار عن خدمة")}">💬 ${L("A question about a service", "استفسار عن خدمة")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I have an issue with a transaction or platform", "عندي مشكلة في معاملة أو منصة")}">🛠️ ${L("Issue with a transaction", "مشكلة في معاملة")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I want to follow up on a previous request", "أبغى أتابع طلباً سابقاً")}">📋 ${L("Follow up on a request", "متابعة طلب سابق")}</button>
+        <button type="button" class="advisor-chip" data-q="${Lraw("I want to speak with the team", "أبغى أتواصل مع الفريق")}">📞 ${L("Talk to the team", "تواصل مع الفريق")}</button>
       </div>
       <form class="advisor-form" id="advisor-form">
         <input id="advisor-input" type="text" autocomplete="off" placeholder="${Lraw("Type your question here…", "اكتب سؤالك هنا…")}" aria-label="${Lraw("Type your question", "اكتب سؤالك")}">
@@ -813,10 +813,8 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
     header(active, p) +
     `<main>${body}</main>` +
     footer() +
-    // Owner decision (2026-08-31): the floating "Ask Baher" advisor is off the
-    // public site — the green WhatsApp button is the only floating action. This
-    // has been reversed once before, so advisorWidget() is kept intact below
-    // rather than deleted; restoring it is re-adding the call here.
+    // مساعد باهر للدعم يُحقن على صفحات Simple V1 عبر site/scripts/simple-v1.mjs
+    // (ودجت موحّد بتصميم الموقع الجديد) — لا نحقن الودجت القديم هنا لتفادي سكينين.
     waFab() +
     `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>${script}</body></html>`
   );
