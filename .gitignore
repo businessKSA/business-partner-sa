@@ -31,6 +31,10 @@ business-partner-site.zip
 business-partner-onefile.html
 *.bundle
 
+# أسرار فريق الوكلاء
+agents/.env
+agents/node_modules/
+
 # local development database + outbox (never committed)
 .localdb/
 .env.local
