@@ -132,6 +132,7 @@ video{width:100%;max-height:50vh;background:#000;border-radius:4px;margin-top:10
     <button class="btn" id="btnIntroVideo" hidden>شاهد الفيديو السينمائي (Higgsfield)</button>
     <button class="btn ghost" id="btnCodex">سجلّ المخطوطات</button>
     <button class="btn ghost" id="btnHelp">التحكم وطريقة اللعب</button>
+    <button class="btn ghost" id="btnMute">كتم الصوت (M)</button>
   </div>
   <p class="note" style="margin-top:16px">نموذج أولي للمتصفح (Three.js). لا قتال ولا اغتيالات: البطل كشّافٌ يتسلّل ويراقب ويوصل الرسائل ويرفع الرايات. المعلومات التاريخية في المخطوطات موجزة وقابلة للمراجعة قبل أي إصدار.</p>
 </section>
@@ -173,6 +174,10 @@ video{width:100%;max-height:50vh;background:#000;border-radius:4px;margin-top:10
     <div class="menu">
       <button class="btn primary" id="btnResume">استئناف</button>
       <button class="btn" id="btnRestartCp">العودة لآخر نقطة حفظ</button>
+      <div style="text-align:right;font-size:13px;color:#cbbd9a;display:grid;gap:6px;padding:6px 2px">
+        <label>الموسيقى <input type="range" id="volMusic" min="0" max="100" value="70" style="width:100%"></label>
+        <label>المؤثرات والسرد <input type="range" id="volSfx" min="0" max="100" value="80" style="width:100%"></label>
+      </div>
       <button class="btn ghost" id="btnPauseHelp">التحكم</button>
       <button class="btn ghost" id="btnToMenu">القائمة الرئيسية</button>
     </div>
@@ -923,7 +928,7 @@ function updatePlayer(dt){
     if(k.KeyS||k.ArrowDown||input.joy[1]>.6){ player.state='air'; player.climb=null; player.vy=0; }
     if(player.y>=s.maxY){ player.y=s.maxY; player.state='ground'; player.climb=null;
       // ادفع للداخل فوق السطح
-      const cx=(s.minX+s.maxX)/2, cz=(s.minZ+s.maxZ)/2; const nx=cx-player.x, nz=cz-player.z; const nl=Math.hypot(nx,nz)||1; player.x+=nx/nl*.7; player.z+=nz/nl*.7; audio.step(true); }
+      const cx=(s.minX+s.maxX)/2, cz=(s.minZ+s.maxZ)/2; const nx=cx-player.x, nz=cz-player.z; const nl=Math.hypot(nx,nz)||1; player.x+=nx/nl*.7; player.z+=nz/nl*.7; audio.step(true); audio.grunt(); }
     input.jumpPressed=false;
   } else {
     // حركة أفقية مع تصادم
@@ -1042,12 +1047,12 @@ function updateGuards(dt){
   if(!seenNow) suspicion-=dt*.35;
   suspicion=clamp(suspicion,0,1);
   if(suspicion>=1 && !alarm.active) raiseAlarm();
-  if(alarm.active){ alarm.timer = seenNow? 8 : alarm.timer-dt; if(alarm.timer<=0){ alarm.active=false; guards.forEach(g=>g.state='patrol'); suspicion=Math.min(suspicion,.2); $('#alarmFlash').classList.remove('on'); $('#meter').classList.remove('alarm'); } }
+  if(alarm.active){ alarm.timer = seenNow? 8 : alarm.timer-dt; if(alarm.timer<=0){ alarm.active=false; music.alarm(false); guards.forEach(g=>g.state='patrol'); suspicion=Math.min(suspicion,.2); $('#alarmFlash').classList.remove('on'); $('#meter').classList.remove('alarm'); } }
   // واجهة
   $('#meterFill').style.width=(suspicion*100)+'%';
   $('#meterState').textContent = alarm.active?'إنذار! اهرب أو اصعد سطحاً': player.hidden?'مختبئ': player.onRoof?'فوق الأسطح — لا يرونك': seenNow?'يراك أحدهم…':'مختفٍ';
 }
-function raiseAlarm(){ alarm.active=true; alarm.timer=8; guards.forEach(g=>{ if(dist2(g.x,g.z,player.x,player.z)<34){ g.state='chase'; g.target=[player.x,player.z]; } }); $('#alarmFlash').classList.add('on'); $('#meter').classList.add('alarm'); audio.sting(); toast('كُشف أمرك! اقطع خط النظر أو اصعد سطحاً'); }
+function raiseAlarm(){ alarm.active=true; alarm.timer=8; music.alarm(true); guards.forEach(g=>{ if(dist2(g.x,g.z,player.x,player.z)<34){ g.state='chase'; g.target=[player.x,player.z]; } }); $('#alarmFlash').classList.add('on'); $('#meter').classList.add('alarm'); audio.sting(); toast('كُشف أمرك! اقطع خط النظر أو اصعد سطحاً'); }
 let caughtLock=false;
 function caught(){ if(caughtLock||cine.active) return; caughtLock=true; audio.sting(); toast('أمسك بك الحرس. عودة إلى آخر نقطة حفظ…'); setTimeout(()=>{ restoreCheckpoint(); caughtLock=false; }, 1400); }
 
@@ -1100,7 +1105,7 @@ function applyEffect(e){
   if(e==='dawn'){ /* الانتقال إلى مرحلة الفجر يتم بإنهاء المرحلة */ }
 }
 function completeObjective(){ audio.chime(); toast('أُنجز الهدف'); setObjective(game.oi+1); }
-function restoreCheckpoint(){ const c=game.checkpoint; if(!c) return; spawnPlayer(c.x,c.z); player.y=c.y; alarm.active=false; alarm.timer=0; suspicion=0; guards.forEach(g=>{g.state='patrol'; if(dist2(g.x,g.z,c.x,c.z)<8){ g.x=g.wps[0][0]; g.z=g.wps[0][1]; }}); $('#alarmFlash').classList.remove('on'); $('#meter').classList.remove('alarm'); updateCamera(0,true); }
+function restoreCheckpoint(){ const c=game.checkpoint; if(!c) return; spawnPlayer(c.x,c.z); player.y=c.y; alarm.active=false; music.alarm(false); alarm.timer=0; suspicion=0; guards.forEach(g=>{g.state='patrol'; if(dist2(g.x,g.z,c.x,c.z)<8){ g.x=g.wps[0][0]; g.z=g.wps[0][1]; }}); $('#alarmFlash').classList.remove('on'); $('#meter').classList.remove('alarm'); updateCamera(0,true); }
 function spawnManuscripts(level){
   game.manus.forEach(m=>hiScene.remove(m.mesh)); game.manus=[];
   level.manuscripts.forEach(d=>{ const r=resolvePos(d.pos,false); const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.12), MAT.gold); m.position.set(r[0],r[1]+1.1,r[2]); hiScene.add(m); game.manus.push({mesh:m,pos:[r[0],r[1],r[2]],data:d,done:false}); });
@@ -1129,7 +1134,7 @@ async function playCinematic(shots, opts={}){
       return cine.skip || t>=1; }, sh.dur);
     if(!cine.skip) await sleepUntil(()=>cine.skip, .8);
   }
-  cine.active=false; $('#cine').hidden=true; cine.skip=false;
+  cine.active=false; $('#cine').hidden=true; cine.skip=false; music.stopNarration();
   if(opts.hudAfter!==false){ $('#hud').hidden=false; if(isTouch) $('#touch').hidden=false; }
 }
 addEventListener('keydown', e=>{ if(cine.active&&e.code==='Space') cine.skip=true; });
@@ -1154,8 +1159,8 @@ async function playTrailer(){
   const rec=startRecording();
   for(const lv of LEVELS){
     if(cine.skip) break;
-    loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); $('#loading').hidden=true;
-    await playCinematic(lv.intro.slice(0,2), {hudAfter:false});
+    loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); $('#loading').hidden=true; music.setMode('cine'); music.narrate(LEVELS.indexOf(lv));
+    await playCinematic(lv.intro.slice(0,2), {hudAfter:false}); music.stopNarration();
     if(cine.skip){ cine.skip=false; }
   }
   const blob=await stopRecording();
@@ -1169,9 +1174,53 @@ $('#videoDl').onclick=async()=>{ const blob=cine.lastBlob; if(!blob) return; con
   if(dl){ try{ await dl.save({filename:name, data:blob}); toast('تم حفظ الفيديو'); }catch(e){ if(e&&e.code==='declined') return; toast('تعذّر الحفظ هنا — شاهده في الصفحة'); } return; }
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); };
 
-/* ---------- 9) الصوت (تركيبي، بلا ملفات) ---------- */
+/* ---------- 9) الموسيقى والسرد (ملفات مولّدة + بديل تركيبي) ---------- */
+const AUDIO_FILES = { theme:'audio/theme.mp3', stealth:'audio/stealth.mp3', chase:'audio/chase.mp3', ambDay:'audio/amb-day.mp3', ambNight:'audio/amb-night.mp3',
+  narr:['audio/narr-1.mp3','audio/narr-2.mp3','audio/narr-3.mp3','audio/narr-4.mp3','audio/narr-5.mp3','audio/narr-6.mp3'] };
+const vol = (()=>{ let v={music:.7,sfx:.8,muted:false}; try{ Object.assign(v, JSON.parse(localStorage.getItem('rayat3.vol')||'{}')); }catch(e){} return v; })();
+function saveVol(){ try{ localStorage.setItem('rayat3.vol', JSON.stringify(vol)); }catch(e){} }
+const music = (function(){
+  const tracks={}; let unlocked=false; let current=null; let ambient=null; let narr=null; let mode='none'; let alarmMode=false;
+  function track(key, loop=true){ if(tracks[key]) return tracks[key]; const a=new Audio(); a.preload='auto'; a.loop=loop; a.volume=0; a.crossOrigin='anonymous'; a.src=AUDIO_FILES[key]; const t={a, ok:null, target:0, key}; a.addEventListener('canplaythrough',()=>{ if(t.ok===null) t.ok=true; }); a.addEventListener('error',()=>{ t.ok=false; }); tracks[key]=t; return t; }
+  function fadeTo(t, target){ if(!t) return; t.target=target; if(target>0 && t.ok!==false && unlocked){ if(t.a.paused){ t.a.play().catch(()=>{ t.ok=false; }); } } }
+  function tick(dt){ for(const k in tracks){ const t=tracks[k]; const goal = vol.muted? 0 : t.target * (k.startsWith('amb')? vol.sfx : vol.music); const v=t.a.volume; const nv = v + clamp(goal-v, -dt*.6, dt*.6); if(Math.abs(nv-v)>.001) t.a.volume=clamp(nv,0,1); if(nv<=.002 && t.target===0 && !t.a.paused) t.a.pause(); }
+    // البديل التركيبي يعمل حين يغيب ملف الموسيقى الحالي
+    const cur = tracks[modeKey()]; proc.enabled = unlocked && !vol.muted && mode!=='none' && cur && cur.ok===false; proc.mode = alarmMode?'chase':(mode==='play'?'tense':'calm'); proc.tick(dt); }
+  function modeKey(){ return mode==='menu'||mode==='cine'||mode==='end' ? 'theme' : (alarmMode?'chase':'stealth'); }
+  function apply(){ const k=modeKey(); for(const key of ['theme','stealth','chase']){ const t=track(key); fadeTo(t, key===k ? (mode==='play'? (k==='chase'?.9:(game.level&&game.level.time==='night'?.55:.35)) : .8) : 0); }
+    const amb = game.level ? (game.level.time==='night'||game.level.time==='dusk' ? 'ambNight':'ambDay') : 'ambDay'; for(const key of ['ambDay','ambNight']){ fadeTo(track(key), (mode==='play'||mode==='menu') && key===amb ? .5 : 0); } }
+  return {
+    unlock(){ unlocked=true; apply(); },
+    setMode(m){ mode=m; apply(); },
+    alarm(on){ if(alarmMode===on) return; alarmMode=on; apply(); },
+    narrate(i){ this.stopNarration(); const src=AUDIO_FILES.narr[i]; if(!src||!unlocked) return; narr=new Audio(src); narr.volume=vol.muted?0:vol.sfx; narr.play().catch(()=>{}); },
+    stopNarration(){ if(narr){ narr.pause(); narr=null; } },
+    tick, tracks
+  };
+})();
+/* بديل تركيبي: عود ودُفّ ودرون على مقام الحجاز (يعمل فقط إن غابت ملفات الموسيقى) */
+const proc = (function(){
+  let ctx=null, out=null, next=0, step=0; const HIJAZ=[0,1,4,5,7,8,11,12,13,16]; const root=146.83; // D3
+  const S={enabled:false, mode:'calm'};
+  function ensure(){ if(ctx) return; ctx=audio.ctx(); if(!ctx) return; out=ctx.createGain(); out.gain.value=.5; out.connect(audio.master()); }
+  function pluck(t, f, v){ const o=ctx.createOscillator(); o.type='triangle'; o.frequency.value=f; const o2=ctx.createOscillator(); o2.type='sawtooth'; o2.frequency.value=f*1.003; const flt=ctx.createBiquadFilter(); flt.type='lowpass'; flt.frequency.setValueAtTime(2600,t); flt.frequency.exponentialRampToValueAtTime(500,t+.35); const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.01); g.gain.exponentialRampToValueAtTime(.001,t+.9); o.connect(flt); o2.connect(flt); flt.connect(g); g.connect(out); o.start(t); o2.start(t); o.stop(t+1); o2.stop(t+1); }
+  function daf(t, v, low){ const b=ctx.createBuffer(1,ctx.sampleRate*.12,ctx.sampleRate); const d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3); const src=ctx.createBufferSource(); src.buffer=b; const f=ctx.createBiquadFilter(); f.type=low?'lowpass':'bandpass'; f.frequency.value=low?180:2500; const g=ctx.createGain(); g.gain.value=v; src.connect(f); f.connect(g); g.connect(out); src.start(t); }
+  function drone(t, dur){ const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=root/2; const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=220; const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.08,t+1); g.gain.linearRampToValueAtTime(0,t+dur); o.connect(f); f.connect(g); g.connect(out); o.start(t); o.stop(t+dur+.1); }
+  let seed=7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+  return { get enabled(){return S.enabled;}, set enabled(v){ S.enabled=v; }, set mode(m){ S.mode=m; }, get mode(){ return S.mode; },
+    tick(){ if(!S.enabled) return; ensure(); if(!ctx) return; const now=ctx.currentTime; if(next<now) next=now+.05;
+      const bpm = S.mode==='chase'?150:(S.mode==='tense'?84:66); const beat=60/bpm;
+      while(next<now+.4){ const t=next; const b=step%8;
+        if(b===0) drone(t, beat*8);
+        if(S.mode==='chase'){ daf(t,.5,true); if(b%2) daf(t+beat/2,.25,false); pluck(t, root*Math.pow(2,HIJAZ[Math.floor(rnd()*7)]/12)*(b<4?2:1), .18); }
+        else if(S.mode==='tense'){ if(b===0||b===3) daf(t,.35,true); if(rnd()<.45) pluck(t, root*Math.pow(2,HIJAZ[Math.floor(rnd()*6)]/12), .12); }
+        else { if(b===0) daf(t,.25,true); if(b===4) daf(t,.15,false); if(rnd()<.6) pluck(t, root*Math.pow(2,HIJAZ[[0,2,3,4,5,4,3,1][b]]/12), .14); }
+        next+=beat; step++; } } };
+})();
+
+/* ---------- 9.1) المؤثرات (تركيبية، بلا ملفات) ---------- */
 const audio=(function(){
-  let ctx=null, master=null, muted=false, wind=null, lastStep=0;
+  let ctx=null, master=null, muted=vol.muted, wind=null, lastStep=0;
   function ensure(){ if(ctx) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); master=ctx.createGain(); master.gain.value=muted?0:.5; master.connect(ctx.destination);
     // رياح: ضجيج مرشّح
     const buf=ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate); const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
@@ -1180,12 +1229,15 @@ const audio=(function(){
     src.connect(f); f.connect(g); g.connect(master); src.start(); wind=g; }
   function tone(freq,dur,type='sine',vol=.2,slide=0){ if(!ctx||muted) return; const o=ctx.createOscillator(); const g=ctx.createGain(); o.type=type; o.frequency.setValueAtTime(freq,ctx.currentTime); if(slide) o.frequency.exponentialRampToValueAtTime(slide,ctx.currentTime+dur); g.gain.setValueAtTime(vol,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur); o.connect(g); g.connect(master); o.start(); o.stop(ctx.currentTime+dur); }
   return {
-    unlock(){ ensure(); if(ctx.state==='suspended') ctx.resume(); },
+    ctx(){ return ctx; }, master(){ return master; },
+    unlock(){ ensure(); if(ctx.state==='suspended') ctx.resume(); music.unlock(); muted=vol.muted; if(master) master.gain.value=muted?0:.5*vol.sfx; },
     step(jump){ if(!ctx||muted) return; const t=performance.now(); if(!jump&&t-lastStep<180) return; lastStep=t; const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.value=jump?140:90+Math.random()*30; g.gain.setValueAtTime(.06,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.09); o.connect(g); g.connect(master); o.start(); o.stop(ctx.currentTime+.1); },
+    grunt(){ tone(120,.25,'sawtooth',.06,70); },
     chime(){ tone(660,.35,'sine',.15); setTimeout(()=>tone(990,.5,'sine',.12),120); },
     sting(){ tone(220,.6,'sawtooth',.18,70); tone(330,.6,'square',.08,90); },
     heartbeat(){ tone(55,.18,'sine',.25); setTimeout(()=>tone(50,.2,'sine',.2),180); },
-    toggle(){ muted=!muted; if(master) master.gain.value=muted?0:.5; toast(muted?'الصوت مكتوم':'الصوت يعمل'); }
+    toggle(){ muted=!muted; vol.muted=muted; saveVol(); if(master) master.gain.value=muted?0:.5*vol.sfx; toast(muted?'الصوت مكتوم':'الصوت يعمل'); $('#btnMute').textContent = muted?'تشغيل الصوت (M)':'كتم الصوت (M)'; },
+    setSfx(v){ if(master&&!muted) master.gain.value=.5*v; }
   };
 })();
 let hbT=0;
@@ -1200,6 +1252,11 @@ $('#btnRestartCp').onclick=()=>{ togglePause(); restoreCheckpoint(); };
 $('#btnPauseHelp').onclick=()=>{ $('#pause').hidden=true; $('#help').hidden=false; };
 $('#btnToMenu').onclick=()=>{ $('#pause').hidden=true; game.paused=false; game.running=false; showMenu(); };
 $('#btnHelp').onclick=()=>{ $('#menu').hidden=true; $('#help').hidden=false; };
+$('#btnMute').onclick=()=>{ audio.unlock(); audio.toggle(); };
+$('#volMusic').value=Math.round(vol.music*100); $('#volSfx').value=Math.round(vol.sfx*100);
+$('#volMusic').oninput=e=>{ vol.music=e.target.value/100; saveVol(); };
+$('#volSfx').oninput=e=>{ vol.sfx=e.target.value/100; saveVol(); audio.setSfx(vol.sfx); };
+if(vol.muted) $('#btnMute').textContent='تشغيل الصوت (M)';
 $('#btnCodex').onclick=()=>{ renderCodex(); $('#menu').hidden=true; $('#codex').hidden=false; };
 $('#btnTrailer').onclick=()=>{ audio.unlock(); playTrailer(); };
 (function(){ const v=$('#introVideo'); v.addEventListener('loadedmetadata', ()=>{ $('#btnIntroVideo').hidden=false; }); v.addEventListener('error', ()=>{ $('#btnIntroVideo').hidden=true; }); $('#btnIntroVideo').onclick=()=>{ $('#menu').hidden=true; $('#introVideoScreen').hidden=false; v.play().catch(()=>{}); }; })();
@@ -1218,7 +1275,7 @@ function renderCodex(){
   const el=$('#codexList'); el.innerHTML='';
   LEVELS.forEach(lv=>lv.manuscripts.forEach(m=>{ const got=save.codex.includes(m.id); const d=document.createElement('div'); d.className='codex-item'+(got?'':' locked'); d.innerHTML=`<div class="t">${m.title} · ${lv.year}</div><div class="f">${got?m.fact:'لم تُعثر عليها بعد — ابحث عن الأيقونة الذهبية في مرحلة «'+lv.title+'».'}</div>`; el.appendChild(d); }));
 }
-function showMenu(){ hideAll(); $('#hud').hidden=true; $('#touch').hidden=true; renderEras(); $('#menu').hidden=false; game.running=false;
+function showMenu(){ hideAll(); $('#hud').hidden=true; $('#touch').hidden=true; renderEras(); $('#menu').hidden=false; game.running=false; music.stopNarration(); music.setMode('menu');
   // خلفية حية خلف القائمة
   if(!world.group){ loadWorld(LEVELS[0]); spawnPlayer(0,66); } camCtl.yaw=Math.PI; menuCam=true; }
 let menuCam=false, menuT=0;
@@ -1229,13 +1286,15 @@ async function startLevel(i){
   game.li=i; const lv=LEVELS[i]; loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); spawnGuards(lv); spawnManuscripts(lv); insightOn=false;
   $('#hudEra').textContent=`${lv.era} · ${lv.year} · ${lv.hijri}`; $('#hudObj').textContent=''; $('#hudDist').textContent='';
   $('#loading').hidden=true; game.running=true; game.paused=false;
+  music.setMode('cine'); music.narrate(i);
   await playCinematic(lv.intro, {hudAfter: lv.objectives.length>0});
+  music.stopNarration(); music.setMode('play');
   if(lv.objectives.length===0){ finishLevel(); return; }
   updateCamera(0,true); setObjective(0);
   if(lv.hero) toast(lv.hero);
 }
 function finishLevel(){
-  clearMarkers(); const lv=game.level; game.running=false;
+  clearMarkers(); const lv=game.level; game.running=false; music.alarm(false); music.setMode('end');
   if(game.li+1>save.unlocked){ save.unlocked=game.li+1; writeSave(); }
   if(!lv.outro){ startLevel(game.li+1); return; }
   $('#ceTitle').textContent=lv.outro.title; $('#ceBody').innerHTML=lv.outro.body; $('#btnNextChapter').textContent = game.li+1<LEVELS.length? `التالي: ${LEVELS[game.li+1].title}` : 'القائمة الرئيسية';
@@ -1275,7 +1334,7 @@ function frame(now){
     if(sun){ sun.position.set(player.x+PALETTES[game.level.time].sun[0]*.6, PALETTES[game.level.time].sun[1], player.z+PALETTES[game.level.time].sun[2]*.6); sun.target.position.set(player.x,0,player.z); }
   }
   input.jumpPressed=false; input.interactPressed=false;
-  updateLife(dt, now);
+  updateLife(dt, now); music.tick(dt);
   renderFrame(now);
 }
 
