@@ -20,8 +20,9 @@ description: تصميم السلة والشراء والدفع — /cart و /che
 - `api/_mode.js`: محلياً الدفع اختبار وتمارا رمليّة — لا بطاقة تُخصم.
 
 ## نطاقك
-`simple-v1-cart.mjs` · `simple-v1-checkout.mjs` · `api/pay.js` · `api/_moyasar.js`
-· عقد `bp_cart` (تغييره يمسّ الصفحات القديمة التي تكتبه — أبلغ قبل أن تغيّر).
+`simple-v1-cart.mjs` · `simple-v1-checkout.mjs` · `api/pay.js` (المنسّق) · عقد
+`bp_cart`. (`api/_moyasar.js` لـ`moyasar`، وتمارا لـ`tamara`، والفاتورة لـ`daftra` —
+تغييراتهم في `pay.js` تمرّ بك.) (تغييره يمسّ الصفحات القديمة التي تكتبه — أبلغ قبل أن تغيّر).
 
 ## قاعدة
 السقف ١٢ دالة في `api/` (الآن ١١/١٢). لا ملف `api/` جديد بلا `_`.
