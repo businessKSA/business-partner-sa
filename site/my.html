@@ -346,6 +346,31 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
 .form{display:grid;gap:8px;max-width:520px}
 .form label{font-size:.82rem;color:var(--mut)}
+/* خزانة المستندات — منطقة إفلات واحدة، ثم بطاقة لكل مستند. */
+.dz{border:2px dashed #c7cfe2;border-radius:16px;background:#fff;padding:26px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.dz:hover,.dz.over{border-color:var(--n);background:#f7f9ff}
+.dz:focus-visible{outline:2px solid var(--n);outline-offset:2px}
+.dz .ico{font-size:1.7rem;display:block;margin-bottom:6px;line-height:1}
+.dz b{display:block;color:var(--ink);font-weight:500;font-size:.97rem}
+.dz small{color:var(--mut);font-size:.8rem}
+.dfile{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;margin-top:12px}
+select.inp{background:#fff;color:inherit}
+.dgrid label{display:block;margin-bottom:4px}
+.dfile .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;color:var(--ink)}
+.dfile .sz{color:var(--mut);font-size:.78rem;white-space:nowrap;font-family:var(--fm)}
+.bar{height:6px;border-radius:999px;background:#eef0f5;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--n);width:0;transition:width .18s}
+.bar.bad i{background:#b91c1c}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:#fff}
+.doc.soon{border-color:#f59e0b;background:#fffbeb}
+.doc.gone{border-color:#fecaca;background:#fff5f5}
+.doc .hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.doc .hd b{color:var(--ink);font-size:.95rem;font-weight:500}
+.doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
+.doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
+.doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:620px){.dgrid{grid-template-columns:1fr}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
 </style>
@@ -493,8 +518,8 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var LANG="en",EV={"request.created":"created the request","request.created.manual":"request created manually","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request"},TX={"title":"My account — Business Partner","navHome":"Home","navNew":"New request","navRequests":"My requests","navQuotes":"Quotations","navContracts":"Contracts","navAppts":"Appointments","navPay":"Cart & payment","navInvoices":"Invoices","navChats":"Conversations","navCompany":"Company details","logout":"Sign out","site":"Website","attention":"What needs your attention now?","kActive":"Active requests","kQuotes":"Quotes awaiting approval","kContracts":"Contracts awaiting signature","kPayments":"Payments due","kAppts":"Upcoming appointment","today":"What do you need today?","empty":"Nothing here yet.","ref":"Reference","status":"Status","open":"Open","back":"Back","conversation":"Conversation","scope":"Scope of Work","cancelTitle":"Cancel this request","cancelAsk":"Request cancellation","cancelWhy":"Reason (optional)","cancelEarly":"Nothing is committed yet — cancelling takes effect immediately.","cancelLate":"This request has reached a stage with commitments (contract, payment or execution). We take your request and the team reviews it and gets back to you.","cancelSent":"Cancellation request received and under review.","cancelDone":"Request cancelled","resign":"A corrected version of this contract was issued after your signature — we will send it to you to sign again.","openFull":"Open full size","docPrint":"Print / Save PDF","docClose":"Close","docWait":"Preparing the document…","attachments":"Attachments","quote":"Quotation","contract":"Contract","payment":"Payment","invoice":"Invoice","timeline":"Timeline","writeMsg":"Write a message to the team…","send":"Send","saveScope":"Save changes","confirmScope":"Confirm scope & continue","scopePricing":"Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.","docs":"Documents required","docsNote":"Prepare these documents — we need them to complete your request.","docsNone":"No documents requested yet.","addItem":"Add item","remove":"Remove","scopeLocked":"Scope is locked once a quotation is issued.","qty":"Qty","price":"Price","net":"Subtotal","vat":"VAT 15%","total":"Total","validUntil":"Valid until","terms":"Payment terms","approve":"Approve quote","reject":"Request changes","rejectNote":"What would you like changed?","quoteApproved":"Quote approved — your contract is ready to sign now.","viewContract":"View contract","signTitle":"Electronic signature","signName":"Signer's full name","signDraw":"Draw your signature","signClear":"Clear","signConsent":"I agree that my electronic signature is binding under the Electronic Transactions Law.","signBtn":"Sign contract","signed":"Contract signed","payNow":"Pay now","payCardNow":"Pay by card","payTamaraNow":"Pay in instalments with Tamara","payReturning":"Confirming your payment…","payVia":"Pay on the secure checkout page (mada, Visa, Mastercard, Apple Pay, Tamara when available)","testPay":"Simulate payment (test mode)","paySuccess":"Success — card","payTamara":"Success — Tamara","payFailed":"Failed","payCancelled":"Cancelled","payPending":"Pending","paid":"Paid","download":"View invoice","book":"Book an appointment","reschedule":"Reschedule","cancelAppt":"Cancel appointment","date":"Date","time":"Time","topic":"Topic","confirm":"Confirm","apptNote":"Sunday to Thursday, Riyadh time. We confirm by email.","cancelReq":"Cancel request","company":"Company name","cr":"CR number","nameEn":"Name in English","save":"Save","saved":"Saved","you":"You","team":"Team","assistant":"Assistant","loginTitle":"Sign in","loginText":"Enter your email and we'll send a sign-in code.","email":"Email","sendCode":"Send code","password":"Password","loginPw":"Sign in with password","usePw":"Have a password? Sign in with it","useCode":"Use an emailed code instead","orGoogle":"Or continue with Google","pwTitle":"Password","pwNote":"Set a password so you can sign in directly instead of waiting for an emailed code.","pwSave":"Save password","pwShort":"The password must be at least 8 characters.","pwSaved":"Password saved ✓","code":"Sign-in code","verify":"Sign in","loginErr":"Couldn't send the code.","codeErr":"Wrong code.","error":"Something went wrong. Try again.","waitingTeam":"The team is reviewing your request","needYou":"Waiting for you","tasksTitle":"Required from you","done":"Done","requestCreated":"Request created","testRibbon":"TEST MODE — no real payments","sourceLbl":"Source"},ST={"NEW":"New","REVIEWING":"Reviewing","WAITING_CLIENT":"Waiting for you","QUOTE_SENT":"Quote awaiting approval","QUOTE_APPROVED":"Quote approved","CONTRACT_SENT":"Contract awaiting signature","SIGNED":"Signed — payment due","PAYMENT_PENDING":"Payment pending","PAID":"Paid — ready for execution","IN_PROGRESS":"In progress","WAITING_INTERNAL":"In progress","COMPLETED":"Completed","CANCELLED":"Cancelled"},TY={"CONSULTATION":"Consultation","GOVERNMENT_SERVICE":"Government service","COMPANY_FORMATION":"Company formation"},HOME="/",CHECKOUT="/checkout";
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:''};
+var LANG="en",EV={"request.created":"created the request","request.created.manual":"request created manually","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request"},TX={"title":"My account — Business Partner","navHome":"Home","navNew":"New request","navRequests":"My requests","navQuotes":"Quotations","navContracts":"Contracts","navAppts":"Appointments","navPay":"Cart & payment","navInvoices":"Invoices","navChats":"Conversations","navCompany":"Company details","logout":"Sign out","site":"Website","attention":"What needs your attention now?","kActive":"Active requests","kQuotes":"Quotes awaiting approval","kContracts":"Contracts awaiting signature","kPayments":"Payments due","kAppts":"Upcoming appointment","today":"What do you need today?","empty":"Nothing here yet.","ref":"Reference","status":"Status","open":"Open","back":"Back","conversation":"Conversation","scope":"Scope of Work","cancelTitle":"Cancel this request","cancelAsk":"Request cancellation","cancelWhy":"Reason (optional)","cancelEarly":"Nothing is committed yet — cancelling takes effect immediately.","cancelLate":"This request has reached a stage with commitments (contract, payment or execution). We take your request and the team reviews it and gets back to you.","cancelSent":"Cancellation request received and under review.","cancelDone":"Request cancelled","resign":"A corrected version of this contract was issued after your signature — we will send it to you to sign again.","openFull":"Open full size","docPrint":"Print / Save PDF","docClose":"Close","docWait":"Preparing the document…","attachments":"Attachments","quote":"Quotation","contract":"Contract","payment":"Payment","invoice":"Invoice","timeline":"Timeline","writeMsg":"Write a message to the team…","send":"Send","saveScope":"Save changes","confirmScope":"Confirm scope & continue","scopePricing":"Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.","docs":"Documents required","docsNote":"Prepare these documents — we need them to complete your request.","docsNone":"No documents requested yet.","addItem":"Add item","remove":"Remove","scopeLocked":"Scope is locked once a quotation is issued.","qty":"Qty","price":"Price","net":"Subtotal","vat":"VAT 15%","total":"Total","validUntil":"Valid until","terms":"Payment terms","approve":"Approve quote","reject":"Request changes","rejectNote":"What would you like changed?","quoteApproved":"Quote approved — your contract is ready to sign now.","viewContract":"View contract","signTitle":"Electronic signature","signName":"Signer's full name","signDraw":"Draw your signature","signClear":"Clear","signConsent":"I agree that my electronic signature is binding under the Electronic Transactions Law.","signBtn":"Sign contract","signed":"Contract signed","payNow":"Pay now","payCardNow":"Pay by card","payTamaraNow":"Pay in instalments with Tamara","payReturning":"Confirming your payment…","payVia":"Pay on the secure checkout page (mada, Visa, Mastercard, Apple Pay, Tamara when available)","testPay":"Simulate payment (test mode)","paySuccess":"Success — card","payTamara":"Success — Tamara","payFailed":"Failed","payCancelled":"Cancelled","payPending":"Pending","paid":"Paid","download":"View invoice","book":"Book an appointment","reschedule":"Reschedule","cancelAppt":"Cancel appointment","date":"Date","time":"Time","topic":"Topic","confirm":"Confirm","apptNote":"Sunday to Thursday, Riyadh time. We confirm by email.","cancelReq":"Cancel request","company":"Company name","cr":"CR number","nameEn":"Name in English","save":"Save","saved":"Saved","you":"You","team":"Team","assistant":"Assistant","loginTitle":"Sign in","loginText":"Enter your email and we'll send a sign-in code.","email":"Email","sendCode":"Send code","password":"Password","loginPw":"Sign in with password","usePw":"Have a password? Sign in with it","useCode":"Use an emailed code instead","orGoogle":"Or continue with Google","pwTitle":"Password","pwNote":"Set a password so you can sign in directly instead of waiting for an emailed code.","pwSave":"Save password","pwShort":"The password must be at least 8 characters.","pwSaved":"Password saved ✓","code":"Sign-in code","verify":"Sign in","loginErr":"Couldn't send the code.","codeErr":"Wrong code.","error":"Something went wrong. Try again.","waitingTeam":"The team is reviewing your request","needYou":"Waiting for you","tasksTitle":"Required from you","done":"Done","requestCreated":"Request created","testRibbon":"TEST MODE — no real payments","sourceLbl":"Source","navDocs":"My documents","vaultNote":"Upload a document once — we use it across your requests, and nobody outside your account sees it.","dzPick":"Drop a file here, or click to choose","dzHint":"PDF or image (JPG · PNG · WEBP) — up to 8 MB","dName":"Document name","dCat":"Type","dExp":"Expiry date (optional)","dSend":"Upload document","dOther":"Choose another file","dUploading":"Uploading","dDone":"Document uploaded ✓","dNewVerDone":"New version uploaded ✓","eBig":"The file is larger than 8 MB","eType":"This format is not accepted. Accepted: PDF · JPG · PNG · WEBP.","eEmpty":"The file is empty.","eName":"Enter a document name first.","eNet":"Could not reach the server — check your connection and try again.","eUp":"The file could not be uploaded","eRead":"The file could not be read from your device.","eNoOrg":"Add your company name under «Company details» first — the vault belongs to the company.","dOpen":"Open","dNewVer":"New version","dDel":"Delete","dDelAsk":"Delete this document from your vault for good?","dVer":"v","dExpires":"Expires","dExpired":"Expired","dLeftA":"","dLeftB":"days left","dPending":"Pending review","dReadOk":"Read automatically ✓","dNone":"No documents yet — upload your first one above.","dLoading":"Loading your vault…","dEntity":"Entity","dCr":"CR","dVat":"VAT","dIssued":"Issued","dRetry":"Try again"},ST={"NEW":"New","REVIEWING":"Reviewing","WAITING_CLIENT":"Waiting for you","QUOTE_SENT":"Quote awaiting approval","QUOTE_APPROVED":"Quote approved","CONTRACT_SENT":"Contract awaiting signature","SIGNED":"Signed — payment due","PAYMENT_PENDING":"Payment pending","PAID":"Paid — ready for execution","IN_PROGRESS":"In progress","WAITING_INTERNAL":"In progress","COMPLETED":"Completed","CANCELLED":"Cancelled"},TY={"CONSULTATION":"Consultation","GOVERNMENT_SERVICE":"Government service","COMPANY_FORMATION":"Company formation"},HOME="/",CHECKOUT="/checkout";
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -534,14 +559,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};return {quotes:c.quotes,contracts:c.contracts,pay:c.payments}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
-var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
+var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\u0600-\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\u0600-\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
@@ -589,6 +614,178 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.em
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
 var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
+
+// ---------- المستندات: خزانة واحدة للعميل
+// هذه هي خزانة /account نفسها — الجداول documents و document_versions
+// والمسارات my-ops الموجودة أصلاً. لا خزانة ثانية ولا دالة api جديدة: مستندٌ
+// يُرفع هنا يظهر هناك، وفي المقابل ينتقل العميل بين البوابتين بلا فقدان ورقة.
+//
+// attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
+// بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
+var DOC_CATS=[["cr","Commercial registration"],["vat","VAT certificate"],["contract","Contract"],["id","ID / Iqama"],["other","Other"]];
+var MAX_DOC=8*1024*1024;
+var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
+var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
+function extOf(n){var t=String(n||'');var i=t.lastIndexOf('.');return i<0?'':t.slice(i+1).toLowerCase()}
+// النوع من ترويسة المتصفح أولاً، ومن الامتداد حين لا يعرفه المتصفح (يحدث على
+// أندرويد ومع بعض ملفات PDF) — فلا يُرفض ملفٌ سليم لأن المتصفح صمت عن نوعه.
+function mimeOf(f){return OK_MIME[String((f&&f.type)||'').toLowerCase()]||OK_EXT[extOf(f&&f.name)]||''}
+function kb(n){n=Number(n||0);return n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB')}
+function baseName(n){var t=String(n||'').replace(/\.[^.]+$/,'');return t.slice(0,120)}
+function daysLeft(d){if(!d)return null;var t=Date.parse(String(d).slice(0,10)+'T00:00:00Z');if(!isFinite(t))return null;
+ var today=Date.parse(new Date().toISOString().slice(0,10)+'T00:00:00Z');return Math.round((t-today)/86400000)}
+function dayStr(n){return LANG==='en'?(n+' '+TX.dLeftB):(TX.dLeftA+' '+n+' '+TX.dLeftB)}
+// الحارس الذي يشتغل قبل أن يغادر الملف الجهاز. الخادم اليوم لا يرفض صيغة ولا
+// حجماً (يُبدّل النوع المجهول بـ pdf ويقصّ ما زاد) — فالرسالة الواضحة هنا هي
+// الفرق بين «ارفع غيره» وبين ملفٍ مبتور محفوظ بصمت.
+function fileErr(f){if(!f)return TX.eType;if(!f.size)return TX.eEmpty;
+ if(!mimeOf(f))return TX.eType;if(f.size>MAX_DOC)return TX.eBig+' ('+kb(f.size)+')';return ''}
+function toB64(f){return new Promise(function(res,rej){var fr=new FileReader();
+ fr.onload=function(){var t=String(fr.result||'');var i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};
+ fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
+function opsGet(what,extra){return fetch('/api/requests?action=my-ops&what='+what+(extra||''),{credentials:'same-origin',cache:'no-store'})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+function opsPost(b){return fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+function upErr(e){e=String(e||'');
+ if(e==='network')return TX.eNet;
+ if(e==='no_org')return TX.eNoOrg;
+ if(e==='too_large')return TX.eBig;
+ if(e==='invalid_fields')return TX.eName;
+ return TX.eUp+' ('+e.slice(0,40)+')'}
+// رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
+// لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
+function sendDoc(payload,onp){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+ x.setRequestHeader('content-type','application/json');
+ if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
+ x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
+  if(o&&typeof o==='object'&&('ok' in o))res(o);else res({ok:false,error:'http_'+x.status})};
+ x.onerror=function(){res({ok:false,error:'network'})};
+ x.onabort=function(){res({ok:false,error:'network'})};
+ x.ontimeout=function(){res({ok:false,error:'network'})};
+ try{x.send(JSON.stringify(payload))}catch(e){res({ok:false,error:'network'})}})}
+function setDocBadge(){var a=document.querySelector('[data-nav="documents"]');if(!a)return;
+ var n=badges().documents;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}
+ if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function loadDocs(){return opsGet('documents').then(function(o){if(o&&o.ok)state.docs=o.items||[];setDocBadge();return o})}
+
+function viewDocuments(m){
+ m.appendChild(h('h1',{},[TX.navDocs]));
+ var noOrg=!(state.me.organization&&state.me.organization.id);
+ var card=h('div',{class:'card'});
+ card.appendChild(h('p',{class:'note',style:'margin:0 0 12px'},[TX.vaultNote]));
+ var file=h('input',{type:'file',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ var dz=h('div',{class:'dz',tabindex:'0',role:'button'},[h('span',{class:'ico'},['📄']),h('b',{},[TX.dzPick]),h('small',{},[TX.dzHint])]);
+ var err=h('div',{class:'err',style:'margin-top:10px'}),okm=h('div',{class:'ok',style:'margin-top:10px'});
+ var form=h('div',{hidden:'',style:'margin-top:12px'});
+ var picked=null,version=null;   // version = {id,title,category} حين تكون نسخةً جديدة من مستند قائم
+ var fname=h('span',{class:'nm'}),fsize=h('span',{class:'sz'});
+ var again=h('button',{class:'btn ghost sm',onclick:function(){file.click()}},[TX.dOther]);
+ var title=h('input',{class:'inp',maxlength:'200',placeholder:TX.dName});
+ var cat=h('select',{class:'inp'},DOC_CATS.map(function(c){return h('option',{value:c[0]},[c[1]])}));
+ var exp=h('input',{class:'inp',type:'date'});
+ var bar=h('div',{class:'bar',hidden:''},[h('i',{})]);
+ var send=h('button',{class:'btn'},[TX.dSend]);
+ var fields=h('div',{class:'dgrid',style:'margin-top:10px'},[
+  h('div',{},[h('label',{class:'note'},[TX.dName]),title]),
+  h('div',{},[h('label',{class:'note'},[TX.dCat]),cat]),
+  h('div',{},[h('label',{class:'note'},[TX.dExp]),exp])]);
+ form.appendChild(h('div',{class:'dfile'},[h('span',{},['📎']),fname,fsize,again]));
+ form.appendChild(fields);form.appendChild(bar);
+ form.appendChild(h('div',{style:'margin-top:12px'},[send]));
+ function reset(){picked=null;version=null;form.hidden=true;fields.hidden=false;file.value='';
+  title.value='';exp.value='';cat.value='other';bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend}
+ function take(f){err.textContent='';okm.textContent='';
+  var e=fileErr(f);
+  if(e){err.textContent=e;picked=null;form.hidden=true;file.value='';return}
+  picked=f;fname.textContent=f.name;fsize.textContent=kb(f.size);
+  bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend;
+  if(version){title.value=version.title;cat.value=version.category||'other';fields.hidden=true}
+  else{fields.hidden=false;if(!title.value)title.value=baseName(f.name)}
+  form.hidden=false;if(!version)title.focus()}
+ file.addEventListener('change',function(){take(file.files&&file.files[0])});
+ dz.addEventListener('click',function(){if(!noOrg)file.click()});
+ dz.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!noOrg)file.click()}});
+ ['dragenter','dragover'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.add('over')})});
+ ['dragleave','drop'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.remove('over')})});
+ dz.addEventListener('drop',function(e){if(noOrg)return;var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)take(f)});
+ send.addEventListener('click',function(){
+  err.textContent='';okm.textContent='';
+  if(!picked){err.textContent=TX.eType;return}
+  var e=fileErr(picked);if(e){err.textContent=e;return}
+  var t=(title.value||'').trim();if(!t){err.textContent=TX.eName;title.focus();return}
+  var wasVersion=!!version;
+  send.disabled=true;bar.hidden=false;bar.className='bar';bar.firstChild.style.width='4%';
+  send.textContent=TX.dUploading+' 0%';
+  toB64(picked).then(function(b64){
+   return sendDoc({action:'ops-doc-upload',title:t,category:cat.value,expiry:exp.value||'',
+                   fileName:picked.name,mime:mimeOf(picked),base64:b64},
+    function(p){var pc=Math.max(4,Math.min(99,Math.round(p*100)));
+     bar.firstChild.style.width=pc+'%';send.textContent=TX.dUploading+' '+pc+'%'})
+  }).then(function(o){
+   if(o&&o.ok){bar.firstChild.style.width='100%';
+    okm.textContent=(wasVersion?TX.dNewVerDone:TX.dDone)+(o.version>1?(' · '+verLbl(o.version)):'');
+    setTimeout(reset,600);return loadDocs().then(draw)}
+   if(o&&o.error==='unauthorized'){location.reload();return}
+   bar.className='bar bad';err.textContent=upErr(o&&o.error);
+   send.disabled=false;send.textContent=TX.dRetry;
+  }).catch(function(){bar.className='bar bad';err.textContent=TX.eRead;
+   send.disabled=false;send.textContent=TX.dRetry})});
+ card.appendChild(dz);card.appendChild(file);card.appendChild(err);card.appendChild(okm);card.appendChild(form);
+ if(noOrg){dz.style.opacity='.55';dz.style.cursor='not-allowed';err.textContent=TX.eNoOrg}
+ m.appendChild(card);
+
+ var list=h('div',{class:'list',style:'margin-top:14px'});m.appendChild(list);
+ list.appendChild(h('p',{class:'note'},[TX.dLoading]));
+ function draw(){
+  list.innerHTML='';
+  var items=state.docs||[];
+  if(!items.length){list.appendChild(h('p',{class:'note'},[TX.dNone]));return}
+  items.forEach(function(d){
+   var n=daysLeft(d.expiry_date);
+   var box=h('div',{class:'doc'+(n===null?'':n<0?' gone':n<=30?' soon':'')});
+   var chips=[h('b',{},[d.title||'']),h('span',{class:'pill mut'},[catName(d.category)])];
+   if(n!==null&&n<=30)chips.push(h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)]));
+   chips.push(h('span',{class:'pill '+(d.extracted?'ok':'mut')},[d.extracted?TX.dReadOk:TX.dPending]));
+   box.appendChild(h('div',{class:'hd'},chips));
+   var vers=(d.document_versions||[]).slice().sort(function(a,b){return (b.version_no||0)-(a.version_no||0)});
+   var cur=vers[0]||null;
+   var meta=[];
+   if(cur)meta.push((cur.file_name||'')+' · '+verLbl(cur.version_no||1));
+   if(d.expiry_date)meta.push(TX.dExpires+' '+String(d.expiry_date).slice(0,10));
+   meta.push(when(d.created_at));
+   box.appendChild(h('div',{class:'meta'},[meta.join(' · ')]));
+   if(d.extracted){var x=d.extracted,bits=[];
+    if(x.companyNameAr||x.companyNameEn)bits.push(TX.dEntity+': '+(x.companyNameAr||x.companyNameEn));
+    if(x.crNumber)bits.push(TX.dCr+': '+x.crNumber);
+    if(x.vatNumber)bits.push(TX.dVat+': '+x.vatNumber);
+    if(d.issue_date||x.issueDate)bits.push(TX.dIssued+': '+String(d.issue_date||x.issueDate).slice(0,10));
+    if(bits.length)box.appendChild(h('div',{class:'read'},['🤖 '+bits.join(' · ')]))}
+   var dmsg=h('span',{class:'err'});
+   var acts=h('div',{class:'acts'});
+   if(cur)acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     dmsg.textContent='';opsGet('doc-link','&version='+encodeURIComponent(cur.id)).then(function(o){
+      if(o&&o.ok&&o.url)window.open(o.url,'_blank','noopener');else dmsg.textContent=upErr(o&&o.error)})}},[TX.dOpen]));
+   acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     version={id:d.id,title:d.title,category:d.category};okm.textContent='';err.textContent='';
+     file.value='';file.click();
+     try{card.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}},[TX.dNewVer]));
+   acts.appendChild(h('button',{class:'btn danger sm',onclick:function(){
+     if(!window.confirm(TX.dDelAsk+'\n\n'+(d.title||'')))return;
+     dmsg.textContent='';opsPost({action:'ops-doc-delete',id:d.id}).then(function(o){
+      if(o&&o.ok){loadDocs().then(draw);return}dmsg.textContent=upErr(o&&o.error)})}},[TX.dDel]));
+   acts.appendChild(dmsg);
+   box.appendChild(acts);
+   list.appendChild(box)})}
+ if(state.docs)draw();
+ loadDocs().then(function(o){if(o&&!o.ok&&o.error==='network'){list.innerHTML='';list.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()})}
+function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
+function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
+ return DOC_CATS[DOC_CATS.length-1][1]}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
@@ -680,7 +877,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
