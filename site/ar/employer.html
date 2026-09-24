@@ -269,26 +269,95 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 </style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-emp-css">
-.sv1-emp{max-width:1080px;margin:0 auto;padding:0 20px}
-.sv1-emp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
- border-bottom:1px solid var(--l);padding:14px 0;margin-bottom:22px}
-.sv1-emp-who{display:flex;align-items:baseline;gap:9px;min-width:0}
-.sv1-emp-who b{font-size:16px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sv1-emp-who span{font-size:11.5px;color:var(--mut);white-space:nowrap}
-.sv1-emp-nav{display:flex;gap:7px;flex-wrap:wrap}
-.sv1-emp-nav button{border:1px solid var(--l);background:#fff;border-radius:9px;padding:8px 15px;font:inherit;
- font-size:13px;font-weight:500;color:var(--mut);cursor:pointer}
-.sv1-emp-nav button.on{background:var(--ac);border-color:var(--ac);color:#fff}
-.sv1-acct{position:relative}
-.sv1-acct summary{list-style:none;cursor:pointer;border:1px solid var(--l);background:#fff;border-radius:9px;
- padding:8px 14px;font-size:13px;font-weight:500;color:var(--ink);display:inline-flex;align-items:center;gap:7px}
-.sv1-acct summary::-webkit-details-marker{display:none}
-.sv1-acct .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--l);
- border-radius:12px;box-shadow:var(--sh2);width:290px;padding:14px;z-index:9}
+.sv1-emp{max-width:1280px;margin:0 auto;padding:0 20px}
+
+/* ── الإطار: شريط علويّ + شريط جانبي ──────────────────────────────────────
+   كل ما في هذا القسم بخصائص منطقية (inline-start/‏inline-end/‏padding-inline)
+   ولا خاصية left/right فيه — تماماً كلوحة المسار أدناه. فالشريط الجانبي يقف
+   حيث تبدأ القراءة في العربية والإنجليزية معاً، والدرج ينزلق من الجهة نفسها،
+   بلا فرعٍ في الكود ولا ورقةٍ ثانية للـLTR. */
+.sv1-emp-top{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--l);
+ padding:11px 0;margin-bottom:18px}
+.sv1-emp-burger{display:none;flex:none;border:1px solid var(--l);background:#fff;border-radius:9px;
+ width:36px;height:36px;font-size:15px;line-height:1;color:var(--ink);cursor:pointer;padding:0}
+.sv1-emp-who{display:flex;flex-direction:column;min-width:0;flex:none;max-width:38%}
+.sv1-emp-who b{font-size:15px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-emp-who span{font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* البحث: في المتصفّح على ما هو محمّل، فلا مؤشّر انتظار ولا نداء لكل حرف. */
+.sv1-emp-q{position:relative;flex:1;min-width:0;max-width:430px;margin-inline-start:auto}
+.sv1-emp-q input{width:100%;border:1px solid var(--l);border-radius:10px;padding:9px 13px;font:inherit;
+ font-size:13px;outline:none;background:var(--soft);color:var(--ink)}
+.sv1-emp-q input:focus{border-color:var(--ac);background:#fff}
+.sv1-emp-res{position:absolute;inset-inline-start:0;inset-inline-end:0;top:calc(100% + 6px);background:#fff;
+ border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh2);z-index:14;padding:6px;
+ max-height:min(60vh,380px);overflow-y:auto}
+.sv1-emp-res h6{margin:8px 8px 3px;font-size:10.5px;font-weight:600;color:var(--faint);letter-spacing:.04em}
+.sv1-emp-res a{display:block;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--ink)}
+.sv1-emp-res a:hover,.sv1-emp-res a:focus-visible{background:var(--acSoft);outline:none}
+.sv1-emp-res a b{display:block;font-size:13px;font-weight:600;line-height:1.5;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-emp-res a small{display:block;font-size:11px;color:var(--mut);line-height:1.6;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-emp-res p{margin:0;padding:12px 10px;font-size:12px;color:var(--faint);text-align:center}
+.sv1-emp-more{margin:2px 8px 6px;font-size:11px;color:var(--faint)}
+
+.sv1-emp-shell{display:grid;grid-template-columns:214px minmax(0,1fr);gap:26px;align-items:start}
+.sv1-emp-shell.mini{grid-template-columns:60px minmax(0,1fr)}
+.sv1-emp-side{position:sticky;top:14px;background:#fff;border:1px solid var(--l);border-radius:14px;
+ padding:9px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:3px}
+.sv1-emp-side .grp{display:flex;flex-direction:column;gap:3px}
+.sv1-emp-side hr{border:0;border-top:1px solid var(--l);margin:7px 2px}
+.sv1-emp-side button{display:flex;align-items:center;gap:10px;width:100%;border:0;
+ border-inline-start:3px solid transparent;background:none;border-radius:9px;padding:9px 10px;font:inherit;
+ font-size:13.5px;color:var(--mut);cursor:pointer;text-align:start}
+.sv1-emp-side button:hover{background:var(--soft);color:var(--ink)}
+.sv1-emp-side button.on{background:var(--acSoft);border-inline-start-color:var(--ac);color:var(--ac);font-weight:600}
+.sv1-emp-side button svg{flex:none;width:17px;height:17px}
+.sv1-emp-side button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-emp-side .cta{background:var(--ac);color:#fff;font-weight:600;justify-content:center;
+ border-inline-start-color:transparent}
+.sv1-emp-side .cta:hover{background:var(--ac2);color:#fff}
+.sv1-emp-side .fold{font-size:11.5px;color:var(--faint);justify-content:center;padding:7px 10px}
+.sv1-emp-shell.mini .sv1-emp-side button{justify-content:center;padding-inline:6px}
+.sv1-emp-shell.mini .sv1-emp-side button span{display:none}
+.sv1-emp-back{display:none}
+@media(max-width:900px){
+ /* الجوال: الشريط يصير درجاً ينزلق من جهة بداية القراءة ولا يبتلع الشاشة —
+    عرضٌ ثابت وخلفيةٌ تُغلقه باللمس. والانزلاق بـinset-inline-start لا
+    بـtranslateX: الأخيرة تحتاج إشارةً معكوسة في RTL، وهذا فرعٌ لا داعي له. */
+ .sv1-emp-shell,.sv1-emp-shell.mini{grid-template-columns:minmax(0,1fr)}
+ .sv1-emp-burger{display:block}
+ .sv1-emp-side{position:fixed;inset-block:0;inset-inline-start:-272px;width:248px;z-index:41;
+  border-radius:0;border-block:0;border-inline-start:0;overflow-y:auto;padding:14px 10px;
+  transition:inset-inline-start .22s ease}
+ .sv1-emp-shell.open .sv1-emp-side{inset-inline-start:0}
+ .sv1-emp-shell.mini .sv1-emp-side button{justify-content:flex-start;padding-inline:10px}
+ .sv1-emp-shell.mini .sv1-emp-side button span{display:block}
+ .sv1-emp-side .fold{display:none}
+ .sv1-emp-shell.open .sv1-emp-back{display:block;position:fixed;inset:0;z-index:40;
+  background:rgba(11,27,90,.34)}
+ .sv1-emp-q{max-width:none}
+ .sv1-emp-who{display:none}
+}
+@media (prefers-reduced-motion:reduce){.sv1-emp-side{transition:none}}
+.sv1-acct,.sv1-emp-lang{position:relative;flex:none}
+.sv1-acct summary,.sv1-emp-lang summary{list-style:none;cursor:pointer;border:1px solid var(--l);background:#fff;
+ border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:500;color:var(--ink);
+ display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sv1-acct summary::-webkit-details-marker,.sv1-emp-lang summary::-webkit-details-marker{display:none}
+.sv1-acct .menu,.sv1-emp-lang .menu{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;
+ border:1px solid var(--l);border-radius:12px;box-shadow:var(--sh2);width:290px;padding:14px;z-index:15}
+.sv1-emp-lang .menu{width:180px;padding:7px}
+.sv1-emp-lang .menu a{display:block;padding:8px 11px;border-radius:8px;font-size:13px;color:var(--ink);
+ text-decoration:none}
+.sv1-emp-lang .menu a:hover{background:var(--soft)}
+.sv1-emp-lang .menu a.on{background:var(--acSoft);color:var(--ac);font-weight:600}
 .sv1-acct .menu h5{margin:0 0 3px;font-size:13px;color:var(--ink);font-weight:600}
 .sv1-acct .menu .ro{font-size:12px;color:var(--mut);margin:0 0 12px;word-break:break-all}
 .sv1-acct .menu label{display:block;font-size:11.5px;color:var(--mut);margin:10px 0 4px}
 .sv1-emp-h{font-size:22px;font-weight:300;margin:0 0 4px;color:var(--ink)}
+.sv1-emp-h2{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 3px}
 .sv1-emp-sub{font-size:12.5px;color:var(--mut);margin:0 0 18px}
 .sv1-emp-f input,.sv1-emp-f select,.sv1-emp-f textarea,.sv1-acct input{
  width:100%;border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13.5px;
@@ -298,12 +367,62 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-emp-f label{display:block;font-size:12px;color:var(--mut);margin:14px 0 5px;font-weight:500}
 .sv1-emp-f .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .sv1-emp-f .acts{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;align-items:center}
-.sv1-emp-card{background:#fff;border:1px solid var(--l);border-radius:13px;padding:16px 18px;margin-bottom:10px;
- box-shadow:var(--sh);display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
-.sv1-emp-card .g{flex:1;min-width:220px}
-.sv1-emp-card h4{margin:0 0 5px;font-size:15.5px;font-weight:600;color:var(--ink);line-height:1.5}
-.sv1-emp-card p{margin:0;font-size:12.5px;color:var(--s);line-height:1.7}
-.sv1-emp-card .acts{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+/* ── بطاقات الإحصاء ───────────────────────────────────────────────────────
+   تُرسم كاملةً على الصفر: حساب المالك نفسه بلا إعلانات، والأربعون وظيفة
+   لأصحاب عملٍ آخرين. لوحةٌ تُخفي بطاقاتها عند الصفر تبدو معطوبة، والبطاقة
+   الفارغة المرسومة تبدو مقصودة — وتحتها دعوةٌ إلى أول إعلان. */
+.sv1-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:0 0 6px}
+.sv1-kpi>div{background:#fff;border:1px solid var(--l);border-radius:14px;padding:15px 17px;box-shadow:var(--sh)}
+.sv1-kpi b{display:block;font-family:var(--fm);font-size:27px;font-weight:400;color:var(--ink);line-height:1.3}
+.sv1-kpi em{display:block;font-family:var(--fm);font-size:16px;font-style:normal;color:var(--faint);line-height:2.2}
+.sv1-kpi i{display:block;font-style:normal;font-size:12.5px;color:var(--s);font-weight:600;margin-top:3px}
+.sv1-kpi small{display:block;font-size:11px;color:var(--faint);margin-top:5px;line-height:1.6}
+.sv1-pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:9px}
+.sv1-pipe a{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);
+ border-radius:11px;padding:10px 12px;text-decoration:none}
+.sv1-pipe a:hover{border-color:var(--ac)}
+.sv1-pipe i{width:8px;height:8px;border-radius:50%;flex:none}
+.sv1-pipe span{font-size:11.5px;color:var(--mut);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-pipe b{font-family:var(--fm);font-size:14.5px;font-weight:600;color:var(--ink);margin-inline-start:auto}
+/* الألوان نفسها التي تعنون أعمدة لوحة المسار، فالمرحلة تُعرف بلونها في
+   الشاشتين. (مكرّرة هنا بدل توسيع محدِّد اللوحة: قسم اللوحة لا يُمسّ.) */
+.sv1-dot.d-new{background:#8D97AE}
+.sv1-dot.d-review{background:#5B7CC4}
+.sv1-dot.d-shortlist{background:#7C5BC4}
+.sv1-dot.d-interview{background:#C48A2E}
+.sv1-dot.d-offer{background:#2E8B6B}
+.sv1-dot.d-hired{background:#12693A}
+.sv1-dot.d-rejected{background:#B42318}
+.sv1-dot.d-future{background:#A9AEBD}
+.sv1-empty{background:var(--acSoft);border:1px solid var(--acLine);border-radius:14px;
+ padding:22px 20px;margin:16px 0 0;text-align:center}
+.sv1-empty h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink)}
+.sv1-empty p{margin:0 auto 14px;font-size:12.5px;color:var(--s);line-height:1.8;max-width:520px}
+
+/* ── جدول الوظائف ────────────────────────────────────────────────────────
+   جدولٌ لا بطاقات: العنوان والمدينة والمجال والدوام والمتقدّمون والحالة في
+   سطرٍ واحد تُقرأ عمودياً بالعين. وعلى الجوال ينهار إلى بطاقات بعناوينها من
+   data-l — لا تمريرَ أفقيّ لجدول، فهو أسوأ ما يُعطى لإصبع. */
+.sv1-tb{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--l);
+ border-radius:13px;overflow:hidden;box-shadow:var(--sh)}
+.sv1-tb th{font-size:11px;font-weight:600;color:var(--mut);text-align:start;padding:10px 12px;
+ background:var(--soft);border-bottom:1px solid var(--l);white-space:nowrap}
+.sv1-tb td{padding:11px 12px;font-size:12.5px;color:var(--s);border-bottom:1px solid var(--l);vertical-align:middle}
+.sv1-tb tr:last-child td{border-bottom:0}
+.sv1-tb td.t{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.sv1-tb td.n{font-family:var(--fm);font-size:13px;color:var(--ink)}
+.sv1-tb td .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+@media(max-width:860px){
+ .sv1-tb,.sv1-tb tbody,.sv1-tb tr,.sv1-tb td{display:block}
+ .sv1-tb thead{display:none}
+ .sv1-tb{border:0;background:none;box-shadow:none;border-radius:0}
+ .sv1-tb tr{background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);
+  margin-bottom:10px;padding:8px 2px}
+ .sv1-tb td{border-bottom:0;display:flex;align-items:center;gap:12px;padding:5px 13px}
+ .sv1-tb td::before{content:attr(data-l);flex:none;min-width:88px;font-size:11px;color:var(--mut)}
+ .sv1-tb td.t{padding-bottom:8px}
+ .sv1-tb td.t::before{display:none}
+}
 .sv1-pill{display:inline-block;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:999px;
  background:#eef1f7;color:#5a6280;white-space:nowrap}
 .sv1-pill.ok{background:#e6f6ec;color:#12693a}
@@ -375,6 +494,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 }
 @media (prefers-reduced-motion:reduce){.sv1-kb-col{transition:none}}
 
+.sv1-emp-langs a{color:var(--ac);text-decoration:underline;text-underline-offset:3px;
+ margin-inline-end:14px;font-size:12.5px}
+.sv1-emp-langs a.on{color:var(--ink);text-decoration:none;font-weight:600}
 .sv1-emp-kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13px;margin:0 0 16px}
 .sv1-emp-kv dt{color:var(--mut);font-size:12px}
 .sv1-emp-kv dd{margin:0;color:var(--ink);word-break:break-word}
@@ -397,7 +519,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-hidden{display:none !important}
 @media(max-width:700px){
  .sv1-emp-f .row{grid-template-columns:1fr}
- .sv1-emp-bar{padding:12px 0}
+ .sv1-emp{padding:0 16px}
  .sv1-acct .menu{width:min(290px,calc(100vw - 40px))}
 }
 </style><div class="sv1-bar"><div class="wrap">
@@ -515,34 +637,80 @@ var h0=hint();if(h0)S.paint(true,h0);
 
   <!-- البوابة -->
   <div id="empApp" class="sv1-hidden">
-    <div class="sv1-emp-bar">
+    <!-- الشريط العلوي: الهوية، بحثٌ في المحمَّل، اللغة، وقائمة الحساب -->
+    <div class="sv1-emp-top">
+      <button type="button" class="sv1-emp-burger" id="empBurger"
+        aria-label="القائمة" aria-expanded="false" aria-controls="empSide">☰</button>
       <div class="sv1-emp-who">
         <b id="empCo">Business Partner</b>
         <span id="empPlan"></span>
       </div>
-      <div class="sv1-emp-nav">
-        <button type="button" data-go="jobs" id="tabJobs">وظائفي</button>
-        <button type="button" data-go="new" id="tabNew">نشر إعلان</button>
-        <button type="button" data-go="apps" id="tabApps">من تقدّم</button>
-        <details class="sv1-acct" id="acctBox">
-          <summary>الحساب ▾</summary>
-          <div class="menu">
-            <h5 id="acctCo">—</h5>
-            <p class="ro" id="acctEmail" dir="ltr"></p>
-            <div id="acctPhoneWrap">
-              <label for="acctPhone">رقم الجوال</label>
-              <input id="acctPhone" type="tel" dir="ltr" autocomplete="tel">
-              <button type="button" class="sv1-btn sm" id="acctPhoneBtn" style="margin-top:8px">حفظ الرقم</button>
-            </div>
-            <p class="sv1-emp-msg" id="acctMsg" style="margin-top:8px"></p>
-            <p class="sv1-emp-msg" style="margin-top:12px">تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.</p>
-            <button type="button" class="sv1-btn sm" id="acctOut" style="margin-top:14px;width:100%">تسجيل الخروج</button>
-          </div>
-        </details>
+      <div class="sv1-emp-q">
+        <input id="empQ" type="search" autocomplete="off" spellcheck="false"
+          placeholder="ابحث في وظائفك ومتقدّميك" aria-label="ابحث في وظائفك ومتقدّميك">
+        <div class="sv1-emp-res sv1-hidden" id="empRes" role="listbox"></div>
       </div>
+      <details class="sv1-emp-lang" id="langBox">
+        <summary aria-label="اللغة">🌐 AR</summary>
+        <div class="menu"><a href="/ar/employer" hreflang="ar" class="on">العربية</a><a href="/employer" hreflang="en">English</a><a href="/fr/employer" hreflang="fr">Français</a><a href="/zh/employer" hreflang="zh">中文</a></div>
+      </details>
+      <details class="sv1-acct" id="acctBox">
+        <summary>الحساب ▾</summary>
+        <div class="menu">
+          <h5 id="acctCo">—</h5>
+          <p class="ro" id="acctEmail" dir="ltr"></p>
+          <div id="acctPhoneWrap">
+            <label for="acctPhone">رقم الجوال</label>
+            <input id="acctPhone" type="tel" dir="ltr" autocomplete="tel">
+            <button type="button" class="sv1-btn sm" id="acctPhoneBtn" style="margin-top:8px">حفظ الرقم</button>
+          </div>
+          <p class="sv1-emp-msg" id="acctMsg" style="margin-top:8px"></p>
+          <p class="sv1-emp-msg" style="margin-top:12px">تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.</p>
+          <button type="button" class="sv1-btn sm" id="acctOut" style="margin-top:14px;width:100%">تسجيل الخروج</button>
+        </div>
+      </details>
     </div>
 
     <p class="sv1-emp-msg err sv1-hidden" id="empWarn" style="margin:0 0 14px"></p>
+
+    <div class="sv1-emp-shell" id="empShell">
+      <div class="sv1-emp-back" id="empBack"></div>
+      <aside class="sv1-emp-side" id="empSide">
+        <button type="button" class="cta" data-go="new" id="tabNew">+ نشر إعلان</button>
+        <hr>
+        <nav class="grp" aria-label="القائمة">
+          <button type="button" data-go="home" id="tabHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 10.4 12 3.4l8.8 7"/><path d="M5.2 9.2V20.6h13.6V9.2"/><path d="M9.6 20.6v-5.8h4.8v5.8"/></svg><span>الرئيسية</span></button>
+          <button type="button" data-go="jobs" id="tabJobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="7.2" width="18.4" height="13" rx="2.2"/><path d="M8.6 7.2V5.4a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M2.8 12.4h18.4"/></svg><span>الوظائف</span></button>
+          <button type="button" data-go="apps" id="tabApps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.4 20c0-3.1 2.5-5.4 5.6-5.4s5.6 2.3 5.6 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 0 6"/><path d="M17.8 14.9c1.8.7 3 2.4 3 4.4"/></svg><span>المتقدمون</span></button>
+        </nav>
+        <!-- مكان المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تُضاف هنا
+             كـ<nav class="grp"> ثانية فوق الفاصل — ولا يُوضع بندٌ يفتح على
+             فراغ قبل أن تُبنى شاشته. -->
+        <hr>
+        <nav class="grp" aria-label="الإعدادات">
+          <button type="button" data-go="settings" id="tabSet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h10"/><path d="M18 7.5h2"/><path d="M4 16.5h6"/><path d="M14 16.5h6"/><circle cx="16" cy="7.5" r="2.2"/><circle cx="12" cy="16.5" r="2.2"/></svg><span>الإعدادات</span></button>
+        </nav>
+        <button type="button" class="fold" id="sideFold" aria-label="اطوِ الشريط"
+          title="اطوِ الشريط" aria-pressed="false">⇔</button>
+      </aside>
+
+      <div class="sv1-emp-main">
+
+    <!-- الرئيسية -->
+    <div id="scHome" class="sv1-hidden">
+      <h3 class="sv1-emp-h">الرئيسية</h3>
+      <p class="sv1-emp-sub">كل رقم هنا محسوبٌ من إعلاناتك ومتقدّميك الآن — لا تقديرات.</p>
+      <div class="sv1-kpi" id="homeKpi"></div>
+      <p class="sv1-emp-hint sv1-hidden" id="homeNote" style="margin-top:10px"></p>
+      <div class="sv1-empty sv1-hidden" id="homeEmpty">
+        <h4>لوحتك جاهزة، وينقصها إعلان</h4>
+        <p>انشر أول إعلان وستمتلئ هذه الأرقام وحدها: كل من يتقدّم يصلك هنا، وتنقله بين المراحل من لوحة المسار.</p>
+        <button type="button" class="sv1-btn primary" data-go="new">انشر أول إعلان</button>
+      </div>
+      <h4 class="sv1-emp-h2">المسار</h4>
+      <p class="sv1-emp-sub">عدد من في كل مرحلة — اضغط المرحلة لفتح لوحة المسار.</p>
+      <div class="sv1-pipe" id="homePipe"></div>
+    </div>
 
     <!-- وظائفي -->
     <div id="scJobs" class="sv1-hidden">
@@ -591,6 +759,33 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div id="scCand" class="sv1-hidden">
       <p style="margin:0 0 14px"><button type="button" class="sv1-emp-link" id="candBack">← عودة إلى المتقدّمين</button></p>
       <div id="candBody"></div>
+    </div>
+
+    <!-- الإعدادات -->
+    <div id="scSettings" class="sv1-hidden">
+      <h3 class="sv1-emp-h">الإعدادات</h3>
+      <p class="sv1-emp-sub">حساب شركتك في البوابة.</p>
+      <dl class="sv1-emp-kv">
+        <dt>الشركة</dt><dd id="setCo">—</dd>
+        <dt>البريد الإلكتروني</dt><dd id="setEmail" dir="ltr">—</dd>
+        <dt>الباقة</dt><dd id="setPlan">—</dd>
+        <dt>اللغة</dt><dd class="sv1-emp-langs"><a href="/ar/employer" hreflang="ar" class="on">العربية</a><a href="/employer" hreflang="en">English</a><a href="/fr/employer" hreflang="fr">Français</a><a href="/zh/employer" hreflang="zh">中文</a></dd>
+      </dl>
+      <div class="sv1-emp-f" style="max-width:480px">
+        <div id="setPhoneWrap">
+          <label for="setPhone">رقم الجوال</label>
+          <input id="setPhone" type="tel" dir="ltr" autocomplete="tel">
+          <div class="acts">
+            <button type="button" class="sv1-btn sm" id="setPhoneBtn">حفظ الرقم</button>
+            <span class="sv1-emp-msg" id="setMsg"></span>
+          </div>
+        </div>
+        <p class="sv1-emp-hint" style="margin-top:18px">تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.</p>
+        <button type="button" class="sv1-btn sm" id="setOut" style="margin-top:8px">تسجيل الخروج</button>
+      </div>
+    </div>
+
+      </div>
     </div>
   </div>
 
@@ -685,7 +880,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","pendSub":"بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.","empErr":"تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.","noCodeE":"اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.","portalW":"أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fType":"نوع الدوام","fMode":"نمط العمل","fAny":"— غير محدّد —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…"},HOME="/ar/employer",JOB="/ar/job?id=";
+var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","pendSub":"بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.","empErr":"تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.","noCodeE":"اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.","portalW":"أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","sideHome":"الرئيسية","sideJobs":"الوظائف","sideApps":"المتقدمون","sideSet":"الإعدادات","sideFold":"اطوِ الشريط","sideMenu":"القائمة","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","homeH":"الرئيسية","homeSub":"كل رقم هنا محسوبٌ من إعلاناتك ومتقدّميك الآن — لا تقديرات.","kActive":"وظائف نشطة","kAll":"إجمالي المتقدمين","kAllN":"على الإعلانات الظاهرة في لوحتك","kNew":"جدد خلال ٧ أيام","kNewN":"بتاريخ تسجيل المتقدّم","kJobsN":"من أصل {n}","pipeH":"المسار","pipeSub":"عدد من في كل مرحلة — اضغط المرحلة لفتح لوحة المسار.","emptyH":"لوحتك جاهزة، وينقصها إعلان","emptyP":"انشر أول إعلان وستمتلئ هذه الأرقام وحدها: كل من يتقدّم يصلك هنا، وتنقله بين المراحل من لوحة المسار.","emptyGo":"انشر أول إعلان","numWait":"جارٍ العدّ…","numFail":"تعذّر عدّ المتقدّمين الآن.","searchPh":"ابحث في وظائفك ومتقدّميك","searchNo":"لا نتيجة في المحمَّل","searchJ":"وظائف","searchC":"مرشّحون","searchMr":"و{n} غيرها","thTitle":"العنوان","thCity":"المدينة","thField":"المجال","thType":"الدوام","thApps":"المتقدمون","thStat":"الحالة","thDate":"تاريخ النشر","thActs":"إجراءات","setH":"الإعدادات","setSub":"حساب شركتك في البوابة.","setCo":"الشركة","langL":"اللغة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fType":"نوع الدوام","fMode":"نمط العمل","fAny":"— غير محدّد —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…"},HOME="/ar/employer",JOB="/ar/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -830,41 +1025,184 @@ function enter(){
  }).catch(function(){AUTH=null;err(TX.eNet)})}
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
+// جدولٌ واحد: المفتاح ← الشاشة ← بند الشريط الجانبي الذي يضيء معها. كانت
+// ثلاثة أسطر متوازية لكل شاشة، فإضافة شاشةٍ رابعة تعني ثلاثة مواضع يُنسى
+// أحدها — وقد نُسي: ملف المرشّح كان يطفئ الأزرار بقائمة مكتوبة بيدها.
 var loaded={jobs:false,apps:false};
+var SC=[['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
+ ['apps','scApps','tabApps'],['settings','scSettings','tabSet']];
+function navOn(k){SC.forEach(function(s){var b=$(s[2]);if(!b)return;
+ var on=s[0]===k;b.classList.toggle('on',on);
+ if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
+function hideScreens(){SC.forEach(function(s){show($(s[1]),false)});show($('scCand'),false)}
 function route(){
  var h=(location.hash||'').replace(/^#\/?/,'');
- var sc=h.split('/')[0]||'jobs';
+ var sc=h.split('/')[0]||'home';
+ closeDrawer();hideRes();
  if(sc==='c'){openCand(h.split('/').slice(1).join('/'));return}
- if(sc!=='jobs'&&sc!=='new'&&sc!=='apps')sc='jobs';
- show($('scJobs'),sc==='jobs');show($('scNew'),sc==='new');
- show($('scApps'),sc==='apps');show($('scCand'),false);
- $('tabJobs').classList.toggle('on',sc==='jobs');
- $('tabNew').classList.toggle('on',sc==='new');
- $('tabApps').classList.toggle('on',sc==='apps');
+ var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
+ if(!known)sc='home';
+ hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
+ navOn(sc);
+ if(sc==='home')loadHome();
  if(sc==='jobs'&&!loaded.jobs)loadJobs();
  // عودةٌ إلى اللوحة بعد تغيير المرحلة من ملف المرشّح: تُرسم من النموذج
  // المحلي، بلا نداءٍ جديد — وإلا بقيت البطاقة في عمودها القديم.
  if(sc==='apps'){if(!loaded.apps)loadApps();else if(flat.length)drawApps()}
+ if(sc==='settings')loadAcct();
  if(sc==='new'&&editId===null&&!$('jTitle').value)resetJobForm()}
 window.addEventListener('hashchange',function(){if(AUTH)route()});
-Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){
- b.onclick=function(){location.hash='#/'+b.getAttribute('data-go')}});
+// يُستدعى على المحقون حديثاً أيضاً (زرّ «انشر أول إعلان» في حالة الفراغ)،
+// فالربط مرةً واحدة عند الإقلاع كان يترك كل زرٍّ يُرسم لاحقاً ميتاً.
+function wireGo(root){
+ Array.prototype.forEach.call((root||document).querySelectorAll('[data-go]'),function(b){
+  b.onclick=function(){location.hash='#/'+b.getAttribute('data-go')}})}
+wireGo(document);
+
+// ── الشريط الجانبي: درجٌ على الجوال، وطيٌّ إلى أيقونات على الحاسب ─────────
+// وضع الطيّ يبقى في الذاكرة ولا يُكتب في localStorage: هذه بوابةٌ لا تكتب
+// شيئاً في جهاز من يفتحها، وتحديث الصفحة يعيدها إلى وضعها الكامل.
+function closeDrawer(){var s=$('empShell');if(!s)return;
+ s.classList.remove('open');$('empBurger').setAttribute('aria-expanded','false')}
+$('empBurger').onclick=function(){var s=$('empShell'),on=!s.classList.contains('open');
+ s.classList.toggle('open',on);$('empBurger').setAttribute('aria-expanded',on?'true':'false')};
+$('empBack').onclick=closeDrawer;
+$('sideFold').onclick=function(){var s=$('empShell'),on=!s.classList.contains('mini');
+ s.classList.toggle('mini',on);$('sideFold').setAttribute('aria-pressed',on?'true':'false')};
+document.addEventListener('keydown',function(e){
+ if(e.key==='Escape'||e.keyCode===27){closeDrawer();hideRes()}});
+// نقرةٌ خارج قائمةٍ مفتوحة تغلقها — القوائم الأصلية (details) تبقى مفتوحة
+// أبداً بلا هذا، فتتراكب واحدةٌ فوق أخرى.
+document.addEventListener('click',function(e){
+ var t=e.target;if(!t||!t.closest)return;
+ if(!t.closest('.sv1-emp-q'))hideRes();
+ if(!t.closest('#acctBox')&&$('acctBox').open)$('acctBox').open=false;
+ if(!t.closest('#langBox')&&$('langBox').open)$('langBox').open=false},true);
+
+// ── الرئيسية ──────────────────────────────────────────────────────────────
+// شاشة الهبوط، ومصدراها هما المصدران نفسهما اللذان كانت «وظائفي» و«من تقدّم»
+// تجلبهما عند فتح كلٍّ منهما: list-postings و applicants=1. فمجموع نداءات
+// الجلسة كما هو — ثلاثة (validate + الاثنان) ورابعٌ عند أول فتح للحساب — ولا
+// يُعاد أيٌّ منهما بعدها أبداً. الفرق أنهما يُطلبان هنا معاً وبلا انتظار
+// أحدهما للآخر: الأرقام التي وصلت تُرسم فوراً، والباقية تقول «جارٍ العدّ…»
+// بدل أن تحبس الشاشة كلها على أبطأ النداءين.
+var jobsState='idle',appsState='idle';
+function loadHome(){
+ if(!loaded.jobs)loadJobs();
+ if(!loaded.apps)loadApps();
+ drawHome()}
+
+// null = لم يصل بعد، '—' = وصل خطأ. وما عدا ذلك رقمٌ محسوبٌ من صفوفٍ بين
+// يديّ الآن. ولا رقم ثالث: لا نسبة نموّ، ولا «+18%» مكتوبةً بلا حساب.
+function figure(state,fn){return state==='ok'?fn():(state==='err'?'—':null)}
+function kpiBox(val,label,note){
+ return '<div>'+(val===null?'<em>'+esc(TX.numWait)+'</em>'
+   :'<b>'+esc(String(val))+'</b>')+
+  '<i>'+esc(label)+'</i>'+(note?'<small>'+esc(note)+'</small>':'')+'</div>'}
+
+function drawHome(){
+ if(!$('homeKpi'))return;
+ var active=figure(jobsState,function(){var n=0;
+  postings.forEach(function(p){if(p.status!=='مغلقة')n++});return n});
+ var total=figure(appsState,function(){return flat.length});
+ var cut=Date.now()-7*86400000;
+ var fresh=figure(appsState,function(){var n=0;
+  flat.forEach(function(a){var d=a.registered?Date.parse(a.registered):NaN;
+   if(d&&!isNaN(d)&&d>=cut)n++});return n});
+ $('homeKpi').innerHTML=
+  kpiBox(active,TX.kActive,jobsState==='ok'?TX.kJobsN.replace('{n}',postings.length):'')+
+  kpiBox(total,TX.kAll,TX.kAllN)+
+  kpiBox(fresh,TX.kNew,TX.kNewN);
+ // البطاقات تبقى مرسومةً على الصفر — ما يُضاف عند الصفر دعوةٌ لا إخفاء.
+ show($('homeEmpty'),jobsState==='ok'&&!postings.length);
+ var note=appsState==='err'?TX.numFail:(appsCut?TX.appsCut:'');
+ $('homeNote').textContent=note;show($('homeNote'),!!note);
+ var cnt={};STAGES.forEach(function(s){cnt[s[0]]=0});
+ if(appsState==='ok')flat.forEach(function(a){
+  if(cnt[a.stage]==null)cnt['new']++;else cnt[a.stage]++});
+ $('homePipe').innerHTML=STAGES.map(function(s){
+  var v=appsState==='ok'?String(cnt[s[0]]):(appsState==='err'?'—':'…');
+  return '<a href="#/apps"><i class="sv1-dot d-'+s[0]+'" aria-hidden="true"></i>'+
+   '<span>'+esc(s[1])+'</span><b>'+esc(v)+'</b></a>'}).join('');
+ wireGo($('homeEmpty'))}
+
+// ── البحث: في المتصفّح، على المحمَّل وحده ─────────────────────────────────
+// لا نداء لكل حرف ولا نداء أصلاً — المصفوفتان محمّلتان في الذاكرة منذ
+// الرئيسية. ولأنه لا يرى إلا ما فُتح، تقول رسالة الفراغ ذلك بنصّها بدل أن
+// توهم بأن لا نتيجة في القاعدة كلها.
+var QMAX=6;
+function hideRes(){var r=$('empRes');if(r){show(r,false);r.innerHTML=''}}
+function resGroup(head,rows,n){
+ return '<h6>'+esc(head)+'</h6>'+rows+
+  (n>QMAX?'<p class="sv1-emp-more">'+esc(TX.searchMr.replace('{n}',n-QMAX))+'</p>':'')}
+function runSearch(){
+ var q=$('empQ').value.trim().toLowerCase();
+ if(q.length<2){hideRes();return}
+ var hj=[],hc=[],i;
+ for(i=0;i<postings.length;i++){var p=postings[i];
+  if(((p.title||'')+' '+(p.city||'')+' '+(p.field||'')).toLowerCase().indexOf(q)>=0)hj.push(p)}
+ for(i=0;i<flat.length;i++){var a=flat[i];
+  if(((a.name||'')+' '+(a.role||'')+' '+(a.city||'')+' '+(a.skills||'')).toLowerCase().indexOf(q)>=0)hc.push(a)}
+ var h='';
+ if(hj.length)h+=resGroup(TX.searchJ,hj.slice(0,QMAX).map(function(p){
+  return '<a href="#/jobs"><b>'+esc(p.title||'—')+'</b><small>'+
+   esc([p.city,p.field].filter(Boolean).join(' · ')||'—')+'</small></a>'}).join(''),hj.length);
+ if(hc.length)h+=resGroup(TX.searchC,hc.slice(0,QMAX).map(function(a){
+  return '<a href="#/c/'+encodeURIComponent(a.id)+'"><b>'+esc(a.name||'—')+'</b><small>'+
+   esc([a.role,a.city,a._job].filter(Boolean).join(' · ')||'—')+'</small></a>'}).join(''),hc.length);
+ if(!h)h='<p>'+esc(TX.searchNo)+'</p>';
+ var r=$('empRes');r.innerHTML=h;show(r,true);
+ Array.prototype.forEach.call(r.querySelectorAll('a'),function(el){
+  el.onclick=function(){$('empQ').value='';window.setTimeout(hideRes,0)}})}
+$('empQ').oninput=runSearch;
+$('empQ').onfocus=runSearch;
 
 // ── وظائفي ────────────────────────────────────────────────────────────────
 var postings=[];
 function loadJobs(){
- loaded.jobs=true;$('jobsStatus').textContent=TX.loading;$('jobsList').innerHTML='';
+ loaded.jobs=true;jobsState='load';$('jobsStatus').textContent=TX.loading;$('jobsList').innerHTML='';
  post('/api/candidates',{action:'list-postings'}).then(function(d){
-  if(!d||!d.ok){loaded.jobs=false;$('jobsStatus').textContent=TX.eNet;return}
-  postings=d.postings||[];drawJobs()
- }).catch(function(){loaded.jobs=false;$('jobsStatus').textContent=TX.eNet})}
+  if(!d||!d.ok){loaded.jobs=false;jobsState='err';
+   $('jobsStatus').textContent=TX.eNet;drawHome();return}
+  postings=d.postings||[];jobsState='ok';drawJobs();drawHome()
+ }).catch(function(){loaded.jobs=false;jobsState='err';
+  $('jobsStatus').textContent=TX.eNet;drawHome()})}
+
+// كم تقدّم على هذا الإعلان: يُحسب من المجموعات العائدة في applicants=1 —
+// المطابقة بمعرّف الوظيفة كما يختمه api/candidate.js في «الوظيفة المتقدم
+// لها» ("العنوان (المعرّف)")، وبالعنوان وحده للصفوف القديمة التي وُسمت بلا
+// معرّف. ولا يُعرض رقمٌ قبل وصول المتقدّمين: '…' حتى يصلوا، لا صفرٌ يكذب.
+function jobMatch(p){
+ var n=0,gid='';
+ for(var i=0;i<groups.length;i++){var g=groups[i];
+  if((g.jobId&&p.id&&g.jobId===p.id)||(!g.jobId&&g.jobTitle&&p.title&&g.jobTitle===p.title)){
+   n+=(g.applicants||[]).length;if(!gid)gid=g.jobId||''}}
+ return {n:n,id:gid}}
 
 function drawJobs(){
- if(!postings.length){$('jobsStatus').textContent=TX.jobsNone;$('jobsList').innerHTML='';return}
+ // الفراغ لوحةٌ واحدة لا رسالتان: كان السطر الرمادي فوقها يقول الشيء نفسه.
+ if(!postings.length){$('jobsStatus').textContent='';
+  $('jobsList').innerHTML='<div class="sv1-empty" style="margin-top:0"><h4>'+esc(TX.emptyH)+'</h4><p>'+
+   esc(TX.jobsNone)+'</p><button type="button" class="sv1-btn primary" data-go="new">'+
+   esc(TX.emptyGo)+'</button></div>';
+  wireGo($('jobsList'));return}
  $('jobsStatus').textContent='';
- $('jobsList').innerHTML=postings.map(function(p,i){
+ // عمود التاريخ يظهر حين يوجد تاريخ. list-postings لا يعيد «تاريخ النشر»
+ // اليوم، وعمودٌ كلّه شُرَط أسوأ من غيابه — فمتى أعاده الخادم ظهر وحده.
+ var hasDate=false;postings.forEach(function(p){if(p.posted||p.date)hasDate=true});
+ var td=function(cls,label,html){
+  return '<td'+(cls?' class="'+cls+'"':'')+' data-l="'+esc(label)+'">'+html+'</td>'};
+ var head='<tr><th>'+esc(TX.thTitle)+'</th><th>'+esc(TX.thCity)+'</th><th>'+esc(TX.thField)+
+  '</th><th>'+esc(TX.thType)+'</th><th>'+esc(TX.thApps)+'</th><th>'+esc(TX.thStat)+'</th>'+
+  (hasDate?'<th>'+esc(TX.thDate)+'</th>':'')+'<th>'+esc(TX.thActs)+'</th></tr>';
+ var rows=postings.map(function(p,i){
   var closed=p.status==='مغلقة';
-  var meta=[p.city,p.field].filter(Boolean).join(' · ');
+  // الحقلان اختياريان في نوشن: يُعرضان حين تكون لهما قيمة، ولا يُخترع لهما بديل.
+  var kind=[p.type,p.mode].filter(Boolean).join(' · ');
+  var m=jobMatch(p);
+  var nCell=appsState==='ok'
+   ?(m.n?'<a href="#/apps" data-pick="'+esc(m.id)+'">'+m.n+'</a>':'0')
+   :(appsState==='err'?'—':'…');
   // الإعلانات الثابتة في صفحة «الوظائف» لدينا ليست صفوفاً في قاعدة الإعلانات،
   // فلا تُعدَّل ولا تُغلق من هنا — تُعرض لأن عليها متقدّمين.
   var acts=p.site
@@ -872,10 +1210,21 @@ function drawJobs(){
    :'<a class="sv1-btn sm" href="'+JOB+encodeURIComponent(p.id)+'">'+esc(TX.viewJob)+'</a>'+
     '<button type="button" class="sv1-btn sm" data-edit="'+i+'">'+esc(TX.edit)+'</button>'+
     (closed?'':'<button type="button" class="sv1-btn sm" data-close="'+i+'">'+esc(TX.closeJob)+'</button>');
-  return '<div class="sv1-emp-card"><div class="g"><h4>'+esc(p.title)+'</h4>'+
-   (meta?'<p>'+esc(meta)+'</p>':'')+'</div>'+
-   '<span class="sv1-pill '+(closed?'off':'ok')+'">'+esc(closed?TX.stClosed:TX.stActive)+'</span>'+
-   '<div class="acts">'+acts+'</div></div>'}).join('');
+  return '<tr>'+
+   td('t',TX.thTitle,esc(p.title||'—'))+
+   td('',TX.thCity,esc(p.city||'—'))+
+   td('',TX.thField,esc(p.field||'—'))+
+   td('',TX.thType,esc(kind||'—'))+
+   td('n',TX.thApps,nCell)+
+   td('',TX.thStat,'<span class="sv1-pill '+(closed?'off':'ok')+'">'+
+    esc(closed?TX.stClosed:TX.stActive)+'</span>')+
+   (hasDate?td('n',TX.thDate,'<bdi dir="ltr">'+esc(String(p.posted||p.date||'').slice(0,10))+'</bdi>'):'')+
+   td('',TX.thActs,'<div class="acts">'+acts+'</div>')+
+  '</tr>'}).join('');
+ $('jobsList').innerHTML='<table class="sv1-tb"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>';
+ // رقم المتقدّمين بابٌ إلى لوحة المسار مفلترةً على هذا الإعلان وحده.
+ Array.prototype.forEach.call($('jobsList').querySelectorAll('[data-pick]'),function(a){
+  a.onclick=function(){pick=a.getAttribute('data-pick')||'';shown={}}});
  Array.prototype.forEach.call($('jobsList').querySelectorAll('[data-edit]'),function(b){
   b.onclick=function(){editJob(postings[+b.getAttribute('data-edit')])}});
  Array.prototype.forEach.call($('jobsList').querySelectorAll('[data-close]'),function(b){
@@ -938,7 +1287,7 @@ $('fJob').onsubmit=function(e){e.preventDefault();
   m.className='sv1-emp-msg err';m.textContent=TX.eSave})};
 
 // ── من تقدّم ──────────────────────────────────────────────────────────────
-var groups=[],pick='',flat=[],byId={};
+var groups=[],pick='',flat=[],byId={},appsCut=false;
 // المراحل الثمانية كما يقبلها ويعيدها api/candidates.js وحده — STAGE_MAP
 // للكتابة و STAGE_KEY للقراءة. لا مرحلة من عندنا: مفتاحٌ لا يعرفه الخادم
 // يعود بـ invalid_fields وتبقى البطاقة معلّقة بلا سبب ظاهر. ('screening'
@@ -951,14 +1300,19 @@ function stageName(k){for(var i=0;i<STAGES.length;i++)if(STAGES[i][0]===k)return
 var PAGE=25,shown={},dragId='',msgT=0;
 
 function loadApps(){
- loaded.apps=true;$('appsStatus').textContent=TX.loading;
+ loaded.apps=true;appsState='load';$('appsStatus').textContent=TX.loading;
  $('appsJobs').innerHTML='';$('appsBoard').innerHTML='';show($('appsHint'),false);
  return get('applicants=1').then(function(d){
-  if(!d||!d.ok){loaded.apps=false;$('appsStatus').textContent=TX.eNet;return}
-  groups=d.jobs||[];indexApps();
-  $('appsStatus').textContent=d.truncated?TX.appsCut:'';
-  drawApps()
- }).catch(function(){loaded.apps=false;$('appsStatus').textContent=TX.eNet})}
+  if(!d||!d.ok){loaded.apps=false;appsState='err';
+   $('appsStatus').textContent=TX.eNet;drawHome();return}
+  groups=d.jobs||[];indexApps();appsState='ok';appsCut=!!d.truncated;
+  $('appsStatus').textContent=appsCut?TX.appsCut:'';
+  drawApps();drawHome();
+  // جدول الوظائف رُسم قبل وصول المتقدّمين بعمودٍ فيه '…' — يُعاد رسمه الآن
+  // بالأرقام، لا بعد نداءٍ جديد بل من الصفوف نفسها التي وصلت للتوّ.
+  if(jobsState==='ok'&&postings.length)drawJobs()
+ }).catch(function(){loaded.apps=false;appsState='err';
+  $('appsStatus').textContent=TX.eNet;drawHome()})}
 
 // فهرسٌ واحد عند الجلب: قائمةٌ مسطّحة وجدولٌ بالمعرّف. كان كل رسمٍ يعيد بناء
 // القائمة من المجموعات، وكل فتح ملفٍّ يمشي عليها خطّياً — وهذه بوابةٌ وُجدت
@@ -1090,8 +1444,7 @@ function openCand(id){
  if(!loaded.apps){loadApps().then(function(){openCand(encodeURIComponent(id))});return}
  var c=findCand(id);
  if(!c){location.hash='#/apps';return}
- show($('scJobs'),false);show($('scNew'),false);show($('scApps'),false);show($('scCand'),true);
- ['tabJobs','tabNew','tabApps'].forEach(function(x){$(x).classList.remove('on')});
+ hideScreens();show($('scCand'),true);navOn('');
  var kv=[[TX.fRole,c.role],[TX.fCityL,c.city],
   [TX.fExp,c.experience?c.experience+' '+TX.fYears:''],[TX.fSkills,c.skills],
   [TX.fPhone,c.phone],[TX.fEmail,c.email]]
@@ -1146,45 +1499,57 @@ function openCand(id){
 
 $('candBack').onclick=function(){location.hash='#/apps'};
 
-// ── قائمة الحساب ──────────────────────────────────────────────────────────
-// لا تُجلب بيانات الحساب إلا عند أول فتحٍ للقائمة — شاشةٌ مغلقة لا تُكلّف نداءً.
+// ── الحساب: قائمةٌ في الشريط العلوي، وشاشةٌ في «الإعدادات» ─────────────────
+// نداءٌ واحد يخدم الاثنتين ولا يُطلب إلا عند أول فتح لأيّهما — شاشةٌ مغلقة لا
+// تُكلّف نداءً. وهو النداء الرابع في الجلسة كلها، كما كان.
 var acctLoaded=false;
-$('acctBox').addEventListener('toggle',function(){
- if(!$('acctBox').open||acctLoaded)return;
+function setTxt(id,v){var e=$(id);if(e)e.textContent=v}
+function loadAcct(){
+ if(acctLoaded)return;
  acctLoaded=true;
- $('acctCo').textContent=CO||'—';
+ setTxt('acctCo',CO||'—');setTxt('setCo',CO||'—');setTxt('setPlan',PLAN||'—');
  if(AUTH&&AUTH.mode==='code'){
   // الدخول بكلمة المرور لا يفتح جلسة، و/api/employer يصادق بالجلسة وحدها —
   // فالحقل يُعرض للقراءة مع السطر الذي يقول كيف يُغيَّر، لا زرٌّ لا يعمل.
-  $('acctEmail').textContent=AUTH.email||'';
-  show($('acctPhoneWrap'),false);
+  setTxt('acctEmail',AUTH.email||'');setTxt('setEmail',AUTH.email||'');
+  show($('acctPhoneWrap'),false);show($('setPhoneWrap'),false);
   $('acctMsg').className='sv1-emp-msg';$('acctMsg').textContent=TX.acctPhNo;
+  $('setMsg').className='sv1-emp-msg';$('setMsg').textContent=TX.acctPhNo;
   return}
  fetch('/api/employer',{method:'POST',credentials:'same-origin',
   headers:{'content-type':'application/json'},body:JSON.stringify({action:'account'})})
  .then(j).then(function(d){
-  if(!d||!d.ok){show($('acctPhoneWrap'),false);return}
-  $('acctCo').textContent=d.company||CO||'—';
-  $('acctEmail').textContent=d.email||'';
-  $('acctPhone').value=d.phone||''
- }).catch(function(){show($('acctPhoneWrap'),false)})});
+  if(!d||!d.ok){show($('acctPhoneWrap'),false);show($('setPhoneWrap'),false);return}
+  setTxt('acctCo',d.company||CO||'—');setTxt('setCo',d.company||CO||'—');
+  setTxt('acctEmail',d.email||'');setTxt('setEmail',d.email||'');
+  $('acctPhone').value=d.phone||'';$('setPhone').value=d.phone||''
+ }).catch(function(){show($('acctPhoneWrap'),false);show($('setPhoneWrap'),false)})}
+$('acctBox').addEventListener('toggle',function(){if($('acctBox').open)loadAcct()});
 
-$('acctPhoneBtn').onclick=function(){
- var b=$('acctPhoneBtn'),m=$('acctMsg');b.disabled=true;m.className='sv1-emp-msg';m.textContent=TX.saving;
+// الرقم واحد وحقلاه اثنان — فيُكتب في كليهما عند الحفظ، وإلا عاد القديم
+// ظاهراً في الشاشة الأخرى وبدا أن الحفظ لم يقع.
+function savePhone(inp,btn,msg){
+ var b=$(btn),m=$(msg),v=$(inp).value.trim();
+ b.disabled=true;m.className='sv1-emp-msg';m.textContent=TX.saving;
  fetch('/api/employer',{method:'POST',credentials:'same-origin',
   headers:{'content-type':'application/json'},
-  body:JSON.stringify({action:'update-phone',phone:$('acctPhone').value.trim()})})
+  body:JSON.stringify({action:'update-phone',phone:v})})
  .then(j).then(function(d){b.disabled=false;
-  if(d&&d.ok){m.className='sv1-emp-msg ok';m.textContent=TX.acctOk}
+  if(d&&d.ok){m.className='sv1-emp-msg ok';m.textContent=TX.acctOk;
+   $('acctPhone').value=v;$('setPhone').value=v}
   else{m.className='sv1-emp-msg err';m.textContent=TX.eSave}
- }).catch(function(){b.disabled=false;m.className='sv1-emp-msg err';m.textContent=TX.eNet})};
+ }).catch(function(){b.disabled=false;m.className='sv1-emp-msg err';m.textContent=TX.eNet})}
+$('acctPhoneBtn').onclick=function(){savePhone('acctPhone','acctPhoneBtn','acctMsg')};
+$('setPhoneBtn').onclick=function(){savePhone('setPhone','setPhoneBtn','setMsg')};
 
-$('acctOut').onclick=function(){
+function signOut(){
  var done=function(){location.href=HOME};
  if(AUTH&&AUTH.mode==='code'){AUTH=null;done();return}
  fetch('/api/otp',{method:'POST',credentials:'same-origin',
   headers:{'content-type':'application/json'},body:JSON.stringify({action:'logout'})})
- .then(done).catch(done)};
+ .then(done).catch(done)}
+$('acctOut').onclick=signOut;
+$('setOut').onclick=signOut;
 
 // ── الإقلاع: نداءٌ واحد يسأل «هل لي جلسة تفتح بوابة؟» ─────────────────────
 // ولا شيء غيره: ولا بيانات مرشحين، ولا إعلانات، ولا ملف وهمي. بقية الشاشات
