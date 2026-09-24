@@ -1,0 +1,21 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.5",
+  "Category": "Games",
+  "Description": "الرايات الثلاث — مغامرة تسلّل تاريخية عن الدول السعودية الثلاث",
+  "Modules": [
+    { "Name": "RayatAlThalath", "Type": "Runtime", "LoadingPhase": "Default", "AdditionalDependencies": ["Engine", "AIModule"] }
+  ],
+  "Plugins": [
+    { "Name": "PoseSearch", "Enabled": true },
+    { "Name": "MotionTrajectory", "Enabled": true },
+    { "Name": "AnimationWarping", "Enabled": true },
+    { "Name": "Chooser", "Enabled": true },
+    { "Name": "PCG", "Enabled": true },
+    { "Name": "PythonScriptPlugin", "Enabled": true },
+    { "Name": "EditorScriptingUtilities", "Enabled": true },
+    { "Name": "Bridge", "Enabled": true },
+    { "Name": "MetaHuman", "Enabled": true, "Optional": true },
+    { "Name": "Rokoko", "Enabled": false, "Optional": true, "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/rokoko-studio-live" }
+  ]
+}
