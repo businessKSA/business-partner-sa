@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>招聘 — Business Partner</title>
-<meta name="description" content="三个入口：招聘中的雇主、开放职位、由我们的智能代理协助求职者。">
+<meta name="description" content="用您自己的话描述，我们会从人才库和当前开放职位中为您匹配。">
 <meta property="og:title" content="招聘 — Business Partner">
-<meta property="og:description" content="三个入口：招聘中的雇主、开放职位、由我们的智能代理协助求职者。">
+<meta property="og:description" content="用您自己的话描述，我们会从人才库和当前开放职位中为您匹配。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -269,19 +269,67 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-hire-css">
-.sv1-hire-doors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 34px}
-@media(max-width:860px){.sv1-hire-doors{grid-template-columns:1fr}}
-.sv1-hire-sec{border-top:1px solid var(--line2);padding-top:26px;margin-top:26px}
-.sv1-hire-sec>h3{font-size:19px;font-weight:500;color:var(--ink);margin:0 0 14px}
+.sv1-hh{text-align:center;max-width:840px;margin:0 auto}
+.sv1-hh img{height:40px;width:auto;margin:0 auto 26px;display:block}
+.sv1-hh h1{font-size:clamp(29px,5.6vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.24;margin:0;color:var(--ink);text-wrap:balance}
+.sv1-hh .lead{color:var(--mut);font-weight:300;line-height:1.9;margin:14px auto 0;max-width:620px;font-size:14.5px}
+.sv1-hstat{margin:16px 0 0;font-size:14px;color:var(--t);min-height:0}
+.sv1-hstat b{color:var(--ac);font-family:var(--fm);font-weight:600;font-size:17px}
+
+.sv1-hb{max-width:660px;margin:30px auto 0}
+.sv1-hb-box{background:#fff;border:1px solid var(--l);border-radius:22px;box-shadow:none;overflow:hidden}
+.sv1-hb-box:focus-within{border-color:var(--acLine)}
+.sv1-hb-roles{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line2)}
+.sv1-hb-roles button{border:0;background:transparent;padding:14px 10px;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--faint);cursor:pointer;position:relative;transition:color .15s}
+.sv1-hb-roles button::after{content:"";position:absolute;inset-inline:22%;bottom:-1px;height:2px;background:transparent;border-radius:2px}
+.sv1-hb-roles button.on{color:var(--ac);font-weight:600}
+.sv1-hb-roles button.on::after{background:var(--ac)}
+.sv1-hb-pad{padding:14px}
+.sv1-hb-pad textarea{width:100%;box-sizing:border-box;border:1px solid transparent;background:var(--soft);border-radius:14px;outline:0;resize:none;font:inherit;font-size:14.5px;line-height:1.75;color:var(--t);padding:14px 15px;height:96px;max-height:200px;display:block}
+.sv1-hb-pad textarea:focus{border-color:var(--acLine)}
+.sv1-hb-pad textarea::placeholder{color:var(--faint)}
+.sv1-hb-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:11px}
+.sv1-hb-acts .rb{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:15px;cursor:pointer;font-family:inherit;text-decoration:none;border:1px solid var(--l);background:#fff;color:var(--ink);transition:.15s}
+.sv1-hb-acts .rb:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-hb-acts .rb.off,.sv1-hb-acts .rb[disabled]{opacity:.42;cursor:not-allowed;border-color:var(--l);color:var(--faint)}
+.sv1-hb-acts .rb.go{border:0;background:var(--ac);color:#fff;font-size:17px;box-shadow:0 6px 18px -7px rgba(11,27,90,.5)}
+.sv1-hb-acts .rb.go:hover{background:var(--ac2);color:#fff}
+.sv1-hb-acts .rb.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+
+.sv1-hchips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-width:470px;margin:16px auto 0}
+.sv1-hchip{display:flex;align-items:center;gap:7px;border:1px solid var(--l);border-radius:999px;padding-block:7px;padding-inline:14px 8px;background:#fff;font-size:11.5px;color:var(--mut);transition:.15s}
+.sv1-hchip.set{border-color:var(--acLine);background:var(--acSoft);color:var(--ac)}
+.sv1-hchip.off{opacity:.5}
+.sv1-hchip .ic{font-size:12.5px;flex:none}
+.sv1-hchip select{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:12px;color:var(--ink);font-family:inherit;cursor:pointer}
+.sv1-hchip select:disabled{cursor:not-allowed;color:var(--faint)}
+
+.sv1-hportal{text-align:center;margin:20px auto 0}
+.sv1-hsec2{display:flex;flex-wrap:wrap;gap:11px;align-items:center;justify-content:center;margin:20px auto 0;padding-top:18px;border-top:1px solid var(--line2);max-width:560px;font-size:13px;color:var(--mut)}
+.sv1-hmore{display:block;text-align:center;margin:26px auto 0;font-size:12.5px;color:var(--ac);background:0;border:0;font-family:inherit;cursor:pointer;text-decoration:none}
+.sv1-hnote{margin:14px auto 0;max-width:600px;font-size:12px;color:var(--ac);background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:9px 13px;line-height:1.7;text-align:center}
+.sv1-hhint{margin:12px auto 0;max-width:620px;font-size:11.5px;color:var(--faint);line-height:1.7;text-align:center}
+
+.sv1-hb-out{margin:34px auto 0;max-width:1000px}
+/* شريط تبويبات الكتالوج صار تحت الصندوق: هو الفاصل بين الصندوق وقسم
+   الوظائف، فلا يحتاج القسم بعده خطّاً ولا فجوةً ثانية. */
+.sv1 .sv1-tabs{margin-top:56px}
+#hireJobs{margin-top:18px;border-top:0;padding-top:0}
+.sv1-hb-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 13px;font-size:12.5px;color:var(--mut)}
 .sv1-hire-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-.sv1-hire-job{background:#fff;border:1px solid var(--l);border-radius:13px;padding:17px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px}
+.sv1-hire-job{background:#fff;border:1px solid var(--l);border-radius:14px;padding:17px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px}
+.sv1-hire-job .tp{display:flex;align-items:center;gap:8px}
 .sv1-hire-job .mt{font-size:11.5px;color:var(--ac);font-weight:600}
+.sv1-hire-job .sc{margin-inline-start:auto;font-family:var(--fm);font-size:11px;color:var(--ac);background:var(--acSoft);border-radius:999px;padding:2px 9px}
 .sv1-hire-job h4{font-size:15px;margin:0;font-weight:600;color:var(--ink);line-height:1.5}
 .sv1-hire-job p{font-size:12.5px;color:var(--s);margin:0;line-height:1.65}
+.sv1-hire-job .why{font-size:12px;color:var(--ac);background:var(--acSoft);border-radius:8px;padding:7px 10px;line-height:1.6;margin:0}
 .sv1-hire-job .acts{display:flex;gap:7px;margin-top:auto;padding-top:6px}
-.sv1-hire-steps{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:11px;max-width:680px}
-.sv1-hire-steps li{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;color:var(--t);line-height:1.7}
-.sv1-hire-steps b{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:12px;font-weight:600}
+
+.sv1-hire-sec{border-top:1px solid var(--line2);padding-top:34px;margin-top:56px}
+.sv1-hire-sec>h3{font-size:21px;font-weight:500;color:var(--ink);margin:0 0 8px}
+.sv1-hire-sec>.sub{font-size:13px;color:var(--mut);margin:0 0 18px;line-height:1.8;max-width:680px}
+@media(max-width:520px){.sv1-hchips{grid-template-columns:1fr}}
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>所有系统运行正常</b></span>
@@ -337,10 +385,72 @@ var h0=hint();if(h0)S.paint(true,h0);
 })();</script>
   <main>
   <section class="sv1-sec"><div class="wrap">
-    <div class="sv1-title">
-      <span class="sv1-tag">3 个入口</span>
-      <h2>招聘</h2>
-      <p>三个入口：招聘中的雇主、开放职位、由我们的智能代理协助求职者。</p>
+
+    <div class="sv1-hh">
+      <img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34">
+      <h1>人才找到工作，工作找到人才</h1>
+      <p class="sv1-hstat sv1-hide" id="hireStat"></p>
+      <p class="lead">用您自己的话描述，我们会从人才库和当前开放职位中为您匹配。</p>
+    </div>
+
+    <div class="sv1-hb">
+      <form class="sv1-hb-box" id="hireForm">
+        <div class="sv1-hb-roles" role="tablist">
+          <button type="button" id="hireRoleEmp" class="on" role="tab" aria-selected="true">雇主</button>
+          <button type="button" id="hireRoleSeek" role="tab" aria-selected="false">求职者</button>
+        </div>
+        <div class="sv1-hb-pad">
+          <div class="sv1-voice" id="hireVoice" style="margin:0 0 9px"></div>
+          <textarea id="hireQ" rows="3" placeholder="描述您需要的人才。例如：利雅得的阿拉伯菜厨师" aria-label="描述您需要的人才。例如：利雅得的阿拉伯菜厨师"></textarea>
+          <div class="sv1-hb-acts">
+            <a class="rb off" id="hireUp" href="/zh/careers#seeker-form" aria-label="上传职位描述——即将推出" title="上传职位描述——即将推出" aria-disabled="true">📎</a>
+            <button type="button" class="rb off" id="hireMic" disabled aria-label="语音输入——即将推出" title="语音输入——即将推出">🎙</button>
+            <button type="submit" class="rb go" id="hireGo" aria-label="搜索" title="搜索">↑</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="sv1-hchips">
+        <label class="sv1-hchip" id="hireCityChip">
+        <span class="ic" aria-hidden="true">📍</span><span>城市</span>
+        <select id="hireCity" aria-label="城市"><option value="">所有城市</option><option value="الرياض">Riyadh</option><option value="جدة">Jeddah</option><option value="مكة">Makkah</option><option value="المدينة">Madinah</option><option value="الدمام">Dammam</option><option value="الخبر">Khobar</option><option value="الظهران">Dhahran</option><option value="الجبيل">Jubail</option><option value="الأحساء">Al Ahsa</option><option value="القطيف">Qatif</option><option value="الطائف">Taif</option><option value="بريدة">Buraidah</option><option value="حائل">Hail</option><option value="تبوك">Tabuk</option><option value="أبها">Abha</option><option value="خميس مشيط">Khamis Mushait</option><option value="جازان">Jazan</option><option value="نجران">Najran</option><option value="ينبع">Yanbu</option><option value="نيوم">NEOM</option></select>
+      </label>
+        <label class="sv1-hchip" id="hireFieldChip">
+        <span class="ic" aria-hidden="true">🗂</span><span>领域</span>
+        <select id="hireField" aria-label="领域"><option value="">所有领域</option><option value="هندسة">工程</option><option value="تقنية معلومات">信息技术</option><option value="مبيعات وتسويق">销售与市场</option><option value="محاسبة ومالية">会计与财务</option><option value="إداري وسكرتارية">行政与文秘</option><option value="موارد بشرية">人力资源</option><option value="ضيافة وسياحة">酒店与旅游</option><option value="مقاولات وإنشاءات">建筑施工</option><option value="عقارات">房地产</option><option value="صحة وطب">医疗健康</option><option value="تعليم">教育</option><option value="لوجستيات ونقل">物流运输</option><option value="قانون">法律</option><option value="تصنيع وصناعة">制造与工业</option><option value="طاقة ونفط وغاز">能源与油气</option><option value="إعلام وإبداع">媒体与创意</option><option value="حكومي وقطاع عام">政府与公共部门</option><option value="زراعة وبيئة">农业与环境</option><option value="تجزئة وتجارة إلكترونية">零售与电商</option><option value="أمن وسلامة">安全</option><option value="حرف مهنية وصيانة">技术工种与维修</option><option value="علوم وأبحاث">科学与研究</option><option value="طيران وبحري">航空与海事</option><option value="تجميل وعناية">美容与健康</option><option value="خدمات منزلية">家政服务</option><option value="أخرى">其他</option></select>
+      </label>
+        <label class="sv1-hchip" id="hireExpChip">
+        <span class="ic" aria-hidden="true">⏳</span><span>经验</span>
+        <select id="hireExp" aria-label="经验"><option value="">不限经验</option><option value="1">1 年以上</option><option value="3">3 年以上</option><option value="5">5 年以上</option><option value="10">10 年以上</option></select>
+      </label>
+        <label class="sv1-hchip" id="hirePayChip" title="职位尚未公布薪资——即将推出">
+        <span class="ic" aria-hidden="true">💰</span><span>薪资</span>
+        <select id="hirePay" aria-label="薪资"><option value="">即将推出</option></select>
+      </label>
+      </div>
+
+      <p class="sv1-hnote sv1-hide" id="hireNote"></p>
+
+      <div class="sv1-hportal">
+        <a class="sv1-btn sm" id="hirePortal" href="/zh/hr/employer">打开招聘面板 →</a>
+      </div>
+
+      <div class="sv1-hsec2">
+        <span id="hireSecQ">批量招聘或高管职位？</span>
+        <a class="sv1-btn sm" id="hireSecB" href="/zh/services/rec-gen">招聘与引进服务 →</a>
+      </div>
+
+      <p class="sv1-hhint" id="hireHint">姓名、联系方式与简历在订阅雇主的招聘面板中显示。</p>
+      <a class="sv1-hmore" id="hireMore" href="#hireJobs">了解更多 ↓</a>
+    </div>
+
+    <div class="sv1-hb-out">
+      <div class="sv1-hb-bar sv1-hide" id="hireBar">
+        <span id="hireCount"></span>
+        <button type="button" class="sv1-btn sm sv1-hide" id="hireAi">用智能匹配排序</button>
+      </div>
+      <p class="sv1-muted sv1-hide" id="hireStatus"></p>
+      <div class="sv1-hire-grid" id="hireResults"></div>
     </div>
 
     <div class="sv1-tabs">
@@ -350,20 +460,13 @@ var h0=hint();if(h0)S.paint(true,h0);
       <button type="button" class="sv1-tab on">招聘</button>
     </div>
 
-    <div class="sv1-hire-doors"><a class="sv1-door" href="/zh/hr/employer"><span class="ico">🏢</span><h3>雇主门户</h3><p>发布职位、接收申请，并在一个面板中跟进至录用。</p><span>打开招聘面板 →</span></a><button type="button" class="sv1-door" data-jump="hireJobs"><span class="ico">📋</span><h3>开放职位</h3><p>Business Partner 及其客户当前所有开放职位——查看详情并直接申请。</p><span>浏览职位 ↓</span></button><button type="button" class="sv1-door" data-jump="hireSeek"><span class="ico">🎯</span><h3>求职者门户</h3><p>只需提交一次简历：进入人才库，我们的代理每周为您搜索并推荐。</p><span>了解运作方式 ↓</span></button></div>
-
     <div class="sv1-hire-sec" id="hireJobs">
       <h3>当前开放职位</h3>
+      <p class="sub">跟随上方的城市与领域筛选——更改即可更新列表。</p>
       <p class="sv1-muted" id="hireJobsStatus">加载中…</p>
       <div class="sv1-hire-grid" id="hireJobsGrid"></div>
     </div>
 
-    <div class="sv1-hire-sec" id="hireSeek">
-      <h3>代理如何为您搜索</h3>
-      <ol class="sv1-hire-steps"><li><b class="sv1-mono">1</b><span>提交简历，并说明您的领域与期望薪资。</span></li><li><b class="sv1-mono">2</b><span>代理每周阅读开放职位，挑选真正适合您的岗位。</span></li><li><b class="sv1-mono">3</b><span>我们主动向雇主推荐您，入围名单会发送到您的邮箱。</span></li></ol>
-      <a class="sv1-btn" href="/zh/careers#seeker-form">提交简历</a>
-      <p class="sv1-muted" style="margin-top:12px;max-width:680px;font-size:12px">是否启用搜索代理在同一表单中自选，提交时不产生任何费用。</p>
-    </div>
   </div></section>
   </main></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
@@ -400,25 +503,306 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){
 var $=function(i){return document.getElementById(i)};
-var TX={"empty":"暂无开放职位——请提交简历，一旦有合适职位我们会推荐您。","failed":"暂时无法加载职位，请稍后刷新。","view":"查看职位","apply":"申请"};
+var LANG="zh";
+var TX={"phEmp":"描述您需要的人才。例如：利雅得的阿拉伯菜厨师","phSeek":"描述您想找的工作。例如：吉达的会计，3 年经验","secQEmp":"批量招聘或高管职位？","secBEmp":"招聘与引进服务 →","secQSeek":"今天没找到合适的工作？","secBSeek":"我们代您搜索 →","maskNote":"姓名、联系方式与简历在订阅雇主的招聘面板中显示。","seekNoteTop":"在此申请任何职位均免费——任何环节都不会向您收费。","upEmp":"上传职位描述——即将推出","upSeek":"提交简历","statW":"位候选人在我们的人才库","expSoon":"职位公告未标注工作年限","xAny":"不限经验","ctaEmp":"打开招聘面板 →","ctaSeek":"提交简历 →","needNarrow":"请先选择领域或城市——人才库很大，全量搜索较慢。","needText":"请先输入您要找的内容。","searching":"搜索中…","failed":"搜索失败，请稍后重试。","noneC":"暂无匹配的候选人，请放宽领域或城市。","noneJ":"暂无匹配的开放职位——请提交简历，一旦有合适职位我们会推荐您。","foundC":"人才库中 {n} 位候选人","foundJ":"{n} 个开放职位","more":"结果多于显示数量——请按领域或城市缩小范围。","aiWork":"正在阅读并排序…","aiFail":"智能匹配暂不可用——以上列表按关键词匹配排序。","aiDone":"已按智能匹配排序","empty":"暂无开放职位——请提交简历，一旦有合适职位我们会推荐您。","emptyF":"没有符合当前筛选的职位，请放宽条件。","jobsFail":"暂时无法加载职位，请稍后刷新。","loading":"加载中…","view":"查看职位","apply":"申请","expY":"经验","yrs":"年","micStart":"语音输入","micStop":"停止录音","micRec":"正在录音…点击停止","micWork":"正在转写…","micQuiet":"未听清，请重试。","micLong":"录音过长，请缩短。","micFail":"转写失败，请改用文字。","micDenied":"浏览器拒绝了麦克风权限。"};
+var KW={"هندسة":["مهندس","هندس","engineer","engineering"],"تقنية معلومات":["مبرمج","مطور","برمج","تقنية","حاسب","شبكات","بيانات","developer","programmer","software","devops","data","frontend","backend"],"مبيعات وتسويق":["مبيعات","بائع","تسويق","ماركتنج","sales","marketing"],"محاسبة ومالية":["محاسب","محاسبة","مالية","accountant","accounting","finance"],"إداري وسكرتارية":["سكرتير","إداري","اداري","admin","secretary","receptionist"],"موارد بشرية":["موارد بشرية","recruiter","human resources"],"ضيافة وسياحة":["طاه","طباخ","شيف","مطعم","فندق","ضيافة","نادل","باريستا","سياحة","chef","cook","hotel","restaurant","barista","waiter","hospitality"],"مقاولات وإنشاءات":["مقاول","إنشاء","انشاء","بناء","construction","civil"],"عقارات":["عقار","real estate","property"],"صحة وطب":["طبيب","ممرض","صيدل","مختبر","أشعة","doctor","nurse","pharmac","medical","health"],"تعليم":["معلم","مدرس","تعليم","teacher","tutor","education"],"لوجستيات ونقل":["سائق","نقل","شحن","لوجست","مستودع","توصيل","driver","logistics","warehouse","delivery"],"قانون":["محام","قانون","lawyer","legal","attorney"],"تصنيع وصناعة":["مصنع","إنتاج","تصنيع","صناع","factory","production","manufactur"],"طاقة ونفط وغاز":["نفط","غاز","بترول","طاقة","oil","gas","energy","petro"],"إعلام وإبداع":["مصمم","تصميم","جرافيك","مونتاج","تصوير","محتوى","إعلام","designer","graphic","video","content","media"],"حكومي وقطاع عام":["حكومي","قطاع عام","government","public sector"],"زراعة وبيئة":["زراع","مزرعة","بيئة","agricult","farm","environment"],"تجزئة وتجارة إلكترونية":["كاشير","تجزئة","متجر","cashier","retail","ecommerce","e-commerce"],"أمن وسلامة":["حارس","أمن ","سلامة","security","guard","safety"],"حرف مهنية وصيانة":["كهربائي","سباك","نجار","حداد","فني","صيانة","ميكانيك","لحام","electrician","plumber","carpenter","technician","maintenance","mechanic","welder"],"علوم وأبحاث":["باحث","أبحاث","research","scientist"],"طيران وبحري":["طيران","طيار","مضيف","بحري","ميناء","aviation","pilot","cabin crew","maritime"],"تجميل وعناية":["حلاق","كوافير","تجميل","مساج","salon","beauty","barber","spa"],"خدمات منزلية":["عاملة منزلية","خادمة","منزلية","مربية","housemaid","nanny","domestic"]};
+var CITIES=[["الرياض","Riyadh"],["جدة","Jeddah"],["مكة","Makkah"],["المدينة","Madinah"],["الدمام","Dammam"],["الخبر","Khobar"],["الظهران","Dhahran"],["الجبيل","Jubail"],["الأحساء","Al Ahsa"],["القطيف","Qatif"],["الطائف","Taif"],["بريدة","Buraidah"],["حائل","Hail"],["تبوك","Tabuk"],["أبها","Abha"],["خميس مشيط","Khamis Mushait"],["جازان","Jazan"],["نجران","Najran"],["ينبع","Yanbu"],["نيوم","NEOM"]];
 var JOB="/zh/job?id=";
+var EMP="/zh/hr/employer";
+var SEEKCV="/zh/careers#seeker-form";
+var SVC_EMP="/zh/services/rec-gen";
+var SVC_SEEK="/zh/job-search-service";
+var MAXSHOW=24;
+
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-document.querySelectorAll('[data-jump]').forEach(function(b){b.onclick=function(){
- var el=$(b.getAttribute('data-jump'));if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}});
-var grid=$('hireJobsGrid'),st=$('hireJobsStatus');
-fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(function(d){
- var jobs=(d&&d.ok&&d.jobs)||[];
- if(!jobs.length){st.textContent=TX.empty;return}
- st.hidden=true;
- grid.innerHTML=jobs.map(function(j){
-  var meta=[j.company,j.city].filter(Boolean).join(' · ')||(j.field||'');
-  var teaser=String(j.description||'').replace(/\s+/g,' ').trim().slice(0,140);
-  return '<article class="sv1-hire-job">'+(meta?'<span class="mt">'+esc(meta)+'</span>':'')+
-   '<h4>'+esc(j.title)+'</h4>'+(teaser?'<p>'+esc(teaser)+'…</p>':'')+
-   '<div class="acts"><a class="sv1-btn sm" href="'+JOB+encodeURIComponent(j.id)+'">'+esc(TX.view)+'</a>'+
-   '<a class="sv1-btn sm ghost" href="'+JOB+encodeURIComponent(j.id)+'#apply-form">'+esc(TX.apply)+'</a></div></article>'}).join('')
-}).catch(function(){st.textContent=TX.failed});
+function show(el,on){if(el)el.classList.toggle('sv1-hide',!on)}
+function nfmt(s,n){return String(s).replace('{n}',String(n))}
+
+var role='emp';
+var q=$('hireQ'),fSel=$('hireField'),cSel=$('hireCity'),xSel=$('hireExp'),paySel=$('hirePay');
+var xChip=$('hireExpChip'),payChip=$('hirePayChip');
+var bar=$('hireBar'),cnt=$('hireCount'),aiBtn=$('hireAi'),st=$('hireStatus'),out=$('hireResults');
+var note=$('hireNote'),hint=$('hireHint'),up=$('hireUp'),mic=$('hireMic');
+var secQ=$('hireSecQ'),secB=$('hireSecB'),portal=$('hirePortal');
+var lastRows=[],lastQuery='',busy=false;
+
+// الراتب معروضٌ ومعطّل: لا حقل راتب في إعلانات نوشن ولا في ردّ المرشّحين.
+paySel.disabled=true;payChip.classList.add('off');
+
+// ---- تفسير الكلام العادي: المسمّى الوظيفي والمدينة وعدد السنوات.
+function norm(s){return String(s||'').toLowerCase().replace(/[\u064B-\u0652\u0640]/g,'').replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')}
+function derive(text){
+ var n=norm(text),o={field:'',city:'',exp:''};
+ for(var f in KW){var ws=KW[f];for(var i=0;i<ws.length;i++){if(n.indexOf(norm(ws[i]))>=0){o.field=f;break}}if(o.field)break}
+ for(var j=0;j<CITIES.length;j++){
+  if(n.indexOf(norm(CITIES[j][0]))>=0||n.indexOf(norm(CITIES[j][1]))>=0){o.city=CITIES[j][0];break}}
+ var m=n.match(/(\d+)\s*\+?\s*(سنه|سنوات|سنين|year|yrs|ans|年)/);
+ if(m){var y=parseInt(m[1],10)||0;o.exp=y>=10?'10':y>=5?'5':y>=3?'3':y>=1?'1':''}
+ return o}
+
+function tokens(text){
+ return norm(text).split(/[^\p{L}\p{N}]+/u).filter(function(w){return w.length>2}).slice(0,14)}
+function score(text,hay){
+ var ws=tokens(text),h=norm(hay),s=0;
+ for(var i=0;i<ws.length;i++)if(h.indexOf(ws[i])>=0)s++;
+ return s}
+function years(v){var m=String(v==null?'':v).match(/\d+/);return m?parseInt(m[0],10):null}
+function markChip(sel){var c=sel.closest('label');if(c)c.classList.toggle('set',!!sel.value&&!sel.disabled)}
+
+function setRole(r){
+ role=r;
+ $('hireRoleEmp').classList.toggle('on',r==='emp');
+ $('hireRoleSeek').classList.toggle('on',r==='seek');
+ $('hireRoleEmp').setAttribute('aria-selected',r==='emp'?'true':'false');
+ $('hireRoleSeek').setAttribute('aria-selected',r==='seek'?'true':'false');
+ q.placeholder=r==='emp'?TX.phEmp:TX.phSeek;
+ q.setAttribute('aria-label',q.placeholder);
+ // إعلانات الوظائف لا تحمل سنوات خبرة، فالرقاقة تُعطَّل في تبويب الباحث
+ // بدل أن تصفّي على حقلٍ لا وجود له فتُخفي وظائف بلا سبب.
+ var offX=(r==='seek');
+ xSel.disabled=offX;xChip.classList.toggle('off',offX);
+ xChip.title=offX?TX.expSoon:'';
+ if(offX){xSel.value='';markChip(xSel)}
+ // رفع الملف: نموذج السيرة الذاتية قائم فعلاً في /careers؛ رفع وصفٍ وظيفي
+ // لصاحب العمل غير مبنيّ، فيُعطَّل الزرّ بدل أن يقود إلى لا شيء.
+ var seek=(r==='seek');
+ up.classList.toggle('off',!seek);
+ up.setAttribute('aria-disabled',seek?'false':'true');
+ up.setAttribute('title',seek?TX.upSeek:TX.upEmp);
+ up.setAttribute('aria-label',seek?TX.upSeek:TX.upEmp);
+ up.setAttribute('href',seek?SEEKCV:'#');
+ // طريق أصحاب العمل الحاليين إلى لوحتهم لا ينقطع: البطاقات الثلاث اختُصرت
+ // إلى صندوق، ورابط /hr/employer انتقل داخل تبويب صاحب العمل ولم يُحذف.
+ portal.textContent=seek?TX.ctaSeek:TX.ctaEmp;
+ portal.href=seek?SEEKCV:EMP;
+ secQ.textContent=seek?TX.secQSeek:TX.secQEmp;
+ secB.textContent=seek?TX.secBSeek:TX.secBEmp;
+ secB.href=seek?SVC_SEEK:SVC_EMP;
+ hint.textContent=seek?TX.seekNoteTop:TX.maskNote;
+ out.innerHTML='';show(bar,false);show(st,false);show(note,false);lastRows=[]}
+
+up.addEventListener('click',function(e){if(up.classList.contains('off'))e.preventDefault()});
+$('hireRoleEmp').onclick=function(){setRole('emp')};
+$('hireRoleSeek').onclick=function(){setRole('seek')};
+[fSel,cSel,xSel].forEach(function(s){s.addEventListener('change',function(){markChip(s);if(jobsCache)paintBoard()})});
+
+q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(200,q.scrollHeight)+'px'});
+q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();
+ if($('hireForm').requestSubmit)$('hireForm').requestSubmit();else $('hireGo').click()}});
+
+function say(msg){note.textContent=msg||'';show(note,!!msg)}
+
+// ---- سطر الإحصاء: رقمٌ حيّ أو لا شيء. ?count=1 مخزَّن على الحافة ساعةً،
+// ويعيد done:false حين ينفد وقته دون أن يُكمل العدّ — ورقمٌ ناقص معروضٌ
+// كأنه الحجم الكامل كذبةٌ صغيرة تتكرّر مع كل زائر.
+fetch('/api/candidates?count=1').then(function(r){return r.json()}).then(function(d){
+ if(!d||!d.ok||!d.done||!(d.total>0))return;
+ var el=$('hireStat');
+ // أرقام لاتينية في اللغات الأربع: الكتالوج والأسعار والفواتير كلها كذلك،
+ // ورقمٌ هنديٌّ وحيد في صفحةٍ أرقامُها لاتينية يبدو خطأً لا خياراً.
+ el.innerHTML='<b>'+esc(Number(d.total).toLocaleString('en-US'))+'</b> '+esc(TX.statW);
+ show(el,true)}).catch(function(){});
+
+// ---- بطاقات
+function candCard(c){
+ var meta=[c.field,c.city].filter(Boolean).join(' · ');
+ var yr=years(c.experience);
+ var line=[yr!=null?TX.expY+' '+yr+' '+TX.yrs:'',c.education||''].filter(Boolean).join(' · ');
+ return '<article class="sv1-hire-job"><div class="tp">'+
+  (meta?'<span class="mt">'+esc(meta)+'</span>':'')+
+  (c._score!=null?'<span class="sc">'+esc(String(c._score))+'%</span>':'')+'</div>'+
+  '<h4>'+esc(c.role||c.field||'—')+'</h4>'+
+  (line?'<p>'+esc(line)+'</p>':'')+
+  (c.skills?'<p>'+esc(String(c.skills).slice(0,120))+'</p>':'')+
+  (c._why?'<p class="why">'+esc(c._why)+'</p>':'')+
+  '</article>'}
+
+function jobCard(j){
+ var meta=[j.company,j.city].filter(Boolean).join(' · ')||(j.field||'');
+ var teaser=String(j.description||'').replace(/\s+/g,' ').trim().slice(0,140);
+ return '<article class="sv1-hire-job">'+(meta?'<span class="mt">'+esc(meta)+'</span>':'')+
+  '<h4>'+esc(j.title)+'</h4>'+(teaser?'<p>'+esc(teaser)+'…</p>':'')+
+  '<div class="acts"><a class="sv1-btn sm" href="'+JOB+encodeURIComponent(j.id)+'">'+esc(TX.view)+'</a>'+
+  '<a class="sv1-btn sm primary" href="'+JOB+encodeURIComponent(j.id)+'#apply-form">'+esc(TX.apply)+'</a></div></article>'}
+
+// ---- الوظائف المفتوحة: طلبٌ واحد يخدم تبويب الباحث ولوحة الطبقة الثانية.
+var jobsCache=null,jobsWait=null;
+function loadJobs(){
+ if(jobsCache)return Promise.resolve(jobsCache);
+ if(jobsWait)return jobsWait;
+ jobsWait=fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(function(d){
+  jobsCache=(d&&d.ok&&d.jobs)||[];return jobsCache});
+ return jobsWait}
+
+function filterJobs(jobs,f,c){
+ return jobs.filter(function(j){
+  if(f&&j.field&&j.field!==f)return false;
+  if(c&&String(j.city||'').indexOf(c)<0)return false;
+  return true})}
+
+function paintBoard(){
+ var g=$('hireJobsGrid'),s=$('hireJobsStatus');
+ s.textContent=TX.loading;s.hidden=false;
+ loadJobs().then(function(jobs){
+  if(!jobs.length){g.innerHTML='';s.textContent=TX.empty;return}
+  var rows=filterJobs(jobs,fSel.value,cSel.value);
+  if(!rows.length){g.innerHTML='';s.textContent=TX.emptyF;return}
+  s.hidden=true;g.innerHTML=rows.map(jobCard).join('')
+ }).catch(function(){g.innerHTML='';s.textContent=TX.jobsFail})}
+
+// الطبقة الثانية أسفل الصفحة، فلا تُجلب حتى يصل إليها الزائر.
+(function(){
+ var sec=$('hireJobs'),done=false;
+ function go(){if(done)return;done=true;paintBoard()}
+ if(!('IntersectionObserver' in window)){go();return}
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.disconnect();go()}})},{rootMargin:'320px'});
+ io.observe(sec)})();
+
+// ---- البحث
+function searchJobs(text,f,c){
+ st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);
+ loadJobs().then(function(jobs){
+  var rows=filterJobs(jobs,f,c);
+  if(text)rows=rows.map(function(j){return {j:j,s:score(text,(j.title||'')+' '+(j.field||'')+' '+(j.description||''))}})
+   .sort(function(a,b){return b.s-a.s}).map(function(x){return x.j});
+  show(st,false);
+  if(!rows.length){st.textContent=TX.noneJ;show(st,true);return}
+  show(bar,true);show(aiBtn,false);
+  cnt.textContent=nfmt(TX.foundJ,rows.length);
+  out.innerHTML=rows.slice(0,MAXSHOW).map(jobCard).join('');
+  say(rows.length>MAXSHOW?TX.more:'')
+ }).catch(function(){st.textContent=TX.failed;show(st,true)})}
+
+function searchCands(text,f,c,x){
+ st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);
+ var p='/api/candidates?'+(f?'field='+encodeURIComponent(f):'')+(c?(f?'&':'')+'city='+encodeURIComponent(c):'');
+ fetch(p).then(function(r){return r.json()}).then(function(d){
+  if(!d||!d.ok)throw new Error('bad');
+  var rows=d.candidates||[];
+  if(x){var n=parseInt(x,10);rows=rows.filter(function(r2){var y=years(r2.experience);return y!=null&&y>=n})}
+  if(text)rows=rows.map(function(r2){return {r:r2,s:score(text,(r2.role||'')+' '+(r2.field||'')+' '+(r2.skills||''))}})
+   .sort(function(a,b){return b.s-a.s}).map(function(z){return z.r});
+  show(st,false);
+  if(!rows.length){st.textContent=TX.noneC;show(st,true);return}
+  lastRows=rows;lastQuery=text;
+  show(bar,true);show(aiBtn,true);aiBtn.disabled=false;
+  cnt.textContent=nfmt(TX.foundC,rows.length);
+  out.innerHTML=rows.slice(0,MAXSHOW).map(candCard).join('');
+  say((rows.length>MAXSHOW||d.done===false)?TX.more:'')
+ }).catch(function(){st.textContent=TX.failed;show(st,true)})}
+
+$('hireForm').addEventListener('submit',function(e){
+ e.preventDefault();
+ if(busy)return;
+ var text=q.value.trim();
+ var d=derive(text);
+ // الرقاقة التي اختارها الزائر بنفسه أقوى من استنتاجنا من كلامه.
+ if(!fSel.value&&d.field){fSel.value=d.field;markChip(fSel)}
+ if(!cSel.value&&d.city){cSel.value=d.city;markChip(cSel)}
+ if(role==='emp'&&!xSel.value&&d.exp){xSel.value=d.exp;markChip(xSel)}
+ var f=fSel.value,c=cSel.value,x=(role==='emp'?xSel.value:'');
+ if(!text&&!f&&!c){say(TX.needText);q.focus();return}
+ if(role==='emp'&&!f&&!c){say(TX.needNarrow);fSel.focus();return}
+ say('');
+ if(jobsCache)paintBoard();
+ if(role==='emp')searchCands(text,f,c,x);else searchJobs(text,f,c)});
+
+// ---- المطابقة الذكية: نداءٌ مدفوع، فلا يُطلق إلا بضغطة من الزائر.
+aiBtn.onclick=function(){
+ if(busy||!lastRows.length)return;
+ busy=true;aiBtn.disabled=true;
+ var prev=aiBtn.textContent;aiBtn.textContent=TX.aiWork;
+ var sent=lastRows.slice(0,120);
+ fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'match',lang:LANG,role:lastQuery||[fSel.value,cSel.value].filter(Boolean).join(' '),candidates:sent})})
+ .then(function(r){return r.json()}).then(function(o){
+  var ranked=(o&&o.ok&&o.ranked)||[];
+  if(!ranked.length)throw new Error('empty');
+  var by={};sent.forEach(function(c){by[c.id]=c});
+  var rows=[];
+  ranked.forEach(function(m){var c=by[m.id];if(!c)return;
+   c._score=Math.max(0,Math.min(100,Math.round(Number(m.score)||0)));
+   c._why=String(m.reason||'').slice(0,220);rows.push(c)});
+  if(!rows.length)throw new Error('nomatch');
+  cnt.textContent=TX.aiDone+' · '+nfmt(TX.foundC,rows.length);
+  out.innerHTML=rows.map(candCard).join('');
+  show(aiBtn,false);say('')
+ }).catch(function(){aiBtn.textContent=prev;say(TX.aiFail)})
+ .then(function(){busy=false;aiBtn.disabled=false})};
+
+// ---- الميكروفون: الزرّ مرسومٌ دائماً (اللقطة فيها ثلاثة أزرار) لكنه يبدأ
+// معطّلاً، ولا يُفعَّل إلا بعد أن يؤكّد الخادم أن المفرِّغ مُهيَّأ — ولا
+// يُسأل الخادم إلا حين يلمس الزائر الصندوق.
+(function(){
+ var CAN=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+ if(!CAN)return;
+ var asked=false,ready=false;
+ function enable(){ready=true;mic.disabled=false;mic.classList.remove('off');
+  mic.setAttribute('aria-label',TX.micStart);mic.setAttribute('title',TX.micStart)}
+ function disable(){ready=false;mic.disabled=true;mic.classList.add('off')}
+ q.addEventListener('focus',function(){
+  if(asked)return;asked=true;
+  fetch('/api/chat').then(function(r){return r.json()}).then(function(o){
+   var v=(o&&o.voice)||[];
+   if(v.some(function(p){return p&&p.configured}))enable()}).catch(function(){})});
+
+ var strip=$('hireVoice'),rec=null,chunks=[],tick=null,t0=0,stream=null;
+ function say2(cls,txt,timer){strip.className='sv1-voice on'+(cls?' '+cls:'');strip.textContent='';
+  if(cls!=='err'){var dd=document.createElement('span');dd.className='dot';strip.appendChild(dd)}
+  var s=document.createElement('span');s.textContent=txt;strip.appendChild(s);
+  if(timer){var e=document.createElement('span');e.className='t';e.id='hireVoiceT';e.textContent='0:00';strip.appendChild(e)}}
+ function hide2(){strip.className='sv1-voice';strip.textContent=''}
+ function stopTracks(){if(stream){try{stream.getTracks().forEach(function(t2){t2.stop()})}catch(e){}stream=null}}
+ function pickType(){var c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  for(var i=0;i<c.length;i++){try{if(window.MediaRecorder.isTypeSupported(c[i]))return c[i]}catch(e){}}return ''}
+ function reset(){mic.classList.remove('rec');mic.disabled=!ready;
+  mic.setAttribute('aria-label',TX.micStart);
+  if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
+ function upload(blob,type){
+  if(blob.size<1200){reset();say2('err',TX.micQuiet);return}
+  if(blob.size>12*1024*1024){reset();say2('err',TX.micLong);return}
+  mic.classList.remove('rec');mic.disabled=true;say2('',TX.micWork);
+  var fr=new FileReader();
+  fr.onerror=function(){reset();say2('err',TX.micFail)};
+  fr.onload=function(){
+   var b64=String(fr.result||'').split(',')[1]||'';
+   fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
+   .then(function(r){return r.json()}).then(function(o){
+    if(!o||!o.ok){var e2=o&&o.error;
+     if(e2==='not_configured')disable();
+     reset();
+     say2('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:TX.micFail);return}
+    reset();hide2();
+    q.value=(q.value?q.value.replace(/\s*$/,' '):'')+o.text;
+    q.focus();q.style.height='auto';q.style.height=Math.min(200,q.scrollHeight)+'px'})
+   .catch(function(){reset();say2('err',TX.micFail)})};
+  fr.readAsDataURL(blob)}
+ function start(){
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){
+   stream=s;var type=pickType();chunks=[];
+   try{rec=type?new MediaRecorder(s,{mimeType:type}):new MediaRecorder(s)}catch(e){rec=new MediaRecorder(s)}
+   var used=rec.mimeType||type||'audio/webm';
+   rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
+   rec.onstop=function(){upload(new Blob(chunks,{type:used}),used)};
+   rec.start();
+   mic.classList.add('rec');mic.setAttribute('aria-label',TX.micStop);
+   t0=Date.now();say2('',TX.micRec,true);
+   tick=setInterval(function(){
+    var sec=Math.floor((Date.now()-t0)/1000),el=document.getElementById('hireVoiceT');
+    if(el)el.textContent=Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2);
+    if(sec>=120&&rec&&rec.state==='recording')rec.stop()
+   },500)}).catch(function(){say2('err',TX.micDenied)})}
+ mic.onclick=function(){
+  if(!ready)return;
+  if(rec&&rec.state==='recording'){if(tick){clearInterval(tick);tick=null}rec.stop();return}
+  hide2();start()}})();
+
+$('hireMore').onclick=function(e){e.preventDefault();
+ var el=$('hireJobs');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})};
+
+setRole('emp');
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
