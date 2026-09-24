@@ -19,7 +19,7 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
 import { bdTrial, isPaidBdOrder, openFor, isOwnerEmail } from "./_trial.js";
-import { DEV } from "./_mode.js";
+import { DEV, EMAIL_LIVE, WHATSAPP_LIVE, MODES, outbox } from "./_mode.js";
 import {
   SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
   canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
@@ -105,7 +105,28 @@ const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
 async function forwardLead(payload) {
   if (!LEAD_WEBHOOK) return;
+  // Local development never posts a test lead to a real pipeline: it lands in
+  // the outbox with everything else that would have left the machine.
+  if (DEV) { await outbox({ kind: "webhook", to: LEAD_WEBHOOK, subject: `${payload.source || "lead"} ${payload.ref || ""}`.trim(), body: String(payload.items || payload.notes || "").slice(0, 500), payload }); return; }
   try { await fetch(LEAD_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
+}
+// The owner's WhatsApp lead pipe (n8n «website-lead-notify»): every ticket,
+// booking, portal order, advisor hand-off and fresh WhatsApp contact rings the
+// owner's phone through it. It used to be called unconditionally, so a
+// developer submitting the contact form on localhost paged the owner with
+// test data and created a real lead. Same gate as e-mail in _simple.js: unless
+// WHATSAPP_MODE is live (production default; mock on localhost and previews)
+// the payload goes to the outbox and nothing leaves the machine.
+const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+async function ownerWaNotify(payload) {
+  if (!WHATSAPP_LIVE) {
+    await outbox({ kind: "whatsapp", to: OWNER_WA_WEBHOOK, subject: `${payload.source || "notify"} ${payload.ref || ""}`.trim(), body: String(payload.transcript || "").slice(0, 2000), payload });
+    return { ok: false, skipped: "whatsapp_mode_" + MODES().whatsapp };
+  }
+  try {
+    const r = await fetch(OWNER_WA_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    return { ok: r.ok };
+  } catch (e) { return { ok: false, error: String(e && e.message || "webhook_failed").slice(0, 80) }; }
 }
 
 // Live order status lookup (merged from the former api/order-status.js — Vercel
@@ -466,6 +487,9 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     props["الإيصال البنكي"] = { files: fileList.slice(0, 20) };
     if (receiptUploadId) props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
   }
+  // The Sales Pipeline is production data; a local run records the row it
+  // would have created instead of writing a test lead into the real CRM.
+  if (DEV) { await outbox({ kind: "crm", to: `notion:${CRM_DB}`, subject: `${title} (${ref})`.slice(0, 200), body: String(notes || "").slice(0, 1000), props }); return; }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
@@ -726,13 +750,10 @@ async function syncWhatsappLeads() {
   for (const f of freshLeads.slice(0, 6)) {
     const who = f.name || f.phone;
     try {
-      fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
-          transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
-          url: `${MKT_SITE_BASE}/admin`,
-        }),
+      ownerWaNotify({
+        source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
+        transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
+        url: `${MKT_SITE_BASE}/admin`,
       }).catch(() => {});
       const html = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#128C7E">📱 عميل واتساب جديد — ${esc(who)}</h2><p><b>الجوال:</b> <a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="direction:ltr;display:inline-block">${esc(f.phone)}</a></p>${f.svc ? `<p><b>الخدمة المطلوبة:</b> ${esc(f.svc)}</p>` : ""}${f.lastMsg ? `<p><b>آخر رسالة:</b> ${esc(String(f.lastMsg).slice(0, 300))}</p>` : ""}<p><b>المرجع:</b> ${esc(f.ref)} — العميل الآن في «متابعات اليوم» بلوحة التحكم.</p></div>`;
       await sendEmail(TEAM_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
@@ -801,6 +822,9 @@ async function upsertConversation({ sid, messages, phone, email, name, hot }) {
 
 async function addToAudience(email, name) {
   if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
+  // Same gate as sendEmail: a preview/local run must not add a test address
+  // to the real newsletter audience.
+  if (!EMAIL_LIVE) { await outbox({ kind: "audience", to: email, subject: `audience:${RESEND_AUDIENCE}`, body: String(name || "") }); return; }
   try {
     const p = String(name || "").trim().split(/\s+/).filter(Boolean);
     await fetch(`https://api.resend.com/audiences/${RESEND_AUDIENCE}/contacts`, {
@@ -825,6 +849,15 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 // attachments: [{ filename, content }] where content is base64 — Resend's own
 // attachment shape, passed straight through.
 async function sendEmail(to, subject, html, attachments) {
+  // Local development and previews (EMAIL_MODE=preview by default, see
+  // _mode.js): the message is recorded in .localdb/outbox.json — the same
+  // shape api/_simple.js writes — and no provider is called, so a form can be
+  // proven to arrive without mailing anyone. Production (EMAIL_MODE unset →
+  // live) is unchanged.
+  if (!EMAIL_LIVE) {
+    await outbox({ kind: "email", to, subject, body: html, attachments: attachments && attachments.length ? attachments.map((a) => a && a.filename) : undefined });
+    return { ok: false, skipped: "email_mode_" + MODES().email };
+  }
   // البنية التحتية على Azure (قرار المالك): جرّب Azure Communication Services
   // أولاً. عند نجاحه نكتفي به؛ وإن لم يكن مهيّأً أو فشل نرجع إلى Resend.
   // (المرفقات عبر Resend فقط حالياً — تُترك للبديل.)
@@ -5241,10 +5274,7 @@ export default async function handler(req, res) {
     const ownerHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🛒 طلب جديد من لوحة العميل — ${esc(ref)}</h2><table>${row("العميل", name) + row("البريد", email) + (orgName ? row("المنشأة", orgName) : "") + row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼") + row("طريقة الدفع", payAr) + row("الحالة", statusAr) + (pay === "later" ? row("تاريخ الاستحقاق", dueISO) : "")}</table>${paid ? "<p style='color:#047857'><b>مدفوع من المحفظة — ابدأ التنفيذ.</b></p>" : "<p>الطلب في «متابعات اليوم» بلوحة التحكم بتاريخ استحقاقه.</p>"}</div>`;
     const clientHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">${paid ? "تم استلام طلبك وسداده ✅" : "استلمنا طلبك ✅"}</h2><p>مرحباً ${esc(name)}، سجّلنا طلبك برقم <b>${esc(ref)}</b>.</p><table>${row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼ (شامل الضريبة)") + row("طريقة الدفع", payAr)}</table>${pay === "later" ? `<p style="background:#FEF3C7;padding:10px;border-radius:8px">🗓 <b>فاتورة مؤجلة:</b> تاريخ استحقاق السداد <b>${dueISO}</b>. نذكّرك قبلها، وتقدر تسدد في أي وقت من لوحتك.</p>` : ""}${paid ? `<p style="background:#D1FAE5;padding:10px;border-radius:8px">💳 سُدد من محفظتك. الرصيد المتبقي: <b>${walletAfter} ﷼</b></p>` : ""}<p><a href="${MKT_SITE_BASE}/account" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح لوحتك ←</a></p></div>`;
 
-    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }),
-    }).catch(() => {});
+    ownerWaNotify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }).catch(() => {});
 
     await Promise.all([
       sendEmail(TEAM_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼ (${payAr})`, ownerHtml),
@@ -5625,10 +5655,20 @@ export default async function handler(req, res) {
     if (!name || (!phone && !isEmail(email))) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const ref = ("BPT-" + Date.now().toString().slice(-6)).slice(0, 40);
     const today = new Date().toISOString().slice(0, 10);
+    // «تواصل معنا» rides on this branch (sid "contact-form", category «نموذج
+    // التواصل»). It is a message, not a quotation request: the customer must
+    // not be promised a price offer they never asked for, and the team must
+    // see which channel it came from. Everything else (/my, the Baher widget)
+    // keeps the ticket wording.
+    const isContact = sid === "contact-form" || catAr === "نموذج التواصل";
+    const channelAr = isContact ? "نموذج التواصل" : "تذكرة دعم";
+    // The Notes channel line stays «قناة: تذكرة دعم · name» whatever the
+    // channel: the /monitor inbox parses the customer's name out of it.
     const notesText = `قناة: تذكرة دعم · ${name}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}\nالخدمة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${svcCode ? " [" + svcCode + "]" : ""}${note ? "\nتفاصيل: " + note : ""}`;
+    const crmTitle = (isContact ? `✉️ نموذج التواصل — ${svcAr}` : `🎫 تذكرة — ${svcAr}`).slice(0, 200);
     if (NOTION_TOKEN) {
       const props = {
-        "Opportunity Name": { title: [{ text: { content: `🎫 تذكرة — ${svcAr}`.slice(0, 200) } }] },
+        "Opportunity Name": { title: [{ text: { content: crmTitle } }] },
         "Lead Source": { select: { name: TICKET_SOURCE } },
         "Stage": { select: { name: "مهتم" } },
         "Human Required": { checkbox: true },
@@ -5637,40 +5677,54 @@ export default async function handler(req, res) {
         "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
         "حالة الطلب": { select: { name: "تذكرة دعم" } },
       };
-      try {
-        const r = await fetch("https://api.notion.com/v1/pages", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-          body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
-        });
-        if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
-      } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+      if (DEV) {
+        // A local run must not file a test ticket in the real CRM.
+        await outbox({ kind: "crm", to: `notion:${CRM_DB}`, subject: `${crmTitle} (${ref})`, body: notesText, props });
+      } else {
+        try {
+          const r = await fetch("https://api.notion.com/v1/pages", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+            body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+          });
+          if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
+        } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+      }
     }
-    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
+    const oTitle = isContact ? `✉️ رسالة جديدة من نموذج التواصل ${ref}` : `🎫 تذكرة دعم جديدة ${ref}`;
+    const oSubject = isContact ? `✉️ نموذج التواصل ${ref} — ${name} · ${svcAr}` : `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">${oTitle}</h2><table>${row("القناة", channelAr) + row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row(isContact ? "الموضوع" : "الخدمة", svcAr) + (isContact ? "" : row("المجال", catAr)) + row(isContact ? "الرسالة" : "تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — و${isContact ? "الرسالة ظاهرة" : "التذكرة ظاهرة"} في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
     // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
     const bookUrl = `${MKT_SITE_BASE}/consultation`;
     const waAdvisor = "https://wa.me/966530540231";
+    const cSubject = isContact ? `استلمنا رسالتك — بيزنس بارتنر (${ref})` : `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`;
+    const cHead = isContact ? "استلمنا رسالتك ✅" : "استلمنا طلبك لعرض السعر ✅";
+    const cLead = isContact
+      ? `مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر${svcAr && svcAr !== "طلب عام" ? ` بخصوص <b>${esc(svcAr)}</b>` : ""}. سجّلنا رسالتك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً على رقمك/بريدك.`
+      : `مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.`;
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
-      <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
-      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
+      <h2 style="color:#0B1B5A">${cHead}</h2>
+      <p>${cLead}</p>
       <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
       <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
       <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
       <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
-    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "support-ticket", ref, name, phone, email, transcript: `🎫 تذكرة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }),
-    }).catch(() => {});
-    await Promise.all([
-      sendEmail(TEAM_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml),
-      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml) : Promise.resolve(),
-      isEmail(email) ? sendEmail(email, `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
+    const waNotify = ownerWaNotify({ source: "support-ticket", channel: isContact ? "contact-form" : "support-ticket", ref, name, phone, email, transcript: `${isContact ? "✉️ نموذج التواصل" : "🎫 تذكرة"}: ${svcAr}${catAr && !isContact ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }).catch(() => ({ ok: false, error: "webhook_failed" }));
+    // The ticket is filed above; a mail failure is logged and reported, never
+    // turned into a failed request (the customer's message is already safe).
+    const [teamSent, , clientSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, oSubject, oHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, oSubject, oHtml) : Promise.resolve({ ok: true }),
+      isEmail(email) ? sendEmail(email, cSubject, cHtml) : Promise.resolve(null),
       waNotify,
-      forwardLead({ source: "support-ticket", ref, name, phone, email, items: svcAr }),
+      forwardLead({ source: "support-ticket", channel: isContact ? "contact-form" : "support-ticket", ref, name, phone, email, items: svcAr }),
       email ? addToAudience(email, name) : Promise.resolve(),
     ]);
+    if (teamSent && !teamSent.ok && !teamSent.skipped) console.error("ticket team email failed", ref, teamSent.error || "unknown");
+    if (clientSent && !clientSent.ok && !clientSent.skipped) console.error("ticket client email failed", ref, clientSent.error || "unknown");
+    const emailSent = !!(teamSent && teamSent.ok && (!clientSent || clientSent.ok));
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, ref }));
+    return res.end(JSON.stringify({ ok: true, ref, channel: isContact ? "contact-form" : "support-ticket", emailSent }));
   }
 
   // حجز استشارة من ودجت باهر — العميل يختار يوماً ووقتاً ضمن دوام بزنس بارتنر
@@ -5724,10 +5778,7 @@ export default async function handler(req, res) {
       <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
       <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
       <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
-    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
-    }).catch(() => {});
+    const waNotify = ownerWaNotify({ source: "booking", ref, name, phone, email, date, time, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }).catch(() => {});
     await Promise.all([
       sendEmail(TEAM_EMAIL, `📅 حجز استشارة ${ref} — ${name} · ${whenTxt}`, oHtml),
       sendEmail(email, `تم حجز استشارتك — بيزنس بارتنر (${ref})`, cHtml),
@@ -5773,10 +5824,7 @@ export default async function handler(req, res) {
         <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
         <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
       // إشعار واتساب لباهر عبر ورك فلو n8n (best-effort — لا يوقف شيئاً إن فشل)
-      const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }),
-      }).catch(() => {});
+      const waNotify = ownerWaNotify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }).catch(() => {});
       await Promise.all([
         sendEmail(TEAM_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml),
         isEmail(email) ? sendEmail(email, `تم استلام طلبك — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
