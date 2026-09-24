@@ -510,7 +510,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-hnote sv1-hide" id="hireNote"></p>
 
       <div class="sv1-hportal">
-        <a class="sv1-btn sm" id="hirePortal" href="/ar/hr/employer">افتح لوحة التوظيف ←</a>
+        <a class="sv1-btn sm" id="hirePortal" href="/ar/employer">افتح لوحة التوظيف ←</a>
       </div>
 
       <div class="sv1-hsec2">
@@ -630,7 +630,7 @@ var CITIES=[["الرياض","Riyadh"],["جدة","Jeddah"],["مكة","Makkah"],["
 var TY=[[["دوام كامل","full time","full-time","fulltime"],["دوام كامل","Full-time","Temps plein","全职"]],[["دوام جزئي","part time","part-time","parttime"],["دوام جزئي","Part-time","Temps partiel","兼职"]],[["عقد مؤقت","عقد","contract","temporary","temp"],["عقد مؤقت","Contract","Contrat","合同制"]],[["تدريب","تدريب تعاوني","internship","intern","trainee"],["تدريب","Internship","Stage","实习"]],[["عمل حر","freelance","freelancer"],["عمل حر","Freelance","Freelance","自由职业"]],[["موسمي","seasonal"],["موسمي","Seasonal","Saisonnier","季节性"]],[["عن بعد","remote","work from home"],["عن بُعد","Remote","À distance","远程"]],[["حضوري","في الموقع","on site","on-site","onsite"],["حضوري","On-site","Sur site","现场"]],[["هجين","مختلط","hybrid"],["هجين","Hybrid","Hybride","混合"]],[["مرن","flexible","flex"],["مرن","Flexible","Flexible","弹性"]]];
 var FCOL=0;
 var JOB="/ar/job?id=";
-var EMP="/ar/hr/employer";
+var EMP="/ar/employer";
 var SEEKCV="/ar/careers#seeker-form";
 var SVC_EMP="/ar/services/rec-gen";
 var SVC_SEEK="/ar/job-search-service";
@@ -695,7 +695,7 @@ function setRole(r){
  up.setAttribute('aria-label',seek?TX.upSeek:TX.upEmp);
  up.setAttribute('href',seek?SEEKCV:'#');
  // طريق أصحاب العمل الحاليين إلى لوحتهم لا ينقطع: البطاقات الثلاث اختُصرت
- // إلى صندوق، ورابط /hr/employer انتقل داخل تبويب صاحب العمل ولم يُحذف.
+ // إلى صندوق، وباب صاحب العمل صار يفتح على البوابة الجديدة مباشرةً.
  portal.textContent=seek?TX.ctaSeek:TX.ctaEmp;
  portal.href=seek?SEEKCV:EMP;
  secQ.textContent=seek?TX.secQSeek:TX.secQEmp;

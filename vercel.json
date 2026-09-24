@@ -23,6 +23,27 @@
   },
   "redirects": [
     {
+      "comment": "بوابة صاحب العمل القديمة (20 صفحة) وُحّدت في /employer الجديدة. 307 مؤقتة عمداً: الدائمة تُخزَّن في متصفحات الناس فلا تُستدرك بسطر. الروابط العميقة تفقد معرّفها (applicant?id=X) — ثمن صفحةٍ واحدة محلّ عشرين.",
+      "source": "/hr/employer",
+      "destination": "/employer",
+      "permanent": false
+    },
+    {
+      "source": "/hr/employer/:path*",
+      "destination": "/employer",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|zh)/hr/employer",
+      "destination": "/:lang/employer",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|zh)/hr/employer/:path*",
+      "destination": "/:lang/employer",
+      "permanent": false
+    },
+    {
       "source": "/revenue-os",
       "destination": "/business-development",
       "permanent": true

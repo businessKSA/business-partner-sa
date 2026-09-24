@@ -528,7 +528,7 @@ export function buildSimpleHiring(SV1, ctx) {
       <p class="sv1-hnote sv1-hide" id="hireNote"></p>
 
       <div class="sv1-hportal">
-        <a class="sv1-btn sm" id="hirePortal" href="${esc(u("/hr/employer"))}">${esc(t("ctaEmp"))}</a>
+        <a class="sv1-btn sm" id="hirePortal" href="${esc(u("/employer"))}">${esc(t("ctaEmp"))}</a>
       </div>
 
       <div class="sv1-hsec2">
@@ -627,7 +627,7 @@ var CITIES=${JSON.stringify(CITIES)};
 var TY=${JSON.stringify(TY)};
 var FCOL=${JSON.stringify(fi)};
 var JOB=${JSON.stringify(u("/job") + "?id=")};
-var EMP=${JSON.stringify(u("/hr/employer"))};
+var EMP=${JSON.stringify(u("/employer"))};
 var SEEKCV=${JSON.stringify(u("/careers") + "#seeker-form")};
 var SVC_EMP=${JSON.stringify(u("/services/rec-gen"))};
 var SVC_SEEK=${JSON.stringify(u("/job-search-service"))};
@@ -692,7 +692,7 @@ function setRole(r){
  up.setAttribute('aria-label',seek?TX.upSeek:TX.upEmp);
  up.setAttribute('href',seek?SEEKCV:'#');
  // طريق أصحاب العمل الحاليين إلى لوحتهم لا ينقطع: البطاقات الثلاث اختُصرت
- // إلى صندوق، ورابط /hr/employer انتقل داخل تبويب صاحب العمل ولم يُحذف.
+ // إلى صندوق، وباب صاحب العمل صار يفتح على البوابة الجديدة مباشرةً.
  portal.textContent=seek?TX.ctaSeek:TX.ctaEmp;
  portal.href=seek?SEEKCV:EMP;
  secQ.textContent=seek?TX.secQSeek:TX.secQEmp;

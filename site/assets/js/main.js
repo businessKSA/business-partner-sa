@@ -4686,7 +4686,7 @@ var BP_EMP_BILLING = "monthly";
     var isAr = (document.documentElement.lang || "en").toLowerCase().indexOf("ar") === 0;
     function T(en, ar) { return isAr ? ar : en; }
     var errEl = document.getElementById("el-error");
-    function dashUrl() { return "/hr/employer"; } // the new hiring console is the flagship destination
+    function dashUrl() { return "/employer"; } // the new hiring console is the flagship destination
 
     // Email verification gate: after the password checks out, a 6-digit code
     // is emailed (via /api/otp) and must be entered before the portal opens.
