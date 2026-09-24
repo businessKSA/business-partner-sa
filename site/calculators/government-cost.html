@@ -237,8 +237,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
@@ -380,11 +391,38 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <div class="sv1-foot-col">
       <h4>Payments</h4>
       <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.</p>
-      <div class="sv1-foot-links">
-        <a href="/knowledge-center">Knowledge Center</a>
-        <a href="/terms">Terms</a>
-        <a href="/catalog">All services</a>
-      </div>
+    </div>
+  </div>
+
+  <!-- الصفحات التي لا تظهر في الترويسة. الموقع الجديد يربط ست وجهات فقط،
+       فبقيت ثمانٍ وخمسون صفحة بلا بابٍ إليها: منتجات وأدلة وحاسبات ومجلة.
+       تُجمع هنا في ثلاثة أعمدة بخمسة روابط لكل عمود — ما يزيد يصير قائمةً
+       تُتجاهَل. وما لا يُذكر هنا يبقى مقصوداً: اللوحات وبوابات الدخول
+       (يصلها صاحبها برابطه)، والنسخ المحفوظة بلاحقة -classic، وصفحات
+       المنتجات المفردة التي بابها صفحة الكتالوج. -->
+  <div class="sv1-foot-nav">
+    <div class="sv1-foot-navcol">
+      <h5>Services</h5>
+      <a href="/catalog">All services</a>
+      <a href="/packages">Packages</a>
+      <a href="/ai-agents">Smart advisors</a>
+      <a href="/business-development">Business development</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>Knowledge</h5>
+      <a href="/knowledge-center">Knowledge Center</a>
+      <a href="/saudi-arabia">Investing in Saudi Arabia</a>
+      <a href="/guide/business-setup">Guides</a>
+      <a href="/tools-and-calculators">Calculators</a>
+      <a href="/magazine">Magazine</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/careers">Careers</a>
+      <a href="/suppliers">Partners</a>
+      <a href="/terms">Terms</a>
     </div>
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · All rights reserved</div>

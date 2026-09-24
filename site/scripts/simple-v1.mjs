@@ -175,6 +175,22 @@ const D = {
   // gives and stays inside this design.
   footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
+  // ثلاثة عناوين في الفوتر وحده. الترويسة تبقى على بابها الواحد — «ابدأ طلبك»
+  // — لأن الزائر الذي يرى عشرين رابطاً لا يضغط أياً منها.
+  footExplore: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
+  footKnow: { ar: "المعرفة", en: "Knowledge", fr: "Ressources", zh: "知识库" },
+  footCompany: { ar: "الشركة", en: "Company", fr: "Société", zh: "公司" },
+  navPackages: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
+  navAdvisors: { ar: "المستشارون الأذكياء", en: "Smart advisors", fr: "Conseillers IA", zh: "智能顾问" },
+  navSaudi: { ar: "الاستثمار في السعودية", en: "Investing in Saudi Arabia", fr: "Investir en Arabie saoudite", zh: "投资沙特" },
+  navGuides: { ar: "الأدلة", en: "Guides", fr: "Guides", zh: "指南" },
+  navCalc: { ar: "الحاسبات", en: "Calculators", fr: "Calculateurs", zh: "计算器" },
+  navMagazine: { ar: "المجلة", en: "Magazine", fr: "Magazine", zh: "杂志" },
+  navAbout: { ar: "من نحن", en: "About", fr: "À propos", zh: "关于我们" },
+  navContact: { ar: "تواصل معنا", en: "Contact", fr: "Contact", zh: "联系我们" },
+  navCareers: { ar: "الوظائف", en: "Careers", fr: "Carrières", zh: "招聘" },
+  navPartners: { ar: "الشركاء", en: "Partners", fr: "Partenaires", zh: "合作伙伴" },
+  navBizDev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
   footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
   footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
@@ -466,8 +482,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
@@ -591,11 +618,38 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <div class="sv1-foot-col">
       <h4>${t("footPay")}</h4>
       <p class="sv1-foot-note">${t("footPayLine")}</p>
-      <div class="sv1-foot-links">
-        ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
-        <a href="${href("/terms")}">${t("footTerms")}</a>
-        ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
-      </div>
+    </div>
+  </div>
+
+  <!-- الصفحات التي لا تظهر في الترويسة. الموقع الجديد يربط ست وجهات فقط،
+       فبقيت ثمانٍ وخمسون صفحة بلا بابٍ إليها: منتجات وأدلة وحاسبات ومجلة.
+       تُجمع هنا في ثلاثة أعمدة بخمسة روابط لكل عمود — ما يزيد يصير قائمةً
+       تُتجاهَل. وما لا يُذكر هنا يبقى مقصوداً: اللوحات وبوابات الدخول
+       (يصلها صاحبها برابطه)، والنسخ المحفوظة بلاحقة -classic، وصفحات
+       المنتجات المفردة التي بابها صفحة الكتالوج. -->
+  <div class="sv1-foot-nav">
+    <div class="sv1-foot-navcol">
+      <h5>${t("footExplore")}</h5>
+      <a href="${href("/catalog")}">${t("footClassic")}</a>
+      <a href="${href("/packages")}">${t("navPackages")}</a>
+      <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
+      <a href="${href("/business-development")}">${t("navBizDev")}</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>${t("footKnow")}</h5>
+      ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
+      <a href="${href("/saudi-arabia")}">${t("navSaudi")}</a>
+      <a href="${href("/guide/business-setup")}">${t("navGuides")}</a>
+      <a href="${href("/tools-and-calculators")}">${t("navCalc")}</a>
+      <a href="${href("/magazine")}">${t("navMagazine")}</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>${t("footCompany")}</h5>
+      <a href="${href("/about")}">${t("navAbout")}</a>
+      <a href="${href("/contact")}">${t("navContact")}</a>
+      <a href="${href("/careers")}">${t("navCareers")}</a>
+      <a href="${href("/suppliers")}">${t("navPartners")}</a>
+      <a href="${href("/terms")}">${t("footTerms")}</a>
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>

@@ -834,3 +834,76 @@ create table if not exists wa_agent_gate (
   until timestamptz,                            -- استئناف تلقائي بعد هذا الوقت (null = يدوي)
   updated_at timestamptz not null default now()
 );
+
+-- ---------------------------------------------------------------------------
+-- إحصائيات الموقع: العدّاد الأول-طرفي (page_hits / site_errors) وواجهاته.
+--
+-- دَينٌ يُسدَّد هنا: هذان الجدولان والواجهات الأربع أُنشئت يدوياً في Supabase
+-- ولم تكن في هذا الملف، فكانت بيئةٌ جديدة تُقلع بلا إحصائيات والكود يعتمد
+-- عليها. التعريفات أدناه منسوخة عن تعريف الإنتاج كما هو اليوم
+-- (2026-09-24) حتى لا يغيّر تشغيلُ هذا الملف شيئاً قائماً.
+--
+-- لا يُكتب هنا اسم ولا بريد ولا IP: `visitor` رمز عشوائي يولّده المتصفح
+-- ويحفظه في localStorage (bp_vid)، وهو وحده ما يجعل «رحلة العميل» ممكنة.
+create table if not exists page_hits (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  kind text not null default 'view',            -- view | click
+  path text not null,
+  name text,                                    -- اسم الزرّ حين kind='click'
+  ref text,                                     -- المصدر (referrer)
+  lang text,
+  device text,
+  visitor text                                  -- رمز عشوائي لكل متصفح
+);
+create index if not exists page_hits_at_idx on page_hits(at desc);
+create index if not exists page_hits_path_idx on page_hits(path);
+-- رحلة الزائر تُقرأ بالرمز ثم بالوقت — الفهرس لها وحدها.
+create index if not exists page_hits_visitor_idx on page_hits(visitor, at);
+
+create table if not exists site_errors (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  path text,
+  message text,
+  source text,
+  ua text
+);
+create index if not exists site_errors_at_idx on site_errors(at desc);
+
+-- الواجهات الأربع التي تقرأها لوحة /admin (action=panel-analytics). مداها
+-- ٧–٣٠ يوماً بحكم تعريفها، ولذلك لا تُبنى عليها مدد /ops الأطول (الربع
+-- والنصف والسنة): تلك تُجمَع من الصفوف الخام في api/requests.js.
+create or replace view analytics_daily as
+  select (date_trunc('day', at))::date as d,
+         count(*) filter (where kind = 'view') as views,
+         count(distinct visitor) filter (where kind = 'view') as visitors,
+         count(*) filter (where kind = 'click') as clicks
+    from page_hits
+   where at > now() - interval '30 days'
+   group by 1
+   order by 1 desc;
+
+create or replace view analytics_top_pages as
+  select path, count(*) as views, count(distinct visitor) as visitors
+    from page_hits
+   where kind = 'view' and at > now() - interval '7 days'
+   group by path
+   order by count(*) desc
+   limit 20;
+
+create or replace view analytics_top_clicks as
+  select coalesce(name, '؟') as name, count(*) as clicks
+    from page_hits
+   where kind = 'click' and at > now() - interval '7 days'
+   group by coalesce(name, '؟')
+   order by count(*) desc
+   limit 20;
+
+create or replace view analytics_top_refs as
+  select coalesce(nullif(ref, ''), 'مباشر') as ref, count(*) as views
+    from page_hits
+   where kind = 'view' and at > now() - interval '7 days'
+   group by coalesce(nullif(ref, ''), 'مباشر')
+   order by count(*) desc
+   limit 15;

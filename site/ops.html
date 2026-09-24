@@ -234,8 +234,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
@@ -304,6 +315,19 @@ table.t input.inp{padding:6px 8px}
 .gate{max-width:420px;margin:60px auto;background:#fff;border:1px solid #e4e8f1;border-radius:16px;padding:24px}
 .gate h1{color:#0B1B5A;font-size:1.2rem;margin:0 0 8px}
 .mob{display:none}
+.anabars{display:flex;align-items:flex-end;gap:3px;height:132px;direction:ltr;margin-top:6px}
+.anabars>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:3px}
+.anabars i{display:block;background:#2b56c3;border-radius:4px 4px 0 0;min-height:2px}
+.analabels{display:flex;gap:3px;direction:ltr;margin-top:5px}
+.analabels span{flex:1;min-width:3px;text-align:center;font-size:.6rem;color:#5f6880;font-family:"IBM Plex Mono",ui-monospace,monospace;white-space:nowrap;overflow:hidden}
+.anafun{display:grid;gap:8px}
+.anafun .bar{height:24px;background:#eef2ff;border-radius:7px;overflow:hidden}
+.anafun .bar i{display:block;height:100%;background:#0B1B5A;min-width:2px}
+.anafun .lab{display:flex;justify-content:space-between;gap:8px;font-size:.82rem;color:#2c3550;margin-bottom:3px}
+.anajr{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;direction:ltr;text-align:left;color:#2c3550;line-height:1.9;word-break:break-all;margin-top:6px}
+.ananum{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;color:#0B1B5A}
+.analine{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:.82rem;padding:3px 0;border-bottom:1px dashed #eef0f5}
+.analine span.p{direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.76rem}
 @media(max-width:960px){.ops{grid-template-columns:1fr}.ops-side{display:none}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#0B1B5A}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.3);font-size:.8rem;font-weight:700;color:#fff}.mob a.on{background:#fff;color:#0B1B5A}.kpis{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}.ops-main{padding:12px}}
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
@@ -388,14 +412,14 @@ app.appendChild(h('div',{class:'gate'},[
   h('div',{style:'margin-top:8px'},[h('button',{class:'btn ghost',onclick:function(){state.key=k.value.trim();try{localStorage.setItem('bp_ops_key',state.key)}catch(x){}load()}},['دخول بالمفتاح'])]),
   e]))}
 
-var NAV=[['home','الرئيسية','🏠'],['requests','الطلبات','📋'],['clients','العملاء','👥'],['inbox','المحادثات','💬'],['quotes','عروض الأسعار','🧾'],['contracts','العقود','📝'],['appointments','المواعيد','📅'],['payments','المدفوعات','💳'],['invoices','الفواتير','🧮'],['whatsapp','واتساب','📱'],['email','البريد','✉️'],['tasks','المهام','✅'],['human','يحتاج تدخل بشري','🙋'],['follow','المتابعة الذكية','🤖'],['catalog','الخدمات والأسعار','📦'],['settings','الإعدادات','⚙️']];
+var NAV=[['home','الرئيسية','🏠'],['analytics','الإحصائيات','📈'],['requests','الطلبات','📋'],['clients','العملاء','👥'],['inbox','المحادثات','💬'],['quotes','عروض الأسعار','🧾'],['contracts','العقود','📝'],['appointments','المواعيد','📅'],['payments','المدفوعات','💳'],['invoices','الفواتير','🧮'],['whatsapp','واتساب','📱'],['email','البريد','✉️'],['tasks','المهام','✅'],['human','يحتاج تدخل بشري','🙋'],['follow','المتابعة الذكية','🤖'],['catalog','الخدمات والأسعار','📦'],['settings','الإعدادات','⚙️']];
 function load(){api('ops-summary').then(function(o){if(!o||!o.ok){gate(o&&o.error==='unauthorized'?'لا صلاحية: ادخل بحساب الشركة، أو أدخل مفتاح اللوحة الصحيح.':'تعذّر الاتصال');return}state.sum=o;return Promise.all([api('ops-requests'),api('ops-tasks')])}).then(function(r){if(!r)return;state.reqs=(r[0]&&r[0].requests)||[];state.tasks=(r[1]&&r[1].tasks)||[];var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;render()}).catch(function(){gate('تعذّر الاتصال')})}
 function counts(){var c=(state.sum&&state.sum.counts)||{};return {requests:c.new,inbox:c.unread_conversations,quotes:c.quotes_waiting_customer,contracts:c.contracts_waiting_signature,payments:c.payments_due,tasks:c.open_tasks,human:c.human_actions,appointments:c.appointments_today}}
 function render(){app.innerHTML='';var bd=counts();
 var side=h('nav',{class:'ops-side'},NAV.map(function(n,i){var a=h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null]);return a}));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'ops-main'});app.appendChild(mob);app.appendChild(h('div',{class:'ops'},[side,main]));if(state.flash){main.appendChild(h('div',{class:'card',style:'border-color:#86efac;background:#f0fdf4;color:#118657;font-weight:700'},[state.flash]));state.flash=''}
-var v=state.view;({home:vHome,requests:vRequests,clients:vClients,inbox:vInbox,quotes:function(m){vFiltered(m,'عروض الأسعار',function(r){return r.quote},function(r){return h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)])})},contracts:function(m){vFiltered(m,'العقود',function(r){return r.contract},function(r){return h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?'موقّع':'بانتظار التوقيع')])})},appointments:function(m){vFiltered(m,'المواعيد',function(r){return r.appointment&&r.appointment.status!=='CANCELLED'},function(r){return h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time])})},payments:function(m){vFiltered(m,'المدفوعات',function(r){return r.payment||['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0},function(r){return h('span',{class:'pill '+(r.payment&&r.payment.status==='PAID'?'ok':'warn')},[(r.payment&&r.payment.status==='PAID'?'مدفوع ':'مستحق ')+money(r.quote?r.quote.total:0)])})},invoices:function(m){vFiltered(m,'الفواتير',function(r){return r.invoice},function(r){return h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)])})},whatsapp:vWhatsapp,email:vEmail,tasks:function(m){vTasks(m,false)},human:function(m){vTasks(m,true)},follow:vFollow,catalog:vCatalog,settings:vSettings,request:vRequest})[v](main)}
+var v=state.view;({home:vHome,analytics:vAnalytics,requests:vRequests,clients:vClients,inbox:vInbox,quotes:function(m){vFiltered(m,'عروض الأسعار',function(r){return r.quote},function(r){return h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)])})},contracts:function(m){vFiltered(m,'العقود',function(r){return r.contract},function(r){return h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?'موقّع':'بانتظار التوقيع')])})},appointments:function(m){vFiltered(m,'المواعيد',function(r){return r.appointment&&r.appointment.status!=='CANCELLED'},function(r){return h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time])})},payments:function(m){vFiltered(m,'المدفوعات',function(r){return r.payment||['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0},function(r){return h('span',{class:'pill '+(r.payment&&r.payment.status==='PAID'?'ok':'warn')},[(r.payment&&r.payment.status==='PAID'?'مدفوع ':'مستحق ')+money(r.quote?r.quote.total:0)])})},invoices:function(m){vFiltered(m,'الفواتير',function(r){return r.invoice},function(r){return h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)])})},whatsapp:vWhatsapp,email:vEmail,tasks:function(m){vTasks(m,false)},human:function(m){vTasks(m,true)},follow:vFollow,catalog:vCatalog,settings:vSettings,request:vRequest})[v](main)}
 function reqRow(r,extra){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(r.client_name||r.client_email||'—')+(r.company_name?' · '+r.company_name:'')+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at)])]),h('span',{class:'pill src'},[SRC[r.source]||r.source]),extra||null,pill(r.status)])}
 function vHome(m){var c=state.sum.counts,rv=state.sum.revenue;m.appendChild(h('h1',{},['لوحة العمليات',state.sum.testMode?h('span',{class:'pill warn'},['وضع الاختبار']):null]));
 var K=[['new','طلبات جديدة','requests',c.new,'hot'],['reviewing','تحتاج مراجعة','requests',c.reviewing,''],['q1','عروض للتجهيز','requests',c.quotes_to_prepare,''],['q2','عروض بانتظار العميل','quotes',c.quotes_waiting_customer,''],['c1','عقود بانتظار التوقيع','contracts',c.contracts_waiting_signature,''],['p1','مدفوعات مستحقة','payments',c.payments_due,'hot'],['p2','مدفوع / جاهز للتنفيذ','requests',c.ready_for_execution,'ok'],['h1','يحتاج تدخل بشري','human',c.human_actions,'hot'],['a1','مواعيد اليوم','appointments',c.appointments_today,''],['i1','محادثات غير مقروءة','inbox',c.unread_conversations,'']];
@@ -406,6 +430,110 @@ var need=state.reqs.filter(function(r){return ['NEW','REVIEWING','QUOTE_APPROVED
 m.appendChild(h('div',{class:'card'},[h('h2',{},['يحتاج إجراءً منك']),need.length?h('div',{class:'list'},need.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا شيء عالق.'])]))}
 function intakeCard(){var tx=h('textarea',{class:'inp',placeholder:'مثال: شركة XYZ اتصلوا علي ويبغون تغيير مهنة لـ4 موظفين.'}),nm=h('input',{class:'inp',placeholder:'اسم العميل'}),ph=h('input',{class:'inp',placeholder:'الجوال'}),em=h('input',{class:'inp',placeholder:'البريد (اختياري)'}),co=h('input',{class:'inp',placeholder:'الشركة'}),src=h('select',{class:'inp'},['PHONE','WHATSAPP','EMAIL','MANUAL','REFERRAL'].map(function(s){return h('option',{value:s},[SRC[s]])})),ty=h('select',{class:'inp'},[h('option',{value:''},['النوع: تلقائي'])].concat(Object.keys(TY).map(function(k){return h('option',{value:k},[TY[k]])}))),task=h('input',{class:'inp',placeholder:'مهمة فورية (اختياري): مثال — الدخول إلى قوى وفحص الحساب'}),hu=h('input',{type:'checkbox'}),msg=h('span',{class:'ok-t'});
 return h('div',{class:'card'},[h('h2',{},['إدخال سريع: اتصال / واتساب / بريد / اجتماع']),h('div',{class:'frm'},[tx,h('div',{class:'grid3'},[nm,ph,em]),h('div',{class:'grid3'},[co,src,ty]),task,h('label',{class:'rowf'},[hu,'المهمة تحتاج تدخلاً بشرياً']),h('div',{class:'rowf'},[h('button',{class:'btn',onclick:function(){if(!tx.value.trim()){msg.textContent='اكتب النص أولاً';return}api('ops-manual-intake',{text:tx.value,name:nm.value,phone:ph.value,email:em.value,company:co.value,source:src.value,type:ty.value||undefined,task:task.value,human:hu.checked}).then(function(o){if(o&&o.ok){state.flash='أُنشئ الطلب '+o.ref+' ✓';tx.value='';task.value='';load()}else msg.textContent='تعذّر الإنشاء'})}},['إنشاء طلب + مهمة']),msg])])])}
+// ---------- الإحصائيات
+// المدد الست كما سمّاها المالك. كل رقم هنا مقروء من page_hits/site_errors/
+// requests، وما ليس له قياس اليوم يُكتب «غير مُقاس» لا صفراً — فالصفر يُقرأ
+// إنجازاً سيئاً، والغياب يُقرأ عملاً ناقصاً، وبينهما فرق قرار.
+var ANAP=[['day','يومي'],['week','أسبوعي'],['month','شهري'],['quarter','ربع سنوي'],['half','نصف سنوي'],['year','سنوي']];
+var anaPeriod='week';
+function n0(x){try{return Number(x||0).toLocaleString('ar-SA-u-nu-latn')}catch(e){return String(x||0)}}
+function anaLabel(iso,unit){var d=new Date(iso);if(isNaN(d.getTime()))return '';
+ try{if(unit==='hour')return d.toLocaleTimeString('ar-SA-u-ca-gregory-nu-latn',{hour:'2-digit',hour12:false,timeZone:'Asia/Riyadh'});
+ if(unit==='month')return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'short',timeZone:'Asia/Riyadh'});
+ return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'2-digit',month:'2-digit',timeZone:'Asia/Riyadh'})}catch(e){return String(iso).slice(5,10)}}
+function anaDelta(cur,prev){cur=Number(cur||0);prev=Number(prev||0);
+ if(!prev)return h('span',{class:'pill mut'},[cur?'لا مقارنة':'—']);
+ var d=Math.round(((cur-prev)/prev)*100);
+ return h('span',{class:'pill '+(d>0?'ok':d<0?'bad':'mut')},[(d>0?'▲ ':d<0?'▼ ':'')+Math.abs(d)+'% عن المدة السابقة'])}
+function anaLines(rows,fmt,empty){if(!rows||!rows.length)return h('p',{class:'note'},[empty||'لا بيانات في هذه المدة.']);
+ return h('div',{},rows.map(function(r){var f=fmt(r);return h('div',{class:'analine'},[h('span',{class:'p'},[f[0]]),h('span',{class:'ananum'},[f[1]])])}))}
+function vAnalytics(m){
+ m.appendChild(h('h1',{},['الإحصائيات']));
+ var tabs=h('div',{class:'tabs'});
+ ANAP.forEach(function(p){tabs.appendChild(h('button',{class:anaPeriod===p[0]?'on':'',onclick:function(){anaPeriod=p[0];Array.prototype.forEach.call(tabs.children,function(x){x.classList.remove('on')});this.classList.add('on');draw()}},[p[1]]))});
+ m.appendChild(tabs);
+ var box=h('div');m.appendChild(box);
+ function draw(){
+  box.innerHTML='';box.appendChild(h('p',{class:'note'},['يُحسب…']));
+  fetch('/api/requests?action=ops-analytics&period='+encodeURIComponent(anaPeriod)+(state.key?'&key='+encodeURIComponent(state.key):''),{credentials:'same-origin',cache:'no-store'})
+   .then(function(r){return r.json()})
+   .then(function(o){box.innerHTML='';
+    if(!o||!o.ok){box.appendChild(h('div',{class:'card'},[h('h2',{},['الإحصائيات']),h('p',{class:'note'},[o&&o.error==='db_not_configured'?'قاعدة البيانات التشغيلية غير مضبوطة — لا إحصائيات.':o&&o.error==='unauthorized'?'لا صلاحية لقراءة الإحصائيات — ادخل بحساب الشركة أو بمفتاح اللوحة.':'تعذّر تحميل الإحصائيات.'])]));return}
+    paint(o)})
+   .catch(function(){box.innerHTML='';box.appendChild(h('div',{class:'card'},[h('p',{class:'note'},['تعذّر الاتصال.'])]))})}
+ function paint(o){
+  var t=o.totals||{},pv=o.prev||{},cov=o.coverage||{};
+  var per=t.visitors?Math.round((Number(t.views||0)/t.visitors)*10)/10:0;
+  box.appendChild(h('p',{class:'note'},['المدة: '+when(o.from)+' ← '+when(o.to)+' · قُرئ '+n0(cov.rows)+' سجلّاً'+(cov.capped?' · ⚠ المدى أطول من سقف القراءة، أقدم سجلّ مقروء '+when(cov.oldest):'')]));
+  var K=[['زيارات',n0(t.views),anaDelta(t.views,pv.views),''],['زوّار مختلفون',n0(t.visitors),anaDelta(t.visitors,pv.visitors),''],['نقرات على الأزرار',n0(t.clicks),anaDelta(t.clicks,pv.clicks),''],['صفحات لكل زائر',String(per),null,''],['أخطاء مرصودة',n0(t.errors),null,Number(t.errors||0)?'hot':'ok']];
+  box.appendChild(h('div',{class:'kpis'},K.map(function(k){return h('div',{class:'kpi'+(k[3]?' '+k[3]:''),style:'cursor:default'},[h('b',{},[k[1]]),h('span',{},[k[0]]),k[2]?h('div',{style:'margin-top:6px'},[k[2]]):null])})));
+  if(!Number(t.views||0)&&!Number(t.clicks||0))box.appendChild(h('div',{class:'card'},[h('p',{class:'note'},['لا زيارات مسجّلة في هذه المدة. العدّاد يكتب في page_hits مع أول زيارة حقيقية — وعلى الجهاز المحلي تبقى الجداول فارغة حتى تتصفّح الموقع بنفسك.'])]));
+  // حركة الزيارات
+  var s=o.series||[],mx=0;s.forEach(function(c){if(Number(c.views||0)>mx)mx=Number(c.views||0)});
+  var step=s.length>14?Math.ceil(s.length/12):1;
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['حركة الزيارات']),
+   s.length?h('div',{},[
+    h('div',{class:'anabars'},s.map(function(c){var pct=mx?Math.max(2,Math.round((Number(c.views||0)/mx)*100)):2;
+     return h('div',{title:anaLabel(c.from,o.unit)+' — '+c.views+' زيارة · '+c.visitors+' زائر · '+c.clicks+' نقرة'},[h('i',{style:'height:'+pct+'%'})])})),
+    h('div',{class:'analabels'},s.map(function(c,i){return h('span',{},[i%step===0?anaLabel(c.from,o.unit):''])})),
+    h('p',{class:'note',style:'margin-top:8px'},['الأعمدة زيارات. مرّر على أي عمود لترى الزوّار والنقرات فيه.'])
+   ]):h('p',{class:'note'},['لا بيانات.'])]));
+  // رحلة العميل
+  var f=o.funnel||{},base=Number(f.visitors||0);
+  var F=[['كل الزوّار',f.visitors],['تصفّحوا الخدمات أو الكتالوج',f.browse],['فتحوا السلة',f.cart],['وصلوا صفحة الدفع',f.checkout],['دخلوا لوحة العميل',f.portal]];
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['رحلة العميل — من الزيارة إلى الدفع']),
+   h('div',{class:'anafun'},F.map(function(x){var n=Number(x[1]||0),pct=base?Math.round((n/base)*100):0;
+    return h('div',{},[h('div',{class:'lab'},[h('span',{},[x[0]]),h('span',{class:'ananum'},[n0(n)+(base?' · '+pct+'%':'')])]),h('div',{class:'bar'},[h('i',{style:'width:'+(base?Math.max(pct,n?1:0):0)+'%'})])])})),
+   h('p',{class:'note',style:'margin-top:10px'},['الزائر رمزٌ عشوائي في متصفحه (bp_vid) — لا اسم ولا بريد. من يبدّل الجهاز أو يمسح المتصفح يُعدّ زائراً جديداً.'])]));
+  // رحلات مفصّلة
+  var jr=o.journeys||[];
+  var jbox=h('div',{class:'list'});
+  if(!jr.length)jbox.appendChild(h('p',{class:'note'},['لا رحلات في هذه المدة.']));
+  jr.forEach(function(j){
+   var det=h('div',{class:'anajr',style:'display:none'},[(j.steps||[]).join('  →  ')+((j.pages>(j.steps||[]).length)?'  … +'+(j.pages-(j.steps||[]).length):'')]);
+   var row=h('div',{class:'row',onclick:function(){det.style.display=det.style.display==='none'?'block':'none'}},[
+    h('div',{class:'tt'},[h('b',{},[j.entry+' → '+j.exit]),
+     h('small',{},[n0(j.pages)+' صفحة · '+(j.minutes?n0(j.minutes)+' دقيقة':'أقل من دقيقة')+' · '+(j.device||'—')+' · من: '+(j.ref||'مباشر')+' · '+when(j.end)])]),
+    j.portal?h('span',{class:'pill ok'},['لوحة العميل']):null,
+    j.checkout?h('span',{class:'pill ok'},['دفع']):null,
+    j.cart?h('span',{class:'pill warn'},['سلة']):null,
+    h('span',{class:'pill mut'},[j.visitor])]);
+   jbox.appendChild(h('div',{},[row,det]))});
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['رحلات الزوّار — آخر '+n0(jr.length)+' من '+n0(o.journeysTotal||0)]),
+   h('p',{class:'note'},['اضغط أي رحلة لترى تسلسل صفحاتها كاملاً.']),jbox]));
+  // القوائم
+  var g=h('div',{class:'grid3'});box.appendChild(g);
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['أكثر الصفحات زيارة']),anaLines(o.pages,function(p){return [p.path,n0(p.views)+' · '+n0(p.visitors)+' زائر']})]));
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['أكثر الأزرار نقراً']),anaLines(o.clicks,function(c){return [c.name,n0(c.n)]},'لا نقرات مسجّلة — الأزرار المرصودة هي التي تُرسل click.')]));
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['مصادر الزيارات']),anaLines(o.refs,function(r){return [r.name,n0(r.n)]})]));
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['من أين دخلوا']),anaLines(o.entries,function(r){return [r.name,n0(r.n)]})]));
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['أين خرجوا']),anaLines(o.exits,function(r){return [r.name,n0(r.n)]})]));
+  g.appendChild(h('div',{class:'card'},[h('h2',{},['الأجهزة واللغات']),
+   anaLines(o.devices,function(r){return [r.name,n0(r.n)]}),
+   h('div',{style:'margin-top:8px'},[anaLines(o.langs,function(r){return [r.name,n0(r.n)]})])]));
+  // الطلبات في المدة نفسها
+  var rq=o.requests||{},bs=rq.bySource||{},bt=rq.byStatus||{};
+  var srcRows=Object.keys(bs).map(function(k){return {name:SRC[k]||k,n:bs[k]}}).sort(function(a,b){return b.n-a.n});
+  var stRows=Object.keys(bt).map(function(k){return {name:ST[k]||k,n:bt[k]}}).sort(function(a,b){return b.n-a.n});
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['الطلبات في هذه المدة']),
+   h('div',{class:'stat'},[h('span',{},['طلبات جديدة ',h('b',{},[n0(rq.total)])]),h('span',{},['منها مدفوع ',h('b',{},[n0(rq.paid)])]),h('span',{},['قيمة المدفوع ',h('b',{},[money(rq.revenue)])])]),
+   h('div',{class:'grid2'},[
+    h('div',{},[h('h3',{},['حسب المصدر']),anaLines(srcRows,function(r){return [r.name,n0(r.n)]},'لا طلبات في هذه المدة.')]),
+    h('div',{},[h('h3',{},['حسب الحالة']),anaLines(stRows,function(r){return [r.name,n0(r.n)]},'لا طلبات في هذه المدة.')])]),
+   h('p',{class:'note',style:'margin-top:8px'},['المعيار تاريخ إنشاء الطلب، والمدفوع منه ما وصل حالته الدفع — لا إيراد المدة كاملاً.'+(rq.capped?' ⚠ بلغ العدد سقف القراءة (١٠٠٠ طلب) فهو مقصوص.':'')])]));
+  // الأخطاء
+  var el=o.errorList||[];
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['أحدث الأخطاء المرصودة']),
+   el.length?h('div',{},el.map(function(e){return h('div',{class:'analine'},[h('span',{class:'p'},[String(e.message||'').slice(0,90)+' — '+(e.path||'')]),h('span',{class:'ananum'},[when(e.at)])])})):h('p',{class:'note'},['لا أخطاء مرصودة في هذه المدة ✓'])]));
+  // ما لا يُقاس بعد
+  var src=o.sources||[];
+  box.appendChild(h('div',{class:'card'},[h('h2',{},['غير مُقاس بعد']),
+   h('p',{class:'note'},['هذه القنوات لا رقم لها اليوم. لم يُعرض لها صفر لأنه يكذب — العدّاد الغائب ليس نتيجة صفرية.']),
+   h('div',{class:'list'},src.map(function(x){return h('div',{class:'row',style:'cursor:default'},[
+    h('div',{class:'tt'},[h('b',{},[x.label]),h('small',{},[x.note])]),
+    h('span',{class:'pill '+(x.measured===true?'ok':x.measured==='partial'?'warn':'mut')},[x.measured===true?'مقيس':x.measured==='partial'?'جزئي':'غير مُقاس'])])}))]));
+ }
+ draw()}
 function vRequests(m){m.appendChild(h('h1',{},['الطلبات']));var q=h('input',{class:'inp',placeholder:'بحث بالاسم أو الرقم أو الشركة',value:state.filter,oninput:function(){state.filter=this.value;draw()}});m.appendChild(h('div',{class:'card'},[q]));var tabs=h('div',{class:'tabs'});var box=h('div',{class:'list'});var cur='';var groups=[['','الكل'],['NEW','جديد'],['REVIEWING','مراجعة'],['QUOTE_SENT','عرض مُرسل'],['QUOTE_APPROVED','معتمد'],['CONTRACT_SENT','عقد'],['SIGNED','موقّع'],['PAYMENT_PENDING','دفع'],['PAID','مدفوع'],['IN_PROGRESS','تنفيذ'],['COMPLETED','مكتمل'],['CANCELLED','ملغي']];groups.forEach(function(g){tabs.appendChild(h('button',{class:g[0]===cur?'on':'',onclick:function(){cur=g[0];Array.prototype.forEach.call(tabs.children,function(b){b.classList.remove('on')});this.classList.add('on');draw()}},[g[1]]))});
 function draw(){box.innerHTML='';var f=state.filter.toLowerCase();var rows=state.reqs.filter(function(r){return (!cur||r.status===cur)&&(!f||[r.ref,r.title,r.client_name,r.client_email,r.company_name].join(' ').toLowerCase().indexOf(f)>=0)});if(!rows.length)box.appendChild(h('p',{class:'note'},['لا طلبات.']));rows.forEach(function(r){box.appendChild(reqRow(r))})}
 m.appendChild(tabs);m.appendChild(box);draw()}

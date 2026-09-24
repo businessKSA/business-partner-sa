@@ -18,7 +18,8 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
-import { bdTrial, isPaidBdOrder, openFor } from "./_trial.js";
+import { bdTrial, isPaidBdOrder, openFor, isOwnerEmail } from "./_trial.js";
+import { DEV } from "./_mode.js";
 import {
   SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
   canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
@@ -63,6 +64,20 @@ const panelOk = (src) => {
   const s = src && typeof src === "object" ? src : { key: src };
   return ownerTicketOk(s.ticket) || panelKeyOk(s.key);
 };
+// بابا /ops نفسهما كما في api/_simple.js: مفتاح اللوحة (أو تذكرة نفاذ)، أو
+// جلسة المالك ببريده — فلا يحمل مفتاحاً بين أجهزته. ويُقبل مفتاح المعاينة
+// الرمزي في النسخ التجريبية والمحلية وحدها، وإلا فُتحت لوحة الإحصائيات
+// محلياً وأُغلقت في الإنتاج بلا سبب ظاهر.
+const SIMPLE_OPS_KEY = (process.env.SIMPLE_OPS_KEY || "test-ops").trim();
+const OPS_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
+async function opsGate(req, src) {
+  if (panelOk(src)) return true;
+  const key = String((src && src.key) || "").trim();
+  if (OPS_TEST_MODE && key && key === SIMPLE_OPS_KEY && !panelRequiresNafath()) return true;
+  let sess = null;
+  try { sess = await getSession(req); } catch { return false; }
+  return isOwnerEmail(sess && sess.user && sess.user.email);
+}
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
@@ -1534,6 +1549,184 @@ async function handleDaftraInvoice(req, res) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// إحصائيات /ops — المدد الست التي طلبها المالك بالاسم.
+//
+// الواجهات الأربع (analytics_daily/_top_pages/_top_clicks/_top_refs) تقف عند
+// ٧–٣٠ يوماً، فالربع والنصف والسنة لا تُقرأ منها. وبدل اختراع واجهة جديدة لا
+// وجود لها في قاعدة الإنتاج (فتكون اللوحة سليمة هنا ومكسورة هناك)، تُجمَع
+// الأرقام هنا من صفوف page_hits الخام: مدّتان في نداء واحد — المدة المطلوبة
+// والتي قبلها — ليكون لكل رقم مقارنةٌ لا رقمٌ معلّق.
+const ANA_BUCKETS = {
+  day: { unit: "hour", ms: 3600e3, n: 24 },
+  week: { unit: "day", ms: 86400e3, n: 7 },
+  month: { unit: "day", ms: 86400e3, n: 30 },
+  quarter: { unit: "week", ms: 7 * 86400e3, n: 13 },
+  half: { unit: "week", ms: 7 * 86400e3, n: 26 },
+  year: { unit: "month", ms: 30 * 86400e3, n: 12 },
+};
+// سقف الصفوف. الجدول اليوم بضعة آلاف صفّ، فالسنة تمرّ كاملة؛ ومتى تجاوزها
+// يُقال في الرد إن المدى مقصوص بدل أن ينقص الرقم صامتاً.
+const ANA_CAP = 25000;
+// الأعمدة تُقصّ على حدود التقويم بتوقيت الرياض (+٣ ثابتة، بلا توقيت صيفي) لا
+// على «قبل أربع وعشرين ساعة»: عمودٌ اسمه اليوم يجب أن يعني اليوم كما يراه
+// المالك في تقويمه، وإلا ظهرت زيارات اليوم في عمود أمس.
+const ANA_TZ = 3 * 3600e3;
+function anaAlign(now, ms) {
+  const step = ms >= 86400e3 ? 86400e3 : ms;
+  return Math.floor((now + ANA_TZ) / step) * step - ANA_TZ;
+}
+// الصفوف تُقرأ صفحةً صفحة لا بـ limit كبير واحد: PostgREST قد يقصّ الرد عند
+// سقف الخادم (١٠٠٠ صفّ في الإعداد المعتاد) فيعود ناقصاً بلا أي إشارة — وشهرٌ
+// واحد يتجاوز الألف اليوم. الصفحة الناقصة وحدها هي نهاية البيانات.
+const ANA_PAGE = 1000;
+const ANA_REQ_LIMIT = 1000;
+async function anaHits(sinceIso) {
+  const cols = "kind,path,name,ref,lang,device,visitor,at";
+  const out = [];
+  for (let off = 0; off < ANA_CAP; off += ANA_PAGE) {
+    let rows = null;
+    try { rows = await sb(`page_hits?select=${cols}&at=gte.${sinceIso}&order=at.desc&limit=${ANA_PAGE}&offset=${off}`); }
+    catch { break; }
+    if (!Array.isArray(rows) || !rows.length) break;
+    for (const r of rows) out.push(r);
+    if (rows.length < ANA_PAGE) break;
+  }
+  return out;
+}
+// «/ar/catalog» و«/catalog» صفحة واحدة في التقرير: بادئة اللغة ليست خطوة في
+// رحلة العميل.
+function anaPath(p) {
+  let s = String(p || "/").split("?")[0].split("#")[0];
+  s = s.replace(/^\/(ar|en|fr|zh|ur|hi|id|tl|bn)(?=\/|$)/, "");
+  if (!s) s = "/";
+  if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
+  return s.slice(0, 120);
+}
+function anaTotals(rows) {
+  const vis = new Set();
+  let views = 0, clicks = 0;
+  for (const r of rows) {
+    if (r.kind === "click") clicks++;
+    else if (r.kind === "view") { views++; if (r.visitor) vis.add(r.visitor); }
+  }
+  return { views, clicks, visitors: vis.size };
+}
+function anaSeries(rows, from, b) {
+  const cells = [];
+  for (let i = 0; i < b.n; i++) cells.push({ from: new Date(from + i * b.ms).toISOString(), views: 0, clicks: 0, vis: new Set() });
+  for (const r of rows) {
+    const t = Date.parse(r.at);
+    if (!t) continue;
+    let i = Math.floor((t - from) / b.ms);
+    if (i < 0) i = 0;
+    if (i >= b.n) i = b.n - 1;
+    if (r.kind === "click") cells[i].clicks++;
+    else if (r.kind === "view") { cells[i].views++; if (r.visitor) cells[i].vis.add(r.visitor); }
+  }
+  return cells.map((c) => ({ from: c.from, views: c.views, clicks: c.clicks, visitors: c.vis.size }));
+}
+function anaCount(rows, key, limit) {
+  const m = new Map();
+  for (const r of rows) {
+    const k = key(r);
+    if (!k) continue;
+    m.set(k, (m.get(k) || 0) + 1);
+  }
+  return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([name, n]) => ({ name, n }));
+}
+function anaTopPages(views, limit) {
+  const m = new Map();
+  for (const r of views) {
+    const k = anaPath(r.path);
+    let e = m.get(k);
+    if (!e) { e = { path: k, views: 0, vis: new Set() }; m.set(k, e); }
+    e.views++;
+    if (r.visitor) e.vis.add(r.visitor);
+  }
+  return [...m.values()].sort((a, b) => b.views - a.views).slice(0, limit)
+    .map((e) => ({ path: e.path, views: e.views, visitors: e.vis.size }));
+}
+// رحلة الزائر: تسلسل صفحاته بالترتيب — من أين دخل، ماذا تصفّح، أين خرج، وهل
+// وصل السلة أو الدفع أو بوابته. `visitor` رمزٌ عشوائي في متصفحه لا اسم ولا
+// بريد، فلا يخرج منه هنا إلا أوّله.
+function anaJourneys(views, limit) {
+  const m = new Map();
+  for (const r of views) {
+    if (!r.visitor) continue;
+    let j = m.get(r.visitor);
+    if (!j) { j = { visitor: r.visitor, steps: [], device: r.device || "", ref: r.ref || "" }; m.set(r.visitor, j); }
+    j.steps.push({ p: anaPath(r.path), t: Date.parse(r.at) || 0 });
+    if (!j.ref && r.ref) j.ref = r.ref;
+    if (!j.device && r.device) j.device = r.device;
+  }
+  const out = [];
+  for (const j of m.values()) {
+    j.steps.sort((a, b) => a.t - b.t);
+    const paths = j.steps.map((s) => s.p);
+    const first = j.steps[0], last = j.steps[j.steps.length - 1];
+    out.push({
+      visitor: String(j.visitor).slice(0, 8),
+      device: j.device,
+      ref: j.ref,
+      start: first.t ? new Date(first.t).toISOString() : null,
+      end: last.t ? new Date(last.t).toISOString() : null,
+      minutes: first.t && last.t ? Math.round((last.t - first.t) / 60000) : 0,
+      pages: paths.length,
+      entry: first.p,
+      exit: last.p,
+      steps: paths.slice(0, 25),
+      cart: paths.some((p) => p.startsWith("/cart")),
+      checkout: paths.some((p) => p.startsWith("/checkout")),
+      portal: paths.some((p) => p.startsWith("/my")),
+    });
+  }
+  out.sort((a, b) => String(b.end || "").localeCompare(String(a.end || "")));
+  // صفحات الدخول والخروج تُحسب على كل الرحلات لا على المعروض منها، وإلا كان
+  // «أين خرجوا» جواباً عن آخر أربعين زائراً وحدهم.
+  return {
+    total: m.size,
+    list: out.slice(0, limit),
+    entries: anaCount(out, (j) => j.entry, 10),
+    exits: anaCount(out, (j) => j.exit, 10),
+  };
+}
+function anaFunnel(views) {
+  const all = new Set(), browse = new Set(), cart = new Set(), checkout = new Set(), portal = new Set();
+  for (const r of views) {
+    const v = r.visitor;
+    if (!v) continue;
+    const p = anaPath(r.path);
+    all.add(v);
+    if (p.startsWith("/catalog") || p.startsWith("/services") || p.startsWith("/packages")) browse.add(v);
+    if (p.startsWith("/cart")) cart.add(v);
+    if (p.startsWith("/checkout")) checkout.add(v);
+    if (p.startsWith("/my")) portal.add(v);
+  }
+  return { visitors: all.size, browse: browse.size, cart: cart.size, checkout: checkout.size, portal: portal.size };
+}
+function anaRequests(rows) {
+  const bySource = {}, byStatus = {};
+  let paid = 0, revenue = 0;
+  for (const r of rows || []) {
+    const s = r.source || "—", st = r.status || "—";
+    bySource[s] = (bySource[s] || 0) + 1;
+    byStatus[st] = (byStatus[st] || 0) + 1;
+    const p = r.payment && typeof r.payment === "object" ? r.payment : null;
+    if (p && p.status === "PAID") { paid++; revenue += Number(p.amount || 0); }
+  }
+  // الطلبات تُقرأ صفحةً واحدة بسقف ألف: لو بلغته فالعدد مقصوص ويُقال ذلك.
+  const total = (rows || []).length;
+  return { total, capped: total >= ANA_REQ_LIMIT, bySource, byStatus, paid, revenue: Math.round(revenue * 100) / 100 };
+}
+// ما لا يُقاس اليوم — يُقال بصراحة بدل أن يُعرض صفرٌ يبدو قياساً.
+const ANA_SOURCES = [
+  { key: "email", label: "البريد", measured: false, note: "الرسائل تخرج عبر Resend ولا تُكتب في قاعدتنا: لا عدّاد إرسال ولا فتح ولا نقر. يلزم سجلّ إرسال (جدول) أو webhook من Resend." },
+  { key: "whatsapp", label: "واتساب", measured: false, note: "المحادثات كلها في n8n ولا يصل منها شيء إلى قاعدتنا. المقيس فعلاً: الطلبات التي مصدرها «واتساب» في بطاقة «الطلبات في هذه المدة»." },
+  { key: "advisor", label: "المستشار الذكي", measured: false, note: "المحادثات تُؤرشف في Notion، ولا عدّاد لبدء محادثة ولا لإتمامها. أقرب قياس ممكن اليوم: نقرة «فتح المستشار» لو أُرسلت كـ click." },
+  { key: "portal", label: "لوحة العميل", measured: "partial", note: "زيارات صفحات /my تُحسب منذ 2026-09-24 (يوم إضافة العدّاد للموقع الجديد)؛ الدخول والإجراءات داخل اللوحة بلا قياس." },
+];
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1890,6 +2083,67 @@ export default async function handler(req, res) {
       ]);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, daily: daily || [], pages: pages || [], clicks: clicks || [], refs: refs || [], errors: errors || [] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
+  // إحصائيات لوحة /ops: مدّة واحدة من الست، ومعها المدّة التي قبلها للمقارنة،
+  // ورحلات الزوّار. كل رقم هنا محسوب من page_hits/site_errors/requests —
+  // وما لا يُقاس يُعاد في `sources` مكتوباً أنه غير مقيس، لا صفراً.
+  if ((q.action || "") === "ops-analytics") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!(await opsGate(req, q))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    const period = ANA_BUCKETS[String(q.period || "")] ? String(q.period) : "week";
+    const b = ANA_BUCKETS[period];
+    const span = b.n * b.ms;
+    const now = Date.now();
+    // آخر عمود هو العمود الجاري (اليوم/الساعة الحالية) ناقصاً، وما قبله كامل.
+    const curFrom = anaAlign(now, b.ms) - (b.n - 1) * b.ms;
+    const prevFrom = curFrom - span;
+    try {
+      const [hits, errRows, reqRows] = await Promise.all([
+        anaHits(new Date(prevFrom).toISOString()),
+        sb(`site_errors?select=at,path,message,source&at=gte.${new Date(curFrom).toISOString()}&order=at.desc&limit=200`).catch(() => []),
+        sb(`requests?select=ref,status,source,payment,created_at&created_at=gte.${new Date(curFrom).toISOString()}&order=created_at.desc&limit=${ANA_REQ_LIMIT}`).catch(() => []),
+      ]);
+      const rows = Array.isArray(hits) ? hits : [];
+      const errs = Array.isArray(errRows) ? errRows : [];
+      const cur = [], prev = [];
+      for (const r of rows) {
+        const t = Date.parse(r.at);
+        if (!t) continue;
+        if (t >= curFrom) cur.push(r);
+        else if (t >= prevFrom) prev.push(r);
+      }
+      const curViews = cur.filter((r) => r.kind === "view");
+      const curClicks = cur.filter((r) => r.kind === "click");
+      const journeys = anaJourneys(curViews, 40);
+      const oldest = rows.length ? rows[rows.length - 1].at : null;
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        period,
+        unit: b.unit,
+        from: new Date(curFrom).toISOString(),
+        to: new Date(now).toISOString(),
+        totals: { ...anaTotals(cur), errors: errs.length },
+        prev: anaTotals(prev),
+        series: anaSeries(cur, curFrom, b),
+        pages: anaTopPages(curViews, 15),
+        clicks: anaCount(curClicks, (r) => r.name || "؟", 15),
+        refs: anaCount(curViews, (r) => String(r.ref || "").trim() || "مباشر", 12),
+        devices: anaCount(curViews, (r) => r.device || "؟", 6),
+        langs: anaCount(curViews, (r) => r.lang || "؟", 6),
+        entries: journeys.entries,
+        exits: journeys.exits,
+        funnel: anaFunnel(curViews),
+        journeys: journeys.list,
+        journeysTotal: journeys.total,
+        errorList: errs.slice(0, 20),
+        requests: anaRequests(reqRows),
+        coverage: { rows: rows.length, capped: rows.length >= ANA_CAP, oldest },
+        sources: ANA_SOURCES,
+      }));
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
   }
 
@@ -4357,9 +4611,12 @@ export default async function handler(req, res) {
     if (path.charAt(0) !== "/") return done();
     try {
       if (kind === "err") {
-        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
+        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ at: new Date().toISOString(), path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
       } else {
-        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
+        // الوقت يُكتب صراحةً لا اعتماداً على `default now()`: قاعدة التطوير
+        // المحلية (.localdb) لا تعرف قيم Postgres الافتراضية، فكانت كل زيارة
+        // محلية تُسجَّل بلا وقت — أي خارج كل مدى زمني في لوحة الإحصائيات.
+        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ at: new Date().toISOString(), kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
       }
     } catch {}
     return done();
