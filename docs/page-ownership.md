@@ -44,11 +44,8 @@
 | `/bank-account` | 🟡 | خدمة: فتح حساب بنكي |
 | `/formation-contract` | 🟡 | خدمة: عقد التأسيس بين الشركاء |
 | `/estrdad` | 🟡 | خدمة: استرداد الرسوم الحكومية |
-| `/business-development` | 🟡 | خدمة: تطوير الأعمال كخدمة |
 | `/workspaces` · `/workspace-request` | 🟡 | المكاتب ومساحات العمل + نموذج الطلب |
-| `/worker-housing` | 🟡 | تسكين العمالة |
 | `/tourism` | 🟡 | السياحة والفعاليات |
-| `/farina` | 🟡 | التموين والضيافة (فارينا) |
 
 ## 3) `client-portal` — ما يدخله العميل بحساب
 
@@ -61,7 +58,7 @@
 | `/connect` | ❌ | «موظفك الذكي — رحلة العميل ومركز الربط» |
 | `/portal` | ❌ | بوابة الموظفين الأذكياء للعميل (لا `/portal/*` — تلك للتوظيف) |
 | `/partner-dashboard` | 🟡 | لوحة الشريك — يدخلها شريكٌ بحساب |
-| `/compliance-dashboard` | ❌ | لوحة الامتثال للعميل |
+| `/compliance-dashboard` | ❌ | لوحة الامتثال — الدخول والقشرة هنا، والمحتوى لـ`compliance` |
 | `/shared-services/dashboard` | 🟡 | بوابة خدمة الخدمات المشتركة للعميل |
 
 ## 4) `owner-ops` — ما يدخله المالك أو الفريق
@@ -107,8 +104,6 @@
 | المسار | التصميم | ملاحظة |
 |---|---|---|
 | `/ai-agents` | 🟡 | المستشارون الأذكياء |
-| `/ai-document-agent` | 🟡 | مستشار المستندات |
-| `/compliance-agent` | 🟡 | مستشار الامتثال |
 | `/smart-employee` | 🟡 | الموظف الذكي المتخصص |
 | `/shared-services` | 🟡 | الخدمات المشتركة — فريقك التنفيذي الذكي (لا لوحته — تلك لـ`client-portal`) |
 | `/task-force` | 🟡 | تاسك فورس |
@@ -135,7 +130,17 @@
 |---|---|---|
 | `/deals` | 🟡 | «اعرض صفقتك، ابحث عن شريك — نطابقك تلقائياً» — أقرب صفحة قائمة إلى نظام الوساطة، فأُسندت إليه. **إن رأى المالك أنها سوقٌ عام لا وساطة، انتقلت إلى `public-site`.** |
 
-## 11) `platform-engineer` — لا يملك صفحة، يملك القوالب
+## 11) وكلاء المنتجات الخمسة (أمر المالك 2026-09-24)
+
+| الوكيل | المسار | التصميم | ملاحظة |
+|---|---|---|---|
+| `business-development` | `/business-development` · `assets/data/revenue-*.html` (٣) · قسم Revenue OS داخل `/account` | 🟡 / ❌ | الباب الرابع في الرئيسية يُنسَّق مع `public-site` |
+| `worker-housing` | `/worker-housing` | 🟡 | `#wh-request` قسم بلا نموذج |
+| `farina` | `/farina` | 🟡 | لا نموذج ولا بند كتالوج |
+| `document-ai` | `/ai-document-agent` | 🟡 | `/doc-agent-admin` تبقى لـ`owner-ops` قشرةً |
+| `compliance` | `/compliance-agent` · محتوى `/compliance-dashboard` · `assets/data/compliance-dashboard.html` | 🟡 / ❌ | القشرة لـ`client-portal` |
+
+## 12) `platform-engineer` — لا يملك صفحة، يملك القوالب
 
 لا مسار محتوى له. يملك ما يولّد الصفحات كلها: `generate.mjs` · `simple-v1.mjs`
 (القشرة والترويسة والتذييل) · `simplified-global-header.mjs` · الحُرّاس ·
