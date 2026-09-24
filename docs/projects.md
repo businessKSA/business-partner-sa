@@ -119,7 +119,8 @@ Notion. نظامان لنفس الشيء، يحتاجان قراراً.
 | `/services/<sku>` + التصنيفات | ~٢٠٠ | ✅ **جديد** |
 | `/catalog` · `/packages` | — | ✅ جديد |
 | صفحات المنتجات | ~١٥ | مختلط |
-| `/calculators/*` · `/calculator` | ٢٤ | ❌ قديم — KEEP (أدوات) |
+| `/calculators/government-cost` | ٤ | ✅ **جديد** (`simple-v1-gov-cost.mjs`، 2026-09-24) |
+| بقية `/calculators/*` · `/calculator` | ٢٠ | ❌ قديم — KEEP (أدوات) |
 | `/guide/*` · `/saudi-arabia` · `/news` · `/magazine` | ٢٠+ | ❌ قديم — KEEP (محتوى) |
 | `/mahfol-makfol` · `/trips` · `/tourism` | — | مختلط |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |
@@ -328,7 +329,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | `api/candidate.js` · `candidates.js` · `employer.js` · `hire.js` · `api/_jobhunt.js` · `api/_agencies.js` · `site/scripts/*hiring*` · `site/scripts/*employer*` |
-| `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` |
+| `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` |
 | `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
 
 ### ملفات مشتركة — لا يملكها أحد وحده

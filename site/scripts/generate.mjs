@@ -317,6 +317,7 @@ import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
+import { buildSimpleGovCost } from "./simple-v1-gov-cost.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -3466,95 +3467,6 @@ function buildNitaqatCalculator() {
     desc: Lraw("Estimate your Saudization (Nitaqat) band in seconds.", "احسب نطاق السعودة المتوقع خلال ثوانٍ."),
     active: "/tools-and-calculators",
     path: "/calculators/nitaqat",
-    body,
-  });
-}
-
-function buildGovernmentCostCalculator() {
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="${u("/tools-and-calculators")}">${I.arrow} ${L("All tools & calculators", "كل الأدوات والحاسبات")}</a>
-    <span class="eyebrow">${L("Free compliance tool", "أداة امتثال مجانية")}</span>
-    <h1>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h1>
-    <p class="lead">${L("Estimate per-worker government costs (work permit, iqama, medical insurance, fines) in seconds.", "قدّر تكاليف العمالة الحكومية لكل عامل (رخصة العمل، الإقامة، التأمين الطبي، الغرامات) خلال ثوانٍ.")}</p>
-  </div></section>
-  <section class="section"><div class="container" style="max-width:920px">
-    <div class="order-box">
-      <h3>${L("Government cost calculator", "حاسبة التكاليف الحكومية")}</h3>
-      <p class="cc-sub">${L("Work permit (Qiwa) + iqama (Muqeem) + medical insurance + fines — per worker, quarterly and annually.", "رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات — لكل عامل، ربعياً وسنوياً.")}</p>
-      <div id="cc-rows"></div>
-      <button class="btn btn-ghost cc-btn-sm" id="cc-add">${L("+ Add another profession", "+ إضافة مهنة أخرى")}</button>
-      <p class="form-note">💡 ${L("New worker: 3 free months on first entry + a one-time medical exam.", "العامل الجديد: 3 أشهر مجانية عند أول دخول + فحص طبي لمرة واحدة.")}</p>
-      <details class="cc-rates"><summary>⚙️ ${L("Rate basis used (editable)", "الأسس السعرية المستخدمة (قابلة للتعديل)")}</summary>
-        <div class="cc-grid">
-          <div class="field"><label>${L("Work permit — annual", "رخصة العمل — سنوياً")}</label><input type="number" id="cc-rate-permit" value="9700"></div>
-          <div class="field"><label>${L("Iqama — annual", "الإقامة — سنوياً")}</label><input type="number" id="cc-rate-iqama" value="650"></div>
-          <div class="field"><label>${L("Medical insurance — annual", "التأمين الطبي — سنوياً")}</label><input type="number" id="cc-rate-medical" value="1000"></div>
-          <div class="field"><label>${L("Medical exam (new)", "الفحص الطبي (للجديد)")}</label><input type="number" id="cc-rate-exam" value="300"></div>
-        </div>
-      </details>
-      <button class="btn btn-primary" id="cc-fees-calc">${L("Calculate", "احسب")}</button>
-      <div class="cc-result" id="cc-fees-result" hidden>
-        <div class="cc-tiles">
-          <div class="cc-tile"><span>${L("Workers", "عدد العمّال")}</span><strong id="cc-workers">—</strong></div>
-          <div class="cc-tile"><span>${L("Quarterly total", "الإجمالي الربعي")}</span><strong id="cc-quarter">—</strong></div>
-          <div class="cc-tile"><span>${L("Annual total", "الإجمالي السنوي")}</span><strong id="cc-annual">—</strong></div>
-        </div>
-        <div class="cc-table-wrap"><table class="cc-table"><thead><tr>
-          <th>${L("Profession", "المهنة")}</th><th>${L("Status", "الحالة")}</th><th>${L("Count", "العدد")}</th>
-          <th>${L("Quarterly / worker", "ربعي / عامل")}</th><th>${L("Annual / worker", "سنوي / عامل")}</th>
-        </tr></thead><tbody id="cc-tbody"></tbody></table></div>
-      </div>
-    </div>
-    <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Official fees are confirmed via Qiwa / Muqeem / Passports. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. الرسوم الرسمية تُعتمد من قوى / مقيم / الجوازات. تواصل معنا لحساب دقيق ومعتمد.")}</div>
-  </div></section>
-  <script>window.BP_CC_LANG=${JSON.stringify(LANG)};</script>
-  <script>
-  (function(){
-    var isAr = window.BP_CC_LANG === "ar";
-    var T = isAr ? {
-      prof:"المهنة",profPh:"مثال: عامل، فني، مهندس…",status:"الحالة",sExisting:"قائم (على رأس العمل)",sNew:"جديد (أول دخول)",count:"العدد",late:"تأخير تجديد الإقامة",lNone:"لا يوجد",lFirst:"المرة الأولى (+500)",lSecond:"المرة الثانية (+1,000)",remove:"حذف",sar:"﷼"
-    } : {
-      prof:"Profession",profPh:"e.g. laborer, technician…",status:"Status",sExisting:"Existing (on the job)",sNew:"New (first entry)",count:"Count",late:"Iqama renewal delay",lNone:"None",lFirst:"First time (+500)",lSecond:"Second time (+1,000)",remove:"Remove",sar:"SAR"
-    };
-    var fmt=function(n){return Math.round(n).toLocaleString(isAr?"ar-SA":"en-US");};
-    var $=function(id){return document.getElementById(id);};
-    var FINES={none:0,first:500,second:1000};
-    function addRow(count){
-      var d=document.createElement("div");d.className="cc-row";
-      d.innerHTML='<div class="field"><label>'+T.prof+'</label><input type="text" class="cc-prof" placeholder="'+T.profPh+'"></div>'+
-        '<div class="field"><label>'+T.status+'</label><select class="cc-status"><option value="existing">'+T.sExisting+'</option><option value="new">'+T.sNew+'</option></select></div>'+
-        '<div class="field"><label>'+T.count+'</label><input type="number" class="cc-count" min="1" value="'+(count||1)+'"></div>'+
-        '<div class="field"><label>'+T.late+'</label><select class="cc-late"><option value="none">'+T.lNone+'</option><option value="first">'+T.lFirst+'</option><option value="second">'+T.lSecond+'</option></select></div>'+
-        '<button type="button" class="cc-remove" title="'+T.remove+'">✕</button>';
-      d.querySelector(".cc-remove").addEventListener("click",function(){if(document.querySelectorAll(".cc-row").length>1)d.remove();});
-      $("cc-rows").appendChild(d);}
-    addRow(5);
-    $("cc-add").addEventListener("click",function(){addRow();});
-    $("cc-fees-calc").addEventListener("click",function(){
-      var pA=Number($("cc-rate-permit").value)||0,iA=Number($("cc-rate-iqama").value)||0,mA=Number($("cc-rate-medical").value)||0,ex=Number($("cc-rate-exam").value)||0;
-      var pQ=pA/4,iQ=iA/4,mQ=mA/4,workers=0,tQ=0,tA=0,tb=$("cc-tbody");tb.innerHTML="";
-      document.querySelectorAll(".cc-row").forEach(function(row){
-        var prof=row.querySelector(".cc-prof").value||"—";
-        var isNew=row.querySelector(".cc-status").value==="new";
-        var count=Math.max(1,Number(row.querySelector(".cc-count").value)||1);
-        var fine=FINES[row.querySelector(".cc-late").value]||0;
-        var qPer=pQ+iQ+mQ+fine,aPer=pA+iA+mA+(isNew?ex:0);
-        workers+=count;tQ+=qPer*count;tA+=aPer*count;
-        var tr=document.createElement("tr");
-        tr.innerHTML="<td>"+prof.replace(/</g,"&lt;")+(fine?' <span class="cc-fine">+'+fmt(fine)+"</span>":"")+"</td><td>"+(isNew?T.sNew:T.sExisting)+"</td><td>"+count+"</td><td>"+fmt(qPer)+"</td><td>"+fmt(aPer)+"</td>";
-        tb.appendChild(tr);});
-      $("cc-workers").textContent=workers;
-      $("cc-quarter").textContent=fmt(tQ)+" "+T.sar;
-      $("cc-annual").textContent=fmt(tA)+" "+T.sar;
-      $("cc-fees-result").hidden=false;});
-  })();
-  </script>`;
-  return page({
-    title: Lraw("Government cost calculator — Business Partner", "حاسبة التكاليف الحكومية — بيزنس بارتنر"),
-    desc: Lraw("Estimate per-worker government costs in seconds.", "قدّر تكاليف العمالة الحكومية لكل عامل خلال ثوانٍ."),
-    active: "/tools-and-calculators",
-    path: "/calculators/government-cost",
     body,
   });
 }
@@ -12362,7 +12274,7 @@ function writeFullSite(pre) {
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
   // /calculators/nitaqat removed at owner's request (2026-07-16) — kept as
   // unused dead code below, not linked or generated anywhere.
-  write(`${pre}calculators/government-cost.html`, buildGovernmentCostCalculator());
+  write(`${pre}calculators/government-cost.html`, buildSimpleGovCost(SV1, { lang: () => LANG, esc }));
   write(`${pre}calculators/profession-checker.html`, buildProfessionChecker());
   write(`${pre}calculators/end-of-service.html`, buildEndOfServiceCalculator());
   write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
