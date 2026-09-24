@@ -401,7 +401,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>(function(){
 var $=function(i){return document.getElementById(i)};
 var TX={"empty":"لا وظائف مفتوحة الآن — أرسل سيرتك الذاتية ونرشّحك أول ما تُفتح وظيفة تناسبك.","failed":"تعذّر تحميل الوظائف الآن. حدّث الصفحة بعد قليل.","view":"عرض الوظيفة","apply":"تقديم"};
-var JOB="/ar/job?id=",SEEK="/ar/careers#seeker-form";
+var JOB="/ar/job?id=";
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 document.querySelectorAll('[data-jump]').forEach(function(b){b.onclick=function(){
@@ -417,7 +417,7 @@ fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(func
   return '<article class="sv1-hire-job">'+(meta?'<span class="mt">'+esc(meta)+'</span>':'')+
    '<h4>'+esc(j.title)+'</h4>'+(teaser?'<p>'+esc(teaser)+'…</p>':'')+
    '<div class="acts"><a class="sv1-btn sm" href="'+JOB+encodeURIComponent(j.id)+'">'+esc(TX.view)+'</a>'+
-   '<a class="sv1-btn sm ghost" href="'+SEEK+'">'+esc(TX.apply)+'</a></div></article>'}).join('')
+   '<a class="sv1-btn sm ghost" href="'+JOB+encodeURIComponent(j.id)+'#apply-form">'+esc(TX.apply)+'</a></div></article>'}).join('')
 }).catch(function(){st.textContent=TX.failed});
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

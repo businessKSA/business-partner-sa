@@ -10,6 +10,12 @@
 //                      (#seeker-form) يعيش في /careers ويحمل خانة jobSearch،
 //                      فالبوابة توصّل إليه ولا تستنسخه: نموذجٌ واحد بعشرين حقلاً
 //                      مكرَّرٌ في صفحتين يتباعد بعد أول تعديل.
+//
+// زرّ «تقديم» في بطاقة الوظيفة يذهب إلى /job?id=<معرّف الإعلان>#apply-form،
+// لا إلى /careers#seeker-form: فصفحة /job وحدها هي التي تستدعي setSelectedJob
+// بمعرّف نوشن الحقيقي بعد جلب /api/candidates?posting=<id>، فيصل الطلب مربوطاً
+// بالإعلان ويصل صاحب العمل إشعاره. أما /careers فلا تلتقط المعرّف إلا لسلاغين
+// قديمين مكتوبين يدوياً في main.js، وما عداهما يسقط صامتاً إلى candidate-pool.
 
 const T = {
   title:  { ar: "التوظيف", en: "Hiring", fr: "Recrutement", zh: "招聘" },
@@ -149,7 +155,7 @@ export function buildSimpleHiring(SV1, ctx) {
   const script = `<script>(function(){
 var $=function(i){return document.getElementById(i)};
 var TX=${JSON.stringify({ empty: t("empty"), failed: t("failed"), view: t("view"), apply: t("apply") })};
-var JOB=${JSON.stringify(u("/job") + "?id=")},SEEK=${JSON.stringify(u("/careers") + "#seeker-form")};
+var JOB=${JSON.stringify(u("/job") + "?id=")};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 document.querySelectorAll('[data-jump]').forEach(function(b){b.onclick=function(){
@@ -165,7 +171,7 @@ fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(func
   return '<article class="sv1-hire-job">'+(meta?'<span class="mt">'+esc(meta)+'</span>':'')+
    '<h4>'+esc(j.title)+'</h4>'+(teaser?'<p>'+esc(teaser)+'…</p>':'')+
    '<div class="acts"><a class="sv1-btn sm" href="'+JOB+encodeURIComponent(j.id)+'">'+esc(TX.view)+'</a>'+
-   '<a class="sv1-btn sm ghost" href="'+SEEK+'">'+esc(TX.apply)+'</a></div></article>'}).join('')
+   '<a class="sv1-btn sm ghost" href="'+JOB+encodeURIComponent(j.id)+'#apply-form">'+esc(TX.apply)+'</a></div></article>'}).join('')
 }).catch(function(){st.textContent=TX.failed});
 })();</script>`;
 

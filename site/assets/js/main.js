@@ -1289,6 +1289,14 @@ var BP = window.BP = window.BP || {};
     var status = document.getElementById("jp-status");
     var id = new URLSearchParams(location.search || "").get("id") || "";
     if (!id) { status.textContent = BP.t("No job selected.", "لم تُحدَّد وظيفة."); return; }
+    // Scope the embedded application to this posting NOW, not when the advert
+    // fetch resolves: the form sits outside #jp-body and stays submittable
+    // even if the advert fails to load or the visitor is quick. api/candidate.js
+    // only emails the employer when jobId is a real posting id, so an
+    // application left on the pool default reaches nobody. render() upgrades
+    // this to the canonical id + title below.
+    var jidEl = document.getElementById("c-job-id");
+    if (jidEl) jidEl.value = id;
     fetch("/api/candidates?posting=" + encodeURIComponent(id))
       .then(function (r) { return r.json(); })
       .then(function (d) {

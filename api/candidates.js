@@ -110,6 +110,61 @@ async function notionFetch(path, method, payload) {
   });
 }
 
+// Notion returns at most 100 rows per query and hides the rest behind a
+// cursor. A query that never follows that cursor therefore truncates
+// *silently*: the extra rows simply are not there — no error, no log, no sign
+// on the page. That is how adverts disappear from a job board without anyone
+// noticing, so every full-table read below goes through this helper.
+//
+// Why 25 pages: Notion caps a page at 100 rows, so 25 pages = 2,500 rows,
+// ~60x the active adverts we have today — room to grow for years. And 25 is
+// small enough to stay a bounded walk: the function's budget is 60s
+// (`maxDuration` for api/candidates.js in vercel.json), a filtered Notion
+// query answers in well under a second, and PAGE_BUDGET_MS stops the walk
+// early anyway. So the loop can never run open-ended if the database grows to
+// thousands. Both stop conditions are logged — a future truncation is loud.
+const MAX_QUERY_PAGES = 25;
+const PAGE_BUDGET_MS = 45000;
+
+// Returns { ok: true, results, truncated } or { ok: false } (already logged;
+// the caller decides how a 502 looks for its route — JSON or plain text).
+async function queryAllRows(dbId, body, label) {
+  const results = [];
+  const deadline = Date.now() + PAGE_BUDGET_MS;
+  let cursor;
+  for (let page = 0; page < MAX_QUERY_PAGES; page++) {
+    let r;
+    // Following the cursor turns one request into up to 25 in a burst, which
+    // is where Notion's rate limit starts to bite — so back off and retry
+    // rather than hand back a half-empty list.
+    for (let attempt = 0; ; attempt++) {
+      r = await notionFetch(`databases/${dbId}/query`, "POST", {
+        page_size: 100,
+        ...body,
+        ...(cursor ? { start_cursor: cursor } : {}),
+      });
+      if (r.ok) break;
+      if (r.status === 429 && attempt < 3 && Date.now() < deadline) {
+        const retryAfter = Number(r.headers.get("retry-after"));
+        await new Promise((resolve) => setTimeout(resolve, retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt)));
+        continue;
+      }
+      console.error(`${label} query error`, r.status, (await r.text()).slice(0, 300));
+      return { ok: false };
+    }
+    const data = await r.json();
+    results.push(...(data.results || []));
+    if (!data.has_more || !data.next_cursor) return { ok: true, results, truncated: false };
+    cursor = data.next_cursor;
+    if (Date.now() > deadline) {
+      console.error(`${label}: page budget (${PAGE_BUDGET_MS}ms) spent after ${results.length} rows — more rows remain in Notion`);
+      return { ok: true, results, truncated: true };
+    }
+  }
+  console.error(`${label}: hit MAX_QUERY_PAGES (${MAX_QUERY_PAGES}) after ${results.length} rows — more rows remain in Notion, raise the cap`);
+  return { ok: true, results, truncated: true };
+}
+
 // Paging through the ~14k-row ATS needs more than the default serverless
 // budget — an unfiltered browse can be ~120 sequential Notion API calls.
 export const config = { maxDuration: 300 };
@@ -351,14 +406,14 @@ async function handlePostings(req, res) {
   }
 
   if (b.action === "list-postings") {
-    const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
-      page_size: 50,
+    // Same silent cap as the public board had: an employer past 50 adverts
+    // could no longer see — nor close — their oldest ones.
+    const q = await queryAllRows(JOBS_DB, {
       filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
       sorts: [{ property: "تاريخ النشر", direction: "descending" }],
-    });
-    if (!r.ok) { console.error("postings list error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const data = await r.json();
-    const postings = (data.results || []).map((pg) => {
+    }, "postings list");
+    if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const postings = q.results.map((pg) => {
       const p = pg.properties || {};
       return {
         id: pg.id,
@@ -500,28 +555,25 @@ function feedDescription(slug, title, dept, vacancies) {
   return parts.join("");
 }
 async function jobsFeed(res) {
+  // This one already followed the cursor, so nothing was being dropped — but
+  // it was an unbounded `do…while`, i.e. the open loop the cap exists to
+  // prevent. Same helper, same bound, plus 429 backoff.
+  const q = await queryAllRows(WORKSHOP_DB, {
+    filter: { property: "حالة النشر", select: { equals: FEED_PUBLISHED } },
+  }, "jobs feed");
+  if (!q.ok) { res.statusCode = 502; res.setHeader("Content-Type", "text/plain"); return res.end("notion_failed"); }
   const jobs = [];
-  let cursor;
-  do {
-    const r = await notionFetch(`databases/${WORKSHOP_DB}/query`, "POST", {
-      page_size: 100, start_cursor: cursor,
-      filter: { property: "حالة النشر", select: { equals: FEED_PUBLISHED } },
+  for (const pg of q.results) {
+    const p = pg.properties || {};
+    const title = txt(p["الوظيفة"]);
+    const url = txt(p["رابط الوظيفة"]);
+    if (!title || !url) continue;
+    const slug = txt(p["معرف الوظيفة ATS"]) || pg.id;
+    jobs.push({
+      title, url, ref: slug, dept: txt(p["القسم"]), vacancies: txt(p["عدد الشواغر"]),
+      date: new Date(pg.last_edited_time || pg.created_time || Date.now()).toUTCString(),
     });
-    if (!r.ok) { console.error("jobs feed query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; res.setHeader("Content-Type", "text/plain"); return res.end("notion_failed"); }
-    const data = await r.json();
-    for (const pg of data.results || []) {
-      const p = pg.properties || {};
-      const title = txt(p["الوظيفة"]);
-      const url = txt(p["رابط الوظيفة"]);
-      if (!title || !url) continue;
-      const slug = txt(p["معرف الوظيفة ATS"]) || pg.id;
-      jobs.push({
-        title, url, ref: slug, dept: txt(p["القسم"]), vacancies: txt(p["عدد الشواغر"]),
-        date: new Date(pg.last_edited_time || pg.created_time || Date.now()).toUTCString(),
-      });
-    }
-    cursor = data.has_more ? data.next_cursor : undefined;
-  } while (cursor);
+  }
 
   const items = jobs.map((j) => [
     "  <job>",
@@ -573,14 +625,14 @@ export default async function handler(req, res) {
   // employer-only browse/create/list-postings actions above).
   if (url0.searchParams.get("openJobs") === "1") {
     try {
-      const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
-        page_size: 50,
+      // Every active advert, not just the first page — this used to ask for
+      // one page of 50 and drop the rest without a word.
+      const q = await queryAllRows(JOBS_DB, {
         filter: { property: "الحالة", select: { equals: "نشطة" } },
         sorts: [{ property: "تاريخ النشر", direction: "descending" }],
-      });
-      if (!r.ok) { console.error("open jobs query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-      const data = await r.json();
-      const jobs = (data.results || []).map((pg) => {
+      }, "open jobs");
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const jobs = q.results.map((pg) => {
         const p = pg.properties || {};
         return {
           id: pg.id,

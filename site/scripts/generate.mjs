@@ -6452,9 +6452,12 @@ function applicationQuestionsHtml() {
 // the application is scoped to that one posting) and on /careers + the
 // candidate-pool portal page (fixedJob null, so the job stays whatever the
 // visitor picked via an Apply link, defaulting to the general pool).
+// `fixedJob.note` renders the "Applying for" banner for a posting whose id is
+// only known in the browser (/job?id=…): the hidden fields ship empty and
+// main.js fills them from the query string — see buildPostingPage().
 function seekerFormHtml(f, fixedJob) {
   const jobFieldsHtml = fixedJob
-    ? `<input id="c-job-id" name="jobId" type="hidden" value="${esc(fixedJob.id)}"><input id="c-job-title" name="jobTitle" type="hidden" value="${esc(fixedJob.title)}">`
+    ? `<input id="c-job-id" name="jobId" type="hidden" value="${esc(fixedJob.id)}"><input id="c-job-title" name="jobTitle" type="hidden" value="${esc(fixedJob.title)}">${fixedJob.note ? `<div class="ats-selected-job" id="ats-selected-job">${fixedJob.note}</div>` : ""}`
     : applicationExtraFieldsHtml();
   return `
       <form class="calc-form cv-form" id="cv-form" novalidate>
@@ -6599,6 +6602,12 @@ function buildJobPage(job) {
 // as Notion rows (not generator content), so one page template renders any of
 // them client-side from /api/candidates?posting=<id> — same layout and same
 // embedded, posting-scoped application form as the static job pages.
+// The form's jobId/jobTitle therefore cannot be baked in at build time: they
+// ship empty and main.js scopes them to the posting (from `?id=` straight
+// away, then to the canonical id/title once the advert loads). They must never
+// carry the "candidate-pool" default — api/candidate.js skips
+// notifyEmployerOfApplication() for that value, so the employer would never
+// hear that someone applied to their advert.
 function buildPostingPage() {
   const f = site.careers.seeker.fields;
   const body = `
@@ -6624,7 +6633,7 @@ function buildPostingPage() {
   <section class="section" style="padding-top:0"><div class="container">
     <div style="max-width:640px;margin:0 auto" id="apply-form">
       <h2 class="center">${L("Apply for this role", "قدّم على هذه الوظيفة")}</h2>
-      ${seekerFormHtml(f, { id: "candidate-pool", title: Lraw("General candidate pool", "قاعدة المرشحين العامة") })}
+      ${seekerFormHtml(f, { id: "", title: "", note: `${L("Applying for", "التقديم على")}: <strong>${L("Loading job…", "جارٍ تحميل الوظيفة…")}</strong>` })}
     </div>
   </div></section>`;
   return page({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — بيزنس بارتنر"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة بيزنس بارتنر — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });

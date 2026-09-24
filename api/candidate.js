@@ -127,11 +127,12 @@ async function readBody(req) {
   });
 }
 
-async function notion(path, method, payload) {
+async function notion(path, method, payload, signal) {
   return fetch(`https://api.notion.com/v1/${path}`, {
     method,
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
     body: payload ? JSON.stringify(payload) : undefined,
+    signal,
   });
 }
 
@@ -415,6 +416,34 @@ async function notifyEmployerOfApplication(jobId, jobTitle, candidate) {
   }
 }
 
+// Reads a posting's own title when an application arrives with a REAL job id
+// but an empty title. That window is real: /job?id=<id> sets jobId
+// synchronously from the query string, while jobTitle is only known once the
+// posting has loaded — so an early (or failed-load) submission stamps the ATS
+// row "General candidate pool (<real id>)", text that contradicts its own id
+// and that humans then read in Notion.
+// Best-effort exactly like notifyEmployerOfApplication: a genuine
+// "candidate-pool" signup, a missing token, a deleted page, a slow or failing
+// Notion — every one of them returns "" and the caller keeps its default. The
+// abort caps how long a candidate can ever wait on this, and nothing here
+// throws, so the candidate's own row is written either way.
+async function jobTitleById(jobId) {
+  if (!jobId || jobId === "candidate-pool" || !NOTION_TOKEN) return "";
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 6000);
+  try {
+    const r = await notion(`pages/${jobId}`, "GET", null, controller.signal);
+    if (!r.ok) return "";
+    const data = await r.json();
+    return clip(txt(data.properties && data.properties["العنوان الوظيفي"]), 220);
+  } catch (e) {
+    console.error("job title lookup failed", String(e).slice(0, 200));
+    return "";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 const OWNER_KEY = envFrom(["PANEL_KEY", "LEADS_KEY"]);
 
 // Rewrites a CV so applicant-tracking software can read it, translates it into
@@ -685,7 +714,14 @@ export default async function handler(req, res) {
   const cvUrl = clip(b.cvUrl, 600);
   const consent = b.consent === true || b.consent === "true";
   const jobId = clip(b.jobId || "candidate-pool", 120);
-  const jobTitle = clip(b.jobTitle || "General candidate pool", 220);
+  // Derived once, here, because every consumer downstream reads this one
+  // value: the ATS "الوظيفة المتقدم لها" stamp, the Notes line, the n8n
+  // payload, the employer's email and the candidate's own copy. A lookup only
+  // happens in the narrow real-id/empty-title window; a pool signup and a
+  // form that did send a title never touch the network.
+  const jobTitle = clip(b.jobTitle, 220)
+    || (await jobTitleById(jobId))
+    || "General candidate pool";
   const questions = b.questions && typeof b.questions === "object" ? b.questions : {};
   const cvFile = b.cvFile && typeof b.cvFile === "object" ? {
     name: clip(b.cvFile.name, 220),

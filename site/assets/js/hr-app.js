@@ -523,8 +523,17 @@
             toast("نُسخت الوظيفة كمسودة جديدة.");
             render();
           } else if (act === "share") {
-            // Per-job apply link — /ar/careers?job=<id> preselects this posting.
-            var link = location.origin + "/ar/careers?job=" + encodeURIComponent(id);
+            // Per-job apply link. This must land on a page that binds the
+            // application to THIS posting: /job?id=<id> runs loadPostingPage(),
+            // which sets the form's job id from the posting id straight away and
+            // then upgrades it to the canonical id+title once the advert loads.
+            // That binding is what makes api/candidate.js email the employer.
+            // It used to point at /careers?job=<id>, where the id is looked up
+            // in a two-entry map of site-role slugs — a real posting id matched
+            // nothing and was dropped without error, so the page opened fine and
+            // every application through the link reached nobody. HRP keeps the
+            // link inside the dashboard's own language tree (/ar or root).
+            var link = location.origin + HRP + "/job?id=" + encodeURIComponent(id) + "#apply-form";
             (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast("نُسخ رابط التقديم إلى الحافظة."); }, function () { toast(link); });
           } else if (act === "toggle") {
             HRStore.editJob(id, { status: j.status === "منشورة" ? "متوقفة" : "منشورة" });
