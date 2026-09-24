@@ -978,7 +978,19 @@ async function activateComplianceSubscription({ company, email, phone }) {
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 const EMP_PLAN_AR = { basic: "أساسية", pro: "احترافية", enterprise: "مؤسسية" };
 const EMP_DASHBOARD_URL = `${MKT_SITE_BASE}/employer-dashboard`;
-function employerCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("employer|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 4; i++) o += abc[h[i] % abc.length]; return "BP-EMP-" + o; }
+// SECURITY: this access code is the sole bearer token that unlocks every
+// candidate's PII (see api/candidates.js) once the row is مفعّل, so it must be
+// unguessable. The old 4-char HMAC digest was only ~1.0e6 combinations —
+// brute-forceable — and deterministic from the form fields. Now 12 chars of
+// CSPRNG entropy over a 32-symbol alphabet (~1.15e18), matching makeRef() in
+// api/employer.js, which writes access codes into the same Notion EMP_DB.
+function employerCode() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 symbols, no I/O/0/1 — % 32 is unbiased
+  const bytes = crypto.randomBytes(12);
+  let out = "";
+  for (let i = 0; i < 12; i++) out += abc[bytes[i] % abc.length];
+  return "BP-EMP-" + out;
+}
 async function findEmployerRecord(company) {
   if (!NOTION_TOKEN || !company) return null;
   const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
@@ -999,7 +1011,7 @@ async function activateEmployerSubscription({ company, email, phone, planKey }) 
   const existing = await findEmployerRecord(company);
   const codeProp = existing && existing.properties && existing.properties["رمز الوصول"];
   const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
-  const code = existingCode || employerCode(company + "|" + email + "|" + Date.now());
+  const code = existingCode || employerCode();
   if (existing) {
     const props = { "الحالة": { select: { name: "مفعّل" } } };
     if (!existingCode) props["رمز الوصول"] = { rich_text: [{ text: { content: code } }] };
