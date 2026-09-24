@@ -41,7 +41,6 @@
 | `/calculators/*` (٦) · `/calculator` · `/tools-and-calculators` | ✅ / 🟡 / ✅ | الحاسبات |
 | `/formation-contract` | 🟡 | خدمة: عقد التأسيس بين الشركاء |
 | `/estrdad` | 🟡 | خدمة: استرداد الرسوم الحكومية |
-| `/workspaces` · `/workspace-request` | 🟡 | المكاتب ومساحات العمل + نموذج الطلب |
 | `/tourism` | 🟡 | السياحة والفعاليات |
 
 ## 3) `client-portal` — ما يدخله العميل بحساب
@@ -143,6 +142,7 @@
 | `company-data` | `/data` | 🟡 | لا نموذج اشتراك |
 | `bank-account` | `/bank-account` | 🟡 | نموذج بلا حقول ولا إرسال |
 | `incubators-vc` | `/directory` · `site/data/ecosystem.json` | ✅ | كان لـ`public-site` |
+| `real-estate` | `/workspaces` · `/workspace-request` · `api/_spaces.js` · `api/workspace.js` | 🟡 | كانا لـ`catalog-content`؛ `#ws-req` بلا حقول |
 | `brokers` · `referral` · `erp` · `social-media` | — | — | بلا صفحات بعد |
 | `advisor` · `baher-support` · `whatsapp` · `email` | — (قنوات) | — | يملكون كوداً لا صفحات: `api/chat.js` · `baher-support.mjs` · `n8n/` |
 
