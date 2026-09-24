@@ -1,0 +1,265 @@
+{
+  "name": "💼 BP Team — Badr (Sales & BD)",
+  "nodes": [
+    {
+      "id": "sticky-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, -260],
+      "parameters": {
+        "content": "## 💼 Badr — Sales & Business Development Agent (Skeleton)\n\n**Flow:** intake (webhook from Router/Mazen or manual test) → normalize → load BP Services Catalog (Notion) → Claude generates Badr's reply (system prompt: `bp-specialized-team/prompts/badr-sales-bd.md`) → if core info complete, create Draft Proposal in Notion with status «بانتظار الموافقة» + flag CRM lead → reply to channel.\n\n**Operating model:** Concierge — Badr drafts and recommends only. Nothing is sent to the client as final without Human Approval. No prices outside the approved catalog, no discounts, no contracts/invoices/payment links, never OTP or passwords.\n\n**Resilience:** if the Claude call fails (e.g. no Anthropic credit), a safe fallback reply is used and the flow continues (same pattern as Compliance Agent V1).",
+        "width": 560,
+        "height": 340
+      }
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, 120],
+      "parameters": {
+        "content": "## 🔧 Before activating\n1. Replace `REPLACE_WITH_BP_SERVICES_CATALOG_DB_ID` and `REPLACE_WITH_BP_PROPOSALS_DB_ID` with the real Notion database IDs (BP Services Catalog - OFFICIAL / BP Proposals - OFFICIAL).\n2. Attach credentials: Notion API + Anthropic API key (Header Auth: `x-api-key`).\n3. Map the Draft Proposal properties (Status = «بانتظار الموافقة», Assigned Agent = Badr / Sales, Human Required = YES) to the real property names in the Proposals DB.\n4. Point the Router (Mazen / TEAM-001 flow) at the production webhook URL `POST /badr-intake` with body: `{client_name, phone, channel, crm_lead_id, service_hint, message}`.\n5. Test with the manual trigger, then activate after Baher's approval.",
+        "width": 560,
+        "height": 360
+      }
+    },
+    {
+      "id": "badr-webhook",
+      "name": "Intake Webhook (from Router)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, -120],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "badr-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "badr-manual",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 100]
+    },
+    {
+      "id": "badr-sample",
+      "name": "Sample Payload (Test)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [200, 100],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"client_name\": \"عبدالله التجريبي\",\n  \"phone\": \"+9665XXXXXXXX\",\n  \"channel\": \"whatsapp\",\n  \"crm_lead_id\": \"\",\n  \"service_hint\": \"company_formation\",\n  \"message\": \"أبغى عرض سعر لتأسيس شركة جديدة في الرياض\"\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "badr-normalize",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, -10],
+      "parameters": {
+        "jsCode": "// Accept input from the webhook (fields under body) or the manual test (direct fields)\nconst src = $json.body ?? $json;\nreturn [{\n  json: {\n    client_name: src.client_name ?? '',\n    phone: src.phone ?? '',\n    channel: src.channel ?? 'whatsapp',\n    crm_lead_id: src.crm_lead_id ?? '',\n    service_hint: src.service_hint ?? '',\n    message: src.message ?? ''\n  }\n}];"
+      }
+    },
+    {
+      "id": "badr-catalog",
+      "name": "Get Services Catalog (Notion)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [640, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_BP_SERVICES_CATALOG_DB_ID"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "badr-build-request",
+      "name": "Build Claude Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, -10],
+      "parameters": {
+        "jsCode": "// Condensed system prompt. The full authoritative version lives in\n// bp-specialized-team/prompts/badr-sales-bd.md — keep the two in sync.\nconst intake = $('Normalize Input').first().json;\n\nconst catalogItems = $input.all()\n  .map(i => i.json)\n  .filter(j => j && (j.name || j.properties))\n  .slice(0, 25);\nconst catalogText = catalogItems.length\n  ? JSON.stringify(catalogItems)\n  : 'CATALOG_UNAVAILABLE — do not state or estimate any price.';\n\nconst systemPrompt = [\n  'You are Badr, the Sales & Business Development Agent for Business Partner (بزنس بارتنر سلوشنز) in Saudi Arabia.',\n  'You handle pricing requests, quotations, proposals, packages, and commercial scope for exactly four services: Company Formation (تأسيس الشركات), HR Solutions (حلول الموارد البشرية), Government Relations / GRO (العلاقات الحكومية), Premium Residency (الإقامة المميزة).',\n  'Rules:',\n  '- Reply in the client\\'s language (default Arabic), professional and brief.',\n  '- Ask at most ONE qualification question per message.',\n  '- Use approved catalog prices only. If the catalog is unavailable or the price is not visible, never invent or estimate a price.',\n  '- Never give discounts, contracts, invoices, or payment links. Never promise government outcomes, fees, or timelines.',\n  '- Never request passwords, OTP, credentials, sensitive identity data, or operational documents before contract stage.',\n  '- The final proposal is always reviewed by the team before sending — say so when a proposal is requested.',\n  '- Legal/eligibility questions, discount requests, human-contact requests: give a safe holding reply and note the team will follow up.',\n  'When, and only when, the core information is complete (service + new/existing company + scope + one-time vs monthly), end your reply with the exact marker [PROPOSAL_READY] on its own line.',\n  '',\n  'Approved services catalog (JSON):',\n  catalogText\n].join('\\n');\n\nconst userContent = [\n  `Client name: ${intake.client_name || 'unknown'}`,\n  `Channel: ${intake.channel}`,\n  `Service hint: ${intake.service_hint || 'none'}`,\n  `Message: ${intake.message}`\n].join('\\n');\n\nreturn [{\n  json: {\n    anthropic_body: {\n      model: 'claude-sonnet-5',\n      max_tokens: 1024,\n      system: systemPrompt,\n      messages: [{ role: 'user', content: userContent }]\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "badr-claude",
+      "name": "Claude — Generate Badr Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, -10],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.anthropic_body) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key (x-api-key)"
+        }
+      }
+    },
+    {
+      "id": "badr-parse",
+      "name": "Parse Reply + Safe Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, -10],
+      "parameters": {
+        "jsCode": "// Resilience (Compliance Agent V1 pattern): if the engine fails, use the approved\n// TEAM-003 safe reply and keep the flow alive. The alert/reply itself is the product.\nconst item = $input.first().json;\nconst fallback = 'نقدر نجهز لك عرض سعر واضح بعد تثبيت نطاق الخدمة.\\nحتى يكون العرض دقيق: هل العرض المطلوب لتأسيس الشركات، حلول الموارد البشرية، العلاقات الحكومية، أم الإقامة المميزة؟';\n\nlet text = '';\nif (item && Array.isArray(item.content) && item.content[0] && item.content[0].text) {\n  text = item.content[0].text;\n}\nconst engine_fallback = !text;\nif (engine_fallback) text = fallback;\n\nconst proposal_ready = !engine_fallback && text.includes('[PROPOSAL_READY]');\nconst reply = text.replace('[PROPOSAL_READY]', '').trim();\n\nconst intake = $('Normalize Input').first().json;\nreturn [{ json: { ...intake, reply, proposal_ready, engine_fallback } }];"
+      }
+    },
+    {
+      "id": "badr-if-proposal",
+      "name": "Proposal Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1520, -10],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-proposal-ready",
+              "leftValue": "={{ $json.proposal_ready }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "badr-draft-proposal",
+      "name": "Create Draft Proposal — بانتظار الموافقة",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [1760, -120],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_BP_PROPOSALS_DB_ID"
+        },
+        "title": "={{ 'Draft Proposal — ' + ($json.client_name || 'Unknown') + ' — ' + ($json.service_hint || 'TBD') + ' — بانتظار الموافقة' }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "badr-crm-flag",
+      "name": "Flag CRM Lead (Human Required)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, -120],
+      "parameters": {
+        "jsCode": "// SKELETON PLACEHOLDER — replace with a Notion 'update databasePage' node once the\n// CRM database property names are mapped. Target state per TEAM-003/TEAM-005:\n//   Assigned Agent = Badr / Sales\n//   Lead Stage     = Proposal / Under Review\n//   Human Required = YES\n//   Notes          = service, scope, and the client's last request\nconst j = $('Parse Reply + Safe Fallback').first().json;\nreturn [{ json: { ...j, crm_update: { assigned_agent: 'Badr / Sales', lead_stage: 'Proposal / Under Review', human_required: true } } }];"
+      }
+    },
+    {
+      "id": "badr-respond",
+      "name": "Respond to Channel",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2200, -10],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: 'badr', reply: $json.reply, proposal_ready: $json.proposal_ready === true, human_required: $json.proposal_ready === true, engine_fallback: $json.engine_fallback === true }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Intake Webhook (from Router)": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Manual Test Trigger": {
+      "main": [[{ "node": "Sample Payload (Test)", "type": "main", "index": 0 }]]
+    },
+    "Sample Payload (Test)": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Normalize Input": {
+      "main": [[{ "node": "Get Services Catalog (Notion)", "type": "main", "index": 0 }]]
+    },
+    "Get Services Catalog (Notion)": {
+      "main": [[{ "node": "Build Claude Request", "type": "main", "index": 0 }]]
+    },
+    "Build Claude Request": {
+      "main": [[{ "node": "Claude — Generate Badr Reply", "type": "main", "index": 0 }]]
+    },
+    "Claude — Generate Badr Reply": {
+      "main": [[{ "node": "Parse Reply + Safe Fallback", "type": "main", "index": 0 }]]
+    },
+    "Parse Reply + Safe Fallback": {
+      "main": [[{ "node": "Proposal Ready?", "type": "main", "index": 0 }]]
+    },
+    "Proposal Ready?": {
+      "main": [
+        [{ "node": "Create Draft Proposal — بانتظار الموافقة", "type": "main", "index": 0 }],
+        [{ "node": "Respond to Channel", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Draft Proposal — بانتظار الموافقة": {
+      "main": [[{ "node": "Flag CRM Lead (Human Required)", "type": "main", "index": 0 }]]
+    },
+    "Flag CRM Lead (Human Required)": {
+      "main": [[{ "node": "Respond to Channel", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
