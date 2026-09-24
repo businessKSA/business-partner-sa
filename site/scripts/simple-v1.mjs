@@ -182,10 +182,6 @@ const D = {
   footCompany: { ar: "الشركة", en: "Company", fr: "Société", zh: "公司" },
   navPackages: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
   navAdvisors: { ar: "المستشارون الأذكياء", en: "Smart advisors", fr: "Conseillers IA", zh: "智能顾问" },
-  navSaudi: { ar: "الاستثمار في السعودية", en: "Investing in Saudi Arabia", fr: "Investir en Arabie saoudite", zh: "投资沙特" },
-  navGuides: { ar: "الأدلة", en: "Guides", fr: "Guides", zh: "指南" },
-  navCalc: { ar: "الحاسبات", en: "Calculators", fr: "Calculateurs", zh: "计算器" },
-  navMagazine: { ar: "المجلة", en: "Magazine", fr: "Magazine", zh: "杂志" },
   navAbout: { ar: "من نحن", en: "About", fr: "À propos", zh: "关于我们" },
   navContact: { ar: "تواصل معنا", en: "Contact", fr: "Contact", zh: "联系我们" },
   navCareers: { ar: "الوظائف", en: "Careers", fr: "Carrières", zh: "招聘" },
@@ -637,11 +633,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     </div>
     <div class="sv1-foot-navcol">
       <h5>${t("footKnow")}</h5>
+      <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
+           صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
       ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
-      <a href="${href("/saudi-arabia")}">${t("navSaudi")}</a>
-      <a href="${href("/guide/business-setup")}">${t("navGuides")}</a>
-      <a href="${href("/tools-and-calculators")}">${t("navCalc")}</a>
-      <a href="${href("/magazine")}">${t("navMagazine")}</a>
     </div>
     <div class="sv1-foot-navcol">
       <h5>${t("footCompany")}</h5>

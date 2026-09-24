@@ -121,7 +121,8 @@ Notion. نظامان لنفس الشيء، يحتاجان قراراً.
 | صفحات المنتجات | ~١٥ | مختلط |
 | `/knowledge-center` — مركز المعرفة | ٤ | ✅ **جديد** — الباب الوحيد إلى المعرفة: رابطٌ واحد في تذييل SV1 (2026-09-24) |
 | `/calculators/government-cost` | ٤ | ✅ **جديد** (`simple-v1-gov-cost.mjs`، 2026-09-24) |
-| بقية `/calculators/*` · `/calculator` | ٢٠ | ❌ قديم — KEEP (أدوات) |
+| كل صفحات مركز المعرفة: `/saudi-arabia` · `/directory` · `/opportunities` · `/news` · `/newsletter` · `/magazine` · `/tools-and-calculators` · `/calculators/{profession-checker,end-of-service,annual-leave,overtime,gosi}` | — | ✅ **جديد** — `sv1Page()` في generate.mjs: SV1.shell() + طبقة `SV1_LEGACY_CSS`، بلا main.js (النشرة والمجلة تحمّلان `assets/js/sv1-knowledge.js`) (2026-09-24) |
+| `/calculator` · `/calculators/nitaqat` · `/magazine/print` | — | ❌ قديم — خارج مركز المعرفة (`/calculator` حلّ محلّه `/catalog` في القائمة) |
 | `/guide/*` · `/saudi-arabia` · `/news` · `/magazine` | ٢٠+ | ❌ قديم — KEEP (محتوى) |
 | `/mahfol-makfol` · `/trips` · `/tourism` | — | مختلط |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |

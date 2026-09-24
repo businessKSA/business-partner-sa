@@ -829,6 +829,71 @@ function page({ title, desc, active, path, body, script = "", noindex = false, e
   );
 }
 
+// ---------- صفحات «مركز المعرفة» على الموقع الجديد ----------
+// قرار المالك (2026-09-24): كل صفحة يصل إليها «مركز المعرفة» تكون بتصميم الموقع
+// الجديد ولا علاقة لها بالقديم. هذه الصفحات محتوى وأدوات مكتوبة بمكوّنات
+// المولّد (hero · section · card · order-box · cc-*)، فبدل إعادة كتابة كلٍّ منها
+// تُقدَّم داخل SV1.shell() — ترويسة الجديد وتذييله، بلا main.js ولا الترويسة
+// القديمة — وطبقةُ SV1_LEGACY_CSS تعيد رسم مكوّناتها بلغة الجديد.
+// النشرة والمجلة تحتاجان سلوكاً كان في main.js فتحمّلان sv1-knowledge.js وحده.
+const KNOW_V = assetV("assets/js/sv1-knowledge.js");
+const SV1_LEGACY_CSS = `<style id="sv1-legacy-css">
+.sv1-legacy{font-family:inherit;color:var(--t);display:block}
+.sv1-legacy .container{max-width:1160px;margin:0 auto;padding:0 22px;width:100%}
+.sv1-legacy .hero,.sv1-legacy .eco-hero,.sv1-legacy .newsletter-hero{background:#fff!important;background-image:none!important;color:var(--t)!important;padding:56px 0 30px!important;border-bottom:1px solid var(--line2)!important;text-align:start!important;min-height:0!important}
+.sv1-legacy .hero::before,.sv1-legacy .hero::after{display:none!important}
+.sv1-legacy .hero-inner{max-width:1160px!important;margin:0 auto!important;padding:0 22px!important;text-align:start!important}
+.sv1-legacy .hero-inner>h1,.sv1-legacy .hero-inner>p,.sv1-legacy .hero-inner>.lead{max-width:880px}
+.sv1-legacy .hero h1,.sv1-legacy .eco-hero h1,.sv1-legacy .newsletter-hero h1{font-size:clamp(28px,4vw,46px)!important;line-height:1.15!important;letter-spacing:-.03em!important;font-weight:200!important;color:var(--ink)!important;margin:14px 0 12px!important;background:none!important;-webkit-text-fill-color:currentColor!important}
+.sv1-legacy .lead,.sv1-legacy .hero p{color:var(--mut)!important;font-weight:300;font-size:16px!important;line-height:1.9!important;max-width:760px}
+.sv1-legacy .eyebrow,.sv1-legacy .tag{display:inline-flex!important;align-items:center;gap:8px;background:#fff!important;border:1px solid var(--l)!important;color:var(--mut)!important;padding:5px 12px!important;border-radius:999px!important;font-size:11.5px!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;box-shadow:var(--sh)}
+.sv1-legacy .eyebrow::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-legacy .back-link{display:inline-flex;gap:6px;font-size:12.5px;color:var(--mut)!important;margin-bottom:12px}
+.sv1-legacy .back-link svg{width:14px;height:14px}
+.sv1-legacy .hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px;justify-content:flex-start!important}
+.sv1-legacy .section{padding:44px 0!important;background:#fff}
+.sv1-legacy .section--gray{background:var(--g)!important}
+.sv1-legacy .section--navy{background:var(--n)!important;background-image:none!important}
+.sv1-legacy .cta-band{background:var(--n)!important;background-image:none!important;border-radius:16px}
+.sv1-legacy .section--navy .num,.sv1-legacy .section--navy .stat,.sv1-legacy .section--navy .stat *,.sv1-legacy .section--navy h3,.sv1-legacy .section--navy li{color:#fff!important}
+.sv1-legacy .section--navy .text-soft,.sv1-legacy .section--navy .lbl{color:rgba(255,255,255,.75)!important}
+.sv1-legacy .section-head{text-align:start!important;max-width:760px;margin:0 0 20px!important}
+.sv1-legacy h2{font-weight:300!important;color:var(--ink);letter-spacing:-.025em;font-size:clamp(21px,2.5vw,28px)}
+.sv1-legacy .section--navy h2,.sv1-legacy .cta-band h2,.sv1-legacy .section--navy p,.sv1-legacy .cta-band p{color:#fff!important}
+.sv1-legacy h3{color:var(--ink);font-weight:500!important}
+.sv1-legacy p,.sv1-legacy li{line-height:1.85}
+.sv1-legacy .text-soft,.sv1-legacy .form-note,.sv1-legacy .cc-sub{color:var(--mut)!important}
+.sv1-legacy .card,.sv1-legacy .svc-card,.sv1-legacy .cat-card,.sv1-legacy .order-box,.sv1-legacy .eco-card,.sv1-legacy .deal-ticket,.sv1-legacy .entity-card,.sv1-legacy .article-card,.sv1-legacy .mo-card,.sv1-legacy .news-card{background:#fff!important;background-image:none!important;border:1px solid var(--l)!important;border-radius:14px!important;box-shadow:var(--sh)!important;color:var(--t)}
+.sv1-legacy a.card:hover,.sv1-legacy .svc-card:hover,.sv1-legacy .cat-card:hover,.sv1-legacy .eco-card:hover{border-color:var(--acLine)!important;box-shadow:var(--sh2)!important;transform:translateY(-2px)}
+.sv1-legacy .card-link{color:var(--ac)!important;font-size:12.5px;font-weight:500}
+.sv1-legacy .card-icon,.sv1-legacy .cat-card-icon{display:inline-grid!important;place-items:center;width:44px!important;height:44px!important;font-size:22px;background:var(--acSoft)!important;color:var(--ac)!important;border-radius:10px!important}
+.sv1-legacy .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--l)!important;background:#fff!important;background-image:none!important;color:var(--ink)!important;padding:11px 19px!important;border-radius:9px!important;font-weight:500!important;font-size:13.5px!important;box-shadow:none!important;line-height:1.2}
+.sv1-legacy .btn:hover{border-color:var(--ink)!important;transform:none}
+.sv1-legacy .btn-primary{background:var(--ac)!important;border-color:var(--ac)!important;color:#fff!important;box-shadow:0 6px 18px -6px rgba(11,27,90,.45)!important}
+.sv1-legacy .btn-primary:hover{background:#16307F!important;border-color:#16307F!important}
+.sv1-legacy .btn svg{width:15px;height:15px}
+.sv1-legacy input,.sv1-legacy select,.sv1-legacy textarea{border:1px solid var(--l)!important;border-radius:10px!important;padding:10px 12px!important;font:inherit!important;font-size:13.5px!important;background:#fff!important;color:var(--t)!important;box-shadow:none!important}
+.sv1-legacy input:focus,.sv1-legacy select:focus,.sv1-legacy textarea:focus{border-color:var(--ac)!important;outline:none}
+.sv1-legacy label{font-size:11.5px!important;color:var(--mut)!important;font-weight:400!important}
+.sv1-legacy .callout{background:var(--acSoft)!important;border:1px solid var(--acLine)!important;border-radius:10px!important;color:var(--t)!important;box-shadow:none!important}
+.sv1-legacy .cc-tile{background:var(--acSoft)!important;border:1px solid var(--acLine)!important;border-radius:12px!important;box-shadow:none!important}
+.sv1-legacy .cc-tile strong{color:var(--ink)!important;font-weight:500!important}
+.sv1-legacy .cc-table th,.sv1-legacy table th{background:var(--g)!important;color:var(--ink)!important;font-weight:500!important}
+.sv1-legacy .cc-disclaimer{background:var(--acSoft)!important;border:1px solid var(--acLine)!important;border-radius:10px!important;color:var(--t)!important}
+.sv1-legacy .cc-chip,.sv1-legacy .eco-tab,.sv1-legacy .chip{border-radius:999px!important}
+.sv1-legacy .eco-tab.active,.sv1-legacy .active.cc-chip{background:var(--ac)!important;color:#fff!important;border-color:var(--ac)!important}
+.sv1-legacy .stat .num,.sv1-legacy .eco-stat .num{font-weight:300!important}
+.sv1-legacy .eco-stat .num{color:var(--ink)!important}
+</style>`;
+function sv1Page({ title, desc, active, path, body, script = "", noindex = false, js = false }) {
+  const p = path || active || "/";
+  return SV1.shell({
+    title, desc, path: p, noindex,
+    body: SV1_LEGACY_CSS + SV1.header(p) + `<main class="sv1-legacy">${body}</main>` + SV1.footer(),
+    script: (js ? `<script src="/assets/js/sv1-knowledge.js?v=${KNOW_V}" defer></script>` : "") + script,
+  });
+}
+
 // Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
 const catSlugUrl = (key) => key.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const catUrl = (key) => u("/services/category/" + catSlugUrl(key));
@@ -1983,7 +2048,7 @@ function buildDirectory() {
   })();
   </script>`;
 
-  return page({
+  return sv1Page({
     title: Lraw("Saudi Startup Ecosystem Directory — Business Partner", "دليل منظومة ريادة الأعمال في السعودية — بيزنس بارتنر"),
     desc: Lraw(
       "Directory of Saudi incubators, accelerators, venture-capital funds, angel networks and coworking spaces, with their programs and how to apply.",
@@ -3059,7 +3124,7 @@ function buildOpportunities() {
     <p class="text-soft center mt-24" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice. Looking for a business partnership or deal for your SME? Visit the ", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية. تبحث عن شراكة أو صفقة لمنشأتك الصغيرة/المتوسطة؟ زُر ")}<a href="${u("/deals")}">${L("Deals page", "صفحة الصفقات")}</a>.</p>
   </div></section>
   <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
-  return page({ title: Lraw("Investment Opportunities in Saudi Arabia — Business Partner", "الفرص الاستثمارية في المملكة — بيزنس بارتنر"), desc: Lraw("Major Saudi giga-projects and government tenders we track — enter as a vendor, subcontractor, operator or co-investor. Each links to its public source.", "أبرز المشاريع العملاقة والمنافسات الحكومية في السعودية التي نرصدها — ادخل كمورد أو مقاول باطن أو مشغّل أو شريك استثمار. كل فرصة مرتبطة بمصدرها."), active: "/opportunities", path: "/opportunities", body });
+  return sv1Page({ title: Lraw("Investment Opportunities in Saudi Arabia — Business Partner", "الفرص الاستثمارية في المملكة — بيزنس بارتنر"), desc: Lraw("Major Saudi giga-projects and government tenders we track — enter as a vendor, subcontractor, operator or co-investor. Each links to its public source.", "أبرز المشاريع العملاقة والمنافسات الحكومية في السعودية التي نرصدها — ادخل كمورد أو مقاول باطن أو مشغّل أو شريك استثمار. كل فرصة مرتبطة بمصدرها."), active: "/opportunities", path: "/opportunities", body });
 }
 
 function buildPackages() {
@@ -3280,7 +3345,7 @@ function buildToolsHub() {
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${cards}</div>
   </div></section>`;
-  return page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — بيزنس بارتنر"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
+  return sv1Page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — بيزنس بارتنر"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
 }
 
 function buildNitaqatCalculator() {
@@ -3468,7 +3533,7 @@ function buildNitaqatCalculator() {
     }
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("Nitaqat calculator — Business Partner", "حاسبة النطاقات — بيزنس بارتنر"),
     desc: Lraw("Estimate your Saudization (Nitaqat) band in seconds.", "احسب نطاق السعودة المتوقع خلال ثوانٍ."),
     active: "/tools-and-calculators",
@@ -3521,7 +3586,7 @@ function buildProfessionChecker() {
     renderProf("");
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
     desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
     active: "/tools-and-calculators",
@@ -4119,7 +4184,7 @@ function buildEndOfServiceCalculator() {
       $("lc-eos-result").hidden=false;});
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("End-of-service gratuity calculator — Business Partner", "حاسبة مكافأة نهاية الخدمة — بيزنس بارتنر"),
     desc: Lraw("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."),
     active: "/tools-and-calculators",
@@ -4169,7 +4234,7 @@ function buildAnnualLeaveCalculator() {
       $("lv-result").hidden=false;});
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("Annual leave calculator — Business Partner", "حاسبة الإجازة السنوية — بيزنس بارتنر"),
     desc: Lraw("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."),
     active: "/tools-and-calculators",
@@ -4218,7 +4283,7 @@ function buildOvertimeCalculator() {
       $("ot-result").hidden=false;});
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("Overtime pay calculator — Business Partner", "حاسبة أجر العمل الإضافي — بيزنس بارتنر"),
     desc: Lraw("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."),
     active: "/tools-and-calculators",
@@ -4276,7 +4341,7 @@ function buildGosiCalculator() {
       $("gs-result").hidden=false;});
   })();
   </script>`;
-  return page({
+  return sv1Page({
     title: Lraw("GOSI contributions calculator — Business Partner", "حاسبة اشتراك التأمينات — بيزنس بارتنر"),
     desc: Lraw("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."),
     active: "/tools-and-calculators",
@@ -5272,7 +5337,7 @@ function buildSaudi() {
     <div class="grid grid-3">${articles}</div>
     <div class="cta-band" style="margin-top:40px"><h2>${L("Want a detailed guide for your case?", "تبي دليلاً مفصّلاً لحالتك؟")}</h2><p>${L("Our team prepares your service steps and requirements quickly.", "فريقنا يجهّز لك خطوات خدمتك ومتطلباتها سريعاً.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
+  return sv1Page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
 }
 
 function buildNews() {
@@ -5345,7 +5410,7 @@ function buildNews() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
+  return sv1Page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
 }
 
 // Browsable, branded news magazine — content is the same live Notion feed as
@@ -5374,7 +5439,7 @@ function buildMagazine() {
       <div class="form-success" id="mag-success" hidden></div>
     </form>
   </div></section>`;
-  return page({ title: Lraw("Magazine — Business Partner", "المجلة — بيزنس بارتنر"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
+  return sv1Page({ js: true, title: Lraw("Magazine — Business Partner", "المجلة — بيزنس بارتنر"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
 }
 
 // Print-ready issue: same live news feed, styled for print with the site's
@@ -6064,7 +6129,7 @@ function buildNewsletter() {
     <div class="grid grid-4">${perks}</div>
     <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse past insights", "تصفّح الأعداد السابقة")}</a></div>
   </div></section>`;
-  return page({ title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
+  return sv1Page({ js: true, title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
 // Canonical Field taxonomy — shared by the employer job-posting form, the

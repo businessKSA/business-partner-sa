@@ -375,9 +375,9 @@
               "ar": "كل الأدوات"
             },
             {
-              "href": "/calculator",
-              "en": "Cost calculator",
-              "ar": "حاسبة التكاليف"
+              "href": "/catalog",
+              "en": "Build & price your request",
+              "ar": "كوّن طلبك وسعّره"
             },
             {
               "href": "/calculators/government-cost",

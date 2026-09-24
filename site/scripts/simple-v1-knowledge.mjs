@@ -50,7 +50,7 @@ const DESC = {
   "/directory": { ar: "الحاضنات والمسرّعات والصناديق ومساحات العمل في السعودية.", en: "Incubators, accelerators, funds and coworking in Saudi Arabia." },
   "/guide/live-in-saudi": { ar: "السكن والتعليم والصحة والقيادة لفريقك المنتقل.", en: "Housing, schools, healthcare and driving for relocating staff." },
   "/guide/residency": { ar: "الإقامة النظامية والمميزة ونقل الكفالة.", en: "Iqama, Premium Residency and sponsorship transfer." },
-  "/calculator": { ar: "اختر خدماتك من الكتالوج واطلب عرض سعر.", en: "Pick services from the catalogue and request a quote." },
+  "/catalog": { ar: "اختر خدماتك من الكتالوج واطلب عرض سعر رسمي.", en: "Pick services from the catalogue and request an official quote." },
   "/calculators/government-cost": { ar: "رخصة العمل والإقامة والتأمين والغرامات لكل عامل.", en: "Work permit, iqama, insurance and fines per worker." },
   "/calculators/profession-checker": { ar: "هل المهنة موطّنة أو مقيّدة على نشاطك؟", en: "Is a profession localized or restricted for your activity?" },
   "/calculators/end-of-service": { ar: "مكافأة نهاية الخدمة وفق نظام العمل.", en: "End-of-service gratuity under the Labor Law." },
