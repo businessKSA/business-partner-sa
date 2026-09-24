@@ -12,6 +12,8 @@
 //
 // fr و zh تعرض الإنجليزية حتى تُترجم، كبقية صفحات SV1.
 
+import { sellKit } from "./sv1-guide-sell.mjs";
+
 const T = {
   title: { ar: "هيكلة فريقك ورواتبه في السعودية", en: "Structuring your team and payroll in Saudi Arabia" },
   metaTitle: { ar: "الهيكلة التنظيمية والرواتب وتكلفة الموظف في السعودية", en: "Team Structure, Salaries & Employee Cost in Saudi Arabia" },
@@ -127,6 +129,7 @@ export function buildSimpleGuideStructure(SV1, ctx) {
   const t = (k) => pick(T[k]);
   const pre = lang === "en" ? "" : "/" + lang;
   const u = (p) => pre + p;
+  const sell = sellKit({ lang, u, esc });
 
   const CSS = `<style id="sv1-guide-css">
 .sv1-gd-head{text-align:start;max-width:820px;margin:0 0 26px}
@@ -156,9 +159,9 @@ export function buildSimpleGuideStructure(SV1, ctx) {
 
   const nav = SECTIONS.map((s) => `<a href="#${s.id}">${esc(pick(s.nav))}</a>`).join("");
 
-  const sections = SECTIONS.map((s) => {
+  const sectionList = SECTIONS.map((s) => {
     const list = s.items
-      ? `<ul>${s.items.map((i) => `<li>${esc(pick(i))}</li>`).join("")}</ul>`
+      ? `<ul>${s.items.map((i) => `<li>${sell.link(esc(pick(i)))}</li>`).join("")}</ul>`
       : "";
     const table = s.rows
       ? `<div class="sv1-gd-tbl"><table><thead><tr><th>${esc(t("sector"))}</th><th>${esc(t("entry"))}</th><th>${esc(t("mid"))}</th><th>${esc(t("senior"))}</th></tr></thead><tbody>${
@@ -166,8 +169,8 @@ export function buildSimpleGuideStructure(SV1, ctx) {
         }</tbody></table></div><p class="sv1-muted" style="margin:8px 0 0">${esc(t("sar"))}</p>`
       : "";
     const note = s.note ? `<div class="sv1-gd-note">${esc(pick(s.note))}</div>` : "";
-    return `<section class="sv1-gd-sec" id="${s.id}"><h2>${esc(pick(s.h))}</h2><p>${esc(pick(s.lead))}</p>${list}${table}${note}</section>`;
-  }).join("");
+    return `<section class="sv1-gd-sec" id="${s.id}"><h2>${esc(pick(s.h))}</h2><p>${sell.link(esc(pick(s.lead)))}</p>${list}${table}${note}</section>`;
+  });
 
   const more = MORE.map(([p, l]) => `<a href="${esc(u(p))}">${esc(pick(l))} ${lang === "ar" ? "←" : "→"}</a>`).join("");
 
@@ -184,7 +187,7 @@ export function buildSimpleGuideStructure(SV1, ctx) {
       </div>
     </div>
     <nav class="sv1-gd-nav" aria-label="${esc(t("onPage"))}">${nav}</nav>
-    ${sections}
+    ${sell.withMid(sectionList)}
     <div class="sv1-gd-note" style="margin:22px 0 34px">${esc(t("disclaimer"))}</div>
     <h2 style="font-size:19px;font-weight:400;color:var(--ink);margin:0 0 12px">${esc(t("more"))}</h2>
     <div class="sv1-gd-more">${more}</div>
@@ -197,6 +200,6 @@ ${SV1.footer()}`;
     title: `${t("metaTitle")} — Business Partner`,
     desc: t("desc"),
     path: "/guide/company-structure",
-    body: CSS + body,
+    body: CSS + sell.css + body,
   });
 }

@@ -3,6 +3,8 @@
 // على نمط site/scripts/simple-v1-guide-structure.mjs. المحتوى بلا تغيير —
 // انظر التعليق التفصيلي في simple-v1-guide-saudi-market.mjs لمصدر البحث.
 
+import { sellKit } from "./sv1-guide-sell.mjs";
+
 const T = {
   title: { ar: "تشغيل شركتك في السعودية", en: "Operating a company in Saudi Arabia" },
   metaTitle: { ar: "تشغيل عملك في السعودية", en: "Run Your Business in Saudi Arabia" },
@@ -103,6 +105,7 @@ export function buildSimpleGuideRunBusiness(SV1, ctx) {
   const t = (k) => pick(T[k]);
   const pre = lang === "en" ? "" : "/" + lang;
   const u = (p) => pre + p;
+  const sell = sellKit({ lang, u, esc });
 
   const CSS = `<style id="sv1-gd-css">
 .sv1-gd-head{text-align:start;max-width:820px;margin:0 0 26px}
@@ -126,11 +129,11 @@ export function buildSimpleGuideRunBusiness(SV1, ctx) {
 
   const nav = SECTIONS.map((s) => `<a href="#${s.id}">${esc(pick(s.nav))}</a>`).join("");
 
-  const sections = SECTIONS.map((s) => {
-    const list = s.items ? `<ul>${s.items.map((i) => `<li>${esc(pick(i))}</li>`).join("")}</ul>` : "";
+  const sectionList = SECTIONS.map((s) => {
+    const list = s.items ? `<ul>${s.items.map((i) => `<li>${sell.link(esc(pick(i)))}</li>`).join("")}</ul>` : "";
     const note = s.note ? `<div class="sv1-gd-note">${esc(pick(s.note))}</div>` : "";
-    return `<section class="sv1-gd-sec" id="${s.id}"><h2>${esc(pick(s.h))}</h2><p>${esc(pick(s.lead))}</p>${list}${note}</section>`;
-  }).join("");
+    return `<section class="sv1-gd-sec" id="${s.id}"><h2>${esc(pick(s.h))}</h2><p>${sell.link(esc(pick(s.lead)))}</p>${list}${note}</section>`;
+  });
 
   const more = SAUDI_GUIDE_PAGES.map(([p, l]) => `<a href="${esc(u(p))}">${esc(pick(l))} ${lang === "ar" ? "←" : "→"}</a>`).join("");
 
@@ -147,7 +150,7 @@ export function buildSimpleGuideRunBusiness(SV1, ctx) {
       </div>
     </div>
     <nav class="sv1-gd-nav" aria-label="${esc(t("onPage"))}">${nav}</nav>
-    ${sections}
+    ${sell.withMid(sectionList)}
     <div class="sv1-gd-note" style="margin:22px 0 34px">${esc(t("disclaimer"))}</div>
     <h2 style="font-size:19px;font-weight:400;color:var(--ink);margin:0 0 12px">${esc(t("more"))}</h2>
     <div class="sv1-gd-more">${more}</div>
@@ -160,6 +163,6 @@ ${SV1.footer()}`;
     title: `${t("metaTitle")} — Business Partner`,
     desc: t("desc"),
     path: "/guide/run-your-business",
-    body: CSS + body,
+    body: CSS + sell.css + body,
   });
 }
