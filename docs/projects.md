@@ -124,6 +124,10 @@ Notion. نظامان لنفس الشيء، يحتاجان قراراً.
 | `/mahfol-makfol` · `/trips` · `/tourism` | — | مختلط |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |
 
+`/guide/company-structure` (الهيكلة والرواتب وتكلفة الموظف) أُضيف 2026-09-24
+بالمولّد نفسه، وحلّ محلّ مسودة `#81` (على موقع Astro المحذوف) التي أُغلقت دون
+دمج. نسختها الموسّعة في Notion مرجع داخلي فقط — **مصدر الحقيقة هو المولّد**.
+
 صفحات المنتجات: `/ai-agents` · `/ai-document-agent` · `/compliance-agent` ·
 `/smart-employee` · `/shared-services` · `/business-development` ·
 `/task-force` · `/data` · `/deals` · `/estrdad` · `/bank-account` ·
