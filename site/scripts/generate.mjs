@@ -314,6 +314,7 @@ import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
+import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
@@ -892,6 +893,51 @@ function sv1Page({ title, desc, active, path, body, script = "", noindex = false
     body: SV1_LEGACY_CSS + SV1.header(p) + `<main class="sv1-legacy">${body}</main>` + SV1.footer(),
     script: (js ? `<script src="/assets/js/sv1-knowledge.js?v=${KNOW_V}" defer></script>` : "") + script,
   });
+}
+
+// ---------- صفحات التوظيف على قشرة الموقع الجديد ----------
+// قرار المالك (2026-09-24) بعد فتحه /ar/employer-login: «ليش في الفوتر القديم
+// في كل صفحاتك؟ اعتمد فقط نفس الموقع الرئيسي». فالمطلوب الترويسة والتذييل
+// الجديدان على صفحات التوظيف العشر (أربعون صفحة × أربع لغات).
+//
+// لماذا لا تُقدَّم بـ sv1Page() وحده كصفحات مركز المعرفة: تلك محتوى ساكن،
+// وهذه **تطبيقات**. كل واحدة من العشر منطقُها الحيّ في main.js وحده:
+//   /careers و/job       → loadPostingPage() و setSelectedJob() ونموذج التقديم
+//   /employers           → تصفّح المرشحين و fillFilters()
+//   /employer-login      → مسارات الدخول كلها
+//   /employer-join       → window.BP_EMP_PLANS وحساب الاشتراك
+//   /employer-dashboard  → لوحة التوظيف الذكية
+//   /candidate-profile   → ملف المرشّح
+//   /recruitment-agencies و/agency-portal → تسجيل المكاتب وبوابتها
+//   /job-search-service  → انضمام الباحث عن عمل
+// إسقاط main.js عنها يكسر كل نموذج فيها. والمالك طلب الشكل لا إسقاط السكربت،
+// فيُستبدل ما طُلب وحده — الترويسة والتذييل — ويبقى الزوج (main.js ثم
+// live-prices.js) بترتيبه في page() حرفاً بحرف.
+//
+// زر واتساب واحد يبقى: waFab() القديم لا يُحقن هنا، وتذييل SV1 يحمل sv1-wa-fab.
+//
+// وعدّادُ زياراتٍ واحد. القشرة تحمل عدّادها (BEACON_JS في simple-v1.mjs)،
+// و main.js يحمل العدّاد نفسه بالعقد نفسه حرفاً بحرف: `action:"hit"` ومفتاح
+// الزائر `bp_vid` والحمولة نفسها بالترتيب نفسه. اجتماعهما على صفحة واحدة
+// يضاعف كل زيارة وكل نقرة في لوحة الإحصائيات — رقمٌ خاطئ بلا عطلٍ ظاهر،
+// وهو أسوأ ما يُشحن لأن لا شيء يقول إنه خطأ. فيُنزع عدّاد القشرة عن هذه
+// العشر وحدها ويبقى عدّاد main.js، إذ هو وحده الذي يتتبّع أزرار محتواها
+// أيضاً. الثمن معلوم ومقصود: نقرتا «السلة» و«الدخول» في الترويسة الجديدة
+// لا تُسجَّلان على هذه الصفحات — والزيارات والأخطاء وأزرار المحتوى كما كانت.
+//
+// المطابقة مثبّتة بالسطر `if(navigator.webdriver)return;` ولا يرد إلا في
+// عدّاد القشرة، وتُفحص: إن تغيّرت القشرة سقط البناء بدل أن يُشحن رقمٌ مضاعف.
+const SV1_SHELL_BEACON_RE = /<script>\(function\(\)\{"use strict";\s*if\(navigator\.webdriver\)return;[\s\S]*?<\/script>/;
+function sv1LegacyApp({ title, desc, active, path, body, script = "", noindex = false }) {
+  const html = sv1Page({
+    title, desc, active, path, body, noindex,
+    script: `<script src="/assets/js/main.js?v=${JS_V}"></script><script src="/assets/js/live-prices.js?v=${LIVE_V}" defer></script>` + script,
+  });
+  const once = html.replace(SV1_SHELL_BEACON_RE, "");
+  if (once === html) {
+    throw new Error(`sv1LegacyApp(${path || active}): عدّاد القشرة لم يُعثر عليه — تغيّر BEACON_JS في simple-v1.mjs. لا تشحن: كل زيارة ستُعدّ مرّتين.`);
+  }
+  return once;
 }
 
 // Clean slug + URL for a category's own page (e.g. /services/category/company-formation).
@@ -5499,7 +5545,7 @@ function buildEmployers() {
   <section class="section"><div class="container">
     <div class="grid grid-3">${value}</div>
   </div></section>`;
-  return page({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
+  return sv1LegacyApp({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
 
 function employerYearly(monthly, discount) {
@@ -5584,7 +5630,7 @@ function buildEmployerJoin() {
     ${employerPlanCards({ selectable: true })}
     <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online for instant activation — or by bank transfer and we activate right after verifying it.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً فيتفعّل وصولك فوراً — أو بالتحويل البنكي ونفعّله فور التحقق منه.")}</p>
   </div></section>`;
-  return page({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
+  return sv1LegacyApp({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
 
 function buildEmployerLogin() {
@@ -5638,7 +5684,7 @@ function buildEmployerLogin() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
+  return sv1LegacyApp({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
 }
 
 // Overseas recruitment offices and agencies register here; the owner reviews
@@ -5724,7 +5770,7 @@ function buildJobSearchService() {
     </div>
     <p class="emp-note" style="text-align:center;margin-top:14px">${L("Already signed up? We email you every time we find something — no login needed.", "سجّلت من قبل؟ يصلك بريد كلما وجدنا لك وظيفة — بدون تسجيل دخول.")}</p>
   </div></section>`;
-  return page({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — بيزنس بارتنر"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "بيزنس بارتنر يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
+  return sv1LegacyApp({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — بيزنس بارتنر"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "بيزنس بارتنر يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
 }
 
 function buildRecruitmentAgencies() {
@@ -5776,7 +5822,7 @@ function buildRecruitmentAgencies() {
     </div>
     <p class="emp-note" style="text-align:center;margin-top:14px">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>
   </div></section>`;
-  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
+  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
 }
 
 // The provider panel. Sign-up and sign-in live on the same screen (password or
@@ -6069,7 +6115,7 @@ function buildAgencyPortal() {
       </form>
     </div>
   </div></div>`;
-  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
+  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
 }
 
 // A dedicated, full page for one candidate (instead of the old in-modal
@@ -6085,7 +6131,7 @@ function buildCandidateProfile() {
     </div>
   </div></section>
   <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — بيزنس بارتنر"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
+  return sv1LegacyApp({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — بيزنس بارتنر"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
 }
 
 function buildNewsletter() {
@@ -6241,7 +6287,7 @@ function buildEmployerDashboard() {
     <div class="empd-modal-body" id="empd-modal-body"></div>
   </div></div>
   <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
+  return sv1LegacyApp({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
 }
 
 // ============ Standalone HR Portal (hr.businesspartner.sa) ============
@@ -6636,7 +6682,7 @@ function buildPostingPage() {
       ${seekerFormHtml(f, { id: "", title: "", note: `${L("Applying for", "التقديم على")}: <strong>${L("Loading job…", "جارٍ تحميل الوظيفة…")}</strong>` })}
     </div>
   </div></section>`;
-  return page({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — بيزنس بارتنر"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة بيزنس بارتنر — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
+  return sv1LegacyApp({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — بيزنس بارتنر"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة بيزنس بارتنر — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
 }
 
 function buildWorkshopCampaign() {
@@ -7051,7 +7097,7 @@ function buildCareers() {
   </div></section>
 
   ${trackApplicationHtml()}`;
-  return page({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
+  return sv1LegacyApp({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 
 function buildContact() {
@@ -11966,6 +12012,9 @@ function writeFullSite(pre) {
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
     // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
+    // بوابة صاحب العمل على القشرة الجديدة: صفحة واحدة تحلّ محلّ لوحة
+    // /hr/employer القديمة. تبقى القديمة مبنيّة حتى تُغلق عمداً.
+    write(`${pre}employer.html`, buildSimpleEmployer(SV1, { lang: () => LANG, esc }));
     // ‏حجز الاستشارة صار على التقويم: فترات حقيقية من /api/book?action=slots
     // بدل حقل تاريخٍ حرّ. الصفحة القديمة تبقى مبنيّة على /consultation-classic
     // لأن روابطها قد تكون في يد عميل، ولا شيء في الموقع يرسل إليها.
