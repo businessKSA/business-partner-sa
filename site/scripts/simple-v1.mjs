@@ -248,6 +248,9 @@ const D = {
 
 export function simpleV1(ctx) {
   const { lang, esc, site, head, pathInLang } = ctx;
+  // «مركز المعرفة» في التذييل يُقرأ من مجموعة القائمة نفسها في site/data/nav.json
+  // (يمرّرها generate.mjs) — فما يُضاف هناك يظهر هنا بلا تعديل ثانٍ.
+  const knowledge = ctx.knowledge || null;
   const t = (k) => { const e = D[k]; if (!e) return k; const l = lang(); return e[l] != null ? e[l] : e.en; };
   const arr = (k) => { const e = D[k]; const l = lang(); return Array.isArray(e[l]) ? e[l] : e.en; };
   const pre = () => (lang() === "en" ? "" : "/" + lang());
@@ -449,7 +452,11 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
-.sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
+.sv1-foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1fr 1.1fr;gap:26px 34px}
+.sv1-foot-sub{display:block;color:rgba(255,255,255,.9);font-size:11.5px;font-weight:500;margin:0 0 7px}
+.sv1-foot-list{display:grid;gap:6px;margin:0 0 14px}
+.sv1-foot .sv1-foot-list a{color:rgba(255,255,255,.72);text-decoration:none;font-size:12px}
+.sv1-foot .sv1-foot-list a:hover{color:#fff;text-decoration:underline}
 .sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
 .sv1-foot-col p{margin:0 0 8px;line-height:1.75}
 .sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
@@ -552,6 +559,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     };
   }
 
+  function knowledgeCol() {
+    if (!knowledge || !Array.isArray(knowledge.items)) return "";
+    const lab = (o) => esc(o[lang()] || o.en || "");
+    const link = (o) => `<a href="${href(o.href)}">${lab(o)}</a>`;
+    // مجموعة لها «sub» (دليل السعودية) تُعرض عنواناً فرعياً بروابطها؛ ومجموعة
+    // الأدوات تكتفي برابطها الأب — ٢٤ حاسبة تُغرق التذييل.
+    const groups = knowledge.items.filter((i) => Array.isArray(i.sub) && i.href !== "/tools-and-calculators");
+    const singles = knowledge.items.filter((i) => !groups.includes(i));
+    return `<div class="sv1-foot-col">
+      <h4>${lab(knowledge)}</h4>
+      ${groups.map((g) => `<b class="sv1-foot-sub">${lab(g)}</b><div class="sv1-foot-list">${g.sub.map(link).join("")}</div>`).join("")}
+      <div class="sv1-foot-list">${singles.map(link).join("")}</div>
+    </div>`;
+  }
   function footer() {
     const year = new Date().getFullYear();
     const id = legalIdentity();
@@ -585,6 +606,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
       ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
       ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
     </div>
+    ${knowledgeCol()}
     <div class="sv1-foot-col">
       <h4>${t("footPay")}</h4>
       <p class="sv1-foot-note">${t("footPayLine")}</p>

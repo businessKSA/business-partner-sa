@@ -12242,7 +12242,7 @@ let pageCount = 0;
 // Simple V1 (2026-09): the simplified customer layer. With SIMPLE_V1=1 it
 // takes over "/" (the classic homepage moves to /classic-home); without the
 // flag it is previewed at /simple-v1 and production is unchanged.
-const SV1 = simpleV1({ lang: () => LANG, esc, site, head, pathInLang, assetV });
+const SV1 = simpleV1({ lang: () => LANG, esc, site, head, pathInLang, assetV, knowledge: NAV_GROUPS.find((g) => g.en === "Knowledge Center") });
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
 function writeFullSite(pre) {
