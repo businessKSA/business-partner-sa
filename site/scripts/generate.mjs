@@ -4873,19 +4873,21 @@ function buildMahfolTrips() {
     { ic: "🐪", k: "hail", price: null, en: "Hail, AlAhsa & Madinah", ar: "حائل والأحساء والمدينة", te: "Treasures waiting to be discovered", ta: "كنوز تنتظر الاكتشاف", pe: "custom pricing", pa: "تسعيرة خاصة", img: "1bETpN7I-RohaZr2liGisd7nsOiye6AMh", mx: 350, my: 291,
       hlEn: ["Aja & Salma mountains and Hail heritage", "Jubbah rock art — UNESCO", "AlAhsa oasis & a Madinah add-on"], hlAr: ["جبال أجا وسلمى وتراث حائل", "نقوش جبة الصخرية — يونسكو", "واحة الأحساء وإضافة المدينة المنورة"] },
   ];
-  // Purchasable trip card: priced → Add to cart (per-person; qty = travellers) →
-  // existing checkout (requires sign-in, payment, order in Notion, shows in the
-  // client portal). Price-less → request a custom quote via the form.
-  const tripBuy = (d, ghost = false) => d.price != null && SHOW_PRICES
-    ? cartBtns({ id: "trip-" + d.k, nameEn: "Trip — " + d.en, nameAr: "رحلة — " + d.ar, amount: d.price, priceLabel: L(d.pe, d.pa), kind: "trip", ghost })
-    : `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
+  // RETIRED AS A SHOP (2026-09-24). This page used to add trips to the cart at
+  // the hand-written `DEST.price` values — amounts with no SKU behind them,
+  // which breaks CLAUDE.md §4 ("prices come from the catalogue by SKU only").
+  // /trips is now the selling page: 54 real BP-TRIP-* trips at catalogue
+  // prices. Here nothing is purchasable any more — every card asks for a quote
+  // through the form, and no invented amount is rendered. DEST itself is kept:
+  // the geographic map and the destination copy still read it.
+  const tripBuy = (d, ghost = false) =>
+    `<div class="buy-row"><a class="btn ${ghost ? "btn-ghost" : "btn-primary"}" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${I.calendar}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a></div>`;
   const destCards = DEST.map((d) => `
     <div class="card feature tr-dest" data-trip-open="${d.k}">
       <div class="tr-dest-img" style="background-image:url('${timg(d.img)}')"></div>
       <div class="tr-dest-body">
         <h3><button type="button" class="tr-dest-name" data-trip-open="${d.k}">${L(d.en, d.ar)}</button></h3>
         <p class="tr-tag">${L(d.te, d.ta)}</p>
-        ${SHOW_PRICES ? `<span class="tr-price">${L(d.pe, d.pa)}</span>` : ""}
         <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
           ${tripBuy(d)}
           <a class="tr-inquire" href="#trip-form" data-trip-dest="${Lraw(d.en, d.en)}">${L("or ask a question", "أو استفسر أولاً")}</a>
@@ -4916,7 +4918,7 @@ function buildMahfolTrips() {
   const mapPanels = DEST.map((d, i) => `
     <div class="trm-panel${i === 0 ? " on" : ""}" data-idx="${i}">
       <div class="trm-panel-img" style="background-image:url('${timg(d.img)}')"></div>
-      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p>${SHOW_PRICES ? `<span class="tr-price">${L(d.pe, d.pa)}</span>` : ""}
+      <div class="trm-panel-body"><h3>${L(d.en, d.ar)}</h3><p>${L(d.te, d.ta)}</p>
       ${tripBuy(d)}</div>
     </div>`).join("");
 
@@ -5014,14 +5016,18 @@ function buildMahfolTrips() {
     .tr-owner p{color:rgba(255,255,255,.85);max-width:640px;margin:0 auto 18px}
   </style>
 
-  ${mmSubnav("/mahfol-makfol/trips")}
+  ${mmSubnav("/trips")}
   <section class="tr-hero"><div class="container hero-inner" style="max-width:1000px;text-align:start;align-items:flex-start">
     <div class="subbrand-badge">${I.globe}<span>${L("Mahfol Makfol", "محفول مكفول")}</span><small>${L("by Business Partner", "من بزنس بارتنر")}</small></div>
     <h1>${L("Discover Saudi Arabia — trips & experiences", "استكشف السعودية — رحلات وتجارب")}</h1>
     <div class="tr-gold-line"></div>
     <p class="lead">${L("Curated trips, camps, stays and activities across every region — designed around you and delivered through our vetted local partners.", "رحلات ومخيمات وإقامات وأنشطة مصمّمة في كل مناطق المملكة — حسب رغبتك وعبر شركائنا المحليين المعتمدين.")}</p>
     <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-primary btn-lg" href="#trip-form">${I.calendar}<span>${L("Design my trip", "صمّم رحلتي")}</span></a>${waBtn2("Book a consultation", "احجز استشارة", "btn-ghost")}</div>
-    <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.check}${L("Instant booking", "حجز فوري")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+    <div class="tr-trust"><span>${I.check}${L("Vetted, audited suppliers", "موردون معتمدون ومدقّقون")}</span><span>${I.check}${L("Instant booking on /trips", "حجز فوري عبر صفحة الرحلات")}</span><span>${I.clock}${L("24/7 support", "دعم على مدار الساعة")}</span></div>
+  </div></section>
+
+  <section class="section" style="padding-bottom:0"><div class="container" style="max-width:900px">
+    <div class="callout"><span class="ico">🧳</span><p><strong>${L("Looking for prices and instant booking?", "تبحث عن الأسعار والحجز الفوري؟")}</strong> ${L("Our full trip catalogue — every trip with its published price, duration and category — now lives on its own page. This page stays for destination ideas and custom requests.", "كتالوج الرحلات الكامل — كل رحلة بسعرها المعلن ومدّتها وفئتها — صار له صفحته الخاصة. هذه الصفحة تبقى لاستعراض الوجهات وطلبات الرحلات المُفصَّلة.")} <a href="${u("/trips")}"><strong>${L("Browse all trips →", "تصفّح كل الرحلات ←")}</strong></a></p></div>
   </div></section>
 
   <section class="section"><div class="container" style="max-width:840px">
@@ -5073,7 +5079,6 @@ function buildMahfolTrips() {
       <div class="tr-modal-body">
         <h3 id="trm-title"></h3>
         <p class="tr-tag" id="trm-tag"></p>
-        <span class="tr-price" id="trm-price"></span>
         <h4>${L("Trip highlights", "أبرز معالم الرحلة")}</h4>
         <ul class="tr-modal-hl" id="trm-hl"></ul>
         <h4>${L("What's included", "ماذا تشمل الرحلة")}</h4>
@@ -5084,7 +5089,7 @@ function buildMahfolTrips() {
           <li>${L("Signature experiences & activities", "تجارب وأنشطة مميّزة")}</li>
         </ul>
         <div class="tr-modal-cta" id="trm-cta"></div>
-        <p class="tr-modal-note">${L("Per-person price — set the number of travellers in your cart. Booking needs a free account.", "السعر للشخص — حدّد عدد المسافرين في السلة. الحجز يتطلب حساباً مجانياً.")}</p>
+        <p class="tr-modal-note">${L("Pricing is quoted per request. To book and pay instantly, see the full trip catalogue.", "التسعير يُرسل مع عرض السعر. للحجز والدفع الفوري، اطّلع على كتالوج الرحلات الكامل.")} <a href="${u("/trips")}">${L("All trips →", "كل الرحلات ←")}</a></p>
       </div>
     </div>
   </div>
@@ -5120,9 +5125,11 @@ function buildMahfolTrips() {
 (function(){
   var LANG = ${JSON.stringify(LANG === "ar" ? "ar" : "en")};
   var WA = ${JSON.stringify(WA)};
-  var CART = ${JSON.stringify(u("/cart"))};
-  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar, k: d.k, price: d.price, pe: d.pe, pa: d.pa })))};
-  var DTL = ${JSON.stringify(DEST.map((d) => ({ k: d.k, ic: d.ic, en: d.en, ar: d.ar, te: d.te, ta: d.ta, pe: d.pe, pa: d.pa, price: d.price, img: timg(d.img), hlEn: d.hlEn || [], hlAr: d.hlAr || [] })))};
+  // Price fields (price/pe/pa) are deliberately NOT serialised here: they are
+  // hand-written amounts with no catalogue SKU, and nothing on this page sells
+  // any more. /trips carries the real BP-TRIP-* prices.
+  var DST = ${JSON.stringify(DEST.map((d) => ({ en: d.en, ar: d.ar, k: d.k })))};
+  var DTL = ${JSON.stringify(DEST.map((d) => ({ k: d.k, ic: d.ic, en: d.en, ar: d.ar, te: d.te, ta: d.ta, img: timg(d.img), hlEn: d.hlEn || [], hlAr: d.hlAr || [] })))};
   function tr(ar,en){return LANG==="ar"?ar:en;}
   // ----- Smart trip/flight agent (chat, multiple-choice) -----
   var msgs=document.getElementById("tr-msgs"), optsBox=document.getElementById("tr-opts"), ctaBox=document.getElementById("tr-cta");
@@ -5170,27 +5177,14 @@ function buildMahfolTrips() {
       if(d.when)parts.push("When: "+d.when.le);
       return parts.join(" | ");
     }
-    function findDest(v){for(var i=0;i<DST.length;i++){if(DST[i].en===v)return DST[i];}return null;}
-    var GQ={"1-2":2,"3-5":4,"6-10":8,"10+":10};
-    function bookAndPay(qty){
-      var sel=(st.data.dest||st.data.to);if(!sel)return;var dd=findDest(sel.v);if(!dd||dd.price==null)return;
-      var item={id:"trip-"+dd.k,nameEn:"Trip — "+dd.en,nameAr:"رحلة — "+dd.ar,amount:dd.price,price:(LANG==="ar"?dd.pa:dd.pe),kind:"trip",qty:qty||1};
-      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
-      location.href=CART;
-    }
     function plan(){
       clearOpts();
-      var sel=(st.data.dest||st.data.to);var dd=sel?findDest(sel.v):null;
-      var hasBook=st.mode==="trip"&&dd&&dd.price!=null;
-      var q=(st.data.group&&GQ[st.data.group.v])||1;
-      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):(hasBook?tr("تمام! وجهتك جاهزة للحجز الفوري 👇","Done! Your destination is ready to book instantly 👇"):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp.")),"bot");
+      // Instant booking used to happen right here, at the hand-written DEST
+      // price. It moved to /trips (catalogue SKUs); the advisor now only
+      // drafts the request.
+      bubble(st.mode==="flight"?tr("تمام! سنبحث لك عن أفضل الرحلات ونؤكد الحجز. أكمل بياناتك أو تواصل واتساب الآن.","Done! We'll find the best flights and confirm your booking. Complete your details or chat on WhatsApp."):tr("تمام! جهّزت ملخص رحلتك. أكمل بياناتك ونعود لك ببرنامج وتسعيرة خلال يوم — أو تواصل واتساب الآن.","Done! I've drafted your trip. Complete your details and we'll come back within a day — or chat on WhatsApp."),"bot");
       var sum=summaryEN();
-      if(hasBook){
-        bubble(tr(dd.ar+" — "+dd.price+" ر.س للشخص × "+q+" مسافر (تقدر تعدّل العدد في السلة قبل الدفع).",dd.en+" — "+dd.price+" SAR/person × "+q+" travellers (adjust the number in your cart before paying)."),"bot");
-        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";bk.textContent=tr("احجز وادفع الآن","Book & pay now");
-        bk.addEventListener("click",function(){bookAndPay(q);});ctaBox.appendChild(bk);
-      }
-      var f=document.createElement("button");f.type="button";f.className=hasBook?"btn btn-ghost":"btn btn-primary";f.textContent=hasBook?tr("أو أكمل بياناتي","Or complete my details"):tr("أكمل بياناتي","Complete my details");
+      var f=document.createElement("button");f.type="button";f.className="btn btn-primary";f.textContent=tr("أكمل بياناتي","Complete my details");
       f.addEventListener("click",function(){
         var dest=(st.data.dest||st.data.to);var destEl=document.getElementById("tr-dest");
         if(destEl&&dest)destEl.value=dest.le;
@@ -5224,10 +5218,6 @@ function buildMahfolTrips() {
     var modal=document.getElementById("tr-modal");
     if(!modal) return;
     function findD(k){for(var i=0;i<DTL.length;i++){if(DTL[i].k===k)return DTL[i];}return null;}
-    function addToCart(d,qty){
-      var item={id:"trip-"+d.k,nameEn:"Trip — "+d.en,nameAr:"رحلة — "+d.ar,amount:d.price,price:(LANG==="ar"?d.pa:d.pe),kind:"trip",qty:qty||1};
-      try{if(window.BP&&BP.cart){var c=BP.cart.read();var ex=null;for(var i=0;i<c.length;i++){if(c[i].id===item.id){ex=c[i];break;}}if(ex)ex.qty=item.qty;else c.push(item);BP.cart.write(c);}}catch(e){}
-    }
     function gotoForm(d){
       close();
       var el=document.getElementById("tr-dest");if(el)el.value=(LANG==="ar"?d.en:d.en);
@@ -5238,19 +5228,14 @@ function buildMahfolTrips() {
       document.getElementById("trm-img").style.backgroundImage="url('"+d.img+"')";
       document.getElementById("trm-title").textContent=(LANG==="ar"?d.ar:d.en);
       document.getElementById("trm-tag").textContent=(LANG==="ar"?d.ta:d.te);
-      document.getElementById("trm-price").textContent=(LANG==="ar"?d.pa:d.pe);
       var hl=(LANG==="ar"?d.hlAr:d.hlEn)||[];var ul=document.getElementById("trm-hl");ul.innerHTML="";
       hl.forEach(function(h){var li=document.createElement("li");li.textContent=h;ul.appendChild(li);});
+      // No "book & pay" here any more: DEST prices are hand-written, not SKU
+      // prices. Booking happens on /trips; this modal only asks for a quote.
       var cta=document.getElementById("trm-cta");cta.innerHTML="";
-      if(d.price!=null){
-        var bk=document.createElement("button");bk.type="button";bk.className="btn btn-primary";
-        bk.textContent=(LANG==="ar"?"احجز وادفع الآن":"Book & pay now");
-        bk.addEventListener("click",function(){addToCart(d,1);location.href=CART;});cta.appendChild(bk);
-      }else{
-        var rq=document.createElement("button");rq.type="button";rq.className="btn btn-primary";
-        rq.textContent=(LANG==="ar"?"اطلب عرض سعر":"Request a quote");
-        rq.addEventListener("click",function(){gotoForm(d);});cta.appendChild(rq);
-      }
+      var rq=document.createElement("button");rq.type="button";rq.className="btn btn-primary";
+      rq.textContent=(LANG==="ar"?"اطلب عرض سعر":"Request a quote");
+      rq.addEventListener("click",function(){gotoForm(d);});cta.appendChild(rq);
       var ask=document.createElement("button");ask.type="button";ask.className="btn btn-ghost";
       ask.textContent=(LANG==="ar"?"استفسر أولاً":"Ask a question");
       ask.addEventListener("click",function(){gotoForm(d);});cta.appendChild(ask);
@@ -7936,7 +7921,7 @@ function buildAccount() {
             <div class="portal-grid">
               <a class="portal-card" href="${u("/services")}"><span>🗂️</span><strong>${L("Request a service", "اطلب خدمة")}</strong></a>
               <a class="portal-card" href="${u("/packages")}"><span>📦</span><strong>${L("Packages", "الباقات")}</strong></a>
-              <a class="portal-card" href="${u("/mahfol-makfol/trips")}"><span>🧳</span><strong>${L("Trips & experiences", "الرحلات والتجارب")}</strong></a>
+              <a class="portal-card" href="${u("/trips")}"><span>🧳</span><strong>${L("Trips & experiences", "الرحلات والتجارب")}</strong></a>
               <a class="portal-card" href="${u("/mahfol-makfol")}"><span>🌍</span><strong>${L("Business tourism", "سياحة الأعمال")}</strong></a>
               <a class="portal-card" href="${u("/tourism")}"><span>🎉</span><strong>${L("Company events", "فعاليات الشركات")}</strong></a>
               <a class="portal-card" href="${u("/consultation")}"><span>📅</span><strong>${L("Book consultation", "احجز استشارة")}</strong></a>
@@ -11707,7 +11692,7 @@ function buildB10X() {
     <div class="section-head"><span class="eyebrow">B10X Investor Discovery Mission</span><h2>${L("An executive discovery mission inside Saudi Arabia", "رحلة استكشافية تنفيذية داخل السعودية")}</h2><p>${L("Government, customer, supplier, bank, chamber and real-estate meetings — designed around your sector.", "لقاءات حكومية وعملاء وموردون وبنوك وغرف تجارية وجولات عقارية — مصممة حسب قطاعك.")}</p></div>
     <div class="chip-row" style="justify-content:center">${[["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Eastern Province", "الشرقية"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Aseer", "عسير"], ["Tabuk", "تبوك"], ["NEOM", "نيوم"], ["Jazan", "جازان"]].map(([e2, a2]) => chip(e2, a2)).join("")}</div>
     <div class="callout" style="margin-top:16px"><span class="ico">✈️</span><p>${L("Flights, hotels, transport and third-party costs are not included unless priced separately.", "الطيران والفنادق والنقل وتكاليف الأطراف الثالثة غير مشمولة إلا إذا سُعّرت منفصلة.")}</p></div>
-    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/mahfol-makfol/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
+    <div class="center mt-32"><a class="btn btn-ghost" href="${u("/trips")}">${L("Design my mission →", "صمّم رحلتي ←")}</a></div>
   </div></section>
 
   <section class="section" id="pricing"><div class="container">
