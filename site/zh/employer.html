@@ -542,6 +542,8 @@ var h0=hint();if(h0)S.paint(true,h0);
       </div>
     </div>
 
+    <p class="sv1-emp-msg err sv1-hidden" id="empWarn" style="margin:0 0 14px"></p>
+
     <!-- وظائفي -->
     <div id="scJobs" class="sv1-hidden">
       <h3 class="sv1-emp-h">我的职位</h3>
@@ -679,7 +681,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"雇主门户","desc":"发布职位、接收申请，并从筛选跟进至录用——全部在一个页面中。","loginH":"登录您的门户","loginP":"输入您的公司邮箱，我们会发送一次性验证码。无需记密码，也无需保管长期密钥。","emailL":"电子邮箱","sendOtp":"发送验证码","sending":"发送中…","otpSent":"我们已发送 6 位验证码至","otpL":"验证码","otpGo":"登录","otpBack":"← 更换邮箱","pwOpen":"改用密码登录","otpOpen":"← 改用邮箱验证码登录","pwH":"密码登录","pwL":"密码","pwGo":"登录","forgot":"忘记密码","rsH":"重置密码","rsSend":"发送重置码","rsCodeL":"重置码","rsNewL":"新密码（至少 8 位）","rsGo":"设置密码","noSub":"此邮箱没有已激活的订阅。付款后需人工激活——请联系我们。","register":"还没有订阅？注册您的公司","eEmail":"请输入有效的邮箱地址。","eSend":"暂时无法发送验证码。请稍后重试，或使用密码登录。","eOtp":"验证码错误或已过期。","eNoSess":"无法建立会话。请本次改用密码登录。","ePw":"邮箱或密码错误。","eWeak":"密码太短——至少 8 位。","eNet":"连接失败。请刷新后重试。","eSave":"保存失败。请重试。","navJobs":"我的职位","navNew":"发布职位","navApps":"申请人","acct":"账户","logout":"退出登录","acctPw":"修改密码","acctPh":"手机号码","acctSave":"保存号码","acctOk":"已保存。","acctPhNo":"修改号码需使用邮箱验证码登录后进行。","acctPwNo":"请通过登录页的“忘记密码”修改密码：验证码发送至邮箱后设置新密码。","plan":"套餐","jobsH":"我的职位","loading":"加载中…","jobsNone":"暂无职位。发布第一个职位，几分钟内即会出现在职位页面。","stActive":"招聘中","stClosed":"已关闭","edit":"编辑","closeJob":"关闭","closeAsk":"关闭此职位？它将从职位页面移除，不再接收新申请。","viewJob":"公开招聘页","newH":"发布职位","editH":"编辑职位","fTitle":"职位名称","fCity":"城市","fField":"领域","fFieldN":"— 请选择 —","fDesc":"职位描述与要求","aiWrite":"✦ 根据职位名称生成描述","aiWork":"生成中…","aiNeed":"请先填写职位名称。","aiFail":"暂时无法生成——请自行撰写描述。","publish":"发布","saveJob":"保存修改","saving":"保存中…","published":"已发布。","eFields":"职位名称和描述为必填项。","cancel":"取消","appsH":"申请人","appsNone":"您的职位暂无申请人。","appsAll":"全部职位","appsN":"位申请人","appsCut":"列表过长已被截断——请刷新查看其余内容。","open":"查看档案","moveTo":"移动至…","moving":"移动中…","moveOk":"已移至","moveFail":"移动失败——卡片已退回原栏。请重试。","boardHint":"将卡片拖到其他栏，或使用卡片内的“移动至…”。","colEmpty":"此阶段暂无人","more":"显示更多","matchS":"匹配度","profBack":"← 返回申请人","stage":"阶段","sNew":"新申请","sReview":"筛选中","sShort":"候选名单","sInt":"面试","sOffer":"录用意向","sHired":"已录用","sRej":"未通过","sFuture":"暂缓","fRole":"职位","fCityL":"城市","fExp":"工作年限","fYears":"年","fSkills":"技能","fPhone":"手机","fEmail":"邮箱","fCv":"简历","cvOpen":"打开文件","reqH":"申请面试","reqP":"我们将与候选人（或推荐该候选人的招聘机构）安排时间并回复您。","reqPref":"您方便的时间（可选）","reqMode":"面试方式","mIn":"现场","mOn":"线上","mPh":"电话","reqGo":"发送申请","reqOk":"已收到您的申请——我们会回复面试时间。","reqWork":"发送中…"},HOME="/zh/employer",JOB="/zh/job?id=";
+var TX={"title":"雇主门户","desc":"发布职位、接收申请，并从筛选跟进至录用——全部在一个页面中。","loginH":"登录您的门户","loginP":"输入您的公司邮箱，我们会发送一次性验证码。无需记密码，也无需保管长期密钥。","emailL":"电子邮箱","sendOtp":"发送验证码","sending":"发送中…","otpSent":"我们已发送 6 位验证码至","otpL":"验证码","otpGo":"登录","otpBack":"← 更换邮箱","pwOpen":"改用密码登录","otpOpen":"← 改用邮箱验证码登录","pwH":"密码登录","pwL":"密码","pwGo":"登录","forgot":"忘记密码","rsH":"重置密码","rsSend":"发送重置码","rsCodeL":"重置码","rsNewL":"新密码（至少 8 位）","rsGo":"设置密码","noSub":"此邮箱没有已激活的订阅。付款后需人工激活——请联系我们。","register":"还没有订阅？注册您的公司","pendSub":"您的邮箱已登记，但订阅尚未激活——当前状态：“{s}”。付款后需人工激活：请发邮件至 business@businesspartner.sa 并注明公司名称。","empErr":"暂时无法核验您的订阅——问题出在我们这边，与您的账户无关。请一分钟后重试，若仍然如此请联系 business@businesspartner.sa。","noCodeE":"您的订阅已激活，但记录中没有访问码，面板无法打开。请联系 business@businesspartner.sa，我们今天就修复。","portalW":"您使用的是 Business Partner 账户，而非已激活的雇主订阅（状态：“{s}”）。在订阅激活前，此处发布的内容不会与订阅下的职位一并显示。","eEmail":"请输入有效的邮箱地址。","eSend":"暂时无法发送验证码。请稍后重试，或使用密码登录。","eOtp":"验证码错误或已过期。","eNoSess":"无法建立会话。请本次改用密码登录。","ePw":"邮箱或密码错误。","eWeak":"密码太短——至少 8 位。","eNet":"连接失败。请刷新后重试。","eSave":"保存失败。请重试。","navJobs":"我的职位","navNew":"发布职位","navApps":"申请人","acct":"账户","logout":"退出登录","acctPw":"修改密码","acctPh":"手机号码","acctSave":"保存号码","acctOk":"已保存。","acctPhNo":"修改号码需使用邮箱验证码登录后进行。","acctPwNo":"请通过登录页的“忘记密码”修改密码：验证码发送至邮箱后设置新密码。","plan":"套餐","jobsH":"我的职位","loading":"加载中…","jobsNone":"暂无职位。发布第一个职位，几分钟内即会出现在职位页面。","stActive":"招聘中","stClosed":"已关闭","edit":"编辑","closeJob":"关闭","closeAsk":"关闭此职位？它将从职位页面移除，不再接收新申请。","viewJob":"公开招聘页","newH":"发布职位","editH":"编辑职位","fTitle":"职位名称","fCity":"城市","fField":"领域","fFieldN":"— 请选择 —","fDesc":"职位描述与要求","aiWrite":"✦ 根据职位名称生成描述","aiWork":"生成中…","aiNeed":"请先填写职位名称。","aiFail":"暂时无法生成——请自行撰写描述。","publish":"发布","saveJob":"保存修改","saving":"保存中…","published":"已发布。","eFields":"职位名称和描述为必填项。","cancel":"取消","appsH":"申请人","appsNone":"您的职位暂无申请人。","appsAll":"全部职位","appsN":"位申请人","appsCut":"列表过长已被截断——请刷新查看其余内容。","open":"查看档案","moveTo":"移动至…","moving":"移动中…","moveOk":"已移至","moveFail":"移动失败——卡片已退回原栏。请重试。","boardHint":"将卡片拖到其他栏，或使用卡片内的“移动至…”。","colEmpty":"此阶段暂无人","more":"显示更多","matchS":"匹配度","profBack":"← 返回申请人","stage":"阶段","sNew":"新申请","sReview":"筛选中","sShort":"候选名单","sInt":"面试","sOffer":"录用意向","sHired":"已录用","sRej":"未通过","sFuture":"暂缓","fRole":"职位","fCityL":"城市","fExp":"工作年限","fYears":"年","fSkills":"技能","fPhone":"手机","fEmail":"邮箱","fCv":"简历","cvOpen":"打开文件","reqH":"申请面试","reqP":"我们将与候选人（或推荐该候选人的招聘机构）安排时间并回复您。","reqPref":"您方便的时间（可选）","reqMode":"面试方式","mIn":"现场","mOn":"线上","mPh":"电话","reqGo":"发送申请","reqOk":"已收到您的申请——我们会回复面试时间。","reqWork":"发送中…"},HOME="/zh/employer",JOB="/zh/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -703,6 +705,26 @@ function post(url,body){body.code=authCode();
 var lErr=$('loginErr'),lOk=$('loginOk');
 function err(m){lErr.textContent=m;show(lErr,!!m);show(lOk,false)}
 function ok(m){lOk.textContent=m;show(lOk,!!m);show(lErr,false)}
+// «لم يفتح» ليست حالةً واحدة. الخادم يعيد السبب باسمه في validate=1، وهذه
+// تترجمه إلى الجملة التي تخصّ صاحبه — ولا تتّهم اشتراكَ من كان العطل عندنا.
+function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
+ if(r==='pending')return TX.pendSub.replace('{s}',st);
+ if(r==='error')return TX.empErr;
+ if(r==='nocode')return TX.noCodeE;
+ return TX.noSub}
+// شريطٌ فوق اللوحة حين فُتحت بحساب العميل لا باشتراك صاحب العمل. ثلاث
+// حالاتٍ تستحقّه، وواحدةٌ لا:
+//   pending/nocode — لصاحبه اشتراكٌ لا يفتح، وإعلاناته المنشورة تحته لا
+//     تظهر في هذه اللوحة. لوحةٌ فارغة بلا سبب أسوأ من رسالة.
+//   error — تعذّر سؤال نوشن أصلاً، فقد يكون له اشتراكٌ مفعّل واختفت
+//     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
+//   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
+//     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
+ var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
+   :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
+ if(m)$('empWarn').textContent=m;
+ show($('empWarn'),!!m)}
 // الزرّ السفلي بابٌ ذو اتجاهين: من مسار رمز البريد إلى كلمة المرور، ومن
 // كلمة المرور (أو الاستعادة) رجوعاً إليه. كان اتجاهاً واحداً فيُحبس من نزل
 // إلى كلمة المرور فيها حتى يحدّث الصفحة.
@@ -744,7 +766,7 @@ $('fOtpVerify').onsubmit=function(e){e.preventDefault();
   // عن اشتراك صاحب العمل. الربط يتم في الخادم بعد ذلك: validate=1&code=self
   // يبحث عن صفٍّ «مفعّل» بهذا البريد ويحلّ منه رمز الوصول بلا أن يعيده.
   if(!d.db){err(TX.eNoSess);return}
-  enter()
+  AUTH={mode:'session'};enter()
  }).catch(function(){b.disabled=false;b.textContent=TX.otpGo;err(TX.eNet)})};
 
 $('fPw').onsubmit=function(e){e.preventDefault();
@@ -787,15 +809,21 @@ $('fReset').onsubmit=function(e){e.preventDefault();
 function enter(){
  if(!AUTH)AUTH={mode:'session'};
  get('validate=1').then(function(d){
-  if(!d||!d.unlocked){
-   if(AUTH.mode==='session')AUTH=null;
-   err(TX.noSub);return}
+  if(!d||!d.ok){AUTH=null;err(TX.eNet);return}
+  if(!d.unlocked){
+   // يُمحى وضع الهوية في الحالتين. كان يُمحى في وضع الجلسة وحده، فمن جرّب
+   // كلمة مرور لحسابٍ غير مفعّل يبقى رمزه العالق في AUTH؛ ثم يدخل برمز
+   // البريد فيُرسَل الرمز العالق بدل جلسته، ويُردّ عليه «لا اشتراك» أبداً
+   // حتى يحدّث الصفحة. بابٌ يُغلق على من دخل من الباب الآخر.
+   AUTH=null;
+   err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
- }).catch(function(){err(TX.eNet)})}
+ }).catch(function(){AUTH=null;err(TX.eNet)})}
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 var loaded={jobs:false,apps:false};
@@ -1158,7 +1186,11 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
+ // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
+ // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.
+ else if(d&&d.emp)err(subMsg(d));
 }).catch(function(){});
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

@@ -79,6 +79,27 @@ const T = {
              fr: "Cet e-mail n'a pas d'abonnement actif. L'activation est manuelle après paiement — contactez-nous.",
              zh: "此邮箱没有已激活的订阅。付款后需人工激活——请联系我们。" },
   register:{ ar: "لا اشتراك لديك بعد؟ سجّل شركتك", en: "No subscription yet? Register your company", fr: "Pas encore abonné ? Inscrivez votre entreprise", zh: "还没有订阅？注册您的公司" },
+  // أثبتّ بريدك ولم يفتح شيء: ثلاث حالات مختلفة كانت تُقال بجملة واحدة
+  // تتّهم اشتراكك. الآن لكلٍّ جملتها، ولكلٍّ خطوةٌ تالية مكتوبة.
+  pendSub: { ar: "بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.",
+             en: "Your email is registered but the subscription is not active yet — its status now: \u201c{s}\u201d. Activation is manual after payment: write to business@businesspartner.sa with your company name and we\u2019ll enable it.",
+             fr: "Votre e-mail est enregistré mais l\u2019abonnement n\u2019est pas encore actif — statut actuel : \u00ab {s} \u00bb. L\u2019activation est manuelle après paiement : écrivez à business@businesspartner.sa.",
+             zh: "您的邮箱已登记，但订阅尚未激活——当前状态：“{s}”。付款后需人工激活：请发邮件至 business@businesspartner.sa 并注明公司名称。" },
+  empErr:  { ar: "تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.",
+             en: "We couldn\u2019t check your subscription right now — the fault is ours, not your account\u2019s. Try again in a minute; if it persists write to business@businesspartner.sa.",
+             fr: "Impossible de vérifier votre abonnement pour l\u2019instant — le problème vient de chez nous. Réessayez dans une minute ou écrivez à business@businesspartner.sa.",
+             zh: "暂时无法核验您的订阅——问题出在我们这边，与您的账户无关。请一分钟后重试，若仍然如此请联系 business@businesspartner.sa。" },
+  noCodeE: { ar: "اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.",
+             en: "Your subscription is active but its row carries no access code, and the dashboard cannot open without one. Write to business@businesspartner.sa and we\u2019ll fix it today.",
+             fr: "Votre abonnement est actif mais sans code d\u2019accès ; le tableau de bord ne peut pas s\u2019ouvrir. Écrivez à business@businesspartner.sa.",
+             zh: "您的订阅已激活，但记录中没有访问码，面板无法打开。请联系 business@businesspartner.sa，我们今天就修复。" },
+  // دخلتَ بحساب بيزنس بارتنر لا باشتراك صاحب عمل مفعّل: البوابة تُفتح،
+  // لكن إعلاناتك المنشورة تحت رمز الاشتراك لا تظهر فيها. لوحةٌ فارغة بلا
+  // سبب هي أسوأ ما يُعرض، فيُقال السبب فوقها.
+  portalW: { ar: "أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.",
+             en: "You are signed in with a Business Partner account, not an active employer subscription (its status: \u201c{s}\u201d). What you post here now will not appear alongside your subscription\u2019s vacancies until it is activated.",
+             fr: "Vous êtes connecté avec un compte Business Partner, sans abonnement employeur actif (statut : \u00ab {s} \u00bb). Ce que vous publiez ici n\u2019apparaîtra pas avec les postes de votre abonnement.",
+             zh: "您使用的是 Business Partner 账户，而非已激活的雇主订阅（状态：“{s}”）。在订阅激活前，此处发布的内容不会与订阅下的职位一并显示。" },
 
   // ------------------------------------------------------------- الأخطاء --
   eEmail:  { ar: "اكتب بريداً صحيحاً.", en: "Enter a valid email address.", fr: "Saisissez un e-mail valide.", zh: "请输入有效的邮箱地址。" },
@@ -462,6 +483,8 @@ export function buildSimpleEmployer(SV1, ctx) {
       </div>
     </div>
 
+    <p class="sv1-emp-msg err sv1-hidden" id="empWarn" style="margin:0 0 14px"></p>
+
     <!-- وظائفي -->
     <div id="scJobs" class="sv1-hidden">
       <h3 class="sv1-emp-h">${esc(t("jobsH"))}</h3>
@@ -540,6 +563,26 @@ function post(url,body){body.code=authCode();
 var lErr=$('loginErr'),lOk=$('loginOk');
 function err(m){lErr.textContent=m;show(lErr,!!m);show(lOk,false)}
 function ok(m){lOk.textContent=m;show(lOk,!!m);show(lErr,false)}
+// «لم يفتح» ليست حالةً واحدة. الخادم يعيد السبب باسمه في validate=1، وهذه
+// تترجمه إلى الجملة التي تخصّ صاحبه — ولا تتّهم اشتراكَ من كان العطل عندنا.
+function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
+ if(r==='pending')return TX.pendSub.replace('{s}',st);
+ if(r==='error')return TX.empErr;
+ if(r==='nocode')return TX.noCodeE;
+ return TX.noSub}
+// شريطٌ فوق اللوحة حين فُتحت بحساب العميل لا باشتراك صاحب العمل. ثلاث
+// حالاتٍ تستحقّه، وواحدةٌ لا:
+//   pending/nocode — لصاحبه اشتراكٌ لا يفتح، وإعلاناته المنشورة تحته لا
+//     تظهر في هذه اللوحة. لوحةٌ فارغة بلا سبب أسوأ من رسالة.
+//   error — تعذّر سؤال نوشن أصلاً، فقد يكون له اشتراكٌ مفعّل واختفت
+//     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
+//   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
+//     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
+ var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
+   :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
+ if(m)$('empWarn').textContent=m;
+ show($('empWarn'),!!m)}
 // الزرّ السفلي بابٌ ذو اتجاهين: من مسار رمز البريد إلى كلمة المرور، ومن
 // كلمة المرور (أو الاستعادة) رجوعاً إليه. كان اتجاهاً واحداً فيُحبس من نزل
 // إلى كلمة المرور فيها حتى يحدّث الصفحة.
@@ -581,7 +624,7 @@ $('fOtpVerify').onsubmit=function(e){e.preventDefault();
   // عن اشتراك صاحب العمل. الربط يتم في الخادم بعد ذلك: validate=1&code=self
   // يبحث عن صفٍّ «مفعّل» بهذا البريد ويحلّ منه رمز الوصول بلا أن يعيده.
   if(!d.db){err(TX.eNoSess);return}
-  enter()
+  AUTH={mode:'session'};enter()
  }).catch(function(){b.disabled=false;b.textContent=TX.otpGo;err(TX.eNet)})};
 
 $('fPw').onsubmit=function(e){e.preventDefault();
@@ -624,15 +667,21 @@ $('fReset').onsubmit=function(e){e.preventDefault();
 function enter(){
  if(!AUTH)AUTH={mode:'session'};
  get('validate=1').then(function(d){
-  if(!d||!d.unlocked){
-   if(AUTH.mode==='session')AUTH=null;
-   err(TX.noSub);return}
+  if(!d||!d.ok){AUTH=null;err(TX.eNet);return}
+  if(!d.unlocked){
+   // يُمحى وضع الهوية في الحالتين. كان يُمحى في وضع الجلسة وحده، فمن جرّب
+   // كلمة مرور لحسابٍ غير مفعّل يبقى رمزه العالق في AUTH؛ ثم يدخل برمز
+   // البريد فيُرسَل الرمز العالق بدل جلسته، ويُردّ عليه «لا اشتراك» أبداً
+   // حتى يحدّث الصفحة. بابٌ يُغلق على من دخل من الباب الآخر.
+   AUTH=null;
+   err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
- }).catch(function(){err(TX.eNet)})}
+ }).catch(function(){AUTH=null;err(TX.eNet)})}
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 var loaded={jobs:false,apps:false};
@@ -995,7 +1044,11 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
+ // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
+ // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.
+ else if(d&&d.emp)err(subMsg(d));
 }).catch(function(){});
 })();</script>`;
 

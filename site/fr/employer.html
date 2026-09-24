@@ -542,6 +542,8 @@ var h0=hint();if(h0)S.paint(true,h0);
       </div>
     </div>
 
+    <p class="sv1-emp-msg err sv1-hidden" id="empWarn" style="margin:0 0 14px"></p>
+
     <!-- وظائفي -->
     <div id="scJobs" class="sv1-hidden">
       <h3 class="sv1-emp-h">Mes postes</h3>
@@ -679,7 +681,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"Espace employeur","desc":"Publiez un poste, recevez les candidatures et suivez-les jusqu'à l'offre — en une seule page.","loginH":"Connectez-vous à votre espace","loginP":"Saisissez l'e-mail de votre entreprise : un code à usage unique vous sera envoyé.","emailL":"Adresse e-mail","sendOtp":"Envoyer le code","sending":"Envoi…","otpSent":"Code à 6 chiffres envoyé à","otpL":"Code","otpGo":"Entrer","otpBack":"← Autre e-mail","pwOpen":"Se connecter avec un mot de passe","otpOpen":"← Se connecter par code e-mail","pwH":"Connexion par mot de passe","pwL":"Mot de passe","pwGo":"Connexion","forgot":"Mot de passe oublié","rsH":"Réinitialiser le mot de passe","rsSend":"Envoyer le code","rsCodeL":"Code de réinitialisation","rsNewL":"Nouveau mot de passe (8+ caractères)","rsGo":"Définir le mot de passe","noSub":"Cet e-mail n'a pas d'abonnement actif. L'activation est manuelle après paiement — contactez-nous.","register":"Pas encore abonné ? Inscrivez votre entreprise","eEmail":"Saisissez un e-mail valide.","eSend":"Impossible d'envoyer le code. Réessayez ou utilisez un mot de passe.","eOtp":"Code incorrect ou expiré.","eNoSess":"Impossible d'ouvrir la session. Connectez-vous avec un mot de passe.","ePw":"E-mail ou mot de passe incorrect.","eWeak":"Mot de passe trop court — 8 caractères minimum.","eNet":"Échec de connexion. Actualisez et réessayez.","eSave":"Échec de l'enregistrement. Réessayez.","navJobs":"Mes postes","navNew":"Publier un poste","navApps":"Candidatures","acct":"Compte","logout":"Se déconnecter","acctPw":"Changer le mot de passe","acctPh":"Numéro de mobile","acctSave":"Enregistrer","acctOk":"Enregistré.","acctPhNo":"La modification du numéro nécessite la connexion par code e-mail.","acctPwNo":"Changez votre mot de passe via « Mot de passe oublié » sur l'écran de connexion.","plan":"Forfait","jobsH":"Mes postes","loading":"Chargement…","jobsNone":"Aucun poste. Publiez le premier : il paraîtra sur la page emplois en quelques minutes.","stActive":"Active","stClosed":"Clôturé","edit":"Modifier","closeJob":"Clôturer","closeAsk":"Clôturer ce poste ? Il disparaît de la page emplois.","viewJob":"Annonce publique","newH":"Publier un poste","editH":"Modifier le poste","fTitle":"Intitulé du poste","fCity":"Ville","fField":"Domaine","fFieldN":"— choisir —","fDesc":"Description et exigences","aiWrite":"✦ Rédiger la description","aiWork":"Rédaction…","aiNeed":"Saisissez d'abord l'intitulé.","aiFail":"Rédaction impossible — écrivez la description vous-même.","publish":"Publier","saveJob":"Enregistrer","saving":"Enregistrement…","published":"Publié.","eFields":"L'intitulé et la description sont obligatoires.","cancel":"Annuler","appsH":"Candidatures","appsNone":"Aucune candidature pour l'instant.","appsAll":"Tous les postes","appsN":"candidats","appsCut":"La liste est longue et tronquée — actualisez pour voir la suite.","open":"Ouvrir le profil","moveTo":"Déplacer vers…","moving":"Déplacement…","moveOk":"Déplacé vers","moveFail":"Échec du déplacement — la carte est revenue dans sa colonne. Réessayez.","boardHint":"Faites glisser une carte vers une autre colonne, ou utilisez « Déplacer vers… ».","colEmpty":"Personne à cette étape","more":"Afficher plus","matchS":"Correspondance","profBack":"← Retour aux candidatures","stage":"Étape","sNew":"Nouveau","sReview":"Présélection","sShort":"Présélectionné","sInt":"Entretien","sOffer":"Offre","sHired":"Recruté","sRej":"Refusé","sFuture":"En attente","fRole":"Poste","fCityL":"Ville","fExp":"Expérience","fYears":"ans","fSkills":"Compétences","fPhone":"Mobile","fEmail":"E-mail","fCv":"CV","cvOpen":"Ouvrir le fichier","reqH":"Demander un entretien","reqP":"Nous organisons le rendez-vous avec le candidat et revenons vers vous.","reqPref":"Créneau souhaité (facultatif)","reqMode":"Format de l'entretien","mIn":"En présentiel","mOn":"En ligne","mPh":"Téléphone","reqGo":"Envoyer la demande","reqOk":"Demande reçue — nous revenons vers vous avec le rendez-vous.","reqWork":"Envoi…"},HOME="/fr/employer",JOB="/fr/job?id=";
+var TX={"title":"Espace employeur","desc":"Publiez un poste, recevez les candidatures et suivez-les jusqu'à l'offre — en une seule page.","loginH":"Connectez-vous à votre espace","loginP":"Saisissez l'e-mail de votre entreprise : un code à usage unique vous sera envoyé.","emailL":"Adresse e-mail","sendOtp":"Envoyer le code","sending":"Envoi…","otpSent":"Code à 6 chiffres envoyé à","otpL":"Code","otpGo":"Entrer","otpBack":"← Autre e-mail","pwOpen":"Se connecter avec un mot de passe","otpOpen":"← Se connecter par code e-mail","pwH":"Connexion par mot de passe","pwL":"Mot de passe","pwGo":"Connexion","forgot":"Mot de passe oublié","rsH":"Réinitialiser le mot de passe","rsSend":"Envoyer le code","rsCodeL":"Code de réinitialisation","rsNewL":"Nouveau mot de passe (8+ caractères)","rsGo":"Définir le mot de passe","noSub":"Cet e-mail n'a pas d'abonnement actif. L'activation est manuelle après paiement — contactez-nous.","register":"Pas encore abonné ? Inscrivez votre entreprise","pendSub":"Votre e-mail est enregistré mais l’abonnement n’est pas encore actif — statut actuel : « {s} ». L’activation est manuelle après paiement : écrivez à business@businesspartner.sa.","empErr":"Impossible de vérifier votre abonnement pour l’instant — le problème vient de chez nous. Réessayez dans une minute ou écrivez à business@businesspartner.sa.","noCodeE":"Votre abonnement est actif mais sans code d’accès ; le tableau de bord ne peut pas s’ouvrir. Écrivez à business@businesspartner.sa.","portalW":"Vous êtes connecté avec un compte Business Partner, sans abonnement employeur actif (statut : « {s} »). Ce que vous publiez ici n’apparaîtra pas avec les postes de votre abonnement.","eEmail":"Saisissez un e-mail valide.","eSend":"Impossible d'envoyer le code. Réessayez ou utilisez un mot de passe.","eOtp":"Code incorrect ou expiré.","eNoSess":"Impossible d'ouvrir la session. Connectez-vous avec un mot de passe.","ePw":"E-mail ou mot de passe incorrect.","eWeak":"Mot de passe trop court — 8 caractères minimum.","eNet":"Échec de connexion. Actualisez et réessayez.","eSave":"Échec de l'enregistrement. Réessayez.","navJobs":"Mes postes","navNew":"Publier un poste","navApps":"Candidatures","acct":"Compte","logout":"Se déconnecter","acctPw":"Changer le mot de passe","acctPh":"Numéro de mobile","acctSave":"Enregistrer","acctOk":"Enregistré.","acctPhNo":"La modification du numéro nécessite la connexion par code e-mail.","acctPwNo":"Changez votre mot de passe via « Mot de passe oublié » sur l'écran de connexion.","plan":"Forfait","jobsH":"Mes postes","loading":"Chargement…","jobsNone":"Aucun poste. Publiez le premier : il paraîtra sur la page emplois en quelques minutes.","stActive":"Active","stClosed":"Clôturé","edit":"Modifier","closeJob":"Clôturer","closeAsk":"Clôturer ce poste ? Il disparaît de la page emplois.","viewJob":"Annonce publique","newH":"Publier un poste","editH":"Modifier le poste","fTitle":"Intitulé du poste","fCity":"Ville","fField":"Domaine","fFieldN":"— choisir —","fDesc":"Description et exigences","aiWrite":"✦ Rédiger la description","aiWork":"Rédaction…","aiNeed":"Saisissez d'abord l'intitulé.","aiFail":"Rédaction impossible — écrivez la description vous-même.","publish":"Publier","saveJob":"Enregistrer","saving":"Enregistrement…","published":"Publié.","eFields":"L'intitulé et la description sont obligatoires.","cancel":"Annuler","appsH":"Candidatures","appsNone":"Aucune candidature pour l'instant.","appsAll":"Tous les postes","appsN":"candidats","appsCut":"La liste est longue et tronquée — actualisez pour voir la suite.","open":"Ouvrir le profil","moveTo":"Déplacer vers…","moving":"Déplacement…","moveOk":"Déplacé vers","moveFail":"Échec du déplacement — la carte est revenue dans sa colonne. Réessayez.","boardHint":"Faites glisser une carte vers une autre colonne, ou utilisez « Déplacer vers… ».","colEmpty":"Personne à cette étape","more":"Afficher plus","matchS":"Correspondance","profBack":"← Retour aux candidatures","stage":"Étape","sNew":"Nouveau","sReview":"Présélection","sShort":"Présélectionné","sInt":"Entretien","sOffer":"Offre","sHired":"Recruté","sRej":"Refusé","sFuture":"En attente","fRole":"Poste","fCityL":"Ville","fExp":"Expérience","fYears":"ans","fSkills":"Compétences","fPhone":"Mobile","fEmail":"E-mail","fCv":"CV","cvOpen":"Ouvrir le fichier","reqH":"Demander un entretien","reqP":"Nous organisons le rendez-vous avec le candidat et revenons vers vous.","reqPref":"Créneau souhaité (facultatif)","reqMode":"Format de l'entretien","mIn":"En présentiel","mOn":"En ligne","mPh":"Téléphone","reqGo":"Envoyer la demande","reqOk":"Demande reçue — nous revenons vers vous avec le rendez-vous.","reqWork":"Envoi…"},HOME="/fr/employer",JOB="/fr/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -703,6 +705,26 @@ function post(url,body){body.code=authCode();
 var lErr=$('loginErr'),lOk=$('loginOk');
 function err(m){lErr.textContent=m;show(lErr,!!m);show(lOk,false)}
 function ok(m){lOk.textContent=m;show(lOk,!!m);show(lErr,false)}
+// «لم يفتح» ليست حالةً واحدة. الخادم يعيد السبب باسمه في validate=1، وهذه
+// تترجمه إلى الجملة التي تخصّ صاحبه — ولا تتّهم اشتراكَ من كان العطل عندنا.
+function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
+ if(r==='pending')return TX.pendSub.replace('{s}',st);
+ if(r==='error')return TX.empErr;
+ if(r==='nocode')return TX.noCodeE;
+ return TX.noSub}
+// شريطٌ فوق اللوحة حين فُتحت بحساب العميل لا باشتراك صاحب العمل. ثلاث
+// حالاتٍ تستحقّه، وواحدةٌ لا:
+//   pending/nocode — لصاحبه اشتراكٌ لا يفتح، وإعلاناته المنشورة تحته لا
+//     تظهر في هذه اللوحة. لوحةٌ فارغة بلا سبب أسوأ من رسالة.
+//   error — تعذّر سؤال نوشن أصلاً، فقد يكون له اشتراكٌ مفعّل واختفت
+//     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
+//   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
+//     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
+ var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
+   :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
+ if(m)$('empWarn').textContent=m;
+ show($('empWarn'),!!m)}
 // الزرّ السفلي بابٌ ذو اتجاهين: من مسار رمز البريد إلى كلمة المرور، ومن
 // كلمة المرور (أو الاستعادة) رجوعاً إليه. كان اتجاهاً واحداً فيُحبس من نزل
 // إلى كلمة المرور فيها حتى يحدّث الصفحة.
@@ -744,7 +766,7 @@ $('fOtpVerify').onsubmit=function(e){e.preventDefault();
   // عن اشتراك صاحب العمل. الربط يتم في الخادم بعد ذلك: validate=1&code=self
   // يبحث عن صفٍّ «مفعّل» بهذا البريد ويحلّ منه رمز الوصول بلا أن يعيده.
   if(!d.db){err(TX.eNoSess);return}
-  enter()
+  AUTH={mode:'session'};enter()
  }).catch(function(){b.disabled=false;b.textContent=TX.otpGo;err(TX.eNet)})};
 
 $('fPw').onsubmit=function(e){e.preventDefault();
@@ -787,15 +809,21 @@ $('fReset').onsubmit=function(e){e.preventDefault();
 function enter(){
  if(!AUTH)AUTH={mode:'session'};
  get('validate=1').then(function(d){
-  if(!d||!d.unlocked){
-   if(AUTH.mode==='session')AUTH=null;
-   err(TX.noSub);return}
+  if(!d||!d.ok){AUTH=null;err(TX.eNet);return}
+  if(!d.unlocked){
+   // يُمحى وضع الهوية في الحالتين. كان يُمحى في وضع الجلسة وحده، فمن جرّب
+   // كلمة مرور لحسابٍ غير مفعّل يبقى رمزه العالق في AUTH؛ ثم يدخل برمز
+   // البريد فيُرسَل الرمز العالق بدل جلسته، ويُردّ عليه «لا اشتراك» أبداً
+   // حتى يحدّث الصفحة. بابٌ يُغلق على من دخل من الباب الآخر.
+   AUTH=null;
+   err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
- }).catch(function(){err(TX.eNet)})}
+ }).catch(function(){AUTH=null;err(TX.eNet)})}
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 var loaded={jobs:false,apps:false};
@@ -1158,7 +1186,11 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
+ // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
+ // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.
+ else if(d&&d.emp)err(subMsg(d));
 }).catch(function(){});
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

@@ -542,6 +542,8 @@ var h0=hint();if(h0)S.paint(true,h0);
       </div>
     </div>
 
+    <p class="sv1-emp-msg err sv1-hidden" id="empWarn" style="margin:0 0 14px"></p>
+
     <!-- وظائفي -->
     <div id="scJobs" class="sv1-hidden">
       <h3 class="sv1-emp-h">وظائفي</h3>
@@ -679,7 +681,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…"},HOME="/ar/employer",JOB="/ar/job?id=";
+var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","pendSub":"بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.","empErr":"تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.","noCodeE":"اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.","portalW":"أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…"},HOME="/ar/employer",JOB="/ar/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -703,6 +705,26 @@ function post(url,body){body.code=authCode();
 var lErr=$('loginErr'),lOk=$('loginOk');
 function err(m){lErr.textContent=m;show(lErr,!!m);show(lOk,false)}
 function ok(m){lOk.textContent=m;show(lOk,!!m);show(lErr,false)}
+// «لم يفتح» ليست حالةً واحدة. الخادم يعيد السبب باسمه في validate=1، وهذه
+// تترجمه إلى الجملة التي تخصّ صاحبه — ولا تتّهم اشتراكَ من كان العطل عندنا.
+function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
+ if(r==='pending')return TX.pendSub.replace('{s}',st);
+ if(r==='error')return TX.empErr;
+ if(r==='nocode')return TX.noCodeE;
+ return TX.noSub}
+// شريطٌ فوق اللوحة حين فُتحت بحساب العميل لا باشتراك صاحب العمل. ثلاث
+// حالاتٍ تستحقّه، وواحدةٌ لا:
+//   pending/nocode — لصاحبه اشتراكٌ لا يفتح، وإعلاناته المنشورة تحته لا
+//     تظهر في هذه اللوحة. لوحةٌ فارغة بلا سبب أسوأ من رسالة.
+//   error — تعذّر سؤال نوشن أصلاً، فقد يكون له اشتراكٌ مفعّل واختفت
+//     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
+//   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
+//     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
+ var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
+   :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
+ if(m)$('empWarn').textContent=m;
+ show($('empWarn'),!!m)}
 // الزرّ السفلي بابٌ ذو اتجاهين: من مسار رمز البريد إلى كلمة المرور، ومن
 // كلمة المرور (أو الاستعادة) رجوعاً إليه. كان اتجاهاً واحداً فيُحبس من نزل
 // إلى كلمة المرور فيها حتى يحدّث الصفحة.
@@ -744,7 +766,7 @@ $('fOtpVerify').onsubmit=function(e){e.preventDefault();
   // عن اشتراك صاحب العمل. الربط يتم في الخادم بعد ذلك: validate=1&code=self
   // يبحث عن صفٍّ «مفعّل» بهذا البريد ويحلّ منه رمز الوصول بلا أن يعيده.
   if(!d.db){err(TX.eNoSess);return}
-  enter()
+  AUTH={mode:'session'};enter()
  }).catch(function(){b.disabled=false;b.textContent=TX.otpGo;err(TX.eNet)})};
 
 $('fPw').onsubmit=function(e){e.preventDefault();
@@ -787,15 +809,21 @@ $('fReset').onsubmit=function(e){e.preventDefault();
 function enter(){
  if(!AUTH)AUTH={mode:'session'};
  get('validate=1').then(function(d){
-  if(!d||!d.unlocked){
-   if(AUTH.mode==='session')AUTH=null;
-   err(TX.noSub);return}
+  if(!d||!d.ok){AUTH=null;err(TX.eNet);return}
+  if(!d.unlocked){
+   // يُمحى وضع الهوية في الحالتين. كان يُمحى في وضع الجلسة وحده، فمن جرّب
+   // كلمة مرور لحسابٍ غير مفعّل يبقى رمزه العالق في AUTH؛ ثم يدخل برمز
+   // البريد فيُرسَل الرمز العالق بدل جلسته، ويُردّ عليه «لا اشتراك» أبداً
+   // حتى يحدّث الصفحة. بابٌ يُغلق على من دخل من الباب الآخر.
+   AUTH=null;
+   err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
- }).catch(function(){err(TX.eNet)})}
+ }).catch(function(){AUTH=null;err(TX.eNet)})}
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 var loaded={jobs:false,apps:false};
@@ -1158,7 +1186,11 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
+  warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
+ // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
+ // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.
+ else if(d&&d.emp)err(subMsg(d));
 }).catch(function(){});
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

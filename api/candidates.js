@@ -335,31 +335,92 @@ async function portalUnlock(req) {
 // «مفعّل»: التفعيل قرارٌ يدوي بأمر المالك لا خطوةٌ تلقائية (انظر التعليق
 // الأمني فوق planAr في api/employer.js — المطابقة التلقائية بالبريد كانت
 // تجاوز مصادقة كاملاً).
-async function employerBySession(req) {
+// الحالة التي تفتح الوصول — حرفاً بحرف كما في resolvePlan. التفعيل يُكتب
+// بيد إنسان في نوشن، فحرفٌ زائد أو شدّةٌ ناقصة تعني صفّاً لا يُطابَق أبداً.
+// لا يُوسَّع المقارَن هنا (توسيعه قرار مالك)، لكن الحالة المكتوبة تُعاد إلى
+// صاحبها في الرسالة، فيظهر الخطأ المطبعي بدل أن يبقى غائباً.
+const EMP_ACTIVE = "مفعّل";
+
+// يقرأ صفّ صاحب العمل من البريد المُثبت في الجلسة، ويعيد **سبباً صريحاً**
+// حين لا يفتح. الفرق ليس تجميلاً: «لا اشتراك» غير «اشتراكٌ لم يُفعّل بعد»
+// غير «تعذّر السؤال أصلاً» — وبلا تمييزها يقف صاحب العمل أمام جملةٍ واحدة
+// تتّهم اشتراكه بينما العطل في نوشن أو في مفتاحها.
+//
+// ولا تُصفّى «مفعّل» في استعلام نوشن بل هنا: الفلتر كان يخفي الصفّ غير
+// المفعّل فيبدو كأنه غير موجود، فلا نملك ما نقوله لصاحبه.
+//
+// والترتيب بـ created_time تصاعدياً مقصود: page_size:1 بلا ترتيب كان يسلّم
+// صفّاً عشوائياً لمن له أكثر من صفّ بالبريد نفسه — أي لوحةَ شركةٍ غير شركته
+// بلا أي إشارة. الآن: الأقدم دائماً، وتكرار الصفوف المفعّلة يُسجَّل.
+async function employerRowFor(req) {
+  let email = "";
   try {
     const sess = await getSession(req);
-    const email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
-    if (!email) return null;
-    const r = await notionFetch(`databases/${EMP_DB}/query`, "POST", {
-      page_size: 1,
-      filter: { and: [
-        { property: "البريد", email: { equals: email } },
-        { property: "الحالة", select: { equals: "مفعّل" } },
-      ] },
-    });
-    if (!r.ok) { console.error("employer session lookup", r.status, (await r.text()).slice(0, 200)); return null; }
-    const row = ((await r.json()).results || [])[0];
-    if (!row) return null;
+    email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+  } catch (e) {
+    console.error("employer session read", String(e).slice(0, 200));
+    return { email: "", reason: "error" };
+  }
+  if (!email) return { email: "", reason: "no_session" };
+  const query = async (filter) => notionFetch(`databases/${EMP_DB}/query`, "POST", {
+    page_size: 10, filter,
+    sorts: [{ timestamp: "created_time", direction: "ascending" }],
+  });
+  try {
+    let r = await query({ property: "البريد", email: { equals: email } });
+    if (!r.ok) {
+      console.error("employer session lookup", r.status, (await r.text()).slice(0, 200));
+      return { email, reason: "error" };
+    }
+    let rows = (await r.json()).results || [];
+    // بريد الجلسة بحروفٍ صغيرة دائماً (api/otp.js)، أما بريد الصفّ فمكتوبٌ
+    // بيد إنسان في نوشن وقد يحمل حرفاً كبيراً أو مسافةً في طرفه — و`equals`
+    // مطابقةٌ حرفية. صفٌّ مفعّل لا يُطابَق يعني صاحب عملٍ مشتركاً يُقال له
+    // «لا اشتراك لك»، وهو أسوأ ردٍّ ممكن على من دفع. فإن خلت المطابقة
+    // الحرفية، يُسأل مرّة أخرى بـ`contains` (غير حسّاس للحالة) وتُحسم
+    // المطابقة هنا بمقارنةٍ صغيرةٍ بحروفٍ صغيرة — لا توسيع: البريد نفسه
+    // بعينه، مُثبتٌ بالجلسة، لا بريدٌ آخر يحتويه.
+    if (!rows.length) {
+      r = await query({ property: "البريد", email: { contains: email } });
+      if (!r.ok) {
+        console.error("employer session lookup (ci)", r.status, (await r.text()).slice(0, 200));
+        return { email, reason: "error" };
+      }
+      rows = ((await r.json()).results || [])
+        .filter((pg) => txt((pg.properties || {})["البريد"]).trim().toLowerCase() === email);
+    }
+    const active = rows.filter((pg) => txt((pg.properties || {})["الحالة"]) === EMP_ACTIVE);
+    if (active.length > 1) console.warn("employer duplicate active rows", active.length, "— oldest wins");
+    const row = active[0];
+    if (!row) {
+      if (!rows.length) return { email, reason: "none" };
+      const last = rows[rows.length - 1].properties || {};
+      return { email, reason: "pending", status: txt(last["الحالة"]), company: txt(last["اسم الشركة"]) };
+    }
     const p = row.properties || {};
     const code = txt(p["رمز الوصول"]);
-    if (!code) return null;
+    // صفٌّ مفعّل بلا رمز وصول: لوحةٌ تُفتح على لا شيء، وإعلانٌ يُنشر بلا مالك
+    // فلا يظهر في لوحة أحد ولا يصل إشعارٌ لأحد — حدث فعلاً بالرمز BP-HOUSE.
+    // يُقال لصاحبه بدل أن يُعامَل كأنه بلا اشتراك.
+    if (!code) return { email, reason: "nocode", company: txt(p["اسم الشركة"]) };
     return {
-      unlocked: true, account: true, code,
-      plan: txt(p["الباقة"]),
-      company: txt(p["اسم الشركة"]),
-      owner: email === OWNER_EMAIL,
+      email, reason: "ok",
+      account: {
+        unlocked: true, account: true, code,
+        plan: txt(p["الباقة"]),
+        company: txt(p["اسم الشركة"]),
+        owner: email === OWNER_EMAIL,
+      },
     };
-  } catch (e) { console.error("employerBySession error", String(e).slice(0, 200)); return null; }
+  } catch (e) {
+    console.error("employerRowFor error", String(e).slice(0, 200));
+    return { email, reason: "error" };
+  }
+}
+
+async function employerBySession(req) {
+  const r = await employerRowFor(req);
+  return r.reason === "ok" ? r.account : null;
 }
 
 // Business Partner's own careers-page roles — static pages in the generator,
@@ -821,9 +882,10 @@ export default async function handler(req, res) {
   let unlocked = false, plan = "";
   // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
   // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
-  let account = null;
+  let account = null, empState = null;
   if (code === "self") {
-    account = await employerBySession(req);
+    empState = await employerRowFor(req);
+    account = empState.reason === "ok" ? empState.account : null;
     if (account) { unlocked = true; plan = account.plan; code = account.code; }
     else code = "";
   } else if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
@@ -842,10 +904,20 @@ export default async function handler(req, res) {
     res.statusCode = 200;
     // حساب صاحب عمل مُحلّ من الجلسة: يُعاد اسم الشركة ولا يُعاد رمز الوصول —
     // البوابة لا تحتاجه، وما لا يصل المتصفّح لا يُسرَّب منه.
+    // سبب عدم الفتح يُعاد باسمه ليقوله المتصفّح لصاحبه: none / pending /
+    // nocode / error. ولا يُعاد إلا لمن أثبت ملكية بريده بالجلسة، فهو يتكلّم
+    // عن صفّ صاحبه وحده ولا يكشف لأحدٍ أن بريداً آخر مسجّل أو غير مسجّل.
+    //
+    // ويُعاد كذلك حين يكون الفتح قد جاء من جلسة العميل (portal/open access):
+    // عندها تُفتح البوابة فعلاً، لكن الإعلانات المنشورة برمز الاشتراك لا
+    // تظهر فيها — وهذا هو الصمت الذي يبدو «لوحةً فارغة» بلا سبب، فيُقال.
     return res.end(JSON.stringify({
       ok: true, unlocked, plan,
       ...(account ? { account: true, company: account.company } : {}),
       ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}),
+      ...(empState && empState.reason !== "ok" && empState.reason !== "no_session"
+        ? { emp: empState.reason, ...(empState.status ? { empStatus: empState.status } : {}) }
+        : {}),
     }));
   }
 

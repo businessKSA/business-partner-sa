@@ -109,6 +109,36 @@ async function notion(path, payload) {
   });
 }
 
+// كل استعلامات البريد تمرّ من هنا بترتيبٍ واحد. كانت كلها page_size:1 بلا
+// ترتيب، ونوشن لا يضمن ترتيباً بلا `sorts` — فمن سجّل شركته مرّتين بالبريد
+// نفسه كان يُسلَّم صفّاً عشوائياً يختلف بين نداءٍ وآخر: يدخل بكلمة مروره
+// فتُقبل مرّة وتُرفض مرّة، وتُكتب كلمة المرور الجديدة على صفٍّ ويُقرأ آخر.
+// الآن: الصفّ الأقدم دائماً (أول تسجيل)، وهو نفسه الذي يختاره
+// employerRowFor في api/candidates.js — فلوحةُ البوابة وشاشةُ الحساب
+// تتكلّمان عن شركةٍ واحدة لا عن اثنتين.
+const EMAIL_SORT = [{ timestamp: "created_time", direction: "ascending" }];
+const byEmail = (email, n = 1) => ({ page_size: n, filter: { property: "البريد", email: { equals: email } }, sorts: EMAIL_SORT });
+
+// وبريد الصفّ نفسه مكتوبٌ بيد إنسان في نوشن: حرفٌ كبير أو مسافةٌ في طرفه
+// تُسقط مطابقة `equals` الحرفية، فيُقال لصاحب اشتراكٍ قائم «البريد أو كلمة
+// المرور غير صحيحة». فإن خلت الحرفية، يُسأل بـ`contains` (غير حسّاس
+// للحالة) وتُحسم المطابقة هنا بحروفٍ صغيرة — البريد نفسه بعينه لا بريدٌ
+// يحتويه. يُعاد null عند تعذّر السؤال، وهو غير المصفوفة الفارغة.
+async function rowsByEmail(email, n = 1) {
+  let q = await notion(`databases/${DB_ID}/query`, byEmail(email, n));
+  if (!q.ok) return null;
+  let rows = ((await q.json()).results || []);
+  if (rows.length) return rows;
+  q = await notion(`databases/${DB_ID}/query`, { page_size: Math.max(n, 10), filter: { property: "البريد", email: { contains: email } }, sorts: EMAIL_SORT });
+  if (!q.ok) return null;
+  return ((await q.json()).results || [])
+    .filter((pg) => {
+      const p = pg.properties && pg.properties["البريد"];
+      return String((p && p.email) || "").trim().toLowerCase() === email;
+    })
+    .slice(0, n);
+}
+
 const rt = (v) => (v ? [{ text: { content: clip(v, 1800) } }] : []);
 // Reads a Notion property's plain text regardless of its underlying type
 // (title/rich_text default to the "rich_text"/"title" array shape; select
@@ -149,9 +179,9 @@ export default async function handler(req, res) {
     if (!code || !token) {
       // step 1 — send the code
       try {
-        const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-        if (q.ok) {
-          const row = ((await q.json()).results || [])[0];
+        const rows = await rowsByEmail(email);
+        if (rows) {
+          const row = rows[0];
           if (row) {
             const c = String(randomInt(100000, 1000000));
             const exp = Date.now() + 15 * 60 * 1000;
@@ -183,9 +213,9 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "invalid_code", message: "الرمز غير صحيح أو انتهت صلاحيته." }));
     }
     try {
-      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-      if (!q.ok) throw new Error("notion_failed");
-      const row = ((await q.json()).results || [])[0];
+      const rows = await rowsByEmail(email);
+      if (!rows) throw new Error("notion_failed");
+      const row = rows[0];
       if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
       const u = await fetch(`https://api.notion.com/v1/pages/${row.id}`, {
         method: "PATCH",
@@ -229,9 +259,9 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "not_signed_in" }));
     }
     try {
-      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
-      const row = ((await q.json()).results || [])[0];
+      const rows = await rowsByEmail(email);
+      if (!rows) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const row = rows[0];
       if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
       const u = await fetch(`https://api.notion.com/v1/pages/${row.id}`, {
         method: "PATCH",
@@ -259,9 +289,9 @@ export default async function handler(req, res) {
     } catch (e) { console.error("account session error", String(e).slice(0, 200)); }
     if (!isEmail(email)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "not_signed_in" })); }
     try {
-      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
-      const row = ((await q.json()).results || [])[0];
+      const rows = await rowsByEmail(email);
+      if (!rows) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const row = rows[0];
       if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
       const p = row.properties || {};
       res.statusCode = 200;
@@ -293,13 +323,20 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
     }
     try {
-      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
-      const data = await q.json();
-      const row = (data.results || [])[0];
-      const stored = row && row.properties && row.properties["بيانات الدخول"];
-      const storedHash = stored && stored.rich_text && stored.rich_text[0] && stored.rich_text[0].plain_text;
-      if (!row || !storedHash || !verifyPassword(password, storedHash)) {
+      // عشرة صفوف لا صفّ: من سجّل شركته مرّتين بالبريد نفسه كانت كلمة مروره
+      // تُقارَن بصفٍّ واحد يُختار عشوائياً — فتُرفض كلمةٌ صحيحة لأن الصفّ
+      // المُسلَّم لا يحمل تجزئتها أو لا يحمل كلمة مرور أصلاً. يُجرَّب الصفوف
+      // بالترتيب، ويدخل الصفّ الذي تُطابقه كلمته هو. لا توسيع في الصلاحية:
+      // الدخول ما زال يحتاج كلمة مرور صحيحة لصفٍّ ببريده هو.
+      const rows = await rowsByEmail(email, 10);
+      if (!rows) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      let row = null;
+      for (const pg of rows) {
+        const stored = pg.properties && pg.properties["بيانات الدخول"];
+        const storedHash = stored && stored.rich_text && stored.rich_text[0] && stored.rich_text[0].plain_text;
+        if (storedHash && verifyPassword(password, storedHash)) { row = pg; break; }
+      }
+      if (!row) {
         res.statusCode = 401;
         return res.end(JSON.stringify({ ok: false, error: "invalid_credentials" }));
       }
@@ -330,10 +367,9 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
     }
     try {
-      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
-      if (q.ok) {
-        const data = await q.json();
-        const row = (data.results || [])[0];
+      const rows = await rowsByEmail(email);
+      if (rows) {
+        const row = rows[0];
         const code = row ? txtProp(row.properties["رمز الوصول"]) : "";
         const company = (row ? txtProp(row.properties["اسم الشركة"], "title") : "").replace(/[<>&]/g, "");
         if (code) {
@@ -341,7 +377,8 @@ export default async function handler(req, res) {
             <h2 style="color:#0B1B5A">رمز الوصول للوحة التوظيف</h2>
             <p>${company ? "حساب: " + company + "<br>" : ""}رمز الوصول الخاص بك هو:</p>
             <p style="font-size:28px;font-weight:bold;letter-spacing:3px;color:#0B1B5A">${code}</p>
-            <p>ادخل به من صفحة <a href="https://www.businesspartner.sa/ar/employer-login">تسجيل دخول أصحاب العمل</a> لفتح لوحة التوظيف.</p>
+            <p><b>الأسهل:</b> افتح <a href="https://www.businesspartner.sa/ar/employer">بوابة صاحب العمل</a> واكتب هذا البريد نفسه — يصلك رمزٌ لمرة واحدة وتدخل بلا حاجة إلى الرمز أعلاه.</p>
+            <p>والرمز أعلاه لصفحة تصفّح المرشحين: <a href="https://www.businesspartner.sa/ar/employers?code=${encodeURIComponent(code)}">افتحها به مباشرة</a>.</p>
             <p style="color:#666">إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.</p>
           </div>`);
         }
@@ -444,7 +481,7 @@ export default async function handler(req, res) {
       <p>سجّلنا اشتراك <strong>${company}</strong>${planAr ? ` في الباقة <strong>${planAr}</strong> (${billing})` : ""} في منصة التوظيف.</p>
       <p>رمز وصولك:</p>
       <p style="font-size:24px;font-weight:bold;letter-spacing:3px;color:${brand}">${ref}</p>
-      <p>يُفعّل هذا الرمز فور تأكيد الدفع، وبعدها تدخل لوحة التوظيف وتتصفّح المرشّحين ببياناتهم الكاملة.</p>
+      <p>يُفعّل هذا الرمز فور تأكيد الدفع، وبعدها تدخل <a href="https://www.businesspartner.sa/ar/employer">بوابة صاحب العمل</a> ببريدك هذا — يصلك رمزٌ لمرة واحدة، ولا تحتاج أن تحمل رمز الوصول معك — وتتصفّح المرشّحين ببياناتهم الكاملة.</p>
       <p style="color:#666">لأي استفسار: واتساب 966507034157+</p>
     </div>`;
     const bpHtml = `<div style="font-family:Arial,sans-serif">
