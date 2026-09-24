@@ -223,6 +223,13 @@ const txt = (p) => {
   return "";
 };
 
+// معرّف وظيفةٍ مُسوّى للمقارنة. ختم التقديم يحمل ما كان في `?id=` بالرابط،
+// ونوشن يقبل معرّف الصفحة بشرطاته وبلا شرطاته وبأي حالة أحرف — فمقارنةٌ نصية
+// حرفية تُسقط متقدّماً حقيقياً عن إعلانٍ حقيقي لمجرّد اختلاف شكل المعرّف.
+// وما ليس معرّف صفحة (candidate-pool، ومعرّفات وظائف الموقع النصّية) يمرّ
+// كما هو فلا يطابق أي إعلان — وهو المطلوب.
+const jobKey = (s) => String(s || "").trim().toLowerCase().replace(/-/g, "");
+
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")
 const maskName = (n) => {
   const parts = String(n || "").trim().split(/\s+/).filter(Boolean);
@@ -589,6 +596,11 @@ async function handlePostings(req, res) {
         mode: txt(p[JOB_MODE_PROP]),
         description: txt(p["الوصف والمتطلبات"]),
         status: txt(p["الحالة"]),
+        // الاستعلام أعلاه يرتّب بـ«تاريخ النشر» ثم لا يعيده، فجدول الوظائف
+        // يرسم صفوفاً مرتّبةً بتاريخٍ لا يراه أحد. والخاصية من نوع
+        // created_time في المخطّط — أي هي pg.created_time نفسه، لا
+        // p["تاريخ النشر"].date.start (معالج ?posting= يقرؤها هكذا).
+        posted: pg.created_time,
       };
     });
     // The platform owner's console also lists the site's own careers-page
@@ -810,6 +822,8 @@ export default async function handler(req, res) {
           type: txt(p[JOB_TYPE_PROP]),
           mode: txt(p[JOB_MODE_PROP]),
           description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
+          // صفحة /hiring تحسب «قبل ٣ أيام» من هذا الحقل (jbTime) وكان لا يصلها.
+          postedAt: pg.created_time,
         };
       }).filter((j) => j.title);
       res.statusCode = 200;
@@ -941,19 +955,24 @@ export default async function handler(req, res) {
   // Resume a previous, still-in-progress scan (see the time-budget note below)
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
-  let unlocked = false, plan = "";
+  // `owner` = حساب المنصّة نفسه (بريد المالك أو رمز التجربة البيئي)، وهو
+  // الوحيد الذي يرى ما وراء إعلاناته — كما في handlePostings تماماً. كان
+  // مفقوداً هنا، فلم يكن لمسار GET وسيلةٌ للتمييز أصلاً.
+  let unlocked = false, plan = "", owner = false;
   // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
   // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
   let account = null, empState = null;
   if (code === "self") {
     empState = await employerRowFor(req);
     account = empState.reason === "ok" ? empState.account : null;
-    if (account) { unlocked = true; plan = account.plan; code = account.code; }
+    if (account) { unlocked = true; plan = account.plan; code = account.code; owner = !!account.owner; }
     else code = "";
-  } else if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
+  } else if (code && !code.startsWith("org:")) ({ unlocked, plan, owner = false } = await resolvePlan(code));
   let portal = null;
   if (!unlocked) {
     portal = await portalUnlock(req);
+    // جلسة عميلٍ مفتوحة ليست ملكيةً للمنصّة: تفتح اللوحة برمز org:<id> ولا
+    // تملك إعلاناً واحداً، فلا ترى متقدّمي أحد. owner يبقى false عمداً.
     if (portal) { unlocked = true; plan = portal.plan; code = portal.code; }
   }
 
@@ -993,6 +1012,34 @@ export default async function handler(req, res) {
   if (url.searchParams.get("applicants") === "1") {
     if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
     try {
+      // ── مَن يرى مَن ────────────────────────────────────────────────────
+      // رمزٌ مفعّل كان يكفي لرؤية **كل** متقدّمي **كل** أصحاب العمل بأسمائهم
+      // وبُرُدهم وجوّالاتهم: الاستعلام أدناه يمشي على قاعدة المرشحين كلها،
+      // ولم يكن بعده شرطٌ على مالك الإعلان — بينما جاره list-postings يفلتر
+      // على «رمز صاحب العمل» منذ اليوم الأول. فتُجلب أولاً معرّفات إعلانات
+      // صاحب العمل نفسه، ولا تنجو مجموعةٌ ختمُها خارجها.
+      //
+      // والمالك (owner) يبقى يرى الكل: هو مالك المنصّة، وSITE_ROLES تُدرج
+      // له وحده في list-postings للسبب نفسه.
+      //
+      // وظائف الموقع نفسه (hr-operations-specialist, recruitment-coordinator)
+      // و«candidate-pool» ليست صفوفاً في JOBS_DB ولا رمزَ صاحب عملٍ لها —
+      // فمعرّفاتها لا تُطابق أي إعلان، وتسقط عن غير المالك بالقاعدة نفسها
+      // بلا استثناءٍ مكتوب. وهذا هو المقصود: التسجيل العام في قاعدة المرشحين
+      // ليس «تقدّماً على إعلان» أحد، وتصفّح القاعدة بابٌ آخر له إخفاؤه.
+      //
+      // وتعذّر معرفةُ مَن يملك ماذا = لا أحد يرى شيئاً (502)، لا «أظهر الكل».
+      let ownJobs = null;
+      if (!owner) {
+        if (!code) ownJobs = new Map();
+        else {
+          const mine = await queryAllRows(JOBS_DB, {
+            filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
+          }, "applicants ownership");
+          if (!mine.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+          ownJobs = new Map(mine.results.map((pg) => [jobKey(pg.id), pg.id]));
+        }
+      }
       let rowsRaw = [];
       let cursor = null, guard = 0;
       // 1,893 people have applied through the site; the old five-page ceiling
@@ -1031,8 +1078,16 @@ export default async function handler(req, res) {
         if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
         if (!m) continue;
         let jobTitle = m[1].trim(), jobId = m[2].trim();
-        if (jobId === "candidate-pool") jobTitle = "قاعدة المرشحين العامة";
-        const key = jobId || jobTitle;
+        const key = jobKey(jobId) || jobTitle;
+        // الشرط الذي كان غائباً. ويُطبَّق على الختمين معاً — «الوظيفة المتقدم
+        // لها» والصفوف القديمة المختومة في Notes — لأن كليهما يمرّ من هنا.
+        if (ownJobs && !ownJobs.has(key)) continue;
+        // ومعرّف المجموعة هو معرّف الصفحة كما يكتبه نوشن، لا كما ورد في
+        // الختم: إعلانٌ واحد وصله تقديمان بمعرّفٍ مشروط وآخر بلا شرطات كان
+        // ينقسم مجموعتين، فتعدّ اللوحة (jobMatch) إحداهما صفراً ولا يصل
+        // متقدّموها. التجميع بالمفتاح المُسوّى نفسه الذي تُفحص به الملكية.
+        if (ownJobs && ownJobs.get(key)) jobId = ownJobs.get(key);
+        if (jobKey(jobId) === "candidatepool") jobTitle = "قاعدة المرشحين العامة";
         if (!groups[key]) groups[key] = { jobId, jobTitle, applicants: [] };
         const scoreM = notes.match(/score\s*(\d{1,3})\s*\/\s*100/i);
         groups[key].applicants.push({
