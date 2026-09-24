@@ -258,23 +258,11 @@ const D = {
   seedFormation: { ar: ["تحديد مسار التأسيس", "إجراءات التأسيس والسجل وعقد التأسيس", "الاشتراك في المنصات الحكومية الأساسية", "تعيين المدير على الشركة", "دعم فتح الحساب البنكي"], en: ["Define the formation route", "Formation, commercial register and articles of association", "Registration on the core government platforms", "Appointing the company manager", "Support with opening the bank account"], fr: ["Définir la voie de création", "Création, registre de commerce et statuts", "Inscription aux plateformes gouvernementales essentielles", "Nomination du gérant", "Accompagnement à l'ouverture du compte bancaire"], zh: ["确定设立路径", "设立手续、商业登记与公司章程", "核心政府平台注册", "任命公司经理", "协助开立银行账户"] },
 };
 
-export function simpleV1(ctx) {
-  const { lang, esc, site, head, pathInLang } = ctx;
-  // مجموعة «Knowledge Center» من site/data/nav.json (يمرّرها generate.mjs): اسم
-  // رابط التذييل الوحيد «مركز المعرفة»، ومحتوى صفحته /knowledge-center.
-  const knowledge = ctx.knowledge || null;
-  const t = (k) => { const e = D[k]; if (!e) return k; const l = lang(); return e[l] != null ? e[l] : e.en; };
-  const arr = (k) => { const e = D[k]; const l = lang(); return Array.isArray(e[l]) ? e[l] : e.en; };
-  const pre = () => (lang() === "en" ? "" : "/" + lang());
-  const href = (p) => (p === "/" ? (lang() === "en" ? "/" : "/" + lang() + "/") : pre() + p);
-  const LANG_NAMES = { ar: "العربية", en: "English", fr: "Français", zh: "中文" };
-  const contact = site.contact || {};
-  const WA_HUMAN = "https://wa.me/966" + String(contact.whatsappSupport || contact.phone || "0530540231").replace(/^0/, "");
-  // No price is shown on the public homepage: the approved concept puts the
-  // catalogue and its prices in the backend, and the figure reaches the
-  // customer in the quotation for the scope they approved.
-
-  const CSS = `<style id="sv1-css">
+// أصناف الترويسة والتذييل هنا غير مُقيَّدة بـ`.sv1`، فتصلح ترويسةً
+// لأي صفحة. رُفعت من داخل `simpleV1()` إلى مستوى الوحدة ليستوردها
+// `simplified-global-header.mjs` ويضعها على الصفحات القديمة بدل أن
+// تُنسخ نسخةً ثانية تفترق عنها. النص نفسه لم يتغيّر حرفاً.
+export const SV1_CSS = `<style id="sv1-css">
 /* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
    أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
    لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
@@ -508,6 +496,26 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
+
+export const SV1_TEXT = D;
+
+export function simpleV1(ctx) {
+  const { lang, esc, site, head, pathInLang } = ctx;
+  // مجموعة «Knowledge Center» من site/data/nav.json (يمرّرها generate.mjs): اسم
+  // رابط التذييل الوحيد «مركز المعرفة»، ومحتوى صفحته /knowledge-center.
+  const knowledge = ctx.knowledge || null;
+  const t = (k) => { const e = D[k]; if (!e) return k; const l = lang(); return e[l] != null ? e[l] : e.en; };
+  const arr = (k) => { const e = D[k]; const l = lang(); return Array.isArray(e[l]) ? e[l] : e.en; };
+  const pre = () => (lang() === "en" ? "" : "/" + lang());
+  const href = (p) => (p === "/" ? (lang() === "en" ? "/" : "/" + lang() + "/") : pre() + p);
+  const LANG_NAMES = { ar: "العربية", en: "English", fr: "Français", zh: "中文" };
+  const contact = site.contact || {};
+  const WA_HUMAN = "https://wa.me/966" + String(contact.whatsappSupport || contact.phone || "0530540231").replace(/^0/, "");
+  // No price is shown on the public homepage: the approved concept puts the
+  // catalogue and its prices in the backend, and the figure reaches the
+  // customer in the quotation for the scope they approved.
+
+  const CSS = SV1_CSS;
 
   function langSwitch(path) {
     const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${LANG_NAMES[l]}</a>`).join("");

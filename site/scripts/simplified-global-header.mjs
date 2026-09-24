@@ -1,7 +1,34 @@
+// ترويسة واحدة للموقع كله (قرار المالك 2026-09-24).
+//
+// كان في الموقع نظاما ترويسة: صفحات Simple V1 الست تبنيها `SV1.shell()`
+// بترويسة `sv1-hdr` (شريط حالة + أربعة روابط)، وكل الباقي — أكثر من ١٣٠٠
+// صفحة — كان يأخذ من هنا ترويسةً أخرى بقائمة ضخمة وسبعة مداخل. هذا وحده ما
+// كان يجعل الموقع يبدو موقعين. هذا السكربت الآن يضع **ترويسة SV1 نفسها** على
+// الصفحات القديمة: نفس الأصناف، نفس النصوص، نفس المعرّفات.
+//
+// من أين تأتي؟ من `simple-v1.mjs` مباشرة: `SV1_CSS` و`SV1_TEXT`. لا نسخة
+// ثانية تُكتب بيدٍ هنا فتفترق عن الأصل بعد شهر. ما يُكتب هنا هو الفرق
+// الحقيقي بين الحالتين فقط:
+//
+//  1) الصفحة القديمة بلا غلاف `<div class="sv1">`، والمتغيّرات (--l، --ac…)
+//     و`.wrap` معرَّفة على ذلك الغلاف. فالترويسة تُلفّ بـ
+//     `<div class="sv1 sv1-chrome">` و`display:contents` يشيل صندوق الغلاف
+//     فيبقى `position:sticky` مسنداً إلى الصفحة لا إلى الغلاف.
+//  2) الصفحة القديمة لا تحمل `CHROME_JS` الخاص بـ`SV1.shell()`، ومن غيره
+//     يبقى `#sv1CartN` صفراً و`#sv1CartBtn` مخفياً بـ`sv1-hide` إلى الأبد.
+//     فيُحقن هنا نظيرٌ مختصر له — والأهم فيه: الصفحة القديمة **تبيع فعلاً**
+//     عبر `.add-cart` في `main.js`، و`main.js` يحدّث `#cart-badge` (لم يعد
+//     موجوداً) ولا يطلق أي حدث. لذلك نعيد المزامنة بعد كل ضغطة على
+//     `.add-cart` — بلا لمس `main.js`، ومفتاح السلة `bp_cart` نفسه وصيغته
+//     نفسها في الموقعين.
+//  3) الصفحة القديمة ليست جزءاً من تنقّل SV1، فروابط اللغة تُحسب من مسار
+//     الملف نفسه ويُتحقّق من وجود النسخة قبل الربط — وإلا فرابطٌ ميت.
 import fs from 'node:fs';
 import path from 'node:path';
+import { SV1_CSS, SV1_TEXT, SIMPLE_LANGS } from './simple-v1.mjs';
 
 const ROOT = path.resolve('site');
+const LANG_NAMES = { ar: 'العربية', en: 'English', fr: 'Français', zh: '中文' };
 
 function walk(dir){
   const out=[];
@@ -13,94 +40,174 @@ function walk(dir){
   return out;
 }
 
-function prefixFor(file){
-  const rel=path.relative(ROOT,file).replaceAll('\\','/');
-  if(rel.startsWith('ar/')) return '/ar';
-  if(rel.startsWith('fr/')) return '/fr';
-  if(rel.startsWith('zh/')) return '/zh';
-  return '';
+// ------------------------------------------------------------------ CSS --
+// قصّ قواعد الترويسة من `SV1_CSS` وقت البناء بدل نسخها: الصفحة القديمة لا
+// تحتاج ١٩ كيلوبايت من قواعد الرئيسية واللوحات، وأي تعديل في `simple-v1.mjs`
+// يصل إلى هنا وحده لأن القصّ يجري على النص الحيّ لا على نسخة.
+function splitRules(css){
+  const out=[]; let i=0;
+  while(i<css.length){
+    const open=css.indexOf('{',i);
+    if(open<0) break;
+    const sel=css.slice(i,open).trim();
+    let d=1,j=open+1;
+    while(j<css.length && d>0){ const c=css[j]; if(c==='{')d++; else if(c==='}')d--; j++; }
+    out.push({sel, body: css.slice(open+1, j-1)});
+    i=j;
+  }
+  return out;
 }
 
-function labels(prefix){
-  // Owner rules: Arabic pages carry no English inside content except brand
-  // names (B10X); the header must keep the cart and the partner entry points
-  // (تسجيل الشركاء → /suppliers, بوابة الشركاء → /partner-dashboard).
-  if(prefix==='/ar') return {
-    b10x:'B10X', services:'خدماتنا', packages:'الباقات', advisors:'المستشارون الأذكياء', about:'من نحن', contact:'تواصل معنا', login:'تسجيل الدخول', start:'ابدأ الآن', lang:'العربية', cart:'السلة',
-    cols:[
-      ['الشركات والتأسيس',[['تأسيس الشركات','/services/category/company-formation'],['الاستثمار الأجنبي','/services/category/foreign-investment'],['الإقامة المميزة','/services/category/premium-residency'],['القانونية والعقود','/packages#pkg-legal']]],
-      ['التشغيل والامتثال',[['الخدمات الحكومية','/services/category/government-relations'],['الامتثال والمخالفات','/compliance-agent'],['الموارد البشرية','/services/category/hr-services'],['التوظيف والاستقدام','/services/category/recruitment']]],
-      ['المكان والانتقال',[['مساحات الأعمال','/workspaces'],['سكن العمالة','/worker-housing'],['السياحة والفعاليات','/tourism'],['التموين والضيافة','/farina']]],
-      ['النمو والذكاء الاصطناعي',[['B10X','/b10x'],['المستشار الذكي','/#bp-consultant'],['مستشار المستندات','/ai-document-agent'],['الموظف الذكي المتخصص','/smart-employee'],['تطوير الأعمال','/business-development'],['كل الخدمات','/services']]],
-      ['الشركاء والموردون',[['تسجيل الشركاء','/suppliers'],['بوابة الشركاء','/partner-dashboard'],['بوابة وكالات التوظيف','/agency-portal'],['مركز الربط','/connect'],['الوظائف','/careers']]]
-    ]
-  };
-  return {
-    b10x:'B10X', services:'Services', packages:'Packages', advisors:'AI Advisors', about:'About', contact:'Contact', login:'Sign in', start:'Get started', lang:prefix==='/fr'?'Français':prefix==='/zh'?'中文':'English', cart:'Cart',
-    cols:[
-      ['Company & Setup',[['Company Formation','/services/category/company-formation'],['Foreign Investment','/services/category/foreign-investment'],['Premium Residency','/services/category/premium-residency'],['Legal Packages','/packages#pkg-legal']]],
-      ['Operations & Compliance',[['Government Services','/services/category/government-relations'],['Compliance & Violations','/compliance-agent'],['HR Services','/services/category/hr-services'],['Recruitment','/services/category/recruitment']]],
-      ['Workplace & Relocation',[['Workspaces','/workspaces'],['Worker Housing','/worker-housing'],['Tourism & Events','/tourism'],['Corporate Hospitality','/farina']]],
-      ['Growth & AI',[['B10X','/b10x'],['Smart Advisor','/#bp-consultant'],['Document AI','/ai-document-agent'],['Specialised Smart Employee','/smart-employee'],['Business Development','/business-development'],['All Services','/services']]],
-      ['Partners & Suppliers',[['Partner Registration','/suppliers'],['Partner Portal','/partner-dashboard'],['Recruitment Agency Portal','/agency-portal'],['Connect Hub','/connect'],['Jobs','/careers']]]
-    ]
-  };
+// الأصناف التي تستعملها ترويسة SV1 فعلاً، ومعها `.sv1` نفسه لأن المتغيّرات
+// تُعرَّف عليه. ما عداها (الرئيسية، الفوتر، اللوحات) يسقط.
+const CHROME_PART = /^(\.sv1(?=[\s:.>#[]|$)|\.sv1-(?:ribbon|bar|bar-l|bar-r|bar-langs|pulse|hdr|nav|btn|lang|burger|cart|hide|chrome)(?=[\s:.>#[]|$))/;
+const keepSel = (sel) => sel.split(',').some((s) => CHROME_PART.test(s.trim()));
+
+function chromeRules(css){
+  const out=[];
+  for(const r of splitRules(css)){
+    if(r.sel.startsWith('@keyframes')){
+      if(/sv1pulse/.test(r.sel)) out.push(`${r.sel}{${r.body}}`);
+      continue;
+    }
+    if(r.sel.startsWith('@')){
+      const inner=chromeRules(r.body);
+      if(inner) out.push(`${r.sel}{${inner}}`);
+      continue;
+    }
+    if(keepSel(r.sel)) out.push(`${r.sel}{${r.body.trim()}}`);
+  }
+  return out.join('\n');
 }
 
-// صفحاتٌ تُبنى بالإنجليزية والعربية وحدهما؛ إلصاق /fr أو /zh بها يصنع
-// رابطاً ميتاً. تُحال إلى نسختها الإنجليزية القائمة.
-const AR_EN_ONLY=new Set(['/connect']);
-function href(prefix,p){
-  if(AR_EN_ONLY.has(p) && prefix!=='' && prefix!=='/ar') return p;
-  return `${prefix}${p}` || '/';
-}
+const CHROME_RULES = chromeRules(
+  SV1_CSS.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '').replace(/\/\*[\s\S]*?\*\//g, '')
+);
 
-const css=String.raw`<style id="bp-simple-header-css">
-.site-header.bp-simple-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border-bottom:1px solid #e9edf4!important;box-shadow:none!important}
-.bp-simple-header .bp-hdr{width:min(1220px,calc(100% - 34px));height:76px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:30px}
-.bp-simple-header .bp-logo img{display:block;width:172px;height:auto}
-.bp-simple-header .bp-nav{display:flex;align-items:center;justify-content:center;gap:26px;min-width:0}
-.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:13px;font-weight:750;color:#24314f;text-decoration:none;white-space:nowrap;cursor:pointer;list-style:none;padding:10px 0}
-.bp-simple-header summary::-webkit-details-marker{display:none}.bp-simple-header summary:after{content:'⌄';font-size:10px;margin-inline-start:7px;color:#8993a6}
-.bp-simple-header .bp-nav>a:hover,.bp-simple-header summary:hover{color:#2856d6}
-.bp-simple-header .bp-dd{position:relative}.bp-simple-header .bp-dd[open] summary{color:#2856d6}
-.bp-simple-header .bp-mega{position:absolute;top:48px;right:50%;transform:translateX(50%);width:min(1040px,92vw);display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border:1px solid #e4e9f2;border-radius:22px;padding:16px;box-shadow:0 28px 70px rgba(18,32,75,.16)}
-.bp-simple-header .bp-mega-col{padding:8px}.bp-simple-header .bp-mega-col strong{display:block;font-size:11px;color:#8090aa;margin-bottom:9px}.bp-simple-header .bp-mega-col a{display:block;text-decoration:none;color:#17284e;font-size:12px;font-weight:700;padding:8px 9px;border-radius:9px}.bp-simple-header .bp-mega-col a:hover{background:#f4f7ff;color:#2856d6}
-.bp-simple-header .bp-mini-menu{position:absolute;top:48px;right:0;width:230px;background:#fff;border:1px solid #e4e9f2;border-radius:16px;padding:8px;box-shadow:0 22px 60px rgba(18,32,75,.14)}.bp-simple-header .bp-mini-menu a{display:block;text-decoration:none;color:#17284e;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:700}.bp-simple-header .bp-mini-menu a:hover{background:#f4f7ff;color:#2856d6}
-.bp-simple-header .bp-actions{display:flex;align-items:center;gap:9px}.bp-simple-header .bp-login,.bp-simple-header .bp-start{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;min-height:42px;padding:0 14px;font-size:12px;font-weight:850}.bp-simple-header .bp-login{border:1px solid #dce3ef;color:#17284e;background:#fff}.bp-simple-header .bp-start{background:linear-gradient(135deg,#183bc2,#7a47f5);color:#fff;box-shadow:0 8px 24px rgba(69,74,210,.2)}
-.bp-simple-header .bp-cart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce3ef;border-radius:12px;color:#17284e;background:#fff;text-decoration:none}
-.bp-simple-header .bp-cart svg{width:19px;height:19px}
-.bp-simple-header .bp-cart .cart-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e2445c;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.bp-simple-header .bp-lang{position:relative}.bp-simple-header .bp-lang summary{border:0;padding:10px 6px;font-size:12px}.bp-simple-header .bp-mobile-toggle{display:none}
-@media(max-width:1050px){.bp-simple-header .bp-nav{gap:16px}.bp-simple-header .bp-nav>a:nth-of-type(4),.bp-simple-header .bp-nav>a:nth-of-type(5){display:none}.bp-simple-header .bp-hdr{gap:18px}}
-@media(max-width:820px){.bp-simple-header .bp-hdr{height:auto;min-height:68px;grid-template-columns:1fr auto;padding:10px 0}.bp-simple-header .bp-logo img{width:150px}.bp-simple-header .bp-nav{grid-column:1/-1;order:3;justify-content:flex-start;overflow-x:auto;padding:2px 0 6px;gap:18px;scrollbar-width:none}.bp-simple-header .bp-nav::-webkit-scrollbar{display:none}.bp-simple-header .bp-actions{justify-self:end}.bp-simple-header .bp-login,.bp-simple-header .bp-lang{display:none}.bp-simple-header .bp-cart{width:38px;height:38px}.bp-simple-header .bp-start{min-height:38px;padding:0 12px}.bp-simple-header .bp-mega{position:fixed;top:118px;right:16px;left:16px;transform:none;width:auto;grid-template-columns:repeat(2,1fr);max-height:70vh;overflow:auto}}
-@media(max-width:540px){.bp-simple-header .bp-mega{grid-template-columns:1fr}.bp-simple-header .bp-nav>a,.bp-simple-header summary{font-size:12px}.bp-simple-header .bp-hdr{width:min(100% - 24px,1220px)}}
+const css = `<style id="sv1-chrome-css">
+${CHROME_RULES}
+/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
+   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
+   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
+.sv1.sv1-chrome{display:contents}
+@media print{.sv1-bar,.sv1-hdr{display:none!important}}
+/* وضع التضمين (?embed=1) كان يخفي .site-header؛ الترويسة لم تعد تحمله. */
+html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr{display:none!important}
 </style>`;
 
-for(const file of walk(ROOT)){
-  let html=fs.readFileSync(file,'utf8');
-  if(!html.includes('<header class="site-header"')) continue;
-  const prefix=prefixFor(file), l=labels(prefix);
-  const mega=l.cols.map(([title,items])=>`<div class="bp-mega-col"><strong>${title}</strong>${items.map(([n,p])=>`<a href="${href(prefix,p)}">${n}</a>`).join('')}</div>`).join('');
-  const advisors=`<div class="bp-mini-menu"><a href="${href(prefix,'/ai-agents')}">${prefix==='/ar'?'كل المستشارين':'All AI Advisors'}</a><a href="${href(prefix,'/compliance-agent')}">${prefix==='/ar'?'مستشار الامتثال':'Compliance Advisor'}</a><a href="${href(prefix,'/ai-document-agent')}">${prefix==='/ar'?'مستشار المستندات':'Document AI'}</a><a href="${href(prefix,'/shared-services')}">${prefix==='/ar'?'الخدمات المشتركة':'Shared Services'}</a></div>`;
-  // Owner (2026-09): the jobs board and the employer dashboard had no way in
-  // from the header — a dedicated hiring menu, one hop from any page.
-  const ar=prefix==='/ar';
-  const hiringItems=[
-    ['/careers', ar?'الوظائف المتاحة':'Open jobs'],
-    ['/employer-dashboard', ar?'لوحة صاحب العمل':'Employer dashboard'],
-    ['/employer-join', ar?'تسجيل صاحب عمل جديد':'Register as employer'],
-    ['/employers', ar?'خدمات أصحاب العمل':'Employer services'],
-    ['/job-search-service', ar?'خدمة البحث عن وظيفة':'Job search service'],
-    ['/recruitment-agencies', ar?'وكالات التوظيف':'Recruitment agencies'],
-    ['/services/category/recruitment', ar?'التوظيف والاستقدام':'Recruitment services'],
-  ];
-  const hiringMenu=`<div class="bp-mini-menu">${hiringItems.map(([p,n])=>`<a href="${href(prefix,p)}">${n}</a>`).join('')}</div>`;
-  const hiringLabel=ar?'التوظيف':prefix==='/fr'?'Recrutement':prefix==='/zh'?'招聘':'Hiring';
-  const langMenu=`<div class="bp-mini-menu"><a data-lang="en" href="/">English</a><a data-lang="ar" href="/ar/">العربية</a><a data-lang="fr" href="/fr/">Français</a><a data-lang="zh" href="/zh/">中文</a></div>`;
-  const header=`<header class="site-header bp-simple-header"><div class="bp-hdr"><a class="bp-logo" href="${prefix||''}/"><img src="/assets/img/logo.png" alt="Business Partner"></a><nav class="bp-nav"><a href="${href(prefix,'/#bp-consultant')}">${l.b10x}</a><details class="bp-dd"><summary>${l.services}</summary><div class="bp-mega">${mega}</div></details><a href="${href(prefix,'/packages')}">${l.packages}</a><details class="bp-dd"><summary>${l.advisors}</summary>${advisors}</details><details class="bp-dd"><summary>${hiringLabel}</summary>${hiringMenu}</details><a href="${href(prefix,'/about')}">${l.about}</a><a href="${href(prefix,'/contact')}">${l.contact}</a></nav><div class="bp-actions"><details class="bp-dd bp-lang"><summary>${l.lang}</summary>${langMenu}</details><a class="bp-cart cart-link" href="${href(prefix,'/cart')}" aria-label="${l.cart}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-badge" id="cart-badge" hidden>0</span></a><a class="bp-login" data-account-link href="${href(prefix,'/account')}"><span data-account-label>${l.login}</span></a><a class="bp-start" href="${href(prefix,'/account')}">${l.start}</a></div></div></header>`;
-  html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/,header);
-  if(!html.includes('bp-simple-header-css')) html=html.replace('</head>',css+'\n</head>');
-  fs.writeFileSync(file,html);
+// ------------------------------------------------------------------- JS --
+// نظير `CHROME_JS` من `SV1.shell()`: زرّ الجوال، عدّاد السلة، وحالة الدخول.
+// ما لا يُنسخ: شريط وضع الاختبار (يُدخَل في `.sv1` غلافِ الصفحة، ولا غلاف
+// هنا)، و`#sv1SiteBtn` (لا يظهر إلا في /my و/ops، وليست من هذه الصفحات).
+const CHROME_JS = `<script>(function(){"use strict";
+var $=function(id){return document.getElementById(id)};
+var b=$('sv1Burger'),n=$('sv1Nav');
+if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+var cb=$('sv1CartBtn'),cn=$('sv1CartN');
+function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
+ var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
+ if(cn)cn.textContent=String(k);
+ if(cb)cb.classList.toggle('sv1-hide',!k)}
+sync();
+addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
+document.addEventListener('bp:cart',sync);
+/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
+   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
+document.addEventListener('click',function(e){
+ if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
+var ob=$('sv1OutBtn');
+if(ob)ob.onclick=function(){ob.disabled=true;
+ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
+ .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json()}).then(function(o){
+ if(!(o&&o.session&&o.session.user))return;
+ window.SV1_SESSION=o.session;
+ var a=$('sv1AccountLink');
+ if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}
+ var lb=$('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');
+ if(ob)ob.classList.remove('sv1-hide');
+}).catch(function(){});
+})();</script>`;
+
+// ------------------------------------------------------------ languages --
+// خمس صفحات لكل واحدة من هذه اللغات، وهي خارج اللغات الأربع المعتمدة
+// (SIMPLE_LANGS). تُقشَّر من المسار حتى يجد مبدّل اللغة شقيقاتها الحقيقية،
+// لكن ترويستها تبقى إنجليزية كما كانت — لا يوجد نصٌّ لها في SV1_TEXT، ولا
+// `/ja/catalog` مبنيّة ليُربط إليها. لا تُضاف `hr` هنا: `site/hr/` قسمُ
+// الموارد البشرية لا لغةٌ كرواتية.
+const PATH_LANGS = new Set([...SIMPLE_LANGS.filter((l)=>l!=='en'), 'es','hi','ja','ko','ru']);
+// مسار الصفحة بلا لغتها ولا `.html`، كما يراه `pathInLang` في generate.mjs.
+function pageOf(file){
+  let rel=path.relative(ROOT,file).replaceAll('\\','/').replace(/\.html$/,'');
+  let lang='en';
+  const m=/^([a-z]{2})(?:\/|$)/.exec(rel);
+  if(m && PATH_LANGS.has(m[1])){
+    if(SIMPLE_LANGS.includes(m[1])) lang=m[1];
+    rel=rel.slice(m[1].length).replace(/^\//,'');
+  }
+  rel=rel.replace(/(^|\/)index$/,'');
+  return { lang, base: rel ? '/'+rel : '/' };
 }
-console.log('Simplified global header applied');
+const pathInLang=(p,l)=> (l==='en' ? p : (p==='/' ? `/${l}/` : `/${l}${p}`));
+
+const FILES=walk(ROOT);
+// أي (لغة، مسار) موجودٌ فعلاً على القرص — فلا يُربط رابط لغةٍ إلى صفحة غير
+// مبنيّة. الصفحات العربية/الإنجليزية وحدها تُبنى لكثيرٍ من المسارات.
+const BUILT=new Set();
+for(const f of FILES){ const {lang,base}=pageOf(f); BUILT.add(lang+' '+base); }
+
+function headerFor(file){
+  const { lang, base } = pageOf(file);
+  const t=(k)=>{ const e=SV1_TEXT[k]; if(!e) return k; return e[lang]!=null?e[lang]:e.en; };
+  const href=(p)=> (p==='/' ? (lang==='en'?'/':'/'+lang+'/') : (lang==='en'?'':'/'+lang)+p);
+  const home=href('/');
+  // رابط اللغة يفتح **الصفحة نفسها** بلغتها متى كانت مبنيّة، وإلا رئيسيتها.
+  const to=(l)=> BUILT.has(l+' '+base) ? pathInLang(base,l) : pathInLang('/',l);
+  const codes=SIMPLE_LANGS.map((l)=>
+    `<a href="${to(l)}" data-lang="${l}"${l===lang?' class="on"':''}>${l.toUpperCase()}</a>`).join('');
+  const langItems=SIMPLE_LANGS.map((l)=>
+    `<a href="${to(l)}" data-lang="${l}"${l===lang?' class="on"':''}>${LANG_NAMES[l]}</a>`).join('');
+
+  return `<div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+  <div class="sv1-bar-l">
+    <span><span class="sv1-pulse"></span><b>${t('barStatus')}</b></span>
+    <span class="hide-s">${t('barCity')}</span>
+  </div>
+  <div class="sv1-bar-r">
+    <span class="hide-s">${t('barLangs')}</span>
+    <span class="sv1-bar-langs">${codes}</span>
+  </div>
+</div></div><header class="sv1-hdr"><div class="wrap">
+  <a class="logo" href="${home}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
+  <nav class="sv1-nav" id="sv1Nav">
+    <a href="${href('/catalog')}">${t('navServices')}</a>
+    <a href="${href('/consultation')}">${t('navBook')}</a>
+    <a href="${home}#how">${t('navHow')}</a>
+    <a href="${href('/my')}" id="sv1AccountLink">${t('navAccount')}</a>
+    <details class="sv1-lang"><summary>🌐 ${LANG_NAMES[lang]}</summary><div class="menu">${langItems}</div></details>
+  </nav>
+  <div class="right">
+    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="${href('/cart')}" aria-label="${t('navCart')}">
+      <span>${t('navCart')}</span><b id="sv1CartN">0</b></a>
+    <a class="sv1-btn" id="sv1LoginBtn" href="${href('/my')}">${t('login')}</a>
+    <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t('logout')}</button>
+    <a class="sv1-btn primary" href="${home}#advisor">${t('navStart')}</a>
+  </div>
+</div></header>${CHROME_JS}</div>`;
+}
+
+let done=0;
+for(const file of FILES){
+  let html=fs.readFileSync(file,'utf8');
+  // صفحات SV1 تحمل ترويستها من `SV1.shell()` ولا `site-header` فيها أصلاً —
+  // هذا الشرط هو ما يبقيها خارج هذا السكربت. ولوحات `site-header
+  // portal-header` لا تُلمس (ليست من هذا النطاق).
+  if(!html.includes('<header class="site-header">')) continue;
+  html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/, headerFor(file));
+  if(!html.includes('id="sv1-chrome-css"')) html=html.replace('</head>', css+'\n</head>');
+  fs.writeFileSync(file,html);
+  done++;
+}
+console.log(`ترويسة Simple V1 على ${done} صفحة قديمة — نظام ترويسة واحد للموقع.`);
