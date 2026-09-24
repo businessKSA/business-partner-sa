@@ -311,6 +311,7 @@ import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
+import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
@@ -12400,7 +12401,7 @@ function writeFullSite(pre) {
   write(`${pre}farina.html`, buildFarina());
   write(`${pre}worker-housing.html`, buildWorkerHousing());
   write(`${pre}contact.html`, buildContact());
-  write(`${pre}cart.html`, buildCart());
+  if (!SIMPLE_V1) write(`${pre}cart.html`, buildCart());
   // /installments hidden at owner's request — buildInstallments() kept as dead code, not generated or linked.
   write(`${pre}estrdad.html`, buildEstrdad());
   write(`${pre}bank-account.html`, buildBankAccount());
@@ -12408,6 +12409,10 @@ function writeFullSite(pre) {
   // الدفع بتصميم الموقع الجديد. القديم يبقى مبنيّاً على /checkout-classic
   // لأن روابطه قد تكون في يد عميل الآن — لكن لا شيء في الموقع الجديد يرسل إليه.
   if (SIMPLE_V1) {
+    // السلة بتصميم الموقع الجديد. كانت آخر صفحةٍ قديمة في مسار الشراء، فتنقلب
+    // الهوية تحت يد العميل مرّتين: من الكتالوج إليها، ومنها إلى الدفع.
+    write(`${pre}cart.html`, buildSimpleCart(SV1, { lang: () => LANG, esc }));
+    write(`${pre}cart-classic.html`, buildCart());
     write(`${pre}checkout.html`, buildSimpleCheckout(SV1, { lang: () => LANG, esc }));
     write(`${pre}checkout-classic.html`, buildCheckout());
     // الرحلات: كل رحلة منتجٌ برمزه وسعره من قاعدة نوشن، تدخل السلة مباشرةً.
