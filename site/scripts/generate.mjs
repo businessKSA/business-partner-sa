@@ -315,6 +315,7 @@ import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
+import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
@@ -7069,34 +7070,7 @@ function trackApplicationHtml() {
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
-  const seekerValue = [
-    ["📄", L("One CV, many opportunities", "سيرة واحدة، فرص كثيرة"), L("Join the pool once; we match you whenever a fitting role opens.", "سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.")],
-    ["🤝", L("Employers reach you", "أصحاب العمل يوصلونك"), L("Companies hiring through us see your profile for suitable roles.", "الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.")],
-    ["🔒", L("Your data is protected", "بياناتك محمية"), L("We never share your CV without your consent (PDPL).", "لا نشارك سيرتك دون موافقتك (حماية البيانات).")],
-  ].map((x) => `<div class="card"><div class="card-icon" style="font-size:1.5rem">${x[0]}</div><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
-  const body = `
-  <section class="hero"><div class="container hero-inner" style="max-width:960px">
-    <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
-    <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
-    <p class="lead">${L("Browse open roles, apply once with your CV, and move through Business Partner's hiring flow with screening, shortlisting, interviews, and employer updates.", "تصفّح الوظائف المفتوحة، قدّم مرة واحدة بسيرتك الذاتية، وانتقل داخل مسار توظيف واضح: فرز، ترشيح، مقابلة، ثم عرض.")}</p>
-    <div class="talent-actions" style="margin-top:22px">
-      <a class="btn btn-primary" href="#open-jobs">${I.upload}<span>${L("Browse jobs", "تصفّح الوظائف")}</span></a>
-      <a class="btn btn-ghost" href="${u("/employers")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
-    </div>
-  </div></section>
-
-  ${jobCardsHtml()}
-
-  <section class="section"><div class="container">
-    <div class="grid grid-3" style="margin-bottom:36px">${seekerValue}</div>
-    <div style="max-width:640px;margin:0 auto" id="seeker-form">
-      <h2 class="center">${L("Join the general candidate pool", "انضم لقاعدة المرشحين العامة")}</h2>
-      <p class="center text-soft" style="margin-top:-8px">${L("Not applying for a specific posting above? Submit here and we'll match you when a suitable role opens.", "لا تقدّم على وظيفة محددة أعلاه؟ قدّم هنا وسنطابقك عند توفّر فرصة مناسبة.")}</p>
-      ${seekerFormHtml(f, null)}
-    </div>
-  </div></section>
-
-  ${trackApplicationHtml()}`;
+  const body = careersBody({ lang: () => LANG, esc }, { jobCards: jobCardsHtml(), seekerForm: seekerFormHtml(f, null), track: trackApplicationHtml(), employerHref: u("/employers") });
   return sv1LegacyApp({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 

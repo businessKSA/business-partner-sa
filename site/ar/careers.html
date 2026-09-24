@@ -367,16 +367,78 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><main class="sv1-legacy">
-  <section class="hero"><div class="container hero-inner" style="max-width:960px">
-    <span class="eyebrow">للباحثين عن عمل</span>
-    <h1>فرصتك القادمة تبدأ هنا</h1>
-    <p class="lead">تصفّح الوظائف المفتوحة، قدّم مرة واحدة بسيرتك الذاتية، وانتقل داخل مسار توظيف واضح: فرز، ترشيح، مقابلة، ثم عرض.</p>
-    <div class="talent-actions" style="margin-top:22px">
-      <a class="btn btn-primary" href="#open-jobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 15V3M7 8l5-5 5 5"/></svg><span>تصفّح الوظائف</span></a>
-      <a class="btn btn-ghost" href="/ar/employers">أنا صاحب عمل ←</a>
+})();</script><main class="sv1-legacy"><style id="sv1-careers-css">
+/* البطل: شاشةٌ واحدة تحت ترويسة SV1 (شريط ٣٢px + ترويسة ٧٢px). */
+.sv1-legacy .sv1-ch{background:var(--g);border-bottom:1px solid var(--line2);position:relative;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ padding:30px 22px 92px;overflow:hidden;
+ min-height:calc(100vh - 104px);min-height:calc(100svh - 104px)}
+.sv1-ch-in{width:100%;max-width:940px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+.sv1-ch-logo{height:34px;width:auto;display:block;margin:0 auto 16px}
+
+/* الرسمة والعنوان في مكانٍ واحد: العنوان فوقها ومتداخلٌ معها. */
+.sv1-ch-art{position:relative;width:100%;max-width:900px}
+.sv1-ch-brush{display:block;width:100%;height:auto;color:var(--ac)}
+.sv1 .sv1-legacy .sv1-ch-art h1{position:absolute;top:50%;inset-inline:0;transform:translateY(-50%);
+ margin:0;padding:0 13%;color:#fff!important;-webkit-text-fill-color:#fff;background:none;
+ font-weight:800;letter-spacing:-.03em;line-height:1.2;text-wrap:balance;
+ font-size:clamp(26px,6.4vw,74px)}
+.sv1-legacy .sv1-ch-lead{margin:6px auto 0;max-width:560px;color:var(--mut);font-weight:300;
+ font-size:15px;line-height:1.9}
+
+/* الزرّان: حبّتان مملوءتان متساويتان، كما في المرجع. */
+.sv1-ch-acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.sv1-legacy .sv1-ch-acts a{display:inline-flex;align-items:center;justify-content:center;
+ min-width:230px;padding:17px 30px;border-radius:999px;border:1px solid var(--ac);
+ background:var(--ac);color:#fff;font-size:16px;font-weight:600;line-height:1.2;
+ box-shadow:0 12px 28px -14px rgba(11,27,90,.6);transition:background .15s,transform .15s}
+.sv1-legacy .sv1-ch-acts a:hover{background:var(--ac2);border-color:var(--ac2);transform:translateY(-1px)}
+.sv1-legacy .sv1-ch-alt{margin:18px 0 0;font-size:13px;color:var(--mut)}
+.sv1-legacy .sv1-ch-alt a{color:var(--ac);font-weight:500;border-bottom:1px solid var(--acLine)}
+
+/* سهم النزول — توسيطٌ بخصائص فيزيائية لأنه محايد الاتجاه في العربية. */
+.sv1-legacy .sv1-ch-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+ width:44px;height:44px;border-radius:50%;border:1px solid var(--acLine);background:rgba(255,255,255,.72);
+ display:grid;place-items:center;color:var(--ac);font-size:17px;line-height:1;
+ animation:sv1chDown 2.4s ease-in-out infinite}
+.sv1-legacy .sv1-ch-down:hover{border-color:var(--ac);background:#fff}
+@keyframes sv1chDown{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+@media(prefers-reduced-motion:reduce){.sv1-legacy .sv1-ch-down{animation:none}}
+
+/* الترويسة لاصقة: بلا هذا الهامش يقف القسم المقصود تحتها فيختفي عنوانه. */
+.sv1-legacy #open-jobs,.sv1-legacy #client-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
+
+@media(max-width:560px){
+ .sv1-legacy .sv1-ch{padding:22px 18px 84px;min-height:calc(100vh - 92px);min-height:calc(100svh - 92px)}
+ /* الحشو يبقى ١٣٪ على الجوال أيضاً: تضييقه يدفع طرفَي السطر خارج الحبر. */
+ .sv1 .sv1-legacy .sv1-ch-art h1{font-size:clamp(23px,7.4vw,40px)}
+ .sv1-ch-acts{gap:10px;width:100%}
+ .sv1-legacy .sv1-ch-acts a{min-width:0;width:100%;padding:15px 22px;font-size:15px}
+}
+</style>
+  <section class="sv1-ch">
+    <div class="sv1-ch-in">
+      <img class="sv1-ch-logo" src="/assets/img/logo.png" alt="Business Partner" width="180" height="34">
+      <div class="sv1-ch-art">
+        <svg class="sv1-ch-brush" viewBox="0 0 880 330" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M140 122C250 74 420 66 560 84c74 10 138 26 180 44" stroke-width="138"/>
+        <path d="M136 168C280 140 520 140 744 172" stroke-width="146"/>
+        <path d="M144 216c118 54 296 72 460 60 60-5 108-15 140-30" stroke-width="138"/>
+        <path d="M604 278c68-9 122-25 148-45" stroke-width="50"/>
+      </g>
+    </svg>
+        <h1>جاهز لخطوتك القادمة؟</h1>
+      </div>
+      <p class="sv1-ch-lead">تصفّح الوظائف المفتوحة، أو أرسل سيرتك الذاتية مرة واحدة.</p>
+      <div class="sv1-ch-acts">
+        <a href="#open-jobs">الوظائف المفتوحة</a>
+        <a href="#seeker-form">أرسل سيرتك الذاتية</a>
+      </div>
+      <p class="sv1-ch-alt"><a href="/ar/employers">أنا صاحب عمل ←</a></p>
     </div>
-  </div></section>
+    <a class="sv1-ch-down" href="#open-jobs" aria-label="انزل إلى الوظائف" title="انزل إلى الوظائف">↓</a>
+  </section>
 
   <section class="section section--gray" id="open-jobs"><div class="container">
     <div class="section-head"><span class="eyebrow">الوظائف</span><h2>الوظائف المفتوحة عبر بيزنس بارتنر</h2><p>كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.</p></div>
