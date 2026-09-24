@@ -39,6 +39,7 @@ const TEST_LOGIN_CODE = String(process.env.SIMPLE_TEST_OTP || "123456").padStart
 // degrades to the legacy stateless behavior (db:false in the response).
 // Shared DB helpers live in api/_db.js (not a deployed function).
 import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
+import { azureSendMail } from "./_azure_notify.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 // The session must be the same on businesspartner.sa and www.businesspartner.sa:
 // a host-only cookie left a client signed in on one and locked out on the
@@ -152,13 +153,17 @@ const maskEmail = (e) => e.replace(/^(.).*(.@.*)$/, "$1***$2");
 const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
 async function sendEmail(to, code) {
-  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   const html = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
     <h2 style="color:#0B1B5A">رمز التحقق — Business Partner</h2>
     <p>رمز الدخول الخاص بك هو / Your verification code is:</p>
     <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#0B1B5A">${code}</p>
     <p style="color:#666">صالح لمدة 10 دقائق. إذا لم تطلبه، تجاهل هذه الرسالة.<br>Valid for 10 minutes. If you didn't request it, ignore this email.</p>
   </div>`;
+  const subject = `رمز التحقق: ${code} — Business Partner`;
+  // ‏رمز الدخول أَولى ما يخرج من أزور: رسالةٌ لا تصل هنا تعني عميلاً محبوساً
+  // خارج حسابه. أزور أولاً، وResend بديلٌ حتى يكتمل النقل.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

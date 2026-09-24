@@ -11,6 +11,7 @@
 
 import { gcalConfigured, busy as gcalBusy, createEvent as gcalCreate } from "./_gcal.js";
 import { sb, DB_ON } from "./_db.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
@@ -94,6 +95,8 @@ function gcalUrl({ topic, date, time, notes }) {
 }
 
 async function sendEmail(to, subject, html) {
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {

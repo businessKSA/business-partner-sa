@@ -46,6 +46,7 @@ import { nafathPing } from "./_nafath.js";
 // version and screens it — so an agency profile lands in the pool as clean,
 // structured data rather than a hand-typed row.
 import { forwardToN8n, applyN8nEnrichment, findExisting, guessField } from "./candidate.js";
+import { azureSendMail } from "./_azure_notify.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -144,7 +145,12 @@ async function notion(path, method = "GET", body) {
 }
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false };
+  if (!isEmail(to)) return { ok: false };
+  // ‏البنية التحتية على أزور (قرار المالك): ACS أولاً، وResend بديلٌ حتى يكتمل
+  // النقل. الترتيب مقصود — حارس مفتاح Resend تحته، فلو قُدّم لعاد الغلاف
+  // مبكراً ولم يُجرَّب أزور أصلاً حين يكون هو المهيّأ وحده.
+  if ((await azureSendMail({ to, subject, html })).ok) return { ok: true };
+  if (!RESEND_API_KEY) return { ok: false };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

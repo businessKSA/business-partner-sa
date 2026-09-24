@@ -29,6 +29,7 @@
 // Underscore-prefixed so Vercel treats it as a module, not a 13th serverless
 // function — the plan caps at 12 and this repo is at the cap.
 
+import { azureSendMail } from "./_azure_notify.js";
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -102,7 +103,10 @@ async function notion(path, method = "GET", body) {
 }
 
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return false;
+  if (!isEmail(to)) return false;
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return true;
+  if (!RESEND_API_KEY) return false;
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",

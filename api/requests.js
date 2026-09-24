@@ -789,10 +789,9 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 async function sendEmail(to, subject, html, attachments) {
   // البنية التحتية على Azure (قرار المالك): جرّب Azure Communication Services
   // أولاً. عند نجاحه نكتفي به؛ وإن لم يكن مهيّأً أو فشل نرجع إلى Resend.
-  // (المرفقات عبر Resend فقط حالياً — تُترك للبديل.)
-  if (!attachments || !attachments.length) {
-    try { if (await azureSendEmail(to, subject, html)) return { ok: true, via: "azure" }; } catch (e) {}
-  }
+  // المرفقات صارت تمرّ عبر أزور أيضاً، فسقط الاستثناء الذي كان يحوّل كل
+  // رسالةٍ ذات مرفق إلى البديل — وهي الفواتير والعقود تحديداً.
+  try { if (await azureSendEmail(to, subject, html, attachments)) return { ok: true, via: "azure" }; } catch (e) {}
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {

@@ -28,6 +28,7 @@
 // GET  /api/newsletter  (with CRON_SECRET)       -> runs the weekly send, returns { ok, sent, ... }
 // POST /api/newsletter                           -> { ok } | { ok:false, error }
 
+import { azureSendMail } from "./_azure_notify.js";
 const envFrom = (names) => {
   for (const n of names) {
     const v = process.env[n];
@@ -53,7 +54,10 @@ const RESEND_API_KEY = envFrom(["RESEND_API_KEY", "RESEND_KEY", "RESEND"]);
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 async function sendMail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return;
+  if (!isEmail(to)) return;
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return;
+  if (!RESEND_API_KEY) return;
   try {
     await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -237,7 +241,10 @@ async function audienceEmails() {
   return (d.data || []).filter((c) => !c.unsubscribed).map((c) => c.email);
 }
 async function sendPlain(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return false;
+  if (!isEmail(to)) return false;
+  // أزور أولاً، وResend بديلٌ حتى يكتمل النقل — انظر api/_azure_notify.js.
+  if ((await azureSendMail({ to, subject, html })).ok) return true;
+  if (!RESEND_API_KEY) return false;
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
