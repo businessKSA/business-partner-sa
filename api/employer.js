@@ -15,6 +15,7 @@
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
+import { getSession } from "./_db.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -197,6 +198,85 @@ export default async function handler(req, res) {
     } catch (e) {
       console.error("reset set error", String(e).slice(0, 200));
       res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
+  // تغيير رقم الجوال من قائمة الحساب في البوابة. لم يكن له فعلٌ إطلاقاً قبل
+  // اليوم، والبديل الوحيد المقبول لغيابه هو عرض الحقل للقراءة — لا واجهةٌ
+  // تَعِد بزرٍّ لا يعمل.
+  //
+  // المصادقة بالجلسة وحدها: البريد يُقرأ من جلسة Business Partner (api/otp.js
+  // أثبت ملكيته برمزٍ لمرة واحدة) ولا يُقبل من العميل بحال، فلا يستطيع أحد
+  // تحريك رقم شركةٍ غير شركته. ولا يُطلب رمز الوصول هنا ولا يُعاد في الردّ.
+  if (b.action === "update-phone") {
+    const phone = clip(b.phone, 40);
+    if (!/^\+?[\d][\d\s()-]{6,}$/.test(phone)) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ ok: false, error: "invalid_phone" }));
+    }
+    if (!NOTION_TOKEN || !DB_ID) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
+    }
+    let email = "";
+    try {
+      const sess = await getSession(req);
+      email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+    } catch (e) { console.error("update-phone session error", String(e).slice(0, 200)); }
+    if (!isEmail(email)) {
+      res.statusCode = 401;
+      return res.end(JSON.stringify({ ok: false, error: "not_signed_in" }));
+    }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const row = ((await q.json()).results || [])[0];
+      if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const u = await fetch(`https://api.notion.com/v1/pages/${row.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify({ properties: { "الجوال": { phone_number: phone } } }),
+      });
+      if (!u.ok) { console.error("update-phone patch", u.status, (await u.text()).slice(0, 200)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, phone }));
+    } catch (e) {
+      console.error("update-phone error", String(e).slice(0, 200));
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
+  // قراءة بيانات الحساب لقائمة الحساب (الشركة، البريد، الجوال) — بالجلسة
+  // وحدها، وبلا رمز وصول في الردّ.
+  if (b.action === "account") {
+    if (!NOTION_TOKEN || !DB_ID) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
+    let email = "";
+    try {
+      const sess = await getSession(req);
+      email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+    } catch (e) { console.error("account session error", String(e).slice(0, 200)); }
+    if (!isEmail(email)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "not_signed_in" })); }
+    try {
+      const q = await notion(`databases/${DB_ID}/query`, { page_size: 1, filter: { property: "البريد", email: { equals: email } } });
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_error" })); }
+      const row = ((await q.json()).results || [])[0];
+      if (!row) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
+      const p = row.properties || {};
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, email,
+        company: txtProp(p["اسم الشركة"], "title"),
+        contact: txtProp(p["جهة الاتصال"]),
+        phone: (p["الجوال"] && p["الجوال"].phone_number) || "",
+        plan: txtProp(p["الباقة"], "select"),
+        status: txtProp(p["الحالة"], "select"),
+        hasPassword: !!(p["بيانات الدخول"] && p["بيانات الدخول"].rich_text && p["بيانات الدخول"].rich_text.length),
+      }));
+    } catch (e) {
+      console.error("account error", String(e).slice(0, 200));
+      res.statusCode = 500;
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
   }

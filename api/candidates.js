@@ -321,6 +321,47 @@ async function portalUnlock(req) {
     return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
   } catch { return null; }
 }
+
+// «الدخول ببريد مُثبت» — الجسر بين حساب Business Partner (api/otp.js يثبت ملكية
+// البريد ويصدر الجلسة) وصفّ صاحب العمل في قاعدة أصحاب العمل بنوشن.
+//
+// سبب وجوده: رمز الوصول هو الرمز الحامل الوحيد الذي يفتح بيانات كل المرشحين
+// الشخصية، وكانت البوابة تطلب من صاحب العمل أن يحمله في بريده وحافظته ويلصقه
+// بيده — ومن نسخه مرّة بقي عند من رآه، ولا يُبطَل إلا يدوياً في نوشن. هنا
+// يُستخرج الرمز في الخادم من بريدٍ مُثبت ولا يغادره: المتصفّح يرسل ملفّ جلسته
+// ويكتب code:"self" فقط، ولا يرى الرمز في أي ردّ.
+//
+// البريد يأتي من الجلسة وحدها ولا يُقبل من العميل بحال، والصف يجب أن يكون
+// «مفعّل»: التفعيل قرارٌ يدوي بأمر المالك لا خطوةٌ تلقائية (انظر التعليق
+// الأمني فوق planAr في api/employer.js — المطابقة التلقائية بالبريد كانت
+// تجاوز مصادقة كاملاً).
+async function employerBySession(req) {
+  try {
+    const sess = await getSession(req);
+    const email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+    if (!email) return null;
+    const r = await notionFetch(`databases/${EMP_DB}/query`, "POST", {
+      page_size: 1,
+      filter: { and: [
+        { property: "البريد", email: { equals: email } },
+        { property: "الحالة", select: { equals: "مفعّل" } },
+      ] },
+    });
+    if (!r.ok) { console.error("employer session lookup", r.status, (await r.text()).slice(0, 200)); return null; }
+    const row = ((await r.json()).results || [])[0];
+    if (!row) return null;
+    const p = row.properties || {};
+    const code = txt(p["رمز الوصول"]);
+    if (!code) return null;
+    return {
+      unlocked: true, account: true, code,
+      plan: txt(p["الباقة"]),
+      company: txt(p["اسم الشركة"]),
+      owner: email === OWNER_EMAIL,
+    };
+  } catch (e) { console.error("employerBySession error", String(e).slice(0, 200)); return null; }
+}
+
 // Business Partner's own careers-page roles — static pages in the generator,
 // not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
 // applicant grouping lines up with these postings in the console.
@@ -338,7 +379,14 @@ async function handlePostings(req, res) {
 
   let code = String(b.code || "").trim();
   let unlocked = false, owner = false;
-  if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
+  // code:"self" = «حُلَّ الرمز من جلستي في الخادم». البوابة الجديدة لا تحمل
+  // رمز الوصول ولا تعرضه، فتكتب هذه الكلمة بدلاً منه. تعذّر الحلّ يُفرغ الرمز
+  // ليسقط الطلب إلى مسار جلسة العميل أدناه، لا إلى بحثٍ عن صفٍّ رمزه "self".
+  if (code === "self") {
+    const acc = await employerBySession(req);
+    if (acc) { unlocked = true; owner = !!acc.owner; code = acc.code; }
+    else code = "";
+  } else if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
   if (!unlocked) {
     const pu = await portalUnlock(req);
     if (pu) { unlocked = true; owner = false; code = pu.code; }
@@ -771,7 +819,14 @@ export default async function handler(req, res) {
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
   let unlocked = false, plan = "";
-  if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
+  // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
+  // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
+  let account = null;
+  if (code === "self") {
+    account = await employerBySession(req);
+    if (account) { unlocked = true; plan = account.plan; code = account.code; }
+    else code = "";
+  } else if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
   let portal = null;
   if (!unlocked) {
     portal = await portalUnlock(req);
@@ -785,7 +840,13 @@ export default async function handler(req, res) {
   // any signed-in client's dashboard opens itself during the platform trial.
   if (url.searchParams.get("validate") === "1") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}) }));
+    // حساب صاحب عمل مُحلّ من الجلسة: يُعاد اسم الشركة ولا يُعاد رمز الوصول —
+    // البوابة لا تحتاجه، وما لا يصل المتصفّح لا يُسرَّب منه.
+    return res.end(JSON.stringify({
+      ok: true, unlocked, plan,
+      ...(account ? { account: true, company: account.company } : {}),
+      ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}),
+    }));
   }
 
   // Per-job applicants for the employer console (?applicants=1&code=…).
