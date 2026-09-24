@@ -128,8 +128,39 @@ Notion. نظامان لنفس الشيء، يحتاجان قراراً.
 | كل صفحات مركز المعرفة: `/saudi-arabia` · `/directory` · `/opportunities` · `/news` · `/newsletter` · `/magazine` · `/tools-and-calculators` · `/calculators/{profession-checker,end-of-service,annual-leave,overtime,gosi}` | — | ✅ **جديد** — `sv1Page()` في generate.mjs: SV1.shell() + طبقة `SV1_LEGACY_CSS`، بلا main.js (النشرة والمجلة تحمّلان `assets/js/sv1-knowledge.js`) (2026-09-24) |
 | `/calculator` · `/calculators/nitaqat` · `/magazine/print` | — | ❌ قديم — خارج مركز المعرفة (`/calculator` حلّ محلّه `/catalog` في القائمة) |
 | `/guide/*` · `/saudi-arabia` · `/news` · `/magazine` | ٢٠+ | ❌ قديم — KEEP (محتوى) |
-| `/mahfol-makfol` · `/trips` · `/tourism` | — | مختلط |
+| محفول مكفول (٤ صفحات × ٤ لغات) | ١٦ | مختلط — **انظر أدناه** |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |
+
+### محفول مكفول — جرد 2026-09-24
+
+أربع صفحات بأربع لغات (عربي · إنجليزي · فرنسي · صيني — **لا إسبانية**):
+
+| الصفحة | التصميم | المصدر | الحالة |
+|---|---|---|---|
+| `/mahfol-makfol` | ❌ قديم | `buildMahfolMakfol()` | رحلة المستثمر |
+| `/mahfol-makfol/trips` | ❌ قديم | `DEST` في `generate.mjs` | **تُقاعَد** |
+| `/tourism` | ❌ قديم | `buildTourism()` | فعاليات الشركات |
+| `/trips` | ✅ **جديد** | `site/data/trips.json` | **المعتمدة** |
+
+> 🔴 **نظامان لبيع الرحلات نفسها.** `/mahfol-makfol/trips` تعرض **٩ وجهات
+> بأسعار مكتوبة يدوياً** داخل `DEST` (٦٠٠ · ٢٠٢٩ · ٢٢٩٠ …) ومعرّفات مخترعة
+> (`trip-riyadh`) لا مقابل لها في الكتالوج — وهذا يخالف «الأسعار من الكتالوج
+> بالـSKU فقط». بينما `/trips` تقرأ **٥٤ رحلة** بأكواد `BP-TRIP-*` حقيقية
+> وحقول كاملة (صافي · ضريبة · إجمالي · نوع · مدة · الفئة).
+> **الأخطر:** المعروض للعميل كان النظام الخطأ — `/trips` لم يكن يشير إليها
+> شيء ولا كانت في خريطة الموقع.
+
+**أُصلح 2026-09-24 (بموافقة المالك):** `mmSubnav()` صار يشير إلى `/trips`،
+وأُضيفت إلى خريطة الموقع. `/mahfol-makfol/trips` تبقى مبنيّة وتعمل بالرابط
+المباشر ولا يشير إليها شيء — نمط `-classic` نفسه.
+
+**معلّق:** حذف `DEST` وأسعارها المكتوبة يدوياً · توحيد `/mahfol-makfol`
+و`/tourism` على Simple V1 · توحيد اسم العلامة (ثلاث تهجئات في صفحة واحدة:
+`Business Partner` و«بزنس بارتنر» و«بيزنس بارتنر») · الترجمة الإسبانية.
+
+**وكلاء n8n (٣ نشطون):** `FXyYuDiYyrSvXdvZ` واتساب محفول (أقدم سيناريو في
+المنظومة — 2026-06-01) · `OYtiKvINZrfuCiiY` مصمّم الرحلات · `0UKcVmH6lTTli5BN`
+التحقق من إيصالات الدفع (بوابة اعتماد بشري).
 
 `/guide/company-structure` (الهيكلة والرواتب وتكلفة الموظف) — **أول دليل على
 الموقع الجديد** (`SV1.shell()`، `site/scripts/simple-v1-guide-structure.mjs`).
