@@ -110,9 +110,15 @@
 | `/candidate-profile` · `/job` · `/job-search-service` | — | ❌ قديم |
 | `/recruitment-agencies` · `/hiring` | — | مختلط |
 
-**ملاحظة معلّقة (من `#323`):** جدولا `job_postings` و`job_applications` في
-Supabase مكتوبان ومهاجَران، **ولا يقرأ منهما الموقع** — لوحة الوظائف تقرأ من
-Notion. نظامان لنفس الشيء، يحتاجان قراراً.
+**حُسمت (2026-09-23):** جدولا `job_postings` و`job_applications` في Supabase
+**حُذفا** بقرار المالك بعد التحقق من أنهما لم يُطبَّقا على القاعدة الحيّة قط
+(أربعة وخمسون جدولاً موجوداً، وليس بينهما). مصدر الحقيقة للوظائف هو **نوشن**
+(`JOBS_DB`) وحده. لا يُعاد بناؤهما.
+
+**تقسيم التوظيف (قرار المالك 2026-09-24):** صار `recruitment` مديراً بأربعة
+وكلاء متخصصين لا تتقاطع ملفاتهم. التداخل الوحيد — `recruitment-jobs` يعرض
+بيانات من `api/candidates.js` وهو ملك `recruitment-employer` — محسوم بقاعدة
+**«يقرأ ولا يكتب»**، وطلب التغيير يمرّ بالمدير.
 
 ---
 
@@ -365,7 +371,11 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
 | `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
-| `recruitment` | `api/candidate.js` · `candidates.js` · `employer.js` · `hire.js` · `api/_jobhunt.js` · `api/_agencies.js` · `site/scripts/*hiring*` · `site/scripts/*employer*` |
+| `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
+| ├ `recruitment-employer` | `api/employer.js` · `api/candidates.js` · `api/hire.js` · `site/scripts/hr-app.mjs` · `site/scripts/hr-i18n.mjs` · `site/scripts/*employer*` |
+| ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` |
+| ├ `recruitment-agencies` | `api/_agencies.js` |
+| └ `recruitment-jobs` | `site/scripts/simple-v1-hiring.mjs` **وحده** — `/jobs/*` و`/job` و`/careers` تُولَّد في `generate.mjs` المملوك لـ`platform-engineer`، فيُنسَّق معه ولا يُكتب فيه |
 | `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` · `site/scripts/simple-v1-knowledge.mjs` · `site/scripts/sv1-guide-sell.mjs` |
 | `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
 

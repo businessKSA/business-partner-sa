@@ -89,7 +89,7 @@
 | `platform-engineer` | البناء والنشر والتصميم الموحّد وAzure |
 | `client-portal` | كل صفحة يدخلها **عميل** بحساب، والدفع |
 | `owner-ops` | كل لوحة يدخلها **المالك** أو الفريق |
-| `recruitment` | الوظائف وأصحاب العمل والمرشحون |
+| `recruitment` | **مدير التوظيف** — يوزّع على أربعة: `recruitment-employer` (لوحة صاحب العمل والإعلانات) · `recruitment-candidate` (السيرة والإيجنت الباحث) · `recruitment-agencies` (مكاتب الاستقدام) · `recruitment-jobs` (صفحة الوظائف) |
 | `catalog-content` | الكتالوج والأسعار والأوصاف والأدلة |
 | `automation-agents` | n8n وواتساب والمستشارون |
 | `quotes-contracts` | العروض والعقود والتوقيع، ونقل `quotes/` وإغلاقه |
