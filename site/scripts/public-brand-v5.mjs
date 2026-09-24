@@ -38,6 +38,9 @@ for(const file of walk(ROOT)){
   if(skip.some(x=>rel.startsWith(x)))continue;
   if(!include.some(x=>rel.startsWith(x)))continue;
   let html=fs.readFileSync(file,'utf8');
+  // صفحة مبنيّة على SV1.shell() من الموقع الجديد: هذه قشرة القديم ولا تلمسها.
+  // حقنُ class ثانٍ في <body> ينتج صفتين، والمتصفح يُسقط الثانية (sv1-page).
+  if(html.includes('<body class="sv1-page">'))continue;
   html=html.replace(/<style id="bp-public-brand-v5-css">[\s\S]*?<\/style>/g,'');
   html=html.replace(/<body(?![^>]*bp-public-brand-v5)([^>]*)>/,m=>m.replace('<body','<body class="bp-public-brand-v5"'));
   if(/<body[^>]*class="[^"]*"/.test(html)&&!html.includes('class="bp-public-brand-v5"')) html=html.replace(/<body([^>]*?)class="([^"]*)"/, '<body$1class="bp-public-brand-v5 $2"');

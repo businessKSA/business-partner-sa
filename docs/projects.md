@@ -124,9 +124,11 @@ Notion. نظامان لنفس الشيء، يحتاجان قراراً.
 | `/mahfol-makfol` · `/trips` · `/tourism` | — | مختلط |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |
 
-`/guide/company-structure` (الهيكلة والرواتب وتكلفة الموظف) أُضيف 2026-09-24
-بالمولّد نفسه، وحلّ محلّ مسودة `#81` (على موقع Astro المحذوف) التي أُغلقت دون
-دمج. نسختها الموسّعة في Notion مرجع داخلي فقط — **مصدر الحقيقة هو المولّد**.
+`/guide/company-structure` (الهيكلة والرواتب وتكلفة الموظف) — **أول دليل على
+الموقع الجديد** (`SV1.shell()`، `site/scripts/simple-v1-guide-structure.mjs`).
+نُشر أولاً على طبقة القديم ثم نُقل في اليوم نفسه تطبيقاً لـ§2.6. حلّ محلّ مسودة
+`#81` (Astro المحذوف) التي أُغلقت دون دمج. نسخة Notion الموسّعة مرجع داخلي فقط
+— **مصدر الحقيقة هو السكربت**. الأدلة الخمسة الأخرى ما زالت على القديم.
 
 صفحات المنتجات: `/ai-agents` · `/ai-document-agent` · `/compliance-agent` ·
 `/smart-employee` · `/shared-services` · `/business-development` ·
@@ -326,7 +328,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | `api/candidate.js` · `candidates.js` · `employer.js` · `hire.js` · `api/_jobhunt.js` · `api/_agencies.js` · `site/scripts/*hiring*` · `site/scripts/*employer*` |
-| `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` |
+| `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` |
 | `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
 
 ### ملفات مشتركة — لا يملكها أحد وحده

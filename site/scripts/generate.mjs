@@ -316,6 +316,7 @@ import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
+import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -7586,113 +7587,6 @@ function buildGuideRunBusiness() {
   return page({ title: Lraw("Run Your Business in Saudi Arabia — Business Partner", "تشغيل عملك في السعودية — بيزنس بارتنر"), desc: Lraw("Government portals, corporate tax rates, Saudization rules and PRO/GRO services — a sourced operating guide.", "البوابات الحكومية ومعدلات الضرائب المؤسسية وأنظمة السعودة وخدمات العلاقات الحكومية — دليل تشغيلي موثق."), active: "/guide/run-your-business", path: "/guide/run-your-business", body });
 }
 
-// Org structure, pay and true employee cost — the part of the July 2026 draft
-// (PR #81, never merged) that no other guide covers. Entity types, setup steps
-// and labor-law basics already live in business-setup / run-your-business and
-// are linked, not repeated. Salary bands are indicative market ranges, not a
-// survey, and every government figure defers to run-your-business's caveats.
-function buildGuideCompanyStructure() {
-  const body =
-    guideHero({
-      eyebrowEn: "Structure & Payroll", eyebrowAr: "الهيكلة والرواتب",
-      titleEn: "Structuring your team and payroll in Saudi Arabia", titleAr: "هيكلة فريقك ورواتبه في السعودية",
-      leadEn: "How to design an org chart that scales, build a pay scale by international practice, read indicative salary ranges by sector, and calculate what an employee really costs you.",
-      leadAr: "كيف تصمم هيكلاً تنظيمياً يكبر مع شركتك، وتبني سلم رواتب بالممارسة العالمية، وتقرأ نطاقات الرواتب الإرشادية حسب القطاع، وتحسب التكلفة الحقيقية للموظف.",
-    }) +
-    guideNav([
-      ["org-structure", "Org structure", "الهيكل التنظيمي"],
-      ["team-by-stage", "Team by stage", "الفريق حسب المرحلة"],
-      ["pay-scale", "Pay scale", "سلم الرواتب"],
-      ["salaries", "Salaries by sector", "الرواتب حسب القطاع"],
-      ["employee-cost", "True employee cost", "التكلفة الفعلية"],
-    ]) +
-    guideBlock({
-      id: "org-structure",
-      eyebrowEn: "Org structure", eyebrowAr: "الهيكل التنظيمي",
-      titleEn: "The standard corporate hierarchy — and which structure fits you", titleAr: "الهرم الإداري القياسي — وأي هيكل يناسبك",
-      leadEn: "Most companies follow the same chain of authority; what differs is how departments are grouped underneath it.",
-      leadAr: "أغلب الشركات تتبع سلسلة الصلاحيات نفسها؛ ما يختلف هو طريقة تجميع الإدارات تحتها.",
-      bullets: [
-        ["The chain: shareholders / general assembly → board of directors (with audit and remuneration committees) → CEO → C-suite (CFO, COO, CTO, CHRO, CMO) → directors → managers → supervisors → staff.", "السلسلة: الشركاء / الجمعية العامة ← مجلس الإدارة (مع لجنتي المراجعة والمكافآت) ← الرئيس التنفيذي ← الإدارة التنفيذية (المالية، العمليات، التقنية، الموارد البشرية، التسويق) ← مديرو الإدارات ← رؤساء الأقسام ← المشرفون ← الموظفون."],
-        ["Functional structure (departments by specialty — finance, sales, operations): best for small and mid-size companies with one main product or service.", "الهيكل الوظيفي (إدارات حسب التخصص — مالية، مبيعات، عمليات): الأنسب للشركات الصغيرة والمتوسطة ذات منتج أو خدمة رئيسية واحدة."],
-        ["Divisional structure (self-contained units by product or region): suits companies with several product lines or branches in several cities.", "الهيكل القطاعي (وحدات مستقلة حسب المنتج أو المنطقة): يناسب الشركات متعددة المنتجات أو الفروع في أكثر من مدينة."],
-        ["Matrix structure (staff report to a functional manager and a project manager): common in contracting, consulting and project-based firms — clarify priorities in writing to avoid dual-reporting conflicts.", "الهيكل المصفوفي (الموظف يتبع مديراً وظيفياً ومدير مشروع معاً): شائع في المقاولات والاستشارات — حدّد الأولويات كتابياً لتفادي تعارض التبعية المزدوجة."],
-        ["Flat structure (few layers, wide autonomy): works for startups up to roughly 50 people — add a supervisory layer before it breaks.", "الهيكل المسطّح (طبقات قليلة وصلاحيات واسعة): يصلح للشركات الناشئة حتى نحو 50 موظفاً — أضف طبقة إشراف قبل أن ينهار."],
-        ["Design rules of thumb: 5–8 direct reports per manager, no more than 4–5 layers between the CEO and front-line staff in a mid-size company, and a written job description plus a RACI matrix for every role.", "قواعد تصميم عملية: 5–8 مرؤوسين مباشرين لكل مدير، ولا تزيد الطبقات بين الرئيس التنفيذي والموظف التنفيذي عن 4–5 في الشركة المتوسطة، ووصف وظيفي مكتوب ومصفوفة صلاحيات (RACI) لكل دور."],
-      ],
-    }) +
-    guideBlock({
-      gray: true, id: "team-by-stage",
-      eyebrowEn: "Team by stage", eyebrowAr: "الفريق حسب المرحلة",
-      titleEn: "What your team should look like at each stage", titleAr: "شكل فريقك في كل مرحلة نمو",
-      leadEn: "Hire support functions in the order that protects your licenses and your Nitaqat band first.",
-      leadAr: "عيّن الوظائف المساندة بالترتيب الذي يحمي تراخيصك ونطاقك في نطاقات أولاً.",
-      bullets: [
-        ["1–10 employees: flat — everyone reports to the founder/GM; one operations lead, one sales lead; outsource accounting, HR and government relations.", "1–10 موظفين: هيكل مسطّح — الجميع يرفع للمؤسس/المدير العام؛ مسؤول عمليات ومسؤول مبيعات؛ والمحاسبة والموارد البشرية والعلاقات الحكومية بالإسناد الخارجي."],
-        ["10–49 employees: first supervisory layer; hire an in-house accountant and a Saudi HR specialist early — both cover roles subject to localization and lift your band at the same time.", "10–49 موظفاً: أول طبقة إشرافية؛ عيّن محاسباً داخلياً وأخصائي موارد بشرية سعودياً مبكراً — يغطيان وظائف خاضعة للتوطين ويرفعان نطاقك معاً."],
-        ["50–249 employees: a full functional structure with three layers (department heads → section heads → staff) and internal work regulations approved by HRSD.", "50–249 موظفاً: هيكل وظيفي كامل بثلاث طبقات (مديرو إدارات ← رؤساء أقسام ← موظفون) ولائحة تنظيم عمل داخلية معتمدة من وزارة الموارد البشرية."],
-        ["250+ employees: a board with audit and remuneration committees, a full C-suite, independent internal audit and compliance, and business units by product or region.", "250 موظفاً فأكثر: مجلس إدارة بلجنتي مراجعة ومكافآت، وإدارة تنفيذية كاملة، ومراجعة داخلية وامتثال مستقلان، ووحدات أعمال حسب المنتج أو المنطقة."],
-      ],
-    }) +
-    guideBlock({
-      id: "pay-scale",
-      eyebrowEn: "Pay scale", eyebrowAr: "سلم الرواتب",
-      titleEn: "Building a pay scale the way international companies do", titleAr: "بناء سلم رواتب بالطريقة المعتمدة عالمياً",
-      leadEn: "A pay scale turns salary decisions from negotiation into policy — and makes Saudization hiring predictable.",
-      leadAr: "سلم الرواتب يحوّل قرارات الأجور من تفاوض إلى سياسة — ويجعل توظيف السعوديين قابلاً للتخطيط.",
-      bullets: [
-        ["Grades: 10–15 pay grades, each with a minimum, midpoint and maximum (typically ±20% around the midpoint) and a 20–30% overlap between neighboring grades.", "الدرجات: من 10 إلى 15 درجة، لكل درجة حد أدنى ووسط وحد أعلى (عادة ±20% حول الوسط) وتداخل 20–30% بين الدرجات المتتالية."],
-        ["Job evaluation first, pricing second: weight each role by knowledge, problem-solving and accountability (point-factor methods such as Hay/Korn Ferry or Mercer IPE) before attaching a number to it.", "قيّم الوظيفة قبل تسعيرها: زن كل دور بالمعرفة وحل المشكلات والمسؤولية (بمنهجيات النقاط مثل Hay/Korn Ferry أو Mercer IPE) قبل أن تضع له رقماً."],
-        ["Market positioning: target the market median (P50) for most roles and the 75th percentile (P75) for scarce, business-critical roles.", "الموقع السوقي: استهدف الوسيط السوقي (P50) لأغلب الوظائف، والشريحة 75 (P75) للوظائف النادرة الحرجة."],
-        ["Compa-ratio (salary ÷ grade midpoint): keep it between 0.80 and 1.20 — below 0.80 is a flight risk, above 1.20 is pay inflation.", "مؤشر Compa-Ratio (الراتب ÷ وسط الدرجة): أبقه بين 0.80 و1.20 — أقل من 0.80 خطر تسرّب، وأعلى من 1.20 تضخّم أجري."],
-        ["Annual increases are commonly budgeted at 3–6% and distributed by performance and position in range; a promotion usually means a new grade and a 10–15% raise.", "تُرصد الزيادات السنوية عادة بين 3–6% وتوزّع حسب الأداء والموقع في النطاق؛ والترقية تعني غالباً درجة جديدة وزيادة 10–15%."],
-        ["For Saudi hires, set the grade floor at or above SAR 4,000: below that level a Saudi employee is not counted as a full employee in Nitaqat.", "للموظفين السعوديين اجعل أدنى الدرجات 4,000 ريال فأكثر: دون ذلك لا يُحتسب الموظف السعودي موظفاً كاملاً في نطاقات."],
-      ],
-      caveatEn: "Nitaqat counting thresholds are set by HRSD and can change — confirm the current rule for your activity in Qiwa before fixing your grade floor.",
-      caveatAr: "حدود الاحتساب في نطاقات تحددها وزارة الموارد البشرية وقد تتغيّر — تحقق من القاعدة الحالية لنشاطك في قوى قبل تثبيت أدنى الدرجات.",
-    }) +
-    guideBlock({
-      gray: true, id: "salaries",
-      eyebrowEn: "Salaries by sector", eyebrowAr: "الرواتب حسب القطاع",
-      titleEn: "Indicative monthly salary ranges by sector (SAR, gross)", titleAr: "نطاقات الرواتب الشهرية الإرشادية حسب القطاع (ريال، إجمالي)",
-      leadEn: "Entry → mid-level → senior/leadership. Use them to sanity-check a budget, not to set a specific offer.",
-      leadAr: "مبتدئ ← متوسط الخبرة ← خبير/قيادي. استخدمها لاختبار منطقية الميزانية، لا لتحديد عرض وظيفي بعينه.",
-      bullets: [
-        ["Technology — software developer: 7,000–12,000 → 13,000–20,000 → 22,000–35,000; cybersecurity and cloud roles run 10–25% higher.", "التقنية — مطور برمجيات: 7,000–12,000 ← 13,000–20,000 ← 22,000–35,000؛ وأدوار الأمن السيبراني والسحابة أعلى بنحو 10–25%."],
-        ["Finance — accountant: 6,000–9,000 → 10,000–16,000 → 17,000–25,000; a CFO commonly 50,000–90,000.", "المالية — محاسب: 6,000–9,000 ← 10,000–16,000 ← 17,000–25,000؛ والمدير المالي عادة 50,000–90,000."],
-        ["HR — HR specialist: 5,500–8,500 → 9,000–14,000 → 15,000–22,000.", "الموارد البشرية — أخصائي موارد بشرية: 5,500–8,500 ← 9,000–14,000 ← 15,000–22,000."],
-        ["Sales & marketing — sales executive: 5,000–8,000 plus commission → 9,000–14,000 plus commission → 15,000–22,000.", "المبيعات والتسويق — تنفيذي مبيعات: 5,000–8,000 مع عمولة ← 9,000–14,000 مع عمولة ← 15,000–22,000."],
-        ["Retail — sales associate 4,000–6,000; store supervisor 6,000–9,000; branch manager 10,000–20,000.", "التجزئة — بائع 4,000–6,000؛ مشرف صالة 6,000–9,000؛ مدير فرع 10,000–20,000."],
-        ["Food & beverage — service staff 4,000–5,500; chef 5,000–13,000; restaurant manager 10,000–22,000.", "المطاعم والضيافة — عامل خدمة 4,000–5,500؛ طباخ/شيف 5,000–13,000؛ مدير مطعم 10,000–22,000."],
-        ["Construction — site engineer: 8,000–12,000 → 12,000–18,000 → 18,000–28,000; project manager 20,000–50,000.", "الإنشاءات — مهندس موقع: 8,000–12,000 ← 12,000–18,000 ← 18,000–28,000؛ ومدير مشروع 20,000–50,000."],
-        ["Healthcare — nurse: 7,000–11,000 → 11,000–16,000 → 16,000–22,000; pharmacist 8,000–28,000 across levels.", "الرعاية الصحية — ممرض: 7,000–11,000 ← 11,000–16,000 ← 16,000–22,000؛ وصيدلي 8,000–28,000 عبر المستويات."],
-        ["Logistics — procurement / supply-chain specialist: 7,000–10,000 → 11,000–17,000 → 18,000–26,000.", "اللوجستيات — أخصائي مشتريات/سلاسل إمداد: 7,000–10,000 ← 11,000–17,000 ← 18,000–26,000."],
-        ["Administration — receptionist / admin 4,000–9,000; office manager 12,000–35,000.", "الإدارة — استقبال/إداري 4,000–9,000؛ مدير مكتب 12,000–35,000."],
-      ],
-      caveatEn: "These ranges are indicative estimates, not results of a salary survey. Pay varies by city, nationality, company size and scarcity of the skill — benchmark against a current salary survey before making an offer.",
-      caveatAr: "هذه النطاقات تقديرات إرشادية وليست نتائج مسح رواتب. الأجور تختلف حسب المدينة والجنسية وحجم الشركة وندرة المهارة — قارن بمسح رواتب حديث قبل تقديم أي عرض.",
-    }) +
-    guideBlock({
-      id: "employee-cost",
-      eyebrowEn: "True employee cost", eyebrowAr: "التكلفة الفعلية",
-      titleEn: "What an employee really costs you", titleAr: "كم يكلّفك الموظف فعلاً",
-      leadEn: "Salary is only the start. Budget the full monthly cost: gross salary + social insurance + medical insurance + government fees (for expats) + end-of-service accrual + leave accrual.",
-      leadAr: "الراتب هو البداية فقط. ضع في ميزانيتك التكلفة الشهرية الكاملة: الراتب الإجمالي + التأمينات الاجتماعية + التأمين الطبي + الرسوم الحكومية (للوافدين) + مخصص نهاية الخدمة + مخصص الإجازات.",
-      bullets: [
-        ["Social insurance (GOSI): 2% occupational hazards for every employee; for Saudi employees the employer also pays its share of annuities and SANED on basic salary plus housing allowance — see the Run Your Business guide for the current transition.", "التأمينات الاجتماعية: 2% أخطار مهنية لكل موظف؛ وللموظف السعودي يدفع صاحب العمل أيضاً حصته من المعاشات وساند على الأساسي وبدل السكن — راجع دليل «تشغيل عملك» للمرحلة الانتقالية الحالية."],
-        ["Medical insurance is mandatory for every private-sector employee (and for expats' resident dependents) under the Council of Health Insurance.", "التأمين الطبي إلزامي لكل موظف في القطاع الخاص (ولمرافقي الوافد المقيمين) بموجب نظام مجلس الضمان الصحي."],
-        ["Expat employees add government fees: the monthly expat levy, the annual work permit and Iqama renewal, plus recruitment costs (visa, medical checks, tickets) that cannot be charged to the worker.", "الموظف الوافد يضيف رسوماً حكومية: المقابل المالي الشهري، ورخصة العمل وتجديد الإقامة سنوياً، وتكاليف الاستقدام (تأشيرة وفحص وتذاكر) التي لا يجوز تحميلها على العامل."],
-        ["End-of-service accrual: half a month's wage per year for the first five years, a full month per year after — set aside monthly rather than paying it as a surprise.", "مخصص نهاية الخدمة: نصف شهر عن كل سنة من الخمس الأولى، وشهر كامل عن كل سنة بعدها — ادّخره شهرياً بدل أن تدفعه مفاجأة."],
-        ["Rule of thumb: a Saudi employee costs about 1.15–1.20× gross salary; an expat about 1.30–1.50× — the lower the expat salary, the larger the share of fixed government fees.", "قاعدة سريعة: الموظف السعودي يكلّف نحو 1.15–1.20 من راتبه الإجمالي، والوافد نحو 1.30–1.50 — وكلما انخفض راتب الوافد زادت نسبة الرسوم الحكومية الثابتة من تكلفته."],
-      ],
-      caveatEn: "Levy amounts, work-permit fees and GOSI rates are set by government decisions and change — confirm each figure at the time of hiring, or use our cost calculator.",
-      caveatAr: "قيمة المقابل المالي ورسوم رخصة العمل ونسب التأمينات تحددها قرارات حكومية وتتغيّر — تحقق من كل رقم وقت التوظيف، أو استخدم حاسبة التكاليف لدينا.",
-    }) +
-    `<section class="section section--gray"><div class="container" style="text-align:center"><a class="btn btn-primary btn-lg" href="${u("/calculators/government-cost")}">${L("Calculate your government costs →", "احسب تكاليفك الحكومية ←")}</a></div></section>` +
-    guideRelated(["HR Services", "Recruitment", "Company Formation"]) + guideCrossLinks("/guide/company-structure") + guideDisclaimer();
-  return page({ title: Lraw("Team Structure, Salaries & Employee Cost in Saudi Arabia — Business Partner", "الهيكلة التنظيمية والرواتب وتكلفة الموظف في السعودية — Business Partner"), desc: Lraw("Org structures, a pay scale built on international practice, indicative salary ranges by sector, and the true monthly cost of Saudi and expat employees.", "الهياكل التنظيمية، وسلم رواتب بالممارسة العالمية، ونطاقات رواتب إرشادية حسب القطاع، والتكلفة الشهرية الحقيقية للموظف السعودي والوافد."), active: "/guide/company-structure", path: "/guide/company-structure", body });
-}
-
 function buildGuideLiveInSaudi() {
   const body =
     guideHero({
@@ -12483,7 +12377,8 @@ function writeFullSite(pre) {
   write(`${pre}guide/saudi-market.html`, buildGuideSaudiMarket());
   write(`${pre}guide/business-setup.html`, buildGuideBusinessSetup());
   write(`${pre}guide/run-your-business.html`, buildGuideRunBusiness());
-  write(`${pre}guide/company-structure.html`, buildGuideCompanyStructure());
+  // أول دليل على الموقع الجديد (SV1.shell) — بقية الأدلة ما زالت على الطبقة القديمة.
+  write(`${pre}guide/company-structure.html`, buildSimpleGuideStructure(SV1, { lang: () => LANG, esc }));
   write(`${pre}guide/live-in-saudi.html`, buildGuideLiveInSaudi());
   write(`${pre}guide/residency.html`, buildGuideResidency());
   write(`${pre}news.html`, buildNews());
