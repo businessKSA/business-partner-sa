@@ -23,7 +23,6 @@
 | `/team/*` (١٢) | 🟡 | صفحات الفريق: baher · abdulaziz · abdulrahman · ahmed · badr · farah · malak · mazen · mishari · mohammed · nasser · strategy |
 | `/news` | ✅ | الرؤى والأخبار |
 | `/newsletter` | ✅ | النشرة |
-| `/directory` | ✅ | دليل منظومة ريادة الأعمال |
 | `/saudi-arabia` | ✅ | السوق السعودي |
 | `/opportunities` | ✅ | الفرص الاستثمارية — محتوى عام؛ إن صار خدمةً تُباع انتقلت إلى `mahfol` |
 | `/classic-home` | 🗄️ | الرئيسية القديمة محفوظة |
@@ -36,12 +35,10 @@
 | `/catalog` | ✅ | الكتالوج — باب الشراء |
 | `/services` | 🟡 | فهرس الخدمات — ٩ لغات |
 | `/services/*` (٢٠٩) | 🟡 | صفحة لكل خدمة بالـSKU — **أكبر كتلة قديمة في الموقع** |
-| `/packages` | 🟡 | الباقات — ٩ لغات |
 | `/guide/*` (٦) | ✅ | business-setup · company-structure · live-in-saudi · residency · run-your-business · saudi-market |
 | `/knowledge-center` | ✅ | مركز المعرفة |
 | `/magazine` · `/magazine/*` | ✅ / 🟡 | المجلة — الفهرس جديد ومقالها القديم |
 | `/calculators/*` (٦) · `/calculator` · `/tools-and-calculators` | ✅ / 🟡 / ✅ | الحاسبات |
-| `/bank-account` | 🟡 | خدمة: فتح حساب بنكي |
 | `/formation-contract` | 🟡 | خدمة: عقد التأسيس بين الشركاء |
 | `/estrdad` | 🟡 | خدمة: استرداد الرسوم الحكومية |
 | `/workspaces` · `/workspace-request` | 🟡 | المكاتب ومساحات العمل + نموذج الطلب |
@@ -53,13 +50,13 @@
 |---|---|---|
 | `/my` | ✅ | **لوحة العميل المعتمدة** |
 | `/account` | ❌ | القديمة — تعمل ولا تُطوَّر، تتقاعد قسماً قسماً |
-| `/cart` · `/checkout` · `/consultation` | ✅ | رحلة الشراء |
-| `/cart-classic` · `/checkout-classic` · `/consultation-classic` | 🗄️ | محفوظة |
+| `/consultation` | ✅ | حجز الاستشارة |
+| `/consultation-classic` | 🗄️ | محفوظة |
 | `/connect` | ❌ | «موظفك الذكي — رحلة العميل ومركز الربط» |
-| `/portal` | ❌ | بوابة الموظفين الأذكياء للعميل (لا `/portal/*` — تلك للتوظيف) |
+| `/portal` | ❌ | بوابة الموظفين الأذكياء — الدخول والقشرة هنا، والمحتوى لـ`smart-advisors` |
 | `/partner-dashboard` | 🟡 | لوحة الشريك — يدخلها شريكٌ بحساب |
 | `/compliance-dashboard` | ❌ | لوحة الامتثال — الدخول والقشرة هنا، والمحتوى لـ`compliance` |
-| `/shared-services/dashboard` | 🟡 | بوابة خدمة الخدمات المشتركة للعميل |
+| `/shared-services/dashboard` | 🟡 | الدخول والقشرة هنا، والمحتوى لـ`shared-services` |
 
 ## 4) `owner-ops` — ما يدخله المالك أو الفريق
 
@@ -70,7 +67,6 @@
 | `/monitor` | ❌ | BP Inbox |
 | `/dashboard` | ❌ | اختبار الوكلاء |
 | `/chat` | ❌ | Chat OS — أداة داخلية |
-| `/data` | 🟡 | قاعدة عملاء الأعمال |
 | `/suppliers` · `/suppliers-admin` | 🟡 | تسجيل الشركاء وإدارتهم |
 | `/agencies-admin` | 🟡 | إدارة مكاتب الاستقدام — **المالك** يدخلها (قاعدة الحسم) |
 | `/jobsearch-admin` | 🟡 | إدارة خدمة البحث عن وظيفة — كذلك |
@@ -103,10 +99,6 @@
 
 | المسار | التصميم | ملاحظة |
 |---|---|---|
-| `/ai-agents` | 🟡 | المستشارون الأذكياء |
-| `/smart-employee` | 🟡 | الموظف الذكي المتخصص |
-| `/shared-services` | 🟡 | الخدمات المشتركة — فريقك التنفيذي الذكي (لا لوحته — تلك لـ`client-portal`) |
-| `/task-force` | 🟡 | تاسك فورس |
 
 > جوهر هذه الصفحات هو الودجت والمستشار لا النص، فمالكها من يملك المستشار.
 > نصٌّ تسويقي فيها يطلبه `catalog-content`، والودجت والسلوك هنا.
@@ -124,11 +116,11 @@
 |---|---|---|
 | `/b10x` | 🟡 | الصفحة الوحيدة — **بلا SKU ولا سعر**، موقوف عند سعر المالك |
 
-## 10) `broker-referral` — السماسرة والإحالة
+## 10) `deals` — منصة الصفقات
 
 | المسار | التصميم | ملاحظة |
 |---|---|---|
-| `/deals` | 🟡 | «اعرض صفقتك، ابحث عن شريك — نطابقك تلقائياً» — أقرب صفحة قائمة إلى نظام الوساطة، فأُسندت إليه. **إن رأى المالك أنها سوقٌ عام لا وساطة، انتقلت إلى `public-site`.** |
+| `/deals` | 🟡 | «اعرض صفقتك، ابحث عن شريك» — لا نموذج إدخال صفقة. (`brokers` و`referral` بلا صفحات بعد.) |
 
 ## 11) وكلاء المنتجات الخمسة (أمر المالك 2026-09-24)
 
@@ -140,7 +132,21 @@
 | `document-ai` | `/ai-document-agent` | 🟡 | `/doc-agent-admin` تبقى لـ`owner-ops` قشرةً |
 | `compliance` | `/compliance-agent` · محتوى `/compliance-dashboard` · `assets/data/compliance-dashboard.html` | 🟡 / ❌ | القشرة لـ`client-portal` |
 
-## 12) `platform-engineer` — لا يملك صفحة، يملك القوالب
+## 12) وكلاء الدفعة الثانية (أمر المالك 2026-09-24)
+
+| الوكيل | المسار | التصميم | ملاحظة |
+|---|---|---|---|
+| `packages` | `/packages` | 🟡 | ٩ لغات · سعران متضاربان بين الموقع وNotion |
+| `cart-checkout` | `/cart` · `/checkout` · `/cart-classic` · `/checkout-classic` | ✅ / 🗄️ | السلة والدفع لكل ما يُباع |
+| `shared-services` | `/shared-services` · محتوى `/shared-services/dashboard` | 🟡 | القشرة لـ`client-portal` |
+| `smart-advisors` | `/ai-agents` · `/smart-employee` · `/task-force` · محتوى `/portal` | 🟡 / ❌ | القشرة لـ`client-portal` |
+| `company-data` | `/data` | 🟡 | لا نموذج اشتراك |
+| `bank-account` | `/bank-account` | 🟡 | نموذج بلا حقول ولا إرسال |
+| `incubators-vc` | `/directory` · `site/data/ecosystem.json` | ✅ | كان لـ`public-site` |
+| `brokers` · `referral` · `erp` · `social-media` | — | — | بلا صفحات بعد |
+| `advisor` · `baher-support` · `whatsapp` · `email` | — (قنوات) | — | يملكون كوداً لا صفحات: `api/chat.js` · `baher-support.mjs` · `n8n/` |
+
+## 13) `platform-engineer` — لا يملك صفحة، يملك القوالب
 
 لا مسار محتوى له. يملك ما يولّد الصفحات كلها: `generate.mjs` · `simple-v1.mjs`
 (القشرة والترويسة والتذييل) · `simplified-global-header.mjs` · الحُرّاس ·
