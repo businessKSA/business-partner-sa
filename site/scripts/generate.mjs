@@ -7132,13 +7132,28 @@ function buildContact() {
       </div>
       <div>
         <h2>${L("Send your message", "أرسل رسالتك")}</h2>
-        <form class="calc-form" id="contact-form" novalidate>
-          <div class="field"><label for="f-name">${L("Name", "الاسم")}</label><input id="f-name" name="name" type="text" placeholder="${Lraw("Your full name", "اسمك الكامل")}" required></div>
-          <div class="field"><label for="f-phone">${L("Mobile", "رقم الجوال")}</label><input id="f-phone" name="phone" type="tel" placeholder="05xxxxxxxx"></div>
+        ${/* The form's own copy (validation, sending, success, failure) travels on
+             data-msg-* so main.js shows it in the page's language — all nine —
+             instead of its en/ar-only BP.t(). The e-mail field is required:
+             api/requests needs an address or a phone to accept the ticket, and
+             the team needs an address to reply in writing. */ ""}
+        <form class="calc-form" id="contact-form" novalidate
+          data-contact-email="${esc(c.email)}"
+          data-msg-missing="${L("Please enter your name and e-mail address so we can reply to you.", "الرجاء إدخال اسمك وبريدك الإلكتروني حتى نتمكن من الرد عليك.")}"
+          data-msg-email="${L("This e-mail address doesn't look right — please check it.", "البريد الإلكتروني غير صحيح — تحقّق منه من فضلك.")}"
+          data-msg-sending="${L("Sending…", "جارٍ الإرسال…")}"
+          data-msg-ok="${L("Thank you — your request has reached our team and we'll get back to you soon.", "شكراً لك — وصل طلبك لفريقنا وسنعاود التواصل معك قريباً.")}"
+          data-msg-ref="${L("Reference number", "رقم المرجع")}"
+          data-msg-invalid="${L("The server didn't accept the details — please check your name and e-mail and try again.", "لم يقبل الخادم البيانات — تحقّق من الاسم والبريد الإلكتروني ثم أعد المحاولة.")}"
+          data-msg-fail="${L("We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.", "تعذّر إرسال طلبك الآن. حاول مرة أخرى بعد قليل، أو راسلنا على {email}.")}">
+          <div class="field"><label for="f-name">${L("Name", "الاسم")}</label><input id="f-name" name="name" type="text" autocomplete="name" placeholder="${Lraw("Your full name", "اسمك الكامل")}" required></div>
+          <div class="field"><label for="f-phone">${L("Mobile", "رقم الجوال")}</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="05xxxxxxxx"></div>
+          <div class="field"><label for="f-email">${L("Email", "البريد الإلكتروني")}</label><input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@company.com" required></div>
           <div class="field"><label for="f-service">${L("Service needed", "الخدمة المطلوبة")}</label><input id="f-service" name="service" type="text" placeholder="${Lraw("e.g. company formation, premium residency", "مثال: تأسيس شركة، إقامة مميزة")}"></div>
           <div class="field"><label for="f-msg">${L("Your request details", "تفاصيل طلبك")}</label><textarea id="f-msg" name="message" rows="4" placeholder="${Lraw("Write your enquiry here", "اكتب استفسارك هنا")}"></textarea></div>
           <button type="submit" class="btn btn-primary btn-lg">${I.mail}<span>${L("Send your request", "أرسل طلبك")}</span></button>
-          <p class="form-note">${L("We'll receive your request and get back to you. You'll also be registered so your request is saved to your dashboard.", "يصلنا طلبك ونعاود التواصل معك، ويتم تسجيلك ليُحفظ طلبك في لوحتك.")}</p>
+          <p class="form-note" id="f-status" role="alert" aria-live="polite" hidden></p>
+          <p class="form-note">${L("We'll receive your request and get back to you by e-mail or phone.", "يصلنا طلبك ونعاود التواصل معك عبر البريد أو الجوال.")}</p>
         </form>
       </div>
     </div>

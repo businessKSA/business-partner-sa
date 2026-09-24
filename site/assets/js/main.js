@@ -5731,30 +5731,84 @@ var BP_EMP_BILLING = "monthly";
   });
 })();
 
-/* ---------- Contact form (/contact) → WhatsApp deep-link + CRM lead ---------- */
+/* ---------- Contact form (/contact) → support ticket via /api/requests ---------- */
+// Until 2026-09-24 this posted `type:"contact"`, which api/requests has no
+// branch for: it fell into the corporate-events handler, which demands a
+// phone AND a corporate e-mail — and the form had no e-mail field at all. The
+// server answered 400 on every submission, and the script replaced the form
+// with "your request has reached our team" without reading the reply. Every
+// message sent through /contact was lost while the visitor was told it
+// arrived. Now: a support ticket (name + e-mail, phone optional), and the
+// success message appears only after the server says ok:true.
 (function () {
   "use strict";
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("contact-form");
     if (!form) return;
     var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
+    // Copy comes from the page (data-msg-*, translated at build time for all
+    // nine languages); the en/ar pair is only a fallback for stale HTML.
+    var M = function (key, en, ar) { return form.getAttribute("data-msg-" + key) || T(en, ar); };
+    var CONTACT_EMAIL = form.getAttribute("data-contact-email") || "business@businesspartner.sa";
     function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function focus(id) { var el = document.getElementById(id); if (el) el.focus(); }
+    var status = document.getElementById("f-status");
+    if (!status) {
+      status = document.createElement("p"); status.id = "f-status"; status.className = "form-note"; status.setAttribute("role", "alert");
+      form.appendChild(status);
+    }
+    function showError(html) { status.hidden = false; status.style.display = ""; status.style.color = "#b3261e"; status.innerHTML = html; }
+    function hideError() { status.hidden = true; status.style.display = "none"; status.innerHTML = ""; }
+    hideError();
+    var failHtml = function () {
+      var mail = '<a href="mailto:' + esc(CONTACT_EMAIL) + '">' + esc(CONTACT_EMAIL) + "</a>";
+      return esc(M("fail", "We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.", "تعذّر إرسال طلبك الآن. حاول مرة أخرى بعد قليل، أو راسلنا على {email}.")).replace("{email}", mail);
+    };
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var name = val("f-name"), phone = val("f-phone"), service = val("f-service"), msg = val("f-msg");
-      if (!name) { alert(T("Please enter your name.", "الرجاء إدخال اسمك.")); return; }
-      var btn = form.querySelector('button[type="submit"]');
-      if (btn) { btn.disabled = true; btn.style.opacity = "0.7"; }
-      fetch("/api/requests", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ type: "contact", company: name, person: name, phone: phone, email: "", eventType: service, notes: msg }),
-      }).then(function () {
-        form.innerHTML = '<div class="form-note" style="font-size:1rem;color:var(--navy)">✓ ' +
-          T("Thank you — your request has reached our team and we'll get back to you soon.", "شكراً لك — وصل طلبك لفريقنا وسنعاود التواصل معك قريباً.") + "</div>";
-      }).catch(function () {
-        if (btn) { btn.disabled = false; btn.style.opacity = "1"; }
-        alert(T("Couldn't reach the server. Please try again.", "تعذّر الاتصال بالخادم. حاول مرة أخرى."));
-      });
+      var name = val("f-name"), phone = val("f-phone"), email = val("f-email"), service = val("f-service"), msg = val("f-msg");
+      if (!name || !email) {
+        showError(esc(M("missing", "Please enter your name and e-mail address so we can reply to you.", "الرجاء إدخال اسمك وبريدك الإلكتروني حتى نتمكن من الرد عليك.")));
+        focus(!name ? "f-name" : "f-email"); return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        showError(esc(M("email", "This e-mail address doesn't look right — please check it.", "البريد الإلكتروني غير صحيح — تحقّق منه من فضلك.")));
+        focus("f-email"); return;
+      }
+      var btn = form.querySelector('button[type="submit"]'), btnHtml = btn ? btn.innerHTML : "";
+      var busy = function (on) {
+        if (!btn) return;
+        btn.disabled = on; btn.style.opacity = on ? "0.7" : "1";
+        btn.innerHTML = on ? "<span>" + esc(M("sending", "Sending…", "جارٍ الإرسال…")) + "</span>" : btnHtml;
+      };
+      hideError(); busy(true);
+      // The support-ticket branch: accepts a name with an e-mail or a phone,
+      // files the ticket in the CRM/inbox and mails the team, the owner and
+      // the client. categoryAr names the channel so the team sees where it
+      // came from.
+      var payload = {
+        type: "support-ticket", sid: "contact-form",
+        contact: { name: name, phone: phone, email: email },
+        service: { nameAr: service, categoryAr: "نموذج التواصل" },
+        note: msg,
+      };
+      fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { s: r.status, d: d || {} }; }); })
+        .then(function (res) {
+          if (res.s === 200 && res.d.ok === true) {
+            var ref = res.d.ref ? '<div style="margin-top:8px;font-size:.9rem">' + esc(M("ref", "Reference number", "رقم المرجع")) + ": <b dir=\"ltr\">" + esc(res.d.ref) + "</b></div>" : "";
+            form.innerHTML = '<div class="form-note" role="status" style="font-size:1rem;color:var(--navy)">✓ ' +
+              esc(M("ok", "Thank you — your request has reached our team and we'll get back to you soon.", "شكراً لك — وصل طلبك لفريقنا وسنعاود التواصل معك قريباً.")) + ref + "</div>";
+            return;
+          }
+          busy(false);
+          // 400 = the server rejected the details; anything else is on our side.
+          showError(res.s === 400
+            ? esc(M("invalid", "The server didn't accept the details — please check your name and e-mail and try again.", "لم يقبل الخادم البيانات — تحقّق من الاسم والبريد الإلكتروني ثم أعد المحاولة."))
+            : failHtml());
+        })
+        .catch(function () { busy(false); showError(failHtml()); });
     });
   });
 })();
