@@ -23,9 +23,20 @@
 //     نفسها في الموقعين.
 //  3) الصفحة القديمة ليست جزءاً من تنقّل SV1، فروابط اللغة تُحسب من مسار
 //     الملف نفسه ويُتحقّق من وجود النسخة قبل الربط — وإلا فرابطٌ ميت.
+//
+// والتذييل كذلك (المالك رآه بعينه 2026-09-24): بعد توحيد الترويسة بقي أسفل
+// الصفحة القديمة تذييلُ `generate.mjs` بستة أعمدة ونشرة بريدية، وأسفل
+// الجديدة تذييلُ SV1 — فبدا الموقع موقعين من الأسفل. هنا يُستبدل
+// `<footer class="site-footer">` ومعه زرّ واتساب العائم القديم `.wa-fab`
+// الذي يليه بـ`SV1.footer()` **نفسه**: لا نسخة تُكتب هنا، بل يُنشأ `simpleV1`
+// لكل لغة بالسياق ذاته الذي يمرّره `generate.mjs` (site.json، ومجموعة
+// «مركز المعرفة» من nav.json) ويُستدعى تذييله. زرّ واتساب جزءٌ من ذلك
+// التذييل (`.sv1-wa-fab`)، فيسقط القديم حتى لا يظهر زرّان.
+// ما لا يُلمس: تذييل بوابة الموارد البشرية (`site-footer portal-footer`)
+// وصفحات SV1 نفسها (تذييلها من `SV1.shell()` ولا `site-footer` فيها).
 import fs from 'node:fs';
 import path from 'node:path';
-import { SV1_CSS, SV1_TEXT, SIMPLE_LANGS, SV1_SESSION_JS, SV1_SESSION_SYNC_JS } from './simple-v1.mjs';
+import { simpleV1, SV1_CSS, SV1_TEXT, SIMPLE_LANGS, SV1_SESSION_JS, SV1_SESSION_SYNC_JS } from './simple-v1.mjs';
 
 const ROOT = path.resolve('site');
 const LANG_NAMES = { ar: 'العربية', en: 'English', fr: 'Français', zh: '中文' };
@@ -58,9 +69,9 @@ function splitRules(css){
   return out;
 }
 
-// الأصناف التي تستعملها ترويسة SV1 فعلاً، ومعها `.sv1` نفسه لأن المتغيّرات
-// تُعرَّف عليه. ما عداها (الرئيسية، الفوتر، اللوحات) يسقط.
-const CHROME_PART = /^(\.sv1(?=[\s:.>#[]|$)|\.sv1-(?:ribbon|bar|bar-l|bar-r|bar-langs|pulse|hdr|nav|btn|lang|burger|cart|hide|chrome)(?=[\s:.>#[]|$))/;
+// الأصناف التي تستعملها ترويسة SV1 وتذييله فعلاً، ومعها `.sv1` نفسه لأن
+// المتغيّرات تُعرَّف عليه. ما عداها (الرئيسية، اللوحات) يسقط.
+const CHROME_PART = /^(\.sv1(?=[\s:.>#[]|$)|\.sv1-(?:ribbon|bar|bar-l|bar-r|bar-langs|pulse|hdr|nav|btn|lang|burger|cart|hide|chrome|foot(?:-[a-z]+)?|wa-fab)(?=[\s:.>#[]|$))/;
 const keepSel = (sel) => sel.split(',').some((s) => CHROME_PART.test(s.trim()));
 
 function chromeRules(css){
@@ -90,10 +101,26 @@ ${CHROME_RULES}
    الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
    الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
 .sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header؛ الترويسة لم تعد تحمله. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr{display:none!important}
+@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
+/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
+html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
 </style>`;
+
+// ---------------------------------------------------------------- footer --
+// التذييل لا يُكتب هنا: `simpleV1` يُنشأ لكل لغة بالسياق نفسه الذي يمرّره
+// `generate.mjs` (لا `head` — لا يلزم إلا لـ`shell()`)، ويُستدعى `footer()`
+// الحقيقي. نصّه لا يعتمد على المسار، فيُحسب مرة واحدة لكل لغة.
+const site = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/site.json'), 'utf8'));
+const navData = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/nav.json'), 'utf8'));
+const knowledge = (Array.isArray(navData.groups) ? navData.groups : []).find((g) => g.en === 'Knowledge Center') || null;
+const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const pathInLang=(p,l)=> (l==='en' ? p : (p==='/' ? `/${l}/` : `/${l}${p}`));
+const FOOTER = Object.fromEntries(SIMPLE_LANGS.map((l) => [
+  l,
+  `<div class="sv1 sv1-chrome">${simpleV1({ lang: () => l, esc, site, head: null, pathInLang, knowledge }).footer()}</div>`,
+]));
+// التذييل القديم وزرّ واتساب العائم الذي يليه مباشرة في `page()` من generate.mjs.
+const OLD_FOOTER = /<footer class="site-footer">[\s\S]*?<\/footer>(?:\s*<a class="wa-fab"[\s\S]*?<\/a>)?/;
 
 // ------------------------------------------------------------------- JS --
 // نظير `CHROME_JS` من `SV1.shell()`: زرّ الجوال، عدّاد السلة، وحالة الدخول.
@@ -144,7 +171,6 @@ function pageOf(file){
   rel=rel.replace(/(^|\/)index$/,'');
   return { lang, base: rel ? '/'+rel : '/' };
 }
-const pathInLang=(p,l)=> (l==='en' ? p : (p==='/' ? `/${l}/` : `/${l}${p}`));
 
 const FILES=walk(ROOT);
 // أي (لغة، مسار) موجودٌ فعلاً على القرص — فلا يُربط رابط لغةٍ إلى صفحة غير
@@ -193,16 +219,24 @@ function headerFor(file){
 </div></header>${SV1_SESSION_JS}${CHROME_JS}</div>`;
 }
 
-let done=0;
+let done=0, feet=0;
 for(const file of FILES){
   let html=fs.readFileSync(file,'utf8');
-  // صفحات SV1 تحمل ترويستها من `SV1.shell()` ولا `site-header` فيها أصلاً —
-  // هذا الشرط هو ما يبقيها خارج هذا السكربت. ولوحات `site-header
-  // portal-header` لا تُلمس (ليست من هذا النطاق).
-  if(!html.includes('<header class="site-header">')) continue;
-  html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/, headerFor(file));
-  if(!html.includes('id="sv1-chrome-css"')) html=html.replace('</head>', css+'\n</head>');
+  // صفحات SV1 تحمل ترويستها وتذييلها من `SV1.shell()` ولا `site-header` ولا
+  // `site-footer` فيها أصلاً — هذا الشرط هو ما يبقيها خارج هذا السكربت.
+  // ولوحات `site-header portal-header` / `site-footer portal-footer` لا
+  // تُلمس (ليست من هذا النطاق): المطابقة نصية على الصنف وحده.
+  const hasHeader=html.includes('<header class="site-header">');
+  const hasFooter=html.includes('<footer class="site-footer">');
+  if(!hasHeader && !hasFooter) continue;
+  if(hasHeader) html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/, headerFor(file));
+  if(hasFooter){ html=html.replace(OLD_FOOTER, FOOTER[pageOf(file).lang]); feet++; }
+  // كتلة CSS تُستبدل إن وُجدت من بناءٍ سابق، لا تُتخطّى — فإعادة تشغيل
+  // السكربت وحده على موقعٍ مبنيّ تصل إلى النتيجة نفسها التي يصلها البناء الكامل.
+  html=html.includes('id="sv1-chrome-css"')
+    ? html.replace(/<style id="sv1-chrome-css">[\s\S]*?<\/style>/, css)
+    : html.replace('</head>', css+'\n</head>');
   fs.writeFileSync(file,html);
   done++;
 }
-console.log(`ترويسة Simple V1 على ${done} صفحة قديمة — نظام ترويسة واحد للموقع.`);
+console.log(`ترويسة Simple V1 على ${done} صفحة قديمة، وتذييله على ${feet} — نظام ترويسة وتذييل واحد للموقع.`);
