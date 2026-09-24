@@ -41,6 +41,28 @@ import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+// خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
+// حدّ الخزنة (٨MB) غير حدّ القراءة الآلية (`MAX_DOC_BYTES` = ٦MB): الأول ما
+// يُحفَظ، والثاني ما يُرسَل إلى القارئ. هما رقمان مختلفان عن قصد.
+const DOC_VAULT_MIME = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/;
+const DOC_VAULT_MAX_BYTES = 8 * 1024 * 1024;
+// النوع من الامتداد حين يصمت المتصفح عنه. `/my` تُطبّع النوع قبل الإرسال،
+// أمّا `/account` القديمة فترسل `f.type` كما هو — وهو فارغ أو
+// `application/octet-stream` على أندرويد ومع بعض ملفات PDF. بلا هذا الرجوع
+// يصير رفضُ الصيغة كسراً لرفعٍ سليم. ولا يُخمَّن إلا للصامت: نوعٌ مصرَّحٌ به
+// وخارج القائمة يُرفض ولو كان الامتداد مقبولاً.
+const DOC_VAULT_EXT = {
+  pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+};
+const docVaultMime = (rawMime, fileName) => {
+  const m = String(rawMime || "").trim().toLowerCase();
+  if (m === "image/jpg" || m === "image/pjpeg") return "image/jpeg";
+  if (m && m !== "application/octet-stream" && m !== "binary/octet-stream") return m;
+  return DOC_VAULT_EXT[String(fileName || "").split(".").pop().toLowerCase()] || m;
+};
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -3012,12 +3034,22 @@ export default async function handler(req, res) {
         const category = String(b.category || "other").slice(0, 40);
         const title = String(b.title || "").trim().slice(0, 200);
         const fileName = String(b.fileName || "document.pdf").slice(0, 120);
-        const base64 = typeof b.base64 === "string" ? b.base64.slice(0, 11_000_000) : "";
-        const mime = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/.test(String(b.mime)) ? b.mime : "application/pdf";
+        // لا قصّ. كان `slice(0, 11_000_000)` يبتر الزائد ثم يُقاس المبتور —
+        // و١١ مليون حرف base64 تُفكّ إلى ٨٬٢٥٠٬٠٠٠ بايت، أي أقلّ من الحدّ
+        // دائماً، فشرط `too_large` لم يتحقّق قط. ملف ١٠MB كان يعود
+        // `ok:true` وقد حُفظ نصفه: سجلٌّ تجاري أو عقد لا يُفتح لاحقاً ولا
+        // أحد يعلم. الحجم يُفحص الآن على النصّ قبل إنشاء أي Buffer.
+        const base64 = typeof b.base64 === "string" ? b.base64 : "";
+        // الصيغة تُرفض ولا تُستبدل. كان أي نوع خارج القائمة يُوسَم
+        // `application/pdf` ويُخزَّن، فيكذب الملف على نفسه ولا يُفتح لاحقاً.
+        // `docVaultMime` تُطبّع ولا تُخمّن: تصحّح تسمية قديمة أو صمتَ متصفح،
+        // ولا تُنقذ نوعاً مصرَّحاً به خارج القائمة.
+        const mime = docVaultMime(b.mime, fileName);
         const expiry = /^\d{4}-\d{2}-\d{2}$/.test(String(b.expiry || "")) ? b.expiry : null;
         if (!title || !base64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        if (!DOC_VAULT_MIME.test(mime)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_type" })); }
+        if (Buffer.byteLength(base64, "base64") > DOC_VAULT_MAX_BYTES) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large", max: DOC_VAULT_MAX_BYTES })); }
         const buf = Buffer.from(base64, "base64");
-        if (buf.length > 8 * 1024 * 1024) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
         // versioning: reuse the doc row per (category,title); versions append
         const existing = await sb(`documents?organization_id=eq.${orgId}&category=eq.${encodeURIComponent(category)}&title=eq.${encodeURIComponent(title)}&select=id&limit=1`);
         let docId;
