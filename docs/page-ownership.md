@@ -53,7 +53,7 @@
 | `/consultation-classic` | 🗄️ | محفوظة |
 | `/connect` | ❌ | «موظفك الذكي — رحلة العميل ومركز الربط» |
 | `/portal` | ❌ | بوابة الموظفين الأذكياء — الدخول والقشرة هنا، والمحتوى لـ`smart-advisors` |
-| `/partner-dashboard` | 🟡 | لوحة الشريك — يدخلها شريكٌ بحساب |
+| `/partner-dashboard` | 🟡 | لوحة الشريك — الدخول والقشرة هنا، والمحتوى لـ`suppliers-partners` |
 | `/compliance-dashboard` | ❌ | لوحة الامتثال — الدخول والقشرة هنا، والمحتوى لـ`compliance` |
 | `/shared-services/dashboard` | 🟡 | الدخول والقشرة هنا، والمحتوى لـ`shared-services` |
 
@@ -66,7 +66,7 @@
 | `/monitor` | ❌ | BP Inbox |
 | `/dashboard` | ❌ | اختبار الوكلاء |
 | `/chat` | ❌ | Chat OS — أداة داخلية |
-| `/suppliers` · `/suppliers-admin` | 🟡 | تسجيل الشركاء وإدارتهم |
+| `/suppliers-admin` | 🟡 | لوحة تحكم الشركاء — القشرة هنا، والمحتوى لـ`suppliers-partners` |
 | `/agencies-admin` | 🟡 | إدارة مكاتب الاستقدام — **المالك** يدخلها (قاعدة الحسم) |
 | `/jobsearch-admin` | 🟡 | إدارة خدمة البحث عن وظيفة — كذلك |
 | `/doc-agent-admin` | ❌ | إدارة مستشار المستندات |
@@ -143,6 +143,7 @@
 | `bank-account` | `/bank-account` | 🟡 | نموذج بلا حقول ولا إرسال |
 | `incubators-vc` | `/directory` · `site/data/ecosystem.json` | ✅ | كان لـ`public-site` |
 | `real-estate` | `/workspaces` · `/workspace-request` · `api/_spaces.js` · `api/workspace.js` | 🟡 | كانا لـ`catalog-content`؛ `#ws-req` بلا حقول |
+| `suppliers-partners` | `/suppliers` · محتوى `/suppliers-admin` و`/partner-dashboard` · `api/_suppliers.js` · `escrow-*` | 🟡 | لا نموذج تسجيل مخصّص |
 | `brokers` · `referral` · `erp` · `social-media` | — | — | بلا صفحات بعد |
 | `advisor` · `baher-support` · `whatsapp` · `email` | — (قنوات) | — | يملكون كوداً لا صفحات: `api/chat.js` · `baher-support.mjs` · `n8n/` |
 
