@@ -562,6 +562,10 @@ var h0=hint();if(h0)S.paint(true,h0);
         </div>
         <label for="jField">领域</label>
         <select id="jField"><option value="">— 请选择 —</option><option value="هندسة">هندسة</option><option value="تقنية معلومات">تقنية معلومات</option><option value="مبيعات وتسويق">مبيعات وتسويق</option><option value="محاسبة ومالية">محاسبة ومالية</option><option value="إداري وسكرتارية">إداري وسكرتارية</option><option value="موارد بشرية">موارد بشرية</option><option value="ضيافة وسياحة">ضيافة وسياحة</option><option value="مقاولات وإنشاءات">مقاولات وإنشاءات</option><option value="عقارات">عقارات</option><option value="صحة وطب">صحة وطب</option><option value="تعليم">تعليم</option><option value="لوجستيات ونقل">لوجستيات ونقل</option><option value="قانون">قانون</option><option value="تصنيع وصناعة">تصنيع وصناعة</option><option value="طاقة ونفط وغاز">طاقة ونفط وغاز</option><option value="إعلام وإبداع">إعلام وإبداع</option><option value="حكومي وقطاع عام">حكومي وقطاع عام</option><option value="زراعة وبيئة">زراعة وبيئة</option><option value="تجزئة وتجارة إلكترونية">تجزئة وتجارة إلكترونية</option><option value="أمن وسلامة">أمن وسلامة</option><option value="حرف مهنية وصيانة">حرف مهنية وصيانة</option><option value="علوم وأبحاث">علوم وأبحاث</option><option value="طيران وبحري">طيران وبحري</option><option value="تجميل وعناية">تجميل وعناية</option><option value="خدمات منزلية">خدمات منزلية</option><option value="أخرى">أخرى</option></select>
+        <div class="row">
+          <div><label for="jType">工作类型</label><select id="jType"><option value="">— 未指定 —</option><option value="دوام كامل">全职</option><option value="دوام جزئي">兼职</option><option value="عقد مؤقت">临时合同</option><option value="تدريب تعاوني">实习培训</option><option value="عمل موسمي">季节性工作</option></select></div>
+          <div><label for="jMode">工作方式</label><select id="jMode"><option value="">— 未指定 —</option><option value="في الموقع">现场办公</option><option value="عن بُعد">远程办公</option><option value="هجين">混合办公</option></select></div>
+        </div>
         <label for="jDesc">职位描述与要求</label>
         <textarea id="jDesc" required maxlength="4000"></textarea>
         <div class="acts">
@@ -681,7 +685,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"雇主门户","desc":"发布职位、接收申请，并从筛选跟进至录用——全部在一个页面中。","loginH":"登录您的门户","loginP":"输入您的公司邮箱，我们会发送一次性验证码。无需记密码，也无需保管长期密钥。","emailL":"电子邮箱","sendOtp":"发送验证码","sending":"发送中…","otpSent":"我们已发送 6 位验证码至","otpL":"验证码","otpGo":"登录","otpBack":"← 更换邮箱","pwOpen":"改用密码登录","otpOpen":"← 改用邮箱验证码登录","pwH":"密码登录","pwL":"密码","pwGo":"登录","forgot":"忘记密码","rsH":"重置密码","rsSend":"发送重置码","rsCodeL":"重置码","rsNewL":"新密码（至少 8 位）","rsGo":"设置密码","noSub":"此邮箱没有已激活的订阅。付款后需人工激活——请联系我们。","register":"还没有订阅？注册您的公司","pendSub":"您的邮箱已登记，但订阅尚未激活——当前状态：“{s}”。付款后需人工激活：请发邮件至 business@businesspartner.sa 并注明公司名称。","empErr":"暂时无法核验您的订阅——问题出在我们这边，与您的账户无关。请一分钟后重试，若仍然如此请联系 business@businesspartner.sa。","noCodeE":"您的订阅已激活，但记录中没有访问码，面板无法打开。请联系 business@businesspartner.sa，我们今天就修复。","portalW":"您使用的是 Business Partner 账户，而非已激活的雇主订阅（状态：“{s}”）。在订阅激活前，此处发布的内容不会与订阅下的职位一并显示。","eEmail":"请输入有效的邮箱地址。","eSend":"暂时无法发送验证码。请稍后重试，或使用密码登录。","eOtp":"验证码错误或已过期。","eNoSess":"无法建立会话。请本次改用密码登录。","ePw":"邮箱或密码错误。","eWeak":"密码太短——至少 8 位。","eNet":"连接失败。请刷新后重试。","eSave":"保存失败。请重试。","navJobs":"我的职位","navNew":"发布职位","navApps":"申请人","acct":"账户","logout":"退出登录","acctPw":"修改密码","acctPh":"手机号码","acctSave":"保存号码","acctOk":"已保存。","acctPhNo":"修改号码需使用邮箱验证码登录后进行。","acctPwNo":"请通过登录页的“忘记密码”修改密码：验证码发送至邮箱后设置新密码。","plan":"套餐","jobsH":"我的职位","loading":"加载中…","jobsNone":"暂无职位。发布第一个职位，几分钟内即会出现在职位页面。","stActive":"招聘中","stClosed":"已关闭","edit":"编辑","closeJob":"关闭","closeAsk":"关闭此职位？它将从职位页面移除，不再接收新申请。","viewJob":"公开招聘页","newH":"发布职位","editH":"编辑职位","fTitle":"职位名称","fCity":"城市","fField":"领域","fFieldN":"— 请选择 —","fDesc":"职位描述与要求","aiWrite":"✦ 根据职位名称生成描述","aiWork":"生成中…","aiNeed":"请先填写职位名称。","aiFail":"暂时无法生成——请自行撰写描述。","publish":"发布","saveJob":"保存修改","saving":"保存中…","published":"已发布。","eFields":"职位名称和描述为必填项。","cancel":"取消","appsH":"申请人","appsNone":"您的职位暂无申请人。","appsAll":"全部职位","appsN":"位申请人","appsCut":"列表过长已被截断——请刷新查看其余内容。","open":"查看档案","moveTo":"移动至…","moving":"移动中…","moveOk":"已移至","moveFail":"移动失败——卡片已退回原栏。请重试。","boardHint":"将卡片拖到其他栏，或使用卡片内的“移动至…”。","colEmpty":"此阶段暂无人","more":"显示更多","matchS":"匹配度","profBack":"← 返回申请人","stage":"阶段","sNew":"新申请","sReview":"筛选中","sShort":"候选名单","sInt":"面试","sOffer":"录用意向","sHired":"已录用","sRej":"未通过","sFuture":"暂缓","fRole":"职位","fCityL":"城市","fExp":"工作年限","fYears":"年","fSkills":"技能","fPhone":"手机","fEmail":"邮箱","fCv":"简历","cvOpen":"打开文件","reqH":"申请面试","reqP":"我们将与候选人（或推荐该候选人的招聘机构）安排时间并回复您。","reqPref":"您方便的时间（可选）","reqMode":"面试方式","mIn":"现场","mOn":"线上","mPh":"电话","reqGo":"发送申请","reqOk":"已收到您的申请——我们会回复面试时间。","reqWork":"发送中…"},HOME="/zh/employer",JOB="/zh/job?id=";
+var TX={"title":"雇主门户","desc":"发布职位、接收申请，并从筛选跟进至录用——全部在一个页面中。","loginH":"登录您的门户","loginP":"输入您的公司邮箱，我们会发送一次性验证码。无需记密码，也无需保管长期密钥。","emailL":"电子邮箱","sendOtp":"发送验证码","sending":"发送中…","otpSent":"我们已发送 6 位验证码至","otpL":"验证码","otpGo":"登录","otpBack":"← 更换邮箱","pwOpen":"改用密码登录","otpOpen":"← 改用邮箱验证码登录","pwH":"密码登录","pwL":"密码","pwGo":"登录","forgot":"忘记密码","rsH":"重置密码","rsSend":"发送重置码","rsCodeL":"重置码","rsNewL":"新密码（至少 8 位）","rsGo":"设置密码","noSub":"此邮箱没有已激活的订阅。付款后需人工激活——请联系我们。","register":"还没有订阅？注册您的公司","pendSub":"您的邮箱已登记，但订阅尚未激活——当前状态：“{s}”。付款后需人工激活：请发邮件至 business@businesspartner.sa 并注明公司名称。","empErr":"暂时无法核验您的订阅——问题出在我们这边，与您的账户无关。请一分钟后重试，若仍然如此请联系 business@businesspartner.sa。","noCodeE":"您的订阅已激活，但记录中没有访问码，面板无法打开。请联系 business@businesspartner.sa，我们今天就修复。","portalW":"您使用的是 Business Partner 账户，而非已激活的雇主订阅（状态：“{s}”）。在订阅激活前，此处发布的内容不会与订阅下的职位一并显示。","eEmail":"请输入有效的邮箱地址。","eSend":"暂时无法发送验证码。请稍后重试，或使用密码登录。","eOtp":"验证码错误或已过期。","eNoSess":"无法建立会话。请本次改用密码登录。","ePw":"邮箱或密码错误。","eWeak":"密码太短——至少 8 位。","eNet":"连接失败。请刷新后重试。","eSave":"保存失败。请重试。","navJobs":"我的职位","navNew":"发布职位","navApps":"申请人","acct":"账户","logout":"退出登录","acctPw":"修改密码","acctPh":"手机号码","acctSave":"保存号码","acctOk":"已保存。","acctPhNo":"修改号码需使用邮箱验证码登录后进行。","acctPwNo":"请通过登录页的“忘记密码”修改密码：验证码发送至邮箱后设置新密码。","plan":"套餐","jobsH":"我的职位","loading":"加载中…","jobsNone":"暂无职位。发布第一个职位，几分钟内即会出现在职位页面。","stActive":"招聘中","stClosed":"已关闭","edit":"编辑","closeJob":"关闭","closeAsk":"关闭此职位？它将从职位页面移除，不再接收新申请。","viewJob":"公开招聘页","newH":"发布职位","editH":"编辑职位","fTitle":"职位名称","fCity":"城市","fField":"领域","fFieldN":"— 请选择 —","fType":"工作类型","fMode":"工作方式","fAny":"— 未指定 —","fDesc":"职位描述与要求","aiWrite":"✦ 根据职位名称生成描述","aiWork":"生成中…","aiNeed":"请先填写职位名称。","aiFail":"暂时无法生成——请自行撰写描述。","publish":"发布","saveJob":"保存修改","saving":"保存中…","published":"已发布。","eFields":"职位名称和描述为必填项。","cancel":"取消","appsH":"申请人","appsNone":"您的职位暂无申请人。","appsAll":"全部职位","appsN":"位申请人","appsCut":"列表过长已被截断——请刷新查看其余内容。","open":"查看档案","moveTo":"移动至…","moving":"移动中…","moveOk":"已移至","moveFail":"移动失败——卡片已退回原栏。请重试。","boardHint":"将卡片拖到其他栏，或使用卡片内的“移动至…”。","colEmpty":"此阶段暂无人","more":"显示更多","matchS":"匹配度","profBack":"← 返回申请人","stage":"阶段","sNew":"新申请","sReview":"筛选中","sShort":"候选名单","sInt":"面试","sOffer":"录用意向","sHired":"已录用","sRej":"未通过","sFuture":"暂缓","fRole":"职位","fCityL":"城市","fExp":"工作年限","fYears":"年","fSkills":"技能","fPhone":"手机","fEmail":"邮箱","fCv":"简历","cvOpen":"打开文件","reqH":"申请面试","reqP":"我们将与候选人（或推荐该候选人的招聘机构）安排时间并回复您。","reqPref":"您方便的时间（可选）","reqMode":"面试方式","mIn":"现场","mOn":"线上","mPh":"电话","reqGo":"发送申请","reqOk":"已收到您的申请——我们会回复面试时间。","reqWork":"发送中…"},HOME="/zh/employer",JOB="/zh/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -888,13 +892,17 @@ function drawJobs(){
 var editId=null;
 function resetJobForm(){editId=null;
  $('newH').textContent=TX.newH;$('newSub').textContent='';
- $('jTitle').value='';$('jCity').value='';$('jField').value='';$('jDesc').value='';
+ $('jTitle').value='';$('jCity').value='';$('jField').value='';
+ $('jType').value='';$('jMode').value='';$('jDesc').value='';
  $('jSave').textContent=TX.publish;$('jMsg').textContent='';$('jMsg').className='sv1-emp-msg';
  show($('jCancel'),false)}
 function editJob(p){editId=p.id;
  $('newH').textContent=TX.editH;$('newSub').textContent=p.title||'';
  $('jTitle').value=p.title||'';$('jCity').value=p.city||'';
  $('jField').value=p.field||'';$('jDesc').value=p.description||'';
+ // القيمة المحفوظة مختارة عند التعديل. قيمةٌ لم تعد في القائمة (غُيّرت في
+ // نوشن) تجعل select فارغاً، فلا يُكتب شيء ولا يُستبدل المحفوظ بقيمة أخرى.
+ $('jType').value=p.type||'';$('jMode').value=p.mode||'';
  $('jSave').textContent=TX.saveJob;$('jMsg').textContent='';$('jMsg').className='sv1-emp-msg';
  show($('jCancel'),true);location.hash='#/new';window.scrollTo(0,0)}
 $('jCancel').onclick=function(){resetJobForm();location.hash='#/jobs'};
@@ -918,7 +926,8 @@ $('fJob').onsubmit=function(e){e.preventDefault();
  if(!title||!desc){m.className='sv1-emp-msg err';m.textContent=TX.eFields;return}
  var b=$('jSave'),was=b.textContent;b.disabled=true;b.textContent=TX.saving;m.textContent='';
  var body={action:editId?'update-posting':'create-posting',title:title,description:desc,
-  city:$('jCity').value.trim(),field:$('jField').value};
+  city:$('jCity').value.trim(),field:$('jField').value,
+  type:$('jType').value,mode:$('jMode').value};
  if(editId)body.id=editId;
  post('/api/candidates',body).then(function(d){
   b.disabled=false;b.textContent=was;

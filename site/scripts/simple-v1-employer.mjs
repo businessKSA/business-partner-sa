@@ -161,6 +161,9 @@ const T = {
   fCity:   { ar: "المدينة", en: "City", fr: "Ville", zh: "城市" },
   fField:  { ar: "المجال", en: "Field", fr: "Domaine", zh: "领域" },
   fFieldN: { ar: "— اختر —", en: "— choose —", fr: "— choisir —", zh: "— 请选择 —" },
+  fType:   { ar: "نوع الدوام", en: "Employment type", fr: "Type de contrat", zh: "工作类型" },
+  fMode:   { ar: "نمط العمل", en: "Workplace", fr: "Mode de travail", zh: "工作方式" },
+  fAny:    { ar: "— غير محدّد —", en: "— not specified —", fr: "— non précisé —", zh: "— 未指定 —" },
   fDesc:   { ar: "الوصف والمتطلبات", en: "Description and requirements", fr: "Description et exigences", zh: "职位描述与要求" },
   aiWrite: { ar: "✦ اكتب الوصف من المسمّى", en: "✦ Write the description from the title", fr: "✦ Rédiger la description", zh: "✦ 根据职位名称生成描述" },
   aiWork:  { ar: "جارٍ الكتابة…", en: "Writing…", fr: "Rédaction…", zh: "生成中…" },
@@ -249,6 +252,23 @@ const FIELDS = [
   "خدمات منزلية", "أخرى",
 ];
 
+// نوع الدوام ونمط العمل — نفس القائمتين الثابتتين في api/candidates.js
+// (JOB_TYPES و JOB_MODES). القيمة المرسلة عربية دائماً لأن نوشن يخزّنها كذلك،
+// والمعروض بلغة الصفحة. كلتا القائمتين اختيارية بخيار فارغ أوّل: صاحب عملٍ
+// لا ينطبق عليه أيٌّ منهما يترك الوظيفة بلا نوع، ولا يُخترع له واحد.
+const JOB_TYPES = [
+  { v: "دوام كامل",    en: "Full-time",   fr: "Temps plein",      zh: "全职" },
+  { v: "دوام جزئي",    en: "Part-time",   fr: "Temps partiel",    zh: "兼职" },
+  { v: "عقد مؤقت",     en: "Temporary contract", fr: "Contrat temporaire", zh: "临时合同" },
+  { v: "تدريب تعاوني", en: "Co-op training", fr: "Stage coopératif", zh: "实习培训" },
+  { v: "عمل موسمي",    en: "Seasonal",    fr: "Saisonnier",       zh: "季节性工作" },
+];
+const JOB_MODES = [
+  { v: "في الموقع", en: "On-site", fr: "Sur site", zh: "现场办公" },
+  { v: "عن بُعد",   en: "Remote",  fr: "À distance", zh: "远程办公" },
+  { v: "هجين",      en: "Hybrid",  fr: "Hybride",  zh: "混合办公" },
+];
+
 export function buildSimpleEmployer(SV1, ctx) {
   const { lang: langFn, esc } = ctx;
   const lang = langFn();
@@ -258,6 +278,10 @@ export function buildSimpleEmployer(SV1, ctx) {
 
   const fieldOpts = [`<option value="">${esc(t("fFieldN"))}</option>`]
     .concat(FIELDS.map((f) => `<option value="${esc(f)}">${esc(f)}</option>`)).join("");
+  const pickOpts = (list) => [`<option value="">${esc(t("fAny"))}</option>`]
+    .concat(list.map((o) => `<option value="${esc(o.v)}">${esc(lang === "ar" ? o.v : (o[lang] || o.en))}</option>`)).join("");
+  const typeOpts = pickOpts(JOB_TYPES);
+  const modeOpts = pickOpts(JOB_MODES);
 
   const CSS = `<style id="sv1-emp-css">
 .sv1-emp{max-width:1080px;margin:0 auto;padding:0 20px}
@@ -503,6 +527,10 @@ export function buildSimpleEmployer(SV1, ctx) {
         </div>
         <label for="jField">${esc(t("fField"))}</label>
         <select id="jField">${fieldOpts}</select>
+        <div class="row">
+          <div><label for="jType">${esc(t("fType"))}</label><select id="jType">${typeOpts}</select></div>
+          <div><label for="jMode">${esc(t("fMode"))}</label><select id="jMode">${modeOpts}</select></div>
+        </div>
         <label for="jDesc">${esc(t("fDesc"))}</label>
         <textarea id="jDesc" required maxlength="4000"></textarea>
         <div class="acts">
@@ -746,13 +774,17 @@ function drawJobs(){
 var editId=null;
 function resetJobForm(){editId=null;
  $('newH').textContent=TX.newH;$('newSub').textContent='';
- $('jTitle').value='';$('jCity').value='';$('jField').value='';$('jDesc').value='';
+ $('jTitle').value='';$('jCity').value='';$('jField').value='';
+ $('jType').value='';$('jMode').value='';$('jDesc').value='';
  $('jSave').textContent=TX.publish;$('jMsg').textContent='';$('jMsg').className='sv1-emp-msg';
  show($('jCancel'),false)}
 function editJob(p){editId=p.id;
  $('newH').textContent=TX.editH;$('newSub').textContent=p.title||'';
  $('jTitle').value=p.title||'';$('jCity').value=p.city||'';
  $('jField').value=p.field||'';$('jDesc').value=p.description||'';
+ // القيمة المحفوظة مختارة عند التعديل. قيمةٌ لم تعد في القائمة (غُيّرت في
+ // نوشن) تجعل select فارغاً، فلا يُكتب شيء ولا يُستبدل المحفوظ بقيمة أخرى.
+ $('jType').value=p.type||'';$('jMode').value=p.mode||'';
  $('jSave').textContent=TX.saveJob;$('jMsg').textContent='';$('jMsg').className='sv1-emp-msg';
  show($('jCancel'),true);location.hash='#/new';window.scrollTo(0,0)}
 $('jCancel').onclick=function(){resetJobForm();location.hash='#/jobs'};
@@ -776,7 +808,8 @@ $('fJob').onsubmit=function(e){e.preventDefault();
  if(!title||!desc){m.className='sv1-emp-msg err';m.textContent=TX.eFields;return}
  var b=$('jSave'),was=b.textContent;b.disabled=true;b.textContent=TX.saving;m.textContent='';
  var body={action:editId?'update-posting':'create-posting',title:title,description:desc,
-  city:$('jCity').value.trim(),field:$('jField').value};
+  city:$('jCity').value.trim(),field:$('jField').value,
+  type:$('jType').value,mode:$('jMode').value};
  if(editId)body.id=editId;
  post('/api/candidates',body).then(function(d){
   b.disabled=false;b.textContent=was;

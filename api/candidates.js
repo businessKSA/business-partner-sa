@@ -96,6 +96,14 @@ const FIELD_OPTIONS = [
   "خدمات منزلية", "أخرى",
 ];
 
+// نوع الدوام ونمط العمل — خاصيتا select في JOBS_DB. مفصولتان عمداً كما يفصل
+// لنكدإن: «جزئي» نوع تعاقد، و«عن بُعد» مكان عمل. دمجهما يُنتج فلتراً يكذب على
+// باحثٍ عن عمل. القيمة المخزَّنة عربية دائماً لأن نوشن يخزّنها كذلك.
+const JOB_TYPE_PROP = "نوع الدوام";
+const JOB_MODE_PROP = "نمط العمل";
+const JOB_TYPES = ["دوام كامل", "دوام جزئي", "عقد مؤقت", "تدريب تعاوني", "عمل موسمي"];
+const JOB_MODES = ["في الموقع", "عن بُعد", "هجين"];
+
 async function readBody(req) {
   let b = req.body;
   if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
@@ -108,6 +116,39 @@ async function notionFetch(path, method, payload) {
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
     body: payload ? JSON.stringify(payload) : undefined,
   });
+}
+
+// كتابةٌ تشفي نفسها حين يكون الحقل غير موجود في مخطّط نوشن بعد.
+//
+// نوشن يرفض **الصفحة كاملةً** بخطأ 400 إذا حملت خاصيةً ليست في المخطّط. فلو
+// أُرسل «نوع الدوام» قبل إضافته يدوياً في نوشن لتوقّف نشر كل إعلان — عطلٌ
+// أسوأ بكثير من غياب فلتر. لذلك: تُجرَّب الكتابة بالخاصيتين، فإن عاد 400
+// يشكو من خاصية غير موجودة، أُعيدت المحاولة بدونهما وسُجّل السبب في
+// console.warn. فينجح النشر في الحالتين، ويبدأ الحقل يُحفَظ لحظة وجوده في
+// نوشن بلا نشرةٍ جديدة.
+//
+// ما لا يُبتلع: أي 400 لسببٍ آخر (قيمة طويلة، حقل مطلوب ناقص، خاصية أخرى
+// غيّر أحدهم اسمها) يعود كما هو إلى المُنادي ليسجّله ويردّ 502 — الصمت هو ما
+// جعل عطلاً سابقاً في هذا الملف يمرّ بلا أثر.
+const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier/i;
+
+async function notionWriteOptional(path, method, payload, optionalProps, label) {
+  const names = optionalProps.filter((n) => payload.properties && payload.properties[n] != null);
+  const r = await notionFetch(path, method, payload);
+  if (r.ok || !names.length || r.status !== 400) return r;
+  const body = await r.text();
+  if (!MISSING_PROP_RE.test(body)) {
+    // خطأ 400 مختلف — يُعاد نصّه للمُنادي كما هو (الجسم قُرئ مرّة، فيُغلَّف).
+    return { ok: false, status: r.status, text: async () => body, json: async () => { try { return JSON.parse(body); } catch { return {}; } } };
+  }
+  console.warn(`${label}: JOBS_DB لا يحتوي ${names.join(" / ")} بعد — أُعيدت الكتابة بدونها. نوشن قال:`, body.slice(0, 220));
+  const props = { ...payload.properties };
+  for (const n of names) delete props[n];
+  const r2 = await notionFetch(path, method, { ...payload, properties: props });
+  // ما سقط يُعلَن للمُنادي: ردٌّ يقول «حُفظ نوع الدوام» وهو لم يُحفظ كذبةٌ
+  // يراها صاحب العمل في نموذجه.
+  try { r2.droppedProps = names; } catch { /* الرد مُجمَّد — لا يضرّ */ }
+  return r2;
 }
 
 // Notion returns at most 100 rows per query and hides the rest behind a
@@ -427,9 +468,9 @@ async function employerBySession(req) {
 // not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
 // applicant grouping lines up with these postings in the console.
 const SITE_ROLES = [
-  { id: "hr-operations-specialist", title: "أخصائي عمليات موارد بشرية وعلاقات حكومية", city: "الرياض", field: "موارد بشرية", description: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.", status: "نشطة", site: true, url: "/ar/careers/hr-operations-specialist" },
-  { id: "recruitment-coordinator", title: "منسق توظيف", city: "الرياض", field: "موارد بشرية", description: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.", status: "نشطة", site: true, url: "/ar/careers/recruitment-coordinator" },
-  { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
+  { id: "hr-operations-specialist", title: "أخصائي عمليات موارد بشرية وعلاقات حكومية", city: "الرياض", field: "موارد بشرية", type: "", mode: "", description: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.", status: "نشطة", site: true, url: "/ar/careers/hr-operations-specialist" },
+  { id: "recruitment-coordinator", title: "منسق توظيف", city: "الرياض", field: "موارد بشرية", type: "", mode: "", description: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.", status: "نشطة", site: true, url: "/ar/careers/recruitment-coordinator" },
+  { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", type: "", mode: "", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
 ];
 
 // Job postings: an employer can open more than one, each with its own title/
@@ -459,6 +500,8 @@ async function handlePostings(req, res) {
     const city = String(b.city || "").trim().slice(0, 120);
     const description = String(b.description || "").trim().slice(0, 4000);
     const field = String(b.field || "").trim();
+    const jobType = String(b.type || "").trim();
+    const jobMode = String(b.mode || "").trim();
     if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const props = {
       "العنوان الوظيفي": { title: [{ text: { content: title } }] },
@@ -469,11 +512,19 @@ async function handlePostings(req, res) {
       "الحالة": { select: { name: "نشطة" } },
     };
     if (FIELD_OPTIONS.includes(field)) props["المجال"] = { select: { name: field } };
-    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
+    // قيمة خارج القائمة (ومنها الفراغ «غير محدّد») تُتجاهل بصمت ولا تُكتب.
+    if (JOB_TYPES.includes(jobType)) props[JOB_TYPE_PROP] = { select: { name: jobType } };
+    if (JOB_MODES.includes(jobMode)) props[JOB_MODE_PROP] = { select: { name: jobMode } };
+    const r = await notionWriteOptional("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props }, [JOB_TYPE_PROP, JOB_MODE_PROP], "posting create");
     if (!r.ok) { console.error("posting create error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
     const page = await r.json();
+    const dropped = r.droppedProps || [];
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, id: page.id, title, city, field, description }));
+    return res.end(JSON.stringify({
+      ok: true, id: page.id, title, city, field, description,
+      type: JOB_TYPES.includes(jobType) && !dropped.includes(JOB_TYPE_PROP) ? jobType : "",
+      mode: JOB_MODES.includes(jobMode) && !dropped.includes(JOB_MODE_PROP) ? jobMode : "",
+    }));
   }
 
   // Edit an existing posting in place. Ownership is enforced server-side:
@@ -494,9 +545,12 @@ async function handlePostings(req, res) {
     if (b.city != null) props["المدينة"] = { rich_text: [{ text: { content: String(b.city).trim().slice(0, 120) } }] };
     if (b.description) props["الوصف والمتطلبات"] = { rich_text: [{ text: { content: String(b.description).trim().slice(0, 4000) } }] };
     if (b.field && FIELD_OPTIONS.includes(String(b.field).trim())) props["المجال"] = { select: { name: String(b.field).trim() } };
+    // كما في «المجال»: قيمة خارج القائمة (والفراغ) لا تُكتب ولا تُغيّر المحفوظ.
+    if (b.type && JOB_TYPES.includes(String(b.type).trim())) props[JOB_TYPE_PROP] = { select: { name: String(b.type).trim() } };
+    if (b.mode && JOB_MODES.includes(String(b.mode).trim())) props[JOB_MODE_PROP] = { select: { name: String(b.mode).trim() } };
     if (b.status === "نشطة" || b.status === "مغلقة") props["الحالة"] = { select: { name: b.status } };
     if (!Object.keys(props).length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: props });
+    const r = await notionWriteOptional(`pages/${id}`, "PATCH", { properties: props }, [JOB_TYPE_PROP, JOB_MODE_PROP], "posting update");
     if (!r.ok) { console.error("posting update error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true }));
@@ -529,6 +583,10 @@ async function handlePostings(req, res) {
         title: txt(p["العنوان الوظيفي"]),
         city: txt(p["المدينة"]),
         field: txt(p["المجال"]),
+        // خاصيةٌ غير موجودة في المخطّط تعطي undefined بسلام، و txt تعيد ""
+        // — فالقراءة آمنة اليوم قبل أن يوجد الحقل في نوشن.
+        type: txt(p[JOB_TYPE_PROP]),
+        mode: txt(p[JOB_MODE_PROP]),
         description: txt(p["الوصف والمتطلبات"]),
         status: txt(p["الحالة"]),
       };
@@ -749,6 +807,8 @@ export default async function handler(req, res) {
           company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
+          type: txt(p[JOB_TYPE_PROP]),
+          mode: txt(p[JOB_MODE_PROP]),
           description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
         };
       }).filter((j) => j.title);
@@ -785,6 +845,8 @@ export default async function handler(req, res) {
           company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
+          type: txt(p[JOB_TYPE_PROP]),
+          mode: txt(p[JOB_MODE_PROP]),
           description: txt(p["الوصف والمتطلبات"]),
           postedAt: pg.created_time,
           open: status !== "مغلقة",

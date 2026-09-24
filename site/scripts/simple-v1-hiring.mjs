@@ -103,6 +103,23 @@ const CITIES = [
   ["جازان", "Jazan"], ["نجران", "Najran"], ["ينبع", "Yanbu"], ["نيوم", "NEOM"],
 ];
 
+// نوع الدوام ونمط العمل — مفردات تُترجَم للعرض فقط. القيمة المصفّاة والمكتوبة
+// في العنوان هي ما يعيده نوشن حرفياً، والمفردة غير المعروفة تُعرض كما جاءت بلا
+// تخمين. الحقلان جديدان في قاعدة الإعلانات، والوظائف القديمة تعود بهما فارغين —
+// فلا رقاقة ولا خيار فلترة لوظيفةٍ لم يقل صاحبها نوع دوامها.
+const TY = [
+  [["دوام كامل", "full time", "full-time", "fulltime"], ["دوام كامل", "Full-time", "Temps plein", "全职"]],
+  [["دوام جزئي", "part time", "part-time", "parttime"], ["دوام جزئي", "Part-time", "Temps partiel", "兼职"]],
+  [["عقد مؤقت", "عقد", "contract", "temporary", "temp"], ["عقد مؤقت", "Contract", "Contrat", "合同制"]],
+  [["تدريب", "تدريب تعاوني", "internship", "intern", "trainee"], ["تدريب", "Internship", "Stage", "实习"]],
+  [["عمل حر", "freelance", "freelancer"], ["عمل حر", "Freelance", "Freelance", "自由职业"]],
+  [["موسمي", "seasonal"], ["موسمي", "Seasonal", "Saisonnier", "季节性"]],
+  [["عن بعد", "remote", "work from home"], ["عن بُعد", "Remote", "À distance", "远程"]],
+  [["حضوري", "في الموقع", "on site", "on-site", "onsite"], ["حضوري", "On-site", "Sur site", "现场"]],
+  [["هجين", "مختلط", "hybrid"], ["هجين", "Hybrid", "Hybride", "混合"]],
+  [["مرن", "flexible", "flex"], ["مرن", "Flexible", "Flexible", "弹性"]],
+];
+
 // «طاهٍ متخصص في المأكولات العربية بالرياض» لا يحمل كلمة «ضيافة وسياحة»،
 // فالمسمّى الوظيفي هو ما يكتبه الناس لا اسم المجال. هذه الخريطة تترجم
 // المسمّى إلى مجالٍ من التصنيف الرسمي قبل أن يُرسَل إلى نوشن.
@@ -249,10 +266,42 @@ const T = {
 
   // ---- الطبقة الثانية
   jobsHead:{ ar: "الوظائف المفتوحة الآن", en: "Vacancies open now", fr: "Postes ouverts", zh: "当前开放职位" },
-  jobsSub:{ ar: "تتبع رقائق المدينة والمجال أعلاه — غيّرها لتتغيّر القائمة.",
-            en: "Follows the city and field chips above — change them and the list follows.",
-            fr: "Suit les filtres ville et domaine ci-dessus.",
-            zh: "跟随上方的城市与领域筛选——更改即可更新列表。" },
+  jobsSub:{ ar: "صفّها بالمدينة أو المجال أو نوع الدوام — والعدد بجانب كل خيار يدلّك قبل أن تضغط. الرابط يحفظ تصفيتك، فأرسله كما هو.",
+            en: "Filter by city, field or employment type — the count beside each option tells you before you click. The link keeps your filters, so send it as it is.",
+            fr: "Filtrez par ville, domaine ou type de contrat — le compteur vous renseigne avant de cliquer. Le lien conserve vos filtres.",
+            zh: "按城市、领域或工作类型筛选——每个选项旁的数量让您点击前就心中有数。链接会保留筛选条件。" },
+  qLbl:   { ar: "بحث", en: "Search", fr: "Recherche", zh: "搜索" },
+  jbQ:    { ar: "ابحث في المسمّى أو الوصف", en: "Search title or description", fr: "Rechercher un intitulé ou une description", zh: "搜索职位名称或描述" },
+  lblType:{ ar: "نوع الدوام", en: "Employment type", fr: "Type de contrat", zh: "工作类型" },
+  lblMode:{ ar: "نمط العمل", en: "Work mode", fr: "Mode de travail", zh: "工作方式" },
+  tAny:   { ar: "كل الأنواع", en: "All types", fr: "Tous les types", zh: "全部类型" },
+  mAny:   { ar: "كل الأنماط", en: "All modes", fr: "Tous les modes", zh: "全部方式" },
+  // عدّ النتائج بصِيَغ الجمع الصحيحة: العربية تفرّق بين ٢ و٥ و١١ («وظيفتان»
+  // و«٥ وظائف» و«١١ وظيفة»)، و«٥ وظيفة» خطأٌ يراه كل زائر. Intl.PluralRules
+  // يختار الصيغة، وصيغة الصفر مكتوبةٌ صراحةً لأن الفرنسية تعدّ الصفر واحداً.
+  resPl:  { ar: { zero: "لا وظائف", one: "وظيفة واحدة", two: "وظيفتان",
+                  few: "{n} وظائف", many: "{n} وظيفة", other: "{n} وظيفة" },
+            en: { zero: "No vacancies", one: "1 vacancy", other: "{n} vacancies" },
+            fr: { zero: "Aucun poste", one: "1 poste", other: "{n} postes" },
+            zh: { zero: "暂无职位", other: "{n} 个职位" } },
+  sortLbl:{ ar: "ترتيب", en: "Sort", fr: "Trier", zh: "排序" },
+  sortNew:{ ar: "الأحدث أولاً", en: "Newest first", fr: "Plus récents", zh: "最新优先" },
+  sortOld:{ ar: "الأقدم أولاً", en: "Oldest first", fr: "Plus anciens", zh: "最早优先" },
+  sortAz: { ar: "أبجدي", en: "A–Z", fr: "A–Z", zh: "按名称" },
+  clearAll:{ar: "مسح الكل", en: "Clear all", fr: "Tout effacer", zh: "清除全部" },
+  filterBtn:{ar:"فلترة", en: "Filters", fr: "Filtres", zh: "筛选" },
+  filterHd:{ ar: "تصفية الوظائف", en: "Filter vacancies", fr: "Filtrer les postes", zh: "筛选职位" },
+  closeBtn:{ ar: "إغلاق", en: "Close", fr: "Fermer", zh: "关闭" },
+  showRes:{ ar: "عرض النتائج", en: "Show results", fr: "Voir les résultats", zh: "查看结果" },
+  moreBtn:{ ar: "عرض المزيد", en: "Show more", fr: "Afficher plus", zh: "显示更多" },
+  noRes:  { ar: "لا وظيفة تطابق هذه الفلاتر.", en: "No vacancy matches these filters.",
+            fr: "Aucun poste ne correspond à ces filtres.", zh: "没有符合这些筛选条件的职位。" },
+  noResFix:{ar: "إزالة هذا الفلتر وحده تعيد {j}:", en: "Removing this one filter brings back {j}:",
+            fr: "Retirer ce seul filtre ramène {j} :", zh: "仅移除此筛选即可恢复 {j}：" },
+  noResAll:{ar: "لا يكفي رفع فلتر واحد — امسح الكل لترى الوظائف المفتوحة كلها.",
+            en: "Lifting one filter isn't enough — clear all to see every open vacancy.",
+            fr: "Retirer un seul filtre ne suffit pas — effacez tout pour voir tous les postes.",
+            zh: "仅移除一个筛选条件不够——请清除全部以查看所有开放职位。" },
   loading:{ ar: "جارٍ التحميل…", en: "Loading…", fr: "Chargement…", zh: "加载中…" },
   empty:  { ar: "لا وظائف مفتوحة الآن — أرسل سيرتك الذاتية ونرشّحك أول ما تُفتح وظيفة تناسبك.",
             en: "No vacancies open right now — send your CV and we'll nominate you the moment one fits.",
@@ -347,8 +396,94 @@ export function buildSimpleHiring(SV1, ctx) {
 .sv1-hire-sec{border-top:1px solid var(--line2);padding-top:34px;margin-top:56px}
 .sv1-hire-sec>h3{font-size:21px;font-weight:500;color:var(--ink);margin:0 0 8px}
 .sv1-hire-sec>.sub{font-size:13px;color:var(--mut);margin:0 0 18px;line-height:1.8;max-width:680px}
+
+/* ===== لوحة الوظائف: شريط فلترة ملتصق + قائمة صفوف =====
+   شبكة البطاقات الأربعة الأعمدة أعطت أربعين وظيفةً وزناً بصرياً واحداً بلا
+   عدّ ولا ترتيب. هذه قائمة: العنوان هو البطل، وسطرٌ رمادي تحته، والأزرار في
+   حافة الصف لا تحته. الشريط يلتصق تحت الترويسة (٧٢ بكسل) بطبقةٍ دونها (١٥
+   مقابل ٢٠) فلا يغطّيها؛ وحين تُفتح اللوحة السفلية على الجوال ترتفع طبقة
+   الشريط إلى ٦٠ لأن اللوحة والستارة ابنتاه، ولولا ذلك لطفت الترويسة فوق
+   الستارة. */
+.sv1-jbar{position:sticky;top:72px;z-index:15;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+ border:1px solid var(--l);border-radius:14px;padding:9px 11px;margin:0 0 15px;
+ display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.sv1-jbq{flex:1 1 210px;min-width:0;display:flex;align-items:center;gap:7px;border:1px solid var(--l);border-radius:999px;background:var(--soft);padding:7px 14px}
+.sv1-jbq .ic{flex:none;font-size:12.5px;color:var(--faint)}
+.sv1-jbq input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--t)}
+.sv1-jbq input::placeholder{color:var(--faint)}
+.sv1-jbsel{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sv1-jf{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--l);border-radius:999px;background:#fff;padding:6px 13px;font-size:11.5px;color:var(--mut);transition:.15s}
+.sv1-jf.set{border-color:var(--acLine);background:var(--acSoft);color:var(--ac)}
+.sv1-jf select{border:0;outline:0;background:transparent;font:inherit;font-size:12px;color:var(--ink);font-family:inherit;cursor:pointer;max-width:168px}
+.sv1-jbonly{display:none}
+.sv1-jbmob{display:none}
+.sv1-jbback{display:none}
+
+.sv1-jhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 11px}
+.sv1-jhead b{font-size:15.5px;font-weight:600;color:var(--ink)}
+.sv1-jsort{margin-inline-start:auto;display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--faint)}
+.sv1-jsort select{border:1px solid var(--l);border-radius:8px;background:#fff;font:inherit;font-size:12px;color:var(--ink);font-family:inherit;padding:5px 10px;cursor:pointer}
+
+.sv1-jpills{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 14px}
+.sv1-jpill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--acLine);background:var(--acSoft);color:var(--ac);border-radius:999px;padding:5px 12px;font-size:11.5px;font-family:inherit;cursor:pointer;line-height:1.5}
+.sv1-jpill b{font-weight:600}
+.sv1-jpill .x{font-size:13px;line-height:1;opacity:.7}
+.sv1-jpill:hover{border-color:var(--ac)}
+.sv1-jpill:hover .x{opacity:1}
+.sv1-jclear{border:0;background:0;color:var(--mut);font-family:inherit;font-size:11.5px;cursor:pointer;text-decoration:underline;padding:5px 4px}
+
+.sv1-jlist{border:1px solid var(--l);border-radius:14px;background:#fff;overflow:hidden}
+.sv1-jrow{display:flex;align-items:flex-start;gap:18px;padding:20px 22px;border-top:1px solid var(--line2);transition:background .15s}
+.sv1-jrow:first-child{border-top:0}
+.sv1-jrow:hover{background:var(--soft)}
+.sv1-jrow .mn{flex:1;min-width:0}
+.sv1-jrow h4{margin:0;font-size:16.5px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
+.sv1-jrow h4 a{color:var(--ink)}
+.sv1-jrow h4 a:hover{color:var(--ac);text-decoration:underline}
+.sv1-jrow .mt{margin:7px 0 0;font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;align-items:center;gap:7px;line-height:1.7}
+.sv1-jrow .mt .sep{color:var(--l);font-size:10px}
+.sv1-jrow .tg{border:1px solid var(--acLine);background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:500}
+.sv1-jrow .ag{color:var(--faint);font-size:11.5px}
+.sv1-jrow .ds{margin:10px 0 0;font-size:12.5px;color:var(--s);line-height:1.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sv1-jrow .ac{flex:none;display:flex;flex-direction:column;gap:7px;min-width:136px}
+.sv1-jrow .ac .sv1-btn{width:100%;padding-block:9px}
+
+.sv1-jmore{display:block;margin:15px auto 0;}
+.sv1-jnone{border:1px dashed var(--l);border-radius:14px;padding:28px 22px;text-align:center;background:var(--soft)}
+.sv1-jnone p{margin:0;font-size:14px;color:var(--t);line-height:1.8}
+.sv1-jnone .sub{font-size:12.5px;color:var(--mut);margin:9px 0 12px}
+.sv1-jnone .fix{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+
+@media(max-width:820px){
+ .sv1-jbmob{display:inline-flex;flex:none}
+ .sv1-jb.open .sv1-jbar{z-index:60}
+ .sv1-jbsel{position:fixed;inset-inline:0;bottom:0;z-index:61;background:#fff;
+  border-radius:20px 20px 0 0;box-shadow:0 -14px 44px -16px rgba(11,27,90,.4);
+  padding:16px 16px calc(18px + env(safe-area-inset-bottom));
+  flex-direction:column;align-items:stretch;gap:10px;max-height:80vh;overflow:auto;
+  transform:translateY(103%);transition:transform .22s ease;visibility:hidden}
+ .sv1-jb.open .sv1-jbsel{transform:none;visibility:visible}
+ .sv1-jbonly{display:flex;align-items:center;justify-content:space-between;gap:10px}
+ .sv1-jbonly b{font-size:14.5px;color:var(--ink)}
+ .sv1-jbonly .cl{border:0;background:0;font-family:inherit;font-size:12.5px;color:var(--mut);cursor:pointer;padding:4px}
+ .sv1-jf{justify-content:space-between;border-radius:12px;padding:12px 14px;font-size:12.5px}
+ .sv1-jf select{max-width:58%;text-align:end}
+ .sv1-jbback{display:block;position:fixed;inset:0;z-index:60;background:rgba(11,27,90,.38);opacity:0;pointer-events:none;transition:opacity .2s}
+ .sv1-jb.open .sv1-jbback{opacity:1;pointer-events:auto}
+ .sv1-jrow{flex-direction:column;gap:13px;padding:17px 16px}
+ .sv1-jrow .ac{flex-direction:row;width:100%;min-width:0}
+ .sv1-jrow .ac .sv1-btn{flex:1}
+}
 @media(max-width:520px){.sv1-hchips{grid-template-columns:1fr}}
 </style>`;
+
+  // رقاقة فلترة في لوحة الوظائف: عنصر ثابت في الصفحة، وخياراته تُبنى في
+  // المتصفّح من الوظائف العائدة فعلاً — لا قائمة مكتوبة هنا تَعِد بخيارٍ لا
+  // وظيفة تحته. والرقاقة نفسها تُخفى حين لا يحمل أي إعلان قيمةً لحقلها.
+  const jbFacet = (id, icon, label, any) => `<label class="sv1-jf sv1-hide" id="${id}Wrap">
+              <span class="ic" aria-hidden="true">${icon}</span><span>${esc(label)}</span>
+              <select id="${id}" aria-label="${esc(label)}"><option value="">${esc(any)}</option></select>
+            </label>`;
 
   const chip = (id, icon, label, opts, any, extra) => `<label class="sv1-hchip" id="${id}Chip"${extra || ""}>
         <span class="ic" aria-hidden="true">${icon}</span><span>${esc(label)}</span>
@@ -424,8 +559,38 @@ export function buildSimpleHiring(SV1, ctx) {
     <div class="sv1-hire-sec" id="hireJobs">
       <h3>${esc(t("jobsHead"))}</h3>
       <p class="sub">${esc(t("jobsSub"))}</p>
-      <p class="sv1-muted" id="hireJobsStatus">${esc(t("loading"))}</p>
-      <div class="sv1-hire-grid" id="hireJobsGrid"></div>
+
+      <div class="sv1-jb" id="jbWrap">
+        <div class="sv1-jbar" id="jbBar">
+          <div class="sv1-jbq">
+            <span class="ic" aria-hidden="true">🔎</span>
+            <input type="search" id="jbQ" placeholder="${esc(t("jbQ"))}" aria-label="${esc(t("jbQ"))}" autocomplete="off">
+          </div>
+          <div class="sv1-jbsel" id="jbSel" role="group" aria-label="${esc(t("filterHd"))}">
+            <div class="sv1-jbonly"><b>${esc(t("filterHd"))}</b><button type="button" class="cl" id="jbClose">${esc(t("closeBtn"))}</button></div>
+            ${jbFacet("jbCity", "📍", t("lblCity"), t("cAny"))}
+            ${jbFacet("jbField", "🗂", t("lblField"), t("fAny"))}
+            ${jbFacet("jbType", "🕒", t("lblType"), t("tAny"))}
+            ${jbFacet("jbMode", "🏢", t("lblMode"), t("mAny"))}
+            <button type="button" class="sv1-btn primary sv1-jbonly" id="jbApply">${esc(t("showRes"))}</button>
+          </div>
+          <button type="button" class="sv1-btn sm sv1-jbmob" id="jbOpen">${esc(t("filterBtn"))}</button>
+        </div>
+        <div class="sv1-jbback" id="jbBack" aria-hidden="true"></div>
+
+        <div class="sv1-jhead" id="jbHead">
+          <b id="jbCount"></b>
+          <span class="sv1-jsort"><label for="jbSort">${esc(t("sortLbl"))}</label>
+            <select id="jbSort">
+              <option value="new">${esc(t("sortNew"))}</option>
+              <option value="old">${esc(t("sortOld"))}</option>
+              <option value="az">${esc(t("sortAz"))}</option>
+            </select></span>
+        </div>
+        <div class="sv1-jpills" id="jbPills"></div>
+        <p class="sv1-muted" id="hireJobsStatus">${esc(t("loading"))}</p>
+        <div id="hireJobsGrid" aria-live="polite"></div>
+      </div>
     </div>
 
   </div></section>
@@ -444,6 +609,11 @@ export function buildSimpleHiring(SV1, ctx) {
     aiWork: t("aiWork"), aiFail: t("aiFail"), aiDone: t("aiDone"),
     empty: t("empty"), emptyF: t("emptyF"), jobsFail: t("jobsFail"), loading: t("loading"),
     view: t("view"), apply: t("apply"), expY: t("expY"), yrs: t("yrs"),
+    lblCity: t("lblCity"), lblField: t("lblField"), lblType: t("lblType"), lblMode: t("lblMode"),
+    cAny: t("cAny"), fAny: t("fAny"), tAny: t("tAny"), mAny: t("mAny"),
+    resPl: t("resPl"), clearAll: t("clearAll"), filterBtn: t("filterBtn"),
+    showRes: t("showRes"), moreBtn: t("moreBtn"), qLbl: t("qLbl"),
+    noRes: t("noRes"), noResFix: t("noResFix"), noResAll: t("noResAll"),
     micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
     micQuiet: t("micQuiet"), micLong: t("micLong"), micFail: t("micFail"), micDenied: t("micDenied"),
   };
@@ -454,6 +624,8 @@ var LANG=${JSON.stringify(lang)};
 var TX=${JSON.stringify(TX)};
 var KW=${JSON.stringify(KW)};
 var CITIES=${JSON.stringify(CITIES)};
+var TY=${JSON.stringify(TY)};
+var FCOL=${JSON.stringify(fi)};
 var JOB=${JSON.stringify(u("/job") + "?id=")};
 var EMP=${JSON.stringify(u("/hr/employer"))};
 var SEEKCV=${JSON.stringify(u("/careers") + "#seeker-form")};
@@ -532,7 +704,7 @@ function setRole(r){
 up.addEventListener('click',function(e){if(up.classList.contains('off'))e.preventDefault()});
 $('hireRoleEmp').onclick=function(){setRole('emp')};
 $('hireRoleSeek').onclick=function(){setRole('seek')};
-[fSel,cSel,xSel].forEach(function(s){s.addEventListener('change',function(){markChip(s);if(jobsCache)paintBoard()})});
+[fSel,cSel,xSel].forEach(function(s){s.addEventListener('change',function(){markChip(s)})});
 
 q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(200,q.scrollHeight)+'px'});
 q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();
@@ -588,20 +760,235 @@ function filterJobs(jobs,f,c){
   if(c&&String(j.city||'').indexOf(c)<0)return false;
   return true})}
 
-function paintBoard(){
- var g=$('hireJobsGrid'),s=$('hireJobsStatus');
- s.textContent=TX.loading;s.hidden=false;
- loadJobs().then(function(jobs){
-  if(!jobs.length){g.innerHTML='';s.textContent=TX.empty;return}
-  var rows=filterJobs(jobs,fSel.value,cSel.value);
-  if(!rows.length){g.innerHTML='';s.textContent=TX.emptyF;return}
-  s.hidden=true;g.innerHTML=rows.map(jobCard).join('')
- }).catch(function(){g.innerHTML='';s.textContent=TX.jobsFail})}
+// ======== لوحة الوظائف: شريط فلترة + صفوف + فهرسة في العنوان ========
+// كل الفلترة في المتصفّح على الوظائف المحمّلة مرّةً واحدة — لا نداء شبكة لكل
+// ضغطة. والخيارات كلها مبنيّةٌ من الوظائف العائدة فعلاً: خيارٌ لا وظيفة تحته
+// لا يُعرض، وحقلٌ لا إعلان يحمله لا تظهر رقاقته أصلاً. فتصحّ الصفحة وحدها
+// كلما تحسّنت البيانات، ولا يعيد فلترٌ صفراً أبداً.
+var jbWrap=$('jbWrap'),jbList=$('hireJobsGrid'),jbSt=$('hireJobsStatus'),
+    jbBar=$('jbBar'),jbHead=$('jbHead'),jbCount=$('jbCount'),jbPills=$('jbPills'),
+    jbSortSel=$('jbSort'),jbQi=$('jbQ'),jbOpenBtn=$('jbOpen');
+var JB_PAGE=25,jbShown=JB_PAGE,jbBusy=false;
+var F={city:'',field:'',type:'',mode:'',q:'',sort:'new'};
 
-// الطبقة الثانية أسفل الصفحة، فلا تُجلب حتى يصل إليها الزائر.
+function clean(v){return String(v==null?'':v).replace(/\\s+/g,' ').trim()}
+// «الرياض | Riyadh» و«الرياض» مدينةٌ واحدة في الفلتر: ما قبل الشرطة هو الاسم.
+// التنظيف في نوشن شيء، وألّا تنكسر الواجهة إن عادت قيمةٌ متّسخة شيءٌ آخر.
+function cityKey(v){return clean(String(v==null?'':v).split('|')[0])}
+
+var FACETS=[
+ {k:'city', el:'jbCity', lbl:TX.lblCity, any:TX.cAny, ty:false, get:function(j){return cityKey(j.city)}},
+ {k:'field',el:'jbField',lbl:TX.lblField,any:TX.fAny, ty:false, get:function(j){return clean(j.field)}},
+ {k:'type', el:'jbType', lbl:TX.lblType, any:TX.tAny, ty:true,  get:function(j){return clean(j.type||j.jobType||j.employmentType)}},
+ {k:'mode', el:'jbMode', lbl:TX.lblMode, any:TX.mAny, ty:true,  get:function(j){return clean(j.mode||j.workMode)}}
+];
+
+// المفردة تُترجَم للعرض إن عرفناها، وتُعرض كما جاءت إن لم نعرفها. القيمة
+// المصفّاة والمكتوبة في العنوان هي قيمة نوشن حرفياً، لا المترجَمة.
+var TYMAP={};
+(function(){for(var i=0;i<TY.length;i++)for(var a=0;a<TY[i][0].length;a++)TYMAP[norm(TY[i][0][a])]=TY[i][1]})();
+function tyLabel(v){var r=TYMAP[norm(v)];return r?(r[FCOL]||r[1]):v}
+function jbLabel(fc,v){return fc.ty?tyLabel(v):v}
+function num(n){try{return Number(n).toLocaleString('en-US')}catch(e){return String(n)}}
+function jbN(n){
+ var PL=TX.resPl;
+ if(n===0&&PL.zero)return PL.zero;
+ var k='other';try{k=new Intl.PluralRules(LANG).select(n)}catch(e){}
+ return String(PL[k]||PL.other).replace('{n}',num(n))}
+
+function jbToks(){return norm(F.q).split(/[^\\p{L}\\p{N}]+/u).filter(function(w){return w.length>1})}
+function jbMatch(j,skip,toks){
+ for(var i=0;i<FACETS.length;i++){var fc=FACETS[i];
+  if(fc.k===skip)continue;
+  if(F[fc.k]&&fc.get(j)!==F[fc.k])return false}
+ if(toks&&toks.length){
+  var h=norm([j.title,j.description,j.company,j.field,j.city].join(' '));
+  for(var n2=0;n2<toks.length;n2++)if(h.indexOf(toks[n2])<0)return false}
+ return true}
+function jbRows(skip){var toks=jbToks();
+ return (jobsCache||[]).filter(function(j){return jbMatch(j,skip,toks)})}
+
+// تاريخ النشر: الحقل قد لا يعود من النقطة بعد، والسطر لا يُكتب إلا إذا عاد
+// تاريخٌ حقيقي — لا «قبل يوم» مخترعة. الترتيب يسقط إلى ترتيب النقطة نفسها
+// (وهي تُرجع الأحدث أولاً) حين لا تاريخ.
+function jbTime(j){var v=j.postedAt||j.posted||j.createdAt||j.created_time;
+ if(!v)return null;var t2=Date.parse(v);return isNaN(t2)?null:t2}
+var JB_LOC=(LANG==='ar'?'ar-u-nu-latn':LANG);
+function jbAgo(j){var t2=jbTime(j);if(t2==null)return '';
+ var d=Math.floor((Date.now()-t2)/86400000);if(d<0)d=0;
+ try{var r=new Intl.RelativeTimeFormat(JB_LOC,{numeric:'auto'});
+  if(d<1)return r.format(0,'day');
+  if(d<30)return r.format(-d,'day');
+  if(d<365)return r.format(-Math.floor(d/30),'month');
+  return r.format(-Math.floor(d/365),'year')}catch(e){return ''}}
+
+function jbSorted(rows){
+ var r=rows.slice();
+ if(F.sort==='az'){r.sort(function(a,b){
+  try{return String(a.title||'').localeCompare(String(b.title||''),LANG)}
+  catch(e){return String(a.title||'')<String(b.title||'')?-1:1}});return r}
+ r.sort(function(a,b){var da=jbTime(a),db=jbTime(b);
+  if(da!=null&&db!=null&&da!==db)return db-da;
+  return (a._i||0)-(b._i||0)});
+ if(F.sort==='old')r.reverse();
+ return r}
+
+function jbRow(j){
+ var href=JOB+encodeURIComponent(j.id);
+ var bits=[];
+ var co=clean(j.company);if(co)bits.push(co);
+ var ck=cityKey(j.city);if(ck)bits.push(ck);
+ var fd=clean(j.field);if(fd)bits.push(fd);
+ var meta=bits.map(function(x){return '<span>'+esc(x)+'</span>'}).join('<span class="sep" aria-hidden="true">•</span>');
+ var tp=clean(j.type||j.jobType||j.employmentType),md=clean(j.mode||j.workMode);
+ var tags=(tp?'<span class="tg">'+esc(tyLabel(tp))+'</span>':'')+(md?'<span class="tg">'+esc(tyLabel(md))+'</span>':'');
+ var ag=jbAgo(j),ds=clean(j.description);
+ return '<article class="sv1-jrow"><div class="mn">'+
+  '<h4><a href="'+href+'">'+esc(j.title)+'</a></h4>'+
+  '<p class="mt">'+meta+tags+(ag?'<span class="ag">'+esc(ag)+'</span>':'')+'</p>'+
+  (ds?'<p class="ds">'+esc(ds)+'</p>':'')+
+  '</div><div class="ac">'+
+  '<a class="sv1-btn sm" href="'+href+'">'+esc(TX.view)+'</a>'+
+  '<a class="sv1-btn sm primary" href="'+href+'#apply-form">'+esc(TX.apply)+'</a>'+
+  '</div></article>'}
+
+// العدّاد بجانب كل خيار يُحسب على بقيّة الفلاتر المفعّلة، لا على القائمة
+// كلها — فالرقم يَعِد بما ستراه فعلاً لو ضغطت.
+function jbPaintFacets(){
+ FACETS.forEach(function(fc){
+  var sel=$(fc.el),wrap=$(fc.el+'Wrap');if(!sel||!wrap)return;
+  var base=jbRows(fc.k),m={},order=[];
+  base.forEach(function(j){var v=fc.get(j);if(!v)return;
+   if(m[v]==null){m[v]=0;order.push(v)}m[v]++});
+  var list=order.map(function(v){return {v:v,n:m[v]}}).sort(function(a,b){
+   if(b.n!==a.n)return b.n-a.n;
+   try{return String(a.v).localeCompare(String(b.v),LANG)}catch(e){return 0}});
+  if(F[fc.k]&&m[F[fc.k]]==null)list.unshift({v:F[fc.k],n:0});
+  // رقاقةٌ بخيارٍ واحد يشمل كل النتائج لا تصفّي شيئاً — تُخفى حتى تصير ذات معنى.
+  var useful=list.length>1||(list.length===1&&list[0].n<base.length);
+  show(wrap,!!F[fc.k]||useful);
+  var h='<option value="">'+esc(fc.any)+'</option>';
+  list.forEach(function(o){h+='<option value="'+esc(o.v)+'">'+esc(jbLabel(fc,o.v))+' ('+num(o.n)+')</option>'});
+  sel.innerHTML=h;sel.value=F[fc.k]||'';
+  wrap.classList.toggle('set',!!F[fc.k])})}
+
+function jbActive(){
+ var a=[];
+ FACETS.forEach(function(fc){if(F[fc.k])a.push({k:fc.k,lbl:fc.lbl,v:jbLabel(fc,F[fc.k])})});
+ if(F.q)a.push({k:'q',lbl:TX.qLbl,v:F.q});
+ return a}
+
+function jbPill(k,lbl,v){
+ return '<button type="button" class="sv1-jpill" data-c="'+esc(k)+'">'+
+  '<b>'+esc(lbl)+':</b> '+esc(v)+'<span class="x" aria-hidden="true">×</span></button>'}
+
+function jbPaintPills(){
+ var a=jbActive(),h='';
+ a.forEach(function(x){h+=jbPill(x.k,x.lbl,x.v)});
+ if(a.length)h+='<button type="button" class="sv1-jclear" data-c="*">'+esc(TX.clearAll)+'</button>';
+ jbPills.innerHTML=h;show(jbPills,!!a.length);
+ if(jbOpenBtn)jbOpenBtn.textContent=TX.filterBtn+(a.length?' ('+num(a.length)+')':'')}
+
+// لا فراغ صامت: الرسالة تسمّي الفلتر الذي أفرغ القائمة وتعطي زرّاً يرفعه.
+function jbNone(){
+ var best=[];
+ jbActive().forEach(function(x){
+  var save=F[x.k];F[x.k]='';
+  var n=jbRows(null).length;
+  F[x.k]=save;
+  if(n>0)best.push({x:x,n:n})});
+ best.sort(function(p2,q2){return q2.n-p2.n});
+ var h='<div class="sv1-jnone"><p>'+esc(TX.noRes)+'</p>';
+ if(best.length){
+  h+='<p class="sub">'+esc(TX.noResFix.replace('{j}',jbN(best[0].n)))+'</p><div class="fix">';
+  best.forEach(function(b){h+=jbPill(b.x.k,b.x.lbl,b.x.v)});
+  h+='</div>'}
+ else h+='<p class="sub">'+esc(TX.noResAll)+'</p><div class="fix">'+
+  '<button type="button" class="sv1-jpill" data-c="*">'+esc(TX.clearAll)+'</button></div>';
+ return h+'</div>'}
+
+function jbRender(){
+ if(!jobsCache){jbLoad();return}
+ jobsCache.forEach(function(j,i){if(j._i==null)j._i=i});
+ if(!jobsCache.length){
+  show(jbBar,false);show(jbHead,false);show(jbPills,false);
+  jbList.innerHTML='';jbSt.hidden=false;jbSt.textContent=TX.empty;return}
+ show(jbBar,true);show(jbHead,true);jbSt.hidden=true;
+ var rows=jbSorted(jbRows(null));
+ jbPaintFacets();jbPaintPills();
+ jbCount.textContent=jbN(rows.length);
+ var ap=$('jbApply');if(ap)ap.textContent=TX.showRes+' ('+num(rows.length)+')';
+ if(!rows.length){jbList.innerHTML=jbNone();return}
+ if(jbShown<JB_PAGE)jbShown=JB_PAGE;
+ var h='<div class="sv1-jlist">'+rows.slice(0,jbShown).map(jbRow).join('')+'</div>';
+ if(rows.length>jbShown)h+='<button type="button" class="sv1-btn sv1-jmore" id="jbMore">'+
+  esc(TX.moreBtn)+' ('+num(rows.length-jbShown)+')</button>';
+ jbList.innerHTML=h;
+ var mb=$('jbMore');if(mb)mb.onclick=function(){jbShown+=JB_PAGE;jbRender()}}
+
+// الفهرسة: الفلترة تنعكس في العنوان، والعنوان يُقرأ عند الفتح — فرابط
+// «وظائف الرياض في الهندسة» يُرسل ويُحفظ ويعود لما أُرسل لأجله.
+function jbSync(){try{
+ var u=new URL(location.href);
+ ['city','field','type','mode','q'].forEach(function(k){
+  if(F[k])u.searchParams.set(k,F[k]);else u.searchParams.delete(k)});
+ if(F.sort&&F.sort!=='new')u.searchParams.set('sort',F.sort);else u.searchParams.delete('sort');
+ history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(e){}}
+
+function jbRead(){try{
+ var p2=new URL(location.href).searchParams,any=false;
+ ['city','field','type','mode','q'].forEach(function(k){
+  var v=p2.get(k);if(v==null)return;
+  F[k]=String(v).slice(0,90).trim();if(F[k])any=true});
+ var so=p2.get('sort');if(so==='old'||so==='az'){F.sort=so;any=true}
+ if(F.q)jbQi.value=F.q;
+ jbSortSel.value=F.sort;
+ return any}catch(e){return false}}
+
+function jbApplyF(){jbShown=JB_PAGE;jbRender();jbSync()}
+
+function jbLoad(){
+ if(jbBusy)return;jbBusy=true;
+ jbSt.hidden=false;jbSt.textContent=TX.loading;
+ loadJobs().then(function(){jbBusy=false;jbRender()})
+ .catch(function(){jbBusy=false;jbList.innerHTML='';jbSt.hidden=false;jbSt.textContent=TX.jobsFail})}
+
+FACETS.forEach(function(fc){var sel=$(fc.el);
+ if(sel)sel.addEventListener('change',function(){F[fc.k]=sel.value||'';jbApplyF()})});
+jbSortSel.addEventListener('change',function(){F.sort=jbSortSel.value||'new';jbApplyF()});
+var jbT=null;
+jbQi.addEventListener('input',function(){clearTimeout(jbT);
+ jbT=setTimeout(function(){F.q=jbQi.value.trim();jbApplyF()},200)});
+jbQi.addEventListener('search',function(){clearTimeout(jbT);F.q=jbQi.value.trim();jbApplyF()});
+
+function jbDrop(e){
+ var el=e.target,b=null;
+ while(el&&el!==document){if(el.getAttribute&&el.getAttribute('data-c')){b=el;break}el=el.parentNode}
+ if(!b)return;
+ var k=b.getAttribute('data-c');
+ if(k==='*'){F.city='';F.field='';F.type='';F.mode='';F.q='';jbQi.value=''}
+ else{F[k]='';if(k==='q')jbQi.value=''}
+ jbApplyF()}
+jbPills.addEventListener('click',jbDrop);
+jbList.addEventListener('click',jbDrop);
+
+// الجوال: الشريط يصير زرّ «فلترة» يفتح لوحةً سفلية — الحقول نفسها لا نسخةً
+// ثانية منها، فلا تتباعد النسختان بعد أول تعديل.
+function jbSheet(on){jbWrap.classList.toggle('open',!!on)}
+if(jbOpenBtn)jbOpenBtn.onclick=function(){jbSheet(true)};
+if($('jbClose'))$('jbClose').onclick=function(){jbSheet(false)};
+if($('jbApply'))$('jbApply').onclick=function(){jbSheet(false)};
+if($('jbBack'))$('jbBack').onclick=function(){jbSheet(false)};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')jbSheet(false)});
+
+// رابطٌ فيه فلترة يُحمّل القائمة فوراً وينزل إليها؛ وبلا فلترة لا تُجلب حتى
+// يصل إليها الزائر.
 (function(){
+ if(jbRead()){jbLoad();
+  setTimeout(function(){try{$('hireJobs').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}},80);
+  return}
  var sec=$('hireJobs'),done=false;
- function go(){if(done)return;done=true;paintBoard()}
+ function go(){if(done)return;done=true;jbLoad()}
  if(!('IntersectionObserver' in window)){go();return}
  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.disconnect();go()}})},{rootMargin:'320px'});
  io.observe(sec)})();
@@ -652,7 +1039,6 @@ $('hireForm').addEventListener('submit',function(e){
  if(!text&&!f&&!c){say(TX.needText);q.focus();return}
  if(role==='emp'&&!f&&!c){say(TX.needNarrow);fSel.focus();return}
  say('');
- if(jobsCache)paintBoard();
  if(role==='emp')searchCands(text,f,c,x);else searchJobs(text,f,c)});
 
 // ---- المطابقة الذكية: نداءٌ مدفوع، فلا يُطلق إلا بضغطة من الزائر.
