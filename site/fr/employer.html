@@ -522,6 +522,56 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-emp{padding:0 16px}
  .sv1-acct .menu{width:min(290px,calc(100vw - 40px))}
 }
+
+/* ── المطابقة الذكية وقاعدة المواهب ───────────────────────────────────────
+   شريط المكوّن يرسم رقمه ولا يزيّنه: عرض الشريط هو الدرجة نفسها المكتوبة
+   بجانبه، والمكوّن غير المقارَن يُرسم بلا شريط أصلاً — لا شريطٌ رماديّ بطول
+   نصف العمود يوحي بنصف درجة وهو يعني «لا بيانات». */
+.sv1-ff{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:0 0 16px}
+.sv1-ff>div{flex:1 1 150px;min-width:0}
+.sv1-ff label{display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px;font-weight:500}
+.sv1-ff input,.sv1-ff select{width:100%;border:1px solid var(--l);border-radius:10px;padding:9px 11px;
+ font:inherit;font-size:13px;outline:none;background:#fff;color:var(--ink)}
+.sv1-ff input:focus,.sv1-ff select:focus{border-color:var(--ac)}
+.sv1-ff .go{flex:0 0 auto}
+.sv1-mt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.sv1-mt>li{background:#fff;border:1px solid var(--l);border-radius:13px;padding:13px 15px;box-shadow:var(--sh)}
+.sv1-mt-top{display:flex;align-items:flex-start;gap:11px}
+.sv1-mt-nm{flex:1;min-width:0}
+.sv1-mt-nm b{display:block;font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+.sv1-mt-nm small{display:block;font-size:11.5px;color:var(--mut);line-height:1.7}
+.sv1-mt-sc{flex:none;text-align:center;min-width:64px}
+.sv1-mt-sc b{display:block;font-family:var(--fm);font-size:22px;font-weight:400;color:var(--ink);line-height:1.2}
+.sv1-mt-sc em{display:block;font-family:var(--fm);font-size:15px;font-style:normal;color:var(--faint);line-height:1.6}
+.sv1-mt-sc i{display:block;font-style:normal;font-size:10px;color:var(--faint);margin-top:2px}
+.sv1-mt details{margin-top:10px}
+.sv1-mt summary{cursor:pointer;font-size:11.5px;color:var(--ac);font-weight:600;list-style:none}
+.sv1-mt summary::-webkit-details-marker{display:none}
+.sv1-bars{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sv1-bar{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--s)}
+.sv1-bar>span:first-child{flex:0 0 76px;color:var(--mut)}
+.sv1-bar .tr{flex:1;min-width:0;height:6px;border-radius:999px;background:#eef1f7;overflow:hidden}
+.sv1-bar .fl{display:block;height:100%;border-radius:999px;background:var(--ac)}
+.sv1-bar .nb{flex:0 0 42px;font-family:var(--fm);font-size:11px;color:var(--ink);text-align:end}
+.sv1-bar .no{flex:1;min-width:0;color:var(--faint);font-size:11px}
+.sv1-bar .nt{flex:0 0 100%;padding-inline-start:85px;font-size:10.5px;color:var(--faint);line-height:1.6}
+.sv1-aibar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.sv1-ai-r{margin:9px 0 0;padding-top:9px;border-top:1px dashed var(--l);font-size:11.5px;color:var(--s);line-height:1.7}
+.sv1-ai-r b{color:var(--ink)}
+.sv1-pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:11px}
+.sv1-pool>div{background:#fff;border:1px solid var(--l);border-radius:13px;padding:13px 14px;box-shadow:var(--sh);
+ display:flex;flex-direction:column;gap:9px}
+.sv1-pool .hd{display:flex;gap:9px;align-items:center}
+.sv1-pool .hd b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-pool .hd small{display:block;font-size:11px;color:var(--mut);line-height:1.6}
+.sv1-tags{display:flex;flex-wrap:wrap;gap:5px}
+.sv1-tags span{font-size:10.5px;color:#5a6280;background:#eef1f7;border-radius:999px;padding:3px 8px}
+.sv1-pool .ft{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11.5px}
+.sv1-pool .ft a{color:var(--ac);text-decoration:underline;text-underline-offset:3px}
+.sv1-pool details summary{cursor:pointer;font-size:11.5px;color:var(--mut);list-style:none}
+.sv1-pool details summary::-webkit-details-marker{display:none}
+.sv1-pool details .sv1-emp-kv{margin:9px 0 0;font-size:11.5px}
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>Tous les systèmes fonctionnent</b></span>
@@ -683,9 +733,15 @@ var h0=hint();if(h0)S.paint(true,h0);
           <button type="button" data-go="jobs" id="tabJobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="7.2" width="18.4" height="13" rx="2.2"/><path d="M8.6 7.2V5.4a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M2.8 12.4h18.4"/></svg><span>Postes</span></button>
           <button type="button" data-go="apps" id="tabApps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.4 20c0-3.1 2.5-5.4 5.6-5.4s5.6 2.3 5.6 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 0 6"/><path d="M17.8 14.9c1.8.7 3 2.4 3 4.4"/></svg><span>Candidatures</span></button>
         </nav>
-        <!-- مكان المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تُضاف هنا
-             كـ<nav class="grp"> ثانية فوق الفاصل — ولا يُوضع بندٌ يفتح على
-             فراغ قبل أن تُبنى شاشته. -->
+        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. مخفيّةٌ حتى
+             يثبت أن الجلسة جلسةُ اشتراكٍ مفعّل لصاحب عمل — لا جلسةَ عميلٍ
+             فُتحت له البوابة بالتجربة المجانية. الشاشتان بابان إلى بنك
+             السير كلّه، والقديمة تفتحه برمز اشتراكٍ حقيقي وحده، فلا تُفتح
+             هنا لمن لا يفتحه له القديم. (انظر SUB في السكربت.) -->
+        <nav class="grp sv1-hidden" id="grpTalent" aria-label="Vivier de talents">
+          <button type="button" data-go="match" id="tabMatch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.6 20.6"/><path d="M8.2 10.6h4.8"/><path d="M10.6 8.2v4.8"/></svg><span>Correspondance</span></button>
+          <button type="button" data-go="pool" id="tabPool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.4" cy="7.6" r="3"/><path d="M3 19.2c0-3 2.4-5.2 5.4-5.2s5.4 2.2 5.4 5.2"/><path d="M16.2 4.6h5"/><path d="M16.2 9h5"/><path d="M16.2 13.4h5"/></svg><span>Vivier de talents</span></button>
+        </nav>
         <hr>
         <nav class="grp" aria-label="Paramètres">
           <button type="button" data-go="settings" id="tabSet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h10"/><path d="M18 7.5h2"/><path d="M4 16.5h6"/><path d="M14 16.5h6"/><circle cx="16" cy="7.5" r="2.2"/><circle cx="12" cy="16.5" r="2.2"/></svg><span>Paramètres</span></button>
@@ -753,6 +809,49 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-emp-hint sv1-hidden" id="appsHint">Faites glisser une carte vers une autre colonne, ou utilisez « Déplacer vers… ».</p>
       <p class="sv1-emp-msg sv1-hidden" id="appsMsg" role="status" aria-live="polite"></p>
       <div class="sv1-kb" id="appsBoard"></div>
+    </div>
+
+    <!-- المطابقة الذكية -->
+    <div id="scMatch" class="sv1-hidden">
+      <h3 class="sv1-emp-h">Correspondance intelligente</h3>
+      <p class="sv1-emp-sub">Choisissez un de vos postes : chaque candidat de ce domaine est comparé champ par champ, et chaque score indique son calcul.</p>
+      <div class="sv1-ff">
+        <div><label for="mtJob">Poste</label><select id="mtJob"></select></div>
+        <div class="go"><button type="button" class="sv1-btn primary" id="mtRun">Analyser les candidats</button></div>
+      </div>
+      <details style="margin:0 0 16px">
+        <summary class="sv1-emp-link" style="text-decoration:none">Comment le score est calculé</summary>
+        <p class="sv1-emp-hint" style="margin:9px 0 0">Quatre champs sont comparés, chacun avec le poids fixe ci-dessous. Un champ absent n'est ni comparé ni noté : son poids sort du calcul.</p>
+        <div class="sv1-bars" id="mtWeights"></div>
+      </details>
+      <p class="sv1-emp-sub" id="mtStatus">Appuyez sur « Analyser les candidats » : rien n'est chargé avant votre clic.</p>
+      <div class="sv1-aibar sv1-hidden" id="mtAiBar">
+        <button type="button" class="sv1-btn sm" id="mtAi">✦ Classer par IA</button>
+        <span class="sv1-emp-msg" id="mtAiMsg" style="margin:0"></span>
+      </div>
+      <p class="sv1-emp-hint sv1-hidden" id="mtAiNote">Seuls le poste, le domaine, la ville, l'expérience, la formation et les compétences sont envoyés — ni nom, ni téléphone, ni e-mail, ni CV.</p>
+      <ul class="sv1-mt" id="mtList"></ul>
+    </div>
+
+    <!-- قاعدة المواهب -->
+    <div id="scPool" class="sv1-hidden">
+      <h3 class="sv1-emp-h">Vivier de talents</h3>
+      <p class="sv1-emp-sub">La banque de CV de la plateforme. Recherchez par domaine, ville et nationalité — chargée page par page.</p>
+      <div class="sv1-ff">
+        <div style="flex:2 1 220px"><label for="tpQ">Rechercher par poste ou compétence</label>
+          <input id="tpQ" type="search" autocomplete="off" spellcheck="false" maxlength="80"></div>
+        <div><label for="tpField">Domaine</label><select id="tpField"><option value="">— choisir —</option><option value="هندسة">هندسة</option><option value="تقنية معلومات">تقنية معلومات</option><option value="مبيعات وتسويق">مبيعات وتسويق</option><option value="محاسبة ومالية">محاسبة ومالية</option><option value="إداري وسكرتارية">إداري وسكرتارية</option><option value="موارد بشرية">موارد بشرية</option><option value="ضيافة وسياحة">ضيافة وسياحة</option><option value="مقاولات وإنشاءات">مقاولات وإنشاءات</option><option value="عقارات">عقارات</option><option value="صحة وطب">صحة وطب</option><option value="تعليم">تعليم</option><option value="لوجستيات ونقل">لوجستيات ونقل</option><option value="قانون">قانون</option><option value="تصنيع وصناعة">تصنيع وصناعة</option><option value="طاقة ونفط وغاز">طاقة ونفط وغاز</option><option value="إعلام وإبداع">إعلام وإبداع</option><option value="حكومي وقطاع عام">حكومي وقطاع عام</option><option value="زراعة وبيئة">زراعة وبيئة</option><option value="تجزئة وتجارة إلكترونية">تجزئة وتجارة إلكترونية</option><option value="أمن وسلامة">أمن وسلامة</option><option value="حرف مهنية وصيانة">حرف مهنية وصيانة</option><option value="علوم وأبحاث">علوم وأبحاث</option><option value="طيران وبحري">طيران وبحري</option><option value="تجميل وعناية">تجميل وعناية</option><option value="خدمات منزلية">خدمات منزلية</option><option value="أخرى">أخرى</option></select></div>
+        <div><label for="tpCity">Ville</label><input id="tpCity" maxlength="60" autocomplete="off"></div>
+        <div><label for="tpNat">Nationalité</label><select id="tpNat">
+          <option value="">— tous —</option>
+          <option value="سعودي">Saoudien</option>
+          <option value="غير سعودي">Non-saoudien</option>
+        </select></div>
+        <div class="go"><button type="button" class="sv1-btn primary" id="tpGo">Rechercher</button></div>
+      </div>
+      <p class="sv1-emp-sub" id="tpStatus">Chargement…</p>
+      <div class="sv1-pool" id="tpGrid"></div>
+      <p style="margin:16px 0 0"><button type="button" class="sv1-btn sm sv1-hidden" id="tpMore">Poursuivre dans le vivier</button></p>
     </div>
 
     <!-- ملف المرشّح -->
@@ -880,7 +979,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"Espace employeur","desc":"Publiez un poste, recevez les candidatures et suivez-les jusqu'à l'offre — en une seule page.","loginH":"Connectez-vous à votre espace","loginP":"Saisissez l'e-mail de votre entreprise : un code à usage unique vous sera envoyé.","emailL":"Adresse e-mail","sendOtp":"Envoyer le code","sending":"Envoi…","otpSent":"Code à 6 chiffres envoyé à","otpL":"Code","otpGo":"Entrer","otpBack":"← Autre e-mail","pwOpen":"Se connecter avec un mot de passe","otpOpen":"← Se connecter par code e-mail","pwH":"Connexion par mot de passe","pwL":"Mot de passe","pwGo":"Connexion","forgot":"Mot de passe oublié","rsH":"Réinitialiser le mot de passe","rsSend":"Envoyer le code","rsCodeL":"Code de réinitialisation","rsNewL":"Nouveau mot de passe (8+ caractères)","rsGo":"Définir le mot de passe","noSub":"Cet e-mail n'a pas d'abonnement actif. L'activation est manuelle après paiement — contactez-nous.","register":"Pas encore abonné ? Inscrivez votre entreprise","pendSub":"Votre e-mail est enregistré mais l’abonnement n’est pas encore actif — statut actuel : « {s} ». L’activation est manuelle après paiement : écrivez à business@businesspartner.sa.","empErr":"Impossible de vérifier votre abonnement pour l’instant — le problème vient de chez nous. Réessayez dans une minute ou écrivez à business@businesspartner.sa.","noCodeE":"Votre abonnement est actif mais sans code d’accès ; le tableau de bord ne peut pas s’ouvrir. Écrivez à business@businesspartner.sa.","portalW":"Vous êtes connecté avec un compte Business Partner, sans abonnement employeur actif (statut : « {s} »). Ce que vous publiez ici n’apparaîtra pas avec les postes de votre abonnement.","eEmail":"Saisissez un e-mail valide.","eSend":"Impossible d'envoyer le code. Réessayez ou utilisez un mot de passe.","eOtp":"Code incorrect ou expiré.","eNoSess":"Impossible d'ouvrir la session. Connectez-vous avec un mot de passe.","ePw":"E-mail ou mot de passe incorrect.","eWeak":"Mot de passe trop court — 8 caractères minimum.","eNet":"Échec de connexion. Actualisez et réessayez.","eSave":"Échec de l'enregistrement. Réessayez.","navJobs":"Mes postes","navNew":"Publier un poste","navApps":"Candidatures","sideHome":"Accueil","sideJobs":"Postes","sideApps":"Candidatures","sideSet":"Paramètres","sideFold":"Réduire le menu","sideMenu":"Menu","acct":"Compte","logout":"Se déconnecter","acctPw":"Changer le mot de passe","acctPh":"Numéro de mobile","acctSave":"Enregistrer","acctOk":"Enregistré.","acctPhNo":"La modification du numéro nécessite la connexion par code e-mail.","acctPwNo":"Changez votre mot de passe via « Mot de passe oublié » sur l'écran de connexion.","plan":"Forfait","homeH":"Vue d'ensemble","homeSub":"Chaque chiffre ici est calculé à partir de vos postes et candidatures — aucune estimation.","kActive":"Postes actifs","kAll":"Total des candidatures","kAllN":"sur les postes affichés dans votre tableau","kNew":"Nouveaux (7 derniers jours)","kNewN":"selon la date d'inscription","kJobsN":"sur {n} au total","pipeH":"Pipeline","pipeSub":"Nombre de candidats par étape — cliquez pour ouvrir le tableau.","emptyH":"Votre tableau de bord est prêt — il ne manque qu'un poste","emptyP":"Publiez votre premier poste et ces chiffres se rempliront d'eux-mêmes : chaque candidature arrive ici.","emptyGo":"Publier le premier poste","numWait":"Comptage…","numFail":"Impossible de compter les candidatures.","searchPh":"Rechercher dans vos postes et candidats","searchNo":"Aucun résultat dans les données chargées","searchJ":"Postes","searchC":"Candidats","searchMr":"et {n} de plus","thTitle":"Intitulé","thCity":"Ville","thField":"Domaine","thType":"Type","thApps":"Candidatures","thStat":"Statut","thDate":"Publié le","thActs":"Actions","setH":"Paramètres","setSub":"Le compte de votre entreprise.","setCo":"Entreprise","langL":"Langue","jobsH":"Mes postes","loading":"Chargement…","jobsNone":"Aucun poste. Publiez le premier : il paraîtra sur la page emplois en quelques minutes.","stActive":"Active","stClosed":"Clôturé","edit":"Modifier","closeJob":"Clôturer","closeAsk":"Clôturer ce poste ? Il disparaît de la page emplois.","viewJob":"Annonce publique","newH":"Publier un poste","editH":"Modifier le poste","fTitle":"Intitulé du poste","fCity":"Ville","fField":"Domaine","fFieldN":"— choisir —","fType":"Type de contrat","fMode":"Mode de travail","fAny":"— non précisé —","fDesc":"Description et exigences","aiWrite":"✦ Rédiger la description","aiWork":"Rédaction…","aiNeed":"Saisissez d'abord l'intitulé.","aiFail":"Rédaction impossible — écrivez la description vous-même.","publish":"Publier","saveJob":"Enregistrer","saving":"Enregistrement…","published":"Publié.","eFields":"L'intitulé et la description sont obligatoires.","cancel":"Annuler","appsH":"Candidatures","appsNone":"Aucune candidature pour l'instant.","appsAll":"Tous les postes","appsN":"candidats","appsCut":"La liste est longue et tronquée — actualisez pour voir la suite.","open":"Ouvrir le profil","moveTo":"Déplacer vers…","moving":"Déplacement…","moveOk":"Déplacé vers","moveFail":"Échec du déplacement — la carte est revenue dans sa colonne. Réessayez.","boardHint":"Faites glisser une carte vers une autre colonne, ou utilisez « Déplacer vers… ».","colEmpty":"Personne à cette étape","more":"Afficher plus","matchS":"Correspondance","profBack":"← Retour aux candidatures","stage":"Étape","sNew":"Nouveau","sReview":"Présélection","sShort":"Présélectionné","sInt":"Entretien","sOffer":"Offre","sHired":"Recruté","sRej":"Refusé","sFuture":"En attente","fRole":"Poste","fCityL":"Ville","fExp":"Expérience","fYears":"ans","fSkills":"Compétences","fPhone":"Mobile","fEmail":"E-mail","fCv":"CV","cvOpen":"Ouvrir le fichier","reqH":"Demander un entretien","reqP":"Nous organisons le rendez-vous avec le candidat et revenons vers vous.","reqPref":"Créneau souhaité (facultatif)","reqMode":"Format de l'entretien","mIn":"En présentiel","mOn":"En ligne","mPh":"Téléphone","reqGo":"Envoyer la demande","reqOk":"Demande reçue — nous revenons vers vous avec le rendez-vous.","reqWork":"Envoi…"},HOME="/fr/employer",JOB="/fr/job?id=";
+var TX={"title":"Espace employeur","desc":"Publiez un poste, recevez les candidatures et suivez-les jusqu'à l'offre — en une seule page.","loginH":"Connectez-vous à votre espace","loginP":"Saisissez l'e-mail de votre entreprise : un code à usage unique vous sera envoyé.","emailL":"Adresse e-mail","sendOtp":"Envoyer le code","sending":"Envoi…","otpSent":"Code à 6 chiffres envoyé à","otpL":"Code","otpGo":"Entrer","otpBack":"← Autre e-mail","pwOpen":"Se connecter avec un mot de passe","otpOpen":"← Se connecter par code e-mail","pwH":"Connexion par mot de passe","pwL":"Mot de passe","pwGo":"Connexion","forgot":"Mot de passe oublié","rsH":"Réinitialiser le mot de passe","rsSend":"Envoyer le code","rsCodeL":"Code de réinitialisation","rsNewL":"Nouveau mot de passe (8+ caractères)","rsGo":"Définir le mot de passe","noSub":"Cet e-mail n'a pas d'abonnement actif. L'activation est manuelle après paiement — contactez-nous.","register":"Pas encore abonné ? Inscrivez votre entreprise","pendSub":"Votre e-mail est enregistré mais l’abonnement n’est pas encore actif — statut actuel : « {s} ». L’activation est manuelle après paiement : écrivez à business@businesspartner.sa.","empErr":"Impossible de vérifier votre abonnement pour l’instant — le problème vient de chez nous. Réessayez dans une minute ou écrivez à business@businesspartner.sa.","noCodeE":"Votre abonnement est actif mais sans code d’accès ; le tableau de bord ne peut pas s’ouvrir. Écrivez à business@businesspartner.sa.","portalW":"Vous êtes connecté avec un compte Business Partner, sans abonnement employeur actif (statut : « {s} »). Ce que vous publiez ici n’apparaîtra pas avec les postes de votre abonnement.","eEmail":"Saisissez un e-mail valide.","eSend":"Impossible d'envoyer le code. Réessayez ou utilisez un mot de passe.","eOtp":"Code incorrect ou expiré.","eNoSess":"Impossible d'ouvrir la session. Connectez-vous avec un mot de passe.","ePw":"E-mail ou mot de passe incorrect.","eWeak":"Mot de passe trop court — 8 caractères minimum.","eNet":"Échec de connexion. Actualisez et réessayez.","eSave":"Échec de l'enregistrement. Réessayez.","navJobs":"Mes postes","navNew":"Publier un poste","navApps":"Candidatures","sideHome":"Accueil","sideJobs":"Postes","sideApps":"Candidatures","sideSet":"Paramètres","sideFold":"Réduire le menu","sideMenu":"Menu","acct":"Compte","logout":"Se déconnecter","acctPw":"Changer le mot de passe","acctPh":"Numéro de mobile","acctSave":"Enregistrer","acctOk":"Enregistré.","acctPhNo":"La modification du numéro nécessite la connexion par code e-mail.","acctPwNo":"Changez votre mot de passe via « Mot de passe oublié » sur l'écran de connexion.","plan":"Forfait","homeH":"Vue d'ensemble","homeSub":"Chaque chiffre ici est calculé à partir de vos postes et candidatures — aucune estimation.","kActive":"Postes actifs","kAll":"Total des candidatures","kAllN":"sur les postes affichés dans votre tableau","kNew":"Nouveaux (7 derniers jours)","kNewN":"selon la date d'inscription","kJobsN":"sur {n} au total","pipeH":"Pipeline","pipeSub":"Nombre de candidats par étape — cliquez pour ouvrir le tableau.","emptyH":"Votre tableau de bord est prêt — il ne manque qu'un poste","emptyP":"Publiez votre premier poste et ces chiffres se rempliront d'eux-mêmes : chaque candidature arrive ici.","emptyGo":"Publier le premier poste","numWait":"Comptage…","numFail":"Impossible de compter les candidatures.","searchPh":"Rechercher dans vos postes et candidats","searchNo":"Aucun résultat dans les données chargées","searchJ":"Postes","searchC":"Candidats","searchMr":"et {n} de plus","thTitle":"Intitulé","thCity":"Ville","thField":"Domaine","thType":"Type","thApps":"Candidatures","thStat":"Statut","thDate":"Publié le","thActs":"Actions","setH":"Paramètres","setSub":"Le compte de votre entreprise.","setCo":"Entreprise","langL":"Langue","jobsH":"Mes postes","loading":"Chargement…","jobsNone":"Aucun poste. Publiez le premier : il paraîtra sur la page emplois en quelques minutes.","stActive":"Active","stClosed":"Clôturé","edit":"Modifier","closeJob":"Clôturer","closeAsk":"Clôturer ce poste ? Il disparaît de la page emplois.","viewJob":"Annonce publique","newH":"Publier un poste","editH":"Modifier le poste","fTitle":"Intitulé du poste","fCity":"Ville","fField":"Domaine","fFieldN":"— choisir —","fType":"Type de contrat","fMode":"Mode de travail","fAny":"— non précisé —","fDesc":"Description et exigences","aiWrite":"✦ Rédiger la description","aiWork":"Rédaction…","aiNeed":"Saisissez d'abord l'intitulé.","aiFail":"Rédaction impossible — écrivez la description vous-même.","publish":"Publier","saveJob":"Enregistrer","saving":"Enregistrement…","published":"Publié.","eFields":"L'intitulé et la description sont obligatoires.","cancel":"Annuler","appsH":"Candidatures","appsNone":"Aucune candidature pour l'instant.","appsAll":"Tous les postes","appsN":"candidats","appsCut":"La liste est longue et tronquée — actualisez pour voir la suite.","open":"Ouvrir le profil","moveTo":"Déplacer vers…","moving":"Déplacement…","moveOk":"Déplacé vers","moveFail":"Échec du déplacement — la carte est revenue dans sa colonne. Réessayez.","boardHint":"Faites glisser une carte vers une autre colonne, ou utilisez « Déplacer vers… ».","colEmpty":"Personne à cette étape","more":"Afficher plus","matchS":"Correspondance","profBack":"← Retour aux candidatures","stage":"Étape","sNew":"Nouveau","sReview":"Présélection","sShort":"Présélectionné","sInt":"Entretien","sOffer":"Offre","sHired":"Recruté","sRej":"Refusé","sFuture":"En attente","fRole":"Poste","fCityL":"Ville","fExp":"Expérience","fYears":"ans","fSkills":"Compétences","fPhone":"Mobile","fEmail":"E-mail","fCv":"CV","cvOpen":"Ouvrir le fichier","reqH":"Demander un entretien","reqP":"Nous organisons le rendez-vous avec le candidat et revenons vers vous.","reqPref":"Créneau souhaité (facultatif)","reqMode":"Format de l'entretien","mIn":"En présentiel","mOn":"En ligne","mPh":"Téléphone","reqGo":"Envoyer la demande","reqOk":"Demande reçue — nous revenons vers vous avec le rendez-vous.","reqWork":"Envoi…","sideMatch":"Correspondance","sidePool":"Vivier de talents","matchH":"Correspondance intelligente","matchSub":"Choisissez un de vos postes : chaque candidat de ce domaine est comparé champ par champ, et chaque score indique son calcul.","matchJobL":"Poste","matchRun":"Analyser les candidats","matchWork":"Analyse en cours…","matchNoJ":"Vous n'avez encore aucun poste. Publiez-en un, puis revenez : la correspondance se fait sur un poste réel.","matchRead":"Appuyez sur « Analyser les candidats » : rien n'est chargé avant votre clic.","matchDone":"{n} candidats analysés","matchFld":"dans le domaine « {f} »","matchCap":"et le vivier est plus grand — affinez par le domaine du poste.","matchNone":"Aucun candidat dans ce domaine.","matchErr":"Impossible de charger les candidats. Réessayez.","wH":"Comment le score est calculé","wP":"Quatre champs sont comparés, chacun avec le poids fixe ci-dessous. Un champ absent n'est ni comparé ni noté : son poids sort du calcul.","cField":"Domaine","cRole":"Intitulé","cSkills":"Compétences","cCity":"Ville","cSame":"identique","cDiff":"différent","cOf":"{a} sur {b}","cNoJob":"votre poste n'a pas ce champ","cNoCand":"le profil du candidat n'a pas ce champ","cSkipped":"non comparé","scoreL":"Score","scoreNo":"aucun champ commun à comparer","detailsL":"Détail du calcul","aiH":"✦ Classer par IA","aiWorkR":"Classement…","aiNote":"Seuls le poste, le domaine, la ville, l'expérience, la formation et les compétences sont envoyés — ni nom, ni téléphone, ni e-mail, ni CV.","aiRanked":"L'IA a classé {a} des {b} analysés","aiScoreL":"Classement IA","aiFailR":"Le classement IA a échoué — le score calculé ci-dessus est inchangé.","aiOffR":"Le classement IA n'est pas configuré sur ce serveur.","poolH":"Vivier de talents","poolSub":"La banque de CV de la plateforme. Recherchez par domaine, ville et nationalité — chargée page par page.","poolQ":"Rechercher par poste ou compétence","poolCity":"Ville","poolNat":"Nationalité","poolAny":"— tous —","poolSa":"Saoudien","poolNon":"Non-saoudien","poolGo":"Rechercher","poolN":"{n} candidats","moreL":"Détails","poolSo":"{n} candidats jusqu'ici","poolMore":"Poursuivre dans le vivier","poolEnd":"Fin des résultats correspondants.","poolNone":"Aucun résultat. Élargissez la recherche.","poolErr":"Impossible de charger la banque de CV. Réessayez.","poolCv":"CV","dEdu":"Formation","dLang":"Langues","dAvail":"Disponibilité","dRegion":"Expérience régionale","dRes":"Statut de résidence","dNatT":"Type de nationalité"},HOME="/fr/employer",JOB="/fr/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -892,7 +991,7 @@ function j(r){return r.json().catch(function(){return{}})}
 // من صفّ نوشن، والمتصفّح لا يراه ولا يخزّنه. mode 'code' = الدخول بكلمة
 // المرور، والرمز الذي يعيده /api/employer يبقى في الذاكرة وحدها: لا
 // localStorage ولا sessionStorage ولا شاشة تعرضه. إغلاق التبويب يمحوه.
-var AUTH=null, CO='', PLAN='';
+var AUTH=null, CO='', PLAN='', SUB=false;
 function authCode(){return AUTH&&AUTH.mode==='code'?AUTH.code:'self'}
 function get(qs){return fetch('/api/candidates?'+qs+'&code='+encodeURIComponent(authCode()),
  {credentials:'same-origin'}).then(j)}
@@ -919,6 +1018,20 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 //     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
 //   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
 //     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+// مَن يرى بنك السير كلّه.
+//
+// ‏GET /api/candidates يعيد — لمن فُتح له — اسمَ كل مرشّح في القاعدة وجوّاله
+// وبريده وسيرته، لا متقدّميه هو وحدهم. وهذا هو المنتج: بنك السير يُباع
+// باشتراك (انظر رأس api/candidates.js). لكنّ الخادم يفتحه أيضاً لجلسة عميلٍ
+// في التجربة المجانية للمنصّة (portalUnlock) — وهي جلسةٌ ليست اشتراك صاحب
+// عمل أصلاً، ولوحة hr-app.js القديمة لا تفتح لها قاعدة المواهب ولا المطابقة
+// (تشترط hrRealCode، أي رمز اشتراكٍ حقيقياً).
+//
+// فالشرط هنا: اشتراكٌ حقيقي — إمّا صفٌّ «مفعّل» حُلّ من البريد المُثبت
+// (‏account)، وإمّا دخولٌ برمز وصولٍ صالح عبر كلمة المرور (لا account ولا
+// portal). وجلسة العميل (portal) تبقى على شاشاتها الخمس كما كانت. لا نوسّع
+// بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
+function applySub(d){SUB=!!(d&&d.unlocked&&!d.portal);show($('grpTalent'),SUB)}
 function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
  var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
    :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
@@ -1019,7 +1132,7 @@ function enter(){
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
-  warnBar(d);
+  applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
  }).catch(function(){AUTH=null;err(TX.eNet)})}
@@ -1028,9 +1141,10 @@ function enter(){
 // جدولٌ واحد: المفتاح ← الشاشة ← بند الشريط الجانبي الذي يضيء معها. كانت
 // ثلاثة أسطر متوازية لكل شاشة، فإضافة شاشةٍ رابعة تعني ثلاثة مواضع يُنسى
 // أحدها — وقد نُسي: ملف المرشّح كان يطفئ الأزرار بقائمة مكتوبة بيدها.
-var loaded={jobs:false,apps:false};
+var loaded={jobs:false,apps:false,pool:false};
 var SC=[['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
- ['apps','scApps','tabApps'],['settings','scSettings','tabSet']];
+ ['apps','scApps','tabApps'],['match','scMatch','tabMatch'],['pool','scPool','tabPool'],
+ ['settings','scSettings','tabSet']];
 function navOn(k){SC.forEach(function(s){var b=$(s[2]);if(!b)return;
  var on=s[0]===k;b.classList.toggle('on',on);
  if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
@@ -1042,10 +1156,17 @@ function route(){
  if(sc==='c'){openCand(h.split('/').slice(1).join('/'));return}
  var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
  if(!known)sc='home';
+ // البابان المؤدّيان إلى بنك السير لا يُفتحان إلا باشتراك صاحب عملٍ مفعّل،
+ // ولا بكتابة ‎#/pool‎ في شريط العنوان: الشرط هنا لا في الزرّ وحده.
+ if((sc==='match'||sc==='pool')&&!SUB)sc='home';
  hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
  navOn(sc);
  if(sc==='home')loadHome();
  if(sc==='jobs'&&!loaded.jobs)loadJobs();
+ // المطابقة لا تجلب شيئاً بفتحها — تملأ قائمة الإعلانات من المحمَّل وتنتظر
+ // ضغطة «حلّل». وقاعدة المواهب تجلب صفحتها الأولى عند أول فتح وحده.
+ if(sc==='match')openMatch();
+ if(sc==='pool'&&!loaded.pool)loadPool(true);
  // عودةٌ إلى اللوحة بعد تغيير المرحلة من ملف المرشّح: تُرسم من النموذج
  // المحلي، بلا نداءٍ جديد — وإلا بقيت البطاقة في عمودها القديم.
  if(sc==='apps'){if(!loaded.apps)loadApps();else if(flat.length)drawApps()}
@@ -1164,7 +1285,7 @@ function loadJobs(){
  post('/api/candidates',{action:'list-postings'}).then(function(d){
   if(!d||!d.ok){loaded.jobs=false;jobsState='err';
    $('jobsStatus').textContent=TX.eNet;drawHome();return}
-  postings=d.postings||[];jobsState='ok';drawJobs();drawHome()
+  postings=d.postings||[];jobsState='ok';drawJobs();drawHome();fillMtJobs()
  }).catch(function(){loaded.jobs=false;jobsState='err';
   $('jobsStatus').textContent=TX.eNet;drawHome()})}
 
@@ -1499,6 +1620,248 @@ function openCand(id){
 
 $('candBack').onclick=function(){location.hash='#/apps'};
 
+// ── المطابقة الذكية ───────────────────────────────────────────────────────
+// ⚠️ الأوزان ثابتةٌ هنا ولا تُحفظ في جهاز أحد. القديمة (hr-app.js) تكتبها في
+// localStorage تحت bp_hr_match_weights، فيرى زميلان في الشركة نفسها درجتين
+// مختلفتين للمرشّح نفسه على الإعلان نفسه، وتضيع الأوزان بتغيير المتصفّح أو
+// الجهاز. ودرجةٌ تتغيّر بتغيّر المتصفّح ليست رقماً يُبنى عليه قرار توظيف —
+// وهذه بوابةٌ لا تكتب شيئاً في جهاز من يفتحها أصلاً.
+//
+// وأربعة مكوّنات لا تسعة. القديمة تزن تسعة، وخمسةٌ منها بلا بياناتٍ على
+// الطرفين في الواقع: الراتب المتوقع ومدة الإشعار وتصريح العمل لا تُعاد في
+// قائمة المرشحين أصلاً، والإعلان في قاعدة الإعلانات بلا سنوات خبرةٍ ولا
+// لغاتٍ ولا مهاراتٍ مطلوبة. فتأخذ كلٌّ منها درجةً ثابتة (55 «غير معروف»)
+// وتدخل في المعدّل — أي أن أكثر من نصف «الدرجة الموزونة» فيها رقمٌ غير
+// محسوب. هنا يُقارَن ما في السجلّين فعلاً، والحقل الذي لا قيمة له في أحدهما
+// يخرج وزنه من القسمة ويُقال باسمه بدل أن يُملأ بافتراض.
+var WD=[['field',TX.cField,30],['role',TX.cRole,30],['skills',TX.cSkills,25],['city',TX.cCity,15]];
+var SPLIT=/[،,؛;\/|]/;
+// تسويةٌ عربية خفيفة: التشكيل والتطويل، وأشكال الألف، والتاء المربوطة،
+// والألف المقصورة. بدونها «الریاض» و«الرياض» مدينتان، و«محاسبه» و«محاسبة»
+// مهارتان.
+function nz(s){return String(s==null?'':s).toLowerCase()
+ .replace(/[\u064B-\u0652\u0640]/g,'')
+ .replace(/[\u0622\u0623\u0625]/g,'\u0627')
+ .replace(/\u0629/g,'\u0647').replace(/\u0649/g,'\u064A')
+ .replace(/\s+/g,' ').trim()}
+function toks(s){return nz(s).split(/[^0-9a-z\u0600-\u06FF]+/)
+ .filter(function(w){return w.length>2})}
+
+function cmpOne(job,c){
+ var r={},no=function(side){return {no:side?TX.cNoJob:TX.cNoCand}};
+ // المجال: الطرفان يختاران من القائمة نفسها (FIELD_OPTIONS)، فالمقارنة حرفية.
+ if(!job.field)r.field=no(1);else if(!c.field)r.field=no(0);
+ else{var fs=nz(job.field)===nz(c.field);
+  r.field={s:fs?100:0,note:(fs?TX.cSame:TX.cDiff)+' — '+(c.field||'')}}
+ // المسمّى: كم كلمةً من مسمّى إعلانك ترد في مسمّى المرشّح.
+ var jt=toks(job.title),cr=nz(c.role);
+ if(!jt.length)r.role=no(1);else if(!cr)r.role=no(0);
+ else{var h=0;jt.forEach(function(w){if(cr.indexOf(w)>=0)h++});
+  r.role={s:Math.round(h/jt.length*100),
+   note:TX.cOf.replace('{a}',h).replace('{b}',jt.length)+' — '+(c.role||'')}}
+ // المهارات: كم مهارةً يذكرها المرشّح ترد في نصّ إعلانك (العنوان والوصف).
+ // الإعلان لا يحمل قائمة مهاراتٍ مطلوبة في قاعدته، فالنصّ هو ما نملك —
+ // ولا تُخترع للوظيفة مهاراتٌ من جدولٍ بالمسمّى كما تفعل القديمة.
+ var jd=nz((job.title||'')+' '+(job.description||''));
+ var sk=[],seen={};String(c.skills||'').split(SPLIT).forEach(function(x){
+  var raw=String(x||'').trim(),v=nz(x);
+  if(v.length>1&&!seen[v]){seen[v]=1;sk.push([raw,v])}});
+ if(!jd)r.skills=no(1);else if(!sk.length)r.skills=no(0);
+ else{var hs=[];sk.forEach(function(x){if(jd.indexOf(x[1])>=0)hs.push(x[0])});
+  r.skills={s:Math.round(hs.length/sk.length*100),
+   note:TX.cOf.replace('{a}',hs.length).replace('{b}',sk.length)+
+    (hs.length?' — '+hs.slice(0,5).join(' · '):'')}}
+ // المدينة
+ if(!job.city)r.city=no(1);else if(!c.city)r.city=no(0);
+ else{var cs=nz(job.city)===nz(c.city);
+  r.city={s:cs?100:0,note:(cs?TX.cSame:TX.cDiff)+' — '+(c.city||'')}}
+ var t=0,w=0;
+ WD.forEach(function(d){var x=r[d[0]];if(x&&x.s!=null){t+=x.s*d[2];w+=d[2]}});
+ return {comp:r,score:w?Math.round(t/w):null}}
+
+function drawWeights(){var el=$('mtWeights');if(!el||el.innerHTML)return;
+ el.innerHTML=WD.map(function(d){
+  return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+   '<span class="tr"><i class="fl" style="width:'+d[2]+'%"></i></span>'+
+   '<span class="nb">'+d[2]+'%</span></div>'}).join('')}
+
+var mtJobs=[],mtJob=null,mtRes=null;
+function fillMtJobs(){
+ var sel=$('mtJob');if(!sel||jobsState!=='ok')return;
+ // الإعلانات النشطة في قاعدتنا وحدها: المغلقة لا يُطابَق عليها، وإعلانات
+ // صفحة الوظائف الثابتة ليست صفوفاً تُقارن ولا وصف لها هنا.
+ mtJobs=[];postings.forEach(function(p){if(p.status!=='مغلقة'&&!p.site)mtJobs.push(p)});
+ sel.innerHTML=mtJobs.map(function(p,i){
+  return '<option value="'+i+'">'+esc((p.title||'—')+(p.city?' — '+p.city:''))+'</option>'}).join('');
+ var none=!mtJobs.length;sel.disabled=none;$('mtRun').disabled=none;
+ if(none&&!mtRes)$('mtStatus').textContent=TX.matchNoJ}
+
+function openMatch(){drawWeights();if(!loaded.jobs)loadJobs();else fillMtJobs()}
+
+// سقفٌ مكتوب: أربع صفحاتٍ أو أربعمئة مرشّح، أيّهما أوّل. الترجيح يجري في
+// المتصفّح، وبلا سقفٍ يُجمّد جوّالاً على قاعدةٍ من آلاف الصفوف. وما لم يُبلَغ
+// فيه آخر القاعدة يُقال صراحةً تحت النتائج.
+var MCAP=400,MSTEP=4;
+$('mtRun').onclick=function(){
+ var p=mtJobs[+$('mtJob').value];if(!p)return;
+ var b=$('mtRun');b.disabled=true;b.textContent=TX.matchWork;
+ $('mtStatus').textContent=TX.matchWork;$('mtList').innerHTML='';
+ show($('mtAiBar'),false);show($('mtAiNote'),false);$('mtAiMsg').textContent='';
+ mtRes=null;mtJob=p;
+ var pool=[],steps=0,f=p.field||'';
+ function fail(){b.disabled=false;b.textContent=TX.matchRun;
+  $('mtStatus').textContent=TX.matchErr}
+ function step(cur){
+  get('field='+encodeURIComponent(f)+(cur?'&cursor='+encodeURIComponent(cur):''))
+  .then(function(d){
+   if(!d||!d.ok){fail();return}
+   (d.candidates||[]).forEach(function(c){pool.push(c)});
+   steps++;
+   if(pool.length<MCAP&&!d.done&&d.nextCursor&&steps<MSTEP){step(d.nextCursor);return}
+   finish(p,pool.slice(0,MCAP),!!d.done&&pool.length<=MCAP,f)
+  }).catch(fail)}
+ step(null)};
+
+function finish(p,pool,done,f){
+ var b=$('mtRun');b.disabled=false;b.textContent=TX.matchRun;
+ mtRes=pool.map(function(c){var r=cmpOne(p,c);r.c=c;return r});
+ mtRes.sort(function(x,y){
+  return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
+ var msg=TX.matchDone.replace('{n}',pool.length);
+ if(f)msg+=' '+TX.matchFld.replace('{f}',f);
+ if(!done)msg+=' — '+TX.matchCap;
+ $('mtStatus').textContent=pool.length?msg:TX.matchNone;
+ show($('mtAiBar'),!!pool.length);show($('mtAiNote'),!!pool.length);
+ drawMt()}
+
+function drawMt(){
+ if(!mtRes){$('mtList').innerHTML='';return}
+ $('mtList').innerHTML=mtRes.map(function(r){
+  var c=r.c;
+  var meta=[c.role,c.field,c.city,c.experience?c.experience+' '+TX.fYears:'']
+   .filter(Boolean).join(' · ');
+  var bars=WD.map(function(d){var x=r.comp[d[0]];if(!x)return '';
+   if(x.no)return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+    '<span class="no">'+esc(TX.cSkipped+' — '+x.no)+'</span></div>';
+   return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+    '<span class="tr"><i class="fl" style="width:'+x.s+'%"></i></span>'+
+    '<span class="nb">'+x.s+'%</span>'+
+    (x.note?'<span class="nt">'+esc(x.note)+'</span>':'')+'</div>'}).join('');
+  return '<li><div class="sv1-mt-top">'+
+    '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
+    '<div class="sv1-mt-nm"><b>'+esc(c.name||'—')+'</b>'+
+     (meta?'<small>'+esc(meta)+'</small>':'')+'</div>'+
+    '<div class="sv1-mt-sc">'+
+     (r.score==null?'<em>—</em>':'<b>'+r.score+'%</b>')+
+     '<i>'+esc(r.score==null?TX.scoreNo:TX.scoreL)+'</i></div>'+
+   '</div>'+
+   (r.ai?'<p class="sv1-ai-r"><b>'+esc(TX.aiScoreL+' '+r.ai.score+'%')+'</b>'+
+     (r.ai.reason?' — '+esc(r.ai.reason):'')+'</p>':'')+
+   '<details><summary>'+esc(TX.detailsL)+'</summary>'+
+    '<div class="sv1-bars">'+bars+'</div></details>'+
+   (c.cv?'<p style="margin:10px 0 0"><a class="sv1-emp-link" href="'+esc(c.cv)+
+     '" target="_blank" rel="noopener">'+esc(TX.fCv+' — '+TX.cvOpen)+'</a></p>':'')+
+  '</li>'}).join('')}
+
+// الترتيب بالذكاء الاصطناعي: بالضغط وحده ولا يُطلب تلقائياً — النداء مدفوع.
+// ولا يُرسَل اسمٌ ولا جوّال ولا بريد ولا رابط سيرة: المرسَل هو الحقول
+// المهنية وحدها، كما يضغطها api/hire.js نفسه (cCompact).
+$('mtAi').onclick=function(){
+ if(!mtRes||!mtRes.length||!mtJob)return;
+ var b=$('mtAi'),m=$('mtAiMsg');b.disabled=true;b.textContent=TX.aiWorkR;
+ m.className='sv1-emp-msg';m.textContent='';
+ var send=mtRes.slice(0,120).map(function(r){var c=r.c;
+  return {id:c.id,role:c.role,field:c.field,city:c.city,experience:c.experience,
+   education:c.education,nationalityType:c.nationalityType,skills:c.skills}});
+ fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'match',
+   role:(mtJob.title||'')+'\n'+(mtJob.description||''),candidates:send})})
+ .then(function(r){return r.status===503?{off:true}:j(r)}).then(function(d){
+  b.disabled=false;b.textContent=TX.aiH;
+  if(d&&d.off){m.className='sv1-emp-msg err';m.textContent=TX.aiOffR;return}
+  if(!d||!d.ok||!d.ranked||!d.ranked.length){
+   m.className='sv1-emp-msg err';m.textContent=TX.aiFailR;return}
+  var by={};d.ranked.forEach(function(x){if(x&&x.id)by[String(x.id)]={
+   score:Math.max(0,Math.min(100,Math.round(Number(x.score)||0))),
+   reason:String(x.reason||'').slice(0,240)}});
+  var n=0;mtRes.forEach(function(r){var a=by[String(r.c.id)];r.ai=a||null;if(a)n++});
+  mtRes.sort(function(x,y){
+   var ax=x.ai?x.ai.score:-1,ay=y.ai?y.ai.score:-1;
+   if(ax!==ay)return ay-ax;
+   return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
+  m.className='sv1-emp-msg ok';
+  m.textContent=TX.aiRanked.replace('{a}',n).replace('{b}',send.length);
+  drawMt()
+ }).catch(function(){b.disabled=false;b.textContent=TX.aiH;
+  m.className='sv1-emp-msg err';m.textContent=TX.aiFailR})};
+
+// ── قاعدة المواهب ─────────────────────────────────────────────────────────
+// بنك السير، صفحةً صفحة. القديمة تلاحق المؤشّر وحدها حتى آخر البنك، فكل بحثٍ
+// فيها مسحٌ متتابع على نوشن لقاعدةٍ من آلاف الصفوف. هنا صفحةٌ واحدة لكل طلب،
+// والتالية بزرٍّ يُضغط — والعدد المكتوب هو عدد ما وصل فعلاً لا تقديرٌ للبنك.
+//
+// ولا جوّال ولا بريد على البطاقة: بطاقة القديمة لا تعرضهما، وهذه لا تزيد
+// عليها حقلاً. السيرة رابطٌ يُفتح، وهي ما يُتصرَّف به فعلاً.
+var tpCur=null,tpN=0,tpSeq=0,tpDeb=0;
+function poolQs(cur){
+ var qs='field='+encodeURIComponent($('tpField').value||'');
+ var q=$('tpQ').value.trim(),ci=$('tpCity').value.trim(),na=$('tpNat').value;
+ if(q)qs+='&q='+encodeURIComponent(q);
+ if(ci)qs+='&city='+encodeURIComponent(ci);
+ if(na)qs+='&nat='+encodeURIComponent(na);
+ if(cur)qs+='&cursor='+encodeURIComponent(cur);
+ return qs}
+
+function poolCard(c){
+ var sk=[];String(c.skills||'').split(SPLIT).forEach(function(x){
+  var v=String(x||'').trim();if(v&&sk.length<4&&sk.indexOf(v)<0)sk.push(v)});
+ var kv=[[TX.dEdu,c.education],[TX.dLang,c.languages],[TX.dAvail,c.availability],
+  [TX.dRegion,[c.region].concat(c.countries||[]).filter(Boolean).join(' · ')],
+  [TX.dRes,c.residenceStatus],[TX.dNatT,c.nationalityType]]
+  .filter(function(p){return p[1]}).map(function(p){
+   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
+ var meta=[c.role,c.city,c.experience?c.experience+' '+TX.fYears:''].filter(Boolean).join(' · ');
+ return '<div><div class="hd">'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
+   '<div style="min-width:0"><b>'+esc(c.name||'—')+'</b>'+
+    (meta?'<small>'+esc(meta)+'</small>':'')+'</div></div>'+
+  (c.field?'<p style="margin:0;font-size:11.5px;color:var(--mut)">'+esc(c.field)+'</p>':'')+
+  (sk.length?'<div class="sv1-tags">'+sk.map(function(x){
+    return '<span>'+esc(x)+'</span>'}).join('')+'</div>':'')+
+  (kv?'<details><summary>'+esc(TX.moreL)+'</summary>'+
+    '<dl class="sv1-emp-kv">'+kv+'</dl></details>':'')+
+  (c.cv?'<div class="ft"><a href="'+esc(c.cv)+'" target="_blank" rel="noopener">'+
+    esc(TX.poolCv)+'</a></div>':'')+
+ '</div>'}
+
+function loadPool(fresh){
+ if(fresh){tpCur=null;tpN=0;$('tpGrid').innerHTML='';loaded.pool=true}
+ var my=++tpSeq;
+ $('tpStatus').textContent=TX.loading;show($('tpMore'),false);
+ get(poolQs(tpCur)).then(function(d){
+  if(my!==tpSeq)return;
+  if(!d||!d.ok){$('tpStatus').textContent=TX.poolErr;show($('tpMore'),!!tpCur);return}
+  var rows=d.candidates||[];tpN+=rows.length;
+  if(rows.length)$('tpGrid').insertAdjacentHTML('beforeend',rows.map(poolCard).join(''));
+  tpCur=d.nextCursor||null;
+  var end=!!d.done||!tpCur;
+  $('tpStatus').textContent=tpN
+   ?(TX[end?'poolN':'poolSo'].replace('{n}',tpN)+(end?' — '+TX.poolEnd:''))
+   :TX.poolNone;
+  show($('tpMore'),!end)
+ }).catch(function(){if(my!==tpSeq)return;
+  $('tpStatus').textContent=TX.poolErr;show($('tpMore'),!!tpCur)})}
+
+$('tpGo').onclick=function(){window.clearTimeout(tpDeb);loadPool(true)};
+$('tpMore').onclick=function(){loadPool(false)};
+$('tpQ').oninput=function(){window.clearTimeout(tpDeb);
+ tpDeb=window.setTimeout(function(){loadPool(true)},600)};
+$('tpQ').onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13){
+ e.preventDefault();window.clearTimeout(tpDeb);loadPool(true)}};
+$('tpField').onchange=function(){loadPool(true)};
+$('tpNat').onchange=function(){loadPool(true)};
+$('tpCity').onchange=function(){loadPool(true)};
+
 // ── الحساب: قائمةٌ في الشريط العلوي، وشاشةٌ في «الإعدادات» ─────────────────
 // نداءٌ واحد يخدم الاثنتين ولا يُطلب إلا عند أول فتح لأيّهما — شاشةٌ مغلقة لا
 // تُكلّف نداءً. وهو النداء الرابع في الجلسة كلها، كما كان.
@@ -1560,7 +1923,7 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
-  warnBar(d);
+  applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
  // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
  // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.

@@ -305,6 +305,103 @@ const T = {
   reqGo:   { ar: "أرسل الطلب", en: "Send the request", fr: "Envoyer la demande", zh: "发送申请" },
   reqOk:   { ar: "وصل طلبك — نرجع إليك بالموعد.", en: "Your request is in — we'll come back with the appointment.", fr: "Demande reçue — nous revenons vers vous avec le rendez-vous.", zh: "已收到您的申请——我们会回复面试时间。" },
   reqWork: { ar: "جارٍ الإرسال…", en: "Sending…", fr: "Envoi…", zh: "发送中…" },
+
+  // ------------------------------------------------- المطابقة الذكية --
+  sideMatch:{ ar: "المطابقة", en: "Matching", fr: "Correspondance", zh: "匹配" },
+  sidePool: { ar: "قاعدة المواهب", en: "Talent pool", fr: "Vivier de talents", zh: "人才库" },
+  matchH:  { ar: "المطابقة الذكية", en: "Smart matching", fr: "Correspondance intelligente", zh: "智能匹配" },
+  matchSub:{ ar: "اختر إعلاناً من إعلاناتك، ونقارن كل مرشّح في مجاله بإعلانك حقلاً بحقل — وكل درجةٍ هنا مكتوبٌ تحتها ممّ حُسبت.",
+             en: "Pick one of your vacancies and we compare each candidate in its field against it, field by field — every score here says what it was computed from.",
+             fr: "Choisissez un de vos postes : chaque candidat de ce domaine est comparé champ par champ, et chaque score indique son calcul.",
+             zh: "选择您的一个职位，我们会逐字段对比该领域的每位候选人——此处每个分数都注明其计算依据。" },
+  matchJobL:{ ar: "الإعلان", en: "Vacancy", fr: "Poste", zh: "职位" },
+  matchRun: { ar: "حلّل المرشّحين", en: "Analyse candidates", fr: "Analyser les candidats", zh: "分析候选人" },
+  matchWork:{ ar: "جارٍ التحليل…", en: "Analysing…", fr: "Analyse en cours…", zh: "分析中…" },
+  matchNoJ: { ar: "لا إعلان لديك بعد. انشر إعلاناً أولاً، ثم عد إلى هنا — المطابقة تقارن بإعلانٍ قائم لا بفراغ.",
+              en: "You have no vacancy yet. Post one first, then come back — matching compares against a real vacancy, not a blank.",
+              fr: "Vous n'avez encore aucun poste. Publiez-en un, puis revenez : la correspondance se fait sur un poste réel.",
+              zh: "您还没有职位。请先发布一个再回来——匹配需要基于真实职位，而非空白。" },
+  matchRead:{ ar: "اضغط «حلّل المرشّحين» لنجلب مرشّحي مجال هذا الإعلان ونقارنهم به. لا شيء يُجلب قبل ضغطك.",
+              en: "Press “Analyse candidates” and we fetch the candidates in this vacancy's field and compare them to it. Nothing is fetched before you press.",
+              fr: "Appuyez sur « Analyser les candidats » : rien n'est chargé avant votre clic.",
+              zh: "点击“分析候选人”，我们才会获取该职位领域的候选人并进行比对。点击前不会加载任何数据。" },
+  matchDone:{ ar: "المرشّحون المحلَّلون: {n}", en: "{n} candidates analysed", fr: "{n} candidats analysés", zh: "已分析 {n} 位候选人" },
+  matchFld: { ar: "ضمن مجال «{f}»", en: "within the field “{f}”", fr: "dans le domaine « {f} »", zh: "属于“{f}”领域" },
+  matchCap: { ar: "والقاعدة أكبر من ذلك — ضيّق بمجال الإعلان لنتيجة أدقّ.",
+              en: "and the pool is larger — narrow it by the vacancy's field for a sharper result.",
+              fr: "et le vivier est plus grand — affinez par le domaine du poste.",
+              zh: "人才库还有更多——按职位领域细化可获得更精确的结果。" },
+  matchNone:{ ar: "لا مرشّح في هذا المجال بعد.", en: "No candidate in this field yet.", fr: "Aucun candidat dans ce domaine.", zh: "该领域暂无候选人。" },
+  matchErr: { ar: "تعذّر جلب المرشّحين. حاول مرة أخرى.", en: "Couldn't fetch the candidates. Try again.", fr: "Impossible de charger les candidats. Réessayez.", zh: "无法获取候选人。请重试。" },
+  // شرح الأوزان: ثابتةٌ في الكود ومكتوبةٌ للقارئ. القديمة كانت تحفظها في
+  // جهاز من يفتح اللوحة، فيرى زميلان في الشركة نفسها درجتين مختلفتين
+  // للمرشّح نفسه على الإعلان نفسه — ودرجةٌ تتغيّر بتغيّر المتصفّح ليست رقماً.
+  wH:      { ar: "كيف حُسبت الدرجة", en: "How the score is computed", fr: "Comment le score est calculé", zh: "分数如何计算" },
+  wP:      { ar: "أربعة حقول تُقارن، ولكلٍّ وزنه الثابت أدناه. والحقل الذي لا قيمة له في إعلانك أو في ملف المرشّح لا يُقارَن ولا يُحسب — يُستبعد وزنه من القسمة، ولا يُملأ برقمٍ مفترض.",
+             en: "Four fields are compared, each with the fixed weight below. A field missing from your vacancy or from the candidate's profile is not compared and not scored — its weight leaves the division instead of being filled with a guess.",
+             fr: "Quatre champs sont comparés, chacun avec le poids fixe ci-dessous. Un champ absent n'est ni comparé ni noté : son poids sort du calcul.",
+             zh: "比对四个字段，各自权重如下固定。您的职位或候选人档案中缺失的字段不参与比对与计分——其权重退出分母，而非以假设值填充。" },
+  cField:  { ar: "المجال", en: "Field", fr: "Domaine", zh: "领域" },
+  cRole:   { ar: "المسمّى", en: "Job title", fr: "Intitulé", zh: "职位名称" },
+  cSkills: { ar: "المهارات", en: "Skills", fr: "Compétences", zh: "技能" },
+  cCity:   { ar: "المدينة", en: "City", fr: "Ville", zh: "城市" },
+  cSame:   { ar: "مطابق", en: "same", fr: "identique", zh: "相同" },
+  cDiff:   { ar: "مختلف", en: "different", fr: "différent", zh: "不同" },
+  cOf:     { ar: "{a} من {b}", en: "{a} of {b}", fr: "{a} sur {b}", zh: "{b} 项中 {a} 项" },
+  cNoJob:  { ar: "إعلانك بلا هذا الحقل", en: "your vacancy has no such field", fr: "votre poste n'a pas ce champ", zh: "您的职位缺少该字段" },
+  cNoCand: { ar: "ملف المرشّح بلا هذا الحقل", en: "the candidate's profile has no such field", fr: "le profil du candidat n'a pas ce champ", zh: "候选人档案缺少该字段" },
+  cSkipped:{ ar: "لم يُقارَن", en: "not compared", fr: "non comparé", zh: "未比对" },
+  scoreL:  { ar: "الدرجة", en: "Score", fr: "Score", zh: "分数" },
+  scoreNo: { ar: "لا حقل مشترك يُقارَن", en: "no shared field to compare", fr: "aucun champ commun à comparer", zh: "无可比对的共同字段" },
+  detailsL:{ ar: "تفاصيل الحساب", en: "How this was computed", fr: "Détail du calcul", zh: "计算明细" },
+  // ترتيب الذكاء الاصطناعي: بالضغط وحده، والنداء مدفوع. ولا يُرسَل اسمٌ ولا
+  // جوّال ولا بريد ولا سيرة — api/hire.js يضغط كل مرشّح إلى حقولٍ مهنية وحدها.
+  aiH:     { ar: "✦ رتّب بالذكاء الاصطناعي", en: "✦ Rank with AI", fr: "✦ Classer par IA", zh: "✦ 用 AI 排序" },
+  aiWorkR: { ar: "جارٍ الترتيب…", en: "Ranking…", fr: "Classement…", zh: "排序中…" },
+  aiNote:  { ar: "يُرسَل إلى نموذج الذكاء الاصطناعي المسمّى والمجال والمدينة والخبرة والتعليم والمهارات — بلا اسم ولا جوّال ولا بريد ولا سيرة. ونداءٌ واحدٌ لكل ضغطة، ولا يُطلب تلقائياً.",
+             en: "Only role, field, city, experience, education and skills are sent to the AI model — no name, phone, email or CV. One call per press, never automatic.",
+             fr: "Seuls le poste, le domaine, la ville, l'expérience, la formation et les compétences sont envoyés — ni nom, ni téléphone, ni e-mail, ni CV.",
+             zh: "仅将职位、领域、城市、经验、学历与技能发送给 AI 模型——不含姓名、手机、邮箱或简历。每次点击一次调用，绝不自动触发。" },
+  aiRanked:{ ar: "رتّب الذكاء الاصطناعي {a} من {b} حلّلناها", en: "AI ranked {a} of the {b} analysed", fr: "L'IA a classé {a} des {b} analysés", zh: "AI 已对分析的 {b} 位中的 {a} 位排序" },
+  aiScoreL:{ ar: "ترتيب الذكاء الاصطناعي", en: "AI rank", fr: "Classement IA", zh: "AI 排序" },
+  aiFailR: { ar: "تعذّر الترتيب بالذكاء الاصطناعي الآن — الدرجة المحسوبة أعلاه لم تتغيّر.",
+             en: "AI ranking failed right now — the computed score above is unchanged.",
+             fr: "Le classement IA a échoué — le score calculé ci-dessus est inchangé.",
+             zh: "AI 排序暂时失败——上方计算所得分数保持不变。" },
+  aiOffR:  { ar: "الترتيب بالذكاء الاصطناعي غير مُعدّ على هذا الخادم.",
+             en: "AI ranking is not configured on this server.",
+             fr: "Le classement IA n'est pas configuré sur ce serveur.",
+             zh: "此服务器未配置 AI 排序。" },
+
+  // ------------------------------------------------- قاعدة المواهب --
+  poolH:   { ar: "قاعدة المواهب", en: "Talent pool", fr: "Vivier de talents", zh: "人才库" },
+  poolSub: { ar: "بنك السير في المنصّة. ابحث فيه بالمجال والمدينة والجنسية — الصفحة تُجلب صفحةً صفحة، ولا يُمسح البنك كلّه على ظهرك.",
+             en: "The platform's CV bank. Search it by field, city and nationality — it loads a page at a time rather than scanning the whole bank at your expense.",
+             fr: "La banque de CV de la plateforme. Recherchez par domaine, ville et nationalité — chargée page par page.",
+             zh: "平台简历库。按领域、城市与国籍检索——逐页加载，不会整库扫描。" },
+  poolQ:   { ar: "ابحث بالمسمّى أو المهارة", en: "Search by role or skill", fr: "Rechercher par poste ou compétence", zh: "按职位或技能搜索" },
+  poolCity:{ ar: "المدينة", en: "City", fr: "Ville", zh: "城市" },
+  poolNat: { ar: "الجنسية", en: "Nationality", fr: "Nationalité", zh: "国籍" },
+  poolAny: { ar: "— الكل —", en: "— all —", fr: "— tous —", zh: "— 全部 —" },
+  poolSa:  { ar: "سعودي", en: "Saudi", fr: "Saoudien", zh: "沙特籍" },
+  poolNon: { ar: "غير سعودي", en: "Non-Saudi", fr: "Non-saoudien", zh: "非沙特籍" },
+  poolGo:  { ar: "ابحث", en: "Search", fr: "Rechercher", zh: "搜索" },
+  poolN:   { ar: "المرشّحون: {n}", en: "{n} candidates", fr: "{n} candidats", zh: "{n} 位候选人" },
+  moreL:   { ar: "تفاصيل", en: "Details", fr: "Détails", zh: "详情" },
+  poolSo:  { ar: "المرشّحون حتى الآن: {n}", en: "{n} candidates so far", fr: "{n} candidats jusqu'ici", zh: "目前 {n} 位候选人" },
+  poolMore:{ ar: "تابع البحث في القاعدة", en: "Continue through the pool", fr: "Poursuivre dans le vivier", zh: "继续检索人才库" },
+  poolEnd: { ar: "انتهت النتائج المطابقة.", en: "That is the end of the matching results.", fr: "Fin des résultats correspondants.", zh: "匹配结果已全部显示。" },
+  poolNone:{ ar: "لا نتيجة مطابقة. وسّع البحث أو أزل فلتراً.", en: "No matching result. Widen the search or drop a filter.", fr: "Aucun résultat. Élargissez la recherche.", zh: "无匹配结果。请放宽条件或移除筛选。" },
+  poolErr: { ar: "تعذّر تحميل قاعدة السير. حاول مرة أخرى.", en: "Couldn't load the CV bank. Try again.", fr: "Impossible de charger la banque de CV. Réessayez.", zh: "无法加载简历库。请重试。" },
+  poolCv:  { ar: "السيرة الذاتية", en: "CV", fr: "CV", zh: "简历" },
+  // حقولٌ تُعرض داخل «التفاصيل»، وكلّها ممّا يعيده الخادم أصلاً لهذه القائمة.
+  // ولا جوّال ولا بريد هنا: بطاقة القديمة لا تعرضهما، وهذه لا تزيد عليها.
+  dEdu:    { ar: "المؤهل", en: "Education", fr: "Formation", zh: "学历" },
+  dLang:   { ar: "اللغات", en: "Languages", fr: "Langues", zh: "语言" },
+  dAvail:  { ar: "التوفّر", en: "Availability", fr: "Disponibilité", zh: "可到岗时间" },
+  dRegion: { ar: "الخبرة الإقليمية", en: "Regional experience", fr: "Expérience régionale", zh: "地区经验" },
+  dRes:    { ar: "حالة الإقامة", en: "Residence status", fr: "Statut de résidence", zh: "居留状态" },
+  dNatT:   { ar: "نوع الجنسية", en: "Nationality type", fr: "Type de nationalité", zh: "国籍类别" },
 };
 
 // نفس تصنيف المجالات في api/candidates.js (FIELD_OPTIONS) — القيمة المرسلة
@@ -364,6 +461,8 @@ export function buildSimpleEmployer(SV1, ctx) {
     jobs: sv('<rect x="2.8" y="7.2" width="18.4" height="13" rx="2.2"/><path d="M8.6 7.2V5.4a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M2.8 12.4h18.4"/>'),
     apps: sv('<circle cx="9" cy="8.2" r="3.2"/><path d="M3.4 20c0-3.1 2.5-5.4 5.6-5.4s5.6 2.3 5.6 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 0 6"/><path d="M17.8 14.9c1.8.7 3 2.4 3 4.4"/>'),
     set:  sv('<path d="M4 7.5h10"/><path d="M18 7.5h2"/><path d="M4 16.5h6"/><path d="M14 16.5h6"/><circle cx="16" cy="7.5" r="2.2"/><circle cx="12" cy="16.5" r="2.2"/>'),
+    match: sv('<circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.6 20.6"/><path d="M8.2 10.6h4.8"/><path d="M10.6 8.2v4.8"/>'),
+    pool: sv('<circle cx="8.4" cy="7.6" r="3"/><path d="M3 19.2c0-3 2.4-5.2 5.4-5.2s5.4 2.2 5.4 5.2"/><path d="M16.2 4.6h5"/><path d="M16.2 9h5"/><path d="M16.2 13.4h5"/>'),
   };
 
   const CSS = `<style id="sv1-emp-css">
@@ -620,6 +719,56 @@ export function buildSimpleEmployer(SV1, ctx) {
  .sv1-emp{padding:0 16px}
  .sv1-acct .menu{width:min(290px,calc(100vw - 40px))}
 }
+
+/* ── المطابقة الذكية وقاعدة المواهب ───────────────────────────────────────
+   شريط المكوّن يرسم رقمه ولا يزيّنه: عرض الشريط هو الدرجة نفسها المكتوبة
+   بجانبه، والمكوّن غير المقارَن يُرسم بلا شريط أصلاً — لا شريطٌ رماديّ بطول
+   نصف العمود يوحي بنصف درجة وهو يعني «لا بيانات». */
+.sv1-ff{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:0 0 16px}
+.sv1-ff>div{flex:1 1 150px;min-width:0}
+.sv1-ff label{display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px;font-weight:500}
+.sv1-ff input,.sv1-ff select{width:100%;border:1px solid var(--l);border-radius:10px;padding:9px 11px;
+ font:inherit;font-size:13px;outline:none;background:#fff;color:var(--ink)}
+.sv1-ff input:focus,.sv1-ff select:focus{border-color:var(--ac)}
+.sv1-ff .go{flex:0 0 auto}
+.sv1-mt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.sv1-mt>li{background:#fff;border:1px solid var(--l);border-radius:13px;padding:13px 15px;box-shadow:var(--sh)}
+.sv1-mt-top{display:flex;align-items:flex-start;gap:11px}
+.sv1-mt-nm{flex:1;min-width:0}
+.sv1-mt-nm b{display:block;font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+.sv1-mt-nm small{display:block;font-size:11.5px;color:var(--mut);line-height:1.7}
+.sv1-mt-sc{flex:none;text-align:center;min-width:64px}
+.sv1-mt-sc b{display:block;font-family:var(--fm);font-size:22px;font-weight:400;color:var(--ink);line-height:1.2}
+.sv1-mt-sc em{display:block;font-family:var(--fm);font-size:15px;font-style:normal;color:var(--faint);line-height:1.6}
+.sv1-mt-sc i{display:block;font-style:normal;font-size:10px;color:var(--faint);margin-top:2px}
+.sv1-mt details{margin-top:10px}
+.sv1-mt summary{cursor:pointer;font-size:11.5px;color:var(--ac);font-weight:600;list-style:none}
+.sv1-mt summary::-webkit-details-marker{display:none}
+.sv1-bars{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sv1-bar{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--s)}
+.sv1-bar>span:first-child{flex:0 0 76px;color:var(--mut)}
+.sv1-bar .tr{flex:1;min-width:0;height:6px;border-radius:999px;background:#eef1f7;overflow:hidden}
+.sv1-bar .fl{display:block;height:100%;border-radius:999px;background:var(--ac)}
+.sv1-bar .nb{flex:0 0 42px;font-family:var(--fm);font-size:11px;color:var(--ink);text-align:end}
+.sv1-bar .no{flex:1;min-width:0;color:var(--faint);font-size:11px}
+.sv1-bar .nt{flex:0 0 100%;padding-inline-start:85px;font-size:10.5px;color:var(--faint);line-height:1.6}
+.sv1-aibar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.sv1-ai-r{margin:9px 0 0;padding-top:9px;border-top:1px dashed var(--l);font-size:11.5px;color:var(--s);line-height:1.7}
+.sv1-ai-r b{color:var(--ink)}
+.sv1-pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:11px}
+.sv1-pool>div{background:#fff;border:1px solid var(--l);border-radius:13px;padding:13px 14px;box-shadow:var(--sh);
+ display:flex;flex-direction:column;gap:9px}
+.sv1-pool .hd{display:flex;gap:9px;align-items:center}
+.sv1-pool .hd b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv1-pool .hd small{display:block;font-size:11px;color:var(--mut);line-height:1.6}
+.sv1-tags{display:flex;flex-wrap:wrap;gap:5px}
+.sv1-tags span{font-size:10.5px;color:#5a6280;background:#eef1f7;border-radius:999px;padding:3px 8px}
+.sv1-pool .ft{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11.5px}
+.sv1-pool .ft a{color:var(--ac);text-decoration:underline;text-underline-offset:3px}
+.sv1-pool details summary{cursor:pointer;font-size:11.5px;color:var(--mut);list-style:none}
+.sv1-pool details summary::-webkit-details-marker{display:none}
+.sv1-pool details .sv1-emp-kv{margin:9px 0 0;font-size:11.5px}
 </style>`;
 
   const body = `${SV1.header("/employer", { cta: false })}
@@ -731,9 +880,15 @@ export function buildSimpleEmployer(SV1, ctx) {
           <button type="button" data-go="jobs" id="tabJobs">${ICON.jobs}<span>${esc(t("sideJobs"))}</span></button>
           <button type="button" data-go="apps" id="tabApps">${ICON.apps}<span>${esc(t("sideApps"))}</span></button>
         </nav>
-        <!-- مكان المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تُضاف هنا
-             كـ<nav class="grp"> ثانية فوق الفاصل — ولا يُوضع بندٌ يفتح على
-             فراغ قبل أن تُبنى شاشته. -->
+        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. مخفيّةٌ حتى
+             يثبت أن الجلسة جلسةُ اشتراكٍ مفعّل لصاحب عمل — لا جلسةَ عميلٍ
+             فُتحت له البوابة بالتجربة المجانية. الشاشتان بابان إلى بنك
+             السير كلّه، والقديمة تفتحه برمز اشتراكٍ حقيقي وحده، فلا تُفتح
+             هنا لمن لا يفتحه له القديم. (انظر SUB في السكربت.) -->
+        <nav class="grp sv1-hidden" id="grpTalent" aria-label="${esc(t("sidePool"))}">
+          <button type="button" data-go="match" id="tabMatch">${ICON.match}<span>${esc(t("sideMatch"))}</span></button>
+          <button type="button" data-go="pool" id="tabPool">${ICON.pool}<span>${esc(t("sidePool"))}</span></button>
+        </nav>
         <hr>
         <nav class="grp" aria-label="${esc(t("sideSet"))}">
           <button type="button" data-go="settings" id="tabSet">${ICON.set}<span>${esc(t("sideSet"))}</span></button>
@@ -803,6 +958,49 @@ export function buildSimpleEmployer(SV1, ctx) {
       <div class="sv1-kb" id="appsBoard"></div>
     </div>
 
+    <!-- المطابقة الذكية -->
+    <div id="scMatch" class="sv1-hidden">
+      <h3 class="sv1-emp-h">${esc(t("matchH"))}</h3>
+      <p class="sv1-emp-sub">${esc(t("matchSub"))}</p>
+      <div class="sv1-ff">
+        <div><label for="mtJob">${esc(t("matchJobL"))}</label><select id="mtJob"></select></div>
+        <div class="go"><button type="button" class="sv1-btn primary" id="mtRun">${esc(t("matchRun"))}</button></div>
+      </div>
+      <details style="margin:0 0 16px">
+        <summary class="sv1-emp-link" style="text-decoration:none">${esc(t("wH"))}</summary>
+        <p class="sv1-emp-hint" style="margin:9px 0 0">${esc(t("wP"))}</p>
+        <div class="sv1-bars" id="mtWeights"></div>
+      </details>
+      <p class="sv1-emp-sub" id="mtStatus">${esc(t("matchRead"))}</p>
+      <div class="sv1-aibar sv1-hidden" id="mtAiBar">
+        <button type="button" class="sv1-btn sm" id="mtAi">${esc(t("aiH"))}</button>
+        <span class="sv1-emp-msg" id="mtAiMsg" style="margin:0"></span>
+      </div>
+      <p class="sv1-emp-hint sv1-hidden" id="mtAiNote">${esc(t("aiNote"))}</p>
+      <ul class="sv1-mt" id="mtList"></ul>
+    </div>
+
+    <!-- قاعدة المواهب -->
+    <div id="scPool" class="sv1-hidden">
+      <h3 class="sv1-emp-h">${esc(t("poolH"))}</h3>
+      <p class="sv1-emp-sub">${esc(t("poolSub"))}</p>
+      <div class="sv1-ff">
+        <div style="flex:2 1 220px"><label for="tpQ">${esc(t("poolQ"))}</label>
+          <input id="tpQ" type="search" autocomplete="off" spellcheck="false" maxlength="80"></div>
+        <div><label for="tpField">${esc(t("fField"))}</label><select id="tpField">${fieldOpts}</select></div>
+        <div><label for="tpCity">${esc(t("poolCity"))}</label><input id="tpCity" maxlength="60" autocomplete="off"></div>
+        <div><label for="tpNat">${esc(t("poolNat"))}</label><select id="tpNat">
+          <option value="">${esc(t("poolAny"))}</option>
+          <option value="سعودي">${esc(t("poolSa"))}</option>
+          <option value="غير سعودي">${esc(t("poolNon"))}</option>
+        </select></div>
+        <div class="go"><button type="button" class="sv1-btn primary" id="tpGo">${esc(t("poolGo"))}</button></div>
+      </div>
+      <p class="sv1-emp-sub" id="tpStatus">${esc(t("loading"))}</p>
+      <div class="sv1-pool" id="tpGrid"></div>
+      <p style="margin:16px 0 0"><button type="button" class="sv1-btn sm sv1-hidden" id="tpMore">${esc(t("poolMore"))}</button></p>
+    </div>
+
     <!-- ملف المرشّح -->
     <div id="scCand" class="sv1-hidden">
       <p style="margin:0 0 14px"><button type="button" class="sv1-emp-link" id="candBack">${esc(t("profBack"))}</button></p>
@@ -857,7 +1055,7 @@ function j(r){return r.json().catch(function(){return{}})}
 // من صفّ نوشن، والمتصفّح لا يراه ولا يخزّنه. mode 'code' = الدخول بكلمة
 // المرور، والرمز الذي يعيده /api/employer يبقى في الذاكرة وحدها: لا
 // localStorage ولا sessionStorage ولا شاشة تعرضه. إغلاق التبويب يمحوه.
-var AUTH=null, CO='', PLAN='';
+var AUTH=null, CO='', PLAN='', SUB=false;
 function authCode(){return AUTH&&AUTH.mode==='code'?AUTH.code:'self'}
 function get(qs){return fetch('/api/candidates?'+qs+'&code='+encodeURIComponent(authCode()),
  {credentials:'same-origin'}).then(j)}
@@ -884,6 +1082,20 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 //     إعلاناته هذه الجلسة وحدها. أخطرها، لأنه يبدو حذفاً.
 //   none — لا اشتراك له أصلاً، وهو يعمل هنا بحساب Business Partner عمله
 //     كاملاً: ما ينشره يعود إليه. لا شيء يُقال، ولا شريط.
+// مَن يرى بنك السير كلّه.
+//
+// ‏GET /api/candidates يعيد — لمن فُتح له — اسمَ كل مرشّح في القاعدة وجوّاله
+// وبريده وسيرته، لا متقدّميه هو وحدهم. وهذا هو المنتج: بنك السير يُباع
+// باشتراك (انظر رأس api/candidates.js). لكنّ الخادم يفتحه أيضاً لجلسة عميلٍ
+// في التجربة المجانية للمنصّة (portalUnlock) — وهي جلسةٌ ليست اشتراك صاحب
+// عمل أصلاً، ولوحة hr-app.js القديمة لا تفتح لها قاعدة المواهب ولا المطابقة
+// (تشترط hrRealCode، أي رمز اشتراكٍ حقيقياً).
+//
+// فالشرط هنا: اشتراكٌ حقيقي — إمّا صفٌّ «مفعّل» حُلّ من البريد المُثبت
+// (‏account)، وإمّا دخولٌ برمز وصولٍ صالح عبر كلمة المرور (لا account ولا
+// portal). وجلسة العميل (portal) تبقى على شاشاتها الخمس كما كانت. لا نوسّع
+// بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
+function applySub(d){SUB=!!(d&&d.unlocked&&!d.portal);show($('grpTalent'),SUB)}
 function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
  var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
    :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
@@ -984,7 +1196,7 @@ function enter(){
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
-  warnBar(d);
+  applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
  }).catch(function(){AUTH=null;err(TX.eNet)})}
@@ -993,9 +1205,10 @@ function enter(){
 // جدولٌ واحد: المفتاح ← الشاشة ← بند الشريط الجانبي الذي يضيء معها. كانت
 // ثلاثة أسطر متوازية لكل شاشة، فإضافة شاشةٍ رابعة تعني ثلاثة مواضع يُنسى
 // أحدها — وقد نُسي: ملف المرشّح كان يطفئ الأزرار بقائمة مكتوبة بيدها.
-var loaded={jobs:false,apps:false};
+var loaded={jobs:false,apps:false,pool:false};
 var SC=[['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
- ['apps','scApps','tabApps'],['settings','scSettings','tabSet']];
+ ['apps','scApps','tabApps'],['match','scMatch','tabMatch'],['pool','scPool','tabPool'],
+ ['settings','scSettings','tabSet']];
 function navOn(k){SC.forEach(function(s){var b=$(s[2]);if(!b)return;
  var on=s[0]===k;b.classList.toggle('on',on);
  if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
@@ -1007,10 +1220,17 @@ function route(){
  if(sc==='c'){openCand(h.split('/').slice(1).join('/'));return}
  var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
  if(!known)sc='home';
+ // البابان المؤدّيان إلى بنك السير لا يُفتحان إلا باشتراك صاحب عملٍ مفعّل،
+ // ولا بكتابة ‎#/pool‎ في شريط العنوان: الشرط هنا لا في الزرّ وحده.
+ if((sc==='match'||sc==='pool')&&!SUB)sc='home';
  hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
  navOn(sc);
  if(sc==='home')loadHome();
  if(sc==='jobs'&&!loaded.jobs)loadJobs();
+ // المطابقة لا تجلب شيئاً بفتحها — تملأ قائمة الإعلانات من المحمَّل وتنتظر
+ // ضغطة «حلّل». وقاعدة المواهب تجلب صفحتها الأولى عند أول فتح وحده.
+ if(sc==='match')openMatch();
+ if(sc==='pool'&&!loaded.pool)loadPool(true);
  // عودةٌ إلى اللوحة بعد تغيير المرحلة من ملف المرشّح: تُرسم من النموذج
  // المحلي، بلا نداءٍ جديد — وإلا بقيت البطاقة في عمودها القديم.
  if(sc==='apps'){if(!loaded.apps)loadApps();else if(flat.length)drawApps()}
@@ -1129,7 +1349,7 @@ function loadJobs(){
  post('/api/candidates',{action:'list-postings'}).then(function(d){
   if(!d||!d.ok){loaded.jobs=false;jobsState='err';
    $('jobsStatus').textContent=TX.eNet;drawHome();return}
-  postings=d.postings||[];jobsState='ok';drawJobs();drawHome()
+  postings=d.postings||[];jobsState='ok';drawJobs();drawHome();fillMtJobs()
  }).catch(function(){loaded.jobs=false;jobsState='err';
   $('jobsStatus').textContent=TX.eNet;drawHome()})}
 
@@ -1464,6 +1684,248 @@ function openCand(id){
 
 $('candBack').onclick=function(){location.hash='#/apps'};
 
+// ── المطابقة الذكية ───────────────────────────────────────────────────────
+// ⚠️ الأوزان ثابتةٌ هنا ولا تُحفظ في جهاز أحد. القديمة (hr-app.js) تكتبها في
+// localStorage تحت bp_hr_match_weights، فيرى زميلان في الشركة نفسها درجتين
+// مختلفتين للمرشّح نفسه على الإعلان نفسه، وتضيع الأوزان بتغيير المتصفّح أو
+// الجهاز. ودرجةٌ تتغيّر بتغيّر المتصفّح ليست رقماً يُبنى عليه قرار توظيف —
+// وهذه بوابةٌ لا تكتب شيئاً في جهاز من يفتحها أصلاً.
+//
+// وأربعة مكوّنات لا تسعة. القديمة تزن تسعة، وخمسةٌ منها بلا بياناتٍ على
+// الطرفين في الواقع: الراتب المتوقع ومدة الإشعار وتصريح العمل لا تُعاد في
+// قائمة المرشحين أصلاً، والإعلان في قاعدة الإعلانات بلا سنوات خبرةٍ ولا
+// لغاتٍ ولا مهاراتٍ مطلوبة. فتأخذ كلٌّ منها درجةً ثابتة (55 «غير معروف»)
+// وتدخل في المعدّل — أي أن أكثر من نصف «الدرجة الموزونة» فيها رقمٌ غير
+// محسوب. هنا يُقارَن ما في السجلّين فعلاً، والحقل الذي لا قيمة له في أحدهما
+// يخرج وزنه من القسمة ويُقال باسمه بدل أن يُملأ بافتراض.
+var WD=[['field',TX.cField,30],['role',TX.cRole,30],['skills',TX.cSkills,25],['city',TX.cCity,15]];
+var SPLIT=/[،,؛;\\/|]/;
+// تسويةٌ عربية خفيفة: التشكيل والتطويل، وأشكال الألف، والتاء المربوطة،
+// والألف المقصورة. بدونها «الریاض» و«الرياض» مدينتان، و«محاسبه» و«محاسبة»
+// مهارتان.
+function nz(s){return String(s==null?'':s).toLowerCase()
+ .replace(/[\\u064B-\\u0652\\u0640]/g,'')
+ .replace(/[\\u0622\\u0623\\u0625]/g,'\\u0627')
+ .replace(/\\u0629/g,'\\u0647').replace(/\\u0649/g,'\\u064A')
+ .replace(/\\s+/g,' ').trim()}
+function toks(s){return nz(s).split(/[^0-9a-z\\u0600-\\u06FF]+/)
+ .filter(function(w){return w.length>2})}
+
+function cmpOne(job,c){
+ var r={},no=function(side){return {no:side?TX.cNoJob:TX.cNoCand}};
+ // المجال: الطرفان يختاران من القائمة نفسها (FIELD_OPTIONS)، فالمقارنة حرفية.
+ if(!job.field)r.field=no(1);else if(!c.field)r.field=no(0);
+ else{var fs=nz(job.field)===nz(c.field);
+  r.field={s:fs?100:0,note:(fs?TX.cSame:TX.cDiff)+' — '+(c.field||'')}}
+ // المسمّى: كم كلمةً من مسمّى إعلانك ترد في مسمّى المرشّح.
+ var jt=toks(job.title),cr=nz(c.role);
+ if(!jt.length)r.role=no(1);else if(!cr)r.role=no(0);
+ else{var h=0;jt.forEach(function(w){if(cr.indexOf(w)>=0)h++});
+  r.role={s:Math.round(h/jt.length*100),
+   note:TX.cOf.replace('{a}',h).replace('{b}',jt.length)+' — '+(c.role||'')}}
+ // المهارات: كم مهارةً يذكرها المرشّح ترد في نصّ إعلانك (العنوان والوصف).
+ // الإعلان لا يحمل قائمة مهاراتٍ مطلوبة في قاعدته، فالنصّ هو ما نملك —
+ // ولا تُخترع للوظيفة مهاراتٌ من جدولٍ بالمسمّى كما تفعل القديمة.
+ var jd=nz((job.title||'')+' '+(job.description||''));
+ var sk=[],seen={};String(c.skills||'').split(SPLIT).forEach(function(x){
+  var raw=String(x||'').trim(),v=nz(x);
+  if(v.length>1&&!seen[v]){seen[v]=1;sk.push([raw,v])}});
+ if(!jd)r.skills=no(1);else if(!sk.length)r.skills=no(0);
+ else{var hs=[];sk.forEach(function(x){if(jd.indexOf(x[1])>=0)hs.push(x[0])});
+  r.skills={s:Math.round(hs.length/sk.length*100),
+   note:TX.cOf.replace('{a}',hs.length).replace('{b}',sk.length)+
+    (hs.length?' — '+hs.slice(0,5).join(' · '):'')}}
+ // المدينة
+ if(!job.city)r.city=no(1);else if(!c.city)r.city=no(0);
+ else{var cs=nz(job.city)===nz(c.city);
+  r.city={s:cs?100:0,note:(cs?TX.cSame:TX.cDiff)+' — '+(c.city||'')}}
+ var t=0,w=0;
+ WD.forEach(function(d){var x=r[d[0]];if(x&&x.s!=null){t+=x.s*d[2];w+=d[2]}});
+ return {comp:r,score:w?Math.round(t/w):null}}
+
+function drawWeights(){var el=$('mtWeights');if(!el||el.innerHTML)return;
+ el.innerHTML=WD.map(function(d){
+  return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+   '<span class="tr"><i class="fl" style="width:'+d[2]+'%"></i></span>'+
+   '<span class="nb">'+d[2]+'%</span></div>'}).join('')}
+
+var mtJobs=[],mtJob=null,mtRes=null;
+function fillMtJobs(){
+ var sel=$('mtJob');if(!sel||jobsState!=='ok')return;
+ // الإعلانات النشطة في قاعدتنا وحدها: المغلقة لا يُطابَق عليها، وإعلانات
+ // صفحة الوظائف الثابتة ليست صفوفاً تُقارن ولا وصف لها هنا.
+ mtJobs=[];postings.forEach(function(p){if(p.status!=='مغلقة'&&!p.site)mtJobs.push(p)});
+ sel.innerHTML=mtJobs.map(function(p,i){
+  return '<option value="'+i+'">'+esc((p.title||'—')+(p.city?' — '+p.city:''))+'</option>'}).join('');
+ var none=!mtJobs.length;sel.disabled=none;$('mtRun').disabled=none;
+ if(none&&!mtRes)$('mtStatus').textContent=TX.matchNoJ}
+
+function openMatch(){drawWeights();if(!loaded.jobs)loadJobs();else fillMtJobs()}
+
+// سقفٌ مكتوب: أربع صفحاتٍ أو أربعمئة مرشّح، أيّهما أوّل. الترجيح يجري في
+// المتصفّح، وبلا سقفٍ يُجمّد جوّالاً على قاعدةٍ من آلاف الصفوف. وما لم يُبلَغ
+// فيه آخر القاعدة يُقال صراحةً تحت النتائج.
+var MCAP=400,MSTEP=4;
+$('mtRun').onclick=function(){
+ var p=mtJobs[+$('mtJob').value];if(!p)return;
+ var b=$('mtRun');b.disabled=true;b.textContent=TX.matchWork;
+ $('mtStatus').textContent=TX.matchWork;$('mtList').innerHTML='';
+ show($('mtAiBar'),false);show($('mtAiNote'),false);$('mtAiMsg').textContent='';
+ mtRes=null;mtJob=p;
+ var pool=[],steps=0,f=p.field||'';
+ function fail(){b.disabled=false;b.textContent=TX.matchRun;
+  $('mtStatus').textContent=TX.matchErr}
+ function step(cur){
+  get('field='+encodeURIComponent(f)+(cur?'&cursor='+encodeURIComponent(cur):''))
+  .then(function(d){
+   if(!d||!d.ok){fail();return}
+   (d.candidates||[]).forEach(function(c){pool.push(c)});
+   steps++;
+   if(pool.length<MCAP&&!d.done&&d.nextCursor&&steps<MSTEP){step(d.nextCursor);return}
+   finish(p,pool.slice(0,MCAP),!!d.done&&pool.length<=MCAP,f)
+  }).catch(fail)}
+ step(null)};
+
+function finish(p,pool,done,f){
+ var b=$('mtRun');b.disabled=false;b.textContent=TX.matchRun;
+ mtRes=pool.map(function(c){var r=cmpOne(p,c);r.c=c;return r});
+ mtRes.sort(function(x,y){
+  return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
+ var msg=TX.matchDone.replace('{n}',pool.length);
+ if(f)msg+=' '+TX.matchFld.replace('{f}',f);
+ if(!done)msg+=' — '+TX.matchCap;
+ $('mtStatus').textContent=pool.length?msg:TX.matchNone;
+ show($('mtAiBar'),!!pool.length);show($('mtAiNote'),!!pool.length);
+ drawMt()}
+
+function drawMt(){
+ if(!mtRes){$('mtList').innerHTML='';return}
+ $('mtList').innerHTML=mtRes.map(function(r){
+  var c=r.c;
+  var meta=[c.role,c.field,c.city,c.experience?c.experience+' '+TX.fYears:'']
+   .filter(Boolean).join(' · ');
+  var bars=WD.map(function(d){var x=r.comp[d[0]];if(!x)return '';
+   if(x.no)return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+    '<span class="no">'+esc(TX.cSkipped+' — '+x.no)+'</span></div>';
+   return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
+    '<span class="tr"><i class="fl" style="width:'+x.s+'%"></i></span>'+
+    '<span class="nb">'+x.s+'%</span>'+
+    (x.note?'<span class="nt">'+esc(x.note)+'</span>':'')+'</div>'}).join('');
+  return '<li><div class="sv1-mt-top">'+
+    '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
+    '<div class="sv1-mt-nm"><b>'+esc(c.name||'—')+'</b>'+
+     (meta?'<small>'+esc(meta)+'</small>':'')+'</div>'+
+    '<div class="sv1-mt-sc">'+
+     (r.score==null?'<em>—</em>':'<b>'+r.score+'%</b>')+
+     '<i>'+esc(r.score==null?TX.scoreNo:TX.scoreL)+'</i></div>'+
+   '</div>'+
+   (r.ai?'<p class="sv1-ai-r"><b>'+esc(TX.aiScoreL+' '+r.ai.score+'%')+'</b>'+
+     (r.ai.reason?' — '+esc(r.ai.reason):'')+'</p>':'')+
+   '<details><summary>'+esc(TX.detailsL)+'</summary>'+
+    '<div class="sv1-bars">'+bars+'</div></details>'+
+   (c.cv?'<p style="margin:10px 0 0"><a class="sv1-emp-link" href="'+esc(c.cv)+
+     '" target="_blank" rel="noopener">'+esc(TX.fCv+' — '+TX.cvOpen)+'</a></p>':'')+
+  '</li>'}).join('')}
+
+// الترتيب بالذكاء الاصطناعي: بالضغط وحده ولا يُطلب تلقائياً — النداء مدفوع.
+// ولا يُرسَل اسمٌ ولا جوّال ولا بريد ولا رابط سيرة: المرسَل هو الحقول
+// المهنية وحدها، كما يضغطها api/hire.js نفسه (cCompact).
+$('mtAi').onclick=function(){
+ if(!mtRes||!mtRes.length||!mtJob)return;
+ var b=$('mtAi'),m=$('mtAiMsg');b.disabled=true;b.textContent=TX.aiWorkR;
+ m.className='sv1-emp-msg';m.textContent='';
+ var send=mtRes.slice(0,120).map(function(r){var c=r.c;
+  return {id:c.id,role:c.role,field:c.field,city:c.city,experience:c.experience,
+   education:c.education,nationalityType:c.nationalityType,skills:c.skills}});
+ fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'match',
+   role:(mtJob.title||'')+'\\n'+(mtJob.description||''),candidates:send})})
+ .then(function(r){return r.status===503?{off:true}:j(r)}).then(function(d){
+  b.disabled=false;b.textContent=TX.aiH;
+  if(d&&d.off){m.className='sv1-emp-msg err';m.textContent=TX.aiOffR;return}
+  if(!d||!d.ok||!d.ranked||!d.ranked.length){
+   m.className='sv1-emp-msg err';m.textContent=TX.aiFailR;return}
+  var by={};d.ranked.forEach(function(x){if(x&&x.id)by[String(x.id)]={
+   score:Math.max(0,Math.min(100,Math.round(Number(x.score)||0))),
+   reason:String(x.reason||'').slice(0,240)}});
+  var n=0;mtRes.forEach(function(r){var a=by[String(r.c.id)];r.ai=a||null;if(a)n++});
+  mtRes.sort(function(x,y){
+   var ax=x.ai?x.ai.score:-1,ay=y.ai?y.ai.score:-1;
+   if(ax!==ay)return ay-ax;
+   return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
+  m.className='sv1-emp-msg ok';
+  m.textContent=TX.aiRanked.replace('{a}',n).replace('{b}',send.length);
+  drawMt()
+ }).catch(function(){b.disabled=false;b.textContent=TX.aiH;
+  m.className='sv1-emp-msg err';m.textContent=TX.aiFailR})};
+
+// ── قاعدة المواهب ─────────────────────────────────────────────────────────
+// بنك السير، صفحةً صفحة. القديمة تلاحق المؤشّر وحدها حتى آخر البنك، فكل بحثٍ
+// فيها مسحٌ متتابع على نوشن لقاعدةٍ من آلاف الصفوف. هنا صفحةٌ واحدة لكل طلب،
+// والتالية بزرٍّ يُضغط — والعدد المكتوب هو عدد ما وصل فعلاً لا تقديرٌ للبنك.
+//
+// ولا جوّال ولا بريد على البطاقة: بطاقة القديمة لا تعرضهما، وهذه لا تزيد
+// عليها حقلاً. السيرة رابطٌ يُفتح، وهي ما يُتصرَّف به فعلاً.
+var tpCur=null,tpN=0,tpSeq=0,tpDeb=0;
+function poolQs(cur){
+ var qs='field='+encodeURIComponent($('tpField').value||'');
+ var q=$('tpQ').value.trim(),ci=$('tpCity').value.trim(),na=$('tpNat').value;
+ if(q)qs+='&q='+encodeURIComponent(q);
+ if(ci)qs+='&city='+encodeURIComponent(ci);
+ if(na)qs+='&nat='+encodeURIComponent(na);
+ if(cur)qs+='&cursor='+encodeURIComponent(cur);
+ return qs}
+
+function poolCard(c){
+ var sk=[];String(c.skills||'').split(SPLIT).forEach(function(x){
+  var v=String(x||'').trim();if(v&&sk.length<4&&sk.indexOf(v)<0)sk.push(v)});
+ var kv=[[TX.dEdu,c.education],[TX.dLang,c.languages],[TX.dAvail,c.availability],
+  [TX.dRegion,[c.region].concat(c.countries||[]).filter(Boolean).join(' · ')],
+  [TX.dRes,c.residenceStatus],[TX.dNatT,c.nationalityType]]
+  .filter(function(p){return p[1]}).map(function(p){
+   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
+ var meta=[c.role,c.city,c.experience?c.experience+' '+TX.fYears:''].filter(Boolean).join(' · ');
+ return '<div><div class="hd">'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
+   '<div style="min-width:0"><b>'+esc(c.name||'—')+'</b>'+
+    (meta?'<small>'+esc(meta)+'</small>':'')+'</div></div>'+
+  (c.field?'<p style="margin:0;font-size:11.5px;color:var(--mut)">'+esc(c.field)+'</p>':'')+
+  (sk.length?'<div class="sv1-tags">'+sk.map(function(x){
+    return '<span>'+esc(x)+'</span>'}).join('')+'</div>':'')+
+  (kv?'<details><summary>'+esc(TX.moreL)+'</summary>'+
+    '<dl class="sv1-emp-kv">'+kv+'</dl></details>':'')+
+  (c.cv?'<div class="ft"><a href="'+esc(c.cv)+'" target="_blank" rel="noopener">'+
+    esc(TX.poolCv)+'</a></div>':'')+
+ '</div>'}
+
+function loadPool(fresh){
+ if(fresh){tpCur=null;tpN=0;$('tpGrid').innerHTML='';loaded.pool=true}
+ var my=++tpSeq;
+ $('tpStatus').textContent=TX.loading;show($('tpMore'),false);
+ get(poolQs(tpCur)).then(function(d){
+  if(my!==tpSeq)return;
+  if(!d||!d.ok){$('tpStatus').textContent=TX.poolErr;show($('tpMore'),!!tpCur);return}
+  var rows=d.candidates||[];tpN+=rows.length;
+  if(rows.length)$('tpGrid').insertAdjacentHTML('beforeend',rows.map(poolCard).join(''));
+  tpCur=d.nextCursor||null;
+  var end=!!d.done||!tpCur;
+  $('tpStatus').textContent=tpN
+   ?(TX[end?'poolN':'poolSo'].replace('{n}',tpN)+(end?' — '+TX.poolEnd:''))
+   :TX.poolNone;
+  show($('tpMore'),!end)
+ }).catch(function(){if(my!==tpSeq)return;
+  $('tpStatus').textContent=TX.poolErr;show($('tpMore'),!!tpCur)})}
+
+$('tpGo').onclick=function(){window.clearTimeout(tpDeb);loadPool(true)};
+$('tpMore').onclick=function(){loadPool(false)};
+$('tpQ').oninput=function(){window.clearTimeout(tpDeb);
+ tpDeb=window.setTimeout(function(){loadPool(true)},600)};
+$('tpQ').onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13){
+ e.preventDefault();window.clearTimeout(tpDeb);loadPool(true)}};
+$('tpField').onchange=function(){loadPool(true)};
+$('tpNat').onchange=function(){loadPool(true)};
+$('tpCity').onchange=function(){loadPool(true)};
+
 // ── الحساب: قائمةٌ في الشريط العلوي، وشاشةٌ في «الإعدادات» ─────────────────
 // نداءٌ واحد يخدم الاثنتين ولا يُطلب إلا عند أول فتح لأيّهما — شاشةٌ مغلقة لا
 // تُكلّف نداءً. وهو النداء الرابع في الجلسة كلها، كما كان.
@@ -1525,7 +1987,7 @@ get('validate=1').then(function(d){
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
   $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
-  warnBar(d);
+  applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
  // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن
  // تُعرض عليه شاشة «أرسل الرمز» وقد أرسله وأثبته من قبل.
