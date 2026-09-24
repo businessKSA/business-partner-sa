@@ -237,9 +237,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
-.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+.sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -255,7 +266,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
-</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style>
 .my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
@@ -335,6 +346,31 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
 .form{display:grid;gap:8px;max-width:520px}
 .form label{font-size:.82rem;color:var(--mut)}
+/* خزانة المستندات — منطقة إفلات واحدة، ثم بطاقة لكل مستند. */
+.dz{border:2px dashed #c7cfe2;border-radius:16px;background:#fff;padding:26px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.dz:hover,.dz.over{border-color:var(--n);background:#f7f9ff}
+.dz:focus-visible{outline:2px solid var(--n);outline-offset:2px}
+.dz .ico{font-size:1.7rem;display:block;margin-bottom:6px;line-height:1}
+.dz b{display:block;color:var(--ink);font-weight:500;font-size:.97rem}
+.dz small{color:var(--mut);font-size:.8rem}
+.dfile{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;margin-top:12px}
+select.inp{background:#fff;color:inherit}
+.dgrid label{display:block;margin-bottom:4px}
+.dfile .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;color:var(--ink)}
+.dfile .sz{color:var(--mut);font-size:.78rem;white-space:nowrap;font-family:var(--fm)}
+.bar{height:6px;border-radius:999px;background:#eef0f5;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--n);width:0;transition:width .18s}
+.bar.bad i{background:#b91c1c}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:#fff}
+.doc.soon{border-color:#f59e0b;background:#fffbeb}
+.doc.gone{border-color:#fecaca;background:#fff5f5}
+.doc .hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.doc .hd b{color:var(--ink);font-size:.95rem;font-weight:500}
+.doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
+.doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
+.doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:620px){.dgrid{grid-template-columns:1fr}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
 </style>
@@ -365,7 +401,32 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">تسجيل الخروج</button>
     
   </div>
-</div></header>
+</div></header><script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script>
 <div id="app"></div>
 <footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
@@ -388,20 +449,77 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
     <div class="sv1-foot-col">
       <h4>الدفع</h4>
       <p class="sv1-foot-note">مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.</p>
-      <div class="sv1-foot-links">
-        <a href="/ar/terms">الشروط والأحكام</a>
-        <a href="/ar/catalog">كل الخدمات</a>
-      </div>
+    </div>
+  </div>
+
+  <!-- الصفحات التي لا تظهر في الترويسة. الموقع الجديد يربط ست وجهات فقط،
+       فبقيت ثمانٍ وخمسون صفحة بلا بابٍ إليها: منتجات وأدلة وحاسبات ومجلة.
+       تُجمع هنا في ثلاثة أعمدة بخمسة روابط لكل عمود — ما يزيد يصير قائمةً
+       تُتجاهَل. وما لا يُذكر هنا يبقى مقصوداً: اللوحات وبوابات الدخول
+       (يصلها صاحبها برابطه)، والنسخ المحفوظة بلاحقة -classic، وصفحات
+       المنتجات المفردة التي بابها صفحة الكتالوج. -->
+  <div class="sv1-foot-nav">
+    <div class="sv1-foot-navcol">
+      <h5>الخدمات</h5>
+      <a href="/ar/catalog">كل الخدمات</a>
+      <a href="/ar/packages">الباقات</a>
+      <a href="/ar/ai-agents">المستشارون الأذكياء</a>
+      <a href="/ar/business-development">تطوير الأعمال</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>المعرفة</h5>
+      <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
+           صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
+      <a href="/ar/knowledge-center">مركز المعرفة</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>الشركة</h5>
+      <a href="/ar/about">من نحن</a>
+      <a href="/ar/contact">تواصل معنا</a>
+      <a href="/ar/careers">الوظائف</a>
+      <a href="/ar/suppliers">الشركاء</a>
+      <a href="/ar/terms">الشروط والأحكام</a>
     </div>
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · جميع الحقوق محفوظة</div>
 </div></footer>
 <a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script><script>
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script>
 (function(){
-var LANG="ar",EV={"request.created":"أنشأ الطلب","request.created.manual":"أُنشئ الطلب يدوياً","scope.proposed":"اقترح النطاق","scope.edited":"عدّل النطاق","scope.confirmed":"اعتمد النطاق","quote.pending":"بانتظار عرض السعر","message.customer":"رسالة من العميل","message.bp":"رد الفريق","attachment.added":"أضاف مرفقاً","quote.drafted":"مسودة عرض سعر","quote.sent":"أرسل عرض السعر","quote.approved":"اعتمد العرض","quote.rejected":"طلب تعديل العرض","contract.sent":"أرسل العقد","contract.signed":"وقّع العقد","payment.paid":"تم الدفع","payment.failed":"فشل الدفع","payment.cancelled":"أُلغي الدفع","payment.pending":"دفع معلّق","invoice.issued":"صدرت الفاتورة","appointment.booked":"حجز موعداً","appointment.rescheduled":"أعاد جدولة الموعد","appointment.cancelled":"ألغى الموعد","appointment.set":"ثبّت الموعد","task.created":"أنشأ مهمة","task.human_required":"مهمة تحتاج تدخلاً بشرياً","task.done":"أنجز المهمة","task.in_progress":"بدأ المهمة","task.waiting":"مهمة بانتظار","task.todo":"أعاد فتح المهمة","execution.started":"بدأ التنفيذ","request.cancelled":"ألغى الطلب","request.updated":"حدّث الطلب"},TX={"title":"حسابي — Business Partner","navHome":"الرئيسية","navNew":"ابدأ طلب جديد","navRequests":"طلباتي","navQuotes":"عروض الأسعار","navContracts":"العقود","navAppts":"المواعيد","navPay":"السلة والدفع","navInvoices":"الفواتير","navChats":"المحادثات","navCompany":"بيانات الشركة","logout":"تسجيل الخروج","site":"الموقع","attention":"وش يحتاج انتباهك الآن؟","kActive":"طلبات نشطة","kQuotes":"عروض بانتظار اعتمادك","kContracts":"عقود بانتظار توقيعك","kPayments":"مدفوعات مستحقة","kAppts":"موعد قادم","today":"وش تحتاج اليوم؟","empty":"لا يوجد شيء هنا بعد.","ref":"رقم الطلب","status":"الحالة","open":"فتح","back":"رجوع","conversation":"المحادثة","scope":"نطاق الخدمات","cancelTitle":"إلغاء الطلب","cancelAsk":"اطلب الإلغاء","cancelWhy":"سبب الإلغاء (اختياري)","cancelEarly":"الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.","cancelLate":"الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.","cancelSent":"استلمنا طلب الإلغاء ويراجعه الفريق.","cancelDone":"أُلغي الطلب","resign":"صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.","openFull":"افتح بالحجم الكامل","docPrint":"طباعة / حفظ PDF","docClose":"إغلاق","docWait":"نجهّز المستند…","attachments":"المرفقات","quote":"عرض السعر","contract":"العقد","payment":"الدفع","invoice":"الفاتورة","timeline":"الخط الزمني","writeMsg":"اكتب رسالة للفريق…","send":"إرسال","saveScope":"حفظ التعديلات","confirmScope":"اعتمد النطاق وتابع","scopePricing":"تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.","docs":"المستندات المطلوبة","docsNote":"جهّز هذه المستندات — نطلبها لإتمام طلبك.","docsNone":"لا مستندات مطلوبة حتى الآن.","addItem":"إضافة بند","remove":"حذف","scopeLocked":"النطاق مقفل بعد إصدار عرض السعر.","qty":"الكمية","price":"السعر","net":"الإجمالي قبل الضريبة","vat":"ضريبة القيمة المضافة 15%","total":"الإجمالي","validUntil":"صالح حتى","terms":"شروط الدفع","approve":"اعتماد العرض","reject":"طلب تعديل","rejectNote":"ما الذي تريد تعديله؟","quoteApproved":"تم اعتماد العرض، والعقد جاهز للتوقيع الآن.","viewContract":"عرض العقد","signTitle":"التوقيع الإلكتروني","signName":"الاسم الكامل للموقّع","signDraw":"ارسم توقيعك","signClear":"مسح","signConsent":"أوافق على أن توقيعي الإلكتروني ملزم وفق نظام التعاملات الإلكترونية.","signBtn":"توقيع العقد","signed":"تم توقيع العقد","payNow":"ادفع الآن","payCardNow":"ادفع بالبطاقة","payTamaraNow":"قسّطها مع تمارا","payReturning":"نؤكّد دفعتك…","payVia":"الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)","testPay":"محاكاة الدفع (وضع الاختبار)","paySuccess":"نجاح — بطاقة","payTamara":"نجاح — تمارا","payFailed":"فشل","payCancelled":"إلغاء","payPending":"معلّق","paid":"مدفوع","download":"عرض الفاتورة","book":"احجز موعداً","reschedule":"إعادة جدولة","cancelAppt":"إلغاء الموعد","date":"التاريخ","time":"الوقت","topic":"الموضوع","confirm":"تأكيد","apptNote":"المواعيد من الأحد إلى الخميس، بتوقيت الرياض. نؤكد الموعد على بريدك.","cancelReq":"إلغاء الطلب","company":"اسم الشركة","cr":"السجل التجاري","nameEn":"الاسم بالإنجليزية","save":"حفظ","saved":"تم الحفظ","you":"أنت","team":"الفريق","assistant":"المساعد","loginTitle":"تسجيل الدخول","loginText":"أدخل بريدك ونرسل لك رمز دخول.","email":"البريد الإلكتروني","sendCode":"أرسل الرمز","password":"كلمة المرور","loginPw":"دخول بكلمة المرور","usePw":"لديك كلمة مرور؟ ادخل بها","useCode":"ادخل برمز البريد بدلاً من ذلك","orGoogle":"أو ادخل بحساب Google","pwTitle":"كلمة المرور","pwNote":"اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.","pwSave":"حفظ كلمة المرور","pwShort":"كلمة المرور ٨ أحرف على الأقل.","pwSaved":"تم حفظ كلمة المرور ✓","code":"رمز الدخول","verify":"دخول","loginErr":"تعذّر إرسال الرمز.","codeErr":"الرمز غير صحيح.","error":"حدث خطأ. حاول مرة أخرى.","waitingTeam":"الفريق يراجع طلبك","needYou":"بانتظارك","tasksTitle":"مطلوب منك","done":"تم","requestCreated":"تم إنشاء الطلب","testRibbon":"وضع الاختبار — لا مدفوعات حقيقية","sourceLbl":"المصدر"},ST={"NEW":"جديد","REVIEWING":"قيد المراجعة","WAITING_CLIENT":"بانتظار ردك","QUOTE_SENT":"عرض سعر بانتظار اعتمادك","QUOTE_APPROVED":"العرض معتمد","CONTRACT_SENT":"عقد بانتظار توقيعك","SIGNED":"موقّع — بانتظار الدفع","PAYMENT_PENDING":"بانتظار الدفع","PAID":"مدفوع — جاهز للتنفيذ","IN_PROGRESS":"قيد التنفيذ","WAITING_INTERNAL":"قيد التنفيذ","COMPLETED":"مكتمل","CANCELLED":"ملغي"},TY={"CONSULTATION":"استشارة","GOVERNMENT_SERVICE":"خدمة حكومية","COMPANY_FORMATION":"تأسيس شركة"},HOME="/ar/",CHECKOUT="/ar/checkout";
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:''};
+var LANG="ar",EV={"request.created":"أنشأ الطلب","request.created.manual":"أُنشئ الطلب يدوياً","scope.proposed":"اقترح النطاق","scope.edited":"عدّل النطاق","scope.confirmed":"اعتمد النطاق","quote.pending":"بانتظار عرض السعر","message.customer":"رسالة من العميل","message.bp":"رد الفريق","attachment.added":"أضاف مرفقاً","quote.drafted":"مسودة عرض سعر","quote.sent":"أرسل عرض السعر","quote.approved":"اعتمد العرض","quote.rejected":"طلب تعديل العرض","contract.sent":"أرسل العقد","contract.signed":"وقّع العقد","payment.paid":"تم الدفع","payment.failed":"فشل الدفع","payment.cancelled":"أُلغي الدفع","payment.pending":"دفع معلّق","invoice.issued":"صدرت الفاتورة","appointment.booked":"حجز موعداً","appointment.rescheduled":"أعاد جدولة الموعد","appointment.cancelled":"ألغى الموعد","appointment.set":"ثبّت الموعد","task.created":"أنشأ مهمة","task.human_required":"مهمة تحتاج تدخلاً بشرياً","task.done":"أنجز المهمة","task.in_progress":"بدأ المهمة","task.waiting":"مهمة بانتظار","task.todo":"أعاد فتح المهمة","execution.started":"بدأ التنفيذ","request.cancelled":"ألغى الطلب","request.updated":"حدّث الطلب"},TX={"title":"حسابي — Business Partner","navHome":"الرئيسية","navNew":"ابدأ طلب جديد","navRequests":"طلباتي","navQuotes":"عروض الأسعار","navContracts":"العقود","navAppts":"المواعيد","navPay":"السلة والدفع","navInvoices":"الفواتير","navChats":"المحادثات","navCompany":"بيانات الشركة","logout":"تسجيل الخروج","site":"الموقع","attention":"وش يحتاج انتباهك الآن؟","kActive":"طلبات نشطة","kQuotes":"عروض بانتظار اعتمادك","kContracts":"عقود بانتظار توقيعك","kPayments":"مدفوعات مستحقة","kAppts":"موعد قادم","today":"وش تحتاج اليوم؟","empty":"لا يوجد شيء هنا بعد.","ref":"رقم الطلب","status":"الحالة","open":"فتح","back":"رجوع","conversation":"المحادثة","scope":"نطاق الخدمات","cancelTitle":"إلغاء الطلب","cancelAsk":"اطلب الإلغاء","cancelWhy":"سبب الإلغاء (اختياري)","cancelEarly":"الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.","cancelLate":"الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.","cancelSent":"استلمنا طلب الإلغاء ويراجعه الفريق.","cancelDone":"أُلغي الطلب","resign":"صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.","openFull":"افتح بالحجم الكامل","docPrint":"طباعة / حفظ PDF","docClose":"إغلاق","docWait":"نجهّز المستند…","attachments":"المرفقات","quote":"عرض السعر","contract":"العقد","payment":"الدفع","invoice":"الفاتورة","timeline":"الخط الزمني","writeMsg":"اكتب رسالة للفريق…","send":"إرسال","saveScope":"حفظ التعديلات","confirmScope":"اعتمد النطاق وتابع","scopePricing":"تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.","docs":"المستندات المطلوبة","docsNote":"جهّز هذه المستندات — نطلبها لإتمام طلبك.","docsNone":"لا مستندات مطلوبة حتى الآن.","addItem":"إضافة بند","remove":"حذف","scopeLocked":"النطاق مقفل بعد إصدار عرض السعر.","qty":"الكمية","price":"السعر","net":"الإجمالي قبل الضريبة","vat":"ضريبة القيمة المضافة 15%","total":"الإجمالي","validUntil":"صالح حتى","terms":"شروط الدفع","approve":"اعتماد العرض","reject":"طلب تعديل","rejectNote":"ما الذي تريد تعديله؟","quoteApproved":"تم اعتماد العرض، والعقد جاهز للتوقيع الآن.","viewContract":"عرض العقد","signTitle":"التوقيع الإلكتروني","signName":"الاسم الكامل للموقّع","signDraw":"ارسم توقيعك","signClear":"مسح","signConsent":"أوافق على أن توقيعي الإلكتروني ملزم وفق نظام التعاملات الإلكترونية.","signBtn":"توقيع العقد","signed":"تم توقيع العقد","payNow":"ادفع الآن","payCardNow":"ادفع بالبطاقة","payTamaraNow":"قسّطها مع تمارا","payReturning":"نؤكّد دفعتك…","payVia":"الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)","testPay":"محاكاة الدفع (وضع الاختبار)","paySuccess":"نجاح — بطاقة","payTamara":"نجاح — تمارا","payFailed":"فشل","payCancelled":"إلغاء","payPending":"معلّق","paid":"مدفوع","download":"عرض الفاتورة","book":"احجز موعداً","reschedule":"إعادة جدولة","cancelAppt":"إلغاء الموعد","date":"التاريخ","time":"الوقت","topic":"الموضوع","confirm":"تأكيد","apptNote":"المواعيد من الأحد إلى الخميس، بتوقيت الرياض. نؤكد الموعد على بريدك.","cancelReq":"إلغاء الطلب","company":"اسم الشركة","cr":"السجل التجاري","nameEn":"الاسم بالإنجليزية","save":"حفظ","saved":"تم الحفظ","you":"أنت","team":"الفريق","assistant":"المساعد","loginTitle":"تسجيل الدخول","loginText":"أدخل بريدك ونرسل لك رمز دخول.","email":"البريد الإلكتروني","sendCode":"أرسل الرمز","password":"كلمة المرور","loginPw":"دخول بكلمة المرور","usePw":"لديك كلمة مرور؟ ادخل بها","useCode":"ادخل برمز البريد بدلاً من ذلك","orGoogle":"أو ادخل بحساب Google","pwTitle":"كلمة المرور","pwNote":"اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.","pwSave":"حفظ كلمة المرور","pwShort":"كلمة المرور ٨ أحرف على الأقل.","pwSaved":"تم حفظ كلمة المرور ✓","code":"رمز الدخول","verify":"دخول","loginErr":"تعذّر إرسال الرمز.","codeErr":"الرمز غير صحيح.","error":"حدث خطأ. حاول مرة أخرى.","waitingTeam":"الفريق يراجع طلبك","needYou":"بانتظارك","tasksTitle":"مطلوب منك","done":"تم","requestCreated":"تم إنشاء الطلب","testRibbon":"وضع الاختبار — لا مدفوعات حقيقية","sourceLbl":"المصدر","navDocs":"مستنداتي","vaultNote":"ارفع مستندك مرّة واحدة — نستعمله في كل طلب، ولا يراه أحد خارج حسابك.","dzPick":"اسحب الملف هنا أو اضغط للاختيار","dzHint":"PDF أو صورة (JPG · PNG · WEBP) — حتى ٨ ميجابايت","dName":"اسم المستند","dCat":"نوعه","dExp":"تاريخ الانتهاء (اختياري)","dSend":"ارفع المستند","dOther":"اختر ملفاً آخر","dUploading":"جارٍ الرفع","dDone":"تم رفع المستند ✓","dNewVerDone":"رُفعت نسخة جديدة ✓","eBig":"الملف أكبر من ٨ ميجابايت","eType":"هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.","eEmpty":"الملف فارغ.","eName":"اكتب اسم المستند أولاً.","eNet":"تعذّر الوصول إلى الخادم — تحقّق من اتصالك وأعد المحاولة.","eUp":"تعذّر رفع الملف","eRead":"تعذّرت قراءة الملف من جهازك.","eNoOrg":"أضف اسم شركتك في «بيانات الشركة» أولاً — الخزانة مرتبطة بالمنشأة.","dOpen":"فتح","dNewVer":"نسخة جديدة","dDel":"حذف","dDelAsk":"حذف هذا المستند نهائياً من خزانتك؟","dVer":"نسخة","dExpires":"ينتهي","dExpired":"منتهي","dLeftA":"باقي","dLeftB":"يوم","dPending":"قيد التحقق","dReadOk":"مقروء آلياً ✓","dNone":"لا مستندات بعد — ابدأ بأول مستند من الأعلى.","dLoading":"نحمّل خزانتك…","dEntity":"المنشأة","dCr":"س.ت","dVat":"الرقم الضريبي","dIssued":"الإصدار","dRetry":"أعد المحاولة"},ST={"NEW":"جديد","REVIEWING":"قيد المراجعة","WAITING_CLIENT":"بانتظار ردك","QUOTE_SENT":"عرض سعر بانتظار اعتمادك","QUOTE_APPROVED":"العرض معتمد","CONTRACT_SENT":"عقد بانتظار توقيعك","SIGNED":"موقّع — بانتظار الدفع","PAYMENT_PENDING":"بانتظار الدفع","PAID":"مدفوع — جاهز للتنفيذ","IN_PROGRESS":"قيد التنفيذ","WAITING_INTERNAL":"قيد التنفيذ","COMPLETED":"مكتمل","CANCELLED":"ملغي"},TY={"CONSULTATION":"استشارة","GOVERNMENT_SERVICE":"خدمة حكومية","COMPANY_FORMATION":"تأسيس شركة"},HOME="/ar/",CHECKOUT="/ar/checkout";
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -441,14 +559,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};return {quotes:c.quotes,contracts:c.contracts,pay:c.payments}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
-var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
+var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\u0600-\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\u0600-\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
@@ -496,6 +614,185 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.em
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
 var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
+
+// ---------- المستندات: خزانة واحدة للعميل
+// هذه هي خزانة /account نفسها — الجداول documents و document_versions
+// والمسارات my-ops الموجودة أصلاً. لا خزانة ثانية ولا دالة api جديدة: مستندٌ
+// يُرفع هنا يظهر هناك، وفي المقابل ينتقل العميل بين البوابتين بلا فقدان ورقة.
+//
+// attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
+// بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
+var DOC_CATS=[["cr","سجل تجاري"],["vat","شهادة ضريبية"],["contract","عقد"],["id","هوية / إقامة"],["other","أخرى"]];
+var MAX_DOC=8*1024*1024;
+var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
+var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
+function extOf(n){var t=String(n||'');var i=t.lastIndexOf('.');return i<0?'':t.slice(i+1).toLowerCase()}
+// النوع من ترويسة المتصفح أولاً، ومن الامتداد حين لا يعرفه المتصفح (يحدث على
+// أندرويد ومع بعض ملفات PDF) — فلا يُرفض ملفٌ سليم لأن المتصفح صمت عن نوعه.
+function mimeOf(f){return OK_MIME[String((f&&f.type)||'').toLowerCase()]||OK_EXT[extOf(f&&f.name)]||''}
+function kb(n){n=Number(n||0);return n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB')}
+function baseName(n){var t=String(n||'').replace(/\.[^.]+$/,'');return t.slice(0,120)}
+function daysLeft(d){if(!d)return null;var t=Date.parse(String(d).slice(0,10)+'T00:00:00Z');if(!isFinite(t))return null;
+ var today=Date.parse(new Date().toISOString().slice(0,10)+'T00:00:00Z');return Math.round((t-today)/86400000)}
+function dayStr(n){return LANG==='en'?(n+' '+TX.dLeftB):(TX.dLeftA+' '+n+' '+TX.dLeftB)}
+// الحارس الذي يشتغل قبل أن يغادر الملف الجهاز. صار الخادم يرفض الصيغة
+// والحجم فعلاً (bad_type / too_large)، لكن الرفض هنا أرخص: لا ينتظر
+// العميل رفع ثمانية ميجابايت ليُقال له «غير مقبول». والرسالتان واحدة في
+// الموضعين — upErr يترجم ردّ الخادم إلى النصّ نفسه.
+function fileErr(f){if(!f)return TX.eType;if(!f.size)return TX.eEmpty;
+ if(!mimeOf(f))return TX.eType;if(f.size>MAX_DOC)return TX.eBig+' ('+kb(f.size)+')';return ''}
+function toB64(f){return new Promise(function(res,rej){var fr=new FileReader();
+ fr.onload=function(){var t=String(fr.result||'');var i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};
+ fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
+function opsGet(what,extra){return fetch('/api/requests?action=my-ops&what='+what+(extra||''),{credentials:'same-origin',cache:'no-store'})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+function opsPost(b){return fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+// ردّ الخادم رمزٌ إنجليزي، وما يقرؤه العميل جملةٌ بلغته تقول ما المشكلة وما
+// الحلّ. bad_type و too_large حالتا رفضٍ للملف نفسه: إعادة المحاولة بالملف
+// ذاته لن تنجح أبداً، فلا تُعرض بنصّ «حاول مرة أخرى» العامّ. والرمز لا يظهر
+// للعميل في أي حال — يذهب إلى الـconsole لمن يشخّص.
+function upErr(e){e=String(e||'');
+ if(e==='network')return TX.eNet;
+ if(e==='no_org')return TX.eNoOrg;
+ if(e==='bad_type')return TX.eType;
+ if(e==='too_large')return TX.eBig;
+ if(e==='invalid_fields')return TX.eName;
+ if(e&&window.console)console.warn('upload:',e);
+ return TX.eUp}
+// رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
+// لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
+function sendDoc(payload,onp){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+ x.setRequestHeader('content-type','application/json');
+ if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
+ x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
+  if(o&&typeof o==='object'&&('ok' in o))res(o);else res({ok:false,error:'http_'+x.status})};
+ x.onerror=function(){res({ok:false,error:'network'})};
+ x.onabort=function(){res({ok:false,error:'network'})};
+ x.ontimeout=function(){res({ok:false,error:'network'})};
+ try{x.send(JSON.stringify(payload))}catch(e){res({ok:false,error:'network'})}})}
+function setDocBadge(){var a=document.querySelector('[data-nav="documents"]');if(!a)return;
+ var n=badges().documents;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}
+ if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function loadDocs(){return opsGet('documents').then(function(o){if(o&&o.ok)state.docs=o.items||[];setDocBadge();return o})}
+
+function viewDocuments(m){
+ m.appendChild(h('h1',{},[TX.navDocs]));
+ var noOrg=!(state.me.organization&&state.me.organization.id);
+ var card=h('div',{class:'card'});
+ card.appendChild(h('p',{class:'note',style:'margin:0 0 12px'},[TX.vaultNote]));
+ var file=h('input',{type:'file',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ var dz=h('div',{class:'dz',tabindex:'0',role:'button'},[h('span',{class:'ico'},['📄']),h('b',{},[TX.dzPick]),h('small',{},[TX.dzHint])]);
+ var err=h('div',{class:'err',style:'margin-top:10px'}),okm=h('div',{class:'ok',style:'margin-top:10px'});
+ var form=h('div',{hidden:'',style:'margin-top:12px'});
+ var picked=null,version=null;   // version = {id,title,category} حين تكون نسخةً جديدة من مستند قائم
+ var fname=h('span',{class:'nm'}),fsize=h('span',{class:'sz'});
+ var again=h('button',{class:'btn ghost sm',onclick:function(){file.click()}},[TX.dOther]);
+ var title=h('input',{class:'inp',maxlength:'200',placeholder:TX.dName});
+ var cat=h('select',{class:'inp'},DOC_CATS.map(function(c){return h('option',{value:c[0]},[c[1]])}));
+ var exp=h('input',{class:'inp',type:'date'});
+ var bar=h('div',{class:'bar',hidden:''},[h('i',{})]);
+ var send=h('button',{class:'btn'},[TX.dSend]);
+ var fields=h('div',{class:'dgrid',style:'margin-top:10px'},[
+  h('div',{},[h('label',{class:'note'},[TX.dName]),title]),
+  h('div',{},[h('label',{class:'note'},[TX.dCat]),cat]),
+  h('div',{},[h('label',{class:'note'},[TX.dExp]),exp])]);
+ form.appendChild(h('div',{class:'dfile'},[h('span',{},['📎']),fname,fsize,again]));
+ form.appendChild(fields);form.appendChild(bar);
+ form.appendChild(h('div',{style:'margin-top:12px'},[send]));
+ function reset(){picked=null;version=null;form.hidden=true;fields.hidden=false;file.value='';
+  title.value='';exp.value='';cat.value='other';bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend}
+ function take(f){err.textContent='';okm.textContent='';
+  var e=fileErr(f);
+  if(e){err.textContent=e;picked=null;form.hidden=true;file.value='';return}
+  picked=f;fname.textContent=f.name;fsize.textContent=kb(f.size);
+  bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend;
+  if(version){title.value=version.title;cat.value=version.category||'other';fields.hidden=true}
+  else{fields.hidden=false;if(!title.value)title.value=baseName(f.name)}
+  form.hidden=false;if(!version)title.focus()}
+ file.addEventListener('change',function(){take(file.files&&file.files[0])});
+ dz.addEventListener('click',function(){if(!noOrg)file.click()});
+ dz.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!noOrg)file.click()}});
+ ['dragenter','dragover'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.add('over')})});
+ ['dragleave','drop'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.remove('over')})});
+ dz.addEventListener('drop',function(e){if(noOrg)return;var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)take(f)});
+ send.addEventListener('click',function(){
+  err.textContent='';okm.textContent='';
+  if(!picked){err.textContent=TX.eType;return}
+  var e=fileErr(picked);if(e){err.textContent=e;return}
+  var t=(title.value||'').trim();if(!t){err.textContent=TX.eName;title.focus();return}
+  var wasVersion=!!version;
+  send.disabled=true;bar.hidden=false;bar.className='bar';bar.firstChild.style.width='4%';
+  send.textContent=TX.dUploading+' 0%';
+  toB64(picked).then(function(b64){
+   return sendDoc({action:'ops-doc-upload',title:t,category:cat.value,expiry:exp.value||'',
+                   fileName:picked.name,mime:mimeOf(picked),base64:b64},
+    function(p){var pc=Math.max(4,Math.min(99,Math.round(p*100)));
+     bar.firstChild.style.width=pc+'%';send.textContent=TX.dUploading+' '+pc+'%'})
+  }).then(function(o){
+   if(o&&o.ok){bar.firstChild.style.width='100%';
+    okm.textContent=(wasVersion?TX.dNewVerDone:TX.dDone)+(o.version>1?(' · '+verLbl(o.version)):'');
+    setTimeout(reset,600);return loadDocs().then(draw)}
+   if(o&&o.error==='unauthorized'){location.reload();return}
+   bar.className='bar bad';err.textContent=upErr(o&&o.error);
+   send.disabled=false;send.textContent=TX.dRetry;
+  }).catch(function(){bar.className='bar bad';err.textContent=TX.eRead;
+   send.disabled=false;send.textContent=TX.dRetry})});
+ card.appendChild(dz);card.appendChild(file);card.appendChild(err);card.appendChild(okm);card.appendChild(form);
+ if(noOrg){dz.style.opacity='.55';dz.style.cursor='not-allowed';err.textContent=TX.eNoOrg}
+ m.appendChild(card);
+
+ var list=h('div',{class:'list',style:'margin-top:14px'});m.appendChild(list);
+ list.appendChild(h('p',{class:'note'},[TX.dLoading]));
+ function draw(){
+  list.innerHTML='';
+  var items=state.docs||[];
+  if(!items.length){list.appendChild(h('p',{class:'note'},[TX.dNone]));return}
+  items.forEach(function(d){
+   var n=daysLeft(d.expiry_date);
+   var box=h('div',{class:'doc'+(n===null?'':n<0?' gone':n<=30?' soon':'')});
+   var chips=[h('b',{},[d.title||'']),h('span',{class:'pill mut'},[catName(d.category)])];
+   if(n!==null&&n<=30)chips.push(h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)]));
+   chips.push(h('span',{class:'pill '+(d.extracted?'ok':'mut')},[d.extracted?TX.dReadOk:TX.dPending]));
+   box.appendChild(h('div',{class:'hd'},chips));
+   var vers=(d.document_versions||[]).slice().sort(function(a,b){return (b.version_no||0)-(a.version_no||0)});
+   var cur=vers[0]||null;
+   var meta=[];
+   if(cur)meta.push((cur.file_name||'')+' · '+verLbl(cur.version_no||1));
+   if(d.expiry_date)meta.push(TX.dExpires+' '+String(d.expiry_date).slice(0,10));
+   meta.push(when(d.created_at));
+   box.appendChild(h('div',{class:'meta'},[meta.join(' · ')]));
+   if(d.extracted){var x=d.extracted,bits=[];
+    if(x.companyNameAr||x.companyNameEn)bits.push(TX.dEntity+': '+(x.companyNameAr||x.companyNameEn));
+    if(x.crNumber)bits.push(TX.dCr+': '+x.crNumber);
+    if(x.vatNumber)bits.push(TX.dVat+': '+x.vatNumber);
+    if(d.issue_date||x.issueDate)bits.push(TX.dIssued+': '+String(d.issue_date||x.issueDate).slice(0,10));
+    if(bits.length)box.appendChild(h('div',{class:'read'},['🤖 '+bits.join(' · ')]))}
+   var dmsg=h('span',{class:'err'});
+   var acts=h('div',{class:'acts'});
+   if(cur)acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     dmsg.textContent='';opsGet('doc-link','&version='+encodeURIComponent(cur.id)).then(function(o){
+      if(o&&o.ok&&o.url)window.open(o.url,'_blank','noopener');else dmsg.textContent=upErr(o&&o.error)})}},[TX.dOpen]));
+   acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     version={id:d.id,title:d.title,category:d.category};okm.textContent='';err.textContent='';
+     file.value='';file.click();
+     try{card.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}},[TX.dNewVer]));
+   acts.appendChild(h('button',{class:'btn danger sm',onclick:function(){
+     if(!window.confirm(TX.dDelAsk+'\n\n'+(d.title||'')))return;
+     dmsg.textContent='';opsPost({action:'ops-doc-delete',id:d.id}).then(function(o){
+      if(o&&o.ok){loadDocs().then(draw);return}dmsg.textContent=upErr(o&&o.error)})}},[TX.dDel]));
+   acts.appendChild(dmsg);
+   box.appendChild(acts);
+   list.appendChild(box)})}
+ if(state.docs)draw();
+ loadDocs().then(function(o){if(o&&!o.ok&&o.error==='network'){list.innerHTML='';list.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()})}
+function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
+function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
+ return DOC_CATS[DOC_CATS.length-1][1]}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
@@ -587,7 +884,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

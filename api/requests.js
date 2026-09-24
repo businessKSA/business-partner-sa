@@ -18,7 +18,8 @@ const TEAM_EMAIL = process.env.BOOKING_EMAIL || "business@businesspartner.sa";
 
 // ---- CRM (Notion "Sales Pipeline") + newsletter audience ----
 import { handleSuppliers, progressForClientRefs, quotesForClientRefs, decideQuote, markOrderPaid, parseSubsFromNotes } from "./_suppliers.js";
-import { bdTrial, isPaidBdOrder, openFor } from "./_trial.js";
+import { bdTrial, isPaidBdOrder, openFor, isOwnerEmail } from "./_trial.js";
+import { DEV, EMAIL_LIVE, WHATSAPP_LIVE, MODES, outbox } from "./_mode.js";
 import {
   SECTORS as BD_SECTORS, CITIES as BD_CITIES, normalizeProfile, profileCompleteness,
   canMatch, mergeExtracted, sectorLabel, cityLabel, PROFILE_READ_PROMPT,
@@ -38,7 +39,30 @@ import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
+import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+// خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
+// حدّ الخزنة (٨MB) غير حدّ القراءة الآلية (`MAX_DOC_BYTES` = ٦MB): الأول ما
+// يُحفَظ، والثاني ما يُرسَل إلى القارئ. هما رقمان مختلفان عن قصد.
+const DOC_VAULT_MIME = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/;
+const DOC_VAULT_MAX_BYTES = 8 * 1024 * 1024;
+// النوع من الامتداد حين يصمت المتصفح عنه. `/my` تُطبّع النوع قبل الإرسال،
+// أمّا `/account` القديمة فترسل `f.type` كما هو — وهو فارغ أو
+// `application/octet-stream` على أندرويد ومع بعض ملفات PDF. بلا هذا الرجوع
+// يصير رفضُ الصيغة كسراً لرفعٍ سليم. ولا يُخمَّن إلا للصامت: نوعٌ مصرَّحٌ به
+// وخارج القائمة يُرفض ولو كان الامتداد مقبولاً.
+const DOC_VAULT_EXT = {
+  pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+};
+const docVaultMime = (rawMime, fileName) => {
+  const m = String(rawMime || "").trim().toLowerCase();
+  if (m === "image/jpg" || m === "image/pjpeg") return "image/jpeg";
+  if (m && m !== "application/octet-stream" && m !== "binary/octet-stream") return m;
+  return DOC_VAULT_EXT[String(fileName || "").split(".").pop().toLowerCase()] || m;
+};
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
 const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
@@ -62,12 +86,47 @@ const panelOk = (src) => {
   const s = src && typeof src === "object" ? src : { key: src };
   return ownerTicketOk(s.ticket) || panelKeyOk(s.key);
 };
+// بابا /ops نفسهما كما في api/_simple.js: مفتاح اللوحة (أو تذكرة نفاذ)، أو
+// جلسة المالك ببريده — فلا يحمل مفتاحاً بين أجهزته. ويُقبل مفتاح المعاينة
+// الرمزي في النسخ التجريبية والمحلية وحدها، وإلا فُتحت لوحة الإحصائيات
+// محلياً وأُغلقت في الإنتاج بلا سبب ظاهر.
+const SIMPLE_OPS_KEY = (process.env.SIMPLE_OPS_KEY || "test-ops").trim();
+const OPS_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
+async function opsGate(req, src) {
+  if (panelOk(src)) return true;
+  const key = String((src && src.key) || "").trim();
+  if (OPS_TEST_MODE && key && key === SIMPLE_OPS_KEY && !panelRequiresNafath()) return true;
+  let sess = null;
+  try { sess = await getSession(req); } catch { return false; }
+  return isOwnerEmail(sess && sess.user && sess.user.email);
+}
 const RESEND_AUDIENCE = process.env.RESEND_AUDIENCE_ID || "";
 const NOTION_VERSION = "2022-06-28";
 const LEAD_WEBHOOK = process.env.LEAD_WEBHOOK_URL || "";
 async function forwardLead(payload) {
   if (!LEAD_WEBHOOK) return;
+  // Local development never posts a test lead to a real pipeline: it lands in
+  // the outbox with everything else that would have left the machine.
+  if (DEV) { await outbox({ kind: "webhook", to: LEAD_WEBHOOK, subject: `${payload.source || "lead"} ${payload.ref || ""}`.trim(), body: String(payload.items || payload.notes || "").slice(0, 500), payload }); return; }
   try { await fetch(LEAD_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
+}
+// The owner's WhatsApp lead pipe (n8n «website-lead-notify»): every ticket,
+// booking, portal order, advisor hand-off and fresh WhatsApp contact rings the
+// owner's phone through it. It used to be called unconditionally, so a
+// developer submitting the contact form on localhost paged the owner with
+// test data and created a real lead. Same gate as e-mail in _simple.js: unless
+// WHATSAPP_MODE is live (production default; mock on localhost and previews)
+// the payload goes to the outbox and nothing leaves the machine.
+const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+async function ownerWaNotify(payload) {
+  if (!WHATSAPP_LIVE) {
+    await outbox({ kind: "whatsapp", to: OWNER_WA_WEBHOOK, subject: `${payload.source || "notify"} ${payload.ref || ""}`.trim(), body: String(payload.transcript || "").slice(0, 2000), payload });
+    return { ok: false, skipped: "whatsapp_mode_" + MODES().whatsapp };
+  }
+  try {
+    const r = await fetch(OWNER_WA_WEBHOOK, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    return { ok: r.ok };
+  } catch (e) { return { ok: false, error: String(e && e.message || "webhook_failed").slice(0, 80) }; }
 }
 
 // Live order status lookup (merged from the former api/order-status.js — Vercel
@@ -428,6 +487,9 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
     props["الإيصال البنكي"] = { files: fileList.slice(0, 20) };
     if (receiptUploadId) props["تحقق المبلغ"] = { select: { name: "لم يُفحص بعد" } };
   }
+  // The Sales Pipeline is production data; a local run records the row it
+  // would have created instead of writing a test lead into the real CRM.
+  if (DEV) { await outbox({ kind: "crm", to: `notion:${CRM_DB}`, subject: `${title} (${ref})`.slice(0, 200), body: String(notes || "").slice(0, 1000), props }); return; }
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
@@ -688,13 +750,10 @@ async function syncWhatsappLeads() {
   for (const f of freshLeads.slice(0, 6)) {
     const who = f.name || f.phone;
     try {
-      fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
-          transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
-          url: `${MKT_SITE_BASE}/admin`,
-        }),
+      ownerWaNotify({
+        source: "whatsapp-new", ref: f.ref, name: f.name, phone: f.phone,
+        transcript: `📱 عميل واتساب جديد — ${who}\nالجوال: ${f.phone}${f.svc ? "\nالخدمة: " + f.svc : ""}${f.lastMsg ? "\nآخر رسالة: " + String(f.lastMsg).slice(0, 200) : ""}`,
+        url: `${MKT_SITE_BASE}/admin`,
       }).catch(() => {});
       const html = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#128C7E">📱 عميل واتساب جديد — ${esc(who)}</h2><p><b>الجوال:</b> <a href="https://wa.me/${esc(f.phone.replace(/\D/g, ""))}" style="direction:ltr;display:inline-block">${esc(f.phone)}</a></p>${f.svc ? `<p><b>الخدمة المطلوبة:</b> ${esc(f.svc)}</p>` : ""}${f.lastMsg ? `<p><b>آخر رسالة:</b> ${esc(String(f.lastMsg).slice(0, 300))}</p>` : ""}<p><b>المرجع:</b> ${esc(f.ref)} — العميل الآن في «متابعات اليوم» بلوحة التحكم.</p></div>`;
       await sendEmail(TEAM_EMAIL, `📱 عميل واتساب جديد — ${who}`, html);
@@ -763,6 +822,9 @@ async function upsertConversation({ sid, messages, phone, email, name, hot }) {
 
 async function addToAudience(email, name) {
   if (!RESEND_API_KEY || !RESEND_AUDIENCE || !isEmail(email)) return;
+  // Same gate as sendEmail: a preview/local run must not add a test address
+  // to the real newsletter audience.
+  if (!EMAIL_LIVE) { await outbox({ kind: "audience", to: email, subject: `audience:${RESEND_AUDIENCE}`, body: String(name || "") }); return; }
   try {
     const p = String(name || "").trim().split(/\s+/).filter(Boolean);
     await fetch(`https://api.resend.com/audiences/${RESEND_AUDIENCE}/contacts`, {
@@ -787,6 +849,15 @@ const isCorporateEmail = (e) => isEmail(e) && !FREE_DOMAINS.has(e.split("@")[1].
 // attachments: [{ filename, content }] where content is base64 — Resend's own
 // attachment shape, passed straight through.
 async function sendEmail(to, subject, html, attachments) {
+  // Local development and previews (EMAIL_MODE=preview by default, see
+  // _mode.js): the message is recorded in .localdb/outbox.json — the same
+  // shape api/_simple.js writes — and no provider is called, so a form can be
+  // proven to arrive without mailing anyone. Production (EMAIL_MODE unset →
+  // live) is unchanged.
+  if (!EMAIL_LIVE) {
+    await outbox({ kind: "email", to, subject, body: html, attachments: attachments && attachments.length ? attachments.map((a) => a && a.filename) : undefined });
+    return { ok: false, skipped: "email_mode_" + MODES().email };
+  }
   // البنية التحتية على Azure (قرار المالك): جرّب Azure Communication Services
   // أولاً. عند نجاحه نكتفي به؛ وإن لم يكن مهيّأً أو فشل نرجع إلى Resend.
   // (المرفقات عبر Resend فقط حالياً — تُترك للبديل.)
@@ -907,7 +978,19 @@ async function activateComplianceSubscription({ company, email, phone }) {
 const EMP_DB = process.env.NOTION_EMPLOYERS_DB || "f1104f8bcc3d4beb84accdbda0aa8322";
 const EMP_PLAN_AR = { basic: "أساسية", pro: "احترافية", enterprise: "مؤسسية" };
 const EMP_DASHBOARD_URL = `${MKT_SITE_BASE}/employer-dashboard`;
-function employerCode(seed) { const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; const h = crypto.createHmac("sha256", OTP_SECRET || "x").update("employer|" + String(seed)).digest(); let o = ""; for (let i = 0; i < 4; i++) o += abc[h[i] % abc.length]; return "BP-EMP-" + o; }
+// SECURITY: this access code is the sole bearer token that unlocks every
+// candidate's PII (see api/candidates.js) once the row is مفعّل, so it must be
+// unguessable. The old 4-char HMAC digest was only ~1.0e6 combinations —
+// brute-forceable — and deterministic from the form fields. Now 12 chars of
+// CSPRNG entropy over a 32-symbol alphabet (~1.15e18), matching makeRef() in
+// api/employer.js, which writes access codes into the same Notion EMP_DB.
+function employerCode() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 symbols, no I/O/0/1 — % 32 is unbiased
+  const bytes = crypto.randomBytes(12);
+  let out = "";
+  for (let i = 0; i < 12; i++) out += abc[bytes[i] % abc.length];
+  return "BP-EMP-" + out;
+}
 async function findEmployerRecord(company) {
   if (!NOTION_TOKEN || !company) return null;
   const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
@@ -928,7 +1011,7 @@ async function activateEmployerSubscription({ company, email, phone, planKey }) 
   const existing = await findEmployerRecord(company);
   const codeProp = existing && existing.properties && existing.properties["رمز الوصول"];
   const existingCode = codeProp && codeProp.rich_text && codeProp.rich_text[0] && codeProp.rich_text[0].plain_text;
-  const code = existingCode || employerCode(company + "|" + email + "|" + Date.now());
+  const code = existingCode || employerCode();
   if (existing) {
     const props = { "الحالة": { select: { name: "مفعّل" } } };
     if (!existingCode) props["رمز الوصول"] = { rich_text: [{ text: { content: code } }] };
@@ -1533,6 +1616,184 @@ async function handleDaftraInvoice(req, res) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// إحصائيات /ops — المدد الست التي طلبها المالك بالاسم.
+//
+// الواجهات الأربع (analytics_daily/_top_pages/_top_clicks/_top_refs) تقف عند
+// ٧–٣٠ يوماً، فالربع والنصف والسنة لا تُقرأ منها. وبدل اختراع واجهة جديدة لا
+// وجود لها في قاعدة الإنتاج (فتكون اللوحة سليمة هنا ومكسورة هناك)، تُجمَع
+// الأرقام هنا من صفوف page_hits الخام: مدّتان في نداء واحد — المدة المطلوبة
+// والتي قبلها — ليكون لكل رقم مقارنةٌ لا رقمٌ معلّق.
+const ANA_BUCKETS = {
+  day: { unit: "hour", ms: 3600e3, n: 24 },
+  week: { unit: "day", ms: 86400e3, n: 7 },
+  month: { unit: "day", ms: 86400e3, n: 30 },
+  quarter: { unit: "week", ms: 7 * 86400e3, n: 13 },
+  half: { unit: "week", ms: 7 * 86400e3, n: 26 },
+  year: { unit: "month", ms: 30 * 86400e3, n: 12 },
+};
+// سقف الصفوف. الجدول اليوم بضعة آلاف صفّ، فالسنة تمرّ كاملة؛ ومتى تجاوزها
+// يُقال في الرد إن المدى مقصوص بدل أن ينقص الرقم صامتاً.
+const ANA_CAP = 25000;
+// الأعمدة تُقصّ على حدود التقويم بتوقيت الرياض (+٣ ثابتة، بلا توقيت صيفي) لا
+// على «قبل أربع وعشرين ساعة»: عمودٌ اسمه اليوم يجب أن يعني اليوم كما يراه
+// المالك في تقويمه، وإلا ظهرت زيارات اليوم في عمود أمس.
+const ANA_TZ = 3 * 3600e3;
+function anaAlign(now, ms) {
+  const step = ms >= 86400e3 ? 86400e3 : ms;
+  return Math.floor((now + ANA_TZ) / step) * step - ANA_TZ;
+}
+// الصفوف تُقرأ صفحةً صفحة لا بـ limit كبير واحد: PostgREST قد يقصّ الرد عند
+// سقف الخادم (١٠٠٠ صفّ في الإعداد المعتاد) فيعود ناقصاً بلا أي إشارة — وشهرٌ
+// واحد يتجاوز الألف اليوم. الصفحة الناقصة وحدها هي نهاية البيانات.
+const ANA_PAGE = 1000;
+const ANA_REQ_LIMIT = 1000;
+async function anaHits(sinceIso) {
+  const cols = "kind,path,name,ref,lang,device,visitor,at";
+  const out = [];
+  for (let off = 0; off < ANA_CAP; off += ANA_PAGE) {
+    let rows = null;
+    try { rows = await sb(`page_hits?select=${cols}&at=gte.${sinceIso}&order=at.desc&limit=${ANA_PAGE}&offset=${off}`); }
+    catch { break; }
+    if (!Array.isArray(rows) || !rows.length) break;
+    for (const r of rows) out.push(r);
+    if (rows.length < ANA_PAGE) break;
+  }
+  return out;
+}
+// «/ar/catalog» و«/catalog» صفحة واحدة في التقرير: بادئة اللغة ليست خطوة في
+// رحلة العميل.
+function anaPath(p) {
+  let s = String(p || "/").split("?")[0].split("#")[0];
+  s = s.replace(/^\/(ar|en|fr|zh|ur|hi|id|tl|bn)(?=\/|$)/, "");
+  if (!s) s = "/";
+  if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
+  return s.slice(0, 120);
+}
+function anaTotals(rows) {
+  const vis = new Set();
+  let views = 0, clicks = 0;
+  for (const r of rows) {
+    if (r.kind === "click") clicks++;
+    else if (r.kind === "view") { views++; if (r.visitor) vis.add(r.visitor); }
+  }
+  return { views, clicks, visitors: vis.size };
+}
+function anaSeries(rows, from, b) {
+  const cells = [];
+  for (let i = 0; i < b.n; i++) cells.push({ from: new Date(from + i * b.ms).toISOString(), views: 0, clicks: 0, vis: new Set() });
+  for (const r of rows) {
+    const t = Date.parse(r.at);
+    if (!t) continue;
+    let i = Math.floor((t - from) / b.ms);
+    if (i < 0) i = 0;
+    if (i >= b.n) i = b.n - 1;
+    if (r.kind === "click") cells[i].clicks++;
+    else if (r.kind === "view") { cells[i].views++; if (r.visitor) cells[i].vis.add(r.visitor); }
+  }
+  return cells.map((c) => ({ from: c.from, views: c.views, clicks: c.clicks, visitors: c.vis.size }));
+}
+function anaCount(rows, key, limit) {
+  const m = new Map();
+  for (const r of rows) {
+    const k = key(r);
+    if (!k) continue;
+    m.set(k, (m.get(k) || 0) + 1);
+  }
+  return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([name, n]) => ({ name, n }));
+}
+function anaTopPages(views, limit) {
+  const m = new Map();
+  for (const r of views) {
+    const k = anaPath(r.path);
+    let e = m.get(k);
+    if (!e) { e = { path: k, views: 0, vis: new Set() }; m.set(k, e); }
+    e.views++;
+    if (r.visitor) e.vis.add(r.visitor);
+  }
+  return [...m.values()].sort((a, b) => b.views - a.views).slice(0, limit)
+    .map((e) => ({ path: e.path, views: e.views, visitors: e.vis.size }));
+}
+// رحلة الزائر: تسلسل صفحاته بالترتيب — من أين دخل، ماذا تصفّح، أين خرج، وهل
+// وصل السلة أو الدفع أو بوابته. `visitor` رمزٌ عشوائي في متصفحه لا اسم ولا
+// بريد، فلا يخرج منه هنا إلا أوّله.
+function anaJourneys(views, limit) {
+  const m = new Map();
+  for (const r of views) {
+    if (!r.visitor) continue;
+    let j = m.get(r.visitor);
+    if (!j) { j = { visitor: r.visitor, steps: [], device: r.device || "", ref: r.ref || "" }; m.set(r.visitor, j); }
+    j.steps.push({ p: anaPath(r.path), t: Date.parse(r.at) || 0 });
+    if (!j.ref && r.ref) j.ref = r.ref;
+    if (!j.device && r.device) j.device = r.device;
+  }
+  const out = [];
+  for (const j of m.values()) {
+    j.steps.sort((a, b) => a.t - b.t);
+    const paths = j.steps.map((s) => s.p);
+    const first = j.steps[0], last = j.steps[j.steps.length - 1];
+    out.push({
+      visitor: String(j.visitor).slice(0, 8),
+      device: j.device,
+      ref: j.ref,
+      start: first.t ? new Date(first.t).toISOString() : null,
+      end: last.t ? new Date(last.t).toISOString() : null,
+      minutes: first.t && last.t ? Math.round((last.t - first.t) / 60000) : 0,
+      pages: paths.length,
+      entry: first.p,
+      exit: last.p,
+      steps: paths.slice(0, 25),
+      cart: paths.some((p) => p.startsWith("/cart")),
+      checkout: paths.some((p) => p.startsWith("/checkout")),
+      portal: paths.some((p) => p.startsWith("/my")),
+    });
+  }
+  out.sort((a, b) => String(b.end || "").localeCompare(String(a.end || "")));
+  // صفحات الدخول والخروج تُحسب على كل الرحلات لا على المعروض منها، وإلا كان
+  // «أين خرجوا» جواباً عن آخر أربعين زائراً وحدهم.
+  return {
+    total: m.size,
+    list: out.slice(0, limit),
+    entries: anaCount(out, (j) => j.entry, 10),
+    exits: anaCount(out, (j) => j.exit, 10),
+  };
+}
+function anaFunnel(views) {
+  const all = new Set(), browse = new Set(), cart = new Set(), checkout = new Set(), portal = new Set();
+  for (const r of views) {
+    const v = r.visitor;
+    if (!v) continue;
+    const p = anaPath(r.path);
+    all.add(v);
+    if (p.startsWith("/catalog") || p.startsWith("/services") || p.startsWith("/packages")) browse.add(v);
+    if (p.startsWith("/cart")) cart.add(v);
+    if (p.startsWith("/checkout")) checkout.add(v);
+    if (p.startsWith("/my")) portal.add(v);
+  }
+  return { visitors: all.size, browse: browse.size, cart: cart.size, checkout: checkout.size, portal: portal.size };
+}
+function anaRequests(rows) {
+  const bySource = {}, byStatus = {};
+  let paid = 0, revenue = 0;
+  for (const r of rows || []) {
+    const s = r.source || "—", st = r.status || "—";
+    bySource[s] = (bySource[s] || 0) + 1;
+    byStatus[st] = (byStatus[st] || 0) + 1;
+    const p = r.payment && typeof r.payment === "object" ? r.payment : null;
+    if (p && p.status === "PAID") { paid++; revenue += Number(p.amount || 0); }
+  }
+  // الطلبات تُقرأ صفحةً واحدة بسقف ألف: لو بلغته فالعدد مقصوص ويُقال ذلك.
+  const total = (rows || []).length;
+  return { total, capped: total >= ANA_REQ_LIMIT, bySource, byStatus, paid, revenue: Math.round(revenue * 100) / 100 };
+}
+// ما لا يُقاس اليوم — يُقال بصراحة بدل أن يُعرض صفرٌ يبدو قياساً.
+const ANA_SOURCES = [
+  { key: "email", label: "البريد", measured: false, note: "الرسائل تخرج عبر Resend ولا تُكتب في قاعدتنا: لا عدّاد إرسال ولا فتح ولا نقر. يلزم سجلّ إرسال (جدول) أو webhook من Resend." },
+  { key: "whatsapp", label: "واتساب", measured: false, note: "المحادثات كلها في n8n ولا يصل منها شيء إلى قاعدتنا. المقيس فعلاً: الطلبات التي مصدرها «واتساب» في بطاقة «الطلبات في هذه المدة»." },
+  { key: "advisor", label: "المستشار الذكي", measured: false, note: "المحادثات تُؤرشف في Notion، ولا عدّاد لبدء محادثة ولا لإتمامها. أقرب قياس ممكن اليوم: نقرة «فتح المستشار» لو أُرسلت كـ click." },
+  { key: "portal", label: "لوحة العميل", measured: "partial", note: "زيارات صفحات /my تُحسب منذ 2026-09-24 (يوم إضافة العدّاد للموقع الجديد)؛ الدخول والإجراءات داخل اللوحة بلا قياس." },
+];
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1558,6 +1819,7 @@ export default async function handler(req, res) {
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
+  if ((q.__route || "") === "spaces") return spacesHandler(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1888,6 +2150,67 @@ export default async function handler(req, res) {
       ]);
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, daily: daily || [], pages: pages || [], clicks: clicks || [], refs: refs || [], errors: errors || [] }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
+  // إحصائيات لوحة /ops: مدّة واحدة من الست، ومعها المدّة التي قبلها للمقارنة،
+  // ورحلات الزوّار. كل رقم هنا محسوب من page_hits/site_errors/requests —
+  // وما لا يُقاس يُعاد في `sources` مكتوباً أنه غير مقيس، لا صفراً.
+  if ((q.action || "") === "ops-analytics") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!(await opsGate(req, q))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    const period = ANA_BUCKETS[String(q.period || "")] ? String(q.period) : "week";
+    const b = ANA_BUCKETS[period];
+    const span = b.n * b.ms;
+    const now = Date.now();
+    // آخر عمود هو العمود الجاري (اليوم/الساعة الحالية) ناقصاً، وما قبله كامل.
+    const curFrom = anaAlign(now, b.ms) - (b.n - 1) * b.ms;
+    const prevFrom = curFrom - span;
+    try {
+      const [hits, errRows, reqRows] = await Promise.all([
+        anaHits(new Date(prevFrom).toISOString()),
+        sb(`site_errors?select=at,path,message,source&at=gte.${new Date(curFrom).toISOString()}&order=at.desc&limit=200`).catch(() => []),
+        sb(`requests?select=ref,status,source,payment,created_at&created_at=gte.${new Date(curFrom).toISOString()}&order=created_at.desc&limit=${ANA_REQ_LIMIT}`).catch(() => []),
+      ]);
+      const rows = Array.isArray(hits) ? hits : [];
+      const errs = Array.isArray(errRows) ? errRows : [];
+      const cur = [], prev = [];
+      for (const r of rows) {
+        const t = Date.parse(r.at);
+        if (!t) continue;
+        if (t >= curFrom) cur.push(r);
+        else if (t >= prevFrom) prev.push(r);
+      }
+      const curViews = cur.filter((r) => r.kind === "view");
+      const curClicks = cur.filter((r) => r.kind === "click");
+      const journeys = anaJourneys(curViews, 40);
+      const oldest = rows.length ? rows[rows.length - 1].at : null;
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true,
+        period,
+        unit: b.unit,
+        from: new Date(curFrom).toISOString(),
+        to: new Date(now).toISOString(),
+        totals: { ...anaTotals(cur), errors: errs.length },
+        prev: anaTotals(prev),
+        series: anaSeries(cur, curFrom, b),
+        pages: anaTopPages(curViews, 15),
+        clicks: anaCount(curClicks, (r) => r.name || "؟", 15),
+        refs: anaCount(curViews, (r) => String(r.ref || "").trim() || "مباشر", 12),
+        devices: anaCount(curViews, (r) => r.device || "؟", 6),
+        langs: anaCount(curViews, (r) => r.lang || "؟", 6),
+        entries: journeys.entries,
+        exits: journeys.exits,
+        funnel: anaFunnel(curViews),
+        journeys: journeys.list,
+        journeysTotal: journeys.total,
+        errorList: errs.slice(0, 20),
+        requests: anaRequests(reqRows),
+        coverage: { rows: rows.length, capped: rows.length >= ANA_CAP, oldest },
+        sources: ANA_SOURCES,
+      }));
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
   }
 
@@ -2756,12 +3079,22 @@ export default async function handler(req, res) {
         const category = String(b.category || "other").slice(0, 40);
         const title = String(b.title || "").trim().slice(0, 200);
         const fileName = String(b.fileName || "document.pdf").slice(0, 120);
-        const base64 = typeof b.base64 === "string" ? b.base64.slice(0, 11_000_000) : "";
-        const mime = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/.test(String(b.mime)) ? b.mime : "application/pdf";
+        // لا قصّ. كان `slice(0, 11_000_000)` يبتر الزائد ثم يُقاس المبتور —
+        // و١١ مليون حرف base64 تُفكّ إلى ٨٬٢٥٠٬٠٠٠ بايت، أي أقلّ من الحدّ
+        // دائماً، فشرط `too_large` لم يتحقّق قط. ملف ١٠MB كان يعود
+        // `ok:true` وقد حُفظ نصفه: سجلٌّ تجاري أو عقد لا يُفتح لاحقاً ولا
+        // أحد يعلم. الحجم يُفحص الآن على النصّ قبل إنشاء أي Buffer.
+        const base64 = typeof b.base64 === "string" ? b.base64 : "";
+        // الصيغة تُرفض ولا تُستبدل. كان أي نوع خارج القائمة يُوسَم
+        // `application/pdf` ويُخزَّن، فيكذب الملف على نفسه ولا يُفتح لاحقاً.
+        // `docVaultMime` تُطبّع ولا تُخمّن: تصحّح تسمية قديمة أو صمتَ متصفح،
+        // ولا تُنقذ نوعاً مصرَّحاً به خارج القائمة.
+        const mime = docVaultMime(b.mime, fileName);
         const expiry = /^\d{4}-\d{2}-\d{2}$/.test(String(b.expiry || "")) ? b.expiry : null;
         if (!title || !base64) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
+        if (!DOC_VAULT_MIME.test(mime)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_type" })); }
+        if (Buffer.byteLength(base64, "base64") > DOC_VAULT_MAX_BYTES) { res.statusCode = 413; return res.end(JSON.stringify({ ok: false, error: "too_large", max: DOC_VAULT_MAX_BYTES })); }
         const buf = Buffer.from(base64, "base64");
-        if (buf.length > 8 * 1024 * 1024) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "too_large" })); }
         // versioning: reuse the doc row per (category,title); versions append
         const existing = await sb(`documents?organization_id=eq.${orgId}&category=eq.${encodeURIComponent(category)}&title=eq.${encodeURIComponent(title)}&select=id&limit=1`);
         let docId;
@@ -4355,9 +4688,12 @@ export default async function handler(req, res) {
     if (path.charAt(0) !== "/") return done();
     try {
       if (kind === "err") {
-        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
+        await sb("site_errors", { method: "POST", prefer: "return=minimal", body: [{ at: new Date().toISOString(), path, message: String(b.name || "").slice(0, 300), source: String(b.source || "").slice(0, 160), ua: String(req.headers["user-agent"] || "").slice(0, 200) }] });
       } else {
-        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
+        // الوقت يُكتب صراحةً لا اعتماداً على `default now()`: قاعدة التطوير
+        // المحلية (.localdb) لا تعرف قيم Postgres الافتراضية، فكانت كل زيارة
+        // محلية تُسجَّل بلا وقت — أي خارج كل مدى زمني في لوحة الإحصائيات.
+        await sb("page_hits", { method: "POST", prefer: "return=minimal", body: [{ at: new Date().toISOString(), kind, path, name: kind === "click" ? String(b.name || "").slice(0, 80) : null, ref: String(b.ref || "").slice(0, 120), lang: String(b.lang || "").slice(0, 8), device: String(b.device || "").slice(0, 12), visitor: String(b.visitor || "").slice(0, 48) }] });
       }
     } catch {}
     return done();
@@ -4950,10 +5286,7 @@ export default async function handler(req, res) {
     const ownerHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🛒 طلب جديد من لوحة العميل — ${esc(ref)}</h2><table>${row("العميل", name) + row("البريد", email) + (orgName ? row("المنشأة", orgName) : "") + row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼") + row("طريقة الدفع", payAr) + row("الحالة", statusAr) + (pay === "later" ? row("تاريخ الاستحقاق", dueISO) : "")}</table>${paid ? "<p style='color:#047857'><b>مدفوع من المحفظة — ابدأ التنفيذ.</b></p>" : "<p>الطلب في «متابعات اليوم» بلوحة التحكم بتاريخ استحقاقه.</p>"}</div>`;
     const clientHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">${paid ? "تم استلام طلبك وسداده ✅" : "استلمنا طلبك ✅"}</h2><p>مرحباً ${esc(name)}، سجّلنا طلبك برقم <b>${esc(ref)}</b>.</p><table>${row("الخدمات", itemsTxt) + row("الإجمالي", total + " ﷼ (شامل الضريبة)") + row("طريقة الدفع", payAr)}</table>${pay === "later" ? `<p style="background:#FEF3C7;padding:10px;border-radius:8px">🗓 <b>فاتورة مؤجلة:</b> تاريخ استحقاق السداد <b>${dueISO}</b>. نذكّرك قبلها، وتقدر تسدد في أي وقت من لوحتك.</p>` : ""}${paid ? `<p style="background:#D1FAE5;padding:10px;border-radius:8px">💳 سُدد من محفظتك. الرصيد المتبقي: <b>${walletAfter} ﷼</b></p>` : ""}<p><a href="${MKT_SITE_BASE}/account" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح لوحتك ←</a></p></div>`;
 
-    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }),
-    }).catch(() => {});
+    ownerWaNotify({ source: "portal-order", ref, name, email, transcript: `🛒 طلب من لوحة العميل — ${name}\n${itemsTxt}\n${total} ﷼ · ${payAr} · ${statusAr}`, url: `${MKT_SITE_BASE}/admin` }).catch(() => {});
 
     await Promise.all([
       sendEmail(TEAM_EMAIL, `🛒 طلب من اللوحة ${ref} — ${name} · ${total} ﷼ (${payAr})`, ownerHtml),
@@ -5334,10 +5667,20 @@ export default async function handler(req, res) {
     if (!name || (!phone && !isEmail(email))) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const ref = ("BPT-" + Date.now().toString().slice(-6)).slice(0, 40);
     const today = new Date().toISOString().slice(0, 10);
+    // «تواصل معنا» rides on this branch (sid "contact-form", category «نموذج
+    // التواصل»). It is a message, not a quotation request: the customer must
+    // not be promised a price offer they never asked for, and the team must
+    // see which channel it came from. Everything else (/my, the Baher widget)
+    // keeps the ticket wording.
+    const isContact = sid === "contact-form" || catAr === "نموذج التواصل";
+    const channelAr = isContact ? "نموذج التواصل" : "تذكرة دعم";
+    // The Notes channel line stays «قناة: تذكرة دعم · name» whatever the
+    // channel: the /monitor inbox parses the customer's name out of it.
     const notesText = `قناة: تذكرة دعم · ${name}${phone ? " · الجوال: " + phone : ""}${email ? " · البريد: " + email : ""}\nالخدمة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${svcCode ? " [" + svcCode + "]" : ""}${note ? "\nتفاصيل: " + note : ""}`;
+    const crmTitle = (isContact ? `✉️ نموذج التواصل — ${svcAr}` : `🎫 تذكرة — ${svcAr}`).slice(0, 200);
     if (NOTION_TOKEN) {
       const props = {
-        "Opportunity Name": { title: [{ text: { content: `🎫 تذكرة — ${svcAr}`.slice(0, 200) } }] },
+        "Opportunity Name": { title: [{ text: { content: crmTitle } }] },
         "Lead Source": { select: { name: TICKET_SOURCE } },
         "Stage": { select: { name: "مهتم" } },
         "Human Required": { checkbox: true },
@@ -5346,40 +5689,54 @@ export default async function handler(req, res) {
         "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
         "حالة الطلب": { select: { name: "تذكرة دعم" } },
       };
-      try {
-        const r = await fetch("https://api.notion.com/v1/pages", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-          body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
-        });
-        if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
-      } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+      if (DEV) {
+        // A local run must not file a test ticket in the real CRM.
+        await outbox({ kind: "crm", to: `notion:${CRM_DB}`, subject: `${crmTitle} (${ref})`, body: notesText, props });
+      } else {
+        try {
+          const r = await fetch("https://api.notion.com/v1/pages", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+            body: JSON.stringify({ parent: { database_id: CRM_DB }, properties: props }),
+          });
+          if (!r.ok) console.error("ticket create error", r.status, (await r.text()).slice(0, 200));
+        } catch (e) { console.error("ticket create exception", String(e).slice(0, 150)); }
+      }
     }
-    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">🎫 تذكرة دعم جديدة ${ref}</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمة", svcAr) + row("المجال", catAr) + row("تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — والتذكرة ظاهرة في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
+    const oTitle = isContact ? `✉️ رسالة جديدة من نموذج التواصل ${ref}` : `🎫 تذكرة دعم جديدة ${ref}`;
+    const oSubject = isContact ? `✉️ نموذج التواصل ${ref} — ${name} · ${svcAr}` : `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`;
+    const oHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">${oTitle}</h2><table>${row("القناة", channelAr) + row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row(isContact ? "الموضوع" : "الخدمة", svcAr) + (isContact ? "" : row("المجال", catAr)) + row(isContact ? "الرسالة" : "تفاصيل", note || "—")}</table><p>تواصل مع العميل على رقمه/بريده لخدمته — و${isContact ? "الرسالة ظاهرة" : "التذكرة ظاهرة"} في «BP Inbox» تحت وسم «تذكرة».</p></div>`;
     // تأكيد للعميل: فتحنا تذكرة + خيار حجز موعد أو واتساب المستشار باهر
     const bookUrl = `${MKT_SITE_BASE}/consultation`;
     const waAdvisor = "https://wa.me/966530540231";
+    const cSubject = isContact ? `استلمنا رسالتك — بيزنس بارتنر (${ref})` : `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`;
+    const cHead = isContact ? "استلمنا رسالتك ✅" : "استلمنا طلبك لعرض السعر ✅";
+    const cLead = isContact
+      ? `مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر${svcAr && svcAr !== "طلب عام" ? ` بخصوص <b>${esc(svcAr)}</b>` : ""}. سجّلنا رسالتك برقم مرجع <b>${ref}</b>، وسيتواصل معك مستشارك <b>باهر</b> قريباً على رقمك/بريدك.`
+      : `مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.`;
     const cHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px">
-      <h2 style="color:#0B1B5A">استلمنا طلبك لعرض السعر ✅</h2>
-      <p>مرحباً ${esc(name) || "بك"}، شكراً لتواصلك مع بيزنس بارتنر بخصوص <b>${esc(svcAr)}</b>. سجّلنا طلبك برقم مرجع <b>${ref}</b>، وبيجهّز لك مستشارك <b>باهر</b> عرض سعر حسب حالتك ويتواصل معك قريباً على رقمك/بريدك.</p>
+      <h2 style="color:#0B1B5A">${cHead}</h2>
+      <p>${cLead}</p>
       <p style="margin:18px 0"><b>وتقدر تبدأ الآن مباشرة:</b></p>
       <p><a href="${bookUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 احجز موعد استشارتك المجانية</a></p>
       <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
       <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
-    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "support-ticket", ref, name, phone, email, transcript: `🎫 تذكرة: ${svcAr}${catAr ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }),
-    }).catch(() => {});
-    await Promise.all([
-      sendEmail(TEAM_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml),
-      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, `🎫 تذكرة دعم ${ref} — ${name} · ${svcAr}`, oHtml) : Promise.resolve(),
-      isEmail(email) ? sendEmail(email, `فتحنا لك تذكرة دعم — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),
+    const waNotify = ownerWaNotify({ source: "support-ticket", channel: isContact ? "contact-form" : "support-ticket", ref, name, phone, email, transcript: `${isContact ? "✉️ نموذج التواصل" : "🎫 تذكرة"}: ${svcAr}${catAr && !isContact ? " (" + catAr + ")" : ""}${note ? "\n" + note : ""}`, url: `${MKT_SITE_BASE}/monitor` }).catch(() => ({ ok: false, error: "webhook_failed" }));
+    // The ticket is filed above; a mail failure is logged and reported, never
+    // turned into a failed request (the customer's message is already safe).
+    const [teamSent, , clientSent] = await Promise.all([
+      sendEmail(TEAM_EMAIL, oSubject, oHtml),
+      OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, oSubject, oHtml) : Promise.resolve({ ok: true }),
+      isEmail(email) ? sendEmail(email, cSubject, cHtml) : Promise.resolve(null),
       waNotify,
-      forwardLead({ source: "support-ticket", ref, name, phone, email, items: svcAr }),
+      forwardLead({ source: "support-ticket", channel: isContact ? "contact-form" : "support-ticket", ref, name, phone, email, items: svcAr }),
       email ? addToAudience(email, name) : Promise.resolve(),
     ]);
+    if (teamSent && !teamSent.ok && !teamSent.skipped) console.error("ticket team email failed", ref, teamSent.error || "unknown");
+    if (clientSent && !clientSent.ok && !clientSent.skipped) console.error("ticket client email failed", ref, clientSent.error || "unknown");
+    const emailSent = !!(teamSent && teamSent.ok && (!clientSent || clientSent.ok));
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, ref }));
+    return res.end(JSON.stringify({ ok: true, ref, channel: isContact ? "contact-form" : "support-ticket", emailSent }));
   }
 
   // حجز استشارة من ودجت باهر — العميل يختار يوماً ووقتاً ضمن دوام بزنس بارتنر
@@ -5433,10 +5790,7 @@ export default async function handler(req, res) {
       <p style="margin:16px 0"><a href="${gcalUrl}" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">📅 أضِف الموعد إلى تقويم Google</a></p>
       <p><a href="https://wa.me/966530540231" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر</a></p>
       <p style="color:#666;margin-top:20px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
-    const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }),
-    }).catch(() => {});
+    const waNotify = ownerWaNotify({ source: "booking", ref, name, phone, email, date, time, transcript: `📅 حجز استشارة: ${whenTxt}`, url: `${MKT_SITE_BASE}/monitor` }).catch(() => {});
     await Promise.all([
       sendEmail(TEAM_EMAIL, `📅 حجز استشارة ${ref} — ${name} · ${whenTxt}`, oHtml),
       sendEmail(email, `تم حجز استشارتك — بيزنس بارتنر (${ref})`, cHtml),
@@ -5482,10 +5836,7 @@ export default async function handler(req, res) {
         <p style="margin-top:12px"><a href="${waAdvisor}" style="background:#25D366;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">💬 تواصل مع مستشارك باهر على واتساب</a></p>
         <p style="color:#666;margin-top:22px">بزنس بارتنر · الرياض · businesspartner.sa</p></div>`;
       // إشعار واتساب لباهر عبر ورك فلو n8n (best-effort — لا يوقف شيئاً إن فشل)
-      const waNotify = fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }),
-      }).catch(() => {});
+      const waNotify = ownerWaNotify({ source: "advisor-chat", ref, name, phone, email, transcript, url: `${MKT_SITE_BASE}/monitor` }).catch(() => {});
       await Promise.all([
         sendEmail(TEAM_EMAIL, `🌐 عميل من المستشار — ${name || phone || email}`, oHtml),
         isEmail(email) ? sendEmail(email, `تم استلام طلبك — بيزنس بارتنر (${ref})`, cHtml) : Promise.resolve(),

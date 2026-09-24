@@ -16,6 +16,21 @@ import { parseSubsFromNotes } from "../api/_suppliers.js";
 const fail = [];
 const ok = (c, m) => { console.log((c ? "  ok   " : "  FAIL ") + m); if (!c) fail.push(m); };
 
+// The ordinals are written by hand inside each clause body, so the failure to
+// catch is a repeated or skipped one — not a particular clause count. Pinning
+// the count instead broke on 2026-09-04 when the bilingual document legitimately
+// gained a «لغة العقد» clause, which is the very kind of insertion this guards.
+const ORDINALS = ["أولاً", "ثانياً", "ثالثاً", "رابعاً", "خامساً", "سادساً",
+  "سابعاً", "ثامناً", "تاسعاً", "عاشراً", "حادي عشر", "ثاني عشر"];
+
+const ordinalsRunClean = (html, label) => {
+  const got = [...html.matchAll(/<h2>([^:]+):/g)].map((m) => m[1]);
+  ok(got.length > 0, label + ": the contract has clauses at all");
+  ok(got.join("|") === ORDINALS.slice(0, got.length).join("|"),
+    label + ": ordinals unique and in order — " + got.join(" / "));
+  return got;
+};
+
 const base = {
   ref: "BP-1", clientName: "شركة تجريبية", service: "خدمة",
   lines: [{ name: "بند", qty: 1, price: 249 }],
@@ -45,9 +60,7 @@ ok(/لا تستحق العمولة على عقد موقّع لم يُحصّل/.t
 ok(!/مدة التنفيذ/.test(sub), "drops the one-off delivery clause");
 
 console.log("\n3. Clause ordinals stay correct and unique");
-const ords = [...sub.matchAll(/<h2>([^:]+):/g)].map((m) => m[1]);
-ok(new Set(ords).size === ords.length, "no duplicated ordinal: " + ords.join(" / "));
-ok(ords[0] === "أولاً" && ords[3] === "رابعاً", "ordinals run in order");
+ordinalsRunClean(sub, "subscription contract");
 
 console.log("\n4. Zero-commission package says so plainly");
 const free = contractHtml({ ...base, subscription: { renewsAt: 5000, commissionPercent: 0 } });
@@ -58,9 +71,9 @@ console.log("\n5. A one-off service contract is unchanged");
 const once = contractHtml({ ...base, leadTime: "5 أيام عمل" });
 ok(/مدة التنفيذ/.test(once) && /5 أيام عمل/.test(once), "still has the delivery clause");
 ok(!/عمولة النجاح/.test(once) && !/يتجدد الاشتراك/.test(once), "no subscription language leaks in");
-const o2 = [...once.matchAll(/<h2>([^:]+):/g)].map((m) => m[1]);
-ok(new Set(o2).size === o2.length && o2[o2.length - 1] === "تاسعاً",
-  "nine clauses, last is تاسعاً: " + o2.join(" / "));
+const o2 = ordinalsRunClean(once, "one-off contract");
+ok(/النظام الواجب التطبيق/.test(once), "closes with the governing-law clause");
+ok(!o2.includes("حادي عشر"), "stays shorter than the subscription contract");
 
 console.log(fail.length ? "\nFAILED: " + fail.length : "\nALL PASS");
 process.exit(fail.length ? 1 : 0);
