@@ -25,7 +25,7 @@
 //     الملف نفسه ويُتحقّق من وجود النسخة قبل الربط — وإلا فرابطٌ ميت.
 import fs from 'node:fs';
 import path from 'node:path';
-import { SV1_CSS, SV1_TEXT, SIMPLE_LANGS } from './simple-v1.mjs';
+import { SV1_CSS, SV1_TEXT, SIMPLE_LANGS, SV1_SESSION_JS, SV1_SESSION_SYNC_JS } from './simple-v1.mjs';
 
 const ROOT = path.resolve('site');
 const LANG_NAMES = { ar: 'العربية', en: 'English', fr: 'Français', zh: '中文' };
@@ -119,15 +119,10 @@ var ob=$('sv1OutBtn');
 if(ob)ob.onclick=function(){ob.disabled=true;
  fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
  .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json()}).then(function(o){
- if(!(o&&o.session&&o.session.user))return;
- window.SV1_SESSION=o.session;
- var a=$('sv1AccountLink');
- if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}
- var lb=$('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');
- if(ob)ob.classList.remove('sv1-hide');
-}).catch(function(){});
+/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
+   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
+   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
+${SV1_SESSION_SYNC_JS}
 })();</script>`;
 
 // ------------------------------------------------------------ languages --
@@ -195,7 +190,7 @@ function headerFor(file){
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t('logout')}</button>
     <a class="sv1-btn primary" href="${home}#advisor">${t('navStart')}</a>
   </div>
-</div></header>${CHROME_JS}</div>`;
+</div></header>${SV1_SESSION_JS}${CHROME_JS}</div>`;
 }
 
 let done=0;

@@ -176,6 +176,31 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn primary" href="/ar/#advisor">ابدأ طلبك</a>
   </div>
 </div></header><script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script><script>(function(){"use strict";
 var $=function(id){return document.getElementById(id)};
 var b=$('sv1Burger'),n=$('sv1Nav');
 if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
@@ -195,14 +220,14 @@ var ob=$('sv1OutBtn');
 if(ob)ob.onclick=function(){ob.disabled=true;
  fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
  .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
+/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
+   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
+   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json()}).then(function(o){
- if(!(o&&o.session&&o.session.user))return;
- window.SV1_SESSION=o.session;
- var a=$('sv1AccountLink');
- if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}
- var lb=$('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');
- if(ob)ob.classList.remove('sv1-hide');
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
 }).catch(function(){});
 })();</script></div><main>
   <section class="hero"><div class="container hero-inner">

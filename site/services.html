@@ -180,6 +180,31 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn primary" href="/#advisor">Start your request</a>
   </div>
 </div></header><script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script><script>(function(){"use strict";
 var $=function(id){return document.getElementById(id)};
 var b=$('sv1Burger'),n=$('sv1Nav');
 if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
@@ -199,14 +224,14 @@ var ob=$('sv1OutBtn');
 if(ob)ob.onclick=function(){ob.disabled=true;
  fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
  .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
+/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
+   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
+   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json()}).then(function(o){
- if(!(o&&o.session&&o.session.user))return;
- window.SV1_SESSION=o.session;
- var a=$('sv1AccountLink');
- if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}
- var lb=$('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');
- if(ob)ob.classList.remove('sv1-hide');
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
 }).catch(function(){});
 })();</script></div><section class="bp-b10x-umbrella" id="b10x-all-services"><div><div class="k">B10X · ALL BUSINESS PARTNER SERVICES</div><h2>B10X is every Business Partner service.</h2><p>From formation to operations and growth, every service on the site sits inside B10X. Tell the intelligent advisor the outcome you need; it identifies the service, requirements and next execution step.</p><div class="micro"><span>24/7 access</span><span>AI + operations team</span><span>Tracked requests</span><span>SLA visibility</span><span>Private documents</span></div></div><div class="bp-b10x-orbit"><a href="/ai-agents"><b>B10X Intelligent Advisor</b><small>Routes any need to the right service.</small></a><a href="/compliance-agent"><b>Compliance Advisor</b><small>Compliance, violations, alerts and objections.</small></a><a href="/ai-document-agent"><b>Document Advisor</b><small>Reads documents and prepares requirements.</small></a><a href="/business-development"><b>Business Development Advisor</b><small>Customers, suppliers, opportunities and pipeline.</small></a></div></section><section class="bp-b10x-catalog"><div class="bp-b10x-cat-head"><div><h2>Explore B10X by need</h2></div><p>Choose a category, or let the intelligent advisor identify the exact service for you.</p></div><div class="bp-b10x-filters"><a class="bp-b10x-filter" href="/services/category/company-formation">Companies & formation</a><a class="bp-b10x-filter" href="/services/category/foreign-investment">Foreign investment</a><a class="bp-b10x-filter" href="/services/category/government-relations">Government & licensing</a><a class="bp-b10x-filter" href="/compliance-agent">Compliance & violations</a><a class="bp-b10x-filter" href="/services/category/hr-services">HR & workforce</a><a class="bp-b10x-filter" href="/worker-housing">Worker housing</a><a class="bp-b10x-filter" href="/workspaces">Offices & leasing</a><a class="bp-b10x-filter" href="/mahfol-makfol">Relocation</a><a class="bp-b10x-filter" href="/business-development">Business development</a><a class="bp-b10x-filter" href="/ai-agents">AI services</a></div><div class="bp-b10x-ai-row"><a class="bp-b10x-ai-card" href="/ai-agents"><span class="tag">AI CORE</span><b>B10X Intelligent Advisor</b><span>24/7 access to the full Business Partner service layer.</span></a><a class="bp-b10x-ai-card" href="/compliance-agent"><span class="tag">COMPLIANCE</span><b>Compliance Advisor</b><span>Compliance, violations and next actions.</span></a><a class="bp-b10x-ai-card" href="/ai-document-agent"><span class="tag">DOCUMENT AI</span><b>Document Advisor</b><span>Reads and validates business documents.</span></a><a class="bp-b10x-ai-card" href="/business-development"><span class="tag">GROWTH</span><b>Business Development Advisor</b><span>Customers, suppliers, opportunities and meetings.</span></a></div></section><section class="bp-ux-wrap bp-ux-hero"><div class="bp-ux-shell"><span class="bp-ux-kicker"><i></i> B10X SERVICES</span><h1 class="bp-ux-title">Every Business Partner service.<br>Without the clutter.</h1><p class="bp-ux-lead">Browse directly or tell B10X the outcome you need. It routes you to the right service, requirements and next action.</p></div></section><main>
   <section class="hero hero--sm"><div class="container hero-inner">

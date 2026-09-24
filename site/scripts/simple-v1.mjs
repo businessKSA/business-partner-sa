@@ -497,6 +497,77 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
+// ------------------------------------------------- حالة الدخول في الترويسة --
+// المالك رأى `/ar/` تقول «داخل» و`/ar/packages` في اللحظة نفسها تقول «دخول».
+// السبب لم يكن المنطق بل **الترتيب**: الترويسة تُرسم دائماً بحالة «غير داخل»
+// ثم تنادي `/api/otp` بـ`{"action":"me"}` وتصحّح نفسها بعد الردّ. فبين الرسم
+// والردّ يرى الزائر حالةً خاطئة — ثانية على نتٍ بطيء، وأطول على الصفحات
+// القديمة الثقيلة — ويرى صفحتين متجاورتين بحالتين.
+//
+// الحل: تلميحٌ محفوظ في `localStorage` تكتبه الترويسة نفسها عند كل ردّ ناجح،
+// ويُقرأ قبل أي شبكة، فتُرسم الحالة الصحيحة من أول إطار ثم تُصحَّح إن لزم.
+//
+// ⚠️ التلميح **تجميلي فقط**. لا يفتح بوابةً ولا يمرّر صلاحية ولا يُعدّ جلسة:
+// الجلسة الحقيقية كوكي httpOnly يقرؤه الخادم وحده، وكل ما يحميه الخادم يبقى
+// محمياً ولو كتب أحدهم التلميح بيده في المتصفح. أقصى ما يفعله تزويره: اسمٌ
+// خاطئ في الترويسة لثوانٍ حتى يردّ `/api/otp` فيُمسح. لا تبنِ عليه أي قرار
+// صلاحية، هنا أو في أي ملف آخر.
+//
+// المفتاح `bp_session` مستعمل أصلاً، ويكتب فيه أكثر من طرف — ومنهم
+// `main.js` في الموقع القديم حيث الحساب **محلي للجهاز** ولا جلسة خادم خلفه
+// (`viaRequest`، و`finishLogin`). لذلك يميّز التلميح صاحبه بالشكل:
+//   • `{…, srv:true}` → كتبته هذه الترويسة بعد ردّ خادم ناجح: يُصدَّق ويُمسح.
+//   • `1` المجرّد       → تكتبه شاشات دخول SV1 بعد تحقّق OTP حقيقي: يُصدَّق
+//                         ويُمسح (بلا اسم، فيظهر النص الافتراضي لحظتها).
+//   • كائنٌ بلا `srv`   → قيمة `main.js` المحلية: **لا** تُصدَّق (حتى لا تدّعي
+//                         الترويسة دخولاً لا يعرفه الخادم) و**لا** تُمسح (حتى
+//                         لا ينكسر الموقع القديم الذي يقرؤها).
+//
+// يُحقن هذا السكربت مباشرةً بعد `</header>` في الموقعين — صفحات SV1 والصفحات
+// القديمة — لأن العنصر يلزم أن يكون قد وُلد، والرسم يلزم أن يسبق بقية
+// الصفحة. أما نداء الشبكة فيبقى في `CHROME_JS` (انظر `SV1_SESSION_SYNC_JS`).
+export const SV1_SESSION_JS = `<script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script>`;
+
+// نداء `me` وتصحيح الترويسة بعده. يُوضع داخل `CHROME_JS` في الموقعين.
+// المهم فيه شيئان:
+//  • ردٌّ بلا جلسة (أو بجسمٍ غير مقروء) = الجلسة انتهت → يُمسح التلميح وترجع
+//    الترويسة «دخول». بدون هذا المسح يبقى الموقع يقول «داخل» بعد انتهاء
+//    الجلسة إلى الأبد.
+//  • فشل النقل وحده (بلا ردّ: انقطاع نت) لا يمسح شيئاً ولا يقلب الحالة —
+//    ومضةُ «خروج» عند كل ارتعاشة شبكة هي التناقض نفسه معكوساً، والخادم على
+//    كل حال هو من يقرّر الصلاحية لا هذه الترويسة.
+export const SV1_SESSION_SYNC_JS = `fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});`;
+
 export const SV1_TEXT = D;
 
 export function simpleV1(ctx) {
@@ -556,7 +627,7 @@ export function simpleV1(ctx) {
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t("logout")}</button>
     ${cta ? `<a class="sv1-btn primary" href="${href("/")}#advisor">${t("navStart")}</a>` : ""}
   </div>
-</div></header>`;
+</div></header>${SV1_SESSION_JS}`;
   }
   // Who we legally are. Every value comes from configuration — site/data/site.json
   // first, then the same build-time environment variables the ZATCA invoice
@@ -660,7 +731,10 @@ export function simpleV1(ctx) {
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+${SV1_SESSION_SYNC_JS}
+})();</script>`;
 
   // عدّاد الزيارات — نفس عقد `main.js` حرفاً بحرف (action:"hit"، ومفتاح
   // الزائر `bp_vid`)، فتندمج بيانات الموقع الجديد مع القديم في الجداول نفسها
