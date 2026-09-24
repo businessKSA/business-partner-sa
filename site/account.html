@@ -1043,6 +1043,7 @@
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
         docNeedFields: 'أدخل اسم المستند واختر ملفاً (PDF أو صورة).', docTooLarge: 'الملف أكبر من 8MB.',
+        docBadType: 'هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.',
         docUploading: 'جارٍ الرفع…', docUploaded: 'تم رفع المستند ✅ — قيد التحقق.',
         docVer: 'نسخة', docDownload: 'تنزيل', docExpiryLbl: 'ينتهي',
         docStPending: 'قيد التحقق', docStVerified: 'موثق يدوياً', docStRejected: 'مرفوض',
@@ -1169,6 +1170,7 @@
         docCatCr: 'Commercial registration', docCatVat: 'VAT certificate', docCatContract: 'Contract', docCatId: 'ID / Iqama', docCatOther: 'Other',
         docSubmit: 'Upload', docListTitle: 'My documents', docNone: 'No documents yet — upload the first one above.',
         docNeedFields: 'Enter a document name and choose a file (PDF or image).', docTooLarge: 'File is larger than 8MB.',
+        docBadType: 'This format is not accepted. Accepted: PDF · JPG · PNG · WEBP.',
         docUploading: 'Uploading…', docUploaded: 'Document uploaded ✅ — pending verification.',
         docVer: 'v', docDownload: 'Download', docExpiryLbl: 'Expires',
         docStPending: 'Pending verification', docStVerified: 'Manually verified', docStRejected: 'Rejected',
@@ -3311,7 +3313,7 @@
         var b64 = String(rd.result).split(',')[1] || '';
         opsPost({
           action: 'ops-doc-upload', title: title, category: $('docCat').value,
-          expiry: $('docExpiry').value || '', fileName: f.name, mime: f.type || 'application/pdf', base64: b64
+          expiry: $('docExpiry').value || '', fileName: f.name, mime: f.type || '', base64: b64
         }).then(function(o){
           $('docSend').disabled = false;
           if (o.ok){
@@ -3337,7 +3339,13 @@
             } else { note.textContent = t('docUploaded'); }
             $('docTitle').value = ''; $('docFile').value = ''; $('docExpiry').value = '';
             opsGet('documents').then(function(x){ if (x.ok){ ops.docs = x.items || []; renderDocs(); } });
-          } else { note.className = 'note err'; note.textContent = t('opsFail'); }
+          }
+          // رفضُ الملف نفسه ليس عطلاً عابراً: `opsFail` تقول «حدّث الصفحة وحاول
+          // مرة أخرى» وهي دعوةٌ إلى محاولةٍ لن تنجح أبداً ما دام الملف هو هو.
+          // الصيغة والحجم يُقالان صراحةً، بنصّ `/my` نفسه، ولا يُعرض رمز إنجليزي.
+          else if (o.error === 'bad_type'){ note.className = 'note err'; note.textContent = t('docBadType'); }
+          else if (o.error === 'too_large'){ note.className = 'note err'; note.textContent = t('docTooLarge'); }
+          else { note.className = 'note err'; note.textContent = t('opsFail'); }
         }).catch(function(){ $('docSend').disabled = false; note.className = 'note err'; note.textContent = t('opsFail'); });
       };
       rd.readAsDataURL(f);

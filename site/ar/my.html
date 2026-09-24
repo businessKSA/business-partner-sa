@@ -635,9 +635,10 @@ function baseName(n){var t=String(n||'').replace(/\.[^.]+$/,'');return t.slice(0
 function daysLeft(d){if(!d)return null;var t=Date.parse(String(d).slice(0,10)+'T00:00:00Z');if(!isFinite(t))return null;
  var today=Date.parse(new Date().toISOString().slice(0,10)+'T00:00:00Z');return Math.round((t-today)/86400000)}
 function dayStr(n){return LANG==='en'?(n+' '+TX.dLeftB):(TX.dLeftA+' '+n+' '+TX.dLeftB)}
-// الحارس الذي يشتغل قبل أن يغادر الملف الجهاز. الخادم اليوم لا يرفض صيغة ولا
-// حجماً (يُبدّل النوع المجهول بـ pdf ويقصّ ما زاد) — فالرسالة الواضحة هنا هي
-// الفرق بين «ارفع غيره» وبين ملفٍ مبتور محفوظ بصمت.
+// الحارس الذي يشتغل قبل أن يغادر الملف الجهاز. صار الخادم يرفض الصيغة
+// والحجم فعلاً (bad_type / too_large)، لكن الرفض هنا أرخص: لا ينتظر
+// العميل رفع ثمانية ميجابايت ليُقال له «غير مقبول». والرسالتان واحدة في
+// الموضعين — upErr يترجم ردّ الخادم إلى النصّ نفسه.
 function fileErr(f){if(!f)return TX.eType;if(!f.size)return TX.eEmpty;
  if(!mimeOf(f))return TX.eType;if(f.size>MAX_DOC)return TX.eBig+' ('+kb(f.size)+')';return ''}
 function toB64(f){return new Promise(function(res,rej){var fr=new FileReader();
@@ -647,12 +648,18 @@ function opsGet(what,extra){return fetch('/api/requests?action=my-ops&what='+wha
  .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
 function opsPost(b){return fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
  .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+// ردّ الخادم رمزٌ إنجليزي، وما يقرؤه العميل جملةٌ بلغته تقول ما المشكلة وما
+// الحلّ. bad_type و too_large حالتا رفضٍ للملف نفسه: إعادة المحاولة بالملف
+// ذاته لن تنجح أبداً، فلا تُعرض بنصّ «حاول مرة أخرى» العامّ. والرمز لا يظهر
+// للعميل في أي حال — يذهب إلى الـconsole لمن يشخّص.
 function upErr(e){e=String(e||'');
  if(e==='network')return TX.eNet;
  if(e==='no_org')return TX.eNoOrg;
+ if(e==='bad_type')return TX.eType;
  if(e==='too_large')return TX.eBig;
  if(e==='invalid_fields')return TX.eName;
- return TX.eUp+' ('+e.slice(0,40)+')'}
+ if(e&&window.console)console.warn('upload:',e);
+ return TX.eUp}
 // رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
 // لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
 function sendDoc(payload,onp){return new Promise(function(res){
