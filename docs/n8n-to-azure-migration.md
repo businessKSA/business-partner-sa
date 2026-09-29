@@ -275,7 +275,7 @@ DOC_AGENT_HOOK_KEY=<نفس قيمة Vercel>
      | Document Intelligence (PDF) | ❌ غير مُهيَّأ | لا `AZURE_DOCINTEL_ENDPOINT/KEY` في Vercel، و`ops/azure/README.md` §2 يقول إن بدونهما لا يُقرأ أي PDF |
      | Speech (نطق) | ✅ نطق فقط | اعتماد «Azure Speech — Jarvis» وسيناريو Jarvis Voice (Neural TTS) نشط. التفريغ عبر Speech لم يُتحقَّق منه |
      | منطقة ثانية | ❌ لا | لا `AZURE_OPENAI_*_2`، وn8n لا يتيح إنشاء اعتماد ثانٍ من هذه الجلسات |
-     | بقايا مزوّدين خارج Azure في Vercel | ⚠️ | `ANTHROPIC_API_KEY` · `GROQ_API_KEY` · `BusinessPartnerGimini` · `GrokBusinessPartner` · `ElevenLabs` ما زالت مُعرَّفة، ولوحة التشخيص في `api/requests.js` ما زالت تعدّ بعضها |
+     | بقايا مزوّدين خارج Azure في Vercel | ✅ **غير مستعملة — تُحذف من اللوحة** | `ANTHROPIC_API_KEY` · `GROQ_API_KEY` · `BusinessPartnerGimini` · `GrokBusinessPartner` · `ElevenLabs`. روجعت (2026-09-29): `PROVIDERS` في `api/chat.js` = Azure ثم n8n فقط، وبحث الكود كله لا يجد قراءة لأي منها في مسار نداء. ما يبقى: أسطر تشخيص في `panel-health` بـ`api/requests.js`، وتعليقات، ونص إرشاد قديم في `admin.page.html` يطلب إضافة مفتاح Gemini/Anthropic، واختبارات تضعها بقيم وهمية لتثبت أنها لا تُستعمل. `GrokBusinessPartner` بلا أي إشارة في الكود. لا أداة حذف عند Claude، فالحذف من Vercel ← Settings ← Environment Variables. **الحذف لا يبطل المفتاح**: يُلغى من لوحة كل مزوّد (Anthropic وElevenLabs مدفوعان). وبعده تظهر أسطر Gemini/Anthropic/Groq/OpenAI في `panel-health` «غير مُهيَّأ»، وهذا متوقَّع |
 
      **أثر ذلك على العقد العشر:** الرؤية (إيصالات، استخراج المستندات) قد تعمل على
      `bp-main` فتُحوَّل بعد اختبار بصورة حقيقية. Whisper وElevenLabs (تفريغ) يتوقفان
