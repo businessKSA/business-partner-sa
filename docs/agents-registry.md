@@ -154,3 +154,14 @@
 - **عبدالله** (`8PGiUitiRKDybt3l`) و**أحمد** (`BZlZ9irajglk4qpS`) — تحديث نصي فقط على أداة `Consult` الموجودة أصلاً (لا تغيير بنيوي)، يضيف المسارات الأربعة الجديدة لقائمة الزملاء المتاحين.
 
 باهر منفرد بذكر أن بندر توظيفٌ خارجي حصراً (وليس ناصر)، وأن وسام يقرأ ويصعّد فقط دون سعر.
+
+## جارفس — مركز القيادة الصوتي (2026-09-29)
+
+صفحة واحدة (Artifact خاص بالمالك + نسخة محلية `jarvis-local.html`) تكلّم الفريق كله عبر فرح. لا تمرّ بـ`api/` (ممتلئ 12/12) ولا تحمل أسراراً غير مسارات الويبهوك السرّية — لذلك لا تُلتزم في المستودع.
+
+| السير | المعرّف | المسار | ماذا يفعل |
+|---|---|---|---|
+| 🛰️ Jarvis — Pulse | `a8mMc7Vz6YjyHeu7` | `GET jarvis-pulse-…` | يقرأ `BP_AI_Tasks` (queued/in_progress) و`BP_Agent_Registry` ويعيد لكل وكيل: المهام المفتوحة، قيد التنفيذ، آخر تحديث، الحالة، آخر heartbeat. بلا اعتماد. مُتحقَّق بتنفيذ `120835`: 4 مهام مفتوحة، 61 صفاً في السجل. |
+| 🔊 Jarvis — Voice | `lsi2W7g238uIGyAC` | `POST jarvis-voice-…` | نطق Azure Neural عبر REST (`{region}.tts.speech.microsoft.com`) بصوت مختلف لكل مدير. **يحتاج اعتماداً** باسم `Azure Speech — Jarvis` (httpHeaderAuth، الرأس `Ocp-Apim-Subscription-Key`) ينشئه المالك في n8n بعد إنشاء مورد Speech في Azure؛ المنطقة ثابت في عقدة `Build SSML` (`swedencentral`). حتى يُفعَّل تعود الصفحة لصوت المتصفح تلقائياً. |
+
+معرّفات `assigned_to_agent` الفعلية في الجدول (مقروءة من التنفيذ): `baher_owner`, `badr_sales`, `chief_of_staff`, `website_funnel_ops`, `mohammed_it`, `mazen_ops`, `ahmed_strategy`, `abdulrahman_cfo`, `farah_marketing`, `nasser_hr`, `abdullah_procurement`, `mishari_compliance`, `abdulaziz_legal` — وأسماء المتخصصين `mkt_*`, `sales_*`, `ops_*`, `finance_*`, `legal_*`, `gro_*`, `hr_*`, `proc_*`, `it_*`, `digital_*`, `strategy_*`. لا صفوف بعد للإدارات الأربع الجديدة في `BP_Agent_Registry` (طارق/بندر/آلاء/وسام) — فرح وحدها تضيفها.
