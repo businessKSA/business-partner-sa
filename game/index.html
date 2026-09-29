@@ -151,6 +151,7 @@ input[type=range]{accent-color:var(--gold)}
     <button class="btn ghost" id="btnCodex">سجلّ المخطوطات</button>
     <button class="btn ghost" id="btnHelp">التحكم وطريقة اللعب</button>
     <button class="btn ghost" id="btnMute">كتم الصوت (M)</button>
+    <button class="btn ghost" id="btnFullscreen">ملء الشاشة (F11)</button>
   </div>
   <p class="note" style="margin-top:16px">نموذج أولي للمتصفح (Three.js). لا قتال ولا اغتيالات: البطل كشّافٌ يتسلّل ويراقب ويوصل الرسائل ويرفع الرايات. المعلومات التاريخية في المخطوطات موجزة وقابلة للمراجعة قبل أي إصدار.</p>
 </section>
@@ -263,7 +264,7 @@ input[type=range]{accent-color:var(--gold)}
   <div class="toast" id="toast"></div>
   <div class="hud-bottom">
     <div class="meter" id="meter"><div class="lbl"><span>الشُبهة</span><span id="meterState">مختفٍ</span></div><div id="hp" style="color:#e34a3f;font-size:16px;letter-spacing:2px;margin-bottom:2px">♥♥♥</div><div class="bar"><i id="meterFill"></i></div></div>
-    <div class="hint" id="hint"><kbd>Space</kbd> قفز/تسلّق · <kbd>E</kbd> تفاعل · <kbd>V</kbd> بصيرة · <kbd>Esc</kbd> إيقاف</div>
+    <div class="hint" id="hint">انقر على اللعبة أولاً · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> حركة · <kbd>Space</kbd> قفز/تسلّق · <kbd>E</kbd> تفاعل · <kbd>V</kbd> بصيرة · <kbd>Esc</kbd> إيقاف</div>
   </div>
 </div>
 
@@ -885,7 +886,8 @@ function updateLife(dt, now){
 
 /* ---------- 5) الشخصيات ---------- */
 function makeCharacter(opts){
-  const g = new THREE.Group();
+  const root = new THREE.Group();
+  const g = new THREE.Group(); g.rotation.y = Math.PI; root.add(g);   // الوجه (اللحية) عند -z محلياً → بعد اللفّ يصير +z = اتجاه الحركة
   const thobe = new THREE.MeshStandardMaterial({color:opts.thobe, roughness:.9});
   const bisht = new THREE.MeshStandardMaterial({color:opts.bisht, roughness:.95});
   const skin = new THREE.MeshStandardMaterial({color:0x9c6b46, roughness:.8});
@@ -914,8 +916,8 @@ function makeCharacter(opts){
   g.traverse(o=>{ if(o.isMesh){ o.castShadow=true; } });
   if(opts.weapon==='sword'){ const blade=new THREE.Mesh(new THREE.BoxGeometry(.05,.75,.1), new THREE.MeshStandardMaterial({color:0xd8d8e0,metalness:.85,roughness:.25})); blade.position.set(0,-.7,0); const hilt=new THREE.Mesh(new THREE.BoxGeometry(.2,.05,.05), MAT.gold); hilt.position.set(0,-.32,0); const grip=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.18,6), MAT.wood); grip.position.set(0,-.24,0); [blade,hilt,grip].forEach(o=>armR.add(o)); }
   else if(opts.weapon==='rifle'){ const stock=new THREE.Mesh(new THREE.BoxGeometry(.08,.5,.12), MAT.wood); stock.position.set(0,-.45,.05); const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.9,6), new THREE.MeshStandardMaterial({color:0x555560,metalness:.8,roughness:.3})); barrel.position.set(0,-1.05,.05); [stock,barrel].forEach(o=>armR.add(o)); }
-  g.userData.parts={legL,legR,armL,armR,cloak,torso};
-  return g;
+  root.userData.parts={legL,legR,armL,armR,cloak,torso}; root.userData.cape=cape;
+  return root;
 }
 
 const player = {
@@ -959,7 +961,9 @@ function spawnPlayer(x,z){
 
 const camCtl = { yaw:Math.PI, pitch:.35, dist:7.5, sens:(()=>{ try{ return clamp(parseFloat(localStorage.getItem('rayat3.sens')||'1')||1,.3,2.2); }catch(e){ return 1; } })(), invertY:(()=>{ try{ return localStorage.getItem('rayat3.invertY')==='1'; }catch(e){ return false; } })() };
 let locked=false;
-canvas.addEventListener('click', ()=>{ if(isTouch||cine.active||!game.running||game.paused) return; try{ canvas.requestPointerLock?.(); }catch(e){} });
+canvas.addEventListener('click', ()=>{ try{ window.focus(); canvas.focus(); }catch(e){} if(isTouch||cine.active||!game.running||game.paused) return; try{ canvas.requestPointerLock?.(); }catch(e){} });
+canvas.tabIndex = 0; canvas.style.outline='none';
+addEventListener('pointerdown', ()=>{ try{ window.focus(); }catch(e){} }, {capture:true});
 canvas.addEventListener('wheel', e=>{ e.preventDefault(); camCtl.dist=clamp(camCtl.dist+e.deltaY*.01, player.mount?6:3.5, 16); }, {passive:false});
 document.addEventListener('pointerlockchange', ()=>{ locked = document.pointerLockElement===canvas; });
 document.addEventListener('mousemove', e=>{ if(!locked) return; input.look[0]+=e.movementX*.0022*camCtl.sens; input.look[1]+=e.movementY*.0018*camCtl.sens; });
@@ -996,7 +1000,8 @@ function updatePlayer(dt){
   const running = (k.ShiftLeft||k.ShiftRight) && l>0;
   const speed = player.mount ? (running?13:7) : (running?6.2:3.4);
   // تدوير المتجه حسب الكاميرا
-  const cy=camCtl.yaw, fx=Math.sin(cy), fz=Math.cos(cy);
+  // الكاميرا تقف عند (sin yaw, cos yaw) خلف اللاعب، فـ«الأمام» على الشاشة هو عكس ذلك، و«اليمين» = (cos, -sin)
+  const cy=camCtl.yaw, fx=-Math.sin(cy), fz=-Math.cos(cy);
   const rx=Math.cos(cy), rz=-Math.sin(cy);
   const wantVx=(mx*rx + (-mz)*fx)*speed, wantVz=(mx*rz + (-mz)*fz)*speed; const accel = l>0.05? 14 : 18;
   player.vx = lerp(player.vx||0, wantVx, Math.min(1,dt*accel)); player.vz = lerp(player.vz||0, wantVz, Math.min(1,dt*accel));
@@ -1110,9 +1115,9 @@ function makeGuard(waypoints, night){
   const g={ mesh:makeCharacter({thobe:0xd9c7a3, bisht:0x5a3a22, ghutra:0xffffff, spear:true}), wps:waypoints, wi:0, x:waypoints[0][0], z:waypoints[0][1], yaw:0, state:'patrol', wait:0, target:null, phase:Math.random()*6, range: night?9:12, fov:1.25 };
   scene.add(g.mesh);
   const cone = new THREE.Mesh(new THREE.CircleGeometry(g.range, 16, -g.fov/2 + Math.PI/2, g.fov), new THREE.MeshBasicMaterial({color:0xe34a3f, transparent:true, opacity:.18, side:THREE.DoubleSide, depthWrite:false}));
-  cone.rotation.x=-Math.PI/2; cone.position.y=.05; cone.visible=false; g.mesh.add(cone); g.cone=cone;
+  cone.rotation.x=Math.PI/2; cone.position.y=.05; cone.visible=false; g.mesh.add(cone); g.cone=cone;
   const ghost=new THREE.Group(); const gb=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,1.9,8), new THREE.MeshBasicMaterial({color:0xff3b30, transparent:true, opacity:.55, depthTest:false})); gb.position.y=.95; ghost.add(gb);
-  const gc=new THREE.Mesh(new THREE.CircleGeometry(g.range, 16, -g.fov/2 + Math.PI/2, g.fov), new THREE.MeshBasicMaterial({color:0xff3b30, transparent:true, opacity:.14, side:THREE.DoubleSide, depthTest:false, depthWrite:false})); gc.rotation.x=-Math.PI/2; gc.position.y=.06; ghost.add(gc); ghost.visible=false; hiScene.add(ghost); g.ghost=ghost;
+  const gc=new THREE.Mesh(new THREE.CircleGeometry(g.range, 16, -g.fov/2 + Math.PI/2, g.fov), new THREE.MeshBasicMaterial({color:0xff3b30, transparent:true, opacity:.14, side:THREE.DoubleSide, depthTest:false, depthWrite:false})); gc.rotation.x=Math.PI/2; gc.position.y=.06; ghost.add(gc); ghost.visible=false; hiScene.add(ghost); g.ghost=ghost;
   guards.push(g); return g;
 }
 function spawnGuards(level){
@@ -1386,7 +1391,8 @@ if(vol.muted) $('#btnMute').textContent='تشغيل الصوت (M)';
 $('#btnCodex').onclick=()=>{ renderCodex(); $('#menu').hidden=true; $('#codex').hidden=false; };
 $('#btnTrailer').onclick=()=>{ audio.unlock(); playTrailer(); };
 (function(){ const v=$('#introVideo'); v.addEventListener('loadedmetadata', ()=>{ $('#btnIntroVideo').hidden=false; }); v.addEventListener('error', ()=>{ $('#btnIntroVideo').hidden=true; }); $('#btnIntroVideo').onclick=()=>{ $('#menu').hidden=true; $('#introVideoScreen').hidden=false; v.play().catch(()=>{}); }; })();
-function tryFullscreen(){ if(!isTouch) return; const el=document.documentElement; try{ const p=(el.requestFullscreen||el.webkitRequestFullscreen)?.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+function tryFullscreen(force){ if(!isTouch&&!force) return; const el=document.documentElement; try{ const p=(el.requestFullscreen||el.webkitRequestFullscreen)?.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+$('#btnFullscreen').onclick=()=>{ if(document.fullscreenElement){ document.exitFullscreen?.(); } else tryFullscreen(true); };
 $('#btnContinue').onclick=()=>{ audio.unlock(); tryFullscreen(); startLevel(Math.min(save.unlocked, LEVELS.length-1)); };
 $('#btnNextChapter').onclick=()=>{ $('#chapterEnd').hidden=true; if(game.li+1<LEVELS.length) startLevel(game.li+1); else showMenu(); };
 $('#btnCeMenu').onclick=()=>{ $('#chapterEnd').hidden=true; showMenu(); };
@@ -1546,7 +1552,7 @@ function frame(now){
 function checkOrientation(){ const portrait = isTouch && innerHeight>innerWidth && innerWidth<700; $('#rotate').hidden=!portrait; }
 addEventListener('resize', checkOrientation);
 function boot(){
-  checkOrientation();
+  checkOrientation(); try{ window.focus(); }catch(e){}
   if(isTouch) $('#hint').textContent='اسحب يميناً لتدوير الكاميرا · عصا يسار للحركة';
   renderEras(); showMenu(); $('#loading').hidden=true;
   requestAnimationFrame(t=>{ last=t; frame(t); });
