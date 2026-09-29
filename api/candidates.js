@@ -238,11 +238,15 @@ const jobKey = (s) => String(s || "").trim().toLowerCase().replace(/-/g, "");
 // التي غاب بها الشرط أصلاً عن القائمة ثلاثة أسابيع. دالةٌ واحدة، فمن يغيّرها
 // يغيّرها للمسارين.
 //
+// وصار لها مستدعٍ ثالث من وحدةٍ أخرى: `task:"score"` في api/hire.js يقرأ سيرة
+// المرشّح ليُقيّمها، وهو نفس التسريب لو مرّ بلا هذا الشرط. مُصدَّرة لذلك —
+// تُستورد ولا تُنسخ، فالمفتاح الذي تُفحص به الملكية واحد في المسارات الثلاثة.
+//
 // القيم الثلاث مقصودة وكلٌّ منها يعني شيئاً مختلفاً:
 //   null  = بلا حدّ — مالك المنصّة وحده (كما في list-postings).
 //   false = تعذّر السؤال على نوشن → المنادي يُقفل الباب (502)، لا «أظهر الكل».
 //   Map   = مفاتيح إعلاناته المُسوّاة بـjobKey؛ وفارغةٌ تعني: لا يملك إعلاناً.
-async function ownJobsFor(code, owner) {
+export async function ownJobsFor(code, owner) {
   if (owner) return null;
   if (!code) return new Map();
   const mine = await queryAllRows(JOBS_DB, {
@@ -256,7 +260,7 @@ async function ownJobsFor(code, owner) {
 // السطر نفسه داخل Notes. يُقرأ في موضعٍ واحد كي يكون المفتاح الذي تُفحص به
 // الملكية في ملفّ المتقدّم هو **نفسه** الذي جمعت به القائمة — مفتاحان
 // مختلفان يعنيان ملفاً يُفتح لمن لا تُعرض له بطاقته، أو العكس.
-function applicantStamp(p) {
+export function applicantStamp(p) {
   const stamp = txt(p["الوظيفة المتقدم لها"]);
   const notes = txt(p["Notes"]);
   let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
@@ -302,6 +306,92 @@ async function readCvBody(id) {
     } while (cur && ++guard < 5);
     return out.join("\n");
   } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); return ""; }
+}
+
+// ── مادة التقييم: ما يخرج من قاعدة المرشحين إلى المُقيِّم، ولا شيء غيره ────
+// يستدعيها `task:"score"` في api/hire.js. وُضعت هنا لا هناك لسببين:
+//
+//   ① **الحقول المحرَّم التقييم عليها لا تُسلَّم أصلاً.** الصفّ يحمل
+//      «Nationality Type» و«حالة الإقامة» و«Country» و«التوطين Saudization»،
+//      ولا واحدٌ منها في `brief` أدناه. فالحاجز بنيوي: النموذج لا يستطيع
+//      التقييم على الجنسية لأنه لا يراها، لا لأن سطراً في التوجيه نهاه —
+//      والتوجيه وحده يُخترق بسيرةٍ فيها «تجاهل ما سبق». التوطين حقلٌ نظامي
+//      يُحسب بقواعده ويُعرض وحده (انظر ?applicant=1)، وخلطه بدرجة الكفاءة
+//      يُنتج تمييزاً مكتوباً في سجلّ.
+//   ② الختم يُقرأ بـ`applicantStamp` نفسها التي تفلتر بها القائمة والملفّ،
+//      فلا مفتاحَ ملكيةٍ ثانياً يخالف الأول.
+//
+// ولا اسم ولا بريد ولا جوّال: المُقيِّم لا يحتاجها، وما لا يُرسَل لا يُسرَّب.
+export async function scoringRow(id) {
+  const rid = String(id || "").trim();
+  if (!rid) return { ok: false, error: "no_id" };
+  let page;
+  try { page = await notionFetch(`pages/${rid}`, "GET"); }
+  catch (e) { console.error("scoring row error", String(e).slice(0, 160)); return { ok: false, error: "notion_failed" }; }
+  // 400 كذلك: نوشن يردّ 400 على معرّفٍ مُشوَّه، وهو «غير موجود» لا عطلٌ.
+  if (page.status === 404 || page.status === 400) return { ok: false, error: "not_found" };
+  if (!page.ok) { console.error("scoring row", page.status, (await page.text()).slice(0, 200)); return { ok: false, error: "notion_failed" }; }
+  const pdata = await page.json();
+  const p = pdata.properties || {};
+  // «مخفي عن الموقع» = سيرةٌ لم تُقرأ أو صفٌّ تحت المراجعة. لا يُعرض ولا يُقيَّم.
+  if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return { ok: false, error: "not_found" };
+  let cvText = txt(p["ATS CV Text"]);
+  let cvFrom = cvText ? "field" : "";
+  if (!cvText) { cvText = await readCvBody(pdata.id || rid); cvFrom = cvText ? "page" : ""; }
+  const sc = applicantScore(p);
+  return {
+    ok: true,
+    id: pdata.id || rid,
+    // طابع آخر تعديلٍ على الصفّ — به يُعرف أن السيرة تغيّرت بعد آخر تقييم،
+    // فلا يُعاد نداء النموذج على صفٍّ لم يتحرّك (انظر api/hire.js).
+    lastEdited: pdata.last_edited_time || "",
+    stamp: applicantStamp(p),
+    brief: {
+      role: txt(p["Target Role"]) || txt(p["Original Position"]),
+      field: txt(p["Field"]),
+      city: txt(p["City"]),
+      experience: txt(p["Experience Years"]),
+      education: txt(p["Education"]),
+      languages: txt(p["Languages"]),
+      skills: txt(p["Skills"]).slice(0, 1500),
+    },
+    cvText, cvFrom,
+    saved: {
+      score: sc.score, scoreFrom: sc.scoreFrom,
+      reason: txt(p["مبرر الدرجة"]),
+      scoredFor: txt(p["الوظيفة المُقيَّم عليها"]),
+      scoredAt: p["تاريخ التقييم"] && p["تاريخ التقييم"].date ? p["تاريخ التقييم"].date.start : "",
+    },
+  };
+}
+
+// الحقول الأربعة أُضيفت إلى قاعدة المرشحين في 2026-09-29 وكانت فارغةً كلها.
+// وهي **اختيارية** في الكتابة عمداً: بيئةٌ لم يُضَف فيها أحدها (نسخة نوشن
+// أخرى، قاعدة اختبار) يجب ألا تُسقط التقييم كله — وهذا نمط notionWriteOptional
+// أعلاه حرفاً بحرف. وما سقط يُعلَن للمنادي في `dropped` فلا يُقال «حُفظ» ولم يُحفظ.
+export const SCORE_PROPS = ["درجة المطابقة", "مبرر الدرجة", "الوظيفة المُقيَّم عليها", "تاريخ التقييم"];
+
+export async function writeScore(id, { score, reason, jobLabel, at } = {}) {
+  const rid = String(id || "").trim();
+  const n = Number(score);
+  // الحاجز الثاني للمبرّر، بعد حاجز api/hire.js: **درجةٌ بلا سبب لا تُكتب.**
+  // رقمٌ عارٍ في صفّ مرشّح يبني عليه صاحب عمل قراراً في حياة إنسان، ولا يعرف
+  // أحدٌ بعد أسبوع على أي شيء استند. والحاجزان مقصودان: من يغيّر أحدهما لا
+  // يفتح الباب.
+  if (!rid) return { ok: false, error: "no_id" };
+  if (!Number.isFinite(n)) return { ok: false, error: "no_score" };
+  if (!String(reason || "").trim()) return { ok: false, error: "no_reason" };
+  const payload = { properties: {
+    "درجة المطابقة": { number: Math.max(0, Math.min(100, Math.round(n))) },
+    "مبرر الدرجة": { rich_text: [{ text: { content: String(reason).slice(0, 1900) } }] },
+    "الوظيفة المُقيَّم عليها": { rich_text: [{ text: { content: String(jobLabel || "").slice(0, 1900) } }] },
+    "تاريخ التقييم": { date: { start: at || new Date().toISOString() } },
+  } };
+  let r;
+  try { r = await notionWriteOptional(`pages/${rid}`, "PATCH", payload, SCORE_PROPS, "score write"); }
+  catch (e) { console.error("score write error", String(e).slice(0, 160)); return { ok: false, error: "notion_failed" }; }
+  if (!r.ok) { console.error("score write failed", r.status, (await r.text()).slice(0, 220)); return { ok: false, error: "notion_failed" }; }
+  return { ok: true, dropped: r.droppedProps || [] };
 }
 
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")

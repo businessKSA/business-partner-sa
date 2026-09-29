@@ -9,6 +9,7 @@
 //
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"
+//       | "score"  ← قارئ السيرة والمُقيِّم (2026-09-29). انظر handleScore أدناه.
 // GET  /api/hire  -> { status, providers }
 //
 // ⚠️ المصادقة والقياس والسقف — أُضيفت 2026-09-29، انظر `authorize` أدناه.
@@ -19,7 +20,9 @@
 // (ترجمة إعلان لزائر، تحسين سيرة لمرشّح) فإقفاله يكسر خدمةً قائمة.
 
 import { AZURE_KEYS, azureChat, azureConfigured, azureTextDeployment } from "./_azure.js";
-import { employerBySession, portalUnlock, resolvePlan } from "./candidates.js";
+import {
+  employerBySession, ownJobsFor, portalUnlock, resolvePlan, scoringRow, writeScore,
+} from "./candidates.js";
 import {
   anonSubject, countAnonToday, countToday, employerSubject, limits, logCall, windowEnd,
 } from "./_hiremeter.js";
@@ -177,6 +180,10 @@ ${cv}`;
 //              المُستدعي صاحب عملٍ مشتركاً: يجب أن يكون الإعلان إعلانَه
 //              (postingOwner أدناه) — كما يفلتر update-posting في
 //              api/candidates.js على «رمز صاحب العمل» حرفاً بحرف.
+//   score      يقرأ **نصّ سيرة** مرشّحٍ بعينه ويكتب درجته في صفّه. وهي أضيق
+//              من ذلك: لا يكفي أن يكون المُستدعي مشتركاً ولا أن يكون الإعلان
+//              إعلانه — يجب أن يكون **المرشّح متقدّماً على أحد إعلاناته**
+//              (ownJobsFor + الختم، انظر handleScore).
 //
 // عامّة بحقّ (تبقى مفتوحة، ومقيسة ومسقوفة كزائر):
 //   translate  صفحة الإعلان العامة تترجم الإعلان لكل زائر غير عربي
@@ -193,7 +200,7 @@ ${cv}`;
 // (لكل عنوان، وللمجهولين جملةً) لا مصادقة. وإقفاله الكامل قرار مالك، ويلزمه
 // قبله رمزٌ داخلي في api/_jobhunt.js (ملك recruitment-candidate) وإلا صمت
 // إيجنت الباحث عن عمل.
-const EMPLOYER_TASKS = new Set(["jobdesc", "summary", "interview", "outreach"]);
+const EMPLOYER_TASKS = new Set(["jobdesc", "summary", "interview", "outreach", "score"]);
 const needsEmployer = (task, b) => EMPLOYER_TASKS.has(task) || (task === "match" && !!b.postingId);
 // المهامّ العامة لا تُكلّف الزائر سؤالاً في نوشن: لا يُحلّ صاحب عملٍ لها إلا
 // إذا أرسل المستدعي رمزاً صريحاً. صفحة الإعلان العامة تُفتح كثيراً، ولا يُحمَّل
