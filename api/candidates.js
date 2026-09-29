@@ -373,7 +373,11 @@ export const SCORE_PROPS = ["درجة المطابقة", "مبرر الدرجة"
 
 export async function writeScore(id, { score, reason, jobLabel, at } = {}) {
   const rid = String(id || "").trim();
-  const n = Number(score);
+  // ‏Number(null) و‏Number("") و‏Number(false) كلها **صفرٌ صحيح**، لا NaN. فحصٌ
+  // بـNumber.isFinite وحده يحوّل «لا درجة» إلى «صفر من مئة» في صفّ إنسان — وهو
+  // أسوأ من لا شيء: رقمٌ يراه صاحب العمل ويُصدّقه. تُرفض هذه القيم صراحةً.
+  const n = score === null || score === undefined || score === "" || typeof score === "boolean"
+    ? NaN : Number(score);
   // الحاجز الثاني للمبرّر، بعد حاجز api/hire.js: **درجةٌ بلا سبب لا تُكتب.**
   // رقمٌ عارٍ في صفّ مرشّح يبني عليه صاحب عمل قراراً في حياة إنسان، ولا يعرف
   // أحدٌ بعد أسبوع على أي شيء استند. والحاجزان مقصودان: من يغيّر أحدهما لا

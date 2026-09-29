@@ -339,10 +339,15 @@ export const SAUD_PROPS = [SAUD_PROP, COMP_PROP, SAUD_DET_PROP];
 // قاطع، وحالتا الإقامة تقطعان بالعكس. و«خارج السعودية» لا تدلّ على شيء: سعوديٌّ
 // مغترب يختارها. والفراغ يبقى فراغاً — لا يُحسب «غير سعودي» بالافتراض، لأن
 // الافتراض هنا يكتب ⛔ على شخصٍ لم يقل جنسيته.
+// ويُقرأ الرمز **داخل** النصّ لا كمساواةٍ له: «سعودي/أمريكي» مزدوجُ جنسية،
+// وهو سعوديٌّ فعلاً — ومطابقةٌ حرفية كانت تقرؤه «غير سعودي» فتكتب ⛔ على مواطن.
+// والاتجاه مقصود: الخطأ الأرخص أن نعدّه سعودياً فيُفحص، لا أن نُسقط طلبه.
+const SAUDI_TOKEN = /(?:^|[\s/،,+&])(?:سعودي(?:ة)?|السعودية|saudi(?:\s+arabian?)?|ksa)(?=$|[\s/،,+&])/i;
+const NOT_SAUDI = /غير\s*سعودي|non[\s-]?saudi|not\s+saudi/i;
 export function nationalityKind(nationality, residenceStatus) {
   if (residenceStatus === "مواطن سعودي") return "سعودي";
   const n = String(nationality || "").trim();
-  if (/^(saudi|saudi arabian?|ksa|سعودي|سعودية|السعودية|سعودي الجنسية)$/i.test(n)) return "سعودي";
+  if (n && !NOT_SAUDI.test(n) && SAUDI_TOKEN.test(n)) return "سعودي";
   if (/^مقيم بإقامة/.test(String(residenceStatus || ""))) return "غير سعودي";
   return n ? "غير سعودي" : "";
 }
@@ -422,7 +427,11 @@ const SAUD_CACHE_MAX = 500;
 // مقيس في _hiremeter). سؤالٌ عن **المهنة وحدها**: لا سيرة ولا جنسية ولا اسم —
 // فالحمولة أسطرٌ لا صفحات، والجواب مفتاحان. ولا يرمي أبداً: فشلُه «بحاجة فحص»،
 // ولا يُسقط إنشاء المرشّح.
-export async function occupationSaudization(role) {
+// ومهلةٌ خاصّةٌ به: `aiText` لا يقبل مهلة، ومهلة أزور نفسها ٤٥ ثانية لكل منطقة
+// ومنطقتان — فنداءٌ متعثّر وحده يتجاوز سقفَ المسار كله (٦٠ ثانية) ويُسقط تقديماً
+// ناجحاً. الحدّ هنا لا يُلغي النداء الجاري، لكنه يُطلق المعالجَ بـ«بحاجة فحص».
+const SAUD_MS = 25000;
+export async function occupationSaudization(role, budgetMs) {
   const r = String(role || "").trim().slice(0, 160);
   const fail = (note) => ({ saudization: SAUD_NEEDS, details: saudDetailLine(SAUD_NEEDS, r, note), source: "" });
   if (!r) return fail("");
@@ -430,11 +439,17 @@ export async function occupationSaudization(role) {
   if (SAUD_CACHE.has(key)) return { ...SAUD_CACHE.get(key) };
   if (!aiAvailable()) return fail("محرّك التحليل غير مهيّأ");
   let raw;
+  let timer = null;
   try {
-    raw = await aiText(saudPrompt(r), 400, "saudization");
+    const ms = Number(budgetMs) > 0 ? Number(budgetMs) : SAUD_MS;
+    const late = new Promise((resolve) => { timer = setTimeout(() => resolve(Symbol.for("bp.saud.late")), ms); });
+    raw = await Promise.race([aiText(saudPrompt(r), 400, "saudization"), late]);
+    if (raw === Symbol.for("bp.saud.late")) return fail("تجاوز التحليل مهلته — يُعاد لاحقاً");
   } catch (e) {
     console.error("saudization ai failed", String(e).slice(0, 200));
     return fail("تعذّر التحليل الآلي — يُعاد لاحقاً");
+  } finally {
+    if (timer) clearTimeout(timer);
   }
   const body = String(raw || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
   const start = body.indexOf("{"), end = body.lastIndexOf("}");
@@ -1293,9 +1308,12 @@ export default async function handler(req, res) {
     // القائمة فهو محسوبٌ على السيرة كاملة، وحسابُنا على المسمّى وحده. وما ليس
     // في القائمة الأربع لا يُكتب — الخطّاف مصدرٌ خارجي، لا يُوسَّع به المخزون.
     const fromN8n = n8nAi(n8n);
+    // يُنتظر على أي حال — لا وعدٌ سائب يُترك بعد الردّ. وهو انطلق أولاً وحمولته
+    // أسطرٌ، فانتظارُه هنا صفرٌ عملياً بعد نافذة n8n.
+    const mine = await saudWork;
     const saud = SAUD_VALUES.includes(fromN8n.saudization)
       ? { saudization: fromN8n.saudization, details: saudDetailLine(fromN8n.saudization, roleForSaud, fromN8n.saudization_details), source: "n8n" }
-      : await saudWork;
+      : mine;
 
     const existing = await findExisting(email, phone);
     if (existing) {
@@ -1309,6 +1327,7 @@ export default async function handler(req, res) {
       // إعادة تقديمٍ بلا مرفق لا تُنزّل حالة صفٍّ سيرتُه مقروءةٌ عندنا أصلاً.
       const hadCv = !!((existing.properties && existing.properties["ATS CV Text"] && existing.properties["ATS CV Text"].rich_text) || []).length;
       applyCvReadStatus(props, cvOutcome, hadCv);
+      applySaudization(props, saud, natKind, existing.properties);
       const r = await notionWriteOptional("pages/" + existing.id, "PATCH", { properties: props }, STATUS_PROPS, "candidate update");
       if (!r.ok) {
         console.error("Notion update error", r.status, (await r.text()).slice(0, 400));
@@ -1328,6 +1347,7 @@ export default async function handler(req, res) {
     props["Pipeline Stage"] = { select: { name: "جديد" } };
     applyN8nEnrichment(props, n8n, true);
     applyCvReadStatus(props, cvOutcome, false);
+    applySaudization(props, saud, natKind, null);
     // n8n has already spent most of the budget, so the rewrite only runs inline
     // when there is real time left; otherwise the row is queued and the catch-up
     // pass picks it up. Either way the candidate's mail carries the best CV we
