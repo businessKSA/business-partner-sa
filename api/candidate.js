@@ -301,6 +301,172 @@ export function applyCvReadStatus(props, outcome, keepExisting) {
   return props;
 }
 
+/* ═════════════════════ التوطين والامتثال للمتقدّم عبر الموقع ═════════════════════
+ *
+ * صاحب العمل يرى على كل مرشّح رقاقتين: «التوطين» و«الامتثال». والقيم التي
+ * تلوّنهما يحسبها **وكيل Outlook** في n8n (السيناريو TfsAjfMoTXc8i2uw، العقدتان
+ * «🧠 التحليل (Azure)» و«🏗️ بناء السجل + السيرة») — ولا يمرّ به المتقدّم عبر
+ * الموقع إطلاقاً. فكان قياس 2026-09-29: ٢٤٥٨٦ صفّاً من ٢٦٤١٩ لها توطين، وصفرٌ
+ * من الـ١١٧ صفّاً التي تظهر فعلاً في لوحة صاحب العمل. الشاشة تقول «لم يُفحص»
+ * لكل من يظهر فيها. هذا القسم يحسبها هنا، بمنطق الوكيل نفسه.
+ *
+ * منطق الوكيل حرفياً: نداءُ نموذجٍ واحد يطلب JSON فيه مفاتيح كثيرة، ثم
+ * `pick(v, allow, dflt)` يقصّ الناتج على القائمة المسموحة و«بحاجة فحص» هو
+ * الافتراضي. نتّبعه: **القيم الأربع كما هي، والمجهول يقع على «بحاجة فحص»**.
+ *
+ * وموضعُ خلافٍ واحد، مقصود: الوكيل يسأل النموذج عن `saudization` و`compliance`
+ * **مفتاحين مستقلّين**، ولا يتحقّق من اتّساقهما — فوُلد في القاعدة ٢٢٠ صفّاً
+ * توطينها «مسموح لغير السعوديين» وامتثالها «⛔ مهنة سعودية - غير سعودي»، وهما
+ * نقيضان. هنا **لا يُسأل النموذج عن الامتثال أصلاً**: يُسأل عن المهنة وحدها،
+ * ويُشتقّ الامتثال في الكود من (التوطين × جنسية المرشّح) بدالة واحدة
+ * `complianceFor` — فالتناقض يصير مستحيلاً بنيةً لا انتباهاً.
+ *
+ * وحدّ لا يُتجاوز (CLAUDE.md §4): لا نسبة ولا رقم ولا اسم قرار وزاري. النموذج
+ * يُمنع منها في النصّ، ثم تُنزع من جوابه مهما قال (`NUM_CLAIM_RE`) — لأن المنع
+ * بالطلب وحده ليس منعاً. وما لا نعرفه يُقال «بحاجة فحص»، وهي قيمةٌ موجودة في
+ * القاعدة لهذا الغرض بالضبط.
+ */
+export const SAUD_VALUES = ["مقصورة على السعوديين", "نسبة توطين + اشتراطات", "مسموح لغير السعوديين", "بحاجة فحص"];
+export const COMP_VALUES = ["✅ مطابق", "⛔ مهنة سعودية - غير سعودي", "⚠️ اشتراطات", "🔍 بحاجة فحص"];
+const SAUD_NEEDS = "بحاجة فحص";
+const COMP_NEEDS = "🔍 بحاجة فحص";
+const SAUD_PROP = "التوطين Saudization";
+const COMP_PROP = "الامتثال Compliance";
+const SAUD_DET_PROP = "تفاصيل التوطين";
+export const SAUD_PROPS = [SAUD_PROP, COMP_PROP, SAUD_DET_PROP];
+
+// سعوديٌّ أم لا — من الاستمارة، بلا نموذج. «مواطن سعودي» خيارٌ مُنتقى فهو
+// قاطع، وحالتا الإقامة تقطعان بالعكس. و«خارج السعودية» لا تدلّ على شيء: سعوديٌّ
+// مغترب يختارها. والفراغ يبقى فراغاً — لا يُحسب «غير سعودي» بالافتراض، لأن
+// الافتراض هنا يكتب ⛔ على شخصٍ لم يقل جنسيته.
+export function nationalityKind(nationality, residenceStatus) {
+  if (residenceStatus === "مواطن سعودي") return "سعودي";
+  const n = String(nationality || "").trim();
+  if (/^(saudi|saudi arabian?|ksa|سعودي|سعودية|السعودية|سعودي الجنسية)$/i.test(n)) return "سعودي";
+  if (/^مقيم بإقامة/.test(String(residenceStatus || ""))) return "غير سعودي";
+  return n ? "غير سعودي" : "";
+}
+
+// الامتثال = دالةٌ صِرفة من (التوطين × الجنسية). القاعدة الوحيدة التي ينصّ عليها
+// نصّ وكيل Outlook هي «مقصورة على السعوديين + غير سعودي = ⛔»، وما عداها يُشتقّ
+// بأضيق ما تحتمله القيمة المخزّنة:
+//   • «نسبة توطين + اشتراطات» ⇒ ⚠️ للجميع. القيمة نفسها تقول إن ثمّة اشتراطات،
+//     فإعادة قولها ليست حكماً جديداً — أما وسمُ سعوديٍّ «مطابق» فشهادةُ سلامةٍ
+//     لا نملكها (قد تكون الاشتراطات رخصةً مهنية تلزمه هو أيضاً).
+//   • جنسيةٌ مجهولة على مهنةٍ مقصورة ⇒ 🔍، لا ⛔ ولا ✅.
+//   • توطينٌ «بحاجة فحص» ⇒ 🔍 دائماً: لا امتثال يُبنى على مجهول.
+export function complianceFor(saudization, natKind) {
+  const s = SAUD_VALUES.includes(saudization) ? saudization : SAUD_NEEDS;
+  if (s === "نسبة توطين + اشتراطات") return "⚠️ اشتراطات";
+  if (s === "مسموح لغير السعوديين") return "✅ مطابق";
+  if (s === "مقصورة على السعوديين") {
+    if (natKind === "سعودي") return "✅ مطابق";
+    if (natKind === "غير سعودي") return "⛔ مهنة سعودية - غير سعودي";
+    return COMP_NEEDS;
+  }
+  return COMP_NEEDS;
+}
+
+// أي أثر لرقمٍ أو نسبةٍ أو مرجعٍ نظامي في جملة النموذج ⇒ تُطرح الجملة كلها.
+// «نسبة التوطين ٣٠٪» و«القرار الوزاري ٤٩٠٤» معلومةٌ حكومية لا نملك مصدرها، ولا
+// فرق بين اختلاقها وبين نقلها عن نموذجٍ اختلقها.
+const NUM_CLAIM_RE = /[0-9٠-٩]|%|٪|قرار|القرار|المادة|اللائحة|لائحة|تعميم/;
+const SAUD_NOTE = {
+  "مقصورة على السعوديين": "المهنة مُصنَّفة مقصورة على السعوديين.",
+  "نسبة توطين + اشتراطات": "على المهنة نسبة توطين واشتراطات تُراجع قبل التعاقد.",
+  "مسموح لغير السعوديين": "المهنة غير مقصورة على السعوديين حسب التصنيف.",
+  "بحاجة فحص": "لم تُحدَّد حالة التوطين لهذه المهنة آلياً.",
+};
+function cleanDetail(v) {
+  const s = String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, 220);
+  return s && !NUM_CLAIM_RE.test(s) ? s : "";
+}
+// السطر يقول دائماً **من حسبه وعلى أي أساس**، لأن صاحب العمل يبني عليه قراراً:
+// جملةٌ عن مهنةٍ لا تقول إنها محسوبةٌ آلياً من مسمّى تُقرأ كأنها فحصٌ رسمي.
+function saudDetailLine(value, role, extra) {
+  const parts = [SAUD_NOTE[value] || SAUD_NOTE[SAUD_NEEDS]];
+  const x = cleanDetail(extra);
+  if (x) parts.push(x);
+  parts.push(role
+    ? `حُسب آلياً من المسمّى «${clip(role, 90)}» ولا يقوم مقام فحص رسمي لدى الجهة المختصة (${today()})`
+    : `لا مسمّى مهنة في الطلب (${today()})`);
+  return parts.join(" — ");
+}
+
+const saudPrompt = (role) => `أنت مختص امتثال توطين في سوق العمل السعودي.
+المسمّى المهني: «${role}»
+
+أعد JSON صالحاً فقط، بلا شرح وبلا أسوار كود، بمفتاحين:
+{"saudization":"…","saudization_details":"…"}
+
+saudization — واحدة من هذه الأربع حرفاً بحرف ولا شيء غيرها:
+"مقصورة على السعوديين"
+"نسبة توطين + اشتراطات"
+"مسموح لغير السعوديين"
+"بحاجة فحص"
+
+saudization_details — سطر عربي واحد قصير يشرح السبب.
+
+قواعد ملزمة:
+- حالة المهنة غير معلومة لك يقيناً، أو المسمّى مبهم أو ليس مهنة؟ اكتب "بحاجة فحص" ولا تخمّن.
+- ممنوع ذكر نسبة مئوية أو رقم أو اسم قرار وزاري أو مادة أو تاريخ.
+- لا تذكر جنسية المرشّح ولا تحكم عليه — السؤال عن المهنة وحدها.`;
+
+// ذاكرةٌ لعمر الحاوية: المسميات تتكرّر بكثافة («محاسب»، «سائق»، «مهندس مدني»)،
+// فنداءٌ واحد لكل مسمّى بدل نداءٍ لكل متقدّم. لا يُخزَّن فيها إلا جوابُ نموذجٍ
+// نجح — كي لا يُثبِّت فشلٌ عارض «بحاجة فحص» على مسمّى إلى آخر النشرة.
+const SAUD_CACHE = new Map();
+const SAUD_CACHE_MAX = 500;
+
+// نداءٌ واحد صغير على المسار المدفوع القائم في هذا الملف (`aiText` → أزور، وهو
+// مقيس في _hiremeter). سؤالٌ عن **المهنة وحدها**: لا سيرة ولا جنسية ولا اسم —
+// فالحمولة أسطرٌ لا صفحات، والجواب مفتاحان. ولا يرمي أبداً: فشلُه «بحاجة فحص»،
+// ولا يُسقط إنشاء المرشّح.
+export async function occupationSaudization(role) {
+  const r = String(role || "").trim().slice(0, 160);
+  const fail = (note) => ({ saudization: SAUD_NEEDS, details: saudDetailLine(SAUD_NEEDS, r, note), source: "" });
+  if (!r) return fail("");
+  const key = r.toLowerCase().replace(/\s+/g, " ");
+  if (SAUD_CACHE.has(key)) return { ...SAUD_CACHE.get(key) };
+  if (!aiAvailable()) return fail("محرّك التحليل غير مهيّأ");
+  let raw;
+  try {
+    raw = await aiText(saudPrompt(r), 400, "saudization");
+  } catch (e) {
+    console.error("saudization ai failed", String(e).slice(0, 200));
+    return fail("تعذّر التحليل الآلي — يُعاد لاحقاً");
+  }
+  const body = String(raw || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+  const start = body.indexOf("{"), end = body.lastIndexOf("}");
+  let d = null;
+  if (start >= 0 && end > start) { try { d = JSON.parse(body.slice(start, end + 1)); } catch { d = null; } }
+  if (!d) return fail("ردٌّ غير مقروء من محرّك التحليل");
+  // نفس `pick` في وكيل Outlook: ما ليس في القائمة يقع على «بحاجة فحص». قيمةٌ
+  // خامسة تعني رقاقةً رمادية بنصٍّ لا تعرفه الواجهة.
+  const picked = SAUD_VALUES.includes(d.saudization) ? d.saudization : SAUD_NEEDS;
+  const out = { saudization: picked, details: saudDetailLine(picked, r, d.saudization_details), source: "azure" };
+  if (SAUD_CACHE.size >= SAUD_CACHE_MAX) SAUD_CACHE.clear();
+  SAUD_CACHE.set(key, { ...out });
+  return out;
+}
+
+// الكتابة على الخصائص الثلاث. وصفٌّ قائم عليه توطينٌ **محسوم** لا يُنسخ عليه
+// حسابُنا: قد يكون وكيل Outlook كتبه من السيرة كاملةً، أو كتبه موظّف. وحينها
+// يُشتقّ الامتثال من قيمته هو لا من قيمتنا — وإلا وُلد تناقضٌ جديد من طرفين
+// صحيحين كلٌّ على حدة. والامتثال المحسوم لا يُلمس أصلاً.
+export function applySaudization(props, calc, natKind, existingProps) {
+  const sel = (k) => { const p = existingProps && existingProps[k]; return (p && p.select && p.select.name) || ""; };
+  const curSaud = sel(SAUD_PROP), curComp = sel(COMP_PROP);
+  const decided = !!curSaud && curSaud !== SAUD_NEEDS;
+  const saudization = decided ? curSaud : (SAUD_VALUES.includes(calc && calc.saudization) ? calc.saudization : SAUD_NEEDS);
+  if (!decided) {
+    props[SAUD_PROP] = { select: { name: saudization } };
+    if (calc && calc.details) props[SAUD_DET_PROP] = { rich_text: rt(calc.details) };
+  }
+  if (!curComp || curComp === COMP_NEEDS) props[COMP_PROP] = { select: { name: complianceFor(saudization, natKind) } };
+  return props;
+}
+
 // نوشن يردّ 400 على اسم خاصية لا وجود له — و**يُسقط إنشاء الصفحة كلها**، فيضيع
 // طلبُ مرشّحٍ حقيقي لأجل حقل حالة. الحقلان موجودان فعلاً (فُحص المخطّط
 // 2026-09-29: «حالة القراءة» select بأربعة خيارات، و«سبب عدم الاكتمال» نصّ)،
@@ -322,7 +488,10 @@ async function notionWriteOptional(path, method, payload, optionalProps, label) 
   try { r2.droppedProps = names; } catch { /* الردّ مُجمَّد — لا يضرّ */ }
   return r2;
 }
-const STATUS_PROPS = [READ_PROP, REASON_PROP];
+// الخصائص التي يُعاد الكتابة بدونها إن لم تكن في المخطّط. التوطين والامتثال
+// ثلاثُ خصائص قائمة (فُحصت على القاعدة الحقيقية)، لكن إعادة تسمية إحداها
+// بضغطة في نوشن لا يجوز أن تُسقط تقديمَ مرشّحٍ حقيقي.
+const STATUS_PROPS = [READ_PROP, REASON_PROP, ...SAUD_PROPS];
 
 // Calls the n8n ATS workflow and waits for its enrichment (CV text extraction,
 // AI screening, Drive storage links) so it can be folded into the same Notion
@@ -1077,15 +1246,21 @@ export default async function handler(req, res) {
   if (expectedSalary != null) props["Expected Salary"] = { number: expectedSalary };
   if (/^https?:\/\//i.test(cvUrl)) props["CV Link"] = { url: cvUrl };
   if (country) props["Country"] = { rich_text: rt(country) };
-  if (nationality) {
-    props["Nationality"] = { rich_text: rt(nationality) };
-    // Best-effort citizenship signal for the employer browse filter — a
-    // dedicated "Saudi national" pick on Residence Status is authoritative;
-    // otherwise infer from the nationality text itself.
-    const isSaudiNational = residenceStatus === "مواطن سعودي" || /^(saudi arabia|السعودية)$/i.test(nationality);
-    props["Nationality Type"] = { select: { name: isSaudiNational ? "سعودي" : "غير سعودي" } };
-  }
+  if (nationality) props["Nationality"] = { rich_text: rt(nationality) };
+  // Best-effort citizenship signal for the employer browse filter — a
+  // dedicated "Saudi national" pick on Residence Status is authoritative;
+  // otherwise infer from the nationality text itself.
+  //
+  // صار الاشتقاق في `nationalityKind` وحدها، لأن الامتثال يُبنى عليه: تعريفان
+  // للجنسية يعنيان رقاقةً تقول ⛔ وحقلاً يقول «سعودي». وتُكتب الآن حتى بلا نصّ
+  // جنسية — «مقيم بإقامة…» خيارٌ يقطع بها.
+  const natKind = nationalityKind(nationality, residenceStatus);
+  if (natKind) props["Nationality Type"] = { select: { name: natKind } };
   if (residenceStatus) props["حالة الإقامة"] = { select: { name: residenceStatus } };
+  // المسمّى الذي يُسأل عنه التوطين: ما كتبه المرشّح عن نفسه. وعنوانُ الإعلان
+  // بديلٌ عنه إن لم يكتب شيئاً — إلا «سلّة المرشحين» فهي ليست مهنة.
+  const POOL_TITLE = "General candidate pool";
+  const roleForSaud = field || (jobId === "candidate-pool" || jobTitle === POOL_TITLE ? "" : jobTitle);
 
   try {
     const n8nPayload = {
@@ -1097,6 +1272,10 @@ export default async function handler(req, res) {
       cvFile,
       ats: { notionDatabaseId: DB_ID },
     };
+    // يُطلق **قبل** انتظار n8n لا بعده: نافذة n8n وحدها تبلغ خمسين ثانية،
+    // فسؤالُ التوطين يجري داخلها ولا يضيف إلى انتظار المتقدّم شيئاً. والدالة
+    // لا ترمي أبداً، فلا وعدٌ معلّق يسقط العملية قبل أن يُنتظر.
+    const saudWork = occupationSaudization(roleForSaud);
     // الاحتياطي يُسأل عن وجوده قبل النداء، لأن جوابه يحدّد نافذة n8n.
     const n8n = await forwardToN8n(n8nPayload, cvFallbackPossible(cvFile) ? N8N_MS_SHARED : N8N_MS_SOLO);
 
@@ -1109,6 +1288,14 @@ export default async function handler(req, res) {
       const local = await extractCvText(cvFile, HARD_MS - (Date.now() - startedAt));
       cvOutcome = { text: local.text, source: local.text ? "local" : "", reason: local.reason, note: why };
     }
+
+    // n8n أولاً هنا أيضاً، كنصّ السيرة تماماً: إن ردّ خطّافُ الموقع بتوطينٍ من
+    // القائمة فهو محسوبٌ على السيرة كاملة، وحسابُنا على المسمّى وحده. وما ليس
+    // في القائمة الأربع لا يُكتب — الخطّاف مصدرٌ خارجي، لا يُوسَّع به المخزون.
+    const fromN8n = n8nAi(n8n);
+    const saud = SAUD_VALUES.includes(fromN8n.saudization)
+      ? { saudization: fromN8n.saudization, details: saudDetailLine(fromN8n.saudization, roleForSaud, fromN8n.saudization_details), source: "n8n" }
+      : await saudWork;
 
     const existing = await findExisting(email, phone);
     if (existing) {
