@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<!--
+    THIS IS A TEMPLATE THAT SHOULD BE USED EVERY TIME AND MODIFIED.
+    WHAT TO KEEP:
+    ✓ Overall structure (header, sidebar, main content)
+    ✓ Anthropic branding (colors, fonts, layout)
+    ✓ Seed navigation section (always include this)
+    ✓ Self-contained artifact (everything inline)
+
+    WHAT TO CREATIVELY EDIT:
+    ✗ The p5.js algorithm (implement YOUR vision)
+    ✗ The parameters (define what YOUR art needs)
+    ✗ The UI controls (match YOUR parameters)
+
+    Let your philosophy guide the implementation.
+    The world is your oyster - be creative!
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sadu Currents · تيارات السدو</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Anthropic Brand Colors */
+        :root {
+            --anthropic-dark: #141413;
+            --anthropic-light: #faf9f5;
+            --anthropic-mid-gray: #b0aea5;
+            --anthropic-light-gray: #e8e6dc;
+            --anthropic-orange: #d97757;
+            --anthropic-blue: #6a9bcc;
+            --anthropic-green: #788c5d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--anthropic-light) 0%, #f5f3ee 100%);
+            min-height: 100vh;
+            color: var(--anthropic-dark);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar h1 {
+            font-family: 'Lora', serif;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 8px;
+        }
+
+        .sidebar .subtitle {
+            color: var(--anthropic-mid-gray);
+            font-size: 14px;
+            margin-bottom: 32px;
+            line-height: 1.4;
+        }
+
+        /* Control Sections */
+        .control-section {
+            margin-bottom: 32px;
+        }
+
+        .control-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--anthropic-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-section h3::before {
+            content: '•';
+            color: var(--anthropic-orange);
+            font-weight: bold;
+        }
+
+        /* Seed Controls */
+        .seed-input {
+            width: 100%;
+            background: var(--anthropic-light);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--anthropic-light-gray);
+            text-align: center;
+        }
+
+        .seed-input:focus {
+            outline: none;
+            border-color: var(--anthropic-orange);
+            box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.1);
+            background: white;
+        }
+
+        .seed-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .regen-button {
+            margin-bottom: 0;
+        }
+
+        /* Parameter Controls */
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 8px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: var(--anthropic-light-gray);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--anthropic-orange);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #c86641;
+        }
+
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--anthropic-orange);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--anthropic-mid-gray);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* Color Pickers */
+        .color-group {
+            margin-bottom: 16px;
+        }
+
+        .color-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--anthropic-mid-gray);
+            margin-bottom: 4px;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-picker-container input[type="color"] {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--anthropic-mid-gray);
+        }
+
+        /* Buttons */
+        .button {
+            background: var(--anthropic-orange);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            background: #c86641;
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: var(--anthropic-blue);
+        }
+
+        .button.secondary:hover {
+            background: #5a8bb8;
+        }
+
+        .button.tertiary {
+            background: var(--anthropic-green);
+        }
+
+        .button.tertiary:hover {
+            background: #6b7b52;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .button-row .button {
+            flex: 1;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        #canvas-container {
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(20, 20, 19, 0.1);
+            background: white;
+        }
+
+        #canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--anthropic-mid-gray);
+        }
+
+        /* Responsive - Stack on mobile */
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .canvas-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Control Sidebar -->
+        <div class="sidebar">
+            <h1>Sadu Currents</h1>
+            <div class="subtitle">تيارات السدو — a loom of forty threads per pass, each thread bound to the diagonals of a tilted lattice. One green diamond survives every seed.</div>
+
+            <!-- Seed Section (ALWAYS KEEP THIS) -->
+            <div class="control-section">
+                <h3>Seed</h3>
+                <input type="number" id="seed-input" class="seed-input" value="1902" onchange="updateSeed()">
+                <div class="seed-controls">
+                    <button class="button secondary" onclick="previousSeed()">← Prev</button>
+                    <button class="button secondary" onclick="nextSeed()">Next →</button>
+                </div>
+                <button class="button tertiary regen-button" onclick="randomSeedAndUpdate()">↻ Random</button>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="control-section">
+                <h3>Parameters</h3>
+                <div class="control-group">
+                    <label>Threads per pass</label>
+                    <div class="slider-container">
+                        <input type="range" id="threads" min="10" max="120" step="1" value="40" oninput="updateParam('threads', this.value)">
+                        <span class="value-display" id="threads-value">40</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Lattice cell (px)</label>
+                    <div class="slider-container">
+                        <input type="range" id="cell" min="24" max="120" step="2" value="48" oninput="updateParam('cell', this.value)">
+                        <span class="value-display" id="cell-value">48</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Current drift (noise scale)</label>
+                    <div class="slider-container">
+                        <input type="range" id="drift" min="0.001" max="0.012" step="0.0005" value="0.004" oninput="updateParam('drift', this.value)">
+                        <span class="value-display" id="drift-value">0.004</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Flat weft probability</label>
+                    <div class="slider-container">
+                        <input type="range" id="flat" min="0" max="0.3" step="0.01" value="0.06" oninput="updateParam('flat', this.value)">
+                        <span class="value-display" id="flat-value">0.06</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Thread life (steps)</label>
+                    <div class="slider-container">
+                        <input type="range" id="life" min="30" max="200" step="5" value="90" oninput="updateParam('life', this.value)">
+                        <span class="value-display" id="life-value">90</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Passes (frames)</label>
+                    <div class="slider-container">
+                        <input type="range" id="passes" min="100" max="1200" step="50" value="600" oninput="updateParam('passes', this.value)">
+                        <span class="value-display" id="passes-value">600</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section (ALWAYS KEEP THIS) -->
+            <div class="control-section">
+                <h3>Actions</h3>
+                <div class="button-row">
+                    <button class="button" onclick="regenerate()">Regenerate</button>
+                    <button class="button" onclick="resetParameters()">Reset</button>
+                </div>
+                <div style="height:8px"></div>
+                <button class="button secondary" onclick="downloadPNG()">Download PNG</button>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="canvas-area">
+            <div id="canvas-container">
+                <div class="loading">Warping the loom…</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // SADU CURRENTS — parameters
+        // ═══════════════════════════════════════════════════════════════════════
+        let params = { seed: 1902, threads: 40, cell: 48, drift: 0.004, flat: 0.06, life: 90, passes: 600 };
+        let defaultParams = {...params};
+
+        // Fixed palette — «فجر اللِّبن». Deliberately not user-adjustable.
+        const PAL = { night:[11,18,32], clay:[90,58,34], adobe:[201,168,106], sand:[243,231,201], gold:[217,164,65], red:[138,31,31], green:[31,107,58] };
+        const TILT = 32 * Math.PI/180;      // the lattice tilt: the Masmak tower seen from Bayt Juwaisir
+        const SIZE = 1200;
+
+        let pass = 0, density, DG = 24, done = false, cx, cy;
+        let cosT, sinT;
+
+        function setup() {
+            let canvas = createCanvas(SIZE, SIZE);
+            canvas.parent('canvas-container');
+            pixelDensity(1);
+            cosT = Math.cos(TILT); sinT = Math.sin(TILT);
+            initializeSystem();
+            document.querySelector('.loading').style.display = 'none';
+        }
+
+        function initializeSystem() {
+            randomSeed(params.seed); noiseSeed(params.seed);
+            noiseDetail(2, 0.5);
+            pass = 0; done = false;
+            density = new Float32Array(DG*DG);
+            cx = width/2; cy = height/2;
+            background(PAL.night[0], PAL.night[1], PAL.night[2]);
+            // faint tilted lattice underdrawing: the warp before the weft
+            stroke(PAL.sand[0], PAL.sand[1], PAL.sand[2], 9); strokeWeight(1);
+            const c = params.cell, span = SIZE*1.5;
+            for (let k=-span; k<=span; k+=c) {
+                for (const a of [Math.PI/4, -Math.PI/4]) {
+                    const dx = Math.cos(a+TILT), dy = Math.sin(a+TILT), nx = -dy, ny = dx;
+                    line(cx + nx*k - dx*span, cy + ny*k - dy*span, cx + nx*k + dx*span, cy + ny*k + dy*span);
+                }
+            }
+            loop();
+        }
+
+        // Quantize an intent angle to the lattice: two diagonals, rare flat weft.
+        function latticeAngle(intent, allowFlat) {
+            const rel = intent - TILT;
+            if (allowFlat && random() < params.flat) {
+                const f = Math.round(rel/Math.PI)*Math.PI; return f + TILT;
+            }
+            const q = Math.round((rel - Math.PI/4)/(Math.PI/2))*(Math.PI/2) + Math.PI/4;
+            return q + TILT;
+        }
+
+        function weaveThread() {
+            // seed position biased toward the centre (the loom is tighter near the heart)
+            const r = Math.sqrt(random()) * SIZE*0.62, a = random(TWO_PI);
+            let x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+            let ang = latticeAngle(noise(x*params.drift, y*params.drift, pass*0.002)*TWO_PI*2, true);
+            let run = 0, turb = 0, touched = false;
+            const step = 3, cellLen = params.cell;
+            for (let i=0; i<params.life; i++) {
+                const n0 = noise(x*params.drift, y*params.drift, pass*0.002);
+                const n1 = noise((x+4)*params.drift, (y+4)*params.drift, pass*0.002);
+                turb += Math.abs(n1-n0)*40;
+                const intent = n0*TWO_PI*2;
+                // forced turn at cell boundary: this is the comb of the sadu
+                if (run >= cellLen) {
+                    ang += (random() < 0.5 ? 1 : -1) * Math.PI/2; run = 0;
+                } else if (random() < 0.07) {
+                    const q = latticeAngle(intent, true);
+                    if (Math.abs(((q-ang+Math.PI)%TWO_PI+TWO_PI)%TWO_PI - Math.PI) > 0.01) { ang = q; run = 0; }
+                }
+                const nx = x + Math.cos(ang)*step, ny = y + Math.sin(ang)*step;
+                if (nx < 40 || ny < 40 || nx > width-40 || ny > height-40) break;
+                const t = Math.min(1, turb/(i+1));
+                let col;
+                if (t < 0.45) col = lerpC(PAL.clay, PAL.adobe, t/0.45);
+                else col = lerpC(PAL.adobe, PAL.red, (t-0.45)/0.55);
+                const dc = Math.hypot(nx-cx, ny-cy);
+                if (dc < 60) touched = true;
+                if (touched) col = lerpC(col, PAL.gold, 0.55);
+                stroke(col[0], col[1], col[2], touched ? 34 : 26);
+                strokeWeight(touched ? 1.1 : 0.9);
+                line(x, y, nx, ny);
+                const gx = Math.floor(nx/width*DG), gy = Math.floor(ny/height*DG);
+                density[gy*DG+gx] += 1;
+                x = nx; y = ny; run += step;
+            }
+        }
+
+        function lerpC(a, b, t) { t = Math.max(0, Math.min(1, t)); return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+        function draw() {
+            if (done) return;
+            for (let k=0; k<params.threads; k++) weaveThread();
+            pass++;
+            if (pass >= params.passes) finish();
+        }
+
+        function finish() {
+            done = true;
+            // the one banner that stands: a green diamond at the densest cell, outlined in gold
+            let best = 0, bi = 0;
+            for (let i=0; i<density.length; i++) if (density[i] > best) { best = density[i]; bi = i; }
+            const gx = (bi % DG + 0.5) * width/DG, gy = (Math.floor(bi/DG) + 0.5) * height/DG;
+            const s = params.cell * 0.9;
+            push(); translate(gx, gy); rotate(TILT);
+            noStroke(); fill(PAL.night[0], PAL.night[1], PAL.night[2], 140); quad(0,-s*1.35, s*1.35,0, 0,s*1.35, -s*1.35,0);
+            fill(PAL.green[0], PAL.green[1], PAL.green[2], 235); stroke(PAL.gold[0], PAL.gold[1], PAL.gold[2], 230); strokeWeight(1.4);
+            quad(0,-s, s,0, 0,s, -s,0);
+            noFill(); stroke(PAL.gold[0], PAL.gold[1], PAL.gold[2], 90); strokeWeight(0.7); quad(0,-s*1.6, s*1.6,0, 0,s*1.6, -s*1.6,0);
+            pop();
+            // hairline gold horizon + plate label, whisper-quiet
+            stroke(PAL.gold[0], PAL.gold[1], PAL.gold[2], 120); strokeWeight(0.8); line(width*0.2, height-64, width*0.8, height-64);
+            noStroke(); fill(PAL.gold[0], PAL.gold[1], PAL.gold[2], 170); textFont('Courier New'); textSize(13); textAlign(CENTER, TOP);
+            text('SADU CURRENTS  ·  SEED ' + params.seed + '  ·  TILT 32°', width/2, height-54);
+            noLoop();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UI CONTROL HANDLERS
+        // ═══════════════════════════════════════════════════════════════════════
+        function updateParam(name, value) {
+            params[name] = parseFloat(value);
+            document.getElementById(name + '-value').textContent = value;
+            initializeSystem();
+        }
+        function regenerate() { initializeSystem(); }
+        function downloadPNG() { saveCanvas('sadu-currents-' + params.seed, 'png'); }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SEED CONTROL FUNCTIONS - ALWAYS KEEP THESE
+        // ═══════════════════════════════════════════════════════════════════════
+        function updateSeedDisplay() { document.getElementById('seed-input').value = params.seed; }
+        function updateSeed() {
+            let input = document.getElementById('seed-input');
+            let newSeed = parseInt(input.value);
+            if (newSeed && newSeed > 0) { params.seed = newSeed; initializeSystem(); }
+            else { updateSeedDisplay(); }
+        }
+        function previousSeed() { params.seed = Math.max(1, params.seed - 1); updateSeedDisplay(); initializeSystem(); }
+        function nextSeed() { params.seed = params.seed + 1; updateSeedDisplay(); initializeSystem(); }
+        function randomSeedAndUpdate() { params.seed = Math.floor(Math.random() * 999999) + 1; updateSeedDisplay(); initializeSystem(); }
+        function resetParameters() {
+            params = {...defaultParams};
+            for (const k of ['threads','cell','drift','flat','life','passes']) {
+                document.getElementById(k).value = params[k];
+                document.getElementById(k + '-value').textContent = params[k];
+            }
+            updateSeedDisplay(); initializeSystem();
+        }
+        window.addEventListener('load', function() { updateSeedDisplay(); });
+    </script>
+</body>
+</html>
