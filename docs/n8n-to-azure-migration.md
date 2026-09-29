@@ -160,23 +160,54 @@ node ops/azure/02-copy-data-tables.mjs             # النسخ الفعلي
 
 ---
 
-## 6) العائق الحالي (2026-09-29)
+## 6) حالة الوصول إلى Azure — ابدأ من هنا
 
-`management.azure.com` محجوب من هذه الجلسة — البوابة ترد **403 على CONNECT**
-(رفض سياسة). آخر محاولة: 2026-09-29 20:41 UTC.
+**آخر تحديث: 2026-09-29 · التحضير مكتمل، البناء لم يبدأ.**
 
-| النطاق | النتيجة |
+| البند | الحالة |
 |---|---|
-| `management.azure.com` | ❌ محجوب |
-| `portal.azure.com` | ❌ 403 |
-| `login.microsoftonline.com` | ✅ يعمل |
-| أداة `az` | غير مثبتة |
+| وصول الشبكة | ✅ مفتوح (Network access = `Full`) |
+| `management.azure.com` | ✅ يستجيب |
+| أداة `az` | ✅ تُثبَّت من Setup script |
+| حساب الخدمة (Service Principal) | ✅ أُنشئ باسم `claude-code`، صلاحية Contributor على الاشتراك |
+| بيانات الدخول | ✅ في **API credentials** بالبيئة السحابية |
 
-**الحل:** من قائمة البيئة السحابية في شريط عنوان الجلسة → **Edit** → Network access →
-إما مستوى وصول أوسع، أو إضافة `management.azure.com` و`*.azure.com` إلى النطاقات
-المسموحة. مستويات الوصول موصوفة في https://code.claude.com/docs/en/claude-code-on-the-web
+### ما تقرؤه الجلسة من البيئة
 
-المرحلة ٠ لا تحتاج Azure — تبدأ الآن.
+| المتغيّر | المحتوى |
+|---|---|
+| `AZURE_CLIENT_ID` | معرّف حساب الخدمة |
+| `AZURE_TENANT_ID` | معرّف الدليل |
+| `AZURE_SUBSCRIPTION_ID` | معرّف الاشتراك |
+| `AZURE_CLIENT_SECRET` | سرّ حساب الخدمة |
+| `N8N_SRC_URL` · `N8N_SRC_KEY` | سحابة n8n المصدر |
+
+**القيم نفسها ليست في هذا المستودع ولا تُكتب فيه** — تُقرأ من البيئة وقت التشغيل.
+
+### أول أمر في الجلسة الجديدة
+
+```bash
+az login --service-principal \
+  -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+az account show -o table
+```
+
+نجح؟ ابدأ المرحلة ٠ ثم ١.
+
+### ملاحظات من محاولات سابقة (لا تعدها)
+
+- **`az login` التفاعلي لا يعمل على هذا الحساب.** حساب Microsoft شخصي على «Default
+  Directory»؛ الدخول ينجح ثم يرد «You don't have access to this». جُرّب ثلاث مرات
+  بثلاث صيغ. حساب الخدمة هو الطريق، لا البديل المؤقت.
+- **تركيب `az` عبر `aka.ms/InstallAzureCLIDeb` يفشل.** مستودعان مكسوران في الصورة
+  (`deadsnakes` و`ondrej/php`) يُسقطان `apt-get update` كله. البديل المعتمد في
+  Setup script هو venv:
+  ```bash
+  python3 -m venv /opt/azcli-venv && /opt/azcli-venv/bin/pip install -q azure-cli \
+    && sudo ln -sf /opt/azcli-venv/bin/az /usr/local/bin/az
+  ```
+- **تغييرات البيئة تسري على الجلسات الجديدة فقط** — جلسة شغّالة لا تلتقطها.
 
 ---
 
