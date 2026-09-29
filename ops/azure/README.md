@@ -235,3 +235,7 @@ Client Documents/
 سير عمل واتساب والمزامنة في `ops/n8n/` لم يعد جزءاً من المسار الأساسي: مزامنة
 الخزنة صارت داخل الكود مباشرة إلى SharePoint، فلم تعد تمرّ بـn8n. تعريف Logic
 App مكافئ لمدخل واتساب في `ops/azure/whatsapp-logic-app.json`.
+
+أما نقل n8n نفسه (١١١ سيناريو، ٨١ نشطاً) فليس إعادة بناء على Logic Apps بل
+استضافة n8n على Azure Container Apps فوق خادم PG نفسه — الجرد وخريطة الارتباط
+والخطة خطوةً خطوة في `docs/n8n-to-azure-migration.md`.
