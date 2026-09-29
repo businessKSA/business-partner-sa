@@ -261,10 +261,27 @@ DOC_AGENT_HOOK_KEY=<نفس قيمة Vercel>
      | `6jgqpWlBRbyncwTC` مركز التحكم | تفريغ صوت (Whisper) | نشر Whisper على Azure، أو Azure Speech |
      | `3B9PXV0YhcLOgMqi` AI Space Data API | ElevenLabs نطق وتفريغ | Azure Speech (اعتماد «Azure Speech — Jarvis» موجود، ويستعمله سيناريو Jarvis Voice) |
      | `jKY98dsZ9EKA8yFj` استقبال المرشحين | Claude لاستخراج الملف | Document Intelligence + `bp-main` |
-     | `Gktp6pcZ94F3IEmg` · `OYtiKvINZrfuCiiY` · `ess3HEXGMPnZnzLH` | Gemini احتياطي على مدخل الوكيل الثاني | حذفه بلا احتياطي، أو نشر Azure ثانٍ بمنطقة أخرى (الموقع يملك `AZURE_OPENAI_*_2`). وأداة n8n تحذّر أن مدخل النموذج يقبل اتصالاً واحداً، وهذا سابق لتعديلي |
+     | `Gktp6pcZ94F3IEmg` · `OYtiKvINZrfuCiiY` · `ess3HEXGMPnZnzLH` | Gemini احتياطي على مدخل الوكيل الثاني | **تبقى كما هي.** سجل إصدارات مصنّف البريد (09-20) يقتبس قاعدة المالك: الطبقة المجانية مسموحة «كاحتياطي فقط»، وهي الآن احتياطي فعلاً بعد Azure. وحذفها يُضعف المرونة (المحرّك التنفيذي يعمل بـ`needsFallback`، والفشل بلا محرّك ثانٍ ينهي التشغيل). ونشر Azure ثانٍ بمنطقة أخرى غير متاح اليوم (انظر الجرد أدناه). وتحذير أداة n8n من تعدد اتصالات مدخل النموذج سابق لتعديلي |
 
-     لا يمكن التحقق من توفّر نشر الرؤية أو Whisper على حساب Azure من هذه الجلسات،
-     فالبديل يُبنى بعد أن يؤكد المالك النشرات المتاحة.
+   - **جرد نشرات Azure الفعلي (2026-09-29).** مصادره: أسماء متغيّرات Vercel
+     (الأسماء وحدها، بلا فكّ قيم)، وكود الموقع، واستدعاء واحد لنقطة الصوت الحيّة
+     بصمت نصف ثانية:
+
+     | الطبقة | الحال | الدليل |
+     |---|---|---|
+     | نص (`bp-main`) | ✅ يعمل | متغيّرات `AZURE_OPENAI_{ENDPOINT,KEY,DEPLOYMENT}` موجودة، وتنفيذات n8n الحقيقية |
+     | رؤية (صور) | ⚠️ غير مؤكَّدة | لا `AZURE_OPENAI_VISION_DEPLOYMENT`، فالموقع يرسل الصور إلى `bp-main` نفسه (`azureVisionDeployment()`). تعمل إن كان `bp-main` من عائلة تدعم الصور (gpt-4o/mini)، ولم أختبرها |
+     | Whisper (تفريغ) | ❌ **غير موجود** | استدعاء حيّ لـ`POST /api/chat` بـ`mode:"voice"` أعاد `DeploymentNotFound` للنشر الافتراضي `whisper`، ولا `AZURE_OPENAI_WHISPER_DEPLOYMENT`. **التفريغ الصوتي في ودجت المحادثة معطّل الآن على الموقع** |
+     | Document Intelligence (PDF) | ❌ غير مُهيَّأ | لا `AZURE_DOCINTEL_ENDPOINT/KEY` في Vercel، و`ops/azure/README.md` §2 يقول إن بدونهما لا يُقرأ أي PDF |
+     | Speech (نطق) | ✅ نطق فقط | اعتماد «Azure Speech — Jarvis» وسيناريو Jarvis Voice (Neural TTS) نشط. التفريغ عبر Speech لم يُتحقَّق منه |
+     | منطقة ثانية | ❌ لا | لا `AZURE_OPENAI_*_2`، وn8n لا يتيح إنشاء اعتماد ثانٍ من هذه الجلسات |
+     | بقايا مزوّدين خارج Azure في Vercel | ⚠️ | `ANTHROPIC_API_KEY` · `GROQ_API_KEY` · `BusinessPartnerGimini` · `GrokBusinessPartner` · `ElevenLabs` ما زالت مُعرَّفة، ولوحة التشخيص في `api/requests.js` ما زالت تعدّ بعضها |
+
+     **أثر ذلك على العقد العشر:** الرؤية (إيصالات، استخراج المستندات) قد تعمل على
+     `bp-main` فتُحوَّل بعد اختبار بصورة حقيقية. Whisper وElevenLabs (تفريغ) يتوقفان
+     على أحد أمرين: نشر Whisper على Azure باسم `whisper`، أو إثبات التفريغ عبر
+     Azure Speech. واستخراج السير بـClaude يحتاج Document Intelligence أولاً.
+     وكلها إجراءات على حساب Azure أو Vercel بيد المالك.
 
 2. **عنوان واحد في الكود — Claude، قبل أي إنشاء على Azure.**
    - الخادم: متغيّر بيئة واحد `N8N_BASE_URL` تُشتق منه الأربعة
