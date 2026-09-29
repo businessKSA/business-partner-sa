@@ -3614,7 +3614,8 @@ export default async function handler(req, res) {
         svc("الدخول عبر Google", has("GOOGLE_CLIENT_ID"), "اختياري"),
         svc("رموز الدخول (OTP)", has("OTP_SECRET"), "روابط عروض الأسعار تعتمد عليه"),
         svc("GitHub (تحرير المحتوى)", has("GITHUB_TOKEN", "GH_TOKEN"), "حفظ ونشر من اللوحة"),
-        svc("قاعدة البيانات", has("SUPABASE_URL", "DATABASE_URL"), "بوابة العميل"),
+        svc("قاعدة البيانات", has("AZURE_PG_URL", "SUPABASE_URL", "DATABASE_URL"),
+          process.env.DB_DRIVER === "azure" ? "بوابة العميل — على Azure PostgreSQL (DB_DRIVER=azure)" : "بوابة العميل — Supabase حتى يُضبط DB_DRIVER=azure"),
         // A tax invoice we render ourselves is only worth sending if it can
         // carry the seller's registration — without it there is no lawful QR.
         svc("هوية البائع الضريبية", sellerProfile().ready ? "COMPANY_VAT_NUMBER" : null, "مطلوبة لإصدار فاتورة ضريبية من موقعنا"),

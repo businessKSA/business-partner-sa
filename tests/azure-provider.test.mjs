@@ -94,13 +94,18 @@ test("unconfigured Azure names the missing variable instead of using a legacy ke
   });
 });
 
-test("the escape hatch is off by default and opens only on an explicit 1", async () => {
+// 2026-09-2x: the four legacy providers were deleted outright (PR #319), so the
+// old DOC_AI_ALLOW_FALLBACK valve no longer opens anything. This pins that:
+// even with the valve set and a legacy key present, no non-Azure host is called.
+test("the old fallback valve opens nothing: Azure only, even with DOC_AI_ALLOW_FALLBACK=1", async () => {
   await withEnv({ GEMINI_API_KEY: "g", DOC_AI_ALLOW_FALLBACK: "1" }, async () => {
     const { askModel } = await import(`../api/_docread.js?t=${Date.now()}`);
     const f = stubFetch(() => json({ candidates: [{ content: { parts: [{ text: '{"ok":1}' }] }, finishReason: "STOP" }] }));
     try {
       const r = await askModel("plan this", 2000);
-      assert.equal(r.provider, "gemini", "with the valve open the old chain is reachable");
+      assert.equal(r.ok, false);
+      assert.equal(r.error, "not_configured");
+      assert.equal(f.calls.length, 0, "no legacy provider is reachable any more");
     } finally { f.restore(); }
   });
 });
