@@ -54,6 +54,29 @@ npm run dev
 مرفقات الملفات تُحفظ في `.localdb/storage/` وتُقرأ من `/__localdb/storage/…`.
 المجلد كله خارج المستودع.
 
+### الاختبار على Postgres حقيقي (طبقة Azure)
+
+`api/_azpg.js` يحوّل استعلامات PostgREST إلى SQL، واختباره
+`tests/azpg.test.mjs` يحتاج خادم Postgres فعلياً؛ بلا خادم يتخطّى نفسه ولا
+يفشل. لتشغيله محلياً: شغّل PostgreSQL 16 على الجهاز، ثم من `psql` كمستخدم
+مسؤول:
+
+```sql
+create role bp_test login password 'bp_test' superuser;
+create database bp_test owner bp_test;
+```
+
+ثم:
+
+```bash
+AZPG_TEST_URL=postgres://bp_test:bp_test@127.0.0.1:5432/bp_test npm test
+```
+
+القيمة أعلاه هي الافتراضية، فيكفي `npm test` إن طابقتها. الاختبار يطبّق
+`db/schema.sql` على تلك القاعدة ويمرّر كل شكل استعلامٍ يصدره المستودع. هذا
+للاختبار فقط: الخادم المحلي (`npm run dev`) يبقى على `LOCAL_DB=1`، ولا يُضبط
+`DB_DRIVER` محلياً (انظر `.env.local.example`).
+
 ## الأوضاع الآمنة
 
 `api/_mode.js` يقرأ `APP_ENV=development` فيجعل كل تكامل آمناً افتراضياً:
