@@ -34,3 +34,6 @@ business-partner-onefile.html
 # local development database + outbox (never committed)
 .localdb/
 .env.local
+
+# تصدير سيرَات n8n — بيانات تشغيل، لا تُدفع
+ops/n8n-export/
