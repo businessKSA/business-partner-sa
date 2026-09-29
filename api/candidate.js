@@ -482,6 +482,63 @@ export function applySaudization(props, calc, natKind, existingProps) {
   return props;
 }
 
+/* ══════════════ إصلاح الصفوف المتناقضة القائمة (مسار مالك) ══════════════
+ *
+ * قياس القاعدة 2026-09-29 (استعلامٌ على القاعدة الحقيقية، تجميعٌ بلا أي حقل
+ * شخصي): ٢٢٠ صفّاً توطينها «مسموح لغير السعوديين» وامتثالها «⛔ مهنة سعودية -
+ * غير سعودي». وهذا نقيضٌ حرفي: الرقاقة الأولى تقول إن المهنة مفتوحة، والثانية
+ * تقول إنها مقصورة. وفي القياس نفسه ٣ صفوف ⛔ على **سعودي**، وصفٌّ واحد
+ * «✅ مطابق» على (مقصورة × غير سعودي) — أي التناقض نفسه معكوساً.
+ *
+ * ⚠️ والأهم ما **لا** يُمسّ. الحدّ الذي رسمه المالك: يُصلَح المتناقض فعلاً، لا
+ * ما يخالف حسابنا. ففي القياس ٥٠٠ صفّ «نسبة توطين + اشتراطات» + «✅ مطابق» على
+ * سعودي — وحسابُ `complianceFor` يقول «⚠️ اشتراطات». لكنها ليست متناقضة:
+ * «✅ مطابق» لا تنفي وجود اشتراطات، وقد كتبها وكيلٌ قرأ السيرة كاملةً أو كتبها
+ * موظّف. إعادةُ كتابتها بحسابٍ على المسمّى وحده تمحو حكماً أعلمَ من حكمنا.
+ * ولذلك المعيار هنا **ما تنفيه القيمة نفسها**، لا الفرق عن حسابنا:
+ *   ⛔ «مهنة سعودية - غير سعودي» جملةٌ تدّعي شيئين معاً — المهنة مقصورة،
+ *      والشخص غير سعودي. فهي متناقضة إن نفى الصفّ أيّاً منهما.
+ *   ✅ «مطابق» تُنفى بالقاعدة الوحيدة المنصوصة: مقصورة × غير سعودي.
+ *   ⚠️ و🔍 لا تدّعيان شيئاً يُنفى — **لا تُمسّان أبداً**، ولو خالفتا حسابنا.
+ * وتوطينٌ فارغ مع ⛔ ليس تناقضاً بل ادّعاءٌ بلا سند — ويُترك أيضاً (وهو صفرٌ في
+ * القياس: كل صفّ بلا توطين بلا امتثال كذلك).
+ */
+const COMP_BLOCKED = "⛔ مهنة سعودية - غير سعودي";
+const COMP_OK = "✅ مطابق";
+export function complianceConflict(saudization, natKind, current) {
+  const s = SAUD_VALUES.includes(saudization) ? saudization : "";
+  const n = natKind === "سعودي" || natKind === "غير سعودي" ? natKind : "";
+  if (current === COMP_BLOCKED) {
+    if (s && s !== "مقصورة على السعوديين") return true; // المهنة مفتوحة والرقاقة تقول مقصورة
+    if (n !== "غير سعودي") return true;                  // ⛔ تقول «غير سعودي» والصفّ لا يقولها
+    return false;
+  }
+  if (current === COMP_OK) return s === "مقصورة على السعوديين" && n === "غير سعودي";
+  return false;
+}
+
+// القيمة الصحيحة للصفّ المتناقض — حسابيةٌ بحتة، بلا نداء نموذج: نفس
+// `complianceFor` التي يكتب بها المسار الحيّ. وحدُّ المالك الثاني: صفٌّ بلا
+// جنسية مسجّلة **لا يُحسم له شيء** — 🔍 «بحاجة فحص» هي قيمة «لم نعرف» في
+// القاعدة، ولا يُفترض «غير سعودي» أبداً. ويعود "" أي «لا تكتب شيئاً».
+export function complianceRepair(saudization, natKind, current) {
+  if (!complianceConflict(saudization, natKind, current)) return "";
+  if (natKind !== "سعودي" && natKind !== "غير سعودي") return COMP_NEEDS;
+  const fixed = complianceFor(saudization, natKind);
+  return fixed === current ? "" : fixed;
+}
+
+// جنسيةُ صفٍّ قائم. الخيار المخزّن `Nationality Type` هو المصدر، وحين يكون
+// فارغاً يُقرأ ما سجّله الصفّ فعلاً (نصّ الجنسية وحالة الإقامة) بـ
+// `nationalityKind` — وهو التعريف الواحد نفسه، لا منطقٌ ثانٍ. وهذه قراءةٌ لا
+// افتراض: `nationalityKind` يعيد "" حين لا يقول الصفّ شيئاً.
+export function rowNationalityKind(props) {
+  const p = props || {};
+  const sel = (p["Nationality Type"] && p["Nationality Type"].select && p["Nationality Type"].select.name) || "";
+  if (sel === "سعودي" || sel === "غير سعودي") return sel;
+  return nationalityKind(txt(p["Nationality"]), txt(p["حالة الإقامة"]));
+}
+
 // نوشن يردّ 400 على اسم خاصية لا وجود له — و**يُسقط إنشاء الصفحة كلها**، فيضيع
 // طلبُ مرشّحٍ حقيقي لأجل حقل حالة. الحقلان موجودان فعلاً (فُحص المخطّط
 // 2026-09-29: «حالة القراءة» select بأربعة خيارات، و«سبب عدم الاكتمال» نصّ)،
@@ -1091,6 +1148,165 @@ async function extractPendingCvs(b, res, req) {
   return send(200, { ok: true, batch: rows.length, done: results.filter((r) => r.ok).length, results });
 }
 
+// مصادقةُ مسارات المالك واحدة في هذا الملف: مفتاح اللوحة أو رأس الكرون. تُجمع
+// هنا كي لا يُفتح مسارٌ جديد بشرطٍ أرخص من أخويه سهواً.
+const ownerAuthed = (b, req) => (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+const boolArg = (v) => v === true || v === "true";
+// لا حقل شخصي في ردود هذين المسارين: لا اسم ولا بريد ولا جوال. اللوحة تحتاج
+// أن تعرف **ماذا تغيّر**، لا **مَن** — والاسم في ردٍّ لا يعرضه أحد تسريبٌ مجاني.
+
+/* ───────────── ① إصلاح الامتثال المتناقض في الصفوف القائمة ─────────────
+ * حسابيٌّ بحت: صفر نداء نموذج، صفر ريال. المرشّح الذي تنطبق عليه الشروط يُقاس
+ * بـ`complianceRepair` — والقرار كله في تلك الدالة الصِرفة المختبَرة، لا في
+ * مُرشِّح نوشن. المُرشِّح يضيّق النطاق فقط (٤٢٤ صفّاً في القياس بدل ٢٦٤١٩).
+ * ويحتاج مؤشّراً (`cursor`): الصفوف السليمة تبقى في نطاق المُرشِّح بعد الجولة،
+ * فبلا مؤشّرٍ تدور الجولة على أول صفحةٍ إلى الأبد.
+ */
+async function fixCompliance(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  if (!ownerAuthed(b, req)) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  const dryRun = boolArg(b.dryRun);
+  const limit = Math.min(Math.max(Number(b.limit) || 25, 1), dryRun ? 100 : 50);
+  const cursor = clip(b.cursor, 200);
+  const startedAt = Date.now();
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit,
+    ...(cursor ? { start_cursor: cursor } : {}),
+    filter: {
+      or: [
+        // كل ⛔ — ٤٢٣ صفّاً، والدالة تفصل المتناقض منها عن السليم.
+        { property: COMP_PROP, select: { equals: COMP_BLOCKED } },
+        // والاتجاه المعكوس، مُرشَّحاً بدقّة: «✅ مطابق» على مهنةٍ مقصورة لغير
+        // سعودي. لا يُمشّط الـ✅ كله (٢١٦٠٠ صفّاً) لأجل صفٍّ واحد.
+        { and: [
+          { property: COMP_PROP, select: { equals: COMP_OK } },
+          { property: SAUD_PROP, select: { equals: "مقصورة على السعوديين" } },
+          { property: "Nationality Type", select: { equals: "غير سعودي" } },
+        ] },
+      ],
+    },
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const body = await q.json();
+  const rows = body.results || [];
+
+  const changes = [], counts = {};
+  let fixed = 0, intact = 0, failed = 0, deferred = 0;
+  for (const row of rows) {
+    const props = row.properties || {};
+    const saud = txt(props[SAUD_PROP]);
+    const cur = txt(props[COMP_PROP]);
+    const nat = rowNationalityKind(props);
+    const to = complianceRepair(saud, nat, cur);
+    if (!to) { intact += 1; continue; }
+    // ما لم يتّسع من الدفعة لا يُحسب مُصلَحاً ولا يُعرَض كأنه تغيّر: المؤشّر
+    // يُعاد كما هو، والصفّ يعود في الجولة القادمة لأنه لم يُكتب.
+    if (!dryRun && Date.now() - startedAt > HARD_MS) { deferred += 1; continue; }
+    const key = `${saud || "—"} × ${nat || "—"}: ${cur} ⇒ ${to}`;
+    counts[key] = (counts[key] || 0) + 1;
+    changes.push({ id: row.id, saudization: saud, nationality: nat, from: cur, to });
+    if (dryRun) { fixed += 1; continue; }
+    const w = await notionWriteOptional(
+      "pages/" + row.id, "PATCH", { properties: { [COMP_PROP]: { select: { name: to } } } }, SAUD_PROPS, "compliance fix");
+    if (w.ok) fixed += 1; else failed += 1;
+  }
+  return send(200, {
+    ok: true, dryRun, scanned: rows.length, fixed, intact, failed, deferred,
+    // `more` وحده يقول هل بقي عمل، و`next` هو المؤشّر الذي يُمرَّر في الجولة
+    // التالية. وفُصلا لأن مؤشّراً فارغاً يعني «الصفحة الأولى» لا «انتهت»: دفعةٌ
+    // تأجّل بعضها لضيق الوقت تُعاد بالمؤشّر **نفسه**، وقد يكون فارغاً.
+    more: deferred ? true : !!body.has_more,
+    next: deferred ? cursor : (body.has_more ? (body.next_cursor || "") : ""),
+    counts, changes: changes.slice(0, 100),
+  });
+}
+
+/* ───────────── ② استدراك التوطين للصفوف الظاهرة ─────────────
+ * الصفوف المختومة بوظيفة هي بالضبط ما يراه صاحب العمل في لوحته، وكلها بلا
+ * توطين (١١٧ من ١١٧ في قياس 2026-09-29) — فالشاشة تقول «لم يُفحص» لكل من
+ * يظهر فيها. وكلفتها الحقيقية **عدد المسميات المتميّزة** لا عدد الصفوف:
+ * ٣٨ مسمّى حقيقياً لـ١١٧ صفّاً (وصفّان بلا مسمّى أصلاً ⇒ صفر نداء لهما)،
+ * لأن ذاكرة `SAUD_CACHE` تُجيب المكرّر بلا نداء.
+ *
+ * ولا يدهس قيمةً موجودة: الكتابة تمرّ بـ`applySaudization` نفسها التي يمرّ بها
+ * المسار الحيّ، وهي تترك التوطين المحسوم والامتثال المحسوم كما هما. والمُرشِّح
+ * نفسه «التوطين فارغ»، فالجولة تُفرِّغ نفسها ولا تعيد صفّاً كُتب.
+ */
+async function backfillSaudization(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  if (!ownerAuthed(b, req)) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  const dryRun = boolArg(b.dryRun);
+  if (!dryRun && !aiAvailable()) return send(503, { ok: false, error: "ai_not_configured" });
+  const limit = Math.min(Math.max(Number(b.limit) || 10, 1), dryRun ? 100 : 40);
+  // الظاهرون أولاً — وهم المقصودون. و`scope=all` يوسّعها إلى كل صفّ بلا توطين
+  // حين يطلب المالك ذلك صراحةً، لا افتراضاً.
+  const stampedOnly = clip(b.scope, 20) !== "all";
+  const startedAt = Date.now();
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit,
+    filter: {
+      and: [
+        { property: SAUD_PROP, select: { is_empty: true } },
+        ...(stampedOnly ? [{ property: "الوظيفة المتقدم لها", rich_text: { is_not_empty: true } }] : []),
+      ],
+    },
+    sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const body = await q.json();
+  const rows = body.results || [];
+
+  // المسمّى المسؤول عنه السؤال: ما كتبه المرشّح عن نفسه (Target Role)، ثم
+  // تصنيف المجال. وعنوان الإعلان **لا** يُستعمل هنا: الصفّ قد يكون مختوماً
+  // بوظيفةٍ تقدّم لها ولا تعبّر عن مهنته، والتوطين خاصيّةُ مهنته هو.
+  const roleOf = (props) => clip(txt(props["Target Role"]) || txt(props["Field"]), 160);
+  const roles = new Map();
+  for (const r of rows) { const k = roleOf(r.properties || {}); if (k) roles.set(k.toLowerCase(), (roles.get(k.toLowerCase()) || 0) + 1); }
+  if (dryRun) {
+    return send(200, {
+      ok: true, dryRun: true, queued: rows.length, more: !!body.has_more,
+      scope: stampedOnly ? "stamped" : "all",
+      // الكلفة الحقيقية، لا عدد الصفوف: نداءٌ واحد لكل مسمّى متميّز.
+      distinctRoles: roles.size, noRole: rows.filter((r) => !roleOf(r.properties || {})).length,
+      roles: [...roles.entries()].map(([role, n]) => ({ role, rows: n })),
+    });
+  }
+
+  const results = [];
+  for (const row of rows) {
+    const props = row.properties || {};
+    const role = roleOf(props);
+    const left = HARD_MS - (Date.now() - startedAt);
+    // مسمّى مُجابٌ في الذاكرة لا يكلّف شيئاً فيمرّ دائماً؛ ومسمّى جديد لا يُبدأ
+    // إلا إن بقي له وقتٌ يكفي — ونصفُ نداءٍ يُقتل مع المسار يكتب «بحاجة فحص»
+    // على صفٍّ كان سيُحسم، ويخرجه من المُرشِّح فلا يُعاد.
+    if (left < LOCAL_MIN_MS && role && !SAUD_CACHE.has(role.toLowerCase().replace(/\s+/g, " "))) {
+      results.push({ id: row.id, skipped: "out_of_budget" });
+      break;
+    }
+    const calc = await occupationSaudization(role, Math.max(left - 6000, 5000));
+    const patch = applySaudization({}, calc, rowNationalityKind(props), props);
+    if (!Object.keys(patch).length) { results.push({ id: row.id, skipped: "already_decided" }); continue; }
+    const w = await notionWriteOptional("pages/" + row.id, "PATCH", { properties: patch }, SAUD_PROPS, "saudization catch-up");
+    results.push({
+      id: row.id, role, source: calc.source || "",
+      saudization: (patch[SAUD_PROP] && patch[SAUD_PROP].select.name) || "",
+      compliance: (patch[COMP_PROP] && patch[COMP_PROP].select.name) || "",
+      written: !!w.ok,
+    });
+  }
+  return send(200, {
+    ok: true, batch: rows.length, more: !!body.has_more,
+    written: results.filter((r) => r.written).length,
+    calls: results.filter((r) => r.source === "azure").length,
+    results,
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -1102,6 +1318,24 @@ export default async function handler(req, res) {
       return extractPendingCvs({
         key: url.searchParams.get("key") || "",
         limit: url.searchParams.get("limit") || 2,
+        dryRun: url.searchParams.get("dryRun") || false,
+      }, res, req);
+    }
+    // إصلاحُ الامتثال المتناقض واستدراكُ التوطين: مسارا مالكٍ بنفس مصادقة
+    // `extract-cvs` ونفس شكل الدفعات و`dryRun`.
+    if (url.searchParams.get("action") === "fix-compliance") {
+      return fixCompliance({
+        key: url.searchParams.get("key") || "",
+        limit: url.searchParams.get("limit") || 25,
+        cursor: url.searchParams.get("cursor") || "",
+        dryRun: url.searchParams.get("dryRun") || false,
+      }, res, req);
+    }
+    if (url.searchParams.get("action") === "saudization") {
+      return backfillSaudization({
+        key: url.searchParams.get("key") || "",
+        limit: url.searchParams.get("limit") || 10,
+        scope: url.searchParams.get("scope") || "",
         dryRun: url.searchParams.get("dryRun") || false,
       }, res, req);
     }
@@ -1176,6 +1410,8 @@ export default async function handler(req, res) {
   if (b.type === "backfill-copies") return backfillCandidateCopies(b, res, req);
   if (b.type === "boost-cvs") return boostPendingCvs(b, res, req);
   if (b.type === "extract-cvs") return extractPendingCvs(b, res, req);
+  if (b.type === "fix-compliance") return fixCompliance(b, res, req);
+  if (b.type === "saudization") return backfillSaudization(b, res, req);
 
   const name = clip(b.name, 160);
   const phone = clip(b.phone, 40);
