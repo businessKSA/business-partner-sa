@@ -19,6 +19,9 @@
 // The AI provider chain lives in hire.js (gemini → groq → openai → anthropic
 // failover); reusing it directly avoids an HTTP hop to our own function.
 import { aiText, aiAvailable } from "./hire.js";
+// قارئ المستندات الخاص بنا — ملكُ `document-ai`، يُقرأ منه ولا يُكتب فيه.
+// المُصدَّر وحده، بحدوده كما هي (DOC_MIME_OK, MAX_DOC_BYTES).
+import { readDocumentRaw, DOC_MIME_OK, MAX_DOC_BYTES, azureReady, docIntelReady } from "./_docread.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -136,19 +139,206 @@ async function notion(path, method, payload, signal) {
   });
 }
 
+// ── وقود وكلاء التوظيف: نصّ السيرة الذاتية ───────────────────────────────────
+// وكلاء التوظيف (فرز، تقييم، أسئلة مقابلة، عرض، عقد) تتغذّى كلها من حقل واحد:
+// «ATS CV Text». وكان استخراجه معلّقاً بكامله على خطّاف n8n خارجي: ننتظره ٥٠
+// ثانية، وإن تأخّر أو فشل يُنشأ المرشّح **بلا نصّ سيرة ولا علامة**، بينما
+// «حالة القراءة» تُكتب «مكتمل» على أي حال.
+//
+// القياس على القاعدة الحقيقية (2026-09-29، ٢٦٤٠٢ صفاً): «ATS CV Text» غير فارغ
+// في **صفٍّ واحد**. ومن صفوف الموقع الـ٢٠٣٧ كُتب «مكتمل» على ١٠٢٥ صفاً لا نصّ
+// فيها. فالوقود لم يكن ينقطع أحياناً — لم يكن يجري أصلاً، والحقل الذي من وظيفته
+// أن يقول ذلك كان يقول عكسه.
+//
+// فصار لنا خطٌّ احتياطي في البيت على قارئ المستندات نفسه الذي تستعمله خمسة
+// ملفات أخرى (api/_docread.js → Azure). و n8n يبقى الأول ولا يُعطَّل: هو من
+// يصنع مستندات Drive ويرسل بريده، ولا نكرّر عمله.
+//
+// ⚠️ الميزانية — المسار كله ٦٠ ثانية على Vercel (`maxDuration` في vercel.json)،
+// وتجاوزها يفقد **الطلب كله** لا السيرة وحدها، وهذا أسوأ من الحال الراهنة. لذا
+// كل نداءٍ شبكي محسوبٌ من `startedAt`:
+//   • انتظار n8n يبقى ٥٠ ثانية كما كان **حين لا احتياطي أصلاً** (لا ملف مرفوع،
+//     أو نوعٌ لا يُقرأ، أو أزور غير مهيّأ) — لا معنى لتوفير وقتٍ لا مستفيد منه.
+//   • وينزل إلى ٢٥ ثانية **حين يوجد احتياطي**، فتُترك بقيةُ النافذة له. وهذه
+//     ليست مقايضةً مؤلمة: على مسار الموقع أرجع n8n نصّ سيرة مرةً واحدة، ومستندَ
+//     Drive في ٤١ صفاً من ٢٠٣٧ — أي أن الخمسين ثانية تنجح نحو ٢٪ من الوقت.
+//     وقطعُ الانتظار لا يُلغي مسار n8n، فعملُه في Drive والبريد يكمل عنده.
+//   • ولا يبدأ أي نداء بعد `HARD_MS`، ويُترك `TAIL_MS` لكتابة نوشن والبريدين.
+//     وما لا يتّسع يُوسَم ويُلتقط بمسار الاستدراك (`extract-cvs`) أدناه.
+const ROUTE_MS = 60000;
+const TAIL_MS = 11000;
+const HARD_MS = ROUTE_MS - TAIL_MS;
+const N8N_MS_SOLO = 50000;
+const N8N_MS_SHARED = 25000;
+// أقلّ نافذة يُعتدّ بها: قراءة صفحتين بأزور تحت العشر ثوانٍ نادرة، وبدءُ نداءٍ
+// نعلم أنه لن يكمل هو إحراقُ ما بقي من ميزانية الطلب بلا مقابل.
+const LOCAL_MIN_MS = 12000;
+
+// نصّ السيرة كما هو، لا ملخّصاً ولا تقييماً: الفرز والتقييم وكلاء أخرى، وهذا
+// وقودها. و`readDocumentRaw` يمرّر النصّ المستخرج **كبيانات لا كتعليمات**.
+const CV_TEXT_PROMPT = `أنت تقرأ سيرة ذاتية (CV) وتُعيد نصّها كاملاً بصيغة Markdown.
+
+القواعد:
+- انسخ ما في المستند فقط. لا تُضف جهة عمل ولا تاريخاً ولا شهادةً ولا مهارةً غير مذكورة، ولا تلخّص ولا تحذف.
+- احتفظ باللغة التي كُتبت بها السيرة كما هي — لا تترجم.
+- رتّب بعناوين قياسية إن ظهرت في المستند: الملخص، المهارات، الخبرات، التعليم، الشهادات، اللغات، بيانات التواصل.
+- إن كان المستند ليس سيرة ذاتية، أو لا يحمل نصاً مقروءاً، أعِد cv_markdown نصاً فارغاً.
+
+أعِد JSON فقط، بلا شرح وبلا علامات تنسيق:
+{"cv_markdown":"<نصّ السيرة كاملاً بـMarkdown>"}`;
+
+// أسبابُ عدم الاستخراج، بنصٍّ واحد لكلٍّ منها يُكتب في نوشن كما هو. والفصل بين
+// «سيرةٌ ضعيفة» و«سيرةٌ لم تُقرأ» هو كلّ الغرض: خلطهما يرفض مرشّحاً جيداً بصمت.
+export const CV_FAIL = {
+  no_file: "لا ملف سيرة مرفوع — لم يُرفع شيءٌ لقراءته",
+  bad_type: "نوع الملف لا يُقرأ آلياً (المقبول PDF أو صورة) — يحتاج تحويلاً",
+  too_large: "حجم الملف فوق الحدّ المقروء (٦ م.ب)",
+  azure_off: "قارئ المستندات (Azure) غير مهيّأ",
+  timeout: "انتهت مهلة القراءة قبل أن تكتمل",
+  no_time: "لم يبقَ من مهلة الطلب وقتٌ للقراءة — مؤجّلة للاستدراك",
+  read_failed: "فشلت قراءة الملف",
+  empty: "قُرئ الملف ولم يُخرج نصاً (PDF مصوّر أو صفحات فارغة)",
+  fetch_failed: "تعذّر تنزيل الملف من رابطه",
+};
+
+// خيارات «حالة القراءة» الأربعة في القاعدة كما هي — لا يُختلق خيارٌ خامس. ما
+// ليس هنا يقع على «فشل التحليل».
+const READ_STATUS = {
+  empty: "غير مقروء - PDF مصور",
+  bad_type: "ناقص - بيانات غير كافية",
+  too_large: "ناقص - بيانات غير كافية",
+  no_file: "ناقص - بيانات غير كافية",
+};
+const READ_STATUS_OK = "مكتمل";
+const READ_PROP = "حالة القراءة";
+const REASON_PROP = "سبب عدم الاكتمال";
+const today = () => new Date().toISOString().slice(0, 10);
+
+// هل يوجد احتياطي أصلاً لهذا الطلب؟ يُسأل **قبل** نداء n8n لأن جوابه هو ما
+// يحدّد نافذته. وشروطه هي شروط `extractCvText` نفسها حرفياً — لو تفرّقا لقصّرنا
+// انتظار n8n لأجل احتياطيٍّ لا يعمل.
+export function cvFallbackPossible(cvFile) {
+  const f = cvFile || {};
+  const mime = String(f.type || "");
+  if (!f.base64 || !DOC_MIME_OK.test(mime)) return false;
+  if (Buffer.byteLength(f.base64, "base64") > MAX_DOC_BYTES) return false;
+  if (!azureReady()) return false;
+  return /pdf/i.test(mime) ? docIntelReady() : true;
+}
+
+/**
+ * الخطّ الاحتياطي: نستخرج النصّ بأنفسنا من بايتات الملف.
+ * لا يرمي أبداً — يعيد `{ text, reason }`، و`reason` مفتاحٌ في CV_FAIL.
+ * @param {{base64?:string,type?:string}|null} cvFile
+ * @param {number} budgetMs ما بقي من ميزانية الطلب لهذه القراءة
+ */
+export async function extractCvText(cvFile, budgetMs) {
+  const f = cvFile || {};
+  const mime = String(f.type || "");
+  if (!f.base64) return { text: "", reason: "no_file" };
+  if (!DOC_MIME_OK.test(mime)) return { text: "", reason: "bad_type" };
+  if (Buffer.byteLength(f.base64, "base64") > MAX_DOC_BYTES) return { text: "", reason: "too_large" };
+  // تُفحص التهيئة ولا تُفترض. وقراءة الـPDF خدمةٌ أخرى بمفتاحٍ آخر
+  // (Document Intelligence)، فحضور مفتاح المحادثة لا يعني حضورها.
+  if (!azureReady()) return { text: "", reason: "azure_off" };
+  if (/pdf/i.test(mime) && !docIntelReady()) return { text: "", reason: "azure_off" };
+  const ms = Number(budgetMs) || 0;
+  if (ms < LOCAL_MIN_MS) return { text: "", reason: "no_time" };
+
+  let timer;
+  const expired = Symbol("cv_read_expired");
+  try {
+    // `readDocumentRaw` لا يقبل إشارة إلغاء، فالمهلة سباقٌ عليه: ننصرف عند
+    // انتهائها ويُكتب المرشّح، ولا ننتظر نداءً لن يُغيّر شيئاً بعد الآن.
+    const r = await Promise.race([
+      readDocumentRaw(f.base64, mime, CV_TEXT_PROMPT, 4000),
+      new Promise((resolve) => { timer = setTimeout(() => resolve(expired), ms); }),
+    ]);
+    if (r === expired) return { text: "", reason: "timeout" };
+    if (!r || !r.ok) return { text: "", reason: r && r.error === "not_configured" ? "azure_off" : "read_failed" };
+    const text = String((r.data && r.data.cv_markdown) || "").trim();
+    // أقلّ من أربعين حرفاً ليست سيرة — هي ترويسةٌ أو صفحةٌ بيضاء، وكتابتها
+    // كسيرةٍ تجعل الفرز يحكم على فراغ.
+    if (text.length < 40) return { text: "", reason: "empty" };
+    return { text, reason: "" };
+  } catch (e) {
+    console.error("local cv extract failed", String(e).slice(0, 200));
+    return { text: "", reason: "read_failed" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * يكتب الحقيقة عن السيرة في الصفّ: النصّ إن وُجد، وحالةُ القراءة وسببها.
+ * @param props        خصائص نوشن التي ستُكتب
+ * @param outcome      { text, source:"n8n"|"local"|"", reason, note }
+ * @param keepExisting صفٌّ قائم فيه نصّ سيرة سابق — لا يُنزَّل بإعادة تقديمٍ
+ *                     بلا مرفق، فحالته الحقيقية «مكتمل» ولم تتغيّر.
+ */
+export function applyCvReadStatus(props, outcome, keepExisting) {
+  const o = outcome || {};
+  const text = String(o.text || "").trim();
+  if (text) {
+    props["ATS CV Text"] = { rich_text: rtChunks(text) };
+    props[READ_PROP] = { select: { name: READ_STATUS_OK } };
+    props[REASON_PROP] = o.source === "local"
+      ? { rich_text: rt(`استُخرج النصّ محلياً عبر Azure — ${o.note || "n8n لم يُرجع نصّ سيرة"} (${today()})`) }
+      : { rich_text: [] };
+    return props;
+  }
+  if (keepExisting) {
+    // لا نصّ جديد، والصفّ فيه نصّ سابق: لا حالةَ تُكتب ولا سببَ — وإلا وسمنا
+    // مرشّحاً سيرتُه مقروءةٌ عندنا بأنها لم تُقرأ.
+    delete props["ATS CV Text"];
+    delete props[READ_PROP];
+    delete props[REASON_PROP];
+    return props;
+  }
+  props[READ_PROP] = { select: { name: READ_STATUS[o.reason] || "فشل التحليل" } };
+  props[REASON_PROP] = { rich_text: rt(
+    `السيرة لم تُستخرج — ${CV_FAIL[o.reason] || o.reason || "سبب غير معروف"}${o.note ? ` · ${o.note}` : ""} (${today()})`) };
+  return props;
+}
+
+// نوشن يردّ 400 على اسم خاصية لا وجود له — و**يُسقط إنشاء الصفحة كلها**، فيضيع
+// طلبُ مرشّحٍ حقيقي لأجل حقل حالة. الحقلان موجودان فعلاً (فُحص المخطّط
+// 2026-09-29: «حالة القراءة» select بأربعة خيارات، و«سبب عدم الاكتمال» نصّ)،
+// لكن اسم الخاصية في نوشن يُعاد تسميته بضغطة، فلا يُبنى قبولُ مرشّحٍ على ذلك.
+// نفس نمط `notionWriteOptional` في api/candidates.js.
+const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier/i;
+async function notionWriteOptional(path, method, payload, optionalProps, label) {
+  const names = optionalProps.filter((n) => payload.properties && payload.properties[n] != null);
+  const r = await notion(path, method, payload);
+  if (r.ok || !names.length || r.status !== 400) return r;
+  const body = await r.text();
+  if (!MISSING_PROP_RE.test(body)) {
+    return { ok: false, status: r.status, text: async () => body, json: async () => { try { return JSON.parse(body); } catch { return {}; } } };
+  }
+  console.warn(`${label}: قاعدة المرشحين لا تحتوي ${names.join(" / ")} — أُعيدت الكتابة بدونها. نوشن قال:`, body.slice(0, 220));
+  const props = { ...payload.properties };
+  for (const n of names) delete props[n];
+  const r2 = await notion(path, method, { ...payload, properties: props });
+  try { r2.droppedProps = names; } catch { /* الردّ مُجمَّد — لا يضرّ */ }
+  return r2;
+}
+const STATUS_PROPS = [READ_PROP, REASON_PROP];
+
 // Calls the n8n ATS workflow and waits for its enrichment (CV text extraction,
 // AI screening, Drive storage links) so it can be folded into the same Notion
 // write below — n8n itself no longer writes to Notion, to avoid creating a
 // second candidate record for every submission (this handler is always the
-// sole Notion writer). A 50s cap — under this route's 60s maxDuration —
-// keeps us waiting long enough for the full n8n chain (PDF parse + AI +
-// Drive + emails), which regularly ran past the old 25s cap and left the
-// record with no ATS CV at all; on timeout/failure we skip enrichment and
-// continue, and the record still gets created from the form fields alone.
-export async function forwardToN8n(payload) {
+// sole Notion writer). On timeout/failure we skip enrichment and continue, and
+// the record still gets created from the form fields alone.
+//
+// المهلة `waitMs` صارت قراراً للمُنادي لا رقماً ثابتاً هنا: كانت ٥٠ ثانية دائماً
+// لأنه لم يكن بعدها شيء — وصار بعدها خطٌّ احتياطي، فمن حقّه نصيبٌ من النافذة حين
+// يوجد (انظر ميزانية `HARD_MS` أعلاه). ومن ينادي بوسيطٍ واحد (api/_agencies.js)
+// يبقى على الخمسين كما كان.
+export async function forwardToN8n(payload, waitMs) {
   if (!N8N_ATS_WEBHOOK) return { configured: false, ok: false };
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 50000);
+  const timer = setTimeout(() => controller.abort(), Number(waitMs) > 0 ? Number(waitMs) : N8N_MS_SOLO);
   try {
     const r = await fetch(N8N_ATS_WEBHOOK, {
       method: "POST",
@@ -621,6 +811,102 @@ async function boostPendingCvs(b, res, req) {
   return send(200, { ok: true, batch: rows.length, done: results.filter((r) => r.ok).length, results });
 }
 
+// ── الاستدراك: من سبق ومرّ بلا نصّ سيرة ──────────────────────────────────────
+// القياس يوم كتابة هذا (2026-09-29): ٢٦٤٠١ صفاً من ٢٦٤٠٢ بلا «ATS CV Text»،
+// منها ٢٤٨٨٢ صفاً **يحمل رابط ملف** فيمكن إعادة قراءته؛ ومن صفوف الموقع وحدها
+// ١٠٦٩. فالمشكلة ليست نظرية، والوقود ليس ناقصاً بل غائب.
+//
+// دفعةٌ واحدة مقيّدة في كل نداء: كل صفٍّ تنزيلُ ملفٍ ثم نداءُ أزور، والمسار
+// نفسه ٦٠ ثانية. والوسمُ في «سبب عدم الاكتمال» هو ما يمنع إعادة محاولة صفٍّ لن
+// يُقرأ أبداً في كل دفعة بعده.
+const CATCHUP_MARK = "[استدراك";
+
+// روابط درايف تُفتح على صفحة عرض لا على بايتات؛ هذه صيغة التنزيل المباشر. وما
+// ليس درايف يُنزَّل كما هو.
+function directFileUrl(url) {
+  const u = String(url || "");
+  if (!/^https?:\/\/(drive|docs)\.google\.com/i.test(u)) return u;
+  const m = /(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{16,})/.exec(u);
+  return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u;
+}
+
+// يعيد `{ base64, type }` أو null. النوع من البصمة الأولى لا من الترويسة: درايف
+// يردّ `text/html` على ملفٍ غير عام و`octet-stream` على الباقي، وكلاهما يكذب
+// عن المحتوى.
+async function fetchCvBytes(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const r = await fetch(directFileUrl(url), { redirect: "follow", signal: controller.signal });
+    if (!r.ok) return null;
+    const ct = String(r.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (!buf.length) return null;
+    const head = buf.subarray(0, 4).toString("latin1");
+    const type = head === "%PDF" ? "application/pdf"
+      : buf[0] === 0x89 && head.slice(1) === "PNG" ? "image/png"
+      : buf[0] === 0xff && buf[1] === 0xd8 ? "image/jpeg"
+      : ct;
+    return { base64: buf.toString("base64"), type, size: buf.length };
+  } catch (e) {
+    console.error("cv fetch failed", String(e).slice(0, 160));
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function extractPendingCvs(b, res, req) {
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  if (!authed) return send(403, { ok: false, error: "forbidden" });
+  if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
+  if (!azureReady()) return send(503, { ok: false, error: "azure_not_configured" });
+  const dryRun = b.dryRun === true || b.dryRun === "true";
+  // تنزيلٌ ثم قراءةٌ لكل صفّ — ثلاثة صفوف هي ما يتّسع في ميزانية المسار بأمان.
+  const limit = Math.min(Math.max(Number(b.limit) || 2, 1), dryRun ? 50 : 3);
+  const startedAt = Date.now();
+
+  const q = await notion("databases/" + DB_ID + "/query", "POST", {
+    page_size: limit,
+    filter: {
+      and: [
+        { property: "ATS CV Text", rich_text: { is_empty: true } },
+        { property: "CV Link", url: { is_not_empty: true } },
+        { property: REASON_PROP, rich_text: { does_not_contain: CATCHUP_MARK } },
+      ],
+    },
+    sorts: [{ timestamp: "created_time", direction: "descending" }],
+  });
+  if (!q.ok) return send(502, { ok: false, error: "notion_failed" });
+  const body = await q.json();
+  const rows = body.results || [];
+  if (dryRun) {
+    return send(200, {
+      ok: true, dryRun: true, queued: rows.length, more: !!body.has_more,
+      rows: rows.map((r) => ({ id: r.id, name: txt(r.properties && r.properties["Candidate Name"]), link: txt(r.properties && r.properties["CV Link"]) })),
+    });
+  }
+
+  const results = [];
+  for (const row of rows) {
+    // لا يبدأ صفٌّ جديد إن لم يبقَ له وقت — نصفُ قراءةٍ تُقتل مع المسار تكتب
+    // لا شيء، وتحرق الميزانية على من بعده.
+    if (Date.now() - startedAt > HARD_MS - LOCAL_MIN_MS - 8000) { results.push({ id: row.id, skipped: "out_of_budget" }); break; }
+    const props = row.properties || {};
+    const name = txt(props["Candidate Name"]);
+    const link = txt(props["CV Link"]);
+    const file = await fetchCvBytes(link, 10000);
+    const out = file
+      ? await extractCvText(file, HARD_MS - (Date.now() - startedAt))
+      : { text: "", reason: "fetch_failed" };
+    const patch = applyCvReadStatus({}, { text: out.text, source: out.text ? "local" : "", reason: out.reason, note: `${CATCHUP_MARK} ${today()}] من الرابط` }, false);
+    const w = await notionWriteOptional("pages/" + row.id, "PATCH", { properties: patch }, STATUS_PROPS, "cv catch-up");
+    results.push({ id: row.id, name, ok: !!out.text, chars: out.text.length, reason: out.reason || "", written: !!w.ok });
+  }
+  return send(200, { ok: true, batch: rows.length, done: results.filter((r) => r.ok).length, results });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -628,6 +914,13 @@ export default async function handler(req, res) {
     const url = new URL(req.url, "http://x");
     // Cron drains the back-fill queue on a schedule; the owner panel can also
     // drive it by hand. Same handler, same batch limits, same de-duplication.
+    if (url.searchParams.get("action") === "extract-cvs") {
+      return extractPendingCvs({
+        key: url.searchParams.get("key") || "",
+        limit: url.searchParams.get("limit") || 2,
+        dryRun: url.searchParams.get("dryRun") || false,
+      }, res, req);
+    }
     if (url.searchParams.get("action") === "boost-cvs") {
       return boostPendingCvs({ key: url.searchParams.get("key") || "", limit: url.searchParams.get("limit") || 5 }, res, req);
     }
@@ -698,6 +991,7 @@ export default async function handler(req, res) {
   // Owner-only maintenance action, not part of the public application flow.
   if (b.type === "backfill-copies") return backfillCandidateCopies(b, res, req);
   if (b.type === "boost-cvs") return boostPendingCvs(b, res, req);
+  if (b.type === "extract-cvs") return extractPendingCvs(b, res, req);
 
   const name = clip(b.name, 160);
   const phone = clip(b.phone, 40);
@@ -762,7 +1056,9 @@ export default async function handler(req, res) {
     // the same stamp for rows created before this property existed.
     "الوظيفة المتقدم لها": { rich_text: rt(`${jobTitle} (${jobId})`) },
     "مخفي عن الموقع": { checkbox: false },
-    "حالة القراءة": { select: { name: "مكتمل" } },
+    // «حالة القراءة» لم تعد تُكتب هنا: كانت «مكتمل» ثابتةً على كل صفّ، بما فيه
+    // ١٠٢٥ صفاً لا نصّ سيرة فيها. صاحبها الآن `applyCvReadStatus` وحده — يكتبها
+    // بعد أن يُعرف هل استُخرجت السيرة فعلاً.
     "Notes": { rich_text: rt(answerLines) },
   };
 
@@ -801,7 +1097,19 @@ export default async function handler(req, res) {
       cvFile,
       ats: { notionDatabaseId: DB_ID },
     };
-    const n8n = await forwardToN8n(n8nPayload);
+    // الاحتياطي يُسأل عن وجوده قبل النداء، لأن جوابه يحدّد نافذة n8n.
+    const n8n = await forwardToN8n(n8nPayload, cvFallbackPossible(cvFile) ? N8N_MS_SHARED : N8N_MS_SOLO);
+
+    // n8n أولاً دائماً. والاحتياطي لا يُنادى إلا إذا لم يُرجع نصّاً — فنجاحه
+    // يعني صفر نداءٍ وصفر تكلفةٍ على أزور.
+    let cvOutcome = { text: String(n8nAi(n8n).ats_cv_markdown || "").trim(), source: "n8n", reason: "" };
+    if (!cvOutcome.text) {
+      const why = n8n.configured === false ? "n8n غير مهيّأ"
+        : n8n.ok ? "n8n ردّ بلا نصّ سيرة" : "مهلة n8n أو فشله";
+      const local = await extractCvText(cvFile, HARD_MS - (Date.now() - startedAt));
+      cvOutcome = { text: local.text, source: local.text ? "local" : "", reason: local.reason, note: why };
+    }
+
     const existing = await findExisting(email, phone);
     if (existing) {
       // SECURITY / data-integrity: a resubmission must NOT re-expose a
@@ -811,7 +1119,10 @@ export default async function handler(req, res) {
       delete props["مخفي عن الموقع"];
       delete props["Notes"];
       applyN8nEnrichment(props, n8n, false);
-      const r = await notion("pages/" + existing.id, "PATCH", { properties: props });
+      // إعادة تقديمٍ بلا مرفق لا تُنزّل حالة صفٍّ سيرتُه مقروءةٌ عندنا أصلاً.
+      const hadCv = !!((existing.properties && existing.properties["ATS CV Text"] && existing.properties["ATS CV Text"].rich_text) || []).length;
+      applyCvReadStatus(props, cvOutcome, hadCv);
+      const r = await notionWriteOptional("pages/" + existing.id, "PATCH", { properties: props }, STATUS_PROPS, "candidate update");
       if (!r.ok) {
         console.error("Notion update error", r.status, (await r.text()).slice(0, 400));
         res.statusCode = 502;
@@ -829,11 +1140,12 @@ export default async function handler(req, res) {
     // applyN8nEnrichment may raise this to an AI-informed stage below.
     props["Pipeline Stage"] = { select: { name: "جديد" } };
     applyN8nEnrichment(props, n8n, true);
+    applyCvReadStatus(props, cvOutcome, false);
     // n8n has already spent most of the budget, so the rewrite only runs inline
     // when there is real time left; otherwise the row is queued and the catch-up
     // pass picks it up. Either way the candidate's mail carries the best CV we
     // have at the moment it is sent.
-    const cvText = n8nAi(n8n).ats_cv_markdown || "";
+    const cvText = cvOutcome.text;
     let boost = null;
     if (cvText && Date.now() - startedAt < 30000) {
       boost = await boostCv(cvText, field);
@@ -843,7 +1155,7 @@ export default async function handler(req, res) {
     } else {
       props["حالة تحسين السيرة"] = { select: { name: "لا توجد سيرة" } };
     }
-    const r = await notion("pages", "POST", { parent: { database_id: DB_ID }, properties: props });
+    const r = await notionWriteOptional("pages", "POST", { parent: { database_id: DB_ID }, properties: props }, STATUS_PROPS, "candidate create");
     if (!r.ok) {
       console.error("Notion create error", r.status, (await r.text()).slice(0, 400));
       res.statusCode = 502;
