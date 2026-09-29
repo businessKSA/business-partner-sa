@@ -184,13 +184,13 @@ async function targetMeta(client) {
   const views = new Set(tables.rows.filter((r) => r.table_type === "VIEW").map((r) => r.table_name));
 
   const cols = await client.query(
-    "select table_name, column_name, data_type, udt_name, column_default from information_schema.columns " +
+    "select table_name, column_name, data_type, udt_name, column_default, is_identity from information_schema.columns " +
     "where table_schema = current_schema() order by table_name, ordinal_position",
   );
   const columns = new Map();   // table → Map(col → {type, udt, default})
   for (const r of cols.rows) {
     if (!columns.has(r.table_name)) columns.set(r.table_name, new Map());
-    columns.get(r.table_name).set(r.column_name, { type: r.data_type, udt: r.udt_name, default: r.column_default });
+    columns.get(r.table_name).set(r.column_name, { type: r.data_type, udt: r.udt_name, default: r.column_default, identity: r.is_identity === "YES" });
   }
 
   const pks = await client.query(
@@ -347,7 +347,10 @@ async function upsert(client, t, insertCols, pk, cols, rows) {
     const part = rows.slice(i, i + chunk);
     const vals = [];
     const tuples = part.map((row) => "(" + insertCols.map((c) => { vals.push(encodeValue(row[c], cols.get(c))); return `$${vals.length}`; }).join(", ") + ")");
-    const sql = `INSERT INTO ${ident(t)} (${insertCols.map(ident).join(", ")}) VALUES ${tuples.join(", ")}${conflict}`;
+    // عمود `generated always as identity` (page_hits.id، site_errors.id) يرفض
+    // قيمة صريحة إلا بـOVERRIDING SYSTEM VALUE — والنسخ يجب أن يحفظ المعرّفات.
+    const overriding = insertCols.some((c) => cols.get(c) && cols.get(c).identity) ? " OVERRIDING SYSTEM VALUE" : "";
+    const sql = `INSERT INTO ${ident(t)} (${insertCols.map(ident).join(", ")})${overriding} VALUES ${tuples.join(", ")}${conflict}`;
     const r = await client.query(sql, vals);
     n += r.rowCount || 0;
   }
@@ -379,12 +382,12 @@ async function upsertSelfRef(client, t, insertCols, pk, cols, rows, selfRef) {
   return n;
 }
 
-/** إعادة ضبط المتتاليات لأعمدة nextval() — بلا ذلك يفشل أول إدراج جديد بتكرار مفتاح. */
+/** إعادة ضبط المتتاليات لأعمدة nextval() وidentity — بلا ذلك يفشل أول إدراج جديد بتكرار مفتاح. */
 async function resetSequences(client, tables, meta) {
   let n = 0;
   for (const t of tables) {
     for (const [c, col] of meta.columns.get(t)) {
-      if (!/^nextval\(/.test(String(col.default || ""))) continue;
+      if (!col.identity && !/^nextval\(/.test(String(col.default || ""))) continue;
       await client.query(
         `SELECT setval(pg_get_serial_sequence(format('%I.%I', current_schema(), $1::text), $2::text), coalesce((SELECT max(${ident(c)}) FROM ${ident(t)}), 1))`,
         [t, c],
