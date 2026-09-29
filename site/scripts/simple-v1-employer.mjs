@@ -332,6 +332,13 @@ const T = {
   // الحقلان يُعرضان كما هما ولو تناقضا (٢٢٠ صفاً في القاعدة كذلك): لا يُخفى
   // التناقض ولا يُرجَّح أحدهما. صاحب عملٍ يرى الحقلين فيسأل، خيرٌ من واجهةٍ
   // تختار له بصمت.
+  // درجةٌ بلا مبرّر مكتوب: تُقال بلا مبرّرها بدل أن تُعرض كأنها مدعومة.
+  // الدرجات المعروضة اليوم كلها نصٌّ في Notes بلا حقل مبرّر، فهذه هي الحالة
+  // الغالبة لا الاستثناء.
+  scoreBare:{ ar: "لا مبرّر مكتوب لهذه الدرجة في سجلّ المرشّح.",
+             en: "No written justification for this score is recorded on the candidate's file.",
+             fr: "Aucune justification écrite de ce score n'est enregistrée au dossier.",
+             zh: "候选人档案中未记录该分数的书面依据。" },
   saudNote:{ ar: "الحالتان معروضتان كما هما في سجلّ المرشّح ولا تُحسَبان هنا. للحالة الرسمية راجع منصّة قوى.",
              en: "Both states are shown exactly as recorded on the candidate's file; nothing is computed here. For the official position, check Qiwa.",
              fr: "Les deux états sont affichés tels qu'enregistrés ; rien n'est calculé ici. Pour la position officielle, consultez Qiwa.",
@@ -1774,7 +1781,14 @@ function drawCandDet(c,d){
    '" target="_blank" rel="noopener">'+esc(TX.cvAtsDoc)+'</a>':'');
  box.innerHTML=
   (kv?'<dl class="sv1-emp-kv">'+kv+'</dl>':'')+
-  '<p class="sv1-cvnote" style="margin:0 0 14px">'+esc(TX.saudNote)+'</p>'+
+  // درجةٌ بلا مبرّر: يُقال ذلك تحتها. رقمٌ عارٍ بلا مصدرٍ يُبنى عليه قرار
+  // توظيف هو أسوأ ما تعرضه هذه الشاشة.
+  (d.score!=null&&!d.scoreReason
+   ?'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(TX.scoreBare)+'</p>':'')+
+  // وتنبيه «معروضان كما هما» لا يُكتب إلا وثمّة حالةٌ معروضة فعلاً: كتابته
+  // فوق رقاقتين تقولان «لم يُفحص» ضجيجٌ يشرح ما لا وجود له.
+  ((d.saudization||d.compliance)
+   ?'<p class="sv1-cvnote" style="margin:0 0 14px">'+esc(TX.saudNote)+'</p>':'')+
   '<h4 style="margin:0 0 8px;font-size:16px;font-weight:600">'+esc(TX.cvH)+'</h4>'+
   (d.cvText?'<div class="sv1-cv">'+cvHtml(d.cvText)+'</div>'
    :'<p class="sv1-emp-sub">'+esc(TX.cvNone)+'</p>')+
