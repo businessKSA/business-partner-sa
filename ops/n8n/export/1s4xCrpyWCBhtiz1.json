@@ -1,0 +1,329 @@
+{
+  "id": "1s4xCrpyWCBhtiz1",
+  "name": "BP — Google Places Ingest (KSA)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "ebeb7623-aed2-4d8a-9e98-93b9db6b681c",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 8,
+  "createdAt": "2026-07-23T01:16:23.729Z",
+  "updatedAt": "2026-07-23T04:23:21.993Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Every 30 min, rotates through 60 sector×city combos (10 sectors × 6 Saudi cities), pulls up to 20 companies from Google Places Text Search (name, phone, website, address), dedupes against the BP Companies Sales DB, and inserts new rows. Apollo enrich work",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Build query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build query": {
+      "main": [
+        [
+          {
+            "node": "Google Places search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Places search": {
+      "main": [
+        [
+          {
+            "node": "Normalize places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize places": {
+      "main": [
+        [
+          {
+            "node": "Get existing rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get existing rows": {
+      "main": [
+        [
+          {
+            "node": "Drop duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drop duplicates": {
+      "main": [
+        [
+          {
+            "node": "Add to Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30 minutes": {
+      "main": [
+        [
+          {
+            "node": "Build query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "1cefd679-ebf1-4451-bc22-3c555b0de89d",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "5ac408bb-4e15-4f45-84ec-4d11289c6704",
+      "name": "Build query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const SECTORS = [\n  ['Contracting & Construction','construction companies'],['Contracting & Construction','contracting companies'],['Contracting & Construction','building materials companies'],['Contracting & Construction','MEP contractors'],['Contracting & Construction','infrastructure companies'],\n  ['Manufacturing & Industry','factories'],['Manufacturing & Industry','manufacturing companies'],['Manufacturing & Industry','industrial companies'],['Manufacturing & Industry','plastic factory'],['Manufacturing & Industry','metal industries company'],['Manufacturing & Industry','food processing company'],\n  ['Healthcare','hospitals'],['Healthcare','medical clinics'],['Healthcare','medical supplies companies'],['Healthcare','pharmaceutical companies'],['Healthcare','laboratories'],\n  ['IT & Services','information technology companies'],['IT & Services','software companies'],['IT & Services','marketing agencies'],['IT & Services','consulting firms'],['IT & Services','security services companies'],\n  ['Logistics & Transport','logistics companies'],['Logistics & Transport','shipping companies'],['Logistics & Transport','freight forwarding companies'],['Logistics & Transport','transport companies'],\n  ['Retail & Restaurants','trading companies'],['Retail & Restaurants','wholesale companies'],['Retail & Restaurants','retail companies'],['Retail & Restaurants','restaurants company'],['Retail & Restaurants','supermarket company'],\n  ['Real Estate','real estate companies'],['Real Estate','real estate development companies'],['Real Estate','property management companies'],\n  ['Hospitality & Tourism','hotels'],['Hospitality & Tourism','travel agencies'],['Hospitality & Tourism','tourism companies'],['Hospitality & Tourism','event management companies'],\n  ['Finance & Insurance','financial services companies'],['Finance & Insurance','insurance companies'],['Finance & Insurance','investment companies'],['Finance & Insurance','accounting firms'],\n  ['Education','private schools'],['Education','international schools'],['Education','training centers'],['Education','colleges'],\n];\nconst CITIES = [['Riyadh','Riyadh'],['Jeddah','Jeddah'],['Makkah','Makkah'],['Madinah','Madinah'],['Dammam','Dammam'],['Tabuk','Tabuk'],['Abha','Abha, Asir']];\nconst combos = [];\nfor (const c of CITIES) for (const s of SECTORS) combos.push({ sector: s[0], phrase: s[1], city: c[0], cityQ: c[1] });\nconst idx = Math.floor(Date.now() / 1800000) % combos.length;\nconst q = combos[idx];\nreturn [{ json: { textQuery: q.phrase + ' in ' + q.cityQ + ', Saudi Arabia', sector: q.sector, city: q.city } }];"
+      }
+    },
+    {
+      "id": "5d515843-9028-4eab-be1f-3b5843aadeb4",
+      "name": "Every 30 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a6589f6d-fd1f-4e9f-a188-40e66ddb28de",
+      "name": "Google Places search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.displayName,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.primaryTypeDisplayName,places.editorialSummary,places.googleMapsUri,places.businessStatus"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ textQuery: $json.textQuery, pageSize: 20 }) }}"
+      },
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9B7scrClx6YlIyaN",
+          "name": "Header Auth account 4"
+        }
+      }
+    },
+    {
+      "id": "54d37823-c460-488c-970a-4745bafff527",
+      "name": "Normalize places",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const q = $('Build query').first().json;\nconst res = $input.first().json || {};\nconst places = res.places || [];\nconst out = [];\nfor (const p of places) {\n  const name = (p.displayName && p.displayName.text) ? p.displayName.text : '';\n  if (!name) continue;\n  const site = p.websiteUri || '';\n  if (!site) continue;\n  const phone = p.internationalPhoneNumber || p.nationalPhoneNumber || '';\n  const maps = p.googleMapsUri || '';\n  const kind = (p.primaryTypeDisplayName && p.primaryTypeDisplayName.text) ? p.primaryTypeDisplayName.text : '';\n  const summary = (p.editorialSummary && p.editorialSummary.text) ? p.editorialSummary.text : '';\n  const addr = p.formattedAddress || '';\n  let desc = summary ? summary : (kind ? (kind + ' - ' + q.city) : (q.sector + ' - ' + q.city));\n  if (addr) desc = desc + ' | ' + addr;\n  out.push({ json: { Name: String(name).slice(0,200), Phone: phone, Domain: site, Maps: maps, Description: desc.slice(0,1800), Sector: q.sector, City: q.city, Notes: 'Google Places' } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "cd7f3f0d-fe55-4f44-b9d0-af8a320a81b7",
+      "name": "Get existing rows",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "d860d87a-1801-4d63-a683-e99a500dee69",
+      "name": "Drop duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const existing = $input.all();\nconst names = new Set();\nconst domains = new Set();\nfor (const e of existing) {\n  const j = e.json;\n  if (j.name) names.add(String(j.name).toLowerCase().trim());\n  if (j.property_domain) {\n    const d = String(j.property_domain).replace(/^https?:\\/\\//i, '').replace(/^www\\./i, '').split('/')[0].toLowerCase();\n    if (d) domains.add(d);\n  }\n}\nconst cands = $('Normalize places').all();\nconst out = [];\nconst seen = new Set();\nfor (const c of cands) {\n  const j = c.json;\n  const nk = String(j.Name).toLowerCase().trim();\n  let dk = '';\n  if (j.Domain) dk = String(j.Domain).replace(/^https?:\\/\\//i, '').replace(/^www\\./i, '').split('/')[0].toLowerCase();\n  if (names.has(nk)) continue;\n  if (dk && domains.has(dk)) continue;\n  const key = nk + '|' + dk;\n  if (seen.has(key)) continue;\n  seen.add(key);\n  out.push({ json: j });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "999199d4-fe5a-4d73-a9b4-4668390c8d94",
+      "name": "Add to Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "title": "={{ $json.Name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.Phone }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Domain|url",
+              "urlValue": "={{ $json.Domain }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Maps|url",
+              "urlValue": "={{ $json.Maps }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Description|rich_text",
+              "richText": false,
+              "textContent": "={{ $json.Description }}"
+            },
+            {
+              "key": "Sector|select",
+              "selectValue": "={{ $json.Sector }}"
+            },
+            {
+              "key": "City|select",
+              "selectValue": "={{ $json.City }}"
+            },
+            {
+              "key": "Ownership|select",
+              "selectValue": "Saudi Private"
+            },
+            {
+              "key": "Entity Type|select",
+              "selectValue": "Private Sector"
+            },
+            {
+              "key": "Size|select",
+              "selectValue": "11-50"
+            },
+            {
+              "key": "Source|multi_select",
+              "multiSelectValue": [
+                "Public-KSA"
+              ]
+            },
+            {
+              "key": "Notes|rich_text",
+              "richText": false,
+              "textContent": "={{ $json.Notes }}"
+            }
+          ]
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

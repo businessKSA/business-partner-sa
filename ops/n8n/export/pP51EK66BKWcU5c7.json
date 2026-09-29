@@ -1,0 +1,201 @@
+{
+  "id": "pP51EK66BKWcU5c7",
+  "name": "BP — باهر v2: استقبال → جلسة الفريق الذكي",
+  "active": false,
+  "isArchived": false,
+  "versionId": "a8e4f7b8-47e6-44d8-9b9f-07438ba82b0d",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 5,
+  "createdAt": "2026-09-03T01:58:36.630Z",
+  "updatedAt": "2026-09-03T01:58:36.630Z",
+  "settings": {
+    "timezone": "Asia/Riyadh",
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "يستقبل رسالة العميل ويفتح جلسة Managed Agents لباهر المنسّق وفريقه. غير مفعّل حتى تُنشأ الوكلاء (agents/scripts/apply.sh) وتُنسخ معرّفاتهم إلى IDS. المصدر: ops/n8n/baher-intake-v2.workflow.js",
+  "connections": {
+    "استقبال (baher-intake-v2)": {
+      "main": [
+        [
+          {
+            "node": "ابنِ طلب الجلسة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ابنِ طلب الجلسة": {
+      "main": [
+        [
+          {
+            "node": "افتح جلسة لباهر (Anthropic)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "افتح جلسة لباهر (Anthropic)": {
+      "main": [
+        [
+          {
+            "node": "سجّل معرّف الجلسة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "d5b19c68-ba32-4245-91db-774190ff7186",
+      "name": "استقبال (baher-intake-v2)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -460,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "baher-intake-v2",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "0fc51e9c-7fb6-4a71-ac82-588a83ed46da",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7M1AKDpo96GtSHyD",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "id": "d5f974ac-39cc-43f4-b094-8d244f5eea46",
+      "name": "ابنِ طلب الجلسة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const IDS = {\"AGENT_BAHER\":\"REPLACE_WITH_AGENT_BAHER\",\"ENV_ID\":\"REPLACE_WITH_ENV_ID\",\"MEMORY_STORE_ID\":\"REPLACE_WITH_MEMORY_STORE_ID\",\"VAULT_ID\":\"REPLACE_WITH_VAULT_ID\"};\nconst BUDGET = \"300\";\nconst b = $input.first().json.body || {};\nconst message = String(b.message || '').trim();\nif (!message) return [];\nconst channel = String(b.channel || 'whatsapp');\nconst lines = [\n  'رسالة واردة من عميل عبر ' + channel + '.',\n  b.client_name ? 'الاسم: ' + b.client_name : null,\n  b.phone ? 'الجوال (للرد عبر bp-agent-send): ' + String(b.phone).replace(/[^0-9]/g, '') : null,\n  b.crm_lead_id ? 'معرّف CRM: ' + b.crm_lead_id : null,\n  Array.isArray(b.history) && b.history.length\n    ? 'سجل المحادثة السابقة (للسياق):\\n' + b.history.map(x => (x.role === 'user' ? 'العميل: ' : 'نحن: ') + String(x.text || '').slice(0, 500)).join('\\n')\n    : null,\n  '',\n  'رسالة العميل الآن:',\n  message,\n  '',\n  'كلّف مازن بالرد عليه وتسجيله، وحوّل لبدر إن كانت فرصة مكتملة. الرد للعميل يُرسل عبر bp-agent-send.',\n].filter(x => x !== null);\nconst body = {\n  agent: IDS.AGENT_BAHER,\n  environment_id: IDS.ENV_ID,\n  title: (b.client_name ? b.client_name + ' — ' : '') + message.slice(0, 60),\n  vault_ids: IDS.VAULT_ID ? [IDS.VAULT_ID] : [],\n  resources: [{ type: 'memory_store', memory_store_id: IDS.MEMORY_STORE_ID, access: 'read_write', instructions: 'ذاكرة الفريق. اقرأ README.md أولًا؛ سجّل القرارات والدروس المهمة فقط.' }],\n  budget: { type: 'limit', max_list_cost: { amount: BUDGET, currency: 'USD' } },\n  metadata: { channel, phone: String(b.phone || ''), crm_lead_id: String(b.crm_lead_id || '') },\n  initial_events: [{ type: 'user.message', content: [{ type: 'text', text: lines.join('\\n') }] }],\n};\nreturn [{ json: { body } }];"
+      }
+    },
+    {
+      "id": "00582c2d-66fa-4b12-ad6d-66f1ddc71e4b",
+      "name": "افتح جلسة لباهر (Anthropic)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -20,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/sessions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "anthropic-beta",
+              "value": "managed-agents-2026-04-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "mmbdtwapuZXoY91N",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "bc9519a1-137f-4953-bb2e-900ef0ee4956",
+      "name": "سجّل معرّف الجلسة",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sid",
+              "name": "session_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "st",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "url",
+              "name": "trace",
+              "value": "={{ \"https://platform.claude.com/workspaces/default/sessions/\" + $json.id }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "18a174a9-4d0e-4af8-acd2-0cdd75af19ad",
+      "name": "Sticky Note 68935660",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "parameters": {
+        "content": "## باهر v2 — جلسة Managed Agents لكل رسالة\nقبل التفعيل: (1) شغّل agents/scripts/apply.sh وvault.sh وانسخ المعرّفات إلى IDS أعلى الملف،\n(2) اعتماد Anthropic account الموجود مربوط بعقدة الجلسة: تأكد أن مفتاحه فيه رصيد،\n(3) اعتماد Header Auth باسم X-BP-Agent-Key (نفس مفتاح bp-agent-send)،\n(4) وجّه BP-WhatsApp-Main إلى /webhook/baher-intake-v2 بدل baher-intake.",
+        "color": 4
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

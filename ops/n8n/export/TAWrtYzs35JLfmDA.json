@@ -1,0 +1,248 @@
+{
+  "id": "TAWrtYzs35JLfmDA",
+  "name": "BP — Weekly Newsletter (Sunday 10AM)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7ab1ed50-9218-437a-968d-33c7cca30e34",
+  "activeVersionId": "7ab1ed50-9218-437a-968d-33c7cca30e34",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-07-21T01:16:47.250Z",
+  "updatedAt": "2026-07-21T01:17:52.235Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "النشرة الأسبوعية لمشتركي الموقع: كل أحد 10ص (توقيت الرياض) يقرأ تحديثات Regulatory Updates من مصادر موثوقة فقط (حكومي/رسمي، يستبعد المنافسين)، يبني نشرة HTML بهوية navy، ويرسلها لكل مشترك في قاعدة «مشتركو النشرة» عبر Gmail. تشغيل يدوي متاح للتجربة.",
+  "connections": {
+    "Sunday 10AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Updates": {
+      "main": [
+        [
+          {
+            "node": "Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML": {
+      "main": [
+        [
+          {
+            "node": "Fetch Subscribers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Subscribers": {
+      "main": [
+        [
+          {
+            "node": "Normalize Subscribers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Subscribers": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Now (Test)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0d1f0591-5a5a-4463-bb03-8643e58dbfe4",
+      "name": "Sunday 10AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                0
+              ],
+              "triggerAtHour": 10,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "788c6986-6776-469f-818d-1b867d753629",
+      "name": "Fetch Updates",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "579a61a8704246f4879760226867398c"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "e3b3a6ba-f5d1-44f8-99ee-63c614e6598e",
+      "name": "Build HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const TRUSTED=/(\\.gov\\.sa|\\.org\\.sa|investsaudi\\.sa|invest\\.sa)/i;const BLOCKED=/(setupinsaudi|astrolabs|knowledge[ _]?feed|test[ _]?source)/i;const rows=$input.all().map(i=>i.json);const items=rows.filter(r=>{const im=(r.property_impact_level||'').toLowerCase();const u=r.property_original_url||'';const s=r.property_source_name||'';return (im==='critical'||im==='high')&&TRUSTED.test(u)&&!BLOCKED.test(u)&&!BLOCKED.test(s);}).slice(0,5);const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const dom=u=>{try{return new URL(u).hostname.replace(/^www\\./,'');}catch(e){return '';}};const blocks=items.map(r=>`<div style=\"padding:15px 22px;border-bottom:1px solid #E4E7F0\"><div style=\"font-size:10px;font-weight:bold;color:#13246e;background:#eef0f7;display:inline-block;padding:2px 8px;border-radius:5px\">${esc(r.property_impact_level||'')}</div><h4 style=\"margin:6px 0 5px;font-size:14.5px;color:#1F2430\">${esc(r.property_update_title||'')}</h4><p style=\"margin:0 0 9px;font-size:12.7px;color:#39404f;line-height:1.75\">${esc(r.property_summary_arabic||r.property_what_it_means||'')}</p><div style=\"background:#F5F6FA;border-right:3px solid #0B1B5A;border-radius:8px;padding:9px 12px;font-size:12px;color:#39404f\"><b style=\"color:#0B1B5A;font-size:10px;display:block;margin-bottom:3px\">قراءة BUSINESS PARTNER</b>${esc(r.property_business_opportunity||'فريقنا يتابع هذا التحديث ويطبّقه على ملفات عملائنا.')}</div><div style=\"margin-top:8px;font-size:11.5px;color:#4a4f5e\">المصدر: <b style=\"color:#0B1B5A\">${esc(dom(r.property_original_url))}</b></div></div>`).join('');const today=$now.toFormat('yyyy-LL-dd');const html=`<div dir=\"rtl\" style=\"font-family:Tahoma,Arial,sans-serif;max-width:640px;margin:auto;background:#fff;color:#1F2430\"><div style=\"background:#0B1B5A;padding:22px;text-align:center\"><div style=\"font-size:11px;font-weight:bold;letter-spacing:2px;color:#c7d0ee\">BUSINESS PARTNER · WEEKLY BRIEF</div><div style=\"font-size:19px;font-weight:bold;color:#fff;margin-top:7px\">نشرة الأسبوع — أهم المستجدات التنظيمية</div><div style=\"font-size:12px;color:#aab6e0;margin-top:2px\">${today}</div></div><div style=\"padding:14px 22px;border-bottom:1px solid #E4E7F0;font-size:13px;color:#4a4f5e\">راقبنا الجهات الحكومية لك — إليك أهم ما يخص أعمالك هذا الأسبوع من مصادر رسمية موثوقة.</div>${blocks||'<div style=\"padding:20px;text-align:center;color:#4a4f5e\">لا توجد تحديثات جوهرية هذا الأسبوع.</div>'}<div style=\"background:#0B1B5A;padding:20px;text-align:center\"><p style=\"margin:0 0 12px;font-size:13px;color:#b9c2e4\">محتاج تتأكد إن منشأتك ممتثلة أو تبي تتحرك على فرصة؟</p><a href=\"https://businesspartner.sa/ar/consultation\" style=\"background:#fff;color:#0B1B5A;text-decoration:none;font-size:12.5px;font-weight:bold;padding:9px 16px;border-radius:999px\">احجز استشارة</a></div><div style=\"background:#F5F6FA;color:#4a4f5e;font-size:10.5px;text-align:center;padding:13px 20px;line-height:1.7\">Business Partner · الرياض — وصلتك لأنك مشترك في نشرتنا · المصادر رسمية، تحقّق قبل أي إجراء</div></div>`;return [{json:{html,subject:'📰 نشرة Business Partner الأسبوعية — '+today,count:items.length}}];"
+      }
+    },
+    {
+      "id": "18d8918f-141c-485f-bfbf-0fdb67a97476",
+      "name": "Fetch Subscribers",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "28b7b3fa912a433091e29618545e7a40"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "4b0bff73-4b43-4a16-a73c-45e0819936a2",
+      "name": "Normalize Subscribers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const out=[];const re=/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/;for(const it of $input.all()){const r=it.json;let email='';for(const k of Object.keys(r)){const v=r[k];if(typeof v==='string'&&re.test(v.trim())){email=v.trim();break;}}const status=r['property_الحالة']||r['الحالة']||'';if(email&&status!=='ملغى')out.push({json:{email}});}return out;"
+      }
+    },
+    {
+      "id": "9d184752-4727-4c34-a3c4-55db24ee3688",
+      "name": "Send Weekly",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $(\"Build HTML\").first().json.subject }}",
+        "emailType": "html",
+        "message": "={{ $(\"Build HTML\").first().json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "12f06ad1-a7a8-4a95-b9b4-9ddb9a640621",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "397ceaaf-d001-4e78-b30c-7084b6b21689",
+      "name": "Run Now (Test)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        220
+      ],
+      "parameters": {}
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

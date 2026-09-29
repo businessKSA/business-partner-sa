@@ -11,6 +11,7 @@
 
 import { gcalConfigured, busy as gcalBusy, createEvent as gcalCreate } from "./_gcal.js";
 import { sb, DB_ON } from "./_db.js";
+import { n8nWebhook } from "./_n8n.js";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
@@ -333,7 +334,7 @@ export default async function handler(req, res) {
     forwardLead({ source: "consultation", ref, name, phone, email, topic, date, notes }),
     // n8n notify webhook: source=booking + date/time auto-creates the event
     // on the owner's Google Calendar (workflow bldhMv0BAGs41Xqo).
-    fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+    fetch(process.env.OWNER_WA_WEBHOOK || n8nWebhook("website-lead-notify"), {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, topic, transcript: `📅 حجز استشارة (${topic || "عام"}): ${date} · ${time}` }),
     }).catch(() => {}),

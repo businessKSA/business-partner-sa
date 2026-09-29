@@ -1,0 +1,153 @@
+{
+  "id": "SWZhpsbAE2ijedV5",
+  "name": "BP — Backfill classification (one-shot)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "470795cf-ed94-4bf9-8fb6-62a44f81d22c",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-07-23T01:47:39.192Z",
+  "updatedAt": "2026-07-23T01:47:39.192Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "One-shot: fills Ownership=Saudi Private and Entity Type=Private Sector on all BP Companies Sales DB rows that are missing them (the Google Places-sourced local companies).",
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Get rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows": {
+      "main": [
+        [
+          {
+            "node": "Rows missing classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rows missing classification": {
+      "main": [
+        [
+          {
+            "node": "Fill classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "08af70fe-39ea-4cc0-8ee2-04009b499cde",
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "2c20ff66-01c6-4e93-8443-50abe03eae1a",
+      "name": "Get rows",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "returnAll": true
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "332f3cef-4db5-482c-b004-d39b7abe0761",
+      "name": "Rows missing classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const out = [];\nfor (const r of $input.all()) {\n  const j = r.json;\n  const own = j.property_ownership || '';\n  const ent = j.property_entity_type || '';\n  if (own && ent) continue;\n  out.push({ json: { pageId: j.id } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "75271e01-ea41-4bd0-81dd-dbe7296b9ed3",
+      "name": "Fill classification",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Ownership|select",
+              "selectValue": "Saudi Private"
+            },
+            {
+              "key": "Entity Type|select",
+              "selectValue": "Private Sector"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

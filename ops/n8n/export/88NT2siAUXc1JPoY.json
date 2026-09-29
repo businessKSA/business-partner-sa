@@ -1,0 +1,491 @@
+{
+  "id": "88NT2siAUXc1JPoY",
+  "name": "BP — Apollo Enrich (All sectors)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "bed51ea8-dd17-4481-871b-ab157e527971",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 13,
+  "createdAt": "2026-07-23T00:45:56.631Z",
+  "updatedAt": "2026-07-23T01:37:54.703Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Enriches every company in BP Companies Sales DB missing phone/email: Apollo org enrich + decision-maker search + email reveal, written back to Notion. ~1 credit per revealed email.",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Get companies (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get companies (Notion)": {
+      "main": [
+        [
+          {
+            "node": "Filter missing contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter missing contact": {
+      "main": [
+        [
+          {
+            "node": "Apollo org enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo org enrich": {
+      "main": [
+        [
+          {
+            "node": "Merge org data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge org data": {
+      "main": [
+        [
+          {
+            "node": "Apollo people search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo people search": {
+      "main": [
+        [
+          {
+            "node": "Pick decision maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick decision maker": {
+      "main": [
+        [
+          {
+            "node": "Found a person?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found a person?": {
+      "main": [
+        [
+          {
+            "node": "Apollo reveal email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Notion (org only)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo reveal email": {
+      "main": [
+        [
+          {
+            "node": "Assemble result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble result": {
+      "main": [
+        [
+          {
+            "node": "Update Notion (with contact)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Get companies (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "8eaa35db-e7c0-4d9c-923c-c8ec59b52d5e",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "b95b3cb7-8d61-4c5a-83a5-600de88069d3",
+      "name": "Get companies (Notion)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "returnAll": true,
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "e995222b-c583-4885-8fdd-8d5d8895f64b",
+      "name": "Filter missing contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// All sectors: rows missing phone or email, with a domain.\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const phone = j.property_phone || '';\n  const email = j.property_email || '';\n  let dom = j.property_domain || '';\n  if (!dom) continue;\n  if (phone && email) continue;\n  dom = String(dom).replace(/^https?:\\/\\//i, '').replace(/^www\\./i, '').split('/')[0].trim();\n  if (!dom) continue;\n  out.push({ json: {\n    pageId: j.id,\n    company: j.name || '',\n    domain: dom,\n    phone: phone,\n    email: email,\n    linkedin: j.property_linked_in || j.property_linkedin || ''\n  } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "03f309b0-3192-4f34-a7b3-997d3e9bf45d",
+      "name": "Apollo org enrich",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.apollo.io/api/v1/organizations/enrich",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domain",
+              "value": "={{ $json.domain }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "smx1k6ZtB4SLEL3q",
+          "name": "Header Auth account 3"
+        }
+      }
+    },
+    {
+      "id": "07674325-25ff-481f-b696-ec04bc1e8e09",
+      "name": "Merge org data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const base = $('Filter missing contact').item.json;\nconst org = ($json && $json.organization) ? $json.organization : {};\nreturn { json: Object.assign({}, base, {\n  phone: org.sanitized_phone || org.phone || base.phone || '',\n  linkedin: org.linkedin_url || base.linkedin || '',\n  employees: org.estimated_num_employees || null,\n  industry: org.industry || ''\n}) };"
+      }
+    },
+    {
+      "id": "5065aea3-5d86-43b8-9b69-ab23fc00542c",
+      "name": "Apollo people search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apollo.io/api/v1/mixed_people/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ q_organization_domains_list: [$json.domain], person_titles: [\"owner\",\"founder\",\"ceo\",\"managing director\",\"general manager\",\"vice president\",\"business development manager\",\"procurement manager\",\"operations manager\"], per_page: 2 }) }}"
+      },
+      "retryOnFail": false,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "smx1k6ZtB4SLEL3q",
+          "name": "Header Auth account 3"
+        }
+      }
+    },
+    {
+      "id": "8e0630ca-f595-4cd5-bb65-98254ba5092d",
+      "name": "Pick decision maker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const base = $('Merge org data').item.json;\nconst people = (($json && $json.people) || []).concat(($json && $json.contacts) || []);\nconst p = people.length ? people[0] : null;\nreturn { json: Object.assign({}, base, {\n  personId: p && p.id ? p.id : '',\n  personName: p && p.name ? p.name : '',\n  personTitle: p && p.title ? p.title : '',\n  personLinkedin: p && p.linkedin_url ? p.linkedin_url : ''\n}) };"
+      }
+    },
+    {
+      "id": "2e200dcc-f322-4c5c-b931-527d330e07e0",
+      "name": "Found a person?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.personId }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "bb5c35f4-06d5-4621-8d03-2532d5982385",
+      "name": "Apollo reveal email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1792,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apollo.io/api/v1/people/match",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ id: $json.personId, reveal_personal_emails: false }) }}"
+      },
+      "retryOnFail": false,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "smx1k6ZtB4SLEL3q",
+          "name": "Header Auth account 3"
+        }
+      }
+    },
+    {
+      "id": "257afa4a-5b64-4d61-9bdf-af72db5004a0",
+      "name": "Assemble result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const base = $('Pick decision maker').item.json;\nconst person = ($json && $json.person) ? $json.person : {};\nlet email = person.email || '';\nif (String(email).indexOf('not_unlocked') > -1) email = '';\nreturn { json: Object.assign({}, base, {\n  email: email,\n  personName: person.name || base.personName,\n  personTitle: person.title || base.personTitle,\n  personLinkedin: person.linkedin_url || base.personLinkedin\n}) };"
+      }
+    },
+    {
+      "id": "cd7a808c-c303-4221-ae64-a671e61f2005",
+      "name": "Update Notion (with contact)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.phone }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.email }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "LinkedIn|url",
+              "urlValue": "={{ $json.linkedin }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Notes|rich_text",
+              "richText": false,
+              "textContent": "={{ $json.personName ? (\"Apollo contact: \" + $json.personName + \" — \" + $json.personTitle + ($json.personLinkedin ? \" | \" + $json.personLinkedin : \"\")) : \"Apollo enriched\" }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "9d576d51-3a24-4e7a-b55f-87947eb9021e",
+      "name": "Update Notion (org only)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        192
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.phone }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "LinkedIn|url",
+              "urlValue": "={{ $json.linkedin }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Notes|rich_text",
+              "richText": false,
+              "textContent": "Apollo enriched — no decision-maker found yet"
+            }
+          ]
+        },
+        "authentication": "oAuth2"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "afde5ebc-72d1-417d-972e-cf12cdf6a396",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -200,
+        200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

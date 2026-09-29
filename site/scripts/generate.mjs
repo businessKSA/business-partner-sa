@@ -16,6 +16,8 @@ const CSS_V = assetV("assets/css/styles.css");
 const JS_V = assetV("assets/js/main.js");
 const BDAAS_JS_V = assetV("assets/js/business-development.js");
 const LIVE_V = assetV("assets/js/live-prices.js");
+// Where n8n lives — one value for every page that calls a webhook or links a form (docs/n8n-to-azure-migration.md, step 2).
+const N8N_BASE = String(process.env.N8N_BASE_URL || "https://businesspartnerai.app.n8n.cloud").trim().replace(/\/+$/, "");
 
 // Copy brand image assets from the repo's committed public/ folder into the
 // static output. Keeps binary assets out of the generated tree in git while
@@ -6971,7 +6973,7 @@ function buildWorkerHousing() {
     <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
   </div></section>`;
 
-  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("${N8N_BASE}/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
 
   return page({
     title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | بيزنس بارتنر"),
@@ -8875,12 +8877,12 @@ function buildMonitor() {
   // BP Inbox page is authored as a standalone raw HTML file (scripts/assets/monitor.page.html)
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8').replaceAll("__N8N_BASE__", N8N_BASE);
 }
 
 function buildAdmin() {
   // Owner control panel (/admin) — same standalone-raw-file pattern as monitor.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8').replaceAll("__N8N_BASE__", N8N_BASE);
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -8966,9 +8968,9 @@ function buildDashboard() {
       <h2>🎯 أدوات وكيل التوظيف — Sourcing &amp; Screening</h2>
       <p>استقبال طلبات التقديم من مواقع الوظائف تلقائي بالكامل (عبر مراقبة البريد الإلكتروني). الأدوات التالية يستخدمها فريق التوظيف يدوياً — كل ما بعدها (التقييم، حجز المقابلة، إشعار العميل) يتم تلقائياً.</p>
       <div class="toolrow">
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/5b3298ae-2361-420b-9de3-b573837e44e6" target="_blank" rel="noopener">➕ تسجيل مرشح (Headhunting)</a>
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/97fdba3a-a01d-46d1-821d-bfccc0334408" target="_blank" rel="noopener">📝 تقييم مقابلة الفرز</a>
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/32932655-821b-47f8-b985-5821a293a76b" target="_blank" rel="noopener">📄 صياغة إعلان وظيفة بالذكاء الاصطناعي</a>
+        <a class="toolbtn" href="${N8N_BASE}/form/5b3298ae-2361-420b-9de3-b573837e44e6" target="_blank" rel="noopener">➕ تسجيل مرشح (Headhunting)</a>
+        <a class="toolbtn" href="${N8N_BASE}/form/97fdba3a-a01d-46d1-821d-bfccc0334408" target="_blank" rel="noopener">📝 تقييم مقابلة الفرز</a>
+        <a class="toolbtn" href="${N8N_BASE}/form/32932655-821b-47f8-b985-5821a293a76b" target="_blank" rel="noopener">📄 صياغة إعلان وظيفة بالذكاء الاصطناعي</a>
       </div>
     </section>
 
@@ -8979,7 +8981,7 @@ function buildDashboard() {
   </div>
 
   <script>
-    var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N_BASE = '${N8N_BASE}/webhook';
     var AGENTS = [
       { slug:'baher',     path:'baher-intake',      name:'باهر', en:'Baher', role:'مستشار الأعمال',          emoji:'🎯' },
       { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
@@ -9699,7 +9701,7 @@ function buildPortal(pre = "/") {
     </div>
   </div>
   <script>
-    var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N_BASE='${N8N_BASE}/webhook';
     var AGENTS=[
       {slug:'baher',path:'baher-intake',name:'باهر',role:'مستشار الأعمال',e:'🎯'},
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
@@ -10013,7 +10015,7 @@ function buildSharedServices() {
   // Full roster for the dashboard — each specialist is chatted with individually.
   // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
-  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const KHALED_EP = `${N8N_BASE}/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat`;
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
@@ -10575,7 +10577,7 @@ function buildSharedServicesPortal() {
   // Full roster for the dashboard — each specialist is chatted with individually.
   // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
-  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const KHALED_EP = `${N8N_BASE}/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat`;
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
@@ -11228,7 +11230,7 @@ function buildSharedServicesPortal() {
     .ss-gate-links a:hover{text-decoration:underline}
   </style>`;
   const script = `<script>(function(){
-    var N8N='https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N='${N8N_BASE}/webhook';
     var AGENTS=${AGENTS_JS};
     var TOOLS=${TOOLS_JS};
     var BUSY=${JSON.stringify(busyMsg)}, ERRT=${JSON.stringify(errMsg)};

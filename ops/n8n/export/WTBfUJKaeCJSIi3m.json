@@ -1,0 +1,209 @@
+{
+  "id": "WTBfUJKaeCJSIi3m",
+  "name": "🔄 BP AI — Deal Lifecycle Orchestrator",
+  "active": true,
+  "isArchived": false,
+  "versionId": "ee5bade7-2bca-40af-b04f-1a95e6135e45",
+  "activeVersionId": "ee5bade7-2bca-40af-b04f-1a95e6135e45",
+  "triggerCount": 1,
+  "nodeCount": 5,
+  "createdAt": "2026-08-21T00:19:04.507Z",
+  "updatedAt": "2026-09-02T08:22:07.981Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120
+  },
+  "tags": [
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Every 10 min: converts BP_AI_Deals stage into one idempotent task for Sales→Legal→Finance→Operations; human blockers go only to Baher.",
+  "connections": {
+    "Read Deals": {
+      "main": [
+        [
+          {
+            "node": "Map Deal Stage to Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Deal Stage to Task": {
+      "main": [
+        [
+          {
+            "node": "Task Not Already Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Not Already Exists": {
+      "main": [
+        [
+          {
+            "node": "Create Lifecycle Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "4ee6223f-981f-467b-bfa0-451dd9ab6a52",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "29012d27-fa2f-4f0f-b0ef-3dca257ea843",
+      "name": "Read Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        }
+      }
+    },
+    {
+      "id": "132f7f8a-0f2f-4da0-bc1e-c9c69ff11028",
+      "name": "Map Deal Stage to Task",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows=$input.all().map(i=>i.json); const out=[]; const routes={new:['badr_sales','Qualify lead and establish a commercial next action'],lead:['badr_sales','Qualify lead and establish a commercial next action'],new_lead:['badr_sales','Qualify lead and establish a commercial next action'],qualified:['badr_sales','Advance qualified opportunity toward a quote'],discovery:['badr_sales','Complete discovery and prepare commercial scope'],quote_drafting:['badr_sales','Finish and issue the commercial quotation'],quote_ready:['badr_sales','Issue the quotation and set follow-up'],quote_sent:['badr_sales','Follow up and close the commercial decision'],quote_accepted:['abdulaziz_legal','Prepare/advance the contract for the accepted commercial scope'],contract_required:['abdulaziz_legal','Prepare the client contract'],contract_drafting:['abdulaziz_legal','Complete contract drafting and send for signature'],contract_sent:['abdulaziz_legal','Follow up contract signature and resolve legal comments'],contract_signed:['abdulrahman_finance','Issue invoice and start collection immediately'],invoice_required:['abdulrahman_finance','Prepare and issue invoice'],invoice_drafting:['abdulrahman_finance','Complete and issue invoice'],invoice_issued:['abdulrahman_finance','Confirm invoice delivery and collect payment'],payment_pending:['abdulrahman_finance','Collect outstanding payment and reconcile receipt'],paid:['mazen_ops','Start paid-client execution immediately'],payment_received:['mazen_ops','Start paid-client execution immediately'],execution_ready:['mazen_ops','Start service delivery and assign operational tasks'],execution_in_progress:['mazen_ops','Drive execution to completion and remove blockers'],delivered:['badr_sales','Run post-delivery upsell, renewal and referral follow-up']}; for(const d of rows){const stage=String(d.stage||'').trim().toLowerCase(); let agent,objective; if(d.human_action_required===true||stage==='blocked_human'){agent='baher_owner'; objective=d.next_action||'Complete the required human action blocking this deal';} else {const r=routes[stage]; if(!r) continue; [agent,objective]=r;} const priority=(Number(d.paid_amount||0)>0&&stage!=='delivered')?'P0':(['quote_accepted','contract_signed','invoice_issued','payment_pending','paid','payment_received'].includes(stage)?'P1':(d.priority||'P2')); out.push({json:{task_id:`DEAL-${d.deal_id}-${stage}`,parent_task_id:'',source:'deal_lifecycle',company_id:'business-partner',client_id:d.deal_id||'',client_name:d.client_name||'',channel:'internal',objective,context:`Deal ${d.deal_id}; service=${d.service||''}; stage=${stage}; value=${d.deal_value||0}; quoted=${d.quoted_amount||0}; invoiced=${d.invoiced_amount||0}; paid=${d.paid_amount||0}; quote=${d.quote_status||''}; contract=${d.contract_status||''}; invoice=${d.invoice_status||''}; payment=${d.payment_status||''}; execution=${d.execution_status||''}; next=${d.next_action||''}; blocked_by=${d.blocked_by||''}. IMPORTANT: own this milestone, perform the work with your team, and use your Deal State tool to update BP_AI_Deals when the milestone changes.`,created_by_agent:'deal_lifecycle_orchestrator',assigned_to_agent:agent,priority,status:'queued',approval_required:false,approval_status:'not_required',result:'',next_action:d.next_action||objective,human_action_required:agent==='baher_owner',blocked_by:d.blocked_by||'',cash_stage:stage,revenue_value:Number(d.deal_value||d.quoted_amount||d.invoiced_amount||0),created_at:new Date().toISOString(),updated_at:new Date().toISOString()}});} return out;"
+      }
+    },
+    {
+      "id": "a6c8f9f2-ed0b-4e3e-8fd9-55f757533466",
+      "name": "Task Not Already Exists",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.task_id }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c7c83cda-c8c3-4b7a-a5a7-602f42f81acc",
+      "name": "Create Lifecycle Task",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

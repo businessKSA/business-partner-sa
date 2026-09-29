@@ -1,0 +1,1364 @@
+{
+  "id": "Gktp6pcZ94F3IEmg",
+  "name": "🧠 Virtual Baher Live — Open AI Chat",
+  "active": true,
+  "isArchived": false,
+  "versionId": "e8a51e33-53d3-4113-a0d0-c90a477263f3",
+  "activeVersionId": "e8a51e33-53d3-4113-a0d0-c90a477263f3",
+  "triggerCount": 2,
+  "nodeCount": 26,
+  "createdAt": "2026-07-22T03:46:22.347Z",
+  "updatedAt": "2026-09-20T15:18:39.212Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Single-screen executive runtime for BP AI Command Space: voice/text, Tasks, Deals, Finance, Workforce, KPIs, Growth, integrations and director consultation.",
+  "connections": {
+    "GET Virtual Baher Live": {
+      "main": [
+        [
+          {
+            "node": "Build Virtual Baher Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Virtual Baher Page": {
+      "main": [
+        [
+          {
+            "node": "Respond Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Virtual Baher Chat": {
+      "main": [
+        [
+          {
+            "node": "Normalize Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Chat": {
+      "main": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Virtual Baher Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Team Tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Commercial Deals": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Finance Ledger": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Workforce": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Performance": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Team Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register New Deal": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Resume Employee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Growth Campaigns": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Integration Readiness": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Executive Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Called Internally": {
+      "main": [
+        [
+          {
+            "node": "Prepare Internal Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Internal Envelope": {
+      "main": [
+        [
+          {
+            "node": "Normalize Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Virtual Baher Agent": {
+      "main": [
+        [
+          {
+            "node": "Runtime Response Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Runtime Response Router": {
+      "main": [
+        [
+          {
+            "node": "Return Internal Runtime Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Chat JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (مجاني — احتياطي)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Virtual Baher Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "96a0bbdb-333c-4f7f-9d73-1936999004ee",
+      "name": "GET Virtual Baher Live",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "virtual-baher-live-R9k7Tm2QxL5Vn8Pz",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "7b3cdc71-4ddf-4bff-9c28-49d6d5ea3672"
+    },
+    {
+      "id": "d8c4f22c-169c-44c6-86f3-18a0b5553486",
+      "name": "Build Virtual Baher Page",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const html=`<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><meta name=\"robots\" content=\"noindex,nofollow\"><title>Virtual Baher — Business Partner</title><style>:root{--gold:#d9b45b;--green:#27e6a5;--text:#eef7ff;--muted:#8ba4c7}*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 35%,#092650 0,#031126 30%,#020817 65%,#01040b 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden}body:before{content:'';position:fixed;inset:0;background-image:radial-gradient(#7ad8ff55 1px,transparent 1px),radial-gradient(#a368ff44 1px,transparent 1px);background-size:80px 80px,130px 130px;opacity:.24}.shell{height:100%;display:grid;grid-template-rows:72px 1fr;position:relative}.top{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #1d4070;background:#031026dd}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border:1px solid var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font-weight:900}.brand b{display:block;font-size:20px}.brand small{color:var(--gold);font-size:10px;letter-spacing:1.5px}.status{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}.main{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;padding:14px;min-height:0}.chat{min-height:0;background:linear-gradient(180deg,#061737d9,#030c1eea);border:1px solid #16477c;border-radius:22px;box-shadow:0 18px 80px #0008;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}.hero{display:flex;align-items:center;gap:13px;padding:16px 18px;border-bottom:1px solid #12345d}.orb{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#62efff,#0c7ff0 35%,#073777 68%);border:1px solid #53ddff;box-shadow:0 0 30px #16bfff88,0 0 65px #3a68ff44;font-weight:900}.hero h1{font-size:19px;margin:0}.hero p{margin:4px 0 0;color:var(--muted);font-size:12px}.messages{min-height:0;overflow:auto;padding:20px 7%;scroll-behavior:smooth}.msg{max-width:78%;padding:13px 16px;border-radius:16px;margin:9px 0;white-space:pre-wrap;line-height:1.65;font-size:15px}.me{margin-right:auto;background:linear-gradient(135deg,#1769d7,#164aa6);border:1px solid #368cff}.ai{margin-left:auto;background:linear-gradient(135deg,#10274ff5,#191841f5);border:1px solid #465a9c}.thinking{opacity:.65}.composer{padding:13px 16px 16px;border-top:1px solid #12345d;background:#030c1ded}.inputwrap{display:flex;gap:8px;background:#07162d;border:1px solid #24588b;border-radius:18px;padding:8px}.inputwrap textarea{flex:1;resize:none;min-height:50px;max-height:150px;background:transparent;border:0;outline:0;color:#fff;font:inherit;padding:12px}.btn{width:48px;height:48px;border-radius:14px;border:1px solid #316999;background:#0a2448;color:#fff;font-size:20px}.send{background:linear-gradient(135deg,#007cc7,#4a54db)}.mic.on{background:#9b2865}.hints{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.hint{padding:7px 10px;border:1px solid #1b4774;border-radius:20px;color:#a8c4e8;font-size:11px;background:#07162a}.side{display:grid;grid-template-rows:auto 1fr auto;gap:12px;min-height:0}.card{background:#05122bc7;border:1px solid #174675;border-radius:18px;padding:14px}.card h3{margin:0 0 10px;font-size:14px}.metric,.person{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #173354}.metric span,.person small{color:var(--muted);font-size:11px}.person i{width:8px;height:8px;border-radius:50%;background:var(--green)}.team{overflow:auto}.foot{font-size:10px;color:#6e87a9;line-height:1.6}.error{color:#ff7f91}@media(max-width:900px){html,body{overflow:auto}.shell{min-height:100vh;height:auto}.top{padding:10px 12px}.status{display:none}.main{grid-template-columns:1fr;padding:7px}.side{display:none}.chat{height:calc(100vh - 86px);border-radius:16px}.messages{padding:14px 11px}.msg{max-width:91%;font-size:14px}.hero{padding:12px}.orb{width:44px;height:44px}.hero h1{font-size:16px}.composer{padding:9px}.hints{overflow:auto;flex-wrap:nowrap}.hint{white-space:nowrap}}</style></head><body><div class=\"shell\"><header class=\"top\"><div class=\"brand\"><div class=\"logo\">BP</div><div><b>Business Partner</b><small>AI COMMAND CENTER</small></div></div><div class=\"status\"><span class=\"dot\"></span> Virtual Baher Online · Riyadh</div></header><main class=\"main\"><section class=\"chat\"><div class=\"hero\"><div class=\"orb\">VB</div><div><h1>باهر الافتراضي · Virtual Baher</h1><p>تكلم طبيعي. أنا أقرأ الفريق، المهام، الصفقات والمالية وأرتب لك الشغل.</p></div></div><div class=\"messages\" id=\"messages\"><div class=\"msg ai\">هلا باهر 👋\\nأنا معك. قل لي أي شيء طبيعي — «وش علي اليوم؟»، «كم الـPipeline؟»، أو «فلان كلمني ويبغى خدمة» — وأنا أرتب الباقي.</div></div><div class=\"composer\"><div class=\"inputwrap\"><button class=\"btn mic\" id=\"mic\">🎙️</button><textarea id=\"input\" autofocus placeholder=\"اكتب أو تكلم...\"></textarea><button class=\"btn send\" id=\"send\">➤</button></div><div class=\"hints\"><button class=\"hint\">وش علي اليوم؟</button><button class=\"hint\">كم الإيرادات المتوقعة؟</button><button class=\"hint\">مين دفع ولسه ما نفذنا؟</button><button class=\"hint\">وش أسرع شيء يدخل فلوس اليوم؟</button></div></div></section><aside class=\"side\"><div class=\"card\"><h3>⚡ الوضع التنفيذي</h3><div class=\"metric\"><span>واجهة التشغيل</span><b style=\"color:var(--green)\">LIVE</b></div><div class=\"metric\"><span>المصدر</span><b>Tasks + Deals</b></div><div class=\"metric\"><span>المالية</span><b>Ledger + Deals</b></div><div class=\"metric\"><span>الأولوية</span><b>Cash First</b></div></div><div class=\"card team\"><h3>🛰️ الفريق التنفيذي</h3><div class=\"person\"><div><b>فرح</b><small>Marketing</small></div><i></i></div><div class=\"person\"><div><b>بدر</b><small>Sales & BD</small></div><i></i></div><div class=\"person\"><div><b>عبدالرحمن</b><small>Finance</small></div><i></i></div><div class=\"person\"><div><b>عبدالعزيز</b><small>Legal</small></div><i></i></div><div class=\"person\"><div><b>مازن</b><small>Operations</small></div><i></i></div><div class=\"person\"><div><b>محمد</b><small>IT</small></div><i></i></div></div><div class=\"card foot\">الأرقام من البيانات المسجلة فقط. رصيد البنك الفعلي يظهر بعد ربط البنك/المحاسبة.</div></aside></main></div><script>const endpoint='/webhook/virtual-baher-live-R9k7Tm2QxL5Vn8Pz-chat',input=document.getElementById('input'),messages=document.getElementById('messages'),send=document.getElementById('send'),mic=document.getElementById('mic');let busy=false,session=localStorage.getItem('vb_session');if(!session){session='baher-'+Date.now();localStorage.setItem('vb_session',session)}function bubble(text,who,extra=''){const d=document.createElement('div');d.className='msg '+who+' '+extra;d.textContent=text;messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}async function talk(text){text=(text||'').trim();if(!text||busy)return;busy=true;bubble(text,'me');input.value='';const wait=bubble('أفحص النظام وأرتب لك...','ai','thinking');try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:session})});const data=await r.json();wait.remove();bubble(data.reply||'تم، لكن ما رجعت نتيجة واضحة.','ai')}catch(e){wait.remove();bubble('صار خطأ في الاتصال. جرّب مرة ثانية.','ai error')}finally{busy=false;input.focus()}}send.onclick=()=>talk(input.value);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();talk(input.value)}});document.querySelectorAll('.hint').forEach(b=>b.onclick=()=>talk(b.textContent));const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(SR){const rec=new SR();rec.lang='ar-SA';rec.onstart=()=>mic.classList.add('on');rec.onend=()=>mic.classList.remove('on');rec.onresult=e=>talk(e.results[0][0].transcript);mic.onclick=()=>{try{rec.start()}catch(e){}}}else{mic.onclick=()=>bubble('الصوت من هذا المتصفح غير مدعوم؛ اكتب هنا أو استخدم مُعين على واتساب.','ai')}</script></body></html>`;return[{json:{html}}];"
+      }
+    },
+    {
+      "id": "490b12a6-a50b-461d-845b-08435b034535",
+      "name": "Respond Page",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store, no-cache, must-revalidate"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "176d423d-796f-4fd0-93ef-dae33845fb74",
+      "name": "POST Virtual Baher Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        360
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "virtual-baher-live-R9k7Tm2QxL5Vn8Pz-chat",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "549f89aa-bf76-4116-b66a-1f2f3da5d345"
+    },
+    {
+      "id": "f312564f-337a-4eae-99bb-9ab16918c16d",
+      "name": "Normalize Chat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        360
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const b=$json.body||{};const raw=String(b.message||'').trim();const target=String(b.target_agent||'virtual_baher').trim();const session_id=String(b.session_id||'baher-command-space').slice(0,160);const source=String(b.source||'command_space');if(!raw)throw new Error('Empty message');const message=target&&target!=='virtual_baher'?`[Selected department/agent: ${target}]\\n${raw}`:raw;return{json:{message,raw_message:raw,target_agent:target,session_id,source,channel:'bp_command_space',timestamp:new Date().toISOString()}};"
+      }
+    },
+    {
+      "id": "2d672c3d-6171-4b6a-9412-ea20ed634f0c",
+      "name": "Virtual Baher Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        420,
+        620
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.6-luna",
+          "cachedResultName": "gpt-5.6-luna"
+        },
+        "responsesApiEnabled": true,
+        "options": {
+          "maxTokens": 1200,
+          "reasoningEffort": "low",
+          "timeout": 30000,
+          "maxRetries": 1,
+          "textFormat": {
+            "textOptions": {
+              "type": "text",
+              "verbosity": "low"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "0f3674c8-71a8-4283-a00f-ec44075c523a",
+      "name": "Virtual Baher Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        500,
+        360
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are Virtual Baher, the executive AI operating system for Business Partner. Speak primarily Arabic in a natural Saudi business tone unless Baher uses English. You are the single interface: Baher should not need dashboards or workflows. Always inspect tools before stating current numbers. Distinguish clearly between registered system data and data not yet connected. Never invent bank balance, expenses, revenue, client status, or task state. For financial questions use Read Finance Ledger, Read Commercial Deals, and Read Performance. If bank accounts are not connected, say the actual bank cash balance is not connected yet. For work questions use Read Team Tasks and Read Workforce. Prioritize paid_blocked, payment_due_now, ready_to_close, then deadlines. When Baher gives a new client/opportunity, inspect deals first to avoid duplicates, register a new deal if needed, and create a task for the right director. Execute low-risk reversible instructions using tools and confirm exactly what was done. Use Pause Resume Employee only when Baher explicitly asks to stop or start an employee. L3 actions—payments/transfers, binding contracts, final government actions requiring identity/Nafath/OTP, secrets, destructive production changes—remain human gated. Never ask for passwords, OTP or Nafath codes. Keep replies concise and operational. Use headings when useful: الآن / الفلوس / المطلوب منك / الفريق. If Baher only greets, greet briefly and offer one-line current focus.",
+          "maxIterations": 8
+        },
+        "needsFallback": true
+      }
+    },
+    {
+      "id": "4ff627ef-0827-41cd-9e42-0e1794f5b339",
+      "name": "Virtual Baher Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        600,
+        620
+      ],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.session_id || 'baher-web' }}",
+        "contextWindowLength": 20
+      }
+    },
+    {
+      "id": "cce51245-c49c-4070-8577-c2b1feea1807",
+      "name": "Respond Chat JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        800,
+        360
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: $json.output || 'تم الاستلام، لكن ما وصلتني نتيجة واضحة. حاول مرة ثانية.' } }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "9f968cc4-22e5-4524-951a-0d0590395214",
+      "name": "Read Team Tasks",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "694af51b-cb22-4423-a447-dd6e5c978ad0",
+      "name": "Read Commercial Deals",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        920,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "3da7aef8-e53d-4555-aea0-0ff0517f5d2d",
+      "name": "Read Finance Ledger",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1080,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "c5Q0euUYexRPI1pO",
+          "cachedResultName": "BP_AI_Finance_Ledger"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "entry_date",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "be8c4883-6d3e-42f6-a360-314332a39ab6",
+      "name": "Read Workforce",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "department",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "45ece58a-1597-4b78-b667-a949d6c67877",
+      "name": "Read Performance",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KRfMyEXXl3n48A9q",
+          "cachedResultName": "BP_AI_Performance"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "snapshot_date",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "d08205aa-d425-4fac-b483-45e7a7f2e0a6",
+      "name": "Create Team Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $fromAI('task_id','Unique ID like WEB-20260902-001','string') }}",
+            "parent_task_id": "",
+            "source": "virtual_baher_web",
+            "company_id": "business-partner",
+            "client_id": "={{ $fromAI('client_id','Client ID if known, otherwise empty','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client name if known, otherwise empty','string') }}",
+            "channel": "web_chat",
+            "objective": "={{ $fromAI('objective','Concrete outcome to achieve','string') }}",
+            "context": "={{ $fromAI('context','Full useful context','string') }}",
+            "created_by_agent": "virtual_baher_web",
+            "assigned_to_agent": "={{ $fromAI('assigned_to_agent','Exact agent id from workforce registry','string') }}",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "status": "queued",
+            "approval_required": "={{ $fromAI('approval_required','true only if L3 approval required','boolean') }}",
+            "approval_status": "={{ $fromAI('approval_status','pending or not_required','string') }}",
+            "result": "",
+            "next_action": "={{ $fromAI('next_action','Exact next action','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "revenue_value": "={{ $fromAI('revenue_value','Expected or collected revenue in SAR, 0 if unknown','number') }}",
+            "cash_stage": "={{ $fromAI('cash_stage','paid_blocked, payment_due_now, ready_to_close, warm_24_72h, pipeline, non_revenue','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','true only if Baher personally must act','boolean') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','Who or what blocks progress, empty if none','string') }}",
+            "due_at": "={{ $fromAI('due_at','Due date/time ISO 8601 Asia/Riyadh when known, otherwise empty','string') }}",
+            "review_status": "pending",
+            "outcome_type": ""
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "revenue_value",
+              "displayName": "revenue_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cash_stage",
+              "displayName": "cash_stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_at",
+              "displayName": "due_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "803537d8-09a2-4d89-ab13-f78d07514f7f",
+      "name": "Register New Deal",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $fromAI('deal_id','Unique deal ID like DEAL-20260902-001','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client or company name','string') }}",
+            "client_phone": "={{ $fromAI('client_phone','Phone if known, otherwise empty','string') }}",
+            "client_email": "={{ $fromAI('client_email','Email if known, otherwise empty','string') }}",
+            "source_channel": "web_chat",
+            "source_campaign": "virtual_baher",
+            "service": "={{ $fromAI('service','Requested service','string') }}",
+            "deal_owner": "badr_sales",
+            "stage": "new",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "deal_value": "={{ $fromAI('deal_value','Expected deal value SAR, 0 if unknown','number') }}",
+            "quoted_amount": 0,
+            "invoiced_amount": 0,
+            "paid_amount": 0,
+            "payment_status": "unpaid",
+            "quote_status": "not_started",
+            "contract_status": "not_started",
+            "invoice_status": "not_started",
+            "execution_status": "not_started",
+            "next_action": "={{ $fromAI('next_action','Concrete next sales action','string') }}",
+            "blocked_by": "",
+            "human_action_required": false,
+            "last_contact_at": "={{ $now.toISO() }}",
+            "next_followup_at": "={{ $fromAI('next_followup_at','ISO 8601 follow-up date/time if known, otherwise empty','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "notes": "={{ $fromAI('notes','Important context from Baher','string') }}"
+          },
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_phone",
+              "displayName": "client_phone",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_email",
+              "displayName": "client_email",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_channel",
+              "displayName": "source_channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_campaign",
+              "displayName": "source_campaign",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_value",
+              "displayName": "deal_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quoted_amount",
+              "displayName": "quoted_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiced_amount",
+              "displayName": "invoiced_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paid_amount",
+              "displayName": "paid_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quote_status",
+              "displayName": "quote_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contract_status",
+              "displayName": "contract_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "displayName": "invoice_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_followup_at",
+              "displayName": "next_followup_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "56568bde-5bfe-45a0-a93b-b7c13fd76e6d",
+      "name": "Pause Resume Employee",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1880,
+        620
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('agent_id','Exact agent ID to control','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "enabled": "={{ $fromAI('enabled','true to enable, false to pause','boolean') }}",
+            "status": "={{ $fromAI('status','active when enabled or paused when disabled','string') }}",
+            "paused_reason": "={{ $fromAI('paused_reason','Reason for pause; empty when active','string') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "enabled",
+              "displayName": "enabled",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paused_reason",
+              "displayName": "paused_reason",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "739c31b4-9c2f-45e9-a73e-9391ef15d77a",
+      "name": "Read Growth Campaigns",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        760
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bDhkNwoKggzE82IS",
+          "cachedResultName": "BP_AI_Growth_Campaigns"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "6278d1bb-e993-4666-8cdf-8fe30295e14d",
+      "name": "Read Integration Readiness",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        760
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "TPlt2Jp0lp66OFJv",
+          "cachedResultName": "BP_AI_Integration_Readiness"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "last_checked_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "80f1f338-f40c-45c0-9598-e8efdc934d03",
+      "name": "Consult Executive Team",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1720,
+        760
+      ],
+      "parameters": {
+        "toolDescription": "Consult or delegate to a Business Partner department director. Allowed slugs: farah-intake, badr-intake, mazen-intake, abdulrahman-intake, abdulaziz-intake, mishari-intake, nasser-intake, mohammed-intake, strategy-intake. Use for current departmental status or a concrete low-risk internal assignment.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague','Exact allowed director slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','Full question or internal assignment with context','string'), client_name: $fromAI('client_name','Client name if relevant, otherwise internal','string'), channel: 'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "68c1f24d-1545-49b9-8d0b-9d89616d63a8",
+      "name": "When Called Internally",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "6fd616b2-14e4-48c8-a80d-da93df3f9809",
+      "name": "Prepare Internal Envelope",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        220,
+        520
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "i1",
+              "name": "body",
+              "value": "={{ { message: $json.message || 'اختبار', session_id: $json.session_id || 'internal', target_agent: $json.target_agent || 'virtual_baher', source: $json.source || 'internal_call' } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "d15937fd-9b7b-40bc-9cd6-f7de20e1bc83",
+      "name": "Runtime Response Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        760,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "internal-source",
+              "leftValue": "={{ $('Normalize Chat').first().json.source || '' }}",
+              "rightValue": "internal_call",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "2123bb07-d7a4-470e-aa41-f71d2c193e6d",
+      "name": "Return Internal Runtime Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1000,
+        500
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "reply",
+              "value": "={{ $json.output || $json.reply || $json.text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "r2",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "d0b5efd0-954b-4f12-987f-5c8a7d2992cb",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        420,
+        860
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 1500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الأساسي. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "cec5ce84-b13a-4739-98ec-823ebbeca011",
+      "name": "Gemini (مجاني — احتياطي)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        860
+      ],
+      "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
+        "options": {
+          "maxOutputTokens": 1500,
+          "temperature": 0.3
+        }
+      },
+      "notes": "احتياطي مجاني على المدخل ١. الوكيل كان needsFallback=true بلا محرّك ثانٍ.",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EeMcf3QldeZBdaQL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,669 @@
+{
+  "id": "R71kgwaBNw6WzKFI",
+  "name": "🌐 استقبال ملفات العميل — Webhook + إشعارات",
+  "active": true,
+  "isArchived": false,
+  "versionId": "f6a7e833-5ec2-4eb9-a6d5-2d8ccc71ee53",
+  "activeVersionId": "f6a7e833-5ec2-4eb9-a6d5-2d8ccc71ee53",
+  "triggerCount": 1,
+  "nodeCount": 16,
+  "createdAt": "2026-07-06T19:52:43.166Z",
+  "updatedAt": "2026-08-21T00:22:01.503Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Webhook يستقبل نموذج الرفع الأصلي من الموقع (CORS، multipart) → مجلد Drive → رفع الملفات → ملف عميل في نوشن → إشعار إيميل للفريق + تأكيد إيميل للعميل. بديل نموذج n8n المضمّن.",
+  "connections": {
+    "إنشاء مجلد العميل (Drive)": {
+      "main": [
+        [
+          {
+            "node": "فصل الملفات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فصل الملفات": {
+      "main": [
+        [
+          {
+            "node": "رفع الملفات إلى Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رفع الملفات إلى Drive": {
+      "main": [
+        [
+          {
+            "node": "تجهيز سجل العميل (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز سجل العميل (Notion)": {
+      "main": [
+        [
+          {
+            "node": "إنشاء سجل العميل في Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "إنشاء سجل العميل في Notion": {
+      "main": [
+        [
+          {
+            "node": "تجهيز الإشعارات",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "تجهيز طلبات الاستخراج",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز الإشعارات": {
+      "main": [
+        [
+          {
+            "node": "إشعار الفريق (Gmail)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "تأكيد العميل (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز طلبات الاستخراج": {
+      "main": [
+        [
+          {
+            "node": "استدعاء الاستخراج لكل ملف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استقبال الطلب (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "طلب حذف؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "طلب حذف؟": {
+      "main": [
+        [
+          {
+            "node": "تحقق للحذف",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "إنشاء مجلد العميل (Drive)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تحقق للحذف": {
+      "main": [
+        [
+          {
+            "node": "صلاحية الحذف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "صلاحية الحذف": {
+      "main": [
+        [
+          {
+            "node": "حذف ملف Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "حذف ملف Drive": {
+      "main": [
+        [
+          {
+            "node": "أرشفة سجل المستند",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "441ef86b-779d-440f-adcc-0a730357a574",
+      "name": "استقبال الطلب (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        220,
+        320
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-intake-web",
+        "responseMode": "onReceived",
+        "options": {
+          "allowedOrigins": "*",
+          "binaryData": true,
+          "binaryPropertyName": "data",
+          "responseData": "{\"ok\":true,\"message\":\"استلمنا بياناتك وملفاتك بنجاح\"}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "webhookId": "ecd56468-cfba-4eb2-b90c-dce35486231c"
+    },
+    {
+      "id": "e449f539-1c99-4c04-8609-8080e57d34ba",
+      "name": "إنشاء مجلد العميل (Drive)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        460,
+        320
+      ],
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "=عميل: {{ $json.body.company }} — {{ $json.body.whatsapp }} — {{ $now.toFormat(\"yyyy-LL-dd\") }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "2837ddf3-ce4e-472b-91e3-ff60c1bd8346",
+      "name": "فصل الملفات",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const bin = ($('استقبال الطلب (Webhook)').first().binary) || {}; const out = []; for (const k of Object.keys(bin)) { out.push({ json: { fileName: bin[k].fileName || k }, binary: { data: bin[k] } }); } return out;"
+      }
+    },
+    {
+      "id": "7a788906-e814-4d9f-8187-00d8b6b847ef",
+      "name": "رفع الملفات إلى Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"إنشاء مجلد العميل (Drive)\").first().json.id }}"
+        },
+        "options": {
+          "simplifyOutput": false
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "56a497c8-a2d2-4cdd-b670-0e2b9169359b",
+      "name": "تجهيز سجل العميل (Notion)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const uploads = $input.all();\nconst form = ($('استقبال الطلب (Webhook)').first().json.body) || {};\nconst folder = ($('إنشاء مجلد العميل (Drive)').first().json) || {};\nconst folderId = folder.id || '';\nconst folderLink = folderId ? ('https://drive.google.com/drive/folders/' + folderId) : '';\nconst files = uploads.map(u => { const j = u.json || {}; const id = j.id || ''; return { name: (j.name || 'ملف').toString(), link: id ? ('https://drive.google.com/file/d/' + id + '/view') : '' }; });\nconst g = (a) => (form[a] !== undefined && form[a] !== null) ? form[a] : '';\nconst company = (g('company') || 'بدون اسم').toString();\nconst unified = (g('unified') || '').toString();\nconst qiwa = (g('qiwa_id') || '').toString();\nconst mudad = (g('mudad_id') || '').toString();\nlet employees = g('employees'); employees = (employees === '' || employees === null || employees === undefined) ? null : Number(employees); if (employees !== null && isNaN(employees)) employees = null;\nconst whats = (g('whatsapp') || '').toString();\nconst email = (g('email') || '').toString();\nlet platforms = g('platforms'); if (typeof platforms === 'string') platforms = platforms ? platforms.split(',').map(s => s.trim()).filter(Boolean) : []; if (!Array.isArray(platforms)) platforms = []; if (platforms.indexOf('كل المنصات') !== -1) platforms = ['قوى','مقيم','GOSI','مدد','السجل التجاري'];\nconst notes = (g('notes') || '').toString();\nconst today = new Date().toISOString().slice(0,10);\nconst existingPageId = (g('notion_page_id') || '').toString().trim();\nconst providedCode = (g('code') || '').toString().trim();\nconst genCode = () => { const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const salted = company + '|' + whats + '|' + Date.now() + '|' + Math.random(); let h = 0; for (let i = 0; i < salted.length; i++) h = (h * 31 + salted.charCodeAt(i)) >>> 0; let out = ''; for (let i = 0; i < 6; i++) { out += abc[h % abc.length]; h = Math.floor(h / abc.length) + salted.length * (i + 7); } return 'BP-' + out; };\nconst rt = (s) => ({ rich_text: [{ text: { content: (s || '').toString().slice(0,1900) } }] });\nconst linkRT = []; if (folderLink) linkRT.push({ text: { content: '📁 مجلد العميل في Drive', link: { url: folderLink } } }); for (let i = 0; i < files.length; i++) { const f = files[i]; const pre = linkRT.length ? '   ·   ' : ''; if (f.link) linkRT.push({ text: { content: pre + f.name, link: { url: f.link } } }); else linkRT.push({ text: { content: pre + f.name } }); } if (linkRT.length === 0) linkRT.push({ text: { content: 'لا توجد ملفات' } });\nif (existingPageId) {\n  const properties = {\n    'الحالة': { select: { name: 'بانتظار المعالجة' } },\n    'روابط الملفات المرفقة': { rich_text: linkRT.slice(0, 95) },\n    'ملخص الوكيل': rt('رفع ملفات إضافية (' + files.length + ') من لوحة العميل بتاريخ ' + today + (notes ? (' — ' + notes) : '')),\n    'تاريخ الاستلام': { date: { start: today } },\n  };\n  return [{ json: { mode: 'update', pageId: existingPageId, properties: properties, accessCode: providedCode, isNewClient: false, isAddedCompany: false } }];\n}\nconst isAddedCompany = !!providedCode;\nconst accessCode = isAddedCompany ? providedCode : genCode();\nconst children = [];\nconst h2 = (t) => children.push({ object: 'block', type: 'heading_2', heading_2: { rich_text: [{ text: { content: t } }] } });\nconst pp = (t) => children.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ text: { content: (t || '').toString().slice(0,1900) } }] } });\nconst linkP = (label, url) => children.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ text: { content: label, link: { url: url } } }] } });\nh2('📇 بيانات المنشأة / Establishment'); pp('الاسم / Name: ' + company); pp('الرقم الموحّد / Unified: ' + (unified || '—')); pp('رقم قوى / Qiwa: ' + (qiwa || '—')); pp('رقم مدد / Mudad: ' + (mudad || '—')); pp('عدد الموظفين / Employees (GOSI): ' + (employees !== null ? employees : '—')); pp('الجوال / WhatsApp: ' + (whats || '—')); pp('البريد / Email: ' + (email || '—'));\nh2('🏛️ المنصات المشترك بها / Platforms'); pp(platforms.length ? platforms.join(' · ') : '—');\nh2('📎 ملفات العميل / Client Files (Drive)'); if (folderLink) linkP('📁 فتح مجلد العميل في Google Drive', folderLink); for (let i = 0; i < files.length; i++) { if (files[i].link) linkP('📄 ' + files[i].name, files[i].link); else pp('📄 ' + files[i].name); } if (!files.length) pp('بانتظار الرفع / Pending upload');\nh2('🚦 حالة الامتثال / Compliance Status'); pp('بانتظار المعالجة — سيتم استخراج البنود وربطها بسجل المراقبة.');\nchildren.push({ object: 'block', type: 'callout', callout: { icon: { emoji: '⚖️' }, rich_text: [{ text: { content: 'النموذج Concierge — لا يُنفذ أي إجراء حكومي دون موافقة العميل والدفع.' } }] } });\nconst properties = { 'المنشأة': { title: [{ text: { content: company.slice(0,1900) } }] }, 'الرقم الموحد': rt(unified), 'رقم قوى (مكتب العمل)': rt(qiwa), 'رقم مدد': rt(mudad), 'الحالة': { select: { name: 'بانتظار المعالجة' } }, 'حالة الاشتراك': { select: { name: isAddedCompany ? 'نشط' : 'بانتظار الدفع' } }, 'رمز الدخول': rt(accessCode), 'المصدر': { select: { name: isAddedCompany ? 'لوحة العميل' : 'نموذج الموقع' } }, 'روابط الملفات المرفقة': { rich_text: linkRT.slice(0,95) }, 'ملخص الوكيل': rt(isAddedCompany ? ('منشأة أضيفت من لوحة العميل (نفس الحساب: ' + email + ').') : ('استلام عبر نموذج الموقع (Webhook). عدد الملفات: ' + files.length + '.' + (notes ? (' ملاحظات: ' + notes) : ''))), 'عدد البنود المستخرجة': { number: 0 }, 'تاريخ الاستلام': { date: { start: today } } };\nif (employees !== null) properties['عدد الموظفين'] = { number: employees };\nif (whats) properties['واتساب أو الجوال'] = { phone_number: whats };\nif (email) properties['البريد'] = { email: email };\nif (platforms.length) properties['المنصات المشترك بها'] = { multi_select: platforms.map(x => ({ name: x.toString() })) };\nreturn [{ json: { mode: 'create', parent: { database_id: '5d570a75009b41019857060d0670642f' }, properties: properties, children: children, accessCode: accessCode, isNewClient: !isAddedCompany, isAddedCompany: isAddedCompany } }];"
+      }
+    },
+    {
+      "id": "1e903c5e-e1e0-4604-8575-09588739ebb5",
+      "name": "إنشاء سجل العميل في Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "method": "={{ $json.mode === 'update' ? 'PATCH' : 'POST' }}",
+        "url": "={{ $json.mode === 'update' ? ('https://api.notion.com/v1/pages/' + $json.pageId) : 'https://api.notion.com/v1/pages' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.mode === 'update' ? JSON.stringify({ properties: $json.properties }) : JSON.stringify({ parent: $json.parent, properties: $json.properties, children: $json.children }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "0a55683c-87cc-4585-adbd-0ed197620e64",
+      "name": "تجهيز الإشعارات",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const body=($('استقبال الطلب (Webhook)').first().json.body)||{};\nconst folder=($('إنشاء مجلد العميل (Drive)').first().json)||{};\nconst folderLink=folder.id?('https://drive.google.com/drive/folders/'+folder.id):'';\nlet count=0; try{count=$('رفع الملفات إلى Drive').all().length;}catch(e){count=0;}\nconst g=(k)=>(body[k]!=null?String(body[k]):'');\nconst company=g('company')||'منشأة';\nconst email=g('email');\nconst prep=($('تجهيز سجل العميل (Notion)').first().json)||{};\nconst accessCode=prep.accessCode||'';\nconst isAdded=!!prep.isAddedCompany;\nconst isNewClient=prep.isNewClient!==false && !isAdded;\nconst rows=[['المنشأة',company],['الرقم الموحّد',g('unified')],['رقم قوى',g('qiwa_id')],['رقم مدد',g('mudad_id')],['عدد الموظفين',g('employees')],['الجوال',g('whatsapp')],['البريد',email],['المنصات',g('platforms')],['ملاحظات',g('notes')]];\nlet tr=''; for(const r of rows){ tr+='<tr><td style=\"padding:8px 10px;border-bottom:1px solid #eee;color:#6B7280\">'+r[0]+'</td><td style=\"padding:8px 10px;border-bottom:1px solid #eee;font-weight:600\">'+(r[1]||'—')+'</td></tr>'; }\nconst head=(t,s)=>'<div dir=\"rtl\" style=\"background:#0B4F6C;border-radius:16px;padding:20px;color:#fff\"><div style=\"font-size:12px;color:#BFE3ED;font-weight:600\">BUSINESS PARTNER · بوابة الامتثال</div><div style=\"font-size:20px;font-weight:800;margin-top:6px\">'+t+'</div><div style=\"font-size:13px;color:#D7EAF0;margin-top:4px\">'+s+'</div></div>';\nconst teamTitle = isAdded ? '🏢 منشأة جديدة لعميل حالي' : (isNewClient?'🗂️ عميل جديد رفع ملفاته':'📎 عميل حالي رفع ملفات إضافية');\nconst teamHtml='<div dir=\"rtl\" style=\"font-family:Tahoma,Arial;max-width:640px;margin:auto;padding:20px;color:#1F2937\">'+head(teamTitle,'عدد الملفات: '+count)+'<table style=\"width:100%;border-collapse:collapse;margin-top:14px;font-size:13px\">'+tr+'</table>'+(folderLink?'<p style=\"margin-top:14px\"><a href=\"'+folderLink+'\" style=\"background:#0B4F6C;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none\">📁 فتح مجلد العميل في Drive</a></p>':'')+'<p style=\"color:#6B7280;font-size:12px;margin-top:12px\">'+(isAdded?('منشأة مضافة من لوحة العميل — فُعّلت مباشرة بنفس رمز دخول الحساب.'):(isNewClient?('رمز الدخول المرسل للعميل: '+accessCode+' — سيُفعّل بعد تأكيد الدفع.'):'عميل مشترك بالفعل رفع ملفات جديدة من لوحة التحكم.'))+'</p></div>';\nconst clientTitle = isAdded ? '✅ أضفنا منشأتك الجديدة لحسابك' : (isNewClient?'✅ استلمنا ملفاتك بنجاح':'✅ استلمنا ملفاتك الجديدة بنجاح');\nconst clientBody = isAdded ? ('أضفنا منشأة «'+company+'» إلى حسابك 🎉 بتلقاها في قائمة منشآتك أعلى لوحة التحكم — اخترها وارفع ملفاتها وبيبدأ وكيل الامتثال متابعتها فوراً. تدخل بنفس بريدك ورمزك الحالي.') : (isNewClient?('شكراً لك 🌟 استلمنا بياناتك و'+count+' ملف. سيبدأ وكيل الامتثال بقراءة تقاريرك، بناء ملف منشأتك، ومتابعة كل استحقاق (إقامات، رخص عمل، نطاقات، تأمينات) وينبّهك قبل أي مخالفة.'):('شكراً لك 🌟 أضفنا '+count+' ملف جديد لملف منشأتك. سيراجعها وكيل الامتثال ويحدّث سجلك.'));\nconst clientHtml='<div dir=\"rtl\" style=\"font-family:Tahoma,Arial;max-width:640px;margin:auto;padding:20px;color:#1F2937\">'+head(clientTitle,'مرحباً '+company)+'<p style=\"line-height:1.9;margin-top:14px\">'+clientBody+'</p>'+(isNewClient?'<div style=\"background:#F5F7FA;border:1px solid #E2E8F0;border-radius:12px;padding:16px;margin:16px 0;text-align:center\"><div style=\"font-size:12px;color:#6B7280\">رمز الدخول للوحة التحكم</div><div style=\"font-size:22px;font-weight:800;letter-spacing:2px;color:#0B4F6C;margin-top:4px\">'+accessCode+'</div></div>':'')+'<p style=\"margin-top:14px\"><a href=\"https://www.businesspartner.sa/ar/compliance-dashboard\" style=\"background:#0B4F6C;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none\">📊 دخول لوحة التحكم</a> <a href=\"https://wa.me/966507034157\" style=\"background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;margin-inline-start:8px\">💬 واتساب</a></p><p style=\"color:#8A6D3B;background:#FFFBEB;border:1px solid #FDE8B5;border-radius:10px;padding:10px;font-size:12px;margin-top:14px\">⚖️ نموذج Concierge — لا يُنفذ أي إجراء حكومي دون موافقتك.</p></div>';\nreturn [{json:{teamTo:'business@businesspartnerksa.com',clientTo:email,teamSubject:(isAdded?'🏢 منشأة جديدة: ':(isNewClient?'🗂️ عميل جديد: ':'📎 ملفات إضافية: '))+company+' ('+count+' ملف)',clientSubject:clientTitle,'teamHtml':teamHtml,'clientHtml':clientHtml}}];"
+      }
+    },
+    {
+      "id": "ddcbbb79-ea24-4c21-b978-5472b61d7931",
+      "name": "إشعار الفريق (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1800,
+        220
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.teamTo }}",
+        "subject": "={{ $json.teamSubject }}",
+        "emailType": "html",
+        "message": "={{ $json.teamHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "f037cb96-f33d-4554-a20b-4750530c5301",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "a70433c7-a4c4-4489-825e-0a7c0b98eebe",
+      "name": "تأكيد العميل (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1800,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.clientTo }}",
+        "subject": "={{ $json.clientSubject }}",
+        "emailType": "html",
+        "message": "={{ $json.clientHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "158a8662-cbf5-4e8d-b96a-b7efc63f5d65",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "7ae061ac-349a-4121-a020-7f8cb7fb53fa",
+      "name": "تجهيز طلبات الاستخراج",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const uploads = $('رفع الملفات إلى Drive').all();\nconst body = ($('استقبال الطلب (Webhook)').first().json.body) || {};\nconst pageId = (($('إنشاء سجل العميل في Notion').first().json) || {}).id || '';\nconst company = (body.company || '').toString();\nconst cr = (body.unified || body.cr_number || '').toString();\nreturn uploads.map(function (u) {\n  const j = u.json || {};\n  return { json: { drive_file_id: j.id || '', file_name: j.name || '', company: company, cr_number: cr, intake_page_id: pageId } };\n});"
+      }
+    },
+    {
+      "id": "3b91e5cd-2b63-4a39-96da-45175eace1df",
+      "name": "استدعاء الاستخراج لكل ملف",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1780,
+        520
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "4HSFisd4Qq1a21g4",
+          "cachedResultName": "BP3 — استخراج المستندات (Document Extraction B)"
+        },
+        "mode": "each",
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "drive_file_id": "={{ $json.drive_file_id }}",
+            "company": "={{ $json.company }}",
+            "cr_number": "={{ $json.cr_number }}",
+            "file_name": "={{ $json.file_name }}",
+            "intake_page_id": "={{ $json.intake_page_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "drive_file_id",
+              "displayName": "drive_file_id",
+              "type": "string",
+              "required": true,
+              "display": true,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "type": "string",
+              "required": true,
+              "display": true,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "cr_number",
+              "displayName": "cr_number",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "file_name",
+              "displayName": "file_name",
+              "type": "string",
+              "required": true,
+              "display": true,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "intake_page_id",
+              "displayName": "intake_page_id",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      }
+    },
+    {
+      "id": "a8435240-a72d-4b93-9b8d-0fe09b4aacef",
+      "name": "طلب حذف؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        340,
+        140
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ ($json.body.action || '') }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "delete_file"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "67929f47-b856-4925-8ce2-2e5351a20b2a",
+      "name": "تحقق للحذف",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        640
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/5d570a75009b41019857060d0670642f/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'البريد', email: { equals: String($('استقبال الطلب (Webhook)').first().json.body.email || '').trim().toLowerCase() } } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "9dfb0f8f-a422-442e-bbbb-b9f2858cf803",
+      "name": "صلاحية الحذف",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const body = ($('استقبال الطلب (Webhook)').first().json.body) || {};\nconst code = String(body.code || '').trim();\nconst results = ($input.first().json || {}).results || [];\nconst ok = !!code && results.some(pg => {\n  const cp = ((pg.properties || {})['رمز الدخول'] || {});\n  const sc = (cp.rich_text && cp.rich_text[0] && cp.rich_text[0].plain_text) || '';\n  return sc && sc === code;\n});\nif (!ok) return [];\nreturn [{ json: { drive_file_id: String(body.drive_file_id || ''), doc_page_id: String(body.doc_page_id || '') } }];"
+      }
+    },
+    {
+      "id": "c4f006d9-218f-4b5b-a377-779f395534a1",
+      "name": "حذف ملف Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        640
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.drive_file_id }}"
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "cb48ee4d-1832-46da-b259-4dac62710abe",
+      "name": "أرشفة سجل المستند",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1220,
+        640
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://api.notion.com/v1/pages/' + $('صلاحية الحذف').first().json.doc_page_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ archived: true }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

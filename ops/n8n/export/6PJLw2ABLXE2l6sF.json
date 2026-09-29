@@ -1,0 +1,355 @@
+{
+  "id": "6PJLw2ABLXE2l6sF",
+  "name": "📰 BP Team — Alaa (News & Regulatory Content)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "a997c3ec-1506-4e62-ab27-7b4e54597442",
+  "activeVersionId": "a997c3ec-1506-4e62-ab27-7b4e54597442",
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-09-29T07:06:16.598Z",
+  "updatedAt": "2026-09-29T07:06:16.598Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "رهف — News Writer & Editor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "تميم — Regulatory Monitoring Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رهف — News Writer & Editor": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تميم — Regulatory Monitoring Analyst": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "69424319-7e83-4ce7-945f-3589372643c6",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "news-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "b161093a-cc52-418c-aae7-682c770925c9"
+    },
+    {
+      "id": "fd6cda7c-5dae-4285-8896-c8d713615bdd",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        208
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it, and it binds you hardest of all because you publish to the public: never state a regulatory fact, a deadline, a government platform rule, a fee, a statistic or a quote unless you actually read it from a tool result, from Mishari (the only verified source of government-compliance facts inside Business Partner), or from an official source given to you directly. If you did not verify it, do not publish it, say what you need and who must confirm it first. Never invent a source, a statistic, a government official, a company or a person. A fabricated news item destroys the credibility of the site, and it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Alaa, News and Regulatory Content Director for Business Partner. You own the site news and updates section and any public-facing announcement about regulatory or government changes relevant to clients. You manage Rahaf, News Writer and Editor, who turns a verified update into a published-ready article or post, and Tamim, Regulatory Monitoring Analyst, who scans official sources and hands you candidate stories with their source link. Your one hard rule: no item goes out as company news until its facts are traceable to the compliance team under Mishari or a named official source. Najla under Mishari does the internal compliance-impact read for clients; you do the external publication read for the public site. Never duplicate her internal client-impact task with a public post, check with her first when in doubt. The publishing and distribution channel and social scheduling belong to Sara; you write and verify, she pushes it out. Any technical publishing to the website goes through Mohammed. You do not set prices, do not make legal claims, and never promise a government outcome. Never request passwords, OTP or Nafath codes. Note: the Chief of Staff is Farah; Sara is the Head of Growth and Marketing, her intake path is still farah-intake, a legacy name.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e20f0572-c61e-4d18-8c93-9bf1913c5a98",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        304
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "42f48a00-8243-46e0-b768-737f6657b595",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        208
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "1c8e5ad3-e335-45ab-b7d0-051d19129e4e",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        464,
+        640
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "e003aa24-25da-4615-9bb1-d0c63d5ff5d2",
+      "name": "رهف — News Writer & Editor",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        464,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "رهف، News Writer & Editor. استخدميها لتحويل تحديث تنظيمي مُتحقَّق منه إلى مقال/منشور جاهز للنشر بأسلوب Business Partner.",
+        "text": "={{ $fromAI('task','التحديث المطلوب تحويله لمحتوى: نص التحديث، مصدره، تاريخه، الفئة المتأثرة','string') }}",
+        "options": {
+          "systemMessage": "أنت رهف، News Writer & Editor تحت آلاء. اكتبي بأسلوب Business Partner الرسمي المختصر. لا تنشري خبراً بلا مصدر واضح مرفق معك في المهمة. لا وعد بنتيجة حكومية ولا سعر ولا ضمان.",
+          "maxIterations": 5,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "027b3585-675b-4b54-ab4b-7257d2e12b17",
+      "name": "تميم — Regulatory Monitoring Analyst",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        592,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "تميم، Regulatory Monitoring Analyst. استخدمه لرصد تحديث حكومي/تنظيمي جديد وتلخيصه مع مصدره قبل تحويله لمحتوى عام.",
+        "text": "={{ $fromAI('task','موضوع الرصد أو الرابط/المصدر المتاح','string') }}",
+        "options": {
+          "systemMessage": "أنت تميم، Regulatory Monitoring Analyst تحت آلاء. لخّص ماذا تغيّر ومتى ومن المصدر الرسمي — ولا تنشر أي بند بلا رابط أو اسم جهة رسمية واضح. إن لم يتوفر مصدر موثوق، قل ذلك صراحة ولا تخمّن.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "7028eecd-c400-43ed-973c-562aab604656",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند dependency. استخدم mishari-intake للتحقق من الحقيقة التنظيمية (إلزامي قبل أي نشر)، farah-intake لسارة (قناة النشر والتوزيع)، mohammed-intake للنشر التقني على الموقع، badr-intake للمبيعات، mazen-intake للعمليات، abdulaziz-intake للقانوني، abdulrahman-intake للمالية، nasser-intake للموارد البشرية، realestate-intake لطارق، deals-intake لوسام، recruitment-intake لبندر، strategy-intake للاستراتيجية.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Complete internal dependency/handoff brief','string'), client_name:$fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "61581260-58ac-481d-81a4-22e2f3e7f8c5",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        208
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "7b7c0f67-0dff-4317-8853-5122b4462843",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1152,
+        208
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"alaa\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -31,6 +31,7 @@ import { priceSheetText } from "./_catalog.js";
 import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
 import { AZURE_KEYS, azureChat, azureConfigured, azureHealth } from "./_azure.js";
+import { n8nWebhook } from "./_n8n.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -187,7 +188,7 @@ async function callN8nBaher(messages) {
     .join("\n")
     .slice(-6000);
   const r = await fetch(
-    "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat",
+    n8nWebhook("f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat"),
     {
       method: "POST",
       headers: { "content-type": "application/json" },

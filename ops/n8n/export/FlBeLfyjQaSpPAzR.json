@@ -1,0 +1,294 @@
+{
+  "id": "FlBeLfyjQaSpPAzR",
+  "name": "GOSI — نِسب خصومات الاشتراكات (Engagement Deduction)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "d4f7d3b2-488b-4e76-96ce-486fabc37005",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 9,
+  "createdAt": "2026-07-06T21:28:31.182Z",
+  "updatedAt": "2026-07-07T00:13:40.163Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "أول تكامل مع التأمينات الاجتماعية (GOSI). Webhook يستقبل رقم المنشأة + الهوية → يولّد إثبات DPoP (JWT/RS256) → يطلب Access Token من GOSI → يجلب نِسب خصومات الاشتراكات للمشترك (صاحب العمل + الموظف). المفتاح الخاص محفوظ في credential مشفّر (jwtAuth). البيئة",
+  "connections": {
+    "استقبال الطلب": {
+      "main": [
+        [
+          {
+            "node": "بناء الطلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بناء الطلب": {
+      "main": [
+        [
+          {
+            "node": "DPoP للتوكن",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DPoP للتوكن": {
+      "main": [
+        [
+          {
+            "node": "طلب التوكن",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "طلب التوكن": {
+      "main": [
+        [
+          {
+            "node": "استخراج التوكن",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استخراج التوكن": {
+      "main": [
+        [
+          {
+            "node": "DPoP للمشترك",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DPoP للمشترك": {
+      "main": [
+        [
+          {
+            "node": "بيانات المشترك",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بيانات المشترك": {
+      "main": [
+        [
+          {
+            "node": "النتيجة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استدعاء كأداة": {
+      "main": [
+        [
+          {
+            "node": "بناء الطلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "af0942fc-9765-44e3-96e0-e7193d3810ad",
+      "name": "استقبال الطلب",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gosi-deduction",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson"
+      },
+      "webhookId": "4078e996-4ba3-4784-97fb-7a022dcec1c9"
+    },
+    {
+      "id": "f74c618c-89da-4dc7-8805-59e6b826b8f4",
+      "name": "بناء الطلب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let V = {};\ntry { const v = $vars || {}; V = { GOSI_BASE_URL: v.GOSI_BASE_URL, GOSI_REG_NO: v.GOSI_REG_NO, GOSI_APIKEY: v.GOSI_APIKEY, GOSI_CLIENT_ID: v.GOSI_CLIENT_ID, GOSI_CLIENT_SECRET: v.GOSI_CLIENT_SECRET }; } catch (e) { V = {}; }\nconst body = ($input.first().json.body) || $input.first().json || {};\nconst baseUrl = String(V.GOSI_BASE_URL || 'https://sandbox-api.gosi.gov.sa').replace(/\\/$/, '');\nconst regNo = String(body.registration_number || body.reg || V.GOSI_REG_NO || '').trim();\nconst nin = String(body.nin || body.iqama || body.national_id || '').trim();\nif (!regNo) throw new Error('registration_number مفقود (أرسله في الطلب أو عرّف المتغير GOSI_REG_NO)');\nif (!nin) throw new Error('nin مفقود (NIN/Iqama/Border في جسم الطلب)');\nconst rand = Date.now().toString(36) + Math.random().toString(36).slice(2, 12);\nreturn [{ json: {\n  baseUrl, regNo, nin,\n  tokenUrl: baseUrl + '/v1/establishment/' + regNo + '/access-token',\n  contribUrl: baseUrl + '/v2/establishment/' + regNo + '/contributor/' + nin,\n  tokenJti: 'tok-' + rand,\n  contribJti: 'con-' + rand,\n  apikey: String(V.GOSI_APIKEY || ''),\n  clientId: String(V.GOSI_CLIENT_ID || ''),\n  clientSecret: String(V.GOSI_CLIENT_SECRET || ''),\n} }];"
+      }
+    },
+    {
+      "id": "87b92a77-094f-4e9d-bc5c-93703588c787",
+      "name": "DPoP للتوكن",
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "operation": "sign",
+        "useJson": true,
+        "claimsJson": "={{ JSON.stringify({ htu: $json.tokenUrl, htm: 'POST', jti: $json.tokenJti }) }}",
+        "headerClaims": "={{ JSON.stringify({ typ: 'dpop+jwt' }) }}",
+        "options": {
+          "algorithm": "RS256"
+        }
+      }
+    },
+    {
+      "id": "b5da6a07-e017-4562-b400-2c6c0f03a98c",
+      "name": "طلب التوكن",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('بناء الطلب').first().json.tokenUrl }}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'x-apikey': $('بناء الطلب').first().json.apikey, 'DPoP': $json.token }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ client_id: $('بناء الطلب').first().json.clientId, client_secret: $('بناء الطلب').first().json.clientSecret }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "abaf70aa-d983-4478-b100-1a7f2edba6ef",
+      "name": "استخراج التوكن",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const r = $input.first().json || {};\nconst at = r.access_token || r.accessToken || r.token || (r.data && r.data.access_token) || '';\nif (!at) { return [{ json: { accessToken: '', error: 'لم يرجع access_token', raw: r } }]; }\nreturn [{ json: { accessToken: at } }];"
+      }
+    },
+    {
+      "id": "2c222f1c-5b20-4f8f-86fe-296b769c42a2",
+      "name": "DPoP للمشترك",
+      "type": "n8n-nodes-base.jwt",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "operation": "sign",
+        "useJson": true,
+        "claimsJson": "={{ JSON.stringify({ htu: $('بناء الطلب').first().json.contribUrl, htm: 'GET', jti: $('بناء الطلب').first().json.contribJti }) }}",
+        "headerClaims": "={{ JSON.stringify({ typ: 'dpop+jwt' }) }}",
+        "options": {
+          "algorithm": "RS256"
+        }
+      }
+    },
+    {
+      "id": "a3daf450-cf37-44b8-a6f7-bd9daabb8872",
+      "name": "بيانات المشترك",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('بناء الطلب').first().json.contribUrl }}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'x-apikey': $('بناء الطلب').first().json.apikey, 'DPoP': $json.token, 'Authorization': 'Bearer ' + $('استخراج التوكن').first().json.accessToken }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "f6e48a18-c9d4-41ec-8713-2b42a9be8c74",
+      "name": "النتيجة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const br = $('بناء الطلب').first().json;\nreturn [{ json: {\n  status: 'ok',\n  establishment: br.regNo,\n  contributor: br.nin,\n  deduction: $input.first().json,\n  fetchedAt: new Date().toISOString(),\n} }];"
+      }
+    },
+    {
+      "id": "6883e26b-8c14-454e-8b8f-3ffc8287e91e",
+      "name": "استدعاء كأداة",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        520
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "registration_number",
+              "type": "string"
+            },
+            {
+              "name": "nin",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

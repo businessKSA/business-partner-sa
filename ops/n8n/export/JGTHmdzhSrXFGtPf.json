@@ -1,0 +1,134 @@
+{
+  "id": "JGTHmdzhSrXFGtPf",
+  "name": "🧪 [DEV] BP AI — Native Dispatch Verification",
+  "active": false,
+  "isArchived": false,
+  "versionId": "d96d6e6c-6c5a-4474-bccf-ef115c9e8542",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 3,
+  "createdAt": "2026-06-17T22:08:24.189Z",
+  "updatedAt": "2026-09-02T22:13:03.101Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 180
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "One-shot read-only verification of harmless native dispatcher test. Keep unpublished.",
+  "connections": {
+    "Self Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Health Task Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Health Task Result": {
+      "main": [
+        [
+          {
+            "node": "Expose Health Task Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 3,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "febd0ddb-9574-457e-9f5c-93f7b5157738",
+      "name": "Self Test Trigger"
+    },
+    {
+      "id": "6607471c-a05a-4238-aae3-babdd128f26e",
+      "name": "Read Health Task Result",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "SYS-NATIVE-FIRST-HEALTH-001"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      }
+    },
+    {
+      "id": "7024a899-2f6a-48a3-ac52-49091bd0da05",
+      "name": "Expose Health Task Result",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "resource": "table",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ojfFAb7O5UBKCiMq",
+          "cachedResultName": "BP_QUEUE_C12_TESTYES_FIRST_SYS_NATIVE_FIRST_HEALTH_001_BOOT_002_SOCIAL_META_20260902_SOCIAL_"
+        },
+        "newName": "={{ 'BP_HEALTH_RESULT_' + String($json.status||'NONE').replace(/[^A-Za-z0-9_]/g,'_') + '_R' + (String($json.result||'').trim().length>0?'1':'0') + '_REV' + String($json.review_status||'').replace(/[^A-Za-z0-9_]/g,'_') + '_UPD' + String($json.updated_at||'').replace(/[^0-9]/g,'').slice(0,14) }}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

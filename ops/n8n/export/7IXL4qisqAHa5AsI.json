@@ -1,0 +1,1064 @@
+{
+  "id": "7IXL4qisqAHa5AsI",
+  "name": "Business Partner Gmail Organizer + Notion Email Archive",
+  "active": false,
+  "isArchived": false,
+  "versionId": "08aa1504-9953-4c37-8372-30aaee70b459",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 28,
+  "createdAt": "2026-06-14T07:19:16.930Z",
+  "updatedAt": "2026-06-27T04:41:33.216Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Manual Trigger (Historical Emails)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Historical Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Historical Emails": {
+      "main": [
+        [
+          {
+            "node": "Merge Email Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Email Sources": {
+      "main": [
+        [
+          {
+            "node": "AI Email Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger (New Emails)": {
+      "main": [
+        [
+          {
+            "node": "Merge Email Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Email Classifier": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classification Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Email Classifier",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Label Exists": {
+      "main": [
+        [
+          {
+            "node": "Label Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Exists?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Label ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Gmail Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Label ID": {
+      "main": [
+        [
+          {
+            "node": "Merge Label Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Label Paths": {
+      "main": [
+        [
+          {
+            "node": "Apply Label to Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail Label": {
+      "main": [
+        [
+          {
+            "node": "Merge Label Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process Each Label": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Check Label Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Label to Email": {
+      "main": [
+        [
+          {
+            "node": "Process Each Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Attachments?": {
+      "main": [
+        [
+          {
+            "node": "Create Attachment Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contact Record": {
+      "main": [
+        [
+          {
+            "node": "Process Each Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Contact": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Company Data": {
+      "main": [
+        [
+          {
+            "node": "Create Company Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Company Record": {
+      "main": [
+        [
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Company": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Extract Company Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Action Required?": {
+      "main": [
+        [
+          {
+            "node": "Create Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o Mini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Email Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Data1": {
+      "main": [
+        [
+          {
+            "node": "Get All Gmail Labels",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process Each Label",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create/Update Email Thread",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Attachments?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process Each Contact",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Action Required?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Email Archive Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create Contact Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "44c1644a-ea33-4e00-9430-809abe751d0c",
+      "name": "Manual Trigger (Historical Emails)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "readStatus": "both",
+          "receivedAfter": "2024-01-01T00:00:00"
+        },
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "9a5bc2f0-414b-4d54-97b5-bae9007879d4",
+      "name": "Fetch Historical Emails",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        736
+      ],
+      "webhookId": "6febe57f-d14c-4026-ae04-8d5a15929224",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b93afffc-f839-4a8f-a78f-2688e3eb5d45",
+      "name": "Merge Email Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "e1e20337-1a31-426a-b5b8-f603a09c5ebe",
+      "name": "Gmail Trigger (New Emails)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        464,
+        928
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this email and classify it.\n\nSubject: {{ $json.subject }}\nFrom: {{ $json.from.text }}\nTo: {{ $json.to.text }}\nCC: {{ $json.cc?.text || \"None\" }}\nDate: {{ $json.date }}\nBody: {{ $json.text || $json.textAsHtml }}\n\nClassify into one or more labels:\n- BP/Company Formation\n- BP/Foreign Investment\n- BP/Premium Residency\n- BP/Recruitment\n- BP/GRO\n- BP/HR Services\n- BP/Tourism\n- BP/Medical Tourism\n- BP/Finance\n- BP/Invoices\n- BP/Quotations\n- BP/Contracts\n- BP/Government\n- BP/Partners\n- BP/Suppliers\n- BP/Internal\n- BP/Urgent\n- BP/Follow Up\n- BP/Waiting Client\n- BP/Completed\n- BP/Uncategorized\n\nProvide:\n1. labels: array of applicable labels\n2. summary: brief summary\n3. actionRequired: true/false\n4. priority: \"low\", \"medium\", or \"high\"\n5. taskName: if action required, what task\n6. dueDate: suggested due date (ISO format)\n7. contacts: extract all people mentioned (name, email, phone, company)\n8. companies: extract all companies mentioned (name, domain, country, industry)",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert email classifier for a business services company. Analyze emails and extract structured information accurately."
+        }
+      },
+      "id": "71f7a3ea-3090-4b3e-8f29-6fe4ac34b748",
+      "name": "AI Email Classifier",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        912,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"labels\":[\"BP/Company Formation\",\"BP/Urgent\"],\"summary\":\"Brief summary of the email\",\"actionRequired\":true,\"priority\":\"high\",\"taskName\":\"Follow up on quotation request\",\"dueDate\":\"2024-01-20\",\"contacts\":[{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":\"+1234567890\",\"company\":\"Example Corp\"}],\"companies\":[{\"name\":\"Example Corp\",\"domain\":\"example.com\",\"country\":\"UAE\",\"industry\":\"Technology\"}]}"
+      },
+      "id": "a901aba2-74b4-4669-b240-5d93e4bd855f",
+      "name": "Classification Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1056,
+        1056
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "id": "043e013e-9882-4f56-99cf-ef0e45f50db1",
+      "name": "Get All Gmail Labels",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        208
+      ],
+      "executeOnce": true,
+      "webhookId": "765cc0bf-2e19-44a1-aeb2-8b7e52792b63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const currentLabel = $json.labels?.[0] || $json.labelName || \"BP/Uncategorized\";\n\nconst allLabelItems = $(\"Get All Gmail Labels\").all();\n\nconst existingLabel = allLabelItems.find(item => {\n  return item.json.name === currentLabel;\n});\n\nreturn {\n  json: {\n    ...$json,\n    labelName: currentLabel,\n    labelExists: !!existingLabel,\n    labelId: existingLabel ? existingLabel.json.id : null,\n    emailId: $json.emailId || $json.messageId || null\n  }\n};"
+      },
+      "id": "48236e30-1e69-4cee-9ffc-b8b9d1bebbca",
+      "name": "Check Label Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.labelExists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "e9ca766a-545c-4886-9e5e-f9cb8e41647e",
+      "name": "Label Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1936,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "labelId",
+              "value": "={{ $json.labelId || $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "labelName",
+              "value": "={{ $json.labelName || $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "emailId",
+              "value": "={{ $json.emailId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8e3a2a95-9528-47de-9f59-a7d56de2cdc9",
+      "name": "Prepare Label ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        304
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "fd16809e-8dec-4fe3-841d-db755b2595f0",
+      "name": "Merge Label Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2384,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $json.labelName }}",
+        "options": {}
+      },
+      "id": "3b3b8a92-311f-48d9-bbf1-eea214bd9349",
+      "name": "Create Gmail Label",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        496
+      ],
+      "webhookId": "5f99c2f6-f2cc-47b2-a545-5a4a8ca6d38c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f1adb5a8-6712-48db-ae60-2f6f830cbf41",
+      "name": "Process Each Label",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.emailId }}",
+        "labelIds": [
+          "={{ $json.labelId }}"
+        ]
+      },
+      "id": "692b1468-8695-425c-9554-2d7eb110414e",
+      "name": "Apply Label to Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        480
+      ],
+      "webhookId": "b0eff1c5-27b8-44e2-ad54-d9b83f434a66",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "0823af05-b081-4182-b0d2-9e9b1c0c6c37",
+          "mode": "list",
+          "cachedResultName": "Email Archive",
+          "cachedResultUrl": "https://app.notion.com/p/0823af05b0814182b0d29e9b1c0c6c37"
+        },
+        "title": "={{ $json.subject }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Sender Name|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.from || \"Unknown Sender\" }}"
+            },
+            {
+              "key": "Message ID|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.to }}"
+            },
+            {
+              "key": "CC|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.cc }}"
+            },
+            {
+              "key": "BCC|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.bcc }}"
+            },
+            {
+              "key": "Date|date",
+              "type": "date",
+              "date": "={{ $json.date }}"
+            },
+            {
+              "key": "Thread ID|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.threadId }}"
+            },
+            {
+              "key": "Summary|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.summary }}"
+            },
+            {
+              "key": "Full Email Body|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ ($json.body || \"\").slice(0, 1900) }}"
+            },
+            {
+              "key": "Action Required|checkbox",
+              "type": "checkbox",
+              "checkboxValue": "={{ $json.actionRequired }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "96a69906-a069-4c1d-91d8-495242f46576",
+      "name": "Create Email Archive Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        208
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "21584b82-50e6-4725-9fec-f432365d5104",
+          "mode": "list",
+          "cachedResultName": "EMAIL THREADS",
+          "cachedResultUrl": "https://app.notion.com/p/21584b8250e647259fecf432365d5104"
+        },
+        "title": "={{ $json.threadName || $json.subject || \"Email Thread - No Subject\" }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Thread ID|rich_text",
+              "textContent": "={{ $json.threadId || \"\" }}"
+            },
+            {
+              "key": "First Email Date|date",
+              "timezone": "={{ $json.date || new Date().toISOString() }}"
+            },
+            {
+              "key": "Latest Email Date|date",
+              "timezone": "={{ $json.date || new Date().toISOString() }}"
+            },
+            {
+              "key": "Number Of Emails|number",
+              "numberValue": "={{ 1 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8456180d-65b7-41ce-b0e0-d45f355a3716",
+      "name": "Create/Update Email Thread",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        640
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $binary.attachment_0 !== undefined }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "9fa13f4f-c837-401f-9f8b-31890ba55665",
+      "name": "Has Attachments?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "49757a1d-0185-4329-8511-f62eca4069a6",
+          "mode": "list",
+          "cachedResultName": "Attachments",
+          "cachedResultUrl": "https://app.notion.com/p/49757a1d018543298511f62eca4069a6"
+        },
+        "title": "={{ $binary.attachment_0.fileName }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "File Name",
+              "type": "title",
+              "title": "={{ $binary.attachment_0.fileName }}"
+            },
+            {
+              "key": "File Type",
+              "type": "rich_text",
+              "textContent": "={{ $binary.attachment_0.mimeType }}"
+            },
+            {
+              "key": "File Size",
+              "type": "number",
+              "numberValue": "={{ $binary.attachment_0.fileSize }}"
+            },
+            {
+              "key": "Related Email Message ID",
+              "type": "rich_text",
+              "textContent": "={{ $json.messageId }}"
+            },
+            {
+              "key": "Related Thread ID",
+              "type": "rich_text",
+              "textContent": "={{ $json.threadId }}"
+            },
+            {
+              "key": "Upload Date",
+              "type": "date",
+              "date": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6616ff81-b0cf-4472-9c9f-1434d2f7ae24",
+      "name": "Create Attachment Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        832
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "3c185622-5dd0-4ec8-8364-1b42aeb685e6",
+          "mode": "list",
+          "cachedResultName": "Contacts",
+          "cachedResultUrl": "https://app.notion.com/p/3c1856225dd04ec883641b42aeb685e6"
+        },
+        "title": "={{ $json.name || $json.email || \"Unknown Contact\" }}",
+        "propertiesUi": {
+          "propertyValues": []
+        },
+        "options": {}
+      },
+      "id": "28460d69-06a0-4da0-a84a-02668176d67f",
+      "name": "Create Contact Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1936,
+        1120
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a13f8e45-e6b4-4773-9e91-f8afcbb2323e",
+      "name": "Process Each Contact",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const companies = $input.item.json.companies || [];\nconst company = companies[$itemIndex] || {};\n\nreturn {\n  name: company.name || \"\",\n  domain: company.domain || \"\",\n  country: company.country || \"\",\n  industry: company.industry || \"\",\n  sourceEmailId: $input.item.json.messageId\n};"
+      },
+      "id": "b37ab535-202f-4541-8ea6-2112846b45f6",
+      "name": "Extract Company Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "8a034696-74c4-4505-ae42-cae1c5430e59",
+          "mode": "list",
+          "cachedResultName": "Companies",
+          "cachedResultUrl": "https://app.notion.com/p/8a03469674c44505ae42cae1c5430e59"
+        },
+        "title": "={{ $json.name }}",
+        "propertiesUi": {
+          "propertyValues": []
+        },
+        "options": {}
+      },
+      "id": "1340e51a-1fb8-4172-9ffc-8fa73150d9b0",
+      "name": "Create Company Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1936,
+        1408
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "05881b5f-b80f-4478-8598-0fefb745eb5c",
+      "name": "Process Each Company",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.actionRequired }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "5c595f93-68c6-4e37-90fb-d73a14ca2f28",
+      "name": "Action Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "15326f8f-3830-405f-acb0-37b900ca12fa",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://app.notion.com/p/15326f8f3830405facb037b900ca12fa"
+        },
+        "title": "={{ $json.taskName }}",
+        "propertiesUi": {
+          "propertyValues": []
+        },
+        "options": {}
+      },
+      "id": "b0df6be5-a64a-4faa-afb4-145c30ab7723",
+      "name": "Create Task",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        1632
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "cf0a83f9-6bc3-452a-a159-06ec2959ec37",
+      "name": "OpenAI GPT-4o Mini Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        1056
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ai = $json.output || $json;\n\n// Get original email data from the current item first.\n// If not available, fallback to Merge Email Sources.\nlet email = $json;\n\ntry {\n  const mergeItems = $(\"Merge Email Sources\").all();\n  if (mergeItems.length > 0) {\n    email = mergeItems[0].json;\n  }\n} catch (e) {\n  email = $json;\n}\n\nconst subject =\n  email.subject ||\n  email.Subject ||\n  ai.summary ||\n  \"No Subject\";\n\nconst emailId =\n  email.id ||\n  email.emailId ||\n  email.messageId ||\n  null;\n\nconst threadId =\n  email.threadId ||\n  email.thread_id ||\n  emailId ||\n  null;\n\nreturn [\n  {\n    json: {\n      subject,\n      threadName: subject,\n      emailId,\n      threadId,\n\n      from: email.from?.text || email.from || \"\",\n      senderEmail: email.from?.value?.[0]?.address || email.from?.text || \"\",\n      to: email.to?.text || email.to || \"\",\n      cc: email.cc?.text || email.cc || \"\",\n      bcc: email.bcc?.text || email.bcc || \"\",\n      date: email.date || new Date().toISOString(),\n      body: email.text || email.html || email.body || \"\",\n\n      labels: ai.labels || [\"BP/Uncategorized\"],\n      summary: ai.summary || \"No summary available\",\n      actionRequired: ai.actionRequired || false,\n      priority: ai.priority || \"medium\",\n      taskName: ai.taskName || \"\",\n      dueDate: ai.dueDate || \"\",\n      contacts: ai.contacts || [],\n      companies: ai.companies || []\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        800
+      ],
+      "id": "a398f765-2d87-42a6-b8d8-de23bac2593c",
+      "name": "Prepare Email Data1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const input = $json;\n\nconst from = input.from || \"\";\nconst senderEmail = input.senderEmail || \"\";\n\nlet name = \"\";\nlet email = senderEmail || \"\";\nlet company = \"\";\n\n// Extract name from: \"Respond.io\" <no-reply@mail.respond.io>\nif (from) {\n  name = from.replace(/<.*?>/g, \"\").replace(/[\"\\\\]/g, \"\").trim();\n}\n\n// Extract email from angle brackets if needed\nif (!email && from.includes(\"<\") && from.includes(\">\")) {\n  const match = from.match(/<([^>]+)>/);\n  email = match ? match[1] : \"\";\n}\n\n// Extract company from email domain\nif (email.includes(\"@\")) {\n  const domain = email.split(\"@\")[1] || \"\";\n  const personalDomains = [\"gmail.com\", \"hotmail.com\", \"outlook.com\", \"yahoo.com\", \"icloud.com\"];\n\n  if (!personalDomains.includes(domain.toLowerCase())) {\n    const parts = domain.split(\".\");\n    company = parts.length >= 3 ? parts[1] : parts[0];\n  }\n}\n\nreturn {\n  json: {\n    name: name || email || \"Unknown Contact\",\n    email: email || \"\",\n    phone: \"\",\n    company: company || \"Unknown\",\n    sourceEmailId: input.emailId || \"\",\n    sourceThreadId: input.threadId || \"\",\n    source: \"Gmail\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        1088
+      ],
+      "id": "1891033a-7932-4461-8c4b-98db71cccd82",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": null
+}

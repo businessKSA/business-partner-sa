@@ -1,0 +1,1066 @@
+{
+  "id": "TfsAjfMoTXc8i2uw",
+  "name": "BP — وكيل Outlook CVs → ATS (تفريغ 20k+)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "9a0425a9-8422-4692-ac79-572bf5dfadde",
+  "activeVersionId": "9a0425a9-8422-4692-ac79-572bf5dfadde",
+  "triggerCount": 1,
+  "nodeCount": 23,
+  "createdAt": "2026-07-06T20:41:08.956Z",
+  "updatedAt": "2026-09-20T15:20:47.510Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "وكيل قابل للتوسع: يفرّغ مجلد CVs في Outlook (20k+) واحدة تلو الأخرى (آمن على الذاكرة)، يستخرج PDF، يحلل ويصنّف التوطين عبر OpenAI، يبني سيرة ATS، يخزن على Drive، يسجل في Notion، وينقل الرسالة إلى CVs-Processed. يعمل كل 3 دقائق.",
+  "connections": {
+    "📋 قائمة رسائل CVs": {
+      "main": [
+        [
+          {
+            "node": "🔁 واحدة تلو الأخرى",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📩 جلب الرسالة + المرفق": {
+      "main": [
+        [
+          {
+            "node": "🧹 توحيد + انتقاء CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧹 توحيد + انتقاء CV": {
+      "main": [
+        [
+          {
+            "node": "❓ فيه PDF؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ فيه PDF؟": {
+      "main": [
+        [
+          {
+            "node": "📄 استخراج نص PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📦 نقل (بدون PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🏗️ بناء السجل + السيرة": {
+      "main": [
+        [
+          {
+            "node": "❓ مرشح فعلي؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ مرشح فعلي؟": {
+      "main": [
+        [
+          {
+            "node": "📁 مجلد المرشح",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📦 نقل (غير مرشح)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📁 مجلد المرشح": {
+      "main": [
+        [
+          {
+            "node": "🔗 إعادة إرفاق الملف الأصلي",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 إعادة إرفاق الملف الأصلي": {
+      "main": [
+        [
+          {
+            "node": "⬆️ رفع السيرة الأصلية",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⬆️ رفع السيرة الأصلية": {
+      "main": [
+        [
+          {
+            "node": "📝 إنشاء سيرة ATS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 إنشاء سيرة ATS": {
+      "main": [
+        [
+          {
+            "node": "🗂️ سجل المرشح في ATS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🗂️ سجل المرشح في ATS": {
+      "main": [
+        [
+          {
+            "node": "📦 نقل (تمّت)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 نقل (تمّت)": {
+      "main": [
+        [
+          {
+            "node": "🔁 واحدة تلو الأخرى",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔁 واحدة تلو الأخرى": {
+      "main": [
+        [
+          {
+            "node": "✅ انتهت الدفعة",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📩 جلب الرسالة + المرفق",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 نقل (غير مرشح)": {
+      "main": [
+        [
+          {
+            "node": "🔁 واحدة تلو الأخرى",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 نقل (بدون PDF)": {
+      "main": [
+        [
+          {
+            "node": "🔁 واحدة تلو الأخرى",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "▶️ تشغيل يدوي": {
+      "main": [
+        [
+          {
+            "node": "📋 قائمة رسائل CVs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏱️ كل ساعتين (تفريغ خلفي محدود)": {
+      "main": [
+        [
+          {
+            "node": "📋 قائمة رسائل CVs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📄 استخراج نص PDF": {
+      "main": [
+        [
+          {
+            "node": "🧠 التحليل (Azure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 التحليل (Azure)": {
+      "main": [
+        [
+          {
+            "node": "🏗️ بناء السجل + السيرة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 التحليل (Azure)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0fe7fcdc-14e0-45d9-927a-2244737b70b0",
+      "name": "⏱️ كل ساعتين (تفريغ خلفي محدود)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        336
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "03e57a46-c091-4308-8232-65e51afda54f",
+      "name": "📋 قائمة رسائل CVs",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        432
+      ],
+      "parameters": {
+        "resource": "folderMessage",
+        "operation": "getAll",
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAG4mHUXwAAAA==",
+          "cachedResultName": "Inbox/CVs"
+        },
+        "returnAll": false,
+        "limit": 20,
+        "output": "simple",
+        "filtersUI": {
+          "values": {
+            "filterBy": "filters",
+            "filters": {
+              "hasAttachments": true
+            }
+          }
+        },
+        "options": {}
+      },
+      "webhookId": "9241bba3-982c-4d03-9337-56acf80794f4",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "bd79a11a-bb75-4402-952f-8f3ff3aa056a",
+      "name": "✅ انتهت الدفعة",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "61da150b-09d6-40ca-857b-63989e45e3d2",
+      "name": "📩 جلب الرسالة + المرفق",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        672,
+        192
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "get",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "output": "simple",
+        "options": {
+          "downloadAttachments": true,
+          "attachmentsPrefix": "attachment_"
+        }
+      },
+      "webhookId": "b39acc00-b2e1-4035-b255-8f38666ffdf7",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "b0329249-203c-417b-b8d1-9b7bdf888eb8",
+      "name": "🧹 توحيد + انتقاء CV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const j = $json;\nconst bin = $binary || {};\nconst fromRaw = j.from;\nlet from = '';\nif (typeof fromRaw === 'string') from = fromRaw;\nelse if (fromRaw) from = fromRaw.text || (fromRaw.emailAddress && fromRaw.emailAddress.address) || fromRaw.address || (fromRaw.value && fromRaw.value[0] && fromRaw.value[0].address) || '';\nconst subject = j.subject || '';\nconst messageId = j.id || j.messageId || j.internetMessageId || '';\nconst date = j.receivedDateTime || j.sentDateTime || j.date || '';\nlet chosenKey = null; let cvFileName = null;\nfor (const k of Object.keys(bin)) {\n  const b = bin[k] || {};\n  const fn = (b.fileName || '').toLowerCase();\n  const mt = (b.mimeType || '').toLowerCase();\n  if (fn.endsWith('.pdf') || mt.includes('pdf')) { chosenKey = k; cvFileName = b.fileName || 'cv.pdf'; break; }\n}\nconst outBin = {};\nif (chosenKey) outBin.data = bin[chosenKey];\nreturn { json: { subject, from, messageId, date, hasCv: !!chosenKey, cvFileName }, binary: outBin };"
+      }
+    },
+    {
+      "id": "bfa111b5-e426-47e4-9332-c384c7289aef",
+      "name": "❓ فيه PDF؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h1",
+              "leftValue": "={{ $json.hasCv }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "53c73ed0-b288-40e2-9416-4aad0eeff680",
+      "name": "📄 استخراج نص PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "data",
+        "options": {
+          "joinPages": true,
+          "keepSource": "json"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": false
+    },
+    {
+      "id": "542ac580-9493-408f-8364-32efe300c971",
+      "name": "🏗️ بناء السجل + السيرة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "let parsed = {}; let llmError = false;\nconst c = $json;\nif (c && c.error) { llmError = true; }\ntry {\n  let txt = '{}';\n  if (typeof c.content === 'string') txt = c.content;\n  else if (c.content && c.content[0] && c.content[0].text) txt = c.content[0].text;\n  else if (c.message && typeof c.message.content === 'string') txt = c.message.content;\n  else if (c.choices && c.choices[0] && c.choices[0].message) txt = c.choices[0].message.content;\n  else if (typeof c.text === 'string') txt = c.text;\n  else if (typeof c.output === 'string') txt = c.output;\n  const fence = String.fromCharCode(96,96,96);\n  txt = txt.split(fence + 'json').join('').split(fence).join('').trim();\n  parsed = JSON.parse(txt);\n} catch (e) { parsed = {}; }\nconst meta = $('🧹 توحيد + انتقاء CV').item.json;\nlet cvText = ''; try { cvText = ($('📄 استخراج نص PDF').item.json.text || '').toString().trim(); } catch(e) {}\nconst FIELDS = [\"هندسة\",\"تقنية معلومات\",\"مبيعات وتسويق\",\"محاسبة ومالية\",\"إداري وسكرتارية\",\"موارد بشرية\",\"ضيافة ومطاعم\",\"مقاولات وإنشاءات\",\"صحة وطب\",\"تعليم\",\"لوجستيات ونقل\"];\nconst EDU = [\"ثانوي\",\"دبلوم\",\"بكالوريوس\",\"ماجستير\",\"دكتوراه\"];\nconst NAT = [\"سعودي\",\"غير سعودي\"];\nconst LANGS = [\"العربية\",\"الإنجليزية\"];\nconst SAUD = [\"مقصورة على السعوديين\",\"نسبة توطين + اشتراطات\",\"مسموح لغير السعوديين\",\"بحاجة فحص\"];\nconst COMP = [\"✅ مطابق\",\"⛔ مهنة سعودية - غير سعودي\",\"⚠️ اشتراطات\",\"🔍 بحاجة فحص\"];\nconst DEC = [\"Yes\",\"No\",\"Needs Review\",\"غير محدد\"];\nconst pick = (v, allow, dflt) => allow.indexOf(v) >= 0 ? v : dflt;\nconst s = (v) => (v === null || v === undefined) ? '' : String(v);\nconst nn = (v) => { const x = s(v).trim(); return x ? x : null; };\nconst langsIn = Array.isArray(parsed.languages) ? parsed.languages.filter(x => LANGS.indexOf(x) >= 0) : [];\nconst nameAr = s(parsed.name_ar).trim(); const nameEn = s(parsed.name_en).trim();\nconst realName = nameAr || nameEn;\nconst fieldVal = pick(s(parsed.field), FIELDS, \"\");\nconst emailV = nn(parsed.email); const phoneV = nn(parsed.phone);\nlet hidden = false; let readStatus = 'مكتمل'; let reason = '';\nconst missing = [];\nif (!realName) missing.push('الاسم');\nif (!fieldVal) missing.push('المجال');\nif (!emailV && !phoneV) missing.push('وسيلة تواصل');\nif (cvText.length < 30) { hidden = true; readStatus = 'غير مقروء - PDF مصور'; reason = 'ملف PDF مصوّر (صورة) بدون نص قابل للاستخراج — يحتاج OCR ليُقرأ.'; }\nelse if (llmError || Object.keys(parsed).length === 0) { hidden = true; readStatus = 'فشل التحليل'; reason = 'تعذّر تحليل الملف عبر الذكاء الاصطناعي (خطأ مؤقت) — يُعاد لاحقاً.'; }\nelse if (missing.length) { hidden = true; readStatus = 'ناقص - بيانات غير كافية'; reason = 'بيانات ناقصة: ' + missing.join('، '); }\nconst title = realName || ('[غير مقروء] ' + (s(meta.subject) || s(meta.cvFileName) || 'سيرة'));\nconst atsFull = s(parsed.ats_cv_markdown) || s(parsed.summary);\nconst ats = hidden ? ('⚠️ لم تُبنَ سيرة ATS. السبب: ' + reason) : atsFull;\nconst chunks = [];\nfor (let i = 0; i < 8; i++) { const part = ats.slice(i*1800, (i+1)*1800); if (part) chunks.push(part); }\nwhile (chunks.length < 6) chunks.push('');\nconst folderName = (title + ' — ' + nameEn).slice(0, 90).trim();\nconst notes = 'استيراد من Outlook | ' + s(meta.subject) + ' | من: ' + s(meta.from) + ' | ' + s(meta.date);\nreturn { json: {\n  is_candidate: hidden ? true : (parsed.is_candidate !== false),\n  hidden, read_status: readStatus, reason,\n  name_ar: title, name_en: nameEn, email: emailV, phone: phoneV,\n  city: s(parsed.city), nationality: s(parsed.nationality),\n  nationality_type: pick(s(parsed.nationality_type), NAT, ''),\n  field: fieldVal,\n  target_role: s(parsed.target_role), original_position: s(parsed.original_position),\n  experience_years: Number(parsed.experience_years) || 0,\n  education: pick(s(parsed.education), EDU, ''),\n  languages: langsIn, languages_str: langsIn.join(', '), skills: s(parsed.skills),\n  expected_salary: (parsed.expected_salary === null || parsed.expected_salary === undefined || parsed.expected_salary === \"\") ? 0 : (Number(parsed.expected_salary) || 0),\n  summary: s(parsed.summary),\n  saudization: pick(s(parsed.saudization), SAUD, 'بحاجة فحص'),\n  compliance: pick(s(parsed.compliance), COMP, '🔍 بحاجة فحص'),\n  saudization_details: s(parsed.saudization_details),\n  decision: pick(s(parsed.decision), DEC, 'Needs Review'),\n  ats, folderName, notes, cvFileName: s(meta.cvFileName) || \"cv.pdf\",\n  chunk1: chunks[0], chunk2: chunks[1], chunk3: chunks[2], chunk4: chunks[3], chunk5: chunks[4], chunk6: chunks[5]\n} };"
+      }
+    },
+    {
+      "id": "1c1d2840-975a-4866-87f0-7ca5b2b4028e",
+      "name": "❓ مرشح فعلي؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "k1",
+              "leftValue": "={{ $json.is_candidate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3919f18e-bcd2-4111-9f9b-3f68f10f07c9",
+      "name": "📁 مجلد المرشح",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $json.folderName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1OqgBzZfjgehmmMaaf4St3kelsBGGALWJ",
+          "cachedResultName": "BP CV Folder"
+        },
+        "options": {
+          "simplifyOutput": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "19e6572d-03e5-4814-be7b-141536a789b1",
+      "name": "🔗 إعادة إرفاق الملف الأصلي",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const folder = $('📁 مجلد المرشح').item.json;\nconst norm = $('🧹 توحيد + انتقاء CV').item;\nconst outBin = {};\nif (norm.binary && norm.binary.data) outBin.data = norm.binary.data;\nreturn { json: { folderId: folder.id, folderLink: folder.webViewLink }, binary: outBin };"
+      }
+    },
+    {
+      "id": "2347c330-ecdb-4de4-ad16-f49c1db9f12d",
+      "name": "⬆️ رفع السيرة الأصلية",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2688,
+        0
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "={{ $('🏗️ بناء السجل + السيرة').item.json.cvFileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.folderId }}",
+          "cachedResultName": "candidate folder"
+        },
+        "options": {
+          "simplifyOutput": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "2132e1c1-d537-442c-83d9-950f86950454",
+      "name": "📝 إنشاء سيرة ATS",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2912,
+        0
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "createFromText",
+        "content": "={{ $('🏗️ بناء السجل + السيرة').item.json.ats }}",
+        "name": "=ATS — {{ $('🏗️ بناء السجل + السيرة').item.json.name_ar }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('🔗 إعادة إرفاق الملف الأصلي').item.json.folderId }}",
+          "cachedResultName": "candidate folder"
+        },
+        "options": {
+          "convertToGoogleDocument": true
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "cd4502f6-09d6-44d9-ad7b-a141e07830e7",
+      "name": "🗂️ سجل المرشح في ATS",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        3136,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "71792742873e4de398135c7855542b95",
+          "cachedResultName": "BP Candidates ATS"
+        },
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Candidate Name|title",
+              "title": "={{ $('🏗️ بناء السجل + السيرة').item.json.name_ar }}"
+            },
+            {
+              "key": "Name (EN)|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.name_en }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.email }}"
+            },
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.phone }}"
+            },
+            {
+              "key": "City|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.city }}"
+            },
+            {
+              "key": "Nationality|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.nationality }}"
+            },
+            {
+              "key": "Nationality Type|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.nationality_type }}"
+            },
+            {
+              "key": "Field|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.field }}"
+            },
+            {
+              "key": "Target Role|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.target_role }}"
+            },
+            {
+              "key": "Original Position|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.original_position }}"
+            },
+            {
+              "key": "Experience Years|number",
+              "numberValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.experience_years }}"
+            },
+            {
+              "key": "Education|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.education }}"
+            },
+            {
+              "key": "Languages|multi_select",
+              "multiSelectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.languages }}"
+            },
+            {
+              "key": "Skills|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.skills }}"
+            },
+            {
+              "key": "Expected Salary|number",
+              "numberValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.expected_salary }}"
+            },
+            {
+              "key": "Source|select",
+              "selectValue": "ترشيح"
+            },
+            {
+              "key": "Pipeline Stage|select",
+              "selectValue": "جديد"
+            },
+            {
+              "key": "Decision|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.decision }}"
+            },
+            {
+              "key": "التوطين Saudization|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.saudization }}"
+            },
+            {
+              "key": "الامتثال Compliance|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.compliance }}"
+            },
+            {
+              "key": "تفاصيل التوطين|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.saudization_details }}"
+            },
+            {
+              "key": "مخفي عن الموقع|checkbox",
+              "checkboxValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.hidden }}"
+            },
+            {
+              "key": "حالة القراءة|select",
+              "selectValue": "={{ $('🏗️ بناء السجل + السيرة').item.json.read_status }}"
+            },
+            {
+              "key": "سبب عدم الاكتمال|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.reason }}"
+            },
+            {
+              "key": "CV Link|url",
+              "urlValue": "={{ $('⬆️ رفع السيرة الأصلية').item.json.webViewLink }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "ATS CV (Drive)|url",
+              "urlValue": "=https://docs.google.com/document/d/{{ $('📝 إنشاء سيرة ATS').item.json.id }}/edit",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "مجلد المرشح (Drive)|url",
+              "urlValue": "={{ $('🔗 إعادة إرفاق الملف الأصلي').item.json.folderLink }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Notes|rich_text",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.notes }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "textContent": "السيرة الذاتية ATS-friendly (مولّدة آلياً)"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk1 }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk2 }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk3 }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk4 }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk5 }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('🏗️ بناء السجل + السيرة').item.json.chunk6 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "ea518124-6bb0-4fa6-bd1b-5934c9681937",
+      "name": "📦 نقل (تمّت)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        3360,
+        272
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "move",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('📩 جلب الرسالة + المرفق').item.json.id }}"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAH8uBqlgAAAA==",
+          "cachedResultName": "CVs-Processed"
+        }
+      },
+      "webhookId": "195caa28-aaa3-4f0c-a2d8-ec55bbe46d30",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "c1392365-a6d0-4d6e-afc4-add7d84bf179",
+      "name": "🔁 واحدة تلو الأخرى",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        432
+      ],
+      "parameters": {
+        "batchSize": 6
+      }
+    },
+    {
+      "id": "0e124ab5-ecd7-49b6-a15f-17f78cc0fac7",
+      "name": "📦 نقل (غير مرشح)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        192
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "move",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('📩 جلب الرسالة + المرفق').item.json.id }}"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAH8uBqlgAAAA==",
+          "cachedResultName": "CVs-Processed"
+        }
+      },
+      "webhookId": "6854b9d2-ff37-40ae-8c1b-da8eacc620dd",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "5f6872a8-9bc0-4bd6-9070-a9a6ad35b681",
+      "name": "📦 نقل (بدون PDF)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        288
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "move",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('📩 جلب الرسالة + المرفق').item.json.id }}"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAH8uBqlgAAAA==",
+          "cachedResultName": "CVs-Processed"
+        }
+      },
+      "webhookId": "f85c62b1-0875-4520-850c-0a430d2ea000",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "168ef13d-b9cc-4a34-a44e-17f08128aaf0",
+      "name": "▶️ تشغيل يدوي",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        528
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f338f42b-8de9-4b5e-85ad-30fa0a59b852",
+      "name": "Sticky Note 9625ca55",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        -50
+      ],
+      "parameters": {
+        "content": "## 🤖 وكيل Outlook (تفريغ CVs 20k+) → Notion ATS\n\nقائمة خفيفة (بدون مرفقات) ← حلقة واحدة تلو الأخرى ← جلب الرسالة+المرفق ← استخراج PDF ← OpenAI (تحليل+توطين+سيرة ATS) ← Drive (مجلد+أصلية+ATS) ← سجل Notion ← نقل الرسالة إلى CVs-Processed. آمن على الذاكرة ويستنزف المجلد تلقائياً كل 3 دقائق.",
+        "color": 4,
+        "width": 300,
+        "height": 200
+      }
+    },
+    {
+      "id": "4273f970-3e7a-463d-b503-8fc42dd3f091",
+      "name": "🤖 التحليل (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "أنت محلل سير ذاتية ومختص امتثال توطين في السوق السعودي. لديك نص سيرة ذاتية (CV) مستخرج من ملف مرفق ببريد.\nأعد JSON صالح فقط بدون أي شرح أو أسوار كود. المفاتيح:\nis_candidate (boolean), name_ar (الاسم بالعربية إن وُجد وإلا حوّله من الإنجليزية), name_en, email, phone, city, nationality,\nnationality_type (\"سعودي\" أو \"غير سعودي\"),\nfield — اختر دائماً أقرب مجال واقعي واحد من: \"هندسة\",\"تقنية معلومات\",\"مبيعات وتسويق\",\"محاسبة ومالية\",\"إداري وسكرتارية\",\"موارد بشرية\",\"ضيافة ومطاعم\",\"مقاولات وإنشاءات\",\"صحة وطب\",\"تعليم\",\"لوجستيات ونقل\". ممنوع منعاً باتاً استخدام \"أخرى\".\ntarget_role, original_position, experience_years (رقم), education (\"ثانوي\",\"دبلوم\",\"بكالوريوس\",\"ماجستير\",\"دكتوراه\"),\nlanguages (مصفوفة من \"العربية\",\"الإنجليزية\" فقط), skills, expected_salary (رقم أو null), summary,\nsaudization (\"مقصورة على السعوديين\",\"نسبة توطين + اشتراطات\",\"مسموح لغير السعوديين\",\"بحاجة فحص\"),\ncompliance (\"✅ مطابق\",\"⛔ مهنة سعودية - غير سعودي\",\"⚠️ اشتراطات\",\"🔍 بحاجة فحص\") — مهنة مقصورة على السعوديين + مرشح غير سعودي = \"⛔ مهنة سعودية - غير سعودي\",\nsaudization_details, decision (\"Yes\",\"No\",\"Needs Review\",\"غير محدد\"),\nats_cv_markdown (سيرة ATS-friendly كاملة بالماركداون: الاسم، التواصل، ملخص، المهارات، الخبرات بنقاط إنجاز، التعليم، اللغات، الشهادات — نظيفة).\nاستخرج الاسم دائماً إن كان موجوداً في النص. استخدم فقط المعلومات الواقعية ولا تختلق. لا تكتب 'أخرى' أبداً."
+            },
+            {
+              "role": "user",
+              "content": "=العنوان: {{ $json.subject }}\nمن: {{ $json.from }}\n\nنص السيرة:\n{{ $json.text }}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.2
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "1899a3a3-2c85-4b77-a652-0cdb37d22224",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 4000,
+          "temperature": 0.2,
+          "timeout": 90000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "b94e6efc-ce5b-4401-b66e-31d4a147b452",
+      "name": "🧠 التحليل (Azure)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "أنت محلل سير ذاتية ومختص امتثال توطين في السوق السعودي. لديك نص سيرة ذاتية (CV) مستخرج من ملف مرفق ببريد.\nأعد JSON صالح فقط بدون أي شرح أو أسوار كود. المفاتيح:\nis_candidate (boolean), name_ar (الاسم بالعربية إن وُجد وإلا حوّله من الإنجليزية), name_en, email, phone, city, nationality,\nnationality_type (\"سعودي\" أو \"غير سعودي\"),\nfield — اختر دائماً أقرب مجال واقعي واحد من: \"هندسة\",\"تقنية معلومات\",\"مبيعات وتسويق\",\"محاسبة ومالية\",\"إداري وسكرتارية\",\"موارد بشرية\",\"ضيافة ومطاعم\",\"مقاولات وإنشاءات\",\"صحة وطب\",\"تعليم\",\"لوجستيات ونقل\". ممنوع منعاً باتاً استخدام \"أخرى\".\ntarget_role, original_position, experience_years (رقم), education (\"ثانوي\",\"دبلوم\",\"بكالوريوس\",\"ماجستير\",\"دكتوراه\"),\nlanguages (مصفوفة من \"العربية\",\"الإنجليزية\" فقط), skills, expected_salary (رقم أو null), summary,\nsaudization (\"مقصورة على السعوديين\",\"نسبة توطين + اشتراطات\",\"مسموح لغير السعوديين\",\"بحاجة فحص\"),\ncompliance (\"✅ مطابق\",\"⛔ مهنة سعودية - غير سعودي\",\"⚠️ اشتراطات\",\"🔍 بحاجة فحص\") — مهنة مقصورة على السعوديين + مرشح غير سعودي = \"⛔ مهنة سعودية - غير سعودي\",\nsaudization_details, decision (\"Yes\",\"No\",\"Needs Review\",\"غير محدد\"),\nats_cv_markdown (سيرة ATS-friendly كاملة بالماركداون: الاسم، التواصل، ملخص، المهارات، الخبرات بنقاط إنجاز، التعليم، اللغات، الشهادات — نظيفة).\nاستخرج الاسم دائماً إن كان موجوداً في النص. استخدم فقط المعلومات الواقعية ولا تختلق. لا تكتب 'أخرى' أبداً."
+            }
+          ]
+        },
+        "promptType": "define",
+        "text": "=العنوان: {{ $json.subject }}\nمن: {{ $json.from }}\n\nنص السيرة:\n{{ $json.text }}"
+      },
+      "notes": "بديل عقدة OpenAI المباشرة. يرجّع الناتج على الحقل text والمحلل التالي يقرأه أصلاً."
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "id": "EJvKJwbtR2z0uhGB",
+  "name": "Investor Lead Pipeline (Notion + Email)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "d0025a77-e1f2-40af-b80d-837d9450061d",
+  "activeVersionId": "d0025a77-e1f2-40af-b80d-837d9450061d",
+  "triggerCount": 1,
+  "nodeCount": 4,
+  "createdAt": "2026-07-09T04:56:25.969Z",
+  "updatedAt": "2026-07-09T04:56:55.426Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Investor Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save to Investor Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Investor Leads": {
+      "main": [
+        [
+          {
+            "node": "Notify Team by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team by Email": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "b9e64e53-9006-4e10-89cc-d85ea3fe14b9",
+      "name": "Investor Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "investor-lead",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "6bf0395f-e1a1-4855-9b62-c56796f07e9a"
+    },
+    {
+      "id": "551fbe6e-2158-43d0-bec7-786627b5d4e3",
+      "name": "Save to Investor Leads",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        220
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d8af4d35dfba484582e1753ab83dcca3"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Lead|title",
+              "title": "={{ $json.body.name || $json.body.company || ('Investor lead — ' + ($json.body.region || 'KSA')) }}"
+            },
+            {
+              "key": "Purpose|select",
+              "selectValue": "={{ $json.body.purpose }}"
+            },
+            {
+              "key": "Sector|select",
+              "selectValue": "={{ $json.body.sector }}"
+            },
+            {
+              "key": "Region|select",
+              "selectValue": "={{ $json.body.region }}"
+            },
+            {
+              "key": "Timeline|select",
+              "selectValue": "={{ $json.body.timeline }}"
+            },
+            {
+              "key": "Language|select",
+              "selectValue": "={{ $json.body.lang }}"
+            },
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.body.phone || '' }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.body.email || '' }}"
+            },
+            {
+              "key": "Company|rich_text",
+              "textContent": "={{ $json.body.company || '-' }}"
+            },
+            {
+              "key": "Source|select",
+              "selectValue": "={{ $json.body.source || 'Concierge wizard' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "0b95e851-53b9-455d-8f95-18f6acf54db1",
+      "name": "Notify Team by Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        220
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "=New Investor Lead — {{ $('Investor Lead Webhook').item.json.body.region || 'KSA' }} · {{ $('Investor Lead Webhook').item.json.body.sector || 'General' }}",
+        "emailType": "html",
+        "message": "=<h2>New Investor Lead — Mahfol Makfol By Business Partner</h2><ul><li><b>Goal:</b> {{ $('Investor Lead Webhook').item.json.body.purpose }}</li><li><b>Sector:</b> {{ $('Investor Lead Webhook').item.json.body.sector }}</li><li><b>Region:</b> {{ $('Investor Lead Webhook').item.json.body.region }}</li><li><b>Timeline:</b> {{ $('Investor Lead Webhook').item.json.body.timeline }}</li><li><b>Language:</b> {{ $('Investor Lead Webhook').item.json.body.lang }}</li><li><b>Name:</b> {{ $('Investor Lead Webhook').item.json.body.name }}</li><li><b>Company:</b> {{ $('Investor Lead Webhook').item.json.body.company }}</li><li><b>Phone:</b> {{ $('Investor Lead Webhook').item.json.body.phone }}</li><li><b>Email:</b> {{ $('Investor Lead Webhook').item.json.body.email }}</li></ul><p>Logged in Notion Investor Leads DB.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "4f92ec82-af17-4221-b4fd-a7a37f4c7c0f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "id": "6558b4d9-2540-485c-b333-44b1850e7a65",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1080,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

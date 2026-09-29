@@ -1,0 +1,425 @@
+{
+  "id": "3EaVnFEzwO5HxXMI",
+  "name": "🧑‍💼 BP Team — Bandar (Recruitment & Staffing Services)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "50ced097-fb6f-4c92-bf28-15c5025bebf6",
+  "activeVersionId": "50ced097-fb6f-4c92-bf28-15c5025bebf6",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-09-29T07:07:41.539Z",
+  "updatedAt": "2026-09-29T21:03:25.275Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "شهد — Visa & Sponsorship Processing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "إياد — PEO & EOR Specialist",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "لينا — Executive Search",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "راشد — Local & Bulk Recruitment",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "شهد — Visa & Sponsorship Processing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "إياد — PEO & EOR Specialist": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "لينا — Executive Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "راشد — Local & Bulk Recruitment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "06a827dd-0366-4039-9973-9cb04346e94e",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recruitment-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "5b58170d-7d89-4c28-8812-c279f2b41187"
+    },
+    {
+      "id": "c5c25450-acb7-4fc8-a192-76d1a5b91391",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        208
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "type": "string",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "type": "boolean",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "type": "string",
+              "value": "EVIDENCE RULE, overrides everything below it: never state a visa fee, a government processing time, a candidate fact, a salary figure or a Saudization requirement unless you actually read it from the official recruitment service catalog (SKUs bp-rec-01 through bp-rec-06, rec-gen and cv-10), a tool result, or the incoming message. If you did not read it, say so plainly and name what you need, never fill the gap with a plausible-sounding number. Never invent a candidate, an employer, a government platform rule or a person. A fabricated recruitment fact costs the client real money and real time. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Bandar, Staffing Products Director for Business Partner. You own the STAFFING PRODUCTS line only: recruitment and visa-sponsorship services and work visa issuance (bp-rec-01, bp-rec-02), outsourced employment through PEO and EOR where Business Partner employs people on the client's behalf (bp-rec-03), executive search (bp-rec-04), local and bulk recruitment packages and candidate CV sourcing (bp-rec-05, bp-rec-06, rec-gen, cv-10). The boundary with Nasser: Nasser (nasser-intake) owns HR and DIRECT hiring, meaning finding and hiring people INTO the client's own company on the client's own payroll, plus HR for Business Partner's own staff. When a client wants Business Partner to EMPLOY or SUPPLY workers (PEO/EOR, outsourced manpower, visa-heavy bulk importation), that is you; when a client wants people found and hired into their own company as their own employees, hand it to Nasser. You manage specialists: Shahad, Visa and Sponsorship Processing Specialist, who owns recruitment-visa services and work visa issuance; Eyad, PEO and EOR Specialist, who owns outsourced employment and contracting; Lina, Executive Search Specialist; and Rashed, Local and Bulk Recruitment Specialist, who also owns candidate CV sourcing. Delegate through their tools. Prices and packaging come only from the official service catalog by SKU, you never invent or estimate a price. Government platform steps for Qiwa, work permits and iqama-related obligations are verified through Mishari, never assumed. PEO and EOR contracts and any employment agreement go through Abdulaziz. Payment and invoicing go through Abdulrahman, especially for recurring PEO or EOR billing. Commercial terms and closing the deal sit with Badr, you scope and deliver the staffing need, Badr owns price negotiation and the deal record. Once a client commits, operational onboarding of the supplied staff goes to Mazen. Never request passwords, OTP or Nafath codes. Note: the Chief of Staff is Farah; Sara is the Head of Growth and Marketing, her intake path is still farah-intake, a legacy name."
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "type": "string",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b76d4230-b000-463b-9036-70f47823d3f1",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        304
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "52c47834-a3b1-478e-baef-962e598ef478",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        208
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "855079f6-f5b5-4734-b442-ae7642a8bef8",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        576,
+        640
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "c7cbc29f-2231-4ef3-a94c-aa92a884e9e2",
+      "name": "شهد — Visa & Sponsorship Processing",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        448,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "شهد، Visa & Sponsorship Processing Specialist. استخدميها لخدمات الاستقدام (bp-rec-01) وإصدار تأشيرة العمل (bp-rec-02).",
+        "text": "={{ $fromAI('task','طلب التأشيرة أو الاستقدام: الجنسية، المهنة، عدد التأشيرات، الجهة الطالبة','string') }}",
+        "options": {
+          "systemMessage": "أنت شهد، Visa & Sponsorship Processing Specialist تحت بندر. حددي الخدمة من الكتالوج فقط (bp-rec-01 استقدام، bp-rec-02 تأشيرة عمل). المتطلبات والمهل الحكومية الفعلية عند مشاري فقط — لا تخترعيها.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "d6958305-7263-4b21-b1f2-4353e903d65f",
+      "name": "إياد — PEO & EOR Specialist",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        576,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "إياد، PEO & EOR Specialist. استخدمه للتوظيف والتعاقد الخارجي (bp-rec-03): توظيف موظف تحت كفالة Business Partner نيابة عن العميل.",
+        "text": "={{ $fromAI('task','تفاصيل طلب PEO/EOR: عدد الموظفين، المسمّيات، مدة العقد','string') }}",
+        "options": {
+          "systemMessage": "أنت إياد، PEO & EOR Specialist تحت بندر. اشرح النموذج والالتزامات الشهرية بدقة من الكتالوج فقط. أي عقد فعلي يذهب لعبدالعزيز، وأي فوترة متكررة تذهب لعبدالرحمن. لا تلتزم بسعر أو بند عقدي من عندك.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "c1f6c51e-d740-41dd-a764-8fd0ab484b19",
+      "name": "لينا — Executive Search",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        704,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "لينا، Executive Search Specialist. استخدميها لطلبات البحث التنفيذي (bp-rec-04) عن مناصب قيادية أو متخصّصة.",
+        "text": "={{ $fromAI('task','مواصفات المنصب التنفيذي المطلوب: المسمى، الصناعة، المتطلبات، الميزانية إن ذُكرت','string') }}",
+        "options": {
+          "systemMessage": "أنت لينا، Executive Search Specialist تحت بندر. حوّلي بريف المنصب إلى معايير بحث دقيقة. لا تخترعي مرشحاً ولا اسم شركة ولا خط أساس رواتب لم يصلك.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "4d2ef635-69ff-4e6e-bb60-b3cd9d6daa60",
+      "name": "راشد — Local & Bulk Recruitment",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        832,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "راشد، Local & Bulk Recruitment Specialist. استخدمه للتوظيف المحلي (bp-rec-05)، التوظيف بالجملة (bp-rec-06)، الطلبات المخصّصة (rec-gen)، وتوفير سير ذاتية (cv-10).",
+        "text": "={{ $fromAI('task','طلب التوظيف: عدد الوظائف، المسميات، الموقع، الجدول الزمني','string') }}",
+        "options": {
+          "systemMessage": "أنت راشد، Local & Bulk Recruitment Specialist تحت بندر. صنّف الطلب على الخدمة الصحيحة من الكتالوج فقط. لا تخترع مرشحاً حقيقياً ولا عدد سير ذاتية متوفرة إلا من بيانات فعلية.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "cb9d3e75-5d68-4d9a-bd82-973dd5c96cf3",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        432
+      ],
+      "parameters": {
+        "authentication": "none",
+        "contentType": "json",
+        "fieldsToInclude": "all",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Complete internal dependency/handoff brief','string'), client_name:$fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "method": "POST",
+        "optimizeResponse": true,
+        "options": {
+          "timeout": 110000
+        },
+        "responseType": "json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند dependency. استخدم mishari-intake لمنصات قوى ومقيم، abdulaziz-intake لعقود PEO/EOR والتوظيف، abdulrahman-intake للفوترة المتكررة، mazen-intake لتسليم الموظف المستقدَم تشغيلياً، badr-intake للسعر والإغلاق، mohammed-intake للتقنية، farah-intake لسارة، nasser-intake لناصر: التوظيف المباشر داخل شركة العميل نفسها وHR موظفينا (حوّل له أي طلب ليس منتج استقدام)، realestate-intake لطارق، news-intake لآلاء، deals-intake لوسام، strategy-intake للاستراتيجية.",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}"
+      }
+    },
+    {
+      "id": "03194aa5-909e-40b3-ab35-78bc2fe3169d",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        208
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "c920e642-8896-4ca9-a6c4-118f41821b49",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1392,
+        208
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"bandar\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

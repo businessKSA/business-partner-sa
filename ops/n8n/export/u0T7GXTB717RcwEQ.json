@@ -1,0 +1,356 @@
+{
+  "id": "u0T7GXTB717RcwEQ",
+  "name": "BP — ترقيع ATS CV Text من جسم الصفحة (نوشن → نوشن)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "06e94de4-6f70-48b1-b46a-a6ed57ee9aab",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 10,
+  "createdAt": "2026-09-29T19:38:33.258Z",
+  "updatedAt": "2026-09-29T21:19:09.350Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "سيناريو منفصل ويدوي فقط: يقرأ جسم كل صفحة مرشّح في «BP Candidates — ATS» (ما بعد عنوان «السيرة الذاتية ATS-friendly») ويكتبه في خاصية ATS CV Text كمصفوفة عناصر rich_text بـ1900 حرف. لا يلمس السيناريو الأصلي TfsAjfMoTXc8i2uw. لا يدهس حقلاً غير فارغ، ولا يع",
+  "connections": {
+    "▶️ تشغيل يدوي فقط": {
+      "main": [
+        [
+          {
+            "node": "📇 صفوف بلا نصّ ATS (مكتملة فقط)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧱 بلوكات الصفحة": {
+      "main": [
+        [
+          {
+            "node": "🧵 نصّ السيرة من الجسم",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧵 نصّ السيرة من الجسم": {
+      "main": [
+        [
+          {
+            "node": "❓ نصّ سيرة صالح؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ نصّ سيرة صالح؟": {
+      "main": [
+        [
+          {
+            "node": "✍️ كتابة ATS CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🧾 سجل التخطّي",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ كتابة ATS CV Text": {
+      "main": [
+        [
+          {
+            "node": "🧾 سجل الكتابة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📇 صفوف بلا نصّ ATS (مكتملة فقط)": {
+      "main": [
+        [
+          {
+            "node": "🧱 بلوكات الصفحة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧾 سجل الكتابة": {
+      "main": [
+        [
+          {
+            "node": "📊 تقرير الدفعة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "2a2d0f32-cab2-41a6-8dcb-e2e062218949",
+      "name": "▶️ تشغيل يدوي فقط",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9bef87e6-32cf-4775-a3d4-f357cc59249e",
+      "name": "📇 صفوف بلا نصّ ATS (مكتملة فقط)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "dataSourceId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6c072632-a280-4294-bcf9-9673ed096f74",
+          "cachedResultName": "BP Candidates — ATS"
+        },
+        "returnAll": false,
+        "limit": 2000,
+        "filterType": "json",
+        "filterJson": "{\"and\":[{\"property\":\"ATS CV Text\",\"rich_text\":{\"is_empty\":true}},{\"property\":\"حالة القراءة\",\"select\":{\"equals\":\"مكتمل\"}},{\"property\":\"Source\",\"select\":{\"equals\":\"ترشيح\"}}]}",
+        "simple": false,
+        "options": {}
+      },
+      "notes": "limit=1 للتجربة. لتشغيل كامل: غيّر returnAll إلى true أو ارفع limit.",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "a425da30-91b5-45d6-8fcd-27d6a42b76d7",
+      "name": "📊 تقرير الدفعة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nlet threaded = [];\ntry { threaded = $(\"🧵 نصّ السيرة من الجسم\").all(); } catch (e) { threaded = []; }\nconst writes = $input.all();\n\nlet written = 0, failed = 0, chars = 0, elements = 0, truncated = 0;\nconst firstErrors = [];\nconst writtenPages = [];\nfor (let i = 0; i < writes.length; i++) {\n  const j = writes[i].json || {};\n  if (j.status === \"written\") {\n    written++;\n    chars += Number(j.textLength) || 0;\n    elements += Number(j.chunkCount) || 0;\n    if (j.truncated) truncated++;\n    if (writtenPages.length < 25) writtenPages.push({ pageId: j.pageId, textLength: j.textLength, chunkCount: j.chunkCount, maxElementChars: j.maxElementChars });\n  } else {\n    failed++;\n    if (firstErrors.length < 20) firstErrors.push({ pageId: j.pageId, error: j.error });\n  }\n}\n\nlet skipped = 0;\nlet maxElemSeen = 0;\nconst skipReasons = {};\nfor (let i = 0; i < threaded.length; i++) {\n  const j = threaded[i].json || {};\n  if (!j.ok) {\n    skipped++;\n    const k = j.reason || \"غير محدد\";\n    skipReasons[k] = (skipReasons[k] || 0) + 1;\n  }\n  const m = Number(j.maxElementChars) || 0;\n  if (m > maxElemSeen) maxElemSeen = m;\n}\n\nreturn [{ json: {\n  total: threaded.length,\n  written: written,\n  skipped: skipped,\n  failed: failed,\n  failedPct: threaded.length ? Math.round((failed / threaded.length) * 1000) / 10 : 0,\n  avgChars: written ? Math.round(chars / written) : 0,\n  richTextElementsWritten: elements,\n  truncatedRows: truncated,\n  maxElementCharsSeen: maxElemSeen,\n  skipReasons: skipReasons,\n  firstErrors: firstErrors,\n  writtenSample: writtenPages,\n  finishedAt: new Date().toISOString()\n} }];\n"
+      }
+    },
+    {
+      "id": "896702c6-ef64-4d4e-8217-43b3c982ea03",
+      "name": "🧱 بلوكات الصفحة",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        720,
+        400
+      ],
+      "parameters": {
+        "resource": "block",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "blockId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "returnAll": true,
+        "fetchNestedBlocks": false,
+        "simplifyOutput": true
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "1c82d32c-0aac-43dc-9e53-f25908519685",
+      "name": "🧵 نصّ السيرة من الجسم",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst HEAD = \"السيرة الذاتية ATS-friendly\";\nconst WARN = \"لم تُبنَ سيرة ATS\";\nconst MAX = 1900;\nconst MAX_CHUNKS = 20;\nconst MIN_LEN = 80;\nconst OK_STATUS = \"مكتمل\";\nconst OK_SOURCE = \"ترشيح\";\n\nfunction norm(s) { return String(s === null || s === undefined ? \"\" : s).toLowerCase().replace(/[^0-9a-f]/g, \"\"); }\n\nfunction blockText(j) {\n  if (typeof j.content === \"string\" && j.content.length > 0) return j.content;\n  const t = String(j.type || \"\");\n  const inner = t ? j[t] : null;\n  if (!inner || typeof inner !== \"object\") return \"\";\n  let rt = [];\n  if (Array.isArray(inner.rich_text)) rt = inner.rich_text;\n  else if (Array.isArray(inner.text)) rt = inner.text;\n  else if (Array.isArray(inner.title)) rt = inner.title;\n  let s = \"\";\n  for (let k = 0; k < rt.length; k++) {\n    const p = rt[k] || {};\n    if (p.plain_text !== null && p.plain_text !== undefined) s += String(p.plain_text);\n    else if (p.text && p.text.content !== null && p.text.content !== undefined) s += String(p.text.content);\n  }\n  return s;\n}\n\nconst rows = $(\"📇 صفوف بلا نصّ ATS (مكتملة فقط)\").all();\n\n// تجميع البلوكات بمعرّف صفحتها المحمول في البيانات نفسها (root_id / parent.page_id).\n// لا اعتماد على الترتيب ولا على pairedItem: الصفّ لا يأخذ إلا بلوكات صفحته هو،\n// فاختلاط سيرة مرشّح بآخر مستحيل بنيوياً لا محتملاً.\nconst raw = $input.all();\nlet blockErr = \"\";\nconst groups = {};\nlet unattributed = 0;\nlet placeholders = 0;\nfor (let i = 0; i < raw.length; i++) {\n  const j = (raw[i] && raw[i].json) || {};\n  if (j.error) { blockErr = String((j.error && j.error.message) || j.error); continue; }\n  if (!j.type && !j.id) { placeholders++; continue; }\n  const owner = norm(j.root_id || (j.parent && (j.parent.page_id || j.parent.block_id)));\n  if (!owner) { unattributed++; continue; }\n  if (!groups[owner]) groups[owner] = [];\n  groups[owner].push(j);\n}\n\nconst out = [];\nfor (let r = 0; r < rows.length; r++) {\n  const row = (rows[r] && rows[r].json) || {};\n  const pageId = String(row.id || \"\");\n  const key = norm(pageId);\n  const props = row.properties || {};\n  const fieldProp = props[\"ATS CV Text\"] || {};\n  const existing = Array.isArray(fieldProp.rich_text) ? fieldProp.rich_text : [];\n  let existingText = \"\";\n  for (let i = 0; i < existing.length; i++) existingText += String(existing[i].plain_text || \"\");\n  const statusProp = props[\"حالة القراءة\"] || {};\n  const readStatus = String((statusProp.select && statusProp.select.name) || \"\");\n  const sourceProp = props[\"Source\"] || {};\n  const sourceName = String((sourceProp.select && sourceProp.select.name) || \"\");\n\n  const mine = (key && groups[key]) ? groups[key] : [];\n\n  const kept = [];\n  let droppedHead = 0;\n  let emptyBlocks = 0;\n  for (let i = 0; i < mine.length; i++) {\n    const j = mine[i];\n    const type = String(j.type || \"\");\n    const t = blockText(j);\n    const trimmed = t.trim();\n    const isGenHead = (type.indexOf(\"heading\") === 0 && trimmed.indexOf(HEAD) >= 0) || trimmed === HEAD;\n    if (isGenHead) { droppedHead++; continue; }\n    if (!trimmed) { emptyBlocks++; continue; }\n    kept.push({ type: type, text: t });\n  }\n\n  let allParagraph = kept.length > 0;\n  for (let i = 0; i < kept.length; i++) if (kept[i].type !== \"paragraph\") { allParagraph = false; break; }\n  const joinMode = allParagraph ? \"slices\" : \"lines\";\n  const JOIN = allParagraph ? \"\" : \"\\n\";\n  const parts = [];\n  for (let i = 0; i < kept.length; i++) parts.push(kept[i].text);\n  const text = parts.join(JOIN).trim();\n\n  let ok = true;\n  let reason = \"\";\n  if (!pageId) { ok = false; reason = \"لا معرّف صفحة\"; }\n  else if (existingText.trim().length > 0) { ok = false; reason = \"الحقل غير فارغ (\" + existingText.trim().length + \" حرفاً) — لا يُدهس\"; }\n  else if (readStatus !== OK_STATUS) { ok = false; reason = \"حالة القراءة ليست «\" + OK_STATUS + \"»: \" + (readStatus || \"فارغة\"); }\n  else if (sourceName !== OK_SOURCE) { ok = false; reason = \"المصدر ليس «\" + OK_SOURCE + \"»: \" + (sourceName || \"فارغ\"); }\n  else if (mine.length === 0) { ok = false; reason = blockErr ? (\"فشل قراءة بلوكات الصفحة: \" + blockErr) : \"لا بلوكات في الصفحة (قراءة فارغة)\"; }\n  else if (kept.length === 0) { ok = false; reason = \"لا نصّ في بلوكات الصفحة\"; }\n  else if (text.indexOf(\"⚠️\") === 0 || text.indexOf(WARN) >= 0) { ok = false; reason = \"الجسم يحمل نصّ تحذير لا سيرة\"; }\n  else if (text.length < MIN_LEN) { ok = false; reason = \"النصّ أقصر من \" + MIN_LEN + \" حرفاً (\" + text.length + \")\"; }\n\n  const chunks = [];\n  let truncated = false;\n  if (ok) {\n    for (let i = 0; i < text.length; i += MAX) {\n      if (chunks.length >= MAX_CHUNKS) { truncated = true; break; }\n      chunks.push({ text: { content: text.slice(i, i + MAX) } });\n    }\n  }\n  let maxElem = 0;\n  for (let i = 0; i < chunks.length; i++) { const n = chunks[i].text.content.length; if (n > maxElem) maxElem = n; }\n  const body = { properties: { \"ATS CV Text\": { rich_text: chunks } } };\n\n  out.push({ json: {\n    pageId: pageId,\n    ok: ok,\n    reason: reason,\n    readStatus: readStatus,\n    source: sourceName,\n    textLength: text.length,\n    partsUsed: kept.length,\n    joinMode: joinMode,\n    droppedHeadBlocks: droppedHead,\n    myBlocks: mine.length,\n    rowsInBatch: rows.length,\n    blockItems: raw.length,\n    emptyOutputItems: placeholders,\n    unattributedBlocks: unattributed,\n    emptyBlocksSkipped: emptyBlocks,\n    chunkCount: chunks.length,\n    maxElementChars: maxElem,\n    truncated: truncated,\n    bodyJson: JSON.stringify(body)\n  }, pairedItem: { item: r } });\n}\nreturn out;\n",
+        "notes": ""
+      },
+      "notes": "JOIN = \"\" لأن chunk1..chunk6 في السيناريو الأصلي شرائح slice(i*1800) من نصّ واحد، لا فقرات مستقلة. MAX=1900 مثل rtChunks في api/candidate.js."
+    },
+    {
+      "id": "fe67eb4b-8d8f-40d9-bb7d-856e0ea0778a",
+      "name": "❓ نصّ سيرة صالح؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1160,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ok-1",
+              "leftValue": "={{ $json.ok }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "4de9d925-daf0-4738-a445-4f23d3bf1c79",
+      "name": "✍️ كتابة ATS CV Text",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.pageId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.bodyJson }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": false
+            }
+          },
+          "batching": {
+            "batch": {
+              "batchInterval": 1000,
+              "batchSize": 3
+            }
+          }
+        }
+      },
+      "notes": "PATCH مباشر لأن عقدة Notion تكتب rich_text عنصراً واحداً، ونوشن يحدّ العنصر بـ2000 حرف ويردّ 400.",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "d18db91c-e7fa-4831-8723-8a6c01df9ced",
+      "name": "🧾 سجل الكتابة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction norm(s) { return String(s === null || s === undefined ? \"\" : s).toLowerCase().replace(/[^0-9a-f]/g, \"\"); }\n\n// عناصر «🧵» التي مرّت بالشرط، بترتيبها — وهي نفسها التي دخلت عقدة الكتابة بالترتيب.\nconst src = [];\nconst all = $(\"🧵 نصّ السيرة من الجسم\").all();\nfor (let i = 0; i < all.length; i++) { const j = all[i].json || {}; if (j.ok) src.push(j); }\nconst byId = {};\nfor (let i = 0; i < src.length; i++) byId[norm(src[i].pageId)] = src[i];\n\nconst items = $input.all();\nconst out = [];\nfor (let i = 0; i < items.length; i++) {\n  const r = items[i].json || {};\n  let err = \"\";\n  if (r.error) err = (typeof r.error === \"string\") ? r.error : String(r.error.message || JSON.stringify(r.error));\n  const failed = !!err || (!r.id && r.object !== \"page\");\n  if (failed && !err) err = \"استجابة غير متوقعة من نوشن\";\n  // المطابقة بمعرّف الصفحة الذي يعيده نوشن نفسه؛ وعند الفشل (لا id) نرجع للترتيب.\n  const respKey = norm(r.id);\n  const s = (respKey && byId[respKey]) ? byId[respKey] : (src[i] || {});\n  out.push({ json: {\n    pageId: s.pageId,\n    status: failed ? \"failed\" : \"written\",\n    reason: \"\",\n    textLength: s.textLength,\n    chunkCount: s.chunkCount,\n    maxElementChars: s.maxElementChars,\n    truncated: s.truncated,\n    matchedBy: (respKey && byId[respKey]) ? \"notionId\" : \"order\",\n    error: failed ? String(err).slice(0, 400) : \"\"\n  }, pairedItem: { item: i } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "91e9a625-6757-4a79-9d37-151800f4a4ff",
+      "name": "🧾 سجل التخطّي",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        520
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\n// عناصر الفرع السالب هي نفسها عناصر «🧵» بـ ok:false — كلّٓ يحمل سببه.\nconst items = $input.all();\nconst out = [];\nfor (let i = 0; i < items.length; i++) {\n  const s = items[i].json || {};\n  out.push({ json: {\n    pageId: s.pageId,\n    status: \"skipped\",\n    reason: s.reason,\n    textLength: s.textLength,\n    chunkCount: 0,\n    maxElementChars: 0,\n    truncated: false,\n    error: \"\"\n  }, pairedItem: { item: i } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "9bdb059c-14d2-4eff-b5b8-d139521db772",
+      "name": "Sticky Note ebfab90f",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "parameters": {
+        "content": "## 🩹 ترقيع ATS CV Text من جسم الصفحة\n\n**سيناريو منفصل — لا يلمس `BP — وكيل Outlook CVs → ATS`.**\n\nيدوي فقط. غير منشور. لا جدولة.\n\n**التشغيل التجريبي:** `📇 صفوف بلا نصّ ATS` عنده `limit = 1`.\nللتشغيل الكامل بعد الاعتماد: ارفع `limit` أو اجعل `returnAll = true`.\n\n**الفلتر ثلاثة شروط (2026-09-29):** الحقل فارغ · حالة القراءة «مكتمل» · **`Source` = «ترشيح»**.\nلماذا المصدر: أجسام الصفحات (`chunk1…chunk6`) يكتبها وكيل Outlook وحده، فصفوف «الموقع» (١٬٠٢٥) و«لينكدإن» (٩٩) تحمل «مكتمل» بلا جسم إطلاقاً.\n\n**قراءة فارغة لا تقتل الحلقة (2026-09-29):** `🧱 بلوكات الصفحة` عليها `alwaysOutputData = true`.\nكانت تعود `main: [[]]` فيموت المسار وتتوقف الحلقة عند أول صفّ بنجاح كاذب (`done: false`).\n`alwaysOutputData` يُخرج عنصراً فارغاً `{}`، و`🧵 نصّ السيرة` يميّزه بعدم وجود `type` ولا `id`، فلا يقرأ منه شيئاً ولا يحسبه بلوكاً — يردّ `ok:false` بسبب «لا بلوكات في الصفحة (قراءة فارغة)» والحلقة تمضي.\n\n**الأمان:** `🧵 نصّ السيرة` يرفض الصفّ إن كان الحقل غير فارغ، أو حالة القراءة ليست «مكتمل»، أو الجسم يحمل تحذيراً بدل سيرة، أو النصّ أقصر من ٨٠ حرفاً.\n\n**لماذا HTTP وليس عقدة Notion:** عقدة Notion تكتب rich_text عنصراً واحداً، ونوشن يحدّ العنصر بـ٢٠٠٠ حرف ويردّ 400 — فالكتابة مصفوفة عناصر ١٩٠٠ حرف (منطق rtChunks في api/candidate.js).",
+        "color": 3
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

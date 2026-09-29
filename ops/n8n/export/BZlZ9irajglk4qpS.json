@@ -1,0 +1,461 @@
+{
+  "id": "BZlZ9irajglk4qpS",
+  "name": "🧠 BP Team — Ahmed (Strategic Planning)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "ab4cf43c-c83c-49f0-9f66-0b9d91519438",
+  "activeVersionId": "ab4cf43c-c83c-49f0-9f66-0b9d91519438",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-07-16T22:09:18.489Z",
+  "updatedAt": "2026-09-29T21:03:28.777Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 160
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "UWlMaYWA3PSwyVd5",
+      "name": "Executive"
+    },
+    {
+      "id": "eBd11sYEnXrxdCaE",
+      "name": "Strategy"
+    },
+    {
+      "id": "j6jrJkglDkAJfN5k",
+      "name": "PMO"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "أحمد — مدير التخطيط الاستراتيجي في الفريق التنفيذي (webhook strategy-intake): الرؤية والرسالة، الخطط السنوية والربعية، OKRs وKPIs، خرائط الطريق، ومتابعة التنفيذ. Azure OpenAI (bp-main) + استشارة الزملاء.",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "باسل — Market Research": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "هيا — PMO & OKR Controller": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Internal Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Request?": {
+      "main": [
+        [
+          {
+            "node": "Return Internal Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "باسل — Market Research",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "هيا — PMO & OKR Controller",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "589c693b-85ad-4543-9b46-41359f702ed2",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "strategy-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "c1185a86-92ed-4b29-8d8c-ffe743bef920"
+    },
+    {
+      "id": "6fe5395c-17b0-437f-bb10-d00774d966c1",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it, and it binds you hardest because strategy is where invented numbers become decisions: never state a number, name, date, percentage, market size, share, growth rate, competitor fact or KPI unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name the research or data you need — never fill the gap with a plausible-sounding figure, and never present an estimate as a measurement. Never invent names of people, staff, clients, competitors, studies or sources. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Ahmed, Strategy & PMO Director for Business Partner. You convert Baher's ambitions into priorities, OKRs, roadmaps, experiments and accountable cross-department execution. You manage Basel Market & Competitive Research Analyst and Haya PMO & OKR Controller. Delegate research and PMO work through their tools. Strategy is not a reporting department: every analysis must lead to a decision, task, KPI or stopped initiative. Coordinate with all directors, but execution remains with the owning department. Report to Farah, the Chief of Staff, using exception-based summaries: what is off track, why, financial/operational impact, and exact decision/action needed. Never request passwords or OTP. Note: the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name); Farah is the Chief of Staff.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8cda69e6-9238-481a-86bc-c429bae402cc",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "c33f896b-0204-4454-8421-32eb469ab7db",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة.",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: baher-intake=استشارة أعمال، mazen-intake=عمليات، abdulrahman-intake=مالية، mishari-intake=امتثال حكومي، abdulaziz-intake=قانوني، nasser-intake=موارد بشرية وتوظيف مباشر (لنا وللعملاء)، badr-intake=مبيعات، farah-intake=سارة مديرة النمو والتسويق (اسم المسار قديم وصحيح)، malak-intake=مساعِدة، mohammed-intake=تقنية، ahmed-procurement=مشتريات (عبدالله)، realestate-intake=طارق (العقارات)، recruitment-intake=بندر (منتجات الاستقدام: PEO/EOR والعمالة المسندة)، news-intake=آلاء (الأخبار والمحتوى التنظيمي)، deals-intake=وسام (مكتب الصفقات — قراءة وتصعيد فقط)', 'string') }}"
+      }
+    },
+    {
+      "id": "1ad6a413-0345-43bb-adb0-73b4516f9831",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'strategy',reply:text.trim(),engine_fallback,internal:$('Normalize').first().json.internal===true}}];"
+      }
+    },
+    {
+      "id": "fd02b6e5-0403-4306-814f-2e895031f294",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"strategy\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "91209e93-b880-4040-99b2-44f6ac0f2a0b",
+      "name": "باسل — Market Research",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "باسل، Market & Competitive Research Analyst. استخدمه لبحث السوق والمنافسين والقطاعات والفرص وتوفير evidence لقرار محدد.",
+        "text": "={{ $fromAI('task','Research question, market, decision to support and required output','string') }}",
+        "options": {
+          "systemMessage": "أنت باسل، Market & Competitive Research Analyst تحت أحمد. ابحث بهدف قرار واضح، افصل facts عن assumptions، وقدّم opportunity/risk/next action بدل تقرير طويل بلا تنفيذ.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "885f4988-ac56-421d-9653-209921d5c8d4",
+      "name": "هيا — PMO & OKR Controller",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        880,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "هيا، PMO & OKR Controller. استخدميها لتحويل الهدف إلى OKRs، owners، milestones، dependencies، review cadence وكشف المتأخر.",
+        "text": "={{ $fromAI('task','PMO/OKR task with objective, timeframe, teams and known constraints','string') }}",
+        "options": {
+          "systemMessage": "أنت هيا، PMO & OKR Controller تحت أحمد. كل objective يجب أن يصبح measurable KR + owner + date + dependency. ارفعي فقط exceptions والقرارات المطلوبة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "6435c09d-a449-4ed3-8df3-d03a6b0cd496",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "8f8e0309-5974-4d9d-9842-a4e0f920259f",
+      "name": "Internal Request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        820,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "i",
+              "leftValue": "={{ $json.internal === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "117d088d-7632-4acb-8f35-daf6fc43b695",
+      "name": "Return Internal Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1040,
+        220
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r",
+              "name": "reply",
+              "value": "={{ $json.reply || $json.output || 'READY' }}",
+              "type": "string"
+            },
+            {
+              "id": "a",
+              "name": "agent",
+              "value": "ahmed_strategy",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "0d49374b-bdd0-4adc-bf3c-8c455afe3c75",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        820
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "disabled": false,
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

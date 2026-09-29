@@ -1,0 +1,289 @@
+{
+  "id": "QXuY39TKC0FNQp9R",
+  "name": "BP — Bounce Handler (فلتر الارتداد التلقائي)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "a35bc973-3e66-4da4-af93-6038faac0458",
+  "activeVersionId": "a35bc973-3e66-4da4-af93-6038faac0458",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-08-06T18:05:17.559Z",
+  "updatedAt": "2026-08-06T18:20:24.396Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "يقرأ إشعارات الارتداد من Gmail كل ٤ ساعات، يستخرج العنوان الذي فشل تسليمه، ويعلّم السجل في Notion كـ Failed + Suppressed حتى لا يُعاد الإرسال له. الارتدادات المؤقتة (4.x.x) تُتجاهل.",
+  "connections": {
+    "Every 4 Hours": {
+      "main": [
+        [
+          {
+            "node": "Fetch Bounce Notices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Bounce Notices": {
+      "main": [
+        [
+          {
+            "node": "Extract Failed Recipients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Failed Recipients": {
+      "main": [
+        [
+          {
+            "node": "Find Record by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Record by Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Now (Manual)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Bounce Notices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "043a49c9-8d13-4f5e-a10c-67a4ac47849c",
+      "name": "Sticky Note 3bab49b8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        448,
+        256
+      ],
+      "parameters": {
+        "content": "## BP — Bounce Handler\n\nReads the MAILER-DAEMON notices in business@businesspartnerksa.com and closes the loop back into Notion.\n\n**Flow**\nGmail (last 3 days) → parse the failed address → find that record in BP — Companies Sales DB → set `Last Campaign Status = Failed`, `Suppressed = true`, `Suppress Reason = Bounced`, plus the server reason and the date.\n\n**Only permanent failures count.** A 4.x.x soft bounce (full mailbox, server down) is logged and skipped — the lead survives.\n\nRuns every 4 hours. Re-running is harmless: writing Failed twice changes nothing.\n\nThis is what keeps the bounce rate from climbing back up: once an address bounces, the sender can never pick it up again.",
+        "color": 3
+      }
+    },
+    {
+      "id": "d523b7a0-52b1-4043-8145-0c71dac3bf0c",
+      "name": "Every 4 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "notes": "Bounces arrive within minutes of a send; a 4-hour sweep with a 3-day window never misses one."
+    },
+    {
+      "id": "e49e63e7-8dbe-4c44-ab83-922ded7a663c",
+      "name": "Fetch Bounce Notices",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "q": "from:(mailer-daemon OR postmaster OR \"Mail Delivery Subsystem\" OR \"Mail Delivery System\") newer_than:3d",
+          "readStatus": "both",
+          "includeSpamTrash": true
+        },
+        "options": {
+          "downloadAttachments": false
+        }
+      },
+      "notes": "MAILER-DAEMON / postmaster notices from the last 3 days, read or unread.",
+      "notesInFlow": true,
+      "onError": "continueRegularOutput",
+      "webhookId": "09bdea64-7598-42bf-9ac8-6def39b226a6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "8df3c4cf-407b-48b6-a7c2-1d317fb0c7db",
+      "name": "Extract Failed Recipients",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ===== BP — Bounce Handler : Extract Failed Recipients =====\n// Input: raw MAILER-DAEMON / postmaster notices from Gmail.\n// Output: one item per unique HARD-bounced address.\n// A lead is only burned when the failure is permanent AND unambiguous — a delay notice,\n// a full mailbox or a reason we cannot read all leave the record untouched.\n\nconst OUR_DOMAINS = [\"businesspartnerksa.com\",\"businesspartner.sa\",\"googlemail.com\",\"google.com\",\"mailer-daemon.com\"];\nconst OUR_ADDRESSES = [\"business@businesspartnerksa.com\",\"dr.baher.magnas@gmail.com\",\"mailer-daemon@googlemail.com\",\"postmaster@googlemail.com\"];\n\nconst RE_ANY_EMAIL = /[a-z0-9._%+'-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,}/gi;\n\n// Not a failure at all — the server is still trying.\nconst NOT_A_FAILURE = [\"(delay)\",\"delayed\",\"warning: message\",\"delivery delayed\",\"still trying\",\"will retry\"];\n\n// Permanent whatever the numeric code says: the address itself is wrong.\nconst HARD_PHRASES = [\n  \"does not exist\",\"doesn't exist\",\"user unknown\",\"unknown user\",\"no such user\",\n  \"address not found\",\"recipient not found\",\"mailbox not found\",\"user does not exist\",\n  \"invalid recipient\",\"no mailbox\",\"domain not found\",\"unrouteable address\",\n  \"recipient address rejected\",\"account that you tried to reach\",\"nxdomain\",\n];\n\n// Temporary in practice, even though the code is in the 5xx range.\nconst SOFT_PHRASES = [\"mailbox is full\",\"mailbox full\",\"over quota\",\"quota exceeded\",\"insufficient system storage\",\"try again later\",\"temporarily\",\"greylist\"];\n\nfunction textOf(j) {\n  const parts = [j.text, j.textAsHtml, j.html, j.snippet, j.subject];\n  if (j.payload) { try { parts.push(JSON.stringify(j.payload)); } catch (e) {} }\n  return parts.filter(Boolean).join(\"\\n\");\n}\n\nfunction failedRecipient(body) {\n  const ordered = [\n    /Final-Recipient:\\s*(?:rfc822;)?\\s*<?([a-z0-9._%+'-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,})>?/i,\n    /Original-Recipient:\\s*(?:rfc822;)?\\s*<?([a-z0-9._%+'-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,})>?/i,\n    /(?:wasn't|was not|couldn't be|could not be) delivered to:?\\s*<?([a-z0-9._%+'-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,})>?/i,\n    /to\\s+<?([a-z0-9._%+'-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,})>?\\s+(?:because|failed|has been)/i,\n  ];\n  for (const re of ordered) {\n    const m = body.match(re);\n    if (m) return m[1].toLowerCase();\n  }\n  const all = body.match(RE_ANY_EMAIL) || [];\n  for (const raw of all) {\n    const e = raw.toLowerCase();\n    if (OUR_ADDRESSES.includes(e)) continue;\n    if (OUR_DOMAINS.includes(e.split(\"@\")[1])) continue;\n    return e;\n  }\n  return \"\";\n}\n\nfunction severity(body) {\n  const low = body.toLowerCase();\n  if (SOFT_PHRASES.some(p => low.includes(p))) return \"soft\";\n\n  const status = body.match(/Status:\\s*([245])\\.(\\d+)\\.(\\d+)/i);\n  if (status) {\n    if (status[1] !== \"5\") return \"soft\";\n    // 5.2.2 is a full mailbox — the address is fine, the inbox is not.\n    if (status[2] === \"2\" && status[3] === \"2\") return \"soft\";\n    return \"hard\";\n  }\n  if (/\\b552\\b/.test(body)) return \"soft\";\n  if (HARD_PHRASES.some(p => low.includes(p))) return \"hard\";\n  if (/\\b5\\d\\d[\\s-]/.test(body)) return \"hard\";\n  if (/\\b4\\d\\d[\\s-]/.test(body)) return \"soft\";\n  return \"unknown\";\n}\n\nfunction reason(body) {\n  const diag = body.match(/Diagnostic-Code:\\s*([^\\n\\r]{0,180})/i);\n  if (diag) return diag[1].trim();\n  const line = body.match(/((?:5|4)\\d\\d[- ][^\\n\\r]{0,160})/);\n  if (line) return line[1].trim();\n  return \"\";\n}\n\nconst seen = new Map();\nlet soft = 0, delayed = 0, unclear = 0, unparsed = 0;\n\nfor (const item of $input.all()) {\n  const j = item.json;\n  const body = textOf(j);\n  if (!body) { unparsed++; continue; }\n\n  const subject = String(j.subject || \"\").toLowerCase();\n  if (NOT_A_FAILURE.some(p => subject.includes(p))) { delayed++; continue; }\n\n  const email = failedRecipient(body);\n  if (!email) { unparsed++; continue; }\n\n  const sev = severity(body);\n  if (sev === \"soft\") { soft++; continue; }\n  // Never suppress on a reason we could not read.\n  if (sev !== \"hard\") { unclear++; continue; }\n\n  if (seen.has(email)) continue;\n  seen.set(email, {\n    _email: email,\n    _severity: sev,\n    _detail: (reason(body) || \"Hard bounce reported by the receiving server\").slice(0, 190),\n    _messageId: j.id || \"\",\n    _subject: j.subject || \"\",\n  });\n}\n\nconsole.log(\"notices read:\", $input.all().length, \"| hard:\", seen.size, \"| soft:\", soft, \"| delays:\", delayed, \"| unclear:\", unclear, \"| unparsed:\", unparsed);\nreturn [...seen.values()].map(v => ({ json: v }));\n"
+      },
+      "notes": "Pulls the failed address out of each notice and keeps only permanent (5.x.x) failures.",
+      "notesInFlow": true
+    },
+    {
+      "id": "c4f3fda4-2689-405e-b5a2-080b196c0f98",
+      "name": "Find Record by Email",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca27-6188-4b6a-b584-924c374f2d22"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json._email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "No match means the bounce came from something other than this campaign — nothing to do.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "disabled": false,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "276554e5-fced-4a47-a004-b3b681bc3e11",
+      "name": "Mark Failed",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Last Campaign Status|select",
+              "selectValue": "Failed"
+            },
+            {
+              "key": "Suppressed|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Suppress Reason|select",
+              "selectValue": "Bounced"
+            },
+            {
+              "key": "Bounce Detail|rich_text",
+              "richText": false,
+              "textContent": "={{ $(\"Extract Failed Recipients\").all().find(i => i.json._email === $json.property_email)?.json._detail || \"Hard bounce\" }}"
+            },
+            {
+              "key": "Bounce Date|date",
+              "includeTime": false,
+              "date": "={{ $now.toISODate() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Last Campaign Status = Failed and Suppressed = true, so this address is never sent to again.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "disabled": false,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "2c5c9271-b38f-406a-8e8e-0db5a36a6d2d",
+      "name": "Run Now (Manual)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {}
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

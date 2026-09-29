@@ -1,0 +1,913 @@
+{
+  "id": "ess3HEXGMPnZnzLH",
+  "name": "BP — Email → Notion CRM + Drive + Alerts",
+  "active": true,
+  "isArchived": false,
+  "versionId": "d7f29f5b-402c-4e59-85c1-928599a6649b",
+  "activeVersionId": "d7f29f5b-402c-4e59-85c1-928599a6649b",
+  "triggerCount": 2,
+  "nodeCount": 24,
+  "createdAt": "2026-07-03T04:27:32.660Z",
+  "updatedAt": "2026-09-20T15:22:11.108Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Ingest Gmail emails (new via trigger + historical backfill of labeled mail) → AI classify → write to LIVE Notion Emails DB with full metadata, thread id, dates, phone numbers, Gmail labels. Attachments downloaded, uploaded to Google Drive folder + linked ",
+  "connections": {
+    "New Email (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Mark New",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark New": {
+      "main": [
+        [
+          {
+            "node": "Merge Email Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Email Sources": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Spread Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Historical Backfill": {
+      "main": [
+        [
+          {
+            "node": "Fetch Labeled Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Labeled Emails": {
+      "main": [
+        [
+          {
+            "node": "Mark Historical",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Historical": {
+      "main": [
+        [
+          {
+            "node": "Merge Email Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Email Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Build Email Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Fields Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Email Analyzer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Record": {
+      "main": [
+        [
+          {
+            "node": "Create Email Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Email Record": {
+      "main": [
+        [
+          {
+            "node": "Is New Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Email?": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Alert (Owner)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Attachment to Drive": {
+      "main": [
+        [
+          {
+            "node": "Create Attachment Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Dedup Email (Seen Before)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup Email (Seen Before)": {
+      "main": [
+        [
+          {
+            "node": "AI Email Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spread Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "Dedup Attachment (Seen Before)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup Attachment (Seen Before)": {
+      "main": [
+        [
+          {
+            "node": "Upload Attachment to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backfill Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Labeled Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Email Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (مجاني — أساسي)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Email Analyzer",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "f717dbc4-7438-4476-9e0a-58c9ee6dfdd8",
+      "name": "New Email (Gmail)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        352
+      ],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes",
+              "value": 15
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true,
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "cc3db23d-50c4-4a0b-aebf-994911d6edb7",
+      "name": "Mark New",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        352
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "source",
+              "value": "new",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "21d35054-edac-46db-a845-df8edc32ee31",
+      "name": "Merge Email Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        672,
+        256
+      ],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "8f0b31ac-97bf-4fb4-a61d-105f948f924d",
+      "name": "Run Historical Backfill",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "d5642ada-4c6b-4e5b-bd08-f57a1911f729",
+      "name": "Fetch Labeled Emails",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        160
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 40,
+        "simple": false,
+        "filters": {
+          "q": "has:userlabels before:2026/06/01",
+          "readStatus": "both"
+        },
+        "options": {
+          "downloadAttachments": false,
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        }
+      },
+      "webhookId": "8368d118-c969-4631-8afe-874cbef50df7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "8e2a856e-52d6-4def-861e-b264856bf939",
+      "name": "Mark Historical",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        160
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s2",
+              "name": "source",
+              "value": "historical",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "328d39e0-5be5-4fe3-b065-a50a736c36b4",
+      "name": "Normalize Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        112
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const j = $json;\nconst owner = \"business@businesspartnerksa.com\";\nconst fromText = (j.from && j.from.text) || j.from || \"\";\nlet senderEmail = (j.from && j.from.value && j.from.value[0] && j.from.value[0].address) || \"\";\nif (!senderEmail && fromText.includes(\"<\")) { const m = fromText.match(/<([^>]+)>/); senderEmail = m ? m[1] : \"\"; }\nif (!senderEmail && fromText.includes(\"@\")) senderEmail = fromText.trim();\nlet senderName = fromText.replace(/<[^>]*>/g, \"\").replace(/[\"\\\\]/g, \"\").trim();\nif (!senderName) senderName = senderEmail;\nconst toText = (j.to && j.to.text) || j.to || \"\";\nconst ccText = (j.cc && j.cc.text) || j.cc || \"\";\nconst bccText = (j.bcc && j.bcc.text) || j.bcc || \"\";\nconst body = String(j.text || j.textAsHtml || j.snippet || \"\");\nconst dateIso = j.date ? new Date(j.date).toISOString() : new Date().toISOString();\nconst labels = Array.isArray(j.labelIds) ? j.labelIds.join(\", \") : (j.Labels || \"\");\nconst rx = /(\\+?\\d[\\d\\s().-]{7,}\\d)/g;\nconst found = (fromText + \" \" + body).match(rx) || [];\nconst phones = Array.from(new Set(found.map(function(s){return s.replace(/[\\s().-]/g,\"\");}).filter(function(s){return s.length>=9 && s.length<=15;}))).join(\", \");\nconst direction = senderEmail.toLowerCase() === owner ? \"Outgoing\" : \"Incoming\";\nreturn { json: {\n  subject: j.subject || \"(no subject)\",\n  senderName: senderName, senderEmail: senderEmail,\n  recipient: toText, cc: ccText, bcc: bccText,\n  dateIso: dateIso, labels: labels, phones: phones, direction: direction,\n  body: body.slice(0, 1900),\n  messageId: j.id || j.messageId || \"\",\n  threadId: j.threadId || \"\",\n  source: j.source || \"new\"\n} };"
+      }
+    },
+    {
+      "id": "843f9e0a-d1c5-4d65-88a4-c40196957066",
+      "name": "AI Email Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this business email and extract structured fields.\nSubject: {{ $json.subject }}\nFrom: {{ $json.senderName }} <{{ $json.senderEmail }}>\nTo: {{ $json.recipient }}\nDate: {{ $json.dateIso }}\nBody:\n{{ $json.body }}\n\nclassification MUST be exactly one of: Business Development, Company Formation, Foreign Investment, Premium Residency, Recruitment, GRO, HR Services, Tourism, Medical Tourism, Government Relations, Real Estate, Finance, Contracts, Quotations, Invoices, Payments, Complaints, Support Requests, Internal Communication, Marketing, Other.\npriority one of: Low, Medium, High, Critical.\nsentiment one of: Positive, Neutral, Negative, Urgent.\nsummary: 1-2 sentence summary. actionRequired: true/false. taskName: short task if action required else empty.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert email classifier for a Saudi business-services company. Return only the structured fields."
+        },
+        "needsFallback": true
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "fb03a563-5914-4bb5-9139-4f34400c3fda",
+      "name": "GPT-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1136,
+        224
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "disabled": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "111b263e-b95e-4614-8df5-4634a0b35494",
+      "name": "Email Fields Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        224
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"classification\":\"Marketing\",\"priority\":\"Medium\",\"sentiment\":\"Neutral\",\"summary\":\"Brief summary of the email in one or two sentences\",\"actionRequired\":false,\"taskName\":\"\"}"
+      }
+    },
+    {
+      "id": "ec2d3970-c9a3-4538-bb49-b53f452d393f",
+      "name": "Build Email Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        112
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ai = ($json.output) || $json || {};\nconst n = $(\"Normalize Email\").item.json;\nconst classes = [\"Business Development\",\"Company Formation\",\"Foreign Investment\",\"Premium Residency\",\"Recruitment\",\"GRO\",\"HR Services\",\"Tourism\",\"Medical Tourism\",\"Government Relations\",\"Real Estate\",\"Finance\",\"Contracts\",\"Quotations\",\"Invoices\",\"Payments\",\"Complaints\",\"Support Requests\",\"Internal Communication\",\"Marketing\",\"Other\"];\nconst prio = [\"Low\",\"Medium\",\"High\",\"Critical\"];\nconst senti = [\"Positive\",\"Neutral\",\"Negative\",\"Urgent\"];\nconst pick = function(v, list, def){ return list.indexOf(v) >= 0 ? v : def; };\nreturn { json: Object.assign({}, n, {\n  classification: pick(ai.classification, classes, \"Other\"),\n  priority: pick(ai.priority, prio, \"Medium\"),\n  sentiment: pick(ai.sentiment, senti, \"Neutral\"),\n  summary: String(ai.summary || \"\").slice(0, 1900),\n  actionRequired: !!ai.actionRequired,\n  taskName: String(ai.taskName || \"\")\n}) };"
+      }
+    },
+    {
+      "id": "e4be2c88-bb7d-43b2-8bd7-6e4513183d10",
+      "name": "Create Email Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        112
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "9f7749a7-d9ef-4202-800f-43f078f6b2f8",
+          "cachedResultName": "Emails"
+        },
+        "title": "={{ $json.subject }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Sender Name|rich_text",
+              "textContent": "={{ $json.senderName }}"
+            },
+            {
+              "key": "Sender Email|email",
+              "emailValue": "={{ $json.senderEmail }}"
+            },
+            {
+              "key": "Recipient|rich_text",
+              "textContent": "={{ $json.recipient }}"
+            },
+            {
+              "key": "CC|rich_text",
+              "textContent": "={{ $json.cc }}"
+            },
+            {
+              "key": "BCC|rich_text",
+              "textContent": "={{ $json.bcc }}"
+            },
+            {
+              "key": "Date|date",
+              "includeTime": true,
+              "date": "={{ $json.dateIso }}"
+            },
+            {
+              "key": "Full Body|rich_text",
+              "textContent": "={{ $json.body }}"
+            },
+            {
+              "key": "Summary|rich_text",
+              "textContent": "={{ $json.summary }}"
+            },
+            {
+              "key": "Phone Numbers|rich_text",
+              "textContent": "={{ $json.phones }}"
+            },
+            {
+              "key": "Gmail Labels|rich_text",
+              "textContent": "={{ $json.labels }}"
+            },
+            {
+              "key": "Message ID|rich_text",
+              "textContent": "={{ $json.messageId }}"
+            },
+            {
+              "key": "Thread ID|rich_text",
+              "textContent": "={{ $json.threadId }}"
+            },
+            {
+              "key": "Direction|select",
+              "selectValue": "={{ $json.direction }}"
+            },
+            {
+              "key": "AI Classification|select",
+              "selectValue": "={{ $json.classification }}"
+            },
+            {
+              "key": "AI Priority|select",
+              "selectValue": "={{ $json.priority }}"
+            },
+            {
+              "key": "Sentiment|select",
+              "selectValue": "={{ $json.sentiment }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "f3ec42f0-acfd-448f-b5e2-564320daff82",
+      "name": "Is New Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        112
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Build Email Record').item.json.source }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "new"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "eb147146-9a00-41d9-a8fb-61bb36853181",
+      "name": "WhatsApp Alert (Owner)",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2144,
+        112
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966530540231",
+        "messageType": "text",
+        "textBody": "=📩 إيميل جديد في نوشن\nمن: {{ $('Build Email Record').item.json.senderName }} ({{ $('Build Email Record').item.json.senderEmail }})\nالموضوع: {{ $('Build Email Record').item.json.subject }}\nالتصنيف: {{ $('Build Email Record').item.json.classification }} | الأولوية: {{ $('Build Email Record').item.json.priority }}\nملخص: {{ $('Build Email Record').item.json.summary }}"
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "1dcf2972-077c-4cae-bdb2-72a01b21abe9",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "pBK0zR1g2JQSuRLe",
+          "name": "WhatsApp — Business Partner — 0507034157"
+        }
+      }
+    },
+    {
+      "id": "39c7c8b8-49c1-4627-989d-4d755609d222",
+      "name": "Spread Email Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const out = [];\nconst typeFor = function(ext){\n  ext = (ext||\"\").toLowerCase();\n  if (ext === \"pdf\") return \"PDF\";\n  if (ext === \"doc\" || ext === \"docx\") return \"DOCX\";\n  if (ext === \"xls\" || ext === \"xlsx\" || ext === \"csv\") return \"XLSX\";\n  if (ext === \"ppt\" || ext === \"pptx\") return \"PPTX\";\n  if ([\"png\",\"jpg\",\"jpeg\",\"gif\",\"webp\",\"bmp\",\"tiff\",\"heic\"].indexOf(ext) >= 0) return \"Image\";\n  if (ext === \"zip\" || ext === \"rar\" || ext === \"7z\") return \"ZIP\";\n  return \"Other\";\n};\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const bin = item.binary || {};\n  const subject = j.subject || \"(no subject)\";\n  const messageId = j.id || j.messageId || \"\";\n  const threadId = j.threadId || \"\";\n  const dateIso = j.date ? new Date(j.date).toISOString() : new Date().toISOString();\n  for (const key of Object.keys(bin)) {\n    if (key.indexOf(\"attachment_\") !== 0) continue;\n    const b = bin[key];\n    const fileName = b.fileName || (\"file_\" + key);\n    const ext = (fileName.indexOf(\".\") >= 0 ? fileName.split(\".\").pop() : \"\").toLowerCase();\n    const size = Number(b.bytes || b.fileSize || 0) || 0;\n    out.push({ json: { fileName: fileName, ext: ext, fileType: typeFor(ext), mimeType: b.mimeType || \"\", fileSize: size, subject: subject, messageId: messageId, threadId: threadId, dateIso: dateIso }, binary: { data: b } });\n  }\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "636f5f62-39b8-4a62-a0cc-2d141699f1c8",
+      "name": "Upload Attachment to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        400
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JrneNTS2v13cxg4rMgGcjWakP_2NGGoy",
+          "cachedResultName": "BP Email Attachments"
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "cb8d7e72-ecd7-4351-82c6-7a02ecd1e3e9",
+      "name": "Create Attachment Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        400
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "2cb6e4f1-5051-4017-bdef-f616ea45063c",
+          "cachedResultName": "Attachments"
+        },
+        "title": "={{ $('Spread Email Attachments').item.json.fileName }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "File Type|select",
+              "selectValue": "={{ $('Spread Email Attachments').item.json.fileType }}"
+            },
+            {
+              "key": "File Extension|rich_text",
+              "textContent": "={{ $('Spread Email Attachments').item.json.ext }}"
+            },
+            {
+              "key": "File Size|number",
+              "numberValue": "={{ $('Spread Email Attachments').item.json.fileSize }}"
+            },
+            {
+              "key": "Download URL|url",
+              "urlValue": "={{ $json.webViewLink }}"
+            },
+            {
+              "key": "Drive File ID|rich_text",
+              "textContent": "={{ $json.id }}"
+            },
+            {
+              "key": "Source Email Subject|rich_text",
+              "textContent": "={{ $('Spread Email Attachments').item.json.subject }}"
+            },
+            {
+              "key": "Message ID|rich_text",
+              "textContent": "={{ $('Spread Email Attachments').item.json.messageId }}"
+            },
+            {
+              "key": "Thread ID|rich_text",
+              "textContent": "={{ $('Spread Email Attachments').item.json.threadId }}"
+            },
+            {
+              "key": "Upload Date|date",
+              "includeTime": true,
+              "date": "={{ $('Spread Email Attachments').item.json.dateIso }}"
+            },
+            {
+              "key": "Attachment Status|select",
+              "selectValue": "Downloaded"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "9215e1d4-fcaa-46da-a56d-fde0c097af50",
+      "name": "Dedup Email (Seen Before)",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        80
+      ],
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "dedupeValue": "={{ $json.messageId }}",
+        "options": {
+          "scope": "node",
+          "historySize": 50000
+        }
+      }
+    },
+    {
+      "id": "48d80175-749b-418a-9baf-b09b1cfb2f4c",
+      "name": "Dedup Attachment (Seen Before)",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        400
+      ],
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "dedupeValue": "={{ $json.messageId }}::{{ $json.fileName }}",
+        "options": {
+          "scope": "node",
+          "historySize": 50000
+        }
+      }
+    },
+    {
+      "id": "0c8de21b-1a2b-4bdb-a2ad-0028b934778d",
+      "name": "Backfill Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        600
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7ca36c6c-4735-464e-912d-d88f845aa2cd",
+      "name": "Claude Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1000,
+        224
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-4-5-20251001"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "mmbdtwapuZXoY91N",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "908e8c5b-52ef-48ff-a23b-4961bf532b67",
+      "name": "Gemini (مجاني — أساسي)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        400
+      ],
+      "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
+        "options": {
+          "maxOutputTokens": 800,
+          "temperature": 0.2
+        }
+      },
+      "notes": "مجاني. سقفه أوسع من غيره، وهذا السير يعمل على كل بريد وارد.",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EeMcf3QldeZBdaQL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "id": "c028268e-d581-4c06-9392-82af160348f4",
+      "name": "OpenRouter (مجاني — احتياطي)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        560
+      ],
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {
+          "maxTokens": 800,
+          "temperature": 0.2
+        }
+      },
+      "notes": "يعمل فقط حين يفشل Gemini. الطبقة المجانية في OpenRouter محدودة يومياً، فلا تُجعل أساسية في سير يعمل كل دقيقة.",
+      "credentials": {
+        "openRouterApi": {
+          "id": "7iMT4oTT0p8bqcds",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "id": "76a77662-82bc-4e4b-809d-7bb498931995",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        700
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 800,
+          "temperature": 0.2,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الأساسي. bp-main على bp-ai-ksa-2026. Gemini نزل للمدخل ١ احتياطاً.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

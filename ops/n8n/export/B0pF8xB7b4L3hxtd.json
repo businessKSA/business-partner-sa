@@ -1,0 +1,440 @@
+{
+  "id": "B0pF8xB7b4L3hxtd",
+  "name": "BP-Chat-Suggest",
+  "active": true,
+  "isArchived": false,
+  "versionId": "3b019e95-aa7f-49d8-b2d2-7040193281c4",
+  "activeVersionId": "3b019e95-aa7f-49d8-b2d2-7040193281c4",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-07-02T18:31:26.348Z",
+  "updatedAt": "2026-09-20T18:30:57.345Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Owner dashboard AI reply-assist: POST bp-chat-suggest returns a Claude-drafted next reply (AR/EN) from the conversation history in the monitor DB.",
+  "connections": {
+    "POST Suggest Reply": {
+      "main": [
+        [
+          {
+            "node": "Parse Suggest Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Suggest Request": {
+      "main": [
+        [
+          {
+            "node": "Suggest Key Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suggest Key Valid?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Conversation Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Suggest 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Conversation Rows": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Suggestion": {
+      "main": [
+        [
+          {
+            "node": "Respond Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Azure Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Format Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Azure Draft Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "8a4ac658-b8ef-4de5-8da1-92ffa76a1375",
+      "name": "POST Suggest Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-chat-suggest-x7k2m9",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "e48f4e11-dca2-4dd7-93f6-0c8f923fb937"
+    },
+    {
+      "id": "9a36fe42-a033-4480-bfdd-7d88c5142143",
+      "name": "Parse Suggest Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "jsCode": "let b = $json.body;\nif (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }\nb = b || {};\nconst phone = String(b.phone || '').replace(/[^0-9]/g, '');\nconst lang = (String(b.lang || 'ar').toLowerCase() === 'en') ? 'en' : 'ar';\nconst instruction = String(b.instruction || '').trim();\nconst keyOk = String(b.key || '') === String($env.BP_CHAT_MEDIA_KEY || '');\nconst valid = keyOk && phone.length >= 9;\nreturn [{ json: { key: String(b.key||''), phone: phone, lang: lang, instruction: instruction, valid: valid } }];"
+      }
+    },
+    {
+      "id": "bc3a2c91-4bb1-4fc8-805f-fab412ca3274",
+      "name": "Suggest Key Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5444c9e5-eacb-4ce1-86b8-60bfaa005a0c",
+      "name": "Fetch Conversation Rows",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        220
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "returnAll": false,
+        "limit": 40,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "anyFilter",
+        "filters": {
+          "conditions": [
+            {
+              "key": "الجوال|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{ $json.phone }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "5192aa42-2911-4c72-b273-dfdbb7f127ec",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const meta = $('Parse Suggest Request').first().json;\nconst lang = meta.lang === 'en' ? 'en' : 'ar';\nconst instruction = meta.instruction || '';\nconst rows = [];\nfor (const it of $input.all()) {\n  const j = it.json || {};\n  const p = j.properties || {};\n  function seg(prop){ const s=p[prop]||{}; const a=s.rich_text||s.title||[]; let o=''; for(const x of a) o+=(x.plain_text||''); return o; }\n  const sender = (p['المرسل'] && p['المرسل'].select && p['المرسل'].select.name) || '';\n  const text = seg('الرسالة') || seg('العنوان');\n  const time = j.created_time || '';\n  if (sender === 'تنبيه') continue;\n  if (!text) continue;\n  rows.push({ time: time, sender: sender, text: text });\n}\nrows.sort(function(a,b){ return new Date(a.time) - new Date(b.time); });\nconst recent = rows.slice(-20);\nconst label = { 'العميل':'Customer', 'الوكيل الذكي':'Agent', 'المالك':'Owner (you)' };\nconst transcript = recent.map(function(r){ return (label[r.sender]||r.sender) + ': ' + r.text; }).join('\\n');\nconst system = lang === 'en'\n  ? 'You are a senior sales agent for Business Partner, a Saudi business-services company. Draft the NEXT reply the human owner should send to the customer on WhatsApp. Be warm, professional, concise and consultative. For pricing, direct them to the relevant service page instead of quoting numbers. Never invent prices or facts. Output ONLY the reply text, no preamble, in English.'\n  : 'أنت مندوب مبيعات محترف لشركة Business Partner. اكتب الرد التالي الذي يرسله المالك للعميل على واتساب. كن ودوداً واحترافياً ومختصراً ومستشاراً. أي سؤال عن الأسعار وجّهه لصفحة الخدمة في الموقع بدون ذكر أرقام. لا تخترع أسعاراً أو معلومات. اكتب نص الرد فقط بدون مقدمة، بالعربية.';\nconst user = (transcript || '(no messages yet)') + (instruction ? ('\\n\\ninstruction: ' + instruction) : '') + '\\n\\nWrite the next reply now.';\nreturn [{ json: { system: system, user: user, lang: lang } }];"
+      }
+    },
+    {
+      "id": "accbadee-cc28-41a3-b823-2db108f5babb",
+      "name": "Claude Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        220
+      ],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "claude-sonnet-4-5-20250929"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.user }}",
+              "role": "user"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "system": "={{ $json.system }}",
+          "maxTokens": 600,
+          "temperature": 0.5
+        }
+      },
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "anthropicApi": {
+          "id": "mmbdtwapuZXoY91N",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "47204f6d-8aa2-4f56-be53-d20f9e689da1",
+      "name": "Format Suggestion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const j = $json || {};\nlet reply = '';\nif (typeof j.text === 'string') reply = j.text;\nelse if (typeof j.output_text === 'string') reply = j.output_text;\nelse if (typeof j.content === 'string') reply = j.content;\nelse if (Array.isArray(j.content)) reply = j.content.map(function(c){ return (c && c.text) || ''; }).join('');\nelse if (j.message && typeof j.message.content === 'string') reply = j.message.content;\nelse if (j.message && Array.isArray(j.message.content)) reply = j.message.content.map(function(c){ return (c && c.text) || ''; }).join('');\nelse if (j.choices && j.choices[0] && j.choices[0].message) reply = j.choices[0].message.content || '';\nelse if (Array.isArray(j.output)) { for (const it of j.output) { if (it && Array.isArray(it.content)) { for (const c of it.content) { if (c && c.text) reply += c.text; } } } }\nelse if (typeof j.completion === 'string') reply = j.completion;\nreply = String(reply || '').trim();\nlet lang = 'ar'; try { lang = $('Build Prompt').first().json.lang; } catch(e){}\nif (!reply) return [{ json: { ok: false, reply: '', error: 'no_text', lang: lang } }];\nreturn [{ json: { ok: true, reply: reply, lang: lang } }];"
+      }
+    },
+    {
+      "id": "a880dbb7-238f-44ff-bd54-3560bf441cce",
+      "name": "Respond Suggestion",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1780,
+        220
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "enableStreaming": false,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "f86ac3c7-915f-40cb-9cc3-f05dcdbfe47e",
+      "name": "Respond Suggest 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        900,
+        440
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "1eee58f3-7805-4b9f-9ff9-0bb5d9b7c6ef",
+      "name": "OpenAI Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1340,
+        460
+      ],
+      "parameters": {
+        "resource": "text",
+        "operation": "response",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "type": "text",
+              "role": "system",
+              "content": "={{ $('Build Prompt').first().json.system }}"
+            },
+            {
+              "type": "text",
+              "role": "user",
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "maxTokens": 600,
+          "temperature": 0.5
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "a743216e-b66c-4fa4-9910-50ca98bdc14b",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        440
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 600,
+          "temperature": 0.5,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "655526ef-c66c-4c17-b09e-c1e1c64b1130",
+      "name": "Azure Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1340,
+        220
+      ],
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "={{ $json.system }}"
+            }
+          ]
+        },
+        "promptType": "define",
+        "text": "={{ $json.user }}"
+      },
+      "notes": "بديل عقدتي Claude وOpenAI المباشرتين. يرجّع الناتج على الحقل text."
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

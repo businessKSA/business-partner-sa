@@ -1,0 +1,214 @@
+{
+  "id": "5slajhpFDal0SCqi",
+  "name": "📊 BP Team — Market Research",
+  "active": true,
+  "isArchived": false,
+  "versionId": "d91c6f22-4579-4927-a6e6-2c2c6e8dd3b6",
+  "activeVersionId": "d91c6f22-4579-4927-a6e6-2c2c6e8dd3b6",
+  "triggerCount": 1,
+  "nodeCount": 6,
+  "createdAt": "2026-07-07T01:05:20.766Z",
+  "updatedAt": "2026-09-19T02:28:30.465Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Market LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market LLM": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Market LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9e76443b-7c64-43ce-b2b4-f9fa6d0ec82f",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "market-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "0732e315-6eb8-430a-87a8-c7b405700acf"
+    },
+    {
+      "id": "b843614e-c3ce-4d20-bbde-5de15357ec05",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "You are the Market Research specialist of an AI executive team serving businesses in Saudi Arabia and the Gulf. You are bilingual (Arabic/English) and reply in the client language, default Saudi Arabic. For any request, deliver a practical, structured market read: target segments, a sizing approach (TAM/SAM/SOM with clearly-stated assumptions), competitor landscape, demand signals, pricing benchmarks as RANGES only, and key risks. When exact data is unavailable, state your assumptions explicitly rather than inventing precise numbers. Cite the type of source you would use. You research and advise only; buying paid data or committing to any spend needs human approval. Separate recommendation from execution. Never request passwords or OTP. Be concise, concrete, and use short tables or bullets.",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f0a568e8-64db-4421-aa34-9cb43c1283de",
+      "name": "Market LLM",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $(\"Normalize\").first().json.message }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "={{ $(\"Normalize\").first().json.system }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "82e1abd4-80f1-4936-bcc5-2a65228cd80b",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('Market LLM').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;else if(q.response&&typeof q.response.text==='string')text=q.response.text;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'market',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "79ca596c-a244-4080-b5b5-0ab445f97762",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"market\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      }
+    },
+    {
+      "id": "94f1fb67-4cc3-4564-aa8b-a8536e1e9172",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

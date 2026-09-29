@@ -1,0 +1,231 @@
+{
+  "id": "a8mMc7Vz6YjyHeu7",
+  "name": "🛰️ Jarvis — Pulse (who is working now)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7e9241bb-45a2-446e-bdbf-7464f9da6c0a",
+  "activeVersionId": "7e9241bb-45a2-446e-bdbf-7464f9da6c0a",
+  "triggerCount": 1,
+  "nodeCount": 6,
+  "createdAt": "2026-09-29T20:30:44.981Z",
+  "updatedAt": "2026-09-29T20:30:44.981Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Pulse GET": {
+      "main": [
+        [
+          {
+            "node": "Read Open Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Open Tasks": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Tasks": {
+      "main": [
+        [
+          {
+            "node": "Read Agent Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Agent Registry": {
+      "main": [
+        [
+          {
+            "node": "Build Pulse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Pulse": {
+      "main": [
+        [
+          {
+            "node": "Respond Pulse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "1fd0e388-8cda-40e8-baaa-94268dcf833b",
+      "name": "Pulse GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "jarvis-pulse-7f3a9c2e1b8d4e6f",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "ee40f8c6-e9c8-44fa-9c2b-c0935f8c6716"
+    },
+    {
+      "id": "b8549d1a-f677-4b64-a040-11a4f07aacbe",
+      "name": "Read Open Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "queued"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "in_progress"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 300,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d2dfadb1-a3df-4979-a657-29c1626745d9",
+      "name": "Aggregate Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && r.task_id);\nconst agents = {};\nfor (const r of rows) {\n  const id = String(r.assigned_to_agent || '').trim();\n  if (!id) continue;\n  const a = agents[id] || (agents[id] = { open: 0, in_progress: 0, queued: 0, last_update: null, latest_objective: '' });\n  a.open += 1;\n  if (r.status === 'in_progress') a.in_progress += 1; else a.queued += 1;\n  const u = r.updated_at || r.created_at || null;\n  if (u && (!a.last_update || String(u) > String(a.last_update))) { a.last_update = u; a.latest_objective = String(r.objective || '').slice(0, 120); }\n}\nreturn [{ json: { agents, task_rows: rows.length } }];"
+      }
+    },
+    {
+      "id": "8da457ea-64ff-4fc9-a534-672c48419271",
+      "name": "Read Agent Registry",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d59f2ac5-1625-40fd-9b4f-aaa29abe06e9",
+      "name": "Build Pulse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const agg = $('Aggregate Tasks').first().json || { agents: {}, task_rows: 0 };\nconst agents = agg.agents || {};\nconst reg = $input.all().map(i => i.json).filter(r => r && r.agent_id);\nfor (const r of reg) {\n  const id = String(r.agent_id).trim();\n  const a = agents[id] || (agents[id] = { open: 0, in_progress: 0, queued: 0, last_update: null, latest_objective: '' });\n  a.enabled = r.enabled;\n  a.status = r.status || null;\n  a.autonomy_level = r.autonomy_level || null;\n  a.registry_updated_at = r.updated_at || null;\n  for (const k of Object.keys(r)) { if (/heartbeat/i.test(k)) a[k] = r[k]; }\n}\nlet inProg = 0, open = 0;\nfor (const k of Object.keys(agents)) { inProg += agents[k].in_progress || 0; open += agents[k].open || 0; }\nreturn [{ json: { ok: true, at: new Date().toISOString(), agents, totals: { open, in_progress: inProg }, sources: { task_rows: agg.task_rows || 0, registry_rows: reg.length } } }];"
+      }
+    },
+    {
+      "id": "d04e8fb5-5369-41ab-887b-5dbcc4b97738",
+      "name": "Respond Pulse",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

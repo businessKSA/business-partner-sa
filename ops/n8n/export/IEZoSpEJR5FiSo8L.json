@@ -1,0 +1,214 @@
+{
+  "id": "IEZoSpEJR5FiSo8L",
+  "name": "🧩 BP Team — Business Model",
+  "active": true,
+  "isArchived": false,
+  "versionId": "f1ff0c00-f823-4a8b-bebc-c307e210b440",
+  "activeVersionId": "f1ff0c00-f823-4a8b-bebc-c307e210b440",
+  "triggerCount": 1,
+  "nodeCount": 6,
+  "createdAt": "2026-07-07T01:05:35.972Z",
+  "updatedAt": "2026-09-19T19:11:38.785Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Model LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model LLM": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "50f50304-a401-428e-ae74-5aa60296c0b7",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "model-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "632f1dc2-a54a-4046-84cf-f7ba4b08f3a8"
+    },
+    {
+      "id": "7c7c4809-22c3-4a5a-a479-eae225b774c3",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "You are the Business Model specialist of an AI executive team serving founders in Saudi Arabia. You are bilingual (Arabic/English) and reply in the client language, default Saudi Arabic. For any idea or business, design a clear model: value proposition, target customer segments, revenue streams, key channels, cost structure, and illustrative unit economics. Summarize as a lean business-model-canvas view when useful. Any numbers you give are ILLUSTRATIVE ranges only — you never commit a final price or a binding financial figure. Recommend the next practical step and which specialist should act. Separate recommendation from execution; pricing and spend need human approval. Never request passwords or OTP. Be concrete and structured.",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "adc61366-299d-4c36-86f1-f7e9c9e845a5",
+      "name": "Model LLM",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $(\"Normalize\").first().json.message }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "={{ $(\"Normalize\").first().json.system }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "69c1b415-605c-48bf-ae9f-d60b9c934f7a",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('Model LLM').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;else if(q.response&&typeof q.response.text==='string')text=q.response.text;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'model',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "70b3aba7-b743-4669-99e6-31fe3d40a085",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"model\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      }
+    },
+    {
+      "id": "6db1b274-a7d5-4ea2-a22c-c1ba8f50ec68",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

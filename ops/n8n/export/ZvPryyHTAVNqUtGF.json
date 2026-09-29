@@ -1,0 +1,845 @@
+{
+  "id": "ZvPryyHTAVNqUtGF",
+  "name": "🤝 BP Shared Services — Web Chat (Virtual Office)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "69f24c2e-06b3-45a3-84ee-84bcec975fd0",
+  "activeVersionId": "69f24c2e-06b3-45a3-84ee-84bcec975fd0",
+  "triggerCount": 1,
+  "nodeCount": 26,
+  "createdAt": "2026-07-02T15:32:46.664Z",
+  "updatedAt": "2026-09-29T21:03:19.699Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "واجهة شات ويب حية لإيجنت الخدمات المشتركة (خالد — المكتب الافتراضي). Chat Trigger عام (صفحة مستضافة + قابلة للتضمين) ← AI Agent ← Azure OpenAI (bp-main) + ذاكرة. للتجربة والربط بالموقع.",
+  "connections": {
+    "Web Chat (Virtual Office)": {
+      "main": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Farah_Marketing": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Badr_Sales": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Malak_Assistant": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mohammed_IT": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abdulaziz_Legal_Compliance": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log_Task_To_Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultant_Lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market_Research": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Business_Model": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finance_Pricing": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baher_Advisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nasser_HR": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mishari_Compliance": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mazen_Operations": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abdulrahman_Finance": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abdullah_Procurement": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ahmed_Strategy": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tariq_RealEstate": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bandar_Recruitment": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alaa_News": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wissam_Deals": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "ad74236c-3af0-42a2-b42d-3d1750a9f35b",
+      "name": "Web Chat (Virtual Office)",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "public": true,
+        "mode": "hostedChat",
+        "initialMessages": "أهلاً بك في مكتبك الافتراضي من بزنس بارتنر 👋\nاكتب طلبك بلغتك العادية وأنا أوجّهك لفريقك المختص.",
+        "options": {
+          "responseMode": "lastNode",
+          "allowedOrigins": "*",
+          "title": "المكتب الافتراضي — بزنس بارتنر",
+          "subtitle": "خدمات مشتركة: حكومي، موارد بشرية، تسويق، مبيعات، مشتريات، دعم إداري.",
+          "inputPlaceholder": "اكتب طلبك هنا..."
+        }
+      },
+      "webhookId": "f08bf4a4-62e9-4aa6-9a44-bf3080682fb3"
+    },
+    {
+      "id": "49c49139-9b46-4751-b9b7-b1513be1cd86",
+      "name": "باهر — Front Desk",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        300
+      ],
+      "parameters": {
+        "promptType": "auto",
+        "options": {
+          "systemMessage": "EVIDENCE RULE — this overrides every other instruction below, and it binds you hardest because you speak to real visitors: never state a price, a package, a fee, a government requirement, a deadline, a number, a date or a named person unless you actually read it from a tool result or from the client's own message. If you did not read it, say so plainly and either call the right colleague's tool or ask the client — never fill the gap with a plausible-sounding figure. Prices come only from the catalog through Badr_Sales, never from your own estimate. Never invent a service, a package, a discount, a guarantee, a government rule, a client, a staff member or a phone number. A colleague's answer is bound by the same rule: if a figure comes back with no source, drop it rather than repeat it. An invented number is worse than no answer, because the client cannot tell it apart from a true one.\n\nYou are Baher (باهر), the BUSINESS ADVISOR and TEAM LEAD of an AI EXECUTIVE TEAM that works AS THE CLIENT'S OWN EMPLOYEES. You are the client-facing contact and their trusted business advisor: you welcome the client, understand their request, advise on it directly when it is advisory in nature, OWN it end to end, delegate to the right specialist when it needs one, and deliver a finished result. The user is your employer; you and your colleagues are their smart staff who actually get work done and coordinate like a real team.\n\nYour colleagues (delegate by calling their tool with full context):\n- Deep advisory engine (tool: Baher_Advisor): your own extended analysis engine for big strategic decisions, restructuring and growth studies — use it when a request needs a deep advisory deliverable.\n- Ahmed — Strategic Planning Manager: vision & mission, annual and quarterly plans, OKRs & KPIs, roadmaps and milestones, execution tracking (use for building written strategic plans).\n- Mazen — Operations Manager: internal operations, process design, delivery quality, SOPs, and coordination between the team (works behind the scenes, not customer-facing).\n- Nasser — HR & Recruitment Director: finding and hiring people INTO the client's own company (direct hires), job descriptions, employment contracts and offers, onboarding, payroll structure, leave, Saudization and HR policies — for clients and for our own staff alike.\n- Mishari — Compliance: government platforms and obligations (Qiwa, Muqeem, GOSI, Mudad), Nitaqat/Saudization, iqama and work-permit deadlines and violations.\n- Abdulrahman — CFO: budgets & cash flow, invoicing & collections, financial reports, Zakat & VAT, accounting via Qoyod.\n- Abdulaziz — Legal: contracts, company formation, licensing, and legal structuring (NOT government compliance — that is Mishari).\n- Badr — Sales & Business Development. He is the ONLY source of prices and packages.\n- Sara — Head of Growth & Marketing (content, campaigns, social, SEO). Her tool is named Farah_Marketing and her path is farah-intake — those are legacy names for the same person, Sara.\n- Malak — Executive Assistant (email drafting, scheduling, summaries, tasks, reminders).\n- Mohammed — IT (websites, automation, APIs, tooling).\n- Abdullah — Procurement (suppliers, comparisons, RFQs, negotiation).\n- Tariq — Real Estate Director (tool: Tariq_RealEstate): property sales, leasing, property management, brokerage between owner and tenant.\n- Bandar — Staffing Products Director (tool: Bandar_Recruitment): ONLY staffing products — PEO/EOR (we employ people on the client's behalf), outsourced manpower supply, and visa-heavy bulk recruitment packages. Direct hiring into the client's own company is Nasser, not Bandar.\n- Alaa — News & Regulatory Content (tool: Alaa_News): summarizing a government/regulatory update or drafting non-priced news/regulatory content. Not a catalog-priced service.\n- Wissam — Revenue Ops & Deal Desk (tool: Wissam_Deals): checking the status of a stuck deal or a conflict between departments on one deal. He only reads and escalates — he owns nothing in the deals table and never sets a price.\n\nNote on names inside the company: Farah is now the Chief of Staff to the owner — she is not the marketing manager and is not customer-facing. If a client mentions Farah about marketing, they mean Sara.\n\nHow the team works, like real employees:\n1. When the employer asks for something, you OWN it. Decide which colleague executes, delegate by calling their tool with full context, get their work back, and deliver a FINISHED result — never just a promise to route.\n2. Coordinate across colleagues when a task needs several of them, then combine their work into one coherent output.\n3. Take initiative: propose next steps and move work forward. Do not keep asking permission for small things and do not re-ask what you already know.\n4. You execute real work in the employer's connected systems (Notion, WhatsApp, Email, Microsoft) when linked — logging tasks, creating records, drafting communications.\n5. You are staff, not salespeople. Just do the work like a trusted employee.\n\nGovernance & authority:\n- Execute autonomously: drafting, organizing, research, preparing documents, giving real steps and outputs, logging tasks.\n- Require the employer's explicit green light BEFORE: any payment, any signature or binding commitment, any paid government submission or one that changes legal status, or sending an official external message on their behalf. Prepare it ready-to-go, then ask for approval.\n- Never ask for passwords or OTP. Account access is only through securely linked integrations.\n\nHUMAN CONTACT (fixed numbers — never invent others): If the employer asks for a human or the matter truly needs human handling, direct them to the human team WhatsApp +966530540231. For phone calls: +966503793356. The AI team WhatsApp channel is +966507034157.\n\nCLIENT NAMING (STRICT): The employer may choose a custom name for you. If the incoming message metadata says the client picked a name for you (e.g. «العميل اختار لك اسم «...»»), ADOPT that name immediately for this client: introduce yourself with it, sign with it, and never insist on your default name. The rest of your role and rules stay unchanged.\n\nLANGUAGE (STRICT): Always reply in the SAME language as the employer's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever they switch. The message may arrive wrapped in Arabic metadata (e.g. «رسالة من عميل ... عبر بوابة الخدمات المشتركة») — the wrapper is NOT the client's language; judge only from the client's own words inside it.\n\nVoice: a capable, warm colleague who gets things done. Be concrete; give real steps and finished outputs, not sales talk. Sign your messages with «باهر».",
+          "enableStreaming": false
+        },
+        "needsFallback": false
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "ce7ecca8-8ef7-4c62-bb6b-fd0d6a22e7f4",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        440,
+        500
+      ],
+      "parameters": {
+        "sessionIdType": "fromInput",
+        "contextWindowLength": 12
+      }
+    },
+    {
+      "id": "677789ac-3aa4-4a05-92c9-c147c5b19f7a",
+      "name": "Sticky Note d643e02f",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        250
+      ],
+      "parameters": {
+        "content": "## 🤝 BP Shared Services — Web Chat (Virtual Office)\n\nواجهة شات حية لتجربة إيجنت الخدمات المشتركة (شخصية خالد — المكتب الافتراضي).\n\n**المسار:** Chat Trigger عام (صفحة مستضافة + قابلة للتضمين في الموقع) ← خالد (AI Agent) ← Claude (Anthropic) + ذاكرة محادثة.\n\n**الرابط المستضاف:** /webhook/<id>/chat على n8n Cloud.\n**التضمين في الموقع:** ودجة @n8n/chat تشير لنفس رابط الويب هوك.\n\nSystem Prompt الكامل: bp-shared-services/prompts/shared-services-product.md",
+        "color": 4,
+        "width": 620,
+        "height": 200
+      }
+    },
+    {
+      "id": "48481c22-0537-4fbf-939f-b954f57ef4ae",
+      "name": "Farah_Marketing",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -120,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ سارة مديرة النمو والتسويق لأي طلب تسويق أو كتابة إعلانية أو حملة أو سوشال ميديا أو SEO أو هوية. (اسم الأداة والمسار farah-intake قديمان وصحيحان — يصلان إلى سارة.) مرّر نص طلب العميل كاملاً واسترجع ردها.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/farah-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل التسويقي كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "90841b43-c042-4bcf-9689-b895be81a285",
+      "name": "Badr_Sales",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        60,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المتخصص بدر (مبيعات وتطوير أعمال) لأي طلب يخص الأسعار أو عروض الأسعار أو الباقات أو الاقتراح التجاري أو نطاق الخدمة. استخدمه دائماً لأي سؤال عن السعر أو الاشتراك.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/badr-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب التجاري كاملاً بالعربية'), client_name: 'زائر الموقع', service_hint: $fromAI('service_hint', 'نوع الخدمة إن وُجد', 'string') }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "77577990-a401-4f9c-96c4-9638c54b46a3",
+      "name": "Malak_Assistant",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المساعِدة التنفيذية ملاك لتنظيم اليوم أو صياغة إيميل/رسالة أو تلخيص نص أو اجتماع أو ترتيب المهام والتذكيرات. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/malak-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "0494bcd3-1838-4ed7-b12f-015c50b2b539",
+      "name": "Mohammed_IT",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        420,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المتخصص محمد (تقنية معلومات) لأي طلب يخص المواقع أو التطبيقات أو الأتمتة أو الـ API أو اختيار الأدوات أو تشخيص تقني. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mohammed-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل التقني كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "2cb3cd00-b2cf-400e-9236-6e0496859084",
+      "name": "Abdullah_Procurement",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        600,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المتخصص عبدالله (مشتريات وتوريد) لإيجاد موردين أو مقارنة عروض أو تقييم مزودين أو كتابة طلب عرض أسعار أو تفاوض. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/ahmed-procurement",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "4ff4b7eb-ace2-4b65-9241-7575cbcf5a06",
+      "name": "Abdulaziz_Legal_Compliance",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        780,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المتخصص عبدالعزيز (قانوني وامتثال) لأي سؤال عن العقود أو تأسيس الشركات أو التراخيص أو الامتثال أو منصات الحكومة (قوى، مقيم، التأشيرات، تصاريح العمل، التأمينات، مدد). استخدمه لأي طلب حكومي أو تأشيرة أو إقامة أو عمالة أو امتثال.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/abdulaziz-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل القانوني/الحكومي كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "f61a6b7d-7fcc-4856-9b28-b743dad8cfb3",
+      "name": "Log_Task_To_Notion",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        640
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "77796c09-9718-4ec0-8f80-1ab02a409070"
+        },
+        "title": "={{ $fromAI('task_title', 'عنوان المهمة المختصر بالعربية') }}",
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الوكيل المسؤول|select",
+              "selectValue": "={{ $fromAI('agent', 'الوكيل المسؤول: خالد أو عبدالعزيز أو بدر أو فرح أو ملاك أو محمد أو أحمد') }}"
+            },
+            {
+              "key": "الحالة|select",
+              "selectValue": "قيد التنفيذ"
+            },
+            {
+              "key": "الملخص|rich_text",
+              "textContent": "={{ $fromAI('summary', 'ملخص مختصر لطلب العميل والإجراء المتخذ') }}"
+            },
+            {
+              "key": "العميل|rich_text",
+              "textContent": "زائر الموقع"
+            }
+          ]
+        },
+        "descriptionType": "manual",
+        "toolDescription": "سجّل مهمة في قاعدة «مهام الفريق» في نوشن. استخدمها لتوثيق كل طلب فعلي من العميل فور توجيهه لمتخصص أو تنفيذه: مرّر عنوان المهمة، الوكيل المسؤول، وملخصاً."
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "0df7ca05-84b4-48d8-80a3-3b46a3f85dd4",
+      "name": "Consultant_Lead",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -300,
+        640
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المستشار الرئيسي (Lead Consultant) عندما تكون فكرة العميل غير واضحة أو يسأل \"من وين أبدأ\" أو يحتاج توجيهاً أولياً لمشروعه. يطرح 4–6 أسئلة ذكية ويحدّد الاتجاه وأول خطوة. مرّر نص طلب العميل كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/consultant-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب العميل كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "3a506e1b-d4d2-421c-845a-f016f7e36395",
+      "name": "Market_Research",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -480,
+        780
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ متخصص أبحاث السوق لأي طلب يخص حجم السوق، المنافسين، الفئات المستهدفة، أو مؤشرات الطلب. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/market-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب أبحاث السوق كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "5e436105-8a71-481f-9af1-37d277d3eb52",
+      "name": "Business_Model",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -300,
+        780
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ متخصص نموذج العمل لتصميم مصادر الدخل، القيمة المقدمة، شرائح العملاء، واقتصاديات الوحدة. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/model-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب نموذج العمل كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "206395b7-bdf3-4c9a-8576-cb0596b55ccc",
+      "name": "Finance_Pricing",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -120,
+        780
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ متخصص المالية والتسعير لتحليل التكاليف، نماذج التسعير (تقديرية فقط)، ونقطة التعادل. السعر النهائي يتطلب دائماً اعتماداً بشرياً. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/finance-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب التسعير/المالية كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "0a63bf04-b63e-4b10-a224-2401dda90bbe",
+      "name": "Baher_Advisor",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -660,
+        780
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ مستشار الأعمال باهر للاستراتيجية، اتجاه العمل، النمو، إعادة الهيكلة، والقرارات الكبيرة. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/baher-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب الاستشارة كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "c7738c64-f713-4f82-a44d-c179e71c2a1e",
+      "name": "Nasser_HR",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -480,
+        920
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب الموارد البشرية كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استدعِ مدير الموارد البشرية والتوظيف ناصر لأي طلب توظيف مباشر (إيجاد وتوظيف أشخاص داخل شركة العميل)، الوصف الوظيفي، عقود العمل، الرواتب، الإجازات، التوطين وسياسات الموارد البشرية — للعملاء ولفريقنا. مرّر نص الطلب كاملاً.",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/nasser-intake"
+      }
+    },
+    {
+      "id": "54572cb8-8464-4516-ad54-adb3e1d55a29",
+      "name": "Mishari_Compliance",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -300,
+        920
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ متخصص الامتثال مشاري لأي طلب يخص قوى، مقيم، التأمينات، مدد، النطاقات، مهل الإقامات ورخص العمل، والمخالفات. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mishari-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب الامتثال كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "khaled-mazen-tool-01",
+      "name": "Mazen_Operations",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -660,
+        920
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ مازن (مدير العمليات) لتنسيق التنفيذ الداخلي: تقسيم المهام، تصميم العمليات، SOPs، جودة التسليم، والتنسيق بين المتخصصين. استخدمه لتفويض تنفيذ المهام متعددة الخطوات. مرّر المهمة كاملة.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mazen-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص المهمة/الطلب كاملاً بالعربية'), client_name: 'خالد — تنسيق تنفيذ' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "e008f5ae-0526-451c-acbf-54a48a5deb57",
+      "name": "Abdulrahman_Finance",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -120,
+        1060
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ المدير المالي عبدالرحمن لأي طلب مالي: الميزانيات والتدفق النقدي، الفوترة والتحصيل، التقارير المالية والمؤشرات، الزكاة والضريبة (VAT)، والمحاسبة عبر قيود. أي دفع أو إصدار فاتورة يتطلب موافقة العميل. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/abdulrahman-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب المالي كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "fdc1fd42-7259-489e-9a1a-d143c0bd1154",
+      "name": "Ahmed_Strategy",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -840,
+        920
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ أحمد (مدير التخطيط الاستراتيجي) للرؤية والرسالة، الخطط السنوية والربعية، الأهداف ومؤشرات الأداء (OKRs/KPIs)، خرائط الطريق، ومتابعة التنفيذ. مرّر نص الطلب كاملاً.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/strategy-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب التخطيط الاستراتيجي كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "1db7a695-d1b8-4895-8be2-3959a8b9e8d0",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        240,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "e1322da6-330f-4fa7-8e23-fdb4aa881f9b",
+      "name": "Tariq_RealEstate",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        780
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب العقاري كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استدعِ طارق (مدير العقارات) لأي طلب عقاري: بيع، تأجير، إدارة أملاك، أو وساطة عقارية بين مالك ومستأجر. مرّر نص الطلب كاملاً.",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/realestate-intake"
+      }
+    },
+    {
+      "id": "4efef2df-0578-45f1-af53-4ec56d70f430",
+      "name": "Bandar_Recruitment",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        1140,
+        780
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب التوظيف/الاستقدام كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استدعِ بندر (مدير منتجات الاستقدام) فقط لمنتجات الاستقدام: PEO/EOR (نوظّف الناس باسمنا لصالح العميل)، العمالة المسندة، والاستقدام الجماعي بالتأشيرات. أما إيجاد وتوظيف أشخاص داخل شركة العميل نفسها فلناصر. مرّر نص الطلب كاملاً.",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/recruitment-intake"
+      }
+    },
+    {
+      "id": "25376437-6adf-4c64-8ee2-233310e8272c",
+      "name": "Alaa_News",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        1320,
+        780
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص طلب الخبر/التحديث التنظيمي كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استدعِ آلاء (الأخبار والمحتوى التنظيمي) لتلخيص تحديث حكومي أو تنظيمي، أو صياغة محتوى إخباري غير مسعَّر. ليست خدمة مسعَّرة في الكتالوج. مرّر نص الطلب كاملاً.",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/news-intake"
+      }
+    },
+    {
+      "id": "a01bb272-c5b5-40eb-b695-75c375a79b57",
+      "name": "Wissam_Deals",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        1500,
+        780
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الاستفسار عن الصفقة كاملاً بالعربية'), client_name: 'زائر الموقع' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استدعِ وسام (مكتب الصفقات) لفحص حالة صفقة متعثرة أو تعارض بين إدارتين على صفقة واحدة. وسام يقرأ ويشخّص ويصعّد فقط — لا يملك عموداً في BP_AI_Deals ولا يضع سعراً. مرّر نص الطلب كاملاً.",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/deals-intake"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

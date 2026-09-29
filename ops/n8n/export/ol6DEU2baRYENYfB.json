@@ -1,0 +1,555 @@
+{
+  "id": "ol6DEU2baRYENYfB",
+  "name": "BP — الكنس اليومي: الضمانات + متابعات CRM (تلقائي)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0eff9468-7b93-4ba7-b1b7-a1c1090678f7",
+  "activeVersionId": "0eff9468-7b93-4ba7-b1b7-a1c1090678f7",
+  "triggerCount": 2,
+  "nodeCount": 13,
+  "createdAt": "2026-08-24T03:04:16.638Z",
+  "updatedAt": "2026-09-16T09:11:32.977Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "يومياً ٠٦:٠٠ بتوقيت الرياض: كنس الضمانات + مزامنة CRM + إيميل الخلاصة + قائمة المتابعات كاملة على واتساب المالك. وتذكير مسائي ١٦:٠٠ بمن لم يُتابَع بعد. بدون تدخل بشري.",
+  "connections": {
+    "Daily 06:00 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Escrow Sweep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Escrow Sweep": {
+      "main": [
+        [
+          {
+            "node": "Run CRM Follow-up Sweep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run CRM Follow-up Sweep": {
+      "main": [
+        [
+          {
+            "node": "يحتاج تنبيه واتساب؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جهّز رسالة المتابعات": {
+      "main": [
+        [
+          {
+            "node": "إشعار واتساب — خط مُعين",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "تقرير يومي؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تذكير كل ٣٠ دقيقة": {
+      "main": [
+        [
+          {
+            "node": "ضمن ساعات العمل؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ضمن ساعات العمل؟": {
+      "main": [
+        [
+          {
+            "node": "مزامنة الواتساب كل ٣٠ دقيقة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "مزامنة الواتساب كل ٣٠ دقيقة": {
+      "main": [
+        [
+          {
+            "node": "وضع التذكير",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "يحتاج تنبيه واتساب؟": {
+      "main": [
+        [
+          {
+            "node": "اقرأ المتابعات من الموقع",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "وضع التذكير": {
+      "main": [
+        [
+          {
+            "node": "اقرأ المتابعات من الموقع",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "اقرأ المتابعات من الموقع": {
+      "main": [
+        [
+          {
+            "node": "جهّز رسالة المتابعات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تقرير يومي؟": {
+      "main": [
+        [
+          {
+            "node": "إيميل تقرير المتابعات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "971eda94-4040-4f96-ba35-805774a5c2e6",
+      "name": "Daily 06:00 Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 6,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e44f4445-d4fa-46f9-a447-ecef5169bf4a",
+      "name": "Run Escrow Sweep",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.businesspartner.sa/api/requests",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "escrow-sweep"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "5bc142c9-77b2-403d-aa13-ccf3c9900ecc",
+      "name": "Run CRM Follow-up Sweep",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.businesspartner.sa/api/requests",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "crm-followup-sweep"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "05cbb219-4957-4710-95c6-1beb54cd3242",
+      "name": "يحتاج تنبيه واتساب؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1",
+              "leftValue": "={{ $json.due }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "d2",
+              "leftValue": "={{ $json.waNotified }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "52899d88-2194-47d6-84a2-9ccfa8bb687b",
+      "name": "إشعار واتساب — خط مُعين",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1112996661901731",
+        "recipientPhoneNumber": "966530540231",
+        "messageType": "text",
+        "textBody": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "7a8cef3c-4348-427d-9292-2c3aaa281286",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    },
+    {
+      "id": "644b68a5-9e7c-437a-b6ab-f53ed22660b5",
+      "name": "تذكير كل ٣٠ دقيقة",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        260
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "74a5f099-9da3-47c1-9ea7-f1b375813853",
+      "name": "وضع التذكير",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        260
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m1",
+              "name": "mode",
+              "value": "reminder",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "cda1dfe2-7ae8-4f2f-b218-5373ee23eee6",
+      "name": "جهّز رسالة المتابعات",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// المصدر الوحيد: الموقع نفسه — /api/requests?action=panel-followups.\n// نفس القائمة التي تراها في /admin، فلا تختلف رسالة الواتساب عن اللوحة أبداً.\n// قبل 2026-09-16 كانت هذه العقدة تقرأ نوشن مباشرة بفلترٍ خاص بها، فكانت\n// تعيد نفس الأسماء كل نصف ساعة حتى بعد الضغط على «✅ تم التواصل».\n\nlet mode = 'digest';\ntry { mode = $('وضع التذكير').first().json.mode || 'digest'; } catch (e) {}\n\nconst payload = $input.first().json || {};\nconst all = Array.isArray(payload.followups) ? payload.followups : [];\n\n// (1) سجلاتنا نحن وسجلات الاختبار ليست عملاء ينتظرون تواصلاً.\n// «this is a test email» و«باهر مقنص» كانا يظهران كل مرة كعميلين حقيقيين.\nconst OWN_TAILS = new Set(['503793356', '530540231', '507034157']);\nconst OWN_MAILS = new Set([\n  'dr.baher.magnas@gmail.com', 'b.b.magnas@gmail.com',\n  'business@businesspartner.sa', 'business@businesspartnerksa.com',\n]);\nconst tail9 = (v) => String(v || '').replace(/\\D/g, '').slice(-9);\nconst mailOf = (r) => String(r.email || '').trim().toLowerCase();\nconst isInternal = (r) => OWN_TAILS.has(tail9(r.phone)) || OWN_MAILS.has(mailOf(r));\nconst isTest = (r) => /this is a test|\\btest\\b|اختبار|تجريب/i.test(String(r.title || '')) || /^a@a\\./i.test(mailOf(r));\n\nconst rows = [];\nlet hiddenOwn = 0, hiddenTest = 0;\nfor (const r of all) {\n  if (isInternal(r)) { hiddenOwn++; continue; }\n  if (isTest(r)) { hiddenTest++; continue; }\n  rows.push(r);\n}\n\n// (2) ذاكرة ما أُرسل: اسم العميل لا يتكرر قبل ٢٤ ساعة مهما تكرر التشغيل.\n// هذا — لا تباعد الجدولة — هو ما يوقف «نفس الأسماء كل نصف ساعة».\nconst store = $getWorkflowStaticData('global');\nif (!store.alerted || typeof store.alerted !== 'object') store.alerted = {};\nconst now = Date.now();\nconst WEEK = 7 * 24 * 3600 * 1000;\nfor (const k of Object.keys(store.alerted)) { if (now - store.alerted[k] > WEEK) delete store.alerted[k]; }\nconst COOLDOWN = 24 * 3600 * 1000;\nconst keyOf = (r) => String(r.id || r.ref || r.title || '').slice(0, 60);\nconst fresh = rows.filter((r) => { const t = store.alerted[keyOf(r)]; return !t || (now - t) > COOLDOWN; });\n\n// التذكير يذكر الجديد فقط؛ تقرير الصباح يذكر القائمة كاملة.\nconst send = mode === 'reminder' ? fresh : rows;\nif (!send.length) return [];\n\nconst tally = {};\nfor (const r of rows) {\n  const c = r.channel || {};\n  const lab = c.label || 'أخرى';\n  if (!tally[lab]) tally[lab] = { icon: c.icon || '•', n: 0 };\n  tally[lab].n++;\n}\nconst summary = Object.entries(tally).sort((a, b) => b[1].n - a[1].n).map(([lab, v]) => `${v.icon} ${lab} ${v.n}`).join(' · ');\n\nconst head = mode === 'reminder'\n  ? `🆕 ${send.length} عميل جديد يحتاج تواصلك — والاسم لا يتكرر عليك قبل ٢٤ ساعة:`\n  : `📋 متابعات اليوم — ${rows.length} عميل يحتاج تواصلك:`;\nconst maxRows = mode === 'reminder' ? 8 : 20;\nconst lines = [head];\nif (mode !== 'reminder' && summary) lines.push(summary);\nsend.slice(0, maxRows).forEach((r, i) => {\n  const c = r.channel || {};\n  const reach = r.phone ? ' · ' + r.phone : (r.email ? ' · ' + r.email : '');\n  lines.push(`${i + 1}) ${c.icon || '•'} ${c.label || ''} · ${String(r.title || '').slice(0, 90)}${reach}`);\n  lines.push(`← ${r.action || 'تابع العميل واسأله عن قراره'}`);\n});\nif (send.length > maxRows) lines.push(`…و ${send.length - maxRows} آخرون.`);\nconst hidden = hiddenOwn + hiddenTest;\nif (hidden) lines.push(`🧹 استُبعد ${hidden} سجلاً: ${hiddenOwn} لنا نحن و${hiddenTest} اختبار.`);\nlines.push('القائمة كاملة بأزرار «تم التواصل»: https://www.businesspartner.sa/admin');\n\nfor (const r of send) store.alerted[keyOf(r)] = now;\n\nlet text = lines.join('\\n');\nif (text.length > 3400) text = text.slice(0, 3400) + '…';\nconst html = '<div dir=\"rtl\" style=\"font-family:Arial,sans-serif;color:#1F2430;line-height:1.7\">'\n  + text.split('\\n').map((l) => `<div>${l.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</div>`).join('')\n  + '</div>';\nreturn [{ json: { text, html, count: send.length, total: rows.length, hidden, mode, isDigest: mode !== 'reminder' } }];\n"
+      }
+    },
+    {
+      "id": "bccf9b4b-1cb1-451a-8c02-a59fb0fdf33b",
+      "name": "ضمن ساعات العمل؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "h1",
+              "leftValue": "={{ $now.setZone('Asia/Riyadh').hour }}",
+              "rightValue": 9,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "h2",
+              "leftValue": "={{ $now.setZone('Asia/Riyadh').hour }}",
+              "rightValue": 21,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ebfd5c76-a563-42c3-8793-01e072c7f068",
+      "name": "مزامنة الواتساب كل ٣٠ دقيقة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        176,
+        380
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.businesspartner.sa/api/requests",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "crm-followup-sweep"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "b7ae05bb-0aef-4605-b0d2-4293dc7a8e98",
+      "name": "اقرأ المتابعات من الموقع",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        160
+      ],
+      "parameters": {
+        "method": "GET",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "panel-followups"
+            },
+            {
+              "name": "key",
+              "value": "={{ $env.BP_PANEL_KEY }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "url": "https://www.businesspartner.sa/api/requests"
+      }
+    },
+    {
+      "id": "f67a47e0-ed8a-41fb-b280-25f7b638eef6",
+      "name": "تقرير يومي؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dg1",
+              "leftValue": "={{ $json.isDigest }}",
+              "operator": {
+                "operation": "true",
+                "type": "boolean"
+              },
+              "rightValue": true
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "575e65d8-f0e5-4911-b720-1f2304bc56f9",
+      "name": "إيميل تقرير المتابعات",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        320
+      ],
+      "parameters": {
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "operation": "send",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Business Partner"
+        },
+        "resource": "message",
+        "sendTo": "dr.baher.magnas@gmail.com",
+        "subject": "=📋 متابعات اليوم — {{ $json.total }} عميل يحتاج تواصلك"
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "58dad653-0ce0-4221-a21c-383e3fe5b32a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

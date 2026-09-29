@@ -1,0 +1,421 @@
+{
+  "id": "vomoBu7MxIY8hTIP",
+  "name": "BP — مزامنة الكتالوج: نوشن ⇄ اللوحة ⇄ الموقع",
+  "active": false,
+  "isArchived": false,
+  "versionId": "cfdbd4c9-5de6-4664-a379-68c747ee6d14",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 12,
+  "createdAt": "2026-08-25T02:56:37.031Z",
+  "updatedAt": "2026-08-25T03:02:56.348Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "مصدر واحد للسعر. كل ساعة: يقرأ BP Services Catalog - OFFICIAL من نوشن، يطابق بالكود (مع جدول مرادفات للباقات)، ويدفعه إلى /api/catalog/sync في لوحة العروض. وفي الاتجاه المعاكس: أي حفظ في /admin/catalog يستدعي ويبهوك bp-catalog-changed فيُحدَّث صف نوشن ويُ",
+  "connections": {
+    "كل ساعة — اسحب من نوشن": {
+      "main": [
+        [
+          {
+            "node": "اقرأ كتالوج نوشن الرسمي",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "اقرأ كتالوج نوشن الرسمي": {
+      "main": [
+        [
+          {
+            "node": "حوّل صفوف نوشن إلى شكل الكتالوج",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "حوّل صفوف نوشن إلى شكل الكتالوج": {
+      "main": [
+        [
+          {
+            "node": "ادفعها إلى كتالوج اللوحة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ادفعها إلى كتالوج اللوحة": {
+      "main": [
+        [
+          {
+            "node": "خلاصة السحب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تغيّر سعر في اللوحة": {
+      "main": [
+        [
+          {
+            "node": "اقرأ الجرد الكامل من اللوحة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "اقرأ الجرد الكامل من اللوحة": {
+      "main": [
+        [
+          {
+            "node": "اختر الصفوف المتغيّرة ذات صفحة نوشن",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "اختر الصفوف المتغيّرة ذات صفحة نوشن": {
+      "main": [
+        [
+          {
+            "node": "حدّث صف نوشن بالسعر الجديد",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "حدّث صف نوشن بالسعر الجديد": {
+      "main": [
+        [
+          {
+            "node": "أعد نشر الموقع التعريفي",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "c4faed58-73c3-448b-9dd0-e7c713ffe559",
+      "name": "كل ساعة — اسحب من نوشن",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -460,
+        -120
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dac5441d-ffc5-4ff1-855a-8b541092e2ee",
+      "name": "اقرأ كتالوج نوشن الرسمي",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        -120
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "dataSourceId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "a5ab4695-38fc-48d7-b447-ddd84fa50b03"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "9649a8c6-d9fb-4536-954f-63dbe2fcd952",
+      "name": "حوّل صفوف نوشن إلى شكل الكتالوج",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        -120
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const ALIAS = {\n  'BP-PKG-LAUNCH': 'PKG-SILVER',\n  'BP-PKG-GROWTH': 'PKG-GOLD',\n  'BP-PKG-SCALE': 'PKG-PLATINUM',\n  'BP-PKG-ENTERPRISE': 'PKG-DIAMOND',\n  'BP-PKG-FORM-FOREIGN': 'PKG-FOREIGN-FORMATION',\n  'BP-PKG-FORM-SAUDI': 'PKG-SAUDI-GULF-FORMATION',\n  'BP-PKG-LEGAL-STRAT': 'PKG-STRATEGIC',\n  'BP-PKG-LEGAL-COMP': 'PKG-COMPREHENSIVE',\n  'BP-PKG-LEGAL-ADV': 'PKG-ADVANCED',\n  'BP-PKG-LEGAL-BASIC': 'PKG-BASIC-LEGAL',\n};\n\nconst OPEN_MODELS = ['Percent', 'Custom Pricing'];\n\nconst num = (v) => {\n  const n = Number(v);\n  return Number.isFinite(n) && n > 0 ? n : 0;\n};\nconst txt = (v) => (v === null || v === undefined ? \"\" : String(v).trim());\n\nconst services = [];\nconst skipped = [];\n\nfor (const item of $input.all()) {\n  const r = item.json;\n  const rawCode = txt(r['Service Code']).toUpperCase();\n  const nameAr = txt(r['اسم الخدمة بالعربي']) || txt(r.name);\n  if (!rawCode || !nameAr) {\n    skipped.push({ code: rawCode, nameAr, why: \"بلا كود أو بلا اسم عربي\" });\n    continue;\n  }\n  const code = ALIAS[rawCode] || rawCode;\n  const model = txt(r['Pricing Model']);\n  const price = num(r['Minimum Price']) || num(r['One-Time Fee']) || num(r['Monthly Fee']);\n  const monthly = model === \"Monthly\";\n  services.push({\n    code,\n    nameAr,\n    nameEn: txt(r['Service Name EN']) || nameAr,\n    category: txt(r['Service Category']) || 'Uncategorized',\n    descAr: txt(r['وصف الخدمة بالعربي']) || txt(r['Description']) || null,\n    descEn: txt(r['Description EN']) || null,\n    unitPrice: price,\n    openPrice: price <= 0 || OPEN_MODELS.indexOf(model) !== -1,\n    unitAr: monthly ? 'شهرياً' : 'خدمة',\n    unitEn: monthly ? 'per month' : 'service',\n    attachGovFees: r['Gov Fees Separate'] === true,\n    govPlatform: txt(r['Gov Platform']) || null,\n    active: r['Active'] === true,\n    notionPageId: txt(r.id).replace(/-/g, ''),\n  });\n}\n\nreturn [{ json: { source: \"notion\", count: services.length, skipped, services } }];"
+      }
+    },
+    {
+      "id": "9b11795d-1b3d-4885-8bed-4f0340550740",
+      "name": "ادفعها إلى كتالوج اللوحة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        -120
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://bp-quotes-three.vercel.app/api/catalog/sync",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "c1a72397-cfdb-480e-8273-93d7b92eb9b5",
+      "name": "خلاصة السحب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        -120
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const res = $input.first().json;\nconst body = res.body || res;\nconst s = body.summary || {};\nconst rejected = (body.results || []).filter((r) => r.action === \"rejected\");\nreturn [{ json: {\n  direction: \"notion to panel\",\n  httpStatus: res.statusCode || null,\n  created: s.created || 0,\n  updated: s.updated || 0,\n  unchanged: s.unchanged || 0,\n  rejected: s.rejected || 0,\n  rejectedRows: rejected,\n  at: new Date().toISOString(),\n} }];"
+      }
+    },
+    {
+      "id": "d8f1eab9-bcb8-49a5-880a-b02987444cbe",
+      "name": "تغيّر سعر في اللوحة",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -460,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-catalog-changed",
+        "authentication": "none",
+        "responseMode": "onReceived",
+        "options": {
+          "responseData": "{\"ok\":true}"
+        }
+      },
+      "webhookId": "f5d5dbe0-44de-406d-a51f-8caac5cbf179"
+    },
+    {
+      "id": "af383a41-9d9d-427d-9b8e-318c4342b59b",
+      "name": "اقرأ الجرد الكامل من اللوحة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -240,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://bp-quotes-three.vercel.app/api/catalog/full",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "e9242dc2-a321-4a3c-8fde-79a069479c7f",
+      "name": "اختر الصفوف المتغيّرة ذات صفحة نوشن",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const hook = $(\"تغيّر سعر في اللوحة\").first().json;\nconst asked = (hook.body && hook.body.codes) || hook.codes || [];\nconst wanted = new Set(asked.map((c) => String(c).toUpperCase()));\n\nconst all = $input.first().json.services || [];\nconst rows = [];\nconst unlinked = [];\n\nfor (const s of all) {\n  if (wanted.size && !wanted.has(String(s.code).toUpperCase())) continue;\n  const links = s.links || {};\n  const pageId = links.notion ? String(links.notion).split(\"/\").pop() : null;\n  if (!pageId) { unlinked.push(s.code); continue; }\n  const methods = (s.paymentMethods || []).map((m) => m.ar).join(\" · \");\n  rows.push({ json: {\n    code: s.code,\n    notionPageId: pageId,\n    priceExclVat: s.priceExclVat,\n    priceInclVat: s.priceInclVat,\n    active: s.active,\n    openPrice: s.openPrice,\n    autoIssue: s.autoIssue === true,\n    siteUrl: links.site || \"\",\n    panelUrl: links.panel || \"\",\n    quoteUrl: links.portal || \"\",\n    paymentMethods: methods,\n    unlinkedInThisRun: unlinked,\n  } });\n}\n\nif (!rows.length) return [{ json: { nothingToUpdate: true, unlinked } }];\nreturn rows;"
+      }
+    },
+    {
+      "id": "4c46726a-172f-473f-8f9f-6d41be7cbabf",
+      "name": "حدّث صف نوشن بالسعر الجديد",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.notionPageId }}"
+        },
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Minimum Price|number",
+              "numberValue": "={{ $json.priceExclVat }}"
+            },
+            {
+              "checkboxValue": "={{ $json.active }}",
+              "key": "Active|checkbox"
+            },
+            {
+              "checkboxValue": "={{ $json.autoIssue }}",
+              "key": "Auto Issue|checkbox"
+            },
+            {
+              "key": "Panel Code|rich_text",
+              "textContent": "={{ $json.code }}"
+            },
+            {
+              "ignoreIfEmpty": true,
+              "key": "Site URL|url",
+              "urlValue": "={{ $json.siteUrl }}"
+            },
+            {
+              "ignoreIfEmpty": true,
+              "key": "Panel URL|url",
+              "urlValue": "={{ $json.panelUrl }}"
+            },
+            {
+              "ignoreIfEmpty": true,
+              "key": "Quote URL|url",
+              "urlValue": "={{ $json.quoteUrl }}"
+            },
+            {
+              "key": "Payment Methods|rich_text",
+              "textContent": "={{ $json.paymentMethods }}"
+            },
+            {
+              "key": "Sync Source|select",
+              "selectValue": "panel"
+            },
+            {
+              "date": "={{ $now.toISO() }}",
+              "includeTime": false,
+              "key": "Last Updated|date"
+            },
+            {
+              "key": "Internal Notes|rich_text",
+              "textContent": "=حُدِّث من لوحة العروض — {{ $json.code }} — السعر شامل الضريبة {{ $json.priceInclVat }} — {{ $now.toFormat(\"yyyy-MM-dd HH:mm\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "1b97c08e-7cf6-432f-bb2c-502b47ea27a9",
+      "name": "أعد نشر الموقع التعريفي",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        420,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vercel.com/v1/integrations/deploy/REPLACE_WITH_VERCEL_DEPLOY_HOOK",
+        "sendBody": false,
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "0b3d9c23-692f-4e80-bf1e-fb03ed7e28cb",
+      "name": "Sticky Note a7f59ae9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -510,
+        -170
+      ],
+      "parameters": {
+        "content": "## نوشن ← اللوحة (كل ساعة)\nكتالوج نوشن الرسمي هو سطح التحرير البشري. يُقرأ كل ساعة، تُطابَق صفوفه بالكود، ويُدفع إلى اللوحة. جدول مرادفات الباقات داخل عقدة التحويل.",
+        "color": 4,
+        "width": 1180,
+        "height": 200
+      }
+    },
+    {
+      "id": "1e400c31-da01-436e-a3fb-e4144b61dca6",
+      "name": "Sticky Note 875211b8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -510,
+        250
+      ],
+      "parameters": {
+        "content": "## اللوحة ← نوشن + الموقع (فوري)\nأي حفظ في /admin/catalog يستدعي هذا الويبهوك، فيُحدَّث صف نوشن ويُعاد نشر الموقع. ضع رابط Deploy Hook من Vercel في العقدة الأخيرة قبل تفعيلها.",
+        "color": 3,
+        "width": 1180,
+        "height": 200
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

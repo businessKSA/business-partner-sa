@@ -1,0 +1,746 @@
+{
+  "id": "8HL5NWvqi1SkTKqb",
+  "name": "📦 BP Team — Salman (Product Manager — Service, Page, Packages, Portal, Journey)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0d0755c9-b84e-4079-8a8b-a5c386b29b8c",
+  "activeVersionId": "0d0755c9-b84e-4079-8a8b-a5c386b29b8c",
+  "triggerCount": 1,
+  "nodeCount": 15,
+  "createdAt": "2026-07-27T00:56:41.516Z",
+  "updatedAt": "2026-09-29T09:26:46.033Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 300,
+    "binaryMode": "separate",
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "saveExecutionProgress": true
+  },
+  "tags": [
+    {
+      "id": "6fN8dOBsWSOzP3vC",
+      "name": "Funnel"
+    },
+    {
+      "id": "Aem6VaUVPH2u6OGr",
+      "name": "Infrastructure"
+    },
+    {
+      "id": "DT2auTiV2dg7I1Mh",
+      "name": "Website"
+    },
+    {
+      "id": "MLCxCyaplKvUTYTI",
+      "name": "Vercel"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    },
+    {
+      "id": "o2JyHGb2a7ez7zv7",
+      "name": "Digital Product"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Product Manager, director rank, own department reporting to Farah (Chief of Staff). Owns the service itself, the service page, the packages, the client portal/dashboard and the customer journey. Never sets price — that is Badr and Finance.",
+  "connections": {
+    "Website Funnel Intake": {
+      "main": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Public Website": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Client Portal": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Vercel Deployments": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Mohammed IT": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Badr Sales": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Mazen Operations": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Open AI Tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "لمى — UX & Conversion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جنى — Client Portal Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "وليد — Funnel Analytics": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Website Funnel Manager",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "لمى — UX & Conversion",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "جنى — Client Portal Product",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "وليد — Funnel Analytics",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "32a63118-c0b3-4921-a48b-1244e42a907e",
+      "name": "Website Funnel Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "website-funnel-ops",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "authentication": "none",
+        "options": {
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "4cc3dfeb-bd01-4aaf-b939-9b0a1599e850"
+    },
+    {
+      "id": "d8d3656f-24c7-496b-8721-81ac0a8d56b9",
+      "name": "Website Funnel Manager",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        280,
+        200
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body?.message ?? $json.body?.objective ?? $json.message ?? 'Run an operational review of the website and inbound funnel event.' }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "Salman — Digital Product & Funnel Director, Business Partner.\nOwn the whole digital product surface, five areas, no gaps:\n1. الخدمة — what each service actually is: scope in / scope out, required client inputs and documents, steps, realistic duration, final deliverable, and the done-when test. Service copy and SKU descriptions in the catalog.\n2. الصفحة — the public service page: structure, clarity, CTA, forms, mobile.\n3. الباقات — how SKUs group into tiers, what is in each tier, the recommended tier, upgrade path and add-ons, and how they are laid out on the page.\n4. اللوحة — the client portal and the ops panel: it must answer what he ordered, what he paid, the status, what is needed from him, and the next step.\n5. رحلة العميل — source → visit → lead → qualified → quote → paid → delivered: tracking, drop-offs, attribution, conversion.\n\nEvery service category on the site has its own department by owner decision (2026-09-29): real estate is Tariq (realestate-intake), recruitment/staffing is Bandar (recruitment-intake), company formation/government relations/business support stay with Mishari and the core team, news content is Alaa (news-intake), and cross-cutting pipeline health is Wissam (deals-intake). When a request is clearly real-estate or recruitment scoped, hand it to that director instead of scoping it yourself.\n\nTeam (delegate here FIRST): لمى = UX/CRO and the page, جنى = portal/dashboard product, وليد = funnel analytics and the journey. Service definition and packaging you currently hold yourself — they have no dedicated specialist yet.\nPeers (consult ONLY when the action is theirs, and at most ONE per run): Mohammed = IT/deploys, Badr = sales and the ONLY owner of price, Mazen = operations, Sara = growth & marketing (path farah-intake, a legacy name), Tariq = real estate (realestate-intake), Bandar = client-facing recruitment (recruitment-intake), Alaa = news (news-intake), Wissam = pipeline health (deals-intake). Farah is the Chief of Staff to the owner, not marketing.\n\nPRICE RULE — absolute: you never set, estimate, discount or publish a price. Prices come from the catalog by SKU only. A new price, a discount or a bundle price is approved by Badr and Finance. Design the package by its contents and leave the price to them.\n\nTASK RULES — these override anything else:\n- NEVER create a task assigned to website_funnel_ops. That is you. If the work is yours, DO IT NOW in this run and report the outcome; do not file it for later.\n- Do not create a task that merely tracks, follows up on, monitors or circulates an existing task. That is not work, it is a loop.\n- Before creating any task, call Read Open AI Tasks. If the objective is already covered by an open task, update your answer to reference it and create nothing.\n- Create at most ONE task per run, and only when the owner is another agent.\n\nOperate, do not report: inspect, decide, act, close the loop. Never route routine work to Baher.\nL3 approval only for destructive production changes, legal/financial/government actions, or secrets. Never request passwords, OTP, Nafath codes or API keys.\nEVIDENCE RULE: state only what your tools actually returned. If you have no data for a number, say you have no data — never invent a metric, rate, percentage, price, duration, document requirement, client or person.\nAnswer in 120 words or fewer, as: Status / Action / Owner / Approval / Next checkpoint. No preamble, no essays.",
+          "maxIterations": 6,
+          "returnIntermediateSteps": false
+        },
+        "enableStreaming": false
+      }
+    },
+    {
+      "id": "538a1d43-9480-45d3-89b8-653a04079e31",
+      "name": "Check Public Website",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        380,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Check the current public Business Partner website when you need to verify homepage availability or inspect visible page content. Read-only.",
+        "method": "GET",
+        "url": "https://www.businesspartner.sa/",
+        "authentication": "none",
+        "options": {
+          "timeout": 30000
+        },
+        "optimizeResponse": true,
+        "responseType": "html",
+        "cssSelector": "body",
+        "onlyContent": true,
+        "elementsToOmit": "script,style,noscript",
+        "truncateResponse": true,
+        "maxLength": 12000
+      }
+    },
+    {
+      "id": "bb426ce6-972a-4160-b4c5-c3282838acea",
+      "name": "Check Client Portal",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        560,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Inspect the public-facing Business Partner client portal/account page and visible operational states. Read-only.",
+        "method": "GET",
+        "url": "https://www.businesspartner.sa/account",
+        "authentication": "none",
+        "options": {
+          "timeout": 30000
+        },
+        "optimizeResponse": true,
+        "responseType": "html",
+        "cssSelector": "body",
+        "onlyContent": true,
+        "elementsToOmit": "script,style,noscript",
+        "truncateResponse": true,
+        "maxLength": 12000
+      }
+    },
+    {
+      "id": "a53ccea4-7c62-4e82-8a0c-ea63945363d3",
+      "name": "Check Vercel Deployments",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Read the latest Business Partner Vercel deployments and their states. Use this to diagnose deploy/build failures or verify the latest production deployment. Read-only.",
+        "method": "GET",
+        "url": "https://api.vercel.com/v6/deployments?projectId=prj_0QXlyAeL02QYYNrAQCfc6lRheTGp&limit=20",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "selected",
+        "fields": "deployments"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XnWhKDt3AGCj0NgY",
+          "name": "Vercel — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "6b7bca75-9d30-488c-a1f4-b7aa9455ccd0",
+      "name": "Consult Mohammed IT",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        920,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Ask Mohammed, the IT specialist, to diagnose a technical website, integration, API, WhatsApp or automation issue. Use when technical diagnosis or implementation specification is needed.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mohammed-intake",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','Give Mohammed the exact technical issue, evidence, expected behavior and what you need from him','string'), client_name: 'Website & Funnel Manager — internal', channel: 'internal' }) }}",
+        "options": {
+          "timeout": 60000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "8944088e-3fc9-4c9c-97fa-dc84d1f05994",
+      "name": "Consult Badr Sales",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1100,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Ask Badr, Sales & BD, to qualify or advance a lead, define next sales action, or prepare proposal requirements.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/badr-intake",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','Give Badr the client context and exact sales decision/action needed','string'), client_name: $fromAI('client_name','Client name if known','string'), channel: 'internal' }) }}",
+        "options": {
+          "timeout": 60000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "db5a864b-1cbb-4a8f-9944-5b112bf3ba4a",
+      "name": "Consult Mazen Operations",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        500
+      ],
+      "parameters": {
+        "toolDescription": "Ask Mazen, Operations & Support, to own a service-delivery or customer-support next action.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mazen-intake",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','Give Mazen the customer/service context and operational action needed','string'), client_name: $fromAI('client_name','Client name if known','string'), channel: 'internal' }) }}",
+        "options": {
+          "timeout": 60000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "5b253367-8784-4d8e-a6ed-675ca37b4b4d",
+      "name": "Create AI Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1460,
+        500
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $fromAI('task_id','Unique task ID such as WEB-20260902-001','string') }}",
+            "parent_task_id": "={{ $fromAI('parent_task_id','Parent task ID if this is a subtask, otherwise empty','string') }}",
+            "source": "={{ $fromAI('source','Event source such as website, whatsapp, email, crm, monitoring','string') }}",
+            "company_id": "business-partner",
+            "client_id": "={{ $fromAI('client_id','Client ID if known, otherwise empty','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client name if known, otherwise empty','string') }}",
+            "channel": "={{ $fromAI('channel','website, whatsapp, email, social, internal or monitoring','string') }}",
+            "objective": "={{ $fromAI('objective','Clear outcome the assigned agent must achieve','string') }}",
+            "context": "={{ $fromAI('context','Evidence, reproduction details, current state and important context','string') }}",
+            "created_by_agent": "website_funnel_ops",
+            "assigned_to_agent": "={{ $fromAI('assigned_to_agent','Agent ID, one of: mohammed_it, badr_sales, mazen_ops, farah_marketing, ahmed_strategy or chief_of_staff. NEVER website_funnel_ops - you may not assign work to yourself; do the work instead.','string') }}",
+            "priority": "={{ $fromAI('priority','critical, high, medium or low','string') }}",
+            "status": "queued",
+            "approval_required": "={{ $fromAI('approval_required','true only for L3 action; otherwise false','boolean') }}",
+            "approval_status": "={{ $fromAI('approval_status','pending for approval-required tasks, otherwise not_required','string') }}",
+            "result": "",
+            "next_action": "={{ $fromAI('next_action','Concrete next step','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "condition": "eq",
+              "keyName": "task_id",
+              "keyValue": "={{ $fromAI('task_id','Unique task ID such as WEB-20260902-001','string') }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "140b2bd1-15d4-4f3a-a059-d77b8dfce660",
+      "name": "Read Open AI Tasks",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1640,
+        500
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "queued"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "in_progress"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 50,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "75a56096-47b0-4777-8f74-4efb96f56ed9",
+      "name": "لمى — UX & Conversion",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1020,
+        760
+      ],
+      "parameters": {
+        "toolDescription": "لمى، UX & Conversion Specialist. استخدمها لتحليل customer journey، CTA/forms/checkout friction، mobile usability، CRO hypotheses وتجارب التحسين.",
+        "text": "={{ $fromAI('task','UX/CRO task with page/funnel, audience, observed issue and conversion target','string') }}",
+        "options": {
+          "systemMessage": "أنت لمى، UX & Conversion Specialist تحت سلمان. قلّلي الاحتكاك وزيدي التحويل من زيارة إلى lead/deal.\nالرد ٩٠ كلمة فأقل، نقاطاً: Hypothesis / Change / Metric / Expected impact. بلا مقدمات ولا شرح عام.",
+          "maxIterations": 3,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "2e88e770-e50d-4ba1-b04b-7fb1e85837ae",
+      "name": "جنى — Client Portal Product",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        760
+      ],
+      "parameters": {
+        "toolDescription": "جنى، Client Portal Product Specialist. استخدميها لمراجعة dashboard/requests/contracts/invoices/documents/status clarity وتجربة العميل داخل البوابة.",
+        "text": "={{ $fromAI('task','Client portal product task, affected feature, user journey and expected outcome','string') }}",
+        "options": {
+          "systemMessage": "أنت جنى، Client Portal Product Specialist تحت سلمان. اجعلي البوابة تجيب: ماذا طلب، ماذا دفع، ما الحالة، ما المطلوب منه، ما الخطوة التالية. الأعطال إلى IT وفجوات العملية إلى Operations.\nالرد ٩٠ كلمة فأقل، نقاطاً، بلا مقدمات.",
+          "maxIterations": 3,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "9a4302ab-dc6d-405f-9402-64e540e68262",
+      "name": "وليد — Funnel Analytics",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        760
+      ],
+      "parameters": {
+        "toolDescription": "وليد، Funnel Analytics Specialist. استخدمه لتحليل source→visit→lead→qualified→quote→paid، attribution، broken events، drop-offs وrevenue by channel.",
+        "text": "={{ $fromAI('task','Funnel analytics question with channel/page/stage/data context','string') }}",
+        "options": {
+          "systemMessage": "أنت وليد، Funnel Analytics Specialist تحت سلمان. اربط كل مؤشر بالإيراد، واكشف missing tracking و drop-off و broken events، وقدّم إجراءات مرتّبة بالأولوية لا vanity metrics.\nالرد ٩٠ كلمة فأقل، نقاطاً، بلا مقدمات ولا تعريفات عامة.",
+          "maxIterations": 3,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "a4974f81-123c-429b-ad86-0fd99ef90d05",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        360
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "d011640f-a819-4e3f-8b7d-070b119787dc",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        160,
+        660
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1200,
+          "temperature": 0.3,
+          "timeout": 120000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لسلمان ومختصّيه الثلاثة. bp-main على bp-ai-ksa-2026 — بدل Claude المدفوع نقداً.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

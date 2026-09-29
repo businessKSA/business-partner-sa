@@ -1,0 +1,240 @@
+{
+  "id": "cRnUgcqXa6tCm2hR",
+  "name": "BP — Reset Planned Week (إعادة بناء أسبوع)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "01c45931-09e5-4b63-bd80-e088ef35b5c9",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 6,
+  "createdAt": "2026-08-23T22:10:07.801Z",
+  "updatedAt": "2026-08-23T22:10:07.801Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "يمسح كل صفوف تقويم المحتوى لأسبوع واحد (Plan Week) حتى يعيد المخطط بناءه من التغذية المحدّثة. يتخطى أي صف حالته Published.",
+  "connections": {
+    "Reset a Week": {
+      "main": [
+        [
+          {
+            "node": "Week to Reset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Week to Reset": {
+      "main": [
+        [
+          {
+            "node": "Load That Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load That Week": {
+      "main": [
+        [
+          {
+            "node": "Never Touch Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Never Touch Published": {
+      "main": [
+        [
+          {
+            "node": "Archive Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9c742fe3-2477-475d-ac5e-b7d1b39dd641",
+      "name": "Reset a Week",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9198a833-8394-4e3c-a5bd-a8412794223e",
+      "name": "Week to Reset",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "plan-week",
+              "name": "planWeek",
+              "value": "2026-08-30",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "notes": "Edit this to the Sunday of the week you want cleared, then run.",
+      "notesInFlow": true
+    },
+    {
+      "id": "3de660cf-299b-45ad-882a-9814304f0430",
+      "name": "Load That Week",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b2-3503-4ff4-adf5-ec15dfd7519a"
+        },
+        "returnAll": true,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Plan Week|rich_text",
+              "condition": "equals",
+              "richTextValue": "={{ $json.planWeek }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Every calendar row carrying this Plan Week.",
+      "notesInFlow": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "a034406d-cac0-468b-adb1-8e3c39887609",
+      "name": "Never Touch Published",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.property_status }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "rightValue": "Published"
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "notes": "A published post is a record of something that happened. It is never archived by this.",
+      "notesInFlow": true
+    },
+    {
+      "id": "3b2d4437-1c60-482f-9b10-3b336a16c457",
+      "name": "Archive Row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"archived\": true}",
+        "options": {}
+      },
+      "notes": "The Notion node has no archive operation, so this calls the API directly with the same credential.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "bf63d4e5-73d3-47db-b867-5bac666fe7d0",
+      "name": "Sticky Note 3ec9138e",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        -50
+      ],
+      "parameters": {
+        "content": "## Reset a planned week\n\nClears every calendar row for one Plan Week so the planner can rebuild it. Use it after the copy in the feed changes — editing 26 rows by hand is how a calendar drifts out of sync with what the generator actually produces.\n\nSet the Sunday date in **Week to Reset**, run, then run **BP — Weekly Content Planner** with its Plan Now trigger.\n\nRows at Status = Published are skipped. A published post is a record of something that happened.",
+        "color": 3,
+        "width": 300,
+        "height": 200
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

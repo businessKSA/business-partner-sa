@@ -1,0 +1,357 @@
+{
+  "id": "m9S6s6qQ0QIvQcFs",
+  "name": "🗝️ SS — Team Stats (ss-stats)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "e6ec194f-6e32-421f-8feb-56f1011583dc",
+  "activeVersionId": "e6ec194f-6e32-421f-8feb-56f1011583dc",
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-07-21T01:32:44.750Z",
+  "updatedAt": "2026-07-21T01:33:13.485Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "مؤشرات فريق الخدمات المشتركة لكل عميل: webhook ss-stats {code} → تحقق من الرمز → قراءة قاعدتي المحادثات والمهام الخاصة بالعميل → إحصاءات (إجمالي المحادثات، المهام حسب الحالة، توزيع الوكلاء، آخر نشاط، آخر 6 تفاعلات).",
+  "connections": {
+    "Stats Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Resolve IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve IDs": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Query Conversations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Conversations": {
+      "main": [
+        [
+          {
+            "node": "Query Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Stats": {
+      "main": [
+        [
+          {
+            "node": "Respond Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "e0dd2fd9-a119-4d53-ab9b-4015a79f3a32",
+      "name": "Stats Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-stats",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "047b06e4-1e1d-4810-a771-85aa160d149c"
+    },
+    {
+      "id": "a8ad702d-53ad-4350-a7ff-cefbb4c18eb4",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const code=((b.code||'')+'').trim().toUpperCase();const ok=!!code&&code!=='DEMO123';const qBody=JSON.stringify({filter:{property:'الرمز',rich_text:{equals:ok?code:'NONE'}}});return [{json:{code:code,ok:ok,qBody:qBody}}];"
+      }
+    },
+    {
+      "id": "fa0da922-5a22-410a-9130-382c4fbd6708",
+      "name": "Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Prep').first().json.qBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "6f64ced0-fb1d-4b20-960d-71926cc0efb5",
+      "name": "Resolve IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('Prep').first().json;const r=$input.first().json.results||[];if(!pre.ok||!r.length){return [{json:{ok:false}}];}const p=r[0].properties;const txt=x=>((x&&x.rich_text&&x.rich_text[0]&&x.rich_text[0].plain_text)||'');const st=((p['الحالة']||{}).select||{}).name||'نشط';if(st!=='نشط'){return [{json:{ok:false}}];}const conv=txt(p['ConvDB']);const tasks=txt(p['TasksDB']);const name=((p['العميل'].title||[])[0]||{}).plain_text||'عميل';const qAll=JSON.stringify({page_size:100,sorts:[{timestamp:'created_time',direction:'descending'}]});return [{json:{ok:true,name:name,conv:conv,tasks:tasks,convUrl:'https://api.notion.com/v1/databases/'+conv+'/query',tasksUrl:'https://api.notion.com/v1/databases/'+tasks+'/query',qAll:qAll}}];"
+      }
+    },
+    {
+      "id": "280dc4cb-5b35-48ba-b6a7-195ea1dfc072",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "4b89662f-25d1-48aa-8947-eb8743d05658",
+      "name": "Query Conversations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1020,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Resolve IDs').first().json.convUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Resolve IDs').first().json.qAll }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "c42986ff-368d-4945-a986-be10a3efd2c3",
+      "name": "Query Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1240,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Resolve IDs').first().json.tasksUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Resolve IDs').first().json.qAll }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "b4cab24f-4320-4756-b845-8d31251c8cdc",
+      "name": "Build Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const ids=$('Resolve IDs').first().json;const convR=($('Query Conversations').first().json||{}).results||[];const taskR=($('Query Tasks').first().json||{}).results||[];const txt=x=>((x&&x.rich_text&&x.rich_text[0]&&x.rich_text[0].plain_text)||'');const title=x=>((x&&x.title&&x.title[0]&&x.title[0].plain_text)||'');const agents={};let lastTs='';const recent=[];for(const pg of convR){const p=pg.properties||{};const ag=txt(p['الوكيل'])||'khaled';agents[ag]=(agents[ag]||0)+1;const ts=pg.created_time||'';if(ts>lastTs)lastTs=ts;if(recent.length<6){recent.push({t:title(p['العنوان']).slice(0,60),agent:ag,date:(ts||'').slice(0,10)});}}const byStatus={};for(const pg of taskR){const p=pg.properties||{};const st=((p['الحالة']||{}).select||{}).name||'أخرى';byStatus[st]=(byStatus[st]||0)+1;const ts=pg.created_time||'';if(ts>lastTs)lastTs=ts;}return [{json:{ok:true,name:ids.name,conv_total:convR.length,tasks_total:taskR.length,tasks_by_status:byStatus,agents:agents,recent:recent,last_activity:lastTs}}];"
+      }
+    },
+    {
+      "id": "d69e8efd-8e03-4f3c-89cc-250c0e6df560",
+      "name": "Respond Stats",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1680,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($('Build Stats').first().json) }}"
+      }
+    },
+    {
+      "id": "94789f71-d665-4fc3-9a18-07aaa0e9d7e5",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1020,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

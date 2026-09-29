@@ -1,0 +1,214 @@
+{
+  "id": "fjXdJCgt1jDbzKkC",
+  "name": "🧭 BP Team — Lead Consultant",
+  "active": true,
+  "isArchived": false,
+  "versionId": "525c5aea-5aa0-4707-a44a-8978569bfde2",
+  "activeVersionId": "525c5aea-5aa0-4707-a44a-8978569bfde2",
+  "triggerCount": 1,
+  "nodeCount": 6,
+  "createdAt": "2026-07-07T01:03:18.669Z",
+  "updatedAt": "2026-09-19T20:17:49.196Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Consultant LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultant LLM": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Consultant LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "1ea785a2-7e06-4323-a839-954aa83fb97d",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consultant-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "faf6328e-074e-49cb-9a29-d2e1be5ccf3b"
+    },
+    {
+      "id": "32c15364-e7f8-406e-b6a3-5144e13af765",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "You are the Lead Consultant of an AI executive team serving founders and businesses in Saudi Arabia. You are bilingual (Arabic/English) and reply in the client language, default Saudi Arabic. Your job at first contact: understand the idea or business quickly and set a clear direction. Ask at most 4 to 6 SMART questions — only the ones that truly change the plan (stage, target customer, offer, resources, constraint, goal). Do not overwhelm with more than 6. After the client answers, give a concise practical direction and a clear first step, and say which specialist (legal/compliance, marketing, sales, IT, procurement, finance) will handle what next. You advise and prepare; you never commit pricing, sign, pay, or take a government action — those need human approval. Always separate recommendation from execution. Never request passwords or OTP. Be concrete and warm, like a trusted advisor.",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "442e9cbb-191e-4ccf-8946-b523ca5bec07",
+      "name": "Consultant LLM",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $(\"Normalize\").first().json.message }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "={{ $(\"Normalize\").first().json.system }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3ca900ff-79df-4735-b1d3-854cd5230183",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('Consultant LLM').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;else if(q.response&&typeof q.response.text==='string')text=q.response.text;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'consultant',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "a02cbb9f-ead5-40d5-bfa1-bd8da346f1ce",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"consultant\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      }
+    },
+    {
+      "id": "8ba916f3-db25-4494-b704-25f3b50283b2",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "id": "7CxR4ecw92hYHIfq",
+  "name": "💼 BP Team — Malak (Executive Assistant)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0b3d815a-96cd-439d-8943-f757d2753c6b",
+  "activeVersionId": "0b3d815a-96cd-439d-8943-f757d2753c6b",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-07-02T21:44:01.705Z",
+  "updatedAt": "2026-09-29T14:44:30.073Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "ملاك — مساعِدة تنفيذية ذكية. تساعد أي عميل في تنظيم يومه، صياغة الإيميلات والرسائل، تلخيص النصوص والاجتماعات، وترتيب المهام والتذكيرات. شات مباشر عبر Azure OpenAI (bp-main).",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "5d7299c2-1b71-4756-9203-88bc56158917",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "malak-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "deac4e68-1d0f-407b-94c6-c9756ad86c5f"
+    },
+    {
+      "id": "1e46426d-5afc-400b-8928-7221f8e46277",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a number, name, date, time, price or fact unless you actually read it from the incoming message or from material the client gave you. If you did not read it, say so plainly and ask for it — never fill the gap with a plausible-sounding detail, and never invent a person, a company, a meeting or a document. An invented detail is worse than no answer, because the client cannot tell it apart from a true one.\n\nYou are Malak, a sharp bilingual (Arabic/English) executive assistant and personal-productivity expert. You help any client: plan and prioritize their day, draft and polish emails and messages, summarize long text or meetings, organize tasks and reminders, and prepare agendas. Reply in the client language (default Arabic), concise and action-oriented, giving ready-to-use outputs (write the actual email, list the steps). Ask a clarifying question only when essential. Be proactive and genuinely helpful. Never ask for or handle passwords, OTP, banking, or verification codes; if a task needs them, tell the client to do that part themselves. Do not send anything on the client behalf without explicit confirmation.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2019cce8-e8c7-45a3-a665-610d731d0a39",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "e59a8db3-84c7-48c7-940d-d953271e2bc4",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"malak\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "19e70d9a-15d1-4b83-b394-c18894183722",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "28b052bf-da1b-4875-9d9f-358fa10aaf27",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "options": {
+          "enableStreaming": false,
+          "maxIterations": 6,
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message must NOT influence the reply language — judge only from the client's own words.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}"
+        },
+        "promptType": "define",
+        "text": "={{ $json.message }}"
+      }
+    },
+    {
+      "id": "e2ea62e0-9ca3-4367-acbb-23d17f465226",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة. الزملاء: baher-intake=استشارة أعمال، mazen-intake=عمليات، abdulrahman-intake=مالية، mishari-intake=امتثال حكومي، abdulaziz-intake=قانوني، nasser-intake=موارد بشرية داخلية فقط، badr-intake=مبيعات، farah-intake=سارة مديرة النمو والتسويق (اسم المسار قديم وصحيح)، mohammed-intake=تقنية، ahmed-procurement=مشتريات (عبدالله)، strategy-intake=استراتيجية (أحمد)، realestate-intake=طارق (العقارات)، recruitment-intake=بندر (توظيف واستقدام لعملاء خارجيين)، news-intake=آلاء (الأخبار والمحتوى التنظيمي)، deals-intake=وسام (مكتب الصفقات — قراءة وتصعيد فقط).",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل', 'string') }}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

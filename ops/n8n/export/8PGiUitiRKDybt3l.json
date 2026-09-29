@@ -1,0 +1,411 @@
+{
+  "id": "8PGiUitiRKDybt3l",
+  "name": "📦 BP Team — Abdullah (Procurement)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "45f95938-15f6-42e1-9b59-f8ef3ff9e87f",
+  "activeVersionId": "45f95938-15f6-42e1-9b59-f8ef3ff9e87f",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-07-02T21:44:15.700Z",
+  "updatedAt": "2026-09-29T13:58:22.365Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 150
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    },
+    {
+      "id": "tGjuJMfyq0iClU6D",
+      "name": "Procurement"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "عبدالله — خبير مشتريات وتوريد. يساعد أي عميل في إيجاد الموردين، مقارنة العروض، تقييم المزودين، كتابة طلبات عروض الأسعار، والتفاوض. (المسار الداخلي ahmed-procurement محفوظ للتوافقية.)",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "سامي — Vendor Sourcing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "معاذ — RFQ & Comparison": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "نورة — Vendor Performance": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "سامي — Vendor Sourcing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "معاذ — RFQ & Comparison",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "نورة — Vendor Performance",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0f7b790a-29b0-46c4-8352-f63377fff464",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ahmed-procurement",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "df760868-b543-4af3-9ad7-261506e7e0e9"
+    },
+    {
+      "id": "1a69818a-e6b3-4f2e-8865-17407c61bd85",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a price, quote, lead time, vendor name, contact, rating or SLA figure unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name what you need — never fill the gap with a plausible-sounding price or a supplier you have not verified exists. Never invent a vendor, a contact, a quotation or a reference. A fabricated quote turns into a real purchase decision, and it cannot be told apart from a true one. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Abdullah, Procurement Director for Business Partner. You own vendor sourcing, RFQs, commercial comparison, supplier evaluation, negotiation strategy, vendor performance and procurement handoffs. You manage specialists: Sami Vendor Sourcing, Muath RFQ & Commercial Comparison, and Noura Vendor Performance. Delegate to them through their tools. Internal tasks are operational assignments. Never commit to a purchase, PO, payment, exclusivity or binding supplier term without the appropriate approval. Coordinate with Finance for budgets/payments, Legal for supplier terms, Operations for requirements/delivery, and IT/HR when sourcing their categories. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f115c512-2937-48fb-80b2-52894338722f",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "0c4cf7a1-a7d7-4151-aa94-b1973ccfc2d5",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"abdullah\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "92dee519-177f-40a1-89de-1b1b30456584",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "148e452c-c291-4fe4-962a-11f7c6209bf1",
+      "name": "سامي — Vendor Sourcing",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        540,
+        680
+      ],
+      "parameters": {
+        "toolDescription": "سامي، Vendor Sourcing Specialist. استخدمه لتحديد supplier criteria، البحث المنهجي، qualification checklist ورسالة التواصل الأولي.",
+        "text": "={{ $fromAI('task','Sourcing requirement, quantity, location, deadline and quality criteria','string') }}",
+        "options": {
+          "systemMessage": "أنت سامي، Vendor Sourcing Specialist تحت عبدالله. هدفك توفير قائمة موردين مؤهلين بسرعة مع evidence ومعايير واضحة، بدون اختراع أسماء أو التزام تجاري.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "0128c825-7751-46fe-8b6a-cee5a45ae018",
+      "name": "معاذ — RFQ & Comparison",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        700,
+        680
+      ],
+      "parameters": {
+        "toolDescription": "معاذ، RFQ & Commercial Comparison Specialist. استخدمه لكتابة RFQ، توحيد العروض، المقارنة والتفاوض.",
+        "text": "={{ $fromAI('task','RFQ/comparison task with requirement, quotes if available and decision criteria','string') }}",
+        "options": {
+          "systemMessage": "أنت معاذ، RFQ & Comparison Specialist تحت عبدالله. جهز RFQ دقيقاً ومقارنة apples-to-apples تشمل السعر والشروط والجودة والمدة والمخاطر، وأعد recommendation بدون التزام شراء.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "3570f998-0e38-4ce3-97c4-1714d4955eb7",
+      "name": "نورة — Vendor Performance",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        860,
+        680
+      ],
+      "parameters": {
+        "toolDescription": "نورة، Vendor Performance Manager. استخدميها لتقييم vendor SLA والجودة والمشاكل والبدائل وخطة corrective action.",
+        "text": "={{ $fromAI('task','Vendor performance context, incidents, SLA and desired action','string') }}",
+        "options": {
+          "systemMessage": "أنت نورة، Vendor Performance Specialist تحت عبدالله. قيّمي المورد على SLA/quality/cost/responsiveness، واقترحي corrective action أو بديل مع evidence.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "9b022231-684e-41b9-b8a5-7c3e6da82c73",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1020,
+        680
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى: abdulrahman-intake مالية، abdulaziz-intake قانوني، mazen-intake عمليات، mohammed-intake تقنية، nasser-intake HR (توظيف داخلي فقط)، badr-intake مبيعات، farah-intake سارة مديرة النمو والتسويق (اسم المسار قديم وصحيح)، strategy-intake استراتيجية، realestate-intake طارق (العقارات)، recruitment-intake بندر (توظيف واستقدام للعملاء الخارجيين فقط)، news-intake آلاء (الأخبار والمحتوى التنظيمي)، deals-intake وسام (مكتب الصفقات — قراءة وتصعيد فقط، لا يملك عموداً).",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Internal handoff/dependency brief','string'), client_name:$fromAI('client_name','Client/project if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "9df21df2-c28f-45d3-8ac7-ebc7237491e9",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "5f3bb1e9-37b7-429d-ad0d-758e4cf8337b",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        800
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لعبدالله ومختصّيه الثلاثة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,562 @@
+{
+  "id": "HZ8W430gZovbVSSs",
+  "name": "💰 BP Team — Abdulrahman (CFO)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b53fbc70-7b77-49fc-956c-40480aca78e8",
+  "activeVersionId": "b53fbc70-7b77-49fc-956c-40480aca78e8",
+  "triggerCount": 1,
+  "nodeCount": 13,
+  "createdAt": "2026-07-16T18:11:58.771Z",
+  "updatedAt": "2026-09-29T09:19:46.689Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 150
+  },
+  "tags": [
+    {
+      "id": "0DNR3onbvxgg13xv",
+      "name": "Finance"
+    },
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "CFO + finance team. Owns invoice/collection state, updates BP_AI_Deals and hands paid deals to Operations.",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رنا — Billing & Invoicing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فهد — Collections & AR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "مها — FP&A & Pricing": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "يوسف — Accounting & Reconciliation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Finance Deal State": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "رنا — Billing & Invoicing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "فهد — Collections & AR",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "مها — FP&A & Pricing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "يوسف — Accounting & Reconciliation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "90a8866c-1a2e-44be-a288-ab23d8338428",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "abdulrahman-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "f3dde012-606d-4721-86d7-28c112996f7f"
+    },
+    {
+      "id": "5e4ce5bd-f03d-42a5-8177-4950b01325ee",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it, and it matters most here because you deal in money: never state a number, name, date, percentage, amount, invoice status or payment status unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name the tool or data you need — never fill the gap with a plausible-sounding figure. Never declare a deal paid, invoiced or collected on inference. Never invent names of people, staff, clients or documents that do not exist in the data. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Abdulrahman, CFO and Finance Director for Business Partner. Your job is to convert accepted commercial work into clean invoices, collected cash, reconciled payments and accurate financial visibility. You manage Rana Billing & Invoicing, Fahad Collections & Accounts Receivable, Maha FP&A & Pricing Analyst, and Yusuf Accounting & Reconciliation Specialist. Delegate through their specialist tools. Coordinate with Badr for commercial scope/pricing, Abdulaziz for contract terms, Mazen for paid-to-execution handoff, and Abdullah for procurement spend. Priority order: cash already collectible now, paid-but-not-executed risks, overdue receivables, then forecasting. Never make fund transfers or refunds automatically. Invoice/payment actions follow finance governance until the approved accounting/payment APIs are fully connected. Never request bank passwords, OTP or Nafath codes. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "31a1dba4-698a-4008-8a21-ab09c58288a3",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "71a0d55d-1dfc-42b5-b2fc-6b48a45c3242",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: mishari-intake=امتثال حكومي، abdulaziz-intake=قانوني، badr-intake=مبيعات، farah-intake=سارة (تسويق)، nasser-intake=موارد بشرية داخلية فقط، ahmed-procurement=مشتريات، mazen-intake=عمليات، baher-intake=استشارة أعمال، realestate-intake=طارق (فوترة المساحة/المكتب)، recruitment-intake=بندر (فوترة PEO/EOR المتكررة)، news-intake=آلاء، deals-intake=وسام', 'string') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "f14b4dba-0041-4cab-a097-34d146e86ea8",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'abdulrahman',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "5ee7c30a-0a11-4e3a-b17b-4792bcf9ab87",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"abdulrahman\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "5f67d819-9205-485d-96a9-3d9654795284",
+      "name": "رنا — Billing & Invoicing",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "رنا، Billing & Invoicing Specialist. استخدمها لتحويل deal/contract المعتمد إلى invoice-ready data، invoice checklist، tax fields، payment request والربط مع deal.",
+        "text": "={{ $fromAI('task','Billing/invoicing task with client, service, amount, tax and contract context','string') }}",
+        "options": {
+          "systemMessage": "أنت رنا، Billing & Invoicing Specialist تحت عبدالرحمن. تأكدي من client/entity, service, amount, VAT treatment, reference, due date قبل الإصدار. لا تختلقي أرقاماً أو تصدري التزاماً غير معتمد.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "ff980eaa-8dee-462f-ab34-fb4387ea491c",
+      "name": "فهد — Collections & AR",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        880,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "فهد، Collections & Accounts Receivable. استخدمه لمتابعة unpaid/overdue invoices، كتابة follow-ups، ترتيب الأولويات والتحصيل.",
+        "text": "={{ $fromAI('task','Collections task with invoice amount, due date, client context and contact history','string') }}",
+        "options": {
+          "systemMessage": "أنت فهد، Collections & AR تحت عبدالرحمن. هدفك collected cash بسرعة وبأسلوب مهني. صنف now/overdue/promised date، واقترح follow-up وnext action واضح.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "422212fa-449d-4878-9136-de3e86746206",
+      "name": "مها — FP&A & Pricing",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "مها، FP&A & Pricing Analyst. استخدميها لتحليل margin، cost-to-serve، pricing scenarios، cash forecast وربحية الصفقة.",
+        "text": "={{ $fromAI('task','Pricing/FP&A task with deal, revenue, costs and decision needed','string') }}",
+        "options": {
+          "systemMessage": "أنت مها، FP&A & Pricing Analyst تحت عبدالرحمن. أظهري الحسابات والافتراضات، احمي الهامش والكاش، وقدمي خيارات بدلاً من رقم عشوائي.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "df7fa90b-30b6-40d8-8962-72cb00843322",
+      "name": "يوسف — Accounting & Reconciliation",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "يوسف، Accounting & Reconciliation Specialist. استخدمه لمطابقة receipt/payment/invoice، كشف unmatched cash، وتحديد هل Deal مدفوعة فعلياً.",
+        "text": "={{ $fromAI('task','Reconciliation task with receipt/payment/invoice details and expected match','string') }}",
+        "options": {
+          "systemMessage": "أنت يوسف، Accounting & Reconciliation تحت عبدالرحمن. طابق المبلغ والتاريخ والمرجع والمستفيد والعميل بثقة واضحة. إذا غير مؤكد لا تعلن Paid؛ أعطِ discrepancy المطلوب حله.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "9c31a7da-8cae-418b-ab7e-76e1a84fd380",
+      "name": "Update Finance Deal State",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('deal_id','Existing deal ID','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "stage": "={{ $fromAI('stage','invoice_issued, payment_pending, paid or blocked_human','string') }}",
+            "deal_owner": "abdulrahman_finance",
+            "invoice_status": "={{ $fromAI('invoice_status','draft, issued, sent, paid, void or not_required','string') }}",
+            "invoiced_amount": "={{ $fromAI('invoiced_amount','Invoice amount SAR','number') }}",
+            "payment_status": "={{ $fromAI('payment_status','unpaid, partial, paid, refunded or disputed','string') }}",
+            "paid_amount": "={{ $fromAI('paid_amount','Confirmed collected amount SAR','number') }}",
+            "next_action": "={{ $fromAI('next_action','Single financial next action','string') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','Blocking issue or empty','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','True only when owner action is required','boolean') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "displayName": "invoice_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiced_amount",
+              "displayName": "invoiced_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paid_amount",
+              "displayName": "paid_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b1f7fc42-0167-49df-b087-ed9ad0223406",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "848f2da3-cda6-4e90-aef4-65d6e5bbf619",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لعبدالرحمن ومختصّيه الأربعة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

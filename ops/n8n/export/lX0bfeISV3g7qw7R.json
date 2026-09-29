@@ -1,0 +1,222 @@
+{
+  "id": "lX0bfeISV3g7qw7R",
+  "name": "BP-Sub-Menu",
+  "active": true,
+  "isArchived": false,
+  "versionId": "fbf08b2e-e913-48cd-b74c-483313c01915",
+  "activeVersionId": "fbf08b2e-e913-48cd-b74c-483313c01915",
+  "triggerCount": 0,
+  "nodeCount": 6,
+  "createdAt": "2026-06-29T10:37:24.621Z",
+  "updatedAt": "2026-06-29T13:56:04.765Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When Called by Main": {
+      "main": [
+        [
+          {
+            "node": "Menu Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menu Router": {
+      "main": [
+        [
+          {
+            "node": "Update CRM After Menu Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CRM After Menu Router": {
+      "main": [
+        [
+          {
+            "node": "Send Menu Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Owner Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Owner Notification": {
+      "main": [
+        [
+          {
+            "node": "Send Owner Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trg-menu-0001",
+      "name": "When Called by Main",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json || {};\n\nconst msg = String(\n  item.message_text ||\n  item.property_last_whats_app_message ||\n  item.property_last_whatsapp_message ||\n  ''\n).trim();\n\nlet reply = '';\nlet selected_service_path = '';\nlet advisor_step = 'Main Menu';\nlet whatsapp_stage = 'Menu Sent';\n\nif (msg === '1') {\n  selected_service_path = 'Company Setup';\n  advisor_step = 'Investor Type';\n  whatsapp_stage = 'Qualification';\n\n  reply = `مرحباً، لتحديد مسار تأسيس الشركة المناسب، اختر نوع المستثمر:\n\n1️⃣ سعودي / مقيم\n2️⃣ مستثمر أجنبي\n\nيرجى الرد برقم الخيار فقط.`;\n} else if (msg === '2') {\n  selected_service_path = 'HR & Recruitment';\n  advisor_step = 'HR Need Type';\n  whatsapp_stage = 'Qualification';\n\n  reply = `اختر نوع خدمة الموارد البشرية:\n\n1️⃣ توظيف\n2️⃣ تشغيل\n3️⃣ استقدام\n4️⃣ استشارة موارد بشرية\n\nيرجى الرد برقم الخيار فقط.`;\n} else if (msg === '3') {\n  selected_service_path = 'GRO';\n  advisor_step = 'GRO Service Type';\n  whatsapp_stage = 'Qualification';\n\n  reply = `اختر خدمة العلاقات الحكومية:\n\n1️⃣ قوى\n2️⃣ مدد\n3️⃣ التأمينات\n4️⃣ مقيم\n5️⃣ بلدي والزكاة والضريبة\n\nيرجى الرد برقم الخيار فقط.`;\n} else if (msg === '4') {\n  selected_service_path = 'Premium Residency';\n  advisor_step = 'Premium Residency Type';\n  whatsapp_stage = 'Qualification';\n\n  reply = `اختر نوع الإقامة المميزة:\n\n1️⃣ إقامة مميزة عادية\n2️⃣ إقامة مستثمر\n3️⃣ إقامة رائد أعمال\n4️⃣ غير متأكد\n\nيرجى الرد برقم الخيار فقط.`;\n} else {\n  reply = `أهلاً بك في بزنس بارتنر سولوشنز 👋\n\nنحن شركة سعودية متخصصة في خدمات الأعمال للشركات والمستثمرين: تأسيس الشركات السعودية والأجنبية، تراخيص الاستثمار، الإقامة المميزة، الموارد البشرية والتشغيل، والعلاقات الحكومية والاستشارات.\n\nاختر رقم الخدمة التي تهمك:\n\n1️⃣ تأسيس الشركات\n2️⃣ حلول الموارد البشرية\n3️⃣ العلاقات الحكومية\n4️⃣ الإقامة المميزة`;\n}\n\nreturn [\n  {\n    json: {\n      ...item,\n      selected_service_path,\n      advisor_step,\n      whatsapp_stage,\n      text_body: reply,\n      reply_text: reply,\n      output: reply,\n      send_ready: true,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ],
+      "id": "49dce6f7-18ed-4033-9070-e8cdacc1c4fc",
+      "name": "Menu Router"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$json.crm_page_id}}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Investment Advisor Summary|rich_text",
+              "textContent": "={{ \"Investor Type\" }}"
+            },
+            {
+              "key": "WhatsApp Stage|select",
+              "selectValue": "={{ \"Qualification\" }}"
+            },
+            {
+              "key": "Selected Service Path|select",
+              "selectValue": "Company Setup"
+            },
+            {
+              "key": "Advisor Step|select",
+              "selectValue": "={{ \"Investor Type\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        300
+      ],
+      "id": "271728a7-158f-4c62-81a0-a07e948515b6",
+      "name": "Update CRM After Menu Router",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $json.phone || $json.recipient_phone || $json.property_whats_app_phone || $json.property_whats_app }}",
+        "textBody": "={{ $('Menu Router').item.json.reply_text || $('Menu Router').item.json.text_body || $('Menu Router').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        300
+      ],
+      "id": "711ade76-3734-435f-8863-5b8a681b8e75",
+      "name": "Send Menu Message",
+      "webhookId": "cb09e297-ee65-4944-9aad-5c1cd2ffdd9b",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const OWNER_PHONE = \"966530540231\";\n\nfunction value(v, fallback = \"\") {\n  if (v === undefined || v === null) return fallback;\n  if (Array.isArray(v)) {\n    if (v.length === 0) return fallback;\n    return v.filter(x => x !== null && x !== undefined && x !== \"\").join(\", \");\n  }\n  return String(v).trim();\n}\n\nfunction cut(text, max = 220) {\n  const t = value(text);\n  if (t.length <= max) return t;\n  return t.slice(0, max) + \"...\";\n}\n\nconst output = [];\n\nfor (const item of $input.all()) {\n  const j = item.json || {};\n\n  const clientName = value(\n    j.name ||\n    j.client_name ||\n    \"WhatsApp Client\"\n  );\n\n  const clientPhone = value(\n    j.property_whats_app ||\n    j.property_whatsapp ||\n    j.phone ||\n    j.recipient_phone ||\n    \"\"\n  );\n\n  const service = value(\n    j.property_selected_service_path ||\n    j.selected_service_path ||\n    j.detected_service ||\n    \"Not Defined\"\n  );\n\n  const stage = value(\n    j.property_whats_app_stage ||\n    j.property_whatsapp_stage ||\n    j.whatsapp_stage ||\n    \"Not Defined\"\n  );\n\n  const step = value(\n    j.property_advisor_step ||\n    j.advisor_step ||\n    \"Not Defined\"\n  );\n\n  const lastMessage = value(\n    j.message_text ||\n    j.property_last_whats_app_message ||\n    j.normalized_text ||\n    \"No message\"\n  );\n\n  const crmUrl = value(\n    j.url ||\n    j.crm_url ||\n    \"No CRM link\"\n  );\n\n  const notificationText =\n`🔔 WhatsApp Lead\n\nClient: ${clientName}\nPhone: ${clientPhone}\n\nService: ${service}\nStage: ${stage}\nStep: ${step}\n\nMessage:\n${cut(lastMessage, 220)}\n\nCRM:\n${crmUrl}`;\n\n  output.push({\n    json: {\n      ...j,\n\n      owner_notification_ready: true,\n      owner_phone: OWNER_PHONE,\n      recipient_phone: OWNER_PHONE,\n\n      owner_notification_text: notificationText,\n      text_body: notificationText,\n      reply_text: notificationText,\n      output: notificationText,\n\n      send_ready: true\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        300
+      ],
+      "id": "8fed86ba-ffdf-49b5-b6de-ad8a366d3939",
+      "name": "Prepare Owner Notification"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Prepare Owner Notification').item.json.owner_phone }}",
+        "textBody": "={{ $('Prepare Owner Notification').item.json.owner_notification_text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        300
+      ],
+      "id": "d7d717f4-ed6c-4989-a045-7002af660674",
+      "name": "Send Owner Notification",
+      "webhookId": "63dd0d7b-4848-4c58-a698-5c818ce40e7d",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": null
+}

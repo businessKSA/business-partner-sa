@@ -1,0 +1,619 @@
+{
+  "id": "fjOMfqFdUhc5DxDf",
+  "name": "BP-Chat-Media",
+  "active": true,
+  "isArchived": false,
+  "versionId": "f0bf97a6-1ac9-4a8d-9a34-a3ddfe53db4e",
+  "activeVersionId": "f0bf97a6-1ac9-4a8d-9a34-a3ddfe53db4e",
+  "triggerCount": 1,
+  "nodeCount": 15,
+  "createdAt": "2026-07-03T03:36:19.473Z",
+  "updatedAt": "2026-07-17T00:59:21.270Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Owner-only media send for BP Inbox: accepts base64 image/document from the dashboard, pauses the AI agent for that customer, sends the file to the customer via WhatsApp Cloud API, and logs it to the monitor database.",
+  "connections": {
+    "POST Send Media": {
+      "main": [
+        [
+          {
+            "node": "Parse Media Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Media Request": {
+      "main": [
+        [
+          {
+            "node": "Media Key Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Media Key Valid?": {
+      "main": [
+        [
+          {
+            "node": "Find CRM by Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Media 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find CRM by Phone": {
+      "main": [
+        [
+          {
+            "node": "Pause Agent (CRM Flag)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Agent (CRM Flag)": {
+      "main": [
+        [
+          {
+            "node": "Restore Media Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Media Item": {
+      "main": [
+        [
+          {
+            "node": "Base64 to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 to File": {
+      "main": [
+        [
+          {
+            "node": "Is Image?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Image?": {
+      "main": [
+        [
+          {
+            "node": "Send Image via WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Document via WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Image via WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Sent OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sent OK?": {
+      "main": [
+        [
+          {
+            "node": "Log Owner Media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Media Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Owner Media": {
+      "main": [
+        [
+          {
+            "node": "Respond Media OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Document via WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Sent OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "a1c54d9a-67c9-4bba-9aa9-c02caa627f5e",
+      "name": "POST Send Media",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-chat-media-x7k2m9",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "4b91e497-f855-4770-ad13-bf65b7398c1b"
+    },
+    {
+      "id": "2d9fd002-558c-4f84-8164-0f54067d5c24",
+      "name": "Parse Media Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        400
+      ],
+      "parameters": {
+        "jsCode": "let b = $json.body;\nif (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }\nb = b || {};\nconst phone = String(b.phone || '').replace(/[^0-9]/g, '');\nlet mt = String(b.mediatype || 'document');\nif (mt !== 'image' && mt !== 'document') mt = 'document';\nlet media = String(b.media || '');\nconst comma = media.indexOf(',');\nif (media.slice(0, 5) === 'data:' && comma > -1) media = media.slice(comma + 1);\nconst keyOk = String(b.key || '') === String($env.BP_CHAT_MEDIA_KEY || '');\nconst valid = keyOk && phone.length >= 9 && media.length > 0;\nreturn [{ json: { key: String(b.key || ''), phone: phone, mediatype: mt, filename: String(b.filename || 'file'), caption: String(b.caption || ''), mime: String(b.mime || (mt === 'image' ? 'image/jpeg' : 'application/octet-stream')), media: media, valid: valid } }];"
+      }
+    },
+    {
+      "id": "c789d022-cf0b-40db-9da6-1a088dad5325",
+      "name": "Media Key Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.key }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $env.BP_CHAT_MEDIA_KEY }}"
+            },
+            {
+              "leftValue": "={{ $json.valid }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "9470fbd3-372f-4141-9028-94383dfec182",
+      "name": "Find CRM by Phone",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        320
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "b322a7ec-23a9-4ceb-875e-52c07b00eadf",
+          "cachedResultName": "CRM"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "simple": true,
+        "filterType": "manual",
+        "matchType": "anyFilter",
+        "filters": {
+          "conditions": [
+            {
+              "key": "WhatsApp Phone|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{ $json.phone }}"
+            },
+            {
+              "key": "WhatsApp|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "75a57a8c-0545-4a77-b3e9-4831a3056999",
+      "name": "Pause Agent (CRM Flag)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Find CRM by Phone').first().json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "AI Enabled|checkbox",
+              "checkboxValue": "={{ false }}"
+            },
+            {
+              "key": "Human Required|checkbox",
+              "checkboxValue": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "60e57676-ea30-4eac-8a6b-2dd073623d71",
+      "name": "Restore Media Item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        320
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: $('Parse Media Request').first().json }];"
+      }
+    },
+    {
+      "id": "1a3b08a5-5d82-431b-94b2-c3ef4290e5fa",
+      "name": "Base64 to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        320
+      ],
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "media",
+        "options": {
+          "fileName": "={{ $json.filename }}",
+          "mimeType": "={{ $json.mime }}"
+        }
+      }
+    },
+    {
+      "id": "e0550ee4-ea63-4fe6-ac4b-cc16d57b6d16",
+      "name": "Is Image?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1780,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Media Request').first().json.mediatype }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "image"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "6baffc11-5059-47dc-8855-dd8fef6e1cd9",
+      "name": "Send Image via WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        240
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Parse Media Request').first().json.phone }}",
+        "messageType": "image",
+        "mediaPath": "useMedian8n",
+        "mediaPropertyName": "data",
+        "additionalFields": {
+          "mediaCaption": "={{ $('Parse Media Request').first().json.caption }}"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "069c3157-e330-4be6-8b30-f9105bc22dc5",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "6453f086-8a84-4156-a2db-eccd990b0c57",
+      "name": "Sent OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2220,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "7c8fd062-ea16-4e3b-9ed2-d38af431dda4",
+      "name": "Log Owner Media",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2440,
+        240
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=📎 {{ $('Parse Media Request').first().json.filename }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Parse Media Request').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "المالك"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "=📎 {{ $('Parse Media Request').first().json.filename }}{{ $('Parse Media Request').first().json.caption ? ' — ' + $('Parse Media Request').first().json.caption : '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "ad13e34e-5d12-49e4-8182-f1d33a08ef0f",
+      "name": "Respond Media OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2660,
+        240
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "acdfb7ed-4ebe-4eae-a46c-664090153215",
+      "name": "Respond Media Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2440,
+        460
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"whatsapp\"}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "4cdaae7c-ca0f-4553-bc46-261323bf0c32",
+      "name": "Send Document via WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Parse Media Request').first().json.phone }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "mediaPropertyName": "data",
+        "additionalFields": {
+          "mediaFilename": "={{ $('Parse Media Request').first().json.filename }}",
+          "mediaCaption": "={{ $('Parse Media Request').first().json.caption }}"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "9d805e2a-826f-43cc-a93b-4e03ca34fae5",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "deb08b4e-b375-4304-8215-b563043e0a86",
+      "name": "Respond Media 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        900,
+        560
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unauthorized or invalid payload\"}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

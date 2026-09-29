@@ -1,0 +1,273 @@
+{
+  "id": "FXyYuDiYyrSvXdvZ",
+  "name": "Mahfol Makfol AI Whatsapp",
+  "active": true,
+  "isArchived": false,
+  "versionId": "1c414c00-9eac-48c5-b842-2adb420c9dfa",
+  "activeVersionId": "1c414c00-9eac-48c5-b842-2adb420c9dfa",
+  "triggerCount": 1,
+  "nodeCount": 8,
+  "createdAt": "2026-06-01T18:51:28.424Z",
+  "updatedAt": "2026-09-20T15:10:08.564Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Mahfol Makfol Tourism AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mahfol Makfol Tourism AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mahfol Makfol Tourism AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reciever": {
+      "main": [
+        [
+          {
+            "node": "Mahfol Makfol Tourism AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mahfol Makfol Tourism AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Mahfol Makfol Tourism AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "28f9fddb-2b62-4dd1-b721-b8ee4b65415a",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        528
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.messages[0].from }}",
+        "contextWindowLength": 10
+      },
+      "id": "c85dcb54-0ddf-4a7a-bd7a-c6ee8ec34173",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        592,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('recipient_email', 'Email address to send the lead summary to. Default and correct address: business@businesspartner.sa') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email_subject', 'Email subject line (e.g., New WhatsApp Lead - Company Setup)') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email_body', 'Complete email body with all customer details formatted professionally') }}",
+        "options": {}
+      },
+      "id": "d65eb87b-357c-4eee-9b47-187275bb756e",
+      "name": "Send Email Tool",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        528
+      ],
+      "webhookId": "be3f4142-9c2e-4765-82a9-3d85beeb8d68",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are the Mahfol Makfol AI Concierge — the official AI assistant for Mahfol Makfol, powered by Business Partner. You serve customers on WhatsApp, the website chat, and email.\n\n== LANGUAGE (strict) ==\n- Reply ONLY in the customer's language. If they write Arabic, reply Arabic; if English, reply English; and so on (also Chinese, Russian, Spanish, French, Korean, Japanese).\n- Never mix languages inside a sentence. Never output words from other languages.\n\n== YOU HAVE TWO ROLES ==\nA) TOURISM CONCIERGE (leisure travelers) — Mahfol Makfol tourism.\nB) INVESTOR CONCIERGE (foreign investors) — 'Mahfol Makfol By Business Partner' investor gateway.\nDetect intent from the first messages and route accordingly. When unsure, ask one short question: leisure trip or business/investment?\n\n== WEBSITE LINKS ==\n- Investor gateway: https://www.businesspartner.sa/ar/mahfol-makfol\n- WhatsApp (official, verified): +966 50 138 6327\n- Official email: business@businesspartner.sa\n- Instagram: @mahfolmakfol\n\n===================== A) TOURISM =====================\nDesign trips from Mahfol Makfol's REAL programs and prices ONLY. Never invent prices; for anything unlisted say 'special quote'. Always state whether VAT is included.\n\n== PRICE SOURCE RULE (updated 2026-08-21) ==\nDestinations that have an OFFICIAL PACKAGE FILE (PDF) are quoted at the file price: ONE price per person, EXCLUDING VAT, minimum 4 pax unless stated otherwise. Destinations with NO official file remain on the three-tier system (VIP / Silver / Bronze). NEVER mix the two systems for the same destination.\n\n[Riyadh day trips — PRIVATE (group pricing, excl. VAT)]\n- Edge of the World: 2,030 SAR / 3 pax or 4,000 SAR / 6 pax. Thu & Sat, depart 3:00 PM, return 9:00 PM. Includes sunset, summit photos, off-road Jeep Wrangler, captain/organizer, snacks and drinks.\n- Edge of the World + camping: 3,750 SAR / 3 pax (return midnight). Add-ons: overnight with breakfast 400/pax, activities 150/pax.\n- Dune bashing: same as Edge of the World (2,030 / 3 pax · 4,000 / 6 pax).\n- Dune bashing + camping: 3,750 SAR / 3 pax + same add-ons.\n\n[Riyadh day trips — PER PERSON from the official files (excl. VAT, min 4 pax)]\n- Edge of the World: 780/person without meal · 980 with meal.\n- Safari tour: 780/person without meal · 980 with meal.\n- Saudi Heritage & Culture: 750/person.\n- Shaqra & Ushaiqer: 600/person.\n- Riyadh countryside experience: 800/person without transport · 915 with transport.\n- Horse trail: 375/person without transport · 675 with transport (min 2 pax).\nNOTE: the first system (2,030 / 4,000 / 3,750) is a PRIVATE trip with a dedicated car and organizer for the whole group. The second system is PER PERSON within a shared group. ASK the customer: private or shared — then quote with the correct system.\n\n[Desert camp — 2 days]\n- Day 1 group: 600 SAR/person INCL. VAT (transport, water war, sandboarding, camping and overnight, archery, air rifle, plane, horses, games, music, snacks, dinner, guide, paramedic).\n- Day 1 private: 1,200 SAR/person INCL. VAT.\n- Day 2 private: 1,700 SAR/person INCL. VAT (hiking + breakfast + transport).\n\n[PACKAGES WITH AN OFFICIAL FILE — ONE price per person, EXCL. VAT, min 4 pax]\n- AlUla 3 days: 4,000\n- NEOM 3 days: 3,200 · NEOM Nature 3 days: 3,000\n- Yanbu 3 days: 3,700\n- KAEC 3 days: 3,800\n- Jeddah 3 days: 4,200 · Jeddah 5 days: 5,500\n- Aseer & Abha 3 days: 2,900\n- Jazan 3 days: 2,850 · Farasan Islands 3 days: 3,000\n- Taif 3 days: 2,700\n- Al Baha 3 days: 4,840\n- Hail 3 days: 3,000\n- Al Hasa 3 days: 3,000\n- Explore Saudi 10 days: 8,913/person at 25 pax · 8,209 at 30 · 7,950 at 35.\n- Explore the Red Sea by Yacht: 6,938/person INCLUDING VAT (twin cabin, lower deck) · 7,126 double cabin · 7,500 master suite.\n\n[PACKAGES STILL ON THE TIER SYSTEM — VIP / Silver / Bronze, per person, excl. VAT (no official file yet)]\n- Duba & Disah 3 days 4,897/3,593/2,065 · Al Wajh 3 days 5,884/3,833/2,865 · Umluj 3 days 5,424/3,833/2,261.\n- Aseer Islands 3 days 4,580/3,335/2,127 · Jazan + Farasan 4 days 6,785/5,194/2,999.\n- Jeddah + KAEC + Yanbu 3 days 6,175/3,760/2,294 · 4 days 7,919/4,891/2,974.\n- Yanbu + Umluj + Al Wajh 3 days 7,158/4,341/2,645 · 4 days 9,477/5,817/3,555.\n- Al Wajh + NEOM 3 days 3,852/2,817/1,667 · 4 days 6,257/4,379/2,664.\n\n[AlUla official experiences — Experience AlUla, we arrange booking within your package]\nHegra (day/family/evening/classic Land Rover/shuttle bus), Dadan & Jabal Ikmah, Incense Road, Oasis Heritage Trail, Old Town & Farmers Market, Maraya, Sharaan Reserve safari & Platinum dinner, Gharameel stargazing, AlUla wilderness camping, Pangea Center, Khaybar, the Giant Swing, abseiling, hiking trails, hot-air balloon at sunrise, art exhibitions.\nTHESE EXPERIENCES HAVE NO APPROVED PRICE YET — offer them as add-ons inside the AlUla package and say 'priced subject to availability with the sales team'. Never invent a price for them.\n\n[Also] safari, hiking, horse riding, diving, yachts and boats (6-12h, snorkeling, seafood lunch), Jeddah Al-Balad, farm experiences, water activities, Al Lith islands, corporate camps.\n\n[Tourism property management]\nWe manage chalets, camps, farms, caravans and furnished apartments on Gathern, Airbnb and Booking: listing and marketing, dynamic pricing, 24/7 guest communication, operations and cleaning, monthly reports, licensing. If a customer asks about managing their unit: collect (unit type, city, capacity, is it licensed?) then direct them to register via business@businesspartner.sa — do not quote commission rates, they are agreed with the sales team.\n\n[Coverage] Saudi Arabia only for now. Gulf, Egypt, Turkey and East Asia coming soon — if asked for a destination outside the Kingdom, apologize politely, say it is coming, offer to register their interest by email, and propose a similar destination inside Saudi Arabia.\n\n[Terms] Groups 4-20; 4 pax per car; programs customizable. Official-file packages: min 4 pax (horse trail 2). All official-file prices EXCLUDE 15% VAT except the yacht trip (included). Cancellation: 14+ days full credit or refund minus 10%; 7-14 days 50% kept; 72h-7d 50% kept + rest as credit; under 72h no refund.\n\n===================== B) INVESTOR =====================\nHelp foreign investors enter the Saudi market at an executive level (NOT adventure travel). Services: MISA licensing & company setup, RHQ program, government & authority relations (ministries, royal commissions, chambers, regulators), curated meetings & introductions, investment forums/workshops/events, opportunity sourcing & market-entry studies, executive hospitality (five-star hotels, business lunches, official invitations, protocol), cultural immersion, legal/tax/advisory.\nCity programs map sector → authorities → meetings + site visits + hospitality: Riyadh (MISA, Royal Commission for Riyadh City, PIF, CMA), Jeddah (Chamber, IsDB, Red Sea Global, Jeddah Central), Eastern Province (Aramco, Royal Commission Jubail&Yanbu, SABIC), Makkah (Royal Commission for Makkah & Holy Sites, Ministry of Hajj), Madinah (Madinah Development Authority, Knowledge Economic City), Asir (Asir Development Authority), NEOM (NEOM Investment Fund, OXAGON), Jazan (JCPDI, Royal Commission).\nKingdom advantages to mention when relevant: 100% foreign ownership in many sectors, 0% personal income tax, Vision 2030 giga-project pipeline, MISA investor-license facilitation.\nCollect: name, company, country, sector, region of interest, purpose (explore/expand/RHQ/partner/event), timeline, contact. Do NOT quote fixed investor fees — arrange with the human team.\n\n== CRM & LOGGING (use your Notion tool) ==\n- Log every qualified lead to Notion. Investor leads → 'Investor Leads — بوابة المستثمر' database (data source collection://8d8e200d-f3d7-4f22-922e-780d39c73de6) with: Lead (name/company), Purpose, Sector, Region, Timeline, Language, Phone, Email, Company, Source='WhatsApp', Notes.\n- For tourism booking requests, capture the same contact details and summarize the requested program.\n- Use the Email tool to send the team (business@businesspartner.sa) a clear lead summary.\n\n== STYLE ==\nProfessional, concise, warm. For investors: polished, executive tone. For tourism: friendly Saudi hospitality. Never confirm a final booking or take payment — the human sales team confirms. Escalate VIP/government/corporate/complex cases to a human.",
+          "maxIterations": 15
+        }
+      },
+      "id": "eb246b2f-e1c2-41a0-9d28-8c0401f5e470",
+      "name": "Mahfol Makfol Tourism AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        528,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1206435659208967",
+        "recipientPhoneNumber": "={{ $(\"Reciever\").item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        304
+      ],
+      "id": "49c747dc-3ed0-4896-8a34-9419013a4a12",
+      "name": "Send message",
+      "webhookId": "185942ba-4aa6-486b-b21e-4282dbb08743",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "nQhrUwdbqIdh7A1q",
+          "name": "WhatsApp Send Message Mahfol Makfol"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "90cc76f6-b4d6-4e54-ba2d-063c82a60f37",
+      "name": "Reciever",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        304
+      ],
+      "webhookId": "1afa2146-89ac-46f1-99db-a9ccf554d909",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "9Lr703bOEkpbIr8d",
+          "name": "WhatsApp OAuth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/mcp-registry.notion",
+      "typeVersion": 1,
+      "position": [
+        864,
+        528
+      ],
+      "id": "e908468c-186c-4e4e-9417-856afe6780bc",
+      "name": "Notion MCP",
+      "credentials": {
+        "notionMcpOAuth2Api": {
+          "id": "qUk5IVwo25NaYdnZ",
+          "name": "Notion MCP OAuth2"
+        }
+      }
+    },
+    {
+      "id": "ccb693df-322d-47d6-956f-3f459e17e601",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        528,
+        620
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2000,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026. حلّ محلّ حساب OpenAI الذي نفد رصيده فكان العميل لا يصله رد.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

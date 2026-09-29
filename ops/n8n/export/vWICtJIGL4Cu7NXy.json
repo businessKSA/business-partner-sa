@@ -1,0 +1,993 @@
+{
+  "id": "vWICtJIGL4Cu7NXy",
+  "name": "📈 BP Team — Sara (Head of Growth & Marketing)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "92282986-b0dd-4558-a01c-349f880ccf8c",
+  "activeVersionId": "92282986-b0dd-4558-a01c-349f880ccf8c",
+  "triggerCount": 1,
+  "nodeCount": 17,
+  "createdAt": "2026-07-02T21:44:30.517Z",
+  "updatedAt": "2026-09-24T03:16:22.194Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120
+  },
+  "tags": [
+    {
+      "id": "3e4sD4NXljLH9Ben",
+      "name": "Marketing"
+    },
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "jeoKNxDsTcbDJYU7",
+      "name": "Growth"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Autonomous Head of Growth: content, campaigns, qualified lead capture, handoff to Badr. Revenue-first. Renamed from Farah 2026-09-24 (owner: Farah is now Chief of Staff). Webhook farah-intake kept as a legacy route.",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marketing Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff to Sales": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Marketing Deal": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sales Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ريم — Content Writer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ليان — Social Media Manager": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "نور — Creative Designer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جود — Short-form Video Producer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "دانا — Growth Analyst": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "راكان — Community & Engagement": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "ريم — Content Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "ليان — Social Media Manager",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "نور — Creative Designer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "جود — Short-form Video Producer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "دانا — Growth Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "راكان — Community & Engagement",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "3b27dfe1-f6ac-4ab3-a31c-cad43884fdfe",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "farah-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "90ca2e01-a3f1-4e8a-af30-9d6f7f92e53f"
+    },
+    {
+      "id": "e64804ab-c4b0-4f00-b86d-20029e8f84cd",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "You are Sara, Head of Growth & Marketing for Business Partner in Saudi Arabia. (This role was previously called Farah; Farah is now the Chief of Staff. You are Sara — never introduce yourself as Farah.) Your primary KPI is REVENUE, not content volume. Own the full top-of-funnel: positioning, content strategy, weekly calendar, campaign ideas, social copy, design briefs, lead capture, qualification signals, campaign attribution, and conversion handoff to Sales. Platforms: LinkedIn, Instagram, TikTok, Snapchat, Facebook, X, WhatsApp and email. For each marketing activity optimize toward qualified leads, meetings, quotes and collected revenue.\n\nEVIDENCE RULE — overrides everything below it: never state a number, name, date, percentage or amount unless you actually read it from a tool result or from the incoming message. If you did not read it, say plainly that you did not and name the tool you need — do not fill the gap with a plausible figure. Never invent names of people, staff or clients that do not exist in the data. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one.\n\nWhen you identify a real lead or buying intent, create a row in BP_AI_Deals using Create Marketing Deal, create a queued sales task using Create Sales Task, and when useful immediately brief Badr through Handoff to Sales. Do not create duplicate deals for the same contact/request if context shows one already exists. Never create a task assigned to yourself, and never create a task whose only purpose is to track another task — at most one task per real piece of work. You may generate ready-to-publish copy and creative direction. Routine brand-safe organic content is L2 and may be scheduled/published automatically by the publishing workflows; paid ad spend, material pricing claims, legal promises, crisis responses, or public statements with high reputational risk require escalation. Never request passwords, OTP, Nafath codes or secrets. Reply in the latest message language, default Saudi Arabic. Internal team requests should be answered as an operator, not as customer-facing chatter. Keep replies concise unless a campaign/calendar/full plan is explicitly requested.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "41281af6-1e54-4347-86fb-90cc84d27363",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "ede17d54-dd6d-42c5-a952-779beac622d1",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"sara\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "066cbee5-8ad2-4681-ab9d-4fdc2a619cfe",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "6cf190e7-4b5a-4ac3-9ec6-ef8c92206615",
+      "name": "Marketing Notion",
+      "type": "@n8n/mcp-registry.notion",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        540
+      ],
+      "parameters": {
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "disabled": true,
+      "credentials": {
+        "notionMcpOAuth2Api": {
+          "id": "qUk5IVwo25NaYdnZ",
+          "name": "Notion MCP OAuth2"
+        }
+      }
+    },
+    {
+      "id": "c46d8496-985b-435f-a652-093fd375867c",
+      "name": "Handoff to Sales",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        540
+      ],
+      "parameters": {
+        "toolDescription": "Hand a qualified marketing lead or buying-intent opportunity to Badr Sales. Include source, campaign, client details, need, urgency, expected value and exact next action.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/badr-intake",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('sales_brief','Complete qualified lead brief for Badr','string'), client_name: $fromAI('client_name','Client or company name','string'), phone: $fromAI('phone','Phone if known','string'), channel: $fromAI('channel','Source channel','string'), service_hint: $fromAI('service_hint','Service needed','string') }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "5aea625c-39b9-49fb-9d9d-674792b45660",
+      "name": "Create Marketing Deal",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        540
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $fromAI('deal_id','Unique deal id like MKT-20260902-001','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client/company name','string') }}",
+            "client_phone": "={{ $fromAI('client_phone','Phone if known','string') }}",
+            "client_email": "={{ $fromAI('client_email','Email if known','string') }}",
+            "source_channel": "={{ $fromAI('source_channel','instagram,tiktok,snapchat,linkedin,facebook,x,whatsapp,website,email,referral','string') }}",
+            "source_campaign": "={{ $fromAI('source_campaign','Campaign or post identifier if known','string') }}",
+            "service": "={{ $fromAI('service','Requested or likely service','string') }}",
+            "deal_owner": "badr_sales",
+            "stage": "qualified_lead",
+            "priority": "={{ $fromAI('priority','P0,P1,P2,P3','string') }}",
+            "deal_value": "={{ $fromAI('deal_value','Expected SAR value, 0 if unknown','number') }}",
+            "quoted_amount": 0,
+            "invoiced_amount": 0,
+            "paid_amount": 0,
+            "payment_status": "unpaid",
+            "quote_status": "not_started",
+            "contract_status": "not_started",
+            "invoice_status": "not_started",
+            "execution_status": "not_started",
+            "next_action": "={{ $fromAI('next_action','Exact next sales action','string') }}",
+            "blocked_by": "",
+            "human_action_required": false,
+            "last_contact_at": "={{ $now.toISO() }}",
+            "next_followup_at": "={{ $fromAI('next_followup_at','ISO follow-up time if known, otherwise empty','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "notes": "={{ $fromAI('notes','Lead context and attribution','string') }}"
+          },
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_phone",
+              "displayName": "client_phone",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_email",
+              "displayName": "client_email",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_channel",
+              "displayName": "source_channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_campaign",
+              "displayName": "source_campaign",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_value",
+              "displayName": "deal_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quoted_amount",
+              "displayName": "quoted_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiced_amount",
+              "displayName": "invoiced_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paid_amount",
+              "displayName": "paid_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quote_status",
+              "displayName": "quote_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contract_status",
+              "displayName": "contract_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "displayName": "invoice_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_followup_at",
+              "displayName": "next_followup_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "83a9dd80-6268-4393-a209-90d491a2061b",
+      "name": "Create Sales Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        540
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $fromAI('task_id','Unique ID like SARA-20260924-001','string') }}",
+            "parent_task_id": "",
+            "source": "sara_marketing",
+            "company_id": "business-partner",
+            "client_id": "={{ $fromAI('client_id','Deal ID or client ID','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client name','string') }}",
+            "channel": "={{ $fromAI('channel','Source channel','string') }}",
+            "objective": "={{ $fromAI('objective','Sales outcome required','string') }}",
+            "context": "={{ $fromAI('context','Lead details, campaign attribution, need, urgency and conversation context','string') }}",
+            "created_by_agent": "sara_growth",
+            "assigned_to_agent": "badr_sales",
+            "priority": "={{ $fromAI('priority','P0,P1,P2,P3','string') }}",
+            "status": "queued",
+            "approval_required": false,
+            "approval_status": "not_required",
+            "result": "",
+            "next_action": "={{ $fromAI('next_action','Exact sales next action','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "revenue_value": "={{ $fromAI('revenue_value','Expected SAR value or 0','number') }}",
+            "cash_stage": "={{ $fromAI('cash_stage','ready_to_close,warm_24_72h,pipeline','string') }}",
+            "human_action_required": false,
+            "blocked_by": "",
+            "due_at": "={{ $fromAI('due_at','ISO due date/time if known, otherwise empty','string') }}"
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "revenue_value",
+              "displayName": "revenue_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cash_stage",
+              "displayName": "cash_stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_at",
+              "displayName": "due_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c2863abc-435a-415f-92ca-fef06d2f8aa1",
+      "name": "ريم — Content Writer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        520,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "ريم، Content Writer & Copywriter. استخدميها لكتابة أو إعادة صياغة محتوى جاهز للنشر، hooks، CTA، captions، email/social copy بالعربي والإنجليزي.",
+        "text": "={{ $fromAI('task','المهمة المطلوبة من ريم مع السياق والهدف والمنصة والجمهور','string') }}",
+        "options": {
+          "systemMessage": "أنت ريم، Content Writer & Copywriter في فريق Marketing & Growth لدى Business Partner. مديرتك سارة (وكان اسم الدور سابقاً فرح، وفرح الآن رئيسة المكتب التنفيذي). تنتجين copy جاهز للنشر يقود إلى qualified leads وrevenue. التزمي بالهوية، ولا تذكري رقماً أو سعراً أو اسم عميل أو معلومة حكومية لم تقرئيه في المهمة نفسها — وممنوع اختراع أسماء أو وعود أو اعتمادات. أعيدي النتيجة لسارة فقط بشكل تنفيذي.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "4cd9a166-ba6f-4458-93ac-03498ddbfd9d",
+      "name": "ليان — Social Media Manager",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        680,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "ليان، Social Media Manager. استخدميها لبناء الجداول، اختيار المنصة والتوقيت، إدارة publishing cadence، الردود والتفاعل وتحويل buying intent إلى lead handoff.",
+        "text": "={{ $fromAI('task','المهمة المطلوبة من ليان مع المنصات والموعد والسياق','string') }}",
+        "options": {
+          "systemMessage": "أنت ليان، Social Media Manager تحت سارة (مديرة النمو والتسويق؛ كان اسم الدور سابقاً فرح). تديرين LinkedIn, Instagram, TikTok, Snapchat, Facebook, X, WhatsApp. هدفك نشر منظم وتفاعل سريع وتحويل النية الشرائية إلى بدر. لا تذكري رقماً أو نتيجة حملة لم تقرئيها فعلاً. لا تتخذي قرارات paid spend أو crisis response بدون سارة.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "d72474bf-7482-45ae-851a-37c1f9201c5e",
+      "name": "نور — Creative Designer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        840,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "نور، Creative Designer. استخدميها لإنتاج creative direction وdesign brief ونصوص التصميم ومواصفات visual قابلة للتوليد والتنفيذ.",
+        "text": "={{ $fromAI('task','المهمة التصميمية المطلوبة من نور مع الهوية والمقاس والمنصة والهدف','string') }}",
+        "options": {
+          "systemMessage": "أنت نور، Creative Designer في فريق سارة (مديرة النمو والتسويق؛ كان اسم الدور سابقاً فرح). تحولين الرسالة التسويقية إلى تصميم B2B سعودي راقٍ وهوية واضحة ومواصفات دقيقة للتوليد أو التنفيذ. لا تختلقي شعارات أو اعتمادات أو claims أو أرقاماً.",
+          "maxIterations": 5,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "13dcd191-bdf7-4615-9fc8-68428288364e",
+      "name": "جود — Short-form Video Producer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "جود، Short-form Video Producer. استخدميها لـTikTok/Reels/Snapchat scripts, hooks, storyboards, shot lists وCTA.",
+        "text": "={{ $fromAI('task','مهمة الفيديو المطلوبة مع الخدمة والجمهور والمنصة والمدة','string') }}",
+        "options": {
+          "systemMessage": "أنت جود، Short-form Video Producer تحت سارة (مديرة النمو والتسويق؛ كان اسم الدور سابقاً فرح). تنتجين hooks قوية وscript وstoryboard وon-screen text وCTA لفيديوهات قصيرة موجهة لتوليد طلبات فعلية. لا تذكري أسعاراً ولا أرقاماً لم تقرئيها.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "0942a44f-bb89-43ae-97ad-8b3876b91a89",
+      "name": "دانا — Growth Analyst",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1160,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "دانا، Growth & Campaign Analyst. استخدميها لتحليل funnel/channel/campaign performance، attribution، التجارب وتحديد أين توجد أسرع فرصة revenue.",
+        "text": "={{ $fromAI('task','المهمة التحليلية مع الأرقام أو القنوات أو الحملة المطلوبة','string') }}",
+        "options": {
+          "systemMessage": "أنت دانا، Growth Analyst تحت سارة (مديرة النمو والتسويق؛ كان اسم الدور سابقاً فرح). تحولين البيانات إلى قرارات: stop/start/scale/test. ركزي على qualified leads، conversion، sourced pipeline وcollected revenue، وليس vanity metrics.\n\nقاعدة الدليل تعلو على كل شيء: كل رقم تذكرينه يجب أن يكون مقروءاً من بيانات وصلتك فعلاً في المهمة. إن لم تصلك أرقام، قولي «لا توجد بيانات» وسمّي ما تحتاجينه — وممنوع منعاً باتاً إنتاج نسب أو مؤشرات تقديرية تبدو معقولة. رقم مخترع يصير قراراً خاطئاً.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "f09fa65a-fd2d-463e-bc73-085df272fe24",
+      "name": "راكان — Community & Engagement",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1320,
+        720
+      ],
+      "parameters": {
+        "toolDescription": "راكان، Community & Engagement Specialist. استخدميه لصياغة الردود على التعليقات والDMs وفرز buying intent وتحويله للمبيعات.",
+        "text": "={{ $fromAI('task','مهمة التفاعل مع نص المحادثة والمنصة وسياق العميل','string') }}",
+        "options": {
+          "systemMessage": "أنت راكان، Community & Engagement Specialist تحت سارة (مديرة النمو والتسويق؛ كان اسم الدور سابقاً فرح). ترد بسرعة وبنبرة Business Partner، تميز الاستفسار من buying intent، وتعيد لسارة lead brief واضح عند وجود فرصة. لا تعد العميل بسعر ولا مدة ولا نتيجة لم تقرأها في الكتالوج أو المهمة. التصعيدات الحساسة لسارة.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "ea3166a3-4c07-42ae-9abc-8d1462aa8a11",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "5af1cc69-f7cf-4c0a-8159-870ddccc13de",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لفرح ومختصّيها الستة. bp-main = gpt-4.1 على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

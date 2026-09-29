@@ -1,0 +1,874 @@
+{
+  "id": "u8oFePZaV69YdjFn",
+  "name": "📥 BP AI — Unified Revenue Intake",
+  "active": true,
+  "isArchived": false,
+  "versionId": "14229057-c21f-4b67-b1b5-773d446df5a2",
+  "activeVersionId": "14229057-c21f-4b67-b1b5-773d446df5a2",
+  "triggerCount": 1,
+  "nodeCount": 13,
+  "createdAt": "2026-07-26T22:45:17.770Z",
+  "updatedAt": "2026-09-02T08:40:20.731Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 60
+  },
+  "tags": [
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Single inbound revenue API for website/WhatsApp/email/social/referrals. Deduplicates BP_AI_Deals, updates existing touches, creates new Deals and idempotent Sales tasks. Public intake cannot mark payments.",
+  "connections": {
+    "POST Unified Revenue Intake": {
+      "main": [
+        [
+          {
+            "node": "Normalize Revenue Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Revenue Intake": {
+      "main": [
+        [
+          {
+            "node": "Valid Intake?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Intake?": {
+      "main": [
+        [
+          {
+            "node": "Read Existing Deals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing Deals": {
+      "main": [
+        [
+          {
+            "node": "Match Existing Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Existing Deal": {
+      "main": [
+        [
+          {
+            "node": "Existing Deal?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing Deal?": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Deal Touch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Deal Touch": {
+      "main": [
+        [
+          {
+            "node": "Restore Intake Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Deal": {
+      "main": [
+        [
+          {
+            "node": "Restore Intake Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Intake Context": {
+      "main": [
+        [
+          {
+            "node": "Respond Accepted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Task Not Already Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Not Already Exists": {
+      "main": [
+        [
+          {
+            "node": "Create Intake Sales Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "68c62582-c823-461c-9c30-4a0d2b327079",
+      "name": "POST Unified Revenue Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-ai/revenue-intake",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "e4adcdbe-63c5-464f-a211-683b7197b902"
+    },
+    {
+      "id": "8becd23b-792e-4601-8eb3-d72673ae4d33",
+      "name": "Respond Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok:true, deal_id:$('Match Existing Deal').item.json.deal_id, existing:$('Match Existing Deal').item.json.existing, assigned_to:'badr_sales', source:$('Match Existing Deal').item.json.source_channel }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      }
+    },
+    {
+      "id": "5aea102e-3161-489e-a4c7-64f70be3c216",
+      "name": "Normalize Revenue Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const b=$json.body||$json||{}; const clean=v=>String(v??'').trim(); const digits=v=>clean(v).replace(/\\D/g,''); const phone=digits(b.phone||b.client_phone||b.mobile||b.whatsapp); const email=clean(b.email||b.client_email).toLowerCase(); const client=clean(b.client_name||b.fullName||b.full_name||b.company||b.name); const service=clean(b.service||b.service_hint||b.request_type); const source=clean(b.source_channel||b.source||b.channel||'website').toLowerCase(); const message=clean(b.message||b.notes||b.details||b.request); const campaign=clean(b.source_campaign||b.campaign||b.utm_campaign); const honeypot=clean(b.website||b.hp||''); const supplied=clean(b.event_id||b.message_id||b.leadId||b.lead_id||b.idempotency_key); const basis=[source,phone,email,client.toLowerCase(),service.toLowerCase(),message].join('|'); let h=2166136261; for(let i=0;i<basis.length;i++){h^=basis.charCodeAt(i);h=Math.imul(h,16777619);} const event_key=(supplied||((h>>>0).toString(36))).replace(/[^A-Za-z0-9_-]/g,'').slice(0,64)||String(Date.now()); return {json:{client_name:client,client_phone:phone,client_email:email,service,source_channel:source,source_campaign:campaign,message,received_at:new Date().toISOString(),event_key,valid:!!(phone||email||client)&&!honeypot,honeypot}};"
+      }
+    },
+    {
+      "id": "b148e186-22bd-4c9d-97d7-ed7a76289fdc",
+      "name": "Valid Intake?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        450,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a8ceb359-8f52-4b6d-b19f-9d2720573e66",
+      "name": "Read Existing Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        -80
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "614292cb-b390-4251-83ab-0718abf7d5fa",
+      "name": "Match Existing Deal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        -80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const lead=$('Normalize Revenue Intake').first().json; const deals=$input.all().map(i=>i.json||{}).filter(d=>d.deal_id); const n=s=>String(s||'').trim().toLowerCase(); const dg=s=>String(s||'').replace(/\\D/g,''); const p=dg(lead.client_phone); const e=n(lead.client_email); const c=n(lead.client_name); const svc=n(lead.service); let found=null; if(p) found=deals.find(d=>{const x=dg(d.client_phone);return x&&((x===p)||(x.length>=9&&p.length>=9&&x.slice(-9)===p.slice(-9)));}); if(!found&&e) found=deals.find(d=>n(d.client_email)===e); if(!found&&c) found=deals.find(d=>n(d.client_name)===c&&(!svc||!d.service||n(d.service)===svc)); const now=new Date(); const y=now.getUTCFullYear(),m=String(now.getUTCMonth()+1).padStart(2,'0'),day=String(now.getUTCDate()).padStart(2,'0'); const newId=`DEAL-${y}${m}${day}-${lead.event_key.slice(-7).toUpperCase()}`; return [{json:{...lead,existing:!!found,deal_id:found?.deal_id||newId,current_stage:found?.stage||'',current_owner:found?.deal_owner||'',deal_value:Number(found?.deal_value||0),existing_notes:found?.notes||'',priority:found?.priority||'P2'}}];"
+      }
+    },
+    {
+      "id": "434fac67-9741-43ca-a4b8-c2de1e8be26f",
+      "name": "Existing Deal?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        -80
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.existing }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "419591f3-f4c7-4f98-9257-a4326b85b04c",
+      "name": "Update Existing Deal Touch",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        -160
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.deal_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_contact_at": "={{ $json.received_at }}",
+            "updated_at": "={{ $json.received_at }}",
+            "notes": "={{ (($json.existing_notes || '') + '\\nInbound update [' + $json.source_channel + ']: ' + ($json.message || '')).slice(-8000) }}",
+            "next_action": "={{ $json.current_stage === 'delivered' ? 'Review new inbound request for upsell/reopen opportunity.' : 'Review new inbound customer update and advance the current next action.' }}"
+          },
+          "schema": [
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "eae84f22-3381-460b-b8bc-42bf32b5eb78",
+      "name": "Create New Deal",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        20
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $json.deal_id }}",
+            "client_name": "={{ $json.client_name }}",
+            "client_phone": "={{ $json.client_phone }}",
+            "client_email": "={{ $json.client_email }}",
+            "source_channel": "={{ $json.source_channel }}",
+            "source_campaign": "={{ $json.source_campaign }}",
+            "service": "={{ $json.service }}",
+            "deal_owner": "badr_sales",
+            "stage": "new",
+            "priority": "P2",
+            "deal_value": 0,
+            "quoted_amount": 0,
+            "invoiced_amount": 0,
+            "paid_amount": 0,
+            "payment_status": "unpaid",
+            "quote_status": "not_started",
+            "contract_status": "not_started",
+            "invoice_status": "not_started",
+            "execution_status": "not_started",
+            "next_action": "Qualify inbound opportunity and establish next commercial action.",
+            "blocked_by": "",
+            "human_action_required": false,
+            "last_contact_at": "={{ $json.received_at }}",
+            "created_at": "={{ $json.received_at }}",
+            "updated_at": "={{ $json.received_at }}",
+            "notes": "={{ 'Inbound: ' + ($json.message || '') }}"
+          },
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_phone",
+              "displayName": "client_phone",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_email",
+              "displayName": "client_email",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_channel",
+              "displayName": "source_channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_campaign",
+              "displayName": "source_campaign",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_value",
+              "displayName": "deal_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quoted_amount",
+              "displayName": "quoted_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiced_amount",
+              "displayName": "invoiced_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paid_amount",
+              "displayName": "paid_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quote_status",
+              "displayName": "quote_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contract_status",
+              "displayName": "contract_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "displayName": "invoice_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "edbbdd50-4245-486c-b28f-448e6aa20286",
+      "name": "Restore Intake Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        -70
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "return {json:$('Match Existing Deal').item.json};"
+      }
+    },
+    {
+      "id": "34c76acd-f712-4f5e-bf71-84c5aac97358",
+      "name": "Task Not Already Exists",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1780,
+        -160
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ 'INTAKE-' + $json.deal_id + '-' + $json.event_key }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3415f7ef-51b2-4ef2-8678-2e55c45291a3",
+      "name": "Create Intake Sales Task",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        -160
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ 'INTAKE-' + $json.deal_id + '-' + $json.event_key }}",
+            "parent_task_id": "",
+            "source": "revenue_intake",
+            "company_id": "business-partner",
+            "client_id": "={{ $json.deal_id }}",
+            "client_name": "={{ $json.client_name }}",
+            "channel": "={{ $json.source_channel }}",
+            "objective": "Qualify or advance this inbound commercial request and establish the next revenue action.",
+            "context": "={{ 'Service: ' + ($json.service||'') + '; message: ' + ($json.message||'') + '; phone: ' + ($json.client_phone||'') + '; email: ' + ($json.client_email||'') + '; existing deal: ' + $json.existing + '; current stage: ' + ($json.current_stage||'new') }}",
+            "created_by_agent": "unified_revenue_intake",
+            "assigned_to_agent": "badr_sales",
+            "priority": "={{ $json.priority || 'P2' }}",
+            "status": "queued",
+            "approval_required": false,
+            "approval_status": "not_required",
+            "result": "",
+            "next_action": "Badr to qualify/advance and update the Deal state.",
+            "revenue_value": "={{ $json.deal_value || 0 }}",
+            "cash_stage": "={{ $json.existing ? 'pipeline' : 'warm_24_72h' }}",
+            "human_action_required": false,
+            "blocked_by": "",
+            "created_at": "={{ $json.received_at }}",
+            "updated_at": "={{ $json.received_at }}",
+            "review_status": ""
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "revenue_value",
+              "displayName": "revenue_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cash_stage",
+              "displayName": "cash_stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d5211ff6-bbc2-4ecd-9d46-08d8b7a2f227",
+      "name": "Respond Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        680,
+        120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:false,accepted:false,reason:'invalid_or_bot_intake'}) }}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

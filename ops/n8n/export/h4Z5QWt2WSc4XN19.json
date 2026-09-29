@@ -1,0 +1,202 @@
+{
+  "id": "h4Z5QWt2WSc4XN19",
+  "name": "⏲️ BP AI — Stuck Task Sweeper",
+  "active": true,
+  "isArchived": false,
+  "versionId": "21de2a74-73dc-4412-a4cf-b0bedb949d68",
+  "activeVersionId": "21de2a74-73dc-4412-a4cf-b0bedb949d68",
+  "triggerCount": 1,
+  "nodeCount": 4,
+  "createdAt": "2026-09-24T14:39:54.427Z",
+  "updatedAt": "2026-09-29T07:06:34.329Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Hourly: sends BP_AI_Tasks rows stuck in_progress >24h (not RECIRC-2+ loops, max 10) back to the Virtual Baher Task Review Loop by setting review_status=pending.",
+  "connections": {
+    "Every 60 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read In-Progress Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read In-Progress Tasks": {
+      "main": [
+        [
+          {
+            "node": "Pick Stale Tasks (>24h, max 10)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Stale Tasks (>24h, max 10)": {
+      "main": [
+        [
+          {
+            "node": "Send to Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0789736f-f0c6-4fb7-a32c-2fbc99a62edf",
+      "name": "Every 60 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "60de9551-315e-4ca4-b7af-ca7c18557e35",
+      "name": "Read In-Progress Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "in_progress"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "5578a362-9376-4197-8bde-6cddbc4056a7",
+      "name": "Pick Stale Tasks (>24h, max 10)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// A task left in_progress with no update for more than 24h is invisible work.\n// Send it back to the Virtual Baher Task Review Loop (k5vtioWWKC2i1W0n), which\n// closes, reassigns, schedules a wait, or escalates it.\n// Skipped: recirculation chains (-RECIRC-2 and deeper) are parked on purpose,\n// and rows already review_status=pending are already in the reviewer's queue.\n// Several rows can share one task_id; the update matches by task_id, so one\n// item per task_id is enough.\nconst DAY = 24 * 60 * 60 * 1000;\nconst now = Date.now();\nconst LOOP = /-RECIRC-([2-9]|\\d{2,})$/;\nconst seen = {};\nconst out = [];\nfor (const it of $input.all()) {\n  const t = it.json || {};\n  const id = String(t.task_id || '').trim();\n  if (!id || seen[id]) continue;\n  if (LOOP.test(id)) continue;\n  if (String(t.review_status || '') === 'pending') continue;\n  const ts = Date.parse(t.updated_at || t.updatedAt || '');\n  if (!Number.isFinite(ts) || now - ts <= DAY) continue;\n  seen[id] = true;\n  out.push({ json: { task_id: id, stale_hours: Math.round((now - ts) / 3600000), updated_at_before: t.updated_at || t.updatedAt } });\n  if (out.length >= 10) break;\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "e7fc0ce9-ee10-4c2f-a2c3-edda838f5f36",
+      "name": "Send to Review",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.task_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "review_status": "pending",
+            "next_action": "Stuck in_progress > 24h with no update — review: close, reassign, or schedule a wait.",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

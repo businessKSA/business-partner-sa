@@ -1,0 +1,363 @@
+{
+  "id": "VkmdQrzMKQSokS1P",
+  "name": "Recruitment Agent — Candidate ↔ Job Matcher",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0de681ff-b294-4e5a-8a53-3eb3cb5b5687",
+  "activeVersionId": "0de681ff-b294-4e5a-8a53-3eb3cb5b5687",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-07-23T01:15:15.322Z",
+  "updatedAt": "2026-09-20T19:59:01.361Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Deep candidate-to-job matcher: pulls published vacancies from Notion plus their full JDs from the live jobs feed, deep-matches a candidate against each JD, and emails the recruiter a ranked shortlist — each match with both the site apply link and the Noti",
+  "connections": {
+    "Match Candidate to Openings": {
+      "main": [
+        [
+          {
+            "node": "Get Jobs Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs Feed": {
+      "main": [
+        [
+          {
+            "node": "Get Open Vacancies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Open Vacancies": {
+      "main": [
+        [
+          {
+            "node": "Build Matching Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Matching Context": {
+      "main": [
+        [
+          {
+            "node": "Deep Match Candidate to Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deep Match Candidate to Jobs": {
+      "main": [
+        [
+          {
+            "node": "Format Matches Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Matching Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Deep Match Candidate to Jobs",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Matches Email": {
+      "main": [
+        [
+          {
+            "node": "Email Matches to Recruiter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Deep Match Candidate to Jobs",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "128c549e-469c-4fd0-bf04-66535ae4aff4",
+      "name": "Match Candidate to Openings",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "formTitle": "Match a Candidate to Our Open Jobs",
+        "formDescription": "Enter a candidate and the agent deep-matches them against our open vacancies (full job descriptions), then emails you the matches with both the site apply link and the Notion record link.",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "candidateName",
+              "fieldLabel": "Candidate Name",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldName": "candidateEmail",
+              "fieldLabel": "Candidate Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldName": "candidateSummary",
+              "fieldLabel": "Candidate profile — skills, experience, target role",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldName": "recruiterEmail",
+              "fieldLabel": "Your Email (Recruiter)",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Find Matching Jobs"
+        }
+      },
+      "webhookId": "fd50899c-5d26-4bc9-ba91-4b0a40c9f29c"
+    },
+    {
+      "id": "d6c47043-1645-4572-b4ca-305c0f3945d6",
+      "name": "Get Jobs Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://businesspartner.sa/jobs-feed.xml",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "f2eb05a6-5a33-465d-84a0-2ce0fd243336",
+      "name": "Get Open Vacancies",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "f83bce33eab7481a8b803495c6cd7619",
+          "cachedResultName": "🏭 Workshop Hiring Campaign"
+        },
+        "returnAll": true,
+        "simple": false
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "f52745d8-1cf0-464c-ab99-61edae8bd7ae",
+      "name": "Build Matching Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const xml = ($('Get Jobs Feed').first().json.data) || '';\nfunction cdata(block, tag) {\n  var i = block.indexOf('<' + tag + '>');\n  if (i < 0) return '';\n  var s = block.indexOf('<![CDATA[', i);\n  if (s < 0) return '';\n  var e = block.indexOf(']]>', s);\n  return e < 0 ? '' : block.slice(s + 9, e);\n}\nvar jobs = {};\nvar blocks = xml.split('<job>').slice(1);\nfor (var bi = 0; bi < blocks.length; bi++) {\n  var b = blocks[bi];\n  var ref = cdata(b, 'referencenumber').trim();\n  var desc = cdata(b, 'description').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n  if (ref) jobs[ref] = desc;\n}\nvar vacs = $input.all().map(function (i) { return i.json; });\nvar merged = [];\nfor (var vi = 0; vi < vacs.length; vi++) {\n  var pg = vacs[vi];\n  var p = pg.properties || {};\n  var status = (p['حالة النشر'] && p['حالة النشر'].select && p['حالة النشر'].select.name) || '';\n  if (status !== 'منشورة على الموقع') continue;\n  var slug = (p['معرف الوظيفة ATS'] && p['معرف الوظيفة ATS'].rich_text && p['معرف الوظيفة ATS'].rich_text[0] && p['معرف الوظيفة ATS'].rich_text[0].plain_text) || '';\n  var title = (p['الوظيفة'] && p['الوظيفة'].title && p['الوظيفة'].title[0] && p['الوظيفة'].title[0].plain_text) || '';\n  var dept = (p['القسم'] && p['القسم'].select && p['القسم'].select.name) || '';\n  var siteUrl = (p['رابط الوظيفة'] && p['رابط الوظيفة'].url) || '';\n  var notionUrl = pg.url || '';\n  var jd = (jobs[slug] || '').slice(0, 700);\n  merged.push({ slug: slug, title: title, dept: dept, siteUrl: siteUrl, notionUrl: notionUrl, jd: jd });\n}\nvar lines = [];\nfor (var mi = 0; mi < merged.length; mi++) {\n  var v = merged[mi];\n  lines.push((mi + 1) + '. [' + v.slug + '] ' + v.title + ' — ' + v.dept + '\\nJD: ' + (v.jd || 'n/a'));\n}\nvar list = lines.join('\\n\\n');\nvar form = $('Match Candidate to Openings').first().json;\nreturn [{ json: { candidateName: form.candidateName || '', candidateEmail: form.candidateEmail || '', candidateSummary: form.candidateSummary || '', recruiterEmail: form.recruiterEmail || '', vacancyCount: merged.length, vacancyList: list, vacancies: merged } }];\n"
+      }
+    },
+    {
+      "id": "9febe969-2115-43ef-aab3-b7f6d96471b2",
+      "name": "Deep Match Candidate to Jobs",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Candidate: {{ $json.candidateName }}\n\nCandidate profile / skills:\n{{ $json.candidateSummary }}\n\nOur open vacancies (each with its job description):\n{{ $json.vacancyList }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a recruitment matching assistant for Business Partner, a Saudi Arabia recruitment agency. Each vacancy includes its full job description (JD). Deeply compare the candidate profile against each JD and pick the ones that genuinely fit. Return a ranked list of matches — each with the vacancy slug (the [bracketed] id), the exact title, a fitScore 0-100 grounded in the JD requirements, and a one-line reason citing the JD. Only include matches with fitScore >= 50. If none fit, return an empty matches array. Add a one-line overall summary."
+        }
+      }
+    },
+    {
+      "id": "8b49ac97-ec73-4aeb-9b89-522f8d6a0840",
+      "name": "Matching Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1260,
+        520
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"summary\": \"Two strong matches based on the job descriptions.\", \"matches\": [{\"slug\": \"workshop-carpenter\", \"title\": \"نجار — Carpenter\", \"fitScore\": 88, \"reason\": \"JD requires scenic carpentry which the candidate has.\"}]}"
+      }
+    },
+    {
+      "id": "5ca932bf-4c71-4d5e-8657-e16a18eddde3",
+      "name": "Format Matches Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "var out = $json.output || {};\nvar matches = out.matches || [];\nvar ctx = $('Build Matching Context').first().json;\nvar map = {};\n(ctx.vacancies || []).forEach(function (v) { map[v.slug] = v; });\nvar body = 'Candidate: ' + ctx.candidateName + '\\n\\n' + (out.summary || '') + '\\n\\n';\nif (!matches.length) {\n  body += 'No strong matches found among our current openings.';\n} else {\n  var parts = [];\n  for (var i = 0; i < matches.length; i++) {\n    var m = matches[i];\n    var v = map[m.slug] || {};\n    parts.push('• ' + (m.title || v.title || '') + ' (' + (m.fitScore || '') + '/100) — ' + (m.reason || '') +\n      '\\n  Site: ' + (v.siteUrl || 'n/a') +\n      '\\n  Notion: ' + (v.notionUrl || 'n/a'));\n  }\n  body += parts.join('\\n\\n');\n}\nreturn [{ json: { recruiterEmail: ctx.recruiterEmail, candidateName: ctx.candidateName, body: body } }];\n"
+      }
+    },
+    {
+      "id": "bf59e687-b0ed-4881-a4e8-5668f9007bc8",
+      "name": "Email Matches to Recruiter",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.recruiterEmail }}",
+        "subject": "=Job matches for {{ $json.candidateName }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "db319108-9c43-404a-8e66-28731561d147",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "7b6140fe-49ed-4908-bf93-c09150791d74",
+      "name": "Sticky Note c5f1ceac",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        190,
+        250
+      ],
+      "parameters": {
+        "content": "## Candidate ↔ Job deep matcher\n\nEnter a candidate; the agent pulls our published vacancies from Notion AND their full job descriptions from the live jobs feed, deep-matches the candidate against each JD (fitScore >= 50), and emails the recruiter the ranked shortlist — each match with BOTH the site apply link and the Notion record link. No external job-board search (that needs a paid partner API); pure matching against our own openings.",
+        "color": 5,
+        "width": 2060,
+        "height": 420
+      }
+    },
+    {
+      "id": "a74d6d03-dfdd-4572-bc6f-1f766aa008c2",
+      "name": "Matching Model (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1080,
+        520
+      ],
+      "parameters": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "595d05a4-9a2c-4241-829e-1fd054fdb7ff",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        700
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2000,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

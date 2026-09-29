@@ -1,0 +1,356 @@
+{
+  "id": "P6BPDWr7A0Lv2GOf",
+  "name": "BP Publisher — Content Generator",
+  "active": false,
+  "isArchived": false,
+  "versionId": "8aab842d-4d13-43f5-a4d7-426326a4b11d",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 9,
+  "createdAt": "2026-07-18T10:13:01.051Z",
+  "updatedAt": "2026-07-21T00:51:44.721Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "توليد محتوى النشر من BPIC: يقرأ تحديثات Regulatory Updates عالية التأثير (Critical/High) غير المولّدة، يحوّلها فرح (Claude) إلى منشور بصيغة تنبيه تنظيمي (عنوان + عربي + إنجليزي + هاشتاقات + وصف تصميم navy)، وينشئ صفوفاً في Content Calendar بحالة Ready for",
+  "connections": {
+    "Daily 08:00 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Regulatory Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Regulatory Updates": {
+      "main": [
+        [
+          {
+            "node": "Filter New High-Impact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter New High-Impact": {
+      "main": [
+        [
+          {
+            "node": "Generate Content (Farah)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Content (Farah)": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Content (Farah)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Draft": {
+      "main": [
+        [
+          {
+            "node": "Mark Update Generated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Now (Test)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Regulatory Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Content (Farah)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "e6aef666-9cd4-4cd1-92a7-4037feff7fcb",
+      "name": "Daily 08:00 Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9bfa3904-2f9b-4db1-8b35-c25fac5299a7",
+      "name": "Fetch Regulatory Updates",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "579a61a8704246f4879760226867398c"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none",
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "855cfac5-8c04-4525-83a1-397f6364b695",
+      "name": "Filter New High-Impact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// يسمح فقط بالمصادر الحكومية والرسمية الموثوقة، ويمنع مواقع المنافسين\nconst TRUSTED = /(\\.gov\\.sa|\\.org\\.sa|investsaudi\\.sa|invest\\.sa)/i;\nconst BLOCKED = /(setupinsaudi|astrolabs|knowledge[ _]?feed|test[ _]?source)/i;\nconst rows = $input.all().map(i => i.json);\nconst pick = rows.filter(r => {\n  const impact = (r.property_impact_level || '').toLowerCase();\n  const gen = r.property_content_generated === true || r.property_content_generated === 'true';\n  const url = r.property_original_url || '';\n  const src = r.property_source_name || '';\n  const trusted = TRUSTED.test(url) && !BLOCKED.test(url) && !BLOCKED.test(src);\n  return (impact === 'critical' || impact === 'high') && !gen && trusted;\n}).slice(0, 3);\nreturn pick.map(r => ({ json: {\n  updateId: r.id,\n  title: r.property_update_title || r.name || '',\n  impact: r.property_impact_level || '',\n  authority: r.property_authority || '',\n  summaryAr: r.property_summary_arabic || '',\n  whatItMeans: r.property_what_it_means || '',\n  businessOpportunity: r.property_business_opportunity || '',\n  recommendedService: r.property_recommended_service || '',\n  url: r.property_original_url || ''\n} }));"
+      }
+    },
+    {
+      "id": "5c6d43d9-e533-48a0-9bdb-0dd5d81959c8",
+      "name": "Generate Content (Farah)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "promptType": "define",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "أنت فرح، خبيرة محتوى Business Partner. تكتبين محتوى تسويقياً عربياً احترافياً بهوية navy. لا تخترعين أرقاماً أو حقائق؛ تستخدمين المعطى فقط. كل منشور يتضمن \"قراءة Business Partner\" تربط الخبر بخدمة، بدون وعود حكومية."
+        },
+        "text": "=حوّلي هذا التحديث التنظيمي إلى منشور بصيغة \"تنبيه تنظيمي\":\\n\\nالعنوان: {{ $json.title }}\\nالجهة: {{ $json.authority }} | مستوى التأثير: {{ $json.impact }}\\nالملخص: {{ $json.summaryAr }}\\nماذا يعني: {{ $json.whatItMeans }}\\nفرصة الأعمال: {{ $json.businessOpportunity }}\\nالخدمة الموصى بها: {{ $json.recommendedService }}\\nالمصدر: {{ $json.url }}"
+      }
+    },
+    {
+      "id": "abebaad0-4b03-40fa-b89c-d662623f84c1",
+      "name": "Content Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        860,
+        200
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{ \"post_title\": \"عنوان قصير\", \"platform\": \"LinkedIn\", \"caption_arabic\": \"نص المنشور بالعربية بصيغة تنبيه تنظيمي\", \"caption_english\": \"English caption\", \"hashtags\": \"#توطين #نطاقات\", \"design_brief\": \"وصف موجز لتصميم البطاقة navy\" }"
+      }
+    },
+    {
+      "id": "25f0a9f6-ba33-4ee0-87ff-69c6ff52d71c",
+      "name": "Create Calendar Draft",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b235034ff4adf5ec15dfd7519a"
+        },
+        "title": "={{ $json.output.post_title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Platform|select",
+              "type": "select",
+              "selectValue": "={{ $json.output.platform }}"
+            },
+            {
+              "key": "Status|select",
+              "type": "select",
+              "selectValue": "Ready for Review"
+            },
+            {
+              "key": "Content Pillar|select",
+              "type": "select",
+              "selectValue": "Regulatory Update"
+            },
+            {
+              "key": "Caption Arabic|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.output.caption_arabic }}"
+            },
+            {
+              "key": "Caption English|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.output.caption_english }}"
+            },
+            {
+              "key": "Hashtags|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.output.hashtags }}"
+            },
+            {
+              "key": "Design Brief|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.output.design_brief }}"
+            },
+            {
+              "key": "Notes|rich_text",
+              "type": "rich_text",
+              "textContent": "=المصدر: {{ $(\"Filter New High-Impact\").item.json.url }} | الخدمة: {{ $(\"Filter New High-Impact\").item.json.recommendedService }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "5a52fe82-0e62-4d87-bccf-3114eeec46a0",
+      "name": "Mark Update Generated",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Filter New High-Impact\").item.json.updateId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Content Generated|checkbox",
+              "type": "checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "224ec7d7-97f8-4656-a7d3-d66bd13ee96c",
+      "name": "Run Now (Test)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        220
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "3e03c33b-ea21-4b16-a4ba-471bb6813c60",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        200
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

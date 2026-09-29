@@ -1,0 +1,845 @@
+{
+  "id": "nvrh0c3mUctb1EsG",
+  "name": "💼 BP Team — Badr (Sales & BD)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "78f7962e-7b2d-4ece-971c-581e1d3c2aca",
+  "activeVersionId": "78f7962e-7b2d-4ece-971c-581e1d3c2aca",
+  "triggerCount": 1,
+  "nodeCount": 20,
+  "createdAt": "2026-07-02T08:15:51.988Z",
+  "updatedAt": "2026-09-29T09:18:04.506Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 150
+  },
+  "tags": [
+    {
+      "id": "2V7xdmaI6LHIcFv5",
+      "name": "Sales"
+    },
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Sales Director + 7 specialists. Revenue-first; owns qualification through commercial acceptance, updates BP_AI_Deals, then hands off to Legal/Finance/Ops.",
+  "connections": {
+    "Intake Webhook (from Router)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Request": {
+      "main": [
+        [
+          {
+            "node": "Get Services Catalog",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Reply + Safe Fallback": {
+      "main": [
+        [
+          {
+            "node": "Proposal Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proposal Ready?": {
+      "main": [
+        [
+          {
+            "node": "Create Draft Proposal — بانتظار الموافقة",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Badr Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft Proposal — بانتظار الموافقة": {
+      "main": [
+        [
+          {
+            "node": "Send Badr Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse Reply + Safe Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "خالد — Inbound SDR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فيصل — Outbound SDR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "نواف — Account Executive": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تركي — Proposal Specialist": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "عمر — Partnerships": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "عبدالإله — Sales Ops": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ياسر — B2G & Tenders": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Commercial Deal": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "خالد — Inbound SDR",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "فيصل — Outbound SDR",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "نواف — Account Executive",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "تركي — Proposal Specialist",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "عمر — Partnerships",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "عبدالإله — Sales Ops",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "ياسر — B2G & Tenders",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "30e0c833-3785-4468-b7d4-ea4504680160",
+      "name": "Intake Webhook (from Router)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "badr-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "7caf753e-4093-4d6c-a292-ac09a3acdae0"
+    },
+    {
+      "id": "27cc5969-c8b7-4eeb-999d-5e5896511e49",
+      "name": "Normalize Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "phone",
+              "value": "={{ $json.body?.phone ?? $json.phone ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "channel",
+              "value": "={{ $json.body?.channel ?? $json.channel ?? \"whatsapp\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "crm_lead_id",
+              "value": "={{ $json.body?.crm_lead_id ?? $json.crm_lead_id ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "service_hint",
+              "value": "={{ $json.body?.service_hint ?? $json.service_hint ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "a8",
+              "name": "system",
+              "value": "You are Badr, Sales & Business Development Director for Business Partner. Your primary KPI is COLLECTED REVENUE and execution-ready closed deals. Own lead qualification, discovery, opportunity strategy, follow-up, proposals, negotiation, partnerships, B2G/tenders, forecasting, and commercial handoffs. You manage a specialist team: Khaled Inbound SDR, Faisal Outbound SDR, Nawaf Account Executive, Turki Proposal & Quotation Specialist, Omar Partnerships & Alliances, Abdulilah Sales Operations & CRM, and Yasser B2G & Tenders. Delegate specialist work to them using their tools.\n\nEVIDENCE RULE - this overrides everything else:\nNEVER invent a number, a name, a date, a percentage or a metric. State only what a tool actually returned or what the incoming message actually said. If you do not have a value, say you do not have it and name what you would need - never fill the gap with a plausible figure. A fabricated number is worse than no answer, because it cannot be told apart from a real one. This applies to anything a specialist hands you too: if they report a figure with no source, drop it rather than relay it.\n\nUse the official Service Catalog for exact Business Partner pricing; never invent prices or discounts. When a client accepts the commercial scope/quote, hand the case to Legal. When contract/signature is confirmed, hand to Finance. When payment is confirmed, Operations must start immediately. Maintain one clear next action and follow-up time for every real opportunity. Internal tasks are operational assignments, not customer chat. Never request passwords, OTP, Nafath codes or secrets.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "47e210b0-120b-4d3c-a9bd-a15b76337685",
+      "name": "Get Services Catalog",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d3e46ddf-1361-433e-be5a-72b34cc14d4e",
+          "cachedResultName": "BP Services Catalog - OFFICIAL"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none"
+      },
+      "executeOnce": true,
+      "onError": "continueRegularOutput",
+      "disabled": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "847dd803-b49a-4c25-8553-2b8fdb1a861f",
+      "name": "Parse Reply + Safe Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const fallback='نقدر نجهز لك عرض سعر واضح بعد تثبيت نطاق الخدمة.\\nحتى يكون العرض دقيق: هل العرض المطلوب لتأسيس الشركات، حلول الموارد البشرية، العلاقات الحكومية، أم الإقامة المميزة؟';let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text=fallback;const proposal_ready=!engine_fallback&&text.includes('[PROPOSAL_READY]');const reply=text.replace('[PROPOSAL_READY]','').trim();const intake=$('Normalize Request').first().json;return [{json:Object.assign({},intake,{reply,proposal_ready,engine_fallback})}];"
+      }
+    },
+    {
+      "id": "b8fe46c0-5fbe-46c7-a13d-40b0cba6eb5a",
+      "name": "Proposal Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.proposal_ready }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "ae5d6d0a-fff0-4e22-a5ed-0c99258e4118",
+      "name": "Create Draft Proposal — بانتظار الموافقة",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        180
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6f7d2990-6ea5-449d-a7d0-457e3b871f25",
+          "cachedResultName": "BP Proposals - OFFICIAL"
+        },
+        "title": "=Draft Proposal — {{ $json.client_name || \"Unknown\" }} — {{ $json.service_hint || \"TBD\" }} — بانتظار الموافقة",
+        "simple": true,
+        "propertiesUi": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "75e7b4d4-c0ed-489f-b02b-1772b3599665",
+      "name": "Send Badr Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"badr\", reply: $(\"Parse Reply + Safe Fallback\").first().json.reply, proposal_ready: $(\"Parse Reply + Safe Fallback\").first().json.proposal_ready === true, human_required: $(\"Parse Reply + Safe Fallback\").first().json.proposal_ready === true, engine_fallback: $(\"Parse Reply + Safe Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "de48b9fa-475a-4307-afa2-8ac70153221c",
+      "name": "Sticky Note e297d927",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        250
+      ],
+      "parameters": {
+        "content": "## 💼 بدر — المبيعات وتطوير الأعمال (TEAM-003)\n\n**المسار:** استقبال من الراوتر/مازن → توحيد الحقول → كتالوج الخدمات المعتمد (نوشن) → رد Claude بقواعد بدر الصارمة → لو المعلومات مكتملة: Draft Proposal في BP Proposals - OFFICIAL بحالة «بانتظار الموافقة» → رد للقناة.\n\n**قواعد صلبة:** لا أسعار مخترعة · لا خصومات · لا عقود/فواتير/روابط دفع · لا OTP أبداً · العرض النهائي لا يُرسل إلا بعد اعتماد بشري.\n\n**الصمود:** لو تعذر Claude، يرجع رد TEAM-003 الآمن ويكمل الفلو.\n\n**System Prompt الكامل:** bp-specialized-team/prompts/badr-sales-bd.md (فرع claude/bp-specialized-team-agents-lt392y)\n\n**نداء الويب هوك:** POST /webhook/badr-intake\nBody: { client_name, phone, channel, crm_lead_id, service_hint, message }",
+        "color": 4,
+        "width": 520,
+        "height": 200
+      }
+    },
+    {
+      "id": "7f20392e-be6e-4c88-9551-5a90ca3b9273",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize Request\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "04c6d7f1-32e0-4191-8147-4559aa4ed713",
+      "name": "خالد — Inbound SDR",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        540,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "خالد، Inbound SDR. استخدمه لفهم lead وارد من website/WhatsApp/email/social، تأهيله، تحديد الحاجة والميزانية والتوقيت وأقرب next step.",
+        "text": "={{ $fromAI('task','Lead context and qualification task for Khaled','string') }}",
+        "options": {
+          "systemMessage": "أنت خالد، Inbound SDR تحت بدر. لا تترك lead بدون owner وnext action. اسأل أقل عدد ممكن من الأسئلة، استخرج need/budget/authority/timing، وارجع لبدر qualification brief وnext step.\n\nقاعدة الدليل: لا تخترع رقماً ولا اسماً ولا تاريخاً ولا نسبة. ما لم يصلك من أداة أو من نص الطلب، قل «لا بيانات لديّ» وسمّ ما تحتاجه.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "7307945a-3177-483e-9e56-774eaad580fa",
+      "name": "فيصل — Outbound SDR",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        700,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "فيصل، Outbound SDR. استخدمه لتحديد target accounts، كتابة outreach sequences والمتابعات وتحويل prospect إلى meeting.",
+        "text": "={{ $fromAI('task','Outbound prospecting task, segment, offer and channel','string') }}",
+        "options": {
+          "systemMessage": "أنت فيصل، Outbound SDR تحت بدر. صمم outreach قصير ومخصص ومتعدد اللمسات يحترم opt-out ويهدف لمحادثة تجارية فعلية وليس spam.\n\nقاعدة الدليل: لا تخترع رقماً ولا اسم شركة ولا جهة اتصال ولا نسبة. ما لم يصلك من أداة أو من نص الطلب، قل «لا بيانات لديّ».",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "a806254f-0d20-45a3-909f-a1f8e2be6d2d",
+      "name": "نواف — Account Executive",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        860,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "نواف، Account Executive. استخدمه لـdiscovery، objection handling، deal strategy، negotiation، close plan وتحديد next action.",
+        "text": "={{ $fromAI('task','Opportunity context and closing task for Nawaf','string') }}",
+        "options": {
+          "systemMessage": "أنت نواف، Account Executive تحت بدر. ركز على إغلاق الصفقة وتحويلها إلى scope واضح وقيمة وموعد وخطوة تالية. لا تمنح خصومات غير معتمدة.\n\nقاعدة الدليل: لا تخترع رقماً ولا اسماً ولا تاريخاً ولا احتمال إغلاق. ما لم يصلك من أداة أو من نص الطلب، قل «لا بيانات لديّ».",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "58adc96a-33ea-461f-ae1a-8d71de32c369",
+      "name": "تركي — Proposal Specialist",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1020,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "تركي، Proposal & Quotation Specialist. استخدمه لتحويل scope إلى عرض سعر/Proposal منظم باستخدام الأسعار المعتمدة فقط.",
+        "text": "={{ $fromAI('task','Scope, service, client and proposal requirements','string') }}",
+        "options": {
+          "systemMessage": "أنت تركي، Proposal & Quotation Specialist تحت بدر. استخدم الأسعار والمعلومات المعتمدة فقط، جهز proposal واضحاً مع scope, exclusions, timeline, commercial terms.\n\nقاعدة الدليل: لا تخترع أي رقم — لا سعراً ولا مدة ولا رسماً حكومياً. ما ليس في الكتالوج المعتمد يُترك فراغاً موسوماً «يحتاج تسعيراً». عرضٌ فيه رقم مخترع أسوأ من عرض ناقص.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "a2fcfbca-619b-47dd-bb34-febcc5b7d9ec",
+      "name": "عمر — Partnerships",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "عمر، Partnerships & Alliances Specialist. استخدمه لبناء partner strategy، referral/channel deal، joint offering وخطة تفعيل.",
+        "text": "={{ $fromAI('task','Partnership target and desired commercial outcome','string') }}",
+        "options": {
+          "systemMessage": "أنت عمر، Partnerships Specialist تحت بدر. هدفك شراكات قابلة للتفعيل تولد pipeline/revenue. أي term ملزم يذهب لعبدالعزيز Legal.\n\nقاعدة الدليل: لا تخترع اسم شريك ولا رقماً ولا اتفاقاً قائماً. ما لم يصلك من أداة أو من نص الطلب، قل «لا بيانات لديّ».",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "f682749a-8edd-49eb-afc6-16ad5dff77a6",
+      "name": "عبدالإله — Sales Ops",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "عبدالإله، Sales Operations & CRM. استخدمه لتنظيف stage، forecast، follow-up queue، orphan deals، pipeline hygiene وتقارير المبيعات.",
+        "text": "={{ $fromAI('task','CRM/sales operations task and required output','string') }}",
+        "options": {
+          "systemMessage": "أنت عبدالإله، Sales Ops تحت بدر. كل Deal يجب أن يكون لها stage, owner, amount, next action, follow-up. اكتشف المتأخر والمفقود وأعد قائمة تنفيذية.\n\nقاعدة الدليل — وهي أشدّ عليك لأن عملك أرقام: لا تذكر عدداً ولا مبلغاً ولا نسبة إلا من ناتج أداة فعلي. إن لم تقرأ القاعدة، قل «لم أقرأ البيانات» ولا تقدّر.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "7de38e93-861e-4d3a-b6bd-c059fbebc4ea",
+      "name": "ياسر — B2G & Tenders",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1500,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "ياسر، B2G & Tenders Specialist. استخدمه لتحليل RFP/tender، eligibility، bid plan، compliance matrix، submission checklist وتنسيق الإدارات.",
+        "text": "={{ $fromAI('task','Tender/RFP opportunity details and requested analysis','string') }}",
+        "options": {
+          "systemMessage": "أنت ياسر، B2G & Tenders Specialist تحت بدر. حلل fit, requirements, deadlines, commercial/legal/operations dependencies، وأعد bid plan.\n\nقاعدة الدليل: لا تختلق متطلباً ولا موعداً نهائياً ولا شرطاً حكومياً ولا رقم منافسة. ما ليس في نص الكراسة أو ناتج أداة، يُذكر كـ«غير معروف — يُراجع من المصدر». وعدٌ حكومي مخترع خطر قانوني لا خطأ صياغة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "9d02c296-9529-47ee-baa3-b8568c9e8f8c",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1660,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند handoff أو dependency. استخدم farah-intake للتسويق (سارة)، abdulaziz-intake للقانوني، abdulrahman-intake للمالية، mazen-intake للعمليات، mishari-intake للامتثال، nasser-intake للموارد البشرية الداخلية فقط، mohammed-intake للتقنية، strategy-intake للاستراتيجية، ahmed-procurement للمشتريات، realestate-intake لطارق (العقارات، يضع السعر بدر للطلبات العقارية)، recruitment-intake لبندر (التوظيف للعملاء، يضع السعر بدر لطلبات التوظيف)، news-intake لآلاء (الأخبار)، deals-intake لوسام (يراقب صحة الـpipeline ولا يملك قراراً في الصفقة).",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Choose director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('brief','Complete internal handoff or consultation brief','string'), client_name: $fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "600d7e6e-d820-4ff0-b7a9-2589f27d15ef",
+      "name": "Update Commercial Deal",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1820,
+        700
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('deal_id','Existing BP_AI_Deals deal ID to update','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "stage": "={{ $fromAI('stage','Use exact lifecycle stage such as qualified, quote_sent, quote_accepted, contract_signed, invoice_issued, paid, execution_in_progress, delivered','string') }}",
+            "deal_owner": "badr_sales",
+            "quoted_amount": "={{ $fromAI('quoted_amount','Quoted amount SAR; use 0 only if not applicable','number') }}",
+            "quote_status": "={{ $fromAI('quote_status','draft, sent, accepted, rejected or unchanged','string') }}",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "next_action": "={{ $fromAI('next_action','Single concrete next action','string') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','What blocks the deal; empty when not blocked','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','True only when Baher must personally act','boolean') }}",
+            "last_contact_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quoted_amount",
+              "displayName": "quoted_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quote_status",
+              "displayName": "quote_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "5fb42430-cb60-4d3e-831e-04f4a357c944",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "2f24e692-09a7-44b6-9d69-3d721c39994f",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        660,
+        900
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لبدر ومختصّيه السبعة. bp-main = gpt-4.1 على bp-ai-ksa-2026 (Sweden Central، SKU Standard).",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

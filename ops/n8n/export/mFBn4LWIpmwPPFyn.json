@@ -1,0 +1,294 @@
+{
+  "id": "mFBn4LWIpmwPPFyn",
+  "name": "Business Partner Campaign Launcher",
+  "active": false,
+  "isArchived": false,
+  "versionId": "df77af0a-886d-45b2-92b1-b51b8ea0c03b",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 7,
+  "createdAt": "2026-06-15T13:09:15.531Z",
+  "updatedAt": "2026-06-27T04:41:18.526Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Email Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Extract Campaign Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Campaign Data": {
+      "main": [
+        [
+          {
+            "node": "Companies Email Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Companies Email Leads": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4c41caa6-9bf4-4ddf-8e2c-a0cead8b9b2f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "d5cf7f7b-59bd-4e62-9ba5-622d5d4d0ead",
+          "mode": "list",
+          "cachedResultName": "Email Campaigns",
+          "cachedResultUrl": "https://app.notion.com/p/d5cf7f7b59bd4e629ba5622d5d4d0ead"
+        },
+        "limit": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "26d08ecf-4035-464a-bd55-d9c1d2d3a558",
+      "name": "Email Campaigns",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const campaign = $input.first().json;\n\nreturn [{\n  json: {\n    campaignName: campaign.property_campaign_name || campaign.name,\n    campaignId: campaign.property_campaign_id || campaign.id,\n    pageId: campaign.id,\n\n    status: campaign.property_status,\n    campaignStatus: campaign.property_campaign_status,\n    campaignType: campaign.property_campaign_type,\n    language: campaign.property_language || 'English',\n\n    targetSector: campaign.property_target_sector || [],\n    targetCity: campaign.property_target_city || [],\n\n    subjectLine: campaign.property_subject_line,\n    emailContent: campaign.property_email_content,\n    cta: campaign.property_cta,\n\n    emailsSent: campaign.property_emails_sent || 0,\n    replies: campaign.property_replies || 0,\n    meetingsBooked: campaign.property_meetings_booked || 0,\n    dailyLimit: campaign.property_daily_limit || 10,\n\n    headerLogoUrl: campaign.property_header_logo_url,\n    bannerImageUrl: campaign.property_banner_image_url,\n    ctaUrl: campaign.property_cta_url,\n    ctaTextArabic: campaign.property_cta_text_arabic,\n    ctaTextEnglish: campaign.property_cta_text_english,\n    footerArabic: campaign.property_footer_arabic,\n    footerEnglish: campaign.property_footer_english,\n    supportEmail: campaign.property_support_email,\n    primaryPhone: campaign.property_primary_phone,\n    secondaryPhone: campaign.property_secondary_phone,\n    thirdPhone: campaign.property_third_phone,\n    linkedInUrl: campaign.property_linked_in_url,\n    instagramUrl: campaign.property_instagram_url,\n    facebookUrl: campaign.property_facebook_url,\n    brandPrimaryColor: campaign.property_brand_primary_color || '#08145F',\n    brandSecondaryColor: campaign.property_brand_secondary_color || '#FFFFFF',\n    subjectArabic: campaign.property_subject_arabic,\n    subjectEnglish: campaign.property_subject_english,\n    emailContentArabic: campaign.property_email_content_arabic,\n    emailContentEnglish: campaign.property_email_content_english\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "556e0b95-b3e8-471b-a7f4-eeed251b8f48",
+      "name": "Extract Campaign Data"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "a7f4e962-00a1-411b-b2aa-bae3962da483",
+          "mode": "list",
+          "cachedResultName": "Companies Email Leads",
+          "cachedResultUrl": "https://app.notion.com/p/a7f4e96200a1411bb2aabae3962da483"
+        },
+        "limit": 5,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status|select",
+              "condition": "equals",
+              "selectValue": "Ready"
+            },
+            {
+              "key": "Language|select",
+              "condition": "equals",
+              "selectValue": "={{ $('Extract Campaign Data').item.json.language }}"
+            },
+            {
+              "key": "Campaign Sent|checkbox",
+              "condition": "equals",
+              "checkboxValue": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "d76c661b-b30d-4651-b3d9-6d32104e7e49",
+      "name": "Companies Email Leads",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const campaign = $('Extract Campaign Data').first().json;\nconst lead = $('Companies Email Leads').first().json;\n\nconst isArabic = campaign.language === 'Arabic';\n\nconst subject = isArabic\n  ? campaign.subjectArabic\n  : campaign.subjectEnglish;\n\nconst content = isArabic\n  ? campaign.emailContentArabic\n  : campaign.emailContentEnglish;\n\nconst ctaText = isArabic\n  ? campaign.ctaTextArabic || 'احجز استشارة مجانية'\n  : campaign.ctaTextEnglish || 'Book Free Consultation';\n\nconst footer = isArabic\n  ? campaign.footerArabic\n  : campaign.footerEnglish;\n\nconst websiteUrl = isArabic\n  ? 'https://businesspartner.sa/ar/'\n  : 'https://businesspartner.sa/en/';\n\nconst whatsappUrl = 'https://wa.me/966507034157';\n\nconst finalContent = (content || '')\n  .replaceAll('{company_name}', lead.name || '')\n  .replaceAll('{contact_name}', lead.property_contact_name || (isArabic ? 'السادة' : 'Sir/Madam'))\n  .replaceAll('\\n', '<br>');\n\nconst finalFooter = (footer || '').replaceAll('\\n', '<br>');\n\nconst htmlBody = `\n<div dir=\"${isArabic ? 'rtl' : 'ltr'}\"\nstyle=\"\ndirection:${isArabic ? 'rtl' : 'ltr'};\nunicode-bidi:embed;\nfont-family:Tahoma,Arial,sans-serif;\nmax-width:800px;\nmargin:auto;\npadding:30px;\nfont-size:18px;\nline-height:2;\ncolor:#1f2937;\ntext-align:${isArabic ? 'right' : 'left'};\n\">\n\n  <div style=\"text-align:center;margin-bottom:24px;\">\n    <img src=\"${campaign.headerLogoUrl}\"\n    alt=\"Business Partner\"\n    style=\"max-width:220px;height:auto;display:block;margin:auto;\">\n  </div>\n\n  <div style=\"text-align:center;margin-bottom:32px;\">\n    <img src=\"${campaign.bannerImageUrl}\"\n    alt=\"Business Partner Banner\"\n    style=\"width:100%;max-width:800px;height:auto;display:block;border-radius:12px;margin:auto;\">\n  </div>\n\n  <div style=\"font-size:18px;line-height:2;margin-bottom:30px;\">\n    ${finalContent}\n  </div>\n\n  <div style=\"text-align:center;margin:34px 0;\">\n\n    <a href=\"${websiteUrl}\"\n    style=\"\n    background:${campaign.brandPrimaryColor || '#08145F'};\n    color:#ffffff;\n    padding:14px 32px;\n    border-radius:8px;\n    text-decoration:none;\n    font-weight:bold;\n    display:inline-block;\n    font-size:16px;\n    margin:8px;\n    \">\n      ${ctaText}\n    </a>\n\n    <a href=\"${whatsappUrl}\"\n    style=\"\n    background:#25D366;\n    color:#ffffff;\n    padding:14px 32px;\n    border-radius:8px;\n    text-decoration:none;\n    font-weight:bold;\n    display:inline-block;\n    font-size:16px;\n    margin:8px;\n    \">\n      ${isArabic ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}\n    </a>\n\n  </div>\n\n  <hr style=\"border:none;border-top:1px solid #e5e7eb;margin:34px 0;\">\n\n  <div style=\"font-size:14px;color:#6b7280;line-height:1.9;text-align:${isArabic ? 'right' : 'left'};\">\n    ${finalFooter}<br><br>\n\n    <a href=\"${websiteUrl}\">businesspartner.sa</a><br><br>\n\n    <a href=\"${campaign.linkedInUrl}\">LinkedIn</a> |\n    <a href=\"${campaign.instagramUrl}\">Instagram</a> |\n    <a href=\"${campaign.facebookUrl}\">Facebook</a>\n  </div>\n\n</div>\n`;\n\nreturn [{\n  json: {\n    subject,\n    body: htmlBody\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        16
+      ],
+      "id": "19a41660-1337-4265-86f2-c27c760f185f",
+      "name": "Normalize Email"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Companies Email Leads').item.json.property_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        16
+      ],
+      "id": "9caf848c-f897-4f71-b985-7bdb0c63ca3e",
+      "name": "Send a message",
+      "webhookId": "9ba95b11-5f5d-4690-8f38-39bf68f7484e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Companies Email Leads').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Campaign Sent|checkbox",
+              "checkboxValue": "={{ true }}"
+            },
+            {
+              "key": "Last Campaign Status|select",
+              "selectValue": "Sent"
+            },
+            {
+              "key": "Last Email Sent Date|date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "Campaign Date|date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "Email Subject|rich_text",
+              "textContent": "={{ $('Normalize Email').item.json.subject }}"
+            },
+            {
+              "key": "Campaign ID|rich_text",
+              "textContent": "={{ $('Extract Campaign Data').item.json.campaignId }}"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        16
+      ],
+      "id": "bffdb297-9bf7-46f5-a17f-1b9dfd2fc6bd",
+      "name": "Update Lead",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

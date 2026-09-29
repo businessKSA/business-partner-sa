@@ -412,7 +412,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 
 | الوكيل | يملك هذه الملفات وحده |
 |---|---|
-| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
+| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `api/_n8n.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
 | `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
