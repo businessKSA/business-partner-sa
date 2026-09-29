@@ -1162,7 +1162,7 @@ export default async function handler(req, res) {
           city: txt(p["City"]),
           nationalityType: txt(p["Nationality Type"]),
           stage: STAGE_KEY[txt(p["Pipeline Stage"])] || "new",
-          score: scoreM ? Number(scoreM[1]) : null,
+          score: applicantScore(p).score,
           registered: pg.created_time,
           experience: (p["Experience Years"] && p["Experience Years"].number) || 0,
           skills: txt(p["Skills"]),
@@ -1177,6 +1177,75 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups), scanned: rowsRaw.length, truncated }));
     } catch (e) {
       console.error("applicants handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
+  // ── ملفّ المتقدّم الواحد للوحة صاحب العمل (?applicant=1&id=…) ──────────
+  // الشاشة تعرض: السيرة المهيّأة نصّاً على الموقع، ورابط الملف الأصلي، ودرجة
+  // المطابقة بمبرّرها، وحالتَي التوطين والامتثال. وهي أوسع ممّا تعيده القائمة
+  // عمداً — ولهذا لها بابها الخاص:
+  //   • حجماً: نصّ سيرةٍ لكل متقدّم في ردٍّ واحد يفجّر حمولة اللوحة، فيُجلب
+  //     نصُّ من فُتح وحده.
+  //   • صلاحيةً: يمرّ من ownJobsFor نفسها، ثم يُطابَق ختمُ هذا الصفّ بإعلانات
+  //     صاحب العمل بنفس المفتاح المُسوّى الذي جمعت به القائمة. مَن لا بطاقة
+  //     له في لوحتك لا ملفّ له فيها.
+  //
+  // ومَن ليس على إعلانه يُعاد له 404 لا 403: «ليس لك» تُخبر السائل أن الصفّ
+  // موجود، فتصير نقطةُ النهاية أداةَ تحقّقٍ من وجود مرشّحٍ بمعرّفه. 404 واحدة
+  // للمعرّف الخاطئ وللمرشّح الذي ليس له، فلا يُقاس بها شيء.
+  if (url.searchParams.get("applicant") === "1") {
+    if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+    const aId = (url.searchParams.get("id") || "").trim();
+    if (!aId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_id" })); }
+    try {
+      const ownJobs = await ownJobsFor(code, owner);
+      if (ownJobs === false) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const page = await notionFetch(`pages/${aId}`, "GET");
+      if (page.status === 404 || page.status === 400) {
+        res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" }));
+      }
+      if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const pdata = await page.json();
+      const p = pdata.properties || {};
+      const notMine = () => { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); };
+      if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return notMine();
+      const st = applicantStamp(p);
+      if (ownJobs && (!st || !ownJobs.has(st.key))) return notMine();
+
+      // السيرة المهيّأة: الحقل، ثم جسم الصفحة. ويُقال مصدرها كي تعرف الواجهة
+      // الفرق بين «لم تُقرأ بعد» و«قُرئت ولا نصّ فيها».
+      let cvText = txt(p["ATS CV Text"]);
+      let cvFrom = cvText ? "field" : "";
+      if (!cvText) { cvText = await readCvBody(aId); cvFrom = cvText ? "page" : ""; }
+
+      const sc = applicantScore(p);
+      res.statusCode = 200;
+      // ولا حقل أوسع من هذه: الاسم والبُرُد والجوّال تعيدها القائمة أصلاً،
+      // وتوسيع المُعاد في نقطةٍ تخصّ البيانات الشخصية قرار مالك لا تحسيناً.
+      return res.end(JSON.stringify({ ok: true, candidate: {
+        id: pdata.id || aId,
+        cvText, cvFrom,
+        // الملف الأصلي كما رفعه المرشّح (api/candidate.js يكتبه في «CV Link»)،
+        // والنسخة المهيّأة مستنداً على Drive. يُعادان كما هما بلا وعدٍ بأنهما
+        // مفتوحان: ملفّات خطّ الإنتاج مملوكة لحساب الشركة على Drive وغير
+        // مشتركة، فمن يفتحها بغير ذلك الحساب يرى «اطلب الصلاحية».
+        cvLink: txt(p["CV Link"]),
+        atsDocUrl: txt(p["ATS CV (Drive)"]),
+        score: sc.score, scoreFrom: sc.scoreFrom,
+        scoreReason: txt(p["مبرر الدرجة"]),
+        scoredFor: txt(p["الوظيفة المُقيَّم عليها"]),
+        scoredAt: p["تاريخ التقييم"] && p["تاريخ التقييم"].date ? p["تاريخ التقييم"].date.start : "",
+        // التوطين والامتثال: مقروءان من حقليهما كما هما، بلا حسابٍ ولا ترجيح.
+        // و٢٢٠ صفاً في القاعدة يحملان فيها قيمتين متناقضتين — يُعرضان معاً
+        // ويُسأل عنهما، ولا تختار الواجهة لصاحب العمل بصمت.
+        saudization: txt(p["التوطين Saudization"]),
+        compliance: txt(p["الامتثال Compliance"]),
+        saudizationDetails: txt(p["تفاصيل التوطين"]),
+      } }));
+    } catch (e) {
+      console.error("applicant detail error", e);
       res.statusCode = 500;
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
@@ -1200,27 +1269,7 @@ export default async function handler(req, res) {
     // (structured sections), not in the "ATS CV Text" property — read the
     // blocks as a markdown-ish fallback so the site can render the CV inline
     // instead of only offering a file download.
-    if (unlocked && !cand.cvText) {
-      try {
-        let cur = null, guard = 0;
-        const out = [];
-        do {
-          const br = await notionFetch(`blocks/${qId}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
-          if (!br.ok) break;
-          const bd = await br.json();
-          for (const blk of bd.results || []) {
-            const t = blk[blk.type];
-            if (!t || !Array.isArray(t.rich_text)) continue;
-            const line = t.rich_text.map((x) => x.plain_text).join("");
-            if (!line.trim()) continue;
-            const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
-            out.push(pre + line);
-          }
-          cur = bd.has_more ? bd.next_cursor : null;
-        } while (cur && ++guard < 5);
-        if (out.length) cand.cvText = out.join("\n");
-      } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); }
-    }
+    if (unlocked && !cand.cvText) cand.cvText = await readCvBody(qId);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: cand }));
   }

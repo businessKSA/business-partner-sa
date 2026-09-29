@@ -292,6 +292,51 @@ const T = {
   fEmail:  { ar: "البريد", en: "Email", fr: "E-mail", zh: "邮箱" },
   fCv:     { ar: "السيرة الذاتية", en: "CV", fr: "CV", zh: "简历" },
   cvOpen:  { ar: "افتح الملف", en: "Open file", fr: "Ouvrir le fichier", zh: "打开文件" },
+  // ------------------------------- السيرة والدرجة والتوطين في ملف المرشّح --
+  // كل حالة فراغٍ هنا لها جملتها. الحقول الأربعة الجديدة في قاعدة المرشحين
+  // («درجة المطابقة» ومبرّرها، والتوطين والامتثال) فارغةٌ على كل متقدّمي
+  // الموقع اليوم، فالفراغ هو الحالة الغالبة لا الاستثناء — وفراغٌ صامت في
+  // مكان درجةٍ أو حالةِ امتثال يُقرأ عطلاً، أو أسوأ: يُقرأ «مطابق».
+  cvH:     { ar: "السيرة الذاتية على الموقع", en: "CV on the site", fr: "CV sur le site", zh: "站内简历" },
+  cvLoad:  { ar: "جارٍ جلب السيرة…", en: "Fetching the CV…", fr: "Chargement du CV…", zh: "正在获取简历…" },
+  cvErr:   { ar: "تعذّر جلب سيرة هذا المرشّح الآن. حدّث الصفحة وحاول مرة أخرى.",
+             en: "Couldn't fetch this candidate's CV right now. Refresh and try again.",
+             fr: "Impossible de charger ce CV pour l'instant. Actualisez et réessayez.",
+             zh: "暂时无法获取该候选人的简历。请刷新后重试。" },
+  cvNone:  { ar: "السيرة لم تُقرأ بعد — لم يُستخرج نصّها من الملف، فلا شيء يُعرض هنا.",
+             en: "The CV has not been read yet — no text was extracted from the file, so there is nothing to show here.",
+             fr: "Le CV n'a pas encore été analysé — aucun texte extrait du fichier.",
+             zh: "简历尚未解析——未从文件中提取到文本，因此此处无内容可显示。" },
+  cvOrig:  { ar: "السيرة الأصلية (كما رفعها)", en: "Original CV (as uploaded)", fr: "CV original (tel que déposé)", zh: "原始简历（上传原件）" },
+  cvAtsDoc:{ ar: "النسخة المهيّأة كمستند", en: "Formatted version as a document", fr: "Version formatée (document)", zh: "格式化版本（文档）" },
+  cvNoFile:{ ar: "لا ملف أصلي محفوظ لهذا المرشّح.", en: "No original file is stored for this candidate.",
+             fr: "Aucun fichier original enregistré pour ce candidat.", zh: "该候选人没有保存的原始文件。" },
+  // ⚠️ لا يُشحن زرٌّ يَعِد بما لا يفتح: ملفّات خطّ الإنتاج مملوكة لحساب الشركة
+  // على Drive وغير مشتركة (فُحصت خمسة، كلّها للمالك وحده)، فمن يفتحها بحسابه
+  // يرى شاشة «اطلب الصلاحية». يُقال هذا تحت الرابط بدل أن يُكتشف بالضغط.
+  cvAccess:{ ar: "الملف محفوظ في Drive الشركة وغير مشترك — قد يطلب Google صلاحية الوصول. راسلنا ونرسله لك.",
+             en: "The file lives in the company Drive and is not shared — Google may ask you for access. Write to us and we'll send it.",
+             fr: "Le fichier est sur le Drive de l'entreprise et n'est pas partagé — Google peut demander un accès. Écrivez-nous.",
+             zh: "文件存放在公司 Drive 且未共享——Google 可能要求申请访问权限。请联系我们，我们会发送给您。" },
+  // ⚠️ لا تُسمَّ هذه scoreL/scoreNo: الاسمان مأخوذان لشاشة المطابقة الذكية
+  // أسفل الجدول («الدرجة» و«لا حقل مشترك يُقارَن»)، والمفتاح المكرّر في كائنٍ
+  // واحد يطمس الأول بلا خطأ بناءٍ ولا تحذير — فتتغيّر شاشةٌ أخرى بصمت.
+  mScoreL: { ar: "درجة المطابقة", en: "Match score", fr: "Score de correspondance", zh: "匹配分数" },
+  mScoreNo:{ ar: "لم تُقيَّم بعد", en: "Not scored yet", fr: "Pas encore évalué", zh: "尚未评分" },
+  scoreWhy:{ ar: "مبرر الدرجة", en: "Why this score", fr: "Justification du score", zh: "评分依据" },
+  scoreFor:{ ar: "قُيّمت على", en: "Scored against", fr: "Évalué pour", zh: "评分岗位" },
+  saudL:   { ar: "التوطين", en: "Saudization", fr: "Saoudisation", zh: "沙特化" },
+  compL:   { ar: "الامتثال لنظام التوظيف", en: "Employment-rules compliance", fr: "Conformité au régime de l'emploi", zh: "招聘法规合规性" },
+  notChk:  { ar: "لم يُفحص", en: "Not checked", fr: "Non vérifié", zh: "未核查" },
+  saudDet: { ar: "تفاصيل التوطين", en: "Saudization details", fr: "Détails de saoudisation", zh: "沙特化详情" },
+  // الحقلان يُعرضان كما هما ولو تناقضا (٢٢٠ صفاً في القاعدة كذلك): لا يُخفى
+  // التناقض ولا يُرجَّح أحدهما. صاحب عملٍ يرى الحقلين فيسأل، خيرٌ من واجهةٍ
+  // تختار له بصمت.
+  saudNote:{ ar: "الحالتان معروضتان كما هما في سجلّ المرشّح ولا تُحسَبان هنا. للحالة الرسمية راجع منصّة قوى.",
+             en: "Both states are shown exactly as recorded on the candidate's file; nothing is computed here. For the official position, check Qiwa.",
+             fr: "Les deux états sont affichés tels qu'enregistrés ; rien n'est calculé ici. Pour la position officielle, consultez Qiwa.",
+             zh: "两项状态均按候选人档案原样显示，此处不做任何计算。正式认定请查阅 Qiwa 平台。" },
+
   reqH:    { ar: "اطلب مقابلة", en: "Request an interview", fr: "Demander un entretien", zh: "申请面试" },
   reqP:    { ar: "نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.",
              en: "We arrange the appointment with the candidate and come back to you with it — or with the recruitment office that nominated them.",
@@ -624,6 +669,27 @@ export function buildSimpleEmployer(SV1, ctx) {
  background:#eef1f7;color:#5a6280;white-space:nowrap}
 .sv1-pill.ok{background:#e6f6ec;color:#12693a}
 .sv1-pill.off{background:#f3f4f6;color:#8b90a0}
+/* كهرماني = اشتراطات، أحمر = ممنوع. واللون يتبع القيمة المخزّنة حرفاً بحرف
+   ولا يُحسب: قيمةٌ جديدة في نوشن لا يعرفها هذا الملف تُرسم رمادية بنصّها،
+   لا مخضّرةً بافتراض. */
+.sv1-pill.warn{background:#fdf3e2;color:#8a5a06}
+.sv1-pill.bad{background:#fdecea;color:#b42318}
+
+/* ── السيرة المهيّأة معروضةً في الصفحة ────────────────────────────────────
+   النصّ من مصدرٍ خارجي (سيرة رفعها شخص)، فيُهرَّب كاملاً ثم يُعاد بناء
+   العناوين والقوائم و<strong> وحدها — لا حقن HTML خام. */
+.sv1-cv{background:#fff;border:1px solid var(--l);border-radius:13px;padding:16px 18px;
+ box-shadow:var(--sh);max-height:560px;overflow:auto;font-size:13px;line-height:1.85;color:var(--s)}
+.sv1-cv h4{font-size:15.5px;font-weight:600;color:var(--ink);margin:16px 0 4px}
+.sv1-cv h4:first-child{margin-top:0}
+.sv1-cv h5{font-size:13px;font-weight:600;color:var(--ink);margin:14px 0 4px;
+ border-bottom:1px solid var(--l);padding-bottom:4px}
+.sv1-cv p{margin:5px 0}
+.sv1-cv ul{margin:5px 0;padding-inline-start:20px}
+.sv1-cv li{margin:3px 0}
+.sv1-cv strong{color:var(--ink);font-weight:600}
+.sv1-cvacts{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.sv1-cvnote{font-size:11.5px;color:var(--faint);line-height:1.7;margin:7px 0 0}
 .sv1-emp-jobsel{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
 .sv1-emp-jobsel button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 14px;
  font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
@@ -1624,6 +1690,99 @@ function moveCand(id,to){
 // ── ملف المرشّح ───────────────────────────────────────────────────────────
 function findCand(id){return byId[id]||null}
 
+// ماركداون → HTML، **مهرَّباً أولاً**. النصّ سيرةٌ رفعها شخصٌ من خارجنا،
+// فحقنه خاماً يعني أن سيرةً فيها <script> تصير ثغرةً في لوحة صاحب العمل.
+// الترتيب هو الأمان نفسه: esc() على كل مقطع، ثم يُعاد بناء <strong> وحده من
+// ‎**…**‎ على النصّ المهرَّب — فما كان وسماً في المصدر يبقى نصّاً ظاهراً.
+// النمط مأخوذ عن cvMarkdownToHtml في api/candidate.js (قُرئت ولم تُستورد:
+// ملفُّ وكيلٍ آخر)، ومُبسَّطاً: العناوين والقوائم والفقرات وعريضٌ واحد.
+function cvInl(x){return esc(x).replace(/\\*\\*([^*]+)\\*\\*/g,'<strong>$1</strong>')}
+function cvHtml(md){
+ var out=[],list=false;
+ function close(){if(list){out.push('</ul>');list=false}}
+ String(md==null?'':md).split(/\\r?\\n/).forEach(function(raw){
+  // تصديرات Drive تهرّب ترقيم الماركداون، فيصل «\\# الاسم» كما هو.
+  var line=raw.replace(/\\\\(?=[#*\\-])/g,'').trim();
+  // سطرٌ فارغ لا يُغلق القائمة: التصدير يضع فراغاً بين كل نقطتين، فإغلاقها
+  // هنا يقسم كل نقطةٍ قائمةً بذاتها.
+  if(!line)return;
+  var h=line.match(/^(#{1,6})\\s*(.+)$/),b=line.match(/^[-*]\\s+(.+)$/);
+  if(h){close();out.push(h[1].length<=1?'<h4>'+cvInl(h[2])+'</h4>':'<h5>'+cvInl(h[2])+'</h5>')}
+  else if(b){if(!list){out.push('<ul>');list=true}out.push('<li>'+cvInl(b[1])+'</li>')}
+  else{close();out.push('<p>'+cvInl(line)+'</p>')}
+ });
+ close();return out.join('')}
+
+// رقاقةٌ ملوّنة بالقيمة المخزّنة حرفاً بحرف. القيمة التي لا تُعرف تُرسم
+// رمادية بنصّها كما هو — لا تُخضَّر بافتراض، ولا يُحسب توطينٌ ولا نسبةٌ هنا.
+//
+// ⚠️ مفاتيح الخريطتين ليست نصوص واجهة بل **أسماء خيارات نوشن** في «التوطين
+// Saudization» و«الامتثال Compliance»، فلا تُترجَم ولا تُغيَّر إلا مع تغييرها
+// في القاعدة. والقيمة المعروضة هي المخزّنة نفسها في كل اللغات: هذا سجلٌّ
+// حكومي الدلالة، وترجمته في الواجهة تعني رقماً أو حالةً لم يكتبهما أحد.
+var SAUD_CLS={'مسموح لغير السعوديين':'ok','مقصورة على السعوديين':'bad',
+ 'نسبة توطين + اشتراطات':'warn','بحاجة فحص':'off'};
+var COMP_CLS={'✅ مطابق':'ok','⚠️ اشتراطات':'warn',
+ '⛔ مهنة سعودية - غير سعودي':'bad','🔍 بحاجة فحص':'off'};
+function chip(cls,text){return '<span class="sv1-pill '+cls+'">'+esc(text)+'</span>'}
+// الفراغ يُقال «لم يُفحص» لا «مطابق»، وله لونه الرمادي.
+function stChip(val,map,label){
+ var v=String(val||'').trim();
+ if(!v)return chip('off',label+': '+TX.notChk);
+ return chip(map[v]||'',label+': '+v)}
+
+var detSeq=0;
+function loadCandDet(c){
+ var box=$('candDet'),chips=$('candChips'),my=++detSeq;
+ if(!box)return;
+ if(c._det){drawCandDet(c,c._det);return}
+ get('applicant=1&id='+encodeURIComponent(c.id)).then(function(d){
+  // فُتح مرشّحٌ آخر أثناء الجلب: لا تكتب رداً قديماً في شاشةٍ جديدة.
+  if(my!==detSeq)return;
+  if(d&&d.ok&&d.candidate){c._det=d.candidate;drawCandDet(c,d.candidate);return}
+  detFail(c)
+ }).catch(function(){if(my===detSeq)detFail(c)});
+ if(chips)chips.innerHTML=''}
+
+// الفشل لا يُسقط ما نعرفه أصلاً: رابط الملف يأتي في قائمة المتقدّمين أيضاً،
+// فيبقى معروضاً بتحذيره بدل أن تُفقد الشاشة كلّها.
+function detFail(c){
+ var box=$('candDet');if(!box)return;
+ box.innerHTML='<p class="sv1-emp-msg err">'+esc(TX.cvErr)+'</p>'+
+  (c.cv?'<div class="sv1-cvacts"><a class="sv1-btn sm" href="'+esc(c.cv)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a></div>'+
+   '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>':'')}
+
+function drawCandDet(c,d){
+ var box=$('candDet'),chips=$('candChips');
+ if(chips){
+  chips.innerHTML=
+   (d.score==null?chip('off',TX.mScoreL+': '+TX.mScoreNo)
+    :chip(d.score>=75?'ok':(d.score>=50?'warn':'bad'),TX.mScoreL+': '+d.score+'/100'))+
+   stChip(d.saudization,SAUD_CLS,TX.saudL)+
+   stChip(d.compliance,COMP_CLS,TX.compL)}
+ if(!box)return;
+ var kv=[[TX.scoreWhy,d.scoreReason],[TX.scoreFor,d.scoredFor],
+  [TX.saudDet,d.saudizationDetails]]
+  .filter(function(p){return p[1]}).map(function(p){
+   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
+ // رابط الملف الأصلي، ورابط النسخة المهيّأة مستنداً. الاثنان في Drive الشركة
+ // وغير مشتركين، فتحتهما جملةٌ تقول ذلك — الزرّ لا يَعِد بما لا يفتح.
+ var acts=(d.cvLink?'<a class="sv1-btn sm" href="'+esc(d.cvLink)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a>':'')+
+  (d.atsDocUrl?'<a class="sv1-btn sm" href="'+esc(d.atsDocUrl)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvAtsDoc)+'</a>':'');
+ box.innerHTML=
+  (kv?'<dl class="sv1-emp-kv">'+kv+'</dl>':'')+
+  '<p class="sv1-cvnote" style="margin:0 0 14px">'+esc(TX.saudNote)+'</p>'+
+  '<h4 style="margin:0 0 8px;font-size:16px;font-weight:600">'+esc(TX.cvH)+'</h4>'+
+  (d.cvText?'<div class="sv1-cv">'+cvHtml(d.cvText)+'</div>'
+   :'<p class="sv1-emp-sub">'+esc(TX.cvNone)+'</p>')+
+  (acts?'<div class="sv1-cvacts">'+acts+'</div>'+
+    '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>'
+   :'<p class="sv1-cvnote">'+esc(TX.cvNoFile)+'</p>')+
+  '<div style="height:8px"></div>'}
+
 function openCand(id){
  id=decodeURIComponent(id||'');
  if(!loaded.apps){loadApps().then(function(){openCand(encodeURIComponent(id))});return}
@@ -1640,9 +1799,11 @@ function openCand(id){
  $('candBody').innerHTML=
   '<h3 class="sv1-emp-h">'+esc(c.name||'—')+'</h3>'+
   '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p>'+
+  '<div class="sv1-aibar" id="candChips"></div>'+
   '<dl class="sv1-emp-kv">'+kv+'</dl>'+
-  (c.cv?'<p style="margin:0 0 18px"><a class="sv1-btn sm" href="'+esc(c.cv)+
-   '" target="_blank" rel="noopener">'+esc(TX.fCv)+' — '+esc(TX.cvOpen)+'</a></p>':'')+
+  // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده (‏?applicant=1) ولا يأتي مع
+  // قائمة المتقدّمين: نصّ سيرةٍ لكل بطاقةٍ في اللوحة يفجّر حمولة الردّ.
+  '<div id="candDet"><p class="sv1-emp-sub">'+esc(TX.cvLoad)+'</p></div>'+
   '<div class="sv1-emp-f" style="max-width:520px">'+
    '<label for="cStage">'+esc(TX.stage)+'</label>'+
    '<select id="cStage">'+opts+'</select>'+
@@ -1660,6 +1821,7 @@ function openCand(id){
     '<span class="sv1-emp-msg" id="cReqMsg"></span></div>'+
    '</div></div>';
  window.scrollTo(0,0);
+ loadCandDet(c);
 
  $('cStage').onchange=function(){
   var sel=$('cStage'),m=$('cStageMsg'),v=sel.value;sel.disabled=true;

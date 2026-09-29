@@ -109,14 +109,18 @@ const JOB_ROWS = [
 // المتقدّمون، مختومون كما يختمهم api/candidate.js: "العنوان (المعرّف)" في
 // «الوظيفة المتقدم لها»، وللصفوف القديمة السطر نفسه داخل Notes.
 const ATS_ROWS = [];
-const applicant = (name, phone, stampTitle, stampId, { legacy = false } = {}) => {
+const nu = (n) => ({ type: "number", number: typeof n === "number" ? n : null });
+const ur = (s) => ({ type: "url", url: s || null });
+
+const applicant = (name, phone, stampTitle, stampId, { legacy = false, extra = null, notes = "" } = {}) => {
   const line = `تقديم عبر الموقع — الوظيفة: ${stampTitle} (${stampId})`;
   ATS_ROWS.push({ id: `cand-${ATS_ROWS.length + 1}`, created_time: "2026-09-12T00:00:00.000Z", properties: {
     "Candidate Name": ti(name), "Phone": ph(phone), "Email": em(`${phone}@example.com`),
     "City": rt("الرياض"), "Nationality Type": se("سعودي"), "Pipeline Stage": se("جديد"),
     "مخفي عن الموقع": cb(false),
     "الوظيفة المتقدم لها": rt(legacy ? "" : `${stampTitle} (${stampId})`),
-    "Notes": rt(legacy ? line : "تقديم عبر الموقع"),
+    "Notes": rt(legacy ? line : (notes || "تقديم عبر الموقع")),
+    ...(extra || {}),
   } });
   return name;
 };
@@ -137,6 +141,61 @@ const EMPLOYERS_OWN = [
   applicant("مرشّح محمد — ختمٌ قياسي", "0510000003", "إعلان محمد", EMPLOYER_JOB_ID),
   applicant("مرشّح محمد — صفٌّ قديم مختوم في Notes", "0510000004", "إعلان محمد", EMPLOYER_JOB_ID, { legacy: true }),
 ];
+
+// ── صفوفٌ لمسار ملفّ المتقدّم الواحد (?applicant=1&id=…) ──────────────────
+// الحقول الأربعة الجديدة في القاعدة («درجة المطابقة» ومبرّرها، والتوطين
+// والامتثال) فارغةٌ فعلاً على كل متقدّمي الموقع اليوم (٠ من ١١٧)، فالحالتان
+// تُمثَّلان هنا كلتاهما: صفٌّ مملوء وصفٌّ فارغ.
+const CV_TEXT_FULL = "# سعود العتيبي\n\n## الخبرة\n- أخصائي موارد بشرية — **خمس سنوات**\n\n## التعليم\n- بكالوريوس إدارة أعمال";
+// سيرةٌ فيها وسم سكربت: تُعاد من الخادم كما هي (هو لا يبني HTML)، والواجهة
+// هي التي تهرّبها. الصفّ موجود كي يُقاس الهرب على المولَّد فعلاً.
+const CV_TEXT_XSS = "# <script>alert('xss')</script>\n\n- <img src=x onerror=alert(1)>";
+const RICH = applicant("مرشّح محمد — ملفٌّ مكتمل", "0510000005", "إعلان محمد", EMPLOYER_JOB_ID, { extra: {
+  "ATS CV Text": rt(CV_TEXT_FULL),
+  "CV Link": ur("https://drive.google.com/file/d/ORIGINAL_FILE/view"),
+  "ATS CV (Drive)": ur("https://docs.google.com/document/d/ATS_DOC/edit"),
+  "درجة المطابقة": nu(82),
+  "مبرر الدرجة": rt("خبرة مطابقة في المجال نفسه، والمدينة نفسها."),
+  "الوظيفة المُقيَّم عليها": rt("إعلان محمد"),
+  "تاريخ التقييم": { type: "date", date: { start: "2026-09-20" } },
+  "التوطين Saudization": se("مسموح لغير السعوديين"),
+  "الامتثال Compliance": se("✅ مطابق"),
+  "تفاصيل التوطين": rt("المهنة مفتوحة، ولا اشتراط جنسية عليها."),
+} });
+const XSS = applicant("مرشّح محمد — سيرةٌ فيها وسم سكربت", "0510000006", "إعلان محمد", EMPLOYER_JOB_ID, {
+  extra: { "ATS CV Text": rt(CV_TEXT_XSS) },
+});
+// لا سيرة ولا ملف ولا درجة ولا توطين — وهذه حالة الغالبية العظمى فعلاً.
+const BARE = applicant("مرشّح محمد — لا سيرة ولا درجة", "0510000007", "إعلان محمد", EMPLOYER_JOB_ID);
+// درجةٌ قديمة مكتوبةً نصّاً في Notes وحدها: الحقل الرقمي أُضيف فارغاً، فلو
+// استُبدل الاحتياطي لاختفت كل درجةٍ معروضة اليوم.
+const LEGACY_SCORE = applicant("مرشّح محمد — درجةٌ في Notes وحدها", "0510000008", "إعلان محمد", EMPLOYER_JOB_ID, {
+  notes: "تقديم عبر الموقع — score 64/100 من الفرز الآلي",
+});
+EMPLOYERS_OWN.push(RICH, XSS, BARE, LEGACY_SCORE);
+
+// متقدّمٌ **على إعلان المالك** وله سيرةٌ كاملة — هو مقياس التسريب في المسار
+// الجديد: محمد يعرف معرّفه (أو يخمّنه) ويسأل عنه مباشرةً، فيجب ألا يصله حرف.
+const STRANGER_CV = "# سرّ لا يراه محمد\n\n- بيانات مرشّح صاحب عملٍ آخر";
+const STRANGER = applicant("مرشّح المالك — ملفٌّ مكتمل", "0500000003", "إعلان المالك", OWNER_JOB_ID, { extra: {
+  "ATS CV Text": rt(STRANGER_CV),
+  "CV Link": ur("https://drive.google.com/file/d/STRANGER_FILE/view"),
+  "درجة المطابقة": nu(91),
+} });
+OWNERS_OWN.push(STRANGER);
+// السيرة تُكتب غالباً في **جسم صفحة** المرشّح لا في الحقل (صفٌّ واحد من
+// ٢٦٤١٩ يحمل الحقل مملوءاً)، فالاحتياطي هو المسار الحقيقي لا الاستثناء.
+const BODY_CV = applicant("مرشّح محمد — سيرته في جسم الصفحة", "0510000009", "إعلان محمد", EMPLOYER_JOB_ID);
+EMPLOYERS_OWN.push(BODY_CV);
+const BODY_ROW_ID = ATS_ROWS[ATS_ROWS.length - 1].id;
+const PAGE_BLOCKS = {
+  [BODY_ROW_ID]: [
+    { type: "heading_2", heading_2: { rich_text: [{ plain_text: "الخبرة العملية" }] } },
+    { type: "bulleted_list_item", bulleted_list_item: { rich_text: [{ plain_text: "محاسب أول — ثلاث سنوات" }] } },
+    { type: "paragraph", paragraph: { rich_text: [{ plain_text: "" }] } },
+  ],
+};
+const idOf = (name) => (ATS_ROWS.find((r) => (r.properties["Candidate Name"].title[0] || {}).plain_text === name) || {}).id;
 // تسجيلات عامة ووظائف الموقع: ليست صفوفاً في JOBS_DB ولا رمز صاحب عملٍ لها،
 // فهي للمالك وحده — التسجيل في القاعدة ليس «تقدّماً على إعلان» أحد.
 const SITE_OWN = [
@@ -154,6 +213,15 @@ globalThis.fetch = async (url, init = {}) => {
   const body = init.body ? JSON.parse(init.body) : {};
   const json = (o, status = 200) =>
     new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
+  // ملفّ المتقدّم الواحد يقرأ صفحةً بمعرّفها، ثم كتلَ جسمها إن كان الحقل
+  // فارغاً — كلاهما GET لا استعلام قاعدة، فيُخدَمان قبل مُطابِق الاستعلام.
+  const bm = /\/blocks\/([^/]+)\/children/.exec(u);
+  if (bm) return json({ results: PAGE_BLOCKS[decodeURIComponent(bm[1])] || [], has_more: false });
+  const pm = /\/pages\/([^/?]+)$/.exec(u);
+  if (pm) {
+    const row = ATS_ROWS.find((r) => r.id === decodeURIComponent(pm[1]));
+    return row ? json(row) : json({ message: "Could not find page" }, 404);
+  }
   const m = /databases\/([a-z0-9]+)\/query/.exec(u);
   if (!m) return json({}, 404);
   const db = m[1];
@@ -300,6 +368,114 @@ test("list-postings يعيد posted، و?openJobs=1 يعيد postedAt", async ()
   assert.equal(oj.status, 200);
   assert.ok(oj.data.jobs.length > 0);
   for (const j of oj.data.jobs) assert.equal(j.postedAt, "2026-09-10T08:00:00.000Z");
+});
+
+/* ═══════════════ ملفّ المتقدّم الواحد (?applicant=1&id=…) ═══════════════
+ *
+ * هذا المسار يعيد ما لا تعيده القائمة: **نصّ السيرة** ورابط الملف الأصلي.
+ * فهو أوسع حمولةً وأخطر تسريباً، والفلترة نفسها (ownJobsFor) تحرسه — وهذه
+ * الاختبارات هي ما يمنع أن تُنسخ في المسار الثاني ناقصةً كما غابت عن الأول.
+ */
+const detailFor = (sid, id) => invoke({
+  method: "GET",
+  url: `/api/candidates?applicant=1&code=self&id=${encodeURIComponent(id || "")}`,
+  headers: { cookie: `bp_sid=${sid}` }, on() {},
+});
+
+test("⑥ صاحب عمل لا يرى نصّ سيرة مرشّحٍ ليس على إعلانه", async () => {
+  const strangerId = idOf(STRANGER);
+  assert.ok(strangerId, "لم يُبنَ صفّ المرشّح الغريب");
+  // ويراه صاحبه فعلاً — وإلا لم يقس الاختبار حجباً بل عطلاً.
+  const mine = await detailFor(SID.owner, strangerId);
+  assert.equal(mine.status, 200);
+  assert.ok(mine.data.candidate.cvText.includes("سرّ لا يراه محمد"));
+
+  const { status, data, raw } = await detailFor(SID.employer, strangerId);
+  assert.equal(status, 404, "فُتح ملفّ مرشّحٍ لصاحب عملٍ آخر");
+  assert.equal(data.error, "not_found");
+  assert.ok(!data.candidate, "أعاد ملفّاً لمرشّحٍ ليس على إعلانه");
+  assert.ok(!raw.includes("سرّ لا يراه محمد"), "تسرّب نصّ سيرة مرشّحٍ لصاحب عملٍ آخر");
+  assert.ok(!raw.includes("STRANGER_FILE"), "تسرّب رابط الملف الأصلي لمرشّحٍ آخر");
+  assert.ok(!raw.includes("91"), "تسرّبت درجة مرشّحٍ آخر");
+});
+
+test("⑥ب عميل بوابةٍ بلا إعلان لا يفتح ملفّ أي متقدّم، وتعذّر الملكية يقفل الباب", async () => {
+  const id = idOf(RICH);
+  const cli = await detailFor(SID.client, id);
+  assert.equal(cli.status, 404, "عميلٌ لا يملك إعلاناً فتح ملفّ متقدّم");
+  assert.ok(!cli.raw.includes("سعود العتيبي"));
+
+  jobsDbFails = true;
+  try {
+    const out = await detailFor(SID.employer, id);
+    assert.equal(out.status, 502, "لم يُقفل الباب عند فشل استعلام الملكية");
+    assert.equal(out.data.error, "notion_failed");
+    assert.ok(!out.data.candidate);
+  } finally { jobsDbFails = false; }
+});
+
+test("⑦ الملفّ المكتمل يعيد السيرة والملف الأصلي والدرجة والتوطين والامتثال", async () => {
+  const { status, data } = await detailFor(SID.employer, idOf(RICH));
+  assert.equal(status, 200);
+  const c = data.candidate;
+  assert.equal(c.cvText, CV_TEXT_FULL, "نصّ السيرة لم يُعَد كما هو");
+  assert.equal(c.cvFrom, "field");
+  assert.equal(c.cvLink, "https://drive.google.com/file/d/ORIGINAL_FILE/view");
+  assert.equal(c.atsDocUrl, "https://docs.google.com/document/d/ATS_DOC/edit");
+  // الدرجة من حقلها الرقمي، لا من نمطٍ نصّي في Notes.
+  assert.equal(c.score, 82);
+  assert.equal(c.scoreFrom, "field");
+  assert.ok(c.scoreReason.includes("خبرة مطابقة"), "لم يُعَد مبرر الدرجة");
+  assert.equal(c.scoredFor, "إعلان محمد");
+  assert.equal(c.scoredAt, "2026-09-20");
+  // التوطين والامتثال كما هما، بلا حسابٍ ولا نسبةٍ من عندنا.
+  assert.equal(c.saudization, "مسموح لغير السعوديين");
+  assert.equal(c.compliance, "✅ مطابق");
+  assert.ok(c.saudizationDetails.includes("المهنة مفتوحة"));
+});
+
+test("⑧ الحقل الفارغ يعطي حالة فراغ صريحة لا خطأ", async () => {
+  const { status, data } = await detailFor(SID.employer, idOf(BARE));
+  assert.equal(status, 200, "الفراغ أُعيد خطأً بدل حالة فراغ");
+  assert.equal(data.ok, true);
+  const c = data.candidate;
+  // القيم الفارغة تُعاد **قابلةً للتمييز**: لا سيرة، لا ملف، لا درجة — ولا
+  // واحدةٌ منها صفرٌ ولا سلسلةٌ تُقرأ «مطابق».
+  assert.equal(c.cvText, "");
+  assert.equal(c.cvFrom, "");
+  assert.equal(c.cvLink, "");
+  assert.equal(c.atsDocUrl, "");
+  assert.equal(c.score, null, "الدرجة الفارغة عادت صفراً — صفرٌ درجةٌ، والفراغ ليس درجة");
+  assert.equal(c.scoreFrom, "");
+  assert.equal(c.saudization, "");
+  assert.equal(c.compliance, "");
+  assert.equal(c.saudizationDetails, "");
+});
+
+test("⑨ الدرجة القديمة في Notes تبقى تُقرأ (الحقل الرقمي فارغ في القاعدة كلها)", async () => {
+  const { data } = await detailFor(SID.employer, idOf(LEGACY_SCORE));
+  assert.equal(data.candidate.score, 64, "اختفت درجةٌ معروضة اليوم باستبدال الاحتياطي");
+  assert.equal(data.candidate.scoreFrom, "notes");
+  // والقائمة تقرأها بالمصدر نفسه، فلا تختلف البطاقة عن الملف.
+  const list = await applicantsFor(SID.employer);
+  const card = (list.data.jobs[0].applicants || []).find((a) => a.name === LEGACY_SCORE);
+  assert.equal(card.score, 64, "البطاقة والملف يعطيان درجتين مختلفتين");
+});
+
+test("⑩ السيرة المكتوبة في جسم الصفحة تُقرأ احتياطياً وتُعلن مصدرها", async () => {
+  const { data } = await detailFor(SID.employer, idOf(BODY_CV));
+  assert.equal(data.candidate.cvFrom, "page");
+  assert.ok(data.candidate.cvText.includes("## الخبرة العملية"), "لم يُقرأ العنوان من الكتل");
+  assert.ok(data.candidate.cvText.includes("- محاسب أول"), "لم تُقرأ نقطة القائمة من الكتل");
+});
+
+test("⑪ القائمة لا تحمل نصّ سيرةٍ ولا مبرر درجة — الحمولة تبقى صغيرة", async () => {
+  const { raw, data } = await applicantsFor(SID.employer);
+  assert.ok(!raw.includes("بكالوريوس إدارة أعمال"), "نصّ السيرة رُكب في قائمة المجموعات");
+  assert.ok(!raw.includes("خبرة مطابقة"), "مبرر الدرجة رُكب في قائمة المجموعات");
+  const card = (data.jobs[0].applicants || []).find((a) => a.name === RICH);
+  assert.equal(card.score, 82, "الدرجة الرقمية لا تصل البطاقة");
+  assert.ok(!("cvText" in card) && !("atsCvText" in card));
 });
 
 test.after(() => { try { fs.rmSync(DBDIR, { recursive: true, force: true }); } catch {} });

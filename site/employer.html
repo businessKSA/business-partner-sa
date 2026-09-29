@@ -427,6 +427,27 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  background:#eef1f7;color:#5a6280;white-space:nowrap}
 .sv1-pill.ok{background:#e6f6ec;color:#12693a}
 .sv1-pill.off{background:#f3f4f6;color:#8b90a0}
+/* كهرماني = اشتراطات، أحمر = ممنوع. واللون يتبع القيمة المخزّنة حرفاً بحرف
+   ولا يُحسب: قيمةٌ جديدة في نوشن لا يعرفها هذا الملف تُرسم رمادية بنصّها،
+   لا مخضّرةً بافتراض. */
+.sv1-pill.warn{background:#fdf3e2;color:#8a5a06}
+.sv1-pill.bad{background:#fdecea;color:#b42318}
+
+/* ── السيرة المهيّأة معروضةً في الصفحة ────────────────────────────────────
+   النصّ من مصدرٍ خارجي (سيرة رفعها شخص)، فيُهرَّب كاملاً ثم يُعاد بناء
+   العناوين والقوائم و<strong> وحدها — لا حقن HTML خام. */
+.sv1-cv{background:#fff;border:1px solid var(--l);border-radius:13px;padding:16px 18px;
+ box-shadow:var(--sh);max-height:560px;overflow:auto;font-size:13px;line-height:1.85;color:var(--s)}
+.sv1-cv h4{font-size:15.5px;font-weight:600;color:var(--ink);margin:16px 0 4px}
+.sv1-cv h4:first-child{margin-top:0}
+.sv1-cv h5{font-size:13px;font-weight:600;color:var(--ink);margin:14px 0 4px;
+ border-bottom:1px solid var(--l);padding-bottom:4px}
+.sv1-cv p{margin:5px 0}
+.sv1-cv ul{margin:5px 0;padding-inline-start:20px}
+.sv1-cv li{margin:3px 0}
+.sv1-cv strong{color:var(--ink);font-weight:600}
+.sv1-cvacts{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.sv1-cvnote{font-size:11.5px;color:var(--faint);line-height:1.7;margin:7px 0 0}
 .sv1-emp-jobsel{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
 .sv1-emp-jobsel button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 14px;
  font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
@@ -979,7 +1000,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"Employer portal","desc":"Post a vacancy, receive applicants, and track them from screening to offer — in one page.","loginH":"Sign in to your portal","loginP":"Enter your company email and we send a one-time code. No password to forget, no permanent code to carry.","emailL":"Email address","sendOtp":"Send the code","sending":"Sending…","otpSent":"We sent a 6-digit code to","otpL":"Code","otpGo":"Sign in","otpBack":"← Different email","pwOpen":"Sign in with a password instead","otpOpen":"← Sign in with an email code","pwH":"Password sign-in","pwL":"Password","pwGo":"Sign in","forgot":"Forgot your password","rsH":"Reset your password","rsSend":"Send the reset code","rsCodeL":"Reset code","rsNewL":"New password (8+ characters)","rsGo":"Set the password","noSub":"This email has no active subscription. Activation is manual after payment — contact us and we'll enable it.","register":"No subscription yet? Register your company","pendSub":"Your email is registered but the subscription is not active yet — its status now: “{s}”. Activation is manual after payment: write to business@businesspartner.sa with your company name and we’ll enable it.","empErr":"We couldn’t check your subscription right now — the fault is ours, not your account’s. Try again in a minute; if it persists write to business@businesspartner.sa.","noCodeE":"Your subscription is active but its row carries no access code, and the dashboard cannot open without one. Write to business@businesspartner.sa and we’ll fix it today.","portalW":"You are signed in with a Business Partner account, not an active employer subscription (its status: “{s}”). What you post here now will not appear alongside your subscription’s vacancies until it is activated.","eEmail":"Enter a valid email address.","eSend":"Couldn't send the code right now. Try again shortly, or sign in with a password.","eOtp":"That code is wrong or has expired.","eNoSess":"Couldn't start a session. Please sign in with a password this time.","ePw":"Wrong email or password.","eWeak":"Password too short — 8 characters or more.","eNet":"Connection failed. Refresh and try again.","eSave":"Couldn't save. Try again.","navJobs":"My vacancies","navNew":"Post a vacancy","navApps":"Applicants","sideHome":"Overview","sideJobs":"Vacancies","sideApps":"Applicants","sideSet":"Settings","sideFold":"Collapse the sidebar","sideMenu":"Menu","acct":"Account","logout":"Sign out","acctPw":"Change password","acctPh":"Mobile number","acctSave":"Save number","acctOk":"Saved.","acctPhNo":"Changing the number requires signing in with the email code. Sign in that way to edit it.","acctPwNo":"Change your password via \"Forgot your password\" on the sign-in screen: a code reaches your inbox, then you set a new one.","plan":"Plan","homeH":"Overview","homeSub":"Every figure here is counted from your vacancies and applicants right now — no estimates.","kActive":"Active vacancies","kAll":"Total applicants","kAllN":"across the vacancies shown in your board","kNew":"New in the last 7 days","kNewN":"by the applicant's registration date","kJobsN":"of {n} in total","pipeH":"Pipeline","pipeSub":"How many sit at each stage — tap a stage to open the board.","emptyH":"Your dashboard is ready — it just needs a vacancy","emptyP":"Post your first vacancy and these figures fill themselves: every applicant lands here, and you move them between stages on the board.","emptyGo":"Post your first vacancy","numWait":"Counting…","numFail":"Couldn't count the applicants right now.","searchPh":"Search your vacancies and applicants","searchNo":"Nothing in what's loaded","searchJ":"Vacancies","searchC":"Candidates","searchMr":"and {n} more","thTitle":"Title","thCity":"City","thField":"Field","thType":"Type","thApps":"Applicants","thStat":"Status","thDate":"Posted","thActs":"Actions","setH":"Settings","setSub":"Your company's account in the portal.","setCo":"Company","langL":"Language","jobsH":"My vacancies","loading":"Loading…","jobsNone":"No vacancies yet. Post your first one and it appears on the jobs page within minutes.","stActive":"Active","stClosed":"Closed","edit":"Edit","closeJob":"Close","closeAsk":"Close this vacancy? It leaves the jobs page and no new applicants reach you.","viewJob":"Public advert","newH":"Post a vacancy","editH":"Edit the vacancy","fTitle":"Job title","fCity":"City","fField":"Field","fFieldN":"— choose —","fType":"Employment type","fMode":"Workplace","fAny":"— not specified —","fDesc":"Description and requirements","aiWrite":"✦ Write the description from the title","aiWork":"Writing…","aiNeed":"Enter the job title first.","aiFail":"Couldn't write it now — please write the description yourself.","publish":"Publish","saveJob":"Save changes","saving":"Saving…","published":"Published.","eFields":"Title and description are required.","cancel":"Cancel","appsH":"Applicants","appsNone":"No applicants on your vacancies yet.","appsAll":"All vacancies","appsN":"applicants","appsCut":"The list is long and part of it was cut — refresh to see the rest.","open":"Open profile","moveTo":"Move to…","moving":"Moving…","moveOk":"Moved to","moveFail":"The move failed — we put the card back in its column. Try again.","boardHint":"Drag a card to another column, or use “Move to…” inside it.","colEmpty":"Nobody at this stage","more":"Show more","matchS":"Match","profBack":"← Back to applicants","stage":"Stage","sNew":"New","sReview":"Screening","sShort":"Shortlist","sInt":"Interview","sOffer":"Offer","sHired":"Hired","sRej":"Rejected","sFuture":"On hold","fRole":"Role","fCityL":"City","fExp":"Experience","fYears":"years","fSkills":"Skills","fPhone":"Mobile","fEmail":"Email","fCv":"CV","cvOpen":"Open file","reqH":"Request an interview","reqP":"We arrange the appointment with the candidate and come back to you with it — or with the recruitment office that nominated them.","reqPref":"A time that suits you (optional)","reqMode":"Interview format","mIn":"In person","mOn":"Online","mPh":"Phone","reqGo":"Send the request","reqOk":"Your request is in — we'll come back with the appointment.","reqWork":"Sending…","sideMatch":"Matching","sidePool":"Talent pool","matchH":"Smart matching","matchSub":"Pick one of your vacancies and we compare each candidate in its field against it, field by field — every score here says what it was computed from.","matchJobL":"Vacancy","matchRun":"Analyse candidates","matchWork":"Analysing…","matchNoJ":"You have no vacancy yet. Post one first, then come back — matching compares against a real vacancy, not a blank.","matchRead":"Press “Analyse candidates” and we fetch the candidates in this vacancy's field and compare them to it. Nothing is fetched before you press.","matchDone":"{n} candidates analysed","matchFld":"within the field “{f}”","matchCap":"and the pool is larger — narrow it by the vacancy's field for a sharper result.","matchNone":"No candidate in this field yet.","matchErr":"Couldn't fetch the candidates. Try again.","wH":"How the score is computed","wP":"Four fields are compared, each with the fixed weight below. A field missing from your vacancy or from the candidate's profile is not compared and not scored — its weight leaves the division instead of being filled with a guess.","cField":"Field","cRole":"Job title","cSkills":"Skills","cCity":"City","cSame":"same","cDiff":"different","cOf":"{a} of {b}","cNoJob":"your vacancy has no such field","cNoCand":"the candidate's profile has no such field","cSkipped":"not compared","scoreL":"Score","scoreNo":"no shared field to compare","detailsL":"How this was computed","aiH":"✦ Rank with AI","aiWorkR":"Ranking…","aiNote":"Only role, field, city, experience, education and skills are sent to the AI model — no name, phone, email or CV. One call per press, never automatic.","aiRanked":"AI ranked {a} of the {b} analysed","aiScoreL":"AI rank","aiFailR":"AI ranking failed right now — the computed score above is unchanged.","aiOffR":"AI ranking is not configured on this server.","poolH":"Talent pool","poolSub":"The platform's CV bank. Search it by field, city and nationality — it loads a page at a time rather than scanning the whole bank at your expense.","poolQ":"Search by role or skill","poolCity":"City","poolNat":"Nationality","poolAny":"— all —","poolSa":"Saudi","poolNon":"Non-Saudi","poolGo":"Search","poolN":"{n} candidates","moreL":"Details","poolSo":"{n} candidates so far","poolMore":"Continue through the pool","poolEnd":"That is the end of the matching results.","poolNone":"No matching result. Widen the search or drop a filter.","poolErr":"Couldn't load the CV bank. Try again.","poolCv":"CV","dEdu":"Education","dLang":"Languages","dAvail":"Availability","dRegion":"Regional experience","dRes":"Residence status","dNatT":"Nationality type"},HOME="/employer",JOB="/job?id=";
+var TX={"title":"Employer portal","desc":"Post a vacancy, receive applicants, and track them from screening to offer — in one page.","loginH":"Sign in to your portal","loginP":"Enter your company email and we send a one-time code. No password to forget, no permanent code to carry.","emailL":"Email address","sendOtp":"Send the code","sending":"Sending…","otpSent":"We sent a 6-digit code to","otpL":"Code","otpGo":"Sign in","otpBack":"← Different email","pwOpen":"Sign in with a password instead","otpOpen":"← Sign in with an email code","pwH":"Password sign-in","pwL":"Password","pwGo":"Sign in","forgot":"Forgot your password","rsH":"Reset your password","rsSend":"Send the reset code","rsCodeL":"Reset code","rsNewL":"New password (8+ characters)","rsGo":"Set the password","noSub":"This email has no active subscription. Activation is manual after payment — contact us and we'll enable it.","register":"No subscription yet? Register your company","pendSub":"Your email is registered but the subscription is not active yet — its status now: “{s}”. Activation is manual after payment: write to business@businesspartner.sa with your company name and we’ll enable it.","empErr":"We couldn’t check your subscription right now — the fault is ours, not your account’s. Try again in a minute; if it persists write to business@businesspartner.sa.","noCodeE":"Your subscription is active but its row carries no access code, and the dashboard cannot open without one. Write to business@businesspartner.sa and we’ll fix it today.","portalW":"You are signed in with a Business Partner account, not an active employer subscription (its status: “{s}”). What you post here now will not appear alongside your subscription’s vacancies until it is activated.","eEmail":"Enter a valid email address.","eSend":"Couldn't send the code right now. Try again shortly, or sign in with a password.","eOtp":"That code is wrong or has expired.","eNoSess":"Couldn't start a session. Please sign in with a password this time.","ePw":"Wrong email or password.","eWeak":"Password too short — 8 characters or more.","eNet":"Connection failed. Refresh and try again.","eSave":"Couldn't save. Try again.","navJobs":"My vacancies","navNew":"Post a vacancy","navApps":"Applicants","sideHome":"Overview","sideJobs":"Vacancies","sideApps":"Applicants","sideSet":"Settings","sideFold":"Collapse the sidebar","sideMenu":"Menu","acct":"Account","logout":"Sign out","acctPw":"Change password","acctPh":"Mobile number","acctSave":"Save number","acctOk":"Saved.","acctPhNo":"Changing the number requires signing in with the email code. Sign in that way to edit it.","acctPwNo":"Change your password via \"Forgot your password\" on the sign-in screen: a code reaches your inbox, then you set a new one.","plan":"Plan","homeH":"Overview","homeSub":"Every figure here is counted from your vacancies and applicants right now — no estimates.","kActive":"Active vacancies","kAll":"Total applicants","kAllN":"across the vacancies shown in your board","kNew":"New in the last 7 days","kNewN":"by the applicant's registration date","kJobsN":"of {n} in total","pipeH":"Pipeline","pipeSub":"How many sit at each stage — tap a stage to open the board.","emptyH":"Your dashboard is ready — it just needs a vacancy","emptyP":"Post your first vacancy and these figures fill themselves: every applicant lands here, and you move them between stages on the board.","emptyGo":"Post your first vacancy","numWait":"Counting…","numFail":"Couldn't count the applicants right now.","searchPh":"Search your vacancies and applicants","searchNo":"Nothing in what's loaded","searchJ":"Vacancies","searchC":"Candidates","searchMr":"and {n} more","thTitle":"Title","thCity":"City","thField":"Field","thType":"Type","thApps":"Applicants","thStat":"Status","thDate":"Posted","thActs":"Actions","setH":"Settings","setSub":"Your company's account in the portal.","setCo":"Company","langL":"Language","jobsH":"My vacancies","loading":"Loading…","jobsNone":"No vacancies yet. Post your first one and it appears on the jobs page within minutes.","stActive":"Active","stClosed":"Closed","edit":"Edit","closeJob":"Close","closeAsk":"Close this vacancy? It leaves the jobs page and no new applicants reach you.","viewJob":"Public advert","newH":"Post a vacancy","editH":"Edit the vacancy","fTitle":"Job title","fCity":"City","fField":"Field","fFieldN":"— choose —","fType":"Employment type","fMode":"Workplace","fAny":"— not specified —","fDesc":"Description and requirements","aiWrite":"✦ Write the description from the title","aiWork":"Writing…","aiNeed":"Enter the job title first.","aiFail":"Couldn't write it now — please write the description yourself.","publish":"Publish","saveJob":"Save changes","saving":"Saving…","published":"Published.","eFields":"Title and description are required.","cancel":"Cancel","appsH":"Applicants","appsNone":"No applicants on your vacancies yet.","appsAll":"All vacancies","appsN":"applicants","appsCut":"The list is long and part of it was cut — refresh to see the rest.","open":"Open profile","moveTo":"Move to…","moving":"Moving…","moveOk":"Moved to","moveFail":"The move failed — we put the card back in its column. Try again.","boardHint":"Drag a card to another column, or use “Move to…” inside it.","colEmpty":"Nobody at this stage","more":"Show more","matchS":"Match","profBack":"← Back to applicants","stage":"Stage","sNew":"New","sReview":"Screening","sShort":"Shortlist","sInt":"Interview","sOffer":"Offer","sHired":"Hired","sRej":"Rejected","sFuture":"On hold","fRole":"Role","fCityL":"City","fExp":"Experience","fYears":"years","fSkills":"Skills","fPhone":"Mobile","fEmail":"Email","fCv":"CV","cvOpen":"Open file","cvH":"CV on the site","cvLoad":"Fetching the CV…","cvErr":"Couldn't fetch this candidate's CV right now. Refresh and try again.","cvNone":"The CV has not been read yet — no text was extracted from the file, so there is nothing to show here.","cvOrig":"Original CV (as uploaded)","cvAtsDoc":"Formatted version as a document","cvNoFile":"No original file is stored for this candidate.","cvAccess":"The file lives in the company Drive and is not shared — Google may ask you for access. Write to us and we'll send it.","mScoreL":"Match score","mScoreNo":"Not scored yet","scoreWhy":"Why this score","scoreFor":"Scored against","saudL":"Saudization","compL":"Employment-rules compliance","notChk":"Not checked","saudDet":"Saudization details","saudNote":"Both states are shown exactly as recorded on the candidate's file; nothing is computed here. For the official position, check Qiwa.","reqH":"Request an interview","reqP":"We arrange the appointment with the candidate and come back to you with it — or with the recruitment office that nominated them.","reqPref":"A time that suits you (optional)","reqMode":"Interview format","mIn":"In person","mOn":"Online","mPh":"Phone","reqGo":"Send the request","reqOk":"Your request is in — we'll come back with the appointment.","reqWork":"Sending…","sideMatch":"Matching","sidePool":"Talent pool","matchH":"Smart matching","matchSub":"Pick one of your vacancies and we compare each candidate in its field against it, field by field — every score here says what it was computed from.","matchJobL":"Vacancy","matchRun":"Analyse candidates","matchWork":"Analysing…","matchNoJ":"You have no vacancy yet. Post one first, then come back — matching compares against a real vacancy, not a blank.","matchRead":"Press “Analyse candidates” and we fetch the candidates in this vacancy's field and compare them to it. Nothing is fetched before you press.","matchDone":"{n} candidates analysed","matchFld":"within the field “{f}”","matchCap":"and the pool is larger — narrow it by the vacancy's field for a sharper result.","matchNone":"No candidate in this field yet.","matchErr":"Couldn't fetch the candidates. Try again.","wH":"How the score is computed","wP":"Four fields are compared, each with the fixed weight below. A field missing from your vacancy or from the candidate's profile is not compared and not scored — its weight leaves the division instead of being filled with a guess.","cField":"Field","cRole":"Job title","cSkills":"Skills","cCity":"City","cSame":"same","cDiff":"different","cOf":"{a} of {b}","cNoJob":"your vacancy has no such field","cNoCand":"the candidate's profile has no such field","cSkipped":"not compared","scoreL":"Score","scoreNo":"no shared field to compare","detailsL":"How this was computed","aiH":"✦ Rank with AI","aiWorkR":"Ranking…","aiNote":"Only role, field, city, experience, education and skills are sent to the AI model — no name, phone, email or CV. One call per press, never automatic.","aiRanked":"AI ranked {a} of the {b} analysed","aiScoreL":"AI rank","aiFailR":"AI ranking failed right now — the computed score above is unchanged.","aiOffR":"AI ranking is not configured on this server.","poolH":"Talent pool","poolSub":"The platform's CV bank. Search it by field, city and nationality — it loads a page at a time rather than scanning the whole bank at your expense.","poolQ":"Search by role or skill","poolCity":"City","poolNat":"Nationality","poolAny":"— all —","poolSa":"Saudi","poolNon":"Non-Saudi","poolGo":"Search","poolN":"{n} candidates","moreL":"Details","poolSo":"{n} candidates so far","poolMore":"Continue through the pool","poolEnd":"That is the end of the matching results.","poolNone":"No matching result. Widen the search or drop a filter.","poolErr":"Couldn't load the CV bank. Try again.","poolCv":"CV","dEdu":"Education","dLang":"Languages","dAvail":"Availability","dRegion":"Regional experience","dRes":"Residence status","dNatT":"Nationality type"},HOME="/employer",JOB="/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1560,6 +1581,99 @@ function moveCand(id,to){
 // ── ملف المرشّح ───────────────────────────────────────────────────────────
 function findCand(id){return byId[id]||null}
 
+// ماركداون → HTML، **مهرَّباً أولاً**. النصّ سيرةٌ رفعها شخصٌ من خارجنا،
+// فحقنه خاماً يعني أن سيرةً فيها <script> تصير ثغرةً في لوحة صاحب العمل.
+// الترتيب هو الأمان نفسه: esc() على كل مقطع، ثم يُعاد بناء <strong> وحده من
+// ‎**…**‎ على النصّ المهرَّب — فما كان وسماً في المصدر يبقى نصّاً ظاهراً.
+// النمط مأخوذ عن cvMarkdownToHtml في api/candidate.js (قُرئت ولم تُستورد:
+// ملفُّ وكيلٍ آخر)، ومُبسَّطاً: العناوين والقوائم والفقرات وعريضٌ واحد.
+function cvInl(x){return esc(x).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')}
+function cvHtml(md){
+ var out=[],list=false;
+ function close(){if(list){out.push('</ul>');list=false}}
+ String(md==null?'':md).split(/\r?\n/).forEach(function(raw){
+  // تصديرات Drive تهرّب ترقيم الماركداون، فيصل «\# الاسم» كما هو.
+  var line=raw.replace(/\\(?=[#*\-])/g,'').trim();
+  // سطرٌ فارغ لا يُغلق القائمة: التصدير يضع فراغاً بين كل نقطتين، فإغلاقها
+  // هنا يقسم كل نقطةٍ قائمةً بذاتها.
+  if(!line)return;
+  var h=line.match(/^(#{1,6})\s*(.+)$/),b=line.match(/^[-*]\s+(.+)$/);
+  if(h){close();out.push(h[1].length<=1?'<h4>'+cvInl(h[2])+'</h4>':'<h5>'+cvInl(h[2])+'</h5>')}
+  else if(b){if(!list){out.push('<ul>');list=true}out.push('<li>'+cvInl(b[1])+'</li>')}
+  else{close();out.push('<p>'+cvInl(line)+'</p>')}
+ });
+ close();return out.join('')}
+
+// رقاقةٌ ملوّنة بالقيمة المخزّنة حرفاً بحرف. القيمة التي لا تُعرف تُرسم
+// رمادية بنصّها كما هو — لا تُخضَّر بافتراض، ولا يُحسب توطينٌ ولا نسبةٌ هنا.
+//
+// ⚠️ مفاتيح الخريطتين ليست نصوص واجهة بل **أسماء خيارات نوشن** في «التوطين
+// Saudization» و«الامتثال Compliance»، فلا تُترجَم ولا تُغيَّر إلا مع تغييرها
+// في القاعدة. والقيمة المعروضة هي المخزّنة نفسها في كل اللغات: هذا سجلٌّ
+// حكومي الدلالة، وترجمته في الواجهة تعني رقماً أو حالةً لم يكتبهما أحد.
+var SAUD_CLS={'مسموح لغير السعوديين':'ok','مقصورة على السعوديين':'bad',
+ 'نسبة توطين + اشتراطات':'warn','بحاجة فحص':'off'};
+var COMP_CLS={'✅ مطابق':'ok','⚠️ اشتراطات':'warn',
+ '⛔ مهنة سعودية - غير سعودي':'bad','🔍 بحاجة فحص':'off'};
+function chip(cls,text){return '<span class="sv1-pill '+cls+'">'+esc(text)+'</span>'}
+// الفراغ يُقال «لم يُفحص» لا «مطابق»، وله لونه الرمادي.
+function stChip(val,map,label){
+ var v=String(val||'').trim();
+ if(!v)return chip('off',label+': '+TX.notChk);
+ return chip(map[v]||'',label+': '+v)}
+
+var detSeq=0;
+function loadCandDet(c){
+ var box=$('candDet'),chips=$('candChips'),my=++detSeq;
+ if(!box)return;
+ if(c._det){drawCandDet(c,c._det);return}
+ get('applicant=1&id='+encodeURIComponent(c.id)).then(function(d){
+  // فُتح مرشّحٌ آخر أثناء الجلب: لا تكتب رداً قديماً في شاشةٍ جديدة.
+  if(my!==detSeq)return;
+  if(d&&d.ok&&d.candidate){c._det=d.candidate;drawCandDet(c,d.candidate);return}
+  detFail(c)
+ }).catch(function(){if(my===detSeq)detFail(c)});
+ if(chips)chips.innerHTML=''}
+
+// الفشل لا يُسقط ما نعرفه أصلاً: رابط الملف يأتي في قائمة المتقدّمين أيضاً،
+// فيبقى معروضاً بتحذيره بدل أن تُفقد الشاشة كلّها.
+function detFail(c){
+ var box=$('candDet');if(!box)return;
+ box.innerHTML='<p class="sv1-emp-msg err">'+esc(TX.cvErr)+'</p>'+
+  (c.cv?'<div class="sv1-cvacts"><a class="sv1-btn sm" href="'+esc(c.cv)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a></div>'+
+   '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>':'')}
+
+function drawCandDet(c,d){
+ var box=$('candDet'),chips=$('candChips');
+ if(chips){
+  chips.innerHTML=
+   (d.score==null?chip('off',TX.mScoreL+': '+TX.mScoreNo)
+    :chip(d.score>=75?'ok':(d.score>=50?'warn':'bad'),TX.mScoreL+': '+d.score+'/100'))+
+   stChip(d.saudization,SAUD_CLS,TX.saudL)+
+   stChip(d.compliance,COMP_CLS,TX.compL)}
+ if(!box)return;
+ var kv=[[TX.scoreWhy,d.scoreReason],[TX.scoreFor,d.scoredFor],
+  [TX.saudDet,d.saudizationDetails]]
+  .filter(function(p){return p[1]}).map(function(p){
+   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
+ // رابط الملف الأصلي، ورابط النسخة المهيّأة مستنداً. الاثنان في Drive الشركة
+ // وغير مشتركين، فتحتهما جملةٌ تقول ذلك — الزرّ لا يَعِد بما لا يفتح.
+ var acts=(d.cvLink?'<a class="sv1-btn sm" href="'+esc(d.cvLink)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a>':'')+
+  (d.atsDocUrl?'<a class="sv1-btn sm" href="'+esc(d.atsDocUrl)+
+   '" target="_blank" rel="noopener">'+esc(TX.cvAtsDoc)+'</a>':'');
+ box.innerHTML=
+  (kv?'<dl class="sv1-emp-kv">'+kv+'</dl>':'')+
+  '<p class="sv1-cvnote" style="margin:0 0 14px">'+esc(TX.saudNote)+'</p>'+
+  '<h4 style="margin:0 0 8px;font-size:16px;font-weight:600">'+esc(TX.cvH)+'</h4>'+
+  (d.cvText?'<div class="sv1-cv">'+cvHtml(d.cvText)+'</div>'
+   :'<p class="sv1-emp-sub">'+esc(TX.cvNone)+'</p>')+
+  (acts?'<div class="sv1-cvacts">'+acts+'</div>'+
+    '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>'
+   :'<p class="sv1-cvnote">'+esc(TX.cvNoFile)+'</p>')+
+  '<div style="height:8px"></div>'}
+
 function openCand(id){
  id=decodeURIComponent(id||'');
  if(!loaded.apps){loadApps().then(function(){openCand(encodeURIComponent(id))});return}
@@ -1576,9 +1690,11 @@ function openCand(id){
  $('candBody').innerHTML=
   '<h3 class="sv1-emp-h">'+esc(c.name||'—')+'</h3>'+
   '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p>'+
+  '<div class="sv1-aibar" id="candChips"></div>'+
   '<dl class="sv1-emp-kv">'+kv+'</dl>'+
-  (c.cv?'<p style="margin:0 0 18px"><a class="sv1-btn sm" href="'+esc(c.cv)+
-   '" target="_blank" rel="noopener">'+esc(TX.fCv)+' — '+esc(TX.cvOpen)+'</a></p>':'')+
+  // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده (‏?applicant=1) ولا يأتي مع
+  // قائمة المتقدّمين: نصّ سيرةٍ لكل بطاقةٍ في اللوحة يفجّر حمولة الردّ.
+  '<div id="candDet"><p class="sv1-emp-sub">'+esc(TX.cvLoad)+'</p></div>'+
   '<div class="sv1-emp-f" style="max-width:520px">'+
    '<label for="cStage">'+esc(TX.stage)+'</label>'+
    '<select id="cStage">'+opts+'</select>'+
@@ -1596,6 +1712,7 @@ function openCand(id){
     '<span class="sv1-emp-msg" id="cReqMsg"></span></div>'+
    '</div></div>';
  window.scrollTo(0,0);
+ loadCandDet(c);
 
  $('cStage').onchange=function(){
   var sel=$('cStage'),m=$('cStageMsg'),v=sel.value;sel.disabled=true;
