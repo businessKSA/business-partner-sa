@@ -314,7 +314,7 @@ const OWNER_CODE = process.env.OWNER_DEMO_CODE || "";
 // Resolve a subscription code → { unlocked, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
 // for an ACTIVE row by access code.
-async function resolvePlan(code) {
+export async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
@@ -358,7 +358,7 @@ const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toL
 // on every request, never taken from the client: a supplied "org:…" code is
 // always ignored and re-derived here, so it cannot be forged to reach
 // another tenant's postings or the candidate pool.
-async function portalUnlock(req) {
+export async function portalUnlock(req) {
   try {
     const sess = await getSession(req);
     const org = sess && sess.organization;
@@ -466,7 +466,7 @@ async function employerRowFor(req) {
   }
 }
 
-async function employerBySession(req) {
+export async function employerBySession(req) {
   const r = await employerRowFor(req);
   return r.reason === "ok" ? r.account : null;
 }
