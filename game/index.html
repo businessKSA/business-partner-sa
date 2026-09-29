@@ -127,6 +127,32 @@ video{width:100%;max-height:50vh;background:#000;border-radius:4px;margin-top:10
 .frame-cren.t{top:calc(14px + env(safe-area-inset-top,0px))}
 .frame-cren.b{bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:scaleY(-1)}
 input[type=range]{accent-color:var(--gold)}
+/* القائمة على شاشة واحدة: لابتوب عريض قصير، أو لوحة claude.ai الضيقة */
+#menu{padding:16px 16px 14px;gap:0}
+#menu .brand{font-size:clamp(34px,min(9vw,11vh),96px)}
+#menu .tagline{margin:12px 0 16px;font-size:clamp(15px,min(2.2vw,2.6vh),21px);line-height:1.7}
+.eras{margin:0 0 12px}
+.era{padding:10px 10px}
+.era .yr{font-size:clamp(18px,3vh,26px)}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(520px,100%)}
+.menu .btn{padding:9px 12px;font-size:15px}
+.menu .btn.primary{grid-column:1/-1;font-size:17px;padding:11px 16px}
+#menu .note{margin-top:12px}
+#fsChip{position:fixed;top:calc(22px + env(safe-area-inset-top,0px));left:16px;z-index:25;background:var(--ui-bg);border:1px solid var(--ui-line);color:var(--paper);border-radius:4px;padding:6px 10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+#fsChip:hover{border-color:var(--gold);background:rgba(217,164,65,.22)}
+#fsChip[hidden]{display:none!important}
+@media (max-height:660px){ #menu .tagline{display:none} #menu .note{display:none} .era .ds{display:none} #menu .brand small{margin-top:4px} }
+@media (min-width:900px) and (max-height:760px){
+  #menu{flex-direction:row;flex-wrap:wrap;align-content:safe center;justify-content:center;column-gap:28px;padding-top:12px}
+  #menu .brand,#menu .tagline,#menu .note{flex:0 0 100%}
+  #menu .brand{font-size:clamp(30px,8vh,72px)} #menu .brand::before{margin-bottom:6px}
+  #menu .tagline{max-width:100%;padding:0 14%;margin:6px 0 12px;font-size:clamp(14px,2.3vh,18px)}
+  #menu .note{display:none} #menu .brand small{margin-top:4px}
+  .eras{width:min(600px,60%);margin:0}
+  .menu{width:min(330px,34%);grid-template-columns:1fr;align-self:stretch;align-content:center}
+  .menu .btn{padding:8px 12px;font-size:14px}
+}
+@media (max-width:620px){ .menu{grid-template-columns:1fr} .era .ds{display:none} .eras{gap:6px} .era{padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px} .era .yr{font-size:20px} .era .nm{margin:0} .era .st{margin:0} }
 .pad{font-size:12px;color:#8a7e66}
 .pad.on{color:var(--green-bright)}
 </style>
@@ -139,6 +165,7 @@ input[type=range]{accent-color:var(--gold)}
 <!-- MAIN MENU -->
 <section id="menu" class="screen veil" hidden>
   <canvas class="art" id="menuArt" aria-hidden="true"></canvas>
+  <button id="fsChip" type="button" title="ملء الشاشة أو فتح اللعبة في نافذة مستقلة">⛶ ملء الشاشة</button>
   <div class="frame-cren t"></div><div class="frame-cren b"></div>
   <h1 class="brand">الرايات الثلاث<small>ملحمة الدولة السعودية · نموذج أولي قابل للعب</small></h1>
   <p class="tagline">من ميثاق الدرعية سنة ١٧٤٤م، إلى عودة الرياض سنة ١٨٢٤م، إلى فجر المصمك سنة ١٩٠٢م. ثلاثة أجيال من عائلة كشّافين نجديّين تشهد ولادة الدول السعودية الثلاث.</p>
@@ -151,7 +178,7 @@ input[type=range]{accent-color:var(--gold)}
     <button class="btn ghost" id="btnCodex">سجلّ المخطوطات</button>
     <button class="btn ghost" id="btnHelp">التحكم وطريقة اللعب</button>
     <button class="btn ghost" id="btnMute">كتم الصوت (M)</button>
-    <button class="btn ghost" id="btnFullscreen">ملء الشاشة (F11)</button>
+    <button class="btn ghost" id="btnFullscreen">ملء الشاشة / نافذة مستقلة</button>
   </div>
   <p class="note" style="margin-top:16px">نموذج أولي للمتصفح (Three.js). لا قتال ولا اغتيالات: البطل كشّافٌ يتسلّل ويراقب ويوصل الرسائل ويرفع الرايات. المعلومات التاريخية في المخطوطات موجزة وقابلة للمراجعة قبل أي إصدار.</p>
 </section>
@@ -1240,7 +1267,8 @@ function spawnManuscripts(level){
   level.manuscripts.forEach(d=>{ const r=resolvePos(d.pos,false); const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.12), MAT.gold); m.position.set(r[0],r[1]+1.1,r[2]); hiScene.add(m); game.manus.push({mesh:m,pos:[r[0],r[1],r[2]],data:d,done:false}); });
 }
 let toastT=null;
-function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2600); }
+function toast(t){ let el=$('#toast'); if($('#hud').hidden){ el=$('#gtoast')||(()=>{ const d=document.createElement('div'); d.id='gtoast'; d.className='toast'; d.style.cssText='position:fixed;top:12%;z-index:70;font-size:16px;max-width:min(560px,92vw)'; document.body.appendChild(d); return d; })(); }
+  el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),3600); }
 function showFact(d){ const el=$('#toast'); el.innerHTML=`<div style="color:var(--gold);font-family:var(--font-ui);font-size:13px">مخطوطة: ${d.title}</div><div style="font-size:17px">${d.fact}</div>`; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),9000); }
 function toggleInsight(){ insightOn=!insightOn; insightPulse=0; game.manus.forEach(m=>{ m.mesh.scale.setScalar(insightOn?2.2:1); }); audio.chime(); }
 let insightPulse=2, insightMix=0;
@@ -1391,8 +1419,17 @@ if(vol.muted) $('#btnMute').textContent='تشغيل الصوت (M)';
 $('#btnCodex').onclick=()=>{ renderCodex(); $('#menu').hidden=true; $('#codex').hidden=false; };
 $('#btnTrailer').onclick=()=>{ audio.unlock(); playTrailer(); };
 (function(){ const v=$('#introVideo'); v.addEventListener('loadedmetadata', ()=>{ $('#btnIntroVideo').hidden=false; }); v.addEventListener('error', ()=>{ $('#btnIntroVideo').hidden=true; }); $('#btnIntroVideo').onclick=()=>{ $('#menu').hidden=true; $('#introVideoScreen').hidden=false; v.play().catch(()=>{}); }; })();
-function tryFullscreen(force){ if(!isTouch&&!force) return; const el=document.documentElement; try{ const p=(el.requestFullscreen||el.webkitRequestFullscreen)?.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+const embedded = (()=>{ try{ return window.top!==window.self; }catch(e){ return true; } })();
+function openOwnWindow(){ try{ const w=window.open(location.href,'_blank','noopener'); if(w) return true; }catch(e){} return false; }
+function tryFullscreen(force){ if(!isTouch&&!force) return; const el=document.documentElement;
+  const fsOk = !!(el.requestFullscreen||el.webkitRequestFullscreen) && (document.fullscreenEnabled!==false);
+  if(fsOk){ try{ const p=(el.requestFullscreen||el.webkitRequestFullscreen).call(el); if(p&&p.catch) p.catch(()=>{ if(force) fallbackFullscreen(); }); return; }catch(e){} }
+  if(force) fallbackFullscreen(); }
+function fallbackFullscreen(){ if(embedded && openOwnWindow()){ toast('فُتحت اللعبة في نافذة مستقلة'); return; }
+  toast(embedded ? 'المتصفح يمنع ملء الشاشة هنا — وسّع لوحة العرض من زر التكبير في claude.ai أو افتح الرابط في تبويب مستقل' : 'اضغط F11 في المتصفح لملء الشاشة'); }
 $('#btnFullscreen').onclick=()=>{ if(document.fullscreenElement){ document.exitFullscreen?.(); } else tryFullscreen(true); };
+$('#fsChip').onclick=()=>{ if(document.fullscreenElement){ document.exitFullscreen?.(); } else tryFullscreen(true); };
+document.addEventListener('fullscreenchange',()=>{ $('#fsChip').textContent = document.fullscreenElement ? '⛶ خروج من ملء الشاشة' : '⛶ ملء الشاشة'; });
 $('#btnContinue').onclick=()=>{ audio.unlock(); tryFullscreen(); startLevel(Math.min(save.unlocked, LEVELS.length-1)); };
 $('#btnNextChapter').onclick=()=>{ $('#chapterEnd').hidden=true; if(game.li+1<LEVELS.length) startLevel(game.li+1); else showMenu(); };
 $('#btnCeMenu').onclick=()=>{ $('#chapterEnd').hidden=true; showMenu(); };
