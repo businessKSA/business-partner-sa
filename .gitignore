@@ -34,3 +34,4 @@ business-partner-onefile.html
 # local development database + outbox (never committed)
 .localdb/
 .env.local
+.claude/worktrees/
