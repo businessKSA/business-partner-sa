@@ -155,6 +155,18 @@ input[type=range]{accent-color:var(--gold)}
 @media (max-width:620px){ .menu{grid-template-columns:1fr} .era .ds{display:none} .eras{gap:6px} .era{padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px} .era .yr{font-size:20px} .era .nm{margin:0} .era .st{margin:0} }
 .pad{font-size:12px;color:#8a7e66}
 .pad.on{color:var(--green-bright)}
+/* مؤشر الهدف على الشاشة */
+#objMark{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;color:#f6ecd2;font-size:12px;font-weight:700;text-shadow:0 1px 4px #000,0 0 8px #000;transition:opacity .2s}
+#objMark[hidden]{display:none!important}
+#objMark .ico{width:14px;height:14px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 12px rgba(217,164,65,.9);animation:objPulse 1.4s ease-in-out infinite}
+#objMark.edge{transform:translate(-50%,-50%)}
+#objMark.edge .ico{width:0;height:0;background:none;box-shadow:none;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:20px solid var(--gold);filter:drop-shadow(0 0 6px rgba(217,164,65,.9));animation:none}
+@keyframes objPulse{50%{transform:rotate(45deg) scale(1.25)}}
+#btnJournal{position:absolute;top:calc(160px + env(safe-area-inset-top,0px));right:16px;pointer-events:auto;background:var(--ui-bg);border:1px solid var(--ui-line);color:var(--paper);border-radius:4px;padding:6px 10px;font-size:13px;cursor:pointer}
+#btnJournal:hover{border-color:var(--gold)}
+#briefStory p{font-family:var(--font-display);font-size:17px;line-height:1.9;margin:6px 0}
+#briefObjs li.done{opacity:.5;text-decoration:line-through}
+#briefObjs li.cur{color:var(--gold);font-weight:800}
 </style>
 </head>
 <body>
@@ -197,9 +209,10 @@ input[type=range]{accent-color:var(--gold)}
       <tr><td>عجلة الفأرة / قرص الأصابع / <kbd>+</kbd><kbd>−</kbd></td><td>تقريب وإبعاد الكاميرا</td></tr>
       <tr><td><kbd>V</kbd></td><td>بصيرة الكشّاف: تُظهر الحرّاس والأهداف والمخطوطات</td></tr>
       <tr><td>الفأرة (انقر على اللعبة لقفل المؤشر) / <kbd>Q</kbd><kbd>R</kbd></td><td>تدوير الكاميرا؛ للأعلى = نظر للأعلى، ويمكن عكسه من قائمة الإيقاف</td></tr>
+      <tr><td><kbd>J</kbd></td><td>دفتر المهمة: القصة وقائمة الأهداف والهدف الحالي</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>إيقاف مؤقت</td></tr>
       <tr><td>الجوال</td><td>عصا يسار للحركة، سحب يمين للكاميرا، أزرار للقفز والتفاعل</td></tr>
-      <tr><td>يد التحكم 🎮</td><td>العصا اليسرى حركة · اليمنى كاميرا · <kbd>A</kbd> قفز/تسلّق · <kbd>Y</kbd> تفاعل (اضغط مطوّلاً) · <kbd>X</kbd> هجوم · <kbd>B</kbd> بصيرة · <kbd>RB</kbd> ركض · <kbd>LT</kbd><kbd>RT</kbd> تقريب · <kbd>Start</kbd> إيقاف</td></tr>
+      <tr><td>يد التحكم 🎮</td><td>العصا اليسرى حركة · اليمنى كاميرا · <kbd>A</kbd> قفز/تسلّق · <kbd>Y</kbd> تفاعل (اضغط مطوّلاً) · <kbd>A</kbd> يبدأ المهمة من الإحاطة · <kbd>X</kbd> هجوم · <kbd>B</kbd> بصيرة · <kbd>RB</kbd> ركض · <kbd>LT</kbd><kbd>RT</kbd> تقريب · <kbd>Start</kbd> إيقاف</td></tr>
     </table>
     <h3>طريقة اللعب</h3>
     <p>الحرّاس لهم مخروط رؤية (يظهر أحمر في البصيرة). لا يرونك فوق الأسطح. إن امتلأ مقياس الشُبهة يُطلق الإنذار ويلاحقونك؛ اقطع خط النظر أو اصعد سطحاً حتى يهدأ. إن أمسكوك عُدت إلى آخر نقطة حفظ.</p>
@@ -231,9 +244,23 @@ input[type=range]{accent-color:var(--gold)}
         <label>حساسية الكاميرا (فأرة، لمس، عصا) <input type="range" id="sens" min="30" max="220" value="100" style="width:100%"></label>
         <div class="pad" id="padStatus">يد التحكم: غير متصلة — اضغط أي زر فيها</div>
       </div>
+      <button class="btn ghost" id="btnPauseJournal">📜 دفتر المهمة</button>
       <button class="btn ghost" id="btnPauseHelp">التحكم</button>
       <button class="btn ghost" id="btnToMenu">القائمة الرئيسية</button>
     </div>
+  </div>
+</section>
+
+<!-- MISSION BRIEF / JOURNAL -->
+<section id="brief" class="screen veil" hidden>
+  <div class="panel" style="width:min(640px,100%)">
+    <div class="era-name" id="briefEra" style="font-size:12px;color:var(--gold);letter-spacing:.06em"></div>
+    <h2 id="briefTitle"></h2>
+    <div id="briefStory"></div>
+    <h3>ما عليك فعله</h3>
+    <ol id="briefObjs" style="margin:0;padding-inline-start:22px;line-height:1.9;font-size:15px"></ol>
+    <p class="note" style="margin-top:10px">المؤشر الذهبي ◆ على الشاشة يدلّك على الهدف الحالي ومسافته، والسهم ➤ عند الحافة يعني أنه خارج نظرك. اضغط <kbd>J</kbd> في أي وقت لفتح هذا الدفتر.</p>
+    <div class="row"><button class="btn primary" id="btnBriefGo">ابدأ المهمة</button></div>
   </div>
 </section>
 
@@ -289,9 +316,11 @@ input[type=range]{accent-color:var(--gold)}
   <div id="scoreboard" style="position:absolute;top:calc(160px + env(safe-area-inset-top,0px));left:16px;background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:4px;padding:8px 12px;min-width:170px;font-size:13px;display:none;pointer-events:auto"><div style="color:var(--gold);font-size:12px;margin-bottom:4px" id="roundInfo">لم تبدأ الجولة</div><div id="scoreList"></div><button class="btn" id="btnRound" style="margin-top:8px;padding:6px 10px;font-size:13px;width:100%">ابدأ جولة ٣ دقائق</button></div>
   <div class="prompt" id="prompt" hidden><span id="promptTxt"></span><span class="hold" id="promptHold" hidden><i id="promptFill"></i></span></div>
   <div class="toast" id="toast"></div>
+  <div id="objMark" hidden><div class="ico"></div><div class="lbl" id="objMarkLbl"></div></div>
+  <button id="btnJournal" title="دفتر المهمة (J)">📜 المهمة</button>
   <div class="hud-bottom">
     <div class="meter" id="meter"><div class="lbl"><span>الشُبهة</span><span id="meterState">مختفٍ</span></div><div id="hp" style="color:#e34a3f;font-size:16px;letter-spacing:2px;margin-bottom:2px">♥♥♥</div><div class="bar"><i id="meterFill"></i></div></div>
-    <div class="hint" id="hint">انقر على اللعبة أولاً · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> حركة · <kbd>Space</kbd> قفز/تسلّق · <kbd>E</kbd> تفاعل · <kbd>V</kbd> بصيرة · <kbd>Esc</kbd> إيقاف</div>
+    <div class="hint" id="hint">انقر على اللعبة أولاً · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> حركة · <kbd>Space</kbd> قفز/تسلّق · <kbd>E</kbd> تفاعل · <kbd>V</kbd> بصيرة · <kbd>J</kbd> المهمة · <kbd>Esc</kbd> إيقاف</div>
   </div>
 </div>
 
@@ -333,6 +362,7 @@ const LEVELS = [
 {
   id:'diriyah1744', era:'الدولة السعودية الأولى', title:'ميثاق الدرعية', year:'١٧٤٤م', hijri:'١١٥٧هـ',
   time:'day', landmark:'salwa', wadi:true, guards:4, hero:'سالم بن مانع، كشّاف الدرعية',
+  brief:['أنت <b>سالم بن مانع</b>، كشّاف الدرعية. عملك أن تعرف الطرق قبل أن يعرفها غيرك، وأن ترى ولا تُرى.','اليوم يُعقد في قصر سلوى اتفاقٌ بين الإمام محمد بن سعود والشيخ محمد بن عبدالوهاب. ثلاثة وفود من بلدات نجد جاءت تحمل رسائل بيعة، لكن الطرق مراقبة والوفود تركت رسائلها في أماكن متفرقة.','مهمتك: اجمع الرسائل الثلاث وأوصلها إلى مجلس الإمام قبل الغروب، دون أن تُثير انتباه الحرّاس.'],
   start:[0,66],
   intro:[
     {cam:[0,70,150], cam2:[0,40,95], look:[0,8,0], dur:6, year:'١٧٤٤م · ١١٥٧هـ', text:'الدرعية، على ضفاف وادي حنيفة. منذ سنة ١٧٢٧م يحكمها الإمام محمد بن سعود، وقد بدأت كلمتها تعلو في نجد.'},
@@ -340,10 +370,10 @@ const LEVELS = [
     {cam:[-10,6,80], cam2:[0,4,70], look:[0,1.5,64], dur:5, text:'أنت سالم بن مانع، كشّاف الدرعية. وفودٌ ثلاثة تحمل رسائل البيعة، وعليك أن توصلها إلى المجلس قبل الغروب.'}
   ],
   objectives:[
-    {type:'goto', pos:[0,48], text:'اعبر بستان الوادي إلى بوابة الطريف'},
-    {type:'roof', pos:[18,22], text:'اصعد سطح بيتٍ في السوق لتراقب طرق الوفود', hint:'اصطدم بالجدار واضغط Space للتسلّق'},
-    {type:'collect', items:[[-30,12],[30,-10],[-20,-32]], text:'اجمع رسائل الوفود الثلاثة', label:'رسالة بيعة'},
-    {type:'goto', pos:[0,-6], text:'أوصل الرسائل إلى مجلس الإمام أمام قصر سلوى'}
+    {type:'goto', pos:[0,48], text:'اعبر بستان الوادي إلى بوابة الطريف', story:'الوادي يفيض بالنخيل، والبوابة أمامك في آخر الطريق. اتبع المؤشر الذهبي.'},
+    {type:'roof', pos:[18,22], text:'اصعد سطح بيتٍ في السوق لتراقب طرق الوفود', hint:'اصطدم بالجدار واضغط Space للتسلّق', story:'من فوق الأسطح ترى ما لا يراه من في الشارع، والحرّاس لا يرونك.'},
+    {type:'collect', items:[[-30,12],[30,-10],[-20,-32]], text:'اجمع رسائل الوفود الثلاثة', label:'رسالة بيعة', story:'الوفود تركت رسائلها في ثلاثة أماكن. المؤشر يدلّك على الأقرب.'},
+    {type:'goto', pos:[0,-6], text:'أوصل الرسائل إلى مجلس الإمام أمام قصر سلوى', story:'الرسائل معك. المجلس منعقد أمام قصر سلوى، فأوصلها قبل الغروب.'}
   ],
   manuscripts:[
     {id:'m1a', pos:[-36,30], title:'يوم التأسيس', fact:'في عام ١١٣٩هـ / ١٧٢٧م تولّى الإمام محمد بن سعود حكم الدرعية، وهو التاريخ الذي تحتفل به المملكة «يوم التأسيس» في ٢٢ فبراير من كل عام منذ ٢٠٢٢م.'},
@@ -355,17 +385,18 @@ const LEVELS = [
 {
   id:'riyadh1824', era:'الدولة السعودية الثانية', title:'عودة الرياض', year:'١٨٢٤م', hijri:'١٢٤٠هـ',
   time:'dusk', landmark:'palace', wadi:false, guards:7, hero:'ماجد بن سالم، حفيد الكشّاف',
+  brief:['ست سنوات مضت على سقوط الدرعية. الرياض في يد حاميةٍ غريبة، والإمام <b>تركي بن عبدالله</b> يجمع رجاله خارج الأسوار ينتظر إشارة.','أنت <b>ماجد بن سالم</b>، حفيد كشّاف الدرعية. البوابة محروسة، لكن السور طينٌ يُتسلّق.','مهمتك: ادخل من فوق السور، استطلع القصر، أشعل نار الإشارة على سطح، ثم افتح البوابة من الداخل واسبق الرجال إلى ساحة القصر.'],
   start:[0,66],
   intro:[
     {cam:[0,60,140], cam2:[0,30,90], look:[0,6,0], dur:6, year:'١٨٢٤م · ١٢٤٠هـ', text:'ست سنوات بعد سقوط الدرعية. الرياض تحت حاميةٍ غريبة، والإمام تركي بن عبدالله يجمع رجاله في ضواحيها.'},
     {cam:[-50,10,60], cam2:[-20,8,60], look:[0,4,48], dur:5, text:'البوابة محروسة. أنت ماجد بن سالم، حفيد كشّاف الدرعية، وعليك أن تدخل من فوق السور وتفتح المدينة من الداخل.'}
   ],
   objectives:[
-    {type:'roof', pos:[-22,48], text:'تسلّق سور الرياض بعيداً عن البوابة', hint:'اقترب من السور واضغط Space'},
-    {type:'stealth', pos:[14,-4], roof:true, text:'استطلع القصر من سطحٍ قريب دون أن يراك الحرس'},
-    {type:'hold', pos:[-26,-28], roof:true, seconds:3, text:'أشعل نار الإشارة لرجال الإمام تركي', label:'إشعال نار الإشارة', effect:'fire'},
-    {type:'hold', pos:[0,44], seconds:2.5, text:'افتح بوابة الرياض من الداخل', label:'فتح البوابة', effect:'gate', alarm:true},
-    {type:'goto', pos:[0,-6], text:'اسبق رجال الإمام إلى ساحة القصر'}
+    {type:'roof', pos:[-22,48], text:'تسلّق سور الرياض بعيداً عن البوابة', hint:'اقترب من السور واضغط Space', story:'الحرس عند البوابة. ابتعد عنها، والصق السور واضغط Space لتصعده.'},
+    {type:'stealth', pos:[14,-4], roof:true, text:'استطلع القصر من سطحٍ قريب دون أن يراك الحرس', story:'القصر في قلب المدينة. تنقّل فوق الأسطح، وإن نزلت فاقطع خط النظر.'},
+    {type:'hold', pos:[-26,-28], roof:true, seconds:3, text:'أشعل نار الإشارة لرجال الإمام تركي', label:'إشعال نار الإشارة', effect:'fire', story:'نارٌ على سطح مرتفع تقول للإمام: الطريق مفتوح.'},
+    {type:'hold', pos:[0,44], seconds:2.5, text:'افتح بوابة الرياض من الداخل', label:'فتح البوابة', effect:'gate', alarm:true, story:'أخطر لحظة: فتح البوابة سيوقظ الحرس كلهم. افتحها ثم اهرب.'},
+    {type:'goto', pos:[0,-6], text:'اسبق رجال الإمام إلى ساحة القصر', story:'رجال الإمام يدخلون. اسبقهم إلى ساحة القصر ولا تدع الحرس يمسكوك.'}
   ],
   manuscripts:[
     {id:'m2a', pos:[30,30], title:'الإمام تركي بن عبدالله', fact:'استعاد الإمام تركي بن عبدالله الرياض عام ١٢٤٠هـ / ١٨٢٤م واتخذها عاصمة للدولة السعودية الثانية، ويُنسب إليه الجامع الكبير في وسط الرياض.'},
@@ -377,6 +408,7 @@ const LEVELS = [
 {
   id:'riyadh1902night', era:'الدولة السعودية الثالثة · قصة الملك عبدالعزيز', title:'ليلة الاسترداد', year:'١٩٠٢م', hijri:'٤ شوال ١٣١٩هـ',
   time:'night', landmark:'masmak', wadi:false, guards:8, hero:'سالم بن ماجد، كشّاف في ركب عبدالعزيز',
+  brief:['أواخر ١٩٠١م خرج <b>عبدالعزيز بن عبدالرحمن</b> من الكويت بنحو أربعين رجلاً. أشهرٌ في الصحراء، والليلة الرياض أمامكم في الظلام.','أنت <b>سالم بن ماجد</b>، كشّاف الركب. الخطة: تسوّر الجدار، والتسلّل بين الأزقة إلى بيتٍ يلاصق المصمك، والكمون فيه حتى يخرج عجلان عند الفجر.','الليل ستر، لكن الحرس كُثر. تحرّك فوق الأسطح ما استطعت.'],
   start:[0,66],
   intro:[
     {cam:[0,80,160], cam2:[0,35,100], look:[0,6,0], dur:6, year:'١٩٠٢م · ٤ شوال ١٣١٩هـ', text:'خرج عبدالعزيز بن عبدالرحمن من الكويت في أواخر ١٩٠١م مع نحو أربعين رجلاً. أشهرٌ في الصحراء، ثم الرياض أمامه في ظلمة الليل.'},
@@ -384,9 +416,9 @@ const LEVELS = [
     {cam:[0,4,72], cam2:[2,3,69], look:[0,1.5,64], dur:4, text:'أنت سالم بن ماجد، كشّاف الركب. تقدّم الرجال، وافتح لهم الطريق بصمت.'}
   ],
   objectives:[
-    {type:'roof', pos:[22,48], text:'تسلّق سور الرياض في جنح الليل', hint:'الحرس لا يرون فوق الأسوار'},
-    {type:'stealth', pos:[18,-4], text:'تسلّل عبر الأزقة إلى البيت الملاصق للمصمك'},
-    {type:'hold', pos:[18,-4], seconds:3, text:'اكمن في البيت مع الرفاق حتى الفجر', label:'انتظار الفجر', effect:'dawn'}
+    {type:'roof', pos:[22,48], text:'تسلّق سور الرياض في جنح الليل', hint:'الحرس لا يرون فوق الأسوار', story:'الليل ستركم. الصق السور واصعده بعيداً عن المشاعل.'},
+    {type:'stealth', pos:[18,-4], text:'تسلّل عبر الأزقة إلى البيت الملاصق للمصمك', story:'الأزقة ضيقة والحرس يتجوّلون بالمشاعل. عربات القش مخبأ آمن، وبصيرة الكشّاف (V) تريك الحرس عبر الجدران.'},
+    {type:'hold', pos:[18,-4], seconds:3, text:'اكمن في البيت مع الرفاق حتى الفجر', label:'انتظار الفجر', effect:'dawn', story:'هذا هو البيت الملاصق للمصمك. اكمن فيه مع الرفاق، فالفجر قريب.'}
   ],
   manuscripts:[
     {id:'m3a', pos:[-30,36], title:'المسير من الكويت', fact:'انطلق عبدالعزيز من الكويت في رمضان ١٣١٩هـ (أواخر ١٩٠١م) مع نحو أربعين رجلاً، وبقي أياماً في الصحراء قرب الرياض قبل أن يتحرّك إليها ليلاً.'},
@@ -398,16 +430,17 @@ const LEVELS = [
 {
   id:'masmak1902dawn', era:'الدولة السعودية الثالثة · قصة الملك عبدالعزيز', title:'فجر المصمك', year:'١٩٠٢م', hijri:'٥ شوال ١٣١٩هـ',
   time:'dawn', landmark:'masmak', wadi:false, guards:6, hero:'سالم بن ماجد',
+  brief:['انشقّ الفجر. باب المصمك يُفتح ليخرج <b>عجلان</b> كعادته، واندفع الرجال مع عبدالعزيز نحو الباب.','أنت سالم بن ماجد. الحرس سيستيقظون خلال لحظات.','مهمتك: ادخل من الباب الصغير في البوابة، اصعد برج المصمك، وارفع الراية فوقه.'],
   start:[18,3],
   intro:[
     {cam:[40,10,-20], cam2:[26,8,-12], look:[0,6,-20], dur:5, year:'فجر ٥ شوال ١٣١٩هـ', text:'الخامس عشر من يناير ١٩٠٢م. انشقّ الفجر، وفُتح باب المصمك ليخرج عجلان كعادته. هذه هي اللحظة.'},
     {cam:[20,3,-8], cam2:[18,2.5,-6], look:[12,2,-20], dur:4, text:'اندفع الرجال مع عبدالعزيز نحو الباب. مهمتك: أن تصل إلى البوابة، وأن ترفع الراية فوق البرج قبل أن يستيقظ الحرس.'}
   ],
   objectives:[
-    {type:'stealth', pos:[15,-20], text:'اقترب من باب المصمك قبل أن يخرج عجلان'},
-    {type:'hold', pos:[15,-20], seconds:2, text:'ادخل من الباب الصغير في البوابة', label:'فتح الباب', alarm:true},
-    {type:'roof', pos:[-11,-34], text:'اصعد إلى برج المصمك', hint:'الحرس يلاحقونك — تسلّق ولا تتوقف'},
-    {type:'hold', pos:[-11,-34], roof:true, seconds:3, text:'ارفع الراية فوق المصمك', label:'رفع الراية', effect:'banner'}
+    {type:'stealth', pos:[15,-20], text:'اقترب من باب المصمك قبل أن يخرج عجلان', story:'الباب أمامك شرق القلعة. اقترب منه دون أن يراك الحرس.'},
+    {type:'hold', pos:[15,-20], seconds:2, text:'ادخل من الباب الصغير في البوابة', label:'فتح الباب', alarm:true, story:'الباب الصغير في البوابة الكبيرة. ادخل منه، وسيُطلق الإنذار.'},
+    {type:'roof', pos:[-11,-34], text:'اصعد إلى برج المصمك', hint:'الحرس يلاحقونك — تسلّق ولا تتوقف', story:'الحرس خلفك. الصق جدار القلعة واصعده ولا تتوقف حتى البرج.'},
+    {type:'hold', pos:[-11,-34], roof:true, seconds:3, text:'ارفع الراية فوق المصمك', label:'رفع الراية', effect:'banner', story:'ارفع الراية فوق البرج. من هنا تبدأ الدولة الثالثة.'}
   ],
   manuscripts:[
     {id:'m4a', pos:[26,-30], title:'٥ شوال ١٣١٩هـ', fact:'فجر الخامس من شوال ١٣١٩هـ (١٥ يناير ١٩٠٢م) استردّ عبدالعزيز بن عبدالرحمن الرياض بنحو أربعين رجلاً، وهو التاريخ الذي تُؤرَّخ به بداية الدولة السعودية الثالثة.'},
@@ -419,18 +452,19 @@ const LEVELS = [
 {
   id:'ahsa1913', era:'الدولة السعودية الثالثة · قصة الملك عبدالعزيز', title:'ليلة الهفوف', year:'١٩١٣م', hijri:'١٣٣١هـ',
   time:'night', landmark:'kut', wadi:true, guards:8, hero:'سالم بن ماجد',
+  brief:['الأحساء، واحة النخيل على طريق الخليج. حاميةٌ عثمانية في حيّ الكوت بالهفوف، وعبدالعزيز يريد الساحل.','الخطة نفسها التي نجحت في الرياض: سلالم من جذوع النخل على السور، ودخولٌ بصمت في الليل، وفتح الكوت من الداخل.','مهمتك: انصب السلالم، تسلّق السور، تسلّل إلى بوابة الكوت وافتحها، ثم اصعد برجه وارفع الراية وسط الإنذار.'],
   start:[0,66],
   intro:[
     {cam:[0,70,150], cam2:[0,30,95], look:[0,6,0], dur:6, year:'١٩١٣م · ١٣٣١هـ', text:'الأحساء، واحة النخيل على طريق الخليج. حاميةٌ عثمانية في حيّ الكوت بالهفوف، وعبدالعزيز يريد الساحل.'},
     {cam:[-60,8,60], cam2:[-30,6,58], look:[-30,4,48], dur:5, text:'الخطة نفسها التي نجحت في الرياض: سلالم من جذوع النخل على السور، ورجالٌ يدخلون بصمت في الليل ويفتحون الكوت من الداخل.'}
   ],
   objectives:[
-    {type:'hold', pos:[-30,52], seconds:2, text:'انصب سلالم جذوع النخل عند سور الهفوف', label:'نصب السلالم'},
-    {type:'roof', pos:[-30,48], text:'تسلّق سور الهفوف'},
-    {type:'stealth', pos:[15,-20], text:'تسلّل بين الأزقة إلى بوابة الكوت'},
-    {type:'hold', pos:[15,-20], seconds:3, text:'افتح الكوت لرجال الملك', label:'فتح البوابة', alarm:true},
-    {type:'roof', pos:[11,-34], text:'اصعد برج الكوت وسط الإنذار'},
-    {type:'hold', pos:[11,-34], roof:true, seconds:3, text:'ارفع الراية فوق الكوت', label:'رفع الراية', effect:'banner'}
+    {type:'hold', pos:[-30,52], seconds:2, text:'انصب سلالم جذوع النخل عند سور الهفوف', label:'نصب السلالم', story:'السور غرب البوابة أقل حراسة. انصب السلالم هناك.'},
+    {type:'roof', pos:[-30,48], text:'تسلّق سور الهفوف', story:'اصعد السور من موضع السلالم.'},
+    {type:'stealth', pos:[15,-20], text:'تسلّل بين الأزقة إلى بوابة الكوت', story:'الكوت في قلب الهفوف وبوابته شرقاً. تسلّل ولا تُطلق الإنذار قبل أن تصل.'},
+    {type:'hold', pos:[15,-20], seconds:3, text:'افتح الكوت لرجال الملك', label:'فتح البوابة', alarm:true, story:'افتح البوابة لرجال الملك. الحامية ستستيقظ.'},
+    {type:'roof', pos:[11,-34], text:'اصعد برج الكوت وسط الإنذار', story:'الإنذار يعمّ الحيّ. الصق جدار الكوت واصعد إلى برجه.'},
+    {type:'hold', pos:[11,-34], roof:true, seconds:3, text:'ارفع الراية فوق الكوت', label:'رفع الراية', effect:'banner', story:'ارفع الراية فوق الكوت؛ الدولة وصلت إلى الساحل.'}
   ],
   manuscripts:[
     {id:'m5a', pos:[34,32], title:'الأحساء ١٩١٣م', fact:'في جمادى الأولى ١٣٣١هـ / مايو ١٩١٣م دخل الملك عبدالعزيز الهفوف ليلاً مع رجاله عبر السور، وضمّ الأحساء والقطيف، فامتدت الدولة إلى ساحل الخليج.'},
@@ -1008,6 +1042,7 @@ function pollGamepad(dt){
   const A=edge(0), B=edge(1), X=edge(2), Y=edge(3), START=edge(9);
   if(cine.active){ if(A||START) cine.skip=true; return; }
   if(!game.running){ if(A && !$('#menu').hidden) $('#btnContinue').click(); return; }
+  if(!$('#brief').hidden){ if(A||START) $('#btnBriefGo').click(); return; }
   if(START){ togglePause(); return; } if(game.paused){ if(B) togglePause(); return; }
   if(A) input.jumpPressed=true; input.keys.Space=b(0)||input.keys.Space&&!pad.padSpace; pad.padSpace=b(0);
   if(Y) input.interactPressed=true; input.keys.KeyE=b(3)||(input.keys.KeyE&&!pad.padE); pad.padE=b(3);
@@ -1231,13 +1266,13 @@ function setObjective(i){
   game.checkpoint={x:player.x,z:player.z,y:player.y,oi:i};
   if(o.type==='collect'){ o.items.forEach((p,j)=>{ const r=resolvePos(p,false); const m=markerMesh(0xd9a441); m.position.set(r[0],r[1],r[2]); m.scale.set(.6,.6,.6); hiScene.add(m); game.items.push({mesh:m,pos:r,done:false}); }); }
   else { const r=resolvePos(o.pos, o.roof||o.type==='roof'); o._pos=r; const m=markerMesh(o.type==='stealth'?0x2fa457:0xd9a441); m.position.set(r[0],r[1],r[2]); hiScene.add(m); game.markers.push(m); }
-  $('#hudObj').textContent = o.text;
-  if(o.hint) toast(o.hint);
+  $('#hudObj').textContent = `${AR_NUM(i+1)}/${AR_NUM(game.level.objectives.length)} · ${o.text}`;
+  if(o.story) toast(o.story, 5200); else if(o.hint) toast(o.hint);
   $('#prompt').hidden=true;
 }
 function objectiveTarget(){ const o=game.level.objectives[game.oi]; if(!o) return null; if(o.type==='collect'){ let best=null,bd=1e9; for(const it of game.items){ if(it.done) continue; const d=dist2(player.x,player.z,it.pos[0],it.pos[2]); if(d<bd){bd=d;best=it.pos;} } return best; } return o._pos; }
 function updateObjective(dt){
-  const o=game.level.objectives[game.oi]; if(!o) return;
+  const o=game.level.objectives[game.oi]; if(!o || (o.type!=='collect' && !o._pos)) return;
   const t=objectiveTarget(); if(t){ const d=dist2(player.x,player.z,t[0],t[2]); $('#hudDist').textContent = `المسافة ${AR_NUM(Math.round(d))} م` + (o.type==='stealth'?' · دون أن تُرى':''); }
   game.markers.forEach(m=>{ m.userData.gem.rotation.y+=dt*2; m.userData.gem.position.y=2.2+Math.sin(performance.now()/400)*.2; });
   game.items.forEach(it=>{ it.mesh.userData.gem.rotation.y+=dt*3; });
@@ -1267,8 +1302,8 @@ function spawnManuscripts(level){
   level.manuscripts.forEach(d=>{ const r=resolvePos(d.pos,false); const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.12), MAT.gold); m.position.set(r[0],r[1]+1.1,r[2]); hiScene.add(m); game.manus.push({mesh:m,pos:[r[0],r[1],r[2]],data:d,done:false}); });
 }
 let toastT=null;
-function toast(t){ let el=$('#toast'); if($('#hud').hidden){ el=$('#gtoast')||(()=>{ const d=document.createElement('div'); d.id='gtoast'; d.className='toast'; d.style.cssText='position:fixed;top:12%;z-index:70;font-size:16px;max-width:min(560px,92vw)'; document.body.appendChild(d); return d; })(); }
-  el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),3600); }
+function toast(t, ms){ let el=$('#toast'); if($('#hud').hidden){ el=$('#gtoast')||(()=>{ const d=document.createElement('div'); d.id='gtoast'; d.className='toast'; d.style.cssText='position:fixed;top:12%;z-index:70;font-size:16px;max-width:min(560px,92vw)'; document.body.appendChild(d); return d; })(); }
+  el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),ms||3600); }
 function showFact(d){ const el=$('#toast'); el.innerHTML=`<div style="color:var(--gold);font-family:var(--font-ui);font-size:13px">مخطوطة: ${d.title}</div><div style="font-size:17px">${d.fact}</div>`; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),9000); }
 function toggleInsight(){ insightOn=!insightOn; insightPulse=0; game.manus.forEach(m=>{ m.mesh.scale.setScalar(insightOn?2.2:1); }); audio.chime(); }
 let insightPulse=2, insightMix=0;
@@ -1401,12 +1436,13 @@ let hbT=0;
 
 /* ---------- 10) الواجهة وإدارة المراحل ---------- */
 function hideAll(){ document.querySelectorAll('.screen').forEach(s=>s.hidden=true); }
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>{ b.closest('.screen').hidden=true; if(!game.running) $('#menu').hidden=false; else if(pausedFrom==='pause') $('#pause').hidden=false; }));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>{ b.closest('.screen').hidden=true; if(!game.running) $('#menu').hidden=false; else if(pausedFrom==='pause') $('#pause').hidden=false; else if(pausedFrom==='journal'){ game.paused=false; } }));
 let pausedFrom=null;
-function togglePause(){ if(!game.running||cine.active) return; const p=$('#pause'); if(p.hidden){ p.hidden=false; game.paused=true; pausedFrom='pause'; try{ document.exitPointerLock?.(); }catch(e){} } else { p.hidden=true; game.paused=false; } }
+function togglePause(){ if(!game.running||cine.active||briefResolve) return; if(!$('#brief').hidden){ $('#brief').hidden=true; game.paused=false; return; } const p=$('#pause'); if(p.hidden){ p.hidden=false; game.paused=true; pausedFrom='pause'; try{ document.exitPointerLock?.(); }catch(e){} } else { p.hidden=true; game.paused=false; } }
 $('#btnResume').onclick=()=>togglePause();
 $('#btnRestartCp').onclick=()=>{ togglePause(); if(online.active){ spawnPlayer(0,40); updateCamera(0,true); } else restoreCheckpoint(); };
 $('#btnPauseHelp').onclick=()=>{ $('#pause').hidden=true; $('#help').hidden=false; };
+$('#btnPauseJournal').onclick=()=>{ $('#pause').hidden=true; renderBrief(game.level,true); pausedFrom='journal'; $('#brief').hidden=false; };
 $('#btnToMenu').onclick=()=>{ $('#pause').hidden=true; game.paused=false; game.running=false; showMenu(); };
 $('#btnHelp').onclick=()=>{ $('#menu').hidden=true; $('#help').hidden=false; };
 $('#btnMute').onclick=()=>{ audio.unlock(); audio.toggle(); };
@@ -1436,8 +1472,8 @@ $('#btnCeMenu').onclick=()=>{ $('#chapterEnd').hidden=true; showMenu(); };
 
 function renderEras(){
   const el=$('#eraList'); el.innerHTML='';
-  LEVELS.forEach((lv,i)=>{ const locked=i>save.unlocked; const b=document.createElement('button'); b.className='era'+(locked?' locked':''); b.disabled=locked;
-    b.innerHTML=`<div class="yr">${lv.year}</div><div class="nm">${AR_NUM(i+1)}. ${lv.title}</div><div class="ds">${lv.era}</div><div class="st">${locked?'مقفلة — أكمل المرحلة السابقة':(i<save.unlocked?'مكتملة · أعد اللعب':'متاحة')}</div>`;
+  LEVELS.forEach((lv,i)=>{ const b=document.createElement('button'); b.className='era';
+    b.innerHTML=`<div class="yr">${lv.year}</div><div class="nm">${AR_NUM(i+1)}. ${lv.title}</div><div class="ds">${lv.era}</div><div class="st">${i<save.unlocked?'مكتملة · أعد اللعب':(i===save.unlocked?'التالية في القصة':'متاحة')}</div>`;
     b.onclick=()=>{ audio.unlock(); startLevel(i); }; el.appendChild(b); });
   $('#btnContinue').textContent = save.unlocked===0?'ابدأ الملحمة': save.unlocked>=LEVELS.length?'أعد اللعب من الفصل الأخير':`تابع: ${LEVELS[Math.min(save.unlocked,LEVELS.length-1)].title}`;
 }
@@ -1463,19 +1499,44 @@ const menuArt = (function(){ const c=$('#menuArt'); if(!c) return {start(){}}; c
   addEventListener('resize', ()=>{ if(!running) return; reset(); });
   return { start(){ if(W!==Math.min(1400,innerWidth)) reset(); if(!running){ running=true; cancelAnimationFrame(raf); raf=requestAnimationFrame(tick); } } };
 })();
+/* الإحاطة القصصية قبل المرحلة، ودفتر المهمة أثناءها (J) */
+let briefResolve=null;
+function renderBrief(lv, journal){
+  $('#briefEra').textContent=`${lv.era} · ${lv.year} · ${lv.hijri}`; $('#briefTitle').textContent=lv.title;
+  $('#briefStory').innerHTML=(lv.brief||[]).map(p=>`<p>${p}</p>`).join('') + (lv.hero?`<p class="note">البطل: ${lv.hero}</p>`:'');
+  $('#briefObjs').innerHTML=lv.objectives.map((o,i)=>`<li class="${journal&&i<game.oi?'done':(journal&&i===game.oi?'cur':'')}">${o.text}${o.hint?` <span style="color:#bfae8a;font-size:13px">— ${o.hint}</span>`:''}</li>`).join('');
+  $('#btnBriefGo').textContent = journal ? 'عودة إلى اللعب' : 'ابدأ المهمة';
+}
+function showBrief(lv){ return new Promise(res=>{ renderBrief(lv,false); briefResolve=res; game.paused=true; $('#hud').hidden=true; $('#touch').hidden=true; $('#brief').hidden=false; $('#btnBriefGo').focus(); }); }
+function toggleJournal(){ if(!game.running||cine.active||online.active) return; const b=$('#brief'); if(b.hidden){ if(!$('#pause').hidden) return; renderBrief(game.level,true); game.paused=true; pausedFrom='journal'; b.hidden=false; try{ document.exitPointerLock?.(); }catch(e){} } else { b.hidden=true; game.paused=false; } }
+$('#btnBriefGo').onclick=()=>{ $('#brief').hidden=true; game.paused=false; if(briefResolve){ const r=briefResolve; briefResolve=null; r(); } };
+$('#btnJournal').onclick=()=>toggleJournal();
+addEventListener('keydown', e=>{ if(e.code==='KeyJ' && !e.repeat) { if(briefResolve) return; toggleJournal(); } });
+/* مؤشر الهدف: فوق الهدف إن كان في الشاشة، وسهم عند الحافة إن كان خارجها */
+const _op=new THREE.Vector3();
+function updateObjMarker(){ const el=$('#objMark'); const t=(game.running&&!cine.active&&!online.active)?objectiveTarget():null; if(!t){ el.hidden=true; return; } el.hidden=false;
+  const d=dist2(player.x,player.z,t[0],t[2]); $('#objMarkLbl').textContent=`${AR_NUM(Math.round(d))} م`;
+  _op.set(t[0],t[1]+2.6,t[2]).project(camera); const W=innerWidth,H=innerHeight; const m=36;
+  let x=(_op.x+1)/2*W, y=(1-_op.y)/2*H; const behind=_op.z>1;
+  if(!behind && x>m && x<W-m && y>m && y<H-m-40){ el.classList.remove('edge'); el.style.left=x+'px'; el.style.top=y+'px'; el.querySelector('.ico').style.transform=''; return; }
+  // خارج الشاشة: زاوية على مستوى الأرض بالنسبة لاتجاه الكاميرا
+  const cy=camCtl.yaw, fx=-Math.sin(cy), fz=-Math.cos(cy), rx=Math.cos(cy), rz=-Math.sin(cy); const dx=t[0]-player.x, dz=t[2]-player.z;
+  const a=Math.atan2(dx*rx+dz*rz, dx*fx+dz*fz); // 0 = أمام
+  const RX=W/2-46, RY=H/2-70; let ex=Math.sin(a)*RX, ey=-Math.cos(a)*RY; const k=Math.max(Math.abs(ex)/RX, Math.abs(ey)/RY)||1; ex/=k; ey/=k;
+  el.classList.add('edge'); el.style.left=(W/2+ex)+'px'; el.style.top=(H/2+ey)+'px'; el.querySelector('.ico').style.transform=`rotate(${a}rad)`; }
 function loadWorld(level){ game.level=level; setupLights(PALETTES[level.time]); buildCity(level); post.uniforms.tint.value.fromArray(TINTS[level.time]); post.uniforms.vig.value = level.time==='night'?.7:.55; }
 async function startLevel(i){
   hideAll(); $('#loading').hidden=false; $('#loadingTxt').textContent=`${LEVELS[i].era} · ${LEVELS[i].title}`; $('#loadingTip').textContent=TIPS[i%TIPS.length]; menuCam=false;
   await new Promise(r=>setTimeout(r,30));
-  game.li=i; const lv=LEVELS[i]; loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); spawnGuards(lv); spawnManuscripts(lv); insightOn=false;
+  game.li=i; game.oi=-1; const lv=LEVELS[i]; loadWorld(lv); spawnPlayer(lv.start[0],lv.start[1]); spawnGuards(lv); spawnManuscripts(lv); insightOn=false;
   $('#hudEra').textContent=`${lv.era} · ${lv.year} · ${lv.hijri}`; $('#hudObj').textContent=''; $('#hudDist').textContent='';
   $('#loading').hidden=true; game.running=true; game.paused=false;
   music.setMode('cine'); music.narrate(i);
   await playCinematic(lv.intro, {hudAfter: lv.objectives.length>0});
   music.stopNarration(); music.setMode('play');
   if(lv.objectives.length===0){ finishLevel(); return; }
-  updateCamera(0,true); setObjective(0);
-  if(lv.hero) toast(lv.hero);
+  updateCamera(0,true); await showBrief(lv); $('#hud').hidden=false; if(isTouch) $('#touch').hidden=false; setObjective(0);
+  { const t=objectiveTarget(); if(t){ camCtl.yaw=Math.atan2(-(t[0]-player.x), -(t[2]-player.z)); player.facing=Math.atan2(t[0]-player.x, t[2]-player.z); updateCamera(0,true); } }
 }
 function finishLevel(){
   clearMarkers(); const lv=game.level; game.running=false; music.alarm(false); music.setMode('end');
@@ -1576,7 +1637,7 @@ function frame(now){
   if(menuCam){ menuT+=dt*.08; const rr=70; camera.position.set(Math.sin(menuT)*rr, 22+Math.sin(menuT*.7)*4, -20+Math.cos(menuT)*rr); camera.lookAt(0,8,-20); }
   else if(game.running && !game.paused && !cine.active){
     if(input.insightPressed){ toggleInsight(); input.insightPressed=false; }
-    updatePlayer(dt); updateGuards(dt); if(online.active) updateOnline(dt, now); else updateObjective(dt); if($('#prompt').hidden || promptOwner==='mount') updateMountPrompt(); updateCamera(dt,false); drawMinimap();
+    updatePlayer(dt); updateGuards(dt); if(online.active) updateOnline(dt, now); else updateObjective(dt); if($('#prompt').hidden || promptOwner==='mount') updateMountPrompt(); updateCamera(dt,false); drawMinimap(); updateObjMarker();
     if(alarm.active){ hbT-=dt; if(hbT<=0){ audio.heartbeat(); hbT=.9; } }
     if(sun){ sun.position.set(player.x+PALETTES[game.level.time].sun[0]*.6, PALETTES[game.level.time].sun[1], player.z+PALETTES[game.level.time].sun[2]*.6); sun.target.position.set(player.x,0,player.z); }
   }
