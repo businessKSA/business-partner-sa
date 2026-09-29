@@ -230,6 +230,80 @@ const txt = (p) => {
 // كما هو فلا يطابق أي إعلان — وهو المطلوب.
 const jobKey = (s) => String(s || "").trim().toLowerCase().replace(/-/g, "");
 
+// ── الفلترة الواحدة: مَن يملك أي إعلان ───────────────────────────────────
+// كل مسارٍ يعيد بيانات متقدّمين يمرّ من هنا — القائمة (?applicants=1) وملفّ
+// المتقدّم الواحد (?applicant=1&id=…) معاً. استُخرجت من داخل القائمة لسببٍ
+// واحد: المسار الثاني يعيد **نصّ السيرة** ورابط الملف الأصلي، وهما أوسع ممّا
+// تعيده القائمة. ونسخةٌ ثانيةٌ من شرط الملكية في مسارٍ ثانٍ هي بالضبط الطريقة
+// التي غاب بها الشرط أصلاً عن القائمة ثلاثة أسابيع. دالةٌ واحدة، فمن يغيّرها
+// يغيّرها للمسارين.
+//
+// القيم الثلاث مقصودة وكلٌّ منها يعني شيئاً مختلفاً:
+//   null  = بلا حدّ — مالك المنصّة وحده (كما في list-postings).
+//   false = تعذّر السؤال على نوشن → المنادي يُقفل الباب (502)، لا «أظهر الكل».
+//   Map   = مفاتيح إعلاناته المُسوّاة بـjobKey؛ وفارغةٌ تعني: لا يملك إعلاناً.
+async function ownJobsFor(code, owner) {
+  if (owner) return null;
+  if (!code) return new Map();
+  const mine = await queryAllRows(JOBS_DB, {
+    filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
+  }, "applicants ownership");
+  if (!mine.ok) return false;
+  return new Map(mine.results.map((pg) => [jobKey(pg.id), pg.id]));
+}
+
+// ختم التقديم: «العنوان (المعرّف)» في «الوظيفة المتقدم لها»، وللصفوف القديمة
+// السطر نفسه داخل Notes. يُقرأ في موضعٍ واحد كي يكون المفتاح الذي تُفحص به
+// الملكية في ملفّ المتقدّم هو **نفسه** الذي جمعت به القائمة — مفتاحان
+// مختلفان يعنيان ملفاً يُفتح لمن لا تُعرض له بطاقته، أو العكس.
+function applicantStamp(p) {
+  const stamp = txt(p["الوظيفة المتقدم لها"]);
+  const notes = txt(p["Notes"]);
+  let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
+  if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
+  if (!m) return null;
+  const jobTitle = m[1].trim(), jobId = m[2].trim();
+  return { jobTitle, jobId, key: jobKey(jobId) || jobTitle };
+}
+
+// الدرجة: الحقل الرقمي «درجة المطابقة» أولاً، ثم «score N/100» من Notes.
+// والاحتياطي ليس زينة: الحقل الرقمي أُضيف إلى القاعدة ولم يُملأ بعد (صفرٌ من
+// ٢٦٤١٩ صفاً يوم كتابة هذا)، بينما الدرجات المعروضة اليوم كلها نصٌّ في Notes.
+// فاستبدالُه بالحقل وحده كان يُخفي كل درجةٍ قائمة.
+function applicantScore(p) {
+  const n = p["درجة المطابقة"] && typeof p["درجة المطابقة"].number === "number"
+    ? p["درجة المطابقة"].number : null;
+  if (n != null) return { score: n, scoreFrom: "field" };
+  const m = txt(p["Notes"]).match(/score\s*(\d{1,3})\s*\/\s*100/i);
+  return m ? { score: Number(m[1]), scoreFrom: "notes" } : { score: null, scoreFrom: "" };
+}
+
+// السيرة المهيّأة نصّاً. «ATS CV Text» هو موضعها المعلن، لكنها في الواقع
+// تُكتب غالباً في **جسم صفحة** المرشّح بنوشن (أقساماً مرتّبة) — صفٌّ واحد من
+// ٢٦٤١٩ يحمل الحقل مملوءاً. فتُقرأ الكتل كماركداون احتياطياً، وإلا كانت
+// «اعرض السيرة على الموقع» شاشةً فارغة لكل مرشّح تقريباً.
+async function readCvBody(id) {
+  try {
+    let cur = null, guard = 0;
+    const out = [];
+    do {
+      const br = await notionFetch(`blocks/${id}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
+      if (!br.ok) break;
+      const bd = await br.json();
+      for (const blk of bd.results || []) {
+        const t = blk[blk.type];
+        if (!t || !Array.isArray(t.rich_text)) continue;
+        const line = t.rich_text.map((x) => x.plain_text).join("");
+        if (!line.trim()) continue;
+        const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
+        out.push(pre + line);
+      }
+      cur = bd.has_more ? bd.next_cursor : null;
+    } while (cur && ++guard < 5);
+    return out.join("\n");
+  } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); return ""; }
+}
+
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")
 const maskName = (n) => {
   const parts = String(n || "").trim().split(/\s+/).filter(Boolean);
@@ -1029,17 +1103,8 @@ export default async function handler(req, res) {
       // ليس «تقدّماً على إعلان» أحد، وتصفّح القاعدة بابٌ آخر له إخفاؤه.
       //
       // وتعذّر معرفةُ مَن يملك ماذا = لا أحد يرى شيئاً (502)، لا «أظهر الكل».
-      let ownJobs = null;
-      if (!owner) {
-        if (!code) ownJobs = new Map();
-        else {
-          const mine = await queryAllRows(JOBS_DB, {
-            filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
-          }, "applicants ownership");
-          if (!mine.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-          ownJobs = new Map(mine.results.map((pg) => [jobKey(pg.id), pg.id]));
-        }
-      }
+      const ownJobs = await ownJobsFor(code, owner);
+      if (ownJobs === false) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
       let rowsRaw = [];
       let cursor = null, guard = 0;
       // 1,893 people have applied through the site; the old five-page ceiling
@@ -1072,13 +1137,10 @@ export default async function handler(req, res) {
       for (const pg of rowsRaw) {
         const p = pg.properties || {};
         if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) continue;
-        const stamp = txt(p["الوظيفة المتقدم لها"]);
-        const notes = txt(p["Notes"]);
-        let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
-        if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
-        if (!m) continue;
-        let jobTitle = m[1].trim(), jobId = m[2].trim();
-        const key = jobKey(jobId) || jobTitle;
+        const st = applicantStamp(p);
+        if (!st) continue;
+        let jobTitle = st.jobTitle, jobId = st.jobId;
+        const key = st.key;
         // الشرط الذي كان غائباً. ويُطبَّق على الختمين معاً — «الوظيفة المتقدم
         // لها» والصفوف القديمة المختومة في Notes — لأن كليهما يمرّ من هنا.
         if (ownJobs && !ownJobs.has(key)) continue;
@@ -1089,7 +1151,10 @@ export default async function handler(req, res) {
         if (ownJobs && ownJobs.get(key)) jobId = ownJobs.get(key);
         if (jobKey(jobId) === "candidatepool") jobTitle = "قاعدة المرشحين العامة";
         if (!groups[key]) groups[key] = { jobId, jobTitle, applicants: [] };
-        const scoreM = notes.match(/score\s*(\d{1,3})\s*\/\s*100/i);
+        // ولا نصَّ سيرةٍ هنا. القائمة تعيد كل متقدّمي كل إعلانات صاحب العمل
+        // في ردٍّ واحد، ونصّ السيرة آلاف الأحرف للواحد — فحشوُه يفجّر حجم
+        // الردّ ويُبطئ اللوحة كلها من أجل مرشّحٍ لم يُفتح. يُجلب عند فتحه
+        // وحده من ?applicant=1، ومن داخل الفلترة نفسها.
         groups[key].applicants.push({
           id: pg.id,
           name: txt(p["Candidate Name"]),
