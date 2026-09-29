@@ -1,0 +1,508 @@
+{
+  "id": "SL1aYYS2UBsqHFPE",
+  "name": "💼 BP Team — Abdulaziz (Legal & Compliance)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "34123f1a-abf5-4616-9c45-5fc88fceeb20",
+  "activeVersionId": "34123f1a-abf5-4616-9c45-5fc88fceeb20",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-07-02T21:45:07.865Z",
+  "updatedAt": "2026-09-29T09:19:36.073Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 150
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "YMskR5n1rEJiWyyo",
+      "name": "Contracts"
+    },
+    {
+      "id": "hyJPrStP1swZ0sQv",
+      "name": "Legal"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Legal Director + specialist team. Owns contract lifecycle, updates BP_AI_Deals, and hands signed deals to Finance.",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "سمر — Contracts Specialist": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "لؤي — Corporate Legal": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "هلا — Policies & Risk": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Legal Deal State": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "سمر — Contracts Specialist",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "لؤي — Corporate Legal",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "هلا — Policies & Risk",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9d61a8e5-43dc-43dc-bf01-76e652e3661d",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "abdulaziz-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "19452c5b-a204-485c-9d1d-f88e5dbf4486"
+    },
+    {
+      "id": "70527e28-0f1a-42ca-bb65-3e9ad20981af",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a number, name, date, clause reference, regulation, article, court, authority or status unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name what you need — never fill the gap with a plausible-sounding citation. Never invent a law, article number, regulation, precedent, client, document or person. A fabricated legal citation is the most damaging thing you can produce, because it cannot be told apart from a real one. Anything a specialist hands you is bound by the same rule: a citation with no source gets deleted, not forwarded. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Abdulaziz, Legal Director for Business Partner. You own contracts, company/corporate legal matters, policies/terms, commercial risk review and legal handoffs. You manage Samar Contracts Specialist, Luay Corporate Legal Specialist, and Hala Policies/Terms/Risk Specialist. Delegate through their tools. Coordinate with Badr for commercial scope, Abdulrahman for financial terms, Mazen for execution implications, Nasser for employment matters, Mishari for government compliance, and Sara/Salman for public website claims/policies. Provide concrete legal drafts/checklists and distinguish information from binding legal action. Signing, filings, litigation, regulated representation or exceptional legal commitments require the proper human/licensed gate. Never request passwords, OTP or Nafath codes. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0f4ec17a-3710-42e2-bded-1141380cef12",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "dd154205-8c57-49ff-81bd-a1357b07c5ff",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"abdulaziz\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "abdulaziz-agent-01",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "abdulaziz-consult-01",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: mishari-intake=امتثال حكومي، nasser-intake=موارد بشرية داخلية فقط، badr-intake=مبيعات، farah-intake=سارة (تسويق)، malak-intake=مساعِدة، mohammed-intake=تقنية، ahmed-procurement=مشتريات، finance-intake=مالية، mazen-intake=عمليات، baher-intake=استشارة أعمال، realestate-intake=طارق (عقود الإيجار/التملّك)، recruitment-intake=بندر (عقود PEO/EOR والتوظيف)، news-intake=آلاء (الأخبار)، deals-intake=وسام (الصفقات)', 'string') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "27c74207-3259-43ae-af36-ebaf46412f86",
+      "name": "سمر — Contracts Specialist",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "سمر، Contracts Specialist. استخدميها لصياغة/review عقود، clauses، amendments، scope-to-contract وتحليل redlines.",
+        "text": "={{ $fromAI('task','Contract task with parties, scope, commercial terms, risks and required output','string') }}",
+        "options": {
+          "systemMessage": "أنت سمر، Contracts Specialist تحت عبدالعزيز. حوّلي scope التجاري إلى clauses دقيقة، اذكري المخاطر والتعارضات والافتراضات، ولا توقعي أو تلزمي الأطراف.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "f81c37d5-72c5-4169-afca-288177e9ba1e",
+      "name": "لؤي — Corporate Legal",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        880,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "لؤي، Corporate Legal Specialist. استخدمه لتأسيس/هيكلة الشركات، قرارات الشركاء، ownership/manager changes، licensing legal checklists.",
+        "text": "={{ $fromAI('task','Corporate legal task with entity, ownership, jurisdiction and desired outcome','string') }}",
+        "options": {
+          "systemMessage": "أنت لؤي، Corporate Legal Specialist تحت عبدالعزيز. أعطِ خطوات ومستندات ومخاطر واضحة ضمن السياق السعودي، وحدد ما يحتاج تأكيد رسمي أو مستشار مرخص.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "4025fa46-de74-4d3f-b65b-879a109bde93",
+      "name": "هلا — Policies & Risk",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "هلا، Policies, Terms & Risk Specialist. استخدميها لسياسات الخصوصية/الشروط/website claims/public copy risk وإطار المخاطر.",
+        "text": "={{ $fromAI('task','Policy/terms/risk review task with context and target audience','string') }}",
+        "options": {
+          "systemMessage": "أنت هلا، Policies & Risk Specialist تحت عبدالعزيز. راجعي الوضوح والالتزام والمخاطر، خصوصاً privacy/terms/public claims، وقدمي wording بديل عند الحاجة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "208b4112-b159-4026-89b0-99e5ec33a8f3",
+      "name": "Update Legal Deal State",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('deal_id','Existing deal ID','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "stage": "={{ $fromAI('stage','contract_drafting, contract_sent, contract_signed or blocked_human','string') }}",
+            "deal_owner": "abdulaziz_legal",
+            "contract_status": "={{ $fromAI('contract_status','drafting, sent, signed, rejected or revision_required','string') }}",
+            "next_action": "={{ $fromAI('next_action','Single legal next action','string') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','Blocking issue or empty','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','True for signature, binding approval or other owner-only action','boolean') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contract_status",
+              "displayName": "contract_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "9b6c3559-9743-4a9a-9ba1-2329c1f1e914",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "f920168e-5f03-42ca-a7ed-a4688259253e",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1600,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لعبدالعزيز ومختصّيه الثلاثة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,253 @@
+{
+  "id": "W67UYN1WLumjVoCr",
+  "name": "🎯 BP Team — Baher (Business Advisor)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "50734078-cb7d-4e1f-a33d-b287ced6e5ff",
+  "activeVersionId": "50734078-cb7d-4e1f-a33d-b287ced6e5ff",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-07-09T00:50:20.154Z",
+  "updatedAt": "2026-09-19T20:17:45.574Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "a875a97e-bd17-4ca7-92c6-809856e00a97",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "baher-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "b274655f-c1b8-482e-8e3e-b2597cd43265"
+    },
+    {
+      "id": "3f3ee5d0-2e5c-40c9-8e3a-51c1419104d3",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "You are Baher, the senior Business Advisor of an AI executive team serving founders and businesses in Saudi Arabia and the Gulf. You are bilingual (Arabic/English) and reply in the client language, default Saudi Arabic. You give high-level strategic advice: business direction, growth and go-to-market strategy, prioritization, restructuring, investment readiness, and executive decision support. Think like a seasoned consultant and trusted business partner: ask only what is essential, then give a clear recommendation, the key trade-offs, and one decisive next step. You see the big picture and coordinate how the specialist team (legal, compliance, HR, sales, marketing, IT, procurement, finance) should serve the strategy. You advise; commitments, pricing, contracts and payments need the client's explicit approval. Never request passwords or OTP. Separate recommendation from execution.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ae485648-a307-48eb-9113-191eb83fa758",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'baher',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "7c5b264b-2307-4906-85cc-e1c9f3909bad",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"baher\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      }
+    },
+    {
+      "id": "baher-agent-01",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ (Array.isArray($(\"Intake Webhook\").first().json.body?.history) && $(\"Intake Webhook\").first().json.body.history.length ? \"سجل المحادثة السابقة بينك وبين العميل (للسياق فقط — لا تعيد ذكره):\\n\" + $(\"Intake Webhook\").first().json.body.history.map(x => (x.role === \"user\" ? \"العميل: \" : \"أنت: \") + String(x.text || \"\").slice(0, 500)).join(\"\\n\") + \"\\n\\nرسالة العميل الحالية:\\n\" : \"\") + $(\"Normalize\").first().json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "baher-consult-01",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده لتدمجه في إجابتك. استشر زميلاً واحداً فقط وعند الحاجة الحقيقية.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: abdulaziz-intake=قانوني، mishari-intake=امتثال حكومي، nasser-intake=موارد بشرية، badr-intake=مبيعات، farah-intake=تسويق، malak-intake=مساعِدة، mohammed-intake=تقنية، ahmed-procurement=مشتريات، finance-intake=مالية، mazen-intake=عمليات', 'string') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "47dad8f5-c2ba-4e72-a487-2b063f4617f5",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

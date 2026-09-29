@@ -1,0 +1,390 @@
+{
+  "id": "JOHZYShR1yVAUMsV",
+  "name": "🏢 BP Team — Tariq (Real Estate Services)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0014dced-f65f-40ab-91de-ad277c959119",
+  "activeVersionId": "0014dced-f65f-40ab-91de-ad277c959119",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-09-29T07:05:08.435Z",
+  "updatedAt": "2026-09-29T07:05:08.435Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "بشائر — Leasing & Workspace Specialist",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "منيرة — Office Search Specialist",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "عبدالوهاب — Foreign Property Ownership",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بشائر — Leasing & Workspace Specialist": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "منيرة — Office Search Specialist": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "عبدالوهاب — Foreign Property Ownership": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "5a42bd0b-9375-4b8e-8d75-04e86f73098f",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "realestate-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "d6e5640d-a94c-456f-bf4e-4ec998a35e00"
+    },
+    {
+      "id": "4b8be8c3-0c97-4f65-b3ca-291e929d991d",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        208
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a price, fee, timeline, government requirement, document list or availability unless you actually read it from the official Business Partner Real Estate catalog (SKUs bp-re-01 through bp-re-06 and re-gen), a tool result, or the incoming message. If you did not read it, say so plainly and name what you need — never fill the gap with a plausible-sounding price or requirement. Never invent a property, a landlord, a building, a government platform rule, a client or a person. An invented real-estate fact is worse than no answer, because the client cannot tell it apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Tariq, Real Estate Services Director for Business Partner. You own the full real-estate service line: private offices, coworking/shared workspace, virtual offices with a national address, dedicated desks in shared space, office search service, and foreign property ownership. You manage specialists: Bashayer — Leasing & Workspace Specialist (private offices, coworking, virtual office, dedicated desk, bespoke workspace requests), Muneera — Office Search Specialist (bespoke office-hunting for a specific client brief), and Abdulwahab — Foreign Property Ownership & Compliance Specialist (foreign ownership eligibility and required government steps). Delegate through their tools. Prices and packaging come only from the official service catalog by SKU — you never invent or estimate a price. Government-platform steps (Balady, MISA, municipality) are verified through Mishari, not assumed. Legal title, lease contracts and ownership documents go through Abdulaziz. Payment/invoicing goes through Abdulrahman. Once a client commits, operational handover (key handover, access setup, onboarding into the space) goes to Mazen. Commercial terms and closing the sale sit with Badr — you scope and specify the real-estate need, Badr owns price negotiation and the deal record. Never request passwords, OTP or Nafath codes. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name); Nasser handles Business Partner’s own internal hiring only, not client-facing recruitment — that is Bandar’s department.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3c79a78e-b1b0-48df-98f8-344877c875a8",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        304
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "9a9d8c77-3982-46ef-83a6-f6aa34334b95",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        512,
+        208
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "98f3bcf9-69e3-4ef2-99fe-9ab768be3c38",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        512,
+        640
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "d41a4744-ad60-4b9c-bc3e-f375326dc186",
+      "name": "بشائر — Leasing & Workspace Specialist",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        448,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "بشائر، Leasing & Workspace Specialist. استخدميها لطلبات المكتب الخاص وCoworking والمكتب الافتراضي والـDedicated Desk وطلبات المساحات المخصّصة (bespoke).",
+        "text": "={{ $fromAI('task','طلب المساحة: نوع المساحة، عدد الأشخاص، المدة، الموقع المفضّل','string') }}",
+        "options": {
+          "systemMessage": "أنت بشائر، Leasing & Workspace Specialist تحت طارق. حدّدي نوع المساحة الأنسب من الكتالوج فقط (bp-re-01 مكتب خاص، bp-re-02 Coworking، bp-re-03 مكتب افتراضي، bp-re-04 Dedicated Desk، re-gen للطلبات المخصّصة). قاعدة الدليل: لا تذكري سعراً ولا مدة توفّر إلا من الكتالوج فعلياً — إن لم يصلك سعر، قولي «يحتاج تسعيراً من بدر» ولا تخترعيه.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "8545d630-1188-4bd6-9ebb-3499122c9f3d",
+      "name": "منيرة — Office Search Specialist",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        576,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "منيرة، Office Search Specialist. استخدميها لبحث مخصّص عن مكتب يطابق مواصفات عميل محدد (bp-re-05 Office Search Service).",
+        "text": "={{ $fromAI('task','مواصفات المكتب المطلوب: الموقع، المساحة، الميزانية التقديرية إن ذُكرت، المتطلبات الخاصة','string') }}",
+        "options": {
+          "systemMessage": "أنت منيرة، Office Search Specialist تحت طارق. مهمتك تحويل بريف العميل إلى معايير بحث دقيقة وخطة بحث، لا اختراع عقارات أو مبانٍ فعلية غير موجودة في البيانات. لا تعدي بموعد تسليم لم يُتحقّق منه.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "64e88868-7ce6-4b9f-abe9-939bfa5089ec",
+      "name": "عبدالوهاب — Foreign Property Ownership",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        704,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "عبدالوهاب، Foreign Property Ownership & Compliance Specialist. استخدمه لأهلية تملّك الأجانب للعقار (bp-re-06) والخطوات الحكومية المرتبطة.",
+        "text": "={{ $fromAI('task','حالة تملّك العقار: جنسية المستثمر، نوع العقار، الغرض من التملّك','string') }}",
+        "options": {
+          "systemMessage": "أنت عبدالوهاب، Foreign Property Ownership Specialist تحت طارق. لا تذكر شرطاً حكومياً أو نسبة تملّك أو رسماً إلا من مصدر رسمي تحقّق منه مشاري أو نص المهمة. إن لم يصلك تأكيد، قل «يحتاج تحقّقاً من مشاري». العقد والتوثيق النهائي عند عبدالعزيز.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "065434d1-3f1d-4801-99c5-0da7fb973a3c",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        832,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند dependency. استخدم mishari-intake للمنصات الحكومية، abdulaziz-intake للعقد والتوثيق، abdulrahman-intake للفوترة، mazen-intake لتسليم المساحة تشغيلياً، badr-intake للسعر والإغلاق التجاري، mohammed-intake للتقنية، farah-intake لسارة (تسويق)، deals-intake لوسام (صحة الصفقة)، news-intake لآلاء (نشر عام)، recruitment-intake لبندر (خدمات التوظيف)، strategy-intake للاستراتيجية.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Complete internal dependency/handoff brief','string'), client_name:$fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "92f00a29-e899-4498-9949-e78658d1aa9e",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        208
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "e1a5c27d-ffd7-492a-828c-932aa5444f22",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1264,
+        208
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"tariq\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

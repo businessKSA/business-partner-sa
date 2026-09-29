@@ -1,0 +1,3208 @@
+{
+  "id": "tIb4wNOSYVTZQuox",
+  "name": "BP-WhatsApp-Main (Orchestrator)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "662ba41d-f0b9-447b-a48c-1d3225dc1c0c",
+  "activeVersionId": "662ba41d-f0b9-447b-a48c-1d3225dc1c0c",
+  "triggerCount": 1,
+  "nodeCount": 78,
+  "createdAt": "2026-06-29T13:00:59.484Z",
+  "updatedAt": "2026-09-16T09:56:14.222Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Production Business Partner WhatsApp. Customer conversations stay with the AI team; substantive/service/consultation intent goes to Unified Revenue Intake → Deal → Sales. Baher is no longer mirrored every message.",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Normalize WhatsApp Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - Media Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search CRM by WhatsApp Phone": {
+      "main": [
+        [
+          {
+            "node": "Pick Latest CRM Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Latest CRM Lead": {
+      "main": [
+        [
+          {
+            "node": "CRM Lead Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Lead Exists?": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page1": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context": {
+      "main": [
+        [
+          {
+            "node": "Smart Message Router",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Conversation Start Check",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Client Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Human Tap?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Booking Router",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Day Pick?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Service Pick?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Site Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart Message Router": {
+      "main": [
+        [
+          {
+            "node": "IF route_to_advisor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Revenue Intake Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF route_to_advisor": {
+      "main": [
+        [
+          {
+            "node": "Build Ctx Advisor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF route_to_menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF route_to_menu": {
+      "main": [
+        [
+          {
+            "node": "Build Ctx Menu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route to AI?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Ctx Advisor": {
+      "main": [
+        [
+          {
+            "node": "Run: Advisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Ctx Menu": {
+      "main": [
+        [
+          {
+            "node": "Run: Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to AI?": {
+      "main": [
+        [
+          {
+            "node": "Build Ctx AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Ctx AI": {
+      "main": [
+        [
+          {
+            "node": "Run: AI-Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Media Type": {
+      "main": [
+        [
+          {
+            "node": "Build Media Ctx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Media Ctx": {
+      "main": [
+        [
+          {
+            "node": "Run: Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Start Check": {
+      "main": [
+        [
+          {
+            "node": "Conversation Started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive message": {
+      "main": [
+        [
+          {
+            "node": "Route to Muin Assistant?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Muin Assistant?": {
+      "main": [
+        [
+          {
+            "node": "Run: Muin Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize WhatsApp Input": {
+      "main": [
+        [
+          {
+            "node": "SS Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Prep": {
+      "main": [
+        [
+          {
+            "node": "SS Lookup Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Lookup Phone": {
+      "main": [
+        [
+          {
+            "node": "SS Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Route": {
+      "main": [
+        [
+          {
+            "node": "SS Client?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Client?": {
+      "main": [
+        [
+          {
+            "node": "SS Call Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SS Link?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Call Team": {
+      "main": [
+        [
+          {
+            "node": "SS Reply Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Reply Build": {
+      "main": [
+        [
+          {
+            "node": "WA Send SS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Link?": {
+      "main": [
+        [
+          {
+            "node": "SS Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Opt-Out?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "SS Link Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Link Build": {
+      "main": [
+        [
+          {
+            "node": "SS Code Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Code Found?": {
+      "main": [
+        [
+          {
+            "node": "SS Save Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA Send BadCode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SS Save Phone": {
+      "main": [
+        [
+          {
+            "node": "WA Send Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Interactive Menu": {
+      "main": [
+        [
+          {
+            "node": "Log Menu Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Human Tap?": {
+      "main": [
+        [
+          {
+            "node": "Send Human Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Human Handoff": {
+      "main": [
+        [
+          {
+            "node": "Log Human Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Menu?": {
+      "main": [
+        [
+          {
+            "node": "Send Interactive Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking Router": {
+      "main": [
+        [
+          {
+            "node": "Do Booking?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ask Booking Email?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Onboard Name Step?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Onboard Email Step?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Do Booking?": {
+      "main": [
+        [
+          {
+            "node": "Create Consultation Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Consultation Event": {
+      "main": [
+        [
+          {
+            "node": "Confirm Booking WA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Owner - Consultation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CRM Save Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Booking Email?": {
+      "main": [
+        [
+          {
+            "node": "Ask Booking Email WA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CRM Set Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboard Name Step?": {
+      "main": [
+        [
+          {
+            "node": "CRM Onboard Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboard Email Step?": {
+      "main": [
+        [
+          {
+            "node": "CRM Onboard Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Day Pick?": {
+      "main": [
+        [
+          {
+            "node": "Get Day Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Day Events": {
+      "main": [
+        [
+          {
+            "node": "Build Time Picker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Time Picker": {
+      "main": [
+        [
+          {
+            "node": "Send Time Picker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Opt-Out?": {
+      "main": [
+        [
+          {
+            "node": "Send OptOut Confirm",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find in Names",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Valid WhatsApp Message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find in Names": {
+      "main": [
+        [
+          {
+            "node": "Set DNC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid WhatsApp Message?": {
+      "main": [
+        [
+          {
+            "node": "Search CRM by WhatsApp Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Service Pick?": {
+      "main": [
+        [
+          {
+            "node": "Save Service Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Started?": {
+      "main": [
+        [
+          {
+            "node": "Notion Alert - New Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Revenue Intake Payload": {
+      "main": [
+        [
+          {
+            "node": "Commercial Intake?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commercial Intake?": {
+      "main": [
+        [
+          {
+            "node": "Send to Unified Revenue Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Site Catalog": {
+      "main": [
+        [
+          {
+            "node": "Build Menu Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Menu Response": {
+      "main": [
+        [
+          {
+            "node": "رحلة العميل — طبقة الموقع الجديد",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رحلة العميل — طبقة الموقع الجديد": {
+      "main": [
+        [
+          {
+            "node": "Has Menu?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "9308d249-8834-4581-bb04-1d61d970b188",
+      "name": "Receive message",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -336
+      ],
+      "webhookId": "4f86756f-28ad-4c52-928c-672360b512a2",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "TyzjY9mTu6DRiHqv",
+          "name": "WhatsApp OAuth business partner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "msg-from-present",
+              "leftValue": "={{ $json.messages?.[0]?.from }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "msg-text-or-interactive",
+              "leftValue": "={{ $json.messages?.[0]?.type }}",
+              "rightValue": "^(text|interactive)$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "ignore-statuses",
+              "leftValue": "={{ $json.statuses }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "exclude-muin-owner",
+              "leftValue": "={{ $json.messages?.[0]?.from }}",
+              "rightValue": "966530540231",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -864,
+        -336
+      ],
+      "id": "18458108-7f1f-4844-a665-386f965e3632",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\n\nconst value =\n  body.entry?.[0]?.changes?.[0]?.value ||\n  body.changes?.[0]?.value ||\n  body.value ||\n  body;\n\n// تجاهل statuses\nif (value.statuses?.length) {\n  return [];\n}\n\n// لازم تكون رسالة\nconst message = value.messages?.[0];\nif (!message) {\n  return [];\n}\n\nconst contact = value.contacts?.[0] || {};\n\nconst messageId = message.id || \"\";\nconst phone = message.from || contact.wa_id || \"\";\nconst clientName = contact.profile?.name || \"\";\nconst messageType = message.type || \"\";\n\nlet messageText = \"\";\nlet interactiveId = \"\";\n\nif (messageType === \"text\") {\n  messageText = message.text?.body || \"\";\n} else if (messageType === \"button\") {\n  messageText = message.button?.text || message.button?.payload || \"\";\n  interactiveId = message.button?.payload || \"\";\n} else if (messageType === \"interactive\") {\n  interactiveId =\n    message.interactive?.button_reply?.id ||\n    message.interactive?.list_reply?.id ||\n    \"\";\n  messageText =\n    message.interactive?.button_reply?.title ||\n    message.interactive?.list_reply?.title ||\n    interactiveId ||\n    \"\";\n} else {\n  return [];\n}\n\nmessageText = String(messageText).trim();\n\nif (!phone || !messageText) {\n  return [];\n}\n\nconst normalizedText = messageText\n  .toLowerCase()\n  .replace(/\\s+/g, \" \")\n  .trim();\n\nconst greetings = [\n  \"السلام عليكم\",\"سلام عليكم\",\"مرحبا\",\"هلا\",\"اهلا\",\"أهلا\",\n  \"صباح الخير\",\"مساء الخير\",\"hi\",\"hello\",\"hey\"\n];\n\nconst shortAcknowledgements = [\n  \"شكرا\",\"شكراً\",\"تمام\",\"نعم\",\"لا\",\"اوكي\",\"أوكي\",\"ok\",\"👍\",\"👌\"\n];\n\nconst isGreetingOnly = greetings.includes(normalizedText);\nconst isShortAcknowledgement = shortAcknowledgements.includes(normalizedText);\n\nlet selectedMenuOption = \"\";\nif ([\"1\", \"١\"].includes(normalizedText)) selectedMenuOption = \"1\";\nif ([\"2\", \"٢\"].includes(normalizedText)) selectedMenuOption = \"2\";\nif ([\"3\", \"٣\"].includes(normalizedText)) selectedMenuOption = \"3\";\nif ([\"4\", \"٤\"].includes(normalizedText)) selectedMenuOption = \"4\";\n\nlet detectedService = \"\";\nif (selectedMenuOption === \"1\") detectedService = \"Company Formation\";\nif (selectedMenuOption === \"2\") detectedService = \"HR Solutions\";\nif (selectedMenuOption === \"3\") detectedService = \"Government Relations\";\nif (selectedMenuOption === \"4\") detectedService = \"Premium Residency\";\n\nreturn [\n  {\n    json: {\n      message_id: messageId,\n      phone,\n      client_name: clientName,\n      message_text: messageText,\n      normalized_text: normalizedText,\n      interactive_id: interactiveId,\n      message_type: messageType,\n      conversation_id: `wa_${phone}`,\n      is_greeting_only: isGreetingOnly,\n      is_short_acknowledgement: isShortAcknowledgement,\n      selected_menu_option: selectedMenuOption,\n      detected_service: detectedService,\n      source_workflow: \"WhatsApp Workflow\",\n      received_at: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        -320
+      ],
+      "id": "8818c133-adc4-4fe5-9791-9c5db42a64a7",
+      "name": "Normalize WhatsApp Input"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "68fc7ffd-a731-4160-817b-9b1c5dae065b",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "74d1b248-139d-4a8b-a98e-227b7910f3b7",
+              "leftValue": "={{ $json.message_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -416,
+        -128
+      ],
+      "id": "78ddd48a-8c76-43b0-a5e3-4d9c26f765db",
+      "name": "Valid WhatsApp Message?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "b322a7ec-23a9-4ceb-875e-52c07b00eadf",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/b322a7ec23a94ceb875e52c07b00eadf"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "WhatsApp Phone|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{$json.phone}}"
+            },
+            {
+              "key": "WhatsApp|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{$json.phone}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        -336
+      ],
+      "id": "5e1a4d07-5ac6-45de-a798-c2dbe89e6154",
+      "name": "Search CRM by WhatsApp Phone",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pick Latest CRM Lead\n// Use after \"Search CRM by WhatsApp Phone\"\n// Purpose: avoid using an old duplicate CRM page for the same WhatsApp number\n\nfunction normalizePhone(v) {\n  return String(v || \"\")\n    .replace(/[^\\d]/g, \"\")\n    .replace(/^00/, \"\")\n    .replace(/^0/, \"966\");\n}\n\nfunction safeString(v) {\n  if (v === undefined || v === null) return \"\";\n  if (Array.isArray(v)) return v.join(\", \");\n  if (typeof v === \"object\") return JSON.stringify(v);\n  return String(v);\n}\n\nconst inputItems = $input.all();\n\nlet normalizedInput = {};\ntry {\n  normalizedInput = $(\"Normalize WhatsApp Input\").first().json || {};\n} catch (e) {\n  normalizedInput = {};\n}\n\nconst incomingPhone = normalizePhone(\n  normalizedInput.phone ||\n  normalizedInput.from ||\n  normalizedInput.whatsapp ||\n  \"\"\n);\n\nconst candidates = inputItems\n  .map((item) => item.json || {})\n  .filter((row) => {\n    const rowPhone = normalizePhone(\n      row.property_whats_app ||\n      row.property_whatsapp ||\n      row.property_whatsapp_phone ||\n      row.property_whats_app_phone ||\n      row[\"WhatsApp\"] ||\n      row[\"WhatsApp Phone\"] ||\n      \"\"\n    );\n\n    if (!incomingPhone) return true;\n    return rowPhone === incomingPhone || rowPhone.endsWith(incomingPhone.slice(-9));\n  });\n\nif (!candidates.length) {\n  return [\n    {\n      json: {\n        crm_exists: false,\n        crm_page_id: \"\",\n        crm_url: \"\",\n        pick_crm_error: \"No matching CRM lead found\",\n        incoming_phone: incomingPhone,\n        source_node: \"Pick Latest CRM Lead\"\n      }\n    }\n  ];\n}\n\n// Prefer the newest / most recently edited item\ncandidates.sort((a, b) => {\n  const aTime = new Date(\n    a.last_edited_time ||\n    a.created_time ||\n    a.property_last_whatsapp_message_date ||\n    a.property_last_reply_date ||\n    0\n  ).getTime();\n\n  const bTime = new Date(\n    b.last_edited_time ||\n    b.created_time ||\n    b.property_last_whatsapp_message_date ||\n    b.property_last_reply_date ||\n    0\n  ).getTime();\n\n  return bTime - aTime;\n});\n\nconst crm = candidates[0];\n\nreturn [\n  {\n    json: {\n      ...crm,\n\n      crm_exists: true,\n      crm_page_id: safeString(crm.id),\n      crm_url: safeString(crm.url),\n      crm_name: safeString(crm.name),\n\n      selected_crm_source: \"latest_matching_phone\",\n      matching_records_count: candidates.length,\n      incoming_phone: incomingPhone,\n      source_node: \"Pick Latest CRM Lead\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        -240
+      ],
+      "id": "bbb83b2b-299d-4c1a-bd58-3f11c813a57e",
+      "name": "Pick Latest CRM Lead"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b4844d2d-2b89-4747-8bca-2a84e0a9439e",
+              "leftValue": "={{ $json.crm_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        -240
+      ],
+      "id": "0c53e9f7-94f3-41ce-97a1-2970cf752a0e",
+      "name": "CRM Lead Exists?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Search CRM by WhatsApp Phone').all().find(item => item.json.id)?.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "WhatsApp Message ID|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.message_id }}"
+            },
+            {
+              "key": "WhatsApp Conversation ID|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.conversation_id }}"
+            },
+            {
+              "key": "Last WhatsApp Message|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.message_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        -336
+      ],
+      "id": "8f7978d4-b3ef-4d9d-87f3-a97afd58b61d",
+      "name": "Update a database page",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "b322a7ec-23a9-4ceb-875e-52c07b00eadf",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/b322a7ec23a94ceb875e52c07b00eadf"
+        },
+        "title": "={{ \"WhatsApp - \" + ($('Normalize WhatsApp Input').item.json.client_name || $('Normalize WhatsApp Input').item.json.phone) }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|status",
+              "statusValue": "New Lead"
+            },
+            {
+              "key": "Lead Source|select",
+              "selectValue": "WhatsApp"
+            },
+            {
+              "key": "Source Workflow|select",
+              "selectValue": "WhatsApp Workflow"
+            },
+            {
+              "key": "WhatsApp Phone|phone_number",
+              "phoneValue": "={{ $('Normalize WhatsApp Input').item.json.phone }}"
+            },
+            {
+              "key": "WhatsApp|phone_number",
+              "phoneValue": "={{ $('Normalize WhatsApp Input').item.json.phone }}"
+            },
+            {
+              "key": "WhatsApp Message ID|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.message_id }}"
+            },
+            {
+              "key": "WhatsApp Conversation ID|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.conversation_id }}"
+            },
+            {
+              "key": "Last WhatsApp Message|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.message_text }}"
+            },
+            {
+              "key": "Current WhatsApp Agent|select",
+              "selectValue": "Mazen"
+            },
+            {
+              "key": "AI Enabled|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Human Required|checkbox",
+              "checkboxValue": false
+            }
+          ]
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "01226b86-204a-4d42-a3f4-4fb6519b0d5e",
+      "name": "Create a database page1",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stable Prepare AI Context - No Stop Version\n// هذا الكود لا يوقف الفلو حتى لو Normalize node غير متاح\n\nconst crm = $json || {};\n\nlet wa = {};\n\n// نقرأ رسالة الواتساب من Normalize بطريقة آمنة\ntry {\n  const normalizeItems = $items(\"Normalize WhatsApp Input\");\n  if (normalizeItems && normalizeItems.length > 0) {\n    wa = normalizeItems[0].json || {};\n  }\n} catch (e) {\n  wa = {};\n}\n\nfunction safe(value, fallback = \"\") {\n  if (value === undefined || value === null) return fallback;\n  if (Array.isArray(value)) {\n    if (value.length === 0) return fallback;\n    return value[0];\n  }\n  return value;\n}\n\nfunction safeString(value, fallback = \"\") {\n  const v = safe(value, fallback);\n  if (v === undefined || v === null) return fallback;\n  return String(v).trim();\n}\n\nfunction cleanValue(value, fallback = \"\") {\n  const v = safeString(value, fallback);\n  if (!v) return fallback;\n  if (v === \"[null]\") return fallback;\n  if (v === \"undefined\") return fallback;\n  if (v === \"null\") return fallback;\n  return v;\n}\n\nfunction normalizeNumber(text) {\n  const map = {\n    \"٠\": \"0\",\n    \"١\": \"1\",\n    \"٢\": \"2\",\n    \"٣\": \"3\",\n    \"٤\": \"4\",\n    \"٥\": \"5\",\n    \"٦\": \"6\",\n    \"٧\": \"7\",\n    \"٨\": \"8\",\n    \"٩\": \"9\"\n  };\n\n  return String(text || \"\")\n    .replace(/[٠-٩]/g, d => map[d] || d)\n    .trim();\n}\n\n// الرسالة الحالية\nconst messageText = safeString(\n  wa.message_text ||\n  wa.normalized_text ||\n  crm.message_text ||\n  crm.normalized_text ||\n  crm.property_last_whats_app_message ||\n  \"\"\n);\n\nconst normalizedText = normalizeNumber(messageText);\n\nconst isNumericReply = /^[0-9]+$/.test(normalizedText);\nconst numericChoice = isNumericReply ? Number(normalizedText) : null;\n\n// رقم العميل\nconst phone = safeString(\n  wa.phone ||\n  crm.phone ||\n  crm.property_whats_app ||\n  crm.property_whatsapp ||\n  crm.property_whats_app_phone ||\n  crm.property_whatsapp_phone ||\n  \"\"\n);\n\n// اسم العميل\nconst clientName = safeString(\n  wa.client_name ||\n  crm.client_name ||\n  crm.name ||\n  \"WhatsApp Client\"\n);\n\n// حالة العميل من Notion\nconst advisorStep = cleanValue(\n  crm.property_advisor_step ||\n  crm.advisor_step ||\n  crm[\"Advisor Step\"],\n  \"Main Menu\"\n);\n\nconst whatsappStage = cleanValue(\n  crm.property_whats_app_stage ||\n  crm.property_whatsapp_stage ||\n  crm.whatsapp_stage ||\n  crm[\"WhatsApp Stage\"],\n  \"New Inquiry\"\n);\n\nconst selectedServicePath = cleanValue(\n  crm.property_selected_service_path ||\n  crm.selected_service_path ||\n  crm[\"Selected Service Path\"],\n  \"\"\n);\n\nreturn [\n  {\n    json: {\n      ...crm,\n\n      crm_page_id: safeString(crm.id || crm.crm_page_id),\n      crm_url: safeString(crm.url || crm.crm_url),\n\n      client_name: clientName,\n      phone,\n\n      message_id: safeString(wa.message_id || crm.message_id),\n      message_text: messageText,\n      normalized_text: normalizedText,\n      message_type: safeString(wa.message_type || crm.message_type || \"text\"),\n      conversation_id: safeString(wa.conversation_id || crm.conversation_id || `wa_${phone}`),\n\n      current_agent: cleanValue(\n        crm.property_current_whats_app_agent ||\n        crm.current_agent ||\n        crm[\"Current WhatsApp Agent\"],\n        \"Mazen\"\n      ),\n\n      whatsapp_stage: whatsappStage,\n      advisor_step: advisorStep,\n      selected_service_path: selectedServicePath,\n\n      investor_profile_type: cleanValue(\n        crm.property_investor_profile_type ||\n        crm.investor_profile_type,\n        \"Not Sure\"\n      ),\n\n      investor_nationality_category: cleanValue(\n        crm.property_investor_nationality_category ||\n        crm.investor_nationality_category,\n        \"Not Sure\"\n      ),\n\n      investment_sector: cleanValue(\n        crm.property_investment_sector ||\n        crm.investment_sector,\n        \"Not Sure\"\n      ),\n\n      investment_subsector: cleanValue(\n        crm.property_investment_subsector ||\n        crm.investment_subsector,\n        \"Not Sure\"\n      ),\n\n      special_activity_flags: cleanValue(\n        crm.property_special_activity_flags ||\n        crm.special_activity_flags,\n        \"None\"\n      ),\n\n      investment_procedure_requested: cleanValue(\n        crm.property_investment_procedure_requested ||\n        crm.investment_procedure_requested,\n        \"Not Sure\"\n      ),\n\n      recommended_legal_entity: cleanValue(\n        crm.property_recommended_legal_entity ||\n        crm.recommended_legal_entity,\n        \"Not Sure\"\n      ),\n\n      partners_count: cleanValue(\n        crm.property_partners_count ||\n        crm.partners_count,\n        \"Not Defined\"\n      ),\n\n      is_numeric_reply: isNumericReply,\n      numeric_choice: numericChoice,\n\n      selected_menu_option: safeString(wa.selected_menu_option || crm.selected_menu_option || \"\"),\n      detected_service: safeString(wa.detected_service || crm.detected_service || selectedServicePath || \"\"),\n\n      is_greeting_only: wa.is_greeting_only === true || crm.is_greeting_only === true,\n      is_short_acknowledgement: wa.is_short_acknowledgement === true || crm.is_short_acknowledgement === true,\n\n      user_intent: isNumericReply ? \"menu_selection\" : \"general\",\n\n      route_to_ai: false,\n      send_to_menu_router: true,\n\n      debug_prepare_context: {\n        node: \"Prepare AI Context\",\n        normalize_found: Object.keys(wa).length > 0,\n        message_text: messageText,\n        normalized_text: normalizedText,\n        phone,\n        advisor_step: advisorStep,\n        whatsapp_stage: whatsappStage,\n        selected_service_path: selectedServicePath\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        -240
+      ],
+      "id": "106d9c47-8983-4511-a598-202701d23782",
+      "name": "Prepare AI Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unified routing. Skip the AI on menu navigation, booking, onboarding, and job-seekers.\nconst item = items[0].json || {};\nconst msg = String(item.message_text || item.normalized_text || item.property_last_whats_app_message || item.property_last_whatsapp_message || '').trim();\nconst advisorStep = String(item.investment_advisor_summary || item.property_investment_advisor_summary || item.advisor_step || item.property_advisor_step || 'Main Menu').trim();\nconst humanRequired = item.human_required === true || item.property_human_required === true;\nconst aiEnabled = item.ai_enabled !== false && item.property_ai_enabled !== false;\n\nlet norm = {};\ntry { norm = $('Normalize WhatsApp Input').first().json || {}; } catch (e) {}\nconst isGreeting = norm.is_greeting_only === true;\nconst nid = String(norm.interactive_id || '').trim();\nconst hasEmail = String(item.property_email || '').trim() !== '';\nconst isOnboarding = !hasEmail;\n\nconst wantsMenu = /خدمات|قائمة|menu/i.test(msg) || /^(الباقات|باقات|الباقة|الرئيسية|الحلول|حلول)$/.test(msg);\n// أبواب الموقع الجديد وصفّا الطلبات والدفع تردّ من القائمة مباشرة؛\n// إجابة العميل بعدها نص حرّ فتذهب للوكيل الذكي ويكمل رحلة النطاق والعرض.\nconst isJourneyTap = nid === 'start_consulting' || nid === 'start_government' ||\n  nid === 'start_formation' || nid === 'my_orders' || nid === 'pay_now';\nconst isMenuNav = nid === 'more' || nid === 'packages' || nid === 'ai_consult' ||\n  nid === 'main_menu' || nid === 'back_main' || nid === 'jobseeker' || nid === 'solutions' ||\n  isJourneyTap ||\n  /^cat_/.test(nid) || /^catall_/.test(nid) || /^svc_/.test(nid) ||\n  /^pkg_/.test(nid) || /^pkggrp_/.test(nid) || /^sol_/.test(nid);\nconst isBooking = nid === 'consult' || nid === 'booking' || /^bkday_/.test(nid) || /^bktime_/.test(nid);\nconst isHumanTap = nid === 'human_service' || /مستشارك البشري|مستشار بشري/.test(msg);\nconst menuMoment = isGreeting || wantsMenu || isMenuNav || isBooking || isOnboarding;\n\nlet route_to_menu = false, route_to_ai = false, route_to_advisor = false, route_to_human = false, router_reason = '';\nif (humanRequired || !aiEnabled) { route_to_human = true; router_reason = 'human_required_or_ai_disabled'; }\nelse if (isHumanTap) { router_reason = 'human_handoff_link'; }\nelse if (isOnboarding) { router_reason = 'onboarding'; }\nelse if (isBooking) { router_reason = 'booking_flow'; }\nelse if (menuMoment) { router_reason = 'interactive_menu_only'; }\nelse { route_to_ai = true; router_reason = 'unified_smart_agent'; }\n\nreturn [{ json: { ...item, message_text: msg, advisor_step: advisorStep, whatsapp_stage: item.whatsapp_stage || item.property_whats_app_stage || '', selected_service_path: item.selected_service_path || item.property_selected_service_path || '', route_to_menu, route_to_ai, route_to_advisor, route_to_human, reset_to_menu: false, send_to_menu_router: false, router_reason } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        -112
+      ],
+      "id": "f1fc5851-2904-4797-b5c0-6501d362d5a3",
+      "name": "Smart Message Router"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00f30579-04b0-4f77-a99b-45ceedc12020",
+              "leftValue": "={{ $json.route_to_advisor }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        -112
+      ],
+      "id": "32b9fbff-c4a3-43d6-b2ca-43f699224d7c",
+      "name": "IF route_to_advisor"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9827ed2-45a1-4965-9200-0ca8844a7cc9",
+              "leftValue": "={{ $json.route_to_menu }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1072,
+        128
+      ],
+      "id": "f653998e-e7d3-4f45-81be-fa9f428a395e",
+      "name": "IF route_to_menu"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ce7601d2-eb8a-4c0e-8799-561399c3c3de",
+              "leftValue": "={{ $json.route_to_ai }}",
+              "rightValue": "True",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        320
+      ],
+      "id": "aa76c229-75bd-4b51-ad8a-6a7565a1b7b5",
+      "name": "Route to AI?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "faf4bab3-2b71-46f6-82e4-e02cc9139a70",
+              "leftValue": "={{$json.messages?.[0]?.type}}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "b3a10f49-666c-4b0a-8eb1-c596a12db135",
+              "leftValue": "={{$json.messages?.[0]?.type}}",
+              "rightValue": "document",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1904,
+        1856
+      ],
+      "id": "dab9518c-4129-4d58-9014-a524d9fb886a",
+      "name": "IF - Media Type"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Prepare AI Context').item.json, ...$('Smart Message Router').item.json, phone: $('Normalize WhatsApp Input').item.json.phone, _raw: $('Receive message').item.json } }];"
+      },
+      "id": "cn-BuildCtxAdvi",
+      "name": "Build Ctx Advisor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2350,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "oqh3CNGNcdzyiPld",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "ex-Run:Advisor",
+      "name": "Run: Advisor",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2570,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Prepare AI Context').item.json, ...$('Smart Message Router').item.json, phone: $('Normalize WhatsApp Input').item.json.phone, _raw: $('Receive message').item.json } }];"
+      },
+      "id": "cn-BuildCtxMenu",
+      "name": "Build Ctx Menu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2350,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "lX0bfeISV3g7qw7R",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "ex-Run:Menu",
+      "name": "Run: Menu",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2570,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Prepare AI Context').item.json, ...$('Smart Message Router').item.json, phone: $('Normalize WhatsApp Input').item.json.phone, _raw: $('Receive message').item.json } }];"
+      },
+      "id": "cn-BuildCtxAI",
+      "name": "Build Ctx AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2350,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ETxqAM5VooDiDJDN",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "ex-Run:AI-Conve",
+      "name": "Run: AI-Conversation",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2570,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _raw: $('Receive message').item.json } }];"
+      },
+      "id": "cn-BuildMediaCt",
+      "name": "Build Media Ctx",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2350,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Sn2vTAQzU1PuWuDs",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "ex-Run:Document",
+      "name": "Run: Documents",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2570,
+        900
+      ]
+    },
+    {
+      "id": "4e6904ff-fa82-4cb2-bcf5-7f149a85b9fd",
+      "name": "Conversation Start Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        260
+      ],
+      "parameters": {
+        "jsCode": "// Conversation Start Check — client alerts only\nconst j = $json;\nconst phone = String(j.phone || '');\nconst ownerNumbers = ['966503793356', '966530540231'];\nconst isOwner = ownerNumbers.includes(phone);\n\nlet crmExists = false;\nlet lastEdited = 0;\ntry {\n  const p = $('Pick Latest CRM Lead').first().json;\n  crmExists = p.crm_exists === true;\n  lastEdited = new Date(p.last_edited_time || p.created_time || 0).getTime();\n} catch (e) {}\n\nconst hoursSince = lastEdited ? (Date.now() - lastEdited) / 3600000 : 9999;\nconst isNew = !crmExists;\nconst isReturning = crmExists && hoursSince >= 6;\nconst startType = isNew ? 'عميل جديد 🎉' : 'عميل عائد 🔄';\n\nreturn [{\n  json: {\n    is_conversation_start: !isOwner && (isNew || isReturning),\n    is_owner_test: isOwner,\n    start_type: startType,\n    client_name: j.client_name || 'عميل واتساب',\n    phone,\n    message_text: j.message_text || '',\n    crm_url: j.crm_url || '',\n    crm_page_id: j.crm_page_id || '',\n    monitor_url: 'https://app.notion.com/p/0b126b52ef9c40b5821f3495ae2985b4'\n  }\n}];"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "717a1efc-01ae-4e6f-9d83-2870f303686f",
+      "name": "Conversation Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cs-1",
+              "leftValue": "={{ $json.is_conversation_start }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d334762f-8a01-43dc-873f-98807d0c0392",
+      "name": "Notion Alert - New Conversation",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1780,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🔔 {{ $('Conversation Start Check').first().json.start_type }} — {{ $('Conversation Start Check').first().json.phone }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Conversation Start Check').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "محادثة جديدة"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "={{ $('Conversation Start Check').first().json.message_text }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $('Conversation Start Check').first().json.crm_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "2497dc95-46cb-4d74-9884-f721ef522628",
+      "name": "Log Client Message",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        420
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=👤 {{ $json.phone }} — {{ ($json.message_text || '').slice(0, 60) }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "العميل"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "={{ $json.message_text }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $json.crm_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "route-muin-assistant",
+      "name": "Route to Muin Assistant?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -936,
+        -528
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "muin-phone-id",
+              "leftValue": "={{ $json.metadata?.phone_number_id }}",
+              "rightValue": "1112996661901731",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "muin-owner",
+              "leftValue": "={{ $json.messages?.[0]?.from }}",
+              "rightValue": "966530540231",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "muin-has-message",
+              "leftValue": "={{ $json.messages?.[0]?.type }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "run-muin-assistant",
+      "name": "Run: Muin Assistant",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        -624
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YgRwn40v1CqsscJw",
+          "mode": "id"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "79448607-4950-40c0-ba3d-3e09c8745f31",
+      "name": "Send Interactive Menu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        980
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v21.0/1216029938250852/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.menu_body }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "766d1c96-b185-4fb6-baaf-35d8cafd8f75",
+      "name": "SS Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -620
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const j=$input.first().json;\nconst phone=((j.phone||'')+'').trim();\nconst msg=((j.message_text||'')+'').trim();\nconst m=msg.match(/\\bBP-[A-Z0-9]{6}\\b/i);\n// رمز دخول الخدمات المشتركة فقط إذا أرسل العميل الرمز وحده (أو معه كلمة/كلمتين).\n// رقم الطلب القادم من مركز عمليات العميل يشبه الرمز شكلاً وليس رمز دخول: كان\n// الوكيل يبحث عنه في نوشن ولا يجده فيرد «الرمز غير صحيح» على عميل يسأل عن طلبه.\nconst rest=m?msg.replace(m[0],'').replace(/\\s+/g,' ').trim():'';\nconst fromPortal=/مركز عمليات العميل|Client Operations Center|طلبي|طلباتي|الطلب رقم|بخصوص الطلب|تذكرة|order|ticket/i.test(msg);\nconst codeFound=(m&&!fromPortal&&rest.length<=25)?m[0].toUpperCase():'';\nreturn [{json:Object.assign({},j,{ss_phone:phone,ss_code:codeFound,ss_order_ref:(m&&!codeFound)?m[0].toUpperCase():'',qPhone:JSON.stringify({filter:{property:'WhatsAppPhone',rich_text:{equals:phone||'NONE'}}}),qCode:JSON.stringify({filter:{property:'الرمز',rich_text:{equals:codeFound||'NONE'}}})})}];"
+      }
+    },
+    {
+      "id": "5dfd5678-d90c-4a30-8909-bf7f3fc94c13",
+      "name": "SS Lookup Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -260,
+        -620
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.qPhone }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "85e6938c-881d-4ebe-ae18-cbb4891b8f50",
+      "name": "SS Route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -620
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('SS Prep').first().json;const res=($input.first().json||{}).results||[];let mode='none',code='';if(res.length){const p=res[0].properties||{};const st=((p['الحالة']||{}).select||{}).name||'نشط';if(st==='نشط'){code=(((p['الرمز']||{}).rich_text||[])[0]||{}).plain_text||'';if(code)mode='chat';}}if(mode==='none'&&pre.ss_code)mode='link';return [{json:Object.assign({},pre,{ss_mode:mode,ss_clientCode:code})}];"
+      }
+    },
+    {
+      "id": "da997a4f-a99e-4ba4-b0b4-6200c9bc3a30",
+      "name": "SS Client?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        100,
+        -620
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ss_mode }}",
+              "rightValue": "chat",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "ff38ac77-79ec-41d6-af54-d9b389379f7f",
+      "name": "SS Call Team",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        300,
+        -720
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/ss-chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({code:$json.ss_clientCode,agent:'khaled',message:$json.message_text}) }}",
+        "options": {
+          "timeout": 110000
+        }
+      }
+    },
+    {
+      "id": "5768b1bb-11b1-4a19-817d-88e29969d618",
+      "name": "SS Reply Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        -720
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const j=$input.first().json||{};let rep='';if(typeof j.reply==='string'&&j.reply)rep=j.reply;else if(typeof j.output==='string'&&j.output)rep=j.output;if(!rep)rep='فريقك يشتغل على طلبك — جرّب بعد لحظات أو ادخل بوابتك: https://www.businesspartner.sa/ar/shared-services/dashboard';rep=(rep+'').slice(0,3900);const pre=$('SS Route').first().json;return [{json:{phone:pre.ss_phone,reply:rep}}];"
+      }
+    },
+    {
+      "id": "1107142b-6cab-4e63-bdac-170585c7420f",
+      "name": "WA Send SS",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        740,
+        -720
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "textBody": "={{ $json.reply }}",
+        "additionalFields": {}
+      },
+      "webhookId": "a7b740ff-51ed-47d4-9753-e4337a369d4c",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "145ca13a-14f8-4afa-8baf-57fd46203b80",
+      "name": "SS Link?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        -480
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ss_mode }}",
+              "rightValue": "link",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "94375651-5cf5-464f-b197-9d963bb281a2",
+      "name": "SS Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        520,
+        -560
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('SS Prep').first().json.qCode }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "8cae1737-aa5e-4a26-b42a-3a6e8fed3654",
+      "name": "SS Link Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        -560
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('SS Route').first().json;const res=($input.first().json||{}).results||[];if(!res.length){return [{json:{phone:pre.ss_phone,found:false,reply:'الرمز غير صحيح — تأكد من رمز الدخول الذي وصلك على بريدك بعد الاشتراك.'}}];}const pageId=res[0].id;const nm=(((res[0].properties['العميل']||{}).title||[])[0]||{}).plain_text||'';const patch=JSON.stringify({properties:{'WhatsAppPhone':{rich_text:[{text:{content:pre.ss_phone}}]}}});return [{json:{phone:pre.ss_phone,found:true,url:'https://api.notion.com/v1/pages/'+pageId,patch:patch,reply:'✅ تم ربط رقمك بفريق '+nm+'.\\nمن الآن أرسل أي طلب هنا مباشرة — خالد وفريقك التنفيذي يستلمون وينفذون، وأي إجراء ملزم ينتظر موافقتك.\\nلوحتك: https://www.businesspartner.sa/ar/shared-services/dashboard'}}];"
+      }
+    },
+    {
+      "id": "42bc5177-d109-418e-9baf-535feadd4d2e",
+      "name": "SS Code Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -560
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "c6513e4f-ed71-467b-8b68-a691f8176e85",
+      "name": "SS Save Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1060,
+        -640
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('SS Link Build').first().json.patch }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "5b2faa49-9888-4762-a44e-74f3352993e9",
+      "name": "WA Send Link",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        -640
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('SS Link Build').first().json.phone }}",
+        "textBody": "={{ $('SS Link Build').first().json.reply }}",
+        "additionalFields": {}
+      },
+      "webhookId": "c2899810-dff6-4b12-bd35-e1832c465453",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "d17f83cb-68c6-45dc-a038-f5564db308d5",
+      "name": "WA Send BadCode",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        -460
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "textBody": "={{ $json.reply }}",
+        "additionalFields": {}
+      },
+      "webhookId": "ba8683d0-0e9c-4b00-b28e-beae39e8c9db",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "9dc99608-8d68-4141-88a9-5e65bd270660",
+      "name": "Log Menu Sent",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1660,
+        980
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🤖 {{ $('Normalize WhatsApp Input').item.json.phone }} — 📋 قائمة الخدمات التفاعلية",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Normalize WhatsApp Input').item.json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "الوكيل الذكي"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "📋 أرسلنا للعميل قائمة الخدمات التفاعلية (نافذة الخيارات الرئيسية)."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "f1b1eba6-0087-4d5c-b033-d3eff4ccaf1b",
+      "name": "Is Human Tap?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        1240
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "h1",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "مستشارك البشري",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "h2",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "مستشار بشري",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e28c5fc5-76bf-41c6-8e79-f0ec6669a209",
+      "name": "Send Human Handoff",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1420,
+        1240
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Normalize WhatsApp Input').item.json.phone }}",
+        "textBody": "🧑‍💼 تم تسجيل طلبك للتواصل مع أحد أعضاء فريقنا ✅\n\nفريق بيزنس بارتنر استلم طلبك وبيتابع معك من نفس المحادثة. ما تحتاج تنتقل لرقم آخر — خلّك هنا وأنا والفريق نكمل معك حتى إغلاق الطلب.",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "7a2da218-75b7-4649-8cff-80b4bc74dae0",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "d10893ae-2944-4601-9dec-2e6e2d4c4296",
+      "name": "Log Human Handoff",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1660,
+        1240
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🧑‍💼 {{ $('Normalize WhatsApp Input').item.json.phone }} — طلب عضو فريق",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Normalize WhatsApp Input').item.json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "🧑‍💼 العميل طلب التواصل مع عضو فريق بشري. تم إبقاؤه في نفس قناة Business Partner وسيتم توجيهه عبر Revenue Intake والفريق المختص، بدون تحويل مباشر لباهر."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "28d32e4e-b879-4fea-9272-b3afc601c3ae",
+      "name": "Build Menu Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1420,
+        760
+      ],
+      "parameters": {
+        "jsCode": "// ===== Build Menu Response (bilingual AR/EN) — يقرأ الكتالوج الحي من الموقع =====\n// القائمة كانت تحمل الأقسام والخدمات والباقات وأسعارها مثبّتة في هذا الكود، فكل\n// تعديل على الموقع كان يترك الواتساب يعرض أسماء وأسعاراً قديمة. الآن تُبنى من\n// «Fetch Site Catalog» (‎/api/requests?action=catalog) — نفس مصدر الموقع تماماً.\n// إذا تعذّر الكتالوج تبقى القائمة تعمل بالأقسام والروابط الأساسية دون أسعار.\nconst SLUG = [\n  [\"company-formation\", \"تأسيس الشركات\", \"Company Formation\", \"🏢\", \"Company Formation\"],\n  [\"foreign-investment\", \"الاستثمار الأجنبي\", \"Foreign Investment\", \"🌍\", \"Foreign Investment\"],\n  [\"premium-residency\", \"الإقامة المميزة\", \"Premium Residency\", \"🪪\", \"Premium Residency\"],\n  [\"government-relations\", \"العلاقات الحكومية\", \"Government Relations\", \"🏛️\", \"Government Relations\"],\n  [\"hr-services\", \"الموارد البشرية\", \"HR Services\", \"👥\", \"HR Services\"],\n  [\"recruitment\", \"التوظيف والاستقدام\", \"Recruitment & Talent\", \"🧑‍💼\", \"Recruitment\"],\n  [\"business-support\", \"دعم الأعمال\", \"Business Support\", \"📊\", \"Business Support\"],\n  [\"real-estate\", \"المكاتب ومساحات العمل\", \"Offices & Workspaces\", \"🏗️\", \"Real Estate\"],\n  [\"ai-automation\", \"الأتمتة والذكاء الاصطناعي\", \"AI & Automation\", \"🤖\", \"AI Automation\"]\n];\nconst PKG_IC = {\"starter-4\":\"🏪\",\"silver\":\"🚀\",\"gold\":\"📈\",\"platinum\":\"🏗️\",\"diamond\":\"👑\",\"foreign-formation\":\"🌍\",\"saudi-gulf-formation\":\"🏢\",\"basic-legal\":\"📄\",\"advanced\":\"⚖️\",\"comprehensive\":\"🛡️\",\"strategic\":\"♟️\"};\nconst PKG_SH = {\"starter-4\":[\"المنشآت الصغيرة\",\"Small establishment\"],\"silver\":[\"الانطلاق\",\"Launch\"],\"gold\":[\"النمو\",\"Growth\"],\"platinum\":[\"التوسّع\",\"Scale\"],\"diamond\":[\"الشراكة المؤسسية\",\"Enterprise\"],\"foreign-formation\":[\"الشركات الأجنبية\",\"Foreign companies\"],\"saudi-gulf-formation\":[\"السعودية والخليجية\",\"Saudi & Gulf\"],\"basic-legal\":[\"الأساسية\",\"Basic\"],\"advanced\":[\"المتقدمة\",\"Advanced\"],\"comprehensive\":[\"الشاملة\",\"Comprehensive\"],\"strategic\":[\"الاستراتيجية\",\"Strategic\"]};\nconst GRP_META = {\"management\":[\"باقات الخدمات\",\"Service packages\",\"🗂️\"],\"formation\":[\"باقات تأسيس الشركات\",\"Company formation packages\",\"🏢\"],\"legal\":[\"الباقات القانونية\",\"Legal packages\",\"⚖️\"]};\n// حلول ومنصات الموقع — صفحات كاملة لا خدمات مفردة (الروابط من الكتالوج الحي).\nconst SOL_META = [\n  [\"worker-housing\",\"🏠\",[\"سكن العمالة\",\"Worker housing\"],[\"سكن مرخّص + إعاشة + نقل يومي لفرقك\",\"Licensed housing + catering + daily transport\"]],\n  [\"workspaces\",\"🏢\",[\"مكاتب ومساحات عمل\",\"Offices & workspaces\"],[\"مكتب خاص أو مشترك أو عنوان وطني معتمد\",\"Private, shared or virtual office with national address\"]],\n  [\"farina\",\"🍽️\",[\"التموين والضيافة\",\"Corporate catering\"],[\"وجبات وضيافة يومية لموظفيك\",\"Daily meals and hospitality for your staff\"]],\n  [\"business-development\",\"📈\",[\"تطوير الأعمال\",\"Business development\"],[\"فريق مبيعات وتطوير أعمال جاهز لك\",\"A ready sales and business-development team\"]],\n  [\"compliance-agent\",\"🛡️\",[\"مستشار الامتثال\",\"Compliance advisor\"],[\"تنبيه قبل أي مخالفة على كل المنصات\",\"Alerts before any violation across platforms\"]],\n  [\"ai-document-agent\",\"📄\",[\"مستشار المستندات\",\"Document advisor\"],[\"يقرأ ويراجع مستنداتك ويجهّز نماذجك\",\"Reads, reviews and prepares your documents\"]],\n  [\"task-force\",\"⚡\",[\"تاسك فورس\",\"Task force\"],[\"فريق تنفيذي مؤقت لمشروعك\",\"A temporary execution team for your project\"]],\n  [\"shared-services\",\"🤝\",[\"الخدمات المشتركة\",\"Shared services\"],[\"محاسبة وإدارة وتشغيل بفريق مشترك\",\"Accounting, admin and ops via a shared team\"]],\n  [\"account\",\"🖥️\",[\"بوابة العميل\",\"Client portal\"],[\"تابع طلباتك وافتح تذاكرك ومستنداتك\",\"Track orders, open tickets, manage documents\"]],\n  [\"calculator\",\"🧮\",[\"حاسبة التكاليف\",\"Cost calculator\"],[\"احسب تكلفة تأسيسك قبل ما تبدأ\",\"Estimate your setup cost before you start\"]]\n];\n\nlet norm = {};\ntry { norm = $('Normalize WhatsApp Input').first().json || {}; } catch (e) { norm = $json || {}; }\nlet ctx = {};\ntry { ctx = $('Prepare AI Context').first().json || {}; } catch (e) { ctx = $json || {}; }\n\n// الكتالوج الحي (قد يغيب إذا تعذّر الاتصال بالموقع — القائمة تبقى تعمل بدونه).\nlet CAT = {};\ntry { const c = $('Fetch Site Catalog').first().json; if (c && c.ok) CAT = c; } catch (e) { CAT = {}; }\nconst SERVICES = Array.isArray(CAT.services) ? CAT.services : [];\nconst PACKAGES = Array.isArray(CAT.packages) ? CAT.packages : [];\nconst PAGES = Array.isArray(CAT.pages) ? CAT.pages : [];\n\nconst to   = String(norm.phone || \"\").trim();\nconst id   = String(norm.interactive_id || \"\").trim();\nconst text = String(norm.normalized_text || norm.message_text || \"\").trim();\nconst greeting = norm.is_greeting_only === true;\n\n// ---- language detection (mirror the customer, default Arabic) ----\nconst isEmailStr = (s) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(s || \"\").trim());\nfunction detectLang(s) {\n  s = String(s || \"\");\n  if (/[؀-ۿ]/.test(s)) return \"ar\";\n  if (/[A-Za-z]/.test(s) && !isEmailStr(s)) return \"en\";\n  return \"\";\n}\nconst clientName = String(norm.client_name || ctx.property_name || ctx.name || \"\").trim();\nlet lang = detectLang(norm.message_text || text) ||\n           String(ctx.lang || ctx.property_language || \"\").toLowerCase() ||\n           detectLang(clientName) || \"ar\";\nif (lang !== \"en\") lang = \"ar\";\nconst L = (ar, en) => (lang === \"en\" ? en : ar);\nconst BASE = lang === \"en\" ? \"https://businesspartner.sa\" : \"https://businesspartner.sa/ar\";\n\nconst cut = (s, n) => { s = String(s || \"\"); return s.length > n ? s.slice(0, n - 1) + \"…\" : s; };\nconst catBySlug = (slug) => SLUG.find(c => c[0] === slug);\nconst catName = (c) => L(c[1], c[2]);\n// خدمات القسم من الكتالوج الحي: المسعّرة أولاً ثم الباقي، بترتيب الكود.\nfunction catServices(slug) {\n  const c = catBySlug(slug); if (!c) return [];\n  const rows = SERVICES.filter(s => s.category === c[4] || s.categoryAr === c[1]);\n  const priced = rows.filter(s => s.priceLabel).sort((a, b) => String(a.code).localeCompare(String(b.code)));\n  const rest = rows.filter(s => !s.priceLabel).sort((a, b) => String(a.code).localeCompare(String(b.code)));\n  return priced.concat(rest);\n}\nconst svcByCode = (code) => SERVICES.find(s => String(s.code).toUpperCase() === String(code).toUpperCase());\nconst svcName = (s) => L(s.nameAr || s.nameEn, s.nameEn || s.nameAr);\nconst svcUrl = (s) => (lang === \"en\" ? (s.urlEn || s.url) : (s.url || s.urlEn)) || (BASE + \"/services\");\nconst pkgByKey = (k) => PACKAGES.find(p => p.key === k);\nconst pkgsOfGroup = (g) => PACKAGES.filter(p => p.group === g);\nconst pkgSh = (p) => { const s = PKG_SH[p.key]; return s ? L(s[0], s[1]) : L(p.nameAr, p.nameEn); };\nconst pkgIc = (p) => PKG_IC[p.key] || \"📦\";\nconst pageByKey = (k) => PAGES.find(p => p.key === k);\n\n// واتساب يرفض القائمة التفاعلية إذا تجاوز مجموع صفوفها عشرة (خطأ 131009)،\n// ولا يرسل شيئاً — فيكتب العميل «مرحبا» ولا يصله رد. الحد يُفرض هنا مرة واحدة\n// لكل القوائم: يُقصّ الفائض من أطول قسم مع إبقاء آخر صف فيه (صف التنقل).\nconst MAX_ROWS = 10;\nfunction capRows(sections) {\n  const secs = (sections || []).map(s => ({ title: s.title, rows: (s.rows || []).slice() }));\n  let total = secs.reduce((n, s) => n + s.rows.length, 0);\n  while (total > MAX_ROWS) {\n    let big = 0;\n    for (let i = 1; i < secs.length; i++) if (secs[i].rows.length > secs[big].rows.length) big = i;\n    if (secs[big].rows.length <= 1) break;\n    secs[big].rows.splice(secs[big].rows.length - 2, 1);\n    total--;\n  }\n  return secs.filter(s => s.rows.length);\n}\nfunction listMsg(header, bodyText, footer, button, sections) {\n  const safeSections = capRows(sections).map(sec => ({\n    title: cut(sec.title, 24),\n    rows: (sec.rows || []).map(r => ({ id: cut(r.id, 200), title: cut(r.title, 24), description: cut(r.description, 72) }))\n  }));\n  return JSON.stringify({\n    messaging_product: \"whatsapp\", recipient_type: \"individual\", to,\n    type: \"interactive\",\n    interactive: { type: \"list\",\n      header: { type: \"text\", text: cut(header, 60) },\n      body:   { text: cut(bodyText, 1024) },\n      footer: { text: cut(footer, 60) },\n      action: { button: cut(button, 20), sections: safeSections } }\n  });\n}\nfunction textMsg(t) {\n  return JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to,\n    type: \"text\", text: { preview_url: true, body: cut(t, 4000) } });\n}\n\nconst CONTACT_FOOTER = L(\n  \"———————————\\n🏢 *بيزنس بارتنر*\\n🌐 businesspartner.sa\\n📧 business@businesspartner.sa\\n📱 واتساب: 0530540231\\n📢 قناتنا: whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X\",\n  \"———————————\\n🏢 *Business Partner*\\n🌐 businesspartner.sa\\n📧 business@businesspartner.sa\\n📱 WhatsApp: 0530540231\\n📢 Channel: whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X\"\n);\n\nfunction mainMenu(note) {\n  // الباقات + الحلول + سبعة أقسام + المزيد = عشرة، وهو سقف واتساب.\n  // الأتمتة والمكاتب لهما مدخلهما: الأولى في «المزيد»، والثانية في «حلول ومنصات».\n  const catRows = SLUG.filter(c => c[0] !== \"ai-automation\" && c[0] !== \"real-estate\").map(c => ({\n    id: \"cat_\" + c[0], title: cut(catName(c), 24),\n    description: c[3] + \" · \" + L(\"تصفّح خدمات القسم\", \"Browse this category\")\n  }));\n  const pkgRow = { id: \"packages\", title: L(\"💼 الباقات\", \"💼 Packages\"),\n    description: L(\"باقات الخدمات + التأسيس + الباقات القانونية\", \"Service + formation + legal packages\") };\n  const solRow = { id: \"solutions\", title: L(\"🧩 حلول ومنصات\", \"🧩 Solutions & platforms\"),\n    description: L(\"سكن العمالة · المكاتب · التموين · الامتثال · بوابتك\", \"Housing · offices · catering · compliance · portal\") };\n  const rows = [pkgRow, solRow].concat(catRows);\n  const sections = [\n    { title: L(\"🧰 خدماتنا وباقاتنا\", \"🧰 Services & Packages\"), rows },\n    { title: L(\"المزيد\", \"More\"), rows: [{ id: \"more\",\n      title: L(\"⋯ استشارة · حجز · تواصل\", \"⋯ Consult · Book · Contact\"),\n      description: L(\"استشارة الوكيل، حجز للشركات، الأتمتة، مستشار بشري، أو التقديم على وظيفة\",\n                     \"Agent chat, company booking, automation, human advisor, or apply for a job\") }] }\n  ];\n  const hello = L(\n    (note ? note + \"\\n\\n\" : \"\") + \"أهلاً \" + (norm.client_name ? norm.client_name + \" \" : \"\") + \"👋 اختر القسم اللي يهمك 👇\\nأو اكتب سؤالك مباشرة والوكيل الذكي يخدمك فوراً.\",\n    (note ? note + \"\\n\\n\" : \"\") + \"Hello \" + (norm.client_name ? norm.client_name + \" \" : \"\") + \"👋 pick the area you need 👇\\nOr just type your question and our AI agent will help you right away.\"\n  );\n  return listMsg(L(\"بيزنس بارتنر — شركاء نجاحك\", \"Business Partner — Partners in Your Success\"), hello,\n    L(\"شريك تشغيل واحد لكل أعمالك في السعودية\", \"One operations partner for all your business in Saudi Arabia\"),\n    L(\"تصفّح الأقسام\", \"Browse sections\"), sections);\n}\n\nfunction welcomeAskName() {\n  return textMsg(L(\n    \"أهلاً وسهلاً فيك في *بيزنس بارتنر*! 👋🌟\\n\\nأنا *باهر* الوكيل الذكي — شريك تشغيل واحد لكل أعمالك في السعودية 🇸🇦\\n+1000 عميل · +15 سنة خبرة · +140 خدمة حكومية وتجارية.\\n\\nعشان أخدمك صح وأجهّز ملفك، عرّفني على نفسك أول 🙏\\nوش *اسمك الكريم*؟\",\n    \"Welcome to *Business Partner*! 👋🌟\\n\\nI'm *Baher*, your AI agent — one operations partner for all your business in Saudi Arabia 🇸🇦\\n1000+ clients · 15+ years' experience · 140+ government & business services.\\n\\nSo I can serve you right and set up your file, let me get to know you first 🙏\\nWhat's your *name*?\"\n  ));\n}\nfunction askEmail(name) {\n  const nAr = name ? (\" يا \" + name) : \"\";\n  const nEn = name ? (\", \" + name) : \"\";\n  return textMsg(L(\n    \"تشرّفنا فيك\" + nAr + \"! 🌟\\n\\nالحين أرسل لي *بريدك الإلكتروني* 📧 عشان نرسل لك التأكيدات، العروض، ودعوات المواعيد.\\n\\nوبعدها أعرض لك كل خدماتنا وأساعدك في اللي تحتاجه 👇\",\n    \"Great to meet you\" + nEn + \"! 🌟\\n\\nNow please send me your *email* 📧 so we can send you confirmations, offers, and appointment invites.\\n\\nThen I'll show you all our services and help with whatever you need 👇\"\n  ));\n}\n\nfunction subMenu(slug) {\n  const c = catBySlug(slug); if (!c) return null;\n  const svc = catServices(slug).slice(0, MAX_ROWS - 2 - (slug === \"recruitment\" ? 1 : 0));\n  const shortT = (nm) => cut(String(nm).split(/[(—\\-–]/)[0].trim(), 24);\n  const rows = svc.map(s => ({ id: \"svc_\" + s.code, title: shortT(svcName(s)), description: cut(svcName(s), 72) }));\n  if (slug === \"recruitment\") rows.unshift({ id: \"jobseeker\",\n    title: L(\"🧑‍🎓 باحث عن عمل؟ قدّم\", \"🧑‍🎓 Job seeker? Apply\"),\n    description: L(\"تصفّح الوظائف المعلنة وقدّم عليها (للأفراد)\", \"Browse open jobs and apply (for individuals)\") });\n  rows.push({ id: \"catall_\" + slug, title: L(\"📋 كل خدمات القسم\", \"📋 All category services\"), description: L(\"افتح صفحة القسم كاملة على الموقع\", \"Open the full category page on the site\") });\n  rows.push({ id: \"back_main\", title: L(\"🔙 القائمة الرئيسية\", \"🔙 Main menu\"), description: L(\"ارجع لكل الأقسام\", \"Back to all sections\") });\n  return listMsg(c[3] + \" \" + catName(c),\n    L(\"اختر الخدمة اللي تبيها من «\" + catName(c) + \"» 👇\\nوإذا ما لقيت اللي تبي، اكتب لي سؤالك والوكيل يساعدك.\",\n      \"Choose the service you need from \\\"\" + catName(c) + \"\\\" 👇\\nIf you don't find it, just type your question and the agent will help.\"),\n    L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر الخدمة\", \"Choose service\"), [{ title: catName(c), rows }]);\n}\n\nfunction solutionsMenu() {\n  const known = SOL_META.filter(s => !PAGES.length || pageByKey(s[0]));\n  const rows = known.slice(0, MAX_ROWS - 1).map(s => ({\n    id: \"sol_\" + s[0], title: cut(s[1] + \" \" + L(s[2][0], s[2][1]), 24), description: cut(L(s[3][0], s[3][1]), 72)\n  }));\n  if (!rows.length) return null;\n  rows.push({ id: \"back_main\", title: L(\"🔙 القائمة الرئيسية\", \"🔙 Main menu\"), description: L(\"ارجع لكل الأقسام\", \"Back to all sections\") });\n  return listMsg(L(\"🧩 حلول ومنصات بيزنس بارتنر\", \"🧩 Business Partner solutions\"),\n    L(\"حلول كاملة جاهزة لعملك — اختر اللي يهمك وأشرح لك التفاصيل 👇\", \"Complete ready solutions for your business — pick one and I'll walk you through it 👇\"),\n    L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر الحل\", \"Choose\"), [{ title: L(\"الحلول والمنصات\", \"Solutions & platforms\"), rows }]);\n}\nfunction solReply(key) {\n  const m = SOL_META.find(x => x[0] === key); if (!m) return null;\n  const pg = pageByKey(key) || {};\n  const link = (lang === \"en\" ? (pg.urlEn || pg.url) : (pg.url || pg.urlEn)) || (BASE + \"/\" + key);\n  return textMsg(L(\n    m[1] + \" *\" + (pg.nameAr || m[2][0]) + \"*\\n\\n\" + m[3][0] + \" — نديرها لك كاملة من التخطيط للتنفيذ والمتابعة، بأتعاب واضحة. 📌\\n\\n🔗 التفاصيل كاملة هنا:\\n\" + link + \"\\n\\nقل لي احتياجك بالتفصيل (العدد، المدينة، وقت البداية) وأجهّز لك عرضاً مناسباً 👇\\n\\n\" + CONTACT_FOOTER,\n    m[1] + \" *\" + (pg.nameEn || m[2][1]) + \"*\\n\\n\" + m[3][1] + \" — we run it end to end, from planning to execution and follow-up, with clear fees. 📌\\n\\n🔗 Full details here:\\n\" + link + \"\\n\\nTell me your requirements (headcount, city, start date) and I'll prepare a tailored offer 👇\\n\\n\" + CONTACT_FOOTER\n  ));\n}\n\nfunction moreMenu() {\n  const rows = [\n    { id: \"ai_consult\",    title: L(\"🤖 استشارة مع الوكيل\", \"🤖 Chat with the agent\"), description: L(\"كلّم الوكيل الذكي واسأله أي شيء الآن\", \"Talk to the AI agent and ask anything now\") },\n    { id: \"cat_ai-automation\", title: L(\"⚙️ الأتمتة والذكاء\", \"⚙️ AI & Automation\"), description: L(\"حلول الأتمتة والذكاء الاصطناعي لعملك\", \"Automation & AI solutions for your business\") },\n    { id: \"cat_real-estate\", title: L(\"🏗️ المكاتب والمساحات\", \"🏗️ Offices & workspaces\"), description: L(\"مكتب خاص أو مشترك أو عنوان وطني معتمد\", \"Private, shared or virtual office\") },\n    { id: \"consult\",       title: L(\"🗓️ استشارة مجانية (للشركات)\", \"🗓️ Free consultation (companies)\"), description: L(\"لأصحاب الأعمال والشركات — موعد مع خبير\", \"For business owners & companies — meet an expert\") },\n    { id: \"jobseeker\",     title: L(\"🧑‍🎓 باحث عن عمل؟ قدّم\", \"🧑‍🎓 Job seeker? Apply\"), description: L(\"تصفّح الوظائف المعلنة وقدّم عليها (للأفراد)\", \"Browse open jobs and apply (for individuals)\") },\n    { id: \"human_service\", title: L(\"🧑‍💼 مستشارك البشري\", \"🧑‍💼 Your human advisor\"), description: L(\"تواصل مباشرة مع موظف حقيقي\", \"Talk directly to a real team member\") },\n    { id: \"back_main\",     title: L(\"🔙 القائمة الرئيسية\", \"🔙 Main menu\"), description: L(\"ارجع لكل الأقسام\", \"Back to all sections\") }\n  ];\n  return listMsg(L(\"خيارات إضافية\", \"More & Contact\"), L(\"اختر ما يناسبك 👇\", \"Pick what suits you 👇\"), L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر\", \"Choose\"), [{ title: L(\"خيارات إضافية\", \"More options\"), rows }]);\n}\n\nfunction svcReply(code) {\n  const s = svcByCode(code);\n  // الكتالوج غير متاح الآن: لا نترك ضغطة العميل بلا رد — نرسل رابط الخدمات.\n  if (!s) return textMsg(L(\n    \"✨ جاهز أساعدك في هذه الخدمة 🙌\\n\\n🔗 كل خدماتنا وتفاصيلها هنا:\\n\" + BASE + \"/services\\n\\nاكتب لي اسم الخدمة أو سؤالك وأشرح لك كل التفاصيل 👇\\n\\n\" + CONTACT_FOOTER,\n    \"✨ Happy to help with this service 🙌\\n\\n🔗 All our services and their details:\\n\" + BASE + \"/services\\n\\nType the service name or your question and I'll explain everything 👇\\n\\n\" + CONTACT_FOOTER));\n  const desc = lang === \"en\" ? \"\" : String(s.descAr || \"\").trim();\n  const intro = desc ? (desc.length > 300 ? desc.slice(0, 300).replace(/\\s+\\S*$/, \"\") + \"…\" : desc)\n    : L(\"نخدمك فيها من الألف للياء — نجهّز مستنداتك، نرفعها على الجهة المختصة، ونتابع حتى الإصدار، بأتعاب واضحة.\",\n        \"We handle it end to end — prepare your documents, submit to the relevant authority, and follow up until issuance, with clear fees.\");\n  const gov = s.govFeesSeparate ? L(\"\\n💡 الرسوم الحكومية تُضاف على أتعابنا.\", \"\\n💡 Government fees are charged on top of our fee.\") : \"\";\n  return textMsg(L(\n    \"✨ *\" + svcName(s) + \"*\\n\\n\" + intro + \" 📌\" + gov + \"\\n\\n🔗 كل التفاصيل هنا:\\n\" + svcUrl(s) + \"\\n\\nتبي نبدأ طلبك أو عندك سؤال؟ اكتب لي 👇 أو احجز استشارة مجانية 🗓️\\n\\n\" + CONTACT_FOOTER,\n    \"✨ *\" + svcName(s) + \"*\\n\\n\" + intro + \" 📌\" + gov + \"\\n\\n🔗 Full details here:\\n\" + svcUrl(s) + \"\\n\\nWant to start your request or have a question? Message me 👇 or book a free consultation 🗓️\\n\\n\" + CONTACT_FOOTER\n  ));\n}\n\nfunction catAllReply(slug) {\n  const c = catBySlug(slug); if (!c) return null;\n  const n = catServices(slug).length;\n  const link = BASE + \"/services/category/\" + slug;\n  return textMsg(L(\n    \"📂 *\" + catName(c) + \"*\" + (n ? \" — \" + n + \" خدمة\" : \"\") + \":\\n\" + link + \"\\n\\nأي خدمة تهمك؟ اكتب اسمها والوكيل يشرحها لك، أو اكتب «قائمة» للرجوع.\",\n    \"📂 *\" + catName(c) + \"*\" + (n ? \" — \" + n + \" services\" : \"\") + \":\\n\" + link + \"\\n\\nWhich service interests you? Type its name and the agent will explain it, or type \\\"menu\\\" to go back.\"\n  ));\n}\n\nfunction pkgLink(grp) { return BASE + \"/packages\" + (grp ? \"#pkg-\" + grp : \"\"); }\n\nfunction packagesMenu() {\n  const mgmt = pkgsOfGroup(\"management\");\n  if (!mgmt.length) return textMsg(L(\n    \"💼 *باقاتنا* — كل التفاصيل والأسعار المحدّثة هنا:\\n\" + pkgLink(\"\") + \"\\n\\nقل لي كم عدد موظفينك ووش تحتاج، وأرشّح لك الأنسب 👇\",\n    \"💼 *Our packages* — full up-to-date details and prices here:\\n\" + pkgLink(\"\") + \"\\n\\nTell me your headcount and what you need, and I'll recommend the best fit 👇\"));\n  const svcRows = mgmt.map(p => ({ id: \"pkg_\" + p.key, title: cut(pkgIc(p) + \" \" + pkgSh(p), 24),\n    description: cut(L((p.forAr || \"\") + \" · \" + (p.priceAr || \"\"), (p.forEn || \"\") + \" · \" + (p.priceEn || \"\")), 72) }));\n  const grpRows = [];\n  if (pkgsOfGroup(\"formation\").length) grpRows.push({ id: \"pkggrp_formation\",\n    title: cut(GRP_META.formation[2] + \" \" + L(GRP_META.formation[0], GRP_META.formation[1]), 24),\n    description: L(\"باقات تأسيس الشركات السعودية والأجنبية\", \"Saudi & foreign company formation packages\") });\n  if (pkgsOfGroup(\"legal\").length) grpRows.push({ id: \"pkggrp_legal\",\n    title: cut(GRP_META.legal[2] + \" \" + L(GRP_META.legal[0], GRP_META.legal[1]), 24),\n    description: L(\"باقات الخدمات القانونية للشركات\", \"Legal service packages for companies\") });\n  grpRows.push({ id: \"back_main\", title: L(\"🔙 القائمة الرئيسية\", \"🔙 Main menu\"), description: L(\"ارجع لكل الأقسام\", \"Back to all sections\") });\n  return listMsg(L(\"💼 باقات بيزنس بارتنر\", \"💼 Business Partner packages\"),\n    L(\"اختر الباقة وأعرض لك تفاصيلها كاملة 👇\\nوإذا ما عرفت الأنسب، قل لي كم عدد موظفينك وأنا أرشّح لك.\",\n      \"Pick a package and I'll show you the full details 👇\\nNot sure which fits? Tell me your headcount and I'll recommend one.\"),\n    L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر الباقة\", \"Choose package\"),\n    [{ title: L(GRP_META.management[0], GRP_META.management[1]), rows: svcRows },\n     { title: L(\"باقات أخرى\", \"Other packages\"), rows: grpRows }]);\n}\n\nfunction pkgGroupMenu(grp) {\n  const list = pkgsOfGroup(grp); if (!list.length) return packagesMenu();\n  const rows = list.map(p => ({ id: \"pkg_\" + p.key, title: cut(pkgIc(p) + \" \" + pkgSh(p), 24),\n    description: cut(L((p.forAr || \"\") + \" · \" + (p.priceAr || \"\"), (p.forEn || \"\") + \" · \" + (p.priceEn || \"\")), 72) }));\n  rows.push({ id: \"packages\", title: L(\"🔙 كل الباقات\", \"🔙 All packages\"), description: L(\"ارجع لقائمة الباقات\", \"Back to the packages menu\") });\n  const g = GRP_META[grp] || [\"الباقات\", \"Packages\", \"💼\"];\n  return listMsg(g[2] + \" \" + L(g[0], g[1]),\n    L(\"اختر الباقة اللي تناسب منشأتك 👇\", \"Choose the package that fits your establishment 👇\"),\n    L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر الباقة\", \"Choose package\"), [{ title: L(g[0], g[1]), rows }]);\n}\n\nfunction pkgReply(key) {\n  const p = pkgByKey(key); if (!p) return null;\n  const feats = (p.features || []).slice(0, 10).map(f => \"✅ \" + f).join(\"\\n\");\n  const priceLine = L(p.priceAr || \"\", p.priceEn || p.priceAr || \"\");\n  const forLine = L(p.forAr || \"\", p.forEn || \"\");\n  return textMsg(L(\n    pkgIc(p) + \" *\" + p.nameAr + \"*\\n\" + (forLine ? \"👤 \" + forLine + \"\\n\" : \"\") + (priceLine ? \"💰 \" + priceLine + \"\\n\" : \"\") + \"\\nتشمل:\\n\" + feats + \"\\n\\n🔗 تفاصيل الباقات:\\n\" + pkgLink(p.group) + \"\\n\\nتبي تشترك في «\" + p.nameAr + \"» أو عندك سؤال؟ اكتب لي 👇 أو احجز استشارة مجانية للشركات 🗓️\\n\\n\" + CONTACT_FOOTER,\n    pkgIc(p) + \" *\" + p.nameEn + \"*\\n\" + (forLine ? \"👤 \" + forLine + \"\\n\" : \"\") + (priceLine ? \"💰 \" + priceLine + \"\\n\" : \"\") + \"\\nIncludes:\\n\" + feats + \"\\n\\n🔗 Package details:\\n\" + pkgLink(p.group) + \"\\n\\nWant to subscribe to \\\"\" + p.nameEn + \"\\\" or have a question? Message me 👇 or book a free company consultation 🗓️\\n\\n\" + CONTACT_FOOTER\n  ));\n}\n\nfunction aiNudge() {\n  return textMsg(L(\n    \"🤖 تمام! أنا *باهر* الوكيل الذكي في بيزنس بارتنر، جاهز أخدمك. 🌟\\n\\nاكتب لي سؤالك أو قل لي وش الخدمة اللي في بالك، وأنا أشرح لك وأرسل لك الروابط والتفاصيل على طول 👇\",\n    \"🤖 Perfect! I'm *Baher*, the AI agent at Business Partner, ready to help. 🌟\\n\\nType your question or tell me which service you have in mind, and I'll explain it and send you the links and details right away 👇\"\n  ));\n}\n\nfunction jobseekerReply() {\n  return textMsg(L(\n    \"🧑‍🎓 *باحث عن عمل؟* أهلاً وسهلاً فيك!\\n\\nتصفّح وظائفنا المفتوحة المعلنة وقدّم عليها مباشرة من هنا 👇\\n🔗 \" + BASE + \"/careers\\n\\nسجّل بياناتك مرة وحدة، اختر الوظيفة المناسبة وقدّم عليها — وأصحاب العمل اللي يوظّفون عبر بيزنس بارتنر يوصلونك مباشرة. ✅\\n\\n📌 ملاحظة: *الاستشارة المجانية مخصّصة للشركات وأصحاب الأعمال* 🏢، أما البحث عن وظيفة فيكون عبر صفحة الوظائف أعلاه.\",\n    \"🧑‍🎓 *Looking for a job?* Welcome!\\n\\nBrowse our open positions and apply directly from here 👇\\n🔗 \" + BASE + \"/careers\\n\\nRegister your details once, pick the right role and apply — employers who hire through Business Partner reach you directly. ✅\\n\\n📌 Note: *the free consultation is for companies and business owners* 🏢, while job seeking is via the careers page above.\"\n  ));\n}\n\nconst AR_DAYS = [\"الأحد\",\"الإثنين\",\"الثلاثاء\",\"الأربعاء\",\"الخميس\",\"الجمعة\",\"السبت\"];\nconst AR_MONTHS = [\"يناير\",\"فبراير\",\"مارس\",\"أبريل\",\"مايو\",\"يونيو\",\"يوليو\",\"أغسطس\",\"سبتمبر\",\"أكتوبر\",\"نوفمبر\",\"ديسمبر\"];\nconst EN_DAYS = [\"Sun\",\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\"];\nconst EN_MONTHS = [\"Jan\",\"Feb\",\"Mar\",\"Apr\",\"May\",\"Jun\",\"Jul\",\"Aug\",\"Sep\",\"Oct\",\"Nov\",\"Dec\"];\nconst pad2 = (n) => String(n).padStart(2, \"0\");\nfunction riyadhNow() { return new Date(Date.now() + 3 * 3600 * 1000); }\n\nfunction dayPicker() {\n  const base = riyadhNow(); const rows = [];\n  const DAYS = lang === \"en\" ? EN_DAYS : AR_DAYS;\n  const MONTHS = lang === \"en\" ? EN_MONTHS : AR_MONTHS;\n  for (let i = 1; i <= 14 && rows.length < 9; i++) {\n    const d = new Date(base.getTime() + i * 86400000);\n    if (d.getUTCDay() === 5) continue;\n    const iso = d.getUTCFullYear() + \"-\" + pad2(d.getUTCMonth() + 1) + \"-\" + pad2(d.getUTCDate());\n    rows.push({ id: \"bkday_\" + iso, title: cut(DAYS[d.getUTCDay()] + \" \" + d.getUTCDate() + \" \" + MONTHS[d.getUTCMonth()], 24), description: L(\"اضغط لعرض الأوقات المتاحة\", \"Tap to see available times\") });\n  }\n  return listMsg(L(\"🗓️ استشارة مجانية للشركات\", \"🗓️ Free consultation (companies)\"),\n    L(\"هذه الاستشارة مخصّصة للشركات وأصحاب الأعمال 🏢\\nاختر اليوم المناسب 👇 (كل الأيام متاحة ما عدا الجمعة، والأوقات حسب توفّر مستشارنا).\",\n      \"This consultation is for companies and business owners 🏢\\nPick a suitable day 👇 (all days except Friday; times depend on our advisor's availability).\"),\n    L(\"بيزنس بارتنر\", \"Business Partner\"), L(\"اختر اليوم\", \"Choose day\"), [{ title: L(\"الأيام المتاحة\", \"Available days\"), rows }]);\n}\n\n// ---- decide ----\nconst wantsMain = greeting || id === \"main_menu\" || id === \"back_main\" ||\n  /^(قائمة|القائمة|الخدمات|خدمات|menu|ابدأ|ابدا|start|الرئيسية|home|services)$/i.test(text);\n\nconst raw = String(norm.message_text || \"\").trim();\nconst hasEmail = String(ctx.property_email || \"\").trim() !== \"\";\nconst isEmailReply = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(text);\nconst na = String(ctx.property_next_action || \"\");\nconst bookPending = na.indexOf(\"BOOK|\") === 0;\nconst onbName = na === \"ONBOARD_NAME\";\nconst onbEmail = na === \"ONBOARD_EMAIL\";\n\nlet body_out = null, kind = \"none\";\nif (id === \"human_service\" || /مستشارك البشري|مستشار بشري/.test(text)) { kind = \"human\"; }\nelse if (id === \"jobseeker\") { body_out = jobseekerReply(); kind = \"jobseeker\"; }\nelse if (isEmailReply && bookPending) { kind = \"book_exec\"; }\nelse if (!hasEmail && onbEmail && isEmailReply) { body_out = mainMenu(L(\"✅ تم تسجيل بياناتك، شكراً لك!\", \"✅ Your details are saved, thank you!\")); kind = \"onb_done\"; }\nelse if (!hasEmail && onbEmail) { body_out = textMsg(L(\"يبدو إن البريد غير صحيح 🤔\\nأرسل لي بريدك الإلكتروني بشكل صحيح، مثال: name@email.com\", \"That email doesn't look right 🤔\\nPlease send a valid email, e.g. name@email.com\")); kind = \"onb_email_retry\"; }\nelse if (!hasEmail && onbName) { body_out = askEmail(raw); kind = \"onb_ask_email\"; }\nelse if (!hasEmail) { body_out = welcomeAskName(); kind = \"onb_ask_name\"; }\nelse if (id === \"consult\" || id === \"booking\") { body_out = dayPicker(); kind = \"book_days\"; }\nelse if (/^bkday_/.test(id)) { kind = \"book_avail\"; }\nelse if (/^bktime_/.test(id)) { kind = \"book_exec\"; }\nelse if (id === \"ai_consult\") { body_out = aiNudge(); kind = \"ai_open\"; }\nelse if (/^cat_/.test(id))    { body_out = subMenu(id.slice(4)); kind = \"sub\"; }\nelse if (/^catall_/.test(id)) { body_out = catAllReply(id.slice(7)); kind = \"catall\"; }\nelse if (/^svc_/.test(id))    { body_out = svcReply(id.slice(4)); kind = \"svc\"; }\nelse if (/^sol_/.test(id))    { body_out = solReply(id.slice(4)); kind = \"sol\"; }\nelse if (id === \"solutions\" || /^(حلول|الحلول|solutions)$/i.test(text)) { body_out = solutionsMenu(); kind = \"sols\"; }\nelse if (/^pkggrp_/.test(id)) { body_out = pkgGroupMenu(id.slice(7)); kind = \"pkggrp\"; }\nelse if (/^pkg_/.test(id))    { body_out = pkgReply(id.slice(4)); kind = \"pkgdetail\"; }\nelse if (id === \"packages\" || /^(الباقات|باقات|الباقه|الباقة|packages)$/i.test(text)) { body_out = packagesMenu(); kind = \"pkg\"; }\nelse if (id === \"more\")       { body_out = moreMenu(); kind = \"more\"; }\nelse if (wantsMain)           { body_out = mainMenu(); kind = \"main\"; }\n\nreturn [{ json: { ...norm, menu_lang: lang, menu_kind: kind, has_menu: body_out !== null, menu_body: body_out } }];"
+      }
+    },
+    {
+      "id": "8db91241-d0d4-4682-9b9a-af12592e2ca6",
+      "name": "Has Menu?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1620,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "m1",
+              "leftValue": "={{ $json.has_menu }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fbd6dca2-4e89-4793-af1b-6b4de2d95ddb",
+      "name": "Booking Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1420,
+        1520
+      ],
+      "parameters": {
+        "jsCode": "// ===== Flow Router (onboarding + booking) =====\nconst item = $json || {};\nlet norm = {};\ntry { norm = $('Normalize WhatsApp Input').first().json || {}; } catch (e) {}\nconst id   = String(norm.interactive_id || '').trim();\nconst msg  = String(norm.normalized_text || norm.message_text || '').trim();\nconst raw  = String(norm.message_text || '').trim();\nconst to   = String(norm.phone || item.phone || '').trim();\nconst email = String(item.property_email || '').trim();\nconst na   = String(item.property_next_action || '').trim();\nconst savedName = String(item.property_title || '').trim();\nconst name = savedName || (String(norm.client_name || item.client_name || '').trim()) || 'عميلنا العزيز';\nconst CH = 'https://whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X';\nconst FOOTER = '———————————\\n🏢 *بيزنس بارتنر*\\n🌐 businesspartner.sa\\n📧 business@businesspartner.sa\\n📱 واتساب: 0530540231\\n📢 قناتنا: ' + CH;\nconst AR_DAYS = [\"الأحد\",\"الإثنين\",\"الثلاثاء\",\"الأربعاء\",\"الخميس\",\"الجمعة\",\"السبت\"];\nconst AR_MONTHS = [\"يناير\",\"فبراير\",\"مارس\",\"أبريل\",\"مايو\",\"يونيو\",\"يوليو\",\"أغسطس\",\"سبتمبر\",\"أكتوبر\",\"نوفمبر\",\"ديسمبر\"];\nconst emailRe = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nconst pad2 = (n) => String(n).padStart(2, '0');\nfunction txt(body) { return JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'text', text: { preview_url: true, body } }); }\nfunction fmtDate(iso) { const p = String(iso).split('-').map(Number); if (p.length !== 3) return iso; const d = new Date(Date.UTC(p[0], p[1]-1, p[2])); return AR_DAYS[d.getUTCDay()] + ' ' + p[2] + ' ' + AR_MONTHS[p[1]-1] + ' ' + p[0]; }\n\nlet action = 'none', date = '', time = '', book_start = '', book_end = '', ask_body = '', confirm_body = '';\nlet owner_subject = '', owner_html = '', next_action_value = '', save_email = '', save_name = '', use_email = email;\n\nif (!email) {\n  if (na === 'ONBOARD_EMAIL' && emailRe.test(msg)) { action = 'onb_save_email'; save_email = msg; next_action_value = ''; }\n  else if (na === 'ONBOARD_EMAIL') { action = 'none'; }\n  else if (na === 'ONBOARD_NAME') { action = 'onb_save_name'; save_name = raw; next_action_value = 'ONBOARD_EMAIL'; }\n  else { action = 'onb_set_state'; next_action_value = 'ONBOARD_NAME'; }\n} else if (/^bktime_/.test(id)) {\n  const rest = id.slice(7); const u = rest.lastIndexOf('_'); date = rest.slice(0, u); time = rest.slice(u + 1);\n  action = 'create';\n}\n\nif (action === 'create') {\n  const h = Number(time.split(':')[0]); const m = Number(time.split(':')[1] || 0);\n  book_start = date + 'T' + pad2(h) + ':' + pad2(m) + ':00+03:00';\n  let eh = h, em = m + 30; if (em >= 60) { em -= 60; eh += 1; }\n  book_end = date + 'T' + pad2(eh) + ':' + pad2(em) + ':00+03:00';\n  confirm_body = txt('✅ تم تأكيد حجزك يا ' + name + '! 🎉\\n\\n🗓️ اليوم: ' + fmtDate(date) + '\\n🕐 الساعة: ' + time + ' (بتوقيت الرياض)\\n📧 أرسلنا لك دعوة التقويم ورابط Google Meet على بريدك: ' + use_email + '\\n\\nمستشارنا بيتواصل معك قبل الموعد، وأنا هنا 24/7 لو احتجت أي شيء 🌟\\n\\n' + FOOTER);\n  owner_subject = '🗓️ حجز استشارة جديد — ' + name + ' (' + to + ')';\n  owner_html = '<div dir=\"rtl\" style=\"font-family:Tahoma,Arial;font-size:15px;line-height:1.9\">' +\n    '<h2 style=\"color:#0d3b66\">🗓️ حجز استشارة مجانية جديد</h2>' +\n    '<b>الاسم:</b> ' + name + '<br><b>الجوال:</b> ' + to + '<br><b>البريد:</b> ' + use_email +\n    '<br><b>اليوم:</b> ' + fmtDate(date) + '<br><b>الوقت:</b> ' + time + ' (توقيت الرياض)' +\n    '<br><br>تم إنشاء الموعد في Google Calendar مع رابط Meet ودعوة للعميل.</div>';\n  next_action_value = '';\n}\n\nreturn [{ json: { ...item, booking_action: action, book_to: to, book_name: name, book_date: date, book_time: time, book_start, book_end, book_email: use_email, ask_body, confirm_body, owner_subject, owner_html, next_action_value, save_email, save_name } }];\n"
+      }
+    },
+    {
+      "id": "fc5731f1-395d-49e1-920c-70d2b75e29d0",
+      "name": "Do Booking?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        1440
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b1",
+              "leftValue": "={{ $json.booking_action }}",
+              "rightValue": "create",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8a88b139-7f90-4e5f-8ba3-24497306d19a",
+      "name": "Ask Booking Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        1640
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b2",
+              "leftValue": "={{ $json.booking_action }}",
+              "rightValue": "ask_email",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b82e48dc-a1b3-4970-84b2-d6f6ca6712ad",
+      "name": "Create Consultation Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1860,
+        1400
+      ],
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "business@businesspartnerksa.com"
+        },
+        "start": "={{ $('Booking Router').item.json.book_start }}",
+        "end": "={{ $('Booking Router').item.json.book_end }}",
+        "additionalFields": {
+          "summary": "=استشارة مجانية — {{ $('Booking Router').item.json.book_name }}",
+          "description": "=استشارة مجانية عبر واتساب.\\nالعميل: {{ $('Booking Router').item.json.book_name }}\\nالجوال: {{ $('Booking Router').item.json.book_to }}",
+          "attendees": [
+            "={{ $('Booking Router').item.json.book_email }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "sendUpdates": "all"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "791a9405-30e2-4057-83ab-4b4adf6b1b00",
+      "name": "Confirm Booking WA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        1320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1216029938250852/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Booking Router').item.json.confirm_body }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "pBK0zR1g2JQSuRLe",
+          "name": "WhatsApp — Business Partner — 0507034157"
+        }
+      }
+    },
+    {
+      "id": "5f981fb9-cbfc-462b-bdda-04ff1f729472",
+      "name": "Email Owner - Consultation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        1460
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "={{ $('Booking Router').item.json.owner_subject }}",
+        "emailType": "html",
+        "message": "={{ $('Booking Router').item.json.owner_html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "d1d874e0-f810-45fe-9d16-81f2582b08fc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "846caa9e-8257-4219-8e90-cf33e3384786",
+      "name": "CRM Save Booking",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        1600
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Booking Router').item.json.crm_page_id || $('Booking Router').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('Booking Router').item.json.book_email }}"
+            },
+            {
+              "key": "Google Calendar Event ID|rich_text",
+              "textContent": "={{ $json.id || '' }}"
+            },
+            {
+              "key": "Consultation Link Sent|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Next Action|rich_text",
+              "textContent": "= "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "3cf064df-d95e-4129-8223-0a1d92349668",
+      "name": "Ask Booking Email WA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1860,
+        1660
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1216029938250852/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Booking Router').item.json.ask_body }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "pBK0zR1g2JQSuRLe",
+          "name": "WhatsApp — Business Partner — 0507034157"
+        }
+      }
+    },
+    {
+      "id": "86b34723-9e52-4339-9785-1ce650182c75",
+      "name": "CRM Set Pending",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1860,
+        1800
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Booking Router').item.json.crm_page_id || $('Booking Router').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Next Action|rich_text",
+              "textContent": "={{ $('Booking Router').item.json.next_action_value }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "1e9fba9b-4146-4c36-afe9-f7d775ff6200",
+      "name": "Onboard Name Step?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        1960
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "o1",
+              "leftValue": "={{ $json.booking_action }}",
+              "rightValue": "onb_set_state",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "o2",
+              "leftValue": "={{ $json.booking_action }}",
+              "rightValue": "onb_save_name",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e2b7f5a7-0fd4-4dcc-9923-15fa314fcd07",
+      "name": "Onboard Email Step?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        2140
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "o3",
+              "leftValue": "={{ $json.booking_action }}",
+              "rightValue": "onb_save_email",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2e7b21e2-8e14-410a-8811-8f6e165fb21d",
+      "name": "CRM Onboard Name",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1860,
+        1960
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Booking Router').item.json.crm_page_id || $('Booking Router').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Title|rich_text",
+              "textContent": "={{ $('Booking Router').item.json.save_name || $('Booking Router').item.json.property_title || '' }}"
+            },
+            {
+              "key": "Next Action|rich_text",
+              "textContent": "={{ $('Booking Router').item.json.next_action_value }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "2f5e3390-7460-40bc-9cc4-3706dc02743c",
+      "name": "CRM Onboard Email",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1860,
+        2140
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Booking Router').item.json.crm_page_id || $('Booking Router').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('Booking Router').item.json.save_email }}"
+            },
+            {
+              "key": "Next Action|rich_text",
+              "textContent": "= "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "65fb6d69-b5b6-4113-96b0-1f102c0e2854",
+      "name": "Is Day Pick?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1420,
+        1760
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dp1",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.interactive_id }}",
+              "rightValue": "bkday_",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "49ed8f01-6953-4905-9b6f-4a7110866c6b",
+      "name": "Get Day Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1640,
+        1760
+      ],
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "business@businesspartnerksa.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $('Normalize WhatsApp Input').item.json.interactive_id.slice(6) }}T00:00:00+03:00",
+        "timeMax": "={{ $('Normalize WhatsApp Input').item.json.interactive_id.slice(6) }}T23:59:59+03:00",
+        "options": {
+          "singleEvents": true
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "13446a5c-b765-426e-9192-7c98f639309f",
+      "name": "Build Time Picker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        1760
+      ],
+      "parameters": {
+        "jsCode": "// ===== Build Time Picker (availability-aware) =====\n// Input: the day's events from \"Get Day Events\" (Google Calendar). Emits a\n// WhatsApp time-slot list (9:00–17:30 starts, 30-min appts) showing ONLY the\n// slots that don't overlap an existing calendar event.\nconst norm = $('Normalize WhatsApp Input').first().json || {};\nconst to = String(norm.phone || '').trim();\nconst id = String(norm.interactive_id || '').trim();\nconst date = id.slice(6); // bkday_YYYY-MM-DD\nconst pad2 = (n) => String(n).padStart(2, '0');\nconst AR_DAYS = [\"الأحد\",\"الإثنين\",\"الثلاثاء\",\"الأربعاء\",\"الخميس\",\"الجمعة\",\"السبت\"];\nconst AR_MONTHS = [\"يناير\",\"فبراير\",\"مارس\",\"أبريل\",\"مايو\",\"يونيو\",\"يوليو\",\"أغسطس\",\"سبتمبر\",\"أكتوبر\",\"نوفمبر\",\"ديسمبر\"];\nconst cut = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; };\nfunction humanDate(iso) { const p = String(iso).split('-').map(Number); if (p.length !== 3) return iso; const d = new Date(Date.UTC(p[0], p[1]-1, p[2])); return AR_DAYS[d.getUTCDay()] + ' ' + p[2] + ' ' + AR_MONTHS[p[1]-1]; }\nfunction listMsg(header, body, footer, button, rows) {\n  return JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'interactive',\n    interactive: { type: 'list', header: { type: 'text', text: cut(header, 60) }, body: { text: cut(body, 1024) }, footer: { text: cut(footer, 60) },\n      action: { button: cut(button, 20), sections: [{ title: cut('الأوقات المتاحة', 24), rows: rows.map(r => ({ id: cut(r.id, 200), title: cut(r.title, 24), description: cut(r.description, 72) })) }] } } });\n}\nfunction textMsg(t) { return JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'text', text: { preview_url: false, body: cut(t, 4000) } }); }\n\n// Collect busy intervals (minutes from midnight, Riyadh local) for THIS date.\nconst minFromDT = (dtStr) => { const t = String(dtStr).split('T')[1] || ''; return (+t.slice(0, 2)) * 60 + (+t.slice(3, 5)); };\nconst busy = [];\nfor (const it of items) {\n  const e = it.json || {};\n  if (!e.start) continue; // skip non-event passthrough\n  if (e.start.date && !e.start.dateTime) { busy.push([0, 1440]); continue; } // all-day → whole day busy\n  if (e.start.dateTime && e.end && e.end.dateTime) {\n    const sd = String(e.start.dateTime).slice(0, 10), ed = String(e.end.dateTime).slice(0, 10);\n    const s = (sd === date) ? minFromDT(e.start.dateTime) : 0;\n    const en = (ed === date) ? minFromDT(e.end.dateTime) : 1440;\n    busy.push([s, en]);\n  }\n}\n\nconst rows = [];\nfor (let h = 9; h <= 17; h++) { // 9:00 .. 17:00 starts (30-min, ends by 17:30/18:00)\n  const s = h * 60, e = s + 30;\n  const overlap = busy.some(b => s < b[1] && e > b[0]);\n  if (!overlap) {\n    const label = h < 12 ? (h + ':00 ص') : (h === 12 ? '12:00 م' : ((h - 12) + ':00 م'));\n    rows.push({ id: 'bktime_' + date + '_' + pad2(h) + ':00', title: label, description: 'موعد 30 دقيقة عبر Google Meet' });\n  }\n}\n\nlet body;\nif (rows.length === 0) {\n  body = textMsg('عذراً 😔 يوم ' + humanDate(date) + ' محجوز بالكامل عند مستشارنا.\\nاختر يوماً آخر — اكتب «احجز» من جديد أو «قائمة».');\n} else {\n  body = listMsg('🕐 اختر الوقت المناسب', 'مواعيد يوم ' + humanDate(date) + ' 👇\\nهذي الأوقات المتاحة حالياً حسب جدول مستشارنا.', 'بيزنس بارتنر', 'اختر الوقت', rows);\n}\nreturn [{ json: { has_menu: true, menu_body: body, to } }];\n"
+      }
+    },
+    {
+      "id": "28b1f520-64bf-404c-90f1-18786701f6ba",
+      "name": "Send Time Picker",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        1760
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1216029938250852/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.menu_body }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "pBK0zR1g2JQSuRLe",
+          "name": "WhatsApp — Business Partner — 0507034157"
+        }
+      }
+    },
+    {
+      "id": "329475e4-53c1-4ce1-b234-68666d0d236a",
+      "name": "Is Opt-Out?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        -260
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "o1",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "إيقاف",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o2",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "ايقاف",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o3",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "توقف",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o4",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "إلغاء الاشتراك",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o5",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "الغاء الاشتراك",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o6",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "unsubscribe",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "o7",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.normalized_text }}",
+              "rightValue": "stop",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c272a98b-ebbd-4aa9-9e9e-cdfb41e8b310",
+      "name": "Send OptOut Confirm",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        -360
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Normalize WhatsApp Input').item.json.phone }}",
+        "textBody": "✅ تم إيقاف الرسائل الترويجية. لن تصلك رسائل تسويقية بعد الآن.\n\nإذا احتجت أي خدمة مستقبلاً، تواصل معنا في أي وقت على businesspartner.sa 🌟",
+        "additionalFields": {}
+      },
+      "webhookId": "552476f8-dffa-4a06-a31e-dbd9c1b63267",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "pBK0zR1g2JQSuRLe",
+          "name": "WhatsApp — Business Partner — 0507034157"
+        }
+      }
+    },
+    {
+      "id": "eacd385f-e148-467d-8947-48aa20f60949",
+      "name": "Find in Names",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        -200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "c5cd108dee5c82e3aecf81fc11a3cc1b"
+        },
+        "returnAll": false,
+        "limit": 3,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Mobile|phone_number",
+              "type": "phone_number",
+              "condition": "contains",
+              "phoneNumberValue": "={{ $('Normalize WhatsApp Input').item.json.phone }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "4a3df788-498b-4eda-bb71-6241f35a3d5d",
+      "name": "Set DNC",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        380,
+        -200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Do Not Contact|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Outreach Status|select",
+              "selectValue": "Opted Out"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "bf5f2b51-d468-4675-8cee-c3abd30542b8",
+      "name": "Is Service Pick?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        -220
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "s1",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.interactive_id }}",
+              "operator": {
+                "operation": "startsWith",
+                "type": "string"
+              },
+              "rightValue": "svc_"
+            },
+            {
+              "id": "s2",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.interactive_id }}",
+              "operator": {
+                "operation": "startsWith",
+                "type": "string"
+              },
+              "rightValue": "cat_"
+            },
+            {
+              "id": "s3",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.interactive_id }}",
+              "operator": {
+                "operation": "startsWith",
+                "type": "string"
+              },
+              "rightValue": "catall_"
+            },
+            {
+              "id": "s4",
+              "leftValue": "={{ $('Normalize WhatsApp Input').item.json.interactive_id }}",
+              "operator": {
+                "operation": "startsWith",
+                "type": "string"
+              },
+              "rightValue": "pkg_"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4828a322-62e3-4fa8-9f5a-9d44290094dd",
+      "name": "Save Service Request",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        -220
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Prepare AI Context').item.json.crm_page_id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Service Required|rich_text",
+              "textContent": "={{ $('Normalize WhatsApp Input').item.json.message_text }}"
+            },
+            {
+              "key": "Next Action|rich_text",
+              "textContent": "=SERVICE_REQUESTED"
+            },
+            {
+              "key": "AI Notes|rich_text",
+              "textContent": "=🗂️ طلب من القائمة: {{ $('Normalize WhatsApp Input').item.json.message_text }} ({{ $('Normalize WhatsApp Input').item.json.interactive_id }})"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "82ed6b48-8831-478b-9cb5-95398e68d18b",
+      "name": "Build Revenue Intake Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        -20
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const r=$json||{}; const n=$('Normalize WhatsApp Input').first().json||{}; const id=String(n.interactive_id||''); const text=String(n.message_text||'').trim(); const servicePick=/^(svc_|pkg_|catall_|cat_)/.test(id); const consultation=['consult','booking','human_service'].includes(id); const substantive=r.route_to_ai===true && n.is_greeting_only!==true && n.is_short_acknowledgement!==true; const blocked=/^(jobseeker|more|main_menu|back_main|packages|ai_consult)$/.test(id)||/^bkday_|^bktime_|^pkggrp_/.test(id); const should_intake=(servicePick||consultation||substantive)&&!blocked; const detected=String(n.detected_service||r.selected_service_path||'').trim(); return {json:{should_intake,event_id:n.message_id||'',client_name:r.client_name||n.client_name||'',phone:r.phone||n.phone||'',email:r.property_email||'',service:detected||(servicePick?text:'')||(consultation?'Consultation':''),message:text,source_channel:'whatsapp',source_campaign:'business_whatsapp',interactive_id:id}};"
+      }
+    },
+    {
+      "id": "05d5b5c0-f5cc-4ae2-ba18-706fe94f7def",
+      "name": "Commercial Intake?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        -20
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.should_intake }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8129d273-6ee3-49d3-8826-641d44c2d702",
+      "name": "Send to Unified Revenue Intake",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1420,
+        -20
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/bp-ai/revenue-intake",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_id:$json.event_id, client_name:$json.client_name, phone:$json.phone, email:$json.email, service:$json.service, message:$json.message, source_channel:'whatsapp', source_campaign:$json.source_campaign }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "1ddaf059-4cf0-4aec-a566-fcdd9ea9dc30",
+      "name": "Fetch Site Catalog",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        120
+      ],
+      "parameters": {
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 10000
+        },
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "catalog"
+            },
+            {
+              "name": "limit",
+              "value": "200"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "url": "https://www.businesspartner.sa/api/requests"
+      },
+      "notes": "كتالوج الموقع الحي: الأقسام والخدمات والباقات والصفحات. مصدر واحد للموقع والواتساب حتى لا تختلف الأسعار.",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "a408600b-c7f2-4182-a69f-194e528acd00",
+      "name": "رحلة العميل — طبقة الموقع الجديد",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1330,
+        690
+      ],
+      "parameters": {
+        "jsCode": "// واجهة الموقع الجديد على واتساب: ثلاثة أبواب — استشارة، خدمة حكومية، تأسيس —\n// ثم نطاق العمل ← عرض السعر ← العقد ← الفاتورة ← الدفع، وكلها من داخل المحادثة.\n// طبقة فوق «Build Menu Response» لا تلغيه: القائمة القديمة بكل الأقسام باقية\n// خلف صف «كل الأقسام والخدمات» بمعرّفها الأصلي main_menu.\nconst j = $input.first().json || {};\nconst lang = j.menu_lang === 'en' ? 'en' : 'ar';\nconst L = (ar, en) => (lang === 'en' ? en : ar);\nconst to = String(j.phone || '').trim();\nconst id = String(j.interactive_id || '').trim();\nconst cut = (s, n) => { s = String(s == null ? '' : s); return s.length > n ? s.slice(0, n - 1) + '…' : s; };\nconst BASE = lang === 'en' ? 'https://www.businesspartner.sa/en' : 'https://www.businesspartner.sa';\n\nfunction listMsg(header, body, footer, button, sections) {\n  return JSON.stringify({\n    messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'interactive',\n    interactive: {\n      type: 'list',\n      header: { type: 'text', text: cut(header, 60) },\n      body: { text: cut(body, 1024) },\n      footer: { text: cut(footer, 60) },\n      action: {\n        button: cut(button, 20),\n        sections: sections.map((s) => ({\n          title: cut(s.title, 24),\n          rows: s.rows.map((r) => ({ id: cut(r.id, 200), title: cut(r.title, 24), description: cut(r.description, 72) })),\n        })),\n      },\n    },\n  });\n}\nconst textMsg = (t) => JSON.stringify({\n  messaging_product: 'whatsapp', recipient_type: 'individual', to,\n  type: 'text', text: { preview_url: true, body: cut(t, 4000) },\n});\n\n// عشرة صفوف بالضبط — وهو سقف واتساب للقائمة التفاعلية (خطأ 131009 يبتلع الرسالة).\nfunction journeyMenu() {\n  const start = [\n    { id: 'start_consulting', title: L('💼 استشارة أعمال', '💼 Business consulting'),\n      description: L('قرار أو مشكلة تبي رأي خبير فيها', 'A decision or problem you need expert advice on') },\n    { id: 'start_government', title: L('🏛️ خدمة حكومية', '🏛️ Government service'),\n      description: L('قوى · مقيم · التأمينات · الزكاة · البلدي', 'Qiwa · Muqeem · GOSI · ZATCA · Balady') },\n    { id: 'start_formation', title: L('🏢 تأسيس شركة', '🏢 Company formation'),\n      description: L('سعودي أو أجنبي — من الاسم حتى السجل', 'Saudi or foreign — from name to CR') },\n  ];\n  const mine = [\n    { id: 'my_orders', title: L('📄 طلباتي وعروضي', '📄 My orders & quotes'),\n      description: L('نطاق العمل · العرض · العقد · الفاتورة', 'Scope · quote · contract · invoice') },\n    { id: 'pay_now', title: L('💳 دفع فاتورة', '💳 Pay an invoice'),\n      description: L('بطاقة أو أبل باي أو تقسيط', 'Card, Apple Pay or instalments') },\n  ];\n  const more = [\n    { id: 'packages', title: L('💼 الباقات', '💼 Packages'),\n      description: L('باقات الخدمات والتأسيس والقانونية', 'Service, formation and legal packages') },\n    { id: 'main_menu', title: L('🗂️ كل الأقسام والخدمات', '🗂️ All categories'),\n      description: L('أكثر من ١٤٠ خدمة مرتّبة بالأقسام', '140+ services by category') },\n    { id: 'solutions', title: L('🧩 حلول ومنصات', '🧩 Solutions & platforms'),\n      description: L('سكن · مكاتب · تموين · امتثال · بوابتك', 'Housing · offices · catering · compliance') },\n    { id: 'consult', title: L('🗓️ حجز موعد استشارة', '🗓️ Book a consultation'),\n      description: L('موعد مع مستشار — للشركات', 'An appointment with an advisor — companies') },\n    { id: 'human_service', title: L('🧑‍💼 مستشارك البشري', '🧑‍💼 Your human advisor'),\n      description: L('تواصل مباشرة مع موظف حقيقي', 'Talk directly to a real team member') },\n  ];\n  const name = String(j.client_name || '').trim();\n  const hello = L(\n    'أهلاً ' + (name ? name + ' ' : '') + '👋\\nوش اللي تحتاجه اليوم؟ اختر وأنا أمشي معك خطوة بخطوة 👇\\n\\n📝 نطاق عمل ← 💰 عرض سعر ← 📜 عقد ← 🧾 فاتورة ← 💳 دفع — كلها من هنا بدون ما تطلع من الواتساب.',\n    'Hello ' + (name ? name + ' ' : '') + '👋\\nWhat do you need today? Pick one and I will walk you through it 👇\\n\\n📝 Scope → 💰 Quote → 📜 Contract → 🧾 Invoice → 💳 Payment — all right here in WhatsApp.'\n  );\n  return listMsg(\n    L('بيزنس بارتنر — شركاء نجاحك', 'Business Partner — Partners in Your Success'), hello,\n    L('شريك تشغيل واحد لكل أعمالك في السعودية', 'One operations partner for your business in Saudi'),\n    L('ابدأ من هنا', 'Start here'),\n    [{ title: L('ابدأ طلبك', 'Start your request'), rows: start },\n     { title: L('طلباتي ودفعاتي', 'My orders & payments'), rows: mine },\n     { title: L('تصفّح المزيد', 'Browse more'), rows: more }]\n  );\n}\n\n// نفس أسئلة الموقع الأولى حرفياً، فالعميل يعيش التجربة ذاتها في القناتين.\nconst DOORS = {\n  start_consulting: {\n    ar: '💼 *استشارة أعمال*\\n\\nتمام. عشان أرتب الاستشارة صح:\\n• وش النشاط أو نوع الشركة؟\\n• وش القرار أو المشكلة اللي تبغى نركز عليها؟',\n    en: '💼 *Business consulting*\\n\\nGot it. So I can scope this properly:\\n• What does the company do?\\n• What decision or problem should we focus on?',\n  },\n  start_government: {\n    ar: '🏛️ *خدمة حكومية*\\n\\nتمام. عشان أعرف المسار الصح:\\n• وش المنصة أو الجهة الحكومية؟\\n• وش الإجراء المطلوب أو رسالة المشكلة اللي تظهر لك؟',\n    en: '🏛️ *Government service*\\n\\nGot it. So I can find the right route:\\n• Which platform or authority is involved?\\n• What action do you need, or what error are you seeing?',\n  },\n  start_formation: {\n    ar: '🏢 *تأسيس شركة في السعودية*\\n\\nممتاز. عشان أحدد مسار التأسيس:\\n• فرع لشركة أجنبية قائمة أو مشروع ريادي؟\\n• وش النشاط والمدينة المستهدفة؟',\n    en: '🏢 *Company formation in Saudi Arabia*\\n\\nGreat. To pick the right route:\\n• A foreign company branch or an entrepreneurship setup?\\n• What activity and which city?',\n  },\n};\nconst JOURNEY = L(\n  '\\n\\nجاوبني بأي تفصيل عندك، وأنا أجهّز لك:\\n📝 *نطاق العمل* المكتوب — تراجعه وتعدّله\\n💰 *عرض السعر* بأتعاب واضحة\\n📜 *العقد* بعد موافقتك\\n🧾 *الفاتورة* و💳 *رابط الدفع*\\n\\nما فيه رسوم قبل ما توافق على العرض ✋',\n  '\\n\\nReply with whatever detail you have and I will prepare:\\n📝 A written *scope of work* for you to review and edit\\n💰 A *quote* with clear fees\\n📜 The *contract* once you approve\\n🧾 The *invoice* and 💳 a *payment link*\\n\\nNothing is charged before you approve the quote ✋'\n);\n\nlet body = j.menu_body || null;\nlet kind = j.menu_kind || 'none';\n\nif (DOORS[id]) {\n  body = textMsg(DOORS[id][lang] + JOURNEY);\n  kind = 'journey_' + id.slice(6);\n} else if (id === 'my_orders') {\n  body = textMsg(L(\n    '📄 *طلباتك وعروضك في مكان واحد*\\n\\nمن بوابتك تشوف نطاق العمل، وعرض السعر، والعقد، والفاتورة، وحالة كل طلب لحظة بلحظة:\\n' + BASE + '/account\\n\\nوإذا تبيني أتابع لك طلباً معيناً، أرسل لي رقمه (مثال: BP-123456) وأجيب لك حالته الآن 👇',\n    '📄 *All your orders and quotes in one place*\\n\\nYour portal shows the scope, quote, contract, invoice and live status of every order:\\n' + BASE + '/account\\n\\nOr send me an order number (e.g. BP-123456) and I will pull its status right now 👇'\n  ));\n  kind = 'my_orders';\n} else if (id === 'pay_now') {\n  body = textMsg(L(\n    '💳 *دفع فاتورة*\\n\\nأرسل لي *رقم الطلب أو الفاتورة* (مثال: BP-123456) وأرجع لك برابط دفع آمن فوراً.\\n\\nوسائل الدفع: مدى · فيزا · ماستركارد · أبل باي · تقسيط بدون فوائد.\\nوتقدر تدفع أيضاً من بوابتك مباشرة:\\n' + BASE + '/account',\n    '💳 *Pay an invoice*\\n\\nSend me the *order or invoice number* (e.g. BP-123456) and I will reply with a secure payment link.\\n\\nWe accept Mada · Visa · Mastercard · Apple Pay · interest-free instalments.\\nYou can also pay straight from your portal:\\n' + BASE + '/account'\n  ));\n  kind = 'pay_now';\n} else if (kind === 'main' && id !== 'main_menu') {\n  // التحية و«القائمة» و«رجوع» تفتح الأبواب الثلاثة؛ صف main_menu وحده\n  // يُبقي قائمة الأقسام القديمة كما هي.\n  body = journeyMenu();\n  kind = 'main_journey';\n}\n\nreturn [{ json: { ...j, menu_kind: kind, has_menu: body !== null, menu_body: body } }];\n",
+        "mode": "runOnceForAllItems"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

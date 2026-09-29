@@ -1,0 +1,831 @@
+{
+  "id": "0UKcVmH6lTTli5BN",
+  "name": "إيجنت التحقق من مطابقة إيصالات الدفع",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b355d2e1-a565-469b-b6af-b2072c2fae3f",
+  "activeVersionId": "b355d2e1-a565-469b-b6af-b2072c2fae3f",
+  "triggerCount": 2,
+  "nodeCount": 21,
+  "createdAt": "2026-07-09T03:15:15.833Z",
+  "updatedAt": "2026-08-22T00:38:33.842Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "مرحلتان مع بوابة اعتماد بشري. (1) يقرأ الإيصال ويستخرج المبلغ والمستفيد والآيبان والبنك والتاريخ، وعند التطابق يرفع الحالة إلى «بانتظار اعتماد الدفع» ويراسل الفريق فقط. (2) بعد اعتماد بشري يدوي يُشعَر العميل ويُنبّه فريق الترتيبات.",
+  "connections": {
+    "كل 30 دقيقة": {
+      "main": [
+        [
+          {
+            "node": "جلب الطلبات قيد المراجعة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جلب الطلبات قيد المراجعة": {
+      "main": [
+        [
+          {
+            "node": "تفكيك النتائج",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تفكيك النتائج": {
+      "main": [
+        [
+          {
+            "node": "استخراج بيانات الطلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استخراج بيانات الطلب": {
+      "main": [
+        [
+          {
+            "node": "يوجد ملف إيصال؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "يوجد ملف إيصال؟": {
+      "main": [
+        [
+          {
+            "node": "معالجة كل طلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "مقارنة المبلغ": {
+      "main": [
+        [
+          {
+            "node": "تحديث حالة التحقق في Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تحديث حالة التحقق في Notion": {
+      "main": [
+        [
+          {
+            "node": "عدم تطابق أو غير واضح؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "عدم تطابق أو غير واضح؟": {
+      "main": [
+        [
+          {
+            "node": "تنبيه الفريق بعدم تطابق المبلغ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🔐 طلب اعتماد الدفع (للفريق)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تنبيه الفريق بعدم تطابق المبلغ": {
+      "main": [
+        [
+          {
+            "node": "معالجة كل طلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تأكيد الدفع للعميل": {
+      "main": [
+        [
+          {
+            "node": "إرسال الطلب للفريق للترتيب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "قراءة الإيصال (احتياطي OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "مقارنة المبلغ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "معالجة كل طلب": {
+      "main": [
+        null,
+        [
+          {
+            "node": "قراءة الإيصال (مجاني Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "قراءة الإيصال (مجاني Gemini)": {
+      "main": [
+        [
+          {
+            "node": "مقارنة المبلغ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "قراءة الإيصال (احتياطي OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔐 طلب اعتماد الدفع (للفريق)": {
+      "main": [
+        [
+          {
+            "node": "معالجة كل طلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏱️ فحص المعتمدة (كل 30 دقيقة)": {
+      "main": [
+        [
+          {
+            "node": "📥 جلب الطلبات المعتمدة بشريًا",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 جلب الطلبات المعتمدة بشريًا": {
+      "main": [
+        [
+          {
+            "node": "تفكيك المعتمدة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تفكيك المعتمدة": {
+      "main": [
+        [
+          {
+            "node": "بيانات الطلب المعتمد",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بيانات الطلب المعتمد": {
+      "main": [
+        [
+          {
+            "node": "تأكيد الدفع للعميل",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "إرسال الطلب للفريق للترتيب": {
+      "main": [
+        [
+          {
+            "node": "🔒 تعليم: تمّ إشعار العميل",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "31c9fccb-220d-466e-a21e-97cb5f3012b9",
+      "name": "كل 30 دقيقة",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "44626d1b-f29b-4cdc-9a26-1a1b15fa620a",
+      "name": "جلب الطلبات قيد المراجعة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/d9a342be24774be3b4095d439d21fc90/query",
+        "authentication": "predefinedCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": {
+          "page_size": 50,
+          "filter": {
+            "and": [
+              {
+                "property": "حالة الطلب",
+                "select": {
+                  "equals": "قيد المراجعة"
+                }
+              },
+              {
+                "property": "تحقق المبلغ",
+                "select": {
+                  "equals": "لم يُفحص بعد"
+                }
+              }
+            ]
+          }
+        },
+        "nodeCredentialType": "notionOAuth2Api"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "bfdada5c-dacd-4f56-bdd9-0f694ab04394",
+      "name": "تفكيك النتائج",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        760,
+        300
+      ],
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "include": "noOtherFields",
+        "options": {
+          "destinationFieldName": "order"
+        }
+      }
+    },
+    {
+      "id": "4d061c5b-9852-4399-ac64-44b76b715b62",
+      "name": "استخراج بيانات الطلب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const page = $json.order;\nconst props = page.properties || {};\nconst rt = (p) => ((p && p.rich_text) || []).map(x => x.plain_text).join(\"\");\nconst ref = rt(props[\"رقم المرجع\"]);\nconst total = (props[\"إجمالي الطلب\"] && typeof props[\"إجمالي الطلب\"].number === \"number\") ? props[\"إجمالي الطلب\"].number : null;\nconst files = (props[\"الإيصال البنكي\"] && props[\"الإيصال البنكي\"].files) || [];\nconst file = files[0];\nconst fileUrl = file ? ((file.file && file.file.url) || (file.external && file.external.url) || \"\") : \"\";\nconst notes = rt(props[\"Notes\"]);\nconst emailM = notes.match(/البريد:\\s*([^\\s·]+@[^\\s·]+)/);\nconst clientEmail = emailM ? emailM[1].trim() : \"\";\nconst phoneM = notes.match(/الجوال:\\s*([^·]+?)(?:·|$)/);\nconst clientPhone = phoneM ? phoneM[1].trim() : \"\";\nconst itemsM = notes.match(/طلب ·\\s*([^·]+?)(?:·|$)/);\nconst items = itemsM ? itemsM[1].trim() : \"\";\nconst title = ((props[\"Opportunity Name\"] && props[\"Opportunity Name\"].title) || []).map(x => x.plain_text).join(\"\");\nconst nameM = title.match(/—\\s*(.+?)\\s*\\(/);\nconst clientName = nameM ? nameM[1].trim() : \"\";\nreturn { json: { pageId: page.id, ref, total, fileUrl, hasFile: !!fileUrl, clientEmail, clientName, clientPhone, items } };"
+      }
+    },
+    {
+      "id": "d02e301c-5ced-4847-80b6-98ab0112be53",
+      "name": "يوجد ملف إيصال؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.hasFile }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "bb390fec-31ed-4fb4-995e-f6b35df4a6a8",
+      "name": "مقارنة المبلغ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const order = $(\"استخراج بيانات الطلب\").item.json;\nconst raw = $json.content || $json.output || $json.text || \"\";\nconst text = Array.isArray(raw) ? raw.map(p => (p && p.text) || \"\").join(\" \") : String(raw);\nlet parsed = {};\ntry {\n  const fence = String.fromCharCode(96,96,96);\n  let t = text.split(fence + \"json\").join(\"\").split(fence).join(\"\").trim();\n  const a = t.indexOf(\"{\"), b = t.lastIndexOf(\"}\");\n  if (a >= 0 && b > a) t = t.slice(a, b + 1);\n  parsed = JSON.parse(t);\n} catch (e) { parsed = {}; }\nlet extracted = null;\nif (parsed.amount !== undefined && parsed.amount !== null && parsed.amount !== \"\") {\n  const n = parseFloat(String(parsed.amount).replace(/,/g, \"\"));\n  if (!isNaN(n)) extracted = n;\n}\nif (extracted == null) {\n  const m = text.replace(/,/g, \"\").match(/\\d+(\\.\\d+)?/);\n  extracted = m ? parseFloat(m[0]) : null;\n}\nconst val = (v) => (v === null || v === undefined || v === \"\") ? \"غير مقروء\" : String(v);\nconst beneficiary = val(parsed.beneficiary);\nconst account = val(parsed.account);\nconst bank = val(parsed.bank);\nconst paidAt = val(parsed.date);\nlet verdict;\nif (extracted == null) verdict = \"يحتاج مراجعة يدوية\";\nelse if (Math.abs(extracted - (order.total || 0)) <= 1) verdict = \"مطابق\";\nelse verdict = \"غير مطابق\";\nconst details = \"المبلغ المقروء: \" + (extracted == null ? \"غير مقروء\" : extracted) + \" ريال · المستفيد: \" + beneficiary + \" · الحساب/الآيبان: \" + account + \" · البنك: \" + bank + \" · تاريخ التحويل: \" + paidAt;\nconst patchProperties = {\n  \"تحقق المبلغ\": { select: { name: verdict } },\n  \"تفاصيل الإيصال (قراءة آلية)\": { rich_text: [{ text: { content: details.slice(0, 1900) } }] }\n};\nif (verdict === \"مطابق\") patchProperties[\"حالة الطلب\"] = { select: { name: \"بانتظار اعتماد الدفع\" } };\nreturn { json: { pageId: order.pageId, ref: order.ref, total: order.total, extractedAmount: extracted, beneficiary, account, bank, paidAt, details, verdict, patchProperties, clientEmail: order.clientEmail, clientName: order.clientName, clientPhone: order.clientPhone, items: order.items } };\n"
+      }
+    },
+    {
+      "id": "5bed184d-6c7f-48cb-98bb-c10d57bf9c2e",
+      "name": "تحديث حالة التحقق في Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2440,
+        200
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.pageId }}",
+        "authentication": "predefinedCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"properties\": $json.patchProperties } }}",
+        "nodeCredentialType": "notionOAuth2Api"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "c02aa1ba-401a-41ad-a749-336f143b13f5",
+      "name": "عدم تطابق أو غير واضح؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2720,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"مقارنة المبلغ\").item.json.verdict }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "rightValue": "مطابق"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "8bd33ca8-1b14-4dba-930b-89c16bef72f1",
+      "name": "تنبيه الفريق بعدم تطابق المبلغ",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3000,
+        100
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartner.sa",
+        "subject": "=⚠️ طلب يحتاج مراجعة يدوية للمبلغ — {{ $(\"مقارنة المبلغ\").item.json.ref }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Arial,sans-serif\"><h3>طلب يحتاج مراجعة يدوية</h3><p>رقم المرجع: <strong>{{ $(\"مقارنة المبلغ\").item.json.ref }}</strong></p><p>إجمالي الطلب المسجّل: {{ $(\"مقارنة المبلغ\").item.json.total }} ﷼</p><p>المبلغ الذي قرأه الذكاء من الإيصال: {{ $(\"مقارنة المبلغ\").item.json.extractedAmount }}</p><p>النتيجة: {{ $(\"مقارنة المبلغ\").item.json.verdict }}</p><p><a href=\"https://www.notion.so/{{ $(\"مقارنة المبلغ\").item.json.pageId.replace(/-/g, \"\") }}\">افتح صف الطلب في Notion</a></p></div>"
+      },
+      "webhookId": "40dc82fa-7380-4100-96df-39a5da405d62",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "9b099d9b-3e99-4d02-896d-262ee01fd0f9",
+      "name": "معالجة كل طلب",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "b0b13db2-b4a8-4fb7-bc62-b33012d79303",
+      "name": "Sticky Note acf64c7a",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        150,
+        640
+      ],
+      "parameters": {
+        "content": "## 🧾 إيجنت التحقق من إيصالات الدفع — مع بوابة اعتماد بشري (محدّث 2026-08-21)\n\n**الصف العلوي — المرحلة 1 (قراءة واقتراح، لا تأكيد):** كل 30 دقيقة ← طلبات «قيد المراجعة + لم يُفحص بعد» ← قراءة الإيصال (Gemini مجاني، OpenAI احتياطي) ← مقارنة المبلغ ← تحديث Notion.\n- **مطابق** ← الحالة تصير **«بانتظار اعتماد الدفع»** + إيميل طلب اعتماد للفريق. **العميل لا يستلم شيئًا.**\n- **غير مطابق / تعذّرت القراءة** ← تنبيه مراجعة يدوية، والحالة لا تتغيّر.\n\n**الصف السفلي — المرحلة 2 (ما بعد الاعتماد):** لا تعمل إلا على الصفوف التي **غيّر فيها إنسان** «حالة الطلب» يدويًا إلى **«مؤكد - قيد التنفيذ»** ولم يُشعَر عميلها بعد ← تأكيد للعميل + تنبيه فريق الترتيبات ← تأشير «تم إشعار العميل بالدفع» لمنع التكرار.\n\n⚠️ **المطابقة تفحص المبلغ فقط.** لذلك يُستخرج الآن أيضًا المستفيد والآيبان والبنك والتاريخ وتُوضع في عمود «تفاصيل الإيصال (قراءة آلية)» وفي إيميل الاعتماد — ليراها البشري قبل أن يعتمد. إيصال بالمبلغ الصحيح لحساب آخر لم يعد يمرّ تلقائيًا.",
+        "color": 4,
+        "width": 1420,
+        "height": 200
+      }
+    },
+    {
+      "id": "497a50c4-741e-487d-80c0-becb69c7e8f4",
+      "name": "تأكيد الدفع للعميل",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1400,
+        780
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.clientEmail }}",
+        "subject": "=✅ تم استلام دفعتك وتأكيد طلبك — {{ $json.ref }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Arial,sans-serif;color:#1F2430\"><h2 style=\"color:#0B1B5A\">تم استلام دفعتك ✅</h2><p>مرحبًا {{ $json.clientName }}،</p><p>وصلنا إيصال التحويل، واعتمده فريقنا بعد المراجعة. طلبك الآن <strong>مؤكد وقيد التنفيذ</strong>.</p><p>رقم المرجع: <strong>{{ $json.ref }}</strong></p><p>الطلب: {{ $json.items }}</p><p>الإجمالي المؤكد: {{ $json.total }} ﷼</p><p>سيتواصل معك فريق الترتيبات قريبًا لإكمال التفاصيل.</p><p style=\"color:#0B1B5A\">محفول مكفول · بزنس بارتنر</p></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "95432a57-3ab9-4197-b48c-f288ab7c7042",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "f25b54fc-c7e4-40d2-a2bc-406c29cd62f2",
+      "name": "إرسال الطلب للفريق للترتيب",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1700,
+        780
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartner.sa",
+        "subject": "=🧳 طلب معتمد — ابدؤوا الترتيبات — {{ $('بيانات الطلب المعتمد').item.json.ref }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Arial,sans-serif\"><h3>طلب اعتمدتموه — يُرجى بدء الترتيبات</h3><p>رقم المرجع: <strong>{{ $('بيانات الطلب المعتمد').item.json.ref }}</strong></p><p>العميل: {{ $('بيانات الطلب المعتمد').item.json.clientName }}</p><p>البريد: {{ $('بيانات الطلب المعتمد').item.json.clientEmail }}</p><p>الجوال/واتساب: {{ $('بيانات الطلب المعتمد').item.json.clientPhone }}</p><p>الطلب: {{ $('بيانات الطلب المعتمد').item.json.items }}</p><p>الإجمالي المؤكد: {{ $('بيانات الطلب المعتمد').item.json.total }} ﷼</p><p><a href=\"https://www.notion.so/{{ $('بيانات الطلب المعتمد').item.json.pageId.replace(/-/g, \"\") }}\">افتح صف الطلب في Notion</a></p></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "c6f8fd95-8d5a-401a-b58f-e7d15b71b108",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "9e9eb354-feb1-4899-8b56-44baa29508ea",
+      "name": "قراءة الإيصال (احتياطي OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1880,
+        200
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "inputType": "url",
+        "imageUrls": "={{ $json.fileUrl }}",
+        "text": "هذه صورة إيصال تحويل بنكي. اقرأها وأعد JSON صالحًا فقط بلا أي شرح وبلا أسوار كود، بهذه المفاتيح بالضبط: amount (المبلغ الإجمالي المُحوَّل بالريال السعودي كرقم فقط بلا فواصل، أو null إن تعذّرت القراءة)، beneficiary (اسم المستفيد المُحوَّل إليه كما هو مكتوب حرفيًا)، account (رقم الحساب أو الآيبان المستفيد)، bank (اسم البنك)، date (تاريخ التحويل كما هو مكتوب). ضع null لأي حقل غير واضح. لا تخترع أي قيمة أبدًا.",
+        "simplify": true,
+        "options": {
+          "detail": "high",
+          "maxTokens": 200
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "7455111b-b7e1-453c-a158-159afc770a97",
+      "name": "قراءة الإيصال (مجاني Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1660,
+        120
+      ],
+      "parameters": {
+        "resource": "document",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-2.5-flash",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "url",
+        "documentUrls": "={{ $json.fileUrl }}",
+        "text": "هذا إيصال تحويل بنكي. اقرأه وأعد JSON صالحًا فقط بلا أي شرح وبلا أسوار كود، بهذه المفاتيح بالضبط: amount (المبلغ الإجمالي المُحوَّل بالريال السعودي كرقم فقط بلا فواصل، أو null إن تعذّرت القراءة)، beneficiary (اسم المستفيد المُحوَّل إليه كما هو مكتوب حرفيًا)، account (رقم الحساب أو الآيبان المستفيد)، bank (اسم البنك)، date (تاريخ التحويل كما هو مكتوب). ضع null لأي حقل غير واضح. لا تخترع أي قيمة أبدًا.",
+        "simplify": true,
+        "options": {
+          "maxOutputTokens": 200
+        }
+      },
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EeMcf3QldeZBdaQL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "id": "df833c04-15a4-45e8-8bbd-9afd62631537",
+      "name": "🔐 طلب اعتماد الدفع (للفريق)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3000,
+        460
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartner.sa",
+        "subject": "=🔐 بانتظار اعتمادكم — دفعة مطابقة لم تُؤكّد بعد — {{ $(\"مقارنة المبلغ\").item.json.ref }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Arial,sans-serif;color:#1F2430\"><h3 style=\"color:#0B1B5A\">دفعة مطابقة بانتظار الاعتماد البشري</h3><p>القراءة الآلية وجدت المبلغ مطابقًا، <strong>ولم يُرسَل للعميل أي تأكيد</strong>. راجعوا الإيصال بأعينكم ثم غيّروا «حالة الطلب» يدويًا إلى <strong>مؤكد - قيد التنفيذ</strong> لينطلق إشعار العميل والترتيبات.</p><hr><p>رقم المرجع: <strong>{{ $(\"مقارنة المبلغ\").item.json.ref }}</strong></p><p>العميل: {{ $(\"مقارنة المبلغ\").item.json.clientName }} · {{ $(\"مقارنة المبلغ\").item.json.clientEmail }}</p><p>إجمالي الطلب المسجّل: <strong>{{ $(\"مقارنة المبلغ\").item.json.total }} ﷼</strong></p><h4>ما قرأه الذكاء من الإيصال — تحقّقوا منه يدويًا:</h4><ul><li>المبلغ: <strong>{{ $(\"مقارنة المبلغ\").item.json.extractedAmount }}</strong></li><li>المستفيد: <strong>{{ $(\"مقارنة المبلغ\").item.json.beneficiary }}</strong></li><li>الحساب/الآيبان: <strong>{{ $(\"مقارنة المبلغ\").item.json.account }}</strong></li><li>البنك: {{ $(\"مقارنة المبلغ\").item.json.bank }}</li><li>تاريخ التحويل: {{ $(\"مقارنة المبلغ\").item.json.paidAt }}</li></ul><p style=\"background:#FFF4E5;padding:10px;border-right:4px solid #E8A33D\">⚠️ المطابقة تفحص <strong>المبلغ فقط</strong>. تأكّدوا أن المستفيد والآيبان يخصّان حساب الشركة فعلًا، وأن التاريخ حديث.</p><p><a href=\"https://www.notion.so/{{ $(\"مقارنة المبلغ\").item.json.pageId.replace(/-/g, \"\") }}\">افتح صف الطلب والإيصال في Notion</a></p></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "deb67eba-0e9d-44cc-9114-0e0e71066a30",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "e2e2a9f2-85cb-4cac-91f4-706589563193",
+      "name": "⏱️ فحص المعتمدة (كل 30 دقيقة)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        780
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bff8e0fd-a23b-4974-9e5c-aa96a79703a0",
+      "name": "📥 جلب الطلبات المعتمدة بشريًا",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        780
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/d9a342be24774be3b4095d439d21fc90/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": {
+          "page_size": 25,
+          "filter": {
+            "and": [
+              {
+                "property": "حالة الطلب",
+                "select": {
+                  "equals": "مؤكد - قيد التنفيذ"
+                }
+              },
+              {
+                "property": "تحقق المبلغ",
+                "select": {
+                  "equals": "مطابق"
+                }
+              },
+              {
+                "property": "تم إشعار العميل بالدفع",
+                "checkbox": {
+                  "equals": false
+                }
+              }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "af1b44f8-e87b-4b56-9577-08a913830bcf",
+      "name": "تفكيك المعتمدة",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        760,
+        780
+      ],
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "include": "noOtherFields",
+        "options": {
+          "destinationFieldName": "order"
+        }
+      }
+    },
+    {
+      "id": "d0e8ffba-9a46-4846-9c69-ff312c5b61b5",
+      "name": "بيانات الطلب المعتمد",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        780
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const page = $json.order;\nconst props = page.properties || {};\nconst rt = (p) => ((p && p.rich_text) || []).map(x => x.plain_text).join(\"\");\nconst ref = rt(props[\"رقم المرجع\"]);\nconst total = (props[\"إجمالي الطلب\"] && typeof props[\"إجمالي الطلب\"].number === \"number\") ? props[\"إجمالي الطلب\"].number : null;\nconst notes = rt(props[\"Notes\"]);\nconst emailM = notes.match(/البريد:\\s*([^\\s·]+@[^\\s·]+)/);\nconst clientEmail = emailM ? emailM[1].trim() : \"\";\nconst phoneM = notes.match(/الجوال:\\s*([^·]+?)(?:·|$)/);\nconst clientPhone = phoneM ? phoneM[1].trim() : \"\";\nconst itemsM = notes.match(/طلب ·\\s*([^·]+?)(?:·|$)/);\nconst items = itemsM ? itemsM[1].trim() : \"\";\nconst title = ((props[\"Opportunity Name\"] && props[\"Opportunity Name\"].title) || []).map(x => x.plain_text).join(\"\");\nconst nameM = title.match(/—\\s*(.+?)\\s*\\(/);\nconst clientName = nameM ? nameM[1].trim() : \"\";\nreturn { json: { pageId: page.id, ref, total, clientEmail, clientName, clientPhone, items, hasEmail: !!clientEmail } };"
+      }
+    },
+    {
+      "id": "341b9f5c-d279-4307-879b-26b7b77e82b0",
+      "name": "🔒 تعليم: تمّ إشعار العميل",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2000,
+        780
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $('بيانات الطلب المعتمد').item.json.pageId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"properties\": { \"تم إشعار العميل بالدفع\": { \"checkbox\": true } } } }}"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

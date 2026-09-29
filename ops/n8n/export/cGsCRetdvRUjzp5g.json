@@ -1,0 +1,234 @@
+{
+  "id": "cGsCRetdvRUjzp5g",
+  "name": "RE — Client Intake",
+  "active": false,
+  "isArchived": false,
+  "versionId": "b0024984-46a5-4bf9-ac04-3085ff87a391",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 5,
+  "createdAt": "2026-07-17T07:34:34.359Z",
+  "updatedAt": "2026-07-17T07:34:34.359Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "POST webhook /re-intake for the website real-estate request form. Normalizes the payload (maps city/category to board options), creates a Demand row on the board (Status New, Web Form), emails the client a confirmation, and notifies BP with an approval-ga",
+  "connections": {
+    "RE Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Intake": {
+      "main": [
+        [
+          {
+            "node": "Create Board Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Board Request": {
+      "main": [
+        [
+          {
+            "node": "Email Client Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify BP Approval Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "b1ba15a7-215f-4687-b6df-0c216e9d1794",
+      "name": "RE Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "re-intake",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "7168bece-82b7-4bda-9339-d141ec49d6d3"
+    },
+    {
+      "id": "6edb460c-29f2-45dc-92b9-5f6045193a37",
+      "name": "Normalize Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\nconst b = ($json && $json.body) ? $json.body : ($json || {});\nconst s = (k) => { const v = b[k]; return v == null ? '' : String(v).trim(); };\nconst num = (k) => { const v = parseFloat(String(b[k] == null ? '' : b[k]).replace(/[^0-9.]/g, '')); return isNaN(v) ? null : v; };\nconst name = s('name') || s('contactName') || s('fullName') || 'عميل';\nconst email = s('email');\nconst phone = s('phone') || s('mobile');\nconst notes = s('notes') || s('message') || s('details') || s('requirements');\nconst cityRaw = (s('city')).toLowerCase();\nconst cityEn = { riyadh: 'Riyadh', jeddah: 'Jeddah', jedda: 'Jeddah', dammam: 'Dammam', khobar: 'Khobar', makkah: 'Makkah', mecca: 'Makkah', madinah: 'Madinah', medina: 'Madinah' };\nconst cityAr = { 'الرياض': 'Riyadh', 'جدة': 'Jeddah', 'جده': 'Jeddah', 'الدمام': 'Dammam', 'الخبر': 'Khobar', 'مكة': 'Makkah', 'مكه': 'Makkah', 'المدينة': 'Madinah', 'المدينه': 'Madinah' };\nlet city = cityEn[cityRaw] || cityAr[s('city')] || '';\nif (!city) { for (const k in cityEn) { if (cityRaw.indexOf(k) >= 0) { city = cityEn[k]; break; } } }\nif (!city && s('city')) { for (const k in cityAr) { if (s('city').indexOf(k) >= 0) { city = cityAr[k]; break; } } }\nif (!city) city = 'Other';\nconst catRaw = (s('category') || s('propertyCategory') || s('type') || '').toLowerCase();\nconst catPairs = [['coworking', 'Co-working Space'], ['co-working', 'Co-working Space'], ['مشترك', 'Co-working Space'], ['office', 'Office'], ['مكتب', 'Office'], ['commercial', 'Commercial'], ['تجاري', 'Commercial'], ['retail', 'Retail'], ['محل', 'Retail'], ['showroom', 'Showroom'], ['معرض', 'Showroom'], ['warehouse', 'Industrial'], ['industrial', 'Industrial'], ['مستودع', 'Industrial'], ['صناعي', 'Industrial'], ['factory', 'Factory'], ['مصنع', 'Factory'], ['land', 'Land'], ['ارض', 'Land'], ['أرض', 'Land'], ['residential', 'Residential'], ['سكني', 'Residential'], ['villa', 'Residential'], ['فيلا', 'Residential']];\nlet category = '';\nfor (const p of catPairs) { if (catRaw.indexOf(p[0]) >= 0) { category = p[1]; break; } }\nif (!category) category = 'Office';\nconst size = num('size') || num('sizeSqm') || num('area');\nconst seats = num('seats') || num('capacity') || num('people') || num('persons');\nconst budget = num('budget') || num('price');\nconst summaryParts = [];\nif (seats) summaryParts.push('السعة: ' + seats + ' شخص');\nif (size) summaryParts.push('المساحة: ' + size + ' م²');\nif (budget) summaryParts.push('الميزانية: ' + budget + ' ريال');\nif (notes) summaryParts.push('ملاحظات: ' + notes);\nconst aiSummary = summaryParts.join(' · ');\nconst title = 'طلب عقاري — ' + city + ' — ' + name;\nreturn { json: { name, email, phone, city, category, size, seats, budget, notes, aiSummary, title, hasEmail: email !== '' } };\n"
+      }
+    },
+    {
+      "id": "8c90b1e6-1404-420b-9496-3d3d520a7488",
+      "name": "Create Board Request",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "f416606b-4fab-4cbb-80ce-d171f75e0a3b",
+          "cachedResultName": "Real Estate Demand & Supply Board"
+        },
+        "title": "={{ $json.title }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Record Type|select",
+              "selectValue": "Demand - Client Request"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "New"
+            },
+            {
+              "key": "Channel Source|select",
+              "selectValue": "Web Form"
+            },
+            {
+              "key": "City|select",
+              "selectValue": "={{ $json.city }}"
+            },
+            {
+              "key": "Property Category|select",
+              "selectValue": "={{ $json.category }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.email }}"
+            },
+            {
+              "key": "Contact Person|rich_text",
+              "textContent": "={{ $json.name }}"
+            },
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.phone }}"
+            },
+            {
+              "key": "AI Summary|rich_text",
+              "textContent": "={{ $json.aiSummary }}"
+            },
+            {
+              "key": "Original Source|rich_text",
+              "textContent": "Website intake form"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "62809d0a-acda-41d6-84a0-0229a31085e9",
+      "name": "Email Client Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        180
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Normalize Intake').item.json.email }}",
+        "subject": "استلمنا طلبك العقاري — بيزنس بارتنر",
+        "emailType": "text",
+        "message": "=مرحباً {{ $('Normalize Intake').item.json.name }}،\n\nشكراً لتواصلك مع بيزنس بارتنر. استلمنا طلبك التالي وبدأنا العمل عليه:\n\nالمدينة: {{ $('Normalize Intake').item.json.city }}\nنوع العقار: {{ $('Normalize Intake').item.json.category }}\n{{ $('Normalize Intake').item.json.aiSummary }}\n\nسنقوم بمطابقة طلبك مع أفضل الخيارات المتاحة لدى شركائنا ونعود إليك بعرض مقارنة في أقرب وقت.\n\nمع التحية،\nفريق بيزنس بارتنر | Business Partner\nbusiness@businesspartner.sa",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Business Partner"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "053d3cb9-e65f-4d9c-ab47-e8b843957bc3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "7c86a2ff-7cf7-4d27-b3bb-3dcadf62542a",
+      "name": "Notify BP Approval Gate",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        380
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "dr.baher.magnas@gmail.com",
+        "subject": "=طلب عقاري جديد للمراجعة — {{ $('Normalize Intake').item.json.name }} ({{ $('Normalize Intake').item.json.city }})",
+        "emailType": "text",
+        "message": "=طلب عقاري جديد وصل عبر الموقع ويحتاج مراجعتك:\n\nالعميل: {{ $('Normalize Intake').item.json.name }}\nالبريد: {{ $('Normalize Intake').item.json.email }}\nالجوال: {{ $('Normalize Intake').item.json.phone }}\nالمدينة: {{ $('Normalize Intake').item.json.city }}\nنوع العقار: {{ $('Normalize Intake').item.json.category }}\n{{ $('Normalize Intake').item.json.aiSummary }}\n\nالسجل على البورد:\n{{ $json.url }}\n\nالخطوة التالية: يتولى نظام المطابقة ربط الطلب بالعروض المناسبة وتحويله إلى (Matched). بعد مراجعتك للمطابقة، غيّر الحالة إلى (Approved for RFQ) ليقوم الوكيل بإرسال طلبات التسعير للموردين.\n\nبيزنس بارتنر",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Business Partner Bot"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "2eb14cc8-68d0-445c-beff-3dd7d85c72ca",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

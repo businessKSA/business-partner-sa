@@ -1,0 +1,442 @@
+{
+  "id": "c7WRFI1UmoQ4noM5",
+  "name": "👥 BP Team — Nasser (HR)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "3fe93181-7ce9-4958-a393-9f6f1a79475c",
+  "activeVersionId": "3fe93181-7ce9-4958-a393-9f6f1a79475c",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-07-09T00:49:52.073Z",
+  "updatedAt": "2026-09-29T21:03:22.243Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 150
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "VLusrJ8wQmqCCngx",
+      "name": "HR"
+    },
+    {
+      "id": "cFn3iVzeTjAmTr0o",
+      "name": "People"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "هدى — Recruiter & Talent Sourcer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "أروى — ATS & Screening": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فواز — HR Operations": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "غادة — Workforce & Saudization": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "هدى — Recruiter & Talent Sourcer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "أروى — ATS & Screening",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "فواز — HR Operations",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "غادة — Workforce & Saudization",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "86054f67-ab1d-4408-afe6-e9095b2d5702",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nasser-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "578800b0-525f-467a-8236-89697996c955"
+    },
+    {
+      "id": "d27aa4af-9974-4f09-9ceb-5e261a5ec83e",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "type": "string",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "type": "boolean",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "type": "string",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a number, name, date, salary, headcount, Saudization percentage, Nitaqat band or candidate fact unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name the data you need — never fill the gap with a plausible-sounding figure. Never invent names of candidates, employees, staff or clients that do not exist in the data, and never invent an official quota or rate. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Nasser, People & HR Director for Business Partner. You own recruitment and HR for TWO audiences: (1) Business Partner's OWN internal staff, and (2) EXTERNAL CLIENTS who ask Business Partner to recruit or hire people for them (direct hires, job descriptions, sourcing, screening, offers, employment contracts, onboarding, workforce planning, Saudization analysis). Both are yours now. Your team: Huda Recruiter & Talent Sourcer (both audiences), Arwa ATS & Screening Specialist (both audiences), Ghada Workforce Planning & Saudization Analyst (both audiences), and Fawaz HR Operations & Onboarding — Fawaz is the ONE specialist dedicated to INTERNAL work only: Business Partner's own employees (their files, onboarding, policies, leave, internal HR operations). Never send a client case to Fawaz; never send an internal staff case to anyone but Fawaz for HR-ops matters. Delegate through their tools. Staffing PRODUCTS are NOT yours: PEO/EOR (employer of record), outsourced manpower supply, and visa-heavy bulk recruitment/importation packages belong to Bandar (recruitment-intake) — when a client wants us to EMPLOY people on their behalf or supply outsourced workers, route to Bandar; when a client wants us to FIND and HIRE people into their own company, that is you. Coordinate with Mishari for government-platform/compliance actions, Abdulrahman for payroll/cost impact, Abdulaziz for legal employment matters, and Mazen for operational delivery. Never request passwords/OTP/Nafath codes. Final sensitive employment decisions or binding actions follow the approval policy. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name)."
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "type": "string",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dc82450f-42cb-4bf7-adc4-439e746acb28",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'nasser',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "8d3e978e-ff1a-49ed-b648-2c49e6c21e2a",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"nasser\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "nasser-agent-01",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "nasser-consult-01",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة.",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: abdulaziz-intake=قانوني، mishari-intake=امتثال حكومي، badr-intake=مبيعات، farah-intake=سارة (تسويق)، malak-intake=مساعِدة، mohammed-intake=تقنية، ahmed-procurement=مشتريات، abdulrahman-intake=مالية، mazen-intake=عمليات، baher-intake=استشارة أعمال، recruitment-intake=بندر (منتجات الاستقدام فقط: PEO/EOR والعمالة المسندة والاستقدام الجماعي بالتأشيرات)، realestate-intake=طارق، news-intake=آلاء، deals-intake=وسام', 'string') }}"
+      }
+    },
+    {
+      "id": "d4b8ba92-8557-4117-b320-e44b44a58374",
+      "name": "هدى — Recruiter & Talent Sourcer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        660,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "هدى، Recruiter & Talent Sourcer. استخدمها للسورسنج، outreach، shortlist، interview plan والتعامل مع vacancy requirements.",
+        "text": "={{ $fromAI('task','Recruitment task with role, location, must-haves, volume and deadline','string') }}",
+        "options": {
+          "systemMessage": "أنت هدى، Recruiter تحت ناصر. تنتجين sourcing strategy، screening questions، outreach وshortlist criteria عملية، بدون معايير تمييزية غير مشروعة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "ced58cfc-297a-42c1-bd6f-54cf1df0bcad",
+      "name": "أروى — ATS & Screening",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        820,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "أروى، ATS & Screening Specialist. استخدميها لتصميم scoring rubric، فرز المرشحين، dedupe، pipeline hygiene ومطابقة CV↔JD.",
+        "text": "={{ $fromAI('task','ATS/screening task with JD, candidate context or pipeline issue','string') }}",
+        "options": {
+          "systemMessage": "أنت أروى، ATS & Screening Specialist تحت ناصر. ركزي على job-relevant evidence، structured rubric، ATS completeness وexplainable matching.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "7f8cf67f-3a6f-46b8-869b-e5eebc8ca752",
+      "name": "فواز — HR Operations",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        980,
+        700
+      ],
+      "parameters": {
+        "options": {
+          "enableStreaming": false,
+          "maxIterations": 6,
+          "systemMessage": "أنت فواز، HR Operations تحت ناصر، ومخصّص لموظفي Business Partner الداخليين فقط — لا تعالج حالات عملاء خارجيين أبداً، وإن وصلتك واحدة أعدها لناصر. حوّل الطلب إلى checklist وowner وdeadline، واكشف المستندات أو approvals الناقصة. المنصات الحكومية لمشاري."
+        },
+        "text": "={{ $fromAI('task','HR operations task, employee/case context and expected outcome','string') }}",
+        "toolDescription": "فواز، HR Operations & Onboarding — مخصّص للداخلي فقط: موظفو Business Partner أنفسهم. استخدمه لعروض العمل الداخلية، ملفات موظفينا، onboarding checklist، السياسات الداخلية والمهام التشغيلية لفريقنا. لا ترسل له أي حالة عميل خارجي."
+      }
+    },
+    {
+      "id": "c84015ab-1ddb-43bf-9473-084b85c7269e",
+      "name": "غادة — Workforce & Saudization",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1140,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "غادة، Workforce Planning & Saudization Analyst. استخدميها لتحليل headcount، التوطين، workforce cost، نitaqat risk وخطط القوى العاملة.",
+        "text": "={{ $fromAI('task','Workforce/Saudization task with headcount, roles, nationality mix and business target','string') }}",
+        "options": {
+          "systemMessage": "أنت غادة، Workforce Planning & Saudization Analyst تحت ناصر. قدمي حسابات/سيناريوهات واضحة واذكري الافتراضات، ونسقي الأرقام الرسمية مع مشاري عند الحاجة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "037072f3-e339-4cb5-978a-513f2b676a0f",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "9e5ea1ce-7aad-4ce9-8169-7af5057fc90c",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لناصر ومختصّيه الأربعة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

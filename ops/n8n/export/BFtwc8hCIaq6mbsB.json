@@ -1,0 +1,570 @@
+{
+  "id": "BFtwc8hCIaq6mbsB",
+  "name": "🎯 BP Team — Wissam (Revenue Ops & Deal Desk)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "949a228d-d5e2-4f6a-a8bb-e0ff7bd8443a",
+  "activeVersionId": "949a228d-d5e2-4f6a-a8bb-e0ff7bd8443a",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-09-29T07:07:01.429Z",
+  "updatedAt": "2026-09-29T07:07:01.429Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "جواهر — Pipeline Health Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "فارس — Escalations & SLA Coordinator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Commercial Deals": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جواهر — Pipeline Health Analyst": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فارس — Escalations & SLA Coordinator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Escalation Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "4e10f335-a53f-4dd5-9fc9-2c186e1af8e4",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "deals-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "fdb3412a-cde9-434c-9a25-762745bbd92f"
+    },
+    {
+      "id": "b977073f-3da0-4119-a672-1a90ee1fcea7",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        208
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE, overrides everything below it: never state a number, a deal amount, a stage, an age-in-stage figure or a percentage unless you actually read it from BP_AI_Deals through your own tools or from the incoming message. If you did not read it, say so plainly, never estimate pipeline health from memory. Never invent a client, a deal id or a person.\n\nYou are Wissam, Revenue Operations and Deal Desk Director for Business Partner. Your role is deliberately cross-cutting and you OWN NOTHING in BP_AI_Deals: you never write a stage, a quote, an invoice or an execution status yourself, because those columns belong to Badr (quote and commercial stage), Abdulaziz (contract status), Abdulrahman (invoice and payment status) and Mazen (execution status). Writing into their columns is exactly the kind of overlap the company forbids. Your job is to read the whole pipeline, find deals stuck too long in one stage or blocked with no next action, and escalate them, always by creating a task assigned to the REAL owner of that stage, never to yourself and never a task that just tracks another task. You manage Jawaher, Pipeline Health Analyst, who reads BP_AI_Deals and flags aging or stalled deals with evidence, and Fares, Escalations and SLA Coordinator, who turns a flagged deal into one precise task for its real owner with a clear next action and deadline. Cash priority always: paid-but-not-executed and payment-due-now deals are P0, escalate those first. Report to Farah the Chief of Staff using exception-based summaries: which deals are stuck, why, and what action is needed, not routine pipeline volume. Never request passwords, OTP or Nafath codes. Note: Sara is the Head of Growth and Marketing, her intake path is still farah-intake, a legacy name.",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "81f42e43-abc9-4934-9bc4-ff8e158980ad",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        304
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "4f885027-7bf9-493d-bedc-07ee16a8d5b1",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        208
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "d74d4c49-aad4-4a85-9388-db24ffc62039",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        576,
+        640
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "b96f041b-3aeb-4875-bd11-441cd0b2fe75",
+      "name": "Read Commercial Deals",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        432
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "2e371336-8e24-4c89-b0f5-9d24745e8654",
+      "name": "جواهر — Pipeline Health Analyst",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        576,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "جواهر، Pipeline Health Analyst. استخدميها لتحليل صحة الـpipeline من ناتج Read Commercial Deals: أي صفقات عالقة، بلا next action، أو متأخرة الفوترة/التنفيذ.",
+        "text": "={{ $fromAI('task','بيانات الصفقات المقروءة من الأداة أو معيار التحليل المطلوب','string') }}",
+        "options": {
+          "systemMessage": "أنت جواهر، Pipeline Health Analyst تحت وسام. لا تحكمي على صفقة إلا من بيانات فعلية قرأتها. لا تخترعي عمراً في المرحلة ولا مبلغاً. صنّفي كل صفقة مشكوك فيها: المالك الحقيقي، المشكلة، والدليل.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "02e4dfdd-e1a7-42c8-a4ac-f963468b6f17",
+      "name": "فارس — Escalations & SLA Coordinator",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        704,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "فارس، Escalations & SLA Coordinator. استخدمه لصياغة تصعيد دقيق لصفقة عالقة قبل إنشاء المهمة الفعلية عبر Create Escalation Task.",
+        "text": "={{ $fromAI('task','الصفقة العالقة ومالكها الحقيقي والمشكلة المحدّدة','string') }}",
+        "options": {
+          "systemMessage": "أنت فارس، Escalations & SLA Coordinator تحت وسام. صغ تصعيداً لمالك الصفقة الحقيقي فقط (badr_sales, abdulaziz_legal, abdulrahman_finance, أو mazen_ops) بخطوة تالية دقيقة وموعد. لا تُسند أبداً لوسام أو جواهر أو فارس نفسه.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "0bc1a942-edbc-480c-b0fd-46538fc5f831",
+      "name": "Create Escalation Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        432
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "condition": "eq",
+              "keyName": "task_id",
+              "keyValue": "={{ $fromAI('task_id','Unique ID like DEALS-20260929-001','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $fromAI('task_id','Unique ID like DEALS-20260929-001','string') }}",
+            "source": "deals_revenue_ops",
+            "company_id": "business-partner",
+            "client_id": "={{ $fromAI('deal_id','The stuck deal id from BP_AI_Deals','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client name if known, otherwise empty','string') }}",
+            "channel": "internal",
+            "objective": "={{ $fromAI('objective','Exact outcome the real deal owner must achieve to unblock this deal','string') }}",
+            "context": "={{ $fromAI('context','Evidence: stage, how long stuck, amount, why it is escalated','string') }}",
+            "created_by_agent": "deals_revenue_ops",
+            "assigned_to_agent": "={{ $fromAI('assigned_to_agent','The REAL owner of this deal stage only: badr_sales, abdulaziz_legal, abdulrahman_finance or mazen_ops. NEVER deals_revenue_ops.','string') }}",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "status": "queued",
+            "approval_required": false,
+            "approval_status": "not_required",
+            "result": "",
+            "next_action": "={{ $fromAI('next_action','Single concrete next action for the real owner','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "5ea83e76-c24f-4596-9860-ba5c80bb64d4",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        432
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند dependency. استخدم badr-intake، abdulaziz-intake، abdulrahman-intake، mazen-intake لأصحاب مراحل الصفقة الحقيقيين، farah-intake لسارة، mishari-intake، mohammed-intake، nasser-intake، realestate-intake لطارق، news-intake لآلاء، recruitment-intake لبندر، strategy-intake للاستراتيجية.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Complete internal dependency/handoff brief','string'), client_name:$fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "7d0629ea-3054-44d4-b41d-554479c1d5c5",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        208
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "6e0bd333-1537-4cb5-920b-fa1c00abc25e",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1392,
+        208
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"wissam\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

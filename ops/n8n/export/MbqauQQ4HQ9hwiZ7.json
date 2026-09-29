@@ -1,0 +1,874 @@
+{
+  "id": "MbqauQQ4HQ9hwiZ7",
+  "name": "BP - Sync Visa Tracker to Companies Employees",
+  "active": true,
+  "isArchived": false,
+  "versionId": "43d012b8-c55f-4cf2-9930-d9ad665d174d",
+  "activeVersionId": "43d012b8-c55f-4cf2-9930-d9ad665d174d",
+  "triggerCount": 1,
+  "nodeCount": 18,
+  "createdAt": "2026-07-11T03:15:08.919Z",
+  "updatedAt": "2026-07-12T23:35:59.167Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Sync one Visa Tracker row when its Notion page is updated. Links by unified 700/name, creates missing companies, updates or creates employees.",
+  "connections": {
+    "Normalize Visa Row": {
+      "main": [
+        [
+          {
+            "node": "Filter Excluded Statuses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Excluded Statuses": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Employees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Employee by Iqama": {
+      "main": [
+        [
+          {
+            "node": "Employee Found by Iqama?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee Found by Iqama?": {
+      "main": [
+        [
+          {
+            "node": "Update Employee",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Employees",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search Employee by Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Employee by Name": {
+      "main": [
+        [
+          {
+            "node": "Employee Found by Name?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee Found by Name?": {
+      "main": [
+        [
+          {
+            "node": "Update Employee",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Employee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Employees": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Has Unified 700?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Unified 700?": {
+      "main": [
+        [
+          {
+            "node": "Search Company by Unified 700",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Search Company by Unified 700": {
+      "main": [
+        [
+          {
+            "node": "Company Found by Unified?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Found by Unified?": {
+      "main": [
+        [
+          {
+            "node": "Extract Existing Company ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search Company by Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Company by Name": {
+      "main": [
+        [
+          {
+            "node": "Company Found by Name?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Found by Name?": {
+      "main": [
+        [
+          {
+            "node": "Extract Existing Company ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Company": {
+      "main": [
+        [
+          {
+            "node": "Extract New Company ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Existing Company ID": {
+      "main": [
+        [
+          {
+            "node": "Search Employee by Iqama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract New Company ID": {
+      "main": [
+        [
+          {
+            "node": "Search Employee by Iqama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Employee": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Employees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visa Tracker Updated": {
+      "main": [
+        [
+          {
+            "node": "Normalize Visa Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const props = $json.properties || {};\n\nfunction rich(name) {\n  const p = props[name];\n  if (!p) return '';\n  if (p.title) return p.title.map(x => x.plain_text || '').join('').trim();\n  if (p.rich_text) return p.rich_text.map(x => x.plain_text || '').join('').trim();\n  if (p.phone_number) return String(p.phone_number || '').trim();\n  if (p.number !== undefined && p.number !== null) return String(p.number).trim();\n  if (p.select) return p.select.name || '';\n  if (p.status) return p.status.name || '';\n  return '';\n}\n\nfunction select(name) {\n  const p = props[name];\n  if (!p) return '';\n  if (p.select) return p.select.name || '';\n  if (p.status) return p.status.name || '';\n  return rich(name);\n}\n\nfunction number(name) {\n  const p = props[name];\n  if (!p) return null;\n  if (p.number !== undefined && p.number !== null) return p.number;\n  const n = Number(rich(name));\n  return Number.isFinite(n) ? n : null;\n}\n\nfunction date(name) {\n  const p = props[name];\n  if (!p) return null;\n  if (p.date && p.date.start) return p.date.start;\n  return null;\n}\n\nconst name = rich('Name') || rich('ملاحظات');\nconst iqama = rich('Iqama NO.').replace(/\\t/g, '').replace(/\\s+/g, '').trim();\nconst unified700 = select('700') || rich('700');\nconst laborStatus = select('Labor Status');\nconst visaCompanyName = select('Visa company name');\n\nreturn {\n  json: {\n    visaPageId: $json.id,\n    name,\n    iqama,\n    unified700,\n    laborStatus,\n    visaCompanyName,\n    \n    nationality: select('Nationality ') || select('Nationality'),\n    profession: select('Profession'),\n    dateForRenewal: date('Date For Renewal'),\n    balanceStatus: select('Balance Status'),\n    wakalaNumber: number('Wakala Number'),\n    laborLicenseFees: number('Labor License Fees'),\n    lead: select('Lead'),\n    remaining: number('Remaining '),\n    qiwaFees: number('Qiwa Fees'),\n    iqamaStatus: select('Iqama Status'),\n    grFees: number('GR Fees'),\n    visaFees: number('Visa Fees'),\n    contractFees: number('Contract Fees'),\n    phone: rich('Phone'),\n    dateForWakala: date('Date for Wakala'),\n    cocFees: number('COC Fees'),\n    embassy: select('Embassy'),\n    sellNewVisaDate: date('when we can sell new visa'),\n    borderNumber: rich('border number'),\n    agencyName: select('Agency Name'),\n    contractStatus: select('Contract Status'),\n    mofaFees: number('MOFA Fees'),\n    birthDate: date('Birth Date'),\n    paid: number('Paid'),\n    dateArrival: date('Date Arrival'),\n    visaIssueDate: date('تاريخ اصدار التأشيرة'),\n    laborLicenseIssueDate: date('تاريخ اصدار رخصة العمل'),\n    contractName: select('Contract Name'),\n    laborLicenseStatus: select('Labor License status'),\n    absherAmalFees: number('Absher Amal Fees'),\n    visaNo: number('Visa NO.'),\n    feesForWakala: number('Fees for Wakala'),\n    dateOfIssueIqama: rich('Date Of Issue Iqama'),\n    insurance: select('Insurance'),\n    mofaStatus: select('MOFA Status'),\n    transferSponsorshipFees: rich('Transfer Sponsorship fees'),\n    transferSponsorshipFees1: number('Transfer Sponsorship fees 1')\n  }\n};"
+      },
+      "id": "d669627d-9161-44b6-aea6-12985c20fd42",
+      "name": "Normalize Visa Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.laborStatus }}",
+              "rightValue": "Final Exit",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.laborStatus }}",
+              "rightValue": "Transfer From Company",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0fc66a56-ed9c-47bc-b8a0-31223068794b",
+      "name": "Filter Excluded Statuses",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.unified700 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8b6b1ceb-9aae-4c7a-a7ab-a8558b5e36d2",
+      "name": "Has Unified 700?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1360,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d49d108d-ee5c-8247-b5bf-870da55ca702"
+        },
+        "limit": 1,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "={{ \"رقم الهوية/الإقامة|rich_text\" }}",
+              "condition": "equals",
+              "richTextValue": "={{ $json.employeeData.iqama }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1a844b1e-a5ec-4a13-9fd0-27199e36c1a8",
+      "name": "Search Employee by Iqama",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        336
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Search Employee by Iqama\").item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e3b04881-3350-4202-9992-763ae308c547",
+      "name": "Employee Found by Iqama?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1808,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Search Employee by Iqama\").item.json.id || $(\"Search Employee by Name\").item.json.id }}"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "={{ \"اسم الموظف|title\" }}",
+              "title": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.name || $(\"Extract New Company ID\").item.json.employeeData.name }}"
+            },
+            {
+              "key": "={{ \"رقم الهوية/الإقامة|rich_text\" }}",
+              "textContent": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.iqama || $(\"Extract New Company ID\").item.json.employeeData.iqama }}"
+            },
+            {
+              "key": "={{ \"الرقم الموحد 700|rich_text\" }}",
+              "textContent": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.unified700 || $(\"Extract New Company ID\").item.json.employeeData.unified700 }}"
+            },
+            {
+              "key": "={{ \"المنشأة|relation\" }}",
+              "relationValue": [
+                "={{ $(\"Extract Existing Company ID\").item.json.companyId || $(\"Extract New Company ID\").item.json.companyId }}"
+              ]
+            },
+            {
+              "key": "={{ \"الجنسية|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.nationality || $(\"Extract New Company ID\").item.json.employeeData.nationality }}"
+            },
+            {
+              "key": "={{ \"المسمى الوظيفي|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.profession || $(\"Extract New Company ID\").item.json.employeeData.profession }}"
+            },
+            {
+              "key": "={{ \"Labor Status|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.laborStatus || $(\"Extract New Company ID\").item.json.employeeData.laborStatus }}"
+            },
+            {
+              "key": "={{ \"Phone|phone_number\" }}",
+              "phoneValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.phone || $(\"Extract New Company ID\").item.json.employeeData.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b0413c03-483a-4fd6-b7a1-ebabb6814440",
+      "name": "Update Employee",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        304
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d49d108d-ee5c-8247-b5bf-870da55ca702"
+        },
+        "limit": 1,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "={{ \"اسم الموظف|title\" }}",
+              "condition": "equals",
+              "titleValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.name || $(\"Extract New Company ID\").item.json.employeeData.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8d60aa8b-e277-4d33-bb33-9ca737e02866",
+      "name": "Search Employee by Name",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2032,
+        480
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Search Employee by Name\").item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "49727fc8-4fa6-497e-8046-9aba03e64731",
+      "name": "Employee Found by Name?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2256,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d49d108d-ee5c-8247-b5bf-870da55ca702"
+        },
+        "title": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.name || $(\"Extract New Company ID\").item.json.employeeData.name }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "={{ \"رقم الهوية/الإقامة|rich_text\" }}",
+              "textContent": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.iqama || $(\"Extract New Company ID\").item.json.employeeData.iqama }}"
+            },
+            {
+              "key": "={{ \"الرقم الموحد 700|rich_text\" }}",
+              "textContent": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.unified700 || $(\"Extract New Company ID\").item.json.employeeData.unified700 }}"
+            },
+            {
+              "key": "={{ \"المنشأة|relation\" }}",
+              "relationValue": [
+                "={{ $(\"Extract Existing Company ID\").item.json.companyId || $(\"Extract New Company ID\").item.json.companyId }}"
+              ]
+            },
+            {
+              "key": "={{ \"الجنسية|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.nationality || $(\"Extract New Company ID\").item.json.employeeData.nationality }}"
+            },
+            {
+              "key": "={{ \"المسمى الوظيفي|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.profession || $(\"Extract New Company ID\").item.json.employeeData.profession }}"
+            },
+            {
+              "key": "={{ \"Labor Status|select\" }}",
+              "selectValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.laborStatus || $(\"Extract New Company ID\").item.json.employeeData.laborStatus }}"
+            },
+            {
+              "key": "={{ \"Phone|phone_number\" }}",
+              "phoneValue": "={{ $(\"Extract Existing Company ID\").item.json.employeeData.phone || $(\"Extract New Company ID\").item.json.employeeData.phone }}"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "id": "7809420d-ee59-4f67-9852-8e16cdd57841",
+      "name": "Create Employee",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        528
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "52696dec-f288-47d3-9beb-addc77309d96",
+      "name": "Loop Over Employees",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        400
+      ]
+    },
+    {
+      "id": "2e4980df-c4d7-4b51-994a-d381a08db58f0",
+      "name": "Search Company by Unified 700",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        176
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ccd108d-ee5c-82b7-b478-876249bf61aa"
+        },
+        "limit": 1,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "={{ \"الرقم الموحد|rich_text\" }}",
+              "condition": "equals",
+              "richTextValue": "={{ $json.unified700 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "deed5270-501a-4cc0-af82-c2e2bbd78f2f",
+      "name": "Company Found by Unified?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1808,
+        176
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Search Company by Unified 700\").item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "0e918bd5-f114-4a9f-a266-53c30cc0c026",
+      "name": "Extract Existing Company ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        176
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    employeeData: $('Has Unified 700?').item.json,\n    companyId: $('Search Company by Unified 700').item.json.id || $('Search Company by Name').item.json.id\n  }\n};"
+      }
+    },
+    {
+      "id": "0a2f069c-c581-449d-aead-a8bc947086cf",
+      "name": "Search Company by Name",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2032,
+        336
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ccd108d-ee5c-82b7-b478-876249bf61aa"
+        },
+        "limit": 1,
+        "simple": false,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "={{ \"اسم المنشأة|title\" }}",
+              "condition": "equals",
+              "titleValue": "={{ $('Has Unified 700?').item.json.visaCompanyName }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "b44502a1-1e72-4ed3-8479-45b092b01687",
+      "name": "Company Found by Name?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2256,
+        336
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Search Company by Name\").item }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7caf4bdd-378e-40f0-a3d3-ea281c30cf7c",
+      "name": "Create Company",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        416
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ccd108d-ee5c-82b7-b478-876249bf61aa"
+        },
+        "title": "={{ $('Has Unified 700?').item.json.visaCompanyName || $('Has Unified 700?').item.json.unified700 }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "={{ \"الرقم الموحد|rich_text\" }}",
+              "textContent": "={{ $('Has Unified 700?').item.json.unified700 }}"
+            },
+            {
+              "key": "={{ \"ملاحظات|rich_text\" }}",
+              "textContent": "تمت الإضافة من قاعدة التأشيرات لربط العمالة"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "01b971d5-e47e-466e-a07e-2b2acb8e4ddd",
+      "name": "Extract New Company ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        416
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    employeeData: $('Has Unified 700?').item.json,\n    companyId: $('Create Company').item.json.id\n  }\n};"
+      }
+    },
+    {
+      "id": "f79cf0cc-0e4c-44e2-b2c4-7c92e81b018d",
+      "name": "Visa Tracker Updated",
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        400
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "event": "pagedUpdatedInDatabase",
+        "databaseId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://app.notion.com/p/154d108dee5c82f8bea281a4388a5c94"
+        },
+        "simple": false,
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

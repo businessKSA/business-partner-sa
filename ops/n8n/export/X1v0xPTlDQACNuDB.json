@@ -1,0 +1,196 @@
+{
+  "id": "X1v0xPTlDQACNuDB",
+  "name": "RE — Vendor Commission Notice Campaign",
+  "active": false,
+  "isArchived": false,
+  "versionId": "3398a6a0-45aa-414e-8d24-c94d8318a40b",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 5,
+  "createdAt": "2026-07-17T07:38:02.801Z",
+  "updatedAt": "2026-07-17T07:38:02.801Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Manual one-time (idempotent) campaign: emails every RE vendor with Commission Notice Sent=false a first-contact notice explaining BP intermediates at 10% commission (to be included in their quotes), then checks Commission Notice Sent so re-runs only hit n",
+  "connections": {
+    "Run Commission Campaign": {
+      "main": [
+        [
+          {
+            "node": "Get Vendor Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vendor Accounts": {
+      "main": [
+        [
+          {
+            "node": "Plan Notices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Notices": {
+      "main": [
+        [
+          {
+            "node": "Send Commission Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Commission Notice": {
+      "main": [
+        [
+          {
+            "node": "Mark Notice Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9bfcdc17-2629-4913-bdf7-34301375ea9e",
+      "name": "Run Commission Campaign",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "3ff6946a-a327-4f42-9c6a-38a2b918a987",
+      "name": "Get Vendor Accounts",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "2eb39f5e-4ef0-4c1d-bb9e-7b5fe76d4f52",
+          "cachedResultName": "RE Vendor Accounts"
+        },
+        "returnAll": true,
+        "simple": false,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "1078272b-a3d1-49ab-ba0f-7ac8b887f56f",
+      "name": "Plan Notices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst vendors = $('Get Vendor Accounts').all();\nconst prop = (p, n) => (p && p.properties && p.properties[n]) ? p.properties[n] : null;\nconst titleText = (p, n) => { const x = prop(p, n); return x && Array.isArray(x.title) ? x.title.map(t => t.plain_text).join('') : ''; };\nconst emailOf = (p, n) => { const x = prop(p, n); return x && x.email ? x.email : ''; };\nconst multi = (p, n) => { const x = prop(p, n); return x && Array.isArray(x.multi_select) ? x.multi_select.map(o => o.name) : []; };\nconst cbOf = (p, n) => { const x = prop(p, n); return x && x.checkbox === true; };\nconst out = [];\nfor (const it of vendors) {\n  const v = it.json;\n  if (cbOf(v, 'Commission Notice Sent')) continue;\n  const email = emailOf(v, 'Email');\n  if (!email) continue;\n  const vendorName = titleText(v, 'Vendor Name') || 'شركاءنا الكرام';\n  const cities = multi(v, 'Cities Covered');\n  const cityLine = cities.length ? ('مدن التغطية لدينا في سجلكم: ' + cities.join('، ') + '.\\n') : '';\n  const subject = 'شراكة مع بيزنس بارتنر — إحالة عملاء لمساحاتكم وخدماتكم';\n  const body = 'مرحباً ' + vendorName + '،\\n\\n'\n    + 'نتواصل معكم من «بيزنس بارتنر» (Business Partner) — منصة سعودية تساعد الشركات ورواد الأعمال على إيجاد المكاتب ومساحات العمل والحلول العقارية المناسبة في المملكة.\\n\\n'\n    + 'يصلنا يومياً طلبات من عملاء يبحثون عن مساحات وخدمات مثل ما تقدّمونه، ونودّ إدراجكم ضمن شبكة شركائنا لنرسل لكم طلبات التسعير (RFQ) المطابقة لنشاطكم ومدنكم.\\n'\n    + cityLine\n    + '\\nآلية التعامل:\\n'\n    + 'تعمل «بيزنس بارتنر» كوسيط بين العميل والمزوّد بعمولة قدرها 10% على قيمة الصفقة، ونطلب تضمينها ضمن عرض السعر الذي ترسلونه لنا للعميل (أي أن يكون السعر النهائي شاملاً عمولة بيزنس بارتنر 10%). بهذا يبقى العرض واضحاً وموحّداً أمام العميل.\\n\\n'\n    + 'إن كنتم موافقين على هذه الآلية، يكفي الرد على هذا البريد بالموافقة، وسنبدأ بإرسال الطلبات المطابقة لكم فور توفرها.\\n\\n'\n    + 'نتطلّع لشراكة مثمرة.\\n\\n'\n    + 'مع التحية،\\nفريق بيزنس بارتنر | Business Partner\\nbusiness@businesspartner.sa';\n  out.push({ json: { vendorPageId: v.id, email, vendorName, subject, body } });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "08f2cbbf-917f-4773-a14a-a023717546e2",
+      "name": "Send Commission Notice",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Business Partner"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "d47bda11-4a1e-49a4-9afc-2b17cb9c80fc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "bca0d41e-be4b-4c57-86b8-3fd737c55602",
+      "name": "Mark Notice Sent",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Plan Notices').item.json.vendorPageId }}"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Commission Notice Sent|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

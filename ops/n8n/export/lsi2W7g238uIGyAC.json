@@ -1,0 +1,182 @@
+{
+  "id": "lsi2W7g238uIGyAC",
+  "name": "🔊 Jarvis — Voice (Azure Neural TTS)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "03711d43-8669-4469-8454-736fbde80ecb",
+  "activeVersionId": "03711d43-8669-4469-8454-736fbde80ecb",
+  "triggerCount": 1,
+  "nodeCount": 4,
+  "createdAt": "2026-09-29T20:30:45.834Z",
+  "updatedAt": "2026-09-29T21:33:41.397Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "Voice POST": {
+      "main": [
+        [
+          {
+            "node": "Build SSML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build SSML": {
+      "main": [
+        [
+          {
+            "node": "Azure Speech TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure Speech TTS": {
+      "main": [
+        [
+          {
+            "node": "Respond Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "faf1dcdd-2a5b-4f3d-aa57-066cfca0be65",
+      "name": "Voice POST",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-voice-4c9e2a7b1d5f8e3a",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "a81edc17-ff91-4cf0-9105-f2a3febe9e49"
+    },
+    {
+      "id": "3920b327-1223-4254-b8bf-8cd89039dc15",
+      "name": "Build SSML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Region of the Azure Speech resource. Change here only.\nconst REGION = 'eastus2';\nconst b = ($input.first().json.body) || {};\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nlet text = esc(String(b.text || '').trim().slice(0, 900));\nif (!text) text = 'لا يوجد نص.';\nconst voice = /^[a-zA-Z-]+Neural$/.test(String(b.voice || '')) ? b.voice : 'ar-SA-ZariyahNeural';\nconst lang = voice.slice(0, 5);\nconst rate = /^[+-]?\\d{1,2}%$/.test(String(b.rate || '')) ? b.rate : '+0%';\nconst pitch = /^[+-]?\\d{1,2}%$/.test(String(b.pitch || '')) ? b.pitch : '+0%';\nconst xml = '<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"' + lang + '\"><voice name=\"' + voice + '\"><prosody rate=\"' + rate + '\" pitch=\"' + pitch + '\">' + text + '</prosody></voice></speak>';\nreturn [{ json: { ssml: xml, url: 'https://' + REGION + '.tts.speech.microsoft.com/cognitiveservices/v1', voice } }];",
+        "language": "javaScript",
+        "mode": "runOnceForAllItems"
+      }
+    },
+    {
+      "id": "24bb82b9-9c0f-48ed-ae73-6812f8882652",
+      "name": "Azure Speech TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/ssml+xml"
+            },
+            {
+              "name": "X-Microsoft-OutputFormat",
+              "value": "audio-24khz-48kbitrate-mono-mp3"
+            },
+            {
+              "name": "User-Agent",
+              "value": "bp-jarvis"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/ssml+xml",
+        "body": "={{ $json.ssml }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bc5WhdQOljUDeKhp",
+          "name": "Azure Speech — Jarvis"
+        }
+      }
+    },
+    {
+      "id": "752f5108-7eb6-46d3-81b5-e41cfa0cec0c",
+      "name": "Respond Audio",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "inputFieldName": "data",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "audio/mpeg"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

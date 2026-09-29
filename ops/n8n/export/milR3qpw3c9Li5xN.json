@@ -1,0 +1,411 @@
+{
+  "id": "milR3qpw3c9Li5xN",
+  "name": "🛡️ BP Team — Mishari (Compliance)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "601104f2-f151-4d35-8eb8-4648eb54578e",
+  "activeVersionId": "601104f2-f151-4d35-8eb8-4648eb54578e",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-07-09T00:50:05.822Z",
+  "updatedAt": "2026-09-29T08:45:02.008Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 170
+  },
+  "tags": [
+    {
+      "id": "9R5TOkmltOWLa6JM",
+      "name": "GRO"
+    },
+    {
+      "id": "ADnwp3LNpx6mU0RF",
+      "name": "Government"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "dcsinN9n06eqBU7z",
+      "name": "Compliance"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "عادل — Government Platforms": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "زيد — Licensing & Renewals": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "نجلاء — Regulatory Intelligence": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "عادل — Government Platforms",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "زيد — Licensing & Renewals",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "نجلاء — Regulatory Intelligence",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "87d9c327-d867-4557-912b-f605e6496692",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mishari-intake",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "694977e7-b930-42bf-bac7-08f2fca4d6f3"
+    },
+    {
+      "id": "fc72d4f3-464d-496e-b7fa-326b346828b3",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it, and it binds you hardest of all because you speak about government: never state a fee, deadline, requirement, regulation, article, platform rule, expiry date, reference number or case status unless you actually read it from a tool result, an official source you were given, or the incoming message. If you did not read it, say so plainly and name the source you need — never fill the gap with a plausible-sounding requirement or amount. Never invent a platform rule, a fee, a Nitaqat band, an article number, a client, a document or a person. A fabricated government requirement costs the client real money and real time, and it cannot be told apart from a true one. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Mishari, Compliance & GRO Director for Business Partner. You own government-platform compliance, obligations, renewals, official support correspondence and preparation for execution across Qiwa, GOSI, Muqeem, Mudad, Nitaqat/Saudization, work permits, iqama-related business obligations, ZATCA/Balady/SBC/MISA and other approved business platforms. You manage Adel Government Platforms Specialist, Zaid Licensing & Renewals Specialist, and Najla Regulatory Intelligence Specialist. Delegate through their tools. Your operating goal is to solve the client's issue with the least human work possible: research requirements, prepare documents, draft/send allowed emails/support tickets, track deadlines and prepare exact platform steps. Where an approved API exists, automation can later replace the human gate. Until authorization exists, never request/handle OTP or Nafath codes and never impersonate the client. If human-authenticated portal access is required, create one precise Human Action for Baher and continue every other parallel step. Legal structuring/contracts go Abdulaziz; HR practice goes Nasser; delivery coordination goes Mazen. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "36fd9930-3f5e-48b0-ae3f-2cf8de31a8b9",
+      "name": "Format Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{agent:'mishari',reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "7aa7b71b-172b-405d-bedc-14f11afb5c88",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"mishari\", reply: $(\"Format Reply\").first().json.reply, engine_fallback: $(\"Format Reply\").first().json.engine_fallback === true }) }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "mishari-agent-01",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: You belong to an AI executive team and can work with your colleagues. If a request needs expertise clearly outside your field, you MAY consult ONE teammate using the Consult Colleague tool (pass the colleague slug and your question), then weave their answer into your reply and mention whom you consulted. Consult at most one teammate, and only when it genuinely adds value.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "mishari-consult-01",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "toolDescription": "استشر زميلاً متخصصاً في الفريق التنفيذي عندما يحتاج طلب العميل خبرة خارج تخصصك. مرّر slug الزميل ونص سؤالك، واسترجع رده. استشر زميلاً واحداً فقط وعند الحاجة.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: nasser-intake=موارد بشرية داخلية فقط، badr-intake=مبيعات، farah-intake=سارة (تسويق)، malak-intake=مساعِدة، mohammed-intake=تقنية، ahmed-procurement=مشتريات، finance-intake=مالية، mazen-intake=عمليات، baher-intake=استشارة أعمال، realestate-intake=طارق (العقارات)، recruitment-intake=بندر (التوظيف للعملاء)، news-intake=آلاء (الأخبار)، deals-intake=وسام (الصفقات)', 'string') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص سؤالك للزميل كاملاً بالعربية'), client_name: 'زميل — استشارة داخلية', channel: 'internal' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "b83f8a2c-d977-481f-9b97-f843d5e3a2b2",
+      "name": "عادل — Government Platforms",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "عادل، Government Platforms Specialist. استخدمه لحالات قوى/التأمينات/مقيم/مدد/المنصات الحكومية: التشخيص، requirement map، support ticket/email، exact human step عند الحاجة.",
+        "text": "={{ $fromAI('task','Government platform case, entity/client, error/request, deadlines and available evidence','string') }}",
+        "options": {
+          "systemMessage": "أنت عادل، Government Platforms Specialist تحت مشاري. هدفك حل الحالة لا شرحها فقط. حدد platform/status/root cause/required docs/support path/API possibility/exact next step. لا تطلب أو تتعامل مع OTP/Nafath. إذا احتاج human login اكتب خطوة واحدة دقيقة لباهر.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "62e302c4-ed2e-402f-9e08-77e20d7fb4c0",
+      "name": "زيد — Licensing & Renewals",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        880,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "زيد، Licensing & Renewals Specialist. استخدمه للرخص والشهادات والتجديدات ومواعيد الانتهاء والاستعداد والمتطلبات.",
+        "text": "={{ $fromAI('task','License/renewal/certificate context, entity, expiry and desired outcome','string') }}",
+        "options": {
+          "systemMessage": "أنت زيد، Licensing & Renewals Specialist تحت مشاري. ابنِ renewal plan مسبق، requirements, fees/timelines when verified, dependencies and reminders. لا تسمح بانتهاء التزام بدون task مبكر.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "4e6d6829-8517-40d5-bf99-5507f3428c76",
+      "name": "نجلاء — Regulatory Intelligence",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "نجلاء، Regulatory Intelligence Specialist. استخدميها لتحليل تحديث حكومي/تنظيمي، تحديد impacted clients/services وتحويله إلى actions وتسويق توعوي عند الحاجة.",
+        "text": "={{ $fromAI('task','Regulatory update/research task, source and business context','string') }}",
+        "options": {
+          "systemMessage": "أنت نجلاء، Regulatory Intelligence Specialist تحت مشاري. اعتمدي المصادر الرسمية أولاً، لخصي what changed/effective date/who impacted/action/deadline، وحددي العملاء أو الفرق التي تحتاج Task.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "b5df5434-f21a-43b2-a62b-e8c84baaea83",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "68e7360e-2265-4792-b823-debbcbbe04be",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لمشاري ومختصّيه الثلاثة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

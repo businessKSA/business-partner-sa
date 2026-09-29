@@ -1,0 +1,171 @@
+{
+  "id": "YzQW3nycx1FSCrRG",
+  "name": "🗝️ SS — Client Login (ss-login)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "ac5e49fb-2362-47f2-b98d-531f95592187",
+  "activeVersionId": "ac5e49fb-2362-47f2-b98d-531f95592187",
+  "triggerCount": 1,
+  "nodeCount": 5,
+  "createdAt": "2026-07-16T20:42:57.915Z",
+  "updatedAt": "2026-07-21T01:45:07.597Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "تسجيل دخول بوابة الخدمات المشتركة: webhook ss-login {code} → بحث في SS Clients → {ok, name, conv, tasks} أو {ok:false}.",
+  "connections": {
+    "Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Resolve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Query": {
+      "main": [
+        [
+          {
+            "node": "Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "a7829b6d-5a8e-497e-99f5-9b86add05c66",
+      "name": "Login Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-login",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "06ae49ea-e0f9-42d4-89e7-c920c68437ef"
+    },
+    {
+      "id": "10ef30da-59e6-4861-905a-971e776f90b4",
+      "name": "Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build Query').first().json.qBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "b29040a4-7e51-48a3-a9c0-aafa52f8b92d",
+      "name": "Resolve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const r=$input.first().json.results||[];if(!r.length){return [{json:{ok:false}}];}const p=r[0].properties;const txt=x=>((x&&x.rich_text&&x.rich_text[0]&&x.rich_text[0].plain_text)||'');const name=((p['العميل'].title||[])[0]||{}).plain_text||'عميل';const status=((p['الحالة']||{}).select||{}).name||'نشط';if(status!=='نشط'){return [{json:{ok:false,blocked:true}}];}let names={};try{const nj=JSON.parse(txt(p['AgentNames'])||'{}');if(nj&&typeof nj==='object'&&!Array.isArray(nj))names=nj;}catch(e){}const hasProfile=!!txt(p['CompanyProfile']);return [{json:{ok:true,name:name,conv:txt(p['ConvDB']),tasks:txt(p['TasksDB']),names:names,has_profile:hasProfile}}];"
+      }
+    },
+    {
+      "id": "5082f222-7fa8-4b1f-bed6-88ed0f58717f",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      }
+    },
+    {
+      "id": "421ad164-b5c8-4a71-9703-0aa62ba09968",
+      "name": "Build Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        110,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const code=((b.code||'')+'').trim().toUpperCase();const qBody=JSON.stringify({filter:{property:'الرمز',rich_text:{equals:code||'NONE'}}});return [{json:{code:code,qBody:qBody}}];"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

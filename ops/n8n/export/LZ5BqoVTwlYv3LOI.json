@@ -1,0 +1,566 @@
+{
+  "id": "LZ5BqoVTwlYv3LOI",
+  "name": "🚦 BP AI — Team Task Dispatcher",
+  "active": true,
+  "isArchived": false,
+  "versionId": "c140ce98-3b53-420f-9654-2b7e51b57c18",
+  "activeVersionId": "c140ce98-3b53-420f-9654-2b7e51b57c18",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-06-30T21:55:23.774Z",
+  "updatedAt": "2026-09-24T05:32:20.831Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 270
+  },
+  "tags": [
+    {
+      "id": "5F5Gg2eDoMhVZcTD",
+      "name": "Dispatcher"
+    },
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Every 5 min: dispatches queued AI tasks to directors, including Legal, while respecting human/approval gates; lifecycle tasks close after synchronous manager action.",
+  "connections": {
+    "Route Task to Agent": {
+      "main": [
+        [
+          {
+            "node": "Dispatchable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Queued Team Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Assigned Agent Control": {
+      "main": [
+        [
+          {
+            "node": "Route Task to Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Agent Heartbeat": {
+      "main": [
+        [
+          {
+            "node": "Mark Task In Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Assigned Agent Native": {
+      "main": [
+        [
+          {
+            "node": "Update Agent Heartbeat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatchable?": {
+      "main": [
+        [
+          {
+            "node": "Claim Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim Task": {
+      "main": [
+        [
+          {
+            "node": "Restore Task Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Task Payload": {
+      "main": [
+        [
+          {
+            "node": "Call Assigned Agent Native",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Queued Team Tasks": {
+      "main": [
+        [
+          {
+            "node": "Skip Human & Loop Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Human & Loop Tasks": {
+      "main": [
+        [
+          {
+            "node": "Two Per Tick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Two Per Tick": {
+      "main": [
+        [
+          {
+            "node": "Read Assigned Agent Control",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9c0cd96c-19c4-43e2-b0a0-a37af570be61",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "871a95f9-1e4f-4aac-92b1-bafcdd6ee3c4",
+      "name": "Read Queued Team Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "queued"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 20,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "9793bb6e-849d-4132-bb98-802821a1c4ea",
+      "name": "Route Task to Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const task=$('Read Queued Team Tasks').item.json||{}; const ctrl=$json||{}; const map={badr_sales:'nvrh0c3mUctb1EsG',mazen_ops:'WZE7oUzCzQGR1u0t',mohammed_it:'e9G9S6GG0j7lCiWt',website_funnel_ops:'8HL5NWvqi1SkTKqb',abdulrahman_finance:'HZ8W430gZovbVSSs',abdulaziz_legal:'SL1aYYS2UBsqHFPE',mishari_compliance:'milR3qpw3c9Li5xN',nasser_hr:'c7WRFI1UmoQ4noM5',farah_marketing:'vWICtJIGL4Cu7NXy',abdullah_procurement:'8PGiUitiRKDybt3l',ahmed_strategy:'BZlZ9irajglk4qpS'}; const parent=String(ctrl.reports_to||''); const directId=map[task.assigned_to_agent]||''; const workflowId=directId||map[parent]||''; const routedVia=directId?task.assigned_to_agent:parent; const controlStatus=String(ctrl.status||'').toLowerCase(); const explicitlyDisabled=ctrl.enabled===false||['paused','maintenance','disabled','offline'].includes(controlStatus); const humanBlocked=task.assigned_to_agent==='baher_owner'||task.human_action_required===true||(task.approval_required===true&&String(task.approval_status||'').toLowerCase()!=='approved'); const dispatch=!!workflowId&&!humanBlocked&&!explicitlyDisabled; let reason='ready'; if(humanBlocked)reason='human_or_approval_gate'; else if(explicitlyDisabled)reason='agent_paused'; else if(!workflowId)reason='unknown_agent_or_manager'; const message='INTERNAL ASSIGNED TASK '+(task.task_id||'')+'\\nAssigned employee: '+(task.assigned_to_agent||'')+'\\nRouted via manager: '+routedVia+'\\nObjective: '+(task.objective||'')+'\\nContext: '+(task.context||'')+'\\nPriority: '+(task.priority||'')+'\\nCash stage: '+(task.cash_stage||'')+'\\nRevenue SAR: '+(task.revenue_value||0)+'\\nNext action: '+(task.next_action||'')+'\\nDue: '+(task.due_at||'')+'\\nAutonomy: '+(ctrl.autonomy_level||ctrl.permissions_level||'L2')+'\\nExecute within your allowed tools. If the assigned employee is one of your specialists, delegate to that specialist. Return a concise result and exact next action.'; return {json:{...task,dispatch,workflow_id:workflowId,dispatch_reason:reason,routed_via_manager:routedVia,message,channel:'internal',agent_alias:'',agent_control:{enabled:ctrl.enabled!==false,status:ctrl.status||'active',autonomy_level:ctrl.autonomy_level||ctrl.permissions_level||'',health_status:ctrl.health_status||'unknown',reports_to:parent}}};"
+      }
+    },
+    {
+      "id": "ed963a02-d4c6-42a1-b436-13943f54636d",
+      "name": "Dispatchable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.dispatch }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "731bce89-78dd-45bf-8313-c5d3efd822a4",
+      "name": "Mark Task In Progress",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        -80
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Route Task to Agent').item.json.task_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $('Route Task to Agent').item.json.source === 'deal_lifecycle' ? 'completed' : 'in_progress' }}",
+            "result": "={{ $('Call Assigned Agent Native').item.json.reply ?? $('Call Assigned Agent Native').item.json.output ?? JSON.stringify($('Call Assigned Agent Native').item.json).slice(0,3500) }}",
+            "next_action": "={{ $('Route Task to Agent').item.json.next_action || 'Agent engaged; review result and continue.' }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "review_status": "={{ $('Route Task to Agent').item.json.source === 'deal_lifecycle' ? 'reviewed' : 'pending' }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6da2e9e9-d9fc-467a-a62f-aca7fcbba685",
+      "name": "Read Assigned Agent Control",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -140
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.assigned_to_agent }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6a340767-ee68-40c9-9cfc-c412c1cb7880",
+      "name": "Update Agent Heartbeat",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1180,
+        -180
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Route Task to Agent').item.json.assigned_to_agent }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_heartbeat": "={{ $now.toISO() }}",
+            "health_status": "healthy",
+            "last_error": "",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "last_heartbeat",
+              "displayName": "last_heartbeat",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_status",
+              "displayName": "health_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_error",
+              "displayName": "last_error",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ec2befe5-017b-4bd6-9cc0-8570451b0653",
+      "name": "Call Assigned Agent Native",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "mode": "each",
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.workflow_id }}"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "2ed9b373-4dce-490b-827f-fd0e718fee86",
+      "name": "Claim Task",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "mappingMode": "defineBelow",
+          "schema": [
+            {
+              "canBeUsedToMatch": true,
+              "displayName": "status",
+              "id": "status",
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "displayName": "updated_at",
+              "id": "updated_at",
+              "type": "date"
+            }
+          ],
+          "value": {
+            "status": "in_progress",
+            "updated_at": "={{ $now.toISO() }}"
+          }
+        },
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "BP_AI_Tasks",
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "condition": "eq",
+              "keyName": "task_id",
+              "keyValue": "={{ $('Route Task to Agent').item.json.task_id }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "update",
+        "options": {},
+        "resource": "row"
+      }
+    },
+    {
+      "id": "ed8a4e17-560e-43ae-aea6-945a8c9818b7",
+      "name": "Restore Task Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Claim Task يُخرج صفّ الجدول، فيضيع message وworkflow_id اللذان يحتاجهما استدعاء المدير.\nreturn { json: $('Route Task to Agent').item.json };",
+        "language": "javaScript",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "d0268e04-2a2a-447f-9f63-62f9d3b0e179",
+      "name": "Skip Human & Loop Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        180
+      ],
+      "parameters": {
+        "jsCode": "// Tasks that cannot be dispatched must not occupy the 2 slots of a tick.\n// Human/approval-gated tasks stay queued (they dispatch once approved) but are\n// skipped here; recirculation chains (-RECIRC-2 and deeper) are the\n// self-assignment loop closed on 2026-09-23 and are never dispatched.\nconst out = [];\n$input.all().forEach((it, i) => {\n  const t = it.json || {};\n  const human = t.assigned_to_agent === 'baher_owner' || t.human_action_required === true ||\n    (t.approval_required === true && String(t.approval_status || '').toLowerCase() !== 'approved');\n  const loop = /-RECIRC-([2-9]|\\d{2,})$/.test(String(t.task_id || ''));\n  if (!human && !loop) out.push({ json: t, pairedItem: i });\n});\nreturn out;",
+        "language": "javaScript",
+        "mode": "runOnceForAllItems"
+      }
+    },
+    {
+      "id": "3280322b-254d-4ba0-b6bf-3d46f93ec8eb",
+      "name": "Two Per Tick",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        360,
+        180
+      ],
+      "parameters": {
+        "keep": "firstItems",
+        "maxItems": 2
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

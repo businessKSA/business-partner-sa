@@ -1,0 +1,87 @@
+{
+  "id": "irYKqZctmrCMNYsH",
+  "name": "🗝️ SS Setup — Clients Registry (run once)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "1cb66c33-dd43-4ebc-a2b7-397856b40886",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 2,
+  "createdAt": "2026-07-16T20:38:25.205Z",
+  "updatedAt": "2026-07-16T20:38:35.071Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "تشغيل مرة واحدة: ينشئ قاعدة «عملاء الخدمات المشتركة — SS Clients» تحت صفحة Tenants hub عبر Notion API (العميل، الإيميل، الرمز، الحالة، معرّفات قواعد المستأجر).",
+  "connections": {
+    "Run Once": {
+      "main": [
+        [
+          {
+            "node": "Create SS Clients DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "d5226c52-8de0-406a-9978-e7e504d0f002",
+      "name": "Run Once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "6795676c-fed7-4b78-b608-ab9de22a2fa2",
+      "name": "Create SS Clients DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"parent\":{\"type\":\"page_id\",\"page_id\":\"39fd108d-ee5c-813f-b468-f63400140958\"},\"icon\":{\"type\":\"emoji\",\"emoji\":\"🗝️\"},\"title\":[{\"type\":\"text\",\"text\":{\"content\":\"عملاء الخدمات المشتركة — SS Clients\"}}],\"properties\":{\"العميل\":{\"title\":{}},\"الإيميل\":{\"email\":{}},\"الرمز\":{\"rich_text\":{}},\"الحالة\":{\"select\":{\"options\":[{\"name\":\"نشط\",\"color\":\"green\"},{\"name\":\"موقوف\",\"color\":\"red\"}]}},\"TenantPage\":{\"rich_text\":{}},\"TasksDB\":{\"rich_text\":{}},\"ConvDB\":{\"rich_text\":{}},\"تاريخ الإنشاء\":{\"created_time\":{}}}}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

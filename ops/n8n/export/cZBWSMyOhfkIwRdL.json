@@ -1,0 +1,371 @@
+{
+  "id": "cZBWSMyOhfkIwRdL",
+  "name": "BP-Daily-Gov-News",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b44e0b00-dfc2-49e1-b1ea-4dc8699d9687",
+  "activeVersionId": "b44e0b00-dfc2-49e1-b1ea-4dc8699d9687",
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-07-07T20:52:09.265Z",
+  "updatedAt": "2026-09-20T19:55:09.890Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "نشرة أخبار حكومية يومية للشركات — تُرسل للمالك عبر واتساب وإيميل وتُضاف لصفحة نوشن",
+  "connections": {
+    "Fetch Government News RSS": {
+      "main": [
+        [
+          {
+            "node": "Parse RSS XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse RSS XML": {
+      "main": [
+        [
+          {
+            "node": "Extract News Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Sunday 8 AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Government News RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract News Items": {
+      "main": [
+        [
+          {
+            "node": "صياغة النشرة (Azure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "صياغة النشرة (Azure)": {
+      "main": [
+        [
+          {
+            "node": "WA Owner - Daily Gov News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Owner - Daily Gov News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notion Append - Daily Gov News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "صياغة النشرة (Azure)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "48d522dc-4e8e-40cc-b246-046460e94e9c",
+      "name": "Weekly Sunday 8 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                0
+              ],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0,
+              "weeksInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f71a1fac-1a58-4db0-8eff-2ba42fb0b6fd",
+      "name": "Fetch Government News RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://news.google.com/rss/search?q=%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%D8%A9%20%28%D9%82%D9%88%D9%89%20OR%20%D9%85%D9%82%D9%8A%D9%85%20OR%20%D9%85%D8%AF%D8%AF%20OR%20%22%D8%A7%D9%84%D8%AA%D8%A3%D9%85%D9%8A%D9%86%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A7%D8%AC%D8%AA%D9%85%D8%A7%D8%B9%D9%8A%D8%A9%22%20OR%20%22%D8%A7%D9%84%D8%B2%D9%83%D8%A7%D8%A9%20%D9%88%D8%A7%D9%84%D8%B6%D8%B1%D9%8A%D8%A8%D8%A9%22%20OR%20%D8%A8%D9%84%D8%AF%D9%8A%D8%A9%20OR%20%22%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%22%20OR%20%D9%84%D8%A7%D8%A6%D8%AD%D8%A9%20OR%20%22%D9%82%D8%B1%D8%A7%D8%B1%20%D9%88%D8%B2%D8%A7%D8%B1%D9%8A%22%20OR%20%22%D8%A3%D8%A8%D8%B4%D8%B1%20%D8%A3%D8%B9%D9%85%D8%A7%D9%84%22%20OR%20%22%D9%88%D8%B2%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B1%D8%AF%20%D8%A7%D9%84%D8%A8%D8%B4%D8%B1%D9%8A%D8%A9%22%20OR%20%22%D9%88%D8%B2%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D8%A9%22%20OR%20%D8%A7%D9%85%D8%AA%D8%AB%D8%A7%D9%84%29%20when%3A7d&hl=ar&gl=SA&ceid=SA:ar",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "5f3857e6-0339-4684-bc8e-6407e12fe5e4",
+      "name": "Parse RSS XML",
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "mode": "xmlToJson",
+        "dataPropertyName": "data",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "3911ceaa-60ce-4782-acce-8e937abb4053",
+      "name": "Extract News Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "jsCode": "function textOf(v){ if(v==null) return ''; if(typeof v==='string') return v; if(typeof v==='object') return v._ || v['#text'] || ''; return String(v); }\nlet root = ($json.rss) || $json;\nlet channel = root.channel || root || {};\nlet items = channel.item || [];\nif (!Array.isArray(items)) items = items ? [items] : [];\nlet mapped = items.map(function(it){ return { title: textOf(it.title), link: textOf(it.link), pubDate: textOf(it.pubDate), source: textOf(it.source) }; });\nmapped.sort(function(a,b){ return new Date(b.pubDate) - new Date(a.pubDate); });\nmapped = mapped.slice(0, 20);\nlet lines = mapped.map(function(m, i){ return (i+1) + '. ' + m.title + (m.source ? (' — المصدر: ' + m.source) : '') + (m.link ? (' — ' + m.link) : ''); });\nreturn [{ json: { count: mapped.length, items: mapped, raw_items_text: lines.length ? lines.join('\\n') : 'لا توجد نتائج خام هذا الأسبوع.' } }];"
+      }
+    },
+    {
+      "id": "8602c330-46e7-41e6-89cb-c1ec286961da",
+      "name": "Draft Weekly Digest",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        300
+      ],
+      "parameters": {
+        "resource": "text",
+        "operation": "response",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "type": "text",
+              "role": "system",
+              "content": "أنت محرر نشرة أخبار يومية مختصرة باللغة العربية لأصحاب الأعمال في السعودية. من العناوين الخام أدناه (قد تكون مكررة أو غير دقيقة المصدر)، اكتب نشرة واضحة:\n- ابدأ بسطر عنوان وتاريخ اليوم.\n- لكل خبر حقيقي ذو علاقة بالشركات/الامتثال/الإجراءات الحكومية: نقطة واحدة بصياغتك الخاصة، بلا حشو، مع ذكر الجهة المعنية إن وضحت.\n- تجاهل أي عنوان غير مرتبط فعلياً بتنظيم الأعمال/الشركات في السعودية.\n- إذا لم يوجد أي خبر حقيقي ذو صلة: اكتب سطراً واحداً يفيد بعدم وجود تحديثات جوهرية اليوم.\n- لا تختلق معلومات غير موجودة بالعناوين. لا تذكر أرقاماً أو تواريخ غير مذكورة صراحة بالعناوين.\n- الأسلوب: مهني مختصر، جاهز للنشر مباشرة في قناة واتساب للشركة (بدون Markdown، فقط نص وإيموجي بسيط).\n- اختم دائماً بسطر: «المصدر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء»."
+            },
+            {
+              "type": "text",
+              "role": "user",
+              "content": "={{ 'تاريخ اليوم: ' + $now.setZone('Asia/Riyadh').toFormat('yyyy-MM-dd') + '\\n\\nالعناوين الخام:\\n' + $json.raw_items_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "303e62bb-c070-4990-8e06-43da7c521bb1",
+      "name": "WA Owner - Daily Gov News",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        220
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966503793356",
+        "messageType": "text",
+        "textBody": "={{ '📰 نشرة اليوم — جاهزة للنسخ ونشرها في قناة واتساب:\\n\\n' + $json.text }}",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "9ffce788-92ba-4d7a-91fd-bc6c74fab3f1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "8a195897-1f95-4f76-9d50-a845aa40118e",
+      "name": "Email Owner - Daily Gov News",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1340,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "dr.baher.magnas@gmail.com",
+        "subject": "={{ '📰 نشرة الأخبار الحكومية اليومية — ' + $now.setZone('Asia/Riyadh').toFormat('yyyy-MM-dd') }}",
+        "emailType": "text",
+        "message": "={{ $('صياغة النشرة (Azure)').first().json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "ce8fb98e-a85f-4ed8-8f57-968546d430dd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "76960884-bcdf-48df-8218-c5700883eabd",
+      "name": "Notion Append - Daily Gov News",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1340,
+        400
+      ],
+      "parameters": {
+        "resource": "block",
+        "operation": "append",
+        "blockId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "396d108d-ee5c-813c-bac6-c269c47d0b4f"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "richText": false,
+              "textContent": "={{ '🗓️ ' + $now.setZone('Asia/Riyadh').toFormat('yyyy-MM-dd') }}"
+            },
+            {
+              "type": "paragraph",
+              "richText": false,
+              "textContent": "={{ $('صياغة النشرة (Azure)').first().json.text }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "id": "5babdcbd-ee9e-44ea-8829-300d0ba0958a",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        520
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 1500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "2d022cd3-f272-433c-a2fe-19a74a1f72f2",
+      "name": "صياغة النشرة (Azure)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "أنت محرر نشرة أخبار يومية مختصرة باللغة العربية لأصحاب الأعمال في السعودية. من العناوين الخام أدناه (قد تكون مكررة أو غير دقيقة المصدر)، اكتب نشرة واضحة:\n- ابدأ بسطر عنوان وتاريخ اليوم.\n- لكل خبر حقيقي ذي علاقة بالشركات/الامتثال/الإجراءات الحكومية: نقطة واحدة بصياغتك الخاصة، بلا حشو، مع ذكر الجهة المعنية إن وضحت.\n- تجاهل أي عنوان غير مرتبط فعلياً بتنظيم الأعمال/الشركات في السعودية.\n- إذا لم يوجد أي خبر حقيقي ذي صلة: اكتب سطراً واحداً يفيد بعدم وجود تحديثات جوهرية اليوم.\n- لا تختلق معلومات غير موجودة بالعناوين. لا تذكر أرقاماً أو تواريخ غير مذكورة صراحة بالعناوين.\n- الأسلوب: مهني مختصر، جاهز للنشر مباشرة في قناة واتساب للشركة (بدون Markdown، فقط نص وإيموجي بسيط).\n- اختم دائماً بسطر: «المصدر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء»."
+            }
+          ]
+        },
+        "promptType": "define",
+        "text": "={{ 'تاريخ اليوم: ' + $now.setZone('Asia/Riyadh').toFormat('yyyy-MM-dd') + '\\n\\nالعناوين الخام:\\n' + $json.raw_items_text }}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

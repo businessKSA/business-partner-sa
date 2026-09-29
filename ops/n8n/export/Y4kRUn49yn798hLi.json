@@ -1,0 +1,444 @@
+{
+  "id": "Y4kRUn49yn798hLi",
+  "name": "BP3 — واجهة API للوحة العميل (Client Portal API)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7a7046f1-bc37-459b-8b10-97206086a00d",
+  "activeVersionId": "7a7046f1-bc37-459b-8b10-97206086a00d",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-07-08T17:31:45.604Z",
+  "updatedAt": "2026-08-21T00:20:32.453Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "API آمن للوحة العميل: GET بـ company+code → يتحقق من رمز الدخول في قاعدة العملاء → يجلب سجل الامتثال والتنبيهات لنفس المنشأة فقط → يحسب درجة الامتثال وعدّاد الخطورة → يرجّع JSON للوحة الموقع. لا صلاحيات كتابة، قراءة فقط ومقيّدة بمنشأة واحدة.",
+  "connections": {
+    "استقبال طلب اللوحة": {
+      "main": [
+        [
+          {
+            "node": "تجهيز الطلب",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز الطلب": {
+      "main": [
+        [
+          {
+            "node": "بحث المنشأة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بحث المنشأة": {
+      "main": [
+        [
+          {
+            "node": "تحقق رمز الدخول",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تحقق رمز الدخول": {
+      "main": [
+        [
+          {
+            "node": "رمز صحيح؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رمز صحيح؟": {
+      "main": [
+        [
+          {
+            "node": "جلب سجل الامتثال",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "رد غير مصرح",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جلب سجل الامتثال": {
+      "main": [
+        [
+          {
+            "node": "جلب التنبيهات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجميع بيانات اللوحة": {
+      "main": [
+        [
+          {
+            "node": "رد اللوحة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جلب التنبيهات": {
+      "main": [
+        [
+          {
+            "node": "جلب المستندات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جلب المستندات": {
+      "main": [
+        [
+          {
+            "node": "تجميع بيانات اللوحة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "3f00581e-4844-4987-b9a7-9d6ba630d710",
+      "name": "استقبال طلب اللوحة",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        96
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "bp3-portal-9kq4z",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "91c6defe-97ab-496e-869b-a2b8152390ad"
+    },
+    {
+      "id": "55351ffe-5c33-41ba-a416-c51789fbfc78",
+      "name": "تجهيز الطلب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const q = ($input.first().json.query) || {};\nconst email = String(q.email || '').trim().toLowerCase();\nconst code = String(q.code || '').trim();\nconst company = String(q.company || '').trim();\nreturn [{ json: { email, code, company } }];"
+      }
+    },
+    {
+      "id": "27699326-f134-4752-9778-b2fd066eb65e",
+      "name": "بحث المنشأة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/5d570a75009b41019857060d0670642f/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'البريد', email: { equals: $json.email } } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "fdaa20d1-2376-438a-99a9-83eacdaa0876",
+      "name": "تحقق رمز الدخول",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const req = $('تجهيز الطلب').first().json;\nconst res = $input.first().json || {};\nconst results = res.results || [];\nconst codeOf = (pg) => {\n  const cp = ((pg.properties || {})['رمز الدخول'] || {});\n  return (cp.rich_text && cp.rich_text[0] && cp.rich_text[0].plain_text) || '';\n};\nconst nameOf = (pg) => {\n  const t = ((pg.properties || {})['المنشأة'] || {});\n  return (t.title && t.title.map(x => x.plain_text).join('')) || '';\n};\nconst rows = results.filter(pg => { const sc = codeOf(pg); return !!sc && sc === req.code; });\nif (!req.email || !req.code || !rows.length) {\n  return [{ json: { valid: false, email: req.email } }];\n}\nconst companies = rows.map(pg => ({ pageId: pg.id, name: nameOf(pg) }));\nlet page = rows[0];\nif (req.company) {\n  const want = req.company.replace(/-/g, '');\n  const m = rows.find(pg => pg.id.replace(/-/g, '') === want);\n  if (m) page = m;\n}\nconst p = page.properties || {};\nconst companyName = nameOf(page);\nconst g = (name, kind) => {\n  const v = p[name] || {};\n  if (kind === 'number') return typeof v.number === 'number' ? v.number : null;\n  if (kind === 'select') return (v.select && v.select.name) || null;\n  if (kind === 'date') return (v.date && v.date.start) || null;\n  if (kind === 'text') return (v.rich_text && v.rich_text.map(x => x.plain_text).join('')) || '';\n  return null;\n};\nconst subStatus = g('حالة الاشتراك', 'select');\nconst locked = subStatus !== null && subStatus !== 'نشط';\nreturn [{ json: {\n  valid: true, locked, company: companyName, email: req.email, pageId: page.id,\n  companies,\n  employees: g('عدد الموظفين', 'number'),\n  saudis: g('عدد السعوديين', 'number'),\n  band: g('النطاق المتوقع', 'select'),\n  quarterlyCost: g('التكلفة الربعية التقديرية', 'number'),\n  annualCost: g('التكلفة السنوية التقديرية', 'number'),\n  lastAnalysis: g('آخر تحليل', 'date'),\n  status: g('الحالة', 'select'),\n  summary: g('ملخص الوكيل', 'text'),\n} }];"
+      }
+    },
+    {
+      "id": "253258b0-fcd0-4c73-a5b9-ed9b09a63f24",
+      "name": "رمز صحيح؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "6adee281-cc6e-49b9-8622-1ae6012f2cee",
+      "name": "جلب سجل الامتثال",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/7258a07449a6444fadc186a61cc3a77e/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'المنشأة', title: { equals: $('تحقق رمز الدخول').first().json.company } } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "17a07a0f-d5c7-432e-a661-b57c74eb2b90",
+      "name": "جلب التنبيهات",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/6879f59096784a2798574c3777882e67/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'المنشأة', rich_text: { equals: $('تحقق رمز الدخول').first().json.company } } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "cadef9a7-7884-4b0a-8636-17abbe0701ec",
+      "name": "تجميع بيانات اللوحة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const auth = $('تحقق رمز الدخول').first().json;\nconst regRes = ($('جلب سجل الامتثال').first().json || {}).results || [];\nconst alertRes = ($('جلب التنبيهات').first().json || {}).results || [];\nconst docsRes = ($input.first().json || {}).results || [];\nconst today = new Date().toISOString().slice(0,10);\nconst daysBetween = (a, b) => Math.round((new Date(a) - new Date(b)) / 86400000);\n\nconst register = regRes.map(pg => {\n  const p = pg.properties || {};\n  const platform = (p['المنصة'] && p['المنصة'].select && p['المنصة'].select.name) || '';\n  const subject = (p['الموظف أو الموضوع'] && p['الموظف أو الموضوع'].rich_text && p['الموظف أو الموضوع'].rich_text.map(x=>x.plain_text).join('')) || '';\n  const expiry = (p['تاريخ الانتهاء'] && p['تاريخ الانتهاء'].date && p['تاريخ الانتهاء'].date.start) || null;\n  const actionType = (p['نوع الإجراء'] && p['نوع الإجراء'].select && p['نوع الإجراء'].select.name) || '';\n  const days = expiry ? daysBetween(expiry, today) : null;\n  return { platform, subject, expiry, actionType, daysRemaining: days };\n}).sort((a,b) => (a.daysRemaining ?? 99999) - (b.daysRemaining ?? 99999));\n\nconst alerts = alertRes.map(pg => {\n  const p = pg.properties || {};\n  const title = (p['التنبيه'] && p['التنبيه'].title && p['التنبيه'].title.map(x=>x.plain_text).join('')) || '';\n  const risk = (p['الخطورة'] && p['الخطورة'].select && p['الخطورة'].select.name) || '';\n  const platform = (p['المنصة'] && p['المنصة'].select && p['المنصة'].select.name) || '';\n  const days = typeof (p['الأيام المتبقية'] && p['الأيام المتبقية'].number) === 'number' ? p['الأيام المتبقية'].number : null;\n  const action = (p['الإجراء الموصى به'] && p['الإجراء الموصى به'].rich_text && p['الإجراء الموصى به'].rich_text.map(x=>x.plain_text).join('')) || '';\n  const approval = (p['الموافقة البشرية'] && p['الموافقة البشرية'].select && p['الموافقة البشرية'].select.name) || '';\n  const expiry = (p['تاريخ الانتهاء'] && p['تاريخ الانتهاء'].date && p['تاريخ الانتهاء'].date.start) || null;\n  return { title, risk, platform, daysRemaining: days, action, approval, expiry };\n});\n\nconst files = docsRes.map(pg => {\n  const p = pg.properties || {};\n  const gt = (n) => ((p[n] || {}).rich_text || []).map(x => x.plain_text).join('');\n  const name = ((p['Document Name'] || {}).title || []).map(x => x.plain_text).join('');\n  const type = ((p['Document Type'] || {}).select || {}).name || '';\n  const uploaded = (((p['Uploaded Date'] || {}).date) || {}).start || null;\n  const expiry = (((p['Expiry Date'] || {}).date) || {}).start || null;\n  const conf = typeof (p['Confidence'] || {}).number === 'number' ? p['Confidence'].number : null;\n  const review = !!((p['Needs Human Review'] || {}).checkbox);\n  return { docId: pg.id, name, type, uploaded, expiry, confidence: conf, needsReview: review, driveFileId: gt('Drive File ID'), url: ((p['File URL'] || {}).url) || null };\n}).filter(f => f.driveFileId);\n\nconst riskRank = { 'أحمر': 0, 'أصفر': 1, 'أخضر': 2 };\nalerts.sort((a,b) => (riskRank[a.risk] ?? 3) - (riskRank[b.risk] ?? 3));\n\nconst redCount = alerts.filter(a => a.risk === 'أحمر').length;\nconst yellowCount = alerts.filter(a => a.risk === 'أصفر').length;\nconst greenCount = alerts.filter(a => a.risk === 'أخضر').length;\n\nconst expiredCount = register.filter(r => r.daysRemaining !== null && r.daysRemaining <= 0).length;\nconst soonCount = register.filter(r => r.daysRemaining !== null && r.daysRemaining > 0 && r.daysRemaining <= 30).length;\nlet score = 100 - (redCount * 20) - (yellowCount * 8) - (greenCount * 2) - (expiredCount * 15) - (soonCount * 5);\nif (score < 0) score = 0;\nif (score > 100) score = 100;\nlet band = 'ممتاز'; if (score < 40) band = 'خطر'; else if (score < 65) band = 'بحاجة متابعة'; else if (score < 85) band = 'جيد';\n\nconst PLATFORM_DEFS = [\n  { key: 'sbc', label: 'المركز السعودي للأعمال', authority: 'وزارة التجارة', match: 'المركز السعودي للأعمال' },\n  { key: 'cr', label: 'السجل التجاري', authority: 'وزارة التجارة', match: 'السجل التجاري' },\n  { key: 'chamber', label: 'الغرفة التجارية', authority: 'الغرف التجارية', match: 'الغرفة التجارية' },\n  { key: 'address', label: 'العنوان الوطني', authority: 'البريد السعودي', match: 'العنوان الوطني' },\n  { key: 'qiwa', label: 'قوى', authority: 'HRSD', match: 'قوى' },\n  { key: 'muqeem', label: 'مقيم', authority: 'الجوازات', match: 'مقيم' },\n  { key: 'mudad', label: 'مدد', authority: 'HRSD', match: 'مدد' },\n  { key: 'gosi', label: 'التأمينات (GOSI)', authority: 'GOSI', match: 'GOSI' },\n  { key: 'zatca', label: 'الزكاة والضريبة', authority: 'ZATCA', match: 'الزكاة والضريبة (ZATCA)' },\n  { key: 'customs', label: 'الجمارك (فسح)', authority: 'الجمارك السعودية', match: 'الجمارك (فسح)' },\n  { key: 'balady', label: 'بلدي', authority: 'الشؤون البلدية', match: 'بلدي' },\n  { key: 'civildefense', label: 'الدفاع المدني', authority: 'الدفاع المدني', match: 'الدفاع المدني (سلامة)' },\n  { key: 'ejar', label: 'إيجار', authority: 'REGA', match: 'إيجار' },\n  { key: 'misa', label: 'MISA الاستثمار', authority: 'MISA', match: 'MISA' },\n];\n\nconst platforms = PLATFORM_DEFS.map(def => {\n  const regItems = register.filter(r => r.platform === def.match);\n  const alItems = alerts.filter(a => a.platform === def.match);\n  const red = alItems.filter(a => a.risk === 'أحمر').length;\n  const yellow = alItems.filter(a => a.risk === 'أصفر').length;\n  const green = alItems.filter(a => a.risk === 'أخضر').length;\n  const days = regItems.map(r => r.daysRemaining).filter(d => d !== null && d !== undefined);\n  const nearestDays = days.length ? Math.min.apply(null, days) : null;\n  const expired = regItems.filter(r => r.daysRemaining !== null && r.daysRemaining <= 0).length;\n  return {\n    key: def.key, label: def.label, authority: def.authority,\n    itemCount: regItems.length, red: red + expired, yellow, green, nearestDays,\n    hasData: regItems.length > 0 || alItems.length > 0,\n  };\n});\n\nreturn [{ json: {\n  ok: true,\n  locked: !!auth.locked,\n  company: auth.company,\n  email: auth.email,\n  pageId: auth.pageId,\n  companies: auth.companies || [],\n  status: auth.status, summary: auth.summary,\n  employees: auth.employees, saudis: auth.saudis, band: auth.band,\n  quarterlyCost: auth.quarterlyCost, annualCost: auth.annualCost, lastAnalysis: auth.lastAnalysis,\n  healthScore: score, healthBand: band,\n  counts: { red: redCount + expiredCount, yellow: yellowCount + soonCount, green: greenCount },\n  alerts: auth.locked ? [] : alerts, register: auth.locked ? [] : register, platforms: auth.locked ? [] : platforms,\n  files: auth.locked ? [] : files,\n  generatedAt: new Date().toISOString(),\n} }];"
+      }
+    },
+    {
+      "id": "c79ff2e1-d78d-4ebd-abce-e7e5b9916b4d",
+      "name": "رد اللوحة",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        0
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "2d38c04f-7123-4b39-8550-4212ea751340",
+      "name": "رد غير مصرح",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        192
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "18ee1277-4154-43c7-b3fb-1e6722a6023e",
+      "name": "جلب المستندات",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1456,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/f1ae9f218aa04327bde53c4aa7f13f2b/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ 'Notion-Version': '2022-06-28', 'content-type': 'application/json' }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'Intake Page', rich_text: { contains: $('تحقق رمز الدخول').first().json.pageId } }, sorts: [{ timestamp: 'created_time', direction: 'descending' }], page_size: 100 }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        },
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

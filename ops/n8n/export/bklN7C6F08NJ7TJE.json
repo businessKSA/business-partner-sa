@@ -1,0 +1,116 @@
+{
+  "id": "bklN7C6F08NJ7TJE",
+  "name": "🟢 حاسبة النطاقات — Nitaqat Calculator",
+  "active": false,
+  "isArchived": false,
+  "versionId": "64856393-7b07-40bc-b1c0-575787c07c91",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-07-01T23:58:07.415Z",
+  "updatedAt": "2026-07-01T23:58:07.415Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "محرك حساب نطاقات السعودة: يحدد حجم المنشأة تلقائياً (صغيرة/متوسطة/كبيرة)، يحسب نسبة التوطين، يستنتج النطاق (أحمر/أخضر منخفض-متوسط-مرتفع/بلاتيني)، وعدد السعوديين المطلوب للمطابقة وللترقية. قابل للاستدعاء من الوكيل اليومي عبر Execute Workflow. النسب تقديرية",
+  "connections": {
+    "تشغيل يدوي (بيانات تجريبية)": {
+      "main": [
+        [
+          {
+            "node": "محرك حساب النطاق",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "محرك حساب النطاق": {
+      "main": [
+        [
+          {
+            "node": "بناء تقرير النطاقات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استدعاء من وكيل آخر": {
+      "main": [
+        [
+          {
+            "node": "محرك حساب النطاق",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "abe60e12-a0a5-483a-aebe-1ac734807917",
+      "name": "تشغيل يدوي (بيانات تجريبية)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        240
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "261a8e9a-a471-439e-908e-30e63524ae18",
+      "name": "محرك حساب النطاق",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const CONFIG={micro:{label:'متناهية الصغر (1–5)',exempt:true,low:0,mid:0,high:0,platinum:0},small:{label:'صغيرة (6–49)',exempt:false,low:7,mid:13,high:20,platinum:30},medium:{label:'متوسطة (50–499)',exempt:false,low:11,mid:18,high:25,platinum:35},large:{label:'كبيرة (500–2999)',exempt:false,low:15,mid:22,high:30,platinum:40},huge:{label:'عملاقة (3000+)',exempt:false,low:18,mid:25,high:33,platinum:42}};const SAMPLES=[{establishment:'شركة نجمة الخليج للتجارة',totalEmployees:22,saudiEmployees:2,activity:'تجارة تجزئة'},{establishment:'مصنع الرواد للبلاستيك',totalEmployees:140,saudiEmployees:19,activity:'صناعة'},{establishment:'شركة الأفق للمقاولات',totalEmployees:610,saudiEmployees:70,activity:'مقاولات'},{establishment:'مؤسسة النخبة التجارية',totalEmployees:8,saudiEmployees:1,activity:'تجارة تجزئة'}];function sizeKey(n){if(n<=5)return 'micro';if(n<=49)return 'small';if(n<=499)return 'medium';if(n<=2999)return 'large';return 'huge';}function num(v){var n=Number(v);return isFinite(n)?n:0;}var raw=$input.all().map(function(i){return i.json;}).filter(function(j){return j&&(j.establishment||j['المنشأة']||j.totalEmployees||j.total||j['عدد الموظفين']);});var rows=raw.length?raw:SAMPLES;var out=rows.map(function(r){var name=r.establishment||r['المنشأة']||'منشأة';var total=num(r.totalEmployees!=null?r.totalEmployees:(r.total!=null?r.total:r['عدد الموظفين']));var saudis=num(r.saudiEmployees!=null?r.saudiEmployees:(r.saudis!=null?r.saudis:r['عدد السعوديين']));var activity=r.activity||r['النشاط']||'—';var key=sizeKey(total);var c=CONFIG[key];var pct=total>0?(saudis/total*100):0;var pctR=Math.round(pct*10)/10;function need(t){if(t<=0)return 0;if(t>=100)return null;var n=(t*total-100*saudis)/(100-t);return n>0?Math.ceil(n):0;}var band,bandColor,bandIcon;if(c.exempt){band='معفاة (منشأة صغيرة جداً)';bandColor='#6B7280';bandIcon='⚪';}else if(pct>=c.platinum){band='بلاتيني';bandColor='#C79A3A';bandIcon='⭐';}else if(pct>=c.high){band='أخضر مرتفع';bandColor='#2E7D32';bandIcon='🟢';}else if(pct>=c.mid){band='أخضر متوسط';bandColor='#2E7D32';bandIcon='🟢';}else if(pct>=c.low){band='أخضر منخفض';bandColor='#2E7D32';bandIcon='🟢';}else{band='أحمر';bandColor='#C0392B';bandIcon='🔴';}var compliant=c.exempt||pct>=c.low;var toComp=c.exempt?0:need(c.low);var nextLabel=null,toNext=null;if(!c.exempt){var ladder=[['أخضر منخفض',c.low],['أخضر متوسط',c.mid],['أخضر مرتفع',c.high],['بلاتيني',c.platinum]];for(var k=0;k<ladder.length;k++){if(pct<ladder[k][1]){nextLabel=ladder[k][0];toNext=need(ladder[k][1]);break;}}}return {json:{establishment:name,activity:activity,sizeKey:key,sizeLabel:c.label,totalEmployees:total,saudiEmployees:saudis,nonSaudiEmployees:Math.max(0,total-saudis),saudizationPct:pctR,band:band,bandColor:bandColor,bandIcon:bandIcon,compliant:compliant,requiredMinPct:c.low,saudisToCompliance:toComp,nextBand:nextLabel,saudisToNextBand:toNext,note:'تقديري — استبدل نسب النطاقات بالأرقام الرسمية من قوى لنشاط المنشأة'}};});return out;"
+      }
+    },
+    {
+      "id": "81211bb7-1c6a-403e-be37-e012d8e0658d",
+      "name": "بناء تقرير النطاقات",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "var items=$input.all().map(function(i){return i.json;});var esc=function(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};var red=0,green=0,exempt=0;for(var i=0;i<items.length;i++){var b=items[i].band||'';if(b.indexOf('أحمر')>=0)red++;else if(b.indexOf('معفاة')>=0)exempt++;else green++;}var td='padding:10px 8px;border-bottom:1px solid #EEF1F4';var rows='';for(var j=0;j<items.length;j++){var it=items[j];var bg=(j%2)?'#F9FAFB':'#FFFFFF';var bandBg=it.bandColor==='#C0392B'?'#FDE8E8':(it.bandColor==='#C79A3A'?'#FBF3DF':(it.bandColor==='#6B7280'?'#F0F1F3':'#E8F3E9'));var compTxt=it.compliant?'<b style=\"color:#2E7D32\">✅</b>':('<b style=\"color:#C0392B\">+'+it.saudisToCompliance+'</b>');var nextTxt=it.saudisToNextBand==null?'—':('+'+it.saudisToNextBand+' → '+esc(it.nextBand));rows+='<tr style=\"background:'+bg+'\">'+'<td style=\"'+td+'\"><b style=\"color:#0B4F6C\">'+esc(it.establishment)+'</b><div style=\"color:#6B7280;font-size:11px\">'+esc(it.activity)+'</div></td>'+'<td style=\"'+td+';text-align:center;color:#6B7280;font-size:11px\">'+esc(it.sizeLabel)+'</td>'+'<td style=\"'+td+';text-align:center\">'+it.totalEmployees+'</td>'+'<td style=\"'+td+';text-align:center\">'+it.saudiEmployees+'</td>'+'<td style=\"'+td+';text-align:center;font-weight:700\">'+it.saudizationPct+'%</td>'+'<td style=\"'+td+';text-align:center\"><span style=\"display:inline-block;padding:3px 9px;border-radius:999px;background:'+bandBg+';color:'+it.bandColor+';font-weight:700;white-space:nowrap\">'+it.bandIcon+' '+esc(it.band)+'</span></td>'+'<td style=\"'+td+';text-align:center\">'+compTxt+'</td>'+'<td style=\"'+td+';text-align:center;color:#6B7280;font-size:11px\">'+nextTxt+'</td>'+'</tr>';}var tile=function(v,l,col){return '<td width=\"33%\" style=\"padding:0 6px\"><div style=\"background:#fff;border:1px solid #EAEDF0;border-radius:14px;padding:16px;text-align:center\"><div style=\"font-size:28px;font-weight:800;color:'+col+'\">'+v+'</div><div style=\"font-size:12px;color:#6B7280;margin-top:6px\">'+l+'</div></div></td>';};var tiles='<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:16px 0\"><tr>'+tile(items.length,'إجمالي المنشآت','#0B4F6C')+tile(green,'ضمن النطاق الأخضر','#2E7D32')+tile(red,'في النطاق الأحمر','#C0392B')+'</tr></table>';var html='<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"></head><body style=\"margin:0;background:#F4F6F8;font-family:Tahoma,Arial,sans-serif;color:#1F2937\"><div style=\"max-width:760px;margin:0 auto;padding:24px 16px\"><div style=\"background:#0B4F6C;border-radius:18px;padding:22px;color:#fff\"><div style=\"font-size:12px;letter-spacing:1px;color:#BFE3ED;font-weight:600\">BUSINESS PARTNER · حاسبة النطاقات</div><div style=\"font-size:22px;font-weight:800;margin-top:6px\">🟢 تقرير نطاقات السعودة</div><div style=\"font-size:13px;color:#D7EAF0;margin-top:6px\">تقدير آلي — يُعتمد على نسب قوى الرسمية لكل نشاط</div></div>'+tiles+'<div style=\"background:#fff;border:1px solid #EAEDF0;border-radius:16px;overflow:hidden;margin-top:16px\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse;font-size:12px\"><thead><tr style=\"background:#0B4F6C;color:#fff\"><th style=\"padding:10px 8px;text-align:right\">المنشأة</th><th style=\"padding:10px 8px;text-align:center\">الحجم</th><th style=\"padding:10px 8px;text-align:center\">الموظفون</th><th style=\"padding:10px 8px;text-align:center\">سعوديون</th><th style=\"padding:10px 8px;text-align:center\">النسبة</th><th style=\"padding:10px 8px;text-align:center\">النطاق</th><th style=\"padding:10px 8px;text-align:center\">للمطابقة</th><th style=\"padding:10px 8px;text-align:center\">للأعلى</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style=\"background:#FFFBEB;border:1px solid #FDE8B5;border-radius:14px;padding:14px;margin-top:16px;font-size:12px;color:#8A6D3B;line-height:1.7\">⚖️ النسب المستخدمة تقديرية للتوضيح. النطاق الرسمي يعتمد على نشاط المنشأة وحجمها في منصة قوى — يجب اعتماد النسب الرسمية قبل أي قرار.</div><div style=\"text-align:center;color:#9AA3AD;font-size:11px;margin-top:16px\">🤖 حاسبة النطاقات · n8n · Business Partner Platform 3.0</div></div></body></html>';return [{json:{html:html,count:items.length,compliant:green,red:red,exempt:exempt,subject:'تقرير النطاقات — '+items.length+' منشأة'}}];"
+      }
+    },
+    {
+      "id": "5679f628-97fa-42f9-8a3a-9c60704364b5",
+      "name": "استدعاء من وكيل آخر",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        460
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

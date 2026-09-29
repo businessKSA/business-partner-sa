@@ -1,0 +1,521 @@
+{
+  "id": "e9G9S6GG0j7lCiWt",
+  "name": "💼 BP Team — Mohammed (IT)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7c13beb9-20d7-4ee8-9f1b-fdb210c27606",
+  "activeVersionId": "7c13beb9-20d7-4ee8-9f1b-fdb210c27606",
+  "triggerCount": 1,
+  "nodeCount": 14,
+  "createdAt": "2026-07-02T21:44:54.539Z",
+  "updatedAt": "2026-09-24T03:33:18.015Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 180
+  },
+  "tags": [
+    {
+      "id": "CPZV06LFXkpmj7gV",
+      "name": "IT"
+    },
+    {
+      "id": "GP71lutps2YxnwQI",
+      "name": "Engineering"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "محمد — خبير تقنية معلومات. يساعد أي عميل في المواقع، التطبيقات، الأتمتة، الـ API، اختيار الأدوات، والتشخيص التقني. شات مباشر عبر Azure OpenAI (bp-main).",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "زياد — Full-stack Engineer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رامي — Automation & n8n": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "سيف — API & Integrations": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "أنس — DevOps & Reliability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "مروان — QA & Test Engineer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "يزن — AI Agent Engineer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Department Director": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "زياد — Full-stack Engineer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "رامي — Automation & n8n",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "سيف — API & Integrations",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "أنس — DevOps & Reliability",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "مروان — QA & Test Engineer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "يزن — AI Agent Engineer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9e0b12c0-24f6-4779-9261-ec14332b48b7",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mohammed-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "fdea0c71-a0a8-4ad1-a09e-bf250323c38e"
+    },
+    {
+      "id": "8f2ad4b0-29a1-401e-bef2-ac123b51cd39",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a number, name, date, percentage, amount or status unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name the tool or data you need — never fill the gap with a plausible-sounding figure. Never invent names of people, staff, clients, systems, files or documents that do not exist in the data. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Mohammed, IT & Engineering Director for Business Partner. You own website engineering, client portal, n8n automation, APIs/integrations, Vercel/GitHub reliability, QA, security-minded troubleshooting, and the AI agent engineering layer. You manage specialists: Ziad Full-stack Engineer, Rami Automation & n8n Engineer, Saif API & Integrations Engineer, Anas DevOps & Reliability Engineer, Marwan QA & Test Engineer, and Yazan AI Agent Engineer. Delegate work to the correct specialist tool, combine their output, and return a concrete implementation/result. Internal tasks are operational assignments. Never request passwords, API secrets, OTP or Nafath codes; credentials belong in the vault. Routine reversible fixes can be L2. High-risk production/data/security changes follow the release gate. Coordinate with Salman Website/Funnel manager for product issues and other department directors when dependencies exist. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e288e867-0c15-418d-a2e5-34c8a5d087c5",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      }
+    },
+    {
+      "id": "55460c59-c938-477b-a90e-9977a198ee5c",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"mohammed\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "c5568c0d-116a-4e78-9f6b-1cc581beb259",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "adc2b184-e151-4b5d-9fa6-d36b1acfdbcb",
+      "name": "زياد — Full-stack Engineer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        520,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "زياد، Full-stack Engineer. استخدمه لتحليل وتنفيذ website/client portal frontend/backend fixes، APIs داخل التطبيق، code changes وخطة deployment.",
+        "text": "={{ $fromAI('task','Engineering task with stack, bug/feature, expected outcome and constraints','string') }}",
+        "options": {
+          "systemMessage": "أنت زياد، Full-stack Engineer تحت محمد. أعطِ تغييرات تقنية دقيقة، ملفات/مسارات متوقعة، acceptance tests وخطة rollback. لا تفترض credentials. أي production change عالي المخاطر يرجع لمحمد.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "e2fee2ae-279b-4942-ad50-edcea9971b24",
+      "name": "رامي — Automation & n8n",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        680,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "رامي، Automation & n8n Engineer. استخدمه لتصميم workflows, triggers, retries, idempotency, task routing, APIs وerror handling.",
+        "text": "={{ $fromAI('task','Automation/n8n task, trigger, systems, expected state and constraints','string') }}",
+        "options": {
+          "systemMessage": "أنت رامي، Automation & n8n Engineer تحت محمد. صمم workflows قابلة للصيانة، event-driven، idempotent وبـerror handling واضح. قلل manual work وtoken cost.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "3817cf80-6bbf-4b66-854a-462f0a27a04c",
+      "name": "سيف — API & Integrations",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        840,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "سيف، API & Integrations Engineer. استخدمه للـOAuth, webhooks, external APIs, schemas, integration contracts واختبارات التكامل.",
+        "text": "={{ $fromAI('task','Integration task with source, target, auth type if known, data and desired behavior','string') }}",
+        "options": {
+          "systemMessage": "أنت سيف، API & Integrations Engineer تحت محمد. صمم التكامل بشكل آمن، واضح، مع retries/idempotency/logging. لا تطلب أو تعرض secrets.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "0ec66950-cc3e-4923-95eb-79e17c4df690",
+      "name": "أنس — DevOps & Reliability",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "أنس، DevOps & Reliability Engineer. استخدمه لـVercel/GitHub/deployments/monitoring/incidents/rollback/availability.",
+        "text": "={{ $fromAI('task','Reliability/deployment task with environment, symptoms and desired result','string') }}",
+        "options": {
+          "systemMessage": "أنت أنس، DevOps & Reliability Engineer تحت محمد. ركز على uptime, MTTR, safe deploy, rollback and observability. في incident أعطِ containment→diagnosis→fix→verify.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "ec5fddf6-4c8e-422c-96fc-6ab8dd47ac85",
+      "name": "مروان — QA & Test Engineer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1160,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "مروان، QA & Test Engineer. استخدمه لبناء test cases وفحص website/portal/forms/funnels/integrations قبل وبعد الإصلاح.",
+        "text": "={{ $fromAI('task','QA task with feature/bug, paths, expected behavior and risk','string') }}",
+        "options": {
+          "systemMessage": "أنت مروان، QA Engineer تحت محمد. ابْنِ acceptance/regression tests قابلة للتنفيذ، ركز على customer journeys والـedge cases، ولا تعتبر fix ناجحاً بدون verification.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "d9937c7d-f8ae-4c28-b253-5fcae34a10a1",
+      "name": "يزن — AI Agent Engineer",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1320,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "يزن، AI Agent Engineer. استخدمه للـagent architecture, prompts, tools, memory, routing, tracing, cost, guardrails وevaluation.",
+        "text": "={{ $fromAI('task','Agent engineering task, observed behavior, target KPI and constraints','string') }}",
+        "options": {
+          "systemMessage": "أنت يزن، AI Agent Engineer تحت محمد. حسّن reliability, tool-use accuracy, handoffs, memory and cost/task. لا تبنِ loop دائم بلا حدث؛ صمم event-driven with explicit permissions.",
+          "maxIterations": 8,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "375a58a3-9b1f-4b07-9604-a3397c65578a",
+      "name": "Consult Department Director",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1480,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "تواصل مع مدير إدارة أخرى عند dependency. استخدم website-funnel-ops للمنتج/الفانل، mazen-intake للعمليات، farah-intake لسارة مديرة النمو والتسويق (اسم المسار قديم وصحيح)، badr-intake للمبيعات، nasser-intake للHR، mishari-intake للامتثال، abdulaziz-intake للقانوني، abdulrahman-intake للمالية، strategy-intake للاستراتيجية.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('director','Director webhook slug','string') }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('brief','Complete internal dependency/handoff brief','string'), client_name:$fromAI('client_name','Client/company if relevant','string'), channel:'internal' }) }}",
+        "options": {
+          "timeout": 110000
+        },
+        "optimizeResponse": true,
+        "responseType": "json",
+        "fieldsToInclude": "all"
+      }
+    },
+    {
+      "id": "2ea0c097-47a8-46b3-b473-85078bbff73f",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "09b55fb8-5e2d-4188-a9c2-be7796294430",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        780
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لمحمد ومختصّيه الستة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

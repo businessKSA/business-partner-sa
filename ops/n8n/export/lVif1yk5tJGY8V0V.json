@@ -1,0 +1,438 @@
+{
+  "id": "lVif1yk5tJGY8V0V",
+  "name": "🗝️ SS — Client Onboarding (ss-onboard)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "afda1de9-87ee-48c4-9a59-0256a0d9766a",
+  "activeVersionId": "afda1de9-87ee-48c4-9a59-0256a0d9766a",
+  "triggerCount": 1,
+  "nodeCount": 12,
+  "createdAt": "2026-07-16T20:41:19.521Z",
+  "updatedAt": "2026-07-16T20:46:45.540Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "تجهيز عميل جديد للخدمات المشتركة: webhook ss-onboard {name,email} → صفحة مستأجر معزولة تحت Tenants + قاعدة مهام + قاعدة محادثات → تسجيل في SS Clients مع رمز دخول BP-XXXXXX → إرسال الرمز على إيميل العميل.",
+  "connections": {
+    "Onboard Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Input OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input OK?": {
+      "main": [
+        [
+          {
+            "node": "Create Tenant Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tasks DB": {
+      "main": [
+        [
+          {
+            "node": "Create Conversations DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register Client": {
+      "main": [
+        [
+          {
+            "node": "Email Access Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Access Code": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tenant Page": {
+      "main": [
+        [
+          {
+            "node": "Build DB Bodies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build DB Bodies": {
+      "main": [
+        [
+          {
+            "node": "Create Tasks DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Conversations DB": {
+      "main": [
+        [
+          {
+            "node": "Build Register Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Register Body": {
+      "main": [
+        [
+          {
+            "node": "Register Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "f2bfd9ea-16bd-4018-904a-3de74f7c37ee",
+      "name": "Onboard Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-onboard",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "0b6c2539-4ec9-440c-800f-f8817056c5aa"
+    },
+    {
+      "id": "616964cc-bc1c-4bc1-81bf-37a71f07a321",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const name=(b.name||'').trim();const email=(b.email||'').trim();if(!name||!email){return [{json:{ok:false,error:'name and email are required'}}];}const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let c='BP-';for(let i=0;i<6;i++)c+=chars[Math.floor(Math.random()*chars.length)];const tenantBody=JSON.stringify({parent:{type:'page_id',page_id:'39fd108dee5c813fb468f63400140958'},icon:{type:'emoji',emoji:'🏢'},properties:{title:[{text:{content:'🏢 '+name+' — مساحة معزولة (Tenant)'}}]},children:[{object:'block',type:'callout',callout:{icon:{type:'emoji',emoji:'🔒'},rich_text:[{type:'text',text:{content:'مساحة تشغيلية معزولة لهذا العميل — بياناته تعيش هنا فقط، منفصلة عن بقية العملاء.'}}]}}]});return [{json:{ok:true,name:name,email:email,code:c,tenantBody:tenantBody}}];"
+      }
+    },
+    {
+      "id": "313a27b1-05d4-40df-bdb4-fc507880b8c8",
+      "name": "Input OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "214d0245-322c-494a-b1a3-66bddb9023fb",
+      "name": "Create Tenant Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        620,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Prep').first().json.tenantBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "0733d3c8-7421-44de-aadb-52d6204ad76b",
+      "name": "Create Tasks DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        840,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build DB Bodies').first().json.tasksBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "c7175191-a3e8-43ca-869e-32922e0a70d7",
+      "name": "Create Conversations DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1060,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build DB Bodies').first().json.convBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "7c6a24f2-1857-47d8-947f-d123faed9d89",
+      "name": "Register Client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1280,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build Register Body').first().json.registerBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "adad1b71-0011-4a43-808b-a38b93e09bd9",
+      "name": "Email Access Code",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1500,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Prep').first().json.email }}",
+        "subject": "رمز دخول فريقك التنفيذي — Business Partner",
+        "emailType": "text",
+        "message": "={{ $('Build Register Body').first().json.emailText }}",
+        "options": {}
+      },
+      "webhookId": "5a1bdbff-c758-4b79-a6e6-ab3f7616a4ce",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "ea917f76-1f57-4c5d-9c45-2e6f648244cd",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1720,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Build Register Body').first().json.respondBody }}"
+      }
+    },
+    {
+      "id": "49e7c30c-7b1a-4b71-a9cb-fa4a7ae1b421",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        620,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:false,error:$json.error||\"invalid input\"}) }}"
+      }
+    },
+    {
+      "id": "92b8e55b-3a06-41f4-99fd-52f09639df39",
+      "name": "Build DB Bodies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        730,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const t=$input.first().json.id;const tasksBody=JSON.stringify({parent:{type:'page_id',page_id:t},icon:{type:'emoji',emoji:'📝'},title:[{type:'text',text:{content:'المهام — Tasks'}}],properties:{'المهمة':{title:{}},'الوكيل المسؤول':{rich_text:{}},'الحالة':{select:{options:[{name:'جديدة',color:'gray'},{name:'قيد التنفيذ',color:'blue'},{name:'بانتظار اعتماد',color:'orange'},{name:'منجزة',color:'green'}]}},'الملخص':{rich_text:{}},'التاريخ':{created_time:{}}}});const convBody=JSON.stringify({parent:{type:'page_id',page_id:t},icon:{type:'emoji',emoji:'💬'},title:[{type:'text',text:{content:'المحادثات — Conversations'}}],properties:{'العنوان':{title:{}},'الوكيل':{rich_text:{}},'الرسالة':{rich_text:{}},'الرد':{rich_text:{}},'التاريخ':{created_time:{}}}});return [{json:{tenantId:t,tasksBody:tasksBody,convBody:convBody}}];"
+      }
+    },
+    {
+      "id": "374fa254-fa09-4f8f-bf76-7c511b3235bf",
+      "name": "Build Register Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1170,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const p=$('Prep').first().json;const tenantId=$('Create Tenant Page').first().json.id;const tasksId=$('Create Tasks DB').first().json.id;const convId=$input.first().json.id;const registerBody=JSON.stringify({parent:{type:'database_id',database_id:'39fd108dee5c81328a17cfe65d281688'},properties:{'العميل':{title:[{text:{content:p.name}}]},'الإيميل':{email:p.email},'الرمز':{rich_text:[{text:{content:p.code}}]},'الحالة':{select:{name:'نشط'}},TenantPage:{rich_text:[{text:{content:tenantId}}]},TasksDB:{rich_text:[{text:{content:tasksId}}]},ConvDB:{rich_text:[{text:{content:convId}}]}}});const emailText='أهلاً '+p.name+'،\\n\\nتم تجهيز فريقك التنفيذي الذكي بنجاح ✅\\n\\nرمز الدخول الخاص بك: '+p.code+'\\n\\nادخل بوابة الخدمة وأدخل الرمز لفتح لوحتك:\\nhttps://www.businesspartner.sa/ar/shared-services/dashboard\\n\\nهذا الرمز خاص بك — لا تشاركه مع أي أحد. فريقنا لا يطلب كلمات مرور أو رموز تحقق أبداً.\\n\\nBusiness Partner';const respondBody=JSON.stringify({ok:true,code:p.code,client:p.name,portal:'https://www.businesspartner.sa/ar/shared-services/dashboard'});return [{json:{registerBody:registerBody,emailText:emailText,respondBody:respondBody}}];"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

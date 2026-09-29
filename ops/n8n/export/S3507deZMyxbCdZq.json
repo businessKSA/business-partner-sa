@@ -1,0 +1,274 @@
+{
+  "id": "S3507deZMyxbCdZq",
+  "name": "📊 BP AI — Department KPI Scorecard",
+  "active": true,
+  "isArchived": false,
+  "versionId": "0a020e4d-9a02-4aca-80b7-0f8ae127d247",
+  "activeVersionId": "0a020e4d-9a02-4aca-80b7-0f8ae127d247",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-07-27T00:04:24.060Z",
+  "updatedAt": "2026-09-02T08:33:54.454Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "saveExecutionProgress": true
+  },
+  "tags": [
+    {
+      "id": "0lwp2Z4ZBot2HOO1",
+      "name": "Performance"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "UWlMaYWA3PSwyVd5",
+      "name": "Executive"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Daily 21:00 Riyadh: scores 11 AI departments from Tasks + Deals: closure, open/waiting work, human escalations, pipeline, revenue and paid-blocked execution. No AI tokens.",
+  "connections": {
+    "Daily 21:00 Riyadh": {
+      "main": [
+        [
+          {
+            "node": "Read All Team Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run KPI Now": {
+      "main": [
+        [
+          {
+            "node": "Read All Team Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Team Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Performance Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Deals": {
+      "main": [
+        [
+          {
+            "node": "Merge Performance Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Performance Inputs": {
+      "main": [
+        [
+          {
+            "node": "Build Department Scorecards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Department Scorecards": {
+      "main": [
+        [
+          {
+            "node": "Upsert Performance Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "99807055-f1a7-4df2-bdba-02ae325b3089",
+      "name": "Daily 21:00 Riyadh",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 21,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bb752b4f-2775-42a6-9467-1111cd8c8c64",
+      "name": "Run KPI Now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        180
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "05e2ca58-751d-4017-a772-97e4d8abf34d",
+      "name": "Read All Team Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -80
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "18b9ad67-198b-4090-812f-1942a2ddb68c",
+      "name": "Read All Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        100
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "a8a363f8-daab-4954-93be-42e7d64667f5",
+      "name": "Merge Performance Inputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        500,
+        10
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      }
+    },
+    {
+      "id": "f5d414ff-e4b2-4f43-9121-300313897165",
+      "name": "Build Department Scorecards",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        10
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const all=$input.all().map(i=>i.json||{}); const managers={sales:'badr_sales',marketing:'farah_marketing',legal:'abdulaziz_legal',finance:'abdulrahman_finance',operations:'mazen_ops',compliance_gro:'mishari_compliance',hr:'nasser_hr',procurement:'abdullah_procurement',it:'mohammed_it',digital_product:'website_funnel_ops',strategy_pmo:'ahmed_strategy'}; const agentDept=Object.fromEntries(Object.entries(managers).map(([d,a])=>[a,d])); const dep={}; for(const [d,m] of Object.entries(managers))dep[d]={department:d,manager_agent:m,tasks_completed:0,tasks_open:0,tasks_waiting:0,human_escalations:0,active_deals:0,pipeline_value:0,collected_revenue:0,paid_blocked_count:0}; const riyadhDate=(v)=>{const t=Date.parse(v||''); if(!Number.isFinite(t))return ''; return new Date(t+3*3600000).toISOString().slice(0,10);}; const today=new Date(Date.now()+3*3600000).toISOString().slice(0,10); const tasks=all.filter(x=>x.task_id); const deals=all.filter(x=>x.deal_id); for(const t of tasks){let d=agentDept[t.assigned_to_agent]||agentDept[t.created_by_agent]; if(!d||!dep[d])continue; const s=String(t.status||'').toLowerCase(); if(s==='completed'&&riyadhDate(t.updated_at)===today)dep[d].tasks_completed++; if(['queued','in_progress'].includes(s))dep[d].tasks_open++; if(s==='waiting')dep[d].tasks_waiting++; if(t.human_action_required===true)dep[d].human_escalations++; } for(const x of deals){const stage=String(x.stage||'').toLowerCase(); const exec=String(x.execution_status||'').toLowerCase(); const active=!['delivered','lost','cancelled','canceled'].includes(stage); const ownerDept=agentDept[x.deal_owner]; if(active&&ownerDept&&dep[ownerDept])dep[ownerDept].active_deals++; if(active){dep.sales.pipeline_value+=Number(x.deal_value||x.quoted_amount||0);} const paid=Number(x.paid_amount||0); dep.sales.collected_revenue+=paid; dep.finance.collected_revenue+=paid; if(paid>0&&!['completed','delivered'].includes(exec)&&stage!=='delivered')dep.operations.paid_blocked_count++; } const now=new Date().toISOString(); return Object.values(dep).map(r=>{let score=100-(r.paid_blocked_count*15)-(r.human_escalations*5)-(r.tasks_waiting*2)-Math.min(r.tasks_open,20)+Math.min(r.tasks_completed*2,20); score=Math.max(0,Math.min(100,Math.round(score))); const activity=r.tasks_completed+r.tasks_open+r.tasks_waiting+r.active_deals; return {json:{snapshot_id:`${today}-${r.department}`,snapshot_date:`${today}T21:00:00+03:00`,...r,score,notes:activity===0?'No recorded workload/activity in this snapshot.':'Score rewards closure and penalizes open/waiting/human escalation; Operations is additionally penalized for paid-but-not-completed deals.',created_at:now}};});"
+      }
+    },
+    {
+      "id": "125f71f0-b390-46ce-b916-2077d9e8072e",
+      "name": "Upsert Performance Snapshot",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        10
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KRfMyEXXl3n48A9q",
+          "cachedResultName": "BP_AI_Performance"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "snapshot_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.snapshot_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

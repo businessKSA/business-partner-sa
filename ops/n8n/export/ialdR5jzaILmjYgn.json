@@ -1,0 +1,607 @@
+{
+  "id": "ialdR5jzaILmjYgn",
+  "name": "🧪 عميل صفر — باهر (Front Desk)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "bd7c73de-b865-439d-9482-2f0f9d9ebcbd",
+  "activeVersionId": "bd7c73de-b865-439d-9482-2f0f9d9ebcbd",
+  "triggerCount": 1,
+  "nodeCount": 17,
+  "createdAt": "2026-07-16T05:07:25.433Z",
+  "updatedAt": "2026-09-19T20:23:38.575Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "نسخة خالد المعزولة لعميل صفر: chat webhook خاص ← خالد (Azure OpenAI bp-main + ذاكرة) يوجّه للمتخصصين المشتركين، ويسجل المهام والتصعيد في قواعد نوشن الخاصة بعميل صفر.",
+  "connections": {
+    "Web Chat (Client Zero)": {
+      "main": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baher_Advisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mazen_Operations": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nasser_HR": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mishari_Compliance": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abdulaziz_Legal": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Badr_Sales": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Farah_Marketing": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Malak_Assistant": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mohammed_IT": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log_Task_ClientZero": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create_Escalation_ClientZero": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abdullah_Procurement": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ahmed_Strategy": {
+      "ai_tool": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "باهر — Front Desk (Client Zero)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "ea83abad-b44c-4194-abce-92eed4ecc47e",
+      "name": "Web Chat (Client Zero)",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "public": true,
+        "mode": "hostedChat",
+        "initialMessages": "أهلاً بك في مكتبك الافتراضي 👋 اكتب طلبك وأنا أوجّهه لفريقك.",
+        "options": {
+          "responseMode": "lastNode",
+          "allowedOrigins": "*",
+          "title": "المكتب الافتراضي — عميل صفر",
+          "inputPlaceholder": "اكتب طلبك هنا..."
+        }
+      },
+      "webhookId": "ef960537-555c-4ac4-99ed-f4da756f74f6"
+    },
+    {
+      "id": "9a8ec512-c218-4c99-ac66-b4c9944526d9",
+      "name": "باهر — Front Desk (Client Zero)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        300
+      ],
+      "parameters": {
+        "promptType": "auto",
+        "options": {
+          "systemMessage": "أنت باهر، رئيس الأركان وخدمة العملاء لفريق تنفيذي ذكي يعمل كموظفي العميل. العميل هو صاحب العمل. تستقبل الطلب، تملكه، توزّعه على المتخصص المناسب عبر أدواته، تجمع النتيجة، وتسلّم مخرجاً جاهزاً. زملاؤك (استدعِ أداة كل منهم بالسياق الكامل): المستشار الأول (Senior Advisor) (استشارة أعمال وقرارات كبرى)، أحمد (مدير التخطيط الاستراتيجي — الرؤية والخطط وOKRs وخرائط الطريق)، مازن (تنسيق العمليات الداخلي)، ناصر (موارد بشرية)، مشاري (امتثال حكومي)، عبدالرحمن (المدير المالي)، عبدالعزيز (قانوني)، بدر (مبيعات)، فرح (تسويق)، ملاك (مساعِدة تنفيذية)، محمد (تقنية)، عبدالله (مشتريات). للأعمال متعددة الخطوات فوّض التنفيذ لمازن. التوثيق: بعد توجيه أو تنفيذ أي طلب فعلي، سجّله بأداة Log_Task_ClientZero. الحوكمة: أي إجراء مالي أو توقيع أو تقديم حكومي مدفوع أو إرسال رسالة خارجية لا يُنفّذ تلقائياً — جهّزه ثم أنشئ صفاً بأداة Create_Escalation_ClientZero بحالة «بانتظار موافقة» وأخبر العميل. لا تطلب أبداً كلمة مرور أو OTP. رُدّ بعربي سعودي كزميل كفؤ ينجز.\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.",
+          "enableStreaming": false
+        },
+        "needsFallback": false
+      }
+    },
+    {
+      "id": "be2d5d3b-1a7b-47a7-bb96-e603582e2875",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        460,
+        520
+      ],
+      "parameters": {
+        "sessionIdType": "fromInput",
+        "contextWindowLength": 12
+      }
+    },
+    {
+      "id": "ffe9ad1e-5848-4878-a0ca-ed007115a8be",
+      "name": "Baher_Advisor",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -700,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ باهر (مستشار الأعمال) للاستراتيجية والنمو وإعادة الهيكلة والقرارات الكبيرة.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/baher-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "08a5c92d-d751-41ff-9c58-2981fd6f165b",
+      "name": "Mazen_Operations",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -540,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ مازن (مدير العمليات) لتنسيق التنفيذ الداخلي وتقسيم المهام وSOPs وجودة التسليم.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mazen-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "a6291ddb-cc5c-4b14-aeaa-85e8829032e4",
+      "name": "Nasser_HR",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -380,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ ناصر (الموارد البشرية) للتوظيف والوصف الوظيفي وعقود العمل والرواتب والسياسات.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/nasser-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "66735af9-fb40-438e-99b7-08b4747bdc3f",
+      "name": "Mishari_Compliance",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -220,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ مشاري (الامتثال) لقوى ومقيم والتأمينات ومدد والنطاقات ومهل الإقامات والمخالفات.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mishari-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "fe31c980-f23f-4cf7-84fb-fcae807e1426",
+      "name": "Abdulaziz_Legal",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -60,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ عبدالعزيز (القانوني) للعقود والتأسيس والتراخيص والهيكلة القانونية.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/abdulaziz-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "d5979146-6fd4-418f-92b3-d09bd025e57b",
+      "name": "Badr_Sales",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        100,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ بدر (المبيعات) لعروض الأسعار والباقات والاقتراح التجاري ونطاق الخدمة.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/badr-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "16fe397f-9715-4603-b455-24f57b06b774",
+      "name": "Farah_Marketing",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        260,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ فرح (التسويق) للمحتوى والحملات والسوشال وSEO والهوية.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/farah-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "18d0b900-a693-4528-96cd-3fc5e281e763",
+      "name": "Malak_Assistant",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        420,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ ملاك (المساعِدة التنفيذية) لصياغة الإيميلات والتلخيص وتنظيم المهام والتذكيرات.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/malak-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7893b2ed-6c64-4f1b-8bde-d23de63565ec",
+      "name": "Mohammed_IT",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        580,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ محمد (التقنية) للمواقع والتطبيقات والأتمتة وربط الـAPIs والتشخيص التقني.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/mohammed-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "cdd9add3-a9ce-4099-8aa5-07229303a66b",
+      "name": "Abdullah_Procurement",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        740,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ عبدالله (المشتريات) لإيجاد الموردين ومقارنة العروض وكتابة طلبات عروض الأسعار والتفاوض التمهيدي.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/ahmed-procurement",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "569693e9-0c27-4458-9226-2b4290deeaef",
+      "name": "Log_Task_ClientZero",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        700
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "b3910fe1526a4d3bbe69ace11f90fba7"
+        },
+        "title": "={{ $fromAI('task_title', 'عنوان المهمة المختصر بالعربية') }}",
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الوكيل المسؤول|select",
+              "selectValue": "={{ $fromAI('agent', 'الوكيل المسؤول: خالد أو مازن أو باهر أو مشاري أو عبدالعزيز أو ناصر أو بدر أو فرح أو ملاك أو محمد أو أحمد') }}"
+            },
+            {
+              "key": "الحالة|select",
+              "selectValue": "قيد التنفيذ"
+            },
+            {
+              "key": "الملخص|rich_text",
+              "textContent": "={{ $fromAI('summary', 'ملخص مختصر للطلب والإجراء المتخذ') }}"
+            }
+          ]
+        },
+        "descriptionType": "manual",
+        "toolDescription": "سجّل مهمة في قاعدة «المهام» الخاصة بعميل صفر. استخدمها لتوثيق كل طلب فعلي فور توجيهه أو تنفيذه: مرّر عنوان المهمة والوكيل المسؤول وملخصاً."
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "5d94c49d-97fc-41b2-8fb8-cd91705a8854",
+      "name": "Create_Escalation_ClientZero",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        1060,
+        700
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "c1078be3e90f4062b923c93e1011c6d5"
+        },
+        "title": "={{ $fromAI('escalation_title', 'عنوان التصعيد المختصر بالعربية') }}",
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "النوع|select",
+              "selectValue": "={{ $fromAI('type', 'النوع: مالي أو تواصل بشري أو ميداني أو حكومي أو إرسال خارجي') }}"
+            },
+            {
+              "key": "القناة|select",
+              "selectValue": "={{ $fromAI('channel', 'القناة: واتساب أو إيميل أو بوابة حكومية') }}"
+            },
+            {
+              "key": "الجهة / المستلم|rich_text",
+              "textContent": "={{ $fromAI('recipient', 'الجهة أو المستلم') }}"
+            },
+            {
+              "key": "الحالة|select",
+              "selectValue": "بانتظار موافقة"
+            },
+            {
+              "key": "الخطوات المطلوبة|rich_text",
+              "textContent": "={{ $fromAI('steps', 'الخطوات المطلوبة بالترتيب') }}"
+            }
+          ]
+        },
+        "descriptionType": "manual",
+        "toolDescription": "أنشئ صف تصعيد/موافقة في قاعدة «التصعيد والموافقات» الخاصة بعميل صفر. لأي إجراء مالي أو ملزم أو بشري أو ميداني أو حكومي أو إرسال خارجي — يُجهّز وينتظر موافقة العميل."
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "17053b10-54ab-4a4e-9f7d-e59dcaa797c6",
+      "name": "Ahmed_Strategy",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        1220,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "استدعِ أحمد (مدير التخطيط الاستراتيجي) للرؤية والخطط السنوية/الربعية وOKRs وخرائط الطريق ومتابعة التنفيذ.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/strategy-intake",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('request', 'نص الطلب كاملاً بالعربية'), client_name: 'عميل صفر' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7ab161f1-4713-479e-a494-6fd218d3d1e0",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        300,
+        520
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

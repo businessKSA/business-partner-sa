@@ -1,0 +1,368 @@
+{
+  "id": "x7gmc3bXUGJGZScR",
+  "name": "🎯 BP Team — Marketing Dashboard & Approvals",
+  "active": true,
+  "isArchived": false,
+  "versionId": "23c2b36f-813b-4c30-bf55-69c96075f09f",
+  "activeVersionId": "23c2b36f-813b-4c30-bf55-69c96075f09f",
+  "triggerCount": 2,
+  "nodeCount": 10,
+  "createdAt": "2026-07-09T05:26:03.170Z",
+  "updatedAt": "2026-07-09T05:27:06.703Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Marketing Content Calendar dashboard API (GET) and human approve/reject action (POST) backed by the new Notion Content Calendar database.",
+  "connections": {
+    "GET /bp-marketing-dashboard": {
+      "main": [
+        [
+          {
+            "node": "Fetch Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Content Calendar": {
+      "main": [
+        [
+          {
+            "node": "Build Dashboard Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dashboard Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond Dashboard JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /bp-marketing-approve": {
+      "main": [
+        [
+          {
+            "node": "Normalize Approval Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Approval Body": {
+      "main": [
+        [
+          {
+            "node": "Approve or Reject?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve or Reject?": {
+      "main": [
+        [
+          {
+            "node": "Mark Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Approved": {
+      "main": [
+        [
+          {
+            "node": "Respond Approval Ack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Rejected": {
+      "main": [
+        [
+          {
+            "node": "Respond Approval Ack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "4ce3fac9-78f4-4b54-8b30-d04f1ae5e73f",
+      "name": "GET /bp-marketing-dashboard",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "bp-marketing-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "61796fae-d740-4666-8a3f-9b9f7f0ddac1"
+    },
+    {
+      "id": "dd9d8182-7abf-415d-81fa-683136765b17",
+      "name": "Fetch Content Calendar",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b235034ff4adf5ec15dfd7519a"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none",
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "c350e8c8-16b6-4b3e-9a64-7a666f6988db",
+      "name": "Build Dashboard Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst platforms = ['Instagram','Facebook','LinkedIn','Snapchat','TikTok','WhatsApp Channel','Telegram Channel'];\nconst statuses = ['Idea','Draft','Needs Design','Ready for Review','Approved','Scheduled','Published','Rejected'];\nconst counts = {};\nstatuses.forEach(s => counts[s] = 0);\nconst byPlatform = {};\nplatforms.forEach(p => byPlatform[p] = { total: 0, published: 0, needsReview: 0 });\nconst needsReview = [];\nconst thisWeek = [];\nconst posts = [];\nconst now = new Date();\nconst weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);\nitems.forEach(it => {\n  const status = it.property_status || '';\n  const platform = it.property_platform || '';\n  if (counts[status] !== undefined) counts[status]++;\n  if (byPlatform[platform]) {\n    byPlatform[platform].total++;\n    if (status === 'Published') byPlatform[platform].published++;\n    if (status === 'Ready for Review') byPlatform[platform].needsReview++;\n  }\n  const row = {\n    id: it.id,\n    title: it.property_post_title || it.name || '',\n    platform: platform,\n    status: status,\n    pillar: it.property_content_pillar || '',\n    captionAr: it.property_caption_arabic || '',\n    captionEn: it.property_caption_english || '',\n    hashtags: it.property_hashtags || '',\n    designBrief: it.property_design_brief || '',\n    designUrl: it.property_design_asset_url || '',\n    scheduledDate: it.property_scheduled_date || null,\n    publishedDate: it.property_published_date || null,\n    approvedBy: it.property_approved_by || '',\n    notes: it.property_notes || ''\n  };\n  posts.push(row);\n  if (status === 'Ready for Review') needsReview.push(row);\n  if (row.scheduledDate) {\n    const d = new Date(row.scheduledDate);\n    if (d >= now && d <= weekFromNow) thisWeek.push(row);\n  }\n});\nreturn [{ json: {\n  ok: true,\n  generatedAt: new Date().toISOString(),\n  counts: counts,\n  byPlatform: byPlatform,\n  needsReview: needsReview,\n  thisWeek: thisWeek,\n  posts: posts\n} }];"
+      }
+    },
+    {
+      "id": "0b387128-4a19-41b0-8116-5335b3e3bb4e",
+      "name": "Respond Dashboard JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      }
+    },
+    {
+      "id": "63e8cc7b-86b2-4006-9db2-59cf62b0e2d1",
+      "name": "POST /bp-marketing-approve",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-marketing-approve",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "d1927f8a-3cb9-4024-b0ac-057c112abbf8"
+    },
+    {
+      "id": "98efd38c-3bae-4a5c-9d70-52a1ddec6952",
+      "name": "Normalize Approval Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const b = ($input.first().json.body) || $input.first().json || {};\nreturn [{ json: {\n  pageId: b.pageId || '',\n  action: (b.action || '').toLowerCase(),\n  approver: b.approver || '',\n  scheduledDate: b.scheduledDate || null,\n  rejectionReason: b.rejectionReason || ''\n} }];"
+      }
+    },
+    {
+      "id": "7afe7290-3f06-48fb-a97e-0f5898e3c680",
+      "name": "Approve or Reject?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.action }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "approve"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "d8ed4c5f-9f27-4ee9-b0b7-aceb0ba34cbe",
+      "name": "Mark Approved",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        224
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "type": "select",
+              "selectValue": "={{ $json.scheduledDate ? \"Scheduled\" : \"Approved\" }}"
+            },
+            {
+              "key": "Approved By|rich_text",
+              "type": "rich_text",
+              "richText": false,
+              "textContent": "={{ $json.approver }}"
+            },
+            {
+              "key": "Scheduled Date|date",
+              "type": "date",
+              "range": false,
+              "includeTime": false,
+              "date": "={{ $json.scheduledDate || $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "e6f78c46-62f3-4386-99eb-0dc5ccc2a757",
+      "name": "Respond Approval Ack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        320
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      }
+    },
+    {
+      "id": "9a69f9f0-bbd3-4bef-bd6e-df110aa7bf06",
+      "name": "Mark Rejected",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        416
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "simple": true,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "type": "select",
+              "selectValue": "Rejected"
+            },
+            {
+              "key": "Rejection Reason|rich_text",
+              "type": "rich_text",
+              "richText": false,
+              "textContent": "={{ $json.rejectionReason }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

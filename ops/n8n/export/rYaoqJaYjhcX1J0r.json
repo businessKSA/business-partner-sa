@@ -1,0 +1,312 @@
+{
+  "id": "rYaoqJaYjhcX1J0r",
+  "name": "BP — Website Email Finder",
+  "active": false,
+  "isArchived": false,
+  "versionId": "5a73dfe3-8994-42b0-a698-cc9d36a58cd9",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 9,
+  "createdAt": "2026-07-23T01:41:53.806Z",
+  "updatedAt": "2026-07-23T04:00:02.296Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Every 2 min: reads BP Companies Sales DB rows that have a website but no email, fetches each company homepage, extracts a public contact email (prefers same-domain and info/sales/contact addresses), and writes it back to Notion. Free, no API key.",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Get companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get companies": {
+      "main": [
+        [
+          {
+            "node": "Find rows to scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find rows to scan": {
+      "main": [
+        [
+          {
+            "node": "Fetch website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch website": {
+      "main": [
+        [
+          {
+            "node": "Extract email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has email?": {
+      "main": [
+        [
+          {
+            "node": "Save email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract email": {
+      "main": [
+        [
+          {
+            "node": "Best email per company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Best email per company": {
+      "main": [
+        [
+          {
+            "node": "Has email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 minutes": {
+      "main": [
+        [
+          {
+            "node": "Get companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "99153d1a-701b-4d0e-8d8f-c041cf259971",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f907ba2d-1275-4a88-a03d-e92e110b4ee2",
+      "name": "Get companies",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "authentication": "oAuth2",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "returnAll": true
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "02720e2d-e981-46e3-b563-cbc8b33c8edf",
+      "name": "Every 5 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e41a5c7b-a5ea-4b86-9918-b3398cacef42",
+      "name": "Find rows to scan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows = $input.all();\nconst out = [];\nlet n = 0;\nfor (const r of rows) {\n  const j = r.json;\n  const email = j.property_email || '';\n  let dom = j.property_domain || '';\n  if (email) continue;\n  if (!dom) continue;\n  let base = String(dom).trim();\n  if (!/^https?:\\/\\//i.test(base)) base = 'https://' + base;\n  base = base.replace(/\\/+$/, '');\n  const host = base.replace(/^https?:\\/\\//i, '').replace(/^www\\./i, '').split('/')[0];\n  const paths = ['', '/contact', '/contact-us', '/contactus', '/ar/contact', '/about'];\n  for (const p of paths) out.push({ json: { pageId: j.id, domain: host, url: base + p } });\n  n++;\n  if (n >= 10) break;\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "c809d6ca-137d-4485-b162-6abd01f7be79",
+      "name": "Fetch website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "neverError": true
+            }
+          },
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": false
+    },
+    {
+      "id": "881c71f6-fcae-402b-a26d-26e33263e6fe",
+      "name": "Extract email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const resp = $json || {};\nconst base = $('Find rows to scan').item.json;\nlet html = '';\nif (typeof resp.data === 'string') html = resp.data;\nelse if (typeof resp.body === 'string') html = resp.body;\nelse html = JSON.stringify(resp);\nconst re = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g;\nconst found = html.match(re) || [];\nconst bad = /(\\.png|\\.jpg|\\.jpeg|\\.gif|\\.webp|\\.svg|\\.js|\\.css|sentry|wixpress|godaddy|example\\.com|@2x|@3x)/i;\nconst clean = [];\nfor (let e of found) { e = e.toLowerCase(); if (bad.test(e)) continue; if (clean.indexOf(e) < 0) clean.push(e); }\nconst dom = String(base.domain || '').toLowerCase();\nlet pick = clean.find(function(e){ return dom && e.split('@')[1] === dom; });\nif (!pick) pick = clean.find(function(e){ return /^(info|sales|contact|hello|admin|support|marketing|business)@/.test(e); });\nif (!pick) pick = clean[0] || '';\nreturn { json: { pageId: base.pageId, email: pick, domain: dom } };"
+      }
+    },
+    {
+      "id": "90be9fb3-8557-4d0e-a0e4-83f1281cb6ee",
+      "name": "Has email?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "27c12c49-8be3-4878-9edd-97f23d6cec5b",
+      "name": "Save email",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.email }}",
+              "ignoreIfEmpty": true
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "5395f68a-dd46-4289-9d9d-78b3a1f4a4bf",
+      "name": "Best email per company",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const map = {};\nfor (const r of $input.all()) {\n  const j = r.json;\n  const id = j.pageId;\n  if (!id) continue;\n  if (!(id in map)) map[id] = { email: '', domain: j.domain || '' };\n  if (!map[id].email && j.email) map[id].email = j.email;\n  if (!map[id].domain && j.domain) map[id].domain = j.domain;\n}\nconst out = [];\nfor (const id in map) {\n  let e = map[id].email;\n  if (!e && map[id].domain) e = 'info@' + map[id].domain; // generic fallback for companies with a website\n  if (e) out.push({ json: { pageId: id, email: e } });\n}\nreturn out;"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

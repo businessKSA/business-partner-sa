@@ -1,0 +1,929 @@
+{
+  "id": "E4DC5bIkRqFaDlhr",
+  "name": "BP — Website ATS Intake → AI Screening",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7d5d1192-dd45-4a6f-b76b-322ca61a88f0",
+  "activeVersionId": "7d5d1192-dd45-4a6f-b76b-322ca61a88f0",
+  "triggerCount": 1,
+  "nodeCount": 25,
+  "createdAt": "2026-07-12T22:02:16.902Z",
+  "updatedAt": "2026-09-24T02:16:17.278Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveDataErrorExecution": "all",
+    "executionTimeout": 300
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Website hiring intake: normalize applications, prepare CV/Drive processing, AI screen, return JSON.",
+  "connections": {
+    "Website ATS Application Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize ATS Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize ATS Payload": {
+      "main": [
+        [
+          {
+            "node": "Has Parseable PDF CV?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Parseable PDF CV?": {
+      "main": [
+        [
+          {
+            "node": "Convert CV Base64 To Binary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has DOCX CV?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert CV Base64 To Binary": {
+      "main": [
+        [
+          {
+            "node": "Extract CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract CV Text": {
+      "main": [
+        [
+          {
+            "node": "Attach CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach CV Text": {
+      "main": [
+        [
+          {
+            "node": "Build Screening Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No CV Text": {
+      "main": [
+        [
+          {
+            "node": "Build Screening Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Screening Input": {
+      "main": [
+        [
+          {
+            "node": "AI Screening Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ATS Screening Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Screening Summary",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Screening Summary": {
+      "main": [
+        [
+          {
+            "node": "Has CV Binary For Drive?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has CV Binary For Drive?": {
+      "main": [
+        [
+          {
+            "node": "Create Candidate Drive Folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Notification Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Candidate Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Reattach CV Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reattach CV Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload Original CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Original CV": {
+      "main": [
+        [
+          {
+            "node": "Create ATS CV Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ATS CV Doc": {
+      "main": [
+        [
+          {
+            "node": "Build Notification Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Notification Payload": {
+      "main": [
+        [
+          {
+            "node": "Return ATS Intake Result",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Candidate Email?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Internal Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Candidate Email?": {
+      "main": [
+        [
+          {
+            "node": "Send Candidate Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has DOCX CV?": {
+      "main": [
+        [
+          {
+            "node": "Convert DOCX Base64 To Binary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert DOCX Base64 To Binary": {
+      "main": [
+        [
+          {
+            "node": "Mark DOCX Stored Not Extracted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark DOCX Stored Not Extracted": {
+      "main": [
+        [
+          {
+            "node": "Build Screening Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Screening Summary",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "138ef0bd-ce5c-4f29-946f-1177c3f280c9",
+      "name": "Website ATS Application Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-ats-application",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://new.businesspartner.sa,https://*.vercel.app"
+        }
+      },
+      "webhookId": "00f019f6-8367-4528-8335-7c6f966bf562"
+    },
+    {
+      "id": "b4be9337-4ed7-4a86-b271-36ca13572e42",
+      "name": "Normalize ATS Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const body = $json.body || $json;\nconst candidate = body.candidate || {};\nconst job = body.job || {};\nconst questions = body.questions || {};\nconst cvFile = body.cvFile || null;\nconst instructions = body.processingInstructions || {};\nconst clean = (v) => String(v || '').trim();\nconst safeName = clean(candidate.name || 'Unknown Candidate').replace(/[\\\\/:*?\"<>|]/g, '-').slice(0, 90);\nconst safePhone = clean(candidate.phone).replace(/[^0-9+]/g, '').slice(-12);\nconst folderName = `${safeName}${safePhone ? ' - ' + safePhone : ''}`;\nconst fileExt = cvFile && cvFile.name && cvFile.name.includes('.') ? cvFile.name.split('.').pop().toLowerCase() : '';\nconst fileType = clean(cvFile && (cvFile.type || fileExt));\nconst acceptsParsing = Boolean(cvFile && cvFile.base64 && ['pdf','doc','docx'].some(x => fileType.toLowerCase().includes(x) || fileExt === x));\nconst text = [candidate.name, candidate.field, candidate.experience, candidate.city, candidate.country, candidate.currentLocation, candidate.nationality, candidate.residenceStatus, candidate.workMode, candidate.availability, job.title, questions.interest, questions.strengths, questions.notice, questions.workAuthorization, cvFile && cvFile.name].filter(Boolean).join(' | ');\nconst lower = text.toLowerCase();\nconst requiredSignals = ['qiwa','gosi','mudad','muqeem','hr','recruit','saudi','government','payroll','onboarding','candidate','interview'];\nconst matchedSignals = requiredSignals.filter(s => lower.includes(s));\nconst saudizationSignals = ['saudi','سعودي','سعودية','gosi','qiwa','قوى','توطين','saudization'].filter(s => lower.includes(s.toLowerCase()));\nconst score = Math.min(100, 35 + matchedSignals.length * 8 + (acceptsParsing ? 10 : 0) + (candidate.email ? 5 : 0) + (candidate.residenceStatus ? 5 : 0));\nconst stage = score >= 75 ? 'shortlist' : score >= 55 ? 'review' : 'new';\nreturn { json: { source: body.source || 'website-careers', receivedAt: body.receivedAt || new Date().toISOString(), candidate, job, questions, cvFile: cvFile ? { name: cvFile.name, type: cvFile.type, size: cvFile.size, extension: fileExt, hasBase64: Boolean(cvFile.base64), base64: cvFile.base64 || '', parseable: acceptsParsing } : null, drivePlan: { enabled: Boolean(instructions.createCandidateDriveFolder), parentFolder: 'BP Candidates', candidateFolderName: folderName, originalCvFileName: cvFile && cvFile.name ? `01-original-${cvFile.name}` : '', atsCvDocName: `02-Business-Partner-CV-${safeName}`, employerProfileName: `03-employer-profile-${safeName}`, notionFieldsToUpdate: ['Original CV Drive URL','ATS CV Drive URL','Employer Profile URL','Parsed CV Text','Screening Summary'] }, processingInstructions: { parseCvText: true, saveOriginalCv: true, generateAtsFriendlyCv: true, generateEmployerReadableProfile: true, matchOccupationAgainstSaudizationRules: true, updateNotionWithDriveLinks: true, createApplicationRecordPerJob: true, hidePrivateContactUntilEmployerUnlocked: true }, screening: { score, matchedSignals, saudizationSignals, occupationMatchStatus: saudizationSignals.length ? 'needs-saudization-check' : 'general-check', stage }, notionDatabaseId: body.ats && body.ats.notionDatabaseId, sourcePage: body.ats && body.ats.sourcePage, internalSummary: `${candidate.name || 'Candidate'} applied for ${job.title || 'Candidate Pool'} — score ${score}/100 — ${candidate.country || ''} ${candidate.city || ''}` } };"
+      }
+    },
+    {
+      "id": "c2a8da3d-f3d0-4db4-8dac-af4787288794",
+      "name": "AI Screening Summary",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1780,
+        220
+      ],
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "maxIterations": 2,
+          "returnIntermediateSteps": false,
+          "systemMessage": "You are a Business Partner hiring operations assistant. Do not mention external ATS platforms. Be concise, fair, and avoid protected-class assumptions. Use only the supplied application data — never invent facts. Prepare a clean employer-readable profile, an ATS-friendly CV outline, and notes for checking occupation/saudization fit. Always return valid JSON matching the configured output schema.\n\nHRSD Saudization grounding for the saudization_occupation_check_notes field only (internal reference — never quote this block verbatim, never state it as a final legal ruling, never promise government approval):\n- Ask/infer sector, exact activity, profession/job title, and outlet or shift headcount before judging fit — Saudization rules apply by profession, by outlet/shift, or by sector/phase date depending on the case, not just total company headcount.\n- If multiple Saudization decisions could apply to the same case, note that the higher ratio governs.\n- Healthcare profession ratios: Radiology 65%, Clinical Nutrition 80%, Physical Therapy 80%, Medical Laboratories 70% — flag that professional accreditation (e.g. SCFHS) and a minimum wage threshold must also be met for a Saudi worker to count toward these ratios.\n- Retail & wholesale outlets: the ratio applies at outlet/shift level once an outlet has 4 or more workers in one shift, not at whole-company level.\n- Tourism sector: ratio varies by role/profession table — can be 100%, 70%, 50%, 30%, or 50% for the manager group — depends on implementation phase.\n- Flexible work (hourly Saudi workers) can count toward Nitaqat only when the contract is documented and hours/GOSI registration are correct.\n- If the candidate's profession, sector, wage, or accreditation status is unclear or missing from the application, say so explicitly in saudization_occupation_check_notes and recommend internal HR/GRO review rather than asserting compliance.\n- Do not give a final legal compliance verdict — always frame notes as guidance for internal review, and flag for human escalation if there is any mention of a penalty, blocked service, inspection, unclear profession classification, or wages below threshold.\n- If saudization/occupation signals are absent from the application, set saudization_occupation_check_notes to \"not applicable\"."
+        },
+        "promptType": "define",
+        "text": "=Screen this Business Partner hiring application and prepare the next processing outputs using the required schema. Use the candidate's parsed CV text (cvText) when building the ATS-friendly CV. If cvTextStatus is \"skipped\", clearly state CV text extraction is pending (no CV file, or an unsupported format) and build outputs from the structured form fields only. If cvTextStatus is \"docx-stored-not-extracted\", state that a Word CV was received and stored on Drive but automated text extraction from Word files isn't available yet (only PDF is auto-extracted today) — build the ATS CV outline from the structured form fields and note a human should open the stored file. Application JSON: {{ JSON.stringify($json) }}"
+      }
+    },
+    {
+      "id": "981399f3-2d96-4d1b-a93f-0e20be5c44cc",
+      "name": "OpenAI ATS Screening Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1780,
+        460
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": true,
+        "options": {
+          "temperature": 0.2,
+          "reasoningEffort": "low",
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "6af69e01-234a-448c-85cd-c780f85b31d9",
+      "name": "Return ATS Intake Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3520,
+        220
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": {
+          "aiScreening": "={{ $json.ai }}",
+          "drive": "={{ $json.drive }}",
+          "ok": true,
+          "screening": "={{ $json.screening }}",
+          "source": "website-ats-webhook"
+        }
+      }
+    },
+    {
+      "id": "d88be4da-3cfb-47f9-89ab-e720a19215e9",
+      "name": "Has Parseable PDF CV?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        220
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.cvFile?.hasBase64 }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": true
+            },
+            {
+              "leftValue": "={{ $json.cvFile?.extension }}",
+              "operator": {
+                "operation": "equals",
+                "type": "string"
+              },
+              "rightValue": "pdf"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          }
+        }
+      }
+    },
+    {
+      "id": "c2148e89-c659-485b-8fb8-02f76419dc3c",
+      "name": "Convert CV Base64 To Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        940,
+        100
+      ],
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "cvFile.base64"
+      }
+    },
+    {
+      "id": "cdcec8ff-8884-449e-9671-9bb01e471d4a",
+      "name": "Extract CV Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1140,
+        100
+      ],
+      "parameters": {
+        "binaryPropertyName": "data",
+        "operation": "pdf",
+        "options": {
+          "joinPages": true,
+          "keepSource": "json"
+        }
+      }
+    },
+    {
+      "id": "2ce6590e-d935-4e1d-b97d-1a4e85ea801d",
+      "name": "Attach CV Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1340,
+        100
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cvText",
+              "name": "cvText",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "cvTextStatus",
+              "name": "cvTextStatus",
+              "type": "string",
+              "value": "extracted"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "mode": "manual"
+      }
+    },
+    {
+      "id": "2dbb70a8-ecd8-4583-9e3e-71bea507dd1c",
+      "name": "No CV Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        360
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cvText",
+              "name": "cvText",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "cvTextStatus",
+              "name": "cvTextStatus",
+              "type": "string",
+              "value": "skipped"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "mode": "manual"
+      }
+    },
+    {
+      "id": "688dff6b-d971-4c1e-ac7e-0b00dfbe2d40",
+      "name": "Build Screening Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const norm = $('Normalize ATS Payload').item.json;\nconst cv = $json;\nreturn { json: Object.assign({}, norm, { cvText: cv.cvText || '', cvTextStatus: cv.cvTextStatus || 'skipped' }) };",
+        "language": "javaScript",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "08cb33f3-fcfe-49a9-9dc9-c9ff47a33fc9",
+      "name": "ATS Screening Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1980,
+        440
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"candidate_summary\": \"Concise 2-3 sentence bilingual (AR+EN) summary of the candidate profile\",\n  \"role_fit\": \"How well they match the target role/job, AR+EN\",\n  \"missing_data\": [\"list of missing but important fields\"],\n  \"risks\": \"Any concerns, or 'none'\",\n  \"recommended_stage\": \"new\",\n  \"interview_questions\": [\"3-5 suggested interview questions\"],\n  \"ats_cv_markdown\": \"Full ATS-friendly CV in markdown, built from the provided form data and cvText when available\",\n  \"employer_profile_summary\": \"Short employer-facing profile paragraph\",\n  \"saudization_occupation_check_notes\": \"Notes on Saudization/occupation compliance if relevant, else 'not applicable'\"\n}",
+        "schemaType": "fromJson"
+      }
+    },
+    {
+      "id": "cc636943-131a-40b3-a615-b38c9016d7d0",
+      "name": "Has CV Binary For Drive?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2280,
+        220
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $('Build Screening Input').item.json.cvTextStatus }}",
+              "operator": {
+                "operation": "notEquals",
+                "type": "string"
+              },
+              "rightValue": "skipped"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          }
+        }
+      }
+    },
+    {
+      "id": "2dc9e652-443a-486b-a30e-d26e708574ed",
+      "name": "Create Candidate Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2480,
+        80
+      ],
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "cachedResultName": "My Drive",
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "cachedResultName": "BP CV Folder",
+          "mode": "id",
+          "value": "1OqgBzZfjgehmmMaaf4St3kelsBGGALWJ"
+        },
+        "name": "={{ $('Normalize ATS Payload').item.json.drivePlan.candidateFolderName }}",
+        "operation": "create",
+        "options": {
+          "simplifyOutput": false
+        },
+        "resource": "folder"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "0e895f86-4d64-489d-b9a8-eb171ec405b7",
+      "name": "Reattach CV Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2680,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const folder = $('Create Candidate Drive Folder').item.json;\nlet bin = {};\ntry { bin = $('Convert CV Base64 To Binary').item.binary || {}; } catch (e) {}\nif (!bin.data) { try { bin = $('Convert DOCX Base64 To Binary').item.binary || {}; } catch (e) {} }\nreturn { json: { folderId: folder.id, folderLink: folder.webViewLink }, binary: bin.data ? { data: bin.data } : {} };",
+        "language": "javaScript",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "3e7d9aef-f305-4cbc-aace-95052a4c1139",
+      "name": "Upload Original CV",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2880,
+        80
+      ],
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "cachedResultName": "My Drive",
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "cachedResultName": "candidate folder",
+          "mode": "id",
+          "value": "={{ $json.folderId }}"
+        },
+        "inputDataFieldName": "data",
+        "name": "={{ $('Normalize ATS Payload').item.json.drivePlan.originalCvFileName }}",
+        "operation": "upload",
+        "options": {
+          "simplifyOutput": false
+        },
+        "resource": "file"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "6d55a0d4-9403-4e32-9f12-0dcee8416549",
+      "name": "Create ATS CV Doc",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3080,
+        80
+      ],
+      "parameters": {
+        "content": "={{ $('AI Screening Summary').item.json.output.ats_cv_markdown || $('AI Screening Summary').item.json.output.candidate_summary || 'ATS CV pending' }}",
+        "driveId": {
+          "__rl": true,
+          "cachedResultName": "My Drive",
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "cachedResultName": "candidate folder",
+          "mode": "id",
+          "value": "={{ $('Reattach CV Binary').item.json.folderId }}"
+        },
+        "name": "=ATS CV — {{ $('Normalize ATS Payload').item.json.candidate.name }}",
+        "operation": "createFromText",
+        "options": {
+          "convertToGoogleDocument": true
+        },
+        "resource": "file"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "1f516128-f7c4-4258-88f6-87585d17d6b2",
+      "name": "Build Notification Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3320,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const norm = $('Normalize ATS Payload').item.json;\nconst ai = ($('AI Screening Summary').item.json.output) || {};\nlet drive = { candidateFolderUrl: '', originalCvUrl: '', atsCvDocUrl: '' };\ntry {\n  const folder = $('Create Candidate Drive Folder').item.json;\n  const upload = $('Upload Original CV').item.json;\n  const atsDoc = $('Create ATS CV Doc').item.json;\n  drive = {\n    candidateFolderUrl: folder.webViewLink || '',\n    originalCvUrl: upload.webViewLink || '',\n    atsCvDocUrl: atsDoc.id ? ('https://docs.google.com/document/d/' + atsDoc.id + '/edit') : '',\n  };\n} catch (e) {}\nconst stageMap = { shortlist: 'قائمة مختصرة', review: 'فرز', new: 'جديد' };\nconst stage = (norm.screening && norm.screening.stage) || 'new';\nreturn { json: {\n  candidate: norm.candidate || {},\n  job: norm.job || {},\n  questions: norm.questions || {},\n  screening: Object.assign({}, norm.screening, { pipelineStage: stageMap[stage] || 'جديد' }),\n  ai,\n  drive,\n  cvTextStatus: (($('Build Screening Input').item.json || {}).cvTextStatus) || 'skipped',\n} };",
+        "language": "javaScript",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "6d67a62c-7dce-45e3-8300-379287d255fc",
+      "name": "Has Candidate Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.candidate.email }}",
+              "operator": {
+                "operation": "notEmpty",
+                "type": "string"
+              },
+              "rightValue": ""
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          }
+        }
+      }
+    },
+    {
+      "id": "585126da-b3e4-4407-9d95-7f16a224c5a0",
+      "name": "Send Candidate Auto-Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3720,
+        360
+      ],
+      "parameters": {
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Tahoma,Arial;line-height:1.8\">\n<p>مرحبًا {{ $json.candidate.name }}،</p>\n<p>شكرًا لتقديمك على وظيفة <b>{{ $json.job.title }}</b> عبر موقع Business Partner. تم استلام طلبك بنجاح وسيقوم فريق التوظيف بمراجعته والتواصل معك في حال وجود تطابق مع الفرصة.</p>\n<hr>\n<p dir=\"ltr\">Hi {{ $json.candidate.name }},<br>Thank you for applying to <b>{{ $json.job.title }}</b> at Business Partner. We've received your application and our recruitment team will review it and reach out if there's a match.</p>\n</div>",
+        "operation": "send",
+        "options": {
+          "appendAttribution": false
+        },
+        "resource": "message",
+        "sendTo": "={{ $json.candidate.email }}",
+        "subject": "شكرًا لتقديمك على Business Partner | Thank you for applying"
+      },
+      "webhookId": "08d2139b-0fb5-4fb4-ba1f-c1d7d22ff3f7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "01bb9218-186d-4f9d-986f-6030953c8a61",
+      "name": "Notify Internal Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        520
+      ],
+      "parameters": {
+        "emailType": "html",
+        "message": "=<h3>طلب توظيف جديد عبر الموقع</h3>\n<p><b>الاسم:</b> {{ $json.candidate.name }}<br>\n<b>الوظيفة:</b> {{ $json.job.title }}<br>\n<b>الهاتف:</b> {{ $json.candidate.phone }}<br>\n<b>البريد:</b> {{ $json.candidate.email }}<br>\n<b>المرحلة المقترحة:</b> {{ $json.screening.pipelineStage }} (score {{ $json.screening.score }}/100)</p>\n<p><b>ملخص الذكاء الاصطناعي:</b><br>{{ $json.ai.candidate_summary }}</p>\n<p><b>روابط Drive:</b><br>\nمجلد المرشح: {{ $json.drive.candidateFolderUrl }}<br>\nالسيرة الأصلية: {{ $json.drive.originalCvUrl }}<br>\nسيرة ATS: {{ $json.drive.atsCvDocUrl }}</p>",
+        "operation": "send",
+        "options": {
+          "appendAttribution": false
+        },
+        "resource": "message",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "={{ 'طلب توظيف جديد — ' + $json.candidate.name + ' — ' + $json.job.title }}"
+      },
+      "webhookId": "1ffccbf8-0169-4db9-98b4-71a7042ce54c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "579b8af2-aaab-43fe-a588-18f1a916cf1a",
+      "name": "Has DOCX CV?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        500
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.cvFile?.hasBase64 }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": true
+            },
+            {
+              "leftValue": "={{ $json.cvFile?.extension }}",
+              "operator": {
+                "operation": "regex",
+                "type": "string"
+              },
+              "rightValue": "^(doc|docx)$"
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          }
+        }
+      }
+    },
+    {
+      "id": "3bce6cba-f26d-429d-a009-990f97c606d6",
+      "name": "Convert DOCX Base64 To Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1140,
+        460
+      ],
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "cvFile.base64"
+      }
+    },
+    {
+      "id": "3e7d8d75-755a-45b3-941a-3644813f05fc",
+      "name": "Mark DOCX Stored Not Extracted",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1340,
+        460
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cvText",
+              "name": "cvText",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "cvTextStatus",
+              "name": "cvTextStatus",
+              "type": "string",
+              "value": "docx-stored-not-extracted"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "mode": "manual"
+      }
+    },
+    {
+      "id": "96901075-3f1a-4399-97a1-0ceaaeaa7c75",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        620
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 3000,
+          "temperature": 0.2,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026. حلّ محلّ حساب OpenAI الذي نفد رصيده.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,732 @@
+{
+  "id": "eABgXmMQZcCTzatn",
+  "name": "BP-Chat-Monitor-API",
+  "active": true,
+  "isArchived": false,
+  "versionId": "917b299f-f449-41a5-91c4-acb585b5e478",
+  "activeVersionId": "917b299f-f449-41a5-91c4-acb585b5e478",
+  "triggerCount": 2,
+  "nodeCount": 18,
+  "createdAt": "2026-07-02T14:42:37.408Z",
+  "updatedAt": "2026-08-18T14:21:00.165Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Secure API for the owner-only online chat monitor dashboard: GET conversations feed + POST send reply as owner (WhatsApp + Notion log).",
+  "connections": {
+    "GET Conversations Feed": {
+      "main": [
+        [
+          {
+            "node": "Feed Key Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feed Key Valid?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Monitor Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Feed 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Monitor Rows": {
+      "main": [
+        [
+          {
+            "node": "Build Feed JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Feed JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Send Reply": {
+      "main": [
+        [
+          {
+            "node": "Parse Send Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Send Request": {
+      "main": [
+        [
+          {
+            "node": "Send Key Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Key Valid?": {
+      "main": [
+        [
+          {
+            "node": "Find CRM by Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Send 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Owner Reply via WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Log Owner Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Send Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Owner Message": {
+      "main": [
+        [
+          {
+            "node": "Respond Send OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find CRM by Phone": {
+      "main": [
+        [
+          {
+            "node": "Set CRM AI Flag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set CRM AI Flag": {
+      "main": [
+        [
+          {
+            "node": "Route: Send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Send?": {
+      "main": [
+        [
+          {
+            "node": "Send Owner Reply via WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Control Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Control Row": {
+      "main": [
+        [
+          {
+            "node": "Respond Send OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "6d2e9533-fb4c-493f-8963-b4d033b07ac0",
+      "name": "GET Conversations Feed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "bp-chat-monitor-x7k2m9",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "ae58db45-873d-405a-8b19-f8c8d760900f"
+    },
+    {
+      "id": "9d0e517c-7aef-4fe0-a73a-9f42b24501c4",
+      "name": "Feed Key Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.query.key }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $env.BP_PANEL_KEY }}"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "4e23a733-a0bb-4245-8bd0-19077ce8b506",
+      "name": "Fetch Monitor Rows",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        120
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "returnAll": false,
+        "limit": 200,
+        "simple": false,
+        "filterType": "none"
+      },
+      "executeOnce": false,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "c2e19ca5-b59b-4c9e-8d8d-f9e46bde7fe2",
+      "name": "Build Feed JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        120
+      ],
+      "parameters": {
+        "jsCode": "const rows = [];\nfor (const it of $input.all()) {\n  const j = it.json || {};\n  const p = j.properties || {};\n  function seg(prop) {\n    const src = p[prop] || {};\n    const arr = src.rich_text || src.title || [];\n    let out = '';\n    for (const x of arr) { out += (x.plain_text || ''); }\n    return out;\n  }\n  if (!j.id) continue;\n  rows.push({\n    id: j.id,\n    time: j.created_time || '',\n    phone: (p['الجوال'] && p['الجوال'].phone_number) || '',\n    sender: (p['المرسل'] && p['المرسل'].select && p['المرسل'].select.name) || '',\n    alert: (p['نوع التنبيه'] && p['نوع التنبيه'].select && p['نوع التنبيه'].select.name) || '',\n    text: seg('الرسالة') || seg('العنوان'),\n    crm: (p['رابط CRM'] && p['رابط CRM'].url) || ''\n  });\n}\nrows.sort(function(a, b) { return new Date(a.time) - new Date(b.time); });\nreturn [{ json: { ok: true, count: rows.length, messages: rows } }];"
+      },
+      "executeOnce": false
+    },
+    {
+      "id": "ec9b705f-ca59-4ab1-bcdb-dd533949fc71",
+      "name": "Respond Feed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        120
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "enableStreaming": false,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "daf6b987-3be4-4084-91a5-66a0757ac980",
+      "name": "Respond Feed 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        680,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "84b4e6d1-95db-4455-b8bb-7c3292139d1f",
+      "name": "POST Send Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        560
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-chat-send-x7k2m9",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "f2858d68-6189-4f9b-a686-d7cc7b565d3b"
+    },
+    {
+      "id": "36e86c66-1cd1-41b2-8118-99a96e72e55e",
+      "name": "Parse Send Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        560
+      ],
+      "parameters": {
+        "jsCode": "let b = $json.body;\nif (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }\nb = b || {};\nconst phone = String(b.phone || '').replace(/[^0-9]/g, '');\nconst text = String(b.text || '').trim();\nlet action = String(b.action || 'send');\nif (['send','pause','resume'].indexOf(action) === -1) action = 'send';\nconst aiOff = (action === 'send' || action === 'pause');\nconst keyOk = String(b.key || '') === String($env.BP_PANEL_KEY || '');\nconst needsText = action === 'send';\nconst valid = keyOk && phone.length >= 9 && (!needsText || text.length > 0);\nreturn [{ json: { key: String(b.key||''), phone: phone, text: text, action: action, aiOff: aiOff, valid: valid } }];"
+      }
+    },
+    {
+      "id": "53a23fdb-612e-4f39-92ab-8dfed61373eb",
+      "name": "Send Key Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        560
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.key }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $env.BP_PANEL_KEY }}"
+            },
+            {
+              "leftValue": "={{ $json.valid }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "88d56a22-18b4-4efc-aa84-f39f2d48deab",
+      "name": "Send Owner Reply via WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        480
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Parse Send Request').first().json.phone }}",
+        "textBody": "={{ $('Parse Send Request').first().json.text }}",
+        "additionalFields": {}
+      },
+      "webhookId": "7f94be04-b347-4578-9d53-1f66c775faf6",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "247d4cb3-87b8-42a1-854e-4106fdff6e71",
+      "name": "Log Owner Message",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        480
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🧑‍💼 {{ $('Parse Send Request').first().json.phone }} — {{ ($('Parse Send Request').first().json.text || '').slice(0, 60) }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Parse Send Request').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "المالك"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "={{ $('Parse Send Request').first().json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "5052d7be-5ad8-4b5a-ac64-f6869c3e7a95",
+      "name": "Respond Send OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1340,
+        480
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "18c750b4-506c-4b36-b923-021e12c96e95",
+      "name": "Respond Send 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        900,
+        680
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unauthorized or invalid payload\"}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "578d349f-c1e5-42c6-b150-9c717b209bb3",
+      "name": "Find CRM by Phone",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        640
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "b322a7ec-23a9-4ceb-875e-52c07b00eadf",
+          "cachedResultName": "CRM"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "simple": true,
+        "filterType": "manual",
+        "matchType": "anyFilter",
+        "filters": {
+          "conditions": [
+            {
+              "key": "WhatsApp Phone|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{ $json.phone }}"
+            },
+            {
+              "key": "WhatsApp|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "b6da89ec-691d-4727-af8e-fc4e9a0ad0eb",
+      "name": "Set CRM AI Flag",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        640
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Find CRM by Phone').first().json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "AI Enabled|checkbox",
+              "checkboxValue": "={{ !$('Parse Send Request').first().json.aiOff }}"
+            },
+            {
+              "key": "Human Required|checkbox",
+              "checkboxValue": "={{ $('Parse Send Request').first().json.aiOff }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "dfb3ef39-b2e7-4a41-b248-578a54c3f58c",
+      "name": "Route: Send?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1340,
+        640
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Send Request').first().json.action }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "send"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5fa359c5-fadb-4644-a01b-02fe95b2dfcd",
+      "name": "Log Control Row",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1560,
+        760
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "={{ $('Parse Send Request').first().json.action === 'resume' ? '🟢 تفعيل الوكيل — ' + $('Parse Send Request').first().json.phone : '🔴 إيقاف الوكيل — ' + $('Parse Send Request').first().json.phone }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Parse Send Request').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "={{ $('Parse Send Request').first().json.action === 'resume' ? 'تفعيل الوكيل' : 'إيقاف الوكيل' }}"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "={{ $('Parse Send Request').first().json.action === 'resume' ? '🟢 أعاد المالك تفعيل الوكيل الآلي — سيرد الوكيل تلقائياً على هذا العميل' : '🔴 تولّى المالك المحادثة — الوكيل الآلي موقوف لهذا العميل' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "24c4a171-596b-4463-a8d0-cca8d72bdce1",
+      "name": "Respond Send Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"whatsapp\"}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

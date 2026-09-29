@@ -1,0 +1,311 @@
+{
+  "id": "qpgl9BEvt0jJt2qB",
+  "name": "BP — جرد Outlook CVs (قراءة فقط)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "3e1f04cc-e53e-4925-a87d-ce2189174fff",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 8,
+  "createdAt": "2026-09-29T19:56:29.233Z",
+  "updatedAt": "2026-09-29T19:56:29.233Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "جرد قراءة فقط: عدّادات مجلدات Outlook (totalItemCount/unreadItemCount) + عيّنات isRead/hasAttachments من Inbox/CVs و CVs-Processed. لا نقل ولا تعليم ولا حذف. يدوي فقط.",
+  "connections": {
+    "Run Inventory": {
+      "main": [
+        [
+          {
+            "node": "Folders + Counters",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CVs All",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CVs With Attachments",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Processed Sample",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CVs All": {
+      "main": [
+        [
+          {
+            "node": "Count CVs All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CVs With Attachments": {
+      "main": [
+        [
+          {
+            "node": "Count CVs With Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processed Sample": {
+      "main": [
+        [
+          {
+            "node": "Count Processed Sample",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "085b918b-b752-44fa-9825-9c3e712bb5da",
+      "name": "Run Inventory",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        288
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "cb06c0e2-828b-43ab-9cf4-1cce96a31e85",
+      "name": "Folders + Counters",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "folder",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {},
+        "options": {
+          "fields": [
+            "displayName",
+            "totalItemCount",
+            "unreadItemCount",
+            "childFolderCount",
+            "parentFolderId",
+            "isHidden"
+          ],
+          "includeChildFolders": true
+        }
+      },
+      "webhookId": "9943290c-f5ad-4d7d-8fb8-d5a4406ce8f4",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "9a9f4f11-eb82-4a27-884c-6aa2b76ef9e2",
+      "name": "CVs All",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        192
+      ],
+      "parameters": {
+        "resource": "folderMessage",
+        "operation": "getAll",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAG4mHUXwAAAA==",
+          "cachedResultName": "Inbox/CVs"
+        },
+        "returnAll": false,
+        "limit": 50,
+        "output": "fields",
+        "fields": [
+          "isRead",
+          "hasAttachments",
+          "receivedDateTime"
+        ],
+        "filtersUI": {
+          "values": {
+            "filterBy": "filters",
+            "filters": {
+              "readStatus": "both"
+            }
+          }
+        },
+        "options": {}
+      },
+      "webhookId": "d85f7369-a523-4a48-9765-0a561461f2ca",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "fa1d8016-1c58-4f2d-b002-ddd4a919b4cf",
+      "name": "Count CVs All",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items = $input.all();\nlet read = 0, unread = 0, att = 0, noAtt = 0, oldest = null, newest = null;\nfor (const it of items) {\n  const j = it.json || {};\n  if (j.isRead === true) read++; else unread++;\n  if (j.hasAttachments === true) att++; else noAtt++;\n  const d = j.receivedDateTime || '';\n  if (d) { if (!oldest || d < oldest) oldest = d; if (!newest || d > newest) newest = d; }\n}\nreturn [{ json: { sampleSize: items.length, isRead_true: read, isRead_false: unread, hasAttachments_true: att, hasAttachments_false: noAtt, oldest, newest } }];"
+      }
+    },
+    {
+      "id": "15c0ca92-6a9b-4056-8fb0-9b68fb129e00",
+      "name": "CVs With Attachments",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        384
+      ],
+      "parameters": {
+        "resource": "folderMessage",
+        "operation": "getAll",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAG4mHUXwAAAA==",
+          "cachedResultName": "Inbox/CVs"
+        },
+        "returnAll": false,
+        "limit": 50,
+        "output": "fields",
+        "fields": [
+          "isRead",
+          "hasAttachments",
+          "receivedDateTime"
+        ],
+        "filtersUI": {
+          "values": {
+            "filterBy": "filters",
+            "filters": {
+              "hasAttachments": true,
+              "readStatus": "both"
+            }
+          }
+        },
+        "options": {}
+      },
+      "webhookId": "a020e53a-ca1a-4b96-beba-9a00d1fce7c2",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "30f93abc-75af-493d-899e-10ba2b729df4",
+      "name": "Count CVs With Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        384
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items = $input.all();\nlet read = 0, unread = 0, att = 0, noAtt = 0, oldest = null, newest = null;\nfor (const it of items) {\n  const j = it.json || {};\n  if (j.isRead === true) read++; else unread++;\n  if (j.hasAttachments === true) att++; else noAtt++;\n  const d = j.receivedDateTime || '';\n  if (d) { if (!oldest || d < oldest) oldest = d; if (!newest || d > newest) newest = d; }\n}\nreturn [{ json: { sampleSize: items.length, isRead_true: read, isRead_false: unread, hasAttachments_true: att, hasAttachments_false: noAtt, oldest, newest } }];"
+      }
+    },
+    {
+      "id": "502ec90d-9c8b-47a3-9d43-2c564809e528",
+      "name": "Processed Sample",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        576
+      ],
+      "parameters": {
+        "resource": "folderMessage",
+        "operation": "getAll",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAH8uBqlgAAAA==",
+          "cachedResultName": "CVs-Processed"
+        },
+        "returnAll": false,
+        "limit": 40,
+        "output": "fields",
+        "fields": [
+          "isRead",
+          "hasAttachments",
+          "receivedDateTime"
+        ],
+        "filtersUI": {
+          "values": {
+            "filterBy": "filters",
+            "filters": {
+              "readStatus": "both"
+            }
+          }
+        },
+        "options": {}
+      },
+      "webhookId": "5398fbc0-7c0c-41c3-b933-57ab3e218d7b",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "334fef50-d417-4408-89d7-356e1c8a3e8a",
+      "name": "Count Processed Sample",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        576
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items = $input.all();\nlet read = 0, unread = 0, att = 0, noAtt = 0, oldest = null, newest = null;\nfor (const it of items) {\n  const j = it.json || {};\n  if (j.isRead === true) read++; else unread++;\n  if (j.hasAttachments === true) att++; else noAtt++;\n  const d = j.receivedDateTime || '';\n  if (d) { if (!oldest || d < oldest) oldest = d; if (!newest || d > newest) newest = d; }\n}\nreturn [{ json: { sampleSize: items.length, isRead_true: read, isRead_false: unread, hasAttachments_true: att, hasAttachments_false: noAtt, oldest, newest } }];"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

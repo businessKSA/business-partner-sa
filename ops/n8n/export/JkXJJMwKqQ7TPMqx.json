@@ -1,0 +1,425 @@
+{
+  "id": "JkXJJMwKqQ7TPMqx",
+  "name": "🗓️ BP Marketing — Autonomous Weekly Content Planner",
+  "active": false,
+  "isArchived": false,
+  "versionId": "dc1ddc01-961c-49af-a8fb-d3e60e1ef891",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-08-23T21:49:59.540Z",
+  "updatedAt": "2026-09-24T02:14:10.035Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 180
+  },
+  "tags": [
+    {
+      "id": "3e4sD4NXljLH9Ben",
+      "name": "Marketing"
+    },
+    {
+      "id": "Ci3CiDXT1iFHD1rv",
+      "name": "Content"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "موقوف 2026-09-24: يقرأ /data/marketing-content.json ويحصل 404 — الملف ومولّده feed.mjs غير موجودين على أي فرع. أربع تشغيلات منذ 3 سبتمبر كلها فاشلة — لم ينجح قط. لإعادته: ابنِ الملف أولاً (نصوص وأسعار تحتاج مراجعة المالك) ثم Publish.",
+  "connections": {
+    "Compute Plan Week": {
+      "main": [
+        [
+          {
+            "node": "Rows Already Planned",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Now": {
+      "main": [
+        [
+          {
+            "node": "Compute Plan Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rows Already Planned": {
+      "main": [
+        [
+          {
+            "node": "Week Not Planned Yet?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Week Not Planned Yet?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Content Feed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Already Planned — Stop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Content Feed": {
+      "main": [
+        [
+          {
+            "node": "Build Week Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Week Rows": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thursday 07:00 Riyadh": {
+      "main": [
+        [
+          {
+            "node": "Compute Plan Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "8bffeb0b-db27-4d61-8415-0361e9094c85",
+      "name": "Thursday 07:00 Riyadh",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                4
+              ],
+              "triggerAtHour": 4,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "notes": "Plans the week that starts the coming Sunday, so there is time to review before it runs.",
+      "notesInFlow": true
+    },
+    {
+      "id": "06626cd0-f795-4e76-a450-6c3863333fa4",
+      "name": "Compute Plan Week",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\n// ===== Which week is being planned =====\n// Riyadh is UTC+3 all year, so the local calendar day is derived by shifting UTC\n// rather than by relying on the n8n instance timezone, which this workflow does\n// not control.\nconst RIYADH_OFFSET_MS = 3 * 60 * 60 * 1000;\nconst nowRiyadh = new Date(Date.now() + RIYADH_OFFSET_MS);\nconst todayUtcMidnight = Date.UTC(nowRiyadh.getUTCFullYear(), nowRiyadh.getUTCMonth(), nowRiyadh.getUTCDate());\n\n// The Saudi work week starts on Sunday. Always plan the NEXT one: planning the\n// current week would create rows whose scheduled time is already in the past.\nconst dow = new Date(todayUtcMidnight).getUTCDay();\nconst daysUntilSunday = (7 - dow) || 7;\nconst weekStart = todayUtcMidnight + daysUntilSunday * 86400000;\nconst planWeek = new Date(weekStart).toISOString().slice(0, 10);\n\n// Fixes the phase of the 19-week rotation. Any Sunday works as the epoch; this\n// one is only a reference point, not a start date.\nconst EPOCH_SUNDAY = Date.UTC(2026, 0, 4);\nconst weekIndex = Math.round((weekStart - EPOCH_SUNDAY) / (7 * 86400000));\n\nreturn [{ json: { planWeek: planWeek, weekIndex: weekIndex } }];\n"
+      },
+      "notes": "The Sunday that starts the week being planned, plus its index in the rotation.",
+      "notesInFlow": true
+    },
+    {
+      "id": "c0eef90d-8d51-41ba-9749-14ac636f9c1c",
+      "name": "Plan Now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "d32e12c0-b58d-4e95-b6f1-7eaccbec50c2",
+      "name": "Rows Already Planned",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b2-3503-4ff4-adf5-ec15dfd7519a"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Plan Week|rich_text",
+              "condition": "equals",
+              "richTextValue": "={{ $json.planWeek }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "A re-run must not double the week. One matching row is enough to stop.",
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "cb871b3b-1981-47e1-a79b-e7f5e5e9c9e0",
+      "name": "Week Not Planned Yet?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.id }}",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "059fd607-0857-49bf-8b96-edf7fee7e5d7",
+      "name": "Fetch Content Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://businesspartner.sa/data/marketing-content.json",
+        "options": {
+          "response": {
+            "response": {
+              "format": "json"
+            }
+          }
+        }
+      },
+      "notes": "The copy lives in the repo and is published with the site, so every claim in it is reviewable in a diff.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "6184fcab-021c-4ee0-8f82-8ffd36761b6e",
+      "name": "Build Week Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\n// ===== Expand the week into calendar rows =====\n// Five services, one per working day, each on a fixed set of platforms, plus one\n// weekly digest. Nothing here decides what is true about a service: the copy,\n// the price wording and the links all come from the published feed.\n\nconst plan = $('Compute Plan Week').first().json;\nconst raw = $input.first().json;\n// Some hosts serve .json as text/plain, and n8n then hands the body over as a\n// string under 'data' instead of a parsed object.\nconst feed = typeof raw.data === 'string' ? JSON.parse(raw.data) : raw;\n\nconst rotation = feed.rotation || [];\nconst grid = feed.grid || [];\nconst services = feed.services || {};\nconst per = feed.servicesPerWeek || 5;\nconst offset = feed.utcOffset || '+03:00';\n\nif (!rotation.length || !grid.length) {\n  throw new Error('Content feed returned no rotation or grid — refusing to write an empty week.');\n}\n\n// Slice this week's services out of the rotation. It wraps, so the cycle repeats\n// after 19 weeks rather than running out.\nconst start = ((plan.weekIndex * per) % rotation.length + rotation.length) % rotation.length;\nconst codes = [];\nfor (let i = 0; i < per; i++) codes.push(rotation[(start + i) % rotation.length]);\n\nconst pad2 = (n) => (n < 10 ? '0' + n : '' + n);\nconst dayIso = (dayOffset) => {\n  const t = Date.parse(plan.planWeek + 'T00:00:00Z') + dayOffset * 86400000;\n  const d = new Date(t);\n  return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());\n};\n\nconst rows = [];\n\nfor (const slot of grid) {\n  const code = codes[slot.serviceIndex];\n  const s = services[code];\n  // A code in the rotation with no entry in services would mean the feed was\n  // built from a different catalogue. Skip it rather than write a blank row.\n  if (!code || !s) continue;\n\n  const caption = (s.copy && s.copy[slot.channel]) || '';\n  if (!caption) continue;\n\n  // The WhatsApp link has to name the channel this row publishes on, or every\n  // chat it starts is filed under whichever channel the shared link was tagged.\n  const wa = (s.whatsappLinks && s.whatsappLinks[slot.channel]) || s.whatsappLink;\n\n  const notes = [];\n  if (wa) notes.push('واتساب مباشر: ' + wa);\n  if (s.pack) notes.push('حزمة التصاميم: ' + s.pack);\n  if (slot.channel === 'tiktok' && s.tiktok) {\n    notes.push('نص الفيديو — الخطاف: ' + s.tiktok.hook);\n    notes.push('على الشاشة: ' + s.tiktok.onScreen);\n    notes.push('الخاتمة: ' + s.tiktok.cta);\n  }\n  if (slot.channel === 'snapchat' && s.snapchatSwipeUrl) {\n    notes.push('رابط السحب للأعلى: ' + s.snapchatSwipeUrl);\n  }\n\n  rows.push({ json: {\n    slotKey: plan.planWeek + '|' + code + '|' + slot.platform,\n    planWeek: plan.planWeek,\n    serviceCode: code,\n    platform: slot.platform,\n    pillar: slot.pillar,\n    scheduled: dayIso(slot.dayOffset) + 'T' + slot.time + ':00' + offset,\n    postTitle: s.title + ' — ' + slot.platform,\n    captionAr: caption,\n    hashtags: s.hashtags || '',\n    designBrief: s.designBrief || '',\n    landingUrl: (s.links && s.links[slot.channel]) || s.landingUrl || '',\n    notes: notes.join('\\n'),\n  }});\n}\n\n// One post a week that is not about a single service, so a follower who missed a\n// day still sees the range.\nconst digest = feed.digest;\nif (digest) {\n  const lines = ['*' + (digest.title || 'ملخص الأسبوع') + '*', ''];\n  for (const code of codes) {\n    const s = services[code];\n    if (!s) continue;\n    lines.push('• ' + s.title + (s.priceTag ? ' — ' + s.priceTag : ''));\n    lines.push(((s.links && s.links.telegram) || s.landingUrl) + '');\n    lines.push('');\n  }\n  lines.push(digest.url || '');\n\n  rows.push({ json: {\n    slotKey: plan.planWeek + '|DIGEST|' + digest.platform,\n    planWeek: plan.planWeek,\n    serviceCode: codes.join(', '),\n    platform: digest.platform,\n    pillar: digest.pillar,\n    scheduled: dayIso(digest.dayOffset) + 'T' + digest.time + ':00' + offset,\n    postTitle: (digest.title || 'ملخص الأسبوع') + ' — ' + plan.planWeek,\n    captionAr: lines.join('\\n'),\n    hashtags: '',\n    designBrief: 'بطاقة ملخص: خمسة عناوين خدمات على خلفية كحلي مع شريط ذهبي، بدون أسعار.',\n    landingUrl: digest.url || '',\n    notes: 'ملخص أسبوعي — ليس عن خدمة واحدة.',\n  }});\n}\n\nconsole.log('PLAN', JSON.stringify({ week: plan.planWeek, services: codes, rows: rows.length }));\nreturn rows;\n"
+      },
+      "notes": "Five services expanded across the week, plus the Thursday digest.",
+      "notesInFlow": true
+    },
+    {
+      "id": "d031bb72-7050-43ef-9a4b-3fa3f91082e6",
+      "name": "Create Calendar Row",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b2-3503-4ff4-adf5-ec15dfd7519a"
+        },
+        "title": "={{ $json.postTitle }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Approved"
+            },
+            {
+              "key": "Platform|select",
+              "selectValue": "={{ $json.platform }}"
+            },
+            {
+              "key": "Content Pillar|select",
+              "selectValue": "={{ $json.pillar }}"
+            },
+            {
+              "key": "Scheduled Date|date",
+              "includeTime": true,
+              "date": "={{ $json.scheduled }}"
+            },
+            {
+              "key": "Caption Arabic|rich_text",
+              "textContent": "={{ $json.captionAr }}"
+            },
+            {
+              "key": "Hashtags|rich_text",
+              "textContent": "={{ $json.hashtags }}"
+            },
+            {
+              "key": "Design Brief|rich_text",
+              "textContent": "={{ $json.designBrief }}"
+            },
+            {
+              "key": "Notes|rich_text",
+              "textContent": "={{ $json.notes + '\\nAUTO-GOVERNANCE: routine organic content; auto-approved. High-risk claims, paid ads, legal promises or crisis content require escalation.' }}"
+            },
+            {
+              "key": "Service Code|rich_text",
+              "textContent": "={{ $json.serviceCode }}"
+            },
+            {
+              "key": "Plan Week|rich_text",
+              "textContent": "={{ $json.planWeek }}"
+            },
+            {
+              "key": "Slot Key|rich_text",
+              "textContent": "={{ $json.slotKey }}"
+            },
+            {
+              "key": "Landing URL|url",
+              "urlValue": "={{ $json.landingUrl }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "n8n Execution ID|rich_text",
+              "textContent": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Every row lands on Ready for Review. Nothing here publishes anything.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "7fe7bffe-3904-4fc9-be6d-7ef331010bdb",
+      "name": "Already Planned — Stop",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        896,
+        192
+      ],
+      "parameters": {},
+      "notes": "The week already has rows. Nothing is written.",
+      "notesInFlow": true
+    },
+    {
+      "id": "cc3a14ae-8f27-4c2b-90cc-e3e0c54f3119",
+      "name": "Sticky Note 27e3ad4b",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        -50
+      ],
+      "parameters": {
+        "content": "## Weekly Content Planner\n\nEvery Thursday this plans the week starting the coming Sunday: five services from a 19-week rotation, one per working day, each on LinkedIn, WhatsApp Channel, X and Instagram, with TikTok / Facebook / Snapchat rotating so the heavy formats do not fall due daily. Thursday also gets a Telegram digest of the five.\n\n26 rows a week. All of them land on Ready for Review — this workflow schedules and drafts, it never publishes. No social account is connected yet, so publishing is a human action either way.\n\nThe copy, prices and tracked links come from businesspartner.sa/data/marketing-content.json, generated by docs/marketing-agent/generator/feed.mjs. Marketing claims live in the repo where a diff shows them, not in a Code node.",
+        "color": 5,
+        "width": 300,
+        "height": 200
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

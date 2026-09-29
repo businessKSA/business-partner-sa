@@ -1,0 +1,354 @@
+{
+  "id": "AQlkuTlh2HoC3puN",
+  "name": "RE — RFQ Dispatch (Approval-Gated)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "ef912b3b-5406-4b82-bb21-289d62d57a8a",
+  "activeVersionId": "ef912b3b-5406-4b82-bb21-289d62d57a8a",
+  "triggerCount": 1,
+  "nodeCount": 9,
+  "createdAt": "2026-07-17T07:23:28.896Z",
+  "updatedAt": "2026-07-17T07:23:28.896Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Polls the Real Estate Demand & Supply Board every 30 min. For each Client Request at Status \"Approved for RFQ\" (human gate), walks Matched Supply → emails each vendor an Arabic RFQ (with 10% commission first-contact notice if not yet sent), then marks the",
+  "connections": {
+    "Run RFQ Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Get Board Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Board Records": {
+      "main": [
+        [
+          {
+            "node": "Get Vendor Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vendor Accounts": {
+      "main": [
+        [
+          {
+            "node": "Plan RFQs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan RFQs": {
+      "main": [
+        [
+          {
+            "node": "Send RFQ Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send RFQ Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Request RFQ Sent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Vendor?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Board Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Vendor?": {
+      "main": [
+        [
+          {
+            "node": "Mark Commission Notice Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "7cad6835-d804-4162-aab9-db5f3b09935e",
+      "name": "Run RFQ Dispatch",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "444fe8fb-5a15-4d33-a5a5-3cc62364f9f4",
+      "name": "Get Board Records",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "f416606b-4fab-4cbb-80ce-d171f75e0a3b",
+          "cachedResultName": "Real Estate Demand & Supply Board"
+        },
+        "returnAll": true,
+        "simple": false,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "c787b4cc-f669-4783-84fb-f212886e5cbf",
+      "name": "Get Vendor Accounts",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "2eb39f5e-4ef0-4c1d-bb9e-7b5fe76d4f52",
+          "cachedResultName": "RE Vendor Accounts"
+        },
+        "returnAll": true,
+        "simple": false,
+        "options": {}
+      },
+      "executeOnce": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "cb43e9b2-e76a-4465-bcdc-e40ac0d29597",
+      "name": "Plan RFQs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst board = $('Get Board Records').all();\nconst vendors = $('Get Vendor Accounts').all();\nconst byId = {};\nfor (const it of board) { const p = it.json; if (p && p.id) byId[p.id] = p; }\nconst vByEmail = {};\nfor (const it of vendors) { const p = it.json; if (!p || !p.properties) continue; const e = (p.properties['Email'] && p.properties['Email'].email) ? String(p.properties['Email'].email).toLowerCase().trim() : ''; if (e) vByEmail[e] = p; }\nconst prop = (p, n) => (p && p.properties && p.properties[n]) ? p.properties[n] : null;\nconst selName = (p, n) => { const x = prop(p, n); return x && x.select ? x.select.name : ''; };\nconst titleText = (p, n) => { const x = prop(p, n); return x && Array.isArray(x.title) ? x.title.map(t => t.plain_text).join('') : ''; };\nconst rich = (p, n) => { const x = prop(p, n); return x && Array.isArray(x.rich_text) ? x.rich_text.map(t => t.plain_text).join('') : ''; };\nconst emailOf = (p, n) => { const x = prop(p, n); return x && x.email ? x.email : ''; };\nconst numOf = (p, n) => { const x = prop(p, n); return (x && x.number != null) ? x.number : ''; };\nconst relIds = (p, n) => { const x = prop(p, n); return x && Array.isArray(x.relation) ? x.relation.map(r => r.id) : []; };\nconst out = [];\nfor (const it of board) {\n  const req = it.json;\n  if (selName(req, 'Record Type') !== 'Demand - Client Request') continue;\n  if (selName(req, 'Status') !== 'Approved for RFQ') continue;\n  const requestPageId = req.id;\n  const requestName = titleText(req, 'Name') || 'Client Request';\n  const city = selName(req, 'City');\n  const category = selName(req, 'Property Category');\n  const budget = numOf(req, 'Budget / Price');\n  const sizeSqm = numOf(req, 'Size sqm');\n  const seats = numOf(req, 'Seats / Capacity');\n  const supplyIds = relIds(req, '\\uD83D\\uDD17 Matched Supply');\n  for (const sid of supplyIds) {\n    const sup = byId[sid];\n    if (!sup) continue;\n    const vendorEmail = emailOf(sup, 'Email');\n    if (!vendorEmail) continue;\n    const vendorName = rich(sup, 'Vendor Name') || titleText(sup, 'Name') || 'Partner';\n    const supTitle = titleText(sup, 'Name');\n    const supDistrict = rich(sup, 'District');\n    const supPrice = numOf(sup, 'Budget / Price');\n    const vacc = vByEmail[vendorEmail.toLowerCase().trim()] || null;\n    const vendorPageId = vacc ? vacc.id : '';\n    let noticeSent = false;\n    if (vacc && vacc.properties && vacc.properties['Commission Notice Sent']) { noticeSent = vacc.properties['Commission Notice Sent'].checkbox === true; }\n    const isNewVendor = !noticeSent;\n    const needVendorUpdate = isNewVendor && vendorPageId !== '';\n    const reqLines = [];\n    reqLines.push('نوع العقار: ' + (category || '—'));\n    reqLines.push('المدينة: ' + (city || '—'));\n    if (sizeSqm) reqLines.push('المساحة المطلوبة: ' + sizeSqm + ' م²');\n    if (seats) reqLines.push('عدد المقاعد/السعة: ' + seats);\n    if (budget) reqLines.push('الميزانية التقديرية: ' + budget + ' ريال');\n    const commissionBlock = isNewVendor ? ('\\n\\nملاحظة حول آلية التعامل:\\nتعمل «بيزنس بارتنر» كوسيط بين العميل ومزوّدي العقارات ومساحات العمل. نحصل على عمولة قدرها 10% على الصفقة، ونطلب تضمينها ضمن عرض السعر الذي ترسلونه (أي أن يكون السعر شاملاً عمولة بيزنس بارتنر 10%).\\n') : '';\n    const supplyLine = supTitle ? ('\\n\\nالعرض المطابق لديكم: ' + supTitle + (supDistrict ? ' - ' + supDistrict : '') + (supPrice ? ' - ' + supPrice + ' ريال' : '')) : '';\n    const body = 'مرحباً ' + vendorName + '،\\n\\nلدينا عميل يبحث عن عقار/مساحة عمل بالمواصفات التالية، ونودّ الحصول على عرض سعر منكم:\\n\\n' + reqLines.join('\\n') + supplyLine + commissionBlock + '\\n\\nنرجو تزويدنا بعرض السعر شاملاً الشروط ومدة السريان في أقرب وقت.\\n\\nمع التحية،\\nفريق بيزنس بارتنر | Business Partner\\nbusiness@businesspartner.sa';\n    const subject = 'طلب عرض سعر (RFQ) - ' + (category || 'عقار') + (city ? ' - ' + city : '');\n    out.push({ json: { requestPageId, requestName, vendorEmail, vendorName, vendorPageId, isNewVendor, needVendorUpdate, subject, body } });\n  }\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "a727c9c8-0807-4a8f-a04f-8cc33f1e5f3b",
+      "name": "Send RFQ Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.vendorEmail }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Business Partner"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "d95b389e-5f64-4592-85c4-2afedb4e0e13",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "89605c50-b38c-4086-8f2d-940b64380e9b",
+      "name": "Mark Request RFQ Sent",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Plan RFQs').item.json.requestPageId }}"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "RFQ Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "d4346feb-1843-4b97-a0cb-a4c59d19d1fa",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f38f421e-88ce-4421-976f-76f66ef150be",
+      "name": "New Vendor?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        420
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Plan RFQs').item.json.needVendorUpdate }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "53dd7e9b-6bd8-4dd9-affa-1c6853b9c0fb",
+      "name": "Mark Commission Notice Sent",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        420
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Plan RFQs').item.json.vendorPageId }}"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Commission Notice Sent|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

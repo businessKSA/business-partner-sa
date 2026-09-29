@@ -1,0 +1,240 @@
+{
+  "id": "3ujkx9HHwPk9zCsM",
+  "name": "Business Partner Email Campaign V1",
+  "active": false,
+  "isArchived": false,
+  "versionId": "454d1ae8-9e73-46bb-8d34-0deedd4be6d2",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 5,
+  "createdAt": "2026-06-15T12:44:55.675Z",
+  "updatedAt": "2026-06-27T04:41:25.448Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Companies Email Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Companies Email Leads": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1d6a5cdf-716f-40ad-a4d8-02ea577af584",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are Business Partner's AI Email Marketing Assistant.\n\nYour job is to create highly personalized B2B outreach emails.\n\nYou specialize in:\n\n- Company Formation\n- Foreign Investor Setup\n- Premium Residency\n- HR Services\n- Recruitment\n- GRO Services\n- Office Solutions\n- Business Support\n- Tourism Services\n\nAlways write professional emails.\n\nKeep emails concise.\n\nDo not sound like spam.\n\nGenerate:\n\n1. Subject Line\n2. Email Body\n\nReturn only valid JSON.\n\nExample:\n\n{\n  \"subject\": \"Business Expansion Support in Saudi Arabia\",\n  \"body\": \"Dear Ahmed...\"\n}"
+            },
+            {
+              "content": "=Company Name: {{ $json.name }}\n\nContact Name: {{ $json.property_contact_name }}\n\nJob Title: {{ $json.property_job_title }}\n\nSector: {{ $json.property_sector }}\n\nLanguage: {{ $json.property_language }}\n\nService Interest: {{ $json.property_service_interest }}\n\nLead Score: {{ $json.property_lead_score }}\n\nCreate a personalized outreach email for this prospect."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "6dbbcf1a-90c0-4680-96b6-910ffe87d24d",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Companies Email Leads').item.json.property_email }}",
+        "subject": "={{ $json.output[0].content[0].text.subject }}",
+        "message": "={{ $json.output[0].content[0].text.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d4286e1a-7d64-4fb3-a0d7-10a689970c45",
+      "name": "Send a message",
+      "webhookId": "d9137340-c66f-4b4f-bc88-b48b69752573",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Companies Email Leads').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Sent"
+            },
+            {
+              "key": "n8n Processed|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Last Email Sent Date|date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "Email Subject|rich_text",
+              "textContent": "={{ $('Message a model').item.json.output[0].content[0].text.subject }}"
+            },
+            {
+              "key": "Email Body|rich_text",
+              "textContent": "={{ $('Message a model').item.json.output[0].content[0].text.body }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "2341ae59-467d-40b0-ad95-c5e9c68b287a",
+      "name": "Update a database page",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "a7f4e962-00a1-411b-b2aa-bae3962da483",
+          "mode": "list",
+          "cachedResultName": "Companies Email Leads",
+          "cachedResultUrl": "https://app.notion.com/p/a7f4e96200a1411bb2aabae3962da483"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status|select",
+              "condition": "equals",
+              "selectValue": "Ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d29393e3-d55c-495e-802e-f9c0c80c01e6",
+      "name": "Companies Email Leads",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

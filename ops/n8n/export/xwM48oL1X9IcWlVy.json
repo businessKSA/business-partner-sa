@@ -1,0 +1,1634 @@
+{
+  "id": "xwM48oL1X9IcWlVy",
+  "name": "Recruitment Agent — Job Posting & Screening",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b78fa9cb-5f36-42c4-aaf8-dc0cb426abe4",
+  "activeVersionId": "b78fa9cb-5f36-42c4-aaf8-dc0cb426abe4",
+  "triggerCount": 4,
+  "nodeCount": 44,
+  "createdAt": "2026-07-22T18:54:45.646Z",
+  "updatedAt": "2026-09-20T19:56:48.553Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Automates recruitment sourcing and screening: watches inbox for job-board applications, lets recruiters log headhunted LinkedIn candidates, AI-scores every candidate's fit, auto-books qualifying screening calls on Google Calendar, and routes post-call eva",
+  "connections": {
+    "Headhunt Candidate Entry": {
+      "main": [
+        [
+          {
+            "node": "Normalize Headhunt Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Headhunt Entry": {
+      "main": [
+        [
+          {
+            "node": "Candidate Ready for Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Ready for Scoring": {
+      "main": [
+        [
+          {
+            "node": "Score Candidate Fit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch Job Board Application Emails": {
+      "main": [
+        [
+          {
+            "node": "Extract Application Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Application Data": {
+      "main": [
+        [
+          {
+            "node": "Normalize Job Board Application",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Application Data",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Job Board Application": {
+      "main": [
+        [
+          {
+            "node": "Candidate Ready for Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Candidate Fit": {
+      "main": [
+        [
+          {
+            "node": "Create Candidate Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scoring Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Score Candidate Fit",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Candidate Record": {
+      "main": [
+        [
+          {
+            "node": "Check If Qualifies for Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screening Call Evaluation": {
+      "main": [
+        [
+          {
+            "node": "Find Candidate by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Candidate by Email": {
+      "main": [
+        [
+          {
+            "node": "Save Evaluation and Stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Evaluation and Stage": {
+      "main": [
+        [
+          {
+            "node": "Route by Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Send Candidate Profile to Client",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Client Action — Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Client Action — On Hold",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unrecognized Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Job Post Draft": {
+      "main": [
+        [
+          {
+            "node": "Write Job Post Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Job Post Draft": {
+      "main": [
+        [
+          {
+            "node": "Email Job Post Draft to Recruiter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Confirmed Interest": {
+      "main": [
+        [
+          {
+            "node": "Look Up Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look Up Candidate": {
+      "main": [
+        [
+          {
+            "node": "Get Upcoming Calendar Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upcoming Calendar Events": {
+      "main": [
+        [
+          {
+            "node": "Find First Free Slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find First Free Slot": {
+      "main": [
+        [
+          {
+            "node": "Check If Slot Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Slot Found": {
+      "main": [
+        [
+          {
+            "node": "Book Confirmed Slot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Recruiter — No Slot Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Book Confirmed Slot": {
+      "main": [
+        [
+          {
+            "node": "Mark Interested & Scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Interested & Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Confirm Booking to Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Recruiter — No Slot Found": {
+      "main": [
+        [
+          {
+            "node": "Mark Interested — Manual Booking Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Interested — Manual Booking Needed": {
+      "main": [
+        [
+          {
+            "node": "Confirm — Manual Follow-up to Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Qualifies for Call": {
+      "main": [
+        [
+          {
+            "node": "Send Interest Outreach — Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Interest Outreach — WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Application Data",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Score Candidate Fit",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Write Job Post Draft",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0da35f53-8a0e-46e9-b6ba-4951ffbe8a73",
+      "name": "Headhunt Candidate Entry",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {
+        "formTitle": "Log a Headhunted Candidate",
+        "formDescription": "Log a candidate you found and contacted on LinkedIn (or elsewhere). The agent scores them and books a screening call automatically.",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "candidateName",
+              "fieldLabel": "Candidate Name",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldName": "email",
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldName": "phone",
+              "fieldLabel": "Phone",
+              "fieldType": "text"
+            },
+            {
+              "fieldName": "linkedinUrl",
+              "fieldLabel": "LinkedIn Profile URL",
+              "fieldType": "text"
+            },
+            {
+              "fieldName": "targetJobTitle",
+              "fieldLabel": "Target Job Title",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldName": "client",
+              "fieldLabel": "Client",
+              "fieldType": "text"
+            },
+            {
+              "fieldName": "cvNotes",
+              "fieldLabel": "What do you know about this candidate? (LinkedIn summary, experience, notes)",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldName": "recruiterName",
+              "fieldLabel": "Your Name (Recruiter)",
+              "fieldType": "text",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Log Candidate"
+        }
+      },
+      "webhookId": "5b3298ae-2361-420b-9de3-b573837e44e6",
+      "disabled": true
+    },
+    {
+      "id": "f7820736-4cac-4388-8166-04c3a37e042d",
+      "name": "Normalize Headhunt Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        520,
+        200
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "source",
+              "value": "LinkedIn Headhunt",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "disabled": true
+    },
+    {
+      "id": "226a95a1-456b-46bb-b53c-28c9474fbdad",
+      "name": "Candidate Ready for Scoring",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        380
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "725a276b-a9b5-42f2-bbb7-22d0906eb4cf",
+      "name": "Watch Job Board Application Emails",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        560
+      ],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread",
+          "q": "from:(bayt.com OR linkedin.com OR indeed.com) (application OR applied OR candidate)"
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "f3eb6c7e-ecd8-4e53-9f17-3cff94cbaff4",
+      "name": "Extract Application Data",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        520,
+        560
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the candidate's application details from this job-board notification email.\n\nSubject: {{ $json.subject }}\nFrom: {{ $json.from }}\n\nBody:\n{{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You extract structured candidate data from job-board notification emails (Bayt, LinkedIn Jobs, Indeed, etc). Return the candidate's name, email, phone, LinkedIn URL, the job title they applied for, and a concise 2-4 sentence summary of their profile/CV as described in the email. Leave a field as an empty string if it is not present in the email. Never invent information that is not in the email."
+        }
+      }
+    },
+    {
+      "id": "d9969bdb-3a7c-4087-879b-cc3c438bda19",
+      "name": "Extraction Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        720
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"candidateName\": \"Sara Al-Otaibi\", \"email\": \"sara@example.com\", \"phone\": \"+966501234567\", \"linkedinUrl\": \"\", \"targetJobTitle\": \"Senior Accountant\", \"cvNotes\": \"6 years in corporate accounting, CPA, worked at Big4\"}"
+      }
+    },
+    {
+      "id": "d900c93e-1b00-452a-bb22-db7addb4fdd3",
+      "name": "Normalize Job Board Application",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "source",
+              "value": "Job Board Application",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "client",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      }
+    },
+    {
+      "id": "54d7a2d5-a1e4-4487-ac94-cedba3a10c21",
+      "name": "Score Candidate Fit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1360,
+        380
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Target Job Title: {{ $json.targetJobTitle }}\nClient: {{ $json.client }}\n\nCandidate CV / Notes:\n{{ $json.cvNotes }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a recruitment screening assistant for Business Partner, a Saudi Arabia based recruitment agency. Score how well the candidate fits the target job title on a 0-100 scale based on their CV/notes, give a short 2-3 sentence reasoning, and set qualifiesForCall to true only if the score is 65 or higher."
+        }
+      }
+    },
+    {
+      "id": "9343559b-8152-477f-a995-800b2e6827ec",
+      "name": "Scoring Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1540,
+        560
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"score\": 82, \"reasoning\": \"Strong match: 6 years of directly relevant experience and the required certification.\", \"qualifiesForCall\": true}"
+      }
+    },
+    {
+      "id": "27b52b24-ec35-47f4-a891-ac5c32afbd07",
+      "name": "Create Candidate Record",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1720,
+        380
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "c4346abd-c75e-4421-91df-04a7dc83a363",
+          "cachedResultName": "🎯 Recruitment Pipeline — Sourcing & Screening (Agent)"
+        },
+        "title": "={{ $('Candidate Ready for Scoring').item.json.candidateName }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Candidate Name|title",
+              "title": "={{ $('Candidate Ready for Scoring').item.json.candidateName }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('Candidate Ready for Scoring').item.json.email }}"
+            },
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $('Candidate Ready for Scoring').item.json.phone }}"
+            },
+            {
+              "key": "Source|select",
+              "selectValue": "={{ $('Candidate Ready for Scoring').item.json.source }}"
+            },
+            {
+              "key": "LinkedIn URL|url",
+              "urlValue": "={{ $('Candidate Ready for Scoring').item.json.linkedinUrl }}"
+            },
+            {
+              "key": "Target Job Title|rich_text",
+              "textContent": "={{ $('Candidate Ready for Scoring').item.json.targetJobTitle }}"
+            },
+            {
+              "key": "Client|rich_text",
+              "textContent": "={{ $('Candidate Ready for Scoring').item.json.client }}"
+            },
+            {
+              "key": "CV / Notes|rich_text",
+              "textContent": "={{ $('Candidate Ready for Scoring').item.json.cvNotes }}"
+            },
+            {
+              "key": "AI Score|number",
+              "numberValue": "={{ $json.score }}"
+            },
+            {
+              "key": "AI Score Reasoning|rich_text",
+              "textContent": "={{ $json.reasoning }}"
+            },
+            {
+              "key": "Stage|select",
+              "selectValue": "AI Screened"
+            },
+            {
+              "key": "Recruiter|rich_text",
+              "textContent": "={{ $('Candidate Ready for Scoring').item.json.recruiterName }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "ffd3f09d-7593-4fc1-9422-f7a82c434c07",
+      "name": "Check If Qualifies for Call",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1980,
+        380
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Score Candidate Fit').item.json.qualifiesForCall }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "rightValue": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d63e454b-662b-4f22-bed8-f177bb053953",
+      "name": "Screening Call Evaluation",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        940
+      ],
+      "parameters": {
+        "formTitle": "Screening Call Evaluation",
+        "formDescription": "Fill this in right after you finish a screening call. The agent updates the record and, if you push the candidate forward, emails the client automatically.",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "candidateEmail",
+              "fieldLabel": "Candidate Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldName": "recruiterName",
+              "fieldLabel": "Your Name (Recruiter)",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldName": "evaluationNotes",
+              "fieldLabel": "Evaluation Notes",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldName": "recommendation",
+              "fieldLabel": "Recommendation",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Push to Client"
+                  },
+                  {
+                    "option": "Reject"
+                  },
+                  {
+                    "option": "Hold"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldName": "clientContactEmail",
+              "fieldLabel": "Client Contact Email (only needed if pushing to client)",
+              "fieldType": "email"
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Submit Evaluation"
+        }
+      },
+      "webhookId": "97fdba3a-a01d-46d1-821d-bfccc0334408"
+    },
+    {
+      "id": "42b0174c-4dbb-44c5-be06-5f63228803e9",
+      "name": "Find Candidate by Email",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        940
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "c4346abd-c75e-4421-91df-04a7dc83a363",
+          "cachedResultName": "🎯 Recruitment Pipeline — Sourcing & Screening (Agent)"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "simple": true,
+        "filterType": "manual",
+        "matchType": "anyFilter",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $('Screening Call Evaluation').item.json.candidateEmail }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "c36e6edf-69b0-4149-ae95-6e8956bf7a59",
+      "name": "Save Evaluation and Stage",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        940
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Evaluation Notes|rich_text",
+              "textContent": "={{ $('Screening Call Evaluation').item.json.evaluationNotes }}"
+            },
+            {
+              "key": "Evaluation Recommendation|select",
+              "selectValue": "={{ $('Screening Call Evaluation').item.json.recommendation }}"
+            },
+            {
+              "key": "Recruiter|rich_text",
+              "textContent": "={{ $('Screening Call Evaluation').item.json.recruiterName }}"
+            },
+            {
+              "key": "Stage|select",
+              "selectValue": "={{ $('Screening Call Evaluation').item.json.recommendation === 'Push to Client' ? 'Evaluated — Push to Client' : $('Screening Call Evaluation').item.json.recommendation === 'Reject' ? 'Evaluated — Reject' : 'Evaluated — Hold' }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "d99268d7-71ef-4a4e-9154-71e4bb155aad",
+      "name": "Route by Recommendation",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1080,
+        940
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Screening Call Evaluation').item.json.recommendation }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "Push to Client"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Screening Call Evaluation').item.json.recommendation }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "Reject"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Screening Call Evaluation').item.json.recommendation }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "Hold"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Unrecognized"
+        }
+      }
+    },
+    {
+      "id": "15aa98fd-c2ae-4614-b93c-7f6e41ce6c2b",
+      "name": "Send Candidate Profile to Client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        820
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Screening Call Evaluation').item.json.clientContactEmail }}",
+        "subject": "=Candidate for your review — {{ $('Find Candidate by Email').item.json['Candidate Name'] }}",
+        "message": "=Hi,\n\nWe'd like to put forward {{ $('Find Candidate by Email').item.json['Candidate Name'] }} for {{ $('Find Candidate by Email').item.json['Target Job Title'] }}.\n\nAI fit assessment: {{ $('Find Candidate by Email').item.json['AI Score'] }}/100 — {{ $('Find Candidate by Email').item.json['AI Score Reasoning'] }}\n\nRecruiter notes from the screening call:\n{{ $('Screening Call Evaluation').item.json.evaluationNotes }}\n\nCandidate profile / CV notes:\n{{ $('Find Candidate by Email').item.json['CV / Notes'] }}\n\nFull record: {{ $('Save Evaluation and Stage').item.json.url }}\n\nBest,\nBusiness Partner Recruitment",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "c4427116-6f44-4897-8d62-f9ccc204a627",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "8b868f5b-f105-440d-bc8d-5ad2d0e1abe2",
+      "name": "No Client Action — Rejected",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        940
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "fbbcac0f-1c84-4457-9f60-a9aec7c81f07",
+      "name": "No Client Action — On Hold",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        1060
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "7494feff-efc8-4968-bba4-9f36d8468c36",
+      "name": "Unrecognized Recommendation",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        1180
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f51507b8-6bc0-4a95-acbc-ffaf32d34129",
+      "name": "Request Job Post Draft",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        1340
+      ],
+      "parameters": {
+        "formTitle": "Draft a Job Post",
+        "formDescription": "The agent writes a ready-to-post job ad. Copy it into Bayt / LinkedIn Jobs yourself — there's no public API to post automatically.",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "jobTitle",
+              "fieldLabel": "Job Title",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldName": "client",
+              "fieldLabel": "Client",
+              "fieldType": "text"
+            },
+            {
+              "fieldName": "mustHaveSkills",
+              "fieldLabel": "Must-Have Skills / Requirements",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldName": "seniorityLevel",
+              "fieldLabel": "Seniority Level",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Junior"
+                  },
+                  {
+                    "option": "Mid"
+                  },
+                  {
+                    "option": "Senior"
+                  },
+                  {
+                    "option": "Lead"
+                  },
+                  {
+                    "option": "Executive"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldName": "employmentType",
+              "fieldLabel": "Employment Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Full-time"
+                  },
+                  {
+                    "option": "Part-time"
+                  },
+                  {
+                    "option": "Contract"
+                  },
+                  {
+                    "option": "Remote"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldName": "recruiterEmail",
+              "fieldLabel": "Your Email",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Draft It"
+        }
+      },
+      "webhookId": "32932655-821b-47f8-b985-5821a293a76b"
+    },
+    {
+      "id": "95c51d41-3766-47af-94b3-7e6e41a49df1",
+      "name": "Write Job Post Draft",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        520,
+        1340
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Title: {{ $json.jobTitle }}\nClient: {{ $json.client }}\nSeniority: {{ $json.seniorityLevel }}\nEmployment Type: {{ $json.employmentType }}\nMust-have skills/requirements: {{ $json.mustHaveSkills }}",
+        "options": {
+          "systemMessage": "You write ready-to-post job advertisements for a Saudi Arabia recruitment agency (Business Partner), suitable for pasting directly into Bayt or LinkedIn Jobs. Include: an engaging title line, a short company/role intro, a bulleted responsibilities section, a bulleted requirements section, and how to apply. Keep it professional and concise. Do not invent a company name if the client field is blank — refer generically to \"our client\"."
+        }
+      }
+    },
+    {
+      "id": "68026106-970b-4298-b8b2-2942c862b798",
+      "name": "Email Job Post Draft to Recruiter",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        1340
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Request Job Post Draft').item.json.recruiterEmail }}",
+        "subject": "=Job post draft — {{ $('Request Job Post Draft').item.json.jobTitle }}",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "cfff3982-c049-4b25-bf16-9e5eb3ec06b2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "f23b6e5d-9355-4f08-b0af-4ac1684da3dd",
+      "name": "Sticky Note f11b0e46",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        190,
+        150
+      ],
+      "parameters": {
+        "content": "## Sourcing — what is and isn't automated\n\nLinkedIn and Bayt do not offer public APIs for posting jobs or for automated candidate search/messaging (headhunting) — that requires their paid Talent Solutions / Recruiter products, separate from normal API access. So:\n\n- **Job-board applicants**: fully automatic. This inbox watcher reads new application emails and the agent takes it from there.\n- **Headhunting**: recruiter still finds and messages the candidate on LinkedIn manually, then logs them with the form below — everything after that (scoring, Notion record, call booking) is automatic.\n- **Job ad posting**: still manual (see the \"Draft Job Post\" section) — the agent writes the ad copy, you paste it into Bayt / LinkedIn Jobs yourself.",
+        "color": 5,
+        "width": 860,
+        "height": 720
+      }
+    },
+    {
+      "id": "b7a4c17a-7a60-4c7a-98fc-798ad425f89c",
+      "name": "Sticky Note 372b9877",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1030,
+        130
+      ],
+      "parameters": {
+        "content": "## Screening & interest-gated booking\n\nEvery sourced candidate gets an AI fit score (0-100) against the target job title. Score ≥ 65 sends a personalized outreach message (Email now; WhatsApp needs a real phoneNumberId + an approved Meta message template — currently disabled, see the WhatsApp node) with a \"Yes I'm interested\" link. Only when the candidate clicks that link does the agent check real calendar availability across the next 10 working days (Sun–Thu, 9:00–17:00 Riyadh) and auto-book the first free 30-min slot — see the 'Candidate Confirmed Interest' section below. If nothing is free, the recruiter is notified to book manually and the candidate is told someone will follow up.",
+        "width": 2320,
+        "height": 580
+      }
+    },
+    {
+      "id": "223b4c9a-a6f3-4838-94b7-32c182ca7189",
+      "name": "Sticky Note 62d467e1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        190,
+        770
+      ],
+      "parameters": {
+        "content": "## Post-call evaluation\n\nRecruiter only fills this in after conducting the actual screening call (the human part). The agent finds the Notion record, saves the evaluation, and — only if the recommendation is \"Push to Client\" — emails the client contact with the candidate profile automatically.",
+        "color": 3,
+        "width": 1420,
+        "height": 560
+      }
+    },
+    {
+      "id": "eff79fe4-18a3-4fd5-a26d-ffc529afb70b",
+      "name": "Sticky Note efbd2b17",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        190,
+        1290
+      ],
+      "parameters": {
+        "content": "## Job post drafting (bonus)\n\nSince auto-posting to job boards isn't possible via API, this gives recruiters an AI-written, ready-to-paste job ad on demand instead.",
+        "color": 6,
+        "width": 860,
+        "height": 360
+      }
+    },
+    {
+      "id": "fdc92dad-d653-4d4c-a171-6eaef4d2058c",
+      "name": "Candidate Confirmed Interest",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        1700
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "candidate-interested",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "9e5fb4d5-ef24-4e2e-9066-c8bdc65f706c"
+    },
+    {
+      "id": "6d46c686-dfce-4b15-a1c4-739a69719cad",
+      "name": "Look Up Candidate",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        1700
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.query.id }}"
+        },
+        "simple": false
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "edbfed08-015f-46cb-b577-0b7c94e8af8b",
+      "name": "Get Upcoming Calendar Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        1700
+      ],
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "business@businesspartnerksa.com",
+          "cachedResultName": "business@businesspartnerksa.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $now.toISO() }}",
+        "timeMax": "={{ $now.plus({ days: 10 }).toISO() }}",
+        "options": {
+          "singleEvents": true,
+          "orderBy": "startTime"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "2fea76e7-5bd5-40c9-ace3-d12629650fcb",
+      "name": "Find First Free Slot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        1700
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const TZ_OFFSET_MS = 3 * 60 * 60 * 1000; // Asia/Riyadh, UTC+3, no DST\n\nconst events = $input.all().map(i => i.json);\nconst busy = events\n  .filter(e => e.status !== 'cancelled' && e.start && e.start.dateTime && e.end && e.end.dateTime)\n  .map(e => ({ start: new Date(e.start.dateTime).getTime(), end: new Date(e.end.dateTime).getTime() }));\n\nconst SLOT_MIN = 30;\nconst DAY_START_H = 9;\nconst DAY_END_H = 17;\n\nlet slotStartMs = null;\nconst now = new Date();\nconst nowRiyadh = new Date(now.getTime() + TZ_OFFSET_MS);\n\nfor (let dayOffset = 1; dayOffset <= 10 && slotStartMs === null; dayOffset++) {\n  const dayRiyadh = new Date(Date.UTC(nowRiyadh.getUTCFullYear(), nowRiyadh.getUTCMonth(), nowRiyadh.getUTCDate() + dayOffset));\n  const weekday = dayRiyadh.getUTCDay(); // 0=Sun .. 5=Fri, 6=Sat (Saudi weekend)\n  if (weekday === 5 || weekday === 6) continue;\n  for (let mins = DAY_START_H * 60; mins < DAY_END_H * 60; mins += SLOT_MIN) {\n    const candStartRiyadhMs = dayRiyadh.getTime() + mins * 60000;\n    const candStartUtcMs = candStartRiyadhMs - TZ_OFFSET_MS;\n    const candEndUtcMs = candStartUtcMs + SLOT_MIN * 60000;\n    const overlaps = busy.some(b => candStartUtcMs < b.end && candEndUtcMs > b.start);\n    if (!overlaps) { slotStartMs = candStartUtcMs; break; }\n  }\n}\n\nconst page = $('Look Up Candidate').first().json;\nconst props = (page && page.properties) || {};\nconst name = (props['Candidate Name'] && props['Candidate Name'].title && props['Candidate Name'].title[0] && props['Candidate Name'].title[0].plain_text) || '';\nconst email = (props['Email'] && props['Email'].email) || '';\nconst jobTitle = (props['Target Job Title'] && props['Target Job Title'].rich_text && props['Target Job Title'].rich_text[0] && props['Target Job Title'].rich_text[0].plain_text) || '';\nconst client = (props['Client'] && props['Client'].rich_text && props['Client'].rich_text[0] && props['Client'].rich_text[0].plain_text) || '';\n\nreturn [{\n  json: {\n    found: slotStartMs !== null,\n    slotStartIso: slotStartMs !== null ? new Date(slotStartMs).toISOString() : null,\n    slotEndIso: slotStartMs !== null ? new Date(slotStartMs + SLOT_MIN * 60000).toISOString() : null,\n    candidateName: name,\n    candidateEmail: email,\n    targetJobTitle: jobTitle,\n    client: client\n  }\n}];\n"
+      }
+    },
+    {
+      "id": "f8fead6c-af2e-4263-b9cc-ce005ae6538f",
+      "name": "Check If Slot Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1360,
+        1700
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.found }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "rightValue": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6d6c8cb8-0353-4e35-ace3-69dc1eab3f7c",
+      "name": "Book Confirmed Slot",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1640,
+        1600
+      ],
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "business@businesspartnerksa.com",
+          "cachedResultName": "business@businesspartnerksa.com"
+        },
+        "start": "={{ $json.slotStartIso }}",
+        "end": "={{ $json.slotEndIso }}",
+        "useDefaultReminders": true,
+        "additionalFields": {
+          "summary": "=Screening Call — {{ $json.candidateName }} ({{ $json.targetJobTitle }})",
+          "description": "=Client: {{ $json.client }}\nConfirmed via candidate interest link.",
+          "attendees": [
+            "={{ $json.candidateEmail }}"
+          ],
+          "sendUpdates": "all"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "fa4297b2-5588-4d31-83b8-31ba9c993d39",
+      "name": "Mark Interested & Scheduled",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        1600
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Look Up Candidate').item.json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Stage|select",
+              "selectValue": "Call Scheduled"
+            },
+            {
+              "key": "Screening Call Date|date",
+              "date": "={{ $('Find First Free Slot').item.json.slotStartIso }}"
+            },
+            {
+              "key": "Calendar Event ID|rich_text",
+              "textContent": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "fbc60b3d-ea1a-409a-b9d2-fcdc61351260",
+      "name": "Confirm Booking to Candidate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2200,
+        1600
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, candidateName: $('Find First Free Slot').item.json.candidateName, scheduledAt: $('Find First Free Slot').item.json.slotStartIso, message: 'تم تأكيد موعد المقابلة بنجاح! تحقق من بريدك الإلكتروني لتفاصيل الدعوة على تقويم جوجل.' } }}"
+      }
+    },
+    {
+      "id": "58cb8a02-3778-4f25-8902-fdd89696f855",
+      "name": "Notify Recruiter — No Slot Found",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        1820
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "recruitment@businesspartnerksa.com",
+        "subject": "=تعذر إيجاد موعد متاح تلقائياً — {{ $json.candidateName }}",
+        "message": "=المرشح {{ $json.candidateName }} ({{ $json.candidateEmail }}) أكد اهتمامه بالوظيفة لكن ما لقينا موعد فاضي تلقائياً خلال 10 أيام قادمة. الرجاء التواصل معه يدوياً لتحديد موعد المقابلة.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "7635542a-ddab-4875-bf99-89f5fb90d3ff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "26107a21-80b6-4fc7-8ce7-ffd7bd559516",
+      "name": "Mark Interested — Manual Booking Needed",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        1820
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Look Up Candidate').item.json.id }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Stage|select",
+              "selectValue": "Interested"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "327cd5e0-cce7-4caf-b45c-693a4cbb791d",
+      "name": "Confirm — Manual Follow-up to Candidate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2200,
+        1820
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, message: 'شكراً لتأكيدك! سيتواصل معك أحد أعضاء فريقنا خلال ساعات العمل لتحديد موعد المقابلة.' } }}"
+      }
+    },
+    {
+      "id": "ebe4da6a-e53a-4327-a98b-866bd1b45484",
+      "name": "Send Interest Outreach — Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2260,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Candidate Ready for Scoring').item.json.email }}",
+        "subject": "=فرصة وظيفية قد تهمك — {{ $('Candidate Ready for Scoring').item.json.targetJobTitle }}",
+        "message": "=مرحباً {{ $('Candidate Ready for Scoring').item.json.candidateName }}،\n\nاطّلعنا على خبرتك وشفنا إنك مرشح مناسب لفرصة {{ $('Candidate Ready for Scoring').item.json.targetJobTitle }} لدى أحد عملائنا. مهتمين نتعرف عليك أكثر عبر مكالمة فرز قصيرة (30 دقيقة).\n\nلو مهتم، اضغط الرابط وبنرسل لك موعد يناسبك:\nhttps://businesspartnerai.app.n8n.cloud/webhook/candidate-interested?id={{ $('Create Candidate Record').item.json.id }}\n\nتحياتنا،\nفريق التوظيف — Business Partner",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "30174b6b-3515-4da1-b48c-d8c9da0fd233",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "287c4870-3c21-4408-8f03-6efd503c4918",
+      "name": "Send Interest Outreach — WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2260,
+        460
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "PASTE_WHATSAPP_PHONE_NUMBER_ID_HERE",
+        "recipientPhoneNumber": "={{ $('Candidate Ready for Scoring').item.json.phone }}",
+        "template": "PASTE_APPROVED_TEMPLATE_NAME_HERE",
+        "components": {}
+      },
+      "disabled": true,
+      "webhookId": "4265062e-8a6f-4abe-ad08-08a2167e79ed",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "0b104235-33d9-4428-ad8b-2c52dd68d1c1",
+      "name": "Sticky Note — Interest Confirmation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        190,
+        1610
+      ],
+      "parameters": {
+        "content": "## Candidate clicks \"Yes, I'm interested\"\n\nThis is the GET link sent in the outreach email/WhatsApp: `/webhook/candidate-interested?id=<Notion page id>`. On click: looks up the candidate, scans the team calendar for the next 10 working days, and books the first free 30-minute slot automatically — no fixed/guessed time like before. If nothing is free in that window, the recruiter gets an email to book manually and the candidate sees a \"we'll follow up\" message instead of an error.",
+        "color": 4,
+        "width": 2320,
+        "height": 300
+      }
+    },
+    {
+      "id": "b476f3a7-b22a-49ec-b12f-7ac669406099",
+      "name": "Extraction Model (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        720
+      ],
+      "parameters": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "9814319d-0597-45b0-b9cb-114f0ea277b8",
+      "name": "Scoring Model (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        560
+      ],
+      "parameters": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "96d86901-7619-4f9b-8711-80fa163a8b3c",
+      "name": "Job Post Model (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        1500
+      ],
+      "parameters": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "e12c9f9e-b8fe-4622-a35a-0174ae7600b8",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        1500
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2000,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد للثلاثة: الاستخراج، التقييم، صياغة الإعلان. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

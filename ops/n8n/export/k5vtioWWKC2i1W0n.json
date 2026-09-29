@@ -1,0 +1,746 @@
+{
+  "id": "k5vtioWWKC2i1W0n",
+  "name": "🧠 BP AI — Virtual Baher Task Review Loop",
+  "active": true,
+  "isArchived": false,
+  "versionId": "ad246f5b-8402-4843-8d04-294ac2b1b605",
+  "activeVersionId": "ad246f5b-8402-4843-8d04-294ac2b1b605",
+  "triggerCount": 1,
+  "nodeCount": 11,
+  "createdAt": "2026-07-21T00:43:47.023Z",
+  "updatedAt": "2026-09-24T14:31:03.275Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 180
+  },
+  "tags": [
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "jxshu5D3ZLgmcR81",
+      "name": "AI Chief of Staff"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Every 10 min: reviews agent results, closes/reassigns/waits/escalates tasks, and automatically requeues due follow-ups. The self-management loop behind Muin.",
+  "connections": {
+    "Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Pending Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Waiting Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending Reviews": {
+      "main": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Reviewed Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reassign Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalate Task to Baher": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Waiting Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Waiting Tasks": {
+      "main": [
+        [
+          {
+            "node": "Filter Due Waiting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Due Waiting": {
+      "main": [
+        [
+          {
+            "node": "Release Due Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Virtual Baher Task Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "c725cf3d-0e89-4797-8dfd-c91d3b1f3560",
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0b7e28a3-07b2-44f5-aa47-120775c15db1",
+      "name": "Read Pending Reviews",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -120
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "review_status",
+              "condition": "eq",
+              "keyValue": "pending"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 5,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "176fbda1-b88b-4e55-84fc-daf060756513",
+      "name": "Virtual Baher Task Reviewer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        500,
+        -120
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=TASK UNDER REVIEW:\n{{ JSON.stringify($json) }}",
+        "options": {
+          "systemMessage": "You are Virtual Baher Task Reviewer for Business Partner. You are a management controller, not a department worker. Review the returned result of exactly one BP_AI_Tasks item and force a clear next state. Never leave review_status=pending.\n\nUse ONE terminal action tool on every task:\n1) Mark Reviewed Task — objective is actually satisfied, task can close, or result is informational with no follow-up.\n2) Reassign Task — more execution is needed by the same or another director. Choose only: badr_sales, farah_marketing, abdulaziz_legal, abdulrahman_finance, mazen_ops, mishari_compliance, nasser_hr, abdullah_procurement, mohammed_it, website_funnel_ops, ahmed_strategy.\n3) Escalate Task to Baher — ONLY when Baher must physically/personally act or an L3 action is required: payment/transfer, binding signature/commitment, final government action requiring identity/Nafath/OTP, secret credential entry, destructive/high-risk production approval, or real-world field activity.\n4) Schedule Waiting Task — waiting on customer/external reply/deadline/time. Set a concrete due_at and next action so it wakes automatically.\n\nCash-first governance: paid-but-blocked and collection opportunities outrank future pipeline. If an agent merely gave advice but the objective required execution, do NOT mark done; reassign with an exact executable next action. If the result says a different department must act, reassign. If the same department needs another attempt, reassign to the same director. If customer response is required, schedule waiting. Human escalation is last resort, not default.\n\nNever request passwords, OTP or Nafath codes. Keep the next_action precise. Execute the state update tool before returning. Final response may be one short internal sentence.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "e3a180b1-c02d-487e-84d6-698a1e62ee58",
+      "name": "Mark Reviewed Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        650,
+        140
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('task_id','Exact task id under review','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $fromAI('status','completed, in_progress or queued','string') }}",
+            "review_status": "reviewed",
+            "outcome_type": "={{ $fromAI('outcome_type','done, informational or retry','string') }}",
+            "next_action": "={{ $fromAI('next_action','Single next action or empty when done','string') }}",
+            "human_action_required": false,
+            "blocked_by": "",
+            "reviewed_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "55eec446-5aa3-4af0-b59d-f2c018aeafb3",
+      "name": "Reassign Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        830,
+        140
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('task_id','Exact task id to hand off','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "queued",
+            "assigned_to_agent": "={{ $fromAI('assigned_to_agent','badr_sales, farah_marketing, abdulaziz_legal, abdulrahman_finance, mazen_ops, mishari_compliance, nasser_hr, abdullah_procurement, mohammed_it, website_funnel_ops or ahmed_strategy','string') }}",
+            "review_status": "reviewed",
+            "outcome_type": "delegated",
+            "next_action": "={{ $fromAI('next_action','Exact outcome required from the next director','string') }}",
+            "human_action_required": false,
+            "blocked_by": "",
+            "reviewed_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f619e942-a8a5-4a88-9d8d-9f1b25815134",
+      "name": "Escalate Task to Baher",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1010,
+        140
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('task_id','Exact task id requiring Baher','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "queued",
+            "assigned_to_agent": "baher_owner",
+            "review_status": "reviewed",
+            "outcome_type": "human_action",
+            "next_action": "={{ $fromAI('next_action','Exact physical/human action Baher must do','string') }}",
+            "human_action_required": true,
+            "blocked_by": "Baher",
+            "reviewed_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e5862464-ce52-45ba-bc67-f523e34dc49f",
+      "name": "Schedule Waiting Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1190,
+        140
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('task_id','Exact task id to wait','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "waiting",
+            "review_status": "reviewed",
+            "outcome_type": "waiting",
+            "next_action": "={{ $fromAI('next_action','What to do when the wait expires','string') }}",
+            "due_at": "={{ $fromAI('due_at','ISO 8601 date/time for the next follow-up','string') }}",
+            "reviewed_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_at",
+              "displayName": "due_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "05751ac6-7555-4e23-a8db-3c8e23e36d36",
+      "name": "Read Waiting Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "waiting"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "due_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "8ab26f22-f64e-4f75-99cf-365f12a470c9",
+      "name": "Filter Due Waiting",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        260
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Release a waiting task when its follow-up time has come.\n// A wait whose due_at was already in the past when it was scheduled\n// (due_at <= reviewed_at) is an invented or stale date — releasing it at once\n// made a 10-minute loop (2026-09-24). Such waits cool off 24h after review.\nconst now = Date.now();\nconst DAY = 24 * 60 * 60 * 1000;\nreturn $input.all().filter(i => {\n  const due = Date.parse(i.json?.due_at || '');\n  if (!Number.isFinite(due) || due > now) return false;\n  const reviewed = Date.parse(i.json?.reviewed_at || '');\n  if (Number.isFinite(reviewed) && due <= reviewed) return now - reviewed >= DAY;\n  return true;\n});"
+      }
+    },
+    {
+      "id": "3018b456-2694-461b-9da3-78010731490f",
+      "name": "Release Due Task",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        260
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.task_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "queued",
+            "review_status": "released",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "0cb32307-c67a-4cf6-a237-a6868027db14",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        430,
+        440
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1500,
+          "temperature": 0.2,
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "محرّك حلقة المراجعة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

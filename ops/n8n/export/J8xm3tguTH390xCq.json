@@ -1,0 +1,351 @@
+{
+  "id": "J8xm3tguTH390xCq",
+  "name": "📣 BP Publisher — Autonomous Social Distributor",
+  "active": true,
+  "isArchived": false,
+  "versionId": "d72ce6d7-289a-4592-8f93-700e0eb20fe6",
+  "activeVersionId": "d72ce6d7-289a-4592-8f93-700e0eb20fe6",
+  "triggerCount": 1,
+  "nodeCount": 9,
+  "createdAt": "2026-07-18T10:18:44.172Z",
+  "updatedAt": "2026-09-16T00:43:47.091Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 180
+  },
+  "tags": [
+    {
+      "id": "3e4sD4NXljLH9Ben",
+      "name": "Marketing"
+    },
+    {
+      "id": "DrZFiYYcCYUn085b",
+      "name": "Publisher"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "m4DYAVj7vf0lAlfI",
+      "name": "Revenue"
+    },
+    {
+      "id": "rBIFx7vsi2jjxy24",
+      "name": "Autonomous"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Publishes approved due LinkedIn content as text every 15 min. Image generation disabled until Azure OpenAI is connected. Other platforms queue until their OAuth credential exists.",
+  "connections": {
+    "Every 30 min": {
+      "main": [
+        [
+          {
+            "node": "Fetch Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Content Calendar": {
+      "main": [
+        [
+          {
+            "node": "Filter Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Approved": {
+      "main": [
+        [
+          {
+            "node": "Is LinkedIn?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is LinkedIn?": {
+      "main": [
+        [
+          {
+            "node": "Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Waiting Social Connection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Mark Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Now (Test)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "9b11a28b-67e3-4b23-8751-916d2559afdd",
+      "name": "Every 30 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e7938c38-d412-49c6-b60a-68bd295fe784",
+      "name": "Fetch Content Calendar",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "d258f8b235034ff4adf5ec15dfd7519a"
+        },
+        "returnAll": true,
+        "simple": true,
+        "filterType": "none",
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "96888d2c-aacc-4c21-bde9-30ba4ff24b75",
+      "name": "Filter Approved",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const now=Date.now(); const maxAge=6*60*60*1000; const rows=$input.all().map(i=>i.json||{}); const due=rows.filter(r=>{ const status=r.property_status||r.Status||r.status||''; const scheduled=r.property_scheduled_date||r['Scheduled Date']||r.scheduled||r.scheduledDate||''; if(status!=='Approved'||!scheduled) return false; const t=Date.parse(scheduled); if(!Number.isFinite(t)) return false; return t<=now && t>=now-maxAge; }); return due.slice(0,10).map(r=>({json:{ pageId:r.id, platform:r.property_platform||r.Platform||r.platform||'', title:r.property_post_title||r.name||r.title||'', captionAr:r.property_caption_arabic||r.captionAr||'', captionEn:r.property_caption_english||r.captionEn||'', hashtags:r.property_hashtags||r.hashtags||'', designBrief:r.property_design_brief||r.designBrief||'', scheduled:r.property_scheduled_date||r.scheduled||'' }}));"
+      }
+    },
+    {
+      "id": "0cb97b23-3a1d-4313-9d53-a4a2d1cd5286",
+      "name": "Is LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.platform }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "LinkedIn"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "91987f77-a0ca-4b11-aa6a-32182a8f20de",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -100
+      ],
+      "parameters": {
+        "additionalFields": {
+          "title": "={{ $('Filter Approved').item.json.title }}",
+          "visibility": "PUBLIC"
+        },
+        "authentication": "standard",
+        "operation": "create",
+        "person": "4DYEaTfWcp",
+        "postAs": "person",
+        "resource": "post",
+        "shareMediaCategory": "NONE",
+        "text": "={{ $('Filter Approved').item.json.captionAr + '\\n\\n' + ($('Filter Approved').item.json.hashtags || '') }}"
+      },
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "SE4KxyWAsXJQYg8j",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "id": "db242a3a-0c7a-468d-a342-1b2665149046",
+      "name": "Mark Published",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        -100
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Filter Approved\").item.json.pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "type": "select",
+              "selectValue": "Published"
+            },
+            {
+              "key": "Published Date|date",
+              "type": "date",
+              "date": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "921ed891-8c8e-4f87-a5ec-63ba2d01b959",
+      "name": "Run Now (Test)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        220
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f8ea624e-9d3f-4429-b434-c0166094e338",
+      "name": "Generate LinkedIn Visual",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        920,
+        -180
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "generate",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-image-1-mini",
+          "cachedResultName": "gpt-image-1-mini"
+        },
+        "prompt": "={{ 'Create a premium square B2B social media graphic for Business Partner Saudi Arabia. Clean corporate design, dark navy background, restrained gold accents, high-end Saudi/GCC business aesthetic, strong visual hierarchy, no fake logos, no fabricated certifications, minimal text because the post caption carries the details. Creative brief: ' + ($json.designBrief || $json.title || '') }}",
+        "options": {
+          "quality": "medium",
+          "size": "1024x1024",
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "disabled": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "acdd9c8b-6087-402a-9346-782d63af2a21",
+      "name": "Waiting Social Connection",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        960,
+        140
+      ],
+      "parameters": {},
+      "notes": "Keeps approved due posts queued silently until the platform OAuth/API credential is connected. No email/manual publishing noise."
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

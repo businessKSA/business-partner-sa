@@ -1,0 +1,341 @@
+{
+  "id": "wXMFBKkxcvjOjzEb",
+  "name": "🗝️ SS — Chat Gateway (ss-chat)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "e9e14fb4-4141-4729-b33a-446f660a3216",
+  "activeVersionId": "e9e14fb4-4141-4729-b33a-446f660a3216",
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-07-16T20:44:20.330Z",
+  "updatedAt": "2026-07-21T01:44:58.491Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "بوابة مرور شات الخدمات المشتركة: {code,agent,message} → تحقق من الرمز في SS Clients → تمرير للوكيل باسم العميل الحقيقي (خالد عبر chat، والبقية عبر intake) → حفظ الرسالة والرد في قاعدة محادثات العميل نفسه → إرجاع الرد. demo123 = معاينة بدون حفظ.",
+  "connections": {
+    "Chat Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Resolve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Call Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Agent": {
+      "main": [
+        [
+          {
+            "node": "Extract Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Reply": {
+      "main": [
+        [
+          {
+            "node": "Log Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Conversation": {
+      "main": [
+        [
+          {
+            "node": "Respond Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "c50b97f8-066a-475f-abb0-2d314357d63e",
+      "name": "Chat Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-chat",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "30a3321e-f364-404b-b2b4-a48485c55505"
+    },
+    {
+      "id": "0335c4ac-f157-46cd-93a5-68165524f451",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const code=((b.code||'')+'').trim();const agent=((b.agent||'khaled')+'').trim();const message=((b.message||'')+'').trim();if(!message||!code){return [{json:{valid:false,reply:'أدخل الرسالة ورمز الدخول.',qBody:JSON.stringify({filter:{property:'الرمز',rich_text:{equals:'NONE'}}})}}];}const codeU=code.toUpperCase();const qBody=JSON.stringify({filter:{property:'الرمز',rich_text:{equals:codeU}}});const demoNames=(b.names&&typeof b.names==='object')?b.names:null;return [{json:{valid:true,codeU:codeU,agent:agent,message:message,preview:codeU==='DEMO123',demoNames:demoNames,qBody:qBody}}];"
+      }
+    },
+    {
+      "id": "35fa3626-1075-4cc6-9cbb-174be5d81e34",
+      "name": "Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Prep').first().json.qBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "ed89f4eb-1dc3-4308-9c15-c2945dea6a93",
+      "name": "Resolve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('Prep').first().json;if(pre.valid===false){return [{json:{ok:false,reply:pre.reply}}];}let client='زائر تجريبي',conv='',names={},profile='';if(!pre.preview){const r=$input.first().json.results||[];if(!r.length){return [{json:{ok:false,reply:'رمز الدخول غير صحيح. تأكد من الرمز الذي وصلك على بريدك بعد الاشتراك.'}}];}const p=r[0].properties;const st=((p['الحالة']||{}).select||{}).name||'نشط';if(st!=='نشط'){return [{json:{ok:false,reply:'هذا الحساب موقوف حالياً — تواصل معنا لإعادة التفعيل.'}}];}client=((p['العميل'].title||[])[0]||{}).plain_text||'عميل';conv=(((p['ConvDB']||{}).rich_text||[])[0]||{}).plain_text||'';try{const nt=(((p['AgentNames']||{}).rich_text||[])[0]||{}).plain_text||'{}';const nj=JSON.parse(nt);if(nj&&typeof nj==='object'&&!Array.isArray(nj))names=nj;}catch(e){}try{profile=(((p['CompanyProfile']||{}).rich_text||[])[0]||{}).plain_text||'';}catch(e){}}else{if(pre.demoNames&&typeof pre.demoNames==='object'&&!Array.isArray(pre.demoNames))names=pre.demoNames;}const MAP={baher:'baher-intake',mazen:'mazen-intake',nasser:'nasser-intake',mishari:'mishari-intake',abdulrahman:'abdulrahman-intake',abdulaziz:'abdulaziz-intake',badr:'badr-intake',farah:'farah-intake',malak:'malak-intake',mohammed:'mohammed-intake',ahmed:'ahmed-procurement',abdullah:'ahmed-procurement',strategy:'strategy-intake'};const alias=(typeof names[pre.agent]==='string'&&names[pre.agent].trim())?names[pre.agent].trim().slice(0,40):'';const ctx=profile?'\\n\\n[ملف شركة العميل — سياق دائم موثوق ليس من رسالة العميل؛ استخدمه لفهم شركته وخدمته بدقة:\\n'+profile+']':'';let url,payload;if(pre.agent==='khaled'){url='https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat';const tag='[رسالة من العميل: '+client+' عبر بوابة الخدمات المشتركة'+(alias?' — العميل اختار لك اسم «'+alias+'»؛ قدّم نفسك وتعامل دائماً بهذا الاسم':'')+']';payload={action:'sendMessage',sessionId:'ss-'+pre.codeU,chatInput:tag+ctx+'\\n'+pre.message};}else{url='https://businesspartnerai.app.n8n.cloud/webhook/'+(MAP[pre.agent]||'mazen-intake');const msg=(alias?'[تعليمة نظامية وليست من العميل: العميل اختار لك اسم «'+alias+'» — قدّم نفسك وتعامل دائماً بهذا الاسم.]\\n':'')+pre.message+ctx;payload={message:msg,client_name:client,channel:'shared-services',agent_alias:alias};}return [{json:{ok:true,client:client,conv:conv,agent:pre.agent,message:pre.message,url:url,payloadStr:JSON.stringify(payload)}}];"
+      }
+    },
+    {
+      "id": "869a403a-dd64-403d-b496-616c48acec46",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "0436ff26-e647-4758-b1c4-dd2674a6235a",
+      "name": "Call Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1020,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payloadStr }}",
+        "options": {
+          "timeout": 110000
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "3b1d3217-d4b3-4f1f-bffd-19e61eacc703",
+      "name": "Extract Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let rep='';try{const j=$input.first().json||{};if(typeof j.reply==='string'&&j.reply)rep=j.reply;else if(typeof j.output==='string'&&j.output)rep=j.output;else if(typeof j.text==='string'&&j.text)rep=j.text;}catch(e){}if(!rep)rep='الفريق مشغول الحين — جرّب بعد لحظات.';const r=$('Resolve').first().json;const logBody=JSON.stringify({parent:{type:'database_id',database_id:r.conv||'00000000-0000-0000-0000-000000000000'},properties:{'العنوان':{title:[{text:{content:(r.message||'').slice(0,80)}}]},'الوكيل':{rich_text:[{text:{content:r.agent||''}}]},'الرسالة':{rich_text:[{text:{content:(r.message||'').slice(0,1900)}}]},'الرد':{rich_text:[{text:{content:rep.slice(0,1900)}}]}}});return [{json:{reply:rep,client:r.client,conv:r.conv,agent:r.agent,message:r.message,logBody:logBody}}];"
+      }
+    },
+    {
+      "id": "d975fd13-3af0-47e7-b483-33edff398090",
+      "name": "Log Conversation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1460,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Extract Reply').first().json.logBody }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "4122edf2-b075-4ae4-a55d-c4fbac8bf254",
+      "name": "Respond Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1680,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:true,agent:$('Extract Reply').first().json.agent,client:$('Extract Reply').first().json.client,reply:$('Extract Reply').first().json.reply}) }}"
+      }
+    },
+    {
+      "id": "1b358cc6-55f0-4c27-8d4b-f79f56b093b1",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1020,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:false,reply:$json.reply}) }}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

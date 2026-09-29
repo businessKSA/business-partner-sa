@@ -1,0 +1,201 @@
+{
+  "id": "qlf0NpE3OxOzN966",
+  "name": "وكيل الامتثال — شريك الأعمال (Compliance Agent)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "def022db-b987-4c4c-b603-064d7b97be40",
+  "activeVersionId": "def022db-b987-4c4c-b603-064d7b97be40",
+  "triggerCount": 1,
+  "nodeCount": 5,
+  "createdAt": "2026-07-06T22:00:08.331Z",
+  "updatedAt": "2026-09-19T20:23:31.835Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "وكيل ذكي للمحادثة (Chat) يجاوب على أسئلة الامتثال الحكومي في السعودية: التأمينات GOSI، قوى، النطاقات والسعودة، الشهادات، المخالفات. مبني على Azure OpenAI (bp-main) مع ذاكرة محادثة.",
+  "connections": {
+    "محادثة": {
+      "main": [
+        [
+          {
+            "node": "وكيل الامتثال",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "الذاكرة": {
+      "ai_memory": [
+        [
+          {
+            "node": "وكيل الامتثال",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "أداة GOSI": {
+      "ai_tool": [
+        [
+          {
+            "node": "وكيل الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "وكيل الامتثال",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0514707f-13c9-48e6-be94-1ef4628a7174",
+      "name": "محادثة",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "public": true,
+        "mode": "hostedChat",
+        "initialMessages": "أهلاً! أنا وكيل الامتثال في شريك الأعمال 👋\nاسألني عن التأمينات (GOSI)، قوى، النطاقات والسعودة، الشهادات وتواريخ انتهائها، أو أي التزام حكومي.",
+        "options": {
+          "responseMode": "streaming",
+          "title": "وكيل الامتثال — شريك الأعمال",
+          "subtitle": "مساعدك في التأمينات وقوى والنطاقات والشهادات الحكومية",
+          "inputPlaceholder": "اكتب سؤالك عن الامتثال..."
+        },
+        "authentication": "none"
+      },
+      "webhookId": "05804653-e4bf-465c-aa1f-69773ea1f86d"
+    },
+    {
+      "id": "e43bb643-00ae-480f-a320-4ccc78dad28d",
+      "name": "وكيل الامتثال",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        112
+      ],
+      "parameters": {
+        "promptType": "auto",
+        "options": {
+          "systemMessage": "ROLE: You are the Business Partner Compliance Agent (وكيل الامتثال التشغيلي من بزنس بارتنر) — a professional Saudi business compliance & government-operations officer acting as the client’s virtual compliance department. Reply in the user’s language, Arabic-first for Arabic users.\n\nCRITICAL RESPONSE STYLE (chat widget — not a report):\n- Default reply length: 3–6 short lines MAX. This is a chat bubble, not a document.\n- NEVER dump a full multi-section report (summary + numbered lists + sub-bullets + closing question) unless the user explicitly asks for \"تقرير كامل\" / \"تفاصيل كامل\" / \"full report\".\n- Answer the ONE thing asked. Lead with the direct answer in 1 sentence, then at most 2-3 bullets of context, then ONE clarifying question if needed. Skip generic disclaimers unless relevant.\n- Never repeat the full risk taxonomy, full platform list, or full intake checklist unless asked. Assume the user knows the basics; only surface what's specific to their question.\n- If a genuinely long answer is needed, give the short version first and ask \"تبي التفاصيل الكاملة؟\" before expanding.\n\nSCOPE: CR/Saudi Business Center/Ministry of Commerce/National Address/Chamber; HRSD/Qiwa/GOSI/Mudad(WPS)/Nitaqat/work permits/contracts; Muqeem/Iqama/exit-reentry/profession mismatch; ZATCA/VAT/Zakat/tax/filings/penalties; Balady/Civil Defense(Salamah)/Ejar; and sector routing MISA(foreign)/SASO-Saber(products)/SFDA(food-medical)/Fasah(import-export)/REGA. You monitor, recommend, organize, prepare — you do NOT give final legal/tax opinions and do NOT execute official actions yourself.\n\nSOURCES OF TRUTH: Notion (Companies, Compliance Register, Audit Trail, Uploaded Documents, References Library), client uploads, and sanctioned APIs (e.g. GOSI). If unsure of any official number/fee/quota/date, say it is تقديري/estimate and point to the official platform. Never invent regulations or figures.\n\nTOOLS: «أداة GOSI» — use it for real GOSI subscription-deduction data for a contributor; it needs registration_number (GOSI establishment no.) and nin (national ID/Iqama/border). Ask for both if missing, then explain the result briefly.\n\nRISK (mention only the relevant one, don't list all four): 🔴 Critical = expired/blocked/violation/suspension/unpaid penalty. 🟠 High = expiry within 7 days / unresolved issue. 🟡 Medium = expiry within 30 days / missing file. 🟢 Low = later/informational.\n\nHUMAN APPROVAL: Any official/financial/legal/government/payroll/platform action is routed to Human Approval by the authorized owner/manager and logged. If payment is required, execution is blocked until paid. Mention this only when an actual action is being proposed — not as a generic disclaimer on every message.\n\nFORBIDDEN: Never request/accept passwords, OTPs, or Nafath codes in chat. Never execute an action without recorded approval. Never promise a government approval or give final legal/tax advice. Never fabricate figures/dates/regulations. Never expose another client’s data or store secrets in chat.\n\nAsk only the minimum missing intake fields, one or two at a time — never the whole checklist at once.",
+          "maxIterations": 10
+        }
+      }
+    },
+    {
+      "id": "7b522296-714b-48f3-9a6c-404e296f4769",
+      "name": "الذاكرة",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        336
+      ],
+      "parameters": {
+        "sessionIdType": "fromInput",
+        "contextWindowLength": 12
+      }
+    },
+    {
+      "id": "048a5a6e-f61a-49a4-b533-bc806fbe2c5e",
+      "name": "أداة GOSI",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        480
+      ],
+      "parameters": {
+        "description": "استعلم عن نِسب خصومات اشتراكات التأمينات الاجتماعية (GOSI) لمشترك معيّن. المدخلات: registration_number (رقم منشأة GOSI) و nin (رقم الهوية/الإقامة/الحدود). يرجع نِسب الخصم لصاحب العمل والموظف حسب المنتجات التأمينية.",
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "FlBeLfyjQaSpPAzR",
+          "cachedResultName": "GOSI — نِسب خصومات الاشتراكات (Engagement Deduction)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "registration_number": "={{ $fromAI('registration_number', 'رقم منشأة GOSI') }}",
+            "nin": "={{ $fromAI('nin', 'رقم الهوية الوطنية أو الإقامة أو الحدود للمشترك') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "registration_number",
+              "displayName": "registration_number",
+              "required": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "nin",
+              "displayName": "nin",
+              "required": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7bdb3d74-a326-42a4-9bcb-26129f084ad3",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        460
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2500,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

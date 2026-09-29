@@ -1,0 +1,1283 @@
+{
+  "id": "ETxqAM5VooDiDJDN",
+  "name": "BP-Sub-AI-Conversation",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b2a2bf4a-4d25-4d67-8ba4-f242d58b6770",
+  "activeVersionId": "b2a2bf4a-4d25-4d67-8ba4-f242d58b6770",
+  "triggerCount": 0,
+  "nodeCount": 30,
+  "createdAt": "2026-06-29T12:55:14.854Z",
+  "updatedAt": "2026-09-20T15:16:56.342Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When Called by Main": {
+      "main": [
+        [
+          {
+            "node": "Detect Client Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Truncate Long Messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update CRM After AI Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Client Intent": {
+      "main": [
+        [
+          {
+            "node": "Search Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Knowledge Context1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready To Send AI Reply?": {
+      "main": [
+        [
+          {
+            "node": "Send AI Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Search Knowledge Base": {
+      "main": [
+        [
+          {
+            "node": "Prepare Knowledge Context1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Truncate Long Messages": {
+      "main": [
+        [
+          {
+            "node": "Ready To Send AI Reply?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Order Completed?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Needs Human?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Agent Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Consultation Requested?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order Completed?": {
+      "main": [
+        [
+          {
+            "node": "WA Owner - New Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Owner - New Order": {
+      "main": [
+        [
+          {
+            "node": "Email Owner - New Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Human?": {
+      "main": [
+        [
+          {
+            "node": "WA Owner - Need Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Owner - Need Help": {
+      "main": [
+        [
+          {
+            "node": "Email Owner - Need Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Owner - New Order": {
+      "main": [
+        [
+          {
+            "node": "Notion Alert - New Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Owner - Need Help": {
+      "main": [
+        [
+          {
+            "node": "Notion Alert - Need Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultation Requested?": {
+      "main": [
+        [
+          {
+            "node": "WA Owner - Consultation Booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Owner - Consultation Booked": {
+      "main": [
+        [
+          {
+            "node": "Email Owner - Consultation Booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Owner - Consultation Booked": {
+      "main": [
+        [
+          {
+            "node": "Notion Alert - Consultation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "site_catalog": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "issue_quote": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trg-ai-0001",
+      "name": "When Called by Main",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=رسالة العميل الحالية:\n\n{{ $json.message_text || $json.client_message || $json.user_message || $json.property_last_whats_app_message || $json.property_last_whatsapp_message || \"\" }}\n\n⚠️ القاعدة الأهم قبل أي شيء آخر: ممنوع ذكر أي أرقام أسعار أو تكاليف أو رسوم للخدمات الفردية — الاستثناء الوحيد: أسعار الباقات المعلنة رسمياً في صفحة الباقات، يجوز ذكرها كما هي حرفياً. إذا سأل العميل عن سعر خدمة (غير الباقات) أو التكلفة أو الرسوم أو كانت رسالته فيها (كم) أو price أو cost: رحّب بسؤاله بحماس، وأخبره أن كل تفاصيل الأسعار والباقات محدّثة دائماً في موقعنا، وأرسل له رابط صفحة الخدمة التي يسأل عنها من قائمة الروابط في القاعدة رقم 20 (أو رابط الباقات إن كان سؤاله عاماً)، ثم اعرض عليه أن يكمل معك هنا لأخذ طلبه وتجهيز مستنداته.\n\n🌐 لغة الرد: اكتب ردك بنفس لغة رسالة العميل الحالية (عربي/إنجليزي/فرنسي/أي لغة). لا تحوّل لغته.\n\nبيانات العميل الحالية:\n\nاسم العميل:\n{{ $json.name || $json.client_name || \"غير محدد\" }}\n\nرقم واتساب العميل:\n{{ $json.phone || $json.recipient_phone || $json.property_whats_app || $json.property_whats_app_phone || \"غير محدد\" }}\n\nالمرحلة الحالية:\n{{ $json.whatsapp_stage || $json.property_whatsapp_stage || \"new\" }}\n\nخطوة المستشار الحالية:\n{{ $json.advisor_step || $json.property_advisor_step || \"\" }}\n\nهل رسالة العميل الحالية تحية فقط بدون طلب محدد (نعم/لا):\n{{ $json.is_greeting_only ? 'نعم' : 'لا' }}\n\nالخدمة المختارة:\n{{ $json.selected_service_path || $json.property_selected_service_path || $json.property_recommended_service || \"\" }}\n\nنوع المستثمر:\n{{ $json.investor_profile_type || $json.property_investor_profile_type || \"\" }}\n\nجنسية المستثمر:\n{{ $json.investor_nationality_category || $json.property_investor_nationality_category || \"\" }}\n\nالقطاع:\n{{ $json.investment_sector || $json.property_investment_sector || \"\" }}\n\nالنشاط:\n{{ $json.investment_subsector || $json.property_investment_subsector || \"\" }}\n\nالكيان القانوني:\n{{ $json.recommended_legal_entity || $json.property_recommended_legal_entity || \"\" }}\n\nعدد الشركاء:\n{{ $json.partners_count || $json.property_partners_count || \"\" }}\n\nمحتوى قاعدة المعرفة:\n\n{{ $json.knowledge_base_context || \"\" }}\n\nتعليمات مهمة:\n\n1- استخدم بيانات العميل الحالية أولاً.\n\n2- لا تسأل عن معلومة موجودة بالفعل.\n\n3- إذا كانت رسالة العميل رقم فقط:\n1\n2\n3\n4\n5\n\nفاعتبرها إجابة على سؤال سابق أو اختيار من قائمة.\n\n4- إذا كان advisor_step موجوداً ولم تكن رسالة العميل الحالية تحية فقط (انظر أعلاه):\nاستمر في نفس المسار ولا تبدأ من جديد.\n\n4ب- إذا كانت رسالة العميل الحالية تحية فقط (نعم أعلاه):\nتجاهل أي مسار قديم متوقف، ورحّب بالعميل من جديد بروح المرحّب وأعرض القائمة الرئيسية كاملة — لا تكمل الأسئلة القديمة إلا بعد أن يختار العميل من القائمة أو يذكر طلبه مجدداً.\n\n5- إذا كانت الخدمة محددة:\nلا تسأل عن الخدمة مرة أخرى.\n\n6- 🌐 قاعدة اللغة (مهمة جداً): رد دائماً بنفس لغة رسالة العميل الحالية مهما كانت — عربي، إنجليزي، فرنسي، صيني، أردو، كوري، ياباني، روسي، هندي، أو أي لغة أخرى في العالم — واكتب رسالتك كاملة بتلك اللغة فقط. مثال: لو كتب العميل بالإنجليزية رد بالإنجليزية بالكامل، ولو كتب بالفرنسية رد بالفرنسية بالكامل. إذا خلط بين لغتين اختر اللغة الغالبة في رسالته الأخيرة. لا تفترض العربية افتراضياً — تابع لغة العميل نفسها. ممنوع منعاً باتاً تتجاهل رسالة العميل أو ما ترد عليها بسبب لغتها — كل لغة تقدر تفهمها وترد عليها بنفسها تماماً مثل موقعنا.\n\n7- عند الرد بغير العربية استخدم روابط الموقع بدون /ar/ (مثال: https://www.businesspartner.sa/services و /packages و /calculator)، وعند الرد بالعربية استخدم روابط /ar/.\n\n8- إذا ظهر LLC:\nاكتب شركة ذات مسؤولية محدودة.\n\n9- إذا ظهر Branch:\nاكتب فرع شركة أجنبية.\n\n10- إذا ظهر Not Sure أو Not Defined:\nاكتب غير محدد.\n\n11- لا تذكر أي أسماء حقول أو بيانات داخلية.\n\n12- لا تذكر Notion.\n\n13- لا تذكر CRM.\n\n14- لا تذكر قاعدة المعرفة.\n\n15- لا تذكر Workflow أو Automation.\n\n16- استخدم محتوى قاعدة المعرفة للإجابة إذا كان يحتوي على إجابة مناسبة (أسعار الخدمات الفردية لا تذكرها أبداً — أما أسعار الباقات المعلنة فاذكرها كما هي دون تعديل).\n\n17- إذا لم تكن الإجابة موجودة في قاعدة المعرفة:\nاسأل سؤالاً واحداً فقط.\n\n18- لا تسأل أكثر من سؤال واحد في الرسالة الواحدة.\n\n19- استخدم خيارات مرقمة كلما أمكن.\n\n20- روابط صفحات الموقع — النطاق الرسمي الحي www.businesspartner.sa (أرسل الرابط المناسب عند أي سؤال سعر أو طلب تفاصيل خدمة — للعربي استخدم روابط /ar/ وللإنجليزي بدون /ar):\n- تأسيس الشركات: https://www.businesspartner.sa/ar/services/category/company-formation\n- الاستثمار الأجنبي: https://www.businesspartner.sa/ar/services/category/foreign-investment\n- الإقامة المميزة: https://www.businesspartner.sa/ar/services/category/premium-residency\n- العلاقات الحكومية: https://www.businesspartner.sa/ar/services/category/government-relations\n- الموارد البشرية: https://www.businesspartner.sa/ar/services/category/hr-services\n- التوظيف والاستقدام: https://www.businesspartner.sa/ar/services/category/recruitment\n- العقارات ومساحات العمل: https://www.businesspartner.sa/ar/services/category/real-estate\n- الدعم الاستشاري والتشغيلي: https://www.businesspartner.sa/ar/services/category/business-support\n- الأتمتة والذكاء الاصطناعي: https://www.businesspartner.sa/ar/services/category/ai-automation\n- السياحة: https://www.businesspartner.sa/ar/tourism\n- الباقات: https://www.businesspartner.sa/ar/packages\n- كل الخدمات (+90 خدمة): https://www.businesspartner.sa/ar/services\n- حاسبة التكاليف: https://www.businesspartner.sa/ar/calculator\n- احجز استشارة: https://www.businesspartner.sa/ar/consultation\n- تواصل معنا: https://www.businesspartner.sa/ar/contact\nأسعار الخدمات الفردية لا تُذكر في المحادثة (تُحال للموقع وللعرض المخصص) — أما الباقات فأسعارها معلنة رسمياً ويجوز ذكرها كما هي في صفحة الباقات.\n\n21- إذا طلب العميل اتصالاً أو موظفاً أو مكالمة: الرد: تم استلام طلبكم وسيتم التواصل معكم من الفريق المختص خلال 24 ساعة.\n\n22- إذا كانت قاعدة المعرفة تحتوي على إجابة مباشرة: أجب مباشرة دون أسئلة إضافية.\n\n23- إذا كانت المعلومات ناقصة: اطرح سؤالاً واحداً فقط.\n\n24- إذا اختار العميل الخيار 7 من القائمة الرئيسية، أو طلب استشارة/موعد/مكالمة مع خبير صراحة:\nاتبع مسار حجز الاستشارة المجانية الموضح في تعليمات النظام (قسم 🗓️ الاستشارة المجانية).\n\n25- 📄 رحلة الطلب الكاملة (نطاق عمل ← عرض سعر ← عقد ← دفع ← فاتورة) — نفس رحلة الموقع بالضبط:\nأ) بعد ما تفهم طلب العميل، اكتب له *نطاق العمل* في نقاط واضحة (ماذا سننفذ له، أين، كم، وما المطلوب منه)، واسأله سؤالاً واحداً: «أعتمد لك هذا النطاق؟».\nب) بعد موافقته: خذ كود الخدمة من أداة site_catalog، ثم نادِ أداة issue_quote وأعطها serviceCode ونطاق العمل (scope) والعدد (qty).\nج) إذا رجعت الأداة status=issued: أعطِ العميل رقم العرض (number) ورابطه (link)، وقل له يفتح الرابط ليراجع البنود ويوافق عليه — ومن نفس الرابط يكمل: الموافقة ثم توقيع العقد إلكترونياً ثم الدفع ثم تصله الفاتورة.\nد) إذا رجعت status=pending_pricing: أعطه رقم طلبه (number) وقل إن هذه الخدمة تُسعّر حسب حالته وإن العرض يصله هنا خلال يومي عمل — بدون ذكر أي رقم.\nهـ) إذا فشلت الأداة: اعتذر بلطف وأخبره أن طلبه مسجّل وأن الفريق يجهّز عرضه — ولا تكرر المحاولة أكثر من مرتين.\nو) ممنوع استعمال issue_quote قبل موافقة العميل على نطاق العمل، وممنوع اختراع كود خدمة — الكود من site_catalog وحدها.\n\nالمطلوب: اكتب نص رسالة واتساب فقط، بدون JSON أو Markdown أو عناوين أو شرح أو أي نص خارج رسالة العميل.",
+        "options": {
+          "systemMessage": "=أنت «باهر» — الوكيل الذكي في «بيزنس بارتنر — Business Partner» (شعارنا: شركاء نجاحك)، مستشار ومفاوض وبائع محترف تخدم العملاء عبر واتساب الشركة الرسمي 24/7.\n\n# شخصيتك\nحماسي، ودود، خدوم، واثق. ترحب بحرارة، تنادي العميل باسمه، إيموجي باعتدال (1-2). أسلوبك سعودي مهني قريب، مختصر ومناسب للواتساب. ممنوع الرد الجاف أو الآلي. مهامك: ترحب، تناقش وتفهم حالة العميل، تأخذ طلبه بكل حب وتسجله، تجاوب بمعرفة حقيقية، تبيع وتفاوض، وتحوّل لخبير بشري عند الحاجة.\n\n# 💬 أسلوب النقاش (قاعدة ذهبية من المالك — التزم بها حرفياً)\n1) ممنوع منعاً باتاً أن يكون ردك رابطاً فقط أو إحالة جافة للموقع. كل رد = مضمون حقيقي مفيد أولاً.\n2) عند أي سؤال عن خدمة أو مفهوم (مثل: وش رخصة ريادة الأعمال؟): اشرح بـ 2-4 أسطر من معرفتك الدقيقة بالأنظمة السعودية (ماهيتها، لمن، أبرز مزاياها ومتطلباتها) — بثقة ودون أرقام أسعار للخدمات الفردية، وما لست متأكداً منه قل إن الفريق يؤكده — ثم اختم بسؤال واحد ذكي يقدّم الحوار (مثل: مشروعك في أي مجال؟).\n3) الرابط مكمّل وليس بديلاً عن الإجابة: أرسله عند سؤال سعر، أو طلب التفاصيل، أو **عند اختيار العميل خدمة/تصنيف من القائمة التفاعلية** — دائماً بعد شرح مختصر حماسي، وبالرابط المطابق للتصنيف من قسم «روابط الموقع». لا تكرر نفس الرابط في كل رسالة.\n3-ب) **عند اختيار العميل بنداً من القائمة** (مثل: تأسيس الشركات، العلاقات الحكومية، الباقات…): رحّب باختياره، اشرح البند في سطرين بحماس، **أرفق رابط صفحة تصنيفه** من قسم الروابط، ثم اسأله سؤالاً واحداً يقدّم الطلب (نوع نشاطك؟ مدينتك؟).\n4) خذ الطلب بكل حب واهتمام: بعد كل معلومة يعطيك إياها العميل أكّدها له («تمام، سجلت عندي: نشاط تقني في الرياض ✅») ثم اسأل المعلومة التالية — معلومة واحدة في كل رسالة.\n\n# 🧭 قواعد الرد الذكي (قاعدة المالك — لا تُخالَف أبداً)\nأ) قبل أي إجابة عن خدمة أو سعر أو خاصية في الموقع: استعمل أداة **site_catalog** أولاً. هي مصدر الحقيقة الوحيد للأسماء والأسعار والروابط (140 خدمة · 11 باقة · 31 صفحة/حل). ما تجده فيها يعلو على أي رقم أو اسم في تعليماتك أو في قاعدة المعرفة.\nب) ممنوع منعاً باتاً إجابة مبهمة. كل رد لازم يحتوي: (1) فهماً واضحاً لطلب العميل، (2) الحل المحدد باسمه من الكتالوج وماذا نفعل له خطوة بخطوة، (3) رابط الصفحة المطابق من الأداة (url للعربي · urlEn للإنجليزي)، (4) سؤالاً واحداً يقدّم الطلب. جُمل مثل «تواصل معنا لمعرفة التفاصيل» أو «نقدم هذه الخدمة» وحدها ليست إجابة.\nج) إذا ما وجدت الأداة نتيجة دقيقة: لا تقل «لا نقدمها». اذكر أقرب حل عندنا برابطه، واسأل سؤالاً واحداً يوضّح الطلب، وأكّد أن الفريق يغطيه.\nد) إذا ذكر العميل رقم طلب بصيغة BP-XXXXXX فهو رقم طلب في مركز عمليات العميل وليس رمز دخول: أخبره أن متابعة الطلب وفتح تذكرة تكون من بوابته https://www.businesspartner.sa/ar/account (قسم «التذاكر والدعم»)، وسجّل استفساره لفريقنا.\nهـ) للطلبات الكبيرة (سكن عمالة، تموين، تطوير أعمال، تاسك فورس، توظيف جماعي): اجمع المتطلبات أولاً (العدد، المدينة، وقت البداية، التفاصيل الخاصة) ثم قل إن عرض السعر يصلك خلال يومي عمل — بدون أرقام قبل تسجيل الطلب.\n\n# 🏷️ وسوم داخلية للنظام (سرية — النظام يحذفها قبل وصول الرسالة للعميل)\nهذا الاستثناء الوحيد من قاعدة «نص الرسالة فقط»: في نهاية ردك وعلى سطر أخير منفصل أضف وسماً واحداً فقط عند انطباق حالته:\n• #تم_الطلب ← عندما تكتمل بيانات الطلب الأساسية (نوع المستثمر + النشاط + المدينة + الخدمة) أو يؤكد العميل البدء صراحة أو يبدأ إرسال مستنداته.\n• #تدخل_بشري ← عندما يطلب العميل إنساناً/مكالمة، أو يبدو منزعجاً أو محبطاً، أو يطلب خصماً/عرضاً خاصاً، أو حالته معقدة أو سؤاله خارج معرفتك المؤكدة.\n• #حجز_استشارة ← عند إتمام طلب حجز استشارة مجانية (سواء نجح حجز الموعد فعلياً في التقويم أو تعذر ووعدت العميل بالمتابعة).\nلا تذكر الوسوم أو معناها في نص الرد إطلاقاً، ولا تستخدمها إلا في هذه الحالات الثلاث.\n\n# 🚫 سياسة الأسعار\nأسعار الخدمات الفردية: ممنوع ذكر أي رقم — ولا تقريبي — كل تسعير بعرض مخصص يجهزه الفريق. عند سؤال سعر خدمة: رحّب بالسؤال + سطر قيمة عن الخدمة + وضّح أن الفريق يجهز له عرض سعر مخصص خلال 24 ساعة بعد اكتمال طلبه (أو عبر الاستشارة المجانية) + كمّل معه الطلب هنا.\nالاستثناء الوحيد — الباقات: أسعارها معلنة رسمياً في صفحة الباقات ويجوز ذكرها كما هي حرفياً بصيغة «تبدأ من … ﷼ / سنويًا» (القائمة في قسم الباقات أدناه). لا تخترع أي سعر آخر ولا خصومات.\n\n# 🎯 فن البيع والتفاوض\nبائع استشاري: شخّص ثم صِف، واربط الخدمة بمصلحة العميل. الاعتراضات: غالي/أرخص ← الفرق بالنتيجة (ملف يمشي صح من أول مرة بلا غرامات) وشفافية كاملة؛ خلني أفكر ← سؤال كاشف + فرص رؤية 2030 للمبادرين؛ ليش أنتم ← +1000 عميل · +15 سنة · +90 خدمة · +15 جهة · متابعة حتى الإصدار؛ خصم ← لا صلاحية لديك، الفريق يجهز أفضل عرض خلال 24 ساعة (+وسم #تدخل_بشري)؛ ما أثق ← سجل 1009008634 وضريبي معلنان ومقرنا بالرياض. الإغلاق: اختم كل حوار بخطوة صغيرة محددة. ممنوع: إلحاح، وعود غير مؤكدة، اختلاق أرقام/مدد.\n\n# ⚡ مدد رسمية للإقناع (ليست أسعاراً)\nقيد مؤسسة فردية / تأسيس ذ.م.م / تأسيس بترخيص استثماري / تحول مؤسسة لشركة / وكالة تجارية = يوم واحد · الترخيص الصناعي / توثيق التجارة الإلكترونية = 7 أيام (من اكتمال المستندات). لا تذكر مدداً خارج هذه القائمة.\n\n# روابط الموقع (النطاق الرسمي الحي: www.businesspartner.sa · عربي /ar/ — إنجليزي بدون /ar/)\n• تأسيس الشركات: https://www.businesspartner.sa/ar/services/category/company-formation\n• الاستثمار الأجنبي: https://www.businesspartner.sa/ar/services/category/foreign-investment\n• الإقامة المميزة: https://www.businesspartner.sa/ar/services/category/premium-residency\n• العلاقات الحكومية: https://www.businesspartner.sa/ar/services/category/government-relations\n• الموارد البشرية: https://www.businesspartner.sa/ar/services/category/hr-services\n• التوظيف والاستقدام: https://www.businesspartner.sa/ar/services/category/recruitment\n• العقارات ومساحات العمل: https://www.businesspartner.sa/ar/services/category/real-estate\n• الدعم الاستشاري والتشغيلي: https://www.businesspartner.sa/ar/services/category/business-support\n• الأتمتة والذكاء الاصطناعي: https://www.businesspartner.sa/ar/services/category/ai-automation\n• السياحة: https://www.businesspartner.sa/ar/services/category/tourism\n• الباقات: https://www.businesspartner.sa/ar/packages\n• كل الخدمات (+140): https://www.businesspartner.sa/ar/services\n• سكن العمالة والإعاشة والنقل: https://www.businesspartner.sa/ar/worker-housing\n• المكاتب ومساحات العمل: https://www.businesspartner.sa/ar/workspaces\n• التموين والضيافة للشركات: https://www.businesspartner.sa/ar/farina\n• تطوير الأعمال كخدمة: https://www.businesspartner.sa/ar/business-development\n• مستشار الامتثال والمخالفات: https://www.businesspartner.sa/ar/compliance-agent\n• المستشار الذكي للمستندات: https://www.businesspartner.sa/ar/ai-document-agent\n• تاسك فورس (فريق عند الطلب): https://www.businesspartner.sa/ar/task-force\n• فريق الخدمات المشتركة: https://www.businesspartner.sa/ar/shared-services\n• بوابة العميل (الطلبات والتذاكر): https://www.businesspartner.sa/ar/account\n• حاسبة التكاليف: https://www.businesspartner.sa/ar/calculator\n• الوظائف (للأفراد): https://www.businesspartner.sa/ar/careers\n• احجز استشارة: https://www.businesspartner.sa/ar/consultation\n• حاسبات الرسوم والامتثال: https://www.businesspartner.sa/ar/compliance-calculators\n• تواصل معنا: https://www.businesspartner.sa/ar/contact\n• رابط أي خدمة محددة: https://www.businesspartner.sa/ar/services/ + كود الخدمة بأحرف صغيرة (أمثلة: رخصة ريادة الأعمال bp-fi-05 · تأسيس شركة سعودية bp-sbc-01 · ترخيص استثمار أجنبي MISA bp-fi-02 · الإقامة المميزة bp-pr-01). إن لم تتأكد من الكود استخدم رابط التصنيف بدل تخمينه.\n\n# رسالة الشركة\n«شريك تشغيل واحد لكل متطلبات أعمالك في السعودية» — ننجزها بوضوح وسرعة ونتابعها حتى الإصدار. أرقامنا: +1000 عميل · +15 سنة · +90 خدمة · +15 جهة. رؤية 2030: 3.3 تريليون دولار.\n\n# القاعدة الأهم في الحوار\nرُدّ على رسالة العميل الأخيرة تحديداً. سؤال جديد = إجابة فورية. لا تكرر نفس السؤال مرتين.\n\n# 🧠 الذكاء وربط المعلومات\nاربط دائماً بين: بيانات العميل الحالية (المرحلة، الخدمة المختارة، نوع المستثمر) + محتوى قاعدة المعرفة + خيار الاستشارة المجانية — بحيث ردك يبني على كل ما تعرفه عن هذا العميل تحديداً ولا يكرر سؤالاً أجاب عنه من قبل. إذا شعرت أن معلوماتك غير كافية أو قديمة، لديك أداة بحث في نوشن (Notion MCP) للتحقق من أحدث تفاصيل الخدمات أو سجل العميل — استخدمها بصمت دون ذكرها للعميل أبداً. ⛔ أداة نوشن للقراءة والبحث فقط: ممنوع منعاً باتاً إنشاء أو تعديل أو حذف أي صفحة أو قاعدة في نوشن عبرها (أي صفحة تُنشأ بلا أب تسقط في قسم «الخاص» وتسبب فوضى) — التسجيل والتوثيق يتمان تلقائياً عبر عُقد النظام المخصصة.\n\n# الترحيب\nللتحية أو بداية المحادثة: رحّب بحرارة باسم العميل، سطر تعريف واحد، ثم القائمة:\n1️⃣ تأسيس الشركات · 2️⃣ الاستثمار الأجنبي · 3️⃣ الإقامة المميزة · 4️⃣ العلاقات الحكومية · 5️⃣ الموارد البشرية والتوظيف · 6️⃣ الباقات 💼 · 7️⃣ استشارة مجانية مع خبير 🗓️\nواختم الترحيب دائماً بسطر: «📢 تابع قناتنا في واتساب لكل جديد: whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X». في غير الترحيب: القناة مرة واحدة فقط بالمحادثة.\n\n# أخذ الطلب (هدفك الأساسي)\nخذ الطلب خطوة بخطوة (سؤال واحد، خيارات مرقمة، وتأكيد «سجلت عندي» بعد كل إجابة): 1) نوع المستثمر (فرد/منشأة، سعودي/خليجي/أجنبي) ← 2) عدد الملاك ← 3) النشاط ← 4) المدينة ← 5) الخدمة. عند الاكتمال: لخّص الطلب كاملاً للعميل للتأكيد، اطلب مستنداته، وبشّره أن الفريق يتواصل خلال 24 ساعة (+وسم #تم_الطلب).\n\n# الباقات (الأسعار معلنة رسمياً — «تبدأ من»)\nتحقّق دائماً من الأسعار عبر أداة site_catalog قبل ذكرها (الأسعار تتغيّر على الموقع). وهذه هي الحالية:\nباقات الخدمات (شهرياً حسب عدد الموظفين): المنشآت الصغيرة 🏪 2,500 ﷼ (1–4 موظفين) · الانطلاق 🚀 6,000 (5–49) · النمو 📈 10,000 (50–200) · التوسّع 🏗️ 20,000 (201–500) · الشراكة المؤسسية 👑 حسب الطلب (+500).\nباقتا التأسيس (سنوياً): السعودية والخليجية 🏢 تبدأ من 15,000 ﷼ · الأجنبية 🌍 تبدأ من 30,000 ﷼.\nالباقات القانونية (شهرياً): الأساسية 📄 8,000 · المتقدمة ⚖️ 15,000 · الشاملة 🛡️ 30,000 · الاستراتيجية ♟️ 50,000 ﷼.\nاذكرها كما هي فقط. سطر لكل باقة + رابط صفحة الباقات + سؤال واحد لتحديد الأنسب (كم عدد موظفينك؟).\n\n# 🗓️ الاستشارة المجانية (خيار 7 أو طلب صريح)\nخدمة حقيقية تحجزها فعلياً عبر أداة التقويم المتاحة لك (Create an event in Google Calendar). اعرضها بثقة لأي عميل متردد، حالته معقدة، أو يطلب التحدث مع خبير.\nخطوات الحجز (سؤال واحد في كل رسالة):\n1) اسأل عن اليوم المناسب (دوامنا كل الأيام ما عدا الجمعة — من السبت إلى الخميس، من 9 صباحاً إلى 6 مساءً بتوقيت الرياض). لا تحجز يوم الجمعة إطلاقاً؛ إذا طلب الجمعة اقترح أقرب يوم متاح.\n2) بعد تحديد اليوم اسأل عن الوقت المفضل ضمن ساعات الدوام.\n3) بعد تحديد اليوم والوقت: استخدم أداة التقويم لحجز موعد 30 دقيقة بتوقيت Asia/Riyadh، بعنوان باسم العميل ورقم واتسابه.\n4) بعد نجاح الحجز: أكّد للعميل بحماس مع ذكر اليوم والوقت بالضبط، وأخبره أن رابط اجتماع Google Meet وصله تلقائياً وأن مستشارنا سيتواصل قبل الموعد.\n5) إذا تعذّر الحجز: اعتذر بلطف، أخبره أن الفريق يؤكد الموعد خلال ساعات قليلة، ولا تكرر المحاولة أكثر من مرتين.\n6) في الحالتين بعد إتمام طلب الاستشارة أضف الوسم الداخلي #حجز_استشارة (انظر قسم الوسوم).\n\n# 🧰 خدماتنا الكاملة (+140 خدمة — 10 تخصصات) — اعرضها بثقة وحماس، هذا سلاحك في البيع\nمهما كان طلب العميل، غالباً عندنا حل جاهز له. لا تكتفِ بذكر الفئة العامة — اذكر أمثلة خدمات حقيقية تناسب سؤاله لتبرهن أن عندنا تغطية شاملة، وحوّل كل ذكر خدمة لدعوة لإكمال الطلب:\n\n🏢 تأسيس الشركات: تأسيس شركة سعودية (ذ.م.م) من الصفر، حجز الاسم التجاري، صياغة وتوثيق عقد التأسيس، إصدار/تجديد/تعديل السجل التجاري، تحويل مؤسسة فردية إلى شركة، تحويل الشكل القانوني، تصفية الشركات، عضوية الغرفة التجارية، تأسيس مصانع وتراخيص صناعية.\n\n🌍 الاستثمار الأجنبي: ترخيص استثمار أجنبي من وزارة الاستثمار (MISA)، تأسيس شركة أجنبية بملكية 100%، فتح فرع لشركة أجنبية قائمة، شراكة أجنبية-سعودية مشتركة، رخصة ريادة الأعمال بدون حد أدنى لرأس المال، استشارة ومرافقة دخول المستثمر الأجنبي من أول خطوة.\n\n🛂 الإقامة المميزة: إجراءات وتقديم طلب الإقامة المميزة بلا كفيل، استشارة تحديد الأهلية والمسار الأنسب (دائمة أو مؤقتة).\n\n🏛️ العلاقات الحكومية: تفعيل وإدارة منصات قوى ومقيم وأبشر أعمال ومدد بالكامل، التسجيل في هيئة الزكاة والضريبة والقيمة المضافة، تصاريح الدفاع المدني وشهادات السلامة، الرخص البلدية، تسجيل العلامات التجارية، تصنيف المقاولين، العنوان الوطني، نقل الكفالة والتأشيرات.\n\n👥 الموارد البشرية: إصدار وتجديد الإقامات، فتح ملف المنشأة بوزارة الموارد البشرية، حماية الأجور عبر مدد، الشهادات الصحية للموظفين، تأشيرات الزيارة العائلية، إدارة الموظفين الشاملة.\n\n🧑‍💼 التوظيف والاستقدام: تأشيرات العمل والاستقدام، البحث التنفيذي عن الكفاءات، التوظيف المحلي والجماعي، التوظيف والتعاقد الخارجي (PEO/EOR).\n\n🏢 العقارات ومساحات العمل: مكاتب خاصة، مساحات عمل مشتركة (Coworking)، مكتب افتراضي بعنوان وطني معتمد، مكتب ثابت مخصص، خدمة البحث عن المكتب المناسب.\n\n⚖️ الدعم الاستشاري والتشغيلي: استشارات قانونية وتجارية، تدقيق مالي وضريبي، إعادة الهيكلة والحوكمة الداخلية، خطط العمل والاستراتيجيات، دراسات الجدوى الاقتصادية، فتح الحسابات البنكية التجارية، التمثيل القانوني للشركات. وللحماية القانونية المستمرة: الباقات القانونية الأربع (انظر قسم الباقات).\n\n📣 التسويق والعلامة التجارية: التسويق الرقمي والإعلاني، العلاقات العامة والاتصال المؤسسي.\n\n🤖 الأتمتة والذكاء الاصطناعي: إعداد وكيل ذكاء اصطناعي على واتساب للمبيعات والدعم (تماماً كما تتحدث معي الآن)، منصة تشغيل ذكية متكاملة للمؤسسات.\n\n✈️ السياحة: برامج سياحية مصممة خصيصاً للشركات وفرق العمل.\n\n📦 باقات الخدمات: المنشآت الصغيرة، الانطلاق، النمو، التوسّع، الشراكة المؤسسية — إدارة مستمرة لكل منصاتك الحكومية ومتابعة امتثال وتنبيه قبل أي مخالفة، دون ما تحتاج تتابع بنفسك (التفاصيل والأسعار في قسم الباقات).\n\n🧩 حلول ومنصات كاملة (غير الخدمات المفردة — اعرضها لمن يناسبه): سكن العمالة والإعاشة والنقل، المكاتب ومساحات العمل، التموين والضيافة، تطوير الأعمال كخدمة، مستشار الامتثال، المستشار الذكي للمستندات، تاسك فورس، فريق الخدمات المشتركة، بوابة العميل، حاسبة التكاليف. كل واحدة لها صفحة كاملة — أرسل رابطها من الأداة.\n\nإذا سأل العميل عن أي خدمة مو مذكورة صراحة هنا، لا تقول لا نقدمها — رجّح أنها ضمن أحد التخصصات أعلاه وأكّد أن الفريق يغطيها، ثم وجّهه لإكمال الطلب أو الاستشارة المجانية.\n\n# ☎️ أرقامنا (قاعدة قاطعة)\n• أي تواصل بشري مع باهر أو الفريق، وأي مكالمة، وأي طلب أو متابعة ← واتساب بيزنس بارتنر **0530540231**. وضّح هذا للعميل في كل محادثة عند أول فرصة مناسبة.\n• 0507034157 هو رقم هذا الوكيل الآلي 24/7 فقط — لا تعطه لمن يطلب إنساناً أو مكالمة.\n• ممنوع منعاً باتاً ذكر أي رقم آخر للعميل مهما ورد في قاعدة المعرفة أو في ذاكرتك.\n\n# الأرقام\nرسالة رقم فقط = إجابة على سؤالك السابق — من الذاكرة. بعد الترحيب، 1-7 = اختيار من القائمة (6 = الباقات + رابط صفحتها، 7 = حجز استشارة مجانية).\n\n# التصعيد\nطلب إنسان/مكالمة/حالة معقدة، أو اختيار العميل «مستشارك البشري» من القائمة ← رحّب بحماس وأرسل له فوراً رابط واتساب مستشارنا البشري مباشرة: https://wa.me/message/TRC3IY567YBDC1 — وطمّنه أن مستشارنا يخدمه الآن ويتواصل معه بأسرع وقت (وأنا معك 24/7) + وسم #تدخل_بشري.\n\n# بيانات الشركة (عند السؤال)\nالموقع: www.businesspartner.sa · business@businesspartner.sa · 0530540231 · الرياض – حي الملقا – شارع الأمير محمد بن سعد – مجمع طوق ورد · سجل: 1009008634 · ضريبي: 310887376200003 · موحد: 7038696196 · القناة: whatsapp.com/channel/0029Vb811YtIXnlvXnnDo90X\n\n# 🏠 سكن العمالة والإعاشة والنقل (خدمة مهمة — أهّل الطلب باحتراف)\nإذا ذكر العميل: سكن عمال، إسكان عمالة، سكن جماعي، مخيمات عمل، labor housing، workforce accommodation، staff housing، أو إعاشة/نقل عمالة — تعامل معها كفرصة بيع كبيرة. رحّب بحماس وعرّفه أننا نوفّر حلول سكن العمالة والإعاشة (كاترينج) والنقل، ثم اجمع المتطلبات خطوة بخطوة (سؤال أو سؤالين بالكثير في كل رسالة، وأكّد كل معلومة: «تمام، سجلت عندي: … ✅»):\n1) كم عدد العمالة المطلوب تسكينهم؟\n2) المدينة والحي/الموقع المفضّل؟ (وقربه من موقع العمل إن أمكن)\n3) هل تريد سكن *مرخّص* أو *غير مرخّص*؟ — قاعدة مفيدة تشاركها معه: إذا العمالة مسجّلة في منصة قِوى وعددهم *أكثر من 20* فغالباً يلزم سكن *مرخّص* نظامياً؛ وإذا أقل من ذلك فقد لا يُشترط الترخيص (والبحث يكون أسهل وأوسع بدون اشتراط الترخيص).\n4) جنسية العمال وطبيعة مهنهم (عمال عاديون / مهن مطاعم / مهن عليا…)؟\n5) هل العمالة على *كفالة شركتك* أو *كفالات خارجية*؟\n6) تاريخ البدء المطلوب؟\n7) مدة العقد المطلوبة؟\n8) هل تحتاج *إعاشة (كاترينج)* أو *نقل* مع السكن؟\n9) الميزانية التقريبية أو السعر المستهدف للفرد/للموظف (إن رغب بمشاركتها — لا تُلح).\n\n⛔ لا تعطِ أي سعر أو تقدير للسكن إطلاقاً. بعد ما تجمع المتطلبات: لخّص الطلب للعميل للتأكيد، وأخبره أن الفريق يجهّز له *عرض سعر دقيق ويتواصل معه خلال يومَي عمل*، ثم أضف الوسم الداخلي #تم_الطلب. إذا طلب «عرض سعر بالموظف الواحد» أو أي رقم، اشرح أن التسعير يعتمد على الموقع والعدد والمواصفات، وأننا نجهّز له عرضاً مخصصاً بعد تسجيل طلبه.\n📌 نموذج ترحيبي تقدر تبدأ فيه (اكتبه بلغة العميل — عربي أو إنجليزي):\n«شكرًا لاختياركم Business Partner لحلول سكن العمالة والإعاشة والنقل 🏠. عشان نجهّز لكم عرضاً دقيقاً، ممكن تشاركونا: ١) عدد الأفراد ٢) المدينة/الموقع ٣) تاريخ البدء ٤) مدة العقد ٥) هل تحتاجون إعاشة أو نقل؟ ٦) أي تفاصيل أخرى. وبنرد عليكم خلال يومَي عمل بالتسعيرة.»\n(نُموذج إنجليزي مكافئ للعميل الإنجليزي: \"Thanks for considering Business Partner for your workforce housing, catering & transport needs. To prepare an accurate quote, could you share: 1) Headcount 2) Preferred city/site 3) Start date 4) Contract length 5) Need catering/transport too? 6) Anything else we should know. We'll get back to you within 2 business days with pricing.\")\n\n# المخرج النهائي\nنص واتساب فقط (+الوسم الداخلي على السطر الأخير عند انطباقه). ممنوع Markdown: لا ** (استخدم *نجمة واحدة*) ولا [نص](رابط). ممنوع أي رقم سعر لخدمة فردية (أسعار الباقات المعلنة مستثناة).",
+          "maxIterations": 5
+        },
+        "needsFallback": false
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        300,
+        300
+      ],
+      "id": "0f8a9da4-86b0-4b91-9ec1-aff9f59119c0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "business@businesspartnerksa.com",
+          "mode": "id"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start', 'Event start date and time') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', 'Event end date and time') }}",
+        "additionalFields": {
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        500,
+        300
+      ],
+      "id": "34bd5430-0c49-4384-b911-6cf29d71c749",
+      "name": "Create an event in Google Calendar",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nconst text = String(\n  item.message_text ||\n  item.client_message ||\n  item.user_message ||\n  item.property_last_whats_app_message ||\n  item.property_last_whatsapp_message ||\n  item.last_message ||\n  item.message ||\n  ''\n).toLowerCase().trim();\n\n// \"كم\" (how much) must be its own word — otherwise it matches inside unrelated\n// words like \"عليكم\" (as in \"السلام عليكم\"), which previously misfired as a\n// pricing question and skipped the greeting/welcome flow entirely.\nconst hasStandaloneKam = /(^|[^ء-ي])كم([^ء-ي]|$)/.test(text);\n\n// A bare greeting should never be classified by keyword search below (avoids\n// the same kind of accidental substring collisions for any future keyword).\nconst isPureGreeting = /^(السلام عليكم|سلام عليكم|وعليكم السلام|صباح الخير|مساء الخير|مرحبا|مرحباً|هلا|اهلا|أهلا|أهلين|hi|hello|hey)[\\s!.،,؟?]*$/i.test(text);\n\nlet service = 'Sales';\nlet client_intent = 'General Inquiry';\n\nif (isPureGreeting) {\n  service = item.selected_service_path || item.property_selected_service_path || 'Sales';\n  client_intent = 'Greeting';\n} else if (/سعر|تكلفة|عرض سعر|quotation|proposal|price|cost/.test(text) || hasStandaloneKam) {\n  service = 'Sales';\n  client_intent = 'Pricing Request';\n} else if (/استشارة|consultation|احجز|موعد|meeting|schedule/.test(text)) {\n  service = 'Sales';\n  client_intent = 'Consultation Request';\n} else if (/اقامة|إقامة|premium|residency/.test(text)) {\n  service = 'Premium Residency';\n  client_intent = 'Premium Residency';\n} else if (/قوى|مدد|تأمينات|مقيم|بلدي|زكاة|ضريبة|حكومي|government|gosi|qiwa|mudad/.test(text)) {\n  service = 'GRO';\n  client_intent = 'GRO Support';\n} else if (/موارد|توظيف|استقدام|hr|recruitment|عمالة/.test(text)) {\n  service = 'HR & Recruitment';\n  client_intent = 'Documents';\n} else if (/سياحة|رحلات|tourism|trip|travel/.test(text)) {\n  service = 'Tourism';\n  client_intent = 'General Inquiry';\n} else if (/عقار|مكتب|workspace|real estate|office/.test(text)) {\n  service = 'Real Estate & Workspace';\n  client_intent = 'General Inquiry';\n} else if (/شركة|تأسيس|سجل|استثمار|مستثمر|llc|branch|فرع|رخصة|misa|commercial registration/.test(text)) {\n  service = 'Company Setup';\n  client_intent = 'Company Setup';\n}\n\n// The Knowledge Base is looked up by its own Service field, and two of the\n// values this classifier produces have no rows there at all:\n//   • 'Sales' — the catch-all for pricing, consultation and general inquiry,\n//     which is every common message. Its content lives under 'Shared Services'.\n//   • 'Real Estate & Workspace' — its content is the OFFICE-* rows, which are\n//     filed under 'Company Setup'.\n// Looking either one up returned zero rows, so the agent answered those\n// messages with no knowledge context at all. Map them to where the rows\n// actually are, and keep `service` untouched — the owner alert nodes read it.\nconst KB_SERVICE = {\n  'Sales': 'Shared Services',\n  'Real Estate & Workspace': 'Company Setup',\n};\nconst kb_service = KB_SERVICE[service] || service;\n\nreturn [\n  {\n    json: {\n      ...item,\n      service,\n      kb_service,\n      client_intent,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ],
+      "id": "3c1af5c2-8aaa-4b4a-8297-58ea5430cf0f",
+      "name": "Detect Client Intent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/mcp-registry.notion",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ],
+      "id": "719b580b-5896-4289-8eb5-589f5789feed",
+      "name": "Notion MCP",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionMcpOAuth2Api": {
+          "id": "qUk5IVwo25NaYdnZ",
+          "name": "Notion MCP OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1100,
+        300
+      ],
+      "id": "ccd5adfc-b116-49b0-8e32-921740506321",
+      "name": "OpenAI Chat Model",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "disabled": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Preserve client context from Detect Client Intent + inject KB text.\n// Fixes context-loss that blanked message_text/phone/crm_page_id before the AI Agent.\nconst src = $('Detect Client Intent').all();\nconst ctx = (src[0] && src[0].json) ? src[0].json : {};\nfunction str(v){ if(v===undefined||v===null) return ''; return String(v).trim(); }\nfunction pick(o,keys){ for(const k of keys){ if(o && o[k]!==undefined && o[k]!==null && o[k]!=='') return o[k]; } return ''; }\nfunction digits(v){ let t=str(v); const m={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'}; let o=''; for(const ch of t){ o += (m[ch]!==undefined ? m[ch] : ch); } return o.replace(/\\s+/g,' ').trim(); }\nfunction phoneOf(v){ let p=str(v).replace(/[^0-9]/g,''); if(p.indexOf('00')===0) p=p.slice(2); if(p.indexOf('0')===0 && p.length===10) p='966'+p.slice(1); if(p.indexOf('5')===0 && p.length===9) p='966'+p; return p; }\nconst kb=[];\nfor(const it of $input.all()){ const j=it.json||{}; for(const k of Object.keys(j)){ const v=j[k]; if(typeof v==='string' && v.trim().length>=15 && /answer|content|response|body|scenario|reply|summary|message|title|name|question|text/i.test(k)){ kb.push(v.trim()); } } }\nconst kbText = kb.join('\\n\\n').slice(0,3000);\nconst messageText = digits(pick(ctx,['message_text','normalized_text','user_message','client_message','property_last_whats_app_message','property_last_whatsapp_message']));\nconst phone = phoneOf(pick(ctx,['phone','recipient_phone','whatsapp_phone','property_whats_app','property_whats_app_phone']));\nreturn [{ json: { ...ctx, crm_page_id: str(pick(ctx,['crm_page_id','page_id','id'])), crm_url: str(pick(ctx,['crm_url','url'])), phone: phone, recipient_phone: phone, message_text: messageText, normalized_text: messageText, user_message: messageText, client_message: messageText, knowledge_base_context: kbText, route_to_ai: true, send_direct_reply: false, route_reason: 'Send to AI Agent' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ],
+      "id": "86fd0e25-cb38-4355-bf95-2897c57efc6d",
+      "name": "Prepare Knowledge Context1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "86b097db-d00b-4c49-8506-14053b56a1f0",
+              "leftValue": "={{ $('Prepare Knowledge Context1').first().json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "85135735-0696-4179-99db-3f97fa8d3697",
+              "leftValue": "={{ $json.text_body || $json.reply_text || $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1500,
+        300
+      ],
+      "id": "036d9761-b0e3-4904-a627-62e13226099a",
+      "name": "Ready To Send AI Reply?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "cd220afd-423a-48a0-aee9-6ce0f1843db4",
+          "mode": "list",
+          "cachedResultName": "AI Knowledge Base",
+          "cachedResultUrl": "https://app.notion.com/p/cd220afd423a48a0aee96ce0f1843db4"
+        },
+        "limit": 3,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Approved|checkbox",
+              "condition": "equals",
+              "checkboxValue": true
+            },
+            {
+              "key": "Service|select",
+              "condition": "equals",
+              "selectValue": "={{ $json.kb_service || $json.service }}"
+            },
+            {
+              "key": "Content Type|select",
+              "condition": "does_not_equal",
+              "selectValue": "Policy"
+            },
+            {
+              "key": "Category|select",
+              "condition": "does_not_equal",
+              "selectValue": "Policies"
+            },
+            {
+              "key": "WhatsApp Sales Ready|checkbox",
+              "condition": "equals",
+              "checkboxValue": true
+            },
+            {
+              "key": "Use In WhatsApp|checkbox",
+              "condition": "equals",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1700,
+        300
+      ],
+      "id": "f03c374f-fa4a-40f8-a5e7-cc279f716733",
+      "name": "Search Knowledge Base",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $('Prepare Knowledge Context1').first().json.phone }}",
+        "textBody": "={{ $json.text_body || $json.reply_text || $json.output || '' }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        300
+      ],
+      "id": "b8727e04-cf74-4672-9c44-0382a60eb7e3",
+      "name": "Send AI Message",
+      "webhookId": "cb09e297-ee65-4944-9aad-5c1cd2ffdd9b",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', 'Email address of the recipient') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', 'Email subject line') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', 'Email body content') }}",
+        "options": {}
+      },
+      "id": "29f4f8f5-9b45-4f6f-9ed2-5ee15d412099",
+      "name": "Send email",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        2100,
+        300
+      ],
+      "webhookId": "dea61ec1-7c19-445f-9bbd-8529c2587c83",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When Called by Main').item.json.phone || $('When Called by Main').item.json.conversation_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        2300,
+        300
+      ],
+      "id": "028e7e48-2fcd-4f49-88ad-57b8a9c6eb8c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build reply from AI output. Detect internal tags, strip them, sanitize WhatsApp markdown.\nlet aiText='';\ntry { aiText = $('AI Agent').first().json.output; } catch(e){}\nlet t = String(aiText||'').trim();\nconst orderCompleted = t.indexOf('#تم_الطلب') !== -1;\nconst needsHuman = t.indexOf('#تدخل_بشري') !== -1;\nconst consultationRequested = t.indexOf('#حجز_استشارة') !== -1;\nt = t.split('\\n').filter(function(line){ return line.indexOf('#تم_الطلب') === -1 && line.indexOf('#تدخل_بشري') === -1 && line.indexOf('#حجز_استشارة') === -1; }).join('\\n');\nt = t.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '$1').replace(/\\*\\*(.+?)\\*\\*/g, '*$1*').replace(/^#{1,6}\\s+/gm, '').replace(/`{1,3}/g, '').trim();\nreturn [{ json: { text_body: t, reply_text: t, output: t, order_completed: orderCompleted, needs_human: needsHuman, consultation_requested: consultationRequested, debug_source: 'AI Agent output' } }];"
+      },
+      "id": "2c97da8f-6fb3-45ed-9616-5840e04f1f0b",
+      "name": "Truncate Long Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Detect Client Intent').first().json.crm_page_id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Last WhatsApp Message|rich_text",
+              "textContent": "={{ $json.output || \"\" }}"
+            },
+            {
+              "key": "WhatsApp Stage|select",
+              "selectValue": "={{ $json.whatsapp_stage || \"AI Replied\" }}"
+            },
+            {
+              "key": "AI Enabled|checkbox",
+              "checkboxValue": "={{ true }}"
+            },
+            {
+              "key": "Advisor Step|select",
+              "selectValue": "={{ \n  $('AI Agent').item.json.output.includes('نوع المستثمر') \n    ? 'Investor Type' \n    : $json.advisor_step || 'Main Menu'\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2700,
+        300
+      ],
+      "id": "0d7c3641-f496-4773-80ac-575cf139fe4b",
+      "name": "Update CRM After AI Reply",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "0b2d0eae-14e6-40fb-bf8a-68d8a7550bc9",
+      "name": "Order Completed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2700,
+        620
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "oc-1",
+              "leftValue": "={{ $json.order_completed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "76aec718-abfe-48c9-963e-fe794fd34bb4",
+      "name": "Needs Human?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2700,
+        820
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "nh-1",
+              "leftValue": "={{ $json.needs_human }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c99ec4e6-010d-49f8-840a-3d7f252d94ef",
+      "name": "WA Owner - New Order",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2950,
+        620
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966530540231",
+        "textBody": "=🎉🔥 مبروووك يا باهر — عميل جديد أكمل طلبه الآن!\n\n👤 الاسم: {{ $('Prepare Knowledge Context1').first().json.client_name || $('Prepare Knowledge Context1').first().json.name || 'غير محدد' }}\n📱 الجوال: {{ $('Prepare Knowledge Context1').first().json.phone }}\n🧭 الخدمة: {{ $('Prepare Knowledge Context1').first().json.selected_service_path || $('Detect Client Intent').first().json.service || 'غير محدد' }}\n\n💬 آخر رسالة من العميل:\n{{ $('Prepare Knowledge Context1').first().json.message_text }}\n\n🤖 رد الوكيل:\n{{ $json.text_body }}\n\n📇 ملف العميل في CRM:\n{{ $('Prepare Knowledge Context1').first().json.crm_url }}\n\n💪 ادخل كمّل معه وحوّلها صفقة!",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "027aedf8-7e99-43f7-82d1-3a8344dbbfd8",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "beeb5a72-3e65-431f-93fb-6c543f1ca125",
+      "name": "Email Owner - New Order",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3200,
+        620
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "=🎉 عميل جديد أكمل طلبه — {{ $('Prepare Knowledge Context1').first().json.client_name || 'عميل واتساب' }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Tahoma,Arial,sans-serif;background:#f4f6fb;padding:24px\"><div style=\"max-width:560px;margin:auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(11,27,90,.12)\"><div style=\"background:linear-gradient(135deg,#0B1B5A,#1e3a8a);padding:32px 24px;text-align:center\"><div style=\"font-size:44px\">🎉</div><h1 style=\"color:#fff;margin:8px 0 4px;font-size:22px\">عميل جديد أكمل طلبه!</h1><p style=\"color:#c7d2fe;margin:0;font-size:14px\">الوكيل الذكي باهر أنهى أخذ الطلب — دورك الآن 🚀</p></div><div style=\"padding:24px\"><table style=\"width:100%;border-collapse:collapse;font-size:14px\"><tr><td style=\"padding:10px;color:#64748b\">👤 الاسم</td><td style=\"padding:10px;font-weight:bold;color:#0B1B5A\">{{ $('Prepare Knowledge Context1').first().json.client_name || 'غير محدد' }}</td></tr><tr style=\"background:#f8fafc\"><td style=\"padding:10px;color:#64748b\">📱 الجوال</td><td style=\"padding:10px;font-weight:bold;color:#0B1B5A\">{{ $('Prepare Knowledge Context1').first().json.phone }}</td></tr><tr><td style=\"padding:10px;color:#64748b\">🧭 الخدمة</td><td style=\"padding:10px;font-weight:bold;color:#0B1B5A\">{{ $('Prepare Knowledge Context1').first().json.selected_service_path || $('Detect Client Intent').first().json.service || 'غير محدد' }}</td></tr><tr style=\"background:#f8fafc\"><td style=\"padding:10px;color:#64748b\">💬 آخر رسالة</td><td style=\"padding:10px;color:#334155\">{{ $('Prepare Knowledge Context1').first().json.message_text }}</td></tr></table><div style=\"text-align:center;margin-top:24px\"><a href=\"{{ $('Prepare Knowledge Context1').first().json.crm_url }}\" style=\"background:#0B1B5A;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:bold;display:inline-block\">📇 افتح ملف العميل في CRM</a></div><p style=\"text-align:center;color:#94a3b8;font-size:12px;margin-top:24px\">بيزنس بارتنر · شركاء نجاحك · الوكيل الذكي 24/7</p></div></div></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "e4ed69a9-363d-474b-8a1e-ad7db1ccf770",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "5faf8782-6b1f-4aed-9145-3491efc0eb2e",
+      "name": "WA Owner - Need Help",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2950,
+        820
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966530540231",
+        "textBody": "=⚠️ يا باهر — الوكيل يحتاجك مع عميل الآن!\n\n👤 {{ $('Prepare Knowledge Context1').first().json.client_name || 'غير محدد' }} · 📱 {{ $('Prepare Knowledge Context1').first().json.phone }}\n\n💬 العميل قال:\n{{ $('Prepare Knowledge Context1').first().json.message_text }}\n\n🤖 آخر رد للوكيل:\n{{ $json.text_body }}\n\n📇 CRM: {{ $('Prepare Knowledge Context1').first().json.crm_url }}\n\n⏱️ ادخل المحادثة وكمّل معه.",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "f9fdf0fc-c2ba-4647-bd65-973c37a42075",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "35462847-546a-4ce0-8721-08c47d3ee057",
+      "name": "Email Owner - Need Help",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3200,
+        820
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "=⚠️ عميل يحتاج تدخلك — {{ $('Prepare Knowledge Context1').first().json.client_name || 'عميل واتساب' }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Tahoma,Arial,sans-serif;background:#fef2f2;padding:24px\"><div style=\"max-width:560px;margin:auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(153,27,27,.15)\"><div style=\"background:linear-gradient(135deg,#991b1b,#dc2626);padding:28px 24px;text-align:center\"><div style=\"font-size:40px\">⚠️</div><h1 style=\"color:#fff;margin:8px 0 4px;font-size:20px\">الوكيل يحتاج تدخلك الآن</h1></div><div style=\"padding:24px;font-size:14px;color:#334155\"><p><b>👤 العميل:</b> {{ $('Prepare Knowledge Context1').first().json.client_name || 'غير محدد' }} · {{ $('Prepare Knowledge Context1').first().json.phone }}</p><p><b>💬 رسالته:</b> {{ $('Prepare Knowledge Context1').first().json.message_text }}</p><p><b>🤖 آخر رد للوكيل:</b> {{ $json.text_body }}</p><div style=\"text-align:center;margin-top:20px\"><a href=\"{{ $('Prepare Knowledge Context1').first().json.crm_url }}\" style=\"background:#991b1b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-weight:bold;display:inline-block\">📇 افتح ملف العميل</a></div></div></div></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "webhookId": "e3c31e39-787f-41e7-ac60-bca5538047e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "56d54a35-402a-40e0-92cc-b3b432397267",
+      "name": "Log Agent Reply",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        500
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🤖 {{ $('Prepare Knowledge Context1').first().json.phone }} — {{ ($json.text_body || '').slice(0, 60) }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Prepare Knowledge Context1').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "الوكيل الذكي"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "بدون"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "={{ $json.text_body }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $('Prepare Knowledge Context1').first().json.crm_url }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2",
+        "operation": "create"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "96c2f203-5d0a-46da-b89b-ae90c1c508ca",
+      "name": "Notion Alert - New Order",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2600,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🎉 طلب مكتمل — {{ $('Prepare Knowledge Context1').first().json.phone }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Prepare Knowledge Context1').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "طلب مكتمل"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "=آخر رسالة العميل: {{ $('Prepare Knowledge Context1').first().json.message_text }}\nرد الوكيل: {{ $('Truncate Long Messages').first().json.text_body }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $('Prepare Knowledge Context1').first().json.crm_url }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2",
+        "operation": "create"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "4162f7f3-4219-4ff9-931c-044c67d296c7",
+      "name": "Notion Alert - Need Help",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2600,
+        700
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🚨 يحتاج تدخل بشري — {{ $('Prepare Knowledge Context1').first().json.phone }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Prepare Knowledge Context1').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "يحتاج تدخل بشري"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "=آخر رسالة العميل: {{ $('Prepare Knowledge Context1').first().json.message_text }}\nرد الوكيل: {{ $('Truncate Long Messages').first().json.text_body }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $('Prepare Knowledge Context1').first().json.crm_url }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2",
+        "operation": "create"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "7ec8017f-e92b-4b91-817a-2c6cad015647",
+      "name": "Consultation Requested?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2700,
+        1020
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cr-1",
+              "leftValue": "={{ $json.consultation_requested }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bd61f461-237d-4c97-a232-32e43a6db521",
+      "name": "WA Owner - Consultation Booked",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2950,
+        1020
+      ],
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966530540231",
+        "textBody": "=🗓️✨ عميل يبغى استشارة مجانية يا باهر!\n\n👤 الاسم: {{ $('Prepare Knowledge Context1').first().json.client_name || $('Prepare Knowledge Context1').first().json.name || 'غير محدد' }}\n📱 الجوال: {{ $('Prepare Knowledge Context1').first().json.phone }}\n\n💬 آخر رسالة من العميل:\n{{ $('Prepare Knowledge Context1').first().json.message_text }}\n\n🤖 رد الوكيل:\n{{ $json.text_body }}\n\n📇 ملف العميل في CRM:\n{{ $('Prepare Knowledge Context1').first().json.crm_url }}\n\n📅 تأكد من التقويم (Google Calendar) وتابع الموعد معه!",
+        "additionalFields": {}
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "ed5013eb-01eb-4560-96b0-6219809572ff",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "0fece8ec-e83f-42fc-b96d-4c35ca663a6e",
+      "name": "Email Owner - Consultation Booked",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3200,
+        1020
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "=🗓️ طلب استشارة مجانية — {{ $('Prepare Knowledge Context1').first().json.client_name || 'عميل واتساب' }}",
+        "emailType": "html",
+        "message": "=<div dir=\"rtl\" style=\"font-family:Tahoma,Arial,sans-serif;background:#f4f6fb;padding:24px\"><div style=\"max-width:560px;margin:auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(11,27,90,.12)\"><div style=\"background:linear-gradient(135deg,#0B1B5A,#1e3a8a);padding:32px 24px;text-align:center\"><div style=\"font-size:44px\">🗓️</div><h1 style=\"color:#fff;margin:8px 0 4px;font-size:22px\">طلب استشارة مجانية جديد!</h1><p style=\"color:#c7d2fe;margin:0;font-size:14px\">الوكيل الذكي باهر يتولى حجز الموعد — تأكد من التقويم 🚀</p></div><div style=\"padding:24px\"><table style=\"width:100%;border-collapse:collapse;font-size:14px\"><tr><td style=\"padding:10px;color:#64748b\">👤 الاسم</td><td style=\"padding:10px;font-weight:bold;color:#0B1B5A\">{{ $('Prepare Knowledge Context1').first().json.client_name || 'غير محدد' }}</td></tr><tr style=\"background:#f8fafc\"><td style=\"padding:10px;color:#64748b\">📱 الجوال</td><td style=\"padding:10px;font-weight:bold;color:#0B1B5A\">{{ $('Prepare Knowledge Context1').first().json.phone }}</td></tr><tr><td style=\"padding:10px;color:#64748b\">💬 آخر رسالة</td><td style=\"padding:10px;color:#334155\">{{ $('Prepare Knowledge Context1').first().json.message_text }}</td></tr><tr style=\"background:#f8fafc\"><td style=\"padding:10px;color:#64748b\">🤖 رد الوكيل</td><td style=\"padding:10px;color:#334155\">{{ $json.text_body }}</td></tr></table><div style=\"text-align:center;margin-top:24px\"><a href=\"{{ $('Prepare Knowledge Context1').first().json.crm_url }}\" style=\"background:#0B1B5A;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:bold;display:inline-block\">📇 افتح ملف العميل في CRM</a></div><p style=\"text-align:center;color:#94a3b8;font-size:12px;margin-top:24px\">بيزنس بارتنر · شركاء نجاحك · تأكد من حجز الموعد في Google Calendar</p></div></div></div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "e8e9398e-5239-4924-8702-a0b650dbaf7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "3cd9e0b7-ca95-48c7-b96f-74fd7fa6481e",
+      "name": "Notion Alert - Consultation",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2600,
+        900
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0b126b52-ef9c-40b5-821f-3495ae2985b4"
+        },
+        "title": "=🗓️ طلب استشارة — {{ $('Prepare Knowledge Context1').first().json.phone }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "الجوال|phone_number",
+              "phoneValue": "={{ $('Prepare Knowledge Context1').first().json.phone }}"
+            },
+            {
+              "key": "المرسل|select",
+              "selectValue": "تنبيه"
+            },
+            {
+              "key": "نوع التنبيه|select",
+              "selectValue": "طلب مكتمل"
+            },
+            {
+              "key": "الرسالة|rich_text",
+              "textContent": "=🗓️ طلب استشارة مجانية — {{ $('Prepare Knowledge Context1').first().json.message_text }}\nرد الوكيل: {{ $('Truncate Long Messages').first().json.text_body }}"
+            },
+            {
+              "key": "رابط CRM|url",
+              "urlValue": "={{ $('Prepare Knowledge Context1').first().json.crm_url }}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "oAuth2",
+        "operation": "create"
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "02a7e852-e9a1-462a-9cf0-e2a9e18099fb",
+      "name": "site_catalog",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        420,
+        560
+      ],
+      "parameters": {
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        },
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "catalog"
+            },
+            {
+              "name": "limit",
+              "value": "6"
+            },
+            {
+              "name": "q",
+              "value": "={{ $fromAI('q', 'كلمات البحث بالعربية مما طلبه العميل — مثال: سكن عمالة، تأسيس شركة أجنبية، إقامة مميزة، باقات', 'string') }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "toolDescription": "ابحث في كتالوج موقع بيزنس بارتنر الحي: 140 خدمة و 11 باقة و 31 صفحة/خاصية (سكن العمالة، المكاتب ومساحات العمل، التموين، تطوير الأعمال، الامتثال، المستندات، بوابة العميل، الحاسبة، الوظائف...). استخدمها إلزامياً قبل الإجابة عن أي خدمة أو سعر أو خاصية في الموقع. النتيجة تحوي services (الخدمات: code و nameAr و descAr و priceLabel و govFeesSeparate و url و urlEn) و packages (الباقات وأسعارها المعلنة) و pages (صفحات الموقع). أرسل للعميل رابط url للعربي و urlEn للإنجليزي.",
+        "url": "https://www.businesspartner.sa/api/requests"
+      },
+      "notes": "مصدر الحقيقة للخدمات والأسعار والروابط — نفس ما يقرأه الموقع."
+    },
+    {
+      "id": "03119903-586f-4ada-8467-dea13a5d4340",
+      "name": "issue_quote",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        560
+      ],
+      "parameters": {
+        "jsonBody": "={{ JSON.stringify({ key: $env.BP_PANEL_KEY, phone: $('Prepare Knowledge Context1').first().json.phone, name: $('Prepare Knowledge Context1').first().json.name || $('Prepare Knowledge Context1').first().json.client_name || '', email: $('Prepare Knowledge Context1').first().json.property_email || '', serviceCode: $fromAI('serviceCode', 'كود الخدمة من أداة site_catalog مثل BP-FI-05', 'string'), scope: $fromAI('scope', 'نطاق العمل كما وافق عليه العميل: ماذا سننفذ له بالتفصيل، المدينة، العدد، وأي تفاصيل خاصة', 'string'), qty: $fromAI('qty', 'العدد إن ذكره العميل، وإلا 1', 'number') }) }}",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 25000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "يسجّل نطاق العمل ويُصدر عرض سعر رسمياً للعميل. استخدمها فقط بعد أن يؤكد العميل نطاق العمل وتعرف كود الخدمة من أداة site_catalog. النتيجة: status=issued مع number و total و link — أرسل الرابط للعميل ليراجع العرض ويوافق عليه ثم يوقّع العقد ويدفع وتصله الفاتورة. أو status=pending_pricing مع number — أخبر العميل أن طلبه سُجّل بهذا الرقم وأن العرض يصله هنا خلال يومي عمل. لا تذكر أي سعر من عندك إطلاقاً — السعر في العرض وحده.",
+        "url": "https://www.businesspartner.sa/api/requests?action=wa-quote"
+      },
+      "notes": "ينادي لوحة العروض عبر الموقع. يحتاج متغير بيئة BP_PANEL_KEY في n8n."
+    },
+    {
+      "id": "142cf11d-d2ec-4437-9591-51378667bb97",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        300,
+        620
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2000,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,487 @@
+{
+  "id": "0qWMwVVXZvbPdJdj",
+  "name": "🗝️ SS — Company Knowledge (ss-knowledge)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "337f9176-7931-4425-99c1-805a2dcb0092",
+  "activeVersionId": "337f9176-7931-4425-99c1-805a2dcb0092",
+  "triggerCount": 1,
+  "nodeCount": 15,
+  "createdAt": "2026-07-21T01:41:57.013Z",
+  "updatedAt": "2026-09-29T20:01:36.131Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "قاعدة معرفة العميل: webhook ss-knowledge {code, website أو about} → تحقق من الرمز → قراءة موقع العميل → تلخيص «ملف شركة» عربي منظم عبر الذكاء الاصطناعي → حفظه في CompanyProfile بسجل العميل → يعرفه كل الفريق عبر بوابة الشات.",
+  "connections": {
+    "Knowledge Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Resolve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Website",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Website": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Summarize Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Company": {
+      "main": [
+        [
+          {
+            "node": "Build Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Save": {
+      "main": [
+        [
+          {
+            "node": "Save Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Profile": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Company",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "49b93291-b62e-45cb-91f1-7526daea1cf8",
+      "name": "Knowledge Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-knowledge",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "09d05cc9-3644-4cf4-b833-ef3956758f34"
+    },
+    {
+      "id": "645f73b9-9b3f-4925-8e9e-c893abf4697b",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const code=((b.code||'')+'').trim().toUpperCase();let website=((b.website||'')+'').trim();const about=((b.about||'')+'').trim().slice(0,4000);if(website&&!/^https?:\\/\\//i.test(website))website='https://'+website;if(website&&!/^https?:\\/\\/[a-z0-9؀-ۿ]([a-z0-9؀-ۿ.-]*)\\.[a-z؀-ۿ]{2,}([\\/?#][^\\s]*)?$/i.test(website))website='';const ok=!!code&&code!=='DEMO123'&&(!!website||!!about);const qBody=JSON.stringify({filter:{property:'الرمز',rich_text:{equals:ok?code:'NONE'}}});return [{json:{code:code,ok:ok,website:website,about:about,fetchUrl:website||'https://invalid.invalid',qBody:qBody}}];"
+      }
+    },
+    {
+      "id": "6760a84f-fa40-48b1-910a-25e9ae8a82cb",
+      "name": "Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Prep').first().json.qBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "e9169cd1-2f84-42d2-b650-ccb5412e874a",
+      "name": "Resolve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('Prep').first().json;const r=$input.first().json.results||[];if(!pre.ok||!r.length){return [{json:{ok:false}}];}const p=r[0].properties;const st=((p['الحالة']||{}).select||{}).name||'نشط';if(st!=='نشط'){return [{json:{ok:false}}];}return [{json:{ok:true,pageId:r[0].id,saveUrl:'https://api.notion.com/v1/pages/'+r[0].id}}];"
+      }
+    },
+    {
+      "id": "05b7f35b-da3c-4afe-8b75-26fe285a3dd9",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "c0aabd63-dbcb-4911-ac8a-de65ffb05d3d",
+      "name": "Fetch Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1020,
+        200
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Prep').first().json.fetchUrl }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "6377015e-ae37-49ab-87a1-734d7e9031a2",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('Prep').first().json;let raw='';try{const j=$input.first().json||{};raw=(typeof j.data==='string')?j.data:(typeof j.body==='string'?j.body:'');}catch(e){}let text='';if(pre.website&&raw){text=raw.replace(/<script[\\s\\S]*?<\\/script>/gi,' ').replace(/<style[\\s\\S]*?<\\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&[a-z#0-9]+;/gi,' ').replace(/\\s+/g,' ').trim().slice(0,7000);}let userText='';if(pre.website&&text){userText='رابط موقع العميل: '+pre.website+'\\n\\nمحتوى الموقع (نصي):\\n'+text;}if(pre.about){userText+=(userText?'\\n\\n':'')+'نبذة كتبها العميل عن شركته:\\n'+pre.about;}if(!userText){userText='لا يوجد محتوى — اكتب: لم أتمكن من قراءة الموقع.';}return [{json:{userText:userText}}];"
+      }
+    },
+    {
+      "id": "b6b3924e-226e-4f58-9f4b-39e6b4aee09a",
+      "name": "Summarize Company",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1460,
+        200
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Build Prompt').first().json.userText }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "أنت محلل أعمال محترف. اكتب «ملف شركة» عربياً موجزاً ومنظماً (أقل من 280 كلمة) من المحتوى المعطى فقط — لا تخترع أي معلومة. الأقسام: النشاط والوصف؛ أهم المنتجات/الخدمات؛ الجمهور المستهدف؛ الأسعار المعلنة إن وجدت؛ روابط ومعلومات تواصل وردت في المحتوى؛ نبرة العلامة. اكتبه كنص عادي بدون Markdown، بحيث يصلح كسياق دائم يقرأه فريق وكلاء ذكاء اصطناعي ليخدم هذا العميل."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "686d76af-1e47-4674-8dd8-0877954c2651",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1350,
+        420
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "a82140dc-805c-455c-9554-ce464032a132",
+      "name": "Build Save",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let prof='';try{const j=$input.first().json||{};prof=(typeof j.text==='string'&&j.text)?j.text:(typeof j.output==='string'?j.output:'');}catch(e){}prof=(prof||'').trim().slice(0,1900);const rs=$('Resolve').first().json;const patchBody=JSON.stringify({properties:{'CompanyProfile':{rich_text:[{text:{content:prof}}]}}});return [{json:{profile:prof,saveUrl:rs.saveUrl,patchBody:patchBody}}];"
+      }
+    },
+    {
+      "id": "5cc1307a-9441-4b03-a23c-298af85e91e2",
+      "name": "Save Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1900,
+        200
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.saveUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build Save').first().json.patchBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "45263573-e1b7-46fa-88f3-a3cff0c97265",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2120,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:true,profile:$('Build Save').first().json.profile}) }}"
+      }
+    },
+    {
+      "id": "39cebe3a-e818-4c2e-96ba-9521a05970be",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1020,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false}"
+      }
+    },
+    {
+      "id": "20fbd960-f719-429b-85d6-b975f93110a9",
+      "name": "Claude Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1350,
+        560
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-4-5-20251001"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "mmbdtwapuZXoY91N",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "6f54aee8-6106-477b-9612-87683f0ba214",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1350,
+        480
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 1200,
+          "temperature": 0.3,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "id": "DXfVlWVFHyU7eoBE",
+  "name": "🛡️ BP3 Compliance Agent V1 — Qiwa & Muqeem",
+  "active": false,
+  "isArchived": false,
+  "versionId": "15086aa8-4310-442f-a320-c721666e6924",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-07-01T19:38:14.898Z",
+  "updatedAt": "2026-07-21T04:05:34.423Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "وكيل الامتثال V1 (Concierge) — يراقب سجل قوى/مقيم/GOSI/مدد في Notion يومياً، يحسب الأيام والخطورة، يسجّل تنبيهاً في سجل التدقيق بحالة \"بانتظار الموافقة\" (Human Approval)، ويرسل ملخصاً يومياً لفريق BPIC عبر Gmail. توصية Claude مع صمود احتياطي. لا ينفّذ أي ",
+  "connections": {
+    "تشغيل يدوي (اختبار)": {
+      "main": [
+        [
+          {
+            "node": "قراءة سجل الامتثال (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "قراءة سجل الامتثال (Notion)": {
+      "main": [
+        [
+          {
+            "node": "حساب الأيام والخطورة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "حساب الأيام والخطورة": {
+      "main": [
+        [
+          {
+            "node": "تجهيز طلب AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "تجميع ملخص التنبيهات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بناء سجل التنبيه (Notion)": {
+      "main": [
+        [
+          {
+            "node": "إنشاء التنبيه في Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "جدولة يومية 07:00": {
+      "main": [
+        [
+          {
+            "node": "قراءة سجل الامتثال (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجميع ملخص التنبيهات": {
+      "main": [
+        [
+          {
+            "node": "إشعار الفريق (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجهيز طلب AI": {
+      "main": [
+        [
+          {
+            "node": "تحليل الامتثال (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تحليل الامتثال (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "بناء سجل التنبيه (Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "90a9b12b-629f-42fa-b266-57405c69c582",
+      "name": "تشغيل يدوي (اختبار)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "617e2c16-5606-404f-9834-89e9602ef81d",
+      "name": "قراءة سجل الامتثال (Notion)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/7258a07449a6444fadc186a61cc3a77e/query",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{ \"filter\": { \"property\": \"حالة الاشتراك\", \"select\": { \"equals\": \"نشط\" } }, \"page_size\": 100 }"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "id": "7d74609e-6b08-4edc-b20a-075cb12b2d08",
+      "name": "حساب الأيام والخطورة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const resp = $input.first().json; const pages = resp.results || []; const today = new Date(); const out = []; const t = (arr) => (Array.isArray(arr) && arr[0] && (arr[0].plain_text || (arr[0].text && arr[0].text.content))) || ''; for (const pg of pages) { const p = pg.properties || {}; const company = p['المنشأة'] && p['المنشأة'].title ? t(p['المنشأة'].title) : ''; const cr = p['السجل التجاري'] && p['السجل التجاري'].rich_text ? t(p['السجل التجاري'].rich_text) : ''; const platform = p['المنصة'] && p['المنصة'].select ? p['المنصة'].select.name : ''; const actionType = p['نوع الإجراء'] && p['نوع الإجراء'].select ? p['نوع الإجراء'].select.name : ''; const subject = p['الموظف أو الموضوع'] && p['الموظف أو الموضوع'].rich_text ? t(p['الموظف أو الموضوع'].rich_text) : ''; const expiry = p['تاريخ الانتهاء'] && p['تاريخ الانتهاء'].date ? p['تاريخ الانتهاء'].date.start : null; if (!expiry) continue; const diff = Math.ceil((new Date(expiry).getTime() - today.getTime()) / 86400000); if (diff > 30) continue; let severity = 'أصفر'; if (diff <= 7) severity = 'أحمر'; out.push({ json: { company: company, cr: cr, platform: platform, actionType: actionType, subject: subject, expiry: expiry, daysLeft: diff, severity: severity } }); } return out;"
+      }
+    },
+    {
+      "id": "315aeb65-441a-4c56-bc85-f27b539071e6",
+      "name": "تجهيز طلب AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const d = $json; const NL = String.fromCharCode(10); const sys = 'أنت وكيل الامتثال (Compliance Agent) لشركة Business Partner، متخصص في منصات قوى ومقيم والتأمينات ومدد في السعودية. مهمتك مراقبة استحقاقات الامتثال والتنبيه المبكر قبل حدوث المخالفة أو تجميد الخدمات. النموذج concierge: تراقب وتنبّه وتوصي فقط؛ التنفيذ يقوم به فريق BPIC بعد موافقة بشرية ودفع. لا تعِد بنتائج حكومية، لا تطلب كلمات مرور أو OTP، ولا تفترض تنفيذ أي إجراء بدون موافقة. اكتب بالعربية بإيجاز مهني وبدون Markdown.'; const user = 'بند امتثال يقترب من الاستحقاق:' + NL + '- المنشأة: ' + (d.company || '') + NL + '- السجل التجاري: ' + (d.cr || '') + NL + '- المنصة: ' + (d.platform || '') + NL + '- نوع الإجراء: ' + (d.actionType || '') + NL + '- الموظف أو الموضوع: ' + (d.subject || '') + NL + '- تاريخ الانتهاء: ' + (d.expiry || '') + NL + '- الأيام المتبقية: ' + d.daysLeft + NL + '- الخطورة: ' + (d.severity || '') + NL + NL + 'اكتب بإيجاز: (1) سطر تنبيه واحد، (2) خطوات الإجراء الموصى به للفريق، (3) تذكير بأن التنفيذ يتطلب موافقة بشرية ودفع. نص عربي أقل من 800 حرف.'; return { json: Object.assign({}, d, { aiRequest: { model: 'gpt-4o-mini', max_tokens: 900, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }] } }) };"
+      }
+    },
+    {
+      "id": "a0bcdad1-ad32-4bb1-94a3-33f3422d729c",
+      "name": "تحليل الامتثال (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1300,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.aiRequest) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7M1AKDpo96GtSHyD",
+          "name": "Header Auth account"
+        },
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "c7cac548-61f3-4ecd-a130-b1e8b94c4b02",
+      "name": "بناء سجل التنبيه (Notion)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const d = $('تجهيز طلب AI').item.json; let advice = ''; try { if ($json.choices && $json.choices[0] && $json.choices[0].message) advice = $json.choices[0].message.content || ''; if (!advice && $json.content && $json.content[0] && $json.content[0].text) advice = $json.content[0].text; } catch (e) { advice = ''; } if (!advice) { advice = 'تنبيه مبكر: يقترب استحقاق ' + (d.actionType || '') + ' لـ ' + (d.company || '') + ' خلال ' + d.daysLeft + ' يوم عبر ' + (d.platform || '') + '. الإجراء الموصى به: يراجع فريق BPIC الحالة على المنصة، يجهّز المستندات المطلوبة، ويبدأ الإجراء بعد موافقة العميل والدفع. لا يُنفّذ أي إجراء حكومي دون موافقة بشرية. (توصية آلية احتياطية)'; } const today = new Date().toISOString().slice(0, 10); const title = '[' + d.severity + '] ' + d.platform + ' — ' + d.actionType + ' — ' + d.company + ' (' + d.daysLeft + ' يوم متبقٍ)'; const props = { 'التنبيه': { title: [{ text: { content: title.slice(0, 1900) } }] }, 'المنشأة': { rich_text: [{ text: { content: (d.company || '').slice(0, 1900) } }] }, 'المنصة': { select: { name: d.platform || 'قوى' } }, 'نوع الإجراء': { rich_text: [{ text: { content: (d.actionType || '').slice(0, 300) } }] }, 'تاريخ الانتهاء': { date: { start: d.expiry } }, 'الأيام المتبقية': { number: d.daysLeft }, 'الخطورة': { select: { name: d.severity } }, 'الإجراء الموصى به': { rich_text: [{ text: { content: advice.slice(0, 1900) } }] }, 'الموافقة البشرية': { select: { name: 'بانتظار الموافقة' } }, 'تاريخ التنبيه': { date: { start: today } }, 'المصدر': { rich_text: [{ text: { content: 'Compliance Agent V1 (n8n)' } }] } }; return { json: { parent: { database_id: '6879f59096784a2798574c3777882e67' }, properties: props } };"
+      }
+    },
+    {
+      "id": "c6ec65e4-7450-40d8-88d3-c36fe3d1ea26",
+      "name": "إنشاء التنبيه في Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1820,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rlcg0SxC5HwxsPez",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "id": "88544bb5-8342-4ab9-b7fc-a51020982a40",
+      "name": "جدولة يومية 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        420
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e63c8047-08ed-42a8-932a-32b9a149c1f5",
+      "name": "تجميع ملخص التنبيهات",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        540
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows = $('حساب الأيام والخطورة').all(); let items = rows.map(r => r.json); items.sort((a,b) => a.daysLeft - b.daysLeft); const red = items.filter(i => i.severity === 'أحمر').length; const yellow = items.filter(i => i.severity === 'أصفر').length; const today = new Date().toISOString().slice(0,10); const pill = (sev) => { const bg = sev === 'أحمر' ? '#FDE8E8' : '#FEF3E2'; const fg = sev === 'أحمر' ? '#C0392B' : '#B7791F'; const dot = sev === 'أحمر' ? '🔴' : '🟡'; return '<span style=\"display:inline-block;padding:3px 10px;border-radius:999px;background:' + bg + ';color:' + fg + ';font-size:12px;font-weight:700;white-space:nowrap\">' + dot + ' ' + sev + '</span>'; }; const kpi = (label,val,color) => '<td width=\"33%\" style=\"padding:0 6px\"><div style=\"background:#FFFFFF;border:1px solid #EAEDF0;border-radius:14px;padding:16px;text-align:center\"><div style=\"font-size:30px;font-weight:800;line-height:1;color:' + color + '\">' + val + '</div><div style=\"font-size:12px;color:#6B7280;margin-top:6px\">' + label + '</div></div></td>'; let trs = ''; for (let idx = 0; idx < items.length; idx++) { const i = items[idx]; const zebra = idx % 2 === 0 ? '#FFFFFF' : '#F9FAFB'; const dayColor = i.daysLeft <= 7 ? '#C0392B' : '#B7791F'; const sub = i.subject ? '<div style=\"color:#6B7280;font-size:12px;margin-top:2px\">' + i.subject + '</div>' : ''; trs += '<tr style=\"background:' + zebra + '\"><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4;text-align:center\">' + pill(i.severity) + '</td><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4;font-weight:700;color:#0B4F6C\">' + i.platform + '</td><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4\">' + i.actionType + '</td><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4\">' + i.company + sub + '</td><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4;text-align:center;font-weight:800;color:' + dayColor + '\">' + i.daysLeft + ' يوم</td><td style=\"padding:12px 10px;border-bottom:1px solid #EEF1F4;text-align:center;color:#6B7280;font-size:12px\">' + i.expiry + '</td></tr>'; } const html = '<div dir=\"rtl\" style=\"margin:0;padding:0;background:#F4F6F8\"><div style=\"max-width:640px;margin:0 auto;padding:24px 16px;font-family:Tahoma,Arial,sans-serif;color:#1F2937\"><div style=\"background:#0B4F6C;border-radius:18px;padding:24px 22px;color:#FFFFFF\"><div style=\"font-size:12px;letter-spacing:1px;color:#BFE3ED;font-weight:600\">BUSINESS PARTNER · وكيل الامتثال</div><div style=\"font-size:22px;font-weight:800;margin-top:6px\">🛡️ تقرير الامتثال اليومي</div><div style=\"font-size:13px;color:#D7EAF0;margin-top:6px\">' + today + ' · قوى · مقيم · GOSI · مدد · نطاقات السعودة</div></div><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:16px 0\"><tr>' + kpi('بند مستحق خلال 30 يوم', items.length, '#0B4F6C') + kpi('عاجل — أحمر ≤ 7 أيام', red, '#C0392B') + kpi('قريب — أصفر ≤ 30 يوم', yellow, '#B7791F') + '</tr></table><div style=\"background:#FFFFFF;border:1px solid #EAEDF0;border-radius:16px;overflow:hidden\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse;font-size:13px\"><thead><tr style=\"background:#0B4F6C;color:#FFFFFF\"><th style=\"padding:12px 10px;text-align:center\">الخطورة</th><th style=\"padding:12px 10px;text-align:right\">المنصة</th><th style=\"padding:12px 10px;text-align:right\">الإجراء</th><th style=\"padding:12px 10px;text-align:right\">المنشأة</th><th style=\"padding:12px 10px;text-align:center\">المتبقي</th><th style=\"padding:12px 10px;text-align:center\">الانتهاء</th></tr></thead><tbody>' + trs + '</tbody></table></div><div style=\"background:#FFFBEB;border:1px solid #FDE8B5;border-radius:14px;padding:14px 16px;margin-top:16px;font-size:12px;color:#8A6D3B;line-height:1.7\">⚖️ جميع البنود مسجّلة في سجل التدقيق بحالة «بانتظار الموافقة». النموذج Concierge — لا يُنفَّذ أي إجراء حكومي دون موافقة بشرية ودفع.</div><div style=\"text-align:center;color:#9AA3AD;font-size:11px;margin-top:18px\">🤖 Compliance Agent V1 · n8n · Business Partner Platform 3.0</div></div></div>'; const subject = '🛡️ تقرير الامتثال ' + today + ' — ' + items.length + ' بند (🔴 ' + red + ' / 🟡 ' + yellow + ')'; return [{ json: { subject: subject, html: html, count: items.length } }];"
+      }
+    },
+    {
+      "id": "7128e031-6159-48a1-8aa2-cd98b60a67aa",
+      "name": "إشعار الفريق (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        540
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "business@businesspartnerksa.com",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "executeOnce": true,
+      "webhookId": "1f354cc1-13a7-4268-a9a8-61d66075f601",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hUBmAJLkWouBZjSN",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

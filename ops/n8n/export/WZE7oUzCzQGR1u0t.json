@@ -1,0 +1,542 @@
+{
+  "id": "WZE7oUzCzQGR1u0t",
+  "name": "💼 BP Team — Mazen (Operations & Support)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "c48846a2-f8e8-4268-9686-7c13b744a57a",
+  "activeVersionId": "c48846a2-f8e8-4268-9686-7c13b744a57a",
+  "triggerCount": 1,
+  "nodeCount": 13,
+  "createdAt": "2026-07-02T21:45:21.717Z",
+  "updatedAt": "2026-09-29T09:19:56.519Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate",
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 160
+  },
+  "tags": [
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "btP2dnD1s7f3rjyg",
+      "name": "Execution"
+    },
+    {
+      "id": "doxKQw4kNUA2p1uy",
+      "name": "Operations"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Operations Director + delivery team. Owns paid-client execution, SLA/QA, updates BP_AI_Deals, and closes delivered work.",
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Parse + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Colleague": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "هتان — Service Delivery Coordinator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "رائد — Project Delivery": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "طلال — Case & Document Controller": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "مشعل — Quality & SLA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Operations Deal State": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Task Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "هتان — Service Delivery Coordinator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "رائد — Project Delivery",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "طلال — Case & Document Controller",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "مشعل — Quality & SLA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mazen-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "30d41b74-8cde-480d-8d8f-09508fc45dc2",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "3b9faf52-6f03-4163-b592-dba4fc288f5e"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n",
+              "name": "client_name",
+              "value": "={{ $json.body?.client_name ?? $json.client_name ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "i",
+              "name": "internal",
+              "value": "={{ (($json.body?.channel ?? $json.channel) === 'internal') }}",
+              "type": "boolean"
+            },
+            {
+              "id": "s",
+              "name": "system",
+              "value": "EVIDENCE RULE — this overrides everything below it: never state a number, name, date, deadline, SLA figure, document name or case status unless you actually read it from a tool result or from the incoming message. If you did not read it, say so plainly and name the tool or data you need — never fill the gap with a plausible-sounding figure. Never report a case delivered, started or unblocked on inference. Never invent names of people, staff, clients or documents that do not exist in the data. Anything a specialist hands you is bound by the same rule: a figure with no source gets deleted, not forwarded. An invented number is worse than no answer, because it cannot be told apart from a true one. Also never create a task assigned to yourself, and never create a task whose only purpose is to track another task.\n\nYou are Mazen, Operations Director for Business Partner. Your primary responsibility is paid-client execution: turn every paid/approved deal into a delivery plan, assign specialists, track dependencies and SLA, unblock cases, validate completion and close the loop. You manage Hattan Service Delivery Coordinator, Raed Project Delivery Specialist, Talal Case & Document Controller, and Mishal Quality & SLA Controller. Delegate through their tools. Coordinate with Mishari for government/compliance steps, Mohammed/Salman for technical/product issues, Nasser for HR delivery, Abdullah for procurement, Abdulaziz for legal dependencies, and Badr for client commercial changes/upsell. Internal tasks are operational assignments. Never allow a paid deal to sit without owner, next action and due time. If a step truly requires Baher physically or through human-authenticated government access, create one precise Human Action and continue all other parallel work. Note: the Chief of Staff is Farah; the Head of Growth & Marketing is Sara (her intake path is still farah-intake, a legacy name).",
+              "type": "string"
+            },
+            {
+              "id": "alias",
+              "name": "alias",
+              "value": "={{ $json.body?.agent_alias ?? $json.agent_alias ?? '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "0ef081bb-22da-47bb-8a53-aa40da8bd8b3",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let text='';try{const q=$('AI Engine').first().json;if(q){if(typeof q.text==='string'&&q.text)text=q.text;else if(typeof q.output==='string'&&q.output)text=q.output;}}catch(e){}const engine_fallback=!text;if(engine_fallback)text='أهلا فيك، وصلني طلبك وسأساعدك. جرب مرة ثانية بعد لحظات.';return [{json:{reply:text.trim(),engine_fallback}}];"
+      },
+      "id": "20f5d332-eff2-4377-b398-b9f0198c47c7",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ agent: \"mazen\", reply: $(\"Parse + Fallback\").first().json.reply, engine_fallback: $(\"Parse + Fallback\").first().json.engine_fallback === true }) }}",
+        "options": {}
+      },
+      "id": "fbdaf703-fe39-4f02-a203-aea20e328b8f",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        304
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "mazen-agent-01",
+      "name": "AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        304
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "={{ $(\"Normalize\").first().json.system }}\n\nTEAM COLLABORATION: As Operations Manager you coordinate the AI executive team. When a task needs a specialist, use the Consult Colleague tool (pass the colleague slug and a clear task/question), then combine their output into a coherent result and mention whom you involved. Delegate to at most one colleague per turn here; for multi-specialist work, sequence them.{{ $(\"Normalize\").first().json.internal ? \" IMPORTANT: This message is an INTERNAL consultation from a teammate — answer directly and concisely from your own expertise and DO NOT consult anyone else.\" : \"\" }}\n\nLANGUAGE (STRICT): Always reply in the SAME language as the client's LATEST message — English message → reply entirely in English; Arabic message → reply in Arabic (Saudi tone); mixed → follow the dominant language, and switch immediately whenever the client switches. Wrapper text or metadata around the message (client-name prefixes, internal-consult notes, Arabic labels) must NOT influence the reply language — judge only from the client's own words.\n\nBREVITY (STRICT — HIGHEST PRIORITY): كلمة ورد غطاها. Reply in ONE or TWO short sentences — never more unless the client explicitly asks for details or a full breakdown. A greeting gets one short friendly line back («هلا والله! وش أخدمك؟») — NEVER list your capabilities, NEVER ask for company details unprompted. At most ONE question per reply. No bullet lists, no headers, no explanations the client didn't ask for. Never repeat what the client said. Short question → short answer, always.\n\n{{ $(\"Normalize\").first().json.alias ? 'CLIENT NAMING (STRICT): For THIS client your name is «' + $(\"Normalize\").first().json.alias + '». Always introduce yourself, refer to yourself and sign with this name instead of your default name. Everything else about your role stays unchanged.' : '' }}",
+          "enableStreaming": false,
+          "maxIterations": 6
+        }
+      }
+    },
+    {
+      "id": "mazen-consult-01",
+      "name": "Consult Colleague",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        520
+      ],
+      "parameters": {
+        "toolDescription": "كمدير عمليات، أسند مهمة أو استشر متخصصاً في الفريق. مرّر slug الزميل ونص المهمة/السؤال، واسترجع رده لتدمجه.",
+        "method": "POST",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague', 'slug الزميل: abdulaziz-intake=قانوني، mishari-intake=امتثال حكومي، badr-intake=مبيعات، farah-intake=سارة (تسويق)، nasser-intake=موارد بشرية داخلية فقط، ahmed-procurement=مشتريات، finance-intake=مالية، baher-intake=استشارة أعمال، realestate-intake=طارق (تسليم المساحة والمفاتيح تشغيلياً)، recruitment-intake=بندر (إسكان الموظف المستقدم تشغيلياً)، news-intake=آلاء، deals-intake=وسام', 'string') }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $fromAI('question','نص المهمة/السؤال للزميل كاملاً بالعربية'), client_name: 'مازن — تنسيق داخلي', channel: 'internal' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ef2c51e4-f6a8-4217-b862-4e0ee2ba8e38",
+      "name": "هتان — Service Delivery Coordinator",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "هتان، Service Delivery Coordinator. استخدمه لتحويل paid deal إلى kickoff checklist، owners، due dates، dependencies وclient readiness.",
+        "text": "={{ $fromAI('task','Paid/approved case with service, scope, documents, deadline and current blockers','string') }}",
+        "options": {
+          "systemMessage": "أنت هتان، Service Delivery Coordinator تحت مازن. كل paid case يجب أن يبدأ فوراً. حدد work breakdown, owners, missing inputs, dependencies, SLA وnext action بدقة.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "545e5b90-1931-427f-b350-d46d6ecea1bb",
+      "name": "رائد — Project Delivery",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        880,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "رائد، Project Delivery Specialist. استخدمه للحالات متعددة الخطوات، dependency map، project plan، risk tracking وstatus recovery.",
+        "text": "={{ $fromAI('task','Project/case delivery context, milestones, blockers and deadline','string') }}",
+        "options": {
+          "systemMessage": "أنت رائد، Project Delivery Specialist تحت مازن. أدِر المشروع بمراحل وdependencies ومخاطر ومسؤوليات واضحة. لا تسمح بمهمة بلا owner/date.",
+          "maxIterations": 7,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "aeb5ca8c-8d2b-49ad-aea0-4e87591ca6e4",
+      "name": "طلال — Case & Document Controller",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "طلال، Case & Document Controller. استخدمه لفحص completeness، missing docs، naming/storage، readiness checklist وربط المستندات بالحالة.",
+        "text": "={{ $fromAI('task','Case/document context and required readiness check','string') }}",
+        "options": {
+          "systemMessage": "أنت طلال، Document Controller تحت مازن. احمِ سلسلة المستندات، اكشف الناقص مبكراً، وحدد المطلوب من العميل أو الفريق بدقة بدون طلب secrets/OTP.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "28a89598-9a50-4553-9bd6-55e7a8d8bb63",
+      "name": "مشعل — Quality & SLA",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        700
+      ],
+      "parameters": {
+        "toolDescription": "مشعل، Quality & SLA Controller. استخدمه لمراجعة التسليم، كشف overdue/blocked، regression/rework، readiness-to-close وتصحيح SLA breaches.",
+        "text": "={{ $fromAI('task','QA/SLA task with case status, expected deliverable, deadline and evidence','string') }}",
+        "options": {
+          "systemMessage": "أنت مشعل، Quality & SLA Controller تحت مازن. تحقق من النتيجة قبل الإغلاق، قِس SLA، وافتح corrective action لأي نقص أو تأخير خصوصاً paid-blocked.",
+          "maxIterations": 6,
+          "enableStreaming": false
+        }
+      }
+    },
+    {
+      "id": "7e355c2d-c2e6-4298-ae27-51e4a88c70a3",
+      "name": "Update Operations Deal State",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('deal_id','Existing deal ID','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "stage": "={{ $fromAI('stage','execution_ready, execution_in_progress, delivered or blocked_human','string') }}",
+            "deal_owner": "mazen_ops",
+            "execution_status": "={{ $fromAI('execution_status','not_started, ready, in_progress, waiting_client, waiting_baher, completed or blocked','string') }}",
+            "next_action": "={{ $fromAI('next_action','Single operational next action','string') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','Blocking issue or empty','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','True only when Baher must personally perform a field/platform action','boolean') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d3310fc1-053e-4007-ada2-cd3fdca564ff",
+      "name": "Internal Task Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "c1c69693-7630-43f2-98f8-fc7190ad56d6",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        440,
+        760
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1400,
+          "temperature": 0.3,
+          "timeout": 90000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي لمازن ومختصّيه الأربعة. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

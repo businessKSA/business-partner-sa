@@ -1,0 +1,87 @@
+{
+  "id": "furevCegGUxcBNzi",
+  "name": "🗝️ SS Setup — CompanyProfile property (run once)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "1fa59d6f-37b8-4765-af5d-2474101619a1",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 2,
+  "createdAt": "2026-07-21T01:40:32.802Z",
+  "updatedAt": "2026-07-21T01:54:43.899Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "تشغيل مرة واحدة: يضيف خاصية CompanyProfile لقاعدة SS Clients لتخزين ملف شركة العميل (قاعدة المعرفة).",
+  "connections": {
+    "Run Once": {
+      "main": [
+        [
+          {
+            "node": "Add CompanyProfile Property",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "3dc6fb4c-781c-4dd7-83b0-5d2b07bd49c7",
+      "name": "Run Once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "04c27015-3e40-40c6-96d9-e4a5088d8afb",
+      "name": "Add CompanyProfile Property",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"properties\":{\"WhatsAppPhone\":{\"rich_text\":{}}}}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "id": "fUBftwquKyBuRJ0P",
+  "name": "💰 حاسبة التكاليف الحكومية — Fees Calculator",
+  "active": false,
+  "isArchived": false,
+  "versionId": "fb268edb-3c19-41a4-af41-c8e1fc73d5bb",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-07-02T01:03:46.848Z",
+  "updatedAt": "2026-07-02T01:03:46.848Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "محرك حساب تكاليف العمالة الأجنبية: يحسب لكل عامل رسوم رخصة العمل (قوى) + الإقامة (مقيم) + التأمين الطبي + الغرامات، ربعياً وسنوياً، ويجمعها في عرض تكلفة تقديري للعميل حسب المهنة والحالة والعدد. النسب بارامترية قابلة للتعديل بالأرقام الرسمية.",
+  "connections": {
+    "تشغيل يدوي (بيانات تجريبية)": {
+      "main": [
+        [
+          {
+            "node": "محرك حساب التكاليف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "محرك حساب التكاليف": {
+      "main": [
+        [
+          {
+            "node": "بناء عرض التكلفة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "استقبال بيانات العمّال": {
+      "main": [
+        [
+          {
+            "node": "محرك حساب التكاليف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "43bc09f6-c839-44ff-8bc9-2d8de29cb9ba",
+      "name": "تشغيل يدوي (بيانات تجريبية)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        240
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "977c9306-2f53-4332-a65f-bb109e23cb0b",
+      "name": "محرك حساب التكاليف",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const RATES={workPermitQuarter:2425,workPermitAnnual:9700,iqamaQuarter:163,iqamaAnnual:650,medicalInsuranceAnnualDefault:1000,medicalExamFee:300,fineFirst:500,fineSecond:1000,graceDays:3,currency:'ريال'};const SAMPLES=[{profession:'عامل',status:'existing',count:15,lateStage:'none'},{profession:'فني',status:'new',count:3,lateStage:'none'},{profession:'مهندس',status:'existing',count:2,lateStage:'first'}];function num(v){var n=Number(v);return isFinite(n)?n:0;}var raw=$input.all().map(function(i){return i.json;}).filter(function(j){return j&&(j.profession||j['المهنة']||j.status||j['الحالة']||j.count||j['العدد']);});var rows=raw.length?raw:SAMPLES;var out=rows.map(function(w){var profession=w.profession||w['المهنة']||'—';var status=(w.status||w['الحالة']||'existing');var isNew=(status==='new'||status==='جديد');var count=num(w.count!=null?w.count:(w['العدد']!=null?w['العدد']:1))||1;var medAnnual=num(w.medicalInsuranceAnnual!=null?w.medicalInsuranceAnnual:RATES.medicalInsuranceAnnualDefault);var medQuarter=Math.round(medAnnual/4);var lateStage=(w.lateStage||w['تأخير']||'none');var fine=(lateStage==='first'||lateStage==='الأولى')?RATES.fineFirst:((lateStage==='second'||lateStage==='الثانية')?RATES.fineSecond:0);var quarterlyPerWorker=RATES.workPermitQuarter+RATES.iqamaQuarter+medQuarter+fine;var medExam=isNew?RATES.medicalExamFee:0;var annualPerWorker=RATES.workPermitAnnual+RATES.iqamaAnnual+medAnnual+medExam;var firstYearNew=isNew?(annualPerWorker-(RATES.workPermitQuarter+RATES.iqamaQuarter)):null;return {json:{profession:profession,status:isNew?'جديد (أول دخول)':'قائم',count:count,medicalInsuranceAnnual:medAnnual,fine:fine,workPermitQuarter:RATES.workPermitQuarter,iqamaQuarter:RATES.iqamaQuarter,medicalExam:medExam,quarterlyPerWorker:quarterlyPerWorker,annualPerWorker:annualPerWorker,firstYearNew:firstYearNew,lineQuarterly:quarterlyPerWorker*count,lineAnnual:annualPerWorker*count,note:'تقديري — تُعتمد الأرقام الرسمية من قوى/مقيم/الجوازات قبل التسعير'}};});return out;"
+      }
+    },
+    {
+      "id": "7db9db87-0f43-4458-9dc7-50ef9d228423",
+      "name": "بناء عرض التكلفة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "var items=$input.all().map(function(i){return i.json;});function num(v){var n=Number(v);return isFinite(n)?n:0;}var esc=function(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};var fmt=function(n){return String(Math.round(num(n))).replace(/\\B(?=(\\d{3})+(?!\\d))/g,',');};var totalWorkers=0,totalQuarter=0,totalAnnual=0;for(var i=0;i<items.length;i++){totalWorkers+=num(items[i].count);totalQuarter+=num(items[i].lineQuarterly);totalAnnual+=num(items[i].lineAnnual);}var td='padding:10px 8px;border-bottom:1px solid #EEF1F4';var rows='';for(var j=0;j<items.length;j++){var it=items[j];var bg=(j%2)?'#F9FAFB':'#FFFFFF';var fineTxt=it.fine>0?(' <span style=\"color:#C0392B;font-size:10px\">+غرامة '+fmt(it.fine)+'</span>'):'';rows+='<tr style=\"background:'+bg+'\">'+'<td style=\"'+td+'\"><b style=\"color:#0B4F6C\">'+esc(it.profession)+'</b>'+fineTxt+'</td>'+'<td style=\"'+td+';text-align:center;color:#6B7280;font-size:11px\">'+esc(it.status)+'</td>'+'<td style=\"'+td+';text-align:center\">'+it.count+'</td>'+'<td style=\"'+td+';text-align:center\">'+fmt(it.quarterlyPerWorker)+'</td>'+'<td style=\"'+td+';text-align:center\">'+fmt(it.annualPerWorker)+'</td>'+'<td style=\"'+td+';text-align:center;font-weight:700;color:#0B4F6C\">'+fmt(it.lineQuarterly)+'</td>'+'<td style=\"'+td+';text-align:center;font-weight:700;color:#0B4F6C\">'+fmt(it.lineAnnual)+'</td>'+'</tr>';}var tile=function(v,l,col){return '<td width=\"33%\" style=\"padding:0 6px\"><div style=\"background:#fff;border:1px solid #EAEDF0;border-radius:14px;padding:16px;text-align:center\"><div style=\"font-size:24px;font-weight:800;color:'+col+'\">'+v+'</div><div style=\"font-size:12px;color:#6B7280;margin-top:6px\">'+l+'</div></div></td>';};var tiles='<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:16px 0\"><tr>'+tile(totalWorkers,'عدد العمّال','#0B4F6C')+tile(fmt(totalQuarter)+' ريال','الإجمالي الربعي','#C79A3A')+tile(fmt(totalAnnual)+' ريال','الإجمالي السنوي','#0B4F6C')+'</tr></table>';var html='<!DOCTYPE html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"></head><body style=\"margin:0;background:#F4F6F8;font-family:Tahoma,Arial,sans-serif;color:#1F2937\"><div style=\"max-width:760px;margin:0 auto;padding:24px 16px\"><div style=\"background:#0B4F6C;border-radius:18px;padding:22px;color:#fff\"><div style=\"font-size:12px;letter-spacing:1px;color:#BFE3ED;font-weight:600\">BUSINESS PARTNER · حاسبة التكاليف الحكومية</div><div style=\"font-size:22px;font-weight:800;margin-top:6px\">💰 عرض تكلفة تقديري</div><div style=\"font-size:13px;color:#D7EAF0;margin-top:6px\">رخصة العمل (قوى) · الإقامة (مقيم) · التأمين الطبي · الغرامات</div></div>'+tiles+'<div style=\"background:#fff;border:1px solid #EAEDF0;border-radius:16px;overflow:hidden;margin-top:16px\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse;font-size:12px\"><thead><tr style=\"background:#0B4F6C;color:#fff\"><th style=\"padding:10px 8px;text-align:right\">المهنة</th><th style=\"padding:10px 8px;text-align:center\">الحالة</th><th style=\"padding:10px 8px;text-align:center\">العدد</th><th style=\"padding:10px 8px;text-align:center\">ربعي/عامل</th><th style=\"padding:10px 8px;text-align:center\">سنوي/عامل</th><th style=\"padding:10px 8px;text-align:center\">إجمالي ربعي</th><th style=\"padding:10px 8px;text-align:center\">إجمالي سنوي</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style=\"background:#F1F6F8;border:1px solid #DCE8ED;border-radius:14px;padding:14px;margin-top:16px;font-size:11px;color:#365a67;line-height:1.8\">📋 الأساس المستخدم (قابل للتعديل): رخصة العمل ≈ 2,425 ريال/ربع (9,700/سنة) · الإقامة ≈ 163 ريال/ربع (650/سنة) · تأمين طبي افتراضي 1,000/سنة · فحص طبي 300 (للجديد) · غرامة تأخير: الأولى 500 · الثانية 1,000. العامل الجديد له 3 أشهر مجانية عند أول دخول.</div><div style=\"background:#FFFBEB;border:1px solid #FDE8B5;border-radius:14px;padding:14px;margin-top:12px;font-size:12px;color:#8A6D3B;line-height:1.7\">⚖️ الأرقام تقديرية للتوضيح — تُعتمد القيم الرسمية من حساباتك في قوى/مقيم/الجوازات قبل تثبيت أي تسعير للعميل.</div><div style=\"text-align:center;color:#9AA3AD;font-size:11px;margin-top:16px\">🤖 حاسبة التكاليف · n8n · Business Partner Platform 3.0</div></div></body></html>';return [{json:{html:html,totalWorkers:totalWorkers,totalQuarter:totalQuarter,totalAnnual:totalAnnual,subject:'عرض تكلفة تقديري — '+totalWorkers+' عامل'}}];"
+      }
+    },
+    {
+      "id": "1e6bcb3b-98ca-4228-af33-cdb914080355",
+      "name": "استقبال بيانات العمّال",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        460
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "id": "d2Hckm4D2WfUZrq2",
+  "name": "🗝️ SS — Agent Names (ss-names)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "3efc41a8-730d-44c6-bd6a-0916f9e6f450",
+  "activeVersionId": "3efc41a8-730d-44c6-bd6a-0916f9e6f450",
+  "triggerCount": 1,
+  "nodeCount": 8,
+  "createdAt": "2026-07-17T01:36:35.695Z",
+  "updatedAt": "2026-07-17T01:36:43.232Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "حفظ أسماء الوكلاء المخصصة لكل عميل: webhook ss-names {code,names} → تحقق من الرمز في SS Clients → حفظ JSON الأسماء في خاصية AgentNames → {ok,names}. demo123 والرموز غير الصحيحة تُرفض.",
+  "connections": {
+    "Names Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep": {
+      "main": [
+        [
+          {
+            "node": "Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Build Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Update": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Save Names",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Names": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "3e2828d0-7b3a-4f29-86bb-ac4a33ad6c05",
+      "name": "Names Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ss-names",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "a2acbceb-dda7-4fd6-8ccf-72df0aefe302"
+    },
+    {
+      "id": "96b1f235-f722-4160-8193-6a239f11ab30",
+      "name": "Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const b=$input.first().json.body||{};const code=((b.code||'')+'').trim().toUpperCase();const raw=(b.names&&typeof b.names==='object')?b.names:{};const ALLOWED=['khaled','baher','mazen','nasser','mishari','abdulrahman','abdulaziz','badr','farah','malak','mohammed','abdullah','ahmed','strategy'];const names={};for(const k of ALLOWED){const v=raw[k];if(typeof v==='string'){const t=v.trim().slice(0,40);if(t)names[k]=t;}}const ok=!!code&&code!=='DEMO123';const qBody=JSON.stringify({filter:{property:'الرمز',rich_text:{equals:ok?code:'NONE'}}});return [{json:{code:code,ok:ok,names:names,namesStr:JSON.stringify(names),qBody:qBody}}];"
+      }
+    },
+    {
+      "id": "49784a8e-56db-4ac8-8290-71ac2daefe5f",
+      "name": "Lookup Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/39fd108dee5c81328a17cfe65d281688/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Prep').first().json.qBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "80695411-8871-4cf1-abff-99f725e1576b",
+      "name": "Build Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pre=$('Prep').first().json;const r=$input.first().json.results||[];if(!pre.ok||!r.length){return [{json:{ok:false}}];}const p=r[0].properties||{};const st=((p['الحالة']||{}).select||{}).name||'نشط';if(st!=='نشط'){return [{json:{ok:false}}];}const pageId=r[0].id;const patchBody=JSON.stringify({properties:{'AgentNames':{rich_text:[{text:{content:pre.namesStr.slice(0,1900)}}]}}});return [{json:{ok:true,url:'https://api.notion.com/v1/pages/'+pageId,patchBody:patchBody,names:pre.names}}];"
+      }
+    },
+    {
+      "id": "17d018cd-2e88-4be7-88b3-aa8230b19c28",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "6b107cfb-2064-4cc4-bd40-9e858552b0a2",
+      "name": "Save Names",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Build Update').first().json.patchBody }}",
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "id": "966e1098-6041-48b0-9719-f90e983ba4dc",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1320,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ok:true,names:$('Build Update').first().json.names}) }}"
+      }
+    },
+    {
+      "id": "e7bb6511-756c-42c6-a48c-7ec975466009",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1100,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false}"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

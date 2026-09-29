@@ -1,0 +1,879 @@
+{
+  "id": "Sn2vTAQzU1PuWuDs",
+  "name": "BP-Sub-Documents",
+  "active": true,
+  "isArchived": false,
+  "versionId": "4fd9572a-ee62-4d9a-827b-19136c43506e",
+  "activeVersionId": "4fd9572a-ee62-4d9a-827b-19136c43506e",
+  "triggerCount": 0,
+  "nodeCount": 20,
+  "createdAt": "2026-06-29T12:55:51.280Z",
+  "updatedAt": "2026-09-29T20:01:32.845Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When Called by Main": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - File Identity Extractor": {
+      "main": [
+        [
+          {
+            "node": "Prepare Client Folder Data Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "Merge Folder With Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - File Identity Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Download Media File": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get WhatsApp Media URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Download Media File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Client Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "Merge Existing Folder With Binary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - File Identity Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Existing Folder With Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload file Existing Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Folder With Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload file New Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Client Folder Data Code": {
+      "main": [
+        [
+          {
+            "node": "Search Existing Client Folder in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Final Notion Record": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Existing Client Folder in Notion": {
+      "main": [
+        [
+          {
+            "node": "IF Client Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file Existing Folder": {
+      "main": [
+        [
+          {
+            "node": "Prepare Final Notion Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file New Folder": {
+      "main": [
+        [
+          {
+            "node": "Prepare Final Notion Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get WhatsApp Media URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - File Identity Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trg-doc-0001",
+      "name": "When Called by Main",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=File name:\n{{$binary.data.fileName}}\n\nMime type:\n{{$binary.data.mimeType}}\n\nExtracted text:\n{{$json.text || \"\"}}",
+        "options": {
+          "systemMessage": "You are a Saudi business document identifier.\n\nRead the extracted text from the uploaded WhatsApp file.\n\nExtract only the following fields:\n\nclient_name:\n- If the sender name is available, use it.\n- If not available, use company_name.\n- If not available, use WhatsApp phone number.\n\ncompany_name:\n- Extract the legal company or establishment name from the document.\n\ncr_number:\n- Extract Commercial Registration number if available.\n\nunified_number:\n- Extract Unified Number / الرقم الموحد if available.\n\ndocument_type:\n- Identify the document type such as:\nCommercial Registration, National Address, MISA License, ZATCA Certificate, GOSI Certificate, ID, Iqama, Power of Attorney, Contract, Invoice, Bank Letter, Other.\n\ndocument_date:\n- Extract document issue date or expiry date if available.\n\nRules:\n- Return valid JSON only.\n- Do not explain.\n- If a value is missing, return empty string.\n- Prefer Arabic official names exactly as written.\n\nIMPORTANT:\nIf the OCR text is messy, still try to extract the company name from Arabic government document text.\n\nLook for company names near these words:\n- اسم المنشأة\n- اسم الشركة\n- الاسم التجاري\n- السجل التجاري\n- شهادة تسجيل\n- المركز السعودي للأعمال\n- Ministry of Commerce\n- Commercial Registration\n\nNever use WhatsApp number as company_name.\nIf company name is not found, return empty string.",
+          "maxIterations": 5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        300,
+        300
+      ],
+      "id": "f388404e-0c5b-417c-b542-37a1b0fefd26",
+      "name": "AI Agent - File Identity Extractor"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "156ee105-94d0-44a5-9d6a-adfad695ab0e",
+          "mode": "list",
+          "cachedResultName": "📄 Documents Repository",
+          "cachedResultUrl": "https://app.notion.com/p/156ee10594d044a59d6aadfad695ab0e"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Document ID|title",
+              "title": "={{ String($json.document_id || (\"DOC-\" + Date.now())) }}"
+            },
+            {
+              "key": "Client Name|rich_text",
+              "textContent": "={{ String($json.client_name || $json.company_name || $json.cr_number || $json.document_number || \"Unknown Client\") }}"
+            },
+            {
+              "key": "Company Name|rich_text",
+              "textContent": "={{ String($json.company_name || $json.client_name || $json.cr_number || $json.document_number || \"Unknown Company\") }}"
+            },
+            {
+              "key": "Document Type|select",
+              "selectValue": "={{ $json.document_type || \"OTHER\" }}"
+            },
+            {
+              "key": "AI Classification|select",
+              "selectValue": "={{ $json.ai_classification || $json.document_type || \"OTHER\" }}"
+            },
+            {
+              "key": "Document Number|rich_text",
+              "textContent": "={{ String($json.document_number || $json.cr_number || \"\") }}"
+            },
+            {
+              "key": "Commercial Registration Number|rich_text",
+              "textContent": "={{ String($json.cr_number || \"\") }}"
+            },
+            {
+              "key": "File Name|rich_text",
+              "textContent": "={{ $json.original_file_name || $json.file_name || \"\" }}"
+            },
+            {
+              "key": "Stored File Name|rich_text",
+              "textContent": "={{ String($json.stored_file_name || $json.file_name || \"\") }}"
+            },
+            {
+              "key": "File MIME Type|rich_text",
+              "textContent": "={{ $json.mime_type || \"application/pdf\" }}"
+            },
+            {
+              "key": "File Size|number",
+              "numberValue": "={{ Number($json.file_size || 0) }}"
+            },
+            {
+              "key": "Google Drive File ID|rich_text",
+              "textContent": "={{ String($json.google_drive_file_id || \"\") }}"
+            },
+            {
+              "key": "Google Drive File Link|url",
+              "urlValue": "={{ $json.google_drive_file_link || $json.google_drive_url || null }}"
+            },
+            {
+              "key": "Google Drive Folder ID|rich_text",
+              "textContent": "={{ String($json.google_drive_folder_id || \"\") }}"
+            },
+            {
+              "key": "Google Drive Folder Link|url",
+              "ignoreIfEmpty": true,
+              "urlValue": "={{ $json.google_drive_folder_link || \"\" }}"
+            },
+            {
+              "key": "Google Drive Folder Name|rich_text",
+              "textContent": "={{ String($json.google_drive_folder_name || \"\") }}"
+            },
+            {
+              "key": "Google Drive URL|url",
+              "urlValue": "={{ $json.google_drive_url || $json.google_drive_file_link || null }}"
+            },
+            {
+              "key": "Source Channel|select",
+              "selectValue": "={{ $json.source_channel || \"WhatsApp\" }}"
+            },
+            {
+              "key": "Analysis Status|select",
+              "selectValue": "={{ $json.analysis_status || \"Uploaded\" }}"
+            },
+            {
+              "key": "Document Status|status",
+              "statusValue": "Saved"
+            },
+            {
+              "key": "Review Status|select",
+              "selectValue": "Pending Review"
+            },
+            {
+              "key": "AI Processed|checkbox",
+              "checkboxValue": "={{ true }}"
+            },
+            {
+              "key": "OCR Extracted Text|rich_text",
+              "textContent": "={{ $json.ocr_text || $json.text || \"\" }}"
+            },
+            {
+              "key": "AI Summary|rich_text",
+              "textContent": "={{ $json.summary || \"\" }}"
+            },
+            {
+              "key": "Summary|rich_text",
+              "textContent": "={{ $json.summary || \"\" }}"
+            },
+            {
+              "key": "Entity Type|select",
+              "selectValue": "={{ $json.entity_type || \"Other\" }}"
+            },
+            {
+              "key": "Document Category|select",
+              "selectValue": "={{ $json.document_category || \"Compliance Review\" }}"
+            },
+            {
+              "key": "File Name|rich_text",
+              "textContent": "={{ String($json.file_name || \"\") }}"
+            },
+            {
+              "key": "ًWhatsApp Number|phone_number",
+              "phoneValue": "={{ $json.whatsapp_number || null }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        490,
+        300
+      ],
+      "id": "0dd7c597-04cc-4668-8308-839023f0ca7d",
+      "name": "Create a database page",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{$node[\"Prepare Client Folder Data Code\"].json.google_drive_folder_name}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1cZRyBDxSDcr9y8zYfN9huVPKd8ooO07g",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        680,
+        300
+      ],
+      "id": "a3271c47-e5e6-4232-ad7c-446c31323bf7",
+      "name": "Create folder",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        870,
+        300
+      ],
+      "id": "6611f4c6-15e6-4cfd-b55f-5f691d91c45b",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "sendHeaders": false,
+        "headerParameters": {},
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 30000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1060,
+        300
+      ],
+      "id": "d2f07776-cd71-48ea-8ee7-e181be4c04cd",
+      "name": "HTTP Request - Download Media File",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v20.0/{{ $json._raw.messages[0].document?.id || $json._raw.messages[0].image?.id }}",
+        "sendHeaders": false,
+        "headerParameters": {},
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1250,
+        300
+      ],
+      "id": "56297a9a-e121-4272-a586-a10b99ab3d3e",
+      "name": "HTTP Request - Get WhatsApp Media URL",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f94a8f08-26f1-409d-95ba-8d055069b943",
+              "leftValue": "={{ $json.property_google_drive_folder_id || \"\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        300
+      ],
+      "id": "3e98772a-8172-40ea-8878-d00309dbfc1c",
+      "name": "IF Client Folder Exists"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a2618ae6-70ee-4f7f-82b5-58445882aea0",
+              "leftValue": "={{$binary.data.mimeType}}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1630,
+        300
+      ],
+      "id": "b7879578-3aeb-4349-ac85-cf372e2fd1a1",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prepare Client Folder Data Code').first().json;\nconst notion = $('Search Existing Client Folder in Notion').first().json;\nconst download = $('HTTP Request - Download Media File').first();\n\nconst folderId =\n  notion.property_google_drive_folder_id ||\n  notion.google_drive_folder_id ||\n  '';\n\nif (!folderId) {\n  throw new Error('No Google Drive Folder ID found in Notion record.');\n}\n\nif (!download.binary?.data) {\n  throw new Error('No binary.data found from HTTP Request - Download Media File.');\n}\n\nreturn [\n  {\n    json: {\n      ...prep,\n      target_folder_id: String(folderId).trim(),\n      google_drive_folder_id: String(folderId).trim(),\n      google_drive_folder_link:\n        notion.property_google_drive_folder_url ||\n        notion.google_drive_folder_url ||\n        '',\n      file_name: String(prep.file_name || download.binary.data.fileName || `document-${Date.now()}.pdf`)\n        .replace(/File Name:/gi, '')\n        .replace(/\\n/g, ' ')\n        .replace(/\\s+/g, ' ')\n        .trim()\n    },\n    binary: {\n      data: download.binary.data\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        300
+      ],
+      "id": "a1f230e4-848f-4096-8171-55d08106ee1f",
+      "name": "Merge Existing Folder With Binary"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prepare Client Folder Data Code').first().json;\nconst folder = $('Create folder').first().json;\nconst download = $('HTTP Request - Download Media File').first();\n\nconst folderId = folder.id || '';\n\nif (!folderId) {\n  throw new Error('No folder ID found from Create folder.');\n}\n\nif (!download.binary?.data) {\n  throw new Error('No binary.data found from HTTP Request - Download Media File.');\n}\n\nreturn [\n  {\n    json: {\n      ...prep,\n      target_folder_id: String(folderId).trim(),\n      google_drive_folder_id: String(folderId).trim(),\n      google_drive_folder_link: folder.webViewLink || folder.url || '',\n      google_drive_folder_name: prep.google_drive_folder_name,\n      file_name: String(prep.file_name || download.binary.data.fileName || `document-${Date.now()}.pdf`)\n        .replace(/File Name:/gi, '')\n        .replace(/\\n/g, ' ')\n        .replace(/\\s+/g, ' ')\n        .trim()\n    },\n    binary: {\n      data: download.binary.data\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2010,
+        300
+      ],
+      "id": "d99a451d-a309-4e48-a0be-7ce0181c60de",
+      "name": "Merge Folder With Binary"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2200,
+        300
+      ],
+      "id": "33ba3dbd-dd9a-4241-a64a-b22206d0f327",
+      "name": "OpenAI Chat Model5",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let ai = $json.output || $json;\n\nif (typeof ai === 'string') {\n  ai = ai.replace(/```json|```/g, '').trim();\n  try {\n    ai = JSON.parse(ai);\n  } catch (e) {\n    ai = {};\n  }\n}\n\nfunction clean(v) {\n  return String(v || '')\n    .replace(/[\\\\/:*?\"<>|#%{}~&]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nlet ocrText = '';\n\ntry {\n  ocrText = String($('Extract from File1').first().json.text || '');\n} catch (e) {\n  ocrText = '';\n}\n\nconst whatsappNumber =\n  clean($json._raw.messages?.[0]?.from || '');\n\nconst companyFromOCR =\n  ocrText.match(/(?:اسم المنشأة|اسم الشركة|الاسم التجاري|اسم المكلف|Taxpayer Name)\\s*[:：]?\\s*([^\\n]+)/i)?.[1] ||\n  ocrText.match(/Company(?:'s Trade Name)?\\s*[:：]?\\s*([^\\n]+)/i)?.[1] ||\n  '';\n\nconst crFromOCR =\n  ai.cr_number ||\n  ai.commercial_registration_number ||\n  ocrText.match(/(?:رقم السجل التجاري|السجل التجاري|Commercial Registration|CR Number)\\D*(\\d{10,15})/i)?.[1] ||\n  '';\n\nconst vatFromOCR =\n  ai.vat_number ||\n  ai.tax_number ||\n  ocrText.match(/(?:الرقم الضريبي|VAT Number|Tax Number)\\D*(\\d{10,20})/i)?.[1] ||\n  '';\n\nconst unifiedFromOCR =\n  ai.unified_number ||\n  ocrText.match(/(?:الرقم الموحد|National Unified No|Unified Number)\\D*(\\d{7,15})/i)?.[1] ||\n  '';\n\nconst companyName =\n  clean(ai.company_name) ||\n  clean(companyFromOCR);\n\nconst crNumber = clean(crFromOCR);\nconst vatNumber = clean(vatFromOCR);\nconst unifiedNumber = clean(unifiedFromOCR);\n\nlet clientFolderKey = '';\n\nif (crNumber) {\n  clientFolderKey = `CR-${crNumber}`;\n} else if (vatNumber) {\n  clientFolderKey = `VAT-${vatNumber}`;\n} else if (unifiedNumber) {\n  clientFolderKey = `UID-${unifiedNumber}`;\n} else if (whatsappNumber) {\n  clientFolderKey = `WA-${whatsappNumber}`;\n} else {\n  clientFolderKey = 'UNSORTED';\n}\n\nconst displayName =\n  companyName ||\n  clientFolderKey;\n\nconst googleDriveFolderName =\n  companyName\n    ? `${clientFolderKey} - ${companyName}`\n    : clientFolderKey;\n\nconst documentType =\n  clean(ai.document_type || ai.ai_classification || 'Document');\n\nconst today =\n  new Date().toISOString().slice(0, 10);\n\nconst primaryNumber =\n  crNumber || vatNumber || unifiedNumber || whatsappNumber || Date.now();\n\nconst safeDocumentType =\n  documentType\n    .replace(/\\s+/g, '_')\n    .replace(/[^\\w\\u0600-\\u06FF\\-]/g, '');\n\nconst fileName =\n  `${today}_${safeDocumentType}_${primaryNumber}.pdf`;\n\nreturn [\n  {\n    json: {\n      ...ai,\n\n      client_folder_key: clientFolderKey,\n      google_drive_folder_name: googleDriveFolderName,\n\n      client_name: displayName,\n      company_name: companyName,\n\n      cr_number: crNumber,\n      vat_number: vatNumber,\n      unified_number: unifiedNumber,\n\n      whatsapp_number: whatsappNumber,\n\n      document_type: documentType,\n      ai_classification: documentType,\n\n      document_number: primaryNumber,\n      file_name: fileName,\n      original_file_name: 'document.pdf',\n\n      source_channel: 'WhatsApp',\n      analysis_status: 'Uploaded',\n      document_status: 'Saved'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2390,
+        300
+      ],
+      "id": "41dbfa25-6bd9-4864-9040-b09e2088f511",
+      "name": "Prepare Client Folder Data Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const upload = $input.first();\nconst uploadJson = upload.json || {};\n\nconst prep = $(\"Prepare Client Folder Data Code\").first().json || {};\n\nconst fileId = uploadJson.id || \"\";\nconst uploadedFileName = uploadJson.name || prep.file_name || \"\";\nconst fileLink = fileId ? `https://drive.google.com/file/d/${fileId}/view` : null;\n\nconst folderId = prep.target_folder_id || uploadJson.parents?.[0] || prep.google_drive_folder_id || \"\";\nconst folderLink = folderId ? `https://drive.google.com/drive/folders/${folderId}` : null;\n\nreturn [\n  {\n    json: {\n      document_id: String(prep.document_id || `DOC-${Date.now()}`),\n\n      client_name: String(prep.client_name || \"Unknown Client\"),\n      company_name: String(prep.company_name || prep.client_name || \"Unknown Company\"),\n\n      whatsapp_number: prep.whatsapp_number ? String(prep.whatsapp_number) : null,\n\n      document_type: String(prep.document_type || \"OTHER\"),\n      ai_classification: String(prep.ai_classification || prep.document_type || \"OTHER\"),\n      document_category: String(prep.document_category || \"Compliance Review\"),\n\n      document_number: String(prep.document_number || \"\"),\n      cr_number: String(prep.cr_number || \"\"),\n\n      file_name: String(uploadedFileName || \"\"),\n      stored_file_name: String(uploadedFileName || \"\"),\n      original_file_name: String(prep.original_file_name || \"\"),\n\n      file_size: Number(uploadJson.size || prep.file_size || 0),\n      mime_type: String(uploadJson.mimeType || prep.mime_type || \"application/pdf\"),\n\n      google_drive_file_id: String(fileId || \"\"),\n      google_drive_file_link: fileLink,\n      google_drive_folder_id: String(folderId || \"\"),\n      google_drive_folder_link: folderLink,\n      google_drive_folder_name: String(prep.google_drive_folder_name || prep.client_folder_key || \"\"),\n\n      source_channel: \"WhatsApp\",\n      analysis_status: \"Uploaded\",\n      document_status: \"Saved\",\n      review_status: \"Pending Review\",\n      ai_processed: true,\n\n      ocr_text: String(prep.ocr_text || \"\")\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2580,
+        300
+      ],
+      "id": "0bdfddd3-3310-47de-9cea-4721ed10610b",
+      "name": "Prepare Final Notion Record"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "156ee105-94d0-44a5-9d6a-adfad695ab0e",
+          "mode": "list",
+          "cachedResultName": "📄 Documents Repository",
+          "cachedResultUrl": "https://app.notion.com/p/156ee10594d044a59d6aadfad695ab0e"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "ًWhatsApp Number|phone_number",
+              "condition": "equals",
+              "phoneNumberValue": "={{$json.whatsapp_number}}"
+            },
+            {
+              "key": "Google Drive Folder ID|rich_text",
+              "condition": "is_not_empty"
+            }
+          ]
+        },
+        "options": {
+          "sort": {
+            "sortValue": [
+              {
+                "key": "Last Updated|last_edited_time",
+                "direction": "descending"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2770,
+        300
+      ],
+      "id": "35a336e4-01e0-41f0-a7cc-88c33eda1670",
+      "name": "Search Existing Client Folder in Notion",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $json._raw.contacts[0].wa_id }}",
+        "textBody": "={{ \n\"تم استلام المستند وحفظه بنجاح ✅\\n\\n\" +\n\"نوع المستند: \" + ($json.property_document_type || $json.document_type || \"غير محدد\") + \"\\n\" +\n\"اسم الملف: \" + ($json.property_stored_file_name || $json.stored_file_name || $json.file_name || \"غير محدد\") + \"\\n\" +\n\"رقم المستند/السجل: \" + ($json.property_document_number || $json.document_number || $json.cr_number || \"غير محدد\") + \"\\n\\n\" +\n\"سيقوم فريق Business Partner بمراجعته والرد عليك قريبًا.\"\n}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2960,
+        300
+      ],
+      "id": "12f1f2f6-8b41-4b4f-bffd-4b36249e61b4",
+      "name": "Send message3",
+      "webhookId": "cb09e297-ee65-4944-9aad-5c1cd2ffdd9b",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{$json.file_name}}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$json.target_folder_id}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3150,
+        300
+      ],
+      "id": "88ea6873-47de-465f-9c5c-cc7c0580f853",
+      "name": "Upload file Existing Folder",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{$json.file_name}}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$json.target_folder_id}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3340,
+        300
+      ],
+      "id": "9edff643-d259-4152-bd23-8d550ce78397",
+      "name": "Upload file New Folder",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mHS45s95MuOJo4Ni",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3530,
+        300
+      ],
+      "id": "687e10fd-9770-4371-8343-2a38f7a7a2a7",
+      "name": "Wait",
+      "webhookId": "6cc74e9d-b5f5-44d9-8e47-33b5053abacf"
+    },
+    {
+      "id": "224584f9-d92f-4425-8e69-02ca9596fb50",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        660
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 1500,
+          "temperature": 0.2,
+          "timeout": 60000
+        }
+      },
+      "notes": "المحرّك الموحّد. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

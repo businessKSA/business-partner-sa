@@ -1,0 +1,1204 @@
+{
+  "id": "6jgqpWlBRbyncwTC",
+  "name": "🎛️ BP AI — Agent Control Center",
+  "active": true,
+  "isArchived": false,
+  "versionId": "d6fd2099-a918-4003-a16f-3f0ea3a00f09",
+  "activeVersionId": "d6fd2099-a918-4003-a16f-3f0ea3a00f09",
+  "triggerCount": 3,
+  "nodeCount": 23,
+  "createdAt": "2026-07-27T01:51:13.994Z",
+  "updatedAt": "2026-09-03T15:32:48.925Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Private live control center for Business Partner AI workforce: agents, tasks, deals, KPIs, pause/resume, autonomy and direct task commands.",
+  "connections": {
+    "GET Agent Control Center": {
+      "main": [
+        [
+          {
+            "node": "Read Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Agents": {
+      "main": [
+        [
+          {
+            "node": "Read Dashboard Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Dashboard Tasks": {
+      "main": [
+        [
+          {
+            "node": "Read Dashboard Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Dashboard Deals": {
+      "main": [
+        [
+          {
+            "node": "Read Dashboard KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Dashboard KPIs": {
+      "main": [
+        [
+          {
+            "node": "Read Control Commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Agent Control Action": {
+      "main": [
+        [
+          {
+            "node": "Normalize Control Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Control Action": {
+      "main": [
+        [
+          {
+            "node": "Log Control Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Control Command": {
+      "main": [
+        [
+          {
+            "node": "Control Action Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Control Action Router": {
+      "main": [
+        [
+          {
+            "node": "Pause Resume Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Agent Autonomy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Dashboard Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Control Redirect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Resume Agent": {
+      "main": [
+        [
+          {
+            "node": "Mark Control Command Applied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Agent Autonomy": {
+      "main": [
+        [
+          {
+            "node": "Mark Control Command Applied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Dashboard Task": {
+      "main": [
+        [
+          {
+            "node": "Mark Control Command Applied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Control Command Applied": {
+      "main": [
+        [
+          {
+            "node": "Respond Control Redirect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Control Commands": {
+      "main": [
+        [
+          {
+            "node": "Read Dashboard Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Dashboard Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Read Dashboard Integrations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Dashboard Integrations": {
+      "main": [
+        [
+          {
+            "node": "Build Control Center HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Voice Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Command Space Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Command Space Audio": {
+      "main": [
+        [
+          {
+            "node": "Return Voice Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Control Center HTML": {
+      "main": [
+        [
+          {
+            "node": "Reliable Virtual Baher Console",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reliable Virtual Baher Console": {
+      "main": [
+        [
+          {
+            "node": "Respond Control Center HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "de4b6816-8e1b-45b3-85a7-be698e0b0524",
+      "name": "GET Agent Control Center",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "6f6a19f4-aae1-4983-9a51-b94447f1b691"
+    },
+    {
+      "id": "d2a4d77d-b379-4f81-accd-d81453494ee2",
+      "name": "Read Agents",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "3d94c2b2-b3e4-48ac-ae1d-3611daf4defe",
+      "name": "Read Dashboard Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "ff42c993-4604-4667-9a1b-e5140e543f53",
+      "name": "Read Dashboard Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "5777e542-f499-4d89-a58a-0bf9672007d4",
+      "name": "Read Dashboard KPIs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KRfMyEXXl3n48A9q",
+          "cachedResultName": "BP_AI_Performance"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "snapshot_date",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "16309873-ca16-4030-bc1d-0fea853fb00f",
+      "name": "Read Control Commands",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "wn10StDKiC4OHjUK",
+          "cachedResultName": "BP_AI_Control_Commands"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 30,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "679a101b-964b-4e81-891e-b8f2e222bd59",
+      "name": "Build Control Center HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows=(n)=>{try{return $items(n).map(x=>x.json||{}).filter(x=>Object.keys(x).length);}catch(e){return[];}};\nconst agents=rows('Read Agents'),tasks=rows('Read Dashboard Tasks'),deals=rows('Read Dashboard Deals'),kpis=rows('Read Dashboard KPIs');\nconst esc=v=>String(v??'').replace(/[&<>\\\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;',\"'\":'&#39;'}[c]));\nconst money=v=>Number(v||0).toLocaleString('en-US');\nconst dt=v=>{if(!v)return '—';const d=new Date(v);return isNaN(d.getTime())?'—':d.toLocaleString('ar-SA',{timeZone:'Asia/Riyadh',dateStyle:'short',timeStyle:'short'});};\nconst activeDeals=deals.filter(d=>!['delivered','lost','cancelled','canceled'].includes(String(d.stage||'').toLowerCase()));\nconst openTasks=tasks.filter(t=>['queued','in_progress','waiting'].includes(String(t.status||'').toLowerCase()));\nconst humanTasks=openTasks.filter(t=>t.human_action_required===true||t.assigned_to_agent==='baher_owner');\nconst paidBlocked=deals.filter(d=>Number(d.paid_amount||0)>0&&!['completed','delivered'].includes(String(d.execution_status||'').toLowerCase())&&String(d.stage||'').toLowerCase()!=='delivered');\nconst pipeline=activeDeals.reduce((s,d)=>s+Number(d.deal_value||d.quoted_amount||0),0);\nconst collected=deals.reduce((s,d)=>s+Number(d.paid_amount||0),0);\nconst enabledCount=agents.filter(a=>a.enabled!==false&&!['paused','disabled','maintenance','offline'].includes(String(a.status||'').toLowerCase())).length;\nconst action='https://businesspartnerai.app.n8n.cloud/webhook/bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66-action';\nconst departments=[\n{id:'farah_marketing',label:'فرح — التسويق',en:'Marketing',icon:'🎯',color:'#d946ef'},\n{id:'badr_sales',label:'بدر — المبيعات وتطوير الأعمال',en:'Sales & BD',icon:'📈',color:'#22d3ee'},\n{id:'mohammed_it',label:'محمد — تقنية المعلومات',en:'IT',icon:'💻',color:'#38bdf8'},\n{id:'abdulrahman_cfo',label:'عبدالرحمن — المالية',en:'Finance',icon:'💰',color:'#fbbf24'},\n{id:'abdulaziz_legal',label:'عبدالعزيز — القانوني',en:'Legal',icon:'⚖️',color:'#c084fc'},\n{id:'mazen_ops',label:'مازن — العمليات',en:'Operations',icon:'⚙️',color:'#60a5fa'},\n{id:'nasser_hr',label:'ناصر — الموارد البشرية',en:'HR',icon:'👥',color:'#2dd4bf'},\n{id:'mishari_compliance',label:'مشاري — الامتثال والمنصات',en:'Compliance & GRO',icon:'🛡️',color:'#34d399'},\n{id:'website_funnel_ops',label:'سلمان — المنتج الرقمي والفانل',en:'Digital Product & Funnel',icon:'🧩',color:'#f59e0b'},\n{id:'ahmed_strategy',label:'أحمد — الاستراتيجية و PMO',en:'Strategy & PMO',icon:'🧠',color:'#06b6d4'}\n];\nconst byId=Object.fromEntries(agents.map(a=>[a.agent_id,a]));\nconst taskCount=id=>openTasks.filter(t=>t.assigned_to_agent===id).length;\nconst teamFor=id=>agents.filter(a=>a.reports_to===id||a.reports_to===String(byId[id]?.agent_name||''));\nconst deptCards=departments.map((d,i)=>{const a=byId[d.id]||{};const st=String(a.status||'active').toLowerCase();const on=a.enabled!==false&&!['paused','disabled','maintenance','offline'].includes(st);const angle=(i/departments.length)*Math.PI*2-Math.PI/2;const radius=38;const x=50+Math.cos(angle)*radius;const y=50+Math.sin(angle)*radius;return '<button class=\"dept-node '+(on?'on':'off')+'\" style=\"--c:'+d.color+';left:'+x+'%;top:'+y+'%\" onclick=\"openDept(\\''+d.id+'\\')\"><span class=\"orb-icon\">'+d.icon+'</span><b>'+esc(d.label)+'</b><small>'+esc(d.en)+'</small><em>'+taskCount(d.id)+' مهام</em></button>';}).join('');\nconst teamPanels=departments.map(d=>{const mgr=byId[d.id]||{};const team=teamFor(d.id);const members=[mgr,...team].filter(x=>x&&Object.keys(x).length);const membersHtml=members.map(m=>{const st=String(m.status||'active').toLowerCase();const on=m.enabled!==false&&!['paused','disabled','maintenance','offline'].includes(st);return '<div class=\"member\"><div class=\"member-main\"><span class=\"avatar\">'+esc((m.agent_name||m.role||'AI').slice(0,2))+'</span><div><b>'+esc(m.agent_name||m.role||m.agent_id||'AI Agent')+'</b><small>'+esc(m.role||m.mission||'')+'</small></div></div><div class=\"member-meta\"><span class=\"status '+(on?'good':'bad')+'\">'+(on?'نشط':'متوقف')+'</span><span>'+taskCount(m.agent_id||'')+' مهام</span><span>'+esc(m.autonomy_level||m.permissions_level||'L2')+'</span><span>'+dt(m.last_heartbeat)+'</span></div></div>';}).join('')||'<div class=\"empty\">لا يوجد أعضاء مسجلون بعد</div>';return '<section id=\"panel-'+d.id+'\" class=\"dept-panel\"><header><div><h3>'+d.icon+' '+esc(d.label)+'</h3><p>'+esc(d.en)+' Department</p></div><button onclick=\"closeDept()\">✕</button></header><div class=\"panel-kpis\"><span>👥 '+members.length+' أعضاء</span><span>📌 '+taskCount(d.id)+' مهام المدير</span><span>❤️ '+esc(mgr.health_status||'unknown')+'</span><span>⚡ '+esc(mgr.autonomy_level||'L2')+'</span></div><div class=\"member-list\">'+membersHtml+'</div></section>';}).join('');\nconst taskRows=openTasks.slice(0,14).map(t=>'<div class=\"stream-row\"><span class=\"prio '+esc(t.priority||'P2')+'\">'+esc(t.priority||'P2')+'</span><div><b>'+esc(t.objective||'مهمة')+'</b><small>'+esc(t.client_name||'داخلي')+' · '+esc(t.assigned_to_agent||'—')+'</small></div><span class=\"stream-status\">'+esc(t.status||'')+'</span></div>').join('')||'<div class=\"empty\">لا توجد مهام مفتوحة</div>';\nconst dealRows=activeDeals.slice(0,8).map(d=>'<div class=\"deal\"><div><b>'+esc(d.client_name||'عميل')+'</b><small>'+esc(d.service||'')+'</small></div><span>'+esc(d.stage||'lead')+'</span><strong>'+money(d.deal_value||d.quoted_amount||0)+' ر.س</strong></div>').join('')||'<div class=\"empty\">لا توجد صفقات</div>';\nconst kpiRows=kpis.slice(0,6).map(k=>'<div class=\"kpi-row\"><span>'+esc(k.department||'قسم')+'</span><div class=\"bar\"><i style=\"width:'+Math.min(100,Number(k.score||0))+'%\"></i></div><b>'+Number(k.score||0)+'%</b></div>').join('')||'<div class=\"empty\">لا توجد KPI بعد</div>';\nconst agentOpts=agents.map(a=>'<option value=\"'+esc(a.agent_id)+'\">'+esc(a.agent_name||a.agent_id)+' — '+esc(a.role||a.department||'')+'</option>').join('');\nconst html='<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta name=\"robots\" content=\"noindex,nofollow\"><title>Business Partner AI Space Command</title><style>*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#020817;color:#eaf4ff;font-family:Inter,Tahoma,Arial,sans-serif}body{background:radial-gradient(circle at 50% 45%,#0b2a59 0,#05142d 28%,#020817 58%,#01040c 100%);overflow-x:hidden}.stars:before,.stars:after{content:\"\";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#8bdcff 1px,transparent 1px);background-size:46px 46px;opacity:.12}.stars:after{background-size:93px 93px;opacity:.08;transform:translate(20px,30px)}.shell{max-width:1800px;margin:auto;padding:18px;position:relative}.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding:14px 18px;border:1px solid #0e4f83;background:linear-gradient(180deg,#07152ddd,#040b18dd);box-shadow:0 0 30px #00a8ff22,inset 0 0 30px #0d5a8822}.brand{text-align:center}.brand b{font-size:28px}.brand span{display:block;color:#e7b64b;font-size:12px;letter-spacing:3px}.sys{font-size:12px;color:#9ac8e8}.sys strong{color:#51f3b4}.portrait{justify-self:start;display:flex;align-items:center;gap:10px}.pic{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#183d6c,#071222);border:2px solid #29c8ff;box-shadow:0 0 20px #29c8ff88;font-size:22px}.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:12px 0}.metric{background:#061126cc;border:1px solid #124f7e;border-radius:10px;padding:12px}.metric small{color:#7ea9c8}.metric b{display:block;font-size:21px;margin-top:5px}.main{display:grid;grid-template-columns:340px minmax(600px,1fr) 390px;gap:12px}.panel{background:linear-gradient(180deg,#061126e8,#030b18e8);border:1px solid #0e4e7c;border-radius:12px;box-shadow:0 0 26px #0ba4ff12,inset 0 0 18px #10365a1f}.panel h2{font-size:14px;margin:0;padding:12px 14px;border-bottom:1px solid #113a5c;color:#a9e7ff}.leftcol,.rightcol{display:flex;flex-direction:column;gap:12px}.stream{padding:8px}.stream-row{display:grid;grid-template-columns:40px 1fr auto;gap:8px;padding:9px;border-bottom:1px solid #0d2944}.stream-row b{font-size:12px}.stream-row small{display:block;color:#789ab6;font-size:10px;margin-top:3px}.prio{font-size:10px;border-radius:7px;padding:5px;text-align:center;background:#20334e}.prio.P0{background:#641d2a;color:#ff8799}.prio.P1{background:#5a3d11;color:#ffd36d}.stream-status{font-size:10px;color:#4ef0aa}.deal{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:10px 12px;border-bottom:1px solid #0d2944}.deal small{display:block;color:#799ab6}.deal strong{color:#61f6c1}.kpis{padding:10px}.kpi-row{display:grid;grid-template-columns:120px 1fr 42px;gap:8px;align-items:center;margin:10px 0;font-size:11px}.bar{height:6px;background:#0b1a2e;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#00d1ff,#34f5a8)}.galaxy{position:relative;min-height:720px;overflow:hidden}.orbits{position:absolute;inset:3%;border-radius:50%;background:radial-gradient(circle at center,#0f4c8e44 0,#06101e00 50%)}.ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid #1498ff44;border-radius:50%}.r1{width:40%;height:40%}.r2{width:61%;height:61%}.r3{width:82%;height:82%}.core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:190px;height:190px;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#0d65bb 0,#073b75 35%,#03152d 68%);border:3px solid #3bc5ff;box-shadow:0 0 24px #29bfff,0 0 90px #157cff88,inset 0 0 30px #7adfff}.core b{font-size:25px}.core span{display:block;color:#8ed9ff;margin-top:4px}.dept-node{position:absolute;transform:translate(-50%,-50%);width:190px;min-height:66px;border:1px solid var(--c);background:#061125ea;color:white;border-radius:50px;box-shadow:0 0 25px var(--c);cursor:pointer;padding:8px 12px;z-index:3}.dept-node:hover{scale:1.05;z-index:5}.dept-node.off{opacity:.45;filter:grayscale(.4)}.dept-node b{display:block;font-size:12px}.dept-node small{display:block;color:#8caac1;font-size:10px}.dept-node em{font-style:normal;color:var(--c);font-size:9px}.orb-icon{font-size:20px;float:right;margin-left:8px}.dept-panel{display:none;position:absolute;inset:16px;z-index:20;background:#041022f2;border:1px solid #bc52ff;border-radius:14px;box-shadow:0 0 50px #7527ff55;backdrop-filter:blur(8px);overflow:auto}.dept-panel.open{display:block}.dept-panel header{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #2b245a}.dept-panel header h3{margin:0}.dept-panel header p{margin:4px 0 0;color:#a98fd6;font-size:11px}.dept-panel header button{background:#231943;border:0;color:white;border-radius:8px;padding:8px 10px;cursor:pointer}.panel-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}.panel-kpis span{background:#07192f;border:1px solid #183b5d;border-radius:8px;padding:9px;font-size:11px}.member-list{padding:10px}.member{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid #15314d}.member-main{display:flex;gap:9px;align-items:center}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#102c4f;border:1px solid #2aa5e8;color:#8be4ff}.member b{font-size:12px}.member small{display:block;color:#7f9cb5;font-size:10px;margin-top:3px}.member-meta{display:grid;grid-template-columns:repeat(4,auto);gap:12px;align-items:center;font-size:10px;color:#a6c7dd}.status{padding:4px 8px;border-radius:20px}.good{background:#0f3e34;color:#4cf1b3}.bad{background:#4a1c26;color:#ff8e9d}.controls{padding:12px}.control-row{display:grid;grid-template-columns:1fr auto auto;gap:8px}.control-row select,.control-row input,.control-row textarea,.control-row button{background:#07172b;color:white;border:1px solid #175382;border-radius:8px;padding:9px}.control-row button{background:linear-gradient(90deg,#0b7de8,#3bcbff);border:0;cursor:pointer}.command-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.command-form textarea,.command-form input,.command-form select{background:#07172b;color:#dff5ff;border:1px solid #174a71;border-radius:8px;padding:9px}.command-form textarea{grid-column:1/-1;min-height:74px}.command-form button{grid-column:1/-1;background:linear-gradient(90deg,#0f82ff,#7a42ff);color:#fff;border:0;border-radius:8px;padding:10px;cursor:pointer}.voice{margin-top:10px;padding:10px;border:1px solid #164d72;border-radius:10px;background:#061221}.wave{height:24px;background:repeating-linear-gradient(90deg,#31d2ff 0 2px,transparent 2px 7px);opacity:.6}.roadmap{padding:12px}.steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.step{padding:8px 10px;background:#07182e;border:1px solid #16446b;border-radius:9px;font-size:10px}.step.done{border-color:#1fd49a;color:#69f0bd}.step.now{border-color:#f2b94b;color:#ffd979}.empty{color:#6d8ba6;padding:16px;text-align:center}.footer{margin-top:12px;padding:8px 12px;border:1px solid #0f456f;background:#030b18;border-radius:10px;color:#6f9bb8;font-size:10px;display:flex;justify-content:space-between}@media(max-width:1250px){.main{grid-template-columns:1fr}.galaxy{min-height:760px}.leftcol,.rightcol{display:grid;grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(3,1fr)}}@media(max-width:720px){.metrics{grid-template-columns:repeat(2,1fr)}.leftcol,.rightcol{grid-template-columns:1fr}.topbar{grid-template-columns:1fr}.brand{order:-1}.portrait{justify-self:center}.galaxy{min-height:850px}.dept-node{width:150px}.core{width:150px;height:150px}.core b{font-size:20px}}</style></head><body><div class=\"stars\"></div><main class=\"shell\"><header class=\"topbar\"><div class=\"sys\">SYSTEM STATUS<br><strong>● النظام يعمل بكفاءة</strong></div><div class=\"brand\"><b>◈ Business Partner</b><span>AI AGENT SPACE COMMAND CENTER</span></div><div class=\"portrait\"><div><b>باهر</b><small style=\"display:block;color:#7da4c3\">القائد</small></div><div class=\"pic\">BM</div></div></header><section class=\"metrics\"><div class=\"metric\"><small>إجمالي الوكلاء</small><b>'+agents.length+'</b></div><div class=\"metric\"><small>Agents ON</small><b>'+enabledCount+'</b></div><div class=\"metric\"><small>المهام المفتوحة</small><b>'+openTasks.length+'</b></div><div class=\"metric\"><small>تدخل بشري</small><b>'+humanTasks.length+'</b></div><div class=\"metric\"><small>Pipeline</small><b>'+money(pipeline)+'</b></div><div class=\"metric\"><small>Collected</small><b>'+money(collected)+'</b></div></section><section class=\"main\"><aside class=\"leftcol\"><div class=\"panel\"><h2>تدفق المهام المباشر · LIVE TASK STREAM</h2><div class=\"stream\">'+taskRows+'</div></div><div class=\"panel\"><h2>الإيرادات والمبيعات · REVENUE & PIPELINE</h2><div>'+dealRows+'</div></div><div class=\"panel\"><h2>أداء الإدارات · DEPARTMENT PERFORMANCE</h2><div class=\"kpis\">'+kpiRows+'</div></div></aside><section class=\"panel galaxy\"><div class=\"orbits\"><div class=\"ring r1\"></div><div class=\"ring r2\"></div><div class=\"ring r3\"></div></div><div class=\"core\"><div><b>باهر الافتراضي</b><span>Virtual Baher</span></div></div>'+deptCards+teamPanels+'</section><aside class=\"rightcol\"><div class=\"panel\"><h2>التحكم في الوكلاء · AGENT CONTROLS</h2><div class=\"controls\"><div class=\"control-row\"><select id=\"agentSelect\"><option>Virtual Baher</option>'+agentOpts+'</select><button onclick=\"submitQuick(\\'resume_agent\\')\">▶ تشغيل</button><button onclick=\"submitQuick(\\'pause_agent\\')\">⏸ إيقاف</button></div><div class=\"voice\"><b>🎙️ TALK TO VIRTUAL BAHER</b><div class=\"wave\"></div><small>الأوامر الصوتية تتم عبر واتساب مُعين، وهذه اللوحة تعرض الحالة والتحكم.</small></div></div></div><div class=\"panel\"><h2>أعطِ الفريق أمرًا الآن</h2><div class=\"controls\"><form class=\"command-form\" method=\"post\" action=\"'+action+'\"><input type=\"hidden\" name=\"command_type\" value=\"create_task\"><input type=\"hidden\" name=\"target_type\" value=\"agent\"><select name=\"target_id\" required><option value=\"\">اختر الموظف/المدير</option>'+agentOpts+'</select><select name=\"priority\"><option>P1</option><option selected>P2</option><option>P0</option><option>P3</option></select><input name=\"client_name\" placeholder=\"العميل/الجهة\"><input name=\"revenue_value\" type=\"number\" placeholder=\"القيمة ر.س\"><input name=\"objective\" style=\"grid-column:1/-1\" required placeholder=\"وش تبغاه يسوي؟\"><textarea name=\"context\" placeholder=\"السياق والتفاصيل...\"></textarea><button>إرسال المهمة</button></form></div></div><div class=\"panel\"><h2>Workflow & Roadmap Tracker</h2><div class=\"roadmap\"><div class=\"steps\"><span class=\"step done\">Lead ✓</span><span class=\"step done\">Quote ✓</span><span class=\"step now\">Contract</span><span class=\"step\">Invoice</span><span class=\"step\">Paid</span><span class=\"step\">Execution</span><span class=\"step\">Delivered</span></div><div style=\"margin-top:12px;color:#86a9c3;font-size:11px\">Paid but Blocked: <b style=\"color:#ffcf6b\">'+paidBlocked.length+'</b></div></div></div></aside></section><footer class=\"footer\"><span>◉ جميع الأنظمة تعمل بكفاءة</span><span>Live refresh كل 60 ثانية</span><span>'+new Date().toLocaleString('ar-SA',{timeZone:'Asia/Riyadh'})+'</span></footer></main><form id=\"quickForm\" method=\"post\" action=\"'+action+'\" style=\"display:none\"><input name=\"command_type\" id=\"qCommand\"><input name=\"target_type\" value=\"agent\"><input name=\"target_id\" id=\"qTarget\"></form><script>function openDept(id){document.querySelectorAll(\".dept-panel\").forEach(x=>x.classList.remove(\"open\"));const p=document.getElementById(\"panel-\"+id);if(p)p.classList.add(\"open\")}function closeDept(){document.querySelectorAll(\".dept-panel\").forEach(x=>x.classList.remove(\"open\"))}function submitQuick(cmd){const s=document.getElementById(\"agentSelect\");if(!s.value||s.value===\"Virtual Baher\")return alert(\"اختر Agent أولاً\");document.getElementById(\"qCommand\").value=cmd;document.getElementById(\"qTarget\").value=s.value;document.getElementById(\"quickForm\").submit()}setInterval(()=>{const t=document.activeElement&&document.activeElement.tagName;if(![\"INPUT\",\"TEXTAREA\",\"SELECT\"].includes(t))location.reload()},60000)</script></body></html>';\nreturn [{json:{html}}];"
+      }
+    },
+    {
+      "id": "64f2c3ea-47a4-48d9-b205-437ea422c79d",
+      "name": "Respond Control Center HTML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store, no-cache, must-revalidate"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "9db35d49-bf33-473a-9f56-80d8596f7809",
+      "name": "POST Agent Control Action",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        420
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66-action",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "6e23beae-95e6-4d6a-8034-8de435e8d2cb"
+    },
+    {
+      "id": "f894ce1c-7a5e-41aa-906a-98653bb863e7",
+      "name": "Normalize Control Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const b=$json.body||$json||{}; const action=String(b.command_type||'').trim(); let route_index=3; if(action==='pause_agent'||action==='resume_agent')route_index=0; else if(action==='set_autonomy')route_index=1; else if(action==='create_task')route_index=2; const now=Date.now(); return {json:{command_id:'CMD-'+now+'-'+Math.random().toString(36).slice(2,7),command_type:action,target_type:String(b.target_type||'agent'),target_id:String(b.target_id||''),enabled:action==='resume_agent',agent_status:action==='resume_agent'?'active':'paused',paused_reason:action==='pause_agent'?String(b.reason||'Paused from Control Center'):'',autonomy_level:String(b.autonomy_level||''),objective:String(b.objective||'').trim(),context:String(b.context||'').trim(),client_name:String(b.client_name||'').trim(),priority:String(b.priority||'P2'),cash_stage:String(b.cash_stage||'non_revenue'),revenue_value:Number(b.revenue_value||0)||0,due_at:b.due_at?String(b.due_at):null,task_id:'CTL-'+now,route_index}};"
+      }
+    },
+    {
+      "id": "8c6b8603-1373-40df-90bf-fc8195d40443",
+      "name": "Log Control Command",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        420
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "wn10StDKiC4OHjUK",
+          "cachedResultName": "BP_AI_Control_Commands"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "command_id": "={{ $('Normalize Control Action').item.json.command_id }}",
+            "created_at": "={{ $now.toISO() }}",
+            "created_by": "baher",
+            "command_type": "={{ $('Normalize Control Action').item.json.command_type }}",
+            "target_type": "={{ $('Normalize Control Action').item.json.target_type }}",
+            "target_id": "={{ $('Normalize Control Action').item.json.target_id }}",
+            "payload": "={{ JSON.stringify($('Normalize Control Action').item.json) }}",
+            "status": "received",
+            "result": "",
+            "processed_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "command_id",
+              "displayName": "command_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by",
+              "displayName": "created_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "command_type",
+              "displayName": "command_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_type",
+              "displayName": "target_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_id",
+              "displayName": "target_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "displayName": "payload",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "4ca9577a-defb-4e2a-9d42-5867553b8288",
+      "name": "Control Action Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        420
+      ],
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 4,
+        "output": "={{ $('Normalize Control Action').item.json.route_index }}",
+        "looseTypeValidation": true
+      }
+    },
+    {
+      "id": "7eff0eb8-97d4-4556-b5bc-646df11df195",
+      "name": "Pause Resume Agent",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Normalize Control Action').item.json.target_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "enabled": "={{ $('Normalize Control Action').item.json.enabled }}",
+            "status": "={{ $('Normalize Control Action').item.json.agent_status }}",
+            "paused_reason": "={{ $('Normalize Control Action').item.json.paused_reason }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "enabled",
+              "displayName": "enabled",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paused_reason",
+              "displayName": "paused_reason",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "76f47c4b-4ab6-46c7-8b58-a5ea8520a920",
+      "name": "Set Agent Autonomy",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        400
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Normalize Control Action').item.json.target_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "autonomy_level": "={{ $('Normalize Control Action').item.json.autonomy_level }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "autonomy_level",
+              "displayName": "autonomy_level",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "10f46ee7-5729-4911-b92c-5199bb44d85b",
+      "name": "Create Dashboard Task",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        500
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $('Normalize Control Action').item.json.task_id }}",
+            "parent_task_id": "",
+            "source": "control_center",
+            "company_id": "business-partner",
+            "client_id": "",
+            "client_name": "={{ $('Normalize Control Action').item.json.client_name }}",
+            "channel": "dashboard",
+            "objective": "={{ $('Normalize Control Action').item.json.objective }}",
+            "context": "={{ $('Normalize Control Action').item.json.context }}",
+            "created_by_agent": "baher_control_center",
+            "assigned_to_agent": "={{ $('Normalize Control Action').item.json.target_id }}",
+            "priority": "={{ $('Normalize Control Action').item.json.priority }}",
+            "status": "queued",
+            "approval_required": false,
+            "approval_status": "not_required",
+            "result": "",
+            "next_action": "Execute assigned objective and return result/next action.",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "revenue_value": "={{ $('Normalize Control Action').item.json.revenue_value }}",
+            "cash_stage": "={{ $('Normalize Control Action').item.json.cash_stage }}",
+            "human_action_required": "={{ $('Normalize Control Action').item.json.target_id === 'baher_owner' }}",
+            "blocked_by": "",
+            "due_at": "={{ $('Normalize Control Action').item.json.due_at }}",
+            "review_status": "pending",
+            "outcome_type": ""
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "revenue_value",
+              "displayName": "revenue_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cash_stage",
+              "displayName": "cash_stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_at",
+              "displayName": "due_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_status",
+              "displayName": "review_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outcome_type",
+              "displayName": "outcome_type",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6f013cd4-de66-4b9b-8e90-d372bdc8fe47",
+      "name": "Respond Control Redirect",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1180,
+        420
+      ],
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "https://businesspartnerai.app.n8n.cloud/webhook/bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "options": {
+          "responseCode": 302
+        }
+      }
+    },
+    {
+      "id": "90e96e34-1cef-4ba2-b43f-0644a080a2dc",
+      "name": "Mark Control Command Applied",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1110,
+        340
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "wn10StDKiC4OHjUK",
+          "cachedResultName": "BP_AI_Control_Commands"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "command_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Normalize Control Action').item.json.command_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "applied",
+            "result": "Command applied successfully",
+            "processed_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6ce3b290-f0aa-47d6-9f5a-a87f67110209",
+      "name": "Read Dashboard Campaigns",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1210,
+        -120
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bDhkNwoKggzE82IS",
+          "cachedResultName": "BP_AI_Growth_Campaigns"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 50,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "efba0cb7-be96-45b0-9c37-b6eb95ebbf2a",
+      "name": "Read Dashboard Integrations",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        -120
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "TPlt2Jp0lp66OFJv",
+          "cachedResultName": "BP_AI_Integration_Readiness"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "last_checked_at",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "1c4f7a22-2c0c-4703-8512-d944dd941931",
+      "name": "POST Voice Audio",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        980
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66-voice",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true,
+          "binaryData": true,
+          "binaryPropertyName": "data"
+        }
+      },
+      "webhookId": "fbbb3324-833a-4122-b871-05b0bdc313c2"
+    },
+    {
+      "id": "a5e10484-12c5-4682-9aa3-f11d7615865a",
+      "name": "Transcribe Command Space Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        220,
+        980
+      ],
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "data",
+        "options": {
+          "language": "ar",
+          "temperature": 0
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "zLkW42jmoxYn595d",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "63fc20d7-3d2a-4ccb-b5b3-dd84a4fb6ec6",
+      "name": "Return Voice Transcript",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        440,
+        980
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { transcript: $json.text || $json.transcription || '', ok: true } }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "5a9a564f-14d0-47ba-a165-3f06cca80edf",
+      "name": "Reliable Virtual Baher Console",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "let html=String($json.html||'');\nhtml=html.replace('setInterval(()=>{const t=document.activeElement&&document.activeElement.tagName;if(![\"INPUT\",\"TEXTAREA\",\"SELECT\"].includes(t))location.reload()},60000)','');\nhtml=html.replace('الأوامر الصوتية تتم عبر واتساب مُعين، وهذه اللوحة تعرض الحالة والتحكم.','تكلم أو اكتب مع باهر الافتراضي مباشرة من اللوحة أسفل الشاشة.');\nconst dock=`<style>\n#vbLiveDock{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:10050;width:min(900px,calc(100vw - 24px));font-family:Inter,Tahoma,Arial,sans-serif}.vbl{background:linear-gradient(180deg,#071426fa,#020813fc);border:1px solid #22b9ff;border-radius:18px;box-shadow:0 0 45px #00aaff45,0 18px 65px #000b;overflow:hidden}.vbh{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 13px;border-bottom:1px solid #144a70}.vbh b{font-size:14px}.vbh small{display:block;color:#62d9ff;font-size:10px;margin-top:3px}.vbs{font-size:10px;padding:5px 9px;border-radius:14px;border:1px solid #1b5b7f;color:#8cdcff;background:#07192d}.vbs.live{color:#68efb6;border-color:#278b69}.vbs.busy{color:#ffd36a;border-color:#9c7623}.vbs.err{color:#ff98a8;border-color:#9a3444}.vbm{max-height:260px;overflow:auto;padding:10px;display:none}.vbl.open .vbm{display:block}.vbmsg{max-width:86%;padding:9px 11px;margin:6px 0;border-radius:12px;white-space:pre-wrap;line-height:1.55;font-size:12px}.vbmsg.me{margin-right:auto;background:#0c5a9e}.vbmsg.ai{margin-left:auto;background:#102039;border:1px solid #174b70}.vbc{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px}.vbc textarea{resize:none;background:#061426;color:#eefaff;border:1px solid #1a557d;border-radius:12px;padding:11px;min-height:46px;max-height:120px;outline:none}.vbc button{border:0;border-radius:12px;padding:0 18px;background:linear-gradient(135deg,#087cf0,#7746ff);color:#fff;font-weight:700;cursor:pointer}.vbf{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:0 12px 10px;color:#6c91aa;font-size:10px}.vbf button{background:#0b2038;border:1px solid #1c6089;color:#a9e9ff;border-radius:8px;padding:5px 8px;cursor:pointer}@media(max-width:700px){#vbLiveDock{bottom:7px}.vbc button{padding:0 10px}.vbh{align-items:flex-start}.vbf{flex-direction:column;align-items:flex-start}}</style>\n<div id=\"vbLiveDock\"><div class=\"vbl\" id=\"vbl\"><div class=\"vbh\"><div><b>🧠 باهر الافتراضي · Virtual Baher</b><small id=\"vbTargetLabel\">كل الشركة · تكلم طبيعي بدون أوامر خاصة</small></div><span id=\"vbState\" class=\"vbs\">🎙️ تجهيز الاستماع...</span></div><div id=\"vbMsgs\" class=\"vbm\"><div class=\"vbmsg ai\">أنا معك. اسألني عن الفريق، العملاء، الفلوس، التسويق، أو عطِني أي طلب وأنا أوزعه.</div></div><div class=\"vbc\"><textarea id=\"vbText\" placeholder=\"اكتب هنا، أو تكلم مباشرة...\"></textarea><button id=\"vbGo\">إرسال</button></div><div class=\"vbf\"><span>بعد السماح للمايك مرة واحدة، الاستماع يرجع تلقائيًا بعد كل رد.</span><div><button id=\"vbMute\">🔊 الصوت ON</button><button id=\"vbExpand\">تفاصيل</button></div></div></div></div>\n<script>(function(){\nconst CHAT='/webhook/muin-command-space-j8PUwUks3morvPEaHyx5aNGfjlsbEm66';\nconst CHAT_TIMEOUT_MS=150000;\nlet target='virtual_baher',busy=false,listening=false,rec=null,speechOn=true,restartTimer=null;\nconst state=document.getElementById('vbState'),box=document.getElementById('vbMsgs'),wrap=document.getElementById('vbl'),input=document.getElementById('vbText'),targetLabel=document.getElementById('vbTargetLabel');\nfunction st(t,c){state.textContent=t;state.className='vbs '+(c||'')}\nfunction add(t,w){wrap.classList.add('open');const d=document.createElement('div');d.className='vbmsg '+w;d.textContent=t;box.appendChild(d);box.scrollTop=box.scrollHeight}\nfunction voiceSummary(t){return String(t||'').split('[[DETAILS]]')[0].replace(/^VOICE:\\s*/i,'').trim()}\nfunction speak(t){return new Promise(res=>{const s=voiceSummary(t);if(!speechOn||!s||!window.speechSynthesis){res();return}try{if(rec&&listening){listening=false;rec.stop()}}catch(e){}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s);u.lang='ar-SA';u.rate=.98;u.onend=()=>{res();scheduleListen()};u.onerror=()=>{res();scheduleListen()};window.speechSynthesis.speak(u)})}\nasync function ask(text){text=String(text||'').trim();if(!text||busy)return;busy=true;add(text,'me');input.value='';const t0=Date.now();st('🧠 أفهم وأوزع الطلب...','busy');const tick=setInterval(()=>{st('🧠 يشتغل على طلبك · '+Math.round((Date.now()-t0)/1000)+'ث','busy')},2000);try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),CHAT_TIMEOUT_MS);let r;try{r=await fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,target_agent:target,source:'command_space'}),signal:ctl.signal})}finally{clearTimeout(tm)}const raw=await r.text();if(!r.ok)throw new Error('الخادم رجّع HTTP '+r.status+(raw?' · '+raw.slice(0,180):''));let j={};if(raw.trim()){try{j=JSON.parse(raw)}catch(pe){throw new Error('رد غير صالح من الخادم · '+raw.slice(0,180))}}else{throw new Error('الخادم رجّع ردًا فارغًا (السير توقف قبل عقدة الرد)')}const reply=j.reply||j.output||j.text||'تم استلام الطلب.';add(reply,'ai');st('✅ تم · أسمعك','live');await speak(reply)}catch(e){const abort=e.name==='AbortError';const why=abort?('انتهت المهلة بعد '+Math.round(CHAT_TIMEOUT_MS/1000)+' ثانية — الطلب طويل، جرّب سؤالًا أقصر'):String(e.message||e);add('⚠️ '+why,'ai');st(abort?'⚠️ انتهت المهلة':'⚠️ خطأ في الاتصال','err')}finally{clearInterval(tick);busy=false;scheduleListen()}}\nfunction scheduleListen(){clearTimeout(restartTimer);restartTimer=setTimeout(startListen,500)}\nfunction startListen(){if(!rec||busy||listening||window.speechSynthesis?.speaking)return;try{rec.start()}catch(e){scheduleListen()}}\nasync function initVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){st('⚠️ الصوت غير مدعوم هنا · الكتابة شغالة','err');return}try{if(navigator.mediaDevices?.getUserMedia){const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}}catch(e){if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){st('🔴 اضغط 🔒 بجانب الرابط ← Microphone ← Allow ← حدّث الصفحة','err');return}}rec=new SR();rec.lang='ar-SA';rec.continuous=false;rec.interimResults=false;rec.onstart=()=>{listening=true;st('🟢 أسمعك الآن · تكلم مباشرة','live')};rec.onresult=e=>{const t=e.results?.[0]?.[0]?.transcript||'';if(t){st('✅ سمعتك · جاري التنفيذ','busy');ask(t)}};rec.onerror=e=>{listening=false;if(e.error==='not-allowed'||e.error==='service-not-allowed'){st('🔴 اضغط 🔒 بجانب الرابط ← Microphone ← Allow ← حدّث الصفحة','err');return}st('🎙️ أعيد الاستماع...','');scheduleListen()};rec.onend=()=>{listening=false;if(!busy)scheduleListen()};startListen()}\ndocument.getElementById('vbGo').onclick=()=>ask(input.value);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(input.value)}});document.getElementById('vbMute').onclick=function(){speechOn=!speechOn;this.textContent=speechOn?'🔊 الصوت ON':'🔇 الصوت OFF';if(!speechOn&&window.speechSynthesis)window.speechSynthesis.cancel()};document.getElementById('vbExpand').onclick=()=>wrap.classList.toggle('open');const oldOpen=window.openDept;window.openDept=function(id){target=id||'virtual_baher';targetLabel.textContent='التوجيه إلى: '+target;if(oldOpen)oldOpen(id);wrap.classList.add('open')};setTimeout(initVoice,500)})();</script>`;\nreturn [{json:{html:html.replace('</body>',dock+'</body>')}}];"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

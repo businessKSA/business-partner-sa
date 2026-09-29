@@ -1,0 +1,750 @@
+{
+  "id": "3B9PXV0YhcLOgMqi",
+  "name": "🛰️ BP AI Space — Data API",
+  "active": true,
+  "isArchived": false,
+  "versionId": "f77b3d67-4d3a-47ed-a721-8907342d839c",
+  "activeVersionId": "f77b3d67-4d3a-47ed-a721-8907342d839c",
+  "triggerCount": 3,
+  "nodeCount": 19,
+  "createdAt": "2026-09-03T16:52:18.258Z",
+  "updatedAt": "2026-09-05T22:38:24.614Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Read-only JSON API for the BP AI Command Space front-end hosted on Vercel. Returns agents, tasks, deals, KPIs, growth campaigns and integration readiness as one JSON payload. No writes, no AI calls, no external sends.",
+  "connections": {
+    "GET Space Data": {
+      "main": [
+        [
+          {
+            "node": "Read Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Agents": {
+      "main": [
+        [
+          {
+            "node": "Read Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tasks": {
+      "main": [
+        [
+          {
+            "node": "Read Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Deals": {
+      "main": [
+        [
+          {
+            "node": "Read KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read KPIs": {
+      "main": [
+        [
+          {
+            "node": "Read Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Read Integrations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Integrations": {
+      "main": [
+        [
+          {
+            "node": "Build Space JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Space JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond Space JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Voice": {
+      "main": [
+        [
+          {
+            "node": "Guard Voice Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guard Voice Input": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS": {
+      "main": [
+        [
+          {
+            "node": "Respond Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Voice Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs STT": {
+      "main": [
+        [
+          {
+            "node": "Respond Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Text Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Decode Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decode Audio": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs STT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "d02ca47a-1463-4b5d-8593-c3a8a441edd2",
+      "name": "GET Space Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "bp-ai-space-data-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "65d16582-8a55-4b6e-8e62-b64f858ce490"
+    },
+    {
+      "id": "e756bb18-6e0e-4c7a-bab5-f8b043a71583",
+      "name": "Read Agents",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "427fcfc4-c84c-40af-a01e-12009a5d8d51",
+      "name": "Read Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 200,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "DESC"
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fdcddcca-eed8-4704-a001-63a0510328dc",
+      "name": "Read Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 200,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "436a6292-a717-4c05-b05e-94cb4c2610f9",
+      "name": "Read KPIs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KRfMyEXXl3n48A9q"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "snapshot_date",
+        "orderByDirection": "DESC"
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f6ebcf39-c4db-4432-9209-e2394838ec2a",
+      "name": "Read Campaigns",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bDhkNwoKggzE82IS"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "7a8214ce-f54b-4637-92c7-520b28dd1212",
+      "name": "Read Integrations",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "TPlt2Jp0lp66OFJv"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "last_checked_at",
+        "orderByDirection": "DESC"
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "dc37e1e0-d526-4055-b971-28d8a47e94b0",
+      "name": "Build Space JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows=(n)=>{try{return $items(n).map(x=>x.json||{}).filter(x=>Object.keys(x).length)}catch(e){return[]}};\nreturn [{json:{\n  ok:true,\n  generated_at:new Date().toISOString(),\n  agents:rows('Read Agents'),\n  tasks:rows('Read Tasks'),\n  deals:rows('Read Deals'),\n  kpis:rows('Read KPIs'),\n  campaigns:rows('Read Campaigns'),\n  integrations:rows('Read Integrations')\n}}];"
+      }
+    },
+    {
+      "id": "0f15fd23-b278-4963-910b-6e9e996cb7e7",
+      "name": "Respond Space JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "5cc9e451-6e96-4f9e-94aa-7ced50cdfebc",
+      "name": "POST Voice",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        420
+      ],
+      "parameters": {
+        "authentication": "none",
+        "httpMethod": "POST",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        },
+        "path": "bp-ai-voice-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "e9fdcf61-c1b3-4ea8-82b2-4ba615e13713"
+    },
+    {
+      "id": "46833605-f63b-4661-b308-883f9a66a838",
+      "name": "Guard Voice Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        420
+      ],
+      "parameters": {
+        "jsCode": "var b = ($input.first().json || {}).body || {};\nvar t = String(b.text == null ? '' : b.text).trim();\nif (!t) { throw new Error('لا يوجد نص لنطقه'); }\nif (t.length > 2500) { t = t.slice(0, 2500); }\n// ALI (Hvlnv5DwiIO2CQ6oYMZ3) صوت مكتبة والـAPI يرفضه على الباقة المجانية.\n// الافتراضي صوت premade يعمل اليوم؛ يُعاد إلى ALI عند الترقية.\nvar v = String(b.voice_id == null ? '' : b.voice_id).trim();\nif (!v) { v = 'CwhRBWXzGAHq8TQ4Fs17'; }\nif (!/^[A-Za-z0-9]{16,32}$/.test(v)) { throw new Error('معرّف صوت غير صالح'); }\nvar m = String(b.model_id == null ? '' : b.model_id).trim();\nif (!m) { m = 'eleven_multilingual_v2'; }\nreturn [{ json: { text: t, voice_id: v, model_id: m } }];",
+        "language": "javaScript",
+        "mode": "runOnceForAllItems"
+      }
+    },
+    {
+      "id": "fed0d301-f1dd-419a-b575-e6aca5940ab0",
+      "name": "ElevenLabs TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        420
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "jsonBody": "={{ JSON.stringify({ text: $json.text, model_id: $json.model_id, voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true } }) }}",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "outputPropertyName": "data",
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 40000
+        },
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "specifyHeaders": "keypair",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $json.voice_id }}"
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XZniaxwj50mgRDHR",
+          "name": "ElevenLabs"
+        }
+      }
+    },
+    {
+      "id": "3ad3643c-3ba9-422c-a1ec-4c730d2103be",
+      "name": "Respond Voice",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        340
+      ],
+      "parameters": {
+        "inputFieldName": "data",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "audio/mpeg"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "X-Robots-Tag",
+                "value": "noindex, nofollow"
+              }
+            ]
+          }
+        },
+        "respondWith": "binary",
+        "responseDataSource": "set"
+      }
+    },
+    {
+      "id": "7614935e-7d28-4bba-a6f4-9652373c5790",
+      "name": "Respond Voice Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        500
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 502,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: ($json.error && $json.error.message) || $json.message || 'تعذّر توليد الصوت' }) }}"
+      }
+    },
+    {
+      "id": "efc41b7b-505f-4198-800a-28b19b0049dc",
+      "name": "POST Transcribe",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        760
+      ],
+      "parameters": {
+        "authentication": "none",
+        "httpMethod": "POST",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        },
+        "path": "bp-ai-stt-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "140e6729-e119-4275-9d06-a7c269f17f87"
+    },
+    {
+      "id": "02d3ff47-2556-45d4-9314-76e438bb69b4",
+      "name": "ElevenLabs STT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        760
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "inputDataFieldName": "audio",
+              "name": "file",
+              "parameterType": "formBinaryData"
+            },
+            {
+              "name": "model_id",
+              "value": "scribe_v1"
+            },
+            {
+              "name": "language_code",
+              "value": "ara"
+            }
+          ]
+        },
+        "contentType": "multipart-form-data",
+        "genericAuthType": "httpHeaderAuth",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "url": "https://api.elevenlabs.io/v1/speech-to-text"
+      },
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XZniaxwj50mgRDHR",
+          "name": "ElevenLabs"
+        }
+      }
+    },
+    {
+      "id": "b84c689d-df91-415e-9de1-9c02419e3604",
+      "name": "Respond Text",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        690
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, text: ($json.text || '') }) }}"
+      }
+    },
+    {
+      "id": "272f75b7-87c9-465b-9e8d-5f1ffc732617",
+      "name": "Respond Text Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        840
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 502,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: ($json.error && $json.error.message) || $json.message || 'تعذّر تفريغ الصوت' }) }}"
+      }
+    },
+    {
+      "id": "5ac674c5-dd0f-4f35-8e0b-d2016f04d01e",
+      "name": "Decode Audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        150,
+        760
+      ],
+      "parameters": {
+        "jsCode": "var b = ($input.first().json || {}).body || {};\nvar b64 = String(b.audio_b64 == null ? '' : b.audio_b64);\nvar comma = b64.indexOf('base64,');\nif (comma !== -1) { b64 = b64.slice(comma + 7); }\nif (!b64) { throw new Error('لا يوجد صوت في الطلب'); }\nvar buf = Buffer.from(b64, 'base64');\nif (buf.length < 800) { throw new Error('التسجيل قصير جداً'); }\nif (buf.length > 20000000) { throw new Error('التسجيل أكبر من الحد'); }\nvar mime = String(b.mime || 'audio/webm');\nvar name = mime.indexOf('mpeg') !== -1 ? 'clip.mp3' : (mime.indexOf('wav') !== -1 ? 'clip.wav' : 'clip.webm');\nvar bin = await this.helpers.prepareBinaryData(buf, name, mime);\nreturn [{ json: { bytes: buf.length, mime: mime }, binary: { audio: bin } }];",
+        "language": "javaScript",
+        "mode": "runOnceForAllItems"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

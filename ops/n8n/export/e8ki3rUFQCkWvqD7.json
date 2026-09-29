@@ -1,0 +1,309 @@
+{
+  "id": "e8ki3rUFQCkWvqD7",
+  "name": "⏱️ BP AI — Cash & Execution Watchdog",
+  "active": true,
+  "isArchived": false,
+  "versionId": "a73ffddb-79ea-42db-ab1b-72c0ad3e0a6d",
+  "activeVersionId": "a73ffddb-79ea-42db-ab1b-72c0ad3e0a6d",
+  "triggerCount": 1,
+  "nodeCount": 7,
+  "createdAt": "2026-07-27T01:50:28.955Z",
+  "updatedAt": "2026-09-02T08:26:41.944Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 60,
+    "errorWorkflow": "DEEBmcadEhrncGo4"
+  },
+  "tags": [
+    {
+      "id": "Aem6VaUVPH2u6OGr",
+      "name": "Infrastructure"
+    },
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "MLCxCyaplKvUTYTI",
+      "name": "Vercel"
+    },
+    {
+      "id": "RIezfTsD4qdTlEvO",
+      "name": "Read Only"
+    },
+    {
+      "id": "RaCMbrqBfdUqEIGL",
+      "name": "AI Team"
+    },
+    {
+      "id": "XubcI9gOmZrEkNK5",
+      "name": "Watchdog"
+    },
+    {
+      "id": "jFmyOE6wnOqPCURX",
+      "name": "DEV"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "Every 2h in Riyadh: combines Tasks + Deals and alerts Baher only for human actions, paid-but-not-executed, signed-without-invoice, invoice-without-payment, or accepted-without-contract. No AI tokens.",
+  "connections": {
+    "Every 2 Hours — Riyadh": {
+      "main": [
+        [
+          {
+            "node": "Read Active Team Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Active Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Baher Focus Alert": {
+      "main": [
+        [
+          {
+            "node": "Anything Needs Baher?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything Needs Baher?": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Baher Focus Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Active Team Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Focus Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Active Deals": {
+      "main": [
+        [
+          {
+            "node": "Merge Focus Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Focus Inputs": {
+      "main": [
+        [
+          {
+            "node": "Build Baher Focus Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "715439e9-7dd7-4f58-8930-7c10d3b9bd5d",
+      "name": "Every 2 Hours — Riyadh",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8-20/2 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "08835228-c0ad-4e57-8d8d-3e97ad40efdb",
+      "name": "Read Active Team Tasks",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "queued"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "in_progress"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 200,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "ASC"
+      }
+    },
+    {
+      "id": "317cbf8f-3186-43bf-9b71-b1ae610849a1",
+      "name": "Anything Needs Baher?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.notify }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "920ac835-0c6f-458d-9d8a-de780dcbfb7c",
+      "name": "WhatsApp Baher Focus Alert",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "966530540231",
+        "messageType": "text",
+        "textBody": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "webhookId": "6a5394e6-a529-4865-8581-035dae1f2aaa",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "9b217256-f320-4856-bd53-eb6129ffe098",
+      "name": "Build Baher Focus Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows=$input.all().map(i=>i.json||{}); const candidates=[]; for(const r of rows){ if(r.task_id){ if(r.priority==='P0'||r.human_action_required===true||r.cash_stage==='paid_blocked'||r.cash_stage==='payment_due_now'){ const rank=r.human_action_required===true?0:(r.cash_stage==='paid_blocked'?0:(r.cash_stage==='payment_due_now'?1:2)); candidates.push({key:'task:'+r.task_id,rank,value:Number(r.revenue_value||0),client:r.client_name||'بدون اسم',text:r.objective||r.next_action||'مهمة',human:r.human_action_required===true,type:'task'}); } continue; } if(!r.deal_id) continue; const exec=String(r.execution_status||'').toLowerCase(); const pay=String(r.payment_status||'').toLowerCase(); const inv=String(r.invoice_status||'').toLowerCase(); const contract=String(r.contract_status||'').toLowerCase(); const quote=String(r.quote_status||'').toLowerCase(); const value=Number(r.deal_value||r.quoted_amount||r.invoiced_amount||0); let issue=null; if(r.human_action_required===true){issue={rank:0,text:r.next_action||'خطوة بشرية مطلوبة منك',human:true};} else if(Number(r.paid_amount||0)>0 && !['completed','delivered'].includes(exec) && String(r.stage||'').toLowerCase()!=='delivered'){issue={rank:0,text:`عميل دفع ${Number(r.paid_amount||0).toLocaleString('en-US')} ريال والتنفيذ غير مكتمل`,human:false};} else if(contract==='signed' && !['issued','sent','paid'].includes(inv)){issue={rank:1,text:'العقد موقع ولم تصدر/ترسل الفاتورة',human:false};} else if(['issued','sent'].includes(inv) && pay!=='paid'){issue={rank:1,text:`فاتورة صادرة والتحصيل ما زال ${pay||'معلق'}`,human:false};} else if(quote==='accepted' && contract!=='signed'){issue={rank:2,text:'العرض مقبول والعقد لم يكتمل بعد',human:false};} if(issue)candidates.push({key:'deal:'+r.deal_id,rank:issue.rank,value,client:r.client_name||r.deal_id,text:issue.text,human:issue.human,type:'deal'}); } const uniq=new Map(); for(const c of candidates){const k=(c.client+'|'+c.text).toLowerCase(); if(!uniq.has(k)||uniq.get(k).rank>c.rank) uniq.set(k,c);} const top=[...uniq.values()].sort((a,b)=>a.rank-b.rank||b.value-a.value).slice(0,5); if(!top.length)return [{json:{notify:false,message:''}}]; const lines=top.map((c,i)=>`${i+1}) ${c.client} — ${c.text}${c.value?` — ${c.value.toLocaleString('en-US')} ريال`:''}${c.human?' — 👤 عليك أنت':''}`); const paid=top.filter(c=>c.rank===0&&!c.human).length; const human=top.filter(c=>c.human).length; const msg=`🧠 مُعين — Focus الآن\\n${paid?`🔴 ${paid} حالة كاش/تنفيذ عاجلة\\n`:''}${human?`👤 ${human} خطوة عليك أنت\\n`:''}\\n${lines.join('\\n')}\\n\\nلا تفتح أي شيء ثاني قبل ما تخلص اللي عليك فوق.`; return [{json:{notify:true,message:msg,critical_count:candidates.length}}];"
+      }
+    },
+    {
+      "id": "eceb2d05-2cf7-41ba-8d9e-0a0615258079",
+      "name": "Read Active Deals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        180
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "ae8d3541-2679-4625-bd18-ee7b9a815410",
+      "name": "Merge Focus Inputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "id": "311djGhHO9wfV6jy",
+  "name": "BP — Sales DB Hygiene (تنظيف قاعدة الشركات)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "dcf114d5-7ad0-4dd6-85e7-d641c5a71b4c",
+  "activeVersionId": "dcf114d5-7ad0-4dd6-85e7-d641c5a71b4c",
+  "triggerCount": 1,
+  "nodeCount": 8,
+  "createdAt": "2026-08-06T18:01:59.137Z",
+  "updatedAt": "2026-08-06T18:28:43.564Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "تنظيف قاعدة الشركات: توحيد صيغة الإيميلات، وتعليم السجلات غير القابلة للتسليم أو المكررة أو التابعة لمنصات عالمية كـ Suppressed حتى لا تُرسل مرة أخرى.",
+  "connections": {
+    "Run Cleanup (Manual)": {
+      "main": [
+        [
+          {
+            "node": "Load All Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load All Records": {
+      "main": [
+        [
+          {
+            "node": "Classify & Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify & Plan": {
+      "main": [
+        [
+          {
+            "node": "Suppress or Fix?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suppress or Fix?": {
+      "main": [
+        [
+          {
+            "node": "Mark Suppressed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fix Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nightly Cleanup — 03:00": {
+      "main": [
+        [
+          {
+            "node": "Load All Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "4c144bb2-4c43-4674-832d-a0a2a5a750b5",
+      "name": "Sticky Note 2829b333",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        448,
+        256
+      ],
+      "parameters": {
+        "content": "## BP — Sales DB Hygiene\n\nRuns nightly at 03:00, ahead of the 10:00 send. Also safe to run by hand at any time.\n\n**Why nightly:** BP — Apollo Enrich is active and keeps writing new email addresses into this database, so a one-off cleanup goes stale within a day.\n\n**What it does**\n1. Loads every record (duplicate detection needs the whole set).\n2. Normalises each address — strips %20, mailto:, and multi-address strings.\n3. Suppresses four classes of bad data:\n   - Undeliverable Domain — DNS says the domain has no mail server.\n   - Global Platform — booking.com, apps.apple.com, link/QR tools, hotel chains.\n   - Placeholder — example@domain.com and friends left in a website template.\n   - Duplicate — the same address on more than one record.\n4. Fixes addresses that are salvageable and keeps the original in Email Fixed From.\n\n**Nothing is deleted.** Suppressed rows stay with Suppressed = true and a reason, so the sender skips them and you can still audit them.\n\n**Known limit:** the dead-domain list here is a snapshot from 2026-08-06. It does not cover domains Apollo adds later. The sender does a *live* MX lookup on every address just before sending, which is what actually covers new domains — this pass is the cheap bulk filter, not the last word.\n\n**Watch for false positives** in Global Platform: the rule cannot tell \"scraped from a platform\" from \"is the platform\". Bayut KSA and Yaschools were both caught wrongly and restored by hand.",
+        "color": 4
+      }
+    },
+    {
+      "id": "87eff356-2ba6-49a1-bdbd-3a09d7747c42",
+      "name": "Run Cleanup (Manual)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "77b1c035-21d1-41e8-bf89-f0b1f04fc032",
+      "name": "Load All Records",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca27-6188-4b6a-b584-924c374f2d22"
+        },
+        "returnAll": true,
+        "filterType": "none",
+        "options": {}
+      },
+      "notes": "Every row of BP — Companies Sales DB. No filter: duplicate detection needs the whole set.",
+      "notesInFlow": true,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "29bd7502-6d7d-4517-aed7-c0ffd24fd611",
+      "name": "Classify & Plan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\n// ===== BP — Sales DB Hygiene : Classify & Plan =====\n// Runs once for all items. Input: every page of BP — Companies Sales DB.\n// Output: only the records that need a write, tagged with _action + _reason.\n\n// Domains proven undeliverable by a live DNS check (NXDOMAIN or no mail exchanger).\nconst DEAD_DOMAINS = new Set([\"7brand-sa.com\",\"abhais.edu.sa\",\"acic-ksa.com\",\"al-omaier.com\",\"alassimi-law.com\",\"albassamschools.edu.sa\",\"alemaaralareq.com\",\"alexiahotels.com\",\"alhadafelamny.com\",\"alhamads.com\",\"alharbiholding.com\",\"alkifahprecast.com\",\"almosanadah.net\",\"alnagah-clean.com\",\"aom-company.com\",\"app.beyah.sa\",\"aybmedical.company\",\"bbd.sa\",\"be.besmartksa.com\",\"bml.med.sa\",\"bn-shmashyer.com\",\"cgshool.com.sa\",\"citytechsa.com\",\"company.sa\",\"doroob-roze.com\",\"eamaraseer.sa\",\"eisa4044.sa\",\"elsakrplastic.com\",\"etspices.com\",\"farajalofi.com\",\"firstgulfcompany.com\",\"flglc.com\",\"flyto-sky.com\",\"friend2020.com\",\"goharamarket.com\",\"goldenl.sa\",\"greenarrowac.com\",\"h-sakan.com\",\"health-dimension.com\",\"hospital.kau.edu.sa\",\"jewaralsafwahsa.com\",\"kaah.med.sa\",\"kinona.sa\",\"lanaiis.in\",\"lcc.sa\",\"lifelines-store.com\",\"mah.sa\",\"masadar.com.sa\",\"medad-medical.com\",\"medpromedicals.com\",\"nano.com.sa\",\"nequlalarabia.com\",\"odata.type\",\"orisderma.com\",\"qistlaw.sa\",\"rct.edu.sa\",\"rehabalmadinaa.com\",\"saad-international.com\",\"safarplustravels.net\",\"salama-team.com\",\"sattahmakkhahservice.com\",\"sawarifuture.com\",\"sepcoarabia.com\",\"shodeshtravel.com\",\"shorfarealestate.com\",\"square1sa.com\",\"sultanrec.com\",\"thekrsch.com\",\"toolsworldksa.redintek.in\",\"tzaidd.com\",\"untitled.tld\",\"uod.edu.sa\",\"wajen.sa\",\"wwww.printazone.com\",\"69317660ca139.site123.me\",\"6a1b9bc50bcbb.site123.me\",\"6a221a25a1202.site123.me\",\"ain.com\",\"alshmukh.adalo.com\",\"api.whatsapp.com\",\"apps.apple.com\",\"aqspepsi.wordpress.com\",\"buruj.sa\",\"cdn.qr-code-generator.com\",\"cholarestaurant.coreninesolutions.com\",\"en.zoomlion.com\",\"jasminegardenhotel.seebooking.com\",\"kfsh.med.sa\",\"m.facebook.com\",\"me.marsh.com\",\"qr.finedinemenu.com\",\"sa.hm.com\",\"srexpress.com\",\"training.alkhaleej.com.sa\",\"-ascott.com\"]);\n\n// Real inboxes, but they belong to a global platform — never to the prospect.\nconst PLATFORM_DOMAINS = new Set([\"booking.com\",\"expedia.com\",\"google.com\",\"goo.gl\",\"maps.app.goo.gl\",\"instagram.com\",\"facebook.com\",\"tiktok.com\",\"x.com\",\"twitter.com\",\"linkedin.com\",\"snapchat.com\",\"framer.com\",\"flowcode.com\",\"myqrcode.com\",\"instabio.cc\",\"n9.cl\",\"qrco.de\",\"salla.sa\",\"vip.com\",\"adobe.com\",\"sentry.io\",\"wixpress.com\",\"yaschools.com\",\"bayut.sa\",\"jomla.me\",\"stagheaddesigns.com\",\"indiantypefoundry.com\",\"micahrich.com\",\"reserval.com\",\"mysecurecloudhost.com\",\"hyattrestaurants.com\",\"marriott.com\",\"radissonhotels.com\",\"millenniumhotels.com\",\"swissotel.com\",\"warwickhotels.com\",\"wyndham.com\",\"otis.com\"]);\n\n// Site-builder / booking-engine / link-tool suffixes — the address is the vendor's, not the company's.\nconst PLATFORM_SUFFIXES = [\".site123.me\",\".lovable.app\",\".adalo.com\",\".weebly.com\",\".wordpress.com\",\".foodics.online\",\".classera.com\",\".bookmystay.io\",\".seebooking.com\",\".joodbooking.com\",\".verticalbooking.com\",\".hotelmold.top\",\".baab.com\",\".zaaer.co\",\".finedinemenu.com\",\".redintek.in\",\".wiandk.app\",\".coreninesolutions.com\",\".pics.ee\",\".qr-code-generator.com\"];\n\n// Sample/demo addresses left behind in a website template.\nconst PLACEHOLDER_DOMAINS = new Set([\"company.com\",\"mysite.com\",\"domain.com\",\"email.com\",\"example.com\",\"example.org\",\"yourwebsite.com\",\"yourdomain.com\",\"yoursite.com\",\"compant.com\",\"blocks.com\",\"hq.com\",\"realesatate.com\",\"untitled.tld\",\"domain.tld\",\"test.com\",\"site.com\",\"mail.com\"]);\nconst PLACEHOLDER_LOCALS = new Set([\"example\",\"your\",\"yourname\",\"youremail\",\"yourmail\",\"email\",\"test\",\"name\",\"firstname\",\"username\",\"sample\",\"demo\"]);\n\nconst RE_EMAIL = /^[a-z0-9._%+'-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/;\n\nfunction normalise(raw) {\n  if (!raw) return \"\";\n  let s = String(raw).trim();\n  // Scraped values arrive URL-encoded and sometimes carry several addresses.\n  try { s = decodeURIComponent(s); } catch (e) { s = s.replace(/%20/g, \" \"); }\n  s = s.replace(/^mailto:/i, \"\");\n  const parts = s.split(/[,;\\s<>()\\[\\]]+/).map(p => p.trim().toLowerCase()).filter(Boolean);\n  for (const p of parts) if (RE_EMAIL.test(p)) return p;\n  return \"\";\n}\n\nfunction isPlatform(d) {\n  if (PLATFORM_DOMAINS.has(d)) return true;\n  return PLATFORM_SUFFIXES.some(sfx => d.endsWith(sfx));\n}\n\nconst rows = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  rows.push({\n    pageId: j.id,\n    raw: j.property_email || j.email || \"\",\n    sent: j.property_campaign_sent === true,\n    suppressed: j.property_suppressed === true,\n    score: Number(j.property_icp_score) || 0,\n    name: (j.property_name || j.name || \"\").toString(),\n  });\n}\n\nconst plan = [];\nconst stats = { total: rows.length, no_email: 0, ok: 0, fixed: 0, invalid: 0, dead: 0, platform: 0, placeholder: 0, duplicate: 0, already: 0 };\n\n// Pass 1 — normalise, then judge each address on its own merits.\nfor (const r of rows) {\n  if (r.suppressed) { stats.already++; r.skip = true; continue; }\n  if (!String(r.raw).trim()) { stats.no_email++; r.skip = true; continue; }\n\n  const email = normalise(r.raw);\n  r.email = email;\n\n  if (!email) { r.verdict = \"Invalid Syntax\"; stats.invalid++; continue; }\n\n  const domain = email.split(\"@\")[1];\n  const local = email.split(\"@\")[0];\n\n  if (DEAD_DOMAINS.has(domain)) { r.verdict = \"Undeliverable Domain\"; stats.dead++; continue; }\n  if (isPlatform(domain)) { r.verdict = \"Global Platform\"; stats.platform++; continue; }\n  if (PLACEHOLDER_DOMAINS.has(domain) || PLACEHOLDER_LOCALS.has(local)) { r.verdict = \"Placeholder\"; stats.placeholder++; continue; }\n\n  r.verdict = \"\";\n  if (email !== String(r.raw).trim().toLowerCase()) stats.fixed++; else stats.ok++;\n}\n\n// Pass 2 — one address, one record. Keep the copy that already received mail,\n// otherwise the highest-scoring one, and suppress the rest.\nconst groups = new Map();\nfor (const r of rows) {\n  if (r.skip || r.verdict || !r.email) continue;\n  if (!groups.has(r.email)) groups.set(r.email, []);\n  groups.get(r.email).push(r);\n}\nfor (const [, group] of groups) {\n  if (group.length < 2) continue;\n  group.sort((a, b) => (b.sent - a.sent) || (b.score - a.score));\n  for (const dup of group.slice(1)) { dup.verdict = \"Duplicate\"; stats.duplicate++; }\n}\n\n// Pass 3 — emit only the records that need a write.\nfor (const r of rows) {\n  if (r.skip) continue;\n  const changed = r.email && r.email !== String(r.raw).trim();\n  if (r.verdict) {\n    plan.push({ json: {\n      _pageId: r.pageId, _action: \"suppress\", _reason: r.verdict,\n      _email: r.email || \"\", _origEmail: String(r.raw).trim(), _company: r.name,\n      _wasSent: r.sent, _summary: stats,\n    }});\n  } else if (changed) {\n    plan.push({ json: {\n      _pageId: r.pageId, _action: \"fix\", _reason: \"Email normalised\",\n      _email: r.email, _origEmail: String(r.raw).trim(), _company: r.name,\n      _wasSent: r.sent, _summary: stats,\n    }});\n  }\n}\n\nconsole.log(\"HYGIENE SUMMARY\", JSON.stringify(stats));\nconsole.log(\"records to write:\", plan.length);\nreturn plan;\n"
+      },
+      "notes": "Normalises addresses, applies the dead/platform/placeholder lists, de-duplicates, and emits only the rows that need a write.",
+      "notesInFlow": true
+    },
+    {
+      "id": "3491d3ca-9513-4344-842c-1aa102ffe55a",
+      "name": "Suppress or Fix?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json._action }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "suppress"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "4a7fe61a-3792-46a7-b058-8645e3780618",
+      "name": "Mark Suppressed",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json._pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Suppressed|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Suppress Reason|select",
+              "selectValue": "={{ $json._reason }}"
+            },
+            {
+              "key": "Last Campaign Status|select",
+              "selectValue": "Skipped"
+            },
+            {
+              "key": "Duplicate|checkbox",
+              "checkboxValue": "={{ $json._reason === \"Duplicate\" }}"
+            },
+            {
+              "key": "Email Fixed From|rich_text",
+              "richText": false,
+              "textContent": "={{ $json._origEmail }}"
+            },
+            {
+              "key": "n8n Processed|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Suppressed = true + reason + Last Campaign Status = Skipped. The sender filters these out.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "35dfc17a-fbbb-4ae2-bd56-2924ad656fbe",
+      "name": "Fix Email",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        192
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json._pageId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json._email }}"
+            },
+            {
+              "key": "Email Fixed From|rich_text",
+              "richText": false,
+              "textContent": "={{ $json._origEmail }}"
+            },
+            {
+              "key": "n8n Processed|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Writes the normalised address back and keeps the original in Email Fixed From.",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "41f5a484-cb4c-48eb-8c6f-d976c301400d",
+      "name": "Nightly Cleanup — 03:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        288
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 3,
+              "triggerAtMinute": 0
+            }
+          ]
+        },
+        "notes": "Runs at 03:00, before the 10:00 send. BP — Apollo Enrich is active and writes new email addresses into this database continuously, so the cleanup has to be continuous too, not one-off."
+      },
+      "notes": "Runs before the 10:00 send. Google Places Ingest adds new scraped rows every 30 minutes, so the cleanup has to be continuous, not one-off."
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

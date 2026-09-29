@@ -1,0 +1,163 @@
+{
+  "id": "oqh3CNGNcdzyiPld",
+  "name": "BP-Sub-Advisor",
+  "active": true,
+  "isArchived": false,
+  "versionId": "cbc8220a-ec1f-4ff6-8e72-0ed1c3732df9",
+  "activeVersionId": "cbc8220a-ec1f-4ff6-8e72-0ed1c3732df9",
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-06-29T12:53:02.404Z",
+  "updatedAt": "2026-06-29T13:09:52.207Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "connections": {
+    "When Called by Main": {
+      "main": [
+        [
+          {
+            "node": "Advisor Step Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advisor Step Router": {
+      "main": [
+        [
+          {
+            "node": "Update CRM After Advisor Step",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CRM After Advisor Step": {
+      "main": [
+        [
+          {
+            "node": "Send Advisor Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trg-adv-0001",
+      "name": "When Called by Main",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nconst msg = String(item.message_text || '').trim();\n\nlet advisorStep = String(\n  item.advisor_step ||\n  item.property_advisor_step ||\n  'Main Menu'\n).trim();\n\nlet investorProfileType = item.investor_profile_type || item.property_investor_profile_type || '';\nlet partnersCount = item.partners_count || item.property_partners_count || '';\nlet investmentSector = item.investment_sector || item.property_investment_sector || '';\nlet city = item.city || item.property_city || '';\n\nlet reply = '';\nlet nextAdvisorStep = advisorStep;\n\nif (advisorStep === 'Investor Type') {\n  if (msg === '1') investorProfileType = 'Saudi/Resident';\n  if (msg === '2') investorProfileType = 'Foreign Investor';\n\n  nextAdvisorStep = 'Partners Count';\n  reply = `ممتاز.\n\nاختر عدد الملاك:\n\n1️⃣ مالك واحد\n2️⃣ شريكان\n3️⃣ ثلاثة شركاء أو أكثر\n\nيرجى الرد برقم الخيار فقط.`;\n}\n\nelse if (advisorStep === 'Partners Count') {\n  if (msg === '1') partnersCount = '1';\n  if (msg === '2') partnersCount = '2';\n  if (msg === '3') partnersCount = '3+';\n\n  nextAdvisorStep = 'Investment Sector';\n  reply = `اختر نوع النشاط:\n\n1️⃣ تجاري\n2️⃣ تقني\n3️⃣ صناعي\n4️⃣ خدمي\n5️⃣ أخرى\n\nيرجى الرد برقم الخيار فقط.`;\n}\n\nelse if (advisorStep === 'Investment Sector') {\n  const sectors = {\n    '1': 'Commercial',\n    '2': 'Technology',\n    '3': 'Industrial',\n    '4': 'Services',\n    '5': 'Other',\n  };\n\n  investmentSector = sectors[msg] || 'Other';\n\n  nextAdvisorStep = 'City';\n  reply = `اختر المدينة:\n\n1️⃣ الرياض\n2️⃣ جدة\n3️⃣ الدمام\n4️⃣ مكة\n5️⃣ مدينة أخرى\n\nيرجى الرد برقم الخيار فقط.`;\n}\n\nelse if (advisorStep === 'City') {\n  const cities = {\n    '1': 'Riyadh',\n    '2': 'Jeddah',\n    '3': 'Dammam',\n    '4': 'Makkah',\n    '5': 'Other',\n  };\n\n  city = cities[msg] || 'Other';\n\n  nextAdvisorStep = 'Package Type';\n  reply = `اختر نوع الخدمة:\n\n1️⃣ باقة تأسيس كاملة\n2️⃣ استشارة فقط\n\nيرجى الرد برقم الخيار فقط.`;\n}\n\nelse if (advisorStep === 'Package Type') {\n  const packageType = msg === '1' ? 'Full Setup Package' : 'Consultation Only';\n\n  nextAdvisorStep = 'Completed';\n  reply = `تم استلام البيانات الأساسية.\n\nسيتم مراجعة التفاصيل وتجهيز المسار المناسب لك من الفريق المختص.`;\n}\n\nelse {\n  nextAdvisorStep = 'Investor Type';\n  reply = `مرحباً، لتحديد مسار تأسيس الشركة المناسب، اختر نوع المستثمر:\n\n1️⃣ سعودي / مقيم\n2️⃣ مستثمر أجنبي\n\nيرجى الرد برقم الخيار فقط.`;\n}\n\nreturn [\n  {\n    json: {\n      ...item,\n      text_body: reply,\n      reply_text: reply,\n      output: reply,\n      advisor_step: nextAdvisorStep,\n      investor_profile_type: investorProfileType,\n      partners_count: partnersCount,\n      investment_sector: investmentSector,\n      city,\n      send_ready: true,\n      route_to_menu: false,\n      route_to_ai: false,\n      route_to_advisor: true,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ],
+      "id": "7987aa08-6591-433d-8626-0c3972d61d63",
+      "name": "Advisor Step Router"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$json.crm_page_id}}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Investment Advisor Summary|rich_text",
+              "textContent": "={{ $json.advisor_step }}"
+            },
+            {
+              "key": "WhatsApp Stage|select",
+              "selectValue": "={{ $json.whatsapp_stage || \"Qualification\" }}"
+            },
+            {
+              "key": "Investor Profile Type|select",
+              "selectValue": "={{ $json.investor_profile_type }}"
+            },
+            {
+              "key": "Partners Count|select",
+              "selectValue": "={{ $json.partners_count }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        300
+      ],
+      "id": "97abb0ad-195e-4c0a-b08e-f12b3a1b3c19",
+      "name": "Update CRM After Advisor Step",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eO0S4qfOofuyo6Tq",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1216029938250852",
+        "recipientPhoneNumber": "={{ $json.phone || $json.recipient_phone || $json.property_whats_app_phone || $json.property_whats_app }}",
+        "textBody": "={{ $('Advisor Step Router').item.json.reply_text || $('Advisor Step Router').item.json.text_body || $('Advisor Step Router').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        300
+      ],
+      "id": "d5fdaf24-2e04-42a2-a808-282886939301",
+      "name": "Send Advisor Message",
+      "webhookId": "cb09e297-ee65-4944-9aad-5c1cd2ffdd9b",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": null
+}

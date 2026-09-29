@@ -1,0 +1,377 @@
+{
+  "id": "d7a9JhgvFRI5LXQh",
+  "name": "BP Campaign Sender (Companies Sales DB)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "c32cf6b0-8e5e-48be-b3e8-e34a8722f4b7",
+  "activeVersionId": null,
+  "triggerCount": 1,
+  "nodeCount": 10,
+  "createdAt": "2026-07-01T13:28:21.945Z",
+  "updatedAt": "2026-08-06T18:28:21.479Z",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timezone": "Asia/Riyadh",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "يرسل حملة إيميلات من BP — Companies Sales DB مرة واحدة يومياً 10:00. كل تشغيل: حتى 25 سجل بعد المرور على Guard الذي يستبعد Suppressed/Duplicate/النطاقات الميتة/المنصات العالمية/العناوين الوهمية. الارتدادات يعالجها BP — Bounce Handler.",
+  "connections": {
+    "Run Sender (Manual)": {
+      "main": [
+        [
+          {
+            "node": "Get Ready-to-Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Emails": {
+      "main": [
+        [
+          {
+            "node": "Send via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via Gmail": {
+      "main": [
+        [
+          {
+            "node": "Mark Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Schedule — 10:00 daily": {
+      "main": [
+        [
+          {
+            "node": "Get Ready-to-Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ready-to-Send": {
+      "main": [
+        [
+          {
+            "node": "Guard: Validate Before Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guard: Validate Before Send": {
+      "main": [
+        [
+          {
+            "node": "MX Lookup (dns.google)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MX Lookup (dns.google)": {
+      "main": [
+        [
+          {
+            "node": "Drop Domains Without MX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drop Domains Without MX": {
+      "main": [
+        [
+          {
+            "node": "Build Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "62682279-94f6-4c1b-8158-1f5cdef1927c",
+      "name": "Run Sender (Manual)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca27-6188-4b6a-b584-924c374f2d22"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "condition": "is_not_empty",
+              "key": "Email|email"
+            },
+            {
+              "checkboxValue": false,
+              "condition": "equals",
+              "key": "Campaign Sent|checkbox"
+            },
+            {
+              "checkboxValue": false,
+              "condition": "equals",
+              "key": "Duplicate|checkbox"
+            },
+            {
+              "checkboxValue": false,
+              "condition": "equals",
+              "key": "Suppressed|checkbox"
+            }
+          ]
+        },
+        "options": {},
+        "returnAll": false,
+        "limit": 60,
+        "notes": "Email not empty, Campaign Sent = false, Duplicate = false, Suppressed = false. Limit 60 so the guard has slack after it drops bad rows."
+      },
+      "id": "84908319-2c3c-4096-a73a-2e966e2fab2d",
+      "name": "Get Ready-to-Send",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        384
+      ],
+      "notesInFlow": true,
+      "notes": "Ready to Send + not Campaign Sent. limit 10 test -> 250. Assign Notion credential.",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== BP Campaign Sender — Build Emails (Run Once for All Items) =====\n// Source DB: BP — Companies Sales DB (قاعدة الشركات) — 26faca2761884b6ab584924c374f2d22\nconst TEST_TO = \"\";      // \"\" = LIVE (send to real leads). Put your email to test.\nconst PHASE   = \"all\";   // \"corporate\" | \"personal\" | \"all\"\nconst BOOKING_URL = \"https://businesspartner.sa/\";\nconst SUBJECT = \"فرص لدعم وتطوير أعمالكم | Business Growth & Operational Support\";\n\nconst EXCLUDE_DOMAINS = [\"businesspartnerksa.com\",\"businesspartner.sa\",\"mahmolmakfol.com\",\"mahfolmakfol.com\",\"boxmailbox.club\",\"boxmail.live\",\"boxmail.icu\"];\nconst EXCLUDE_EMAILS  = [\"dr.baher.magnas@gmail.com\",\"business@businesspartnerksa.com\"];\nconst PERSONAL_DOMAINS = [\"gmail.com\",\"googlemail.com\",\"hotmail.com\",\"outlook.com\",\"live.com\",\"yahoo.com\",\"yahoo.co.uk\",\"icloud.com\",\"me.com\",\"aol.com\",\"protonmail.com\",\"proton.me\",\"gmx.com\",\"mail.com\",\"yandex.com\",\"msn.com\"];\n\nconst TEMPLATE = \"<!DOCTYPE html>\\n<html lang=\\\"ar\\\" dir=\\\"rtl\\\">\\n<head>\\n<meta charset=\\\"utf-8\\\">\\n<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n<title>Business Partner</title>\\n</head>\\n<body style=\\\"margin:0; padding:0; background-color:#eef1f6; font-family:'Segoe UI', Tahoma, Arial, sans-serif;\\\">\\n<table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background-color:#eef1f6; padding:24px 0;\\\">\\n<tr><td align=\\\"center\\\">\\n\\n<table role=\\\"presentation\\\" width=\\\"600\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"width:600px; max-width:600px; background-color:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06);\\\">\\n\\n  <tr>\\n    <td align=\\\"center\\\" style=\\\"padding:28px 30px 8px 30px;\\\">\\n      <div style=\\\"font-size:20px; font-weight:700; color:#16245B; letter-spacing:1px;\\\">BUSINESS&nbsp;PARTNER</div>\\n    </td>\\n  </tr>\\n\\n  <tr><td style=\\\"padding:8px 36px 0 36px;\\\" dir=\\\"rtl\\\">\\n\\n    <h1 style=\\\"margin:18px 0 22px 0; font-size:26px; line-height:1.4; color:#16245B; font-weight:700; text-align:center;\\\">\\n      حلول متكاملة لتطوير وتشغيل أعمالكم\\n    </h1>\\n\\n    <p style=\\\"margin:0 0 18px 0; font-size:16px; color:#333333; text-align:right;\\\">السلام عليكم ورحمة الله وبركاته،</p>\\n\\n    <!-- {{CONTACT_GREETING}} -->\\n\\n    <p style=\\\"margin:0 0 16px 0; font-size:15px; color:#444444; text-align:right;\\\">\\n      أثناء مراجعة بيانات الشركات العاملة في المملكة، لفت انتباهنا نشاط:\\n    </p>\\n\\n    <p style=\\\"margin:0 0 18px 0; font-size:18px; color:#16245B; font-weight:700; text-align:right;\\\">{{COMPANY_NAME}}</p>\\n\\n    <p style=\\\"margin:0 0 16px 0; font-size:15px; color:#444444; text-align:right;\\\">\\n      وبناءً على طبيعة نشاطكم، نعتقد أن هناك فرصاً يمكن أن ندعمكم فيها من خلال:\\n    </p>\\n\\n    <p style=\\\"margin:0 0 18px 0; font-size:15px; color:#16245B; font-weight:700; text-align:right;\\\">\\n      تأسيس الشركات، التوسع، التراخيص، العلاقات الحكومية، الموارد البشرية، والامتثال التنظيمي.\\n    </p>\\n\\n    <p style=\\\"margin:0 0 22px 0; font-size:15px; color:#444444; line-height:1.8; text-align:right;\\\">\\n      في <strong>Business Partner</strong> نساعد الشركات والمؤسسات على تحسين كفاءة التشغيل، معالجة تحديات الموارد البشرية، إدارة العلاقات الحكومية، وتجهيز المتطلبات النظامية بطريقة عملية ومنظمة.\\n    </p>\\n\\n    <table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"margin:0 0 24px 0;\\\">\\n      <tr>\\n        <td width=\\\"33%\\\" valign=\\\"top\\\" style=\\\"padding:4px;\\\">\\n          <table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background-color:#f4f6f9; border:1px solid #e3e7ee; border-radius:8px;\\\">\\n            <tr><td align=\\\"center\\\" style=\\\"padding:18px 8px;\\\">\\n              <div style=\\\"font-size:24px; margin-bottom:8px;\\\">🏢</div>\\n              <div style=\\\"font-size:14px; font-weight:700; color:#16245B; margin-bottom:4px;\\\">تأسيس الشركات</div>\\n              <div style=\\\"font-size:12px; color:#777777;\\\">محلية وأجنبية</div>\\n            </td></tr>\\n          </table>\\n        </td>\\n        <td width=\\\"33%\\\" valign=\\\"top\\\" style=\\\"padding:4px;\\\">\\n          <table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background-color:#f4f6f9; border:1px solid #e3e7ee; border-radius:8px;\\\">\\n            <tr><td align=\\\"center\\\" style=\\\"padding:18px 8px;\\\">\\n              <div style=\\\"font-size:24px; margin-bottom:8px;\\\">👥</div>\\n              <div style=\\\"font-size:14px; font-weight:700; color:#16245B; margin-bottom:4px;\\\">الموارد البشرية</div>\\n              <div style=\\\"font-size:12px; color:#777777;\\\">تشغيل وتوظيف</div>\\n            </td></tr>\\n          </table>\\n        </td>\\n        <td width=\\\"33%\\\" valign=\\\"top\\\" style=\\\"padding:4px;\\\">\\n          <table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background-color:#f4f6f9; border:1px solid #e3e7ee; border-radius:8px;\\\">\\n            <tr><td align=\\\"center\\\" style=\\\"padding:18px 8px;\\\">\\n              <div style=\\\"font-size:24px; margin-bottom:8px;\\\">🏛️</div>\\n              <div style=\\\"font-size:14px; font-weight:700; color:#16245B; margin-bottom:4px;\\\">العلاقات الحكومية</div>\\n              <div style=\\\"font-size:12px; color:#777777;\\\">قوى، مدد، مقيم، بلدي</div>\\n            </td></tr>\\n          </table>\\n        </td>\\n      </tr>\\n    </table>\\n\\n    <p style=\\\"margin:0 0 10px 0; font-size:16px; color:#16245B; font-weight:700; text-align:right;\\\">تشمل خدماتنا:</p>\\n    <table role=\\\"presentation\\\" width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" dir=\\\"rtl\\\" style=\\\"margin:0 0 20px 0;\\\">\\n      <tr><td style=\\\"font-size:14px; color:#444444; line-height:2; text-align:right; padding:0 4px;\\\">\\n        • تأسيس الشركات السعودية والأجنبية<br>\\n        • خدمات المستثمر الأجنبي<br>\\n        • التراخيص والسجلات التجارية<br>\\n        • إدارة الموارد البشرية والتشغيل<br>\\n        • التوظيف والاستقدام<br>\\n        • العلاقات الحكومية GRO<br>\\n        • قوى، مدد، مقيم، بلدي، التأمينات<br>\\n        • الامتثال لأنظمة العمل<br>\\n        • التوسع وافتتاح الفروع<br>\\n        • حلول التشغيل والإسناد الخارجي\\n      </td></tr>\\n    </table>\\n\\n    <p style=\\\"margin:0 0 22px 0; font-size:15px; color:#444444; text-align:right;\\\">\\n      يسعدنا تقديم مراجعة أولية مجانية لتحديد أفضل الخدمات المناسبة لوضع شركتكم الحالي.\\n    </p>\\n\\n    <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" align=\\\"center\\\" style=\\\"margin:0 auto 28px auto;\\\">\\n      <tr>\\n        <td style=\\\"padding:0 6px;\\\">\\n          <a href=\\\"{{BOOKING_URL}}\\\" style=\\\"display:inline-block; background-color:#16245B; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:13px 26px; border-radius:8px;\\\">احجز استشارة مجانية</a>\\n        </td>\\n        <td style=\\\"padding:0 6px;\\\">\\n          <a href=\\\"https://wa.me/966507034157\\\" style=\\\"display:inline-block; background-color:#43A047; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:13px 26px; border-radius:8px;\\\">تواصل عبر واتساب</a>\\n        </td>\\n      </tr>\\n    </table>\\n\\n  </td></tr>\\n\\n  <tr><td style=\\\"padding:0 36px;\\\"><hr style=\\\"border:none; border-top:1px solid #e3e7ee; margin:0;\\\"></td></tr>\\n\\n  <tr><td style=\\\"padding:24px 36px 0 36px;\\\" dir=\\\"ltr\\\">\\n\\n    <h2 style=\\\"margin:0 0 18px 0; font-size:22px; color:#16245B; font-weight:700; text-align:left;\\\">Business Growth &amp; Operational Support</h2>\\n\\n    <p style=\\\"margin:0 0 16px 0; font-size:15px; color:#333333; text-align:left;\\\">Hello,</p>\\n\\n    <p style=\\\"margin:0 0 16px 0; font-size:15px; color:#444444; text-align:left;\\\">While reviewing companies operating in Saudi Arabia, we came across:</p>\\n\\n    <p style=\\\"margin:0 0 18px 0; font-size:18px; color:#16245B; font-weight:700; text-align:left;\\\">{{COMPANY_NAME}}</p>\\n\\n    <p style=\\\"margin:0 0 16px 0; font-size:15px; color:#444444; line-height:1.8; text-align:left;\\\">\\n      Based on your business activity, we believe Business Partner may support your company with company formation, expansion, licensing, government relations, HR operations, and regulatory compliance.\\n    </p>\\n\\n    <p style=\\\"margin:0 0 22px 0; font-size:15px; color:#444444; line-height:1.8; text-align:left;\\\">\\n      Business Partner provides practical advisory and operational support for companies in Saudi Arabia, including company formation, government relations, HR operations, licensing, compliance, and expansion support.\\n    </p>\\n\\n    <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" align=\\\"center\\\" style=\\\"margin:0 auto 26px auto;\\\">\\n      <tr>\\n        <td style=\\\"padding:0 6px;\\\">\\n          <a href=\\\"{{BOOKING_URL}}\\\" style=\\\"display:inline-block; background-color:#16245B; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:13px 26px; border-radius:8px;\\\">Book Free Consultation</a>\\n        </td>\\n        <td style=\\\"padding:0 6px;\\\">\\n          <a href=\\\"https://wa.me/966507034157\\\" style=\\\"display:inline-block; background-color:#43A047; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:13px 26px; border-radius:8px;\\\">Contact via WhatsApp</a>\\n        </td>\\n      </tr>\\n    </table>\\n\\n  </td></tr>\\n\\n  <tr><td style=\\\"padding:0 36px;\\\"><hr style=\\\"border:none; border-top:1px solid #e3e7ee; margin:0;\\\"></td></tr>\\n\\n  <tr><td align=\\\"center\\\" style=\\\"padding:22px 36px 30px 36px;\\\">\\n    <p style=\\\"margin:0 0 8px 0; font-size:15px; font-weight:700; color:#16245B;\\\">Business Partner</p>\\n    <p style=\\\"margin:0 0 6px 0; font-size:12px; color:#888888;\\\">Company Formation &nbsp;|&nbsp; Foreign Investor Setup &nbsp;|&nbsp; HR Operations &nbsp;|&nbsp; Government Relations</p>\\n    <p style=\\\"margin:0 0 12px 0; font-size:12px; color:#888888;\\\">Riyadh &nbsp;|&nbsp; Jeddah &nbsp;|&nbsp; Kingdom of Saudi Arabia</p>\\n    <p style=\\\"margin:0 0 6px 0; font-size:13px; color:#555555;\\\">0507034157 &nbsp;|&nbsp; 0503793356 &nbsp;|&nbsp; 0530540231</p>\\n    <p style=\\\"margin:0; font-size:13px;\\\"><a href=\\\"mailto:business@businesspartnerksa.com\\\" style=\\\"color:#1A5FB4; text-decoration:none;\\\">business@businesspartnerksa.com</a></p>\\n  </td></tr>\\n\\n</table>\\n\\n</td></tr>\\n</table>\\n</body>\\n</html>\";\n\nfunction firstEmail(raw){\n  if(!raw) return \"\";\n  const parts = String(raw).split(/[,;\\s]+/).map(s=>s.trim()).filter(Boolean);\n  for(const p of parts){ if(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(p)) return p.toLowerCase(); }\n  return \"\";\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const email = firstEmail(j[\"property_email\"] || j[\"property_email_s\"] || j.email || \"\");\n  if(!email) continue;\n  const domain = email.split(\"@\")[1];\n  if(EXCLUDE_DOMAINS.includes(domain)) continue;\n  if(EXCLUDE_EMAILS.includes(email)) continue;\n  const isPersonal = PERSONAL_DOMAINS.includes(domain);\n  if(PHASE===\"corporate\" && isPersonal) continue;\n  if(PHASE===\"personal\" && !isPersonal) continue;\n\n  const company = (j[\"property_company_name_clean\"] || j[\"property_clean_name\"] || j.name || \"\").toString().trim();\n  const html = TEMPLATE\n    .split(\"{{COMPANY_NAME}}\").join(company)\n    .split(\"{{BOOKING_URL}}\").join(BOOKING_URL)\n    .replace(\"<!-- {{CONTACT_GREETING}} -->\",\"\");\n\n  out.push({ json: { _pageId: j.id, _realEmail: email, _to: TEST_TO || email, _subject: SUBJECT, _html: html, _company: company, _testMode: !!TEST_TO }});\n}\nreturn out;"
+      },
+      "id": "13ec6174-8fe7-4306-a553-34383c96ddd3",
+      "name": "Build Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json._to }}",
+        "subject": "={{ $json._subject }}",
+        "message": "={{ $json._html }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "resource": "message",
+        "operation": "send",
+        "emailType": "html",
+        "senderName": "Business Partner",
+        "replyTo": "business@businesspartnerksa.com"
+      },
+      "id": "d3ef5339-b7f6-4e2a-ae15-3c18f3c6d3a5",
+      "name": "Send via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        384
+      ],
+      "notesInFlow": true,
+      "webhookId": "916f8f00-1090-4a09-bcbd-34d59096258c",
+      "onError": "continueRegularOutput",
+      "notes": "Assign Gmail credential business@businesspartnerksa.com. emailType=html.",
+      "disabled": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Build Emails').item.json._pageId }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Campaign Sent|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Last Campaign Status|select",
+              "selectValue": "Sent"
+            },
+            {
+              "key": "n8n Processed|checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Campaign Date|date",
+              "includeTime": false,
+              "date": "={{ $now.toISODate() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a852b82-2223-4499-ab4d-64be342da272",
+      "name": "Mark Sent",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        384
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "notesInFlow": true,
+      "notes": "Campaign Sent, Last Campaign Status=Sent, Campaign Date, n8n Processed. Assign Notion credential.",
+      "disabled": false,
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## BP Campaign Sender\n**Source:** BP — Companies Sales DB (قاعدة الشركات)\n**Send list:** Email not empty · Campaign Sent = false · Duplicate = false · **Suppressed = false**\n\n### PAUSED as of 2026-08-06\nThe first campaign bounced at 25–40% (safe ceiling: 5%) and put the sending domain at risk. Publish this workflow again only after reading `docs/marketing-agent/email-campaign-hygiene.md`.\n\n### Safety chain\n1. `Get Ready-to-Send` pulls up to 60 candidates.\n2. `Guard: Validate Before Send` drops suppressed / duplicate / malformed / dead-domain / global-platform / placeholder addresses and **caps the run at 25**.\n3. `Build Emails` renders the template. `TEST_TO = \"\"` means LIVE — put your own address there to test.\n4. `Mark Sent` writes the result back to Notion.\n\n### Companion workflows\n- **BP — Sales DB Hygiene** — run after every list import.\n- **BP — Bounce Handler** — every 4h, marks bounced addresses Failed so they are never retried.\n\n### Before raising the volume\nKeep 25/day for at least two weeks. Only raise it once the rolling 7-day bounce rate is under 3%.",
+        "height": 320,
+        "width": 420
+      },
+      "id": "4f231b34-37c0-4da5-9c77-83e23b209be0",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "f3b04e67-2fcb-4a50-9d49-9ce1bb0f8b93",
+      "name": "Campaign Schedule — 10:00 daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 10,
+              "triggerAtMinute": 0
+            }
+          ]
+        },
+        "notes": "Once daily at 10:00 Asia/Riyadh. Each run pulls up to 60 candidates; the guard node caps actual sends at 25."
+      },
+      "notes": "Runs twice daily at 09:00 and 15:00. Each run pulls up to 50 Ready to Send leads."
+    },
+    {
+      "id": "c901404a-e40f-4f41-b075-8580973485d5",
+      "name": "Guard: Validate Before Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        340,
+        560
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ===== Guard: Validate Before Send =====\n// Nothing reaches Gmail unless it survives the same checks the hygiene pass applies.\n// Also caps the daily volume — the domain is recovering from a bad bounce rate.\nconst MAX_PER_RUN = 25;\n\nconst DEAD = new Set([\"7brand-sa.com\",\"abhais.edu.sa\",\"acic-ksa.com\",\"al-omaier.com\",\"alassimi-law.com\",\"albassamschools.edu.sa\",\"alemaaralareq.com\",\"alexiahotels.com\",\"alhadafelamny.com\",\"alhamads.com\",\"alharbiholding.com\",\"alkifahprecast.com\",\"almosanadah.net\",\"alnagah-clean.com\",\"aom-company.com\",\"app.beyah.sa\",\"aybmedical.company\",\"bbd.sa\",\"be.besmartksa.com\",\"bml.med.sa\",\"bn-shmashyer.com\",\"cgshool.com.sa\",\"citytechsa.com\",\"company.sa\",\"doroob-roze.com\",\"eamaraseer.sa\",\"eisa4044.sa\",\"elsakrplastic.com\",\"etspices.com\",\"farajalofi.com\",\"firstgulfcompany.com\",\"flglc.com\",\"flyto-sky.com\",\"friend2020.com\",\"goharamarket.com\",\"goldenl.sa\",\"greenarrowac.com\",\"h-sakan.com\",\"health-dimension.com\",\"hospital.kau.edu.sa\",\"jewaralsafwahsa.com\",\"kaah.med.sa\",\"kinona.sa\",\"lanaiis.in\",\"lcc.sa\",\"lifelines-store.com\",\"mah.sa\",\"masadar.com.sa\",\"medad-medical.com\",\"medpromedicals.com\",\"nano.com.sa\",\"nequlalarabia.com\",\"odata.type\",\"orisderma.com\",\"qistlaw.sa\",\"rct.edu.sa\",\"rehabalmadinaa.com\",\"saad-international.com\",\"safarplustravels.net\",\"salama-team.com\",\"sattahmakkhahservice.com\",\"sawarifuture.com\",\"sepcoarabia.com\",\"shodeshtravel.com\",\"shorfarealestate.com\",\"square1sa.com\",\"sultanrec.com\",\"thekrsch.com\",\"toolsworldksa.redintek.in\",\"tzaidd.com\",\"untitled.tld\",\"uod.edu.sa\",\"wajen.sa\",\"wwww.printazone.com\",\"69317660ca139.site123.me\",\"6a1b9bc50bcbb.site123.me\",\"6a221a25a1202.site123.me\",\"ain.com\",\"alshmukh.adalo.com\",\"api.whatsapp.com\",\"apps.apple.com\",\"aqspepsi.wordpress.com\",\"buruj.sa\",\"cdn.qr-code-generator.com\",\"cholarestaurant.coreninesolutions.com\",\"en.zoomlion.com\",\"jasminegardenhotel.seebooking.com\",\"kfsh.med.sa\",\"m.facebook.com\",\"me.marsh.com\",\"qr.finedinemenu.com\",\"sa.hm.com\",\"srexpress.com\",\"training.alkhaleej.com.sa\",\"-ascott.com\"]);\n\nconst PLATFORM = new Set([\"booking.com\",\"expedia.com\",\"google.com\",\"goo.gl\",\"maps.app.goo.gl\",\"instagram.com\",\"facebook.com\",\"tiktok.com\",\"x.com\",\"twitter.com\",\"linkedin.com\",\"snapchat.com\",\"framer.com\",\"flowcode.com\",\"myqrcode.com\",\"instabio.cc\",\"n9.cl\",\"qrco.de\",\"salla.sa\",\"vip.com\",\"adobe.com\",\"sentry.io\",\"wixpress.com\",\"yaschools.com\",\"bayut.sa\",\"jomla.me\",\"stagheaddesigns.com\",\"indiantypefoundry.com\",\"micahrich.com\",\"reserval.com\",\"mysecurecloudhost.com\",\"hyattrestaurants.com\",\"marriott.com\",\"radissonhotels.com\",\"millenniumhotels.com\",\"swissotel.com\",\"warwickhotels.com\",\"wyndham.com\",\"otis.com\"]);\n\nconst PLATFORM_SUFFIXES = [\".site123.me\",\".lovable.app\",\".adalo.com\",\".weebly.com\",\".wordpress.com\",\".foodics.online\",\".classera.com\",\".bookmystay.io\",\".seebooking.com\",\".joodbooking.com\",\".verticalbooking.com\",\".hotelmold.top\",\".baab.com\",\".zaaer.co\",\".finedinemenu.com\",\".redintek.in\",\".wiandk.app\",\".coreninesolutions.com\",\".pics.ee\",\".qr-code-generator.com\"];\n\nconst PLACEHOLDER = new Set([\"company.com\",\"mysite.com\",\"domain.com\",\"email.com\",\"example.com\",\"example.org\",\"yourwebsite.com\",\"yourdomain.com\",\"yoursite.com\",\"compant.com\",\"blocks.com\",\"hq.com\",\"realesatate.com\",\"untitled.tld\",\"domain.tld\",\"test.com\",\"site.com\",\"mail.com\"]);\nconst PLACEHOLDER_LOCALS = new Set([\"example\",\"your\",\"yourname\",\"youremail\",\"yourmail\",\"email\",\"test\",\"name\",\"firstname\",\"username\",\"sample\",\"demo\"]);\n\nconst RE_EMAIL = /^[a-z0-9._%+'-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/;\n\nfunction normalise(raw) {\n  if (!raw) return \"\";\n  let s = String(raw).trim();\n  try { s = decodeURIComponent(s); } catch (e) { s = s.replace(/%20/g, \" \"); }\n  s = s.replace(/^mailto:/i, \"\");\n  const parts = s.split(/[,;\\s<>()\\[\\]]+/).map(p => p.trim().toLowerCase()).filter(Boolean);\n  for (const p of parts) if (RE_EMAIL.test(p)) return p;\n  return \"\";\n}\n\nconst out = [];\nconst seen = new Set();\nconst dropped = { suppressed: 0, duplicate: 0, sent: 0, invalid: 0, dead: 0, platform: 0, placeholder: 0, repeat: 0 };\n\nfor (const item of $input.all()) {\n  const j = item.json;\n  if (j.property_suppressed === true) { dropped.suppressed++; continue; }\n  if (j.property_duplicate === true) { dropped.duplicate++; continue; }\n  if (j.property_campaign_sent === true) { dropped.sent++; continue; }\n\n  const email = normalise(j.property_email || j.email || \"\");\n  if (!email) { dropped.invalid++; continue; }\n\n  const domain = email.split(\"@\")[1];\n  const local = email.split(\"@\")[0];\n  if (DEAD.has(domain)) { dropped.dead++; continue; }\n  if (PLATFORM.has(domain) || PLATFORM_SUFFIXES.some(s => domain.endsWith(s))) { dropped.platform++; continue; }\n  if (PLACEHOLDER.has(domain) || PLACEHOLDER_LOCALS.has(local)) { dropped.placeholder++; continue; }\n  if (seen.has(email)) { dropped.repeat++; continue; }\n  seen.add(email);\n\n  // The template reads company_name_clean; this DB stores the title in Name.\n  const company = (j.property_company_name_clean || j.property_name || j.name || \"\").toString().trim();\n  if (!company) { dropped.invalid++; continue; }\n\n  out.push({ json: Object.assign({}, j, { property_email: email, property_company_name_clean: company }) });\n  if (out.length >= MAX_PER_RUN) break;\n}\n\nconsole.log(\"guard passed:\", out.length, \"| dropped:\", JSON.stringify(dropped));\nreturn out;\n"
+      },
+      "notes": "Last line of defence before Gmail. Drops anything the hygiene pass would suppress and caps the run at 25."
+    },
+    {
+      "id": "5c95b9de-2b89-4e43-8410-1f1da9347694",
+      "name": "MX Lookup (dns.google)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        700
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://dns.google/resolve?name={{ $json.property_email.split('@')[1] }}&type=MX",
+        "options": {
+          "timeout": 8000
+        }
+      },
+      "notes": "Live MX check per address. No credential needed — dns.google is a public DNS-over-HTTPS resolver."
+    },
+    {
+      "id": "0bd64d15-effe-4c84-a318-83d0505d89f7",
+      "name": "Drop Domains Without MX",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        700
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Pair each DNS answer back to its lead by position — the HTTP node preserves input order.\nconst leads = $('Guard: Validate Before Send').all();\nconst answers = $input.all();\n\nconst out = [];\nconst dropped = { nxdomain: 0, no_mx: 0 };\nlet unresolved = 0;\n\nfor (let i = 0; i < leads.length; i++) {\n  const r = (answers[i] && answers[i].json) || {};\n  const status = r.Status;\n\n  // Status 3 = NXDOMAIN: the domain does not exist.\n  if (status === 3) { dropped.nxdomain++; continue; }\n\n  // Status 0 = NOERROR. Records of type 15 are MX. No MX means no mail server:\n  // 48 of the confirmed bounces were exactly this case, so it is worth dropping.\n  if (status === 0) {\n    const hasMx = Array.isArray(r.Answer) && r.Answer.some(a => a.type === 15);\n    if (!hasMx) { dropped.no_mx++; continue; }\n    out.push(leads[i]);\n    continue;\n  }\n\n  // Anything else (SERVFAIL, timeout, the request itself failed) is not evidence\n  // of a bad address. Let it through and let the bounce handler judge it.\n  unresolved++;\n  out.push(leads[i]);\n}\n\nconsole.log('MX check passed:', out.length, '| dropped:', JSON.stringify(dropped), '| unresolved (allowed):', unresolved);\nreturn out;\n"
+      },
+      "notes": "Pairs each DNS answer back to its lead by position and drops the undeliverable ones."
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

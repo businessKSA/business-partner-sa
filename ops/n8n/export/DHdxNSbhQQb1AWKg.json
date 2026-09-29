@@ -1,0 +1,1042 @@
+{
+  "id": "DHdxNSbhQQb1AWKg",
+  "name": "BP3 — قائد الامتثال (WhatsApp)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "b9a46785-349c-4d37-a79e-9a8cb2494528",
+  "activeVersionId": "b706cd2d-93de-4513-a007-3a77da969d7a",
+  "triggerCount": 0,
+  "nodeCount": 14,
+  "createdAt": "2026-08-12T00:18:53.856Z",
+  "updatedAt": "2026-09-23T04:28:19.617Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "وكيل أوامر الامتثال عبر واتساب (يُستدعى من مُعين): يقرأ سجل الامتثال والتنبيهات والمستندات وحسابات العملاء من نوشن، يحسب التكاليف الرسمية، ويضيف منشأة/يحذف ملفاً بعد تأكيد صريح — والرد يعود لمُعين ليرسله واتساب.",
+  "connections": {
+    "استدعاء من مُعين": {
+      "main": [
+        [
+          {
+            "node": "توحيد المدخلات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "توحيد المدخلات": {
+      "main": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ذاكرة المحادثة": {
+      "ai_memory": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تجربة يدوية": {
+      "main": [
+        [
+          {
+            "node": "بيانات التجربة",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بيانات التجربة": {
+      "main": [
+        [
+          {
+            "node": "توحيد المدخلات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add_company": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delete_client_file": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compliance_register": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compliance_alerts": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uploaded_documents": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "client_accounts": {
+      "ai_tool": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "قائد الامتثال",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "b08c6221-33eb-476c-b022-1fc8c25b3750",
+      "name": "استدعاء من مُعين",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        100
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "952a9019-8e9b-4a62-8f27-8cdab78f9646",
+      "name": "توحيد المدخلات",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        200
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "u1",
+              "name": "fromNumber",
+              "value": "={{ $json.fromNumber || \"966530540231\" }}",
+              "type": "string"
+            },
+            {
+              "id": "u2",
+              "name": "userText",
+              "value": "={{ ($json.userText || \"\").replace(/^\\s*امتثال[:،,\\s]*/,\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "u3",
+              "name": "senderName",
+              "value": "={{ $json.senderName || \"باهر\" }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "333e8852-cd67-4296-a654-73c3ac8d0e97",
+      "name": "قائد الامتثال",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        820,
+        200
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=أمر من باهر عبر واتساب ({{ $now.setZone(\"Asia/Riyadh\").toFormat(\"yyyy-MM-dd HH:mm\") }}):\n\n{{ $json.userText }}",
+        "options": {
+          "maxIterations": 10,
+          "systemMessage": "أنت «قائد الامتثال» — وكيل تنفيذ أوامر منصة BP3 للامتثال الحكومي السعودي، تخدم باهر فقط عبر واتساب.\n\nأسلوبك:\n- رد مختصر وتنفيذي: نفّذ أولاً ثم أخبر النتيجة في سطرين إلى خمسة أسطر كحد أقصى.\n- افهم اللهجة السعودية والعربية والإنجليزية.\n- التواريخ بصيغة yyyy-MM-dd، واحسب الأيام المتبقية مقارنة بتاريخ اليوم المذكور في الرسالة.\n- إذا نقصت معلومة اسأل سؤالاً واحداً فقط.\n\nمهامك وأدواتك:\n1. حالة الامتثال: استخدم «سجل الامتثال» و«التنبيهات» — لخّص المنتهي (تاريخ انتهاء في الماضي)، والقريب (≤30 يوم)، والسليم. رتّب بالأخطر أولاً.\n2. الملفات: استخدم «المستندات المرفوعة» للعرض، و«حذف ملف» للحذف (بعد تأكيد صريح فقط).\n3. المنشآت والعملاء: استخدم «حسابات العملاء»؛ و«إضافة منشأة» لإضافة منشأة جديدة (بعد تأكيد صريح فقط).\n4. التكاليف الحكومية (أرقام رسمية 2025–2026، احسب مباشرة دون أدوات):\n   لكل عامل وافد سنوياً: مقابل مالي 8400 (وافدون ≤ سعوديين) أو 9600 (وافدون أكثر) + رخصة عمل 100 + إقامة 650 + خروج وعودة 200 + تأمين طبي ≈800 + أخطار مهنية 2% من الراتب السنوي. المنشآت الصناعية المرخّصة معفاة من المقابل المالي. المرافقون 4800/مرافق يدفعها العامل. GOSI سعودي 21.5% (11.75% منشأة + 9.75% موظف). سجل تجاري 200/سنة، عنوان وطني 500 مؤسسات و1000 شركات، غرفة تجارية 500–10000 حسب الدرجة، إيجار تجاري 200 أول سنة، زاتكا تسجيل مجاني وغرامة تأخير الإقرار 5–25%.\n5. رابط لوحة العميل: https://www.businesspartner.sa/ar/compliance-dashboard\n\nقواعد صارمة:\n- أي إجراء كتابة (إضافة منشأة، حذف ملف) يحتاج تأكيداً صريحاً من باهر في نفس المحادثة قبل استدعاء الأداة. اعرض ما ستفعله أولاً ثم انتظر «نعم/أكد».\n- لا تخترع بيانات: كل رقم أو تاريخ يجب أن يأتي من الأدوات أو من قائمة الرسوم أعلاه.\n- بيانات نوشن تأتي بصيغة properties خام — اقرأ الحقول: title/rich_text (plain_text)، select (name)، date (start)، number، email.\n- صيغة الرد: نجاح «تم — …»، نقص معلومة «احتاج … فقط»، خطأ «ما تم — السبب: …».",
+          "needsFallback": false
+        },
+        "needsFallback": false
+      }
+    },
+    {
+      "id": "73cb35c7-bebe-46b8-ba8a-743560b05f03",
+      "name": "ذاكرة المحادثة",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        700,
+        460
+      ],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $(\"توحيد المدخلات\").first().json.fromNumber || \"baher\" }}-bp3",
+        "contextWindowLength": 15
+      }
+    },
+    {
+      "id": "506d71ed-dfa9-4307-b58a-02e27ae7e401",
+      "name": "add_company",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "يضيف منشأة جديدة لحساب عميل موجود (تُنشأ نشطة بنفس رمز الدخول). لا تستخدمه إلا بعد تأكيد صريح من باهر، وبعد جلب بريد العميل ورمز دخوله من أداة حسابات العملاء.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ company: $fromAI(\"company\", \"اسم المنشأة الجديدة\"), unified: $fromAI(\"unified\", \"الرقم الموحد أو السجل التجاري\", \"string\", \"\"), email: $fromAI(\"email\", \"بريد العميل المسجل\"), code: $fromAI(\"code\", \"رمز دخول العميل الحالي\"), notes: \"أُضيفت عبر قائد الامتثال (واتساب)\", new_company: \"1\" }) }}"
+      }
+    },
+    {
+      "id": "9a8b030b-3c5d-4a34-a3ce-57e5b83e12f5",
+      "name": "delete_client_file",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "يحذف ملفاً مرفوعاً (ينقل ملف Drive للمهملات ويؤرشف سجله في نوشن). خطوة لا رجعة سهلة فيها: لا تستخدمه إلا بعد تأكيد صريح من باهر باسم الملف، وبعد جلب doc_page_id و drive_file_id من أداة المستندات المرفوعة وبريد/رمز العميل من أداة حسابات العملاء.",
+        "method": "POST",
+        "url": "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: \"delete_file\", email: $fromAI(\"email\", \"بريد العميل\"), code: $fromAI(\"code\", \"رمز دخول العميل\"), doc_page_id: $fromAI(\"doc_page_id\", \"معرف صفحة المستند في نوشن\"), drive_file_id: $fromAI(\"drive_file_id\", \"معرف ملف Google Drive\") }) }}"
+      }
+    },
+    {
+      "id": "072c65bd-92e0-4ae9-953d-bdfae4fc2004",
+      "name": "تجربة يدوية",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "68e7b180-087b-445d-9fff-3db18bdbb8eb",
+      "name": "بيانات التجربة",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        320
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "fromNumber",
+              "value": "966530540231",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "senderName",
+              "value": "باهر",
+              "type": "string"
+            },
+            {
+              "id": "s3",
+              "name": "msgType",
+              "value": "text",
+              "type": "string"
+            },
+            {
+              "id": "s4",
+              "name": "userText",
+              "value": "امتثال: وش وضع منشآتنا؟ وش المنتهي ووش الأقرب؟",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7c5f17ef-4483-4ffa-b2f2-fc82a1524fa8",
+      "name": "Sticky Note 2a96ed70",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "parameters": {
+        "content": "## 🛡️ BP3 — قائد الامتثال (WhatsApp)\n\nيُستدعى من مُعين عندما تبدأ رسالة باهر بكلمة «امتثال».\nيقرأ سجل الامتثال والتنبيهات والمستندات وحسابات العملاء من نوشن، يحسب التكاليف بالأرقام الرسمية، ويضيف منشأة أو يحذف ملفاً بعد تأكيد صريح.\nالرد يعود إلى مُعين الذي يرسله واتساب.\n\nمسار التجربة اليدوية: «تجربة يدوية» → «بيانات التجربة».",
+        "color": 4
+      }
+    },
+    {
+      "id": "7b831a2d-2cc0-460b-bf0e-4bf9aa1e2ff1",
+      "name": "compliance_register",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        840,
+        460
+      ],
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "يجلب بنود سجل الامتثال (مبسّطة): المنشأة، المنصة، نوع الإجراء، الموظف أو الموضوع، تاريخ الانتهاء. استخدمه لأي سؤال عن الحالة أو المنتهي أو القريب من الانتهاء.",
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "7258a074-49a6-444f-adc1-86a61cc3a77e"
+        },
+        "returnAll": true,
+        "simple": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "a9be78d4-d428-42d9-83be-cb6db5b14e8e",
+      "name": "compliance_alerts",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        980,
+        460
+      ],
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "يجلب تنبيهات الامتثال (مبسّطة): التنبيه، الخطورة، المنصة، الأيام المتبقية، الإجراء الموصى به.",
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6879f590-9678-4a27-9857-4c3777882e67"
+        },
+        "returnAll": false,
+        "limit": 30,
+        "simple": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "55493d4c-044b-4442-ae50-ab3d014b1b62",
+      "name": "uploaded_documents",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        460
+      ],
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "يجلب المستندات المرفوعة (مبسّطة): Document Name، Document Type، Expiry Date، Drive File ID، Verification URL، ومعرف الصفحة id (مطلوب للحذف). استخدمه لعرض الملفات أو قبل حذف ملف.",
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "f1ae9f21-8aa0-4327-bde5-3c4aa7f13f2b"
+        },
+        "returnAll": false,
+        "limit": 30,
+        "simple": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "e22d04dc-afa0-486a-925d-8468c6ebadde",
+      "name": "client_accounts",
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        1260,
+        460
+      ],
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "يجلب حسابات العملاء ومنشآتهم (مبسّطة): المنشأة، البريد، رمز الدخول، حالة الاشتراك. استخدمه قبل إضافة منشأة أو حذف ملف.",
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "5d570a75-009b-4101-9857-060d0670642f"
+        },
+        "returnAll": false,
+        "limit": 30,
+        "simple": true,
+        "options": {}
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion — Business Partner OS — Production"
+        }
+      }
+    },
+    {
+      "id": "9ced57e5-7e49-4be1-9167-3b3b0da7de4d",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        560,
+        800
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxRetries": 2,
+          "maxTokens": 2000,
+          "temperature": 0.3,
+          "timeout": 90000
+        }
+      },
+      "notes": "المحرّك الأساسي. bp-main على bp-ai-ksa-2026.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": false,
+    "nodes": [
+      {
+        "id": "b08c6221-33eb-476c-b022-1fc8c25b3750",
+        "name": "استدعاء من مُعين",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          100
+        ],
+        "parameters": {
+          "inputSource": "passthrough"
+        }
+      },
+      {
+        "id": "952a9019-8e9b-4a62-8f27-8cdab78f9646",
+        "name": "توحيد المدخلات",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          440,
+          200
+        ],
+        "parameters": {
+          "mode": "manual",
+          "includeOtherFields": true,
+          "assignments": {
+            "assignments": [
+              {
+                "id": "u1",
+                "name": "fromNumber",
+                "value": "={{ $json.fromNumber || \"966530540231\" }}",
+                "type": "string"
+              },
+              {
+                "id": "u2",
+                "name": "userText",
+                "value": "={{ ($json.userText || \"\").replace(/^\\s*امتثال[:،,\\s]*/,\"\") }}",
+                "type": "string"
+              },
+              {
+                "id": "u3",
+                "name": "senderName",
+                "value": "={{ $json.senderName || \"باهر\" }}",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "333e8852-cd67-4296-a654-73c3ac8d0e97",
+        "name": "قائد الامتثال",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          820,
+          200
+        ],
+        "parameters": {
+          "promptType": "define",
+          "text": "=أمر من باهر عبر واتساب ({{ $now.setZone(\"Asia/Riyadh\").toFormat(\"yyyy-MM-dd HH:mm\") }}):\n\n{{ $json.userText }}",
+          "options": {
+            "maxIterations": 10,
+            "systemMessage": "أنت «قائد الامتثال» — وكيل تنفيذ أوامر منصة BP3 للامتثال الحكومي السعودي، تخدم باهر فقط عبر واتساب.\n\nأسلوبك:\n- رد مختصر وتنفيذي: نفّذ أولاً ثم أخبر النتيجة في سطرين إلى خمسة أسطر كحد أقصى.\n- افهم اللهجة السعودية والعربية والإنجليزية.\n- التواريخ بصيغة yyyy-MM-dd، واحسب الأيام المتبقية مقارنة بتاريخ اليوم المذكور في الرسالة.\n- إذا نقصت معلومة اسأل سؤالاً واحداً فقط.\n\nمهامك وأدواتك:\n1. حالة الامتثال: استخدم «سجل الامتثال» و«التنبيهات» — لخّص المنتهي (تاريخ انتهاء في الماضي)، والقريب (≤30 يوم)، والسليم. رتّب بالأخطر أولاً.\n2. الملفات: استخدم «المستندات المرفوعة» للعرض، و«حذف ملف» للحذف (بعد تأكيد صريح فقط).\n3. المنشآت والعملاء: استخدم «حسابات العملاء»؛ و«إضافة منشأة» لإضافة منشأة جديدة (بعد تأكيد صريح فقط).\n4. التكاليف الحكومية (أرقام رسمية 2025–2026، احسب مباشرة دون أدوات):\n   لكل عامل وافد سنوياً: مقابل مالي 8400 (وافدون ≤ سعوديين) أو 9600 (وافدون أكثر) + رخصة عمل 100 + إقامة 650 + خروج وعودة 200 + تأمين طبي ≈800 + أخطار مهنية 2% من الراتب السنوي. المنشآت الصناعية المرخّصة معفاة من المقابل المالي. المرافقون 4800/مرافق يدفعها العامل. GOSI سعودي 21.5% (11.75% منشأة + 9.75% موظف). سجل تجاري 200/سنة، عنوان وطني 500 مؤسسات و1000 شركات، غرفة تجارية 500–10000 حسب الدرجة، إيجار تجاري 200 أول سنة، زاتكا تسجيل مجاني وغرامة تأخير الإقرار 5–25%.\n5. رابط لوحة العميل: https://www.businesspartner.sa/ar/compliance-dashboard\n\nقواعد صارمة:\n- أي إجراء كتابة (إضافة منشأة، حذف ملف) يحتاج تأكيداً صريحاً من باهر في نفس المحادثة قبل استدعاء الأداة. اعرض ما ستفعله أولاً ثم انتظر «نعم/أكد».\n- لا تخترع بيانات: كل رقم أو تاريخ يجب أن يأتي من الأدوات أو من قائمة الرسوم أعلاه.\n- بيانات نوشن تأتي بصيغة properties خام — اقرأ الحقول: title/rich_text (plain_text)، select (name)، date (start)، number، email.\n- صيغة الرد: نجاح «تم — …»، نقص معلومة «احتاج … فقط»، خطأ «ما تم — السبب: …»."
+          },
+          "needsFallback": true
+        }
+      },
+      {
+        "id": "544d2e76-ce53-48d7-855d-67ed8c37e4d6",
+        "name": "نموذج OpenAI",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          560,
+          460
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o",
+            "cachedResultName": "GPT-4o"
+          },
+          "options": {
+            "maxTokens": 2000,
+            "timeout": 90000
+          }
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "zLkW42jmoxYn595d",
+            "name": "OpenAI account"
+          }
+        }
+      },
+      {
+        "id": "73cb35c7-bebe-46b8-ba8a-743560b05f03",
+        "name": "ذاكرة المحادثة",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.4,
+        "position": [
+          700,
+          460
+        ],
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $(\"توحيد المدخلات\").first().json.fromNumber || \"baher\" }}-bp3",
+          "contextWindowLength": 15
+        }
+      },
+      {
+        "id": "506d71ed-dfa9-4307-b58a-02e27ae7e401",
+        "name": "add_company",
+        "type": "n8n-nodes-base.httpRequestTool",
+        "typeVersion": 4.2,
+        "position": [
+          1400,
+          460
+        ],
+        "parameters": {
+          "toolDescription": "يضيف منشأة جديدة لحساب عميل موجود (تُنشأ نشطة بنفس رمز الدخول). لا تستخدمه إلا بعد تأكيد صريح من باهر، وبعد جلب بريد العميل ورمز دخوله من أداة حسابات العملاء.",
+          "method": "POST",
+          "url": "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ company: $fromAI(\"company\", \"اسم المنشأة الجديدة\"), unified: $fromAI(\"unified\", \"الرقم الموحد أو السجل التجاري\", \"string\", \"\"), email: $fromAI(\"email\", \"بريد العميل المسجل\"), code: $fromAI(\"code\", \"رمز دخول العميل الحالي\"), notes: \"أُضيفت عبر قائد الامتثال (واتساب)\", new_company: \"1\" }) }}"
+        }
+      },
+      {
+        "id": "9a8b030b-3c5d-4a34-a3ce-57e5b83e12f5",
+        "name": "delete_client_file",
+        "type": "n8n-nodes-base.httpRequestTool",
+        "typeVersion": 4.2,
+        "position": [
+          1540,
+          460
+        ],
+        "parameters": {
+          "toolDescription": "يحذف ملفاً مرفوعاً (ينقل ملف Drive للمهملات ويؤرشف سجله في نوشن). خطوة لا رجعة سهلة فيها: لا تستخدمه إلا بعد تأكيد صريح من باهر باسم الملف، وبعد جلب doc_page_id و drive_file_id من أداة المستندات المرفوعة وبريد/رمز العميل من أداة حسابات العملاء.",
+          "method": "POST",
+          "url": "https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ action: \"delete_file\", email: $fromAI(\"email\", \"بريد العميل\"), code: $fromAI(\"code\", \"رمز دخول العميل\"), doc_page_id: $fromAI(\"doc_page_id\", \"معرف صفحة المستند في نوشن\"), drive_file_id: $fromAI(\"drive_file_id\", \"معرف ملف Google Drive\") }) }}"
+        }
+      },
+      {
+        "id": "072c65bd-92e0-4ae9-953d-bdfae4fc2004",
+        "name": "تجربة يدوية",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          320
+        ],
+        "parameters": {}
+      },
+      {
+        "id": "68e7b180-087b-445d-9fff-3db18bdbb8eb",
+        "name": "بيانات التجربة",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          220,
+          320
+        ],
+        "parameters": {
+          "mode": "manual",
+          "includeOtherFields": false,
+          "assignments": {
+            "assignments": [
+              {
+                "id": "s1",
+                "name": "fromNumber",
+                "value": "966530540231",
+                "type": "string"
+              },
+              {
+                "id": "s2",
+                "name": "senderName",
+                "value": "باهر",
+                "type": "string"
+              },
+              {
+                "id": "s3",
+                "name": "msgType",
+                "value": "text",
+                "type": "string"
+              },
+              {
+                "id": "s4",
+                "name": "userText",
+                "value": "امتثال: وش وضع منشآتنا؟ وش المنتهي ووش الأقرب؟",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "7c5f17ef-4483-4ffa-b2f2-fc82a1524fa8",
+        "name": "Sticky Note 2a96ed70",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          100,
+          300
+        ],
+        "parameters": {
+          "content": "## 🛡️ BP3 — قائد الامتثال (WhatsApp)\n\nيُستدعى من مُعين عندما تبدأ رسالة باهر بكلمة «امتثال».\nيقرأ سجل الامتثال والتنبيهات والمستندات وحسابات العملاء من نوشن، يحسب التكاليف بالأرقام الرسمية، ويضيف منشأة أو يحذف ملفاً بعد تأكيد صريح.\nالرد يعود إلى مُعين الذي يرسله واتساب.\n\nمسار التجربة اليدوية: «تجربة يدوية» → «بيانات التجربة».",
+          "color": 4
+        }
+      },
+      {
+        "id": "a7d41beb-326d-4e98-a3c6-5d05ae2f4123",
+        "name": "نموذج Groq احتياطي",
+        "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+        "typeVersion": 1,
+        "position": [
+          560,
+          640
+        ],
+        "parameters": {
+          "model": "openai/gpt-oss-120b",
+          "options": {}
+        },
+        "credentials": {
+          "groqApi": {
+            "id": "dhoBme9q4ESj2pAS",
+            "name": "Groq account"
+          }
+        }
+      },
+      {
+        "id": "7b831a2d-2cc0-460b-bf0e-4bf9aa1e2ff1",
+        "name": "compliance_register",
+        "type": "n8n-nodes-base.notionTool",
+        "typeVersion": 2.2,
+        "position": [
+          840,
+          460
+        ],
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "يجلب بنود سجل الامتثال (مبسّطة): المنشأة، المنصة، نوع الإجراء، الموظف أو الموضوع، تاريخ الانتهاء. استخدمه لأي سؤال عن الحالة أو المنتهي أو القريب من الانتهاء.",
+          "authentication": "oAuth2",
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "7258a074-49a6-444f-adc1-86a61cc3a77e"
+          },
+          "returnAll": true,
+          "simple": true,
+          "options": {}
+        },
+        "credentials": {
+          "notionOAuth2Api": {
+            "id": "USVPflXCkLXwDvRx",
+            "name": "Notion — Business Partner OS — Production"
+          }
+        }
+      },
+      {
+        "id": "a9be78d4-d428-42d9-83be-cb6db5b14e8e",
+        "name": "compliance_alerts",
+        "type": "n8n-nodes-base.notionTool",
+        "typeVersion": 2.2,
+        "position": [
+          980,
+          460
+        ],
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "يجلب تنبيهات الامتثال (مبسّطة): التنبيه، الخطورة، المنصة، الأيام المتبقية، الإجراء الموصى به.",
+          "authentication": "oAuth2",
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "6879f590-9678-4a27-9857-4c3777882e67"
+          },
+          "returnAll": false,
+          "limit": 30,
+          "simple": true,
+          "options": {}
+        },
+        "credentials": {
+          "notionOAuth2Api": {
+            "id": "USVPflXCkLXwDvRx",
+            "name": "Notion — Business Partner OS — Production"
+          }
+        }
+      },
+      {
+        "id": "55493d4c-044b-4442-ae50-ab3d014b1b62",
+        "name": "uploaded_documents",
+        "type": "n8n-nodes-base.notionTool",
+        "typeVersion": 2.2,
+        "position": [
+          1120,
+          460
+        ],
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "يجلب المستندات المرفوعة (مبسّطة): Document Name، Document Type، Expiry Date، Drive File ID، Verification URL، ومعرف الصفحة id (مطلوب للحذف). استخدمه لعرض الملفات أو قبل حذف ملف.",
+          "authentication": "oAuth2",
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "f1ae9f21-8aa0-4327-bde5-3aa4fa7f13f2"
+          },
+          "returnAll": false,
+          "limit": 30,
+          "simple": true,
+          "options": {}
+        },
+        "credentials": {
+          "notionOAuth2Api": {
+            "id": "USVPflXCkLXwDvRx",
+            "name": "Notion — Business Partner OS — Production"
+          }
+        }
+      },
+      {
+        "id": "e22d04dc-afa0-486a-925d-8468c6ebadde",
+        "name": "client_accounts",
+        "type": "n8n-nodes-base.notionTool",
+        "typeVersion": 2.2,
+        "position": [
+          1260,
+          460
+        ],
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "يجلب حسابات العملاء ومنشآتهم (مبسّطة): المنشأة، البريد، رمز الدخول، حالة الاشتراك. استخدمه قبل إضافة منشأة أو حذف ملف.",
+          "authentication": "oAuth2",
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "5d570a75-009b-4101-9857-060d0670642f"
+          },
+          "returnAll": false,
+          "limit": 30,
+          "simple": true,
+          "options": {}
+        },
+        "credentials": {
+          "notionOAuth2Api": {
+            "id": "USVPflXCkLXwDvRx",
+            "name": "Notion — Business Partner OS — Production"
+          }
+        }
+      },
+      {
+        "id": "9ced57e5-7e49-4be1-9167-3b3b0da7de4d",
+        "name": "Azure OpenAI (bp-main)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+        "typeVersion": 1,
+        "position": [
+          560,
+          800
+        ],
+        "parameters": {
+          "model": "bp-main",
+          "options": {
+            "maxRetries": 2,
+            "maxTokens": 2000,
+            "temperature": 0.3,
+            "timeout": 90000
+          }
+        },
+        "notes": "المحرّك الأساسي. bp-main على bp-ai-ksa-2026.",
+        "credentials": {
+          "azureOpenAiApi": {
+            "id": "hA1ULr5qtFuoBZ6B",
+            "name": "Azure Open AI account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "استدعاء من مُعين": {
+        "main": [
+          [
+            {
+              "node": "توحيد المدخلات",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "توحيد المدخلات": {
+        "main": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ذاكرة المحادثة": {
+        "ai_memory": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "تجربة يدوية": {
+        "main": [
+          [
+            {
+              "node": "بيانات التجربة",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "بيانات التجربة": {
+        "main": [
+          [
+            {
+              "node": "توحيد المدخلات",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "add_company": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "delete_client_file": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "نموذج Groq احتياطي": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_languageModel",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "compliance_register": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "compliance_alerts": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "uploaded_documents": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "client_accounts": {
+        "ai_tool": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Azure OpenAI (bp-main)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "قائد الامتثال",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": []
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

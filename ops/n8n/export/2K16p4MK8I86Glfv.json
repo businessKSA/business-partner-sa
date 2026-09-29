@@ -1,0 +1,167 @@
+{
+  "id": "2K16p4MK8I86Glfv",
+  "name": "BP — جرد مرفقات Inbox/CVs (قراءة فقط)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "5e407583-6a2c-4ca2-808b-c6e779624b23",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-09-29T19:58:30.281Z",
+  "updatedAt": "2026-09-29T19:58:30.281Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "جرد قراءة فقط: هل رسائل Inbox/CVs التي hasAttachments=false تحمل مرفقات inline فعلاً؟ يسرد ميتاداتا المرفقات (النوع/الحجم/inline) لثماني رسائل بلا أسماء ولا محتوى. لا نقل ولا تعليم ولا حذف. يدوي فقط.",
+  "connections": {
+    "Run Probe": {
+      "main": [
+        [
+          {
+            "node": "Sample 8 Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample 8 Messages": {
+      "main": [
+        [
+          {
+            "node": "List Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Attachments": {
+      "main": [
+        [
+          {
+            "node": "Summarise Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "0a83a7de-8e7c-4c36-8dd1-d36fad6e0753",
+      "name": "Run Probe",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "02fa9617-4c5d-44f7-8bd7-c14654072990",
+      "name": "Sample 8 Messages",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "folderMessage",
+        "operation": "getAll",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "AQMkADAwATZiZmYAZC1mOTFjLWUwMmQtMDACLTAwCgAuAAADqmp8eDYawUa-mjO8yXmzmgEAUqhqSeSb-U6H_D_fplMsCgAG4mHUXwAAAA==",
+          "cachedResultName": "Inbox/CVs"
+        },
+        "returnAll": false,
+        "limit": 8,
+        "output": "fields",
+        "fields": [
+          "isRead",
+          "hasAttachments",
+          "receivedDateTime"
+        ],
+        "filtersUI": {
+          "values": {
+            "filterBy": "filters",
+            "filters": {
+              "readStatus": "both"
+            }
+          }
+        },
+        "options": {}
+      },
+      "webhookId": "b2e444ec-9946-4ff7-9bf3-06e49c7680c8",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "54342c08-377a-4d62-b40b-cc80e4b07e26",
+      "name": "List Attachments",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "resource": "messageAttachment",
+        "operation": "getAll",
+        "messageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "returnAll": true,
+        "options": {
+          "fields": [
+            "contentType",
+            "isInline",
+            "size"
+          ]
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "31493300-3ffb-4378-bf5c-66e3ecdb42c2",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "p5CcPDWyORsPQ9XC",
+          "name": "Outlook — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "id": "415fb939-3494-4ad4-84c7-9ec0c160cd1c",
+      "name": "Summarise Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items = $input.all();\nconst byType = {};\nlet inline = 0, notInline = 0, errors = 0, total = 0, bytes = 0;\nfor (const it of items) {\n  const j = it.json || {};\n  if (j.error) { errors++; continue; }\n  if (!j.contentType && !j.size && j.isInline === undefined) continue;\n  total++;\n  const t = String(j.contentType || 'unknown');\n  byType[t] = (byType[t] || 0) + 1;\n  if (j.isInline === true) inline++; else notInline++;\n  bytes += Number(j.size) || 0;\n}\nreturn [{ json: { rawItems: items.length, attachmentsFound: total, isInline_true: inline, isInline_false: notInline, errorItems: errors, totalBytes: bytes, byContentType: byType } }];"
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

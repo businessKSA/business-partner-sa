@@ -27,6 +27,7 @@
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
 import { sb, DB_ON, notify } from "./_db.js";
+import { n8nWebhook } from "./_n8n.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 
@@ -36,7 +37,7 @@ const CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
 const SITE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
-const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || n8nWebhook("website-lead-notify");
 
 // WhatsApp Cloud API — the client's leg. Optional: without a token every
 // other channel still fires and the report says plainly that WhatsApp is off.

@@ -22,6 +22,8 @@ import { aiText, aiAvailable } from "./hire.js";
 // قارئ المستندات الخاص بنا — ملكُ `document-ai`، يُقرأ منه ولا يُكتب فيه.
 // المُصدَّر وحده، بحدوده كما هي (DOC_MIME_OK, MAX_DOC_BYTES).
 import { readDocumentRaw, DOC_MIME_OK, MAX_DOC_BYTES, azureReady, docIntelReady } from "./_docread.js";
+// عنوان n8n من مكانٍ واحد (`_n8n.js`، ملكُ `platform-engineer`) — لا رابط مكتوب هنا.
+import { n8nWebhook } from "./_n8n.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -38,7 +40,7 @@ const NOTION_TOKEN = envFrom([
 const DB_ID = process.env.NOTION_ATS_DB || "71792742873e4de398135c7855542b95";
 const NOTION_VERSION = "2022-06-28";
 const N8N_ATS_WEBHOOK = envFrom(["N8N_ATS_WEBHOOK", "N8N_CANDIDATE_WEBHOOK", "BP_ATS_WEBHOOK"])
-  || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ats-application";
+  || n8nWebhook("bp-ats-application");
 // Job postings + employer subscriptions DBs — used to look up who owns a
 // posting so we can email them when a candidate applies to it.
 const JOBS_DB = process.env.NOTION_JOBS_DB || "260d76959d464631943f79f313fbf3c9";

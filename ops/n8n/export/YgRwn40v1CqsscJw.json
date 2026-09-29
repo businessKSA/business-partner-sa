@@ -1,0 +1,2273 @@
+{
+  "id": "YgRwn40v1CqsscJw",
+  "name": "🧠 فرح — رئيسة المكتب التنفيذي لباهر (Voice + WhatsApp)",
+  "active": true,
+  "isArchived": false,
+  "versionId": "92c15697-f784-428e-92d4-c1d5a708b4e1",
+  "activeVersionId": "92c15697-f784-428e-92d4-c1d5a708b4e1",
+  "triggerCount": 3,
+  "nodeCount": 40,
+  "createdAt": "2026-07-03T04:35:43.779Z",
+  "updatedAt": "2026-09-29T21:34:33.972Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "DEEBmcadEhrncGo4",
+    "timezone": "Asia/Riyadh",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    {
+      "id": "BWu5T52JMqYVtN5e",
+      "name": "Cash First"
+    },
+    {
+      "id": "jxshu5D3ZLgmcR81",
+      "name": "AI Chief of Staff"
+    },
+    {
+      "id": "nWeOxJEd4zWrD4DI",
+      "name": "Owner Interface"
+    }
+  ],
+  "parentFolderId": null,
+  "description": "واجهة باهر الواحدة. فرح = Chief of Staff + Head of Growth. تتبع Deals + Tasks، تفوّض المدراء، تغلق بوابات باهر البشرية. اسم «مُعين» انتهى (قرار المالك 2026-09-24)؛ مسارات الويبهوك بقيت muin-* عمداً لئلا تنكسر اللوحة وai-space.",
+  "connections": {
+    "Baher WhatsApp In": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Owner Only (Baher)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Called by WhatsApp Router": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Audio Message?": {
+      "main": [
+        [
+          {
+            "node": "Get WhatsApp Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get WhatsApp Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Download WhatsApp Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Audio Transcript": {
+      "main": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner Only (Baher)": {
+      "main": [
+        [
+          {
+            "node": "أمر امتثال؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "أمر امتثال؟": {
+      "main": [
+        [
+          {
+            "node": "تشغيل قائد الامتثال",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Audio Message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Team Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Team Tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Executive Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Commercial Deals": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register New Deal": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Human Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Deal Human Gate": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read AI Workforce Control": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Resume AI Employee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set AI Employee Autonomy": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Muin — Personal Assistant": {
+      "main": [
+        [
+          {
+            "node": "Dashboard Interface?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "سبب تعذّر الرد",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تشغيل قائد الامتثال": {
+      "main": [
+        [
+          {
+            "node": "Dashboard Interface?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dashboard Interface?": {
+      "main": [
+        [
+          {
+            "node": "Return Dashboard Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply to Baher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Growth Campaigns": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Integration Readiness": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Department KPIs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Command Space Direct In": {
+      "main": [
+        [
+          {
+            "node": "Prepare Command Space Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Command Space Envelope": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return Dashboard Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond Command Space Direct",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "سبب تعذّر الرد": {
+      "main": [
+        [
+          {
+            "node": "Dashboard Interface?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI (bp-main)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Muin — Personal Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TEMP Muin GET Health": {
+      "main": [
+        [
+          {
+            "node": "Prepare TEMP Health Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare TEMP Health Envelope": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download WhatsApp Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Normalize Audio Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🧠 فرح — رئيسة المكتب التنفيذي لباهر\n\nواجهة باهر الواحدة عبر واتساب: نص أو فويس ← تفهم العميل/الطلب/الكاش ← تنشئ Team Task ← تعيّن الزميل المناسب ← تتابع ← ترجع لباهر فقط بما يحتاج تدخله البشري.\n\nفرح هي نفسها مديرة النمو والتسويق؛ ذراعها (ريم، ليان، نور، جود، دانا، راكان) في سير farah-intake وتُستدعى عبر Consult Executive Team.\n\nCash-first: paid_blocked ثم payment_due_now ثم ready_to_close ثم warm_24_72h.\n\nاسم «مُعين» انتهى بقرار المالك 2026-09-24. مسارات الويبهوك وأسماء العقد بقيت muin-* عمداً: تغييرها يكسر اللوحة وai-space وراوتر واتساب.\n\nلا أسرار/OTP/Nafath. L3 يحتاج موافقة باهر.",
+        "height": 300,
+        "width": 360,
+        "color": 4
+      },
+      "id": "fbd2ab5c-4ea2-42de-9abe-80520848a448",
+      "name": "Sticky Note 869e903b",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "446e10d3-141f-4e69-9d11-6c3d7a65ebe1",
+      "name": "Baher WhatsApp In",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        112
+      ],
+      "webhookId": "5fc35961-f371-454c-996b-32181285bbad",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "4ghCv6qAWgt3YhJ4",
+          "name": "WhatsApp — Muin — 0530540231"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "fromNumber",
+              "value": "={{ $json.messages[0].from }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "senderName",
+              "value": "={{ $json.contacts?.[0]?.profile?.name || \"باهر\" }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "msgType",
+              "value": "={{ $json.messages[0].type }}",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "userText",
+              "value": "={{ $json.messages[0].text?.body || $json.messages[0].image?.caption || $json.messages[0].button?.text || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "ba0547a6-7137-445b-9d1a-c9c3653bd3bc",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "owner-match",
+              "leftValue": "={{ ['966503793356','966530540231'].includes(String($json.fromNumber || '')) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            },
+            {
+              "id": "has-type",
+              "leftValue": "={{ $json.msgType }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b705b3e3-c102-44b5-a73d-9b4cac1a1954",
+      "name": "Owner Only (Baher)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "needsFallback": false,
+        "options": {
+          "maxIterations": 8,
+          "systemMessage": "أنت «فرح» — رئيسة المكتب التنفيذي (Chief of Staff) والمسؤولة عن الفريق كاملاً. أنت الواجهة الواحدة لباهر عبر WhatsApp وBP AI Command Space بالصوت أو الكتابة. هدفك: Cash Now + Execution Now + Growth + Zero Distraction. لا تجعلي باهر يدير n8n أو CRM أو task boards أو يتنقل بين الأدوات.\n\nهويتك: «مُعين» اسمٌ قديم لهذا الدور وانتهى بقرار المالك. أنت فرح ولا تعرّفين نفسك بغيره.\n\nقاعدة الدليل — تعلو على كل ما تحتها:\nلا تذكري رقماً ولا اسماً ولا تاريخاً إلا إذا قرأتِه فعلاً. ممنوع اختراع أشخاص أو موظفين أو عملاء لا وجود لهم. لا تُنشئي مهمة تُسندينها لنفسك، ولا مهمة تتبّع مهمة.\n\nمصادر الحقيقة:\n- Read Commercial Deals: العملاء والصفقات من Lead حتى Delivered.\n- Read Team Tasks: العمل المفتوح والنتائج والتعطيلات.\n- Read AI Workforce Control: حالة الفريق والصلاحيات والـheartbeat.\n- Read Department KPIs: أداء الإدارات الفعلي.\n- Read Growth Campaigns: حملات Organic/Email/WhatsApp/Paid وحالتها ونتائجها.\n- Read Integration Readiness: ما هو مربوط وما هو ناقص.\n- Register New Deal: فرصة تجارية جديدة بعد منع التكرار.\n- Create Team Task: العمل التنفيذي والمتابعة.\n- Complete Human Task وClear Deal Human Gate: إغلاق خطوة باهر واستئناف الفريق.\n- Consult Executive Team: تسليم العمل لمدير القسم.\n\nالتسلسل الإداري الكامل الآن (15 إدارة تحتك + واجهتان مستقلتان): badr_sales=Sales & BD، abdulaziz_legal=Legal، abdulrahman_finance=Finance، mazen_ops=Operations، mishari_compliance=Compliance/GRO، nasser_hr=ناصر مدير الموارد البشرية والتوظيف لموظفينا وللعملاء معاً (إيجاد وتوظيف أشخاص داخل شركة العميل)، وفواز في فريقه مخصّص للداخلي فقط، abdullah_procurement=Procurement، mohammed_it=IT، website_funnel_ops=Digital Product/Funnel (سلمان)، ahmed_strategy=Strategy/PMO، sara_marketing=سارة مديرة النمو والتسويق (مسارها لا يزال farah-intake اسم قديم)، tariq_realestate=طارق مدير العقارات (مكاتب ومساحات عمل وتملّك أجانب، مساره realestate-intake)، alaa_news=آلاء مديرة الأخبار والمحتوى التنظيمي العام (مسارها news-intake، لا تنشر خبراً إلا بعد تحقّق مشاري)، deals_revenue_ops=وسام مدير العمليات التجارية ومكتب الصفقات (مساره deals-intake، يراقب صحة الـpipeline ولا يملك أي مرحلة فيها بنفسه، يصعّد فقط)، bandar_recruitment=بندر مدير منتجات الاستقدام فقط: PEO/EOR والعمالة المسندة والاستقدام الجماعي بالتأشيرات (مساره recruitment-intake)؛ أما إيجاد وتوظيف أشخاص داخل شركة العميل فلناصر، baher_owner=باهر الحقيقي.\n\nقاعدة منع الدوران — إلزامية:\nلا تنشئي مهمة وتُسنديها إلى نفسك أبداً، ولا مهمة غرضها الوحيد تتبّع مهمة أخرى. مهمة واحدة لكل عمل حقيقي، ولكل مهمة منفّذ غيرك. العمل التسويقي يذهب لسارة عبر Consult Executive Team.\n\nRevenue lifecycle: Lead → Qualified → Quote → Accepted → Contract → Invoice → Paid → Execution → Delivered → Upsell/Referral. كل Revenue Opportunity حقيقي يجب أن يكون Deal + Task. عند فويس «فلان كلمني ويبغى خدمة»: اقرئي Deals أولاً، لا تكرّري، ثم سجّلي أو حدّثي وسلّمي لبدر. إذا العميل دفع ولم يبدأ التنفيذ: P0 وFinance/Operations. Quote accepted بلا عقد: Legal. عقد موقع بلا فاتورة: Finance. Paid بلا delivery: Operations P0. إذا صفقة ما عادت تتحرّك، استشيري وسام (deals-intake) ليراجع الـpipeline ويصعّد للمالك الحقيقي لا لنفسه.\n\nCash priority: P0=Paid Blocked أو كاش يدخل اليوم أو عميل متضرر/متأخر. P1=إغلاق/تحصيل خلال 72 ساعة. P2=Warm. P3=Long-term/non-revenue. لا تسمحي للـpipeline المستقبلي أن يخفي cash-now أو paid execution.\n\nGrowth operating model: النمو ملفّك المباشر وتنفّذه سارة وفريقها. الأخبار والمحتوى التنظيمي العام على الموقع عند آلاء، ولا تنشر خبراً إلا بعد تحقّق مشاري. بعد وجود إشارة تحويل واضحة نوسّع Email وWhatsApp، ثم Paid بعد إثبات العرض/المحتوى. لا تشغّلي صرف إعلاني مدفوع أو التزام مالي بدون Approval.\n\nعند سؤال باهر عن التسويق أو «كيف نجيب فلوس؟»: اقرئي Growth Campaigns + Integration Readiness + Deals. أعطيه: 1) ما يعمل الآن، 2) أسرع فرص نمو/كاش، 3) ما يحتاج ربط، 4) ماذا ستفعل سارة وبدر، 5) ما يحتاج باهر شخصياً فقط.\n\nعند سؤال «وش علي؟»: اعرضي فقط ما يحتاج باهر شخصياً، مرتبة Paid Blocked ثم Cash Now ثم Closing ثم deadline. عند «خلصت/سويت/دخلت المنصة/وقعت/كلمته»: اقرئي المهام، أغلقي المطابق، فكّي Human Gate، ثم Resume Task للمدير المناسب. لا تتركي Deal واقفة بعد إكمال باهر.\n\nHuman-in-the-loop مؤقت لما التقنية أو النظام يمنع التنفيذ. Approval Gate للإجراءات المالية، التوقيع/الالتزام القانوني، الإجراء الحكومي النهائي الذي يتطلب هوية/نفاذ/OTP، الأسرار، الحذف أو تغيير Production عالي الخطورة. لا تطلبي Password/OTP/Nafath/API secrets أبداً.\n\nREPORT MODE: عندما يطلب «تقرير» اقرئي على الأقل Tasks + Deals + Workforce + KPIs، وأضيفي Growth Campaigns + Integration Readiness إذا الموضوع تسويق/نمو/ربط. وإن تعذّرت قراءة أداة، قولي إنها تعذّرت ولا تملئي مكانها بتقدير.\n\nإذا كان source_interface=control_center، صيغة الرد إلزامية:\nVOICE: <زبدة محادثية عربية 2–5 جمل فقط>\n[[DETAILS]]\n<تفاصيل منظمة للشاشة>\nإذا لا يحتاج باهر شيئاً قولي في VOICE بوضوح: «ما عليك شيء الآن — الفريق ماسكها.»\n\nإذا كان WhatsApp عادي، ردّي افتراضياً 1–4 أسطر. نفّذي أولاً ثم ردّي."
+        },
+        "promptType": "define",
+        "text": "=رسالة من باهر (الاسم: {{ $json.senderName }} · الوقت: {{ $now.setZone(\"Asia/Riyadh\").toFormat(\"yyyy-MM-dd HH:mm\") }} · النوع: {{ $json.msgType }}):\n\n{{ $json.userText }}"
+      },
+      "id": "a1e8a6a8-3b69-4993-9e93-fd445971b192",
+      "name": "Muin — Personal Assistant",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        864,
+        112
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "baher-owner",
+        "contextWindowLength": 6,
+        "notice": "",
+        "scalingNotice": ""
+      },
+      "id": "dee32ca0-7579-4450-822f-6f18f4507745",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        800,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "10b5eb7e-d04f-4d2e-a330-c1525b927ffb",
+      "name": "Notion",
+      "type": "@n8n/mcp-registry.notion",
+      "typeVersion": 1,
+      "position": [
+        928,
+        336
+      ],
+      "disabled": true,
+      "credentials": {
+        "notionMcpOAuth2Api": {
+          "id": "qUk5IVwo25NaYdnZ",
+          "name": "Notion MCP OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 15,
+        "filters": {
+          "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', 'Gmail search query, Gmail search-box syntax (e.g. newer_than:7d, from:..., subject:...)') }}",
+          "readStatus": "both"
+        }
+      },
+      "id": "22dcc872-e017-4ea1-8b9d-5c5a6044c14f",
+      "name": "Read Gmail",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        336
+      ],
+      "webhookId": "3795c974-7c05-4b9f-a7af-7f6d9bdd40fa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1AQfIiEH6y5Zu61s",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "primary",
+          "cachedResultName": "Primary"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start', 'Event start in ISO 8601 (Asia/Riyadh)') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', 'Event end in ISO 8601 (Asia/Riyadh)') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', 'Event details') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('summary', 'Event title') }}"
+        },
+        "resource": "event",
+        "operation": "create"
+      },
+      "id": "850530d1-8a7c-4b99-8a45-36cebc454c71",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        336
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ucuiwx9hlIuDERcv",
+          "name": "Google Calendar — Business Partner — Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('Normalize').first().json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('Normalize').first().json.fromNumber }}",
+        "textBody": "={{ $json.output || 'تم استلام طلبك ✅ — إذا ما وصلتك نتيجة مفصّلة خلال دقيقة، أعد إرسال الأمر.' }}",
+        "additionalFields": {}
+      },
+      "id": "35c632a4-c8d8-4247-98e6-dae738aadb6d",
+      "name": "Reply to Baher",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        112
+      ],
+      "webhookId": "c3dd1c70-bf8d-4a68-bac3-04ee45101818",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "dPP94SCEPI6Qz1nx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "id": "muin-exec-trigger",
+      "name": "When Called by WhatsApp Router",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "muin-is-audio",
+      "name": "Is Audio Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        112
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "audio-type",
+              "leftValue": "={{ $json.msgType }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "audio-id",
+              "leftValue": "={{ $json.messages?.[0]?.audio?.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "muin-get-audio-url",
+      "name": "Get WhatsApp Audio URL",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        -64
+      ],
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "webhookId": "81239d77-e0ad-42b5-ad5d-3acdf80cc935",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    },
+    {
+      "id": "muin-download-audio",
+      "name": "Download WhatsApp Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        -64
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "VONiKVOE7UnoNgHt",
+          "name": "Business Partner Test"
+        }
+      }
+    },
+    {
+      "id": "muin-normalize-audio-transcript",
+      "name": "Normalize Audio Transcript",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -64
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "messaging_product",
+              "type": "string",
+              "value": "={{ $('Normalize').first().json.messaging_product }}"
+            },
+            {
+              "id": "a2",
+              "name": "metadata",
+              "type": "object",
+              "value": "={{ $('Normalize').first().json.metadata }}"
+            },
+            {
+              "id": "a3",
+              "name": "contacts",
+              "type": "array",
+              "value": "={{ $('Normalize').first().json.contacts }}"
+            },
+            {
+              "id": "a4",
+              "name": "messages",
+              "type": "array",
+              "value": "={{ $('Normalize').first().json.messages }}"
+            },
+            {
+              "id": "a5",
+              "name": "field",
+              "type": "string",
+              "value": "={{ $('Normalize').first().json.field }}"
+            },
+            {
+              "id": "a6",
+              "name": "fromNumber",
+              "type": "string",
+              "value": "={{ $('Normalize').first().json.fromNumber }}"
+            },
+            {
+              "id": "a7",
+              "name": "senderName",
+              "type": "string",
+              "value": "={{ $('Normalize').first().json.senderName }}"
+            },
+            {
+              "id": "a8",
+              "name": "msgType",
+              "type": "string",
+              "value": "audio"
+            },
+            {
+              "id": "a9",
+              "name": "transcript",
+              "type": "string",
+              "value": "={{ ($json.combinedPhrases?.[0]?.text || $json.text || '').trim() }}"
+            },
+            {
+              "id": "a10",
+              "name": "userText",
+              "type": "string",
+              "value": "={{ ($json.combinedPhrases?.[0]?.text || $json.text || '').trim() ? ('[رسالة صوتية تم تفريغها عبر Azure Speech]\\n' + ($json.combinedPhrases?.[0]?.text || $json.text || '').trim()) : '[رسالة صوتية وصلت وتعذّر تفريغها]\\nأبلِغ باهر بهذا نصّاً: تعذّر تفريغ الرسالة الصوتية عبر Azure Speech هذه المرة (' + String($json.error?.message || $json.error || 'سبب غير معروف').slice(0, 160) + '). اطلب منه إعادة الرسالة نصّاً أو صوتاً مرة أخرى. ولا تخمّن محتوى الرسالة ولا تنشئ مهمة بناءً عليها.' }}"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "9f37e63c-ac1d-4078-967f-dbfa3e16cc84",
+      "name": "أمر امتثال؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        600,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cmp1",
+              "leftValue": "={{ ($json.userText || \"\").trim() }}",
+              "operator": {
+                "operation": "startsWith",
+                "type": "string"
+              },
+              "rightValue": "امتثال"
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          }
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "9f17dbf6-7007-44da-a17e-cae6a7333fc8",
+      "name": "تشغيل قائد الامتثال",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        300
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": true
+        },
+        "workflowId": {
+          "__rl": true,
+          "cachedResultName": "BP3 — قائد الامتثال (WhatsApp)",
+          "mode": "list",
+          "value": "DHdxNSbhQQb1AWKg"
+        }
+      }
+    },
+    {
+      "id": "f42def83-be16-451e-a44d-033a5373b850",
+      "name": "Create Team Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1310,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "task_id": "={{ $fromAI('task_id','Unique ID like FARAH-20260924-001','string') }}",
+            "parent_task_id": "={{ $fromAI('parent_task_id','Parent task if any, otherwise empty','string') }}",
+            "source": "farah",
+            "company_id": "business-partner",
+            "client_id": "={{ $fromAI('client_id','Client ID if known, otherwise empty','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client name if known, otherwise empty','string') }}",
+            "channel": "={{ $fromAI('channel','call, whatsapp, email, website, social, referral, internal','string') }}",
+            "objective": "={{ $fromAI('objective','Concrete outcome to achieve','string') }}",
+            "context": "={{ $fromAI('context','All useful context from Baher, customer, payment, history and constraints','string') }}",
+            "created_by_agent": "farah_chief_of_staff",
+            "assigned_to_agent": "={{ $fromAI('assigned_to_agent','badr_sales, mazen_ops, mohammed_it, website_funnel_ops, abdulrahman_finance, mishari_compliance, nasser_hr, farah_marketing, abdullah_procurement, ahmed_strategy, baher_owner. NEVER farah_chief_of_staff and never a task that only tracks another task.','string') }}",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "status": "queued",
+            "approval_required": "={{ $fromAI('approval_required','true only if L3 approval is required','boolean') }}",
+            "approval_status": "={{ $fromAI('approval_status','pending or not_required','string') }}",
+            "result": "",
+            "next_action": "={{ $fromAI('next_action','Exact next action','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "revenue_value": "={{ $fromAI('revenue_value','Expected or collected revenue in SAR, 0 if unknown','number') }}",
+            "cash_stage": "={{ $fromAI('cash_stage','paid_blocked, payment_due_now, ready_to_close, warm_24_72h, pipeline, non_revenue','string') }}",
+            "human_action_required": "={{ $fromAI('human_action_required','true only if Baher personally must act','boolean') }}",
+            "blocked_by": "={{ $fromAI('blocked_by','Who or what blocks progress, empty if none','string') }}",
+            "due_at": "={{ $fromAI('due_at','Due date/time ISO 8601 Asia/Riyadh when known, otherwise empty','string') }}"
+          },
+          "schema": [
+            {
+              "id": "task_id",
+              "displayName": "task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parent_task_id",
+              "displayName": "parent_task_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_id",
+              "displayName": "company_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "objective",
+              "displayName": "objective",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_by_agent",
+              "displayName": "created_by_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to_agent",
+              "displayName": "assigned_to_agent",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_required",
+              "displayName": "approval_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "revenue_value",
+              "displayName": "revenue_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cash_stage",
+              "displayName": "cash_stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_at",
+              "displayName": "due_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "aceea079-9134-45ff-8f86-bc429cbc05f5",
+      "name": "Read Team Tasks",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1490,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "queued"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "in_progress"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "created_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "966fb947-d24a-4dde-89a2-f18c01183943",
+      "name": "Consult Executive Team",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1670,
+        510
+      ],
+      "parameters": {
+        "authentication": "none",
+        "contentType": "json",
+        "fieldsToInclude": "all",
+        "jsonBody": "={{ JSON.stringify({ message:$fromAI('question','Full internal task or consultation with client context, payment state, desired result and deadline','string'), client_name:$fromAI('client_name','Client name if known, otherwise internal','string'), channel: 'internal' }) }}",
+        "method": "POST",
+        "optimizeResponse": true,
+        "options": {
+          "timeout": 110000
+        },
+        "responseType": "json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "Delegate or consult a specialist AI teammate. Use exact slugs: mazen-intake=operations, abdulrahman-intake=finance, mishari-intake=compliance, abdulaziz-intake=legal, nasser-intake=Nasser HR & recruitment for BOTH our own staff and clients who want people found and hired into their own company (direct hires); Fawaz on his team is internal-only, badr-intake=sales, farah-intake=Sara (Head of Growth & Marketing — legacy path name, still correct), mohammed-intake=IT, strategy-intake=strategy, ahmed-procurement=Abdullah (Procurement), realestate-intake=Tariq (Real Estate), recruitment-intake=Bandar (staffing PRODUCTS only: PEO/EOR, outsourced manpower, visa-heavy bulk recruitment — not direct hiring), news-intake=Alaa (News & regulatory content, never priced), deals-intake=Wissam (Revenue Ops & Deal Desk, read/escalate only, never sets a price). Give full context and a specific requested outcome. Do not use this for actions requiring Baher approval.",
+        "url": "=https://businesspartnerai.app.n8n.cloud/webhook/{{ $fromAI('colleague','Exact teammate slug from the allowed list','string') }}"
+      }
+    },
+    {
+      "id": "03abd647-04ed-4b5a-8958-0d9f9ab9eae3",
+      "name": "Read Commercial Deals",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1850,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "ec6eae5f-e99a-40c6-b657-10ab12eaa461",
+      "name": "Register New Deal",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2030,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $fromAI('deal_id','Unique deal ID like DEAL-20260902-001','string') }}",
+            "client_name": "={{ $fromAI('client_name','Client or company name','string') }}",
+            "client_phone": "={{ $fromAI('client_phone','Phone if known, otherwise empty','string') }}",
+            "client_email": "={{ $fromAI('client_email','Email if known, otherwise empty','string') }}",
+            "source_channel": "={{ $fromAI('source_channel','call, whatsapp, website, email, social, referral or other','string') }}",
+            "source_campaign": "={{ $fromAI('source_campaign','Campaign/source detail if known, otherwise empty','string') }}",
+            "service": "={{ $fromAI('service','Requested service','string') }}",
+            "deal_owner": "badr_sales",
+            "stage": "new",
+            "priority": "={{ $fromAI('priority','P0, P1, P2 or P3','string') }}",
+            "deal_value": "={{ $fromAI('deal_value','Expected deal value SAR, 0 if unknown','number') }}",
+            "quoted_amount": 0,
+            "invoiced_amount": 0,
+            "paid_amount": 0,
+            "payment_status": "unpaid",
+            "quote_status": "not_started",
+            "contract_status": "not_started",
+            "invoice_status": "not_started",
+            "execution_status": "not_started",
+            "next_action": "={{ $fromAI('next_action','Concrete next sales action','string') }}",
+            "blocked_by": "",
+            "human_action_required": false,
+            "last_contact_at": "={{ $now.toISO() }}",
+            "next_followup_at": "={{ $fromAI('next_followup_at','ISO 8601 follow-up date/time if known, otherwise empty','string') }}",
+            "created_at": "={{ $now.toISO() }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "notes": "={{ $fromAI('notes','Important context from Baher','string') }}"
+          },
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_phone",
+              "displayName": "client_phone",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_email",
+              "displayName": "client_email",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_channel",
+              "displayName": "source_channel",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_campaign",
+              "displayName": "source_campaign",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_owner",
+              "displayName": "deal_owner",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deal_value",
+              "displayName": "deal_value",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quoted_amount",
+              "displayName": "quoted_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiced_amount",
+              "displayName": "invoiced_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paid_amount",
+              "displayName": "paid_amount",
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quote_status",
+              "displayName": "quote_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contract_status",
+              "displayName": "contract_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "displayName": "invoice_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_contact_at",
+              "displayName": "last_contact_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_followup_at",
+              "displayName": "next_followup_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "265270e4-4073-46cb-b630-366c40782003",
+      "name": "Complete Human Task",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2210,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rUmBnwqKvmafJGlE",
+          "cachedResultName": "BP_AI_Tasks"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "task_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('task_id','Exact human task ID selected from Read Team Tasks','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "completed",
+            "human_action_required": false,
+            "blocked_by": "",
+            "result": "={{ $fromAI('result','What Baher completed','string') }}",
+            "next_action": "={{ $fromAI('next_action','What the AI team should do next','string') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "924a92f0-3b39-418d-bd8a-6dd149c2651c",
+      "name": "Clear Deal Human Gate",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2390,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GQd4w5BQueKAGrZ0",
+          "cachedResultName": "BP_AI_Deals"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "deal_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('deal_id','Deal ID related to the completed human task','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "human_action_required": false,
+            "blocked_by": "",
+            "next_action": "={{ $fromAI('next_action','Next action for the AI team after Baher completed his step','string') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "human_action_required",
+              "displayName": "human_action_required",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_by",
+              "displayName": "blocked_by",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d21ecd35-b9b4-4d46-8af3-70aac249be2e",
+      "name": "Read AI Workforce Control",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1850,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('agent_id','Agent ID if known; otherwise empty for general status','string') }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('status','Optional status filter such as active or paused','string') }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "3df906aa-86ce-4f04-beed-54648a896f7f",
+      "name": "Pause Resume AI Employee",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2030,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('agent_id','Exact agent ID to control. Use workforce lookup first if only a human name was given.','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "enabled": "={{ $fromAI('enabled','true to enable, false to pause','boolean') }}",
+            "status": "={{ $fromAI('status','active when enabled or paused when disabled','string') }}",
+            "paused_reason": "={{ $fromAI('paused_reason','Reason for pause; empty when active','string') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "enabled",
+              "displayName": "enabled",
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "paused_reason",
+              "displayName": "paused_reason",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8fd56be8-f792-4e0b-a187-a57afeaba33f",
+      "name": "Set AI Employee Autonomy",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2210,
+        510
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "Sn0q91vtdsBP5tJy",
+          "cachedResultName": "BP_Agent_Registry"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "agent_id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('agent_id','Exact agent ID to update. Use workforce lookup first if needed.','string') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "autonomy_level": "={{ $fromAI('autonomy_level','One of L0, L1, L2 or L3','string') }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "autonomy_level",
+              "displayName": "autonomy_level",
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "type": "date",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e9c62bb6-f066-49e1-bf13-91b2a7adb163",
+      "name": "Dashboard Interface?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        112
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dash-source",
+              "leftValue": "={{ $('Normalize').first().json.source_interface || '' }}",
+              "rightValue": "control_center",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "927eaa89-8d39-48f2-a57c-3ff0f56e743c",
+      "name": "Return Dashboard Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1456,
+        32
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dr1",
+              "name": "reply",
+              "value": "={{ $json.output || $json.reply || $json.text || 'تم تنفيذ الأمر.' }}",
+              "type": "string"
+            },
+            {
+              "id": "dr2",
+              "name": "source_interface",
+              "value": "control_center",
+              "type": "string"
+            },
+            {
+              "id": "dr3",
+              "name": "speak",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "dr4",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "16882204-ffc1-47e8-899d-4ec801e0771a",
+      "name": "Read Growth Campaigns",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2390,
+        650
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bDhkNwoKggzE82IS",
+          "cachedResultName": "BP_AI_Growth_Campaigns"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "updated_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "6ea4c17c-e567-4f0c-aba8-5fb16b0f0ef1",
+      "name": "Read Integration Readiness",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2570,
+        650
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "TPlt2Jp0lp66OFJv",
+          "cachedResultName": "BP_AI_Integration_Readiness"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "last_checked_at",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "51632056-2366-45ac-b35e-5ee9f4135237",
+      "name": "Read Department KPIs",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        2750,
+        650
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KRfMyEXXl3n48A9q",
+          "cachedResultName": "BP_AI_Performance"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": false,
+        "limit": 100,
+        "orderBy": true,
+        "orderByColumn": "snapshot_date",
+        "orderByDirection": "DESC"
+      }
+    },
+    {
+      "id": "fcb96190-2d74-483b-afbf-26ef7c5d025b",
+      "name": "Command Space Direct In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "muin-command-space-j8PUwUks3morvPEaHyx5aNGfjlsbEm66",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        }
+      },
+      "webhookId": "84878140-501f-469b-b5aa-7dd5d433b644"
+    },
+    {
+      "id": "b6e14c45-e917-4400-937f-01de6c512b28",
+      "name": "Prepare Command Space Envelope",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        220,
+        520
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cs1",
+              "name": "messaging_product",
+              "value": "whatsapp",
+              "type": "string"
+            },
+            {
+              "id": "cs2",
+              "name": "metadata",
+              "value": "={{ { phone_number_id: 'command_space', display_phone_number: 'BP AI Command Space' } }}",
+              "type": "object"
+            },
+            {
+              "id": "cs3",
+              "name": "contacts",
+              "value": "={{ [{ profile: { name: 'باهر' }, wa_id: '966530540231' }] }}",
+              "type": "array"
+            },
+            {
+              "id": "cs4",
+              "name": "messages",
+              "value": "={{ [{ from: '966530540231', id: 'command_space_' + Date.now(), timestamp: String(Math.floor(Date.now()/1000)), type: 'text', text: { body: ($json.body?.target_agent ? '[BP AI Command Space — target: ' + $json.body.target_agent + ']\\n' : '[BP AI Command Space]\\n') + String($json.body?.message || '') } }] }}",
+              "type": "array"
+            },
+            {
+              "id": "cs5",
+              "name": "field",
+              "value": "messages",
+              "type": "string"
+            },
+            {
+              "id": "cs6",
+              "name": "source_interface",
+              "value": "control_center",
+              "type": "string"
+            },
+            {
+              "id": "cs7",
+              "name": "dashboard_target",
+              "value": "={{ $json.body?.target_agent || 'virtual_baher' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "ef05f2c2-0207-4f6f-94c8-1e5aaeee4e05",
+      "name": "Respond Command Space Direct",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1680,
+        32
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "37095065-7bd5-47ec-b2e0-c751a77fede0",
+      "name": "سبب تعذّر الرد",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1050,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "output",
+              "type": "string",
+              "value": "=⚠️ تعذّر عليّ الرد الآن — العطل في خدمة الذكاء، لا في اللوحة ولا في الصوت.\n\nما قاله المزوّد:\n{{ $json.error?.description || $json.error?.message || $json.error || 'سبب غير معروف' }}\n\nالنص الكامل في n8n ← Executions ← آخر تنفيذ لـ«فرح».\n\nكلامك وصل وسُجّل — أعد الأمر بعد معالجة السبب."
+            },
+            {
+              "id": "e2",
+              "name": "model_failure",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "e3",
+              "name": "failed_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "mode": "manual",
+        "options": {}
+      },
+      "notes": "يعمل فقط على مخرج الخطأ. بلا هذه العقدة يتوقف السير قبل عقدة الرد فتصل اللوحة استجابة فارغة بلا سبب."
+    },
+    {
+      "id": "18fe6127-6b8e-4415-be8d-facc9cb17e32",
+      "name": "Azure OpenAI (bp-main)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        400,
+        990
+      ],
+      "parameters": {
+        "model": "bp-main",
+        "options": {
+          "maxTokens": 1500,
+          "temperature": 0.3,
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "notes": "المحرّك الأساسي. اسم النشر (deployment) bp-main = gpt-4.1 على bp-ai-ksa-2026، Sweden Central، SKU Standard مثبّت على المنطقة.",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "hA1ULr5qtFuoBZ6B",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "id": "12d87ecf-805d-4726-b6c2-c19622c9e548",
+      "name": "TEMP Muin GET Health",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -220,
+        700
+      ],
+      "parameters": {
+        "authentication": "none",
+        "httpMethod": "GET",
+        "options": {
+          "allowedOrigins": "*",
+          "ignoreBots": true
+        },
+        "path": "muin-health-5f7f8b2c9a1d4e3f",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "05754661-2fbd-4756-b7c7-e0c113f8c88c"
+    },
+    {
+      "id": "74220acd-1377-4b78-be4b-e53ed308772b",
+      "name": "Prepare TEMP Health Envelope",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        0,
+        700
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h1",
+              "name": "messaging_product",
+              "type": "string",
+              "value": "whatsapp"
+            },
+            {
+              "id": "h2",
+              "name": "metadata",
+              "type": "object",
+              "value": "={{ { phone_number_id:'health', display_phone_number:'health' } }}"
+            },
+            {
+              "id": "h3",
+              "name": "contacts",
+              "type": "array",
+              "value": "={{ [{ profile:{name:'باهر'}, wa_id:'966503793356' }] }}"
+            },
+            {
+              "id": "h4",
+              "name": "messages",
+              "type": "array",
+              "value": "={{ [{ from:'966503793356', id:'health_'+Date.now(), timestamp:String(Math.floor(Date.now()/1000)), type:'text', text:{body:'اختبار صحة داخلي فقط. لا تنشئ مهام ولا تعدل بيانات. رد فقط: جاهز'} }] }}"
+            },
+            {
+              "id": "h5",
+              "name": "field",
+              "type": "string",
+              "value": "messages"
+            },
+            {
+              "id": "h6",
+              "name": "source_interface",
+              "type": "string",
+              "value": "control_center"
+            },
+            {
+              "id": "h7",
+              "name": "dashboard_target",
+              "type": "string",
+              "value": "virtual_baher"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "mode": "manual",
+        "options": {}
+      }
+    },
+    {
+      "id": "muin-transcribe-audio-azure",
+      "name": "Transcribe Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1344,
+        -64
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "inputDataFieldName": "data",
+              "name": "audio",
+              "parameterType": "formBinaryData"
+            },
+            {
+              "name": "definition",
+              "parameterType": "formData",
+              "value": "{\"locales\":[\"ar-SA\",\"en-US\"]}"
+            }
+          ]
+        },
+        "contentType": "multipart-form-data",
+        "genericAuthType": "httpHeaderAuth",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "url": "https://eastus2.api.cognitive.microsoft.com/speechtotext/transcriptions:transcribe?api-version=2024-11-15"
+      },
+      "notes": "Azure Speech fast transcription (eastus2). الاعتماد نفسه المستخدم في Jarvis Voice. بديل عقدة OpenAI Whisper المدفوعة (مخالفة لقاعدة Azure أولاً).",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bc5WhdQOljUDeKhp",
+          "name": "Azure Speech — Jarvis"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": {
+    "sameAsDraft": true
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "uSvfeWX9WgEGENPU",
+  "name": "BP — Company Ingest (OSM free)",
+  "active": false,
+  "isArchived": false,
+  "versionId": "a4f5fe74-d95a-473b-99d9-ee2f18ed0ff9",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 4,
+  "createdAt": "2026-07-23T00:20:03.993Z",
+  "updatedAt": "2026-07-23T00:55:06.323Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Free KSA company collector: fetches companies/shops with phone numbers from OpenStreetMap (Overpass API), cleans & dedupes them, and writes them into the BP Companies Sales DB in Notion. No API key, no cost. Manual trigger for v1 (add a Schedule trigger t",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Fetch KSA companies (Overpass)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch KSA companies (Overpass)": {
+      "main": [
+        [
+          {
+            "node": "Clean & map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean & map": {
+      "main": [
+        [
+          {
+            "node": "Save to Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "c80efe02-4696-4112-9d04-86d640b4f6b2",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "1126109f-4413-4df6-82e8-6825aed04a99",
+      "name": "Fetch KSA companies (Overpass)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://overpass-api.de/api/interpreter",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "data",
+              "value": "[out:json][timeout:120];\narea[\"ISO3166-2\"=\"SA-01\"]->.a;\n(\n  nwr[\"office\"][\"name\"][\"phone\"](area.a);\n  nwr[\"shop\"][\"name\"][\"phone\"](area.a);\n);\nout center 300;"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "id": "7a035d3c-0369-46ef-9b19-ce3ff016ecbf",
+      "name": "Clean & map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const all = $input.all();\nconst res = all.length ? all[0].json : {};\nconst els = Array.isArray(res.elements) ? res.elements : [];\nconst CITY = {'Riyadh':'Riyadh','Jeddah':'Jeddah','Dammam':'Dammam','Khobar':'Khobar','Al Khobar':'Khobar','Makkah':'Makkah','Mecca':'Makkah','Madinah':'Madinah','Medina':'Madinah'};\nconst SECTOR = {company:'IT & Services',it:'IT & Services',consulting:'IT & Services',estate_agent:'Real Estate',financial:'Finance & Insurance',insurance:'Finance & Insurance',logistics:'Logistics & Transport',travel_agent:'Hospitality & Tourism',educational_institution:'Education',construction_company:'Contracting & Construction'};\nconst out = [];\nconst seen = {};\nfor (const el of els) {\n  const t = el.tags || {};\n  const name = t['name:en'] || t.name;\n  if (!name) continue;\n  const phone = t.phone || t['contact:phone'] || '';\n  if (!phone) continue;\n  let website = t.website || t['contact:website'] || '';\n  if (website && !/^https?:\\/\\//i.test(website)) website = 'https://' + website;\n  const k = (String(name) + '|' + phone).toLowerCase();\n  if (seen[k]) continue;\n  seen[k] = 1;\n  const office = t.office || '';\n  let sector = SECTOR[office] || '';\n  if (!sector) {\n    if (t.shop) sector = 'Retail & Restaurants';\n    else if (['restaurant','cafe','fast_food'].indexOf(t.amenity) > -1) sector = 'Retail & Restaurants';\n    else if (t.healthcare || ['hospital','clinic','pharmacy'].indexOf(t.amenity) > -1) sector = 'Healthcare';\n    else sector = 'Other';\n  }\n  const city = CITY[t['addr:city']] || 'Riyadh';\n  const notes = 'OSM ' + el.type + '/' + el.id + (website ? ' | ' + website : '') + ' | ' + (office || t.shop || t.amenity || 'business');\n  out.push({ json: { Name: String(name).slice(0, 200), Phone: phone, Sector: sector, City: city, Notes: notes } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "9d386329-e408-4166-b7b8-3922e78f0235",
+      "name": "Save to Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "26faca2761884b6ab584924c374f2d22"
+        },
+        "title": "={{ $json.Name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phone|phone_number",
+              "phoneValue": "={{ $json.Phone }}"
+            },
+            {
+              "key": "Sector|select",
+              "selectValue": "={{ $json.Sector }}"
+            },
+            {
+              "key": "City|select",
+              "selectValue": "={{ $json.City }}"
+            },
+            {
+              "key": "Source|multi_select",
+              "multiSelectValue": [
+                "Public-KSA"
+              ]
+            },
+            {
+              "key": "Notes|rich_text",
+              "richText": false,
+              "textContent": "={{ $json.Notes }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "USVPflXCkLXwDvRx",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}
