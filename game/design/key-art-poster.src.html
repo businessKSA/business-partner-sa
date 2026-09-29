@@ -1,0 +1,77 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Mono;src:url(DMMono-Regular.ttf)}
+@font-face{font-family:Jura;src:url(Jura-Light.ttf)}
+@font-face{font-family:Italiana;src:url(Italiana-Regular.ttf)}
+html,body{margin:0;background:#0b1220}
+svg{display:block}
+</style></head><body>
+<svg id="s" xmlns="http://www.w3.org/2000/svg" width="2400" height="3600" viewBox="0 0 2400 3600"></svg>
+<script>
+const W=2400,H=3600, NS='http://www.w3.org/2000/svg';
+const C={night:'#0b1220',clay:'#5a3a22',adobe:'#c9a86a',sand:'#f3e7c9',gold:'#d9a441',red:'#8a1f1f',green:'#1f6b3a'};
+const svg=document.getElementById('s');
+function el(n,a,parent){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(parent||svg).appendChild(e);return e;}
+let seed=1744; const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+// defs: grain + glow
+const defs=el('defs',{});
+defs.innerHTML=`
+<filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch" seed="7"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .09"/></feComponentTransfer></filter>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+<radialGradient id="dawn" cx=".5" cy=".62" r=".75"><stop offset="0" stop-color="#3a2a1e" stop-opacity=".95"/><stop offset=".45" stop-color="#1a1a26" stop-opacity=".6"/><stop offset="1" stop-color="#0b1220" stop-opacity="0"/></radialGradient>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset=".55" stop-color="#151a2a"/><stop offset="1" stop-color="#2a2420"/></linearGradient>`;
+// background
+el('rect',{x:0,y:0,width:W,height:H,fill:'url(#sky)'});
+el('rect',{x:0,y:0,width:W,height:H,fill:'url(#dawn)'});
+// ---- observation disc (sun at dawn): concentric hairline rings, 12 ticks
+const cx=1200, cy=1130, R0=400;
+for(let i=0;i<9;i++){ el('circle',{cx,cy,r:R0-i*38,fill:'none',stroke:C.gold,'stroke-width':i===0?1.2:.6,'stroke-opacity':i===0?.55:.22-i*.015}); }
+el('circle',{cx,cy,r:150,fill:C.gold,'fill-opacity':.10,filter:'url(#soft)'});
+el('circle',{cx,cy,r:96,fill:'none',stroke:C.gold,'stroke-width':1.4,'stroke-opacity':.7});
+for(let i=0;i<40;i++){ const a=-Math.PI/2+i/40*Math.PI*2; const r1=R0+22, r2=R0+(i%10===0?54:36); el('line',{x1:cx+Math.cos(a)*r1,y1:cy+Math.sin(a)*r1,x2:cx+Math.cos(a)*r2,y2:cy+Math.sin(a)*r2,stroke:C.sand,'stroke-width':i%10===0?1.2:.6,'stroke-opacity':i%10===0?.6:.35}); }
+// ---- three towers (three states), built from brick rows
+const groundY=2960; const towers=[{x:480,w:300,h:820,yr:'١٧٤٤',lat:'1744',fall:'١٨١٨'},{x:1050,w:300,h:1000,yr:'١٨٢٤',lat:'1824',fall:'١٨٩١'},{x:1620,w:300,h:1250,yr:'١٩٠٢',lat:'1902',fall:null}];
+const brick=el('g',{});
+function brickRows(x0,y0,w,h,alpha){ const bh=26,bw=78; let row=0; for(let y=y0+h-bh;y>=y0;y-=bh,row++){ const off=row%2?bw/2:0; for(let x=x0-off;x<x0+w;x+=bw){ const bx=Math.max(x0,x), bw2=Math.min(x0+w,x+bw-3)-bx; if(bw2<=4) continue; const v=alpha*(.55+rnd()*.45); el('rect',{x:bx,y:y+1,width:bw2,height:bh-3,fill:C.adobe,'fill-opacity':v*.28,stroke:C.clay,'stroke-width':.5,'stroke-opacity':.5},brick); } } }
+towers.forEach((t,i)=>{ const y0=groundY-t.h; brickRows(t.x,y0,t.w,t.h,.6+i*.2);
+  // crenellations: triangles across the top
+  const step=42; for(let x=t.x+6;x<t.x+t.w-6;x+=step){ el('path',{d:`M${x} ${y0} L${x+step/2} ${y0-34} L${x+step} ${y0} Z`,fill:C.adobe,'fill-opacity':.5+i*.15,stroke:C.gold,'stroke-width':.6,'stroke-opacity':.5}); }
+  // outline
+  el('rect',{x:t.x,y:y0,width:t.w,height:t.h,fill:'none',stroke:C.sand,'stroke-width':.8,'stroke-opacity':.35});
+  // door arch at base
+  el('path',{d:`M${t.x+t.w/2-42} ${groundY} v-96 a42 42 0 0 1 84 0 v96 Z`,fill:C.night,stroke:C.gold,'stroke-width':.8,'stroke-opacity':.6});
+  // banner pole + flag
+  const px=t.x+t.w/2, top=y0-40; el('line',{x1:px,y1:top,x2:px,y2:top-230,stroke:C.sand,'stroke-width':1.2,'stroke-opacity':.8});
+  if(t.fall){ el('path',{d:`M${px} ${top-230} l120 0 l-30 44 l30 44 l-120 0 Z`,fill:'none',stroke:C.sand,'stroke-width':1,'stroke-opacity':.55,'stroke-dasharray':'6 6'}); }
+  else { el('path',{d:`M${px} ${top-230} l150 0 l-34 54 l34 54 l-150 0 Z`,fill:C.green,stroke:C.gold,'stroke-width':1.2,'stroke-opacity':.9}); }
+  // measurement: base tick + dates
+  el('line',{x1:t.x,y1:groundY+70,x2:t.x+t.w,y2:groundY+70,stroke:C.sand,'stroke-width':.7,'stroke-opacity':.5});
+  el('line',{x1:t.x,y1:groundY+58,x2:t.x,y2:groundY+82,stroke:C.sand,'stroke-width':.7,'stroke-opacity':.5}); el('line',{x1:t.x+t.w,y1:groundY+58,x2:t.x+t.w,y2:groundY+82,stroke:C.sand,'stroke-width':.7,'stroke-opacity':.5});
+  const tx=el('text',{x:t.x+t.w/2,y:groundY+135,'text-anchor':'middle',fill:C.sand,'font-family':'FreeSerif','font-size':54,'fill-opacity':.95}); tx.textContent=t.yr;
+  const lx=el('text',{x:t.x+t.w/2,y:groundY+178,'text-anchor':'middle',fill:C.gold,'font-family':'Mono','font-size':22,'letter-spacing':6,'fill-opacity':.85}); lx.textContent=t.lat+(t.fall?'  ·  ':'  ·  ')+(t.fall?'fell '+({'١٨١٨':'1818','١٨٩١':'1891'}[t.fall]):'stands');
+  // height measure on the right of last tower
+  if(i===2){ el('line',{x1:t.x+t.w+70,y1:y0-40,x2:t.x+t.w+70,y2:groundY,stroke:C.gold,'stroke-width':.7,'stroke-opacity':.5}); for(let y=groundY;y>=y0-40;y-=100){ el('line',{x1:t.x+t.w+62,y1:y,x2:t.x+t.w+78,y2:y,stroke:C.gold,'stroke-width':.7,'stroke-opacity':.6}); } }
+});
+// the spear in the door (subtle): a single hairline into the third door
+el('line',{x1:1880,y1:2700,x2:1774,y2:2905,stroke:C.sand,'stroke-width':1.1,'stroke-opacity':.7}); el('path',{d:'M1774 2905 l-14 -6 l10 -12 Z',fill:C.sand,'fill-opacity':.7});
+// ground: long wall of bricks, full width, heavy base
+const wall=el('g',{}); const wy=groundY; for(let r=0;r<11;r++){ const y=wy+r*40+210; const off=r%2?52:0; for(let x=-off;x<W;x+=104){ el('rect',{x,y,width:100,height:36,fill:C.clay,'fill-opacity':.25+r*.05,stroke:C.adobe,'stroke-width':.5,'stroke-opacity':.25},wall); } }
+el('line',{x1:0,y1:groundY,x2:W,y2:groundY,stroke:C.gold,'stroke-width':1.2,'stroke-opacity':.75});
+// forty stars (forty men), scattered high with a fixed seed
+seed=1319; for(let i=0;i<40;i++){ const x=160+rnd()*(W-320), y=180+rnd()*560; const d=Math.hypot(x-cx,y-cy); if(d<R0+80) continue; el('circle',{cx:x,cy:y,r:1.6+rnd()*1.6,fill:C.sand,'fill-opacity':.5+rnd()*.5}); }
+// title: gold hairline horizon + Arabic title + mono label
+el('line',{x1:560,y1:300,x2:1840,y2:300,stroke:C.gold,'stroke-width':1,'stroke-opacity':.8});
+el('path',{d:'M1200 300 l12 -12 l12 12 l-12 12 Z',fill:C.gold});
+const title=el('text',{x:1200,y:560,'text-anchor':'middle',fill:C.sand,'font-family':'FreeSerif','font-size':250,'font-weight':'normal',direction:'rtl'}); title.textContent='الرايات الثلاث';
+const sub=el('text',{x:1200,y:660,'text-anchor':'middle',fill:C.gold,'font-family':'Mono','font-size':30,'letter-spacing':14,'fill-opacity':.9}); sub.textContent='AL-RAYAT AL-THALATH';
+const sub2=el('text',{x:1200,y:718,'text-anchor':'middle',fill:C.sand,'font-family':'Jura','font-size':30,'letter-spacing':10,'fill-opacity':.6}); sub2.textContent='THREE BANNERS · 1744 — 1932 · FIG. I';
+// bottom caption (single line) + plate number
+const cap=el('text',{x:1200,y:3440,'text-anchor':'middle',fill:C.sand,'font-family':'FreeSerif','font-size':58,direction:'rtl','fill-opacity':.9}); cap.textContent='ثلاث رايات رُفعت، وسقطت اثنتان، وبقيت واحدة';
+const pl=el('text',{x:160,y:3500,fill:C.gold,'font-family':'Mono','font-size':22,'letter-spacing':6,'fill-opacity':.7}); pl.textContent='PLATE 01 · DIRIYAH · RIYADH · MASMAK';
+const pr=el('text',{x:2240,y:3500,'text-anchor':'end',fill:C.gold,'font-family':'Mono','font-size':22,'letter-spacing':6,'fill-opacity':.7}); pr.textContent='ADOBE DAWN · 23.IX.1932';
+// crenellated frame top & bottom (hairline)
+for(let x=80;x<W-80;x+=40){ el('path',{d:`M${x} 120 l20 -18 l20 18`,fill:'none',stroke:C.gold,'stroke-width':.7,'stroke-opacity':.45}); el('path',{d:`M${x} 3560 l20 -18 l20 18`,fill:'none',stroke:C.gold,'stroke-width':.7,'stroke-opacity':.45}); }
+el('rect',{x:80,y:120,width:W-160,height:3440,fill:'none',stroke:C.gold,'stroke-width':.8,'stroke-opacity':.5});
+// grain on top
+el('rect',{x:0,y:0,width:W,height:H,filter:'url(#grain)',fill:'#fff'});
+</script></body></html>
