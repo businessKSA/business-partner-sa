@@ -53,13 +53,18 @@ journey) that captures idea/stage/sector/budget and opens a Client record.
 All four new agents are wired into Khaled as `ai_tool`s and registered in the
 site proxy (`consultant`/`market`/`model`/`finance`).
 
-**Engine — unified on OpenAI `gpt-5-mini`.** Every agent (Khaled + the 6 original
-specialists Farah/Badr/Malak/Mohammed/Ahmed/Abdulaziz + Mazen + the 4 new agents)
-now runs a single OpenAI `chainLlm` engine. **Gemini and Groq were removed
-entirely** — Groq's llama model occasionally injected Russian/Chinese tokens into
-Arabic, and Gemini's free tier capped at 20 req/day; OpenAI fixes both with clean
-bilingual Arabic/English output. Each workflow is now `Webhook → Normalize →
-AI Engine (OpenAI) → Parse → Reply`.
+**Engine — unified on Azure OpenAI deployment `bp-main` (2026-09-19).** Every
+agent (Khaled + the 6 original specialists Farah/Badr/Malak/Mohammed/Ahmed/Abdulaziz
++ Mazen + the 4 new agents) runs one Azure OpenAI engine on resource
+`bp-ai-ksa-2026` (Sweden Central). **Groq, Gemini and direct OpenAI were removed
+entirely** — Groq capped at 8,000 tokens/minute, which a single Muin call (~2,500
+tokens) exhausted in three requests; Gemini's free tier capped at 20 req/day.
+Azure fixes both and consolidates billing. Each workflow is now `Webhook →
+Normalize → AI Engine (Azure OpenAI) → Parse → Reply`.
+
+Note: the `model` field on an Azure OpenAI node is the **deployment name**
+(`bp-main`), not a model name. Speech-to-text still uses OpenAI Whisper — a chat
+deployment cannot transcribe audio.
 
 ### 1.3 Notion (mature workspace — heavy reuse)
 
