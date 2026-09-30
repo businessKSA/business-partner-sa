@@ -10,8 +10,19 @@
 // POST /api/hire { task, role, candidate, candidates, lang }
 //   task: "match" | "summary" | "interview" | "outreach"
 // GET  /api/hire  -> { status, providers }
+//
+// ⚠️ المصادقة والقياس والسقف — أُضيفت 2026-09-29، انظر `authorize` أدناه.
+// حتى ذلك اليوم كان المعالج يمضي من قراءة الجسم إلى نداء النموذج مباشرةً: بلا
+// جلسة ولا رمز صاحب عمل ولا باقة ولا سقف. أي أحد على الإنترنت كان يستهلك رصيد
+// Azure، و`task:"match"` مع `postingId` **يكتب في نوشن** فيعدّل «المرشحون
+// المطابقون» في إعلانٍ حقيقي. والمهامّ ليست صنفاً واحداً: بعضها عامٌّ بحقّ
+// (ترجمة إعلان لزائر، تحسين سيرة لمرشّح) فإقفاله يكسر خدمةً قائمة.
 
-import { AZURE_KEYS, azureChat, azureConfigured } from "./_azure.js";
+import { AZURE_KEYS, azureChat, azureConfigured, azureTextDeployment } from "./_azure.js";
+import { employerBySession, portalUnlock, resolvePlan } from "./candidates.js";
+import {
+  anonSubject, countAnonToday, countToday, employerSubject, limits, logCall, windowEnd,
+} from "./_hiremeter.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -32,7 +43,20 @@ const PROVIDERS = [
 ];
 const available = () => (azureConfigured() ? PROVIDERS : []);
 
-export async function aiText(prompt, maxTokens) { return ai(prompt, maxTokens); }
+// المسار الداخلي: api/candidate.js يستورد هذه الدالة ولا يمرّ بمعالج HTTP
+// أدناه، فتحسين السيرة الحقيقي (buildCvBoostPrompt هناك) كان نداءَ ذكاءٍ بلا
+// أي قياس. لا سقف هنا — المستدعي وحدة أخرى لها مصادقتها، والقياس لا يُشترط له
+// طالب — لكنه **يُقاس**، وإلا بقي بندٌ في فاتورة Azure بلا سجلّ يشرحه.
+export async function aiText(prompt, maxTokens, task = "internal") {
+  const t0 = Date.now();
+  const out = await ai(prompt, maxTokens);
+  await logCall({
+    subject: "svc:internal", kind: "internal", task,
+    charsIn: String(prompt || "").length, charsOut: String(out || "").length,
+    ms: Date.now() - t0, tokens: null, model: azureTextDeployment(),
+  });
+  return out;
+}
 export const aiAvailable = () => available().length > 0;
 
 async function ai(prompt, maxTokens) {
@@ -139,6 +163,118 @@ ${cv}`;
   return info;
 }
 
+// ---------------------------------------------------------------------------
+// المصادقة — تصنيف المهامّ السبع، ولكلٍّ سببه من مستدعيه الفعلي في المستودع
+// (`grep -rn '/api/hire' site/ api/` — أُجري قبل كتابة هذا السطر):
+//
+// تتطلّب صاحب عمل (403 locked بلا ذلك):
+//   jobdesc    لوحة صاحب العمل الجديدة وحدها (simple-v1-employer.mjs:1449)،
+//              وهي بجلسة بريدٍ مُثبت. ومستدعيه الآخر (hr-app.js) في اللوحة
+//              القديمة، و/hr/employer* يُحوَّل ٣٠٧ إلى الجديدة (vercel.json).
+//   summary · interview · outreach   لا مستدعي لها إلا لوحة main.js القديمة
+//              المحوَّلة — وهي تعمل على **بيانات مرشّح شخصية** يرسلها المستدعي.
+//   match مع postingId   هذا هو الذي **يكتب في نوشن**. ولا يكفي أن يكون
+//              المُستدعي صاحب عملٍ مشتركاً: يجب أن يكون الإعلان إعلانَه
+//              (postingOwner أدناه) — كما يفلتر update-posting في
+//              api/candidates.js على «رمز صاحب العمل» حرفاً بحرف.
+//
+// عامّة بحقّ (تبقى مفتوحة، ومقيسة ومسقوفة كزائر):
+//   translate  صفحة الإعلان العامة تترجم الإعلان لكل زائر غير عربي
+//              (main.js:1254، بلا جلسة). إقفاله = إعلانات بالعربية للعالم كله.
+//   cv-boost   للمرشّح لا لصاحب العمل. لا مستدعي له اليوم في المستودع، ومع ذلك
+//              يبقى مفتوحاً: إقفاله يكسر خدمة المرشّحين لحظة وصولها، ومالكها
+//              وكيلٌ آخر (recruitment-candidate).
+//   match بلا postingId  تبويب «صاحب عمل» في /hiring العامة يستدعيه لزائرٍ بلا
+//              حساب (simple-v1-hiring.mjs:1050)، وكذلك إيجنت الباحث عن عمل من
+//              الخادم إلى الخادم (api/_jobhunt.js:226) بلا جلسة ولا رمز. وهو
+//              قراءةٌ محضة: ترتيبٌ لقائمةٍ أرسلها المستدعي نفسه، لا كتابة.
+//
+// ⚠️ المتبقّي المعروف: نداءٌ عامٌّ يظل يستهلك رصيد Azure. حاجزه هنا سقفان
+// (لكل عنوان، وللمجهولين جملةً) لا مصادقة. وإقفاله الكامل قرار مالك، ويلزمه
+// قبله رمزٌ داخلي في api/_jobhunt.js (ملك recruitment-candidate) وإلا صمت
+// إيجنت الباحث عن عمل.
+const EMPLOYER_TASKS = new Set(["jobdesc", "summary", "interview", "outreach"]);
+const needsEmployer = (task, b) => EMPLOYER_TASKS.has(task) || (task === "match" && !!b.postingId);
+// المهامّ العامة لا تُكلّف الزائر سؤالاً في نوشن: لا يُحلّ صاحب عملٍ لها إلا
+// إذا أرسل المستدعي رمزاً صريحاً. صفحة الإعلان العامة تُفتح كثيراً، ولا يُحمَّل
+// كل فتحةٍ استعلامَ قاعدة أصحاب العمل.
+const PUBLIC_TASKS = new Set(["translate", "cv-boost"]);
+
+const clientIp = (req) => {
+  const h = (req && req.headers) || {};
+  const raw = String(h["x-forwarded-for"] || h["x-real-ip"] || "").split(",")[0].trim();
+  return raw || "unknown";
+};
+
+// النمط نفسه الذي في api/candidates.js حرفياً: code:"self" (أو غائب) ← الرمز
+// يُحلّ من الجلسة في الخادم ولا يغادرها · رمزٌ صريح ← resolvePlan · وإلا جلسة
+// بوابة العميل في التجربة. والفشل ⇒ 403 locked.
+async function authorize(req, b, task) {
+  const asked = String(b.code || "").trim();
+  const skipLookup = PUBLIC_TASKS.has(task) && !asked;
+  let acct = null;
+  if (!skipLookup) {
+    if (!asked || asked === "self") acct = await employerBySession(req);
+    else if (!asked.startsWith("org:")) {
+      const r = await resolvePlan(asked);
+      if (r && r.unlocked) acct = { ...r, code: asked };
+    }
+    if (!acct) acct = await portalUnlock(req);
+  }
+  if (acct && acct.code) {
+    return {
+      ok: true, kind: "employer", owner: !!acct.owner, code: acct.code,
+      subject: employerSubject(acct.code),
+      company: acct.company || "", plan: acct.plan || "",
+    };
+  }
+  if (needsEmployer(task, b)) return { ok: false };
+  const ip = clientIp(req);
+  return { ok: true, kind: "anon", owner: false, code: "", subject: anonSubject(ip), company: "", plan: "" };
+}
+
+// مالك الإعلان في نوشن — لأن «مشتركاً ما» ليس «صاحب هذا الإعلان». يعيد null
+// حين يتعذّر السؤال، وnull تمنع الكتابة: الفشل مغلقٌ في الكتابة وحدها.
+async function postingOwner(postingId) {
+  if (!NOTION_TOKEN) return null;
+  try {
+    const r = await fetch(`https://api.notion.com/v1/pages/${String(postingId).trim()}`, {
+      headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": "2022-06-28" },
+    });
+    if (!r.ok) { console.error("posting owner lookup", r.status, (await r.text()).slice(0, 200)); return null; }
+    const d = await r.json();
+    const rt = ((d && d.properties && d.properties["رمز صاحب العمل"]) || {}).rich_text;
+    return Array.isArray(rt) ? rt.map((x) => x.plain_text || "").join("").trim() : "";
+  } catch (e) { console.error("posting owner error", String(e).slice(0, 160)); return null; }
+}
+
+// السقف اليومي. المالك بلا سقف. وتعذّر العدّ يفتح النداء عمداً: سقفٌ يمنع كل
+// خدمةٍ لأن قاعدة البيانات صامتة أسوأ من سقفٍ لا يُطبَّق ساعةً.
+async function quota(auth) {
+  if (auth.owner) return { ok: true, limit: 0, used: 0 };
+  const L = limits();
+  const limit = auth.kind === "employer" ? L.employer : L.anon;
+  const used = await countToday(auth.subject, limit);
+  if (used !== null && used >= limit) return { ok: false, limit, used };
+  if (auth.kind === "anon") {
+    const total = await countAnonToday(L.anonTotal);
+    if (total !== null && total >= L.anonTotal) return { ok: false, limit: L.anonTotal, used: total, shared: true };
+  }
+  return { ok: true, limit, used: used === null ? 0 : used };
+}
+
+function tooManyBody(q) {
+  const end = windowEnd();
+  const mins = Math.max(1, Math.round((end.getTime() - Date.now()) / 60000));
+  const inWord = mins >= 60 ? `${Math.floor(mins / 60)} ساعة${mins % 60 ? ` و${mins % 60} دقيقة` : ""}` : `${mins} دقيقة`;
+  const who = q.shared ? "للنداءات العامة (بلا حساب)" : "لحسابك";
+  return {
+    ok: false, error: "rate_limited", limit: q.limit, used: q.used, resets_at: end.toISOString(),
+    message: `بلغتَ الحدّ اليومي لنداءات مساعد التوظيف الذكي ${who}: ${q.limit} نداءً في اليوم. ` +
+      `يتجدّد الحدّ في منتصف الليل بتوقيت الرياض — بعد ${inWord}.`,
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
@@ -151,8 +287,32 @@ export default async function handler(req, res) {
   const task = ["match", "summary", "interview", "outreach", "jobdesc", "translate", "cv-boost"].includes(b.task) ? b.task : "";
   if (!task) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_task" })); }
 
+  // المصادقة قبل أي نداء نموذج — ونفس شكل الردّ الذي يعرفه المتصفّح من
+  // ?applicants=1 في api/candidates.js: 403 { ok:false, error:"locked" }.
+  const auth = await authorize(req, b, task);
+  if (!auth.ok) {
+    res.statusCode = 403;
+    return res.end(JSON.stringify({
+      ok: false, error: "locked",
+      message: "هذه الأداة لأصحاب العمل المشتركين — ادخل بحسابك أو فعّل اشتراكك.",
+    }));
+  }
+
+  const q = await quota(auth);
+  if (!q.ok) { res.statusCode = 429; return res.end(JSON.stringify(tooManyBody(q))); }
+
   try {
-    const out = await ai(buildPrompt(b), task === "match" ? 2000 : task === "translate" ? 4000 : task === "cv-boost" ? 6000 : 900);
+    const prompt = buildPrompt(b);
+    const t0 = Date.now();
+    const out = await ai(prompt, task === "match" ? 2000 : task === "translate" ? 4000 : task === "cv-boost" ? 6000 : 900);
+    // القياس: لكل نداءٍ ناجح، وقبل أي فرعٍ يعود بالنتيجة — وفشله لا يُسقط
+    // النداء (logCall لا ترمي بحال). انظر api/_hiremeter.js.
+    await logCall({
+      subject: auth.subject, kind: auth.kind, task,
+      company: auth.company, plan: auth.plan,
+      charsIn: prompt.length, charsOut: String(out || "").length,
+      ms: Date.now() - t0, tokens: null, model: azureTextDeployment(),
+    });
     if (task === "match") {
       let ranked = [];
       try {
@@ -165,7 +325,13 @@ export default async function handler(req, res) {
       // dashboard still gets its live results even if the relation write fails.
       if (b.postingId && Array.isArray(ranked) && ranked.length && NOTION_TOKEN) {
         try {
-          const ids = ranked.slice(0, 12).map((m) => String(m.id || "").trim()).filter((s) => /^[0-9a-f]{8}-?[0-9a-f-]{20,28}$/i.test(s));
+          // الإعلان يجب أن يكون إعلان المُستدعي. المقارنة كما في
+          // api/candidates.js (update-posting): «رمز صاحب العمل» بلا حساسية
+          // حالة. وتعذّر السؤال يمنع الكتابة ولا يمنع النتيجة.
+          const ownerCode = await postingOwner(b.postingId);
+          const mine = !!ownerCode && !!auth.code && ownerCode.toLowerCase() === auth.code.toLowerCase();
+          const ids = !mine ? [] : ranked.slice(0, 12).map((m) => String(m.id || "").trim()).filter((s) => /^[0-9a-f]{8}-?[0-9a-f-]{20,28}$/i.test(s));
+          if (!mine) console.warn("hire match: posting not owned by caller — relation not written");
           if (ids.length) {
             const pr = await fetch(`https://api.notion.com/v1/pages/${String(b.postingId).trim()}`, {
               method: "PATCH",
