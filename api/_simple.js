@@ -47,7 +47,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 // customer's request sits unread.
 const OWNER_EMAIL = process.env.BP_OWNER_EMAIL || "business@businesspartner.sa,business@businesspartnerksa.com";
 
-export const REQUEST_TYPES = ["CONSULTATION", "GOVERNMENT_SERVICE", "COMPANY_FORMATION"];
+export const REQUEST_TYPES = ["CONSULTATION", "GOVERNMENT_SERVICE", "COMPANY_FORMATION", "BUSINESS_DEVELOPMENT"];
 export const REQUEST_SOURCES = ["WEBSITE", "WHATSAPP", "EMAIL", "PHONE", "AI_ASSISTANT", "MANUAL", "REFERRAL"];
 export const REQUEST_STATUSES = [
   "NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "QUOTE_APPROVED", "CONTRACT_SENT", "SIGNED",
@@ -708,6 +708,7 @@ function defaultTitle(type, lang) {
     CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" },
     GOVERNMENT_SERVICE: { ar: "طلب حكومي", en: "Government request", fr: "Demande gouvernementale", zh: "政府服务申请" },
     COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+    BUSINESS_DEVELOPMENT: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   }[type] || {};
   return t[lang] || t.ar || "طلب";
 }
