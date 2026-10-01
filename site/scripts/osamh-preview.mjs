@@ -43,4 +43,24 @@ for (const entry of fs.readdirSync(OUT)) {
   }
 }
 
+// The domain osamh.businesspartner.sa is bound to this branch and must serve
+// the client's page at its ROOT, not at /preview/osamh. A host-scoped rewrite
+// in vercel.json handles /platform, but it cannot handle "/" — Vercel checks
+// the filesystem BEFORE rewrites, so site/index.html always wins and the
+// visitor gets Business Partner's homepage instead. Verified live: /platform
+// served the prototype while / served the BP homepage.
+//
+// So the root index is replaced here instead — and ONLY on this branch.
+// VERCEL_GIT_COMMIT_REF is set by Vercel per deployment, so:
+//   - the production branch never matches, even if this file reaches its build
+//   - `npm run dev` has no such variable, so local builds keep the real homepage
+const BRANCH = 'claude/osamh-demo';
+if (process.env.VERCEL_GIT_COMMIT_REF === BRANCH) {
+  const root = path.resolve('site/index.html');
+  fs.copyFileSync(path.join(OUT, 'index.html'), root);
+  console.log(`Osamh preview: root index replaced (branch ${BRANCH})`);
+} else {
+  console.log(`Osamh preview: root index untouched (ref ${process.env.VERCEL_GIT_COMMIT_REF || 'unset'})`);
+}
+
 console.log(`Osamh preview copied to site/preview/osamh (${copied} file${copied === 1 ? '' : 's'})`);
