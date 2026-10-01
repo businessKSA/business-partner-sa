@@ -227,7 +227,9 @@ async function authorize(req, b, task) {
   if (!skipLookup) {
     if (!asked || asked === "self") acct = await employerBySession(req);
     else if (!asked.startsWith("org:")) {
-      const r = await resolvePlan(asked);
+      const r = await resolvePlan(asked, req);
+      // حدّ محاولات الرمز الخاطئ (يُحسب في resolvePlan): ٢٠/ساعة لكل عنوان ثم 429.
+      if (r && r.limited) return { ok: false, limited: true };
       if (r && r.unlocked) acct = { ...r, code: asked };
     }
     if (!acct) acct = await portalUnlock(req);
@@ -609,6 +611,11 @@ export default async function handler(req, res) {
   // المصادقة قبل أي نداء نموذج — ونفس شكل الردّ الذي يعرفه المتصفّح من
   // ?applicants=1 في api/candidates.js: 403 { ok:false, error:"locked" }.
   const auth = await authorize(req, b, task);
+  if (!auth.ok && auth.limited) {
+    res.statusCode = 429;
+    res.setHeader("Retry-After", "3600");
+    return res.end(JSON.stringify({ ok: false, error: "too_many_attempts" }));
+  }
   if (!auth.ok) {
     res.statusCode = 403;
     return res.end(JSON.stringify({

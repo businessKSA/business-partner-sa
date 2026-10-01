@@ -389,3 +389,12 @@ test("② السقف قابل للضبط من EMP_CODE_MISS_LIMIT", async () => 
     assert.deepEqual(codes, [403, 403, 403, 429, 429]);
   } finally { delete process.env.EMP_CODE_MISS_LIMIT; }
 });
+
+// /api/hire لا يبقى مسارَ تخمينٍ للرمز: الحدّ نفسه، ثم 429 (لا 403).
+test("hire.js يمرّر req إلى resolvePlan ويحوّل limited إلى 429", async () => {
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../api/hire.js", import.meta.url), "utf8");
+  assert.match(src, /resolvePlan\(asked, req\)/, "resolvePlan تُستدعى بلا req فيفلت الحدّ");
+  assert.match(src, /r\.limited\) return \{ ok: false, limited: true \}/);
+  assert.match(src, /auth\.limited[\s\S]{0,120}statusCode = 429/);
+});
