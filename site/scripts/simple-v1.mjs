@@ -28,6 +28,16 @@
 // one step — SIMPLE_V1=0 in the environment, or revert this line — and the
 // classic homepage comes back untouched at "/".
 export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
+
+// مفتاح الباب الرابع «تطوير الأعمال» — site/data/features.json (bizdevDoor).
+// false (الافتراضي): الرئيسية ثلاثة أبواب كما كانت حرفاً — لا باب ولا رقاقة ولا
+// ترحيب ولا نوع طلب ولا شبكة 2×2. true: أربعة أبواب. السبب في features.json.
+// يُقرأ هنا لا في generate.mjs: القيمة لا تخصّ غير هذه الصفحة، فلا يُلمس المولّد.
+import { readFileSync } from "node:fs";
+const BIZDEV_DOOR = (() => {
+  try { return JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
+  catch { return false; }
+})();
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -352,7 +362,7 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors{display:grid;${BIZDEV_DOOR ? "grid-template-columns:1fr 1fr;" : ""}gap:10px}
 .sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
 .sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
@@ -507,8 +517,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
- .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){${BIZDEV_DOOR ? `.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ ` : ""}.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
 // ------------------------------------------------- حالة الدخول في الترويسة --
@@ -798,7 +808,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       ["consulting", "💬", t("ctxConsulting"), t("doorConsulting"), t("ctaConsulting")],
       ["government", "🏛️", t("ctxGovernment"), t("doorGovernment"), t("ctaGovernment")],
       ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
-      ["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")],
+      ...(BIZDEV_DOOR ? [["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")]] : []),
     ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
 
     const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
@@ -815,12 +825,12 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
-      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), bizdev: t("ctxBizdev") },
-      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation"), bizdev: t("welcomeBizdev") },
-      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation"), bizdev: arr("chipsBizdev") },
-      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation"), bizdev: arr("seedBizdev") },
-      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), bizdev: t("ctxBizdev") },
-      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation"), bizdev: t("doorBizdev") },
+      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation"), ...(BIZDEV_DOOR ? { bizdev: t("welcomeBizdev") } : {}) },
+      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("chipsBizdev") } : {}) },
+      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("seedBizdev") } : {}) },
+      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation"), ...(BIZDEV_DOOR ? { bizdev: t("doorBizdev") } : {}) },
     };
 
     const body = `
@@ -835,7 +845,7 @@ ${header(path)}
         <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
         <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
       </div>
-      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li><li>${t("trust4")}</li></ul>
+      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li>${BIZDEV_DOOR ? `<li>${t("trust4")}</li>` : ""}</ul>
     </div>
     <div class="sv1-doorwrap">
       <div class="sv1-doors" id="doors">${doors}</div>
@@ -949,7 +959,7 @@ ${footer()}`;
     const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))};
-var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
+var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'${BIZDEV_DOOR ? ",bizdev:'BUSINESS_DEVELOPMENT'" : ""}};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
 var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
@@ -1101,7 +1111,7 @@ msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?p
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
-      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" }[l],
+      title: (BIZDEV_DOOR ? { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" } : { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" })[l],
       desc: t("heroText"),
       path, body, script,
     });

@@ -1,0 +1,4 @@
+{
+  "_note": "مفاتيح الميزات. bizdevDoor: الباب الرابع «تطوير الأعمال» في الرئيسية. يبقى false حتى ينفّذ المالك migration قيد requests_type_check على Supabase الإنتاجي (يقبل BUSINESS_DEVELOPMENT) ويُعدَّل TYPE في sv1-quote-auth-flow.mjs. false = الرئيسية ثلاثة أبواب كما كانت حرفاً. للتفعيل: غيّر القيمة إلى true في كوميت صغير واحد.",
+  "bizdevDoor": false
+}
