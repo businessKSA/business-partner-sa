@@ -310,6 +310,7 @@ import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
+import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
@@ -2253,77 +2254,61 @@ function buildServiceCategory(cat) {
   });
 }
 
+// صفحة تفاصيل الخدمة على الموقع الجديد: المولّد يجهّز المعطيات وحدها
+// (نصوص اللغة الحالية، المستندات، السعر)، و`simple-v1-service-detail.mjs`
+// يبني الصفحة داخل SV1.shell(). لا HTML هنا ولا main.js ولا طبقة القديم.
+//
+// ما يُحذف من العرض عمداً (ولا يُمسّ في بياناته):
+//  • المميزات العامة الثلاث والأسئلة الشائعة العامة (تُولَّد لكل خدمة بلا
+//    تخصيص): «الأتعاب واضحة» تكرّر ملاحظة السعر، و«ابدأ بالتواصل — يبدأ الطلب
+//    فوراً» يناقض «تتطلب عرضاً». تبقى المميزات والأسئلة المخصّصة للخدمة في
+//    site.json (overrides) فقط.
+//  • سؤال «هل الرسوم الحكومية ضمن الأتعاب؟» وجوابه «نعم… منفصلة»: السؤال يُجاب
+//    بنعم ثم يُثبت العكس. الحقيقة نفسها في ملاحظة السعر.
+const SVC_GOVFEE_Q = [/الرسوم الحكومية ضمن الأتعاب/, /Are government fees included/i];
 function buildServiceDetail(s) {
   const ov = site.overrides[s.slug];
   const docs = documentsOf(s, ov);
-  const feats = featuresOf(s, ov);
-  const faq = faqOf(s, ov);
-  const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد المستشار الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
-    : "";
-  const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
-  const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
-  const faqHtml = faq
-    .map(
-      (f) => `<div class="faq-item"><button class="faq-q" aria-expanded="false">${esc(f.q)} ${I.chevron}</button>
-    <div class="faq-a"><p>${esc(f.a)}</p></div></div>`
-    )
-    .join("");
+  const priced = !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
 
-  const facts = [];
-  facts.push(`<li><span class="k">${L("Category", "الفئة")}</span><span class="v">${L(catEn(s.category), catAr(s.category))}</span></li>`);
-  if (ov && ov.duration) facts.push(`<li><span class="k">${L("Duration", "المدة")}</span><span class="v">${L(ov.durationEn || ov.duration, ov.duration)}</span></li>`);
-  facts.push(`<li><span class="k">${L("Available to", "متاح لـ")}</span><span class="v">${esc(audienceOf(s, ov))}</span></li>`);
-  if (s.govPlatform) facts.push(`<li><span class="k">${L("Authority", "الجهة")}</span><span class="v">${esc(govLabel(s.govPlatform))}</span></li>`);
-  facts.push(`<li><span class="k">${L("Code", "الكود")}</span><span class="v">${esc(s.code)}</span></li>`);
+  const curatedFeats = LANG === "ar" ? !!(ov && ov.features) : !!(ov && ov.featuresEn);
+  const feats = curatedFeats
+    ? featuresOf(s, ov)
+    : LANG === "ar"
+    ? (DELIV_AR[s.code] || (s.deliverables || []).filter((x) => /[؀-ۿ]/.test(x))).slice(0, 4)
+    : [];
 
-  const priceNote = (s.price && (LANG === "ar" ? s.price.note : s.price.noteEn))
-    ? (LANG === "ar" ? s.price.note : s.price.noteEn)
-    : L(
-        s.govFeesSeparate ? "Fees exclude government fees and VAT." : "Fees exclude VAT.",
-        s.govFeesSeparate ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة." : "الأتعاب لا تشمل ضريبة القيمة المضافة."
-      );
-  const arrow = LANG === "ar" ? "←" : "→";
+  // الأسئلة المخصّصة فقط. الفرنسية والصينية تأخذ نصّ الأسئلة الإنجليزية مترجَماً
+  // من القاموس، ويسقط السؤال الذي لم يُترجَم (لا إنجليزية في صفحة فرنسية).
+  const faqSrc = (LANG === "ar" ? ov && ov.faq : ov && ov.faqEn) || [];
+  const faq = faqSrc
+    .filter((f) => !SVC_GOVFEE_Q.some((r) => r.test(f.q)))
+    .map((f) => (LANG === "ar" || LANG === "en" ? f : { q: T(f.q), a: T(f.a), same: T(f.q) === f.q || T(f.a) === f.a }))
+    .filter((f) => !f.same);
 
-  const body = `
-  <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
-    <h1>${esc(sName(s))}</h1>
-    <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
-  </div></section>
-  <div class="container"><div class="svc-layout">
-    <div class="svc-main">
-      <section><h2>${L("Service description", "وصف الخدمة")}</h2><p class="lead-p">${esc(sDesc(s))}</p></section>
-      <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
-      <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
-      <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "المستشار الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
-    </div>
-    <aside class="svc-aside">
-      <div class="order-box">
-        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored price-amt" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
-        ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
-        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || s.nameEn || s.name, nameAr: sNameArOf(s), amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
-        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
-          : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
-        <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        ${s.category === "Real Estate" && !s.ctaConsultation
-          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
-          : s.category === "Tourism"
-          ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
-        <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
-        <ul class="order-facts">${facts.join("")}</ul>
-      </div>
-    </aside>
-  </div></div>`;
-  const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  const priceLabelTx = priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "";
+  const notePart = s.price && (LANG === "ar" ? s.price.note : s.price.noteEn);
+  const seoDesc = sDesc(s).slice(0, 155);
+  const view = {
+    code: s.code, slug: s.slug, name: sName(s),
+    nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+    cartId: "svc-" + s.slug, desc: sDesc(s),
+    category: s.category, catLabel: catLabel(s.category), catHref: catUrl(s.category),
+    gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+    duration: ov && ov.duration ? Lraw(ov.durationEn || ov.duration, ov.duration) : "",
+    docs, docsGeneric: !(ov && (ov.documents || ov.documentsEn)),
+    feats, faq,
+    priced, amount: priced ? s.price.amount : null, priceLabel: priceLabelTx, priceNote: notePart || "",
+    govFeesSeparate: !!s.govFeesSeparate, requiresProposal: !!s.requiresProposal,
+    special: s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "",
+    hrefs: {
+      workspace: u("/workspace-request"), tourism: u("/tourism"),
+      consult: `${u("/consultation")}?about=${encodeURIComponent(sName(s))}`,
+    },
+    title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
+    seoDesc, liveV: LIVE_V,
+  };
+  return buildSimpleServiceDetail(SV1, { lang: () => LANG, esc }, view);
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
