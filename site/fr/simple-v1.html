@@ -113,6 +113,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
 .sv1-doors{display:grid;gap:10px}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -334,7 +336,10 @@ var h0=hint();if(h0)S.paint(true,h0);
       </div>
       <ul class="sv1-trust"><li>Conseil</li><li>Services gouvernementaux</li><li>Création d'entreprise</li></ul>
     </div>
-    <div class="sv1-doors" id="doors"><button type="button" class="sv1-door on" id="door-consulting" data-door="consulting"><div class="ico">💬</div><h3>Conseil</h3><p>Une question, un défi, une décision ou tout sujet concernant votre société.</p><span>Démarrer le conseil →</span></button><button type="button" class="sv1-door" id="door-government" data-door="government"><div class="ico">🏛️</div><h3>Services gouvernementaux</h3><p>Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.</p><span>Démarrer la demande →</span></button><button type="button" class="sv1-door" id="door-formation" data-door="formation"><div class="ico">🏢</div><h3>Création d'entreprise</h3><p>Une succursale étrangère ou une société via le parcours entrepreneur.</p><span>Démarrer la création →</span></button></div>
+    <div class="sv1-doorwrap">
+      <div class="sv1-doors" id="doors"><button type="button" class="sv1-door on" id="door-consulting" data-door="consulting"><div class="ico">💬</div><h3>Conseil</h3><p>Une question, un défi, une décision ou tout sujet concernant votre société.</p><span>Démarrer le conseil →</span></button><button type="button" class="sv1-door" id="door-government" data-door="government"><div class="ico">🏛️</div><h3>Services gouvernementaux</h3><p>Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.</p><span>Démarrer la demande →</span></button><button type="button" class="sv1-door" id="door-formation" data-door="formation"><div class="ico">🏢</div><h3>Création d'entreprise</h3><p>Une succursale étrangère ou une société via le parcours entrepreneur.</p><span>Démarrer la création →</span></button></div>
+      <a class="sv1-browse" href="/fr/catalog" data-track="تصفّح الخدمات واشترِ مباشرة">Parcourir les services et acheter directement →</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="advisor"><div class="wrap">
