@@ -442,10 +442,22 @@ export function normNationality(raw) {
 }
 // المهارات: في صفوف الموقع قد تحمل عنوان الوظيفة نفسه أو رابط لينكدإن. مهارةٌ تساوي
 // المسمّى أو رابطٌ ليست مهارة فلا تُعرض.
+// بيانات التواصل (بريد، جوّال) لا مكان لها في حقلٍ نصيٍّ حرّ يصل زائراً مجهولاً:
+// الاستخراج الآلي كتب بريد المرشّح داخل «Skills» فظهر في /hiring العامّة (2026-10-01).
+// الجوّال والبريد لهما حقلاهما، ولا يُفتحان إلا لصاحب عملٍ مفتوحٍ له.
+const EMAIL_IN_TEXT = /[^\s@<>()،,;؛|]+@[^\s@<>()،,;؛|]+\.[^\s@<>()،,;؛|]+/g;
+const PHONE_IN_TEXT = /(?:\+|00)?\d[\d\s().-]{7,}\d/g;
+export function scrubContact(raw) {
+  return String(raw == null ? "" : raw)
+    .replace(EMAIL_IN_TEXT, " ")
+    .replace(PHONE_IN_TEXT, (m) => (m.replace(/\D/g, "").length >= 9 ? " " : m))
+    .replace(/\s*[·•]\s*(?=[·•]|$)/g, " ").replace(/[ \t]{2,}/g, " ").replace(/\s+([·•])\s*$/, "").trim();
+}
+
 export function cleanSkills(raw, titles) {
   const tset = new Set((titles || []).map(nzAr).filter(Boolean));
   const seen = new Set(), out = [];
-  for (const x of String(raw == null ? "" : raw).split(/[،,؛;\n|]/)) {
+  for (const x of scrubContact(raw).split(/[،,؛;\n|·•]/)) {
     const v = x.trim();
     const n = nzAr(v);
     if (!n || n.length < 2 || seen.has(n)) continue;
@@ -467,7 +479,7 @@ export const SITE_SOURCE = "الموقع";
 export function roleOf(p) {
   p = p || {};
   const orig = txt(p["Original Position"]).trim();
-  return txt(p["Source"]) === SITE_SOURCE ? (txt(p["Target Role"]).trim() || orig) : orig;
+  return scrubContact(txt(p["Source"]) === SITE_SOURCE ? (txt(p["Target Role"]).trim() || orig) : orig);
 }
 // سنوات الخبرة: صفرٌ = «مجهول» (١٠٨٣ صفاً تحمله وهو ليس خبرةً حقيقية). تُعاد null
 // فتُعرض «—» ولا تدخل تصفية الخبرة كأنها صفرٌ حقيقي.
@@ -711,10 +723,10 @@ function mapCandidate(pg, unlocked, opts) {
     country: normCountry(txt(p["Country"])),
     residenceStatus: txt(p["حالة الإقامة"]),
     experience: (() => { const e = expYears(p); return e == null ? "" : String(e); })(),
-    education: txt(p["Education"]),
+    education: scrubContact(txt(p["Education"])),
     nationalityType: txt(p["Nationality Type"]),
     availability: txt(p["Availability"]),
-    languages: txt(p["Languages"]),
+    languages: scrubContact(txt(p["Languages"])),
     // Where this person has actually worked, so the console can sort a pool of
     // thousands into "has Saudi experience" / "Gulf" / "international".
     region: txt(p["الخبرة الإقليمية"]),
