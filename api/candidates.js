@@ -15,7 +15,7 @@
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
-import { getSession } from "./_db.js";
+import { DB_ON, getSession, sb, sha256 } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
 // فحص جودة نصّ السيرة (skeleton / garbled / empty): ملكُ recruitment-candidate، يُستورد
 // ولا يُنسخ — فلا يختلف حكمان على «هذه سيرة مقروءة» بين الاستيعاب والعرض.
@@ -948,11 +948,82 @@ function mapCandidate(pg, unlocked, opts) {
 // hardcoded default is public. No env var → no owner bypass code.
 const OWNER_CODE = process.env.OWNER_DEMO_CODE || "";
 
+// ── حدّ المحاولات الفاشلة على الرمز ────────────────────────────────────────
+// رمز الوصول هو الرمز الحامل الذي يفتح بيانات كل المرشحين، ومنه رمزٌ قصيرٌ
+// مفعّل (`BP-EMP-` + ٤ أحرف) قابل للتخمين — وكان `resolvePlan` و`?validate=1`
+// يُجيبان بلا أي حدّ. هنا: ٢٠ محاولةً فاشلة في الساعة لكل عنوان، ثم 429.
+//
+// على نمط `_hiremeter.js`: السجلّ في `audit_logs` (جدولٌ قائم، لا ترحيل)، والعنوان
+// **بصمةٌ** sha256 مقطوعة لا عنواناً خاماً، و**الرمز المُخمَّن لا يُكتب** في أي
+// موضع — جدول سجلّات لا يصير مخزن رموزٍ مجرَّبة. والقاعدة الحاكمة نفسها:
+// فشل العدّ أو الكتابة يفتح ولا يُغلق (fail-open) — حاجزٌ يُسقط الخدمة حين
+// يتعطّل عدّاده أسوأ من حاجزٍ ناقص. ولا يمرّ من هنا شيءٌ من code:"self" ولا
+// org:… ولا الرمز الصحيح: يُحسب الإخفاق وحده.
+export const CODE_MISS_ACTION = "emp.code_miss";
+export const codeMissLimit = () => {
+  const v = Number(process.env.EMP_CODE_MISS_LIMIT);
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 20;
+};
+const CODE_MISS_WINDOW_MS = 3600 * 1000;
+// المنفذ إلى قاعدة البيانات في موضعٍ واحد — كما `sink` في _hiremeter.js — ليُقاس
+// في الاختبار أن فشله لا يُسقط الطلب.
+export const codeMissSink = {
+  async write(row) { await sb("audit_logs", { method: "POST", prefer: "return=minimal", body: [row] }); },
+  async count(query) { return sb(`audit_logs?${query}`); },
+};
+const codeMissIp = (req) => {
+  const h = (req && req.headers) || {};
+  return String(h["x-forwarded-for"] || h["x-real-ip"] || "").split(",")[0].trim().slice(0, 64);
+};
+// بلا عنوانٍ لا يوجد من نحاسبه: دلو «unknown» المشترك كان سيُقفل كل من بلا ترويسة
+// بتخمين واحدٍ منهم. على Vercel تُكتب الترويسة دائماً، فالغياب شذوذٌ لا قاعدة.
+const codeMissLabel = (req) => {
+  const ip = codeMissIp(req);
+  return ip ? "empcode:" + sha256("emp-code-ip:" + ip).slice(0, 16) : "";
+};
+export async function codeAttemptsBlocked(req, now = Date.now()) {
+  if (!DB_ON) return false;
+  const label = codeMissLabel(req);
+  if (!label) return false;
+  const cap = codeMissLimit();
+  try {
+    const since = new Date(now - CODE_MISS_WINDOW_MS).toISOString();
+    const rows = await codeMissSink.count(
+      `action=eq.${CODE_MISS_ACTION}&actor_label=eq.${encodeURIComponent(label)}` +
+      `&created_at=gte.${encodeURIComponent(since)}&select=id&limit=${cap}`,
+    );
+    return Array.isArray(rows) && rows.length >= cap;
+  } catch (e) {
+    console.warn("code-miss count failed", String(e).slice(0, 160));
+    return false;
+  }
+}
+async function noteCodeMiss(req) {
+  if (!DB_ON) return;
+  const label = codeMissLabel(req);
+  if (!label) return;
+  try {
+    await codeMissSink.write({ action: CODE_MISS_ACTION, actor_label: label, entity_type: "employer_code" });
+  } catch (e) { console.warn("code-miss write failed", String(e).slice(0, 160)); }
+}
+function tooManyAttempts(res) {
+  res.statusCode = 429;
+  res.setHeader("Retry-After", "3600");
+  return res.end(JSON.stringify({ ok: false, error: "too_many_attempts" }));
+}
+
 // Resolve a subscription code → { unlocked, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
 // for an ACTIVE row by access code.
-export async function resolvePlan(code) {
+//
+// `req` اختياري عمداً: بلا `req` يبقى السلوك كما كان حرفاً بحرف (من ينادي من
+// خارج الملف لم يُعدَّل بعد). ومعه يُحسب كل رمزٍ **أخطأه** صاحبه — ما ردّت نوشن
+// بأنه لا صفّ مفعّلاً له — على عنوان الطالب، وبعد سقفٍ في الساعة يُردّ
+// `{ limited: true }` قبل أي مقارنة (لا يُسأل حتى الرمز الصحيح: مَن حُظر لا
+// يُعطى جوابَ تخمينٍ بنعم). المنادي يحوّل `limited` إلى 429.
+export async function resolvePlan(code, req) {
   if (!code) return { unlocked: false, plan: "" };
+  if (req && await codeAttemptsBlocked(req)) return { unlocked: false, plan: "", limited: true };
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
   // its own client-only demo trigger codes.
@@ -980,6 +1051,8 @@ export async function resolvePlan(code) {
         const email = (row.properties && row.properties["البريد"] && row.properties["البريد"].email) || "";
         return { unlocked: true, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL };
       }
+      // نوشن أجابت ولا صفّ: هذا وحده «تخمينٌ فاشل». تعذّر السؤال (أدناه) لا يُحسب.
+      if (req) await noteCodeMiss(req);
     } else {
       console.error("employer lookup error", r.status, (await r.text()).slice(0, 200));
     }
@@ -1117,6 +1190,37 @@ const SITE_ROLES = [
   { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", type: "", mode: "", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
 ];
 
+// ── بوابة الكتابة على صفّ مرشّح ────────────────────────────────────────────
+// كل مسارٍ **يكتب** على صفّ مرشّحٍ بمعرّف صفحته يمرّ من هنا قبل أي PATCH. سببها
+// هو سبب `ownJobsFor` نفسه من الجهة الأخرى: القراءة كانت مفلترة بالملكية، بينما
+// `update-stage` و`request-interview` يقبلان أي معرّفٍ من أي جلسةٍ مفتوحة
+// (BP_OPEN_ACCESS يفتحها لكل عميلٍ مسجَّل) — فيحرّك مرحلةَ مرشّحِ غيره، ويرسل
+// بريد «طلب مقابلة» إلى مكتبٍ أو إلى فريقنا باسمٍ يختاره.
+//
+// المفتاح هو نفسه الذي تفلتر به القائمة والملفّ: مرشّحٌ ختمُ تقديمه إعلانٌ
+// يملكه المنادي (والمالك بلا حدّ). والنتيجة الثلاثية كما في ?applicant=1:
+//   • لا صفّ، أو صفٌّ ليس من متقدّمي إعلاناتك ⇒ 404 واحدة (لا 403: «ليس لك»
+//     تُخبر السائل أن الصفّ موجود) — وتشمل صفحةً ليست مرشّحاً أصلاً (ختمها لا
+//     يوجد) كإعلانٍ أو صفّ صاحب عمل.
+//   • تعذّر السؤال على نوشن (الملكية أو الصفّ) ⇒ 502، **لا سماح**.
+// يعيد { ok:true, pdata } أو { ok:false, status, error }، ولا يكتب شيئاً.
+async function ownedCandidatePage(code, owner, id) {
+  const ownJobs = await ownJobsFor(code, owner);
+  if (ownJobs === false) return { ok: false, status: 502, error: "notion_failed" };
+  let page;
+  try { page = await notionFetch(`pages/${id}`, "GET"); }
+  catch (e) { console.error("candidate ownership read", String(e).slice(0, 160)); return { ok: false, status: 502, error: "notion_failed" }; }
+  // 400: نوشن تردّ به على معرّفٍ مُشوَّه — «غير موجود» لا عطل.
+  if (page.status === 404 || page.status === 400) return { ok: false, status: 404, error: "not_found" };
+  if (!page.ok) { console.error("candidate ownership read", page.status, (await page.text()).slice(0, 200)); return { ok: false, status: 502, error: "notion_failed" }; }
+  const pdata = await page.json();
+  if (ownJobs) {
+    const st = applicantStamp(pdata.properties || {});
+    if (!st || !ownJobs.has(st.key)) return { ok: false, status: 404, error: "not_found" };
+  }
+  return { ok: true, pdata };
+}
+
 // Job postings: an employer can open more than one, each with its own title/
 // city/description, and pull an AI-screened shortlist against the pool from
 // that description via /api/hire (task:"match") on the client side.
@@ -1132,7 +1236,11 @@ async function handlePostings(req, res) {
     const acc = await employerBySession(req);
     if (acc) { unlocked = true; owner = !!acc.owner; code = acc.code; }
     else code = "";
-  } else if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
+  } else if (code && !code.startsWith("org:")) {
+    const pl = await resolvePlan(code, req);
+    if (pl.limited) return tooManyAttempts(res);
+    ({ unlocked, owner } = pl);
+  }
   if (!unlocked) {
     const pu = await portalUnlock(req);
     if (pu) { unlocked = true; owner = false; code = pu.code; }
@@ -1259,9 +1367,9 @@ async function handlePostings(req, res) {
     const STAGE_MAP = { new: "جديد", screening: "فرز", review: "فرز", shortlist: "قائمة مختصرة", interview: "مقابلة", offer: "عرض", hired: "تم التوظيف", rejected: "مرفوض", future: "مؤجل" };
     const stageAr = STAGE_MAP[String(b.stage || "")];
     if (!id || !stageAr) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const page = await notionFetch(`pages/${id}`, "GET");
-    if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const pdata = await page.json();
+    const own = await ownedCandidatePage(code, owner, id);
+    if (!own.ok) { res.statusCode = own.status; return res.end(JSON.stringify({ ok: false, error: own.error })); }
+    const pdata = own.pdata;
     const props = { "Pipeline Stage": { select: { name: stageAr } } };
     const today = new Date().toISOString().slice(0, 10);
     if (stageAr === "مقابلة" && !(pdata.properties && pdata.properties["Interview Date"] && pdata.properties["Interview Date"].date)) {
@@ -1283,9 +1391,9 @@ async function handlePostings(req, res) {
   if (b.action === "request-interview") {
     const id = String(b.id || "").trim();
     if (!id) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const page = await notionFetch(`pages/${id}`, "GET");
-    if (!page.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
-    const pdata = await page.json();
+    const own = await ownedCandidatePage(code, owner, id);
+    if (!own.ok) { res.statusCode = own.status; return res.end(JSON.stringify({ ok: false, error: own.error })); }
+    const pdata = own.pdata;
     const props = pdata.properties || {};
     const office = txt(props["مكتب الاستقدام"]);
     const officeEmail = txt(props["بريد المكتب"]);
@@ -1606,7 +1714,11 @@ export default async function handler(req, res) {
     account = empState.reason === "ok" ? empState.account : null;
     if (account) { unlocked = true; plan = account.plan; code = account.code; owner = !!account.owner; }
     else code = "";
-  } else if (code && !code.startsWith("org:")) ({ unlocked, plan, owner = false } = await resolvePlan(code));
+  } else if (code && !code.startsWith("org:")) {
+    const pl = await resolvePlan(code, req);
+    if (pl.limited) return tooManyAttempts(res);
+    ({ unlocked, plan, owner = false } = pl);
+  }
   let portal = null;
   if (!unlocked) {
     portal = await portalUnlock(req);
