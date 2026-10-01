@@ -687,7 +687,7 @@ else setCtx(state.ctx,true);
 <script id="sv1-portal-auth-flow">
 (function(){
   var PORTAL="/my", HOME="/", LANG="en";
-  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
   var LABELS={"empty":"Review the scope before creating the quotation.","creating":"Creating your request…","error":"Could not create the request. Please try again."};
   function draft(){try{return JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){return null}}
   function accountUrl(){

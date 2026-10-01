@@ -687,7 +687,7 @@ else setCtx(state.ctx,true);
 <script id="sv1-portal-auth-flow">
 (function(){
   var PORTAL="/ar/my", HOME="/ar/", LANG="ar";
-  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
   var LABELS={"empty":"راجع نطاق الخدمات أولاً قبل إنشاء عرض السعر.","creating":"جاري إنشاء الطلب…","error":"تعذّر إنشاء الطلب. حاول مرة أخرى."};
   function draft(){try{return JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){return null}}
   function accountUrl(){

@@ -687,7 +687,7 @@ else setCtx(state.ctx,true);
 <script id="sv1-portal-auth-flow">
 (function(){
   var PORTAL="/fr/my", HOME="/fr/", LANG="fr";
-  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+  var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
   var LABELS={"empty":"Vérifiez le périmètre avant de créer le devis.","creating":"Création de votre demande…","error":"Impossible de créer la demande. Réessayez."};
   function draft(){try{return JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){return null}}
   function accountUrl(){
