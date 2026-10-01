@@ -73,15 +73,27 @@ function rtChunks(v, maxChars = 1900, maxChunks = 6) {
   return chunks;
 }
 
+// أرقامٌ هندية (٠-٩) وفارسية (۰-۹) إلى لاتينية، وفاصلا الآلاف والكسر العربيان
+// إلى «,» و«.». `\d` في JS لا يطابق إلا ٠-٩ اللاتينية، فمن كتب «٥ سنوات» أو
+// «٨٬٠٠٠» على لوحة مفاتيح عربية كان يُكتب صفراً/فراغاً بصمت — والصفر هنا يعني
+// «بلا خبرة»، أي حكمٌ على مرشّحٍ لم يُقرأ كلامه.
+export function toLatinDigits(s) {
+  return String(s == null ? "" : s)
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/\u066C/g, ",")
+    .replace(/\u066B/g, ".");
+}
+
 // First integer found in a free-text years-of-experience value (the careers
 // form's combobox produces things like "5+ سنوات" / "5+ years" / "بدون خبرة").
 function experienceYears(exp) {
-  const m = String(exp || "").match(/\d+/);
+  const m = toLatinDigits(exp).match(/\d+/);
   return m ? Number(m[0]) : 0;
 }
 // First integer found in a salary-range string (e.g. "8,000–12,000").
 function firstNumber(s) {
-  const m = String(s || "").replace(/,/g, "").match(/\d+/);
+  const m = toLatinDigits(s).replace(/,/g, "").match(/\d+/);
   return m ? Number(m[0]) : null;
 }
 
@@ -199,6 +211,8 @@ export const CV_FAIL = {
   read_failed: "فشلت قراءة الملف",
   empty: "قُرئ الملف ولم يُخرج نصاً (PDF مصوّر أو صفحات فارغة)",
   fetch_failed: "تعذّر تنزيل الملف من رابطه",
+  skeleton: "النصّ المستخرج هيكلٌ بلا مضمون (عناوين الأقسام بلا خبرات ولا مهارات ولا ملخّص)",
+  garbled: "النصّ المستخرج رديء (حروف غير عربية/لاتينية، أو أرقامٌ معكوسة، أو رموز استبدال) فلا يُعتمد",
 };
 
 // خيارات «حالة القراءة» الأربعة في القاعدة كما هي — لا يُختلق خيارٌ خامس. ما
@@ -208,7 +222,86 @@ const READ_STATUS = {
   bad_type: "ناقص - بيانات غير كافية",
   too_large: "ناقص - بيانات غير كافية",
   no_file: "ناقص - بيانات غير كافية",
+  // أقربُ خيارين موجودين؛ والسبب المكتوب بجانبهما هو ما يقول الحقيقة.
+  skeleton: "ناقص - بيانات غير كافية",
+  garbled: "غير مقروء - PDF مصور",
 };
+
+/* ═════════════════ جودة نصّ السيرة: ما يُقبل في «ATS CV Text» ═════════════════
+ *
+ * قياس 2026-10-01 على القاعدة الحقيقية (٢٦٤٦١ صفاً؛ ١٨٣٢٩ «مكتمل»): في «مكتمل»
+ * ١١٢٤ صفاً بلا نصّ أصلاً (١٠٢٥ منها من الموقع)، و٢٢٣ صفاً نصّه دون ٣٠٠ حرف —
+ * عيّنةٌ منها (١٧ صفاً) كلها **هيكل**: «## الخبرات / ## التعليم» بلا سطرٍ تحتها.
+ * وسببها في n8n: عقدة «بناء السجل» لا تفحص النصّ إلا بـ`cvText.length < 30` على
+ * نصّ PDF الخام، فنصٌّ رديءٌ من ثلاثين حرفاً فما فوق يمرّ إلى النموذج، فيردّ
+ * هيكلاً فارغاً، فتُكتب «مكتمل». وصاحب العمل يرى «مرشّحاً» بلا شيء.
+ *
+ * لذا للنصّ بوّابةٌ قبل أن يُكتب: لا يدخل «ATS CV Text» نصٌّ لا مضمون فيه. وما
+ * يُرفض يُعامل كأنّ المصدر لم يردّ شيئاً، فيُجرَّب الاحتياطي، وإلا يُوسم بسببه.
+ */
+
+// أشكال العرض العربية (ﻣ ﻤ ﷲ ﻻ) تُرجَع إلى حروفها الأصل بـNFKC — وبقاؤها يكسر
+// البحث («محمد» لا تطابق «ﻣﺤﻤﺪ») ويُحسب حرفاً أجنبياً في فحص الجودة. وتُزال
+// علامات الاتجاه والصفر-العرض والتطويل (الكشيدة) التي تفصل الكلمة الواحدة إلى
+// كلمتين عند أي مطابقة نصّية.
+export function normalizeCvText(s) {
+  let t = String(s == null ? "" : s);
+  try { t = t.normalize("NFKC"); } catch { /* نصٌّ غير قابل للتطبيع: يبقى كما هو */ }
+  t = toLatinDigits(t)
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u00AD\u0640]/g, "")
+    .replace(/\n{3,}/g, "\n\n");
+  return t.trim();
+}
+
+// ما يُسقَط من السطر قبل عدّ «المضمون»: وسوم الاتصال وقيمُها، فهي موجودةٌ حتى في
+// السيرة الفارغة (الاسم والبريد والجوال).
+const CV_CONTACT_LABEL = /(?:البريد الإلكتروني|البريد|رقم الهاتف|الهاتف|رقم الجوال|الجوال|المدينة|الموقع|العنوان|e-?mail|phone|mobile|tel|city|location|address)\s*[:：]/gi;
+const CV_EMAIL = /[^\s@]+@[^\s@]+\.[^\s@]+/g;
+const CV_PHONE = /\+?\d[\d\s\-().]{5,}\d/g;
+// `\b` لا تفصل الكلمة العربية (لا تعدّها «كلمة»)، فالحدّ هنا «لا حرفٌ بعدها».
+const CV_LANG_LINE = /^(?:العربية|الإنجليزية|الانجليزية|عربي|إنجليزي|Arabic|English)(?!\p{L})/iu;
+// أقلّ مضمونٍ تُسمّى به الوثيقة سيرة: ستّون حرفاً خارج العناوين والاتصال وسطور
+// اللغات. معايَرٌ على أشكالٍ مأخوذة من صفوفٍ حقيقية (tests/candidate-cv-quality):
+// الهياكل الفارغة تقع بين ٠ و٥٥ حرفاً، وأرقّ سيرةٍ فيها مضمونٌ فعلي (شهادةٌ واحدة
+// بلا خبرة) ٦٣. فالهامش ضيّق من الجهتين — وهي عتبةٌ تُراجَع بقياسٍ أوسع لا تُقدَّس.
+export const CV_MIN_SUBSTANCE = 60;
+
+/**
+ * يحكم على نصّ سيرة: `{ ok, reason, substance }`.
+ *   reason = "" | "empty" (أقلّ من ٤٠ حرفاً) | "skeleton" (عناوين بلا مضمون)
+ *          | "garbled" (حروف ليست عربية/لاتينية، أو رموز استبدال، أو أرقام معكوسة)
+ * دالةٌ صِرفة: لا شبكة ولا حالة — يُنادى بها قبل الكتابة وبعدها في الاستدراك.
+ */
+export function cvTextQuality(text) {
+  const t = String(text == null ? "" : text).trim();
+  if (t.length < 40) return { ok: false, reason: "empty", substance: 0 };
+
+  const count = (re) => (t.match(re) || []).length;
+  const letters = count(/\p{L}/gu);
+  const arabic = count(/[\u0600-\u06FF\u0750-\u077F]/g);
+  const latin = count(/[A-Za-z\u00C0-\u024F]/g);
+  const foreign = Math.max(0, letters - arabic - latin);
+  if (letters >= 40 && foreign / letters > 0.3) return { ok: false, reason: "garbled", substance: 0 };
+  const repl = count(/\uFFFD/g);
+  if (repl >= 3 || repl / t.length > 0.01) return { ok: false, reason: "garbled", substance: 0 };
+  // سنواتٌ معكوسة (٢٠١٣ ← 3102): علامة استخراجٍ بالترتيب البصري، وما حولها من
+  // كلماتٍ مقلوبٌ غالباً. لا يُحكم بها إلا إن تكرّرت ولم يظهر في النصّ عامٌ سليم.
+  const reversedYears = count(/(?<!\d)(?:5002|6002|7002|8002|9002|0102|1102|2102|3102|4102|5102|6102|7102|8102|9102)(?!\d)/g);
+  const normalYears = count(/(?<!\d)(?:19|20)\d{2}(?!\d)/g);
+  if (reversedYears >= 2 && normalYears === 0) return { ok: false, reason: "garbled", substance: 0 };
+
+  let substance = 0;
+  for (const raw of t.split(/\r?\n/)) {
+    let line = raw.trim();
+    if (!line || /^#{1,6}\s/.test(line)) continue;
+    line = line.replace(/\*\*|__/g, "").replace(/^[-*•]\s*/, "").trim();
+    if (CV_LANG_LINE.test(line) && line.length <= 40) continue;
+    line = line.replace(CV_CONTACT_LABEL, " ").replace(CV_EMAIL, " ").replace(CV_PHONE, " ");
+    substance += (line.match(/\p{L}/gu) || []).length;
+  }
+  if (substance < CV_MIN_SUBSTANCE) return { ok: false, reason: "skeleton", substance };
+  return { ok: true, reason: "", substance };
+}
 const READ_STATUS_OK = "مكتمل";
 const READ_PROP = "حالة القراءة";
 const REASON_PROP = "سبب عدم الاكتمال";
@@ -256,10 +349,12 @@ export async function extractCvText(cvFile, budgetMs) {
     ]);
     if (r === expired) return { text: "", reason: "timeout" };
     if (!r || !r.ok) return { text: "", reason: r && r.error === "not_configured" ? "azure_off" : "read_failed" };
-    const text = String((r.data && r.data.cv_markdown) || "").trim();
+    const text = normalizeCvText((r.data && r.data.cv_markdown) || "");
     // أقلّ من أربعين حرفاً ليست سيرة — هي ترويسةٌ أو صفحةٌ بيضاء، وكتابتها
-    // كسيرةٍ تجعل الفرز يحكم على فراغ.
-    if (text.length < 40) return { text: "", reason: "empty" };
+    // كسيرةٍ تجعل الفرز يحكم على فراغ. وفوقها: هيكلٌ بلا مضمون، أو نصٌّ مشوّه،
+    // لهما سببان مستقلان (`cvTextQuality`) كي لا يُقال «فارغ» عن ملفٍ قُرئ.
+    const q = cvTextQuality(text);
+    if (!q.ok) return { text: "", reason: q.reason };
     return { text, reason: "" };
   } catch (e) {
     console.error("local cv extract failed", String(e).slice(0, 200));
@@ -295,6 +390,9 @@ export function applyCvReadStatus(props, outcome, keepExisting) {
     delete props[REASON_PROP];
     return props;
   }
+  // لا نصّ مقبول ⇒ لا «ATS CV Text» أصلاً. `applyN8nEnrichment` يكتبه قبل أن نصل
+  // إلى هنا، فنصٌّ رفضته البوّابة (هيكلٌ فارغ) كان سيبقى في الصفّ ويُعرض.
+  delete props["ATS CV Text"];
   props[READ_PROP] = { select: { name: READ_STATUS[o.reason] || "فشل التحليل" } };
   props[REASON_PROP] = { rich_text: rt(
     `السيرة لم تُستخرج — ${CV_FAIL[o.reason] || o.reason || "سبب غير معروف"}${o.note ? ` · ${o.note}` : ""} (${today()})`) };
@@ -1459,6 +1557,7 @@ export default async function handler(req, res) {
     questions.strengths ? `أقوى المهارات: ${clip(questions.strengths, 700)}` : "",
     questions.notice ? `فترة الإشعار: ${clip(questions.notice, 120)}` : "",
     residenceStatus ? `حالة الإقامة: ${residenceStatus}` : "",
+    linkedin ? `لينكدإن: ${linkedin}` : "",
     cvFile && cvFile.name ? `ملف مرفوع للـ n8n: ${cvFile.name} (${cvFile.type || "file"})` : "",
   ].filter(Boolean).join("\n");
 
@@ -1470,7 +1569,10 @@ export default async function handler(req, res) {
     // a select name must be non-empty, comma-free and at most 100 chars.
     ...(field ? { "Target Role": { select: { name: String(field).replace(/,/g, "،").slice(0, 90) } } } : {}),
     "Experience Years": { number: expYears },
-    "Skills": { rich_text: rt([field, linkedin].filter(Boolean).join(" · ")) },
+    // «Skills» تُكتب هنا من المسمّى فقط. كان رابط لينكدإن يُلصق فيها أيضاً: ٣١٦ صفاً
+    // من صفوف الموقع (قياس 2026-10-01) تعرض لصاحب العمل رابطاً على أنه «مهارة».
+    // الرابط محفوظ في سطر الملاحظات أدناه، لا يضيع.
+    "Skills": { rich_text: rt(field) },
     "Source": { select: { name: "الموقع" } },
     // Job linkage the employer console groups by — "title (id)". Notes carries
     // the same stamp for rows created before this property existed.
@@ -1532,12 +1634,19 @@ export default async function handler(req, res) {
 
     // n8n أولاً دائماً. والاحتياطي لا يُنادى إلا إذا لم يُرجع نصّاً — فنجاحه
     // يعني صفر نداءٍ وصفر تكلفةٍ على أزور.
-    let cvOutcome = { text: String(n8nAi(n8n).ats_cv_markdown || "").trim(), source: "n8n", reason: "" };
+    // وكذلك نصّ n8n يمرّ ببوّابة الجودة: هيكلٌ فارغ منه كان يُكتب «مكتمل».
+    const n8nText = normalizeCvText(n8nAi(n8n).ats_cv_markdown || "");
+    const n8nQ = n8nText ? cvTextQuality(n8nText) : { ok: false, reason: "" };
+    let cvOutcome = { text: n8nQ.ok ? n8nText : "", source: "n8n", reason: "" };
     if (!cvOutcome.text) {
-      const why = n8n.configured === false ? "n8n غير مهيّأ"
+      const why = n8nText ? "n8n ردّ بنصّ سيرة غير صالح"
+        : n8n.configured === false ? "n8n غير مهيّأ"
         : n8n.ok ? "n8n ردّ بلا نصّ سيرة" : "مهلة n8n أو فشله";
       const local = await extractCvText(cvFile, HARD_MS - (Date.now() - startedAt));
       cvOutcome = { text: local.text, source: local.text ? "local" : "", reason: local.reason, note: why };
+      // سببُ الرفض الحقيقي إن رُفض نصّ n8n ولم ينقذه الاحتياطي: «هيكل بلا مضمون»
+      // أصدقُ من «لا ملف مرفوع» أو «أزور غير مهيّأ» لسيرةٍ ردّ عنها n8n بنصّ.
+      if (!local.text && n8nText && !n8nQ.ok) cvOutcome.reason = n8nQ.reason;
     }
 
     // n8n أولاً هنا أيضاً، كنصّ السيرة تماماً: إن ردّ خطّافُ الموقع بتوطينٍ من
@@ -1559,6 +1668,13 @@ export default async function handler(req, res) {
       // hide flag and Notes are left exactly as the recruiter left them.
       delete props["مخفي عن الموقع"];
       delete props["Notes"];
+      // وما لم يقله المتقدّم في هذا التقديم لا يمحو ما استُخرج من سيرته قبله:
+      // مدينةٌ فارغة كانت تكتب فراغاً فوق مدينة الصفّ، وسنوات خبرةٍ غير مذكورة
+      // تكتب صفراً فوق السنوات المستخرجة، ومهارات الصفّ تُستبدل بنصّ المسمّى.
+      const exProps = (existing && existing.properties) || {};
+      if (!city) delete props["City"];
+      if (!exp) delete props["Experience Years"];
+      if (txt(exProps["Skills"])) delete props["Skills"];
       applyN8nEnrichment(props, n8n, false);
       // إعادة تقديمٍ بلا مرفق لا تُنزّل حالة صفٍّ سيرتُه مقروءةٌ عندنا أصلاً.
       const hadCv = !!((existing.properties && existing.properties["ATS CV Text"] && existing.properties["ATS CV Text"].rich_text) || []).length;
