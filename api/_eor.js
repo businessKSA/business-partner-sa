@@ -1,0 +1,598 @@
+// Business Partner — خدمة «موظفون على بند التعاقد» (EOR) — الخادم (ESM).
+//
+// يملكه وكيل `eor`. ملف مساعد يبدأ بـ`_` فلا يُحتسب دالةً جديدة (السقف ١٢).
+// المسار العام يمرّ عبر api/requests.js?__route=eor (يملكه owner-ops) ويفوّض إلى
+// `handleEor(body, ctx)` أدناه — لا يقرأ هذا الملف req/res ولا يكتبهما.
+//
+// ما يفعله handleEor:
+//   ١) يتحقق من الحمولة (أنواع وحدود وتنظيف) ويرفض البريد/الجوال/المهنة/الجنسية غير الصالحة.
+//   ٢) يكتب صفاً في قاعدة Notion «BP EOR Requests» (NOTION_EOR_DB).
+//   ٣) يرسل بريداً للفريق وتأكيداً للعميل، وينبّه المالك على واتساب عبر الـwebhook القائم.
+//   ٤) يُرجع { ok, ref } — بلا سعر. السعر لا يظهر لعميل قبل أن يملأ المالك api/_eor-pricing.json.
+//
+// لا ادّعاءات نظامية هنا: نصوص نطاق العمل (buildScopeOfWork) قالبٌ عامّ يُحال فيه إلى
+// «الأنظمة المعمول بها والعقد الموقَّع» دون ذكر موادّ أو أرقام.
+//
+// الأخطاء تُرجَع قيماً ({ ok:false, error, status }) لا استثناءات؛ والمستدعي يكتب status كما هو.
+
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { randomInt } from "node:crypto";
+import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
+import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const NOTION_VERSION = "2022-06-28";
+const EOR_DB_DEFAULT = "11797acc09724f66a99d5a7576a66976";
+const SITE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
+const OWNER_WA_WEBHOOK_DEFAULT = "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+
+/* ═════════════ الحدود ═════════════ */
+export const EOR_LIMITS = Object.freeze({
+  maxItems: 20,            // بنود المهن
+  maxTotalCount: 500,      // مجموع الموظفين
+  maxItemCount: 500,
+  maxNationalities: 10,    // لكل بند
+  maxSalary: 100000,       // راتب شهري متوقع (ريال)
+  minMonths: 1,
+  maxMonths: 60,
+  maxStartDays: 730,       // أبعد تاريخ بدء من اليوم
+  company: 120, contact: 80, city: 60, email: 160, notes: 2000, source: 60,
+});
+
+export const WORKER_TYPES = Object.freeze({ saudi: "سعوديون", foreign: "أجانب", both: "الاثنان" });
+export const RECRUITMENT_VALUES = Object.freeze({ yes: "يلزم", no: "لا يلزم", unsure: "غير محدد" });
+export const EOR_LANGS = ["ar", "en", "fr", "zh"];
+
+/* ═════════════ الجنسيات (قائمة مدمجة: الرمز ISO-2 ← عربي/إنجليزي) ═════════════ */
+const N = (code, ar, en) => ({ code, ar, en });
+export const NATIONALITIES = Object.freeze([
+  N("SA", "السعودية", "Saudi Arabia"), N("EG", "مصر", "Egypt"), N("SD", "السودان", "Sudan"),
+  N("YE", "اليمن", "Yemen"), N("JO", "الأردن", "Jordan"), N("SY", "سوريا", "Syria"),
+  N("LB", "لبنان", "Lebanon"), N("PS", "فلسطين", "Palestine"), N("IQ", "العراق", "Iraq"),
+  N("MA", "المغرب", "Morocco"), N("TN", "تونس", "Tunisia"), N("DZ", "الجزائر", "Algeria"),
+  N("LY", "ليبيا", "Libya"), N("MR", "موريتانيا", "Mauritania"), N("SO", "الصومال", "Somalia"),
+  N("AE", "الإمارات", "United Arab Emirates"), N("KW", "الكويت", "Kuwait"), N("BH", "البحرين", "Bahrain"),
+  N("QA", "قطر", "Qatar"), N("OM", "عُمان", "Oman"),
+  N("IN", "الهند", "India"), N("PK", "باكستان", "Pakistan"), N("BD", "بنغلاديش", "Bangladesh"),
+  N("LK", "سريلانكا", "Sri Lanka"), N("NP", "نيبال", "Nepal"), N("AF", "أفغانستان", "Afghanistan"),
+  N("PH", "الفلبين", "Philippines"), N("ID", "إندونيسيا", "Indonesia"), N("MY", "ماليزيا", "Malaysia"),
+  N("TH", "تايلاند", "Thailand"), N("VN", "فيتنام", "Vietnam"), N("MM", "ميانمار", "Myanmar"),
+  N("CN", "الصين", "China"), N("KR", "كوريا الجنوبية", "South Korea"), N("JP", "اليابان", "Japan"),
+  N("TR", "تركيا", "Türkiye"), N("IR", "إيران", "Iran"),
+  N("KE", "كينيا", "Kenya"), N("UG", "أوغندا", "Uganda"), N("ET", "إثيوبيا", "Ethiopia"),
+  N("ER", "إريتريا", "Eritrea"), N("NG", "نيجيريا", "Nigeria"), N("GH", "غانا", "Ghana"),
+  N("CM", "الكاميرون", "Cameroon"), N("SN", "السنغال", "Senegal"), N("ML", "مالي", "Mali"),
+  N("TZ", "تنزانيا", "Tanzania"), N("ZA", "جنوب أفريقيا", "South Africa"), N("ZW", "زيمبابوي", "Zimbabwe"),
+  N("GB", "المملكة المتحدة", "United Kingdom"), N("US", "الولايات المتحدة", "United States"),
+  N("CA", "كندا", "Canada"), N("AU", "أستراليا", "Australia"), N("NZ", "نيوزيلندا", "New Zealand"),
+  N("FR", "فرنسا", "France"), N("DE", "ألمانيا", "Germany"), N("IT", "إيطاليا", "Italy"),
+  N("ES", "إسبانيا", "Spain"), N("PT", "البرتغال", "Portugal"), N("IE", "أيرلندا", "Ireland"),
+  N("RU", "روسيا", "Russia"), N("UA", "أوكرانيا", "Ukraine"), N("BR", "البرازيل", "Brazil"),
+]);
+const NAT_BY_CODE = new Map(NATIONALITIES.map((n) => [n.code, n]));
+export const nationalityName = (code, lang = "ar") => {
+  const n = NAT_BY_CODE.get(code);
+  return n ? (lang === "ar" ? n.ar : n.en) : String(code || "");
+};
+
+const OCC_IDS = new Set(OCCUPATIONS.map((o) => o.id));
+
+/* ═════════════ أدوات التنظيف ═════════════ */
+// أحرف تحكّم وأحرف تعديل الاتجاه (تُستعمل في انتحال النصوص) تُحذف؛ \n يبقى في الملاحظات وحدها.
+const CTRL_ONE = /[\u0000-\u001F\u007F\u2028\u2029\u202A-\u202E\u2066-\u2069]/g;
+const CTRL_MULTI = /[\u0000-\u0009\u000B-\u001F\u007F\u2028\u2029\u202A-\u202E\u2066-\u2069]/g;
+const oneLine = (v, max) => String(v == null ? "" : v).replace(CTRL_ONE, " ").replace(/\s+/g, " ").trim().slice(0, max);
+const multiLine = (v, max) => String(v == null ? "" : v).replace(/\r\n?/g, "\n").replace(CTRL_MULTI, " ").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, max);
+const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/;
+export function normalizePhone(v) {
+  let p = String(v == null ? "" : v).replace(/[\s().\-‎‏]/g, "");
+  // أرقام عربية-هندية → لاتينية
+  p = p.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
+  if (p.startsWith("00")) p = "+" + p.slice(2);
+  return /^\+?\d{8,15}$/.test(p) ? p : "";
+}
+const isoDate = (s) => {
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + "T00:00:00Z");
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+};
+const riyadhToday = (nowMs) => new Date((nowMs == null ? Date.now() : nowMs) + 3 * 3600e3).toISOString().slice(0, 10);
+const addDays = (iso, n) => new Date(new Date(iso + "T00:00:00Z").getTime() + n * 86400e3).toISOString().slice(0, 10);
+
+/* ═════════════ التحقق من الحمولة ═════════════ */
+const fail = (error, field, extra) => ({ ok: false, status: 400, error, ...(field ? { field } : {}), ...(extra || {}) });
+
+// يُرجع { ok:true, value } أو { ok:false, status:400, error, field }.
+export function validateEorRequest(body, opts = {}) {
+  const b = body && typeof body === "object" && !Array.isArray(body) ? body : null;
+  if (!b) return fail("invalid_body");
+  const today = riyadhToday(opts.now);
+
+  const company = oneLine(b.company, EOR_LIMITS.company);
+  if (!company) return fail("company_required", "company");
+  const contactName = oneLine(b.contactName, EOR_LIMITS.contact);
+  if (!contactName) return fail("contact_required", "contactName");
+  const email = oneLine(b.email, EOR_LIMITS.email + 1).toLowerCase();
+  if (!email || email.length > EOR_LIMITS.email || !EMAIL_RE.test(email)) return fail("email_invalid", "email");
+  const phone = normalizePhone(b.phone);
+  if (!phone) return fail("phone_invalid", "phone");
+  const city = oneLine(b.city, EOR_LIMITS.city);
+  if (!city) return fail("city_required", "city");
+
+  const workerType = String(b.workerType || "");
+  if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, workerType)) return fail("worker_type_invalid", "workerType");
+  const recruitment = String(b.recruitment || "");
+  if (!Object.prototype.hasOwnProperty.call(RECRUITMENT_VALUES, recruitment)) return fail("recruitment_invalid", "recruitment");
+
+  if (!Array.isArray(b.items) || b.items.length === 0) return fail("items_required", "items");
+  if (b.items.length > EOR_LIMITS.maxItems) return fail("too_many_items", "items");
+  const items = [];
+  let total = 0;
+  for (let i = 0; i < b.items.length; i++) {
+    const it = b.items[i];
+    if (!it || typeof it !== "object" || Array.isArray(it)) return fail("item_invalid", "items", { index: i });
+    const occupationId = String(it.occupationId || "");
+    if (!OCC_IDS.has(occupationId)) return fail("item_occupation_unknown", "items", { index: i });
+    const count = typeof it.count === "string" && /^\d+$/.test(it.count.trim()) ? Number(it.count.trim()) : it.count;
+    if (!Number.isInteger(count) || count < 1 || count > EOR_LIMITS.maxItemCount) return fail("item_count_invalid", "items", { index: i });
+    total += count;
+    if (total > EOR_LIMITS.maxTotalCount) return fail("total_count_exceeded", "items", { index: i });
+
+    let nats = [];
+    if (it.nationalities != null) {
+      if (!Array.isArray(it.nationalities)) return fail("nationality_invalid", "items", { index: i });
+      if (it.nationalities.length > EOR_LIMITS.maxNationalities) return fail("too_many_nationalities", "items", { index: i });
+      for (const c of it.nationalities) {
+        const code = String(c || "").toUpperCase();
+        if (!NAT_BY_CODE.has(code)) return fail("nationality_unknown", "items", { index: i });
+        if (!nats.includes(code)) nats.push(code);
+      }
+    }
+    let salary = null;
+    if (it.salary != null && it.salary !== "") {
+      const s = typeof it.salary === "string" ? Number(it.salary.replace(/,/g, "").trim()) : it.salary;
+      if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
+      salary = Math.round(s * 100) / 100;
+    }
+    items.push({ occupationId, count, nationalities: nats, salary });
+  }
+
+  let startDate = "";
+  if (b.startDate != null && b.startDate !== "") {
+    const s = String(b.startDate);
+    if (!isoDate(s) || s < addDays(today, -1) || s > addDays(today, EOR_LIMITS.maxStartDays)) return fail("start_date_invalid", "startDate");
+    startDate = s;
+  }
+  const dm = typeof b.durationMonths === "string" && /^\d+$/.test(b.durationMonths.trim()) ? Number(b.durationMonths.trim()) : b.durationMonths;
+  if (!Number.isInteger(dm) || dm < EOR_LIMITS.minMonths || dm > EOR_LIMITS.maxMonths) return fail("duration_invalid", "durationMonths");
+
+  if (b.notes != null && typeof b.notes !== "string") return fail("notes_invalid", "notes");
+  if (typeof b.notes === "string" && b.notes.length > EOR_LIMITS.notes) return fail("notes_too_long", "notes");
+  const notes = multiLine(b.notes, EOR_LIMITS.notes);
+
+  const lang = EOR_LANGS.includes(b.lang) ? b.lang : "ar";
+  const source = oneLine(b.source, EOR_LIMITS.source) || "site:/eor";
+
+  return {
+    ok: true,
+    value: { company, contactName, email, phone, city, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
+  };
+}
+
+/* ═════════════ التسعير ═════════════ */
+let PRICING_CACHE;
+export function loadPricing() {
+  if (PRICING_CACHE !== undefined) return PRICING_CACHE;
+  try { PRICING_CACHE = JSON.parse(readFileSync(join(__dirname, "_eor-pricing.json"), "utf8")); } catch { PRICING_CACHE = null; }
+  return PRICING_CACHE;
+}
+
+const isNum = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0;
+const cents = (v) => Math.round(v * 100);
+const sar = (c) => c / 100;
+
+// نوع العامل لبندٍ واحد: من جنسياته إن حُدّدت، وإلا من نوع الطلب العام (سعوديون/أجانب). «الاثنان» بلا جنسية = غير محسوم.
+export function itemWorkerType(item, requestType) {
+  const nats = (item && item.nationalities) || [];
+  if (nats.length) {
+    const hasSA = nats.includes("SA");
+    const hasOther = nats.some((c) => c !== "SA");
+    if (hasSA && hasOther) return "mixed";
+    return hasSA ? "saudi" : "foreign";
+  }
+  if (requestType === "saudi") return "saudi";
+  if (requestType === "foreign") return "foreign";
+  return "unknown";
+}
+
+// estimateQuote(items, pricing, opts{ workerType, recruitment, durationMonths, now })
+//   pricing ناقص/null/منتهٍ  ⇒ { status: "pending_pricing" } فقط — لا رقم ولا مفاتيح أخرى.
+//   بنودٌ نوع عاملها غير محسوم ⇒ { status: "needs_review", reasons }.
+//   مكتمل ⇒ { status: "estimated", ... } بالهللة (عددٌ صحيح) داخلياً، وتقريبٌ واحد فقط: ضريبة كل مجموعٍ على حدة.
+// الرواتب المصرَّح بها معلومةٌ لا تدخل الرسوم (payroll.includedInFees=false).
+export function estimateQuote(items, pricing, opts = {}) {
+  const PENDING = { status: "pending_pricing" };
+  const list = Array.isArray(items) ? items : [];
+  if (!pricing || typeof pricing !== "object" || !list.length) return PENDING;
+
+  const today = riyadhToday(opts.now);
+  if (typeof pricing.valid_from === "string" && pricing.valid_from > today) return PENDING;
+  if (typeof pricing.valid_until === "string" && pricing.valid_until < today) return PENDING;
+  if (typeof pricing.currency !== "string" || !pricing.currency.trim()) return PENDING;
+  if (!isNum(pricing.vat_rate) || pricing.vat_rate > 1) return PENDING;
+
+  const types = list.map((it) => itemWorkerType(it, opts.workerType));
+  const known = new Set(types.filter((t) => t === "saudi" || t === "foreign"));
+  const svc = pricing.service_fee_monthly_per_employee || {};
+  const rec = pricing.recruitment_fee_per_employee || {};
+  const needRecruit = opts.recruitment === "yes";
+  for (const t of known) {
+    if (!isNum(svc[t])) return PENDING;
+    if (needRecruit && !isNum(rec[t])) return PENDING;
+  }
+  const reasons = [];
+  types.forEach((t, i) => { if (t === "mixed" || t === "unknown") reasons.push({ index: i, reason: t === "mixed" ? "mixed_nationalities" : "worker_type_unclear" }); });
+  if (reasons.length) return { status: "needs_review", reasons };
+
+  const months = Number.isInteger(opts.durationMonths) && opts.durationMonths > 0 ? opts.durationMonths : null;
+  let monthlyC = 0, oneTimeC = 0, payrollC = 0, withSalary = 0;
+  const lines = list.map((it, i) => {
+    const t = types[i];
+    const perEmp = cents(svc[t]);
+    const monthly = perEmp * it.count;
+    const recPer = needRecruit ? cents(rec[t]) : 0;
+    const oneTime = recPer * it.count;
+    monthlyC += monthly; oneTimeC += oneTime;
+    if (isNum(it.salary)) { payrollC += cents(it.salary) * it.count; withSalary++; }
+    let recruitmentOptional = null;
+    if (opts.recruitment === "unsure" && isNum(rec[t])) recruitmentOptional = sar(cents(rec[t]) * it.count);
+    return {
+      occupationId: it.occupationId, count: it.count, workerType: t,
+      serviceFeePerEmployeeMonthly: sar(perEmp), serviceFeeMonthly: sar(monthly),
+      recruitmentFeePerEmployee: needRecruit ? sar(recPer) : null, recruitmentFee: needRecruit ? sar(oneTime) : null,
+      recruitmentFeeOptional: recruitmentOptional,
+    };
+  });
+  const vatOf = (c) => Math.round(c * pricing.vat_rate);
+  const block = (subC) => ({ subtotal: sar(subC), vat: sar(vatOf(subC)), total: sar(subC + vatOf(subC)) });
+  const termC = months ? monthlyC * months + oneTimeC : null;
+  return {
+    status: "estimated",
+    currency: pricing.currency.trim(),
+    vatRate: pricing.vat_rate,
+    validUntil: typeof pricing.valid_until === "string" ? pricing.valid_until : null,
+    lines,
+    monthly: block(monthlyC),
+    oneTime: needRecruit ? block(oneTimeC) : null,
+    term: months ? { months, ...block(termC) } : null,
+    payroll: {
+      declaredMonthly: withSalary === list.length ? sar(payrollC) : null,
+      itemsWithSalary: withSalary, itemsTotal: list.length, includedInFees: false,
+    },
+    notice: "estimate_not_an_offer",
+  };
+}
+
+/* ═════════════ نطاق العمل (قالب ثابت بلا ادعاءات نظامية) ═════════════ */
+const SOW = {
+  ar: {
+    title: "نطاق العمل — موظفون على بند التعاقد (EOR)",
+    secs: {
+      summary: "ملخص الطلب",
+      company: "ما تقدّمه Business Partner",
+      client: "ما على العميل",
+      term: "المدة",
+      delivery: "التسليم",
+      excl: "الاستثناءات",
+    },
+    lbl: { client: "العميل", total: "إجمالي الموظفين", workers: "نوع العاملين", recruit: "الاستقدام", start: "تاريخ البدء", months: "أشهر", tbd: "يُحدَّد في العرض", count: "العدد", nat: "الجنسيات", any: "غير محدّدة", sal: "الراتب الشهري المتوقع", sar: "ريال" },
+    company: [
+      "العمل صاحبَ عملٍ رسمياً (جهة التعاقد) للعاملين المحدّدين في هذا الطلب، بموجب اتفاقية موقّعة مع العميل.",
+      "إعداد عقود العاملين وإدارة ملفاتهم الوظيفية.",
+      "تشغيل الرواتب في مواعيدها المتفق عليها وفق بيانات الحضور التي يعتمدها العميل.",
+      "ترتيب التأمينات والإجازات والمستحقات المرتبطة بالعاملين بحسب الأنظمة المعمول بها وما تنصّ عليه الاتفاقية.",
+      "إدارة إنهاء التعاقد والتسوية النهائية للمستحقات وفق الاتفاقية والأنظمة المعمول بها.",
+    ],
+    recruitYes: "الاستقدام والتوطين عند الحاجة: البحث عن المرشّحين المناسبين للمهن المطلوبة ومتابعة إجراءات الاستقدام عبر القنوات الرسمية، بحسب الحالة ودون وعدٍ بنتيجةٍ أو بمدّةٍ محدّدة.",
+    recruitUnsure: "الاستقدام: يُبحث مع العميل عند مراجعة الطلب إن كان لازماً.",
+    client_: [
+      "توجيه العاملين في العمل اليومي وتوفير موقع العمل وأدواته وبيئةً آمنة.",
+      "تزويدنا بوصفٍ وظيفيٍّ دقيق لكل مهنة، وببيانات الحضور في المواعيد المتفق عليها.",
+      "اعتماد المسيّرات والفواتير ودفعها في مواعيدها.",
+      "إبلاغنا مسبقاً بأي تغيير في أعداد العاملين أو مهامّهم أو مواقعهم.",
+    ],
+    delivery: "تبدأ الخدمة بعد توقيع الاتفاقية واكتمال متطلبات التعاقد والموافقات اللازمة. المواعيد الفعلية تُحدَّد في عرض السعر ولا تُعدّ التزاماً قبل توقيعه.",
+    excl: [
+      "رواتب العاملين وبدلاتهم وتكاليفهم المباشرة ما لم يُنصّ عليها في عرض السعر.",
+      "الرسوم الحكومية ما لم يُنصّ عليها في عرض السعر.",
+      "أي مهنةٍ أو عددٍ أو موقعٍ غير مذكورٍ في هذا النطاق.",
+      "ضمان الموافقات أو التأشيرات أو توفّر مرشّحين بمواصفاتٍ أو جنسياتٍ بعينها.",
+    ],
+  },
+  en: {
+    title: "Scope of work — Employer of Record (EOR)",
+    secs: {
+      summary: "Request summary",
+      company: "What Business Partner provides",
+      client: "What the client provides",
+      term: "Term",
+      delivery: "Delivery",
+      excl: "Exclusions",
+    },
+    lbl: { client: "Client", total: "Total employees", workers: "Worker type", recruit: "Recruitment", start: "Start date", months: "months", tbd: "To be set in the quote", count: "Headcount", nat: "Nationalities", any: "Not specified", sal: "Expected monthly salary", sar: "SAR" },
+    company: [
+      "Acting as the official employer (contracting entity) of the workers named in this request, under an agreement signed with the client.",
+      "Preparing employment contracts and managing the workers' employment files.",
+      "Running payroll on the agreed dates, based on the attendance data the client approves.",
+      "Arranging insurance, leave and end-of-service entitlements as required by the regulations in force and the agreement.",
+      "Managing contract termination and final settlement of entitlements in line with the agreement and the regulations in force.",
+    ],
+    recruitYes: "Recruitment and localization where needed: sourcing suitable candidates for the requested occupations and following the recruitment procedures through official channels, case by case, with no promise of an outcome or a fixed timeline.",
+    recruitUnsure: "Recruitment: whether it is needed is discussed with the client when the request is reviewed.",
+    client_: [
+      "Directing the workers day to day and providing the workplace, tools and a safe environment.",
+      "Giving us an accurate job description for each occupation, and attendance data on the agreed dates.",
+      "Approving and paying payroll statements and invoices on time.",
+      "Telling us in advance about any change in headcount, duties or locations.",
+    ],
+    delivery: "The service starts after the agreement is signed and the contracting requirements and necessary approvals are complete. Actual dates are set in the quote and are not a commitment before it is signed.",
+    excl: [
+      "Workers' salaries, allowances and direct costs, unless stated in the quote.",
+      "Government fees, unless stated in the quote.",
+      "Any occupation, headcount or location not listed in this scope.",
+      "Any guarantee of approvals, visas, or the availability of candidates of specific profiles or nationalities.",
+    ],
+  },
+};
+
+// يُرجع { title, lang, sections:[{key,title,lines}], text }. اللغات غير العربية تُخدَّم بالإنجليزية.
+export function buildScopeOfWork(request, lang = "ar") {
+  const L = lang === "ar" ? "ar" : "en";
+  const T = SOW[L];
+  const r = request || {};
+  const items = Array.isArray(r.items) ? r.items : [];
+  const itemLines = items.map((it, i) => {
+    const o = occupationById(it.occupationId);
+    const name = o ? (L === "ar" ? `${o.nameAr} | ${o.nameEn}` : o.nameEn) : String(it.occupationId || "");
+    const nats = (it.nationalities || []).map((c) => nationalityName(c, L)).join(L === "ar" ? "، " : ", ") || T.lbl.any;
+    const sal = isNum(it.salary) ? ` — ${T.lbl.sal}: ${it.salary} ${T.lbl.sar}` : "";
+    return `${i + 1}) ${name} — ${T.lbl.count}: ${it.count} — ${T.lbl.nat}: ${nats}${sal}`;
+  });
+  const total = Number.isInteger(r.totalCount) ? r.totalCount : items.reduce((s, it) => s + (Number(it.count) || 0), 0);
+  const wt = { ar: WORKER_TYPES, en: { saudi: "Saudi", foreign: "Foreign", both: "Saudi and foreign" } }[L][r.workerType] || "—";
+  const rc = { ar: RECRUITMENT_VALUES, en: { yes: "Needed", no: "Not needed", unsure: "Undecided" } }[L][r.recruitment] || "—";
+  const summary = [
+    `${T.lbl.client}: ${r.company || "—"}`,
+    `${T.lbl.total}: ${total}`,
+    `${T.lbl.workers}: ${wt}`,
+    `${T.lbl.recruit}: ${rc}`,
+    ...itemLines,
+  ];
+  const company = [...T.company];
+  if (r.recruitment === "yes") company.push(T.recruitYes);
+  else if (r.recruitment === "unsure") company.push(T.recruitUnsure);
+  const term = [
+    `${r.durationMonths ? r.durationMonths + " " + T.lbl.months : T.lbl.tbd}`,
+    `${T.lbl.start}: ${r.startDate || T.lbl.tbd}`,
+  ];
+  const sections = [
+    { key: "summary", title: T.secs.summary, lines: summary },
+    { key: "company", title: T.secs.company, lines: company },
+    { key: "client", title: T.secs.client, lines: [...T.client_] },
+    { key: "term", title: T.secs.term, lines: term },
+    { key: "delivery", title: T.secs.delivery, lines: [T.delivery] },
+    { key: "exclusions", title: T.secs.excl, lines: [...T.excl] },
+  ];
+  const text = [T.title, ...sections.map((s) => `\n${s.title}\n${s.lines.map((x) => "- " + x).join("\n")}`)].join("\n");
+  return { title: T.title, lang: L, sections, text };
+}
+
+/* ═════════════ نصوص منظّمة للحفظ والتنبيه ═════════════ */
+// بنود المهن بصيغة العرض للفريق (عربي دائماً — هذا سجلٌّ داخلي).
+export function itemsText(items) {
+  return (items || []).map((it, i) => {
+    const o = occupationById(it.occupationId);
+    const name = o ? `${o.nameAr} | ${o.nameEn}` : String(it.occupationId);
+    const nats = (it.nationalities || []).map((c) => nationalityName(c, "ar")).join("، ") || "غير محدّدة";
+    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}`;
+  }).join("\n");
+}
+
+function quoteSummaryText(q) {
+  if (!q || q.status === "pending_pricing") return "pending_pricing";
+  if (q.status === "needs_review") return "needs_review";
+  const t = q.term;
+  return `estimated: شهري ${q.monthly.total} ${q.currency} (شامل الضريبة)` +
+    (q.oneTime ? ` + استقدام مرة واحدة ${q.oneTime.total}` : "") +
+    (t ? ` — إجمالي ${t.months} شهر: ${t.total}` : "");
+}
+
+/* ═════════════ Notion ═════════════ */
+const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier|is expected to be/i;
+const chunks = (s, n = 1900) => { const out = []; const str = String(s || ""); for (let i = 0; i < str.length; i += n) out.push(str.slice(i, i + n)); return out; };
+const rt = (s) => chunks(s).map((c) => ({ type: "text", text: { content: c } }));
+const rtProp = (s) => ({ rich_text: s ? rt(s) : [] });
+
+function buildProps(ref, v, quoteText) {
+  const props = {
+    "رقم مرجعي": { title: [{ type: "text", text: { content: ref } }] },
+    "الحالة": { select: { name: "جديد" } },
+    "المنشأة": rtProp(v.company),
+    "التواصل": rtProp(v.contactName),
+    "البريد": { email: v.email },
+    "الجوال": { phone_number: v.phone },
+    "المدينة": rtProp(v.city),
+    "نوع العاملين": { select: { name: WORKER_TYPES[v.workerType] } },
+    "الاستقدام": { select: { name: RECRUITMENT_VALUES[v.recruitment] } },
+    "عدد الموظفين الكلي": { number: v.totalCount },
+    "بنود المهن": rtProp(itemsText(v.items)),
+    "المدة (أشهر)": { number: v.durationMonths },
+    "اللغة": { select: { name: v.lang } },
+    "المصدر": rtProp(v.source),
+    "تقدير عرض السعر": rtProp(quoteText),
+  };
+  if (v.startDate) props["تاريخ البدء"] = { date: { start: v.startDate } };
+  if (v.notes) props["ملاحظات"] = rtProp(v.notes);
+  return props;
+}
+
+// يكتب صفحةً في القاعدة. خاصية غائبة/متغيّر نوعها ⇒ تُسقَط المسمّاة وحدها وتُعاد المحاولة (نمط notionWriteOptional
+// في api/candidate.js) — فلا يضيع طلبُ عميلٍ لأن أحدهم أعاد تسمية عمود. العنوان وحده غير اختياري.
+export async function notionCreateOptional(doFetch, token, dbId, props, children) {
+  const optional = Object.keys(props).filter((k) => k !== "رقم مرجعي");
+  let cur = { ...props };
+  const dropped = [];
+  for (let attempt = 0; attempt <= optional.length; attempt++) {
+    const r = await doFetch("https://api.notion.com/v1/pages", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+      body: JSON.stringify({ parent: { database_id: dbId }, properties: cur, ...(children ? { children } : {}) }),
+    });
+    if (r.ok) { let id = ""; try { id = (await r.json()).id || ""; } catch {} return { ok: true, id, dropped }; }
+    const body = await r.text().catch(() => "");
+    if (r.status !== 400 || !MISSING_PROP_RE.test(body)) return { ok: false, status: r.status, dropped, detail: body.slice(0, 200) };
+    const names = optional.filter((n) => cur[n] != null);
+    const named = names.filter((n) => body.includes(n));
+    const drop = named.length ? [named[0]] : names;      // نوشن يسمّي أول خاصية معيبة؛ وإن لم يسمِّ شيئاً أُسقط الكل
+    if (!drop.length) return { ok: false, status: 400, dropped, detail: body.slice(0, 200) };
+    console.warn("eor: Notion dropped props", drop.join(" / "), body.slice(0, 160));
+    cur = { ...cur }; for (const n of drop) { delete cur[n]; dropped.push(n); }
+  }
+  return { ok: false, status: 400, dropped, detail: "retries_exhausted" };
+}
+
+/* ═════════════ البريد والتنبيه ═════════════ */
+const RESEND_FROM = () => process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
+async function defaultSendEmail(to, subject, html) {
+  if (!EMAIL_LIVE) { await outbox({ kind: "email", to, subject, body: html }); return { ok: false, skipped: "email_mode" }; }
+  const key = process.env.RESEND_API_KEY || "";
+  if (!key) return { ok: false, error: "email_not_configured" };
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: RESEND_FROM(), to: [to], subject, html }),
+    });
+    return r.ok ? { ok: true } : { ok: false, error: "email_send_failed" };
+  } catch { return { ok: false, error: "email_send_failed" }; }
+}
+async function defaultNotify(payload) {
+  const url = process.env.OWNER_WA_WEBHOOK || OWNER_WA_WEBHOOK_DEFAULT;
+  if (!WHATSAPP_LIVE) { await outbox({ kind: "whatsapp", to: url, subject: `${payload.source} ${payload.ref}`, body: String(payload.transcript || "").slice(0, 2000), payload }); return { ok: false, skipped: "whatsapp_mode" }; }
+  try {
+    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    return { ok: r.ok };
+  } catch { return { ok: false, error: "webhook_failed" }; }
+}
+
+const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666;vertical-align:top">${esc(k)}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
+function teamEmailHtml(ref, v, quoteText, notionUrl) {
+  return `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
+<h2 style="color:#0B1B5A">👥 طلب EOR جديد ${esc(ref)}</h2>
+<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
+<h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items))}</pre>
+${v.notes ? `<h3 style="color:#0B1B5A">ملاحظات</h3><p style="white-space:pre-wrap">${esc(v.notes)}</p>` : ""}
+${notionUrl ? `<p><a href="${esc(notionUrl)}">فتح الطلب في Notion</a></p>` : ""}</div>`;
+}
+const CLIENT_MAIL = {
+  ar: { subject: (ref) => `استلمنا طلبك — موظفون على بند التعاقد (${ref})`, html: (ref, name) => `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">استلمنا طلبك</h2><p>مرحباً ${esc(name)}، استلمنا طلبك لخدمة «موظفون على بند التعاقد (EOR)» برقم مرجع <b style="direction:ltr;display:inline-block">${esc(ref)}</b>. سيراجعه فريقنا ونعود إليك. لم يُحدَّد سعر بعد؛ يصلك عرض السعر بعد مراجعة الطلب.</p><p style="color:#666;margin-top:22px">Business Partner · الرياض · businesspartner.sa</p></div>` },
+  en: { subject: (ref) => `We received your request — Employer of Record (${ref})`, html: (ref, name) => `<div style="font-family:Arial,sans-serif;color:#1F2430;max-width:560px"><h2 style="color:#0B1B5A">We received your request</h2><p>Hello ${esc(name)}, we received your Employer of Record request, reference <b>${esc(ref)}</b>. Our team will review it and get back to you. No price has been set yet; you will receive a quote after the review.</p><p style="color:#666;margin-top:22px">Business Partner · Riyadh · businesspartner.sa</p></div>` },
+};
+
+/* ═════════════ الحدّ من الإساءة (على مستوى النسخة، بلا مخزن) ═════════════ */
+const HITS = new Map();
+const RL = { windowMs: 10 * 60e3, max: 6 };
+function rateLimited(ip, nowMs) {
+  if (!ip) return false;
+  const arr = (HITS.get(ip) || []).filter((t) => nowMs - t < RL.windowMs);
+  if (arr.length >= RL.max) { HITS.set(ip, arr); return true; }
+  arr.push(nowMs); HITS.set(ip, arr);
+  if (HITS.size > 5000) { for (const [k, v] of HITS) if (!v.some((t) => nowMs - t < RL.windowMs)) HITS.delete(k); }
+  return false;
+}
+export const _resetEorRateLimit = () => HITS.clear();
+
+/* ═════════════ المعالج ═════════════ */
+// handleEor(body, ctx) → { ok:true, ref } | { ok:false, status, error, field? }
+//   body: الحمولة (انظر validateEorRequest) أو { action:"search", q } لبحث المهن.
+//   ctx (كلّها اختيارية؛ owner-ops يمرّر ما عنده ليتطابق السلوك مع بقية الطلبات):
+//     ip, sendEmail(to,subject,html)→{ok,skipped?}, notify(payload)→{ok,skipped?},
+//     teamEmail, ownerEmail, fetch, notionToken, dbId, dev, now, pricing, refGen
+export async function handleEor(body, ctx = {}) {
+  const nowMs = ctx.now != null ? ctx.now : Date.now();
+
+  // بحث المهن بالتصنيف الموحّد (مع المرادفات) — نتائجه {id,nameAr,nameEn} فقط.
+  if (body && typeof body === "object" && body.action === "search") {
+    const q = oneLine(body.q, 80);
+    if (q.length < 2) return { ok: true, results: [] };
+    return { ok: true, results: searchOccupations(q, { limit: 8 }).map((o) => ({ id: o.id, nameAr: o.nameAr, nameEn: o.nameEn })) };
+  }
+
+  // الفخّ: حقلٌ مخفيّ لا يملؤه إنسان. نردّ نجاحاً كاذباً ولا نكتب شيئاً.
+  if (body && typeof body === "object" && String(body.website || "").trim()) {
+    return { ok: true, ref: "EOR-" + String(randomInt(100000, 1000000)) };
+  }
+
+  const checked = validateEorRequest(body, { now: nowMs });
+  if (!checked.ok) return checked;
+  if (rateLimited(ctx.ip, nowMs)) return { ok: false, status: 429, error: "rate_limited" };
+  const v = checked.value;
+
+  const ref = typeof ctx.refGen === "function" ? ctx.refGen() : "EOR-" + String(randomInt(100000, 1000000));
+  const pricing = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
+  const quote = estimateQuote(v.items, pricing, { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, now: nowMs });
+  const quoteText = quoteSummaryText(quote);
+
+  // — Notion —
+  const dev = ctx.dev != null ? ctx.dev : DEV;
+  const token = ctx.notionToken !== undefined ? ctx.notionToken : envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
+  const dbId = ctx.dbId || process.env.NOTION_EOR_DB || EOR_DB_DEFAULT;
+  const props = buildProps(ref, v, quoteText);
+  const children = [{ object: "block", type: "code", code: { language: "json", rich_text: rt(JSON.stringify({ ref, ...v, quote }, null, 1)) } }];
+  let stored = false, notionUrl = "";
+  const doFetch = ctx.fetch || fetch;
+  if (dev && !ctx.fetch) {
+    await outbox({ kind: "crm", to: `notion:${dbId}`, subject: `EOR ${ref}`, body: itemsText(v.items), props });
+    stored = true;
+  } else if (token) {
+    try {
+      const w = await notionCreateOptional(doFetch, token, dbId, props, children);
+      stored = w.ok;
+      if (w.ok && w.id) notionUrl = "https://www.notion.so/" + String(w.id).replace(/-/g, "");
+      if (!w.ok) console.error("eor notion error", w.status, w.detail);
+    } catch (e) { console.error("eor notion exception", String(e).slice(0, 150)); }
+  }
+
+  // — بريد + تنبيه — لا يُفشل أحدُهما الطلب؛ الطلب «مستلَم» إن حُفظ أو وصل أحدهما.
+  const sendEmail = ctx.sendEmail || defaultSendEmail;
+  const notify = ctx.notify || defaultNotify;
+  const teamEmail = ctx.teamEmail || process.env.BOOKING_EMAIL || "business@businesspartner.sa";
+  const ownerEmail = ctx.ownerEmail || (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
+  const tpl = v.lang === "ar" ? CLIENT_MAIL.ar : CLIENT_MAIL.en;
+  const subject = `👥 طلب EOR جديد ${ref} — ${v.company} · ${v.totalCount} موظف`;
+  const html = teamEmailHtml(ref, v, quoteText, notionUrl);
+  const transcript = `👥 طلب EOR جديد (${ref}): عميل (${v.company}) طلب خدمة EOR بعدد ${v.totalCount} موظف — المهن: ${v.items.map((it) => { const o = occupationById(it.occupationId); return `${o ? o.nameAr : it.occupationId} ×${it.count}`; }).join("، ")} — ${v.city} — ${v.contactName} ${v.phone}`;
+  const settled = await Promise.allSettled([
+    sendEmail(teamEmail, subject, html),
+    ownerEmail && ownerEmail !== teamEmail ? sendEmail(ownerEmail, subject, html) : Promise.resolve({ ok: true, skipped: "same_as_team" }),
+    sendEmail(v.email, tpl.subject(ref), tpl.html(ref, v.contactName)),
+    notify({
+      source: "eor-request", ref, name: v.contactName, company: v.company, phone: v.phone, email: v.email, city: v.city,
+      total: v.totalCount, transcript, url: notionUrl || `${SITE}/ops`,
+      eor: { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, startDate: v.startDate, items: v.items, quote: quoteText },
+    }),
+  ]);
+  const val = (s) => (s.status === "fulfilled" && s.value ? s.value : { ok: false });
+  const [teamMail, , , wa] = settled.map(val);
+  const reached = !!(teamMail.ok || teamMail.skipped || wa.ok || wa.skipped);
+  if (!stored && !reached) {
+    console.error("eor: request not stored and not delivered", ref);
+    return { ok: false, status: 502, error: "unavailable" };
+  }
+  if (!stored) console.error("eor: Notion write failed — delivered by email/notify only", ref);
+  return { ok: true, ref };
+}

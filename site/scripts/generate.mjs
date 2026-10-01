@@ -314,6 +314,7 @@ import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
+import { buildSimpleEor } from "./simple-v1-eor.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
@@ -12001,6 +12002,7 @@ function writeFullSite(pre) {
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
     // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
+    write(`${pre}eor.html`, buildSimpleEor(SV1, { lang: () => LANG, esc }));
     // بوابة صاحب العمل على القشرة الجديدة: صفحة واحدة تحلّ محلّ لوحة
     // /hr/employer القديمة. تبقى القديمة مبنيّة حتى تُغلق عمداً.
     write(`${pre}employer.html`, buildSimpleEmployer(SV1, { lang: () => LANG, esc }));
