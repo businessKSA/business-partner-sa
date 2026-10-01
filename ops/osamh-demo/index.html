@@ -4,345 +4,189 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>د. أسامة الملا — القيادة والحوكمة</title>
-<meta name="description" content="تشخيص مؤسسي وبناء قدرة قيادية لمجالس الإدارات والقيادات التنفيذية، بأثر يُقاس على خط أساس مسجَّل.">
+<title>موهبتك — هندسة القيادة المتكاملة</title>
+<meta name="description" content="منصة لهندسة القيادة المتكاملة: من قيادة الذات إلى قيادة الفرق والمنظمات، عبر التقييم والكوتشينج والتدريب والاستشارة ومجتمعات التعلّم.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
 <style>
 :root{
-  --paper:#F6F3EE; --paper2:#EBE5DB; --card:#FFFFFF; --edge:#DFD7C9;
-  --ink:#14202A; --ink2:#3B4954; --mut:#6C7B86;
-  --deep:#0D1620; --deep2:#16242F; --deepEdge:#27384A;
-  --bronze:#8A6A3C; --bronzeL:#C9A268; --bronzeD:#6B5029;
-  --disp:'Noto Naskh Arabic',Georgia,serif;
-  --body:'IBM Plex Sans Arabic',system-ui,sans-serif;
-  --w:1180px;
+  --paper:#F5F6F3; --paper2:#EAEEE8; --card:#FFFFFF; --edge:#DCE2DA;
+  --ink:#0F3D3E; --ink2:#14504F; --txt:#4B5A57; --mut:#7E8F8B;
+  --deep:#0A1D1D; --deep2:#113030; --deepEdge:#1F4443;
+  --sand:#B4763A; --sandL:#D8A56B; --sandD:#8E5C2B;
+  --disp:'Noto Kufi Arabic',Tahoma,sans-serif;
+  --body:'IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --w:1140px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{
-  margin:0;background:var(--paper);color:var(--ink2);
+  margin:0;background:var(--paper);color:var(--txt);
   font-family:var(--body);font-size:16.5px;line-height:1.85;
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
 .wrap{width:100%;max-width:var(--w);margin:0 auto;padding-inline:clamp(16px,4vw,44px)}
 
-/* ── typography ─────────────────────────── */
 h1,h2,h3{font-family:var(--disp);color:var(--ink);margin:0;font-weight:700;letter-spacing:-.005em}
-h1{font-size:clamp(31px,5.6vw,62px);line-height:1.22}
-h2{font-size:clamp(25px,3.9vw,42px);line-height:1.3}
-h3{font-size:clamp(17px,2.1vw,20.5px);line-height:1.5;font-weight:600}
+h1{font-size:clamp(28px,5vw,54px);line-height:1.28}
+h2{font-size:clamp(23px,3.6vw,38px);line-height:1.34}
+h3{font-size:clamp(16.5px,2vw,19.5px);line-height:1.5;font-weight:600}
 p{margin:0}
-.lead{font-size:clamp(16.5px,1.9vw,19.5px);line-height:1.82;color:var(--ink2);max-width:66ch}
+.lead{font-size:clamp(16px,1.85vw,19px);line-height:1.85;color:var(--txt);max-width:68ch}
 .eyebrow{
-  font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.22em;
-  color:var(--bronze);margin:0;text-transform:uppercase;
-  display:flex;align-items:center;gap:12px;
+  font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.2em;
+  color:var(--sand);margin:0;display:flex;align-items:center;gap:12px;
 }
-.eyebrow::before{
-  content:attr(data-n);font-family:var(--disp);font-size:13px;font-weight:700;
-  letter-spacing:0;color:var(--bronze);opacity:.55;
-}
-.eyebrow::after{content:"";flex:1;height:1px;background:var(--edge);max-width:90px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--edge);max-width:80px}
 
-/* ── prototype banner ───────────────────── */
 .proto{
-  position:relative;z-index:70;background:var(--bronzeD);color:#F3E9DA;
-  font-size:11.5px;font-weight:500;letter-spacing:.04em;text-align:center;
-  padding:7px 16px;line-height:1.6;
+  background:var(--sandD);color:#F6ECDF;font-size:11.5px;font-weight:500;
+  letter-spacing:.03em;text-align:center;padding:7px 16px;line-height:1.6;
 }
 .proto b{color:#fff;font-weight:600}
+#prog{position:fixed;top:0;right:0;height:2px;width:0;z-index:90;background:var(--sand);transition:width .1s linear}
 
-/* ── scroll progress ────────────────────── */
-#prog{
-  position:fixed;top:0;right:0;height:2px;width:0;z-index:90;
-  background:var(--bronze);transition:width .1s linear;
-}
-
-/* ── nav ────────────────────────────────── */
 nav.top{
-  position:sticky;top:0;z-index:60;background:rgba(246,243,238,.92);
+  position:sticky;top:0;z-index:60;background:rgba(245,246,243,.93);
   backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--edge);
 }
-nav.top .wrap{display:flex;align-items:center;gap:22px;min-height:64px}
-.brand{font-family:var(--disp);font-size:17.5px;font-weight:700;color:var(--ink);
-  text-decoration:none;line-height:1.25;flex:none}
-.brand span{display:block;font-family:var(--body);font-size:9.5px;font-weight:600;
-  letter-spacing:.2em;color:var(--bronze);margin-top:1px}
-nav.top ul{
-  list-style:none;display:flex;gap:3px;margin:0;padding:0;
-  margin-inline-start:auto;overflow-x:auto;scrollbar-width:none;
-}
+nav.top .wrap{display:flex;align-items:center;gap:20px;min-height:62px}
+.brand{font-family:var(--disp);font-size:19px;font-weight:700;color:var(--ink);text-decoration:none;flex:none;line-height:1.2}
+.brand i{color:var(--sand);font-style:normal}
+.brand span{display:block;font-family:var(--body);font-size:9.5px;font-weight:600;letter-spacing:.14em;color:var(--mut);margin-top:2px}
+nav.top ul{list-style:none;display:flex;gap:2px;margin:0;padding:0;margin-inline-start:auto;overflow-x:auto;scrollbar-width:none}
 nav.top ul::-webkit-scrollbar{display:none}
-nav.top a{
-  display:block;font-size:13.5px;font-weight:500;color:var(--mut);
-  text-decoration:none;padding:7px 11px;border-radius:4px;white-space:nowrap;
-  transition:color .2s,background .2s;
-}
+nav.top a{display:block;font-size:13.5px;font-weight:500;color:var(--mut);text-decoration:none;
+  padding:7px 11px;border-radius:5px;white-space:nowrap;transition:color .2s,background .2s}
 nav.top a:hover{color:var(--ink);background:var(--paper2)}
-nav.top a.on{color:var(--bronze);background:var(--paper2)}
-:focus-visible{outline:2px solid var(--bronze);outline-offset:3px;border-radius:3px}
+nav.top a.on{color:var(--sand);background:var(--paper2)}
+:focus-visible{outline:2px solid var(--sand);outline-offset:3px;border-radius:3px}
 
-/* ── buttons ────────────────────────────── */
-.btn{
-  display:inline-flex;align-items:center;gap:9px;
-  background:var(--bronze);color:#fff;text-decoration:none;
-  font-family:var(--body);font-size:14.5px;font-weight:600;
-  padding:13px 26px;border:1px solid var(--bronze);border-radius:3px;
-  transition:background .2s,border-color .2s,transform .2s;
-}
-.btn:hover{background:var(--bronzeD);border-color:var(--bronzeD);transform:translateY(-1px)}
-.btn.ghost{background:transparent;color:#DCE4E9;border-color:var(--deepEdge)}
-.btn.ghost:hover{background:rgba(201,162,104,.1);border-color:var(--bronzeL);color:#fff}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;
+  text-decoration:none;font-family:var(--body);font-size:14.5px;font-weight:600;
+  padding:13px 26px;border:1px solid var(--ink);border-radius:8px;cursor:pointer;
+  transition:background .2s,border-color .2s,transform .2s}
+.btn:hover{background:var(--ink2);border-color:var(--ink2);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:#DCE7E4;border-color:var(--deepEdge)}
+.btn.ghost:hover{background:rgba(216,165,107,.12);border-color:var(--sandL);color:#fff}
 .btn .ar{font-size:15px;line-height:1;transition:transform .2s}
 .btn:hover .ar{transform:translateX(-4px)}
 
-/* ── sections ───────────────────────────── */
-section{padding-block:clamp(56px,8.5vw,110px)}
-section.tight{padding-block:clamp(44px,6vw,76px)}
+section{padding-block:clamp(52px,8vw,104px)}
 section.panel{background:var(--paper2)}
-section.dark{background:var(--deep);color:#AFC0CB}
-section.dark h2,section.dark h3{color:#F4F7F9}
-section.dark .lead{color:#AFC0CB}
-section.dark .eyebrow{color:var(--bronzeL)}
-section.dark .eyebrow::before{color:var(--bronzeL)}
+section.dark{background:var(--deep);color:#A8BEBB}
+section.dark h2,section.dark h3{color:#EDF4F2}
+section.dark .lead{color:#A8BEBB}
+section.dark .eyebrow{color:var(--sandL)}
 section.dark .eyebrow::after{background:var(--deepEdge)}
-.head{margin-bottom:clamp(30px,4.5vw,52px)}
-.head h2{margin:16px 0 0}
-.head .lead{margin-top:18px}
+.head{margin-bottom:clamp(28px,4.4vw,50px)}
+.head h2{margin:15px 0 0}
+.head .lead{margin-top:17px}
 
-/* ── hero ───────────────────────────────── */
 .hero{
-  background:
-    radial-gradient(900px 440px at 88% -8%,rgba(201,162,104,.17),transparent 62%),
-    var(--deep);
-  color:#B6C6D1;padding-block:clamp(64px,11vw,132px);position:relative;overflow:hidden;
+  background:radial-gradient(880px 420px at 85% -10%,rgba(180,118,58,.18),transparent 60%),var(--deep);
+  color:#AFC5C2;padding-block:clamp(60px,10vw,124px);position:relative;
 }
-.hero::after{
-  content:"";position:absolute;inset:auto 0 0 0;height:1px;
-  background:linear-gradient(to left,transparent,var(--deepEdge) 30%,var(--deepEdge) 70%,transparent);
-}
-.hero .eyebrow{color:var(--bronzeL)}
-.hero .eyebrow::before{color:var(--bronzeL)}
-.hero .eyebrow::after{background:var(--deepEdge);max-width:120px}
-.hero h1{color:#F7FAFB;margin:24px 0 0;max-width:19ch}
-.hero h1 em{font-style:normal;color:var(--bronzeL)}
-.hero .lead{color:#AEBFCB;margin-top:26px;max-width:60ch}
-.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
-.sig{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
-  margin-top:clamp(44px,6vw,64px);background:var(--deepEdge);
-  border:1px solid var(--deepEdge);border-radius:4px;overflow:hidden;
-}
-.sig div{background:var(--deep2);padding:20px 22px}
-.sig b{
-  display:block;font-family:var(--disp);font-size:clamp(25px,3.6vw,34px);
-  font-weight:700;color:#fff;line-height:1.15;letter-spacing:-.01em;
-}
-.sig span{display:block;font-size:12.5px;color:#8FA3B1;margin-top:6px;line-height:1.6}
-@media(max-width:620px){
-  .sig{grid-template-columns:1fr}
-  .acts .btn{flex:1 1 100%;justify-content:center}
-}
+.hero .eyebrow{color:var(--sandL)}
+.hero .eyebrow::after{background:var(--deepEdge);max-width:110px}
+.hero h1{color:#F2F8F6;margin:22px 0 0;max-width:17ch}
+.hero h1 em{font-style:normal;color:var(--sandL)}
+.hero .tag{font-family:var(--disp);font-size:clamp(15px,2vw,19px);color:var(--sandL);margin-top:16px;font-weight:600}
+.hero .lead{color:#A8BEBB;margin-top:24px;max-width:62ch}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+@media(max-width:620px){.acts .btn{flex:1 1 100%;justify-content:center}}
+.hero .btn{background:var(--sand);border-color:var(--sand)}
+.hero .btn:hover{background:var(--sandD);border-color:var(--sandD)}
 
-/* ── indicator blocks (silent collapse) ── */
-.inds{display:grid;gap:1px;background:var(--deepEdge);border-block:1px solid var(--deepEdge)}
-.ind{
-  background:var(--deep);display:grid;grid-template-columns:76px 1fr;
-  gap:clamp(16px,3vw,34px);padding:clamp(24px,3.6vw,38px) 0;
-  transition:background .25s;
-}
-.ind:hover{background:var(--deep2)}
-.ind .i{
-  font-family:var(--disp);font-size:clamp(28px,4vw,40px);font-weight:700;
-  color:var(--bronzeL);opacity:.55;line-height:1;
-}
-.ind h3{margin:0 0 9px}
-.ind p{font-size:15.5px;line-height:1.8;max-width:62ch}
-@media(max-width:560px){.ind{grid-template-columns:52px 1fr}}
-.quote{
-  font-family:var(--disp);font-size:clamp(19px,3vw,29px);line-height:1.68;
-  color:#F0F4F6;margin:clamp(34px,5vw,52px) 0 0;padding-right:26px;
-  border-right:2px solid var(--bronzeL);max-width:46ch;
-}
+/* vision / mission / promise */
+.vmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--edge);
+  border:1px solid var(--edge);border-radius:10px;overflow:hidden}
+@media(max-width:800px){.vmp{grid-template-columns:1fr}}
+.vmp div{background:var(--card);padding:clamp(24px,3.4vw,32px)}
+.vmp h3{margin:0 0 10px;color:var(--ink)}
+.vmp h3 small{display:block;font-family:var(--body);font-size:10.5px;font-weight:600;
+  letter-spacing:.18em;color:var(--sand);margin-bottom:7px}
+.vmp p{font-size:15px;line-height:1.82;color:var(--txt)}
 
-/* ── methodology grid ───────────────────── */
-.meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:14px}
-.meth{
-  background:var(--card);border:1px solid var(--edge);border-radius:4px;
-  padding:26px 24px 24px;position:relative;overflow:hidden;
-  transition:transform .25s,box-shadow .25s,border-color .25s;
-}
-.meth::before{
-  content:"";position:absolute;inset:0 0 auto 0;height:2px;
-  background:var(--bronze);transform:scaleX(0);transform-origin:right;
-  transition:transform .3s;
-}
-.meth:hover{transform:translateY(-3px);box-shadow:0 14px 34px -22px rgba(20,32,42,.4);border-color:#CFC3AF}
-.meth:hover::before{transform:scaleX(1)}
-.meth .code{
-  font-size:10.5px;font-weight:700;letter-spacing:.2em;color:var(--bronze);
-  margin:0 0 11px;display:block;
-}
-.meth h3{margin:0 0 9px}
-.meth p{font-size:14.5px;line-height:1.78;color:var(--mut)}
+/* audiences */
+.aud{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:10px;overflow:hidden}
+.aud div{background:var(--card);padding:19px clamp(20px,3vw,26px);display:grid;
+  grid-template-columns:auto 1fr;gap:16px;align-items:baseline;transition:background .2s}
+.aud div:hover{background:var(--paper2)}
+.aud .n{font-family:var(--disp);font-size:13px;font-weight:700;color:var(--sand)}
+.aud p{font-size:15.5px;line-height:1.75;color:var(--txt)}
 
-/* ── tracks spine ───────────────────────── */
-.spine{position:relative;padding-right:clamp(34px,5vw,56px)}
-.spine::before{
-  content:"";position:absolute;top:14px;bottom:14px;right:11px;width:1px;
-  background:linear-gradient(to bottom,var(--edge),var(--bronze) 45%,var(--edge));
-}
-.tr{position:relative;padding-block:clamp(16px,2.4vw,24px)}
-.tr::before{
-  content:"";position:absolute;top:calc(clamp(16px,2.4vw,24px) + 12px);
-  right:clamp(-34px,-5vw,-56px);margin-right:5.5px;
-  width:11px;height:11px;border-radius:50%;
-  background:var(--paper);border:2px solid var(--bronze);
-}
-.tr .k{
-  font-family:var(--disp);font-size:12.5px;font-weight:700;letter-spacing:.1em;
-  color:var(--bronze);display:block;margin-bottom:5px;
-}
-.tr h3{margin:0 0 7px}
-.tr p{font-size:15px;line-height:1.78;color:var(--mut);max-width:62ch}
-.tr + .tr{border-top:1px solid var(--edge)}
-
-/* ── impact timeline ────────────────────── */
-.tl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative}
-.tl::before{
-  content:"";position:absolute;top:19px;right:12.5%;left:12.5%;height:1px;
-  background:var(--deepEdge);
-}
-.tl .st{padding:0 clamp(8px,1.6vw,16px);position:relative}
-.tl .dot{
-  width:13px;height:13px;border-radius:50%;background:var(--deep);
-  border:2px solid var(--bronzeL);margin:13px auto 0;position:relative;z-index:2;
-}
-.tl .st.last .dot{background:var(--bronzeL)}
-.tl .t{
-  font-family:var(--disp);font-size:clamp(18px,2.4vw,24px);font-weight:700;
-  color:#F4F7F9;text-align:center;margin:18px 0 3px;letter-spacing:.02em;
-}
-.tl .when{font-size:12px;color:var(--bronzeL);text-align:center;margin:0 0 14px;letter-spacing:.05em}
-.tl .what{font-size:14px;line-height:1.74;color:#A5B7C3;text-align:center;margin:0}
-.tl .out{
-  display:block;margin-top:12px;font-size:11.5px;font-weight:600;letter-spacing:.06em;
-  color:#CFDCE4;background:var(--deep2);border:1px solid var(--deepEdge);
-  border-radius:3px;padding:7px 10px;text-align:center;
-}
-@media(max-width:800px){
-  .tl{grid-template-columns:1fr;gap:1px;background:var(--deepEdge);
-    border:1px solid var(--deepEdge);border-radius:4px}
-  .tl::before{display:none}
-  .tl .st{background:var(--deep2);padding:20px 22px;display:grid;
-    grid-template-columns:auto 1fr;gap:0 16px;align-items:start}
-  .tl .dot{margin:8px 0 0;grid-row:1/span 3}
-  .tl .t,.tl .when,.tl .what{text-align:right;margin:0}
-  .tl .t{font-size:20px}
-  .tl .when{margin-bottom:8px}
-  .tl .out{text-align:right;grid-column:2}
-}
-
-/* ── journey phases ─────────────────────── */
-.ph{
-  display:grid;grid-template-columns:120px 1fr 216px;gap:clamp(14px,2.6vw,30px);
-  align-items:start;padding-block:clamp(20px,3vw,28px);
-}
-.ph + .ph{border-top:1px solid var(--edge)}
-.ph .wk{
-  font-family:var(--disp);font-size:clamp(17px,2.3vw,21px);font-weight:700;
-  color:var(--bronze);line-height:1.4;
-}
-.ph .wk small{display:block;font-family:var(--body);font-size:11px;font-weight:600;
-  letter-spacing:.14em;color:var(--mut);margin-top:3px}
-.ph .mid h3{margin:0 0 5px;font-size:clamp(16px,2vw,18.5px)}
-.ph .mid p{font-size:14.5px;line-height:1.78;color:var(--mut)}
-.ph .out{
-  font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--ink);
-  background:var(--card);border:1px solid var(--edge);border-radius:3px;
-  padding:9px 13px;text-align:center;line-height:1.5;
-}
-@media(max-width:760px){
-  .ph{grid-template-columns:1fr;gap:10px}
-  .ph .out{text-align:right}
-}
-
-/* ── scope cards ────────────────────────── */
-.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:14px}
-.sc{background:var(--card);border:1px solid var(--edge);border-radius:4px;padding:26px 24px;
+/* tracks */
+.trk{display:grid;gap:14px}
+.tr{background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  padding:clamp(20px,3vw,26px);display:grid;grid-template-columns:200px 1fr;gap:clamp(14px,3vw,30px);
   transition:border-color .25s,transform .25s}
-.sc:hover{border-color:var(--bronze);transform:translateY(-2px)}
-.sc h3{margin:0 0 8px}
-.sc p{font-size:14.5px;line-height:1.78;color:var(--mut)}
+.tr:hover{border-color:var(--sand);transform:translateY(-2px)}
+@media(max-width:760px){.tr{grid-template-columns:1fr;gap:10px}}
+.tr .k{font-family:var(--disp);font-size:10.5px;font-weight:700;letter-spacing:.16em;color:var(--sand);display:block;margin-bottom:6px}
+.tr h3{margin:0 0 5px}
+.tr .axis{font-size:14px;color:var(--mut);line-height:1.6}
+.tr .cmp{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:13px;padding:5px 12px;border-radius:999px;background:var(--paper2);
+  color:var(--ink);border:1px solid var(--edge);white-space:nowrap}
 
-/* ── note ───────────────────────────────── */
-.note{
-  background:var(--card);border:1px solid var(--edge);border-right:3px solid var(--bronze);
-  border-radius:0 4px 4px 0;padding:19px 22px;margin-top:clamp(26px,3.6vw,36px);
-}
-.note p{font-size:13.8px;line-height:1.82;color:var(--mut)}
+/* services */
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.sv{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:26px 24px;
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
+.sv::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--sand);
+  transform:scaleX(0);transform-origin:right;transition:transform .3s}
+.sv:hover{transform:translateY(-3px);box-shadow:0 14px 32px -22px rgba(15,61,62,.4);border-color:#C6D2C8}
+.sv:hover::before{transform:scaleX(1)}
+.sv .n{font-family:var(--disp);font-size:12px;font-weight:700;color:var(--sand);display:block;margin-bottom:9px}
+.sv h3{margin:0 0 8px}
+.sv p{font-size:14.5px;line-height:1.78;color:var(--mut)}
+
+/* journey */
+.jr{display:grid;gap:1px;background:var(--deepEdge);border:1px solid var(--deepEdge);border-radius:10px;overflow:hidden}
+.jr div{background:var(--deep2);padding:20px clamp(20px,3vw,26px);display:grid;
+  grid-template-columns:44px 1fr;gap:16px;align-items:baseline}
+.jr .n{font-family:var(--disp);font-size:20px;font-weight:700;color:var(--sandL);opacity:.65;line-height:1}
+.jr h3{margin:0 0 4px;font-size:17px}
+.jr p{font-size:14.5px;line-height:1.72;color:#9CB3B0}
+
+/* impact + values lists */
+.ul{list-style:none;margin:0;padding:0;display:grid;gap:13px}
+.ul li{display:grid;grid-template-columns:auto 1fr;gap:12px;font-size:15.5px;line-height:1.75}
+.ul li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sand);margin-top:11px}
+.ul b{color:var(--ink);font-weight:600}
+section.dark .ul b{color:#EDF4F2}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;
+  background:var(--edge);border:1px solid var(--edge);border-radius:10px;overflow:hidden}
+.vals div{background:var(--card);padding:22px 24px}
+.vals h3{margin:0 0 6px;font-size:17px}
+.vals p{font-size:14.5px;line-height:1.72;color:var(--mut)}
+
+.note{background:var(--card);border:1px solid var(--edge);border-right:3px solid var(--sand);
+  border-radius:0 10px 10px 0;padding:20px 24px;margin-top:clamp(24px,3.4vw,34px)}
+.note p{font-size:14.5px;line-height:1.85;color:var(--txt)}
+.note p+p{margin-top:10px}
 .note b{color:var(--ink);font-weight:600}
-section.dark .note{background:var(--deep2);border-color:var(--deepEdge);border-right-color:var(--bronzeL)}
-section.dark .note p{color:#9EB1BE}
-section.dark .note b{color:#E9EFF3}
+section.dark .note{background:var(--deep2);border-color:var(--deepEdge);border-right-color:var(--sandL)}
+section.dark .note p{color:#A8BEBB}
+section.dark .note b{color:#EDF4F2}
 
-/* ── form ───────────────────────────────── */
-.formwrap{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);
-  gap:clamp(26px,5vw,60px);align-items:start;
-}
-@media(max-width:900px){.formwrap{grid-template-columns:1fr}}
-form{display:grid;gap:15px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-@media(max-width:520px){.row2{grid-template-columns:1fr}}
-label{display:block;font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--ink);margin-bottom:6px}
-input,select,textarea{
-  width:100%;font-family:var(--body);font-size:15px;color:var(--ink);
-  background:var(--card);border:1px solid var(--edge);border-radius:3px;
-  padding:12px 14px;transition:border-color .2s,box-shadow .2s;
-}
-textarea{min-height:112px;resize:vertical;line-height:1.75}
-input:focus,select:focus,textarea:focus{
-  outline:none;border-color:var(--bronze);box-shadow:0 0 0 3px rgba(138,106,60,.13);
-}
-input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:#B4472A}
-.err{font-size:12.5px;color:#B4472A;margin-top:5px;display:none}
-.err.on{display:block}
-button.btn{cursor:pointer;font-family:var(--body);justify-content:center}
-.ok{
-  display:none;background:var(--card);border:1px solid var(--bronze);
-  border-radius:4px;padding:26px 24px;
-}
-.ok.on{display:block}
-.ok h3{margin:0 0 9px;color:var(--bronze)}
-.ok p{font-size:14.5px;line-height:1.8;color:var(--ink2)}
-.ok dl{margin:18px 0 0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:14px}
-.ok dt{color:var(--mut);font-weight:500}
-.ok dd{margin:0;color:var(--ink);font-weight:500}
-.aside{
-  background:var(--card);border:1px solid var(--edge);border-radius:4px;
-  padding:clamp(24px,3.4vw,32px);
-}
-.aside h3{margin:0 0 14px}
-.aside ul{list-style:none;margin:0;padding:0;display:grid;gap:13px}
-.aside li{display:grid;grid-template-columns:auto 1fr;gap:11px;font-size:14.5px;line-height:1.72;color:var(--ink2)}
-.aside li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--bronze);margin-top:10px}
-.aside .fine{margin-top:20px;padding-top:18px;border-top:1px solid var(--edge);
-  font-size:13px;line-height:1.78;color:var(--mut)}
+/* closing */
+.close{text-align:center}
+.close h2{max-width:22ch;margin-inline:auto}
+.close .lead{margin:18px auto 0;text-align:center}
+.close .acts{justify-content:center}
 
-/* ── footer ─────────────────────────────── */
-footer{background:var(--deep);color:#8FA3B1;padding-block:clamp(36px,5vw,52px);
-  border-top:1px solid var(--deepEdge)}
-footer .wrap{display:flex;flex-wrap:wrap;gap:18px 32px;align-items:baseline}
-footer .fb{font-family:var(--disp);font-size:16.5px;font-weight:700;color:#F0F4F6}
+footer{background:var(--deep);color:#87A09D;padding-block:clamp(34px,5vw,50px);border-top:1px solid var(--deepEdge)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:baseline}
+footer .fb{font-family:var(--disp);font-size:18px;font-weight:700;color:#EDF4F2}
+footer .fb i{color:var(--sandL);font-style:normal}
 footer p{font-size:13px;line-height:1.75;margin:0}
 footer .ml{margin-inline-start:auto;font-size:12.5px}
 
-/* ── reveal ─────────────────────────────── */
-.r{opacity:0;transform:translateY(20px);transition:opacity .75s ease,transform .75s ease}
+.r{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
 .r.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.r{opacity:1;transform:none;transition:none}}
 </style>
@@ -350,252 +194,226 @@ footer .ml{margin-inline-start:auto;font-size:12.5px}
 <body>
 
 <div id="prog"></div>
-
-<div class="proto">
-  نموذج عرض أوّلي — <b>غير منشور ولا مفهرس</b>. المحتوى والأرقام للمراجعة قبل الاعتماد.
-</div>
+<div class="proto">نسخة عرض أوّلية — <b>غير منشورة ولا مفهرسة</b>. للمراجعة قبل الاعتماد.</div>
 
 <nav class="top"><div class="wrap">
-  <a class="brand" href="#top">د. أسامة الملا<span>LEADERSHIP &amp; GOVERNANCE</span></a>
+  <a class="brand" href="#top">موهبتك<i>.</i><span>هندسة القيادة المتكاملة</span></a>
   <ul>
-    <li><a href="#collapse">العطل الصامت</a></li>
-    <li><a href="#methods">المنهجيات</a></li>
+    <li><a href="#approach">المنهج</a></li>
+    <li><a href="#who">لمن</a></li>
     <li><a href="#tracks">المسارات</a></li>
-    <li><a href="#impact">قياس الأثر</a></li>
+    <li><a href="#services">الخدمات</a></li>
+    <li><a href="#limits">حدود الخدمة</a></li>
     <li><a href="#journey">الرحلة</a></li>
-    <li><a href="#contact">جلسة استكشاف</a></li>
   </ul>
 </div></nav>
 
 <section class="hero" id="top"><div class="wrap">
-  <p class="eyebrow" data-n="">تشخيص · بناء قدرة · أثر قابل للإثبات</p>
-  <h1>المنظمات نادراً ما تنهار فجأة.<br><em>تتآكل بهدوء قبل ذلك بسنوات.</em></h1>
-  <p class="lead">أعمل مع مجالس الإدارات والقيادات التنفيذية على ما لا تلتقطه التقارير: جودة القرار، وضوح الدور، الثقة بين الصف الأول، وقدرة المنظمة على حمل التغيير. لا محتوى يُلقى — بل تشخيص يُبنى عليه، وأدلة تُقاس.</p>
+  <p class="eyebrow">موهبتك</p>
+  <h1>من قيادة الذات إلى <em>صناعة الأثر</em></h1>
+  <p class="tag">هندسة القيادة المتكاملة</p>
+  <p class="lead">تقوم «موهبتك» على إيمان بأن القيادة تُبنى عبر رحلة متكاملة من الوعي والتعلّم والممارسة؛ رحلة يفهم فيها الإنسان نفسه، ويطوّر قدراته، ويحسّن قراراته، ويوسّع أثره في الآخرين والمنظمات.</p>
   <div class="acts">
-    <a class="btn" href="#contact">اطلب جلسة استكشاف<span class="ar">←</span></a>
-    <a class="btn ghost" href="platform.html">نموذج منصة موهبتك</a>
-    <a class="btn ghost" href="#methods">استعرض المنهجيات</a>
-  </div>
-  <div class="sig">
-    <div><b>٢٠+</b><span>عاماً في القيادة والحوكمة</span></div>
-    <div><b>١٢</b><span>منهجية موثّقة الأثر</span></div>
-    <div><b>T0→T3</b><span>إطار قياس متدرّج على خط أساس</span></div>
+    <a class="btn" href="#services">استعرض منظومة الخدمات<span class="ar">←</span></a>
+    <a class="btn ghost" href="#tracks">المسارات الخمسة</a>
   </div>
 </div></section>
 
-<section class="dark tight" id="collapse"><div class="wrap">
+<section id="approach"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠١">العطل الصامت</p>
-    <h2>ثلاثة مؤشرات تظهر قبل الأزمة</h2>
-    <p class="lead">حين يُطلب التدخل، تكون المنظمة قد دفعت الثمن مرتين: مرة في الأداء، ومرة في الناس الذين غادروا قبل أن يُسألوا.</p>
+    <p class="eyebrow">المنهج</p>
+    <h2>ما الذي نعنيه بهندسة القيادة؟</h2>
+    <p class="lead">هندسة القيادة هي منهج «موهبتك» في تحويل الطموح القيادي إلى مسار تطوير منظم: نفهم نقطة البداية، ونحدد الجدارات المطلوبة، ونصمم التجربة المناسبة، ثم نربط التعلّم بالممارسة ونراجع التقدم.</p>
   </div>
-  <div class="inds">
-    <div class="ind r"><span class="i">٠١</span><div>
-      <h3>قرارات تُؤجَّل بلا سبب معلن</h3>
-      <p>المجلس ينعقد، والبنود تُرحَّل. التأجيل هنا ليس حذراً — بل غياب وضوح في من يملك القرار.</p>
-    </div></div>
-    <div class="ind r"><span class="i">٠٢</span><div>
-      <h3>اجتماعات بلا أثر يُتتبَّع</h3>
-      <p>الحضور مرتفع والالتزامات غير مكتوبة. لا أحد يعرف ما الذي تغيّر بين اجتماعين.</p>
-    </div></div>
-    <div class="ind r"><span class="i">٠٣</span><div>
-      <h3>صمت الصف الثاني</h3>
-      <p>حين يتوقف الناس عن الاعتراض، لا يعني أنهم اقتنعوا — بل أنهم قدّروا كلفة الاعتراض.</p>
-    </div></div>
+
+  <div class="vmp r">
+    <div>
+      <h3><small>رؤيتنا</small>مرجع عربي موثوق</h3>
+      <p>أن تكون «موهبتك» مرجعًا عربيًا موثوقًا في بناء الإنسان القائد، وشريكًا في تطوير قيادات قادرة على إدارة الذات والفرق والمنظمات بمسؤولية وكفاءة.</p>
+    </div>
+    <div>
+      <h3><small>رسالتنا</small>تمكين وبناء جدارات</h3>
+      <p>تمكين الأفراد والمنظمات من بناء الجدارات القيادية عبر مسارات شخصية ومؤسسية تجمع المعرفة والتجربة والمساندة المتخصصة وقياس التقدم.</p>
+    </div>
+    <div>
+      <h3><small>وعدنا</small>وضوح ومسار ومساندة</h3>
+      <p>أن يجد المستفيد وضوحًا في احتياجه، ومسارًا مناسبًا لتطويره، ومساندة تساعده على تحويل ما يتعلمه إلى ممارسة.</p>
+    </div>
   </div>
-  <blockquote class="quote r">القيادة لا تُقاس بما يُقال في القاعة، بل بما يُفعل بعد أن تُغلق أبوابها.</blockquote>
+
+  <div class="note r"><p><b>حدود المفهوم:</b> يُستخدم هذا المفهوم بوصفه إطارًا لتصميم رحلة التطوير، وليس ادعاءً بوجود تخصص علمي مستقل أو ضمان لنتائج موحدة.</p></div>
 </div></section>
 
-<section id="methods"><div class="wrap">
+<section class="dark" id="philosophy"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠٢">أدوات العمل</p>
-    <h2>المنهجيات</h2>
-    <p class="lead">كل منهجية تعالج عطلاً محدداً، وتُنتج مخرجاً مسمّى يمكن مراجعته بعد انتهاء العمل.</p>
+    <p class="eyebrow">فلسفتنا</p>
+    <h2>الإنسان هو نقطة البداية في كل تحول قيادي</h2>
+    <p class="lead">وتتطور قدرته على القيادة حين يزداد وعيًا بدوافعه، واتساقًا مع قيمه، وقدرة على إدارة طاقته وعلاقاته وقراراته.</p>
   </div>
-  <div class="meths">
-    <div class="meth r"><span class="code">ONE BOARD</span><h3>فاعلية المجلس</h3><p>مراجعة تكوين المجلس ولجانه وإيقاع اجتماعاته وجودة قراراته، بمخرج واحد: خريطة قرار واضحة المالك.</p></div>
-    <div class="meth r"><span class="code">M.E.A.D</span><h3>نضج القرار التنفيذي</h3><p>تشخيص كيف تُصنع القرارات فعلاً — لا كيف يُفترض أن تُصنع — وأين تضيع المفاضلات.</p></div>
-    <div class="meth r"><span class="code">C.O.R.E</span><h3>الهوية القيادية</h3><p>ربط السلوك القيادي بالقيم والغاية، حتى يصبح الاتساق قابلاً للملاحظة من الفريق لا من صاحبه فقط.</p></div>
-    <div class="meth r"><span class="code">A.L.I.G.N</span><h3>مواءمة الثقافة بالاستراتيجية</h3><p>حين تسير الاستراتيجية في اتجاه والثقافة في اتجاه آخر، الثقافة تفوز. هذه المنهجية تعالج الفجوة قبل أن تُكلّف.</p></div>
-    <div class="meth r"><span class="code">C.A.L.M</span><h3>القيادة تحت الضغط</h3><p>الأمان النفسي والتنظيم الذاتي والمحادثات الصعبة — بوصفها قدرات تُبنى لا سمات تُورَث.</p></div>
-    <div class="meth r"><span class="code">ECHO</span><h3>التواصل والتأثير</h3><p>من الإبلاغ إلى الإقناع: الاستماع، الحضور، والتغذية الراجعة التي يُعمل بها.</p></div>
-    <div class="meth r"><span class="code">VANGUARD</span><h3>قيادة التغيير</h3><p>أصحاب المصلحة، ومصادر المقاومة، وخطة تنفيذ لا تعتمد على حماس اللحظة.</p></div>
-    <div class="meth r"><span class="code">H-CAMP</span><h3>بناء الصف القادم</h3><p>التعاقب القيادي كعملية مؤسسية موثّقة، لا كقرار فردي يُتخذ عند الحاجة.</p></div>
-    <div class="meth r"><span class="code">PULSE</span><h3>الحرارة الشعورية للمنظمة</h3><p>قياس دوري قصير للاحتراق والارتباط والثقة بالقيادة — إشارة إنذار مبكر قبل أن تصبح أزمة.</p></div>
+  <div class="note r"><p>ولهذا ننظر إلى القائد بوصفه <b>إنسانًا متكاملًا</b>؛ ترتبط جودة أدائه المهني بطريقة تفكيره وحياته وتعامله مع الآخرين، مع احترام خصوصية كل مجال وحدود تخصصه.</p></div>
+</div></section>
+
+<section id="who"><div class="wrap">
+  <div class="head r">
+    <p class="eyebrow">نطاق المستفيدين</p>
+    <h2>لمن صُممت موهبتك؟</h2>
   </div>
-  <div class="note r"><p><b>ملاحظة تحريرية:</b> التسميات أعلاه أسماء عمل داخلية، ولا تُعرض كعلامات تجارية مسجّلة إلا بعد اكتمال إجراءات التسجيل لدى الجهة المختصة.</p></div>
+  <div class="aud r">
+    <div><span class="n">٠١</span><p>للأفراد الذين يريدون قيادة حياتهم بوعي وبناء اتجاه واضح لمستقبلهم.</p></div>
+    <div><span class="n">٠٢</span><p>للمواهب الشابة والقيادات الواعدة التي تستعد لتحمل مسؤوليات أكبر.</p></div>
+    <div><span class="n">٠٣</span><p>للمديرين وقادة الفرق الذين يسعون إلى تحسين الأداء والتواصل والتنفيذ.</p></div>
+    <div><span class="n">٠٤</span><p>للقيادات التنفيذية التي تواجه قرارات معقدة وتحديات النمو والتحول.</p></div>
+    <div><span class="n">٠٥</span><p>للمنظمات والشركات العائلية التي تستثمر في تطوير قياداتها وإعداد الصفوف القادمة.</p></div>
+  </div>
 </div></section>
 
 <section class="panel" id="tracks"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠٣">الإطار الجامع</p>
-    <h2>مسارات القيادة الخمسة</h2>
-    <p class="lead">القيادة تُبنى عبر رحلة متصلة، لا عبر موضوعات منفصلة. نقطة الدخول تتحدد بالاحتياج والجاهزية، ويمكن العمل على أكثر من مسار في الوقت نفسه.</p>
+    <p class="eyebrow">الإطار الجامع</p>
+    <h2>مسارات هندسة القيادة</h2>
+    <p class="lead">تبدأ الرحلة من قيادة الحياة الشخصية، وتتدرج إلى قيادة العلاقات والفرق، ثم قيادة المنظمات ذات المسؤوليات المعقدة والموارد والاستثمارات الكبيرة.</p>
   </div>
-  <div class="spine">
-    <div class="tr r"><span class="k">المسار ٠١</span><h3>قيادة الذات</h3><p>الوعي، الغاية، النزاهة، والاتساق بين ما يُعلن وما يُمارَس.</p></div>
-    <div class="tr r"><span class="k">المسار ٠٢</span><h3>قيادة العلاقات</h3><p>الثقة، التأثير، المحادثات الصعبة، وبناء رأس المال الاجتماعي داخل المنظمة.</p></div>
-    <div class="tr r"><span class="k">المسار ٠٣</span><h3>قيادة الفرق</h3><p>الأمان النفسي، المساءلة، إدارة الأداء، والتعامل مع الصراع بوصفه معلومة لا تهديداً.</p></div>
-    <div class="tr r"><span class="k">المسار ٠٤</span><h3>قيادة المنظمات</h3><p>التفكير الاستراتيجي، المفاضلات، الحوكمة، ومواءمة الثقافة بالاتجاه.</p></div>
-    <div class="tr r"><span class="k">المسار ٠٥</span><h3>قيادة الأثر</h3><p>التعاقب، الإرث، والأثر الذي يبقى بعد انتهاء الدور.</p></div>
+  <div class="trk">
+    <div class="tr r"><div>
+      <span class="k">المسار ٠١</span><h3>قيادة الذات</h3>
+      <p class="axis">بناء الأساس الشخصي للقيادة</p>
+    </div><div class="cmp">
+      <span class="chip">الوعي بالذات</span><span class="chip">وضوح القيم</span><span class="chip">الانضباط</span>
+      <span class="chip">تنظيم الانفعال</span><span class="chip">إدارة الوقت والطاقة</span>
+    </div></div>
+    <div class="tr r"><div>
+      <span class="k">المسار ٠٢</span><h3>قيادة العلاقات</h3>
+      <p class="axis">بناء علاقات فعالة ومسؤولة</p>
+    </div><div class="cmp">
+      <span class="chip">الإصغاء</span><span class="chip">الحوار</span><span class="chip">التأثير</span>
+      <span class="chip">إدارة الخلاف</span><span class="chip">بناء الثقة</span>
+    </div></div>
+    <div class="tr r"><div>
+      <span class="k">المسار ٠٣</span><h3>قيادة الفرق</h3>
+      <p class="axis">تحويل القدرات الفردية إلى أداء جماعي</p>
+    </div><div class="cmp">
+      <span class="chip">التفويض</span><span class="chip">التحفيز</span><span class="chip">التغذية الراجعة</span>
+      <span class="chip">المساءلة</span><span class="chip">تطوير المواهب</span>
+    </div></div>
+    <div class="tr r"><div>
+      <span class="k">المسار ٠٤</span><h3>قيادة المنظمات</h3>
+      <p class="axis">إدارة الاتجاه والأداء والتحول</p>
+    </div><div class="cmp">
+      <span class="chip">التفكير الاستراتيجي</span><span class="chip">الحوكمة</span><span class="chip">الثقافة</span>
+      <span class="chip">التغيير</span><span class="chip">فهم المال والمخاطر</span>
+    </div></div>
+    <div class="tr r"><div>
+      <span class="k">المسار ٠٥</span><h3>قيادة الأثر</h3>
+      <p class="axis">توسيع القيمة واستدامتها</p>
+    </div><div class="cmp">
+      <span class="chip">إعداد الخلفاء</span><span class="chip">المسؤولية المجتمعية</span>
+      <span class="chip">بناء الشراكات</span><span class="chip">نقل المعرفة</span>
+    </div></div>
+  </div>
+  <div class="note r"><p>تتحدد نقطة دخول المستفيد وفق <b>احتياجه وجاهزيته</b>؛ ويمكن أن يعمل على أكثر من مسار في الوقت نفسه.</p></div>
+</div></section>
+
+<section id="services"><div class="wrap">
+  <div class="head r">
+    <p class="eyebrow">منظومة الخدمات</p>
+    <h2>تجربة مترابطة لا خدمات متفرقة</h2>
+    <p class="lead">تسعى «موهبتك» إلى بناء منصة إلكترونية تجمع التقييم والتطوير والتدريب والكوتشينج والاستشارة ومجتمعات التعلّم، ضمن تجربة تساعد كل مستفيد على صناعة جداراته القيادية وفق احتياجاته وطموحاته ومسؤولياته.</p>
+  </div>
+  <div class="svc">
+    <div class="sv r"><span class="n">٠١</span><h3>التقييم وبناء خارطة التطوير</h3>
+      <p>فهم الاحتياجات والأهداف من خلال مقابلات منظمة وأدوات تقييم ملائمة، وتغذية راجعة متعددة المصادر عند الحاجة. وينتج عن ذلك ملف تطوير يوضح نقاط القوة والأولويات والجدارات المستهدفة.</p></div>
+    <div class="sv r"><span class="n">٠٢</span><h3>الكوتشينج الفردي والجلسات الاستشارية</h3>
+      <p>جلسات فردية تساعد المستفيد على تطوير وعيه وخياراته والتزامه بالتنفيذ، إلى جانب جلسات استشارية يقدم فيها المختص خبرته لمعالجة تحديات محددة. ويكون نوع الجلسة ودور مقدمها واضحين قبل الحجز.</p></div>
+    <div class="sv r"><span class="n">٠٣</span><h3>التدريب والتعلّم التطبيقي</h3>
+      <p>برامج مباشرة ورقمية، وورش عمل، ودراسات حالة، ومحاكاة لمواقف قيادية، تتصل بتحديات المستفيد اليومية وتمنحه فرصًا لممارسة المهارات.</p></div>
+    <div class="sv r"><span class="n">٠٤</span><h3>تطوير الفرق والمنظمات</h3>
+      <p>مسارات مخصصة لتطوير فرق العمل، وتعزيز التعاون، وإعداد القيادات، ودعم التعاقب القيادي، وتحسين ممارسات القيادة بما يتصل بأهداف المنظمة.</p></div>
+    <div class="sv r"><span class="n">٠٥</span><h3>طلب المساندة المتخصصة</h3>
+      <p>مدخل واضح لعرض الاحتياج وتوجيهه إلى الخدمة المناسبة، سواء كان موقفًا قياديًا، أو تحديًا مهنيًا، أو حاجة إلى مختص في مجال آخر.</p></div>
+    <div class="sv r"><span class="n">٠٦</span><h3>مجتمعات التعلّم والمجموعات الميسّرة</h3>
+      <p>مساحات منظمة لتبادل الخبرات، ومناقشة التحديات، والتعلّم من الأقران، ومتابعة الالتزامات التطويرية، وفق قواعد للخصوصية والاحترام وحدود المشاركة.</p></div>
+    <div class="sv r"><span class="n">٠٧</span><h3>مسارات جودة الحياة الداعمة للقيادة</h3>
+      <p>أنشطة وخدمات تدعم الوعي الصحي، والرفاه النفسي، والعلاقات الاجتماعية، والمعنى والقيم والبعد الروحي، والتطور المهني والتعليمي، إلى جانب تجارب ترفيهية هادفة تعزز التواصل والتجدد.</p></div>
+  </div>
+  <div class="note r"><p>تُصمم هذه المسارات بما يراعي <b>احتياجات المستفيد واختياراته</b>، ويربطها بأهدافه التطويرية حيث يكون ذلك مناسبًا.</p></div>
+</div></section>
+
+<section class="panel" id="limits"><div class="wrap">
+  <div class="head r">
+    <p class="eyebrow">حدود الخدمة وجودتها</p>
+    <h2>وضوح الأدوار قبل كل شيء</h2>
+    <p class="lead">تميّز «موهبتك» بوضوح بين التدريب والكوتشينج والاستشارة ومجموعات الدعم والعلاج النفسي.</p>
+  </div>
+  <div class="note r" style="margin-top:0">
+    <p>وإذا أُدرجت خدمات علاجية فردية أو جماعية، فتُقدَّم ضمن مسار متخصص، بواسطة <b>ممارسين مؤهلين ومرخصين وفق متطلبات بلد التشغيل</b>، مع إجراءات مناسبة للموافقة والخصوصية والإحالة.</p>
+    <p><b>ولا تُقدَّم مجموعات التعلّم أو الكوتشينج باعتبارها علاجًا نفسيًا.</b></p>
   </div>
 </div></section>
 
-<section class="dark" id="impact"><div class="wrap">
+<section class="dark" id="journey"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠٤">أدلة لا حضور</p>
-    <h2>كيف يُقاس الأثر</h2>
-    <p class="lead">لا أقيس الرضا في نهاية اليوم. أقيس ما تغيّر في السلوك والقرار بعد أن انتهى العمل — مقارنةً بخط أساس سُجِّل قبل أن يبدأ.</p>
+    <p class="eyebrow">رحلة المستفيد</p>
+    <h2>ست خطوات، كل واحدة تنتهي بوضوح</h2>
   </div>
-  <div class="tl r">
-    <div class="st"><div class="dot"></div>
-      <p class="t">T0</p><p class="when">قبل البدء</p>
-      <p class="what">خط الأساس: جودة القرار، وضوح الدور، الثقة، إيقاع الحوكمة</p>
-      <span class="out">تقرير التشخيص</span></div>
-    <div class="st"><div class="dot"></div>
-      <p class="t">T1</p><p class="when">منتصف المسار</p>
-      <p class="what">أدلة التطبيق الميداني بين اللقاءات</p>
-      <span class="out">قرار: استمرار أو تعديل</span></div>
-    <div class="st"><div class="dot"></div>
-      <p class="t">T2</p><p class="when">عند الإنهاء</p>
-      <p class="what">المخرجات المعتمدة ومشروع التحول</p>
-      <span class="out">محضر اعتماد</span></div>
-    <div class="st last"><div class="dot"></div>
-      <p class="t">T3</p><p class="when">بعد ٩٠ يوماً</p>
-      <p class="what">ما بقي من التغيير بعد انتهاء المتابعة</p>
-      <span class="out">تقرير الأثر</span></div>
+  <div class="jr r">
+    <div><span class="n">١</span><div><h3>اكتشاف الاحتياج</h3><p>ما الذي يريد تغييره؟ وما التحدي الذي يواجهه؟</p></div></div>
+    <div><span class="n">٢</span><div><h3>تقييم نقطة البداية</h3><p>ما قدراته الحالية؟ وما متطلبات دوره؟</p></div></div>
+    <div><span class="n">٣</span><div><h3>تصميم المسار</h3><p>ما الجدارات ذات الأولوية؟ وما الخدمات المناسبة؟</p></div></div>
+    <div><span class="n">٤</span><div><h3>التعلّم والمساندة</h3><p>جلسات وتجارب ومحتوى يتصل بأهدافه.</p></div></div>
+    <div><span class="n">٥</span><div><h3>التطبيق العملي</h3><p>ممارسة ما تعلّمه في حياته أو بيئة عمله.</p></div></div>
+    <div><span class="n">٦</span><div><h3>مراجعة التقدم</h3><p>قراءة النتائج والتغذية الراجعة وتعديل المسار.</p></div></div>
   </div>
-  <div class="note r"><p><b>حدود القياس — تُذكر في كل تقرير:</b> لا يُنسب للعمل أثرٌ سببه قرار تجاري أو تغيير في السوق أو في هيكل المنظمة. وحين لا يتوفر مؤشر مباشر، يُستخدم مؤشر قريب موثّق ويُعلن أنه كذلك. والأرقام التي لا مصدر لها تُكتب [غير متوفر] ولا تُقدَّر.</p></div>
 </div></section>
 
-<section id="journey"><div class="wrap">
+<section id="impact"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠٥">Signature Transformational Leadership</p>
-    <h2>رحلة اثني عشر أسبوعاً</h2>
-    <p class="lead">ليست سلسلة لقاءات منفصلة، بل مسار واحد ينقل القائد من المعرفة إلى تغيير السلوك. كل محطة تُنتج مخرجاً ملموساً، وكل مرحلة تنتهي بقرار.</p>
+    <p class="eyebrow">كيف نقرأ الأثر؟</p>
+    <h2>مؤشرات يُتفق عليها، لا وعود مطلقة</h2>
+    <p class="lead">تُحدد مؤشرات التقدم بالتوافق مع المستفيد أو المنظمة، ويمكن أن تشمل:</p>
   </div>
-  <div>
-    <div class="ph r">
-      <div class="wk">الأسبوع ٠<small>BASELINE</small></div>
-      <div class="mid"><h3>التشخيص واختيار مشروع التحول</h3><p>قياس خط الأساس، والاتفاق على المشروع الذي سيُحمل خلال الرحلة ويُقاس به الأثر.</p></div>
-      <div class="out">Baseline Report</div>
-    </div>
-    <div class="ph r">
-      <div class="wk">١ – ٤<small>CHARACTER</small></div>
-      <div class="mid"><h3>الهوية القيادية</h3><p>الوعي · الغاية · النزاهة — وترجمتها إلى التزامات سلوكية مكتوبة يُراجع الالتزام بها.</p></div>
-      <div class="out">Character Commitments</div>
-    </div>
-    <div class="ph r">
-      <div class="wk">٥ – ٨<small>CULTURE</small></div>
-      <div class="mid"><h3>الناس والثقافة</h3><p>التواصل والتأثير · تطوير الآخرين · الأداء والثقة · الفرق والثقافة.</p></div>
-      <div class="out">Culture Blueprint</div>
-    </div>
-    <div class="ph r">
-      <div class="wk">٩ – ١٢<small>LEGACY</small></div>
-      <div class="mid"><h3>الاتجاه والأثر</h3><p>التفكير الاستراتيجي · قيادة التغيير · الازدهار الإنساني · الأثر والإرث.</p></div>
-      <div class="out">Legacy Blueprint</div>
-    </div>
-    <div class="ph r">
-      <div class="wk">+٩٠ يوماً<small>FOLLOW-UP</small></div>
-      <div class="mid"><h3>المتابعة وقياس ما بقي</h3><p>مراجعة ما استمر من التغيير بعد انتهاء المتابعة، لا ما قيل عند الإنهاء.</p></div>
-      <div class="out">تقرير الأثر T3</div>
-    </div>
-  </div>
-  <div class="note r"><p><b>حجم المجموعة:</b> المجموعة الواحدة ١٢–٢٠ قائداً. وللمجموعات الأكبر تُقسَّم إلى دفعات حفاظاً على جودة التطبيق.</p></div>
+  <ul class="ul r">
+    <li><span>تحسن ممارسة سلوكية محددة، مثل <b>التفويض</b> أو <b>إدارة الحوار</b>.</span></li>
+    <li><span>إنجاز أهداف تطويرية ومهام تطبيقية متفق عليها.</span></li>
+    <li><span>تغير التغذية الراجعة من الأطراف ذات الصلة.</span></li>
+    <li><span>تقدم مؤشرات أداء مرتبطة بالبرنامج، <b>مع مراعاة العوامل الأخرى المؤثرة فيها</b>.</span></li>
+  </ul>
 </div></section>
 
-<section class="panel" id="scope"><div class="wrap">
+<section class="panel" id="values"><div class="wrap">
   <div class="head r">
-    <p class="eyebrow" data-n="٠٦">نطاق العمل</p>
-    <h2>لمن أعمل</h2>
+    <p class="eyebrow">قيمنا</p>
+    <h2>ستٌّ تحكم كل قرار</h2>
   </div>
-  <div class="scope">
-    <div class="sc r"><h3>مجالس الإدارات ولجانها</h3><p>مراجعة الفاعلية، وتطوير أعضاء المجلس، وإيقاع الحوكمة.</p></div>
-    <div class="sc r"><h3>الجهات والهيئات الحكومية</h3><p>بناء قدرات القيادات الوسطى والعليا، وربط التطوير بالأثر المؤسسي.</p></div>
-    <div class="sc r"><h3>الشركات والمنشآت</h3><p>الصف الأول والثاني، وإدارة التغيير، وبناء الثقافة القابلة للحمل.</p></div>
-    <div class="sc r"><h3>الأسر التجارية والمكاتب العائلية</h3><p>الحوكمة الأسرية، والتعاقب، والفصل بين الملكية والإدارة.</p></div>
+  <div class="vals r">
+    <div><h3>الكرامة الإنسانية</h3><p>احترام الإنسان وسياقه واختياراته.</p></div>
+    <div><h3>المهنية</h3><p>وضوح الأدوار والعمل ضمن حدود الاختصاص.</p></div>
+    <div><h3>الخصوصية</h3><p>ضبط الوصول إلى المعلومات وتوضيح كيفية استخدامها.</p></div>
+    <div><h3>المسؤولية</h3><p>ربط التطور بالالتزام والممارسة.</p></div>
+    <div><h3>التكامل</h3><p>تنسيق الخدمات حول احتياج المستفيد.</p></div>
+    <div><h3>الأثر</h3><p>متابعة ما يتغير في السلوك والعمل.</p></div>
   </div>
-  <div class="note r"><p><b>أسماء الجهات:</b> لا تُنشر إلا بموافقة مكتوبة من الجهة نفسها. ويُتاح سجل المراجع كاملاً عند الطلب ضمن إجراءات التأهيل.</p></div>
+  <div class="note r"><p><b>شخصية العلامة:</b> «موهبتك» علامة عربية طموحة، رصينة وقريبة من الإنسان. تتحدث بلغة واضحة، وتحترم عقل المستفيد، وتوازن بين الإلهام والمسؤولية. تقدم التطور بوصفه رحلة قابلة للعمل والمراجعة، <b>وتتجنب المبالغة والوعود المطلقة</b>.</p></div>
 </div></section>
 
-<section id="contact"><div class="wrap">
-  <div class="head r">
-    <p class="eyebrow" data-n="٠٧">الخطوة الأولى</p>
-    <h2>اطلب جلسة استكشاف</h2>
-    <p class="lead">تسعون دقيقة نراجع فيها وضعك الحالي ونتفق على أولوية واحدة. لا عرض بيع، ولا التزام بعدها.</p>
-  </div>
-
-  <div class="formwrap">
-    <div>
-      <form id="explore" novalidate>
-        <div class="row2">
-          <div>
-            <label for="f-name">الاسم</label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required>
-            <p class="err" id="e-name">اكتب الاسم.</p>
-          </div>
-          <div>
-            <label for="f-org">الجهة</label>
-            <input id="f-org" name="org" type="text" autocomplete="organization">
-          </div>
-        </div>
-        <div class="row2">
-          <div>
-            <label for="f-role">الدور</label>
-            <select id="f-role" name="role">
-              <option>عضو مجلس إدارة</option>
-              <option>رئيس تنفيذي</option>
-              <option>قيادة تنفيذية</option>
-              <option>مسؤول تطوير القيادات</option>
-              <option>أخرى</option>
-            </select>
-          </div>
-          <div>
-            <label for="f-email">البريد</label>
-            <input id="f-email" name="email" type="email" autocomplete="email" required>
-            <p class="err" id="e-email">اكتب بريداً صحيحاً.</p>
-          </div>
-        </div>
-        <div>
-          <label for="f-ctx">ما العطل الذي تريد تشخيصه؟</label>
-          <textarea id="f-ctx" name="context" placeholder="اكتب بإيجاز ما تلاحظه اليوم، وما جرّبته سابقاً."></textarea>
-        </div>
-        <button class="btn" type="submit">أرسل الطلب<span class="ar">←</span></button>
-      </form>
-
-      <div class="ok" id="ok" role="status" aria-live="polite">
-        <h3>تم تجهيز الطلب</h3>
-        <p>هذه نسخة عرض أوّلية، فالطلب <b>لم يُرسَل إلى أي بريد</b> — هذا ما سيحدث في النسخة المعتمدة. وفي الوقت الحالي هذا ملخّص ما كتبته:</p>
-        <dl id="okdl"></dl>
-      </div>
-    </div>
-
-    <aside class="aside r">
-      <h3>ما يحدث في التسعين دقيقة</h3>
-      <ul>
-        <li>مراجعة ما تلاحظه اليوم، ومتى بدأ، وما جُرِّب قبل ذلك.</li>
-        <li>تحديد أي من المؤشرات الثلاثة ينطبق على وضعك، وبأي شدّة.</li>
-        <li>الاتفاق على <b>أولوية واحدة</b> — لا قائمة توصيات.</li>
-        <li>تحديد ما يمكن قياسه عليها، ومن يملك القرار فيها.</li>
-      </ul>
-      <p class="fine">الجلسة سرّية، ولا يُشارك ما يُقال فيها مع أي طرف. وإن لم يكن التدخل مناسباً، أقول ذلك في الجلسة نفسها.</p>
-    </aside>
-  </div>
+<section class="dark close" id="start"><div class="wrap">
+  <p class="eyebrow" style="justify-content:center">تعريف مختصر</p>
+  <h2 style="margin-top:14px">منصة لهندسة القيادة المتكاملة</h2>
+  <p class="lead">تساعد الأفراد والمنظمات على بناء الجدارات من قيادة الذات إلى قيادة الفرق والمنظمات، عبر التقييم والكوتشينج والتدريب والاستشارة ومجتمعات التعلّم، ضمن مسارات تربط التطوير بالممارسة والأثر.</p>
+  <div class="acts"><a class="btn" href="#top">عُد إلى البداية<span class="ar">←</span></a></div>
 </div></section>
 
 <footer><div class="wrap">
   <div>
-    <p class="fb">د. أسامة الملا</p>
-    <p>القيادة · الحوكمة · التحول المؤسسي</p>
+    <p class="fb">موهبتك<i>.</i></p>
+    <p>من قيادة الذات إلى صناعة الأثر.</p>
   </div>
-  <p class="ml">نموذج عرض أوّلي · غير مفهرس · أكتوبر ٢٠٢٦</p>
+  <p class="ml">نسخة عرض أوّلية · غير مفهرسة · أكتوبر ٢٠٢٦</p>
 </div></footer>
 
 <script>
 (function(){
   'use strict';
 
-  // ── scroll progress ────────────────────
   var prog = document.getElementById('prog'), raf = 0;
   function tick(){
     raf = 0;
@@ -605,7 +423,6 @@ footer .ml{margin-inline-start:auto;font-size:12.5px}
   addEventListener('scroll', function(){ if (!raf) raf = requestAnimationFrame(tick); }, {passive:true});
   tick();
 
-  // ── reveal on scroll ───────────────────
   var items = document.querySelectorAll('.r');
   if (!('IntersectionObserver' in window) ||
       matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -617,8 +434,7 @@ footer .ml{margin-inline-start:auto;font-size:12.5px}
         if (!en.isIntersecting) return;
         var sibs = Array.prototype.filter.call(en.target.parentNode.children,
           function(n){ return n.classList && n.classList.contains('r'); });
-        var i = sibs.indexOf(en.target);
-        en.target.style.transitionDelay = Math.min(i, 5) * 70 + 'ms';
+        en.target.style.transitionDelay = Math.min(sibs.indexOf(en.target), 5) * 70 + 'ms';
         en.target.classList.add('in');
         io.unobserve(en.target);
       });
@@ -626,7 +442,6 @@ footer .ml{margin-inline-start:auto;font-size:12.5px}
     items.forEach(function(el){ io.observe(el); });
   }
 
-  // ── active section in nav ──────────────
   var links = Array.prototype.slice.call(document.querySelectorAll('nav.top a[href^="#"]'));
   var targets = links.map(function(a){ return document.getElementById(a.hash.slice(1)); });
   if ('IntersectionObserver' in window) {
@@ -639,45 +454,6 @@ footer .ml{margin-inline-start:auto;font-size:12.5px}
     }, {rootMargin:'-45% 0px -50% 0px'});
     targets.forEach(function(t){ if (t) nav.observe(t); });
   }
-
-  // ── form ───────────────────────────────
-  var form = document.getElementById('explore');
-  var ok   = document.getElementById('ok');
-  var okdl = document.getElementById('okdl');
-
-  function mark(input, errId, bad){
-    input.setAttribute('aria-invalid', bad ? 'true' : 'false');
-    document.getElementById(errId).classList.toggle('on', bad);
-    return !bad;
-  }
-
-  form.addEventListener('submit', function(ev){
-    ev.preventDefault();
-    var name  = document.getElementById('f-name');
-    var email = document.getElementById('f-email');
-    var good  = mark(name, 'e-name', !name.value.trim());
-    // Deliberately loose: a real address can take shapes a strict pattern rejects.
-    good = mark(email, 'e-email', !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) && good;
-    if (!good) { (name.getAttribute('aria-invalid') === 'true' ? name : email).focus(); return; }
-
-    var rows = [
-      ['الاسم',  name.value.trim()],
-      ['الجهة',  document.getElementById('f-org').value.trim() || '—'],
-      ['الدور',  document.getElementById('f-role').value],
-      ['البريد', email.value.trim()],
-      ['العطل',  document.getElementById('f-ctx').value.trim() || '—']
-    ];
-    okdl.textContent = '';
-    rows.forEach(function(r){
-      var dt = document.createElement('dt'); dt.textContent = r[0];
-      var dd = document.createElement('dd'); dd.textContent = r[1];
-      okdl.appendChild(dt); okdl.appendChild(dd);
-    });
-
-    form.style.display = 'none';
-    ok.classList.add('on');
-    ok.scrollIntoView({block:'center', behavior:'smooth'});
-  });
 })();
 </script>
 </body>
