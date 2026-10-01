@@ -431,7 +431,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"loading":"Chargement des créneaux…","noSlots":"Aucun créneau proche. Écrivez-nous sur WhatsApp et nous organiserons.","need":"Renseignez nom, mobile et e-mail, et choisissez un créneau.","busy":"Confirmation…","taken":"Ce créneau vient d'être pris. Choisissez-en un autre.","failed":"Confirmation impossible. Réessayez ou écrivez-nous sur WhatsApp.","doneT":"Réservé","doneOn":"Votre rendez-vous","meet":"Lien de réunion","addCal":"Ajouter à votre agenda","mailed":"Nous vous avons envoyé les détails par e-mail.","confirm":"L'équipe confirme le créneau et vous recevez la confirmation par e-mail.","tz":"Heure de Riyad","mins":"minutes","another":"Réserver un autre","pickTime":"Choisissez l'heure"},HOME="/fr/",AR=false;
+var TX={"loading":"Chargement des créneaux…","noSlots":"Aucun créneau proche. Écrivez-nous sur WhatsApp et nous organiserons.","need":"Renseignez nom, mobile et e-mail, et choisissez un créneau.","busy":"Confirmation…","taken":"Ce créneau vient d'être pris. Choisissez-en un autre.","failed":"Confirmation impossible. Réessayez ou écrivez-nous sur WhatsApp.","doneT":"Réservé","doneOn":"Votre rendez-vous","meet":"Lien de réunion","addCal":"Ajouter à votre agenda","mailed":"Nous vous avons envoyé les détails par e-mail.","confirm":"L'équipe confirme le créneau et vous recevez la confirmation par e-mail.","tz":"Heure de Riyad","mins":"minutes","another":"Réserver un autre","pickTime":"Choisissez l'heure","tpRecGen":"Recrutement en volume / poste de direction — Service de recrutement"},HOME="/fr/",AR=false;
 var $=function(id){return document.getElementById(id)};
 var DAYS=[],pick={date:'',time:''},slotMin=30,calState='off';
 var DOW=AR?['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
@@ -527,6 +527,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script><style>

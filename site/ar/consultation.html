@@ -431,7 +431,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"loading":"نقرأ المواعيد المتاحة…","noSlots":"لا مواعيد متاحة في المدى القريب. راسلنا على واتساب ونرتّب لك موعداً.","need":"أكمل الاسم والجوال والبريد واختر موعداً.","busy":"نؤكّد حجزك…","taken":"حُجزت هذه الفترة قبل قليل. اختر فترة أخرى.","failed":"تعذّر تأكيد الحجز. حاول مرة أخرى أو راسلنا على واتساب.","doneT":"تم الحجز","doneOn":"موعدك","meet":"رابط الاجتماع","addCal":"أضِف إلى تقويمك","mailed":"أرسلنا التفاصيل إلى بريدك.","confirm":"الفريق يؤكّد الموعد ويصلك التأكيد على بريدك.","tz":"بتوقيت الرياض","mins":"دقيقة","another":"احجز موعداً آخر","pickTime":"اختر الوقت"},HOME="/ar/",AR=true;
+var TX={"loading":"نقرأ المواعيد المتاحة…","noSlots":"لا مواعيد متاحة في المدى القريب. راسلنا على واتساب ونرتّب لك موعداً.","need":"أكمل الاسم والجوال والبريد واختر موعداً.","busy":"نؤكّد حجزك…","taken":"حُجزت هذه الفترة قبل قليل. اختر فترة أخرى.","failed":"تعذّر تأكيد الحجز. حاول مرة أخرى أو راسلنا على واتساب.","doneT":"تم الحجز","doneOn":"موعدك","meet":"رابط الاجتماع","addCal":"أضِف إلى تقويمك","mailed":"أرسلنا التفاصيل إلى بريدك.","confirm":"الفريق يؤكّد الموعد ويصلك التأكيد على بريدك.","tz":"بتوقيت الرياض","mins":"دقيقة","another":"احجز موعداً آخر","pickTime":"اختر الوقت","tpRecGen":"توظيف بالجملة / منصب قيادي — خدمة التوظيف والاستقدام"},HOME="/ar/",AR=true;
 var $=function(id){return document.getElementById(id)};
 var DAYS=[],pick={date:'',time:''},slotMin=30,calState='off';
 var DOW=AR?['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
@@ -527,6 +527,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script><style>

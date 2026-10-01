@@ -431,7 +431,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"loading":"正在加载可预约时间…","noSlots":"近期没有可用时间。请通过 WhatsApp 联系我们安排。","need":"请填写姓名、手机号和邮箱，并选择时间。","busy":"正在确认…","taken":"该时段刚被预订，请另选。","failed":"无法确认。请重试或通过 WhatsApp 联系我们。","doneT":"预约成功","doneOn":"您的预约","meet":"会议链接","addCal":"添加到日历","mailed":"详情已发送至您的邮箱。","confirm":"团队确认时间后会通过邮件通知您。","tz":"利雅得时间","mins":"分钟","another":"再预约一次","pickTime":"选择时间"},HOME="/zh/",AR=false;
+var TX={"loading":"正在加载可预约时间…","noSlots":"近期没有可用时间。请通过 WhatsApp 联系我们安排。","need":"请填写姓名、手机号和邮箱，并选择时间。","busy":"正在确认…","taken":"该时段刚被预订，请另选。","failed":"无法确认。请重试或通过 WhatsApp 联系我们。","doneT":"预约成功","doneOn":"您的预约","meet":"会议链接","addCal":"添加到日历","mailed":"详情已发送至您的邮箱。","confirm":"团队确认时间后会通过邮件通知您。","tz":"利雅得时间","mins":"分钟","another":"再预约一次","pickTime":"选择时间","tpRecGen":"批量招聘 / 高管职位 — 招聘与引进服务"},HOME="/zh/",AR=false;
 var $=function(id){return document.getElementById(id)};
 var DAYS=[],pick={date:'',time:''},slotMin=30,calState='off';
 var DOW=AR?['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
@@ -527,6 +527,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script><style>

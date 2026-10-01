@@ -54,6 +54,11 @@ const D = {
   tz:     { ar: "بتوقيت الرياض", en: "Riyadh time", fr: "Heure de Riyad", zh: "利雅得时间" },
   mins:   { ar: "دقيقة", en: "minutes", fr: "minutes", zh: "分钟" },
   another:{ ar: "احجز موعداً آخر", en: "Book another", fr: "Réserver un autre", zh: "再预约一次" },
+  // تعبئة موضوع الاستشارة مسبقاً من ?topic= — يرسلها زرّ /hiring.
+  tpRecGen:{ ar: "توظيف بالجملة / منصب قيادي — خدمة التوظيف والاستقدام",
+             en: "Bulk hiring / leadership role — Recruitment service",
+             fr: "Recrutement en volume / poste de direction — Service de recrutement",
+             zh: "批量招聘 / 高管职位 — 招聘与引进服务" },
 };
 
 export function buildSimpleBook(sv1, ctx) {
@@ -140,7 +145,7 @@ textarea.sv1-bk-in{min-height:74px;resize:vertical}
 </main>`;
 
   const T = {};
-  for (const k of ["loading","noSlots","need","busy","taken","failed","doneT","doneOn","meet","addCal","mailed","confirm","tz","mins","another","pickTime"]) T[k] = t(k);
+  for (const k of ["loading","noSlots","need","busy","taken","failed","doneT","doneOn","meet","addCal","mailed","confirm","tz","mins","another","pickTime","tpRecGen"]) T[k] = t(k);
 
   const script = `<script>
 (function(){
@@ -240,6 +245,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script>`;

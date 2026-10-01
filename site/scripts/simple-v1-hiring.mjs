@@ -289,7 +289,7 @@ const T = {
 
   // السطر الثانوي — يقود إلى خدمةٍ قائمة فعلاً في الكتالوج / الموقع.
   secQEmp:{ ar: "توظيف بالجملة أو منصب قيادي؟", en: "Hiring in bulk, or a leadership role?", fr: "Recrutement en volume ou poste de direction ?", zh: "批量招聘或高管职位？" },
-  secBEmp:{ ar: "خدمة التوظيف والاستقدام ←", en: "Recruitment service →", fr: "Service de recrutement →", zh: "招聘与引进服务 →" },
+  secBEmp:{ ar: "احجز استشارة التوظيف والاستقدام ←", en: "Book a recruitment consultation →", fr: "Réserver une consultation recrutement →", zh: "预约招聘与引进咨询 →" },
   secQSeek:{ ar: "لم تجد وظيفتك اليوم؟", en: "Didn't find your job today?", fr: "Pas trouvé votre poste aujourd'hui ?", zh: "今天没找到合适的工作？" },
   secBSeek:{ ar: "نبحث لك بالنيابة عنك ←", en: "We search on your behalf →", fr: "Nous cherchons pour vous →", zh: "我们代您搜索 →" },
   learn:  { ar: "اعرف المزيد ↓", en: "Learn more ↓", fr: "En savoir plus ↓", zh: "了解更多 ↓" },
@@ -549,7 +549,7 @@ export function buildSimpleHiring(SV1, ctx) {
           <div class="sv1-voice" id="hireVoice" style="margin:0 0 9px"></div>
           <textarea id="hireQ" rows="3" placeholder="${esc(t("phEmp"))}" aria-label="${esc(t("phEmp"))}"></textarea>
           <div class="sv1-hb-acts">
-            <a class="rb off" id="hireUp" href="${esc(u("/careers"))}#seeker-form" aria-label="${esc(t("upEmp"))}" title="${esc(t("upEmp"))}" aria-disabled="true">📎</a>
+            <a class="rb off" id="hireUp" href="#" aria-label="${esc(t("upEmp"))}" title="${esc(t("upEmp"))}" aria-disabled="true">📎</a>
             <button type="button" class="rb off" id="hireMic" disabled aria-label="${esc(t("micOff"))}" title="${esc(t("micOff"))}">🎙</button>
             <button type="submit" class="rb go" id="hireGo" aria-label="${esc(t("send"))}" title="${esc(t("send"))}">↑</button>
           </div>
@@ -572,7 +572,7 @@ export function buildSimpleHiring(SV1, ctx) {
 
       <div class="sv1-hsec2">
         <span id="hireSecQ">${esc(t("secQEmp"))}</span>
-        <a class="sv1-btn sm" id="hireSecB" href="${esc(u("/services/rec-gen"))}">${esc(t("secBEmp"))}</a>
+        <a class="sv1-btn sm" id="hireSecB" href="${esc(u("/consultation"))}?topic=rec-gen">${esc(t("secBEmp"))}</a>
       </div>
 
       <p class="sv1-hhint" id="hireHint">${esc(t("maskNote"))}</p>
@@ -671,7 +671,7 @@ var FCOL=${JSON.stringify(fi)};
 var JOB=${JSON.stringify(u("/job") + "?id=")};
 var EMP=${JSON.stringify(u("/employer"))};
 var SEEKCV=${JSON.stringify(u("/careers") + "#seeker-form")};
-var SVC_EMP=${JSON.stringify(u("/services/rec-gen"))};
+var SVC_EMP=${JSON.stringify(u("/consultation") + "?topic=rec-gen")};
 var SVC_SEEK=${JSON.stringify(u("/job-search-service"))};
 var MAXSHOW=24;
 

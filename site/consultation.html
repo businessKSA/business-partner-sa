@@ -431,7 +431,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"loading":"Loading available times…","noSlots":"No times available soon. Message us on WhatsApp and we will arrange one.","need":"Fill in name, mobile and e-mail, and pick a time.","busy":"Confirming…","taken":"That slot was just taken. Please pick another.","failed":"Could not confirm. Try again or message us on WhatsApp.","doneT":"Booked","doneOn":"Your appointment","meet":"Meeting link","addCal":"Add to your calendar","mailed":"We emailed you the details.","confirm":"The team confirms the time and you get the confirmation by e-mail.","tz":"Riyadh time","mins":"minutes","another":"Book another","pickTime":"Pick a time"},HOME="/",AR=false;
+var TX={"loading":"Loading available times…","noSlots":"No times available soon. Message us on WhatsApp and we will arrange one.","need":"Fill in name, mobile and e-mail, and pick a time.","busy":"Confirming…","taken":"That slot was just taken. Please pick another.","failed":"Could not confirm. Try again or message us on WhatsApp.","doneT":"Booked","doneOn":"Your appointment","meet":"Meeting link","addCal":"Add to your calendar","mailed":"We emailed you the details.","confirm":"The team confirms the time and you get the confirmation by e-mail.","tz":"Riyadh time","mins":"minutes","another":"Book another","pickTime":"Pick a time","tpRecGen":"Bulk hiring / leadership role — Recruitment service"},HOME="/",AR=false;
 var $=function(id){return document.getElementById(id)};
 var DAYS=[],pick={date:'',time:''},slotMin=30,calState='off';
 var DOW=AR?['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
@@ -527,6 +527,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script><style>
