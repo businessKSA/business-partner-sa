@@ -694,7 +694,9 @@ test("⑬ القائمة المصفَّحة: صفحةٌ واحدة لكل طلب
     assert.equal(last.status, 200);
     assert.ok(last.data.candidates.length <= 7, "الصفحة أكبر من الحدّ");
     seen = seen.concat(poolNames(last.data));
-    assert.equal(last.data.total, last.data.candidates.length, "total ليس ما وصل في هذا الردّ");
+    // `total` إجماليٌّ حقيقيٌّ أو غائب — لا عدد الصفحة (2026-10-01، طلب واجهة /hiring). وكل صفحةٍ
+    // هنا لها تالية أو سابقة، فلا إجماليَّ دقيقاً معروفاً: الحقل غائب.
+    assert.ok(!("total" in last.data), "total عُرض بلا إجماليٍّ حقيقي: " + last.data.total);
     cursor = last.data.nextCursor || "";
     pages++;
   } while (cursor && pages < 100);

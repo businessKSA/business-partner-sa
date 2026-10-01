@@ -10,6 +10,8 @@
 //   EMPLOYER_CODES          comma-separated subscription codes that unlock contacts
 //
 // GET /api/candidates?field=&city=&nat=&q=&code=   -> { ok, unlocked, total, candidates:[...] }
+// GET /api/candidates?field=&city=&q=&limit=30&cursor=  (الزائر العام: مصفَّحٌ دائماً، الافتراضي ٣٠ والأقصى ٥٠)
+//   -> { ok, candidates[], nextCursor, done, total? }  — `total` تقريبٌ صادق أو غائب، لا بريد ولا جوّال
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
@@ -397,6 +399,163 @@ export const nzAr = (s) => String(s == null ? "" : s).toLowerCase()
   .replace(/[\u0622\u0623\u0625]/g, "\u0627")
   .replace(/\u0629/g, "\u0647").replace(/\u0649/g, "\u064A")
   .replace(/\s+/g, " ").trim();
+
+// ── توسيع بحث `q`: مرادفاتٌ ومختصراتٌ حتمية (2026-10-01) ─────────────────────────
+// الحادثة: كتب المالك «CDP» (Chef de Partie) فعاد مرشّحٌ واحد من آلاف — لأن القاعدة
+// تحمل «CDP» (٧٠) و«Chef de Partie» (١٢١) و«DEMI CHEF DE PARTIE» (٥١) و«شيف دي بارتي»،
+// والبحث الحرفي لا يعرف أنها شيءٌ واحد. لا نموذج هنا ولا تخمين: جدولٌ ثابت يُقرأ.
+// بُني من أكثر قيم «Original Position» تكراراً في قاعدة المرشحين (استعلام ٢٠٢٦-١٠-٠١)،
+// فكل مجموعةٍ تقابل صفوفاً موجودة فعلاً. تُكتب الحدود بصيغتها **كما تُخزَّن** في نوشن
+// (همزة وتاء مربوطة)، لأن `contains` في نوشن حرفيّ ولا يُسوّي الحروف.
+//
+// القاعدة: يُوسَّع الاستعلام فقط إن **ساوى كلُّه** (بعد التسوية) أحدَ حدود مجموعة.
+// «CDP» ← المجموعة كلها. أما «pastry cdp» فلا يُوسَّع ويُبحث حرفياً كما كُتب.
+// المطابقة OR بين الحدود، على المسمّى والمهارات، بلا حساسية لحالة الأحرف.
+const SYNONYMS = [
+  // المطبخ
+  ["cdp", "dcdp", "chef de partie", "demi chef de partie", "demi chef", "شيف دي بارتي", "شيف قسم", "رئيس قسم الطهاة", "رئيس قسم الطهي"],
+  ["commis", "كومي", "كوميه"],
+  ["sous chef", "sous-chef", "سو شيف", "سوس شيف"],
+  ["executive chef", "head chef", "chef de cuisine", "شيف تنفيذي", "رئيس الطهاة", "كبير الطهاة", "شيف رئيسي"],
+  ["pastry chef", "pastry", "شيف حلويات", "شيف معجنات", "طاهي حلويات"],
+  ["chef", "شيف"],
+  ["cook", "طباخ", "طاهي", "طاهٍ", "طاهى"],
+  ["baker", "bakery", "خباز", "مخبز", "مخبوزات"],
+  ["steward", "dishwasher", "kitchen porter"],
+  ["boh", "back of house", "مطبخ"],
+  // الصالة
+  ["waiter", "waitress", "نادل", "ويتر", "food server", "f&b server"],
+  ["head waiter", "captain waiter", "رئيس نادل", "كابتن نادل", "نادل رئيسي", "maitre d"],
+  ["barista", "باريستا", "بارستا", "هيد باريستا"],
+  ["bartender", "barman", "بارمان"],
+  ["host", "hostess", "مضيف"],
+  ["foh", "front of house", "صالة"],
+  ["restaurant manager", "مدير مطعم", "مدير عام مطعم", "مدير المطعم"],
+  ["f&b", "food and beverage", "food & beverage", "أغذية ومشروبات", "اغذية ومشروبات"],
+  ["catering", "banquet", "تموين"],
+  // الفندقة والاستقبال
+  ["housekeeping", "housekeeper", "تدبير منزلي", "خدمة الغرف", "مدبرة منزل", "room attendant"],
+  ["reception", "front desk", "front office", "استقبال"],
+  ["guest relations", "gro", "علاقات الضيوف", "خدمة الضيوف"],
+  ["customer service", "csr", "customer care", "customer support", "خدمة العملاء", "خدمة عملاء"],
+  // الإداري والمالي
+  ["hr", "human resources", "موارد بشرية", "الموارد البشرية", "شؤون الموظفين", "شئون الموظفين"],
+  ["ap", "accounts payable", "الذمم الدائنة", "حسابات دائنة"],
+  ["ar", "accounts receivable", "الذمم المدينة", "حسابات مدينة"],
+  ["accountant", "accounting", "محاسب", "محاسبة"],
+  ["cfo", "finance manager", "financial manager", "مدير مالي", "financial controller"],
+  ["pr", "public relations", "علاقات عامة"],
+  ["secretary", "administrative assistant", "admin assistant", "سكرتير", "سكرتيرة", "مساعد إداري"],
+  ["cashier", "كاشير", "أمين صندوق"],
+  ["procurement", "purchasing", "مشتريات"],
+  ["supply chain", "logistics", "سلاسل الإمداد", "لوجستيات"],
+  ["warehouse", "storekeeper", "مستودع", "أمين مستودع", "مخزن"],
+  ["operations manager", "operation manager", "مدير عمليات", "مدير التشغيل"],
+  ["pm", "project manager", "مدير مشروع", "مدير مشاريع"],
+  ["gm", "general manager", "مدير عام"],
+  ["branch manager", "مدير فرع"],
+  ["facilities manager", "facility manager", "fm", "مدير مرافق"],
+  ["manager", "mgr", "مدير", "مديرة"],
+  ["supervisor", "مشرف"],
+  ["sales", "مبيعات"],
+  ["salesman", "sales representative", "sales rep", "بائع", "مندوب مبيعات"],
+  ["marketing", "تسويق"],
+  ["social media", "سوشيال ميديا", "سوشل ميديا", "وسائل التواصل الاجتماعي"],
+  ["business development", "bd", "bdm", "تطوير الأعمال", "تطوير الاعمال"],
+  ["it", "information technology", "تقنية المعلومات", "تكنولوجيا المعلومات"],
+  ["trainee", "intern", "internship", "متدرب", "متدربة"],
+];
+
+// مفتاح المقارنة: تسوية الحروف + الشرطات والخطوط المائلة فراغاً + «F & B» = «f&b».
+export const synKey = (s) => nzAr(s).replace(/[-–—_/.]+/g, " ").replace(/\s*&\s*/g, "&").replace(/\s+/g, " ").trim();
+// المختصر الحرفي (≤٣ أحرف لاتينية: hr, ap, ar, cdp…) يُطابَق ككلمةٍ كاملة لا كسلسلةٍ جزئية —
+// وإلا طابقت «hr» كلَّ «Chris» و«ar» كلَّ «Manager». ما سواه يُطابَق جزئياً كما كان.
+const isAcronym = (k) => /^[a-z]{1,3}$/.test(k);
+const SYN_INDEX = (() => {
+  const m = new Map();
+  SYNONYMS.forEach((g, i) => g.forEach((t) => {
+    const k = synKey(t);
+    if (!m.has(k)) m.set(k, new Set());
+    m.get(k).add(i);
+  }));
+  return m;
+})();
+
+// أشكالٌ إملائية شائعة للعربية تُرسَل إلى نوشن بجانب ما كُتب (نوشن حرفيّ): ‎ه←ة آخر الكلمة،
+// ‎ى↔ي آخر الكلمة، وألف بدل همزة أول الكلمة. المطابقة في الذاكرة تُسوّي الحروف أصلاً.
+function arForms(raw) {
+  if (!/[؀-ۿ]/.test(raw)) return [];
+  const f = [
+    raw.replace(/ه(?=\s|$)/g, "ة"),
+    raw.replace(/ى(?=\s|$)/g, "ي"),
+    raw.replace(/ي(?=\s|$)/g, "ى"),
+    raw.replace(/(^|\s)ا(?=[ء-ي]{2})/g, "$1أ"),
+  ];
+  return f.filter((x) => x !== raw);
+}
+
+// expandQuery(raw) → { terms:[{k,strict}], push:[{t,strict}] }
+//   terms: ما يُطابَق به في الذاكرة (مفاتيح مسوّاة).
+//   push:  ما يُرسَل إلى نوشن حرفياً (الحدّ الأقصى ١٢ حدّاً).
+export function expandQuery(raw) {
+  const q = String(raw == null ? "" : raw).trim();
+  const key = synKey(q);
+  if (!key) return { terms: [], push: [] };
+  const groups = SYN_INDEX.get(key);
+  const push = [], seen = new Set();
+  // ما كتبه المستخدم يُرسَل بحالة أحرفه كما كُتب (لا يُفترض شيءٌ عن حساسية نوشن)؛ ومرادفات
+  // الجدول بأحرفٍ صغيرة.
+  const add = (t, strict, asTyped) => {
+    const lit = String(t);
+    const lc = lit.toLowerCase();
+    if (!lit || seen.has(lc) || push.length >= 12) return;
+    seen.add(lc);
+    push.push({ t: asTyped ? lit : lc, strict: !!strict });
+  };
+  // ما كتبه المستخدم أولاً دائماً، ثم أشكاله الإملائية، ثم المجموعة.
+  add(q, groups && isAcronym(key), true);
+  for (const f of arForms(q)) add(f, false, true);
+  if (groups) for (const i of groups) for (const t of SYNONYMS[i]) add(t, isAcronym(synKey(t)), false);
+  const terms = [], tk = new Set();
+  for (const p of push) {
+    const k = synKey(p.t);
+    if (!k || tk.has(k)) continue;
+    tk.add(k);
+    terms.push({ k, strict: p.strict && isAcronym(k) });
+  }
+  return { terms, push };
+}
+
+// هل يطابق النصّ أيَّ حدٍّ؟ (OR). النص يُسوّى بالمفتاح نفسه، فلا حساسية لحالة الأحرف.
+export function termsMatch(text, terms) {
+  const hay = synKey(text);
+  if (!hay || !terms || !terms.length) return false;
+  return terms.some((t) => (t.strict ? new RegExp("(^|[^a-z0-9])" + t.k + "($|[^a-z0-9])").test(hay) : hay.includes(t.k)));
+}
+
+// شروط نوشن لحدٍّ واحد على خاصيةٍ نصّية. المختصر الحرفي لا يُرسَل `contains` مجرّداً (يغرق
+// بالضجيج)، بل بادئاً الحقل أو مسبوقاً بفاصل؛ والحدّ الأخير يُمسكه فحص الذاكرة للزائر.
+function termConds(prop, p) {
+  if (!p.strict) return [{ property: prop, rich_text: { contains: p.t } }];
+  return [
+    { property: prop, rich_text: { starts_with: p.t } },
+    ...[" ", "(", "/", "-", ","].map((d) => ({ property: prop, rich_text: { contains: d + p.t } })),
+  ];
+}
+const Q_MAX_CONDS = 60;
+export function queryConds(ex, rawTyped, withCv) {
+  const out = [];
+  for (const p of ex.push) {
+    const c = ["Original Position", "Skills"].flatMap((prop) => termConds(prop, p));
+    if (out.length + c.length <= Q_MAX_CONDS) out.push(...c);
+  }
+  // نصّ السيرة لمن فُتح له وحده، وبما كتبه فقط (لا مرادفات: استعلامٌ ثقيل على نصٍّ طويل).
+  if (withCv) out.push({ property: "ATS CV Text", rich_text: { contains: rawTyped } });
+  return out;
+}
+// بيانات تواصلٍ مكتوبةً في خانة البحث (بريد أو رقم): لا تُبحث لزائرٍ مجهول — وإلا صار
+// البحثُ أداةَ تحقّقٍ من وجود بريد/جوّالٍ في القاعدة («هل هذا الرقم عندكم؟»).
+export const looksLikeContact = (q) => /@/.test(q) || (String(q).match(/\d/g) || []).length >= 5;
 
 // ── نظافة القيم المعروضة ─────────────────────────────────────────────────────
 // قيمٌ في القاعدة مشتّتة (تدقيق الاستخراج 2026-10-01): «Riyadh» و«الرياض»، و«سعودي»
@@ -1429,6 +1588,8 @@ export default async function handler(req, res) {
   const qRes = (url.searchParams.get("res") || "").trim();
   const qRegion = (url.searchParams.get("region") || "").trim();
   const qText = (url.searchParams.get("q") || "").trim().toLowerCase();
+  // `q` يُوسَّع بمرادفاتٍ ومختصرات حتمية (expandQuery) في المسارين: المصفَّح والقديم.
+  const qExp = qText ? expandQuery(url.searchParams.get("q")) : null;
   let code = (url.searchParams.get("code") || "").trim();
   // Resume a previous, still-in-progress scan (see the time-budget note below)
   // instead of re-querying from the start every time.
@@ -1716,8 +1877,13 @@ export default async function handler(req, res) {
   const qMinExpRaw = (url.searchParams.get("minExp") || "").trim();
   const qMinExp = qMinExpRaw !== "" && Number.isFinite(Number(qMinExpRaw)) && Number(qMinExpRaw) >= 0 ? Math.min(40, Number(qMinExpRaw)) : null;
   const pagedN = Number(url.searchParams.get("limit"));
-  const paged = Number.isFinite(pagedN) && pagedN > 0;
-  const pageSize = paged ? Math.max(1, Math.min(100, Math.round(pagedN))) : 100;
+  // الزائر العام (لم يُفتح له) **مصفَّحٌ دائماً**: لا مسحَ كاملاً لقاعدة المرشحين من طلبٍ
+  // مجهول. الافتراضي ٣٠ والأقصى ٥٠ (لصاحب العمل المفتوح له: الأقصى ١٠٠ كما كان).
+  const paged = !unlocked || (Number.isFinite(pagedN) && pagedN > 0);
+  const pageCap = unlocked ? 100 : 50;
+  const pageSize = paged
+    ? Math.max(1, Math.min(pageCap, Number.isFinite(pagedN) && pagedN > 0 ? Math.round(pagedN) : 30))
+    : 100;
   const qForJob = (url.searchParams.get("forJob") || "").trim();
   const qScored = url.searchParams.get("scored") === "1";
 
@@ -1780,17 +1946,22 @@ export default async function handler(req, res) {
   if (["ثانوي", "دبلوم", "بكالوريوس", "ماجستير", "دكتوراه"].includes(qEdu)) andFilters.push({ property: "Education", select: { equals: qEdu } });
   if (["العربية", "الإنجليزية", "أخرى"].includes(qLang)) andFilters.push({ property: "Languages", multi_select: { contains: qLang } });
   if (["فوري", "خلال شهر", "خلال 3 أشهر"].includes(qAvail)) andFilters.push({ property: "Availability", select: { equals: qAvail } });
-  // `q` يُدفع إلى نوشن في المصفَّح: المسمّى الأصلي والمهارات، ونصّ السيرة لمن فُتح
-  // له وحده — البحث في نصّ السيرة لزائرٍ مقنَّع يجعل الصفحة أداة تحقّقٍ من محتوى
-  // سيرٍ لا يراها («هل في القاعدة من كتب كذا؟»).
+  // `q` يُدفع إلى نوشن في المصفَّح موسَّعاً بالمرادفات (expandQuery): المسمّى الأصلي
+  // والمهارات، ونصّ السيرة لمن فُتح له وحده بما كتبه فقط — البحث في نصّ السيرة لزائرٍ
+  // مقنَّع يجعل الصفحة أداة تحقّقٍ من محتوى سيرٍ لا يراها («هل في القاعدة من كتب كذا؟»).
+  // وللزائر العام حارسان إضافيان: (١) بريدٌ/رقمٌ في خانة البحث ⇒ لا نتائج، (٢) كل صفٍّ
+  // يعود يُفحص بعد الجلب على **ما يراه الزائر** (المسمّى والمهارات بعد scrubContact)، فلا
+  // يُعاد صفٌّ لم يطابق إلا بنصٍّ مخفيٍّ عنه.
+  let qMatch = null;
   if (paged && qText) {
-    const raw = (url.searchParams.get("q") || "").trim();
-    const likes = [
-      { property: "Original Position", rich_text: { contains: raw } },
-      { property: "Skills", rich_text: { contains: raw } },
-    ];
-    if (unlocked) likes.push({ property: "ATS CV Text", rich_text: { contains: raw } });
-    andFilters.push(orOf(likes));
+    const rawQ = (url.searchParams.get("q") || "").trim();
+    if (!unlocked && looksLikeContact(rawQ)) impossible = true;
+    else {
+      andFilters.push(orOf(queryConds(qExp, rawQ, unlocked)));
+      if (!unlocked) {
+        qMatch = (p) => termsMatch(scrubContact(txt(p["Original Position"]) + " | " + txt(p["Skills"])), qExp.terms);
+      }
+    }
   }
   const sorts = qScored
     ? [{ property: "درجة المطابقة", direction: "descending" }]
@@ -1820,16 +1991,16 @@ export default async function handler(req, res) {
 
   try {
     if (impossible) {
-      return res.end(JSON.stringify({ ok: true, unlocked, plan, total: 0, candidates: [], nextCursor: null, done: true, ...(paged ? { poolTotal: null } : {}) }));
+      return res.end(JSON.stringify({ ok: true, unlocked, plan, total: 0, ...(paged ? { totalApprox: false } : {}), candidates: [], nextCursor: null, done: true, ...(paged ? { poolTotal: null } : {}) }));
     }
 
     if (paged) {
       const r = await queryPage(startCursor ? { ...base, start_cursor: startCursor } : base);
       if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-      const data = r.data;
-      // فحصٌ ثانٍ على كل صفٍّ وصل — الاستعلام شرطٌ، وهذا حارسٌ يمسك ما فاته.
-      const pgs = (data.results || []).filter((pg) => isReadable(pg.properties));
-      let rows = pgs.map((pg) => {
+      // فحصٌ ثانٍ على كل صفٍّ وصل — الاستعلام شرطٌ، وهذا حارسٌ يمسك ما فاته (المقروء، ثم
+      // مطابقة `q` على ما يراه الزائر العام).
+      const keep = (pg) => isReadable(pg.properties) && (!qMatch || qMatch(pg.properties));
+      const mapOne = (pg) => {
         const rec = mapCandidate(pg, unlocked);
         if (jobCrit) {
           const p = pg.properties || {};
@@ -1845,9 +2016,21 @@ export default async function handler(req, res) {
           }
         }
         return rec;
-      });
-      // فلتر مسمّى/كلمة في الذاكرة لا يلزم هنا: q دُفع إلى الاستعلام.
-      const next = data.has_more && data.next_cursor ? data.next_cursor : null;
+      };
+      // صفحةٌ تسقط منها صفوفٌ (غير مقروءة، أو لم يطابقها الفحص) تعود ناقصة؛ فتُكمَّل من
+      // الصفحات التالية بحجمٍ يساوي النقص تماماً — فلا يتجاوز الناتجُ limit، ولا يضيع صفٌّ
+      // بين المؤشّرين. الحدّ: ٣ صفحاتٍ إضافية وست ثوانٍ؛ وبعدها يُسلَّم المؤشّر كما هو.
+      const refillBy = Date.now() + 6000;
+      let rows = [];
+      let data = r.data, next = null;
+      for (let hop = 0; ; hop++) {
+        for (const pg of data.results || []) if (keep(pg)) rows.push(mapOne(pg));
+        next = data.has_more && data.next_cursor ? data.next_cursor : null;
+        if (!next || rows.length >= pageSize || hop >= 3 || Date.now() > refillBy) break;
+        const r2 = await queryPage({ ...base, page_size: pageSize - rows.length, start_cursor: next });
+        if (!r2.ok) break;   // ما جُمع صالح، والمؤشّر لم يُستهلك
+        data = r2.data;
+      }
       // الإجمالي: نوشن بلا COUNT. فلا يُخمَّن — يُقرأ من العدّاد المخزَّن (يُحسب
       // مرةً يومياً بمشيٍ كامل ?count=1) وحين تكون القائمة بلا أي فلتر وحدها،
       // فمع أي فلتر لا إجماليَّ معروف ويبقى العدّ «ما وصل» فقط.
@@ -1858,9 +2041,16 @@ export default async function handler(req, res) {
         const c = await readCachedCount();
         if (c) { poolTotal = c.value; poolTotalAt = c.at; poolTotalStale = c.stale; }
       }
+      // `total` في المصفَّح: **إجماليٌّ حقيقيٌّ أو غائب** — لا عدد الصفحة (طلب واجهة /hiring: تعرض
+      // «من أصل نحو T» منه). بلا فلتر ⇒ العدّاد اليومي المخزَّن (حدٌّ أعلى: يعدّ المقروء بشروط
+      // نوشن قبل فحص جودة النصّ، ومعه totalApprox:true). وبفلترٍ وقد انتهت النتائج في الصفحة
+      // الأولى ⇒ العدد الدقيق (totalApprox:false). غير ذلك ⇒ لا يُعاد، ولا مسحَ كاملاً لأجله.
+      let total, totalApprox;
+      if (unfiltered && poolTotal != null) { total = poolTotal; totalApprox = true; }
+      else if (!startCursor && !next) { total = rows.length; totalApprox = false; }
       res.statusCode = 200;
       return res.end(JSON.stringify({
-        ok: true, unlocked, plan, total: rows.length, candidates: rows,
+        ok: true, unlocked, plan, ...(total !== undefined ? { total, totalApprox } : {}), candidates: rows,
         nextCursor: next, done: !next,
         poolTotal, ...(poolTotal != null ? { poolTotalAt, poolTotalStale } : {}),
         ...(jobCrit ? { criteria: {
@@ -1901,7 +2091,7 @@ export default async function handler(req, res) {
     // Free-text search across role/skills/field — no clean single Notion
     // filter for an OR-across-properties "contains" on a select, so in the
     // legacy (un-paged) mode it is applied here against the already filtered rows.
-    if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
+    if (qText) rows = rows.filter((x) => termsMatch(x.role + " | " + x.skills + " | " + x.field, qExp.terms));
 
     res.statusCode = 200;
     // nextCursor/done let the client resume the scan in the background (see
