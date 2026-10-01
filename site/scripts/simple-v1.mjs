@@ -1,7 +1,8 @@
 // Business Partner — Simple V1 (2026-09).
 //
-// The simplified customer-facing layer: one homepage that sells three things
-// (consulting, government services, company formation) through ONE chat, a
+// The simplified customer-facing layer: one homepage that sells four things
+// (consulting, government services, company formation, business development
+// — the fourth door, 2026-09-24) through ONE chat, a
 // client portal (/my) and an operations dashboard (/ops). Built by
 // generate.mjs alongside the classic site; nothing here removes a classic
 // route. This homepage IS "/" as of the owner's approval on 2026-09-04; the
@@ -52,6 +53,7 @@ const D = {
   trust1: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   trust2: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   trust3: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  trust4: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
 
   noNameTitle: { ar: "ما تحتاج تعرف اسم الخدمة", en: "You don't need to know the name of the service", fr: "Vous n'avez pas besoin de connaître le nom du service", zh: "您无需知道服务的名称" },
   noNameSub: { ar: "اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.", en: "Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.", fr: "Choisissez une rubrique ou décrivez simplement votre besoin. Nous organisons la demande en arrière-plan ; vous ne voyez que ce qui vous concerne.", zh: "选择相应板块，或直接描述您的需求。我们在后台整理申请，您只看到与您相关的内容。" },
@@ -65,12 +67,18 @@ const D = {
   ctxConsulting: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   ctxGovernment: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   ctxFormation: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  ctxBizdev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   doorConsulting: { ar: "سؤال، تحدٍّ، قرار أو موضوع يخص شركتك.", en: "A question, a challenge, a decision or any matter about your company.", fr: "Une question, un défi, une décision ou tout sujet concernant votre société.", zh: "关于贵公司的问题、挑战或决策。" },
   doorGovernment: { ar: "معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.", en: "A transaction, a problem on a platform, or running your government platforms.", fr: "Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.", zh: "办理事务、平台问题，或代管您的政府平台。" },
   doorFormation: { ar: "فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال.", en: "A branch of a foreign company, or a company via the entrepreneurship route.", fr: "Une succursale étrangère ou une société via le parcours entrepreneur.", zh: "外国公司分支机构，或通过创业路径设立公司。" },
+  doorBizdev: { ar: "عملاء أو موردون أو شريك جديد؟ نحدّد معك مسار النمو المناسب.", en: "New customers, suppliers or a partner? We map the right growth route with you.", fr: "De nouveaux clients, fournisseurs ou un partenaire ? Nous définissons la bonne voie avec vous.", zh: "寻找客户、供应商或合作伙伴？我们与您确定合适的拓展路径。" },
   ctaConsulting: { ar: "ابدأ الاستشارة ←", en: "Start the consultation →", fr: "Démarrer le conseil →", zh: "开始咨询 →" },
   ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
   ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
+  ctaBizdev: { ar: "ابدأ مع المستشار ←", en: "Start with the advisor →", fr: "Démarrer avec le conseiller →", zh: "与顾问开始 →" },
+  // مسلك الشراء الذاتي (سؤال المالك 2026-09-24: «ليش ما العميل يقدر يشتري
+  // مباشرة بدون الشات؟»): رابطٌ ثانوي هادئ تحت الأبواب لا باباً خامساً.
+  browseDirect: { ar: "تصفّح الخدمات واشترِ مباشرة ←", en: "Browse the services and buy directly →", fr: "Parcourir les services et acheter directement →", zh: "浏览服务并直接购买 →" },
 
   advisorTitle: { ar: "كل شيء يبدأ من المحادثة", en: "Everything starts with the conversation", fr: "Tout commence par la conversation", zh: "一切从对话开始" },
   advisorSub: { ar: "اشرح احتياجك بطريقتك، ونرتّب لك الطلب والخدمات المناسبة. راجع البنود بنفسك — احذف أو أضف أو عدّل — قبل عرض السعر.", en: "Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.", fr: "Expliquez votre besoin avec vos mots ; nous organisons la demande et les services adaptés. Revoyez les éléments — supprimez, ajoutez, modifiez — avant le devis.", zh: "用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。" },
@@ -85,6 +93,7 @@ const D = {
   chatError: { ar: "تعذّر الرد الآن. جرّب مرة أخرى أو تواصل معنا عبر واتساب.", en: "We couldn't reply right now. Try again or reach us on WhatsApp.", fr: "Impossible de répondre pour le moment. Réessayez ou contactez-nous sur WhatsApp.", zh: "暂时无法回复，请重试或通过 WhatsApp 联系我们。" },
   welcomeConsulting: { ar: "حياك الله 👋 اشرح لي الموضوع اللي تحتاج تستشير فيه.", en: "Welcome 👋 Tell me the matter you'd like advice on.", fr: "Bienvenue 👋 Expliquez-moi le sujet sur lequel vous souhaitez un conseil.", zh: "欢迎 👋 请说明您想咨询的事项。" },
   welcomeGovernment: { ar: "حياك الله 👋 اشرح لي المعاملة أو المشكلة في المنصة.", en: "Welcome 👋 Tell me the transaction or the problem on the platform.", fr: "Bienvenue 👋 Décrivez la démarche ou le problème sur la plateforme.", zh: "欢迎 👋 请说明需要办理的事务或平台上的问题。" },
+  welcomeBizdev: { ar: "حياك الله 👋 أنا مستشار تطوير الأعمال. قل لي عن نشاطك، وهل تبحث عن عملاء أو موردين أو شريك.", en: "Welcome 👋 I'm the business development advisor. Tell me about your business, and whether you're looking for customers, suppliers or a partner.", fr: "Bienvenue 👋 Je suis le conseiller en développement commercial. Parlez-moi de votre activité et dites-moi si vous cherchez des clients, des fournisseurs ou un partenaire.", zh: "欢迎 👋 我是业务拓展顾问。请介绍您的业务，以及您是在寻找客户、供应商还是合作伙伴。" },
   welcomeFormation: { ar: "حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها.", en: "Welcome 👋 Tell me about the company you want to set up.", fr: "Bienvenue 👋 Parlez-moi de la société que vous voulez créer.", zh: "欢迎 👋 请介绍您想设立的公司。" },
 
   scopeTag: { ar: "ملخص طلبك", en: "Your request", fr: "Votre demande", zh: "您的申请" },
@@ -250,11 +259,13 @@ const D = {
   chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "عمالة مؤقتة وتصاريح أجير", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "Temporary labour & Ajeer permits", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Main-d'œuvre temporaire et permis Ajeer", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "临时用工与 Ajeer 许可", "公司全面检查"] },
   chipsGovernment: { ar: ["مشكلة في قوى", "تصاريح أجير", "تصعيد أو شكوى لدى الوزارة", "مخالفة أو مديونية", "تغيير مهنة", "نقل خدمات", "تأشيرات", "النطاقات والتوطين", "إدارة المنصات"], en: ["A problem on Qiwa", "Ajeer permits", "An escalation or complaint", "A violation or a debt", "Change a profession", "Transfer of services", "Visas", "Nitaqat & Saudisation", "Manage my platforms"], fr: ["Un problème sur Qiwa", "Permis Ajeer", "Une escalade ou une plainte", "Une infraction ou une dette", "Changer une profession", "Transfert de services", "Visas", "Nitaqat et saoudisation", "Gérer mes plateformes"], zh: ["Qiwa 平台问题", "Ajeer 许可", "升级或投诉", "违规或欠款", "变更职业", "服务转移", "签证", "Nitaqat 与本地化", "代管平台"] },
   chipsFormation: { ar: ["فرع شركة أجنبية", "شركة ريادة أعمال", "التسجيل الاستثماري", "متطلبات التأسيس"], en: ["Branch of a foreign company", "Entrepreneurship licence", "Investment registration", "Formation requirements"], fr: ["Succursale étrangère", "Licence entrepreneur", "Enregistrement d'investissement", "Conditions de création"], zh: ["外国公司分支", "创业许可", "投资注册", "设立要求"] },
+  chipsBizdev: { ar: ["أبحث عن عملاء", "أبحث عن موردين", "أبحث عن شريك أو موزع", "لا أعرف من أين أبدأ"], en: ["I'm looking for customers", "I'm looking for suppliers", "I'm looking for a partner or distributor", "I don't know where to start"], fr: ["Je cherche des clients", "Je cherche des fournisseurs", "Je cherche un partenaire ou distributeur", "Je ne sais pas par où commencer"], zh: ["寻找客户", "寻找供应商", "寻找合作伙伴或经销商", "不知从何开始"] },
 
   // The scope the customer sees the moment they pick a door — the assistant
   // refines it during the conversation; it is never a price list.
   seedConsulting: { ar: ["فهم الموضوع والحالة الحالية", "تحديد الجهات والمتطلبات ذات العلاقة", "تحديد الخطوات والتوصيات المطلوبة"], en: ["Understand the matter and the current position", "Identify the authorities and requirements involved", "Define the steps and recommendations"], fr: ["Comprendre le sujet et la situation actuelle", "Identifier les autorités et exigences concernées", "Définir les étapes et recommandations"], zh: ["了解事项与现状", "确定涉及的机关与要求", "明确步骤与建议"] },
   seedGovernment: { ar: ["فحص المشكلة أو المعاملة", "تحديد الخدمات الحكومية المطلوبة", "تنفيذ أو متابعة الخدمات المتفق عليها"], en: ["Examine the problem or the transaction", "Identify the government services required", "Execute or follow up the agreed services"], fr: ["Examiner le problème ou la démarche", "Identifier les services gouvernementaux requis", "Exécuter ou suivre les services convenus"], zh: ["检查问题或事务", "确定所需政府服务", "执行或跟进约定的服务"] },
+  seedBizdev: { ar: ["فهم نشاطك وسوقك وهدفك", "تحديد المسار: عملاء أو موردون أو شريك", "بناء قائمة الحسابات المستهدفة وتأهيلها", "التواصل وحجز الاجتماعات ومتابعة الفرص"], en: ["Understand your business, market and goal", "Define the route: customers, suppliers or a partner", "Build and qualify the target accounts list", "Outreach, booking meetings and following up opportunities"], fr: ["Comprendre votre activité, votre marché et votre objectif", "Définir la voie : clients, fournisseurs ou partenaire", "Constituer et qualifier la liste de comptes cibles", "Prospection, prise de rendez-vous et suivi des opportunités"], zh: ["了解您的业务、市场与目标", "确定路径：客户、供应商或合作伙伴", "建立并筛选目标客户名单", "触达、预约会议并跟进商机"] },
   seedFormation: { ar: ["تحديد مسار التأسيس", "إجراءات التأسيس والسجل وعقد التأسيس", "الاشتراك في المنصات الحكومية الأساسية", "تعيين المدير على الشركة", "دعم فتح الحساب البنكي"], en: ["Define the formation route", "Formation, commercial register and articles of association", "Registration on the core government platforms", "Appointing the company manager", "Support with opening the bank account"], fr: ["Définir la voie de création", "Création, registre de commerce et statuts", "Inscription aux plateformes gouvernementales essentielles", "Nomination du gérant", "Accompagnement à l'ouverture du compte bancaire"], zh: ["确定设立路径", "设立手续、商业登记与公司章程", "核心政府平台注册", "任命公司经理", "协助开立银行账户"] },
 };
 
@@ -341,7 +352,9 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -494,7 +507,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
 // ------------------------------------------------- حالة الدخول في الترويسة --
@@ -784,6 +798,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       ["consulting", "💬", t("ctxConsulting"), t("doorConsulting"), t("ctaConsulting")],
       ["government", "🏛️", t("ctxGovernment"), t("doorGovernment"), t("ctaGovernment")],
       ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
+      ["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")],
     ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
 
     const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
@@ -800,12 +815,12 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
-      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation") },
-      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation") },
-      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation") },
-      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation") },
+      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), bizdev: t("ctxBizdev") },
+      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation"), bizdev: t("welcomeBizdev") },
+      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation"), bizdev: arr("chipsBizdev") },
+      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation"), bizdev: arr("seedBizdev") },
+      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), bizdev: t("ctxBizdev") },
+      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation"), bizdev: t("doorBizdev") },
     };
 
     const body = `
@@ -820,9 +835,12 @@ ${header(path)}
         <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
         <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
       </div>
-      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li></ul>
+      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li><li>${t("trust4")}</li></ul>
     </div>
-    <div class="sv1-doors" id="doors">${doors}</div>
+    <div class="sv1-doorwrap">
+      <div class="sv1-doors" id="doors">${doors}</div>
+      <a class="sv1-browse" href="${href("/catalog")}" data-track="تصفّح الخدمات واشترِ مباشرة">${t("browseDirect")}</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="advisor"><div class="wrap">
@@ -931,7 +949,7 @@ ${footer()}`;
     const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))};
-var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
 var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
@@ -1083,7 +1101,7 @@ msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?p
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
-      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" }[l],
+      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" }[l],
       desc: t("heroText"),
       path, body, script,
     });
