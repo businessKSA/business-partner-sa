@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "parent_page": "390d108dee5c8162a34fd0e839d7a2a4",
+  "parent_page_title": "📣 التسويق",
+  "database": {
+    "action": "created",
+    "existing_id": "d258f8b235034ff4adf5ec15dfd7519a",
+    "data_source_id": "7b9d2106-43be-4231-91ea-19a45bd20bdd",
+    "url": "https://app.notion.com/p/d258f8b235034ff4adf5ec15dfd7519a",
+    "title": "📅 Marketing Content Calendar",
+    "note": "Single source-of-truth for every piece of marketing content across all 7 platforms. One row = one post/broadcast at any stage from idea to published.",
+    "fields": [
+      { "name": "Post Title", "type": "title", "note": "Short internal label, not the caption itself" },
+      { "name": "Platform", "type": "select", "options": ["Instagram", "Facebook", "LinkedIn", "Snapchat", "TikTok", "WhatsApp Channel", "Telegram Channel"] },
+      { "name": "Content Pillar", "type": "select", "options": ["Educational", "Risk & Deadlines", "Proof & Trust", "Product & Offer", "Behind-the-scenes"] },
+      { "name": "Caption Arabic", "type": "text" },
+      { "name": "Caption English", "type": "text" },
+      { "name": "Hashtags", "type": "text" },
+      { "name": "Design Brief", "type": "text", "note": "Subject, format/size, key message — input to Canva generate-design" },
+      { "name": "Design Asset URL", "type": "url" },
+      { "name": "Status", "type": "select", "options": ["Idea", "Draft", "Needs Design", "Ready for Review", "Approved", "Scheduled", "Published", "Rejected"] },
+      { "name": "Scheduled Date", "type": "date" },
+      { "name": "Published Date", "type": "date" },
+      { "name": "Approved By", "type": "text" },
+      { "name": "Rejection Reason", "type": "text" },
+      { "name": "Notes", "type": "text" },
+      { "name": "Created Date", "type": "date" },
+      { "name": "n8n Execution ID", "type": "text" }
+    ],
+    "status_flow": "Idea -> Draft -> Needs Design -> Ready for Review -> Approved -> Scheduled -> Published (or -> Rejected at any point before Approved)",
+    "views_recommended": [
+      "By Platform (board grouped by Platform)",
+      "By Status (board grouped by Status)",
+      "This Week (calendar view filtered on Scheduled Date)",
+      "Needs My Review (filtered Status = Ready for Review)"
+    ]
+  },
+  "related_existing_notion": {
+    "marketing_department_page": "390d108dee5c8162a34fd0e839d7a2a4",
+    "marketing_agent_spec_page": "38cd108dee5c81ac82bdfefd76ac0163",
+    "email_campaign_engine_databases": "separate system — B2B cold outreach, not this calendar",
+    "whatsapp_architecture_hub": "38cd108dee5c81daba27fb24fdea0777 — 1:1 service bot docs, not this Channel-broadcast use case"
+  }
+}
