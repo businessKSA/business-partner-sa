@@ -10,6 +10,13 @@
 // المحادثة في الصفحة الرئيسية عبر `bp_sva_request`، ومنها تكمل الرحلة نفسها:
 // نطاق → عرض سعر → عقد → دفع → فاتورة.
 //
+// وللجاهز منها مسارٌ مباشر بلا محادثة: «أضف للسلة» لكل بندٍ له سعر في الكتالوج،
+// ثم /cart ثم /checkout والدفع الإلكتروني. العقد هو عقد صفحات الخدمات القديمة
+// حرفاً بحرف: `localStorage.bp_cart` — عنصرٌ بمفتاح `svc-<sku>`، و`amount` رقم
+// و`price` نصّ عرض فارغ، وتكرار الإضافة يزيد `qty` لا يضيف سطراً. وشرط الظهور
+// هو شرط القديم نفسه (`generate.mjs`): للبند سعرٌ، وليس عقاراً ولا سياحة. ما
+// سواه يحتاج عرضاً مخصّصاً فيبقى «ابدأ طلبك».
+//
 // الأسعار لا تظهر للزائر: سياسة المالك أن الكتالوج وأسعاره في الخلفية. سعر
 // الباقة يحمل صنف `price-amt` الذي تخفيه قاعدة `html[data-prices="off"]`
 // العامة، فيراه العميل المسجَّل ولا يراه الزائر — قاعدة واحدة لا استثناء لها.
@@ -18,14 +25,25 @@ import path from "node:path";
 
 const T = {
   title:  { ar: "الخدمات والباقات", en: "Services & packages", fr: "Services et forfaits", zh: "服务与套餐" },
-  desc:   { ar: "كل ما ننفّذه — مرتّباً بالمجال. أشّر على ما تحتاجه وابدأ طلبك بها كلها.",
-            en: "Everything we deliver, grouped by field. Tick what you need and start one request with all of it.",
-            fr: "Tout ce que nous réalisons, par domaine. Cochez vos besoins et lancez une seule demande.",
-            zh: "我们提供的全部服务，按领域分类。勾选所需项目，一次性发起申请。" },
+  desc:   { ar: "كل ما ننفّذه — مرتّباً بالمجال. أشّر على ما تحتاجه وابدأ طلبك بها كلها، أو أضف الجاهز منها إلى السلة وادفع إلكترونياً.",
+            en: "Everything we deliver, grouped by field. Tick what you need and start one request with all of it — or add ready-priced services to your cart and pay online.",
+            fr: "Tout ce que nous réalisons, par domaine. Cochez vos besoins et lancez une seule demande — ou ajoutez les services au tarif fixe au panier et payez en ligne.",
+            zh: "我们提供的全部服务，按领域分类。勾选所需项目，一次性发起申请；定价明确的服务也可直接加入购物车并在线支付。" },
   tabSvc: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   tabPkg: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
   tabTrip:{ ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
   tabHire:{ ar: "التوظيف", en: "Hiring", fr: "Recrutement", zh: "招聘" },
+  addCart: { ar: "أضف للسلة", en: "Add to cart", fr: "Ajouter au panier", zh: "加入购物车" },
+  addPicked: { ar: "أضف المختار للسلة", en: "Add selected to cart", fr: "Ajouter la sélection au panier", zh: "将所选加入购物车" },
+  added:  { ar: "أُضيف ✓", en: "Added ✓", fr: "Ajouté ✓", zh: "已加入 ✓" },
+  addedToast: { ar: "أُضيف إلى السلة", en: "Added to your cart", fr: "Ajouté à votre panier", zh: "已加入购物车" },
+  addedN: { ar: "أُضيف {n} إلى السلة", en: "{n} added to your cart", fr: "{n} ajouté(s) à votre panier", zh: "已将 {n} 项加入购物车" },
+  viewCart: { ar: "عرض السلة ←", en: "View cart →", fr: "Voir le panier →", zh: "查看购物车 →" },
+  cartFail: { ar: "تعذّر حفظ السلة في هذا المتصفح. ابدأ طلبك بالمحادثة بدلاً من ذلك.",
+              en: "Your browser could not save the cart. Start a request in the chat instead.",
+              fr: "Ce navigateur n'a pas pu enregistrer le panier. Lancez plutôt une demande dans le chat.",
+              zh: "此浏览器无法保存购物车。请改为在对话中发起申请。" },
+  custom: { ar: "بعرض سعر مخصّص", en: "Custom quote", fr: "Devis sur mesure", zh: "定制报价" },
   details: { ar: "التفاصيل ←", en: "Details →", fr: "Détails →", zh: "详情 →" },
   search: { ar: "ابحث: إقامة، رخصة، توظيف، سجل تجاري…", en: "Search: visa, licence, hiring, registration…",
             fr: "Rechercher : visa, licence, recrutement…", zh: "搜索：签证、许可、招聘…" },
@@ -65,6 +83,9 @@ const DOOR = {
   "المكاتب ومساحات العمل": "consulting",
 };
 
+// ‏فئات الكتالوج (بالإنجليزية كما في catalog.json) التي لا تُباع بالسلة.
+const NO_CART = new Set(["Real Estate", "Tourism"]);
+
 export function buildSimpleCatalog(SV1, ctx) {
   const lang = ctx.lang();
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
@@ -90,6 +111,13 @@ export function buildSimpleCatalog(SV1, ctx) {
     gov: s.govPlatform && s.govPlatform !== "بدون جهة حكومية"
       ? (govLabel ? govLabel(s.govPlatform) : s.govPlatform) : "",
     door: DOOR[s.categoryAr] || "consulting",
+    // ‏قابل للشراء المباشر؟ الشرط نفسه في صفحة الخدمة القديمة (generate.mjs):
+    // سعرٌ في الكتالوج، وليس عقاراً ولا سياحة. الحقول بصيغة عنصر السلة القديمة؛
+    // `amount` هو الرقم الذي يُحسب منه كل شيء.
+    buy: s.amount != null && Number(s.amount) > 0 && !NO_CART.has(s.category)
+      ? { id: "svc-" + (s.code || "").toLowerCase(), nameAr: s.nameAr || s.nameEn || "",
+          nameEn: s.nameEn || s.nameAr || "", amount: Number(s.amount) }
+      : null,
   })).filter((s) => s.name);
 
   const groups = [];
@@ -158,9 +186,11 @@ export function buildSimpleCatalog(SV1, ctx) {
     <span id="trayCount"></span>
     <div class="acts">
       <button type="button" class="sv1-btn sm" id="trayClear">${esc(t("clear"))}</button>
+      <button type="button" class="sv1-btn sm sv1-hide" id="trayCart" data-track="أضف المختار للسلة">${esc(t("addPicked"))}</button>
       <button type="button" class="sv1-btn primary sm" id="trayGo">${esc(t("start"))}</button>
     </div>
   </div></div>
+  <div class="sv1-cat-toast sv1-hide" id="catToast" role="status" aria-live="polite"><span id="catToastTx"></span><a id="catToastCart" href="${(ar || lang !== "en" ? "/" + lang : "") + "/cart"}">${esc(t("viewCart"))}</a></div>
 ${SV1.footer()}`;
 
   const CSS = `<style id="sv1-cat-css">
@@ -184,6 +214,15 @@ ${SV1.footer()}`;
 .sv1-pick-lab{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;cursor:pointer}
 .sv1-pick-more{flex:none;align-self:center;font-size:11.5px;color:var(--ac);text-decoration:none;border:1px solid var(--acLine);border-radius:8px;padding:4px 9px;background:var(--acSoft);white-space:nowrap}
 .sv1-pick-more:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.sv1-pick-add{flex:none;align-self:center;font:inherit;font-size:11.5px;font-weight:600;color:#fff;background:var(--ac);border:1px solid var(--ac);border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.sv1-pick-add:hover{background:#16307F;border-color:#16307F}
+.sv1-pick-add.done{background:#fff;color:var(--ac)}
+.sv1-pick-custom{flex:none;align-self:center;font-size:11px;color:var(--mut);white-space:nowrap}
+.sv1-pick-acts{display:flex;gap:6px;align-items:center;flex:none;align-self:center;flex-wrap:wrap;justify-content:flex-end}
+.sv1-cat-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3);display:flex;gap:14px;align-items:center}
+.sv1-cat-toast.sv1-hide{display:none}
+.sv1-cat-toast a{color:#fff;text-decoration:underline;white-space:nowrap}
+.sv1-cat-toast.err{background:#8a1c1c}
 .sv1-pick:hover{background:var(--soft)}
 .sv1-pick input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--n);flex:none}
 .sv1-pick .tx b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.55}
@@ -197,7 +236,7 @@ ${SV1.footer()}`;
 .sv1-tray .sv1-btn{border-color:rgba(255,255,255,.35);background:transparent;color:#fff}
 .sv1-tray .sv1-btn.primary{background:#fff;color:var(--n);border-color:#fff}
 /* شريط الاختيار يجلس فوق زر واتساب العائم؛ يُرفع الزر ما دام الشريط ظاهراً. */
-body.sv1-tray-on .sv1-wa-fab{bottom:78px}
+body.sv1-tray-on .sv1-wa-fab,body.sv1-tray-on .bps-fab{bottom:78px}
 .sv1-pkg{border:1px solid var(--l);border-radius:16px;background:#fff;padding:20px;display:flex;flex-direction:column;gap:10px}
 .sv1-pkg h3{font-size:17px;margin:0}
 .sv1-pkg .grp{font-size:11px;color:var(--mut);font-weight:700}
@@ -209,26 +248,72 @@ body.sv1-tray-on .sv1-wa-fab{bottom:78px}
 .sv1-pkg-h{font-size:14px;margin:22px 0 10px;color:var(--ink)}
 .sv1-cat-ask{margin-top:30px;text-align:center}
 .sv1-cat-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
-@media(max-width:600px){.sv1-cat-journey{display:none}.sv1-tray .wrap{padding:10px 14px}.sv1-tray #trayCount{font-size:12.5px}}
+@media(max-width:600px){.sv1-cat-journey{display:none}.sv1-tray .wrap{padding:10px 14px;flex-wrap:wrap}.sv1-tray #trayCount{font-size:12.5px;flex:1 0 100%}.sv1-tray .acts{flex:1 0 100%}.sv1-tray .acts .sv1-btn{flex:1;padding:9px 6px}.sv1-pick{flex-wrap:wrap}.sv1-pick-lab{flex:1 0 100%}.sv1-pick-acts{margin-inline-start:27px}body.sv1-tray-on .sv1-wa-fab,body.sv1-tray-on .bps-fab{bottom:124px}.sv1-cat-tools .sv1-btn{flex:none}.sv1-cat-q{min-width:0}}
 </style>`;
 
   const script = `<script>
 (function(){
 var GROUPS=${JSON.stringify(groups)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
-var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details") })};
+var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details"), addCart: t("addCart"), addPicked: t("addPicked"), added: t("added"), addedToast: t("addedToast"), addedN: t("addedN"), cartFail: t("cartFail"), custom: t("custom") })};
 var HOME=${JSON.stringify(lang === "en" ? "/" : "/" + lang + "/")};
 var $=function(id){return document.getElementById(id)};
 var list=$('svcList'),q=$('svcQ'),tray=$('svcTray'),cnt=$('trayCount');
-var picked=[];   // [{code,title,why,door}]
+var picked=[];   // [{code,title,why,door,buy}]
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 function isPicked(code,name){return picked.some(function(p){return p.code===code&&p.title===name})}
 function drawTray(){
  if(!picked.length){tray.classList.add('sv1-hide');document.body.classList.remove('sv1-tray-on');return}
  tray.classList.remove('sv1-hide');document.body.classList.add('sv1-tray-on');
  cnt.textContent=TX.picked+' '+picked.length+' '+TX.svcWord;
+ var nb=picked.filter(function(p){return p.buy}).length,tc=$('trayCart');
+ tc.classList.toggle('sv1-hide',!nb);
+ tc.textContent=TX.addPicked+' ('+nb+')';
+}
+// ---- السلة: عقد صفحات الخدمات القديمة (main.js: itemFromBtn + add) حرفاً بحرف.
+// المفتاح bp_cart، والعنصر بهذه الحقول بهذا الترتيب، و amount رقم و price نصّ
+// عرض (فارغ هنا كما في القديم) — لا يُقرأ price رقماً أبداً. تكرار الإضافة
+// يزيد qty على السطر نفسه (بالـid) ولا يُضيف سطراً ثانياً.
+function cartItem(b){
+ return {id:b.id,nameEn:b.nameEn||'',nameAr:b.nameAr||'',amount:b.amount?Number(b.amount):null,price:'',kind:'service',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0};
+}
+function cartAdd(bs){
+ var c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ bs.forEach(function(b){
+  var ex=c.filter(function(x){return x.id===b.id})[0];
+  if(ex)ex.qty=(ex.qty||1)+1;else c.push(cartItem(b));
+ });
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
+ // الترويسة تستمع لـ bp:cart على النافذة؛ الحدث الفقّاع يصل المستمعَين (document وwindow).
+ // و storage لا يُطلَق في النافذة نفسها.
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ return true;
+}
+var toastT=0;
+function toast(msg,err,withLink){
+ var bx=$('catToast');$('catToastTx').textContent=msg;
+ $('catToastCart').style.display=withLink?'':'none';
+ bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');
+ clearTimeout(toastT);toastT=setTimeout(function(){bx.classList.add('sv1-hide')},4200);
+}
+function addOne(s,btn){
+ if(!s.buy)return;
+ if(!cartAdd([s.buy])){toast(TX.cartFail,true,false);return}
+ if(btn){btn.textContent=TX.added;btn.classList.add('done');setTimeout(function(){btn.textContent=TX.addCart;btn.classList.remove('done')},1600)}
+ toast(TX.addedToast,false,true);
+}
+function addPicked(){
+ var items=picked.filter(function(p){return p.buy});
+ if(!items.length)return;
+ if(!cartAdd(items.map(function(p){return p.buy}))){toast(TX.cartFail,true,false);return}
+ // ما دخل السلة يخرج من الاختيار؛ ما بقي (يحتاج عرضاً مخصّصاً) يبقى لـ«ابدأ طلبك بها».
+ picked=picked.filter(function(p){return !p.buy});
+ drawTray();draw();
+ toast(TX.addedN.replace('{n}',items.length),false,true);
 }
 function toggle(s,on){
- if(on){if(!isPicked(s.code,s.name))picked.push({code:s.code,title:s.name,why:s.gov||'',door:s.door})}
+ if(on){if(!isPicked(s.code,s.name))picked.push({code:s.code,title:s.name,why:s.gov||'',door:s.door,buy:s.buy})}
  else picked=picked.filter(function(p){return !(p.code===s.code&&p.title===s.name)});
  drawTray();
 }
@@ -273,9 +358,15 @@ function draw(){
    if(s.gov)tx.appendChild(el('small',null,s.gov));
    lab.appendChild(cb);lab.appendChild(tx);
    row.appendChild(lab);
+   var acts=el('span','sv1-pick-acts');
+   if(s.buy){var ab=el('button','sv1-pick-add',TX.addCart);ab.type='button';
+    ab.setAttribute('data-track','أضف للسلة');
+    ab.onclick=function(e){e.stopPropagation();addOne(s,ab)};acts.appendChild(ab)}
+   else acts.appendChild(el('span','sv1-pick-custom',TX.custom));
    if(s.slug){var a=document.createElement('a');a.className='sv1-pick-more';
     a.href=HOME+'services/'+s.slug;a.textContent=TX.details;
-    a.onclick=function(e){e.stopPropagation()};row.appendChild(a)}
+    a.onclick=function(e){e.stopPropagation()};acts.appendChild(a)}
+   row.appendChild(acts);
    body.appendChild(row)});
   box.appendChild(head);box.appendChild(body);
   list.appendChild(box)});
@@ -290,6 +381,7 @@ $('svcToggleAll').onclick=function(){
 };
 $('trayClear').onclick=function(){picked=[];drawTray();draw()};
 $('trayGo').onclick=go;
+$('trayCart').onclick=addPicked;
 
 // ---- الباقات
 var pkgBox=$('pkgList');
