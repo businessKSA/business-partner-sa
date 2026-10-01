@@ -1,0 +1,221 @@
+﻿الخدمات
+القسم,الكود,الخدمة,Service,السعر (ريال، قبل الضريبة),نوع السعر,الرسوم الحكومية منفصلة,تتطلب عرضاً,المنصة الحكومية
+الأتمتة والذكاء الاصطناعي,AI-GEN,الأتمتة بالذكاء الاصطناعي — خدمة حسب الطلب,Artificial Intelligence Automation — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+الأتمتة والذكاء الاصطناعي,BP-AI-01,منظومة الأعمال بالذكاء الاصطناعي (Enterprise),AI Business Partner Enterprise,5000,شهرياً,لا,نعم,بدون جهة حكومية
+الأتمتة والذكاء الاصطناعي,BP-AI-02,إعداد المستشار الذكي,AI Agent Setup,2500,شهرياً,لا,نعم,بدون جهة حكومية
+الأتمتة والذكاء الاصطناعي,BP-AI-03,مستشار الامتثال والالتزام,Compliance & obligations agent,250,شهرياً,لا,لا,بدون جهة حكومية
+الأتمتة والذكاء الاصطناعي,BP-AI-04,فريق الخدمات المشتركة,Shared services team,1500,شهرياً,لا,لا,بدون جهة حكومية
+الأتمتة والذكاء الاصطناعي,BP-AI-SMART-EMPLOYEE,الموظف الذكي المتخصص,Specialist smart employee,500,شهرياً,لا,لا,بدون جهة حكومية
+الإقامة المميزة,BP-PR-01,خدمة الإقامة المميزة (إجراءات + تقديم),Premium Residency service (procedures + application),5000,مرة واحدة,نعم,نعم,الإقامة المميزة
+الإقامة المميزة,BP-PR-02,استشارة الإقامة المميزة,Premium Residency Consultation,4500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-03,تقييم أهلية الإقامة المميزة وتحديد مسارك,Premium Residency eligibility & route assessment,1500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-04,الإقامة المميزة — مسار مستثمر الأعمال,Premium Residency — Business Investor route,7500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-05,الإقامة المميزة — مسار رائد الأعمال,Premium Residency — Entrepreneur route,6500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-06,الإقامة المميزة — مسار مالك العقار,Premium Residency — Property Owner route,6000,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-07,الإقامة المميزة — مسار الموهبة,Premium Residency — Talent route,6000,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-08,الإقامة المميزة — مسار الكفاءة الاستثنائية,Premium Residency — Exceptional Competence route,6500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-09,الإقامة المميزة — المسار المالي (دائمة أو سنوية),Premium Residency — Financial route (permanent or annual),6000,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,BP-PR-10,ضمّ أفراد الأسرة تحت الإقامة المميزة,Adding family members under Premium Residency,2500,مرة واحدة,نعم,لا,الإقامة المميزة
+الإقامة المميزة,PR-GEN,الإقامة المميزة — خدمة حسب الطلب,Premium Residency — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+الاستثمار الأجنبي,BP-FI-01,تأسيس شركة لمستثمر أجنبي,Foreign Investor Company Formation,22500,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-02,استخراج ترخيص استثمار أجنبي (مستثمر أجنبي),Foreign Investment License Issuance,10000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-03,تأسيس شركة أجنبية 100% ملكية (فرع أجنبي),100%-owned foreign company formation (foreign branch),30000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-04,تأسيس شركة بشراكة أجنبية (مشتركة),Joint-Venture Company Formation,20000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-05,تأسيس شركة برخصة ريادة الأعمال (رائد أعمال),Entrepreneur-License Company Formation,30000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-06,تسجيل فرع لشركة أجنبية,Foreign Company Branch Registration,12000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-07,دخول مستثمر أجنبي,Foreign Investor Entry,5000,مرة واحدة,نعم,نعم,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-08,المقر الإقليمي RHQ — التأهيل والتقديم,Regional Headquarters (RHQ) — qualification & filing,35000,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-09,مكتب تمثيل لشركة أجنبية,Representative office for a foreign company,15000,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-10,تجديد ترخيص الاستثمار,Investment licence renewal,3000,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-11,تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان),Amending an investment licence,4000,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-12,إلغاء ترخيص الاستثمار وإنهاء الكيان,Cancelling an investment licence and closing the entity,5000,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,BP-FI-13,استشارة دخول السوق: أي ترخيص استثمار يناسبك,Market-entry advisory: which investment licence fits,2500,مرة واحدة,نعم,لا,وزارة الاستثمار MISA
+الاستثمار الأجنبي,FI-100,تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي,Foreign Investment Setup — 100% Foreign Owned Company,30000,مرة واحدة,نعم,لا,بدون جهة حكومية
+التوظيف والاستقدام,BP-REC-01,خدمات الاستقدام واستخراج تأشيرات العمل,Recruitment Services & Work Visa Issuance,500,مرة واحدة,نعم,نعم,قوى
+التوظيف والاستقدام,BP-REC-02,إصدار تأشيرة عمل (تأشيرة استقدام),Work Visa Issuance,350,مرة واحدة,نعم,نعم,قوى
+التوظيف والاستقدام,BP-REC-03,التوظيف والتعاقد الخارجي (PEO/EOR),Outsourced Employment & Contracting (PEO/EOR),1000,لكل مرشّح,لا,نعم,بدون جهة حكومية
+التوظيف والاستقدام,BP-REC-04,الاستقطاب التنفيذي,Executive Search,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+التوظيف والاستقدام,BP-REC-05,التوظيف المحلي,Local Recruitment,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+التوظيف والاستقدام,BP-REC-06,التوظيف الجماعي,Bulk Recruitment,300,لكل مرشّح,لا,نعم,بدون جهة حكومية
+التوظيف والاستقدام,CV-10,توفير سير ذاتية لمرشحين,Candidate CV Sourcing,100,مرة واحدة,لا,لا,بدون جهة حكومية
+التوظيف والاستقدام,REC-GEN,التوظيف والاستقدام — خدمة حسب الطلب,Recruitment and Manpower — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+العقارات,BP-RE-01,مكتب خاص (لعدد محدد من الأشخاص),Private Office,3000,يبدأ من,لا,لا,بدون جهة حكومية
+العقارات,BP-RE-02,مساحة عمل مشتركة (Coworking),Coworking Space,800,يبدأ من,لا,لا,بدون جهة حكومية
+العقارات,BP-RE-03,مكتب افتراضي مع عنوان وطني,Virtual Office with National Address,3000,يبدأ من,نعم,لا,سُبل
+العقارات,BP-RE-04,مكتب ثابت في مساحة مشتركة (Dedicated Desk),Dedicated Desk,1500,يبدأ من,لا,لا,بدون جهة حكومية
+العقارات,BP-RE-05,خدمة البحث عن مكتب,Office Search Service,5000,مرة واحدة,لا,نعم,بدون جهة حكومية
+العقارات,BP-RE-06,تملّك العقار للأجانب,Foreign Property Ownership,,بلا سعر — عرض مخصّص,نعم,نعم,الهيئة العامة للعقار (REGA) · منصة عقارات السعودية
+العلاقات الحكومية,BP-ABSHER-01,تفعيل أبشر أعمال,Absher Business Setup,300,مرة واحدة,نعم,نعم,أبشر أعمال
+العلاقات الحكومية,BP-AJEER-01,تسجيل المنشأة في منصة أجير وتفعيل الخدمة,Ajeer platform registration & activation,450,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-02,إصدار تصريح تعاقد أجير,Ajeer contracting permit (Taaqud),900,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-03,إصدار تصريح إعارة أجير بين منشأتين,Ajeer secondment permit (Iara),750,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-04,إصدار تصريح إسناد السعوديين,Saudi assignment permit (Isnad),900,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-05,إصدار تصريح مرافقين أجير (التعليم والصحة),Ajeer companions permit (education & health),600,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-06,إصدار تصاريح أجير المواسم (الحج والعمرة),Ajeer seasonal permits (Hajj & Umrah),750,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-07,تجديد تصريح أجير أو إنهاؤه,Ajeer permit renewal or termination,350,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-08,توثيق عقد أجير بين المنشأتين ومتابعته,Ajeer inter-establishment contract documentation,500,مرة واحدة,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-AJEER-10,إدارة تصاريح أجير — تشغيل شهري,Ajeer permits management — monthly operation,1200,شهرياً,نعم,لا,أجير — قوى
+العلاقات الحكومية,BP-BALADY-01,إصدار رخصة بلدية (مقر تجاري),Municipal License Issuance,1000,مرة واحدة,نعم,نعم,بلدي
+العلاقات الحكومية,BP-BALADY-02,عقد نظافة إلكتروني (متطلب بلدي),E-cleaning contract (municipal requirement),290,مرة واحدة,نعم,نعم,بلدي
+العلاقات الحكومية,BP-CSR-01,تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها,Social Responsibility registration & initiative documentation,900,مرة واحدة,نعم,لا,المنصة الوطنية للمسؤولية الاجتماعية
+العلاقات الحكومية,BP-FLEX-01,تسجيل المنشأة في العمل المرن وتوثيق عقوده,Flexible Work registration & contract documentation,500,مرة واحدة,نعم,لا,العمل المرن
+العلاقات الحكومية,BP-GOSI-01,التسجيل في التأمينات الاجتماعية (GOSI),GOSI Registration,300,مرة واحدة,نعم,نعم,التأمينات GOSI
+العلاقات الحكومية,BP-GOSI-02,إضافة موظف سعودي في التأمينات,Add a Saudi Employee in GOSI,150,مرة واحدة,نعم,نعم,التأمينات GOSI
+العلاقات الحكومية,BP-GOSI-03,استخراج شهادة التأمينات الاجتماعية,GOSI Certificate Issuance,150,مرة واحدة,نعم,نعم,التأمينات GOSI
+العلاقات الحكومية,BP-GR-01,تصنيف المقاولين (شهادة تصنيف),Contractor Classification Certificate,5000,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-HRSD-01,التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند),Escalation on the ministry's platforms,500,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-02,تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها,Filing a complaint with the ministry,600,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-03,تقديم طلب لدى وزارة الموارد البشرية ومتابعته,Filing a request with the ministry,600,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-04,الاعتراض على مخالفة نظام العمل,Objection to a labour-law violation,900,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-05,التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل),Establishment owner settlement (labour violations),900,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-06,إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي,Work-permit debt exemption or instalment,1200,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-07,تصحيح بيانات المنشأة لدى الوزارة,Correcting establishment data with the ministry,500,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-08,رفع تجميد حساب المنشأة ومعالجة الاشتباه,Lifting an establishment account freeze,900,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-09,اعتماد لائحة تنظيم العمل,Work-regulation bylaw approval,1500,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-10,بلاغ التغيب وإلغاؤه,Absence report and its cancellation,500,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-11,طلب الخروج النهائي,Final exit request,400,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-HRSD-12,تسوية خلاف عمالي — تجهيز الملف والمتابعة,Labour dispute settlement — file and follow-up,1500,مرة واحدة,نعم,لا,بوابة المستفيد — الموارد البشرية
+العلاقات الحكومية,BP-LABOR-01,فتح ملف المنشأة في بوابة قطاع العمل,Opening the establishment file on the Labour Sector portal,400,مرة واحدة,نعم,لا,بوابة قطاع العمل
+العلاقات الحكومية,BP-MOD-01,إصدار تصريح الدفاع المدني (شهادة سلامة),Civil Defense Permit & Safety Certificate,500,مرة واحدة,نعم,نعم,الدفاع المدني
+العلاقات الحكومية,BP-MOD-02,تقرير فني سلامة (متطلب الدفاع المدني),Technical Safety Report,600,مرة واحدة,نعم,نعم,الدفاع المدني
+العلاقات الحكومية,BP-MOWA-01,شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة,Mowaamah certificate: an accessible workplace,1500,مرة واحدة,نعم,لا,منصة مواءمة
+العلاقات الحكومية,BP-MUDAD-01,إعداد منصة مدد لنظام حماية الأجور,Mudad WPS Setup,450,مرة واحدة,نعم,نعم,مدد
+العلاقات الحكومية,BP-MUQEEM-01,إصدار تأشيرة خروج وعودة,Exit & Re-entry Visa Issuance,200,مرة واحدة,نعم,نعم,مقيم
+العلاقات الحكومية,BP-PL-0076,إصدار الترخيص الصناعي (تأسيس),Industrial License Issuance for Establishment,2500,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0077,تجديد الترخيص الصناعي,Industrial License Renewal,1248,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0078,تعديل الترخيص الصناعي,Industrial License Amendment,2400,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0079,نقل ملكية الترخيص الصناعي,Industrial License Ownership Transfer,2072,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0080,طلب تأييد العمالة,Labor Endorsement Request,1248,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0081,إعفاء جمركي (مواد/آلات/قطع غيار),"Customs Exemption for Materials, Machinery, and Spare Parts",2488,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0082,إصدار شهادة المنشأ,Certificate of Origin Issuance,1656,مرة واحدة,نعم,نعم,الغرفة التجارية
+العلاقات الحكومية,BP-PL-0083,طلب الفسح الكيميائي,Chemical Clearance Request,2488,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0084,ترقية البنود الجمركية,Customs Tariff Items Upgrade,2400,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0085,رخصة الاستطلاع (تعدين),Mining Reconnaissance License,4144,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0086,المسح الصناعي,Industrial Survey,4800,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-PL-0087,تصريح الاستشارات الأمنية,Security Consulting Permit,7000,مرة واحدة,نعم,نعم,متعدد الجهات
+العلاقات الحكومية,BP-QIWA-01,إعداد وتفعيل منصة قوى,Qiwa Setup & Onboarding,450,مرة واحدة,نعم,نعم,قوى
+العلاقات الحكومية,BP-QIWA-02,نقل كفالة عامل (نقل خدمة),Employee Sponsorship Transfer,1000,مرة واحدة,نعم,نعم,قوى
+العلاقات الحكومية,BP-QIWA-03,تغيير مهنة عامل,Employee Profession Change,500,مرة واحدة,نعم,نعم,قوى
+العلاقات الحكومية,BP-QIWA-04,إضافة مفوض لمنشأة,Adding an Authorized Representative,200,مرة واحدة,نعم,نعم,قوى
+العلاقات الحكومية,BP-QIWA-05,توثيق عقد العمل في قوى,Employment contract documentation on Qiwa,250,مرة واحدة,نعم,لا,قوى
+العلاقات الحكومية,BP-QIWA-06,إصدار أو تجديد رخصة عمل للوافد,Issuing or renewing an expatriate work permit,300,مرة واحدة,نعم,لا,قوى
+العلاقات الحكومية,BP-QIWA-07,إلغاء رخصة عمل,Cancelling a work permit,250,مرة واحدة,نعم,لا,قوى
+العلاقات الحكومية,BP-QIWA-08,إصدار شهادة الالتزام بالتوطين (السعودة),Saudisation compliance certificate,300,مرة واحدة,نعم,لا,قوى
+العلاقات الحكومية,BP-QIWA-09,إدارة فروع المنشأة في قوى,Managing establishment branches on Qiwa,400,مرة واحدة,نعم,لا,قوى
+العلاقات الحكومية,BP-REMOTE-01,تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده,Remote Work registration & contract documentation,500,مرة واحدة,نعم,لا,العمل عن بُعد
+العلاقات الحكومية,BP-SAIP-01,تسجيل علامة تجارية جديدة,New trademark registration,1000,مرة واحدة,نعم,نعم,الملكية الفكرية SAIP
+العلاقات الحكومية,BP-SELF-01,التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش,Compliance self-assessment before inspection,1200,مرة واحدة,نعم,لا,منصة التقييم الذاتي
+العلاقات الحكومية,BP-SUBL-01,التسجيل في العنوان الوطني,National Address Registration,150,مرة واحدة,نعم,نعم,سُبل
+العلاقات الحكومية,BP-TAQAT-01,تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف,Taqat registration & employment-support programmes,750,مرة واحدة,نعم,لا,طاقات — هدف
+العلاقات الحكومية,BP-ZATCA-01,التسجيل في الزكاة والضريبة (VAT & Zakat),VAT & Zakat Registration,500,مرة واحدة,نعم,نعم,الزكاة والضريبة ZATCA
+العلاقات الحكومية,BP-ZATCA-02,استخراج رقم ضريبي (VAT),VAT Number Issuance,350,مرة واحدة,نعم,نعم,الزكاة والضريبة ZATCA
+العلاقات الحكومية,BP-ZATCA-03,تقديم إقرار الزكاة السنوي,Annual Zakat Return Filing,500,مرة واحدة,نعم,نعم,الزكاة والضريبة ZATCA
+العلاقات الحكومية,BP-ZATCA-04,التسجيل في ضريبة القيمة المضافة (زاتكا),ZATCA VAT Registration,350,مرة واحدة,نعم,نعم,الزكاة والضريبة ZATCA
+العلاقات الحكومية,BP-ZATCA-05,تقديم إقرار ضريبة قيمة مضافة,VAT Return Filing,100,مرة واحدة,نعم,نعم,الزكاة والضريبة ZATCA
+العلاقات الحكومية,GOV-GEN,المعاملات الحكومية — خدمة حسب الطلب,Government Transactions — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+العلاقات الحكومية,GR-GEN,مندوب العلاقات الحكومية,Government Relations Representative,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+المكاتب ومساحات العمل,RE-GEN,العقارات — خدمة حسب الطلب,Real Estate — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+الموارد البشرية,BP-HOUSING-01,تسكين العمالة — سكن جماعي مرخّص,Worker housing — licensed collective housing,,بلا سعر — عرض مخصّص,نعم,نعم,بلدي
+الموارد البشرية,BP-HOUSING-02,نقل العمالة — من السكن إلى مواقع العمل,Worker transport — housing to work sites,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+الموارد البشرية,BP-HR-01,إصدار شهادة صحية للموظفين,Employee Health Certificate Issuance,250,مرة واحدة,نعم,نعم,وزارة الموارد البشرية
+الموارد البشرية,BP-HR-02,فتح ملف منشأة في وزارة الموارد البشرية,Establishment File Opening at MHRSD,300,مرة واحدة,نعم,نعم,وزارة الموارد البشرية
+الموارد البشرية,BP-HR-03,خدمات الموارد البشرية وإدارة الموظفين,HR & Employee Management Services,2500,شهرياً,لا,نعم,بدون جهة حكومية
+الموارد البشرية,BP-MUDAD-02,رفع ملف حماية الأجور (نظام مُدد),Mudad Wage Protection File Upload,180,مرة واحدة,نعم,نعم,مدد
+الموارد البشرية,BP-MUDAD-03,معالجة ملاحظات نظام حماية الأجور,Wage Protection System Notes Resolution,500,مرة واحدة,نعم,نعم,مدد
+الموارد البشرية,BP-MUQEEM-02,إصدار إقامة جديدة (لموظف أجنبي),New Iqama Issuance,500,مرة واحدة,نعم,نعم,مقيم
+الموارد البشرية,BP-MUQEEM-03,تجديد إقامة (هوية مقيم),Iqama Renewal,300,مرة واحدة,نعم,نعم,مقيم
+الموارد البشرية,BP-MUQEEM-04,إصدار تأشيرة زيارة عائلية,Family Visit Visa Issuance,300,مرة واحدة,نعم,نعم,مقيم
+الموارد البشرية,HR-GEN,الموارد البشرية — خدمة حسب الطلب,Human Resources — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+الموارد البشرية,QW-EST,مهمة منصة قوى وفتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية,Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development,70000,مرة واحدة,لا,لا,بدون جهة حكومية
+تأسيس الشركات,BP-CHAMBER-01,عضوية الغرفة التجارية,Chamber of Commerce membership,300,مرة واحدة,نعم,نعم,الغرفة التجارية
+تأسيس الشركات,BP-PL-0066,استشارة ما قبل التأسيس,Pre-incorporation consultation,500,مرة واحدة,لا,نعم,
+تأسيس الشركات,BP-SBC-01,تأسيس شركة سعودية,Saudi Company Formation,7500,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-02,إصدار سجل تجاري جديد,New Commercial Registration Issuance,250,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-03,إصدار عقد تأسيس وتوثيقه (لشركة جديدة),AoA Issuance & Notarization (new company),3000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-04,إصدار سجل تجاري,Commercial Registration Issuance,450,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-05,حجز اسم شركة,Company Name Reservation,250,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-06,فتح حساب شركة على منصة أبشر أعمال,Company Account on Absher Business,200,مرة واحدة,نعم,نعم,أبشر أعمال
+تأسيس الشركات,BP-SBC-07,فتح فرع لشركة قائمة (محلية أو أجنبية),Opening a Branch for an Existing Company,15000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-08,تصفية شركة (شطب السجل وإنهاء الكيان),Company Liquidation (CR cancellation & closure),4000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-09,إصدار شهادة شطب سجل تجاري,CR Cancellation Certificate Issuance,100,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-10,تعديل عقد تأسيس / قرارات شركاء,Amending AoA / Partners' Resolutions,1000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-11,تعديل سجل تجاري,Commercial Registration Amendment,100,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-12,حجز اسم تجاري,Trade Name Reservation,180,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-13,شطب سجل تجاري (إلغاء السجل),Commercial Registration Cancellation,100,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-14,تحويل الشكل القانوني للمنشأة,Legal Form Transformation,1800,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-15,صياغة عقد التأسيس ودعم التوثيق,AoA Drafting & Notarization Support,2000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-16,خدمات تأسيس مصانع وإصدار تراخيص صناعية,Factory setup & industrial licensing services,10000,مرة واحدة,نعم,نعم,متعدد الجهات
+تأسيس الشركات,BP-SBC-17,طلب إفادة تجارية (خطاب من وزارة التجارة),Commercial Statement Request,100,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-18,تحويل مؤسسة إلى شركة (أو العكس),Converting an Establishment into a Company,2000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-19,تجديد سجل تجاري,Commercial Registration Renewal,180,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-20,استخراج مستخرج سجل تجاري تفصيلي,Detailed CR Extract Issuance,150,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-21,الإبلاغ عن المستفيد الحقيقي,Beneficial owner disclosure,500,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-22,التأكيد السنوي لبيانات السجل التجاري,Annual commercial-register confirmation,200,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-23,نقل ملكية السجل التجاري,Transferring ownership of a commercial register,1500,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-24,نشر قرارات الجمعية العامة,Publishing general-assembly resolutions,800,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-25,اندماج شركتين أو استحواذ,Merger or acquisition,12000,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,BP-SBC-31,تأسيس / قيد مؤسسة فردية جديدة,New Sole Proprietorship Formation & Registration,1500,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+تأسيس الشركات,CF-GEN,تأسيس الشركات — خدمة حسب الطلب,Company Formation — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,BP-AJEER-CS,استشارة أجير: التصريح المناسب لحالتك,Ajeer advisory: choosing the right permit,750,مرة واحدة,لا,لا,أجير — قوى
+دعم الأعمال,BP-BS-01,خدمات التسويق الرقمي والإعلان,Digital Marketing & Advertising,5000,مرة واحدة,لا,نعم,بدون جهة حكومية
+دعم الأعمال,BP-DIAG-01,تقرير تشخيص,Diagnostic Report,1500,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-GUIDE-01,دليل قطاعي عام,General Industry Guide,499,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-GUIDE-02,دليل مخصص,Custom Guide,3000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-HRSD-CS,استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟,"Beneficiary-portal advisory: complaint, request or escalation",750,مرة واحدة,لا,لا,بوابة المستفيد — الموارد البشرية
+دعم الأعمال,BP-PL-0019,الامتثال والقيد بنظام الامتياز التجاري (فرنشايز),Franchise Law compliance & registration,1500,مرة واحدة,نعم,نعم,وزارة التجارة
+دعم الأعمال,BP-PL-0035,إدارة حساب مقيم (إضافة وتحديث البيانات),Muqeem Account Management,200,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0050,خدمة كبار الشخصيات (إنهاء المعاملات VIP),VIP Transaction Processing,5000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0051,فتح حساب بنكي تجاري للشركة,Corporate Bank Account Opening,1000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0052,إعداد لوائح الشركة الداخلية (حوكمة),Internal Company Regulations (Governance),2000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0053,هيكلة وتنظيم الشركة (إعادة هيكلة),Company Restructuring & Organization,5000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0054,التمثيل القانوني للشركات (محاماة),Corporate Legal Representation,1500,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0055,استشارات قانونية لنظام الشركات,Corporate Law Consultation,1000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0056,استشارات أعمال واستثمار عامة,General Business & Investment Consultation,1000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0057,إعداد دراسة جدوى اقتصادية,Economic feasibility study preparation,8000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0058,إعداد خطة عمل وتطوير استراتيجيات,Business Plan & Strategy Development,5000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0059,خدمة المستشار المالي (محاسبة ودفاتر),Financial Advisor (Accounting & Bookkeeping),3000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0060,مراجعة حسابات وضريبة (تدقيق مالي),Audit & Tax Review,7000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0063,خدمة العلاقات العامة والاتصال المؤسسي,Public Relations & Corporate Communications,4000,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-PL-0088,تسجيل قيد وكالة تجارية,Commercial Agency Registration,4000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-PL-0089,تعديل قيد وكالة تجارية,Commercial Agency Registration Amendment,4000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-PL-0090,تجديد قيد وكالة تجارية,Commercial Agency Registration Renewal,1200,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-PL-0091,شطب قيد وكالة تجارية,Commercial Agency Registration Cancellation,4000,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-PL-0092,تراخيص التخفيضات,Discount License Issuance,280,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-PL-0093,تراخيص الأحجار الكريمة والمعادن الثمينة,Precious Stones and Precious Metals Licenses,2400,مرة واحدة,نعم,نعم,المركز السعودي للأعمال
+دعم الأعمال,BP-REF-01,خدمة التقديم على استرداد الرسوم الحكومية,Government Fee Refund Application,600,مرة واحدة,لا,لا,منشآت
+دعم الأعمال,BP-SBC-26,توثيق متجر إلكتروني (سجل التجارة الإلكترونية),E-store documentation (e-commerce register),700,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+دعم الأعمال,BP-SBC-27,تسجيل ضمان في السجل العيني للحقوق,Registering a security interest,1200,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+دعم الأعمال,BP-SBC-28,إيداع القوائم المالية لدى وزارة التجارة,Filing financial statements with the Ministry of Commerce,1000,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+دعم الأعمال,BP-SBC-29,ترجمة السجل التجاري وتوثيقها,Commercial register translation & attestation,300,مرة واحدة,نعم,لا,المركز السعودي للأعمال
+دعم الأعمال,BP-SBC-30,تصديق المستندات وأبوستيل عبر الخارجية,Document attestation & apostille via MOFA,1200,مرة واحدة,نعم,لا,وزارة الخارجية MOFA
+دعم الأعمال,BP-SUB-01,اشتراك تحديثات,Updates Subscription,750,شهرياً,لا,نعم,
+دعم الأعمال,BP-VENDOR-01,تأهيل مورد,Vendor Qualification,3500,مرة واحدة,لا,نعم,
+دعم الأعمال,BP-VENDOR-02,متابعة مورد,Vendor Follow-up,2000,شهرياً,لا,نعم,
+دعم الأعمال,MA-BRK,وساطة اندماج واستحواذ,Mergers and Acquisitions Brokerage,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,REV-ENT,تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى,Business Development — Revenue Operating System — Enterprise Package,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,REV-GROWTH,تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو,Business Development — Revenue Operating System — Growth Package,5000,شهرياً,لا,لا,بدون جهة حكومية
+دعم الأعمال,REV-LAUNCH,تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق,Business Development — Revenue Operating System — Launch Package,2500,شهرياً,لا,لا,بدون جهة حكومية
+دعم الأعمال,REV-PRO,تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية,Business Development — Revenue Operating System — Professional Package,9500,شهرياً,لا,لا,بدون جهة حكومية
+دعم الأعمال,REV-START,تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية,Business Development — Revenue Operating System — Starter Package,,بلا سعر — عرض مخصّص,لا,لا,بدون جهة حكومية
+دعم الأعمال,REV-TEAM,تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص,Business Development — Revenue Operating System — Dedicated Team Package,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,SBC-GEN,الخدمات المشتركة — خدمة حسب الطلب,Shared Services — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,SUP-GEN,الدعم والاستشارات — خدمة حسب الطلب,Support and Advisory — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+دعم الأعمال,TR-GEN,السياحة — خدمة حسب الطلب,Tourism — Bespoke Service,,بلا سعر — عرض مخصّص,لا,نعم,بدون جهة حكومية
+
+الباقات
+المجموعة,الكود,الباقة,Package,السعر (ريال),الفترة,نص السعر
+باقات الخدمات,BP-PKG-SVC-STARTER,باقة المنشآت الصغيرة,Small Establishment Package,2500,monthly,"2,500 ﷼ / شهرياً"
+باقات الخدمات,BP-PKG-LAUNCH,باقة الانطلاق,Launch Package,6000,monthly,"6,000 ﷼ / شهرياً"
+باقات الخدمات,BP-PKG-GROWTH,باقة النمو,Growth Package,10000,monthly,"10,000 ﷼ / شهرياً"
+باقات الخدمات,BP-PKG-SCALE,باقة التوسّع,Scale Package,20000,monthly,"20,000 ﷼ / شهرياً"
+باقات الخدمات,BP-PKG-ENTERPRISE,باقة الشراكة المؤسسية,Enterprise Package,,one_time,باقة حسب الطلب
+تأسيس الشركات,BP-PKG-FORM-FOREIGN,باقة تأسيس الشركات الأجنبية,Foreign Companies Formation Package,30000,one_time,"تبدأ من 30,000 ﷼ / سنويًا"
+تأسيس الشركات,BP-PKG-FORM-SAUDI,باقة تأسيس الشركات السعودية والخليجية,Saudi & Gulf Companies Formation Package,15000,one_time,"تبدأ من 15,000 ﷼ / سنويًا"
+الباقات القانونية,BP-PKG-LEGAL-BASIC,الباقة الأساسية,Basic Package,8000,monthly,"8,000 ﷼ / شهرياً"
+الباقات القانونية,BP-PKG-LEGAL-ADV,الباقة المتقدمة,Advanced Package,15000,monthly,"15,000 ﷼ / شهرياً"
+الباقات القانونية,BP-PKG-LEGAL-COMP,الباقة الشاملة,Comprehensive Package,30000,monthly,"30,000 ﷼ / شهرياً"
+الباقات القانونية,BP-PKG-LEGAL-STRAT,الباقة الاستراتيجية,Strategic Package,50000,monthly,"50,000 ﷼ / شهرياً"
+تطوير الأعمال كخدمة,revos-connect,تطوير الأعمال كخدمة — باقة Connect (شهري),BD as a Service — Connect (monthly),499,monthly,499 ﷼ / شهريًا
+تطوير الأعمال كخدمة,revos-launch,تطوير الأعمال كخدمة — باقة Launch (شهري),BD as a Service — Launch (monthly),2500,monthly,"2,500 ﷼ / شهريًا"
+تطوير الأعمال كخدمة,revos-growth,تطوير الأعمال كخدمة — باقة Growth (شهري),BD as a Service — Growth (monthly),5000,monthly,"5,000 ﷼ / شهريًا"
+تطوير الأعمال كخدمة,revos-professional,تطوير الأعمال كخدمة — باقة Professional (شهري),BD as a Service — Professional (monthly),9500,monthly,"9,500 ﷼ / شهريًا"

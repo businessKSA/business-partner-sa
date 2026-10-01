@@ -57,8 +57,9 @@
 
 ## 2) فرع واحد و Pull Request واحد
 
-- فرع الإنتاج للعمل: `claude/bpic-marketing-site-jvrnga`، والـ PR المفتوح هو **#325** — لا يُفتح PR آخر لهذا العمل.
-- **#323 دُمج في `master` يوم 2026-09-23** (٨٥ كوميتاً، الدمج `291cca070`)، وفُتح **#325** بديلاً له في الدفعة نفسها. عاد هذا السطر إلى **#323** مرّتين بعد ذلك بسبب `force push` من جلسات أخرى — وكل عودة تعني رقماً منتهياً في سطرٍ وظيفته أن يكون صحيحاً. تحقّق من الرقم على GitHub قبل تعديله، ولا تفترضه.
+- فرع الإنتاج للعمل: `claude/bpic-marketing-site-jvrnga`، والـ PR المفتوح هو **#344** — لا يُفتح PR آخر لهذا العمل.
+- **#325 دُمج في `master` يوم 2026-09-29** (٧١ كوميتاً، الدمج `6afd3f15`) بأمر المالك، وفُتح **#344**
+  بديلاً له. وقبله **#323 دُمج يوم 2026-09-23** (٨٥ كوميتاً، الدمج `291cca070`) وفُتح **#325** بديلاً له في الدفعة نفسها. عاد هذا السطر إلى **#323** مرّتين بعد ذلك بسبب `force push` من جلسات أخرى — وكل عودة تعني رقماً منتهياً في سطرٍ وظيفته أن يكون صحيحاً. تحقّق من الرقم على GitHub قبل تعديله، ولا تفترضه.
 - **تاريخ (2026-09-23):** كان **#271** هو الطلب المعتمد، و**دُمج فعلاً** في `master` يوم 2026-09-04 (١٩٥ كوميتاً) — أُغلق بالدمج كما يُغلق أي طلب منجز، لا بالإهمال (`merged_at = 2026-09-04T01:53:07Z`). لكن الدفع استمر على الفرع بعده ثلاثة أسابيع بلا طلب دمج يتتبّعه، فتراكمت ٧١ كوميتاً خارج `master`. فُتح **#323** في 2026-09-23 بقرار المالك لاستعادة التتبّع.
 - **القاعدة المستخلصة:** طلب الدمج ينتهي بالدمج — و**المدموج لا يُعاد استخدامه**. متى دُمج (أو أُغلق) فافتح بديلاً للعمل التالي على الفرع نفسه، وصحّح رقمه هنا **في الدفعة نفسها**؛ رقمٌ منتهٍ في هذا السطر يعني عملاً يتراكم في الظلام.
 - قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/bpic-marketing-site-jvrnga`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
@@ -81,7 +82,7 @@
 
 ## 2.7) من يملك ماذا — اقرأ `docs/projects.md` قبل لمس أي ملف
 
-سبعة وثلاثون مشروعاً، لكل واحد مالك ونطاق ملفات **لا يتقاطع مع غيره**. الوكلاء معرَّفون
+ثمانية وثلاثون مشروعاً، لكل واحد مالك ونطاق ملفات **لا يتقاطع مع غيره**. الوكلاء معرَّفون
 في `.claude/agents/`، والخريطة الكاملة في `docs/projects.md`، وخريطة **كل صفحة** إلى وكيلها في `docs/page-ownership.md`.
 
 | الوكيل | يملك |
@@ -123,6 +124,7 @@
 | `daftra` | الدفترة: `_daftra.js` — الفاتورة الضريبية عند الدفع والإشعار الدائن |
 | `suppliers-partners` | الشركاء والموردون: التسجيل والتأهيل ولوحتاهما وأوامر العمل والضمان (Escrow) |
 | `bp-ai-platform` | منصة Business Partner AI: CRM وTasks والبريد في Notion، الموجّه الرئيسي، المتابعات، Chat OS |
+| `eor` | خدمة الموظفين على بند التعاقد (EOR): صفحتها ونموذج طلبها وسجلّ طلباتها في Notion وعرض السعر ونطاق العمل — `api/_eor.js` |
 
 - **قاعدة الإسناد التي تحسم التداخل:** الصفحة التي يدخلها عميل تتبع
   `client-portal`، والتي يدخلها المالك تتبع `owner-ops` — مهما كان محتواها.
@@ -155,7 +157,7 @@
    لا يُسأل المالك إلا عن: حذف بيانات، تكلفة، نشر على الموقع الحيّ، دمج،
    أو قرارٍ من «ما يحتاج قرار المالك» في `docs/projects.md`.
 
-وكيلٌ جديد لا يُنشأ إلا لنطاق ملفات لا يملكه أحد من السبعة والثلاثين، ويُضاف إلى الجدول
+وكيلٌ جديد لا يُنشأ إلا لنطاق ملفات لا يملكه أحد من الثمانية والثلاثين، ويُضاف إلى الجدول
 أعلاه وإلى `docs/projects.md` في الدفعة نفسها.
 
 ## 2.5) التطوير المحلي أولاً (قرار المالك 2026-09-04)
@@ -203,4 +205,4 @@ stable milestones only, never after every change. See `docs/local-development.md
 
 **The working branch IS the Vercel production branch (2026-09-23).** `claude/bpic-marketing-site-jvrnga`, not `master`, is what `businesspartner.sa` serves — `master` deploys nothing, so merging into it does not publish. Every push to the working branch used to reach the live site in about a minute, unreviewed; two sessions did exactly that within forty minutes on 2026-09-23. The `ignoreCommand` in `vercel.json` no longer exempts production, so a deployment now happens only when the last commit message carries the agreed marker. Push freely; publish deliberately.
 
-**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (**#325** — #271 merged 2026-09-04 and #323 merged 2026-09-23; a merged PR is never reused, open a new one and update this number in the same push); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
+**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (**#344** — #271 merged 2026-09-04, #323 merged 2026-09-23, #325 merged 2026-09-29; a merged PR is never reused, open a new one and update this number in the same push, here and in the Arabic section above); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.

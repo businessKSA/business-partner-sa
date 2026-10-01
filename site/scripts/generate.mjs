@@ -310,10 +310,12 @@ import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
+import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
+import { buildSimpleEor } from "./simple-v1-eor.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
@@ -2252,77 +2254,61 @@ function buildServiceCategory(cat) {
   });
 }
 
+// صفحة تفاصيل الخدمة على الموقع الجديد: المولّد يجهّز المعطيات وحدها
+// (نصوص اللغة الحالية، المستندات، السعر)، و`simple-v1-service-detail.mjs`
+// يبني الصفحة داخل SV1.shell(). لا HTML هنا ولا main.js ولا طبقة القديم.
+//
+// ما يُحذف من العرض عمداً (ولا يُمسّ في بياناته):
+//  • المميزات العامة الثلاث والأسئلة الشائعة العامة (تُولَّد لكل خدمة بلا
+//    تخصيص): «الأتعاب واضحة» تكرّر ملاحظة السعر، و«ابدأ بالتواصل — يبدأ الطلب
+//    فوراً» يناقض «تتطلب عرضاً». تبقى المميزات والأسئلة المخصّصة للخدمة في
+//    site.json (overrides) فقط.
+//  • سؤال «هل الرسوم الحكومية ضمن الأتعاب؟» وجوابه «نعم… منفصلة»: السؤال يُجاب
+//    بنعم ثم يُثبت العكس. الحقيقة نفسها في ملاحظة السعر.
+const SVC_GOVFEE_Q = [/الرسوم الحكومية ضمن الأتعاب/, /Are government fees included/i];
 function buildServiceDetail(s) {
   const ov = site.overrides[s.slug];
   const docs = documentsOf(s, ov);
-  const feats = featuresOf(s, ov);
-  const faq = faqOf(s, ov);
-  const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد المستشار الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
-    : "";
-  const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
-  const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
-  const faqHtml = faq
-    .map(
-      (f) => `<div class="faq-item"><button class="faq-q" aria-expanded="false">${esc(f.q)} ${I.chevron}</button>
-    <div class="faq-a"><p>${esc(f.a)}</p></div></div>`
-    )
-    .join("");
+  const priced = !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
 
-  const facts = [];
-  facts.push(`<li><span class="k">${L("Category", "الفئة")}</span><span class="v">${L(catEn(s.category), catAr(s.category))}</span></li>`);
-  if (ov && ov.duration) facts.push(`<li><span class="k">${L("Duration", "المدة")}</span><span class="v">${L(ov.durationEn || ov.duration, ov.duration)}</span></li>`);
-  facts.push(`<li><span class="k">${L("Available to", "متاح لـ")}</span><span class="v">${esc(audienceOf(s, ov))}</span></li>`);
-  if (s.govPlatform) facts.push(`<li><span class="k">${L("Authority", "الجهة")}</span><span class="v">${esc(govLabel(s.govPlatform))}</span></li>`);
-  facts.push(`<li><span class="k">${L("Code", "الكود")}</span><span class="v">${esc(s.code)}</span></li>`);
+  const curatedFeats = LANG === "ar" ? !!(ov && ov.features) : !!(ov && ov.featuresEn);
+  const feats = curatedFeats
+    ? featuresOf(s, ov)
+    : LANG === "ar"
+    ? (DELIV_AR[s.code] || (s.deliverables || []).filter((x) => /[؀-ۿ]/.test(x))).slice(0, 4)
+    : [];
 
-  const priceNote = (s.price && (LANG === "ar" ? s.price.note : s.price.noteEn))
-    ? (LANG === "ar" ? s.price.note : s.price.noteEn)
-    : L(
-        s.govFeesSeparate ? "Fees exclude government fees and VAT." : "Fees exclude VAT.",
-        s.govFeesSeparate ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة." : "الأتعاب لا تشمل ضريبة القيمة المضافة."
-      );
-  const arrow = LANG === "ar" ? "←" : "→";
+  // الأسئلة المخصّصة فقط. الفرنسية والصينية تأخذ نصّ الأسئلة الإنجليزية مترجَماً
+  // من القاموس، ويسقط السؤال الذي لم يُترجَم (لا إنجليزية في صفحة فرنسية).
+  const faqSrc = (LANG === "ar" ? ov && ov.faq : ov && ov.faqEn) || [];
+  const faq = faqSrc
+    .filter((f) => !SVC_GOVFEE_Q.some((r) => r.test(f.q)))
+    .map((f) => (LANG === "ar" || LANG === "en" ? f : { q: T(f.q), a: T(f.a), same: T(f.q) === f.q || T(f.a) === f.a }))
+    .filter((f) => !f.same);
 
-  const body = `
-  <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
-    <h1>${esc(sName(s))}</h1>
-    <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
-  </div></section>
-  <div class="container"><div class="svc-layout">
-    <div class="svc-main">
-      <section><h2>${L("Service description", "وصف الخدمة")}</h2><p class="lead-p">${esc(sDesc(s))}</p></section>
-      <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
-      <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
-      <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "المستشار الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
-    </div>
-    <aside class="svc-aside">
-      <div class="order-box">
-        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored price-amt" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
-        ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
-        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
-        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
-          : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
-        <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        ${s.category === "Real Estate" && !s.ctaConsultation
-          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
-          : s.category === "Tourism"
-          ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
-        <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
-        <ul class="order-facts">${facts.join("")}</ul>
-      </div>
-    </aside>
-  </div></div>`;
-  const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  const priceLabelTx = priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "";
+  const notePart = s.price && (LANG === "ar" ? s.price.note : s.price.noteEn);
+  const seoDesc = sDesc(s).slice(0, 155);
+  const view = {
+    code: s.code, slug: s.slug, name: sName(s),
+    nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+    cartId: "svc-" + s.slug, desc: sDesc(s),
+    category: s.category, catLabel: catLabel(s.category), catHref: catUrl(s.category),
+    gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+    duration: ov && ov.duration ? Lraw(ov.durationEn || ov.duration, ov.duration) : "",
+    docs, docsGeneric: !(ov && (ov.documents || ov.documentsEn)),
+    feats, faq,
+    priced, amount: priced ? s.price.amount : null, priceLabel: priceLabelTx, priceNote: notePart || "",
+    govFeesSeparate: !!s.govFeesSeparate, requiresProposal: !!s.requiresProposal,
+    special: s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "",
+    hrefs: {
+      workspace: u("/workspace-request"), tourism: u("/tourism"),
+      consult: `${u("/consultation")}?about=${encodeURIComponent(sName(s))}`,
+    },
+    title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
+    seoDesc, liveV: LIVE_V,
+  };
+  return buildSimpleServiceDetail(SV1, { lang: () => LANG, esc }, view);
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
@@ -3255,8 +3241,8 @@ function buildPackages() {
     <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
     <div class="steps-grid">${[
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
-      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
-      [L("Payment is confirmed", "يتأكد الدفع"), L("Online payment activates your subscription instantly; a bank transfer activates it as soon as the receipt is verified.", "الدفع الإلكتروني يفعّل اشتراكك فوراً؛ والتحويل البنكي يفعّله فور التحقق من الإيصال.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.", "ثم ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا.")],
+      [L("Payment is confirmed", "يتأكد الدفع"), L("Your subscription activates the moment the online payment is confirmed.", "يتفعّل اشتراكك فور تأكيد الدفع الإلكتروني.")],
       [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
@@ -5114,7 +5100,7 @@ function buildMahfolTrips() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
-    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
@@ -5629,7 +5615,7 @@ function buildEmployerJoin() {
   <section class="section"><div class="container">
     <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
     ${employerPlanCards({ selectable: true })}
-    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online for instant activation — or by bank transfer and we activate right after verifying it.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً فيتفعّل وصولك فوراً — أو بالتحويل البنكي ونفعّله فور التحقق منه.")}</p>
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا فيتفعّل وصولك فوراً.")}</p>
   </div></section>`;
   return sv1LegacyApp({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
@@ -9272,7 +9258,7 @@ function buildConnect(pre = "/") {
         <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
       </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد تأكيد الدفع نفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -9289,8 +9275,8 @@ function buildConnect(pre = "/") {
       <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
       <div class="jgrid">
         <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة${SHOW_PRICES ? " (500 ﷼/شهرياً للموظف)" : ""}.</span></div>
-        <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
-        <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
+        <div class="jstep"><span class="jn">2</span><b>ادفع إلكترونياً</b><span>أكمل الطلب من السلة وادفع بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا — يصلك رقم طلب مثل BP-506275.</span></div>
+        <div class="jstep"><span class="jn">3</span><b>يتأكد الدفع ونفعّل</b><span>يتأكد الدفع تلقائياً ويُعتمد طلبك — رقم طلبك نفسه يصير كود التفعيل.</span></div>
         <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="${pre}portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
         <div class="jstep"><span class="jn">5</span><b>اشتغل واربط أدواتك</b><span>حادث موظفك بلغتك العادية، واربط Gmail ونوشن وأدواتك من مركز الربط أعلاه.</span></div>
       </div>
@@ -10345,7 +10331,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
         <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online for instant activation, or by bank transfer with the receipt.", "ادفع إلكترونياً فيتفعّل فوراً، أو بتحويل بنكي مع رفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.", "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا فيتفعّل فوراً.")}</p></div>
         <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
@@ -12001,6 +11987,7 @@ function writeFullSite(pre) {
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
     // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
+    write(`${pre}eor.html`, buildSimpleEor(SV1, { lang: () => LANG, esc }));
     // بوابة صاحب العمل على القشرة الجديدة: صفحة واحدة تحلّ محلّ لوحة
     // /hr/employer القديمة. تبقى القديمة مبنيّة حتى تُغلق عمداً.
     write(`${pre}employer.html`, buildSimpleEmployer(SV1, { lang: () => LANG, esc }));
@@ -12244,6 +12231,11 @@ write("ar/portal.html", buildPortal("/ar/"));
 // cleanHtml never touches) and is copied into the ar/ tree on every build;
 // editing it in place under ar/ would be silently deleted by the next run.
 write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
+// بوابة تعبئة ملف الإقامة المميزة (منتج رائد الأعمال): صفحة عملاء بالرابط
+// فقط. تُكتب يدوياً في assets/data/ وتُنسخ كما هي — نموذج بستة تبويبات لا
+// يستفيد من قوالب هذا المولّد، ولا يدخل في paths أدناه فلا يظهر في خريطة
+// الموقع ولا في أي قائمة تنقّل.
+write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.html"), "utf8"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";

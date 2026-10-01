@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-bk-css">
@@ -429,7 +434,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"loading":"正在加载可预约时间…","noSlots":"近期没有可用时间。请通过 WhatsApp 联系我们安排。","need":"请填写姓名、手机号和邮箱，并选择时间。","busy":"正在确认…","taken":"该时段刚被预订，请另选。","failed":"无法确认。请重试或通过 WhatsApp 联系我们。","doneT":"预约成功","doneOn":"您的预约","meet":"会议链接","addCal":"添加到日历","mailed":"详情已发送至您的邮箱。","confirm":"团队确认时间后会通过邮件通知您。","tz":"利雅得时间","mins":"分钟","another":"再预约一次","pickTime":"选择时间"},HOME="/zh/",AR=false;
+var TX={"loading":"正在加载可预约时间…","noSlots":"近期没有可用时间。请通过 WhatsApp 联系我们安排。","need":"请填写姓名、手机号和邮箱，并选择时间。","busy":"正在确认…","taken":"该时段刚被预订，请另选。","failed":"无法确认。请重试或通过 WhatsApp 联系我们。","doneT":"预约成功","doneOn":"您的预约","meet":"会议链接","addCal":"添加到日历","mailed":"详情已发送至您的邮箱。","confirm":"团队确认时间后会通过邮件通知您。","tz":"利雅得时间","mins":"分钟","another":"再预约一次","pickTime":"选择时间","tpRecGen":"批量招聘 / 高管职位 — 招聘与引进服务"},HOME="/zh/",AR=false;
 var $=function(id){return document.getElementById(id)};
 var DAYS=[],pick={date:'',time:''},slotMin=30,calState='off';
 var DOW=AR?['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
@@ -525,6 +530,10 @@ function done(o){
  again.textContent=TX.another;again.onclick=function(){location.reload()};acts.appendChild(again);
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+
+// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
+try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
+ if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
 
 load();
 })();</script><style>

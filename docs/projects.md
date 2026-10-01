@@ -14,7 +14,7 @@
 
 ---
 
-## المشاريع السبعة والثلاثون
+## المشاريع الثمانية والثلاثون
 
 | # | المشروع | المدير | يملك | الحالة |
 |---|---|---|---|---|
@@ -417,7 +417,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
 | ├ `recruitment-employer` | `api/employer.js` · `api/candidates.js` · `api/hire.js` · `site/scripts/hr-app.mjs` · `site/scripts/hr-i18n.mjs` · `site/scripts/*employer*` |
-| ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` |
+| ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` · `api/_occupations.js` · `api/_occupation-map.json` |
 | ├ `recruitment-agencies` | `api/_agencies.js` |
 | └ `recruitment-jobs` | `site/scripts/simple-v1-hiring.mjs` **وحده** — `/jobs/*` و`/job` و`/careers` تُولَّد في `generate.mjs` المملوك لـ`platform-engineer`، فيُنسَّق معه ولا يُكتب فيه |
 | `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` · `site/scripts/simple-v1-knowledge.mjs` · `site/scripts/sv1-guide-sell.mjs` |
@@ -534,3 +534,9 @@ Simple V1. وكيل المنتج لا يلمسها.
 الحساب البنكي، بيانات الشركات، منصة الصفقات — كلها صفحة تصف خدمةً وزرٌّ
 يقفز إلى **نموذج بلا حقول أو بلا وجهة**. العميل يقرأ ولا يستطيع أن يطلب إلا
 عبر واتساب. هذا هو سبب إحساس المالك بأن «الخدمات غير فعّالة».
+
+---
+
+## وكيل `eor` — 2026-10-01 (أمر المالك المباشر)
+
+**خدمة الموظفين على بند التعاقد (Employer of Record):** `/eor` صفحة الشرح ونموذج الطلب (عدد الموظفين، الجنسيات، المهن من التصنيف الموحّد)، سجلّ «BP EOR Requests» في Notion، تنبيه فرح على واتساب، عرض سعر ونطاق عمل ومحادثة. الملفات: `api/_eor.js` · `api/_eor-pricing.json` (يملؤه المالك — لا أسعار مخترعة) · `site/scripts/simple-v1-eor.mjs`. المسار عبر `api/requests.js?__route=eor` (owner-ops). تعريف الوكيل: `.claude/agents/eor.md`.

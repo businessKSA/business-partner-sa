@@ -27,6 +27,7 @@ import {
 import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
+import { handleEor } from "./_eor.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -39,6 +40,7 @@ import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
+import { handlePrIntake } from "./_printake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
@@ -883,6 +885,35 @@ async function readBody(req) {
   return await new Promise((resolve) => {
     let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } });
   });
+}
+
+// POST /api/requests?__route=eor        — حمولة النموذج → { ok, ref }
+// GET  /api/requests?__route=eor&action=search&q=...  — بحث المهن → { ok, results }
+// البريد وتنبيه المالك بالدالتين القائمتين نفسيهما (sendEmail / ownerWaNotify) فيحكمهما
+// EMAIL_MODE / WHATSAPP_MODE كبقية النماذج. الحمولة لا تُسجَّل هنا ولا تُمرَّر إلى console.
+async function handleEorRoute(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  let body;
+  if (req.method === "GET") {
+    const qq = req.query || {};
+    if (String(qq.action || "") !== "search") return send(405, { ok: false, error: "method_not_allowed" });
+    body = { action: "search", q: qq.q };
+  } else if (req.method === "POST") {
+    body = await readBody(req);
+    if (!body || typeof body !== "object" || Array.isArray(body)) return send(400, { ok: false, error: "invalid_body" });
+  } else {
+    return send(405, { ok: false, error: "method_not_allowed" });
+  }
+  const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
+  let r;
+  try {
+    r = await handleEor(body, { ip, sendEmail, notify: ownerWaNotify, teamEmail: TEAM_EMAIL, ownerEmail: OWNER_EMAIL });
+  } catch (e) {
+    console.error("eor route exception", String((e && e.message) || e).slice(0, 120));
+    return send(502, { ok: false, error: "unavailable" });
+  }
+  return send(r.ok ? 200 : (r.status || 400), r);
 }
 
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
@@ -1819,7 +1850,12 @@ export default async function handler(req, res) {
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
+  // ونفس السبب لـ/api/pr-intake — بوابة تعبئة ملف الإقامة المميزة
+  // (منتج رائد الأعمال) تعيش في ./_printake.js: المسوّدة والمرفقات والإرسال.
+  if ((q.__route || "") === "pr-intake") return handlePrIntake(req, res);
   if ((q.__route || "") === "spaces") return spacesHandler(req, res);
+  // موظفون على بند التعاقد (EOR) — المنطق كله في ./_eor.js؛ هنا توصيلٌ فقط.
+  if ((q.__route || "") === "eor") return handleEorRoute(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }

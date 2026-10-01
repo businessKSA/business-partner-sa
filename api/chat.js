@@ -64,7 +64,7 @@ const SYSTEM_INSTRUCTIONS = () => `أنت «باهر» — المساعد الذ
 ${KNOWLEDGE}
 === نهاية قاعدة المعرفة ===`;
 
-// Simple V1 — «مساعد شريك الأعمال»: one intake conversation for the three
+// Simple V1 — «المستشار الذكي من Business Partner»: one intake conversation for the three
 // public services. It understands, structures and sells; it does not hand
 // out a free consulting report. When it has enough it appends a machine
 // block the homepage turns into an editable scope (never shown raw).
@@ -72,11 +72,33 @@ const INTAKE_CONTEXT = {
   consulting: "السياق: استشارة أعمال (سؤال، تحدٍّ تشغيلي، هيكلة، امتثال، قرار يحتاج رأياً). اجمع: طبيعة النشاط، المشكلة أو القرار بالتحديد، الأثر أو الاستعجال، وهل يفضّل العميل جلسة استشارية مباشرة.",
   government: "السياق: خدمة أو معاملة حكومية (قوى، التأمينات، مدد، مقيم، أبشر أعمال، بلدي، المركز السعودي للأعمال، وزارة التجارة، الموارد البشرية، الزكاة والضريبة، وزارة الاستثمار…). اجمع: المنصة والجهة، ما الذي يريده بالضبط، حالة المنشأة الآن، عدد الموظفين أو المعاملات المعنية، وهل توجد مخالفة أو إيقاف أو مهلة.",
   formation: "السياق: تأسيس شركة في السعودية — غالباً فرع لشركة أجنبية أو رائد أعمال أجنبي عبر مسار ريادة الأعمال. اجمع: جنسية المالك أو الشركة الأم، النشاط المطلوب، هل توجد شركة قائمة خارج السعودية (سنة التأسيس والقوائم المالية)، المدينة، عدد الشركاء، وهل يحتاج إقامة أو تأشيرات أو مقراً.",
+  // ‏الباب الرابع (bizdev) — «مستشار تطوير الأعمال». يمرّ بالآلية نفسها: مفتاح
+  // السياق في `context` ثم هذا السطر ثم نوع الكتلة. نوعه BUSINESS_DEVELOPMENT.
+  // ‏تفاصيل الخدمة نفسها في قاعدة المعرفة (قسم Revenue OS) لا هنا.
+  bizdev: `السياق: تطوير الأعمال كخدمة (نظام تشغيل الإيرادات Revenue OS) — الخدمة الرابعة. نبني للعميل قاعدة عملاء أو موردين أو شركاء وموزعين، ونؤهّل الحسابات ونحجز الاجتماعات، وفي بعض الباقات يُغلق فريقنا الصفقة معه. نوع الطلب في الكتلة: BUSINESS_DEVELOPMENT. عرّف بنفسك عند الحاجة بـ«المستشار الذكي» لا «الوكيل».
+المسارات الثلاثة: يبحث عن عملاء · يبحث عن موردين · يبحث عن شريك أو موزع. اجمع بهذا الترتيب (الأهم أولاً، وما ذكره العميل من نفسه لا تسأله عنه):
+ ١) القطاع والنشاط وماذا يبيع أو يشتري، ومعه المسار إن لم يتضح.
+ ٢) مصدر المبيعات أو العملاء الحالي (إحالات، معارض، تواصل مباشر، إعلانات، لا شيء بعد) والهدف المطلوب خلال ٩٠ يوماً.
+ ٣) حجم فريق المبيعات الحالي ومن سيُغلق الصفقات (العميل أم فريقنا معه).
+ ٤) المدينة أو المناطق المستهدفة.
+السؤالان التوضيحيان المسموحان يؤخذان من أعلى القائمة؛ وما بقي بلا جواب يدخل في needs كمعلومة تُستكمل في جلسة التشخيص، لا في سؤال ثالث.
+عند إخراج الكتلة: type هو BUSINESS_DEVELOPMENT. وبنود items تُصاغ بنود عمل لا وعوداً، من مثل: جلسة تشخيص السوق وملف العميل (أو المورد أو الشريك) المثالي · بناء قائمة الشركات المستهدفة بالقطاع والمدينة · خطة التواصل وتأهيل الحسابات · تجهيز الـCRM ومسار الفرص وتوثيق مصدر الصفقة · حجز الاجتماعات ومتابعتها · تقرير شهري بالنتائج، وعند اختيار «نُغلق معك»: دعم العرض والتفاوض ومتابعة التحصيل. ضع code من REV-* في بند واحد على الأكثر وفقط حين تتضح الباقة من جواب العميل عمّن يُغلق الصفقات؛ وإلا فاترك الأكواد فارغة.
+وفي needs: 2–6 معلومات أو مستندات محددة من مثل: رابط موقع الشركة أو ملفها التعريفي · وصف الخدمة أو المنتج وفئاته · ملف العميل المثالي (القطاع، حجم الشركة، المدينة، صنّاع القرار) · متوسط قيمة الصفقة ودورة البيع الحالية · أهم العملاء الحاليين أو الصفقات السابقة إن وُجدت · اتفاقيات التمثيل أو التوزيع القائمة (لمسار الشريك أو الموزع) · حجم فريق المبيعات الحالي والمدينة إن لم يُذكرا.
+قواعد هذا الباب: لا تَعِد بنتيجة مبيعات ولا بعدد عملاء ولا بإيراد ولا بقيمة Pipeline — قيمة الـPipeline مستهدفة لفرص مؤهلة وليست إيراداً مضموناً. لا تذكر سعراً ولا نسبة عمولة ولا أي رقم رسوم (التسعير يأتي في عرض السعر بعد المراجعة)، ولا تذكر معلومة حكومية: الخدمة لا تتعلق بجهة حكومية، وإن سأل عن إجراء حكومي فقل إن للخدمات الحكومية باباً خاصاً وإن الفريق يخدمه فيه. ما تقوله عن الخدمة والباقات من قاعدة المعرفة فقط.`,
 };
 const INTAKE_LANG = { ar: "العربية", en: "English", fr: "le français", zh: "中文（简体）" };
 function intakeInstructions(context, lang) {
   // ‏KNOWLEDGE مضبوطة قبل النداء إلى ما يخصّ هذا الدور — انظر الـhandler.
-  return `أنت «مساعد شريك الأعمال» (Business Partner) على الموقع. الشركة تقدّم ثلاث خدمات فقط للعملاء: الاستشارات، الخدمات الحكومية، وتأسيس الشركات في السعودية.
+  // ‏الأبواب الثلاثة القديمة تبقى بنصّها الحرفي؛ الرابع وحده يُعرَّف بأربع خدمات
+  // وأربعة أنواع، فلا يُعرض نوعه على باب لا يملكه فيُخطئ التصنيف.
+  const four = context === "bizdev";
+  const services = four
+    ? "الشركة تقدّم أربع خدمات للعملاء: الاستشارات، الخدمات الحكومية، تأسيس الشركات في السعودية، وتطوير الأعمال."
+    : "الشركة تقدّم ثلاث خدمات فقط للعملاء: الاستشارات، الخدمات الحكومية، وتأسيس الشركات في السعودية.";
+  const types = four
+    ? "CONSULTATION|GOVERNMENT_SERVICE|COMPANY_FORMATION|BUSINESS_DEVELOPMENT"
+    : "CONSULTATION|GOVERNMENT_SERVICE|COMPANY_FORMATION";
+  return `أنت «المستشار الذكي من Business Partner» على الموقع. ${services}
 ${INTAKE_CONTEXT[context] || INTAKE_CONTEXT.consulting}
 
 هدفك: افهم → رتّب → بِع → نفّذ. لا تعطِ تقريراً استشارياً مجانياً طويلاً؛ أجب باختصار شديد على أي سؤال عام (جملتان كحد أقصى) ثم اجمع ما تحتاجه لترتيب الطلب.
@@ -88,7 +110,7 @@ ${INTAKE_CONTEXT[context] || INTAKE_CONTEXT.consulting}
   من ٢ إلى ٤ خيارات، كل خيار أقل من ٤٠ حرفاً، مكتوبة بصيغة إجابة العميل عن نفسه («نعم حصلت عليه»، «لا، أحتاج مساعدة») لا بصيغة أمر. الواجهة تحوّلها إلى أزرار يضغطها بدل الكتابة، ويبقى بوسعه أن يكتب شرحه بحرية. لا تضع الكتلة إذا كان السؤال مفتوحاً حقاً (مثل «اشرح لي مشكلتك»).
 - لا تذكر أي أسعار أو أرقام رسوم للعميل هنا؛ التسعير يأتي في عرض السعر بعد المراجعة. المعلومات الحكومية فقط مما في قاعدة المعرفة، وإن لم تجد قل إن الفريق سيؤكدها.
 - **لا تتأخر في إخراج النطاق.** سؤالان توضيحيان كحد أقصى (واحد في كل دور)؛ وبعد ثاني رد من العميل أخرج الكتلة دائماً ولو بقي غموض — النطاق قابل للتعديل بيده، والغموض يُحسم بمستند تطلبه في needs لا بسؤال ثالث. اكتب رسالة قصيرة تقول إنك رتّبت له نطاق الخدمات والمستندات المطلوبة وتطلب مراجعتها، ثم أضف في سطر مستقل — بلا أي تعليق قبله أو بعده — كتلة بهذا الشكل بالضبط:
-<<SCOPE>>{"ready":true,"type":"CONSULTATION|GOVERNMENT_SERVICE|COMPANY_FORMATION","title":"عنوان قصير للطلب بلغة العميل","summary":"ملخص من 2–4 أسطر بلغة العميل لما فهمته","items":[{"code":"BP-XXX-00","title":"بند النطاق بلغة العميل","why":"سبب إدراجه بجملة"}],"needs":["مستند أو معلومة سنطلبها لاحقاً"]}<<END>>
+<<SCOPE>>{"ready":true,"type":"${types}","title":"عنوان قصير للطلب بلغة العميل","summary":"ملخص من 2–4 أسطر بلغة العميل لما فهمته","items":[{"code":"BP-XXX-00","title":"بند النطاق بلغة العميل","why":"سبب إدراجه بجملة"}],"needs":["مستند أو معلومة سنطلبها لاحقاً"]}<<END>>
 - في items: 2–6 بنود عملية (فحص، مراجعة، تجهيز، تقديم، متابعة…). ضع code فقط إذا كان رمزاً موجوداً حرفياً في قائمة الخدمات أدناه وكان مطابقاً للبند؛ وإلا اتركه "". لا تَعِد بإلغاء مخالفات؛ الصياغة: مراجعة/دراسة أهلية الاعتراض/تجهيز/تقديم/متابعة.
 - **needs إلزامي ولا يُترك فارغاً.** لكل خدمة مستنداتها: اذكر 2–6 مستندات محدّدة بالاسم يحتاجها هذا الطلب بالذات، لا عبارات عامة. مثال للخدمات الحكومية: «السجل التجاري ساري»، «رخصة المنشأة على المنصة»، «صورة هوية/إقامة ممثل المنشأة»، «صورة الإشعار أو المخالفة». وللتأسيس: «جواز سفر المستثمر»، «السجل التجاري للشركة الأم مصدّقاً»، «قرار الشركاء بفتح الفرع»، «عقد المقر أو العنوان الوطني». وللاستشارات: ما يلزم لفهم الحالة فقط. اكتبها بلغة العميل، ولا تطلب مستنداً لا يخص الخدمة.
 - لا تُظهر الكتلة أو تشرحها للعميل؛ الواجهة تحوّلها إلى قائمة يعدّلها بنفسه. قبل الجاهزية لا تكتب <<SCOPE>> أبداً.
@@ -253,22 +275,32 @@ function intakeFallback(body, messages) {
         type: "COMPANY_FORMATION", title: "تأسيس شركة في السعودية",
         items: ["تحديد مسار التأسيس المناسب", "تجهيز متطلبات ووثائق التأسيس", "إجراءات التأسيس والتسجيلات الحكومية الأساسية"],
         needs: ["جوازات أو هويات الملاك", "بيانات النشاط والمدينة", "مستندات الشركة الأم إن وجدت"]
+      },
+      bizdev: {
+        first: "تمام. وش نشاط شركتك، وتبحث عن عملاء، أو موردين، أو شريك وموزّع؟",
+        intro: "رتبت لك نطاقاً مبدئياً لتطوير الأعمال. راجعه وعدّل عليه قبل عرض السعر.",
+        type: "BUSINESS_DEVELOPMENT", title: "تطوير الأعمال",
+        items: ["جلسة تشخيص السوق وملف العميل المثالي", "بناء قائمة الشركات المستهدفة بالقطاع والمدينة", "خطة التواصل وتأهيل الحسابات وحجز الاجتماعات", "تجهيز الـCRM ومسار الفرص وتقرير شهري"],
+        needs: ["رابط موقع الشركة أو ملفها التعريفي", "وصف الخدمة أو المنتج وفئاته", "ملف العميل المثالي (القطاع، حجم الشركة، المدينة)", "متوسط قيمة الصفقة ودورة البيع الحالية", "حجم فريق المبيعات الحالي"]
       }
     },
     en: {
       consulting: { first: "Got it. What does the company do, and what should the consultation focus on?", intro: "I prepared an initial scope. Please review it before the quotation.", type: "CONSULTATION", title: "Business consultation", items: ["Review the current situation", "Identify relevant authorities and requirements", "Define the recommended next steps"], needs: ["Commercial registration or company details", "Relevant documents or notices"] },
       government: { first: "Got it. Which government platform or authority is involved, and what action or error are you dealing with?", intro: "I prepared an initial government-service scope. Please review it before the quotation.", type: "GOVERNMENT_SERVICE", title: "Government service request", items: ["Review the current platform status", "Identify the required procedure and requirements", "Prepare and follow up the required transaction"], needs: ["Screenshot of any error or notice", "Commercial registration", "Relevant transaction or employee details"] },
-      formation: { first: "Great. Is this for a foreign company branch or an entrepreneurship setup, and what activity are you targeting?", intro: "I prepared an initial formation scope. Please review it before the quotation.", type: "COMPANY_FORMATION", title: "Company formation in Saudi Arabia", items: ["Determine the appropriate formation route", "Prepare formation requirements and documents", "Complete core formation and government registrations"], needs: ["Owners' passport or ID details", "Business activity and target city", "Parent company documents if applicable"] }
+      formation: { first: "Great. Is this for a foreign company branch or an entrepreneurship setup, and what activity are you targeting?", intro: "I prepared an initial formation scope. Please review it before the quotation.", type: "COMPANY_FORMATION", title: "Company formation in Saudi Arabia", items: ["Determine the appropriate formation route", "Prepare formation requirements and documents", "Complete core formation and government registrations"], needs: ["Owners' passport or ID details", "Business activity and target city", "Parent company documents if applicable"] },
+      bizdev: { first: "Got it. What does your company do, and are you looking for customers, suppliers, or a partner or distributor?", intro: "I prepared an initial business-development scope. Please review it before the quotation.", type: "BUSINESS_DEVELOPMENT", title: "Business development", items: ["Diagnostic session on the market and ideal customer profile", "Build the target-company list by sector and city", "Outreach plan, account qualification and meeting booking", "Set up the CRM, opportunity pipeline and monthly report"], needs: ["Company website or profile", "Description of your product or service", "Ideal customer profile (sector, company size, city)", "Average deal value and current sales cycle", "Current sales team size"] }
     },
     fr: {
       consulting: { first: "D’accord. Quelle est l’activité de l’entreprise et quel sujet souhaitez-vous traiter ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "CONSULTATION", title: "Conseil aux entreprises", items: ["Analyser la situation actuelle", "Identifier les autorités et exigences concernées", "Définir les prochaines étapes"], needs: ["Registre commercial ou informations de l’entreprise", "Documents liés au dossier"] },
       government: { first: "D’accord. Quelle plateforme ou autorité est concernée et quelle difficulté rencontrez-vous ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "GOVERNMENT_SERVICE", title: "Demande de service gouvernemental", items: ["Vérifier la situation actuelle", "Identifier la procédure et les exigences", "Préparer et suivre la démarche"], needs: ["Capture d’écran de l’erreur", "Registre commercial", "Informations liées au dossier"] },
-      formation: { first: "Très bien. S’agit-il d’une succursale étrangère ou d’un projet entrepreneurial, et quelle activité visez-vous ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "COMPANY_FORMATION", title: "Création d’entreprise en Arabie saoudite", items: ["Déterminer le parcours adapté", "Préparer les exigences et documents", "Réaliser les principales formalités"], needs: ["Passeports ou pièces d’identité", "Activité et ville ciblée", "Documents de la société mère le cas échéant"] }
+      formation: { first: "Très bien. S’agit-il d’une succursale étrangère ou d’un projet entrepreneurial, et quelle activité visez-vous ?", intro: "J’ai préparé un périmètre initial. Vérifiez-le avant le devis.", type: "COMPANY_FORMATION", title: "Création d’entreprise en Arabie saoudite", items: ["Déterminer le parcours adapté", "Préparer les exigences et documents", "Réaliser les principales formalités"], needs: ["Passeports ou pièces d’identité", "Activité et ville ciblée", "Documents de la société mère le cas échéant"] },
+      bizdev: { first: "D’accord. Quelle est l’activité de votre entreprise, et cherchez-vous des clients, des fournisseurs ou un partenaire ou distributeur ?", intro: "J’ai préparé un périmètre initial de développement commercial. Vérifiez-le avant le devis.", type: "BUSINESS_DEVELOPMENT", title: "Développement commercial", items: ["Séance de diagnostic du marché et du client idéal", "Constituer la liste des entreprises cibles par secteur et ville", "Plan de prospection, qualification des comptes et prise de rendez-vous", "Mise en place du CRM, du pipeline d’opportunités et du rapport mensuel"], needs: ["Site web ou présentation de l’entreprise", "Description de votre produit ou service", "Profil du client idéal (secteur, taille, ville)", "Valeur moyenne d’une vente et cycle de vente actuel", "Taille de l’équipe commerciale actuelle"] }
     },
     zh: {
       consulting: { first: "好的。请告诉我公司的业务类型，以及这次咨询最需要解决的问题。", intro: "我已整理初步服务范围，请在报价前检查。", type: "CONSULTATION", title: "企业咨询", items: ["了解当前情况", "确认相关政府部门和要求", "确定建议的下一步行动"], needs: ["商业登记或公司资料", "与事项有关的文件或通知"] },
       government: { first: "好的。请告诉我涉及哪个政府平台或部门，以及遇到什么问题。", intro: "我已整理初步服务范围，请在报价前检查。", type: "GOVERNMENT_SERVICE", title: "政府服务申请", items: ["检查平台当前状态", "确认所需流程和要求", "准备并跟进相关事项"], needs: ["错误或通知截图", "商业登记", "相关交易或员工信息"] },
-      formation: { first: "好的。您计划设立外国公司分支机构还是创业公司？目标业务是什么？", intro: "我已整理初步设立范围，请在报价前检查。", type: "COMPANY_FORMATION", title: "在沙特设立公司", items: ["确定合适的设立路径", "准备设立要求和文件", "完成核心设立和政府登记流程"], needs: ["股东护照或身份证明", "业务活动和目标城市", "如适用，母公司文件"] }
+      formation: { first: "好的。您计划设立外国公司分支机构还是创业公司？目标业务是什么？", intro: "我已整理初步设立范围，请在报价前检查。", type: "COMPANY_FORMATION", title: "在沙特设立公司", items: ["确定合适的设立路径", "准备设立要求和文件", "完成核心设立和政府登记流程"], needs: ["股东护照或身份证明", "业务活动和目标城市", "如适用，母公司文件"] },
+      bizdev: { first: "好的。请告诉我贵公司的业务，以及您是在寻找客户、供应商，还是合作伙伴或经销商？", intro: "我已整理初步业务拓展服务范围，请在报价前检查。", type: "BUSINESS_DEVELOPMENT", title: "业务拓展", items: ["市场与理想客户画像诊断会", "按行业和城市建立目标企业名单", "开发计划、账户筛选与会议预约", "搭建CRM、商机管道和月度报告"], needs: ["公司网站或公司简介", "产品或服务说明", "理想客户画像（行业、规模、城市）", "平均成交金额和当前销售周期", "当前销售团队规模"] }
     }
   };
   const group = presets[lang] || presets.ar;
@@ -345,7 +377,11 @@ export default async function handler(req, res) {
   const focus = (Array.isArray(body.messages) ? body.messages : [])
     .filter((m) => m && typeof m.content === "string")
     .slice(-2).map((m) => m.content).join(" ").slice(0, 1200);
-  KNOWLEDGE = pickKnowledge(focus, isAdmin ? 20000 : 9000);
+  // ‏قسم Revenue OS في المعرفة «مقيَّد»: لا ينافس الأقسام الأخرى بالدرجات، ويُضمّ
+  // فقط لباب تطوير الأعمال (door) أو لسؤالٍ تدلّ عبارته على نيّته — انظر
+  // api/_knowledge.js. الأبواب الأخرى: الاختيار نفسه حرفاً كما كان.
+  const bizdevDoor = isIntake && String(body.context || "") === "bizdev";
+  KNOWLEDGE = pickKnowledge(focus, isAdmin ? 20000 : 9000, bizdevDoor ? { door: "bizdev" } : {});
 
   const intakeSystem = isIntake ? intakeInstructions(String(body.context || "consulting"), String(body.lang || "ar")) : null;
   let accountSystem = null;

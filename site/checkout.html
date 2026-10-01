@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Checkout — Business Partner</title>
-<meta name="description" content="Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.">
+<meta name="description" content="Pay online by card (mada · Visa · Mastercard) or split it with Tamara — your tax invoice arrives the moment payment is confirmed.">
 <meta property="og:title" content="Checkout — Business Partner">
-<meta property="og:description" content="Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.">
+<meta property="og:description" content="Pay online by card (mada · Visa · Mastercard) or split it with Tamara — your tax invoice arrives the moment payment is confirmed.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-co-css">
@@ -360,7 +365,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="sv1-title" style="margin-bottom:26px;">
       <span class="sv1-tag">Checkout</span>
       <h2>Checkout</h2>
-      <p>Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.</p>
+      <p>Pay online by card (mada · Visa · Mastercard) or split it with Tamara — your tax invoice arrives the moment payment is confirmed.</p>
     </div>
 
     <div class="sv1-co-grid">
@@ -382,7 +387,7 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div class="sv1-co-ways" id="coWays">
             <button type="button" class="sv1-co-way on" data-way="card">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg></span>
-              <span class="tx"><b id="coWayCardLabel">Card · Apple Pay</b><small>mada · Visa · Mastercard</small></span>
+              <span class="tx"><b id="coWayCardLabel">Card</b><small>mada · Visa · Mastercard</small></span>
             </button>
             <button type="button" class="sv1-co-way" data-way="tamara" id="coWayTamara">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
@@ -512,7 +517,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="en",HOME="/";
-var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","cardSP":"Card · Apple Pay · Samsung Pay","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge"};
+var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -673,28 +678,68 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  s.onload=function(){
   if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
   var wanted=(cfg.methods||['creditcard']).slice();
+  // Apple Pay: جاهزيته معروفة بنداءٍ متزامن من المتصفح نفسه.
   var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
-  if(!canAP)wanted=wanted.filter(function(m){return m!=='applepay'});
+  var ap=cfg.applePay&&canAP?cfg.applePay:null;
+  if(!ap)wanted=wanted.filter(function(m){return m!=='applepay'});
   // Samsung Pay: قيمة «samsungpay» في methods مع كائن samsung_pay (service_id
   // من حساب سامسونج للمطوّرين، والمرجع رقمَ طلب). الخادم لا يعيدها إلا مكتملة.
-  var sp=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
-  if(!sp)wanted=wanted.filter(function(m){return m!=='samsungpay'});
-  else{var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.cardSP}
-  if(!wanted.length)wanted=['creditcard'];
-  function boot(methods,applePay,samsungPay){
+  var sp0=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
+  // Google Pay: كائن google_pay (merchant_id من لوحة Google Pay & Wallet).
+  var gp0=cfg.googlePay&&cfg.googlePay.merchant_id?cfg.googlePay:null;
+  // سؤال المحفظة نفسها «هل جهازي جاهز؟» — نفس السؤال الذي يطرحه النموذج قبل أن
+  // يرسم زرّه، لكن هنا قبل أن نسمّي المحفظة في العنوان أو نمرّرها. أي فشل
+  // (SDK محجوب، مهلة، رفض) = غير جاهزة، فلا يظهر شيء ولا يُوعَد بشيء.
+  function probe(src,have,ask,done){
+   var fin=false;function end(ok){if(!fin){fin=true;done(!!ok)}}
+   setTimeout(function(){end(false)},3000);
+   function run(){try{ask(end)}catch(e){end(false)}}
+   if(have()){run();return}
+   var sc=document.createElement('script');sc.src=src;sc.onload=run;sc.onerror=function(){end(false)};document.head.appendChild(sc)}
+  function askSamsung(end){
+   var c=new window.SamsungPay.PaymentClient({environment:sp0.environment||'PRODUCTION'});
+   c.isReadyToPay({version:'2',serviceId:sp0.service_id,protocol:'PROTOCOL_3DS',allowedBrands:['visa','mastercard','mada']})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  function askGoogle(end){
+   var c=new window.google.payments.api.PaymentsClient({environment:gp0.environment||'PRODUCTION'});
+   c.isReadyToPay({apiVersion:2,apiVersionMinor:0,allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['CRYPTOGRAM_3DS'],allowedCardNetworks:['VISA','MASTERCARD']}}]})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  var pending=(sp0?1:0)+(gp0?1:0),spOk=false,gpOk=false,started=false;
+  function oneDone(){if(--pending<=0&&!started){started=true;go()}}
+  function go(){
+   var sp=sp0&&spOk?sp0:null,gp=gp0&&gpOk?gp0:null;
+   wanted=wanted.filter(function(m){return m!=='samsungpay'&&m!=='googlepay'});
+   if(sp)wanted.push('samsungpay');
+   if(gp)wanted.push('googlepay');
+   if(!wanted.length)wanted=['creditcard'];
+   // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
+   var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
+   try{boot(wanted,ap,sp,gp)}
+   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+  function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   window.Moyasar.init({element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order',publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){return {metadata:meta()}},
     methods:methods,apple_pay:applePay||undefined,
     samsung_pay:samsungPay?{service_id:samsungPay.service_id,order_number:m.ref,country:samsungPay.country||'SA',
-      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined});
+      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined};
+   if(googlePay){
+    opt.google_pay={merchant_id:googlePay.merchant_id,country:googlePay.country||'SA',
+     label:googlePay.label||'Business Partner',environment:googlePay.environment||'PRODUCTION',auth_methods:['CRYPTOGRAM_3DS']};
+    // زرّ Google Pay يُسمّي الشبكات بأسماء Google (VISA · MASTERCARD)؛ القيمة
+    // الافتراضية للنموذج تضيف UNIONPAY وليست من أسمائها فتُسقط الزرّ.
+    opt.supported_networks=['mada','visa','mastercard']}
+   window.Moyasar.init(opt);
    // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
    // المشتري بلا وسيلة دفع ولا رسالة.
    setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
-  try{boot(wanted,canAP?cfg.applePay:null,sp)}
-  catch(e){try{boot(['creditcard'],null,null)}catch(e2){payFailed()}}};
+  if(!pending){started=true;go()}
+  else{
+   if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){spOk=ok;oneDone()});
+   if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
 })();</script></body></html>

@@ -16,20 +16,27 @@
 // وصلت ولا أحد يعرف لمن.
 //
 // الدفع إلكتروني فقط (أمر المالك 2026-09-24): مدى · فيزا · ماستركارد · Apple Pay
-// · Samsung Pay · تمارا. لا تحويل بنكي ولا رفع إيصال من هذه الصفحة — مسار
-// `receipt-upload` في api/_simple.js باقٍ للطلبات التي بدأت تحويلاً قبل القرار،
-// ولا يدخله طلب جديد من هنا.
+// · Samsung Pay · Google Pay · تمارا. لا تحويل بنكي ولا رفع إيصال من هذه
+// الصفحة — مسار `receipt-upload` في api/_simple.js باقٍ للطلبات التي بدأت
+// تحويلاً قبل القرار، ولا يدخله طلب جديد من هنا.
 //
-// Samsung Pay مدعوم في نموذج مُيسّر بقيمة `samsungpay` في `methods`، لكنه لا
-// يُعرض إلا حين يعيده /api/pay مع `samsungPay` (معرّف الخدمة من حساب سامسونج
-// للمطوّرين) — زرٌّ يفشل عند لمسه أسوأ من زرٍّ لم يُعرض.
+// المحافظ ثلاث، ولكلٍّ شرطان لا يكفي أحدهما: تفعيلٌ عند المالك (يعيده /api/pay:
+// `applePay` · `samsungPay` · `googlePay`) **وجاهزيةٌ على جهاز الزائر** (Apple:
+// `ApplePaySession.canMakePayments` · Samsung/Google: `isReadyToPay` من SDK
+// المحفظة نفسها). زرٌّ يفشل عند لمسه أسوأ من زرٍّ لم يُعرض، وعنوانُ بطاقةٍ يَعِد
+// بمحفظةٍ لا تظهر أسوأ منهما — فعنوان البطاقة يسمّي المحافظ الجاهزة فعلاً فقط،
+// وما سواها لا يُذكر ولا يُمرَّر إلى النموذج.
+//
+// Google Pay في نموذج مُيسّر 2.2.10 كائنُ `google_pay` (merchant_id · country ·
+// label · environment) لا قيمةً في `methods` — الزر يُرسم من `merchant_id`.
+// نطلب `CRYPTOGRAM_3DS` وحده (توثيق مُيسّر): `PAN_ONLY` يعني رقم بطاقة خام بلا 3DS.
 
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
-  desc:    { ar: "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.",
-             en: "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — your tax invoice arrives the moment payment is confirmed.",
-             fr: "Payez en ligne par carte (mada · Visa · Mastercard), Apple Pay ou Tamara — votre facture fiscale arrive dès confirmation.",
-             zh: "在线支付：银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara——确认后立即收到税务发票。" },
+  desc:    { ar: "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.",
+             en: "Pay online by card (mada · Visa · Mastercard) or split it with Tamara — your tax invoice arrives the moment payment is confirmed.",
+             fr: "Payez en ligne par carte (mada · Visa · Mastercard) ou en plusieurs fois avec Tamara — votre facture fiscale arrive dès confirmation.",
+             zh: "在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。" },
   yourData:{ ar: "بياناتك", en: "Your details", fr: "Vos informations", zh: "您的信息" },
   name:    { ar: "الاسم الكامل", en: "Full name", fr: "Nom complet", zh: "姓名" },
   phone:   { ar: "رقم الجوال", en: "Mobile", fr: "Mobile", zh: "手机号" },
@@ -42,9 +49,9 @@ const T = {
   empty:   { ar: "سلتك فارغة.", en: "Your cart is empty.", fr: "Votre panier est vide.", zh: "购物车为空。" },
   browse:  { ar: "استعرض الخدمات", en: "Browse services", fr: "Voir les services", zh: "浏览服务" },
   how:     { ar: "طريقة الدفع", en: "Payment method", fr: "Mode de paiement", zh: "支付方式" },
-  card:    { ar: "بطاقة · Apple Pay", en: "Card · Apple Pay", fr: "Carte · Apple Pay", zh: "银行卡 · Apple Pay" },
-  // يظهر بدل «card» حين يعيد /api/pay إعداد Samsung Pay مكتملاً.
-  cardSP:  { ar: "بطاقة · Apple Pay · Samsung Pay", en: "Card · Apple Pay · Samsung Pay", fr: "Carte · Apple Pay · Samsung Pay", zh: "银行卡 · Apple Pay · Samsung Pay" },
+  // عنوان الطريقة «بطاقة» وحدها؛ والسكربت يُلحق به أسماء المحافظ التي ثبتت
+  // جاهزيتها على هذا الجهاز فعلاً (Apple Pay · Google Pay · Samsung Pay).
+  card:    { ar: "بطاقة", en: "Card", fr: "Carte", zh: "银行卡" },
   cardSub: { ar: "مدى · فيزا · ماستركارد", en: "mada · Visa · Mastercard", fr: "mada · Visa · Mastercard", zh: "mada · Visa · Mastercard" },
   tamara:  { ar: "تمارا — قسّمها", en: "Tamara — split it", fr: "Tamara — en plusieurs fois", zh: "Tamara 分期" },
   tamaraS: { ar: "ادفع على دفعات بلا فوائد", en: "Interest-free instalments", fr: "Sans frais", zh: "免息分期" },
@@ -207,7 +214,7 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), cardSP: t("cardSP"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag") })};
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -368,29 +375,69 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  s.onload=function(){
   if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
   var wanted=(cfg.methods||['creditcard']).slice();
+  // Apple Pay: جاهزيته معروفة بنداءٍ متزامن من المتصفح نفسه.
   var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
-  if(!canAP)wanted=wanted.filter(function(m){return m!=='applepay'});
+  var ap=cfg.applePay&&canAP?cfg.applePay:null;
+  if(!ap)wanted=wanted.filter(function(m){return m!=='applepay'});
   // Samsung Pay: قيمة «samsungpay» في methods مع كائن samsung_pay (service_id
   // من حساب سامسونج للمطوّرين، والمرجع رقمَ طلب). الخادم لا يعيدها إلا مكتملة.
-  var sp=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
-  if(!sp)wanted=wanted.filter(function(m){return m!=='samsungpay'});
-  else{var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.cardSP}
-  if(!wanted.length)wanted=['creditcard'];
-  function boot(methods,applePay,samsungPay){
+  var sp0=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
+  // Google Pay: كائن google_pay (merchant_id من لوحة Google Pay & Wallet).
+  var gp0=cfg.googlePay&&cfg.googlePay.merchant_id?cfg.googlePay:null;
+  // سؤال المحفظة نفسها «هل جهازي جاهز؟» — نفس السؤال الذي يطرحه النموذج قبل أن
+  // يرسم زرّه، لكن هنا قبل أن نسمّي المحفظة في العنوان أو نمرّرها. أي فشل
+  // (SDK محجوب، مهلة، رفض) = غير جاهزة، فلا يظهر شيء ولا يُوعَد بشيء.
+  function probe(src,have,ask,done){
+   var fin=false;function end(ok){if(!fin){fin=true;done(!!ok)}}
+   setTimeout(function(){end(false)},3000);
+   function run(){try{ask(end)}catch(e){end(false)}}
+   if(have()){run();return}
+   var sc=document.createElement('script');sc.src=src;sc.onload=run;sc.onerror=function(){end(false)};document.head.appendChild(sc)}
+  function askSamsung(end){
+   var c=new window.SamsungPay.PaymentClient({environment:sp0.environment||'PRODUCTION'});
+   c.isReadyToPay({version:'2',serviceId:sp0.service_id,protocol:'PROTOCOL_3DS',allowedBrands:['visa','mastercard','mada']})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  function askGoogle(end){
+   var c=new window.google.payments.api.PaymentsClient({environment:gp0.environment||'PRODUCTION'});
+   c.isReadyToPay({apiVersion:2,apiVersionMinor:0,allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['CRYPTOGRAM_3DS'],allowedCardNetworks:['VISA','MASTERCARD']}}]})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  var pending=(sp0?1:0)+(gp0?1:0),spOk=false,gpOk=false,started=false;
+  function oneDone(){if(--pending<=0&&!started){started=true;go()}}
+  function go(){
+   var sp=sp0&&spOk?sp0:null,gp=gp0&&gpOk?gp0:null;
+   wanted=wanted.filter(function(m){return m!=='samsungpay'&&m!=='googlepay'});
+   if(sp)wanted.push('samsungpay');
+   if(gp)wanted.push('googlepay');
+   if(!wanted.length)wanted=['creditcard'];
+   // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
+   var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
+   try{boot(wanted,ap,sp,gp)}
+   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+  function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   window.Moyasar.init({element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order',publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){return {metadata:meta()}},
     methods:methods,apple_pay:applePay||undefined,
     samsung_pay:samsungPay?{service_id:samsungPay.service_id,order_number:m.ref,country:samsungPay.country||'SA',
-      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined});
+      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined};
+   if(googlePay){
+    opt.google_pay={merchant_id:googlePay.merchant_id,country:googlePay.country||'SA',
+     label:googlePay.label||'Business Partner',environment:googlePay.environment||'PRODUCTION',auth_methods:['CRYPTOGRAM_3DS']};
+    // زرّ Google Pay يُسمّي الشبكات بأسماء Google (VISA · MASTERCARD)؛ القيمة
+    // الافتراضية للنموذج تضيف UNIONPAY وليست من أسمائها فتُسقط الزرّ.
+    opt.supported_networks=['mada','visa','mastercard']}
+   window.Moyasar.init(opt);
    // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
    // المشتري بلا وسيلة دفع ولا رسالة.
    setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
-  try{boot(wanted,canAP?cfg.applePay:null,sp)}
-  catch(e){try{boot(['creditcard'],null,null)}catch(e2){payFailed()}}};
+  if(!pending){started=true;go()}
+  else{
+   if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){spOk=ok;oneDone()});
+   if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
 })();</script>`;
 

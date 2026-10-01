@@ -115,6 +115,16 @@
     });
   }
 
+  // عنصرٌ يحمل data-bp-pending يُخفي رقم البناء إلى أن تستقرّ القراءة، فلا يرى
+  // المسجَّل ومضةً من رقمٍ ثم رقمٍ آخر (صفحة الخدمة الجديدة). ينزعها هذا الملف
+  // في الحالتين — وصلت القراءة أو تعذّرت — وصفحة الخدمة تُظهره بنفسها (CSS)
+  // بعد ثانيتين إن لم يُحمَّل هذا الملف أصلاً.
+  function settle() {
+    document.querySelectorAll("[data-bp-pending]").forEach(function (el) {
+      el.removeAttribute("data-bp-pending");
+    });
+  }
+
   fetch("/api/live-catalog", { headers: { accept: "application/json" } })
     .then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -126,8 +136,10 @@
         byCode[String(row.code).toUpperCase()] = row;
       });
       apply(byCode);
+      settle();
     })
     .catch(function () {
       /* يبقى سعر البناء ظاهراً — لا رسالة خطأ للزائر. */
+      settle();
     });
 })();

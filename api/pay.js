@@ -81,16 +81,27 @@ const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 // So this is a switch the owner flips once the other side is actually done,
 // not a code change. Values are the form's own
 // (docs.moyasar.com/guides/references/form-configuration#payment-methods-optional):
-//   MOYASAR_METHODS=creditcard,applepay,samsungpay,stcpay
-const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "stcpay"]);
+//   MOYASAR_METHODS=creditcard,applepay,samsungpay,googlepay,stcpay
+//
+// Google Pay: the 2.2.10 form takes it as a `google_pay` object
+// ({ merchant_id, country, label, environment }) and draws its button from
+// `merchant_id` alone — `googlepay` is not in the library's own `methods` list
+// (creditcard · applepay · stcpay · samsungpay), though Moyasar's guide lists
+// it there and it is harmless. The merchant ID is Google's, from the Google Pay
+// & Wallet Console, and production needs Google to approve the site first
+// (developers.google.com/pay/api/web/guides/test-and-deploy/request-prod-access).
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "googlepay", "stcpay"]);
 const METHODS = (process.env.MOYASAR_METHODS || "creditcard")
   .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
 // Samsung Pay is only offered once its Service ID exists: the form requires
 // `samsung_pay.service_id`, and listing the method without it draws a button
 // that cannot open a sheet.
 const SAMSUNG_PAY_SERVICE_ID = (process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
+// Google Pay is only offered once its merchant ID exists, for the same reason.
+const GOOGLE_PAY_MERCHANT_ID = (process.env.MOYASAR_GOOGLE_MERCHANT_ID || "").trim();
 const PAY_METHODS = (METHODS.length ? METHODS : ["creditcard"])
-  .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID);
+  .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID)
+  .filter((m) => m !== "googlepay" || GOOGLE_PAY_MERCHANT_ID);
 // The name the buyer sees in the Apple Pay / Samsung Pay sheet — theirs is the
 // last screen before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
@@ -99,6 +110,10 @@ const SAMSUNG_PAY_LABEL = process.env.MOYASAR_SAMSUNG_PAY_LABEL || APPLE_PAY_LAB
 // Moyasar: "We recommend always setting this option to PRODUCTION"; STAGE is
 // only for a Samsung staging wallet APK and Service ID.
 const SAMSUNG_PAY_ENV = /^stage$/i.test(process.env.MOYASAR_SAMSUNG_ENV || "") ? "STAGE" : "PRODUCTION";
+// Google's own names: TEST draws a test button that never moves money;
+// PRODUCTION needs the site approved in the Google Pay & Wallet Console.
+const GOOGLE_PAY_LABEL = process.env.MOYASAR_GOOGLE_PAY_LABEL || APPLE_PAY_LABEL;
+const GOOGLE_PAY_ENV = /^test$/i.test(process.env.MOYASAR_GOOGLE_ENV || "") ? "TEST" : "PRODUCTION";
 // The form library is served from this site's own /assets — the pinned CDN
 // copy (mpf 1.15) mounted an empty box with no exception on live checkouts,
 // and the current 2.x build ships on npm under the MIT licence, so the exact
@@ -765,7 +780,7 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
-        currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null,
+        currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null, googlePay: null,
         bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
       }));
     }
@@ -794,6 +809,11 @@ export default async function handler(req, res) {
       // per-payment field, and the form requires it.
       samsungPay: PAY_METHODS.includes("samsungpay")
         ? { service_id: SAMSUNG_PAY_SERVICE_ID, country: "SA", label: SAMSUNG_PAY_LABEL, environment: SAMSUNG_PAY_ENV }
+        : null,
+      // Google's merchant ID is public by design (it is printed in the sheet
+      // Google Pay draws), so it travels to the browser like the Samsung ID.
+      googlePay: PAY_METHODS.includes("googlepay")
+        ? { merchant_id: GOOGLE_PAY_MERCHANT_ID, country: "SA", label: GOOGLE_PAY_LABEL, environment: GOOGLE_PAY_ENV }
         : null,
       // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
       // until then the checkout shows its button as «قريباً».

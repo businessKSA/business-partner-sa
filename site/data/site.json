@@ -1556,8 +1556,10 @@
  },
  "overrides": {
   "bp-rec-03": {
-   "name": "التوظيف والتعاقد الخارجي",
-   "description": "نتولّى التوظيف والتعاقد الخارجي نيابةً عنك (تشغيل الموظفين تحت مظلّتنا) — من الاستقطاب حتى المباشرة والامتثال، بأتعاب لكل مرشّح."
+   "name": "موظفون على بند التعاقد (EOR)",
+   "nameEn": "Staff on our contract (EOR)",
+   "description": "موظفوك يعملون عندك ونحن صاحب العمل الرسمي: التعاقد والرواتب والتأمينات والإجازات والمستحقات، مع الاستقدام عند الحاجة.",
+   "descriptionEn": "Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed."
   },
   "bp-rec-04": {
    "name": "الاستقطاب التنفيذي",
@@ -8726,6 +8728,56 @@
     "Preparing the documents and translating where required",
     "Executing the attestation and following it",
     "Handing over the attested documents"
+   ],
+   "faq": [
+    {
+     "q": "هل الرسوم الحكومية ضمن الأتعاب؟",
+     "a": "لا، الرسوم الحكومية منفصلة عن أتعابنا وتُوضَّح في عرض السعر قبل البدء. والرسوم تتغيّر بقرار الجهة فنؤكّدها من بوابتها عند التنفيذ."
+    },
+    {
+     "q": "هل تضمنون صدور القرار؟",
+     "a": "نتولّى المراجعة والتجهيز والتقديم والمتابعة حتى صدور القرار. القرار نفسه يعود إلى الجهة المختصة."
+    }
+   ],
+   "faqEn": [
+    {
+     "q": "Are government fees included?",
+     "a": "No. Government fees are separate from our professional fees and are set out in the quotation before we start. Fees change by the authority's decision, so we confirm them from its portal at execution."
+    },
+    {
+     "q": "Do you guarantee the decision?",
+     "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
+    }
+   ]
+  },
+  "bp-sbc-31": {
+   "name": "تأسيس / قيد مؤسسة فردية جديدة",
+   "nameEn": "New Sole Proprietorship Formation & Registration",
+   "description": "تأسيس مؤسسة فردية جديدة وقيدها في السجل التجاري عبر المركز السعودي للأعمال: نجهّز المتطلبات ونقدّم الطلب ونتابعه حتى الإصدار.",
+   "descriptionEn": "Forming a new sole proprietorship and registering it in the commercial register through the Saudi Business Center: we prepare the requirements, file the request and follow it through to issuance.",
+   "audience": "رواد الأعمال والأفراد الراغبون في بدء نشاط تجاري كمؤسسة فردية",
+   "audienceEn": "Entrepreneurs and individuals starting a business as a sole proprietorship",
+   "duration": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+   "durationEn": "Usually one business day to a few days",
+   "documents": [
+    "هوية مالك المؤسسة",
+    "بيانات النشاط والعنوان الوطني",
+    "الاسم التجاري المقترح (إن وُجد)"
+   ],
+   "documentsEn": [
+    "Owner's identity document",
+    "Activity details & National Address",
+    "Proposed trade name (if any)"
+   ],
+   "features": [
+    "تجهيز متطلبات تأسيس المؤسسة وقيدها",
+    "تقديم الطلب ومتابعته عبر المركز السعودي للأعمال",
+    "تسليم السجل بعد إصداره"
+   ],
+   "featuresEn": [
+    "Preparing the requirements for forming and registering the proprietorship",
+    "Filing the request and following it through the Saudi Business Center",
+    "Handing over the register once issued"
    ],
    "faq": [
     {

@@ -269,7 +269,7 @@ step1();
 
 // ------------------------------------------------------------------- apply --
 const LANG_DIRS = [["en", "site/services"], ["ar", "site/ar/services"], ["fr", "site/fr/services"], ["zh", "site/zh/services"]];
-let injected = 0, skipped = 0;
+let injected = 0, skipped = 0, redesigned = 0;
 
 for (const [lang, dir] of LANG_DIRS) {
   const full = path.join(ROOT, dir);
@@ -280,6 +280,11 @@ for (const [lang, dir] of LANG_DIRS) {
     const svc = BY_CODE.get(code);
     const p = path.join(full, file);
     let html = fs.readFileSync(p, "utf8");
+    // صفحة الخدمة الجديدة (simple-v1-service-detail.mjs) أزالت المشخّص عمداً:
+    // أربعة أسئلة وثلاثة أزرار (منها واتساب) فوق الوصف كانت تنافس زرّ السلة
+    // وطلب العرض. لا مرساة `.svc-main` فيها، وهذا الفحص يجعل التخطّي صريحاً لا
+    // مصادفة. أعِد الحقن بإزالته إن قرّر المالك رجوع المشخّص بصيغة مختصرة.
+    if (html.includes('id="sv1-svc-css"')) { redesigned++; continue; }
     if (!svc || html.includes('id="bp-sva"')) { skipped++; continue; }
     const anchor = '<div class="svc-main">';
     const i = html.indexOf(anchor);
@@ -292,4 +297,4 @@ for (const [lang, dir] of LANG_DIRS) {
   }
 }
 
-console.log(`Service advisor injected on ${injected} page(s)${skipped ? ` (${skipped} skipped)` : ""}`);
+console.log(`Service advisor injected on ${injected} page(s)${skipped ? ` (${skipped} skipped)` : ""}${redesigned ? ` — ${redesigned} service pages are the new SV1 design and carry no diagnostic card` : ""}`);

@@ -1,0 +1,16 @@
+{
+  "_readme": "ملف تسعير خدمة EOR — يملؤه المالك وحده. كل القيم null الآن عمداً (CLAUDE.md §4: لا أسعار مخترعة). ما دامت أي قيمة لازمة فارغة، تُرجع estimateQuote الحالة pending_pricing ولا يظهر رقم لأي عميل. المبالغ بالعملة المكتوبة في currency، بلا ضريبة (تُحسب الضريبة من vat_rate). vat_rate كسر عشري (مثلاً 0.15 لـ15%) وليس نسبة مئوية. valid_from وvalid_until تواريخ بصيغة YYYY-MM-DD أو null. «saudi» للعامل السعودي و«foreign» للعامل الأجنبي. لا تغيّر أسماء المفاتيح — api/_eor.js يقرؤها بأسمائها.",
+  "currency": null,
+  "vat_rate": null,
+  "valid_from": null,
+  "valid_until": null,
+  "service_fee_monthly_per_employee": {
+    "saudi": null,
+    "foreign": null
+  },
+  "recruitment_fee_per_employee": {
+    "saudi": null,
+    "foreign": null
+  },
+  "notes": null
+}

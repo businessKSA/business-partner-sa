@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T21:33:45.572Z",
+  "updatedAt": "2026-10-01T17:33:41.061Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -2133,14 +2133,14 @@
     },
     {
       "code": "BP-REC-03",
-      "nameAr": "التوظيف والتعاقد الخارجي (PEO/EOR)",
-      "nameEn": "Outsourced Employment & Contracting (PEO/EOR)",
+      "nameAr": "موظفون على بند التعاقد (EOR)",
+      "nameEn": "Staff on our contract (EOR)",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "بدون جهة حكومية",
-      "pricingModel": "Per Candidate",
-      "amount": 1000,
-      "priceLabel": "1,000 ﷼ / لكل مرشّح",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "السعر حسب عدد الموظفين والمهن",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-rec-03"
@@ -3980,6 +3980,20 @@
       "url": "https://businesspartner.sa/services/bp-sbc-30"
     },
     {
+      "code": "BP-SBC-31",
+      "nameAr": "تأسيس / قيد مؤسسة فردية جديدة",
+      "nameEn": "New Sole Proprietorship Formation & Registration",
+      "category": "Company Formation",
+      "categoryAr": "تأسيس الشركات",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-sbc-31"
+    },
+    {
       "code": "BP-FI-08",
       "nameAr": "المقر الإقليمي RHQ — التأهيل والتقديم",
       "nameEn": "Regional Headquarters (RHQ) — qualification & filing",
@@ -4069,7 +4083,7 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 28
+      "count": 29
     },
     {
       "key": "Foreign Investment",
