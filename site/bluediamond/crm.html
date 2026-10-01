@@ -21,6 +21,7 @@
    لونين تكراراً في الوثيقة كلها)، والأزرق الملكي #3567C8 لون عناوينه.
    الأول كان أزرق بارداً على أبيض بلمسة ذهبية — لا أصل له في هويته. */
 :root{
+  color-scheme:light;
   --bd-indigo:#252159; --bd-indigo-2:#2F2A6B; --bd-blue:#3567C8; --bd-ice:#8FB0EE;
   --bd-cream:#EEECDE; --bd-cream-2:#F5F4EC;
   --bd-ink:#231F20; --bd-mute:#5E5C80; --bd-line:#DCD9C8;
@@ -29,22 +30,8 @@
   --bd-shadow:0 18px 50px rgba(37,33,89,.10);
   --bd-radius:16px;
 }
-@media (prefers-color-scheme:dark){
-  /* الوضع الداكن ليس اختراعاً أيضاً: صفحات البروفايل الداكنة نيليّة
-     #252159 بنصٍّ كريمي — فهو وضعه الداكن هو. */
-  :root:not([data-theme="light"]){
-    --bd-ink:#EEECDE; --bd-mute:#A9A6C6; --bd-line:#3A3570;
-    --bd-bg:#252159; --bd-soft:#2B2765; --bd-card:#2F2A6B;
-    --bd-mark:#EEECDE;
-    --bd-shadow:0 18px 50px rgba(0,0,0,.40);
-  }
-}
-:root[data-theme="dark"]{
-  --bd-ink:#EEECDE; --bd-mute:#A9A6C6; --bd-line:#3A3570;
-  --bd-bg:#252159; --bd-soft:#2B2765; --bd-card:#2F2A6B;
-  --bd-mark:#EEECDE;
-  --bd-shadow:0 18px 50px rgba(0,0,0,.40);
-}
+/* الخلفية كريميّة دائماً بقرار المالك: لا قلب تلقائي إلى الداكن مع وضع
+   الجهاز. النيلي يبقى لونَ التذييل والأزرار والشعار — لا لون الصفحة. */
 *{box-sizing:border-box}
 /* [hidden] سمةٌ في HTML لكن display المعلن في قاعدة صنف يغلبها: بوابة
    المفتاح تحمل .form{display:grid} فبقيت ظاهرةً بعد الدخول. !important هنا
@@ -131,8 +118,6 @@ textarea{min-height:110px;resize:vertical}
   border-radius:10px;padding:12px 15px;font-size:13px;color:var(--bd-mute)}
 .ok{background:#E9F8EF;border-inline-start-color:#16A34A;color:#14532D}
 .err{background:#FEF0F0;border-inline-start-color:#DC2626;color:#7F1D1D}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ok{background:#0C2C1A;color:#BBF7D0}
-  :root:not([data-theme="light"]) .err{background:#331316;color:#FECACA}}
 
 /* النقش النجدي من البروفايل — شريط مثلّثات في زاوية القسم الداكن.
    مرسومٌ بـCSS لا صورة: يتلوّن مع السياق ولا يُحمّل ملفاً. */
