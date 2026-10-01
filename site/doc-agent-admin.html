@@ -35,7 +35,23 @@ a{color:var(--blue)}
 </style>
 <link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body><div class="wrap">
+<body><div class="wrap"><style id="bp-pbar-css">
+.bp-pbar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:#fff;border:1px solid #E4E7F0;border-radius:14px;padding:.6rem .85rem;margin:0 0 1rem;box-shadow:0 4px 18px rgba(11,27,90,.05);font-family:inherit}
+.bp-pbar-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;color:#0B1B5A}
+.bp-pbar-brand img{height:26px;width:auto;display:block}
+.bp-pbar-brand b{font-size:.95rem;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.bp-pbar-note{color:#6a7085;font-size:.78rem;border-inline-start:1px solid #E4E7F0;padding-inline-start:.75rem}
+.bp-pbar-back{margin-inline-start:auto;display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;color:#1F4ED8;font-size:.82rem;font-weight:600;border:1px solid #E4E7F0;border-radius:999px;padding:.35rem .75rem;background:#fff}
+.bp-pbar-back:hover{background:#eef2ff}
+@media(max-width:560px){.bp-pbar-note{display:none}.bp-pbar-back{margin-inline-start:0}}
+</style>
+<div class="bp-pbar">
+  <a class="bp-pbar-brand" href="/ar">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="26" height="26" />
+    <b>Business Partner</b>
+  </a><span class="bp-pbar-note">مستشار المستندات — لوحة المتابعة</span>
+  <a class="bp-pbar-back" href="/ar">الموقع الرئيسي <span aria-hidden="true">&#8592;</span></a>
+</div>
 <h1>🗂️ مستشار المستندات — لوحة المتابعة والتدخل</h1>
 <div class="bar">
   <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>

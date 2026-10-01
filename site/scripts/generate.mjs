@@ -8887,6 +8887,44 @@ function buildAdmin() {
 // Standalone owner page (noindex, no site chrome). One card per BP Team agent.
 // Calls the n8n intake webhooks DIRECTLY from the browser (webhooks allow all
 // origins), so it works both on the live site and when opened as a local file.
+// ‏شريط الهوية والعودة للوحات الداخلية.
+//
+// هذه اللوحات مكتوبة بقوالبها الخاصة خارج ترويسة الموقع (`sv1-hdr`) عن قصد:
+// ترويسةُ الموقع التسويقية بملاحتها وسلّتها لا معنى لها داخل لوحة تشغيل، ولهذا
+// يستثنيها `simplified-global-header.mjs` بشرطٍ صريح. لكن «خارج الترويسة» لا
+// يعني «بلا هوية»: جردُ 2026-09-29 وجد `dashboard.html` و`doc-agent-admin.html`
+// بلا شعار ولا اسم علامة — والثانية بلا الاسم أصلاً ولا مرةً واحدة، وهذه
+// مخالفةٌ صريحة لسياسة العلامة في `CLAUDE.md`. ووجد خمس لوحات بلا أي ملاحة:
+// من يفتحها لا يجد طريقاً للعودة إلى الموقع.
+//
+// فهذا شريطٌ نحيف مكتفٍ بنفسه: الشعار الرسمي، والاسم «Business Partner» كما
+// تفرضه السياسة في كل اللغات (لا «شريك الأعمال»)، ورابط عودة واحد. أنماطه
+// مُسمّاة `bp-pbar-*` ومحقونة معه في كل استدعاء، فلا تعتمد على أنماط اللوحة
+// ولا تصطدم بها — ولا تحتاج رقعةً لاحقة تحييها.
+//
+// ولا زرّ واتساب فيه: السياسة تقصر واتساب على الزر العائم وحده.
+function portalIdentityBar({ home = "/ar", label = "الموقع الرئيسي", note = "" } = {}) {
+  const css = `<style id="bp-pbar-css">
+.bp-pbar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:#fff;border:1px solid #E4E7F0;border-radius:14px;padding:.6rem .85rem;margin:0 0 1rem;box-shadow:0 4px 18px rgba(11,27,90,.05);font-family:inherit}
+.bp-pbar-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;color:#0B1B5A}
+.bp-pbar-brand img{height:26px;width:auto;display:block}
+.bp-pbar-brand b{font-size:.95rem;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.bp-pbar-note{color:#6a7085;font-size:.78rem;border-inline-start:1px solid #E4E7F0;padding-inline-start:.75rem}
+.bp-pbar-back{margin-inline-start:auto;display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;color:#1F4ED8;font-size:.82rem;font-weight:600;border:1px solid #E4E7F0;border-radius:999px;padding:.35rem .75rem;background:#fff}
+.bp-pbar-back:hover{background:#eef2ff}
+@media(max-width:560px){.bp-pbar-note{display:none}.bp-pbar-back{margin-inline-start:0}}
+</style>`;
+  const noteHtml = note ? `<span class="bp-pbar-note">${note}</span>` : "";
+  return `${css}
+<div class="bp-pbar">
+  <a class="bp-pbar-brand" href="${home}">
+    <img src="/assets/img/logo.png" alt="Business Partner" width="26" height="26" />
+    <b>Business Partner</b>
+  </a>${noteHtml}
+  <a class="bp-pbar-back" href="${home}">${label} <span aria-hidden="true">&#8592;</span></a>
+</div>`;
+}
+
 function buildDashboard() {
   return `<!doctype html>
 <html dir="rtl" lang="ar">
@@ -8950,6 +8988,7 @@ function buildDashboard() {
 </head>
 <body>
   <div class="wrap">
+    ${portalIdentityBar({ note: "لوحة داخلية للمالك" })}
     <div class="topbar">
       <div class="badge">🔒 لوحة داخلية للمالك — تحكم واختبار كل موظف</div>
       <h1>🎛️ لوحة تحكم فريق الإيجنتس</h1>
@@ -9241,7 +9280,7 @@ function buildConnect(pre = "/") {
 </head>
 <body>
   <div class="mininav">
-    <a class="mn-logo" href="/">Business Partner</a>
+    <a class="mn-logo" href="/"><img src="/assets/img/logo.png" alt="" width="22" height="22" style="height:22px;width:auto;vertical-align:-5px;margin-inline-end:.4rem" />Business Partner</a>
     <div class="mn-links">
       <a href="#connect">الأدوات</a>
       <a href="#journey">رحلة العميل</a>
@@ -9635,7 +9674,7 @@ function buildPortal(pre = "/") {
 </head>
 <body>
   <div class="topbar">
-    <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
+    <div class="brand"><img src="/assets/img/logo.png" alt="" width="22" height="22" style="height:22px;width:auto;vertical-align:-5px;margin-inline-end:.4rem" />Business Partner<small>بوابة الموظفين الأذكياء</small></div>
     <a class="tb-link" href="${pre}connect">الأدوات ورحلة العميل</a>
     <a class="tb-link" href="${pre}">الموقع</a>
     <div class="sp"></div>
@@ -12121,7 +12160,7 @@ a{color:var(--blue)}
 .note{color:var(--muted);font-size:.85rem}
 </style>
 </head>
-<body><div class="wrap">
+<body><div class="wrap">${portalIdentityBar({ note: "مستشار المستندات — لوحة المتابعة" })}
 <h1>🗂️ مستشار المستندات — لوحة المتابعة والتدخل</h1>
 <div class="bar">
   <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
