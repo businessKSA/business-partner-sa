@@ -1162,19 +1162,19 @@
   {
     "code": "BP-REC-03",
     "slug": "bp-rec-03",
-    "name": "التوظيف والتعاقد الخارجي (PEO/EOR)",
+    "name": "موظفون على بند التعاقد (EOR)",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «التوظيف والتعاقد الخارجي (PEO/EOR)» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "موظفوك يعملون عندك ونحن صاحب العمل الرسمي: التعاقد والرواتب والتأمينات والإجازات والمستحقات، مع الاستقدام عند الحاجة.",
     "deliverables": [],
     "targetClient": "",
-    "pricingModel": "Per Candidate",
+    "pricingModel": "Requires Proposal",
     "govFeesSeparate": false,
     "requiresProposal": true,
     "price": {
-      "label": "1,000 ﷼ / لكل مرشّح",
-      "amount": 1000
+      "label": "السعر حسب عدد الموظفين والمهن",
+      "amount": null
     }
   },
   {

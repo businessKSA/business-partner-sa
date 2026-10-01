@@ -1556,8 +1556,10 @@
  },
  "overrides": {
   "bp-rec-03": {
-   "name": "التوظيف والتعاقد الخارجي",
-   "description": "نتولّى التوظيف والتعاقد الخارجي نيابةً عنك (تشغيل الموظفين تحت مظلّتنا) — من الاستقطاب حتى المباشرة والامتثال، بأتعاب لكل مرشّح."
+   "name": "موظفون على بند التعاقد (EOR)",
+   "nameEn": "Staff on our contract (EOR)",
+   "description": "موظفوك يعملون عندك ونحن صاحب العمل الرسمي: التعاقد والرواتب والتأمينات والإجازات والمستحقات، مع الاستقدام عند الحاجة.",
+   "descriptionEn": "Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed."
   },
   "bp-rec-04": {
    "name": "الاستقطاب التنفيذي",

@@ -159,7 +159,7 @@ const SVCS = {
   "recruitment": [
     ["BP-REC-01","خدمات الاستقدام واستخراج تأشيرات العمل","Recruitment Services & Work Visa Issuance","bp-rec-01"],
     ["BP-REC-02","إصدار تأشيرة عمل (تأشيرة استقدام)","Work Visa Issuance","bp-rec-02"],
-    ["BP-REC-03","التوظيف والتعاقد الخارجي (PEO/EOR)","Outsourced Employment & Contracting (PEO/EOR)","bp-rec-03"],
+    ["BP-REC-03","موظفون على بند التعاقد (EOR)","Staff on our contract (EOR)","bp-rec-03"],
     ["BP-REC-04","الاستقطاب التنفيذي","Executive Search","bp-rec-04"],
     ["BP-REC-05","التوظيف المحلي","Local Recruitment","bp-rec-05"],
     ["BP-REC-06","التوظيف الجماعي","Bulk Recruitment","bp-rec-06"],

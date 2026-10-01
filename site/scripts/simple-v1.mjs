@@ -38,6 +38,10 @@ const BIZDEV_DOOR = (() => {
   try { return JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
   catch { return false; }
 })();
+// بطاقة «موظفون على بند التعاقد (EOR)» في الرئيسية (أمر المالك 2026-10-01): العنوان
+// والوصف بالأربع لغات من مصدر صفحة /eor نفسها (EOR_PAGE_TEXT) فلا يتباعد النصّان.
+// بابٌ برابط إلى /eor لا زرّ مستشار: لا نوع طلب له في الرئيسية ولا يمسّ المعرفة.
+import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -85,6 +89,7 @@ const D = {
   ctaConsulting: { ar: "ابدأ الاستشارة ←", en: "Start the consultation →", fr: "Démarrer le conseil →", zh: "开始咨询 →" },
   ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
   ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
+  ctaEor: { ar: "اعرف أكثر ←", en: "Learn more →", fr: "En savoir plus →", zh: "了解更多 →" },
   ctaBizdev: { ar: "ابدأ مع المستشار ←", en: "Start with the advisor →", fr: "Démarrer avec le conseiller →", zh: "与顾问开始 →" },
   // مسلك الشراء الذاتي (سؤال المالك 2026-09-24: «ليش ما العميل يقدر يشتري
   // مباشرة بدون الشات؟»): رابطٌ ثانوي هادئ تحت الأبواب لا باباً خامساً.
@@ -362,7 +367,9 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;${BIZDEV_DOOR ? "grid-template-columns:1fr 1fr;" : ""}gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
 .sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
@@ -517,8 +524,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){${BIZDEV_DOOR ? `.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
- ` : ""}.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
 // ------------------------------------------------- حالة الدخول في الترويسة --
@@ -810,6 +817,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
       ...(BIZDEV_DOOR ? [["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")]] : []),
     ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
+    // EOR: بابٌ برابط (لا data-door) — يفتح /eor بالبادئة اللغوية ولا يغيّر سياق المستشار.
+    const eorTx = EOR_PAGE_TEXT[l] || EOR_PAGE_TEXT.en;
+    const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
 
     const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
 
@@ -848,7 +858,7 @@ ${header(path)}
       <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li>${BIZDEV_DOOR ? `<li>${t("trust4")}</li>` : ""}</ul>
     </div>
     <div class="sv1-doorwrap">
-      <div class="sv1-doors" id="doors">${doors}</div>
+      <div class="sv1-doors" id="doors">${doors}${eorDoor}</div>
       <a class="sv1-browse" href="${href("/catalog")}" data-track="تصفّح الخدمات واشترِ مباشرة">${t("browseDirect")}</a>
     </div>
   </div></section>

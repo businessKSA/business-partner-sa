@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T21:33:45.572Z",
+  "updatedAt": "2026-10-01T15:44:10.590Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -2133,14 +2133,14 @@
     },
     {
       "code": "BP-REC-03",
-      "nameAr": "التوظيف والتعاقد الخارجي (PEO/EOR)",
-      "nameEn": "Outsourced Employment & Contracting (PEO/EOR)",
+      "nameAr": "موظفون على بند التعاقد (EOR)",
+      "nameEn": "Staff on our contract (EOR)",
       "category": "Recruitment",
       "categoryAr": "التوظيف والاستقدام",
       "govPlatform": "بدون جهة حكومية",
-      "pricingModel": "Per Candidate",
-      "amount": 1000,
-      "priceLabel": "1,000 ﷼ / لكل مرشّح",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "السعر حسب عدد الموظفين والمهن",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-rec-03"
