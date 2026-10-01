@@ -40,6 +40,7 @@ import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
+import { handlePrIntake } from "./_printake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
@@ -1849,6 +1850,9 @@ export default async function handler(req, res) {
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
+  // ونفس السبب لـ/api/pr-intake — بوابة تعبئة ملف الإقامة المميزة
+  // (منتج رائد الأعمال) تعيش في ./_printake.js: المسوّدة والمرفقات والإرسال.
+  if ((q.__route || "") === "pr-intake") return handlePrIntake(req, res);
   if ((q.__route || "") === "spaces") return spacesHandler(req, res);
   // موظفون على بند التعاقد (EOR) — المنطق كله في ./_eor.js؛ هنا توصيلٌ فقط.
   if ((q.__route || "") === "eor") return handleEorRoute(req, res);
