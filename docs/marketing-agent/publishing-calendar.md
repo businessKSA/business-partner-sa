@@ -14,10 +14,11 @@ platform — and nothing reaches a platform without a person approving it first.
 ## The week
 
 The Saudi work week runs Sunday–Thursday, and the plan does too. Five services a
-week, one per working day, drawn from a rotation that interleaves the nine
+week, one per working day, drawn from a rotation that interleaves the
 service categories so a week never reads as five variations of the same thing.
-95 services ÷ 5 = a **19-week cycle**; every service comes round roughly twice a
-year.
+**200 services ÷ 5 = a 40-week cycle** (2026-10-01: the catalogue grew from 95,
+so the cycle is no longer 19 weeks and a service now comes round about once a
+year, not twice).
 
 Each featured service runs on four platforms on its own day:
 
@@ -137,5 +138,23 @@ Not yet true:
   The end-to-end run above was proved by pointing the planner at the raw file on
   this branch, then pointing it back. Until the merge, any week not already
   planned will fail at the fetch.
-- No platform is connected, so `Approved` is where a row stops. Moving it to
-  `Published` is a person doing it by hand.
+- Publishing is still a person's action on every platform, but "no platform is
+  connected" is no longer accurate. Verified against the live n8n instance on
+  2026-10-01 — see `credentials-setup-guide.md` for the full audit:
+  **LinkedIn and WhatsApp hold working credentials; Instagram, Facebook, TikTok,
+  Snapchat, Telegram and X hold none at all.** Six of the eight platforms this
+  calendar writes rows for cannot publish today even with a person pressing the
+  button.
+- The WhatsApp Channel rows are not automatable at any point. Meta publishes no
+  API for posting to a Channel — the WhatsApp Business credentials send to
+  individual numbers, which is a different product. Those five rows a week are
+  copy-and-paste by design, not for want of a credential.
+
+## Known rough edge — the rotation after the catalogue grew
+
+The interleave rotates over categories, which worked while the nine categories
+were roughly even. With 200 services the shorter buckets drain first, so a late
+week can come out thematically uniform: week 39 (2026-10-04) features five
+labour-compliance services in a row. That reads as a coherent themed week rather
+than a defect, so it is left alone — but it is no longer the guarantee the
+paragraph above claims, and a week should be eyeballed before approval.

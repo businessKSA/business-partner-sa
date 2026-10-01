@@ -1,46 +1,121 @@
-# Credentials Setup Guide — Marketing Agent
-**دليل ربط الحسابات — لتفعيل النشر الفعلي على كل منصة**
+# ربط منصات التواصل — ما هو موصول فعلاً، وما يحتاج خطواتك
 
-None of these steps can be done by the agent on your behalf — each platform requires the Business Partner account owner to register a developer/business app and grant access. Once you complete a platform below, add the resulting token as an n8n credential and tell the team to flip the matching publish workflow (`docs/marketing-agent/n8n-workflow-blueprints.md`) from disabled to active — no rebuild needed.
+**آخر تحقّق: 2026-10-01**، من قائمة بيانات الدخول في n8n مباشرة (35 بياناً)،
+لا من ذاكرة ولا من وثيقة سابقة. القائمة تُقرأ ولا تُنشأ عبر الواجهة البرمجية —
+فإنشاء أي بيان دخول جديد عمل يدوي في n8n، لا يقدر عليه وكيل.
 
-## ✅ Already connected (no action needed)
-- **LinkedIn** — OAuth2 credential exists (`vgcZC6deAipyh9zR`). Real posting is already wired (Workflow P1).
-- **WhatsApp Channel** — API credential exists (`dPP94SCEPI6Qz1nx` / `TyzjY9mTu6DRiHqv`). Real broadcast is already wired (Workflow P-WhatsApp). Confirm with Khaled/Malak that the Channel (not the 1:1 service-bot number) is the one used here.
+> **القاعدة الثابتة:** لا شيء يُنشر باسم العلامة قبل موافقتك. كل صف في التقويم
+> يقف عند «Ready for Review» وينتظر إنساناً.
 
-## 🟢 Fastest to unlock — Telegram (~5 minutes, no review)
-1. Open Telegram, message **@BotFather**.
-2. Send `/newbot`, choose a name and a unique username (e.g. `BusinessPartnerSA_bot`).
-3. BotFather returns a **Bot Token** — copy it.
-4. Create (or use an existing) Telegram **Channel**, add the bot as an **admin** with "Post Messages" permission.
-5. Add the token to n8n as a `telegramApi` credential, name it `Business Partner Telegram Bot`.
-6. Tell the team — Workflow P-Telegram flips active immediately.
+---
 
-## 🟡 Medium effort — Meta (Instagram + Facebook), days to ~1 week
-1. Create a **Meta Business Account** at business.facebook.com if not already present (Business Partner likely already has a Facebook Page — link it here).
-2. Go to developers.facebook.com → create a **Meta App** (type: Business).
-3. Add the **Instagram Graph API** and **Facebook Pages API** products.
-4. Convert/confirm the Instagram account is a **Business or Creator account**, linked to the Facebook Page.
-5. Request the scopes: `pages_manage_posts`, `pages_read_engagement`, `instagram_basic`, `instagram_content_publish`.
-6. Submit for **App Review** (Meta requires a screencast + business verification for these scopes on a live app) — this is the step that takes the longest.
-7. Once approved, generate a long-lived Page Access Token, add it to n8n as `httpHeaderAuth` (`Authorization: Bearer <token>`).
-8. Tell the team — Workflows P-Instagram and P-Facebook flip active.
+## 1) الحالة الحقيقية — ثماني منصات
 
-## 🟡 Medium effort — TikTok for Business, days to weeks
-1. Register at business.tiktok.com → create a **TikTok for Business** account.
-2. Go to developers.tiktok.com → create an app, request the **Content Posting API** product.
-3. TikTok requires app review before direct (unaudited) posting is allowed outside a small creator sandbox.
-4. Once approved, add the access token to n8n.
-5. Tell the team — Workflow P-TikTok flips active.
+| المنصة | بيان دخول في n8n؟ | النشر الآلي ممكن؟ | الجهد المطلوب منك |
+|---|---|---|---|
+| **LinkedIn** | ✅ بيانان | نعم | لا شيء — جاهزة |
+| **WhatsApp (رقم)** | ✅ سبعة بيانات | نعم (رسائل لأرقام) | حلّ تعارض الرقمين |
+| **WhatsApp Channel** | — | **لا، ولن يكون** | لصق يدوي |
+| **Telegram** | ❌ لا شيء | بعد الربط: نعم | ~٥ دقائق، بلا مراجعة |
+| **Instagram** | ❌ لا شيء | بعد الربط والمراجعة | تطبيق Meta + مراجعة |
+| **Facebook** | ❌ لا شيء | بعد الربط والمراجعة | نفس تطبيق Meta |
+| **TikTok** | ❌ لا شيء | بعد الربط والمراجعة | تطبيق + مراجعة |
+| **Snapchat** | ❌ لا شيء | بعد الربط والمراجعة | طلب وصول + مراجعة |
+| **X** | ❌ لا شيء | بعد الربط | حساب مطوّر — الطبقة المجانية محدودة جداً |
 
-## 🟡 Medium effort — Snapchat Marketing API, days to weeks
-1. Register at business.snapchat.com.
-2. Apply for **Snapchat Marketing API** access (ads.snapchat.com/developers).
-3. Once approved, generate an API token/OAuth credential and add it to n8n.
-4. Tell the team — Workflow P-Snapchat flips active.
+**الخلاصة:** من أصل ثماني منصات يكتب لها المولّد نصوصاً، **اثنتان فقط قابلتان
+للنشر اليوم**: LinkedIn وواتساب.
 
-## 🎨 Design generation
-- No external design tool in the loop. Designs are authored directly as HTML/CSS against a shared brand token system and rendered to PNG locally (see `design-system.md`) — nothing to connect or wait on approval for. Canva's AI generator was tried first and dropped on quality/control grounds.
-- If real production logo artwork exists (vector/SVG), drop it in and swap the CSS `.wordmark` placeholder mark for it — the only "brand asset" currently missing is the actual logo file, everything else (colors, type) is already encoded in `design-templates/brand.css`.
+### قناة واتساب — تصحيح مهم
+لا تملك Meta واجهة برمجية للنشر في **القنوات**. بيانات واتساب الموجودة تخصّ
+واتساب بزنس، وهو إرسال لأرقام أفراد — منتج آخر. فصفوف «قناة واتساب» الخمسة
+أسبوعياً تُلصق يدوياً، وهذا قرار واقع لا نقص إعداد.
 
-## Priority recommendation
-Telegram first (today, zero friction) → Meta (Instagram+Facebook, highest audience value) → TikTok → Snapchat, based on effort vs. reach for Business Partner's B2B/SME audience. Design generation needs no setup — it's already working end-to-end.
+### تعارض الرقمين — يُحلّ قبل أي حملة
+بياني واتساب يحملان رقمين مختلفين: `0507034157` (بزنس بارتنر) و`0530540231`
+(معين). نصوص التقويم كلها تشير إلى `0507034157`. **قرار مطلوب:** أيّ رقم يستقبل
+ردود الحملة؟ خطؤه يرسل عملاء إلى صندوق لا يقرأه أحد.
+
+---
+
+## 2) الترتيب الموصى به — من الأرخص إلى الأغلى
+
+### اليوم: LinkedIn وحدها
+الجمهور الذي يشتري هذه الخدمات — مدير موارد بشرية، صاحب منشأة، مستثمر — موجود
+على LinkedIn، والبيان موصول، والنصوص مكتوبة. **لا شيء ينتظر غير موافقتك.**
+
+### هذا الأسبوع: Telegram (~٥ دقائق، بلا مراجعة)
+1. افتح Telegram وراسل **@BotFather**.
+2. أرسل `/newbot`، واختر اسماً ومعرّفاً فريداً (مثل `BusinessPartnerSA_bot`).
+3. ينسخ لك BotFather **رمز البوت**.
+4. أنشئ قناة (أو استخدم قائمة)، وأضف البوت **مشرفاً** بصلاحية «نشر الرسائل».
+5. أضف الرمز في n8n كبيان `telegramApi` باسم `Business Partner Telegram Bot`.
+6. أبلغ الفريق — مسار نشر Telegram يُفعَّل في نفس اليوم.
+
+### بعده: Meta (Instagram + Facebook) — أيام إلى أسبوع
+أعلى جمهور، وأطول مراجعة. يُبدأ به بعد أن تثبت LinkedIn أنها تجلب طلبات.
+1. حساب **Meta Business** على business.facebook.com (اربط صفحة فيسبوك القائمة).
+2. developers.facebook.com → تطبيق **Meta App** نوع Business.
+3. أضف **Instagram Graph API** و**Facebook Pages API**.
+4. حوّل حساب إنستجرام إلى **Business/Creator** واربطه بالصفحة.
+5. اطلب الصلاحيات: `pages_manage_posts` · `pages_read_engagement` ·
+   `instagram_basic` · `instagram_content_publish`.
+6. **App Review** — تطلب Meta مقطعاً مصوّراً وتحقّقاً من المنشأة. هذه أطول خطوة.
+7. بعد الموافقة: رمز صفحة طويل الأمد، يُضاف في n8n كـ`httpHeaderAuth`.
+
+### لاحقاً: TikTok ثم Snapchat ثم X
+- **TikTok:** business.tiktok.com ثم developers.tiktok.com → **Content Posting
+  API**. النشر المباشر يحتاج مراجعة؛ قبلها صندوق تجريبي ضيّق.
+- **Snapchat:** business.snapchat.com ثم طلب **Marketing API**.
+- **X:** حساب مطوّر. الطبقة المجانية محدودة جداً في النشر، والموثوق منها مدفوع —
+  **تحقّق من السعر الحالي عند التسجيل، لا تعتمد على رقم مكتوب هنا.** وهي آخر
+  الأولويات: جمهور B2B السعودي عليها أقلّ من LinkedIn.
+
+---
+
+## 3) من يملك أي منصة — وكيل واحد لكل منصة
+
+كل منصة لها مالك واحد. ممنوع منصة بلا مالك، وممنوع مالكان لمنصة واحدة.
+
+| المنصة | المالك | المسؤولية |
+|---|---|---|
+| LinkedIn | سارة — النمو | النص والنشر والردود |
+| WhatsApp Channel | ليان — السوشيال | اللصق اليومي والنشرة |
+| Telegram | ليان — السوشيال | الملخص الأسبوعي |
+| Instagram | نور — التصميم | البطاقة والكابشن |
+| Facebook | نور — التصميم | نفس البطاقة بنص أطول |
+| TikTok | نور — التصميم | نص الفيديو والتنفيذ |
+| Snapchat | ليان — السوشيال | القصة ورابط السحب |
+| X | سارة — النمو | السطر الواحد |
+| محركات البحث (SEO) | سارة — النمو | صفحات الخدمات والسجل |
+| البريد (CRM) | ملاك — التنفيذي | النشرة الأسبوعية والموافقات |
+
+المراجعة قبل النشر تبقى عند **باهر** في كل الحالات.
+
+---
+
+## 4) التصميم — لا ينتظر ربطاً
+
+لا أداة خارجية في المسار. التصاميم تُكتب HTML/CSS على نظام رموز الهوية
+وتُخرَج PNG محلياً (`design-system.md`) — لا حساب يُربط ولا مراجعة تُنتظر.
+Canva جُرِّب أولاً ورُفض لضعف الجودة والتحكّم.
+
+الناقص الوحيد: **ملف الشعار الرسمي** (SVG أو vector). الألوان والخطوط مكتوبة
+أصلاً في `design-templates/brand.css`؛ ضع الشعار واستبدل العلامة البديلة في
+`.wordmark`.
+
+---
+
+## 5) المعطِّلان الحقيقيان — ليسا في المنصات
+
+التقويم لا يعمل اليوم لسببين لا علاقة لهما بحسابات التواصل:
+
+1. **مخطّط المحتوى الأسبوعي (`JkXJJMwKqQ7TPMqx`) موقوف.** يقرأ
+   `businesspartner.sa/data/marketing-content.json` ويحصل 404، لأن الملف
+   ومولّده موجودان على فرع `claude/multi-platform-marketing-agents-9i0wpl`
+   وحده — **لا على `master` ولا على فرع الإنتاج** (مُتحقَّق من GitHub في
+   2026-10-01). يلزم دمجٌ ليعمل، وهذا قرار مالك.
+2. **عقدة الكتابة في نوشن صارت `Status = Approved`** بتغيير لم يصدر عن جلسة
+   موثّقة، بينما ملاحظة العقدة نفسها ما زالت تقول «Ready for Review». أي أن
+   بوابة الموافقة البشرية مرفوعة في الإعداد. الورشة موقوفة فالأثر معدوم اليوم،
+   لكنها **تُرجَع إلى `Ready for Review` قبل أي تفعيل.**

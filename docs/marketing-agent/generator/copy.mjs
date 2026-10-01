@@ -109,9 +109,15 @@ export function buildCopy(service) {
   const link = (ch) => trackedUrl(service, ch);
   const wa = (ch) => waLink(service, ch);
   const govRaw = clean(service.govPlatform);
+  // The catalogue uses "بدون جهة حكومية" as a sentinel meaning there is no
+  // government entity, not as the name of one. Interpolated, it published as
+  // "خدمات التسويق الرقمي والإعلان (بدون جهة حكومية)" and "— عبر بدون جهة
+  // حكومية" on every one of the 40-odd services that carry it.
+  const NO_ENTITY = ["بدون جهة حكومية", "لا يوجد", "غير مطبق", "—", "-"];
   // "عضوية الغرفة التجارية (الغرفة التجارية)" reads as a mistake — drop the
   // platform whenever the service name already contains it.
-  const gov = govRaw && !title.includes(govRaw) ? govRaw : "";
+  const gov =
+    govRaw && !NO_ENTITY.includes(govRaw) && !title.includes(govRaw) ? govRaw : "";
 
   return {
     code: service.code,
