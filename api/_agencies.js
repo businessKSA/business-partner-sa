@@ -23,7 +23,6 @@
 //   POST {type:"google", credential}              public  — sign in / sign up
 //   POST {type:"email-code" | "email-verify"}     office  — code by e-mail
 //   POST {type:"save-profile", ...}               office  — onboarding answers
-//   POST {type:"register", ...}                   public  — one-shot sign-up
 //   GET  ?action=requests&email=&code=            office  — demand + open jobs
 //   GET  ?action=submissions&email=&code=         office  — candidates it sent
 //   POST {type:"submit-candidate", ...}           office  — send a candidate
@@ -661,67 +660,13 @@ export async function handleAgencies(req, res) {
   const b = await readBody(req);
   const type = clip(b.type, 40);
 
-  // ---------------- public registration ----------------
-  if (type === "register") {
-    const name = clip(b.name, 200);
-    const email = clip(b.email, 160).toLowerCase();
-    const country = clip(b.country, 80);
-    const phone = clip(b.phone, 40);
-    if (!name || !isEmail(email) || !country || !phone) {
-      res.statusCode = 400;
-      return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
-    }
-    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-
-    // One registry row per email — a repeat submission updates the existing
-    // record instead of creating a duplicate the owner has to reconcile.
-    const existing = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
-      page_size: 1, filter: { property: "البريد", email: { equals: email } },
-    });
-    const dupe = ((existing.json && existing.json.results) || [])[0];
-
-    const props = profileProps({ ...b, name, country, phone });
-    props["البريد"] = { email };
-
-    // The company profile is filed onto the registry row itself, so the owner
-    // reviews the licence and the profile in one place.
-    const pf = b.profileFile && typeof b.profileFile === "object" ? b.profileFile : null;
-    if (pf && typeof pf.base64 === "string" && pf.base64 && Number(pf.size) <= 8 * 1024 * 1024) {
-      const uploadId = await uploadToNotion(pf.base64, clip(pf.name, 200) || "company-profile.pdf", clip(pf.type, 120));
-      if (uploadId) props["المستندات"] = { files: [{ type: "file_upload", file_upload: { id: uploadId }, name: clip(pf.name, 100) || "company-profile" }] };
-    }
-
-    // Self-serve: the office is live the moment it registers and gets its
-    // portal code straight away — no approval step in between.
-    const code = dupe ? await ensureCode(dupe) : makeCode();
-    props["اكتمال الملف"] = { checkbox: true };
-    let r;
-    if (dupe) {
-      r = await notion(`pages/${dupe.id}`, "PATCH", { properties: props });
-    } else {
-      props["الحالة"] = { select: { name: "مفعّل" } };
-      props["طريقة التسجيل"] = { select: { name: "تسجيل يدوي" } };
-      props["رمز الوصول"] = { rich_text: rt(code) };
-      if (clip(b.password, 200).length >= 8) props["بيانات الدخول"] = { rich_text: rt(hashPassword(String(b.password))) };
-      r = await notion("pages", "POST", { parent: { database_id: AGENCIES_DB }, properties: props, icon: { type: "emoji", emoji: "🌍" } });
-    }
-    if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const registered = mapAgency(r.json || { properties: {} });
-
-    const rows = [
-      ["نوع الجهة", b.kind], ["الدولة", country], ["المدينة", b.city], ["رقم الترخيص", b.license],
-      ["جهة الترخيص", b.licenseBy], ["مساند", b.musaned], ["جهة الاتصال", b.contact],
-      ["البريد", email], ["الجوال", phone], ["واتساب", b.whatsapp],
-      ["الجنسيات", b.nationalities], ["المهن", b.professions], ["الطاقة الشهرية", b.capacity],
-    ].filter(([, v]) => clip(v)).map(([k, v]) => `<tr><td style="padding:4px 10px;color:#666">${esc(k)}</td><td style="padding:4px 10px"><b>${esc(clip(v, 300))}</b></td></tr>`).join("");
-    await sendEmail(NOTIFY, `🌍 تسجيل مكتب استقدام — ${name} (${country})`, `<div dir="rtl" style="font-family:Arial,sans-serif">
-      <h2 style="color:#0B1B5A">تسجيل جديد في سجل مكاتب الاستقدام</h2>
-      <table style="border-collapse:collapse">${rows}</table>
-      <p style="color:#666">راجع الطلب في Notion، واضبط الحالة = «معتمد» لإصدار رمز الدخول للمكتب.</p></div>`);
-    await sendEmail(email, "بوابة مكتبك جاهزة — Business Partner", welcomeEmail(name, code));
-
-    return send(200, { ok: true, updated: !!dupe, agency: registered, email, code });
-  }
+  // `type:"register"` was removed (2026-10-01, security audit). It was public and
+  // unauthenticated, and for an email that already had an office it PATCHed the
+  // registry row with the caller's data and returned that office's access code
+  // in the response — anyone who knew an office's address could take its code
+  // and open its portal. No page ever called it (the UI uses "signup"), so it is
+  // gone rather than patched; an unknown type answers `unknown_type` for every
+  // email alike. New accounts go through "signup" (password) or "google".
 
   // ---------------- self-serve sign-up: e-mail + password ----------------
   // No approval queue: the office creates its account, gets its portal code by
@@ -977,21 +922,21 @@ export async function handleAgencies(req, res) {
     const email = clip(b.email, 160).toLowerCase();
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
     const hit = await agencyByEmail(email);
-    // The response never reveals whether an address is registered; a code is
-    // only actually sent to a registered, approved office.
+    // The response never reveals whether an address is registered: the reply
+    // always carries a sealed token. A code is only actually e-mailed to a
+    // registered, non-blocked office; for any other address the token seals a
+    // code nobody received, so it can never be verified.
+    const code = String(randomInt(100000, 1000000));
+    const exp = Date.now() + 15 * 60 * 1000;
     if (hit && !BLOCKED.includes(hit.agency.status)) {
-      const code = String(randomInt(100000, 1000000));
-      const exp = Date.now() + 15 * 60 * 1000;
       await sendEmail(email, `رمز الدخول لبوابة المكاتب: ${code}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px">
         <h2 style="color:#0B1B5A">رمز الدخول</h2>
         <p>رمز دخولك إلى بوابة مكاتب الاستقدام (صالح 15 دقيقة):</p>
         <p style="font-size:30px;font-weight:bold;letter-spacing:6px;color:#0B1B5A">${esc(code)}</p>
         <p style="color:#666">إذا لم تطلبه، تجاهل هذه الرسالة.</p></div>`);
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, sent: true, t: sealCode(email, code, exp), exp }));
     }
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, sent: true }));
+    return res.end(JSON.stringify({ ok: true, sent: true, t: sealCode(email, code, exp), exp }));
   }
 
   if (type === "email-verify") {
@@ -1033,10 +978,16 @@ export async function handleAgencies(req, res) {
     if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
 
     // Tell the offices that can act on it — the ones addressed, or everyone
-    // approved when it is open to the network.
+    // live when it is open to the network. "Live" is مفعّل (self-serve, the
+    // status every sign-up gets) or معتمد (the owner verified the licence): the
+    // portal already shows the same demand to both, so both get the e-mail.
+    // موقوف / مرفوض / قيد المراجعة stay out.
     try {
       const q = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
-        page_size: 50, filter: { property: "الحالة", select: { equals: "معتمد" } },
+        page_size: 50, filter: { or: [
+          { property: "الحالة", select: { equals: "معتمد" } },
+          { property: "الحالة", select: { equals: "مفعّل" } },
+        ] },
       });
       const all = (((q.json || {}).results) || []).map(mapAgency);
       const notify = targets.length ? all.filter((a) => targets.includes(a.id)) : all;
