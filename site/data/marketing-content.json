@@ -5,7 +5,7 @@
  "utcOffset": "+03:00",
  "servicesPerWeek": 5,
  "weekEpochSunday": "2026-01-04",
- "cycleWeeks": 40,
+ "cycleWeeks": 41,
  "grid": [
   {
    "dayOffset": 0,
@@ -360,6 +360,7 @@
   "BP-SBC-25",
   "BP-PL-0081",
   "SBC-GEN",
+  "BP-SBC-31",
   "BP-PL-0082",
   "SUP-GEN",
   "BP-PL-0083",
@@ -11282,6 +11283,62 @@
    "email": {
     "subject": "تصديق المستندات وأبوستيل عبر الخارجية — أعمالك الإدارية تُنجَز عنك",
     "preheader": "الأعمال الإدارية الصغيرة تأكل وقت الإدارة كل أسبوع، وتأجيلها يكلّف أكثر من إنجازها."
+   }
+  },
+  "BP-SBC-31": {
+   "slug": "bp-sbc-31",
+   "title": "تأسيس / قيد مؤسسة فردية جديدة",
+   "category": "تأسيس الشركات",
+   "price": "تبدأ من 1,500 ريال · الرسوم الحكومية منفصلة",
+   "priceTag": "تبدأ من 1,500 ريال",
+   "landingUrl": "https://businesspartner.sa/ar/services/bp-sbc-31",
+   "whatsappLink": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Femail%5D",
+   "whatsappLinks": {
+    "linkedin": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Flinkedin%5D",
+    "instagram": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Finstagram%5D",
+    "whatsapp": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Fwhatsapp%5D",
+    "telegram": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Ftelegram%5D",
+    "facebook": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Ffacebook%5D",
+    "snapchat": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Fsnapchat%5D",
+    "tiktok": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Ftiktok%5D",
+    "x": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Fx%5D",
+    "email": "https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Femail%5D"
+   },
+   "hashtags": "#تأسيس_شركات #سجل_تجاري #ريادة_أعمال #بزنس_بارتنر #السعودية #أعمال",
+   "designBrief": "بطاقة خدمة واحدة — تأسيس / قيد مؤسسة فردية جديدة. العنوان: «أسّس كيانك وأنت في مكانك»، وتحته سطر الألم بخط أصغر. قائمة من 3 بنود بعلامة ✓. شارة سعر: تبدأ من 1,500 ريال. الهوية: كحلي #0b1b5a وذهبي #c8973b، خط Noto Kufi Arabic، اتجاه RTL. الأصل الجاهز: docs/marketing-agent/content-packs/bp-sbc-31/",
+   "pack": "docs/marketing-agent/content-packs/bp-sbc-31/",
+   "links": {
+    "linkedin": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=linkedin&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "instagram": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=instagram&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "whatsapp": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=whatsapp&utm_medium=messaging&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "telegram": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=telegram&utm_medium=messaging&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "facebook": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=facebook&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "snapchat": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=snapchat&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "tiktok": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=tiktok&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "x": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=x&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "email": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=email&utm_medium=email&utm_campaign=service-always-on&utm_content=BP-SBC-31"
+   },
+   "copy": {
+    "linkedin": "التأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\nتأسيس / قيد مؤسسة فردية جديدة (المركز السعودي للأعمال) — ما ننجزه:\n• تجهيز متطلبات تأسيس المؤسسة وقيدها\n• تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n• تسليم السجل بعد إصداره\n\nتبدأ من 1,500 ريال · الرسوم الحكومية منفصلة.\nتعطينا فكرتك ونسلّمك كياناً جاهزاً للانطلاق.\nhttps://businesspartner.sa/ar/services/bp-sbc-31?utm_source=linkedin&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31\n\n#تأسيس_شركات #سجل_تجاري #ريادة_أعمال",
+    "instagram": "أسّس كيانك وأنت في مكانك ✨\n\nالتأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\n✔︎ تجهيز متطلبات تأسيس المؤسسة وقيدها\n✔︎ تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n✔︎ تسليم السجل بعد إصداره\n\nتبدأ من 1,500 ريال · الرسوم الحكومية منفصلة\nالرابط في البايو أو واتساب 0507034157\n\n#تأسيس_شركات #سجل_تجاري #ريادة_أعمال #بزنس_بارتنر #السعودية #أعمال",
+    "whatsapp": "*أسّس كيانك وأنت في مكانك*\n\nالتأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\n*تأسيس / قيد مؤسسة فردية جديدة* — عبر المركز السعودي للأعمال\n✅ تجهيز متطلبات تأسيس المؤسسة وقيدها\n✅ تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n✅ تسليم السجل بعد إصداره\n\n💠 تبدأ من 1,500 ريال · الرسوم الحكومية منفصلة\nللاستفسار: https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Fwhatsapp%5D\nhttps://businesspartner.sa/ar/services/bp-sbc-31?utm_source=whatsapp&utm_medium=messaging&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "telegram": "*أسّس كيانك وأنت في مكانك*\n\nالتأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\n*تأسيس / قيد مؤسسة فردية جديدة* — عبر المركز السعودي للأعمال\n✅ تجهيز متطلبات تأسيس المؤسسة وقيدها\n✅ تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n✅ تسليم السجل بعد إصداره\n\n💠 تبدأ من 1,500 ريال · الرسوم الحكومية منفصلة\nللاستفسار: https://wa.me/966507034157?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D8%A8%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%3A%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%2F%20%D9%82%D9%8A%D8%AF%20%D9%85%D8%A4%D8%B3%D8%B3%D8%A9%20%D9%81%D8%B1%D8%AF%D9%8A%D8%A9%20%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%0A%5BBP-SBC-31%2Ftelegram%5D\nhttps://businesspartner.sa/ar/services/bp-sbc-31?utm_source=telegram&utm_medium=messaging&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "facebook": "أسّس كيانك وأنت في مكانك ✨\n\nالتأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\nتأسيس / قيد مؤسسة فردية جديدة (المركز السعودي للأعمال):\n✔︎ تجهيز متطلبات تأسيس المؤسسة وقيدها\n✔︎ تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n✔︎ تسليم السجل بعد إصداره\n\nتبدأ من 1,500 ريال · الرسوم الحكومية منفصلة\nتعطينا فكرتك ونسلّمك كياناً جاهزاً للانطلاق.\nhttps://businesspartner.sa/ar/services/bp-sbc-31?utm_source=facebook&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31\n\n#تأسيس_شركات #سجل_تجاري",
+    "x": "أسّس كيانك وأنت في مكانك.\nتأسيس / قيد مؤسسة فردية جديدة — تبدأ من 1,500 ريال · الرسوم الحكومية منفصلة.\nhttps://businesspartner.sa/ar/services/bp-sbc-31?utm_source=x&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+    "snapchat": "أسّس كيانك وأنت في مكانك · تأسيس / قيد مؤسسة فردية جديدة · تبدأ من 1,500 ريال · اسحب للأعلى أو واتساب 0507034157",
+    "tiktok": "التأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.\n\nتأسيس / قيد مؤسسة فردية جديدة:\n— تجهيز متطلبات تأسيس المؤسسة وقيدها\n— تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n— تسليم السجل بعد إصداره\n\nتعطينا فكرتك ونسلّمك كياناً جاهزاً للانطلاق. اكتب لنا على واتساب."
+   },
+   "tiktok": {
+    "hook": "التأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية.",
+    "body": "تأسيس / قيد مؤسسة فردية جديدة:\n— تجهيز متطلبات تأسيس المؤسسة وقيدها\n— تقديم الطلب ومتابعته عبر المركز السعودي للأعمال\n— تسليم السجل بعد إصداره",
+    "cta": "تعطينا فكرتك ونسلّمك كياناً جاهزاً للانطلاق. اكتب لنا على واتساب.",
+    "onScreen": "أسّس كيانك وأنت في مكانك",
+    "caption": "أسّس كيانك وأنت في مكانك | تأسيس / قيد مؤسسة فردية جديدة\n#تأسيس_شركات #سجل_تجاري #ريادة_أعمال #بزنس_بارتنر #السعودية #أعمال"
+   },
+   "snapchatSwipeUrl": "https://businesspartner.sa/ar/services/bp-sbc-31?utm_source=snapchat&utm_medium=organic-social&utm_campaign=service-always-on&utm_content=BP-SBC-31",
+   "email": {
+    "subject": "تأسيس / قيد مؤسسة فردية جديدة — أسّس كيانك وأنت في مكانك",
+    "preheader": "التأسيس يتعطّل عادةً في التفاصيل: اسم مرفوض، نشاط غير مطابق، أو مستند ناقص يرجّعك للبداية."
    }
   },
   "BP-FI-08": {

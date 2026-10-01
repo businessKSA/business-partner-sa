@@ -112,7 +112,9 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
 .sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
@@ -267,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1">
@@ -337,7 +340,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <ul class="sv1-trust"><li>Consulting</li><li>Government services</li><li>Company formation</li></ul>
     </div>
     <div class="sv1-doorwrap">
-      <div class="sv1-doors" id="doors"><button type="button" class="sv1-door on" id="door-consulting" data-door="consulting"><div class="ico">💬</div><h3>Consulting</h3><p>A question, a challenge, a decision or any matter about your company.</p><span>Start the consultation →</span></button><button type="button" class="sv1-door" id="door-government" data-door="government"><div class="ico">🏛️</div><h3>Government services</h3><p>A transaction, a problem on a platform, or running your government platforms.</p><span>Start the request →</span></button><button type="button" class="sv1-door" id="door-formation" data-door="formation"><div class="ico">🏢</div><h3>Company formation</h3><p>A branch of a foreign company, or a company via the entrepreneurship route.</p><span>Start the formation →</span></button></div>
+      <div class="sv1-doors" id="doors"><button type="button" class="sv1-door on" id="door-consulting" data-door="consulting"><div class="ico">💬</div><h3>Consulting</h3><p>A question, a challenge, a decision or any matter about your company.</p><span>Start the consultation →</span></button><button type="button" class="sv1-door" id="door-government" data-door="government"><div class="ico">🏛️</div><h3>Government services</h3><p>A transaction, a problem on a platform, or running your government platforms.</p><span>Start the request →</span></button><button type="button" class="sv1-door" id="door-formation" data-door="formation"><div class="ico">🏢</div><h3>Company formation</h3><p>A branch of a foreign company, or a company via the entrepreneurship route.</p><span>Start the formation →</span></button><a class="sv1-door" id="door-eor" href="/eor" data-track="باب: eor"><div class="ico">👥</div><h3>Staff on our contract (EOR)</h3><p>Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed.</p><span>Learn more →</span></a></div>
       <a class="sv1-browse" href="/catalog" data-track="تصفّح الخدمات واشترِ مباشرة">Browse the services and buy directly →</a>
     </div>
   </div></section>

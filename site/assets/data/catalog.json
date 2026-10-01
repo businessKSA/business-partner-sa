@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-01T15:44:10.590Z",
+  "updatedAt": "2026-10-01T17:33:41.061Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3980,6 +3980,20 @@
       "url": "https://businesspartner.sa/services/bp-sbc-30"
     },
     {
+      "code": "BP-SBC-31",
+      "nameAr": "تأسيس / قيد مؤسسة فردية جديدة",
+      "nameEn": "New Sole Proprietorship Formation & Registration",
+      "category": "Company Formation",
+      "categoryAr": "تأسيس الشركات",
+      "govPlatform": "المركز السعودي للأعمال",
+      "pricingModel": "One Time",
+      "amount": 1500,
+      "priceLabel": "1,500 ﷼",
+      "govFeesSeparate": true,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/bp-sbc-31"
+    },
+    {
       "code": "BP-FI-08",
       "nameAr": "المقر الإقليمي RHQ — التأهيل والتقديم",
       "nameEn": "Regional Headquarters (RHQ) — qualification & filing",
@@ -4069,7 +4083,7 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 28
+      "count": 29
     },
     {
       "key": "Foreign Investment",

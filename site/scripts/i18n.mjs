@@ -3247,6 +3247,15 @@ export const TRANSLATIONS = {
     "The server didn't accept the details — please check your name and e-mail and try again.": "Le serveur n'a pas accepté les informations — vérifiez votre nom et votre e-mail, puis réessayez.",
     "We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.": "Nous n'avons pas pu envoyer votre demande pour le moment. Réessayez dans un instant ou écrivez-nous à {email}.",
     "We'll receive your request and get back to you by e-mail or phone.": "Nous recevrons votre demande et vous répondrons par e-mail ou par téléphone.",
+    // BP-SBC-31 — new sole proprietorship formation & registration (catalog-content).
+    "New Sole Proprietorship Formation & Registration": "Création et immatriculation d'une nouvelle entreprise individuelle",
+    "Forming a new sole proprietorship and registering it in the commercial register through the Saudi Business Center: we prepare the requirements, file the request and follow it through to issuance.": "Création d'une nouvelle entreprise individuelle et son inscription au registre de commerce via le Saudi Business Center : nous préparons les exigences, déposons la demande et la suivons jusqu'à la délivrance.",
+    "Entrepreneurs and individuals starting a business as a sole proprietorship": "Entrepreneurs et particuliers qui démarrent une activité sous forme d'entreprise individuelle",
+    "Owner's identity document": "Pièce d'identité du propriétaire",
+    "Proposed trade name (if any)": "Nom commercial envisagé (le cas échéant)",
+    "Preparing the requirements for forming and registering the proprietorship": "Préparation des exigences de création et d'immatriculation de l'entreprise individuelle",
+    "Filing the request and following it through the Saudi Business Center": "Dépôt de la demande et suivi via le Saudi Business Center",
+    "Handing over the register once issued": "Remise du registre une fois délivré",
   },
   es: {
     /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
@@ -7461,6 +7470,16 @@ export const TRANSLATIONS = {
     "The server didn't accept the details — please check your name and e-mail and try again.": "服务器未接受所填信息——请检查姓名和邮箱后重试。",
     "We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.": "暂时无法发送您的需求。请稍后重试，或发送邮件至 {email}。",
     "We'll receive your request and get back to you by e-mail or phone.": "我们会收到您的需求，并通过邮箱或电话与您联系。",
+    // BP-SBC-31 — new sole proprietorship formation & registration (catalog-content).
+    "New Sole Proprietorship Formation & Registration": "新设个人独资企业：设立与注册",
+    "Forming a new sole proprietorship and registering it in the commercial register through the Saudi Business Center: we prepare the requirements, file the request and follow it through to issuance.": "设立新的个人独资企业，并通过沙特商业中心在商业登记簿中完成登记：我们准备所需材料、提交申请并跟进至签发。",
+    "Entrepreneurs and individuals starting a business as a sole proprietorship": "有意以个人独资企业形式开展业务的创业者和个人",
+    "Owner's identity document": "企业主身份证件",
+    "Activity details & National Address": "经营活动详情及国家地址",
+    "Proposed trade name (if any)": "拟用商号（如有）",
+    "Preparing the requirements for forming and registering the proprietorship": "准备设立和登记个人独资企业所需的材料",
+    "Filing the request and following it through the Saudi Business Center": "通过沙特商业中心提交申请并跟进",
+    "Handing over the register once issued": "登记簿签发后交付",
   },
   ru: {
     /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */

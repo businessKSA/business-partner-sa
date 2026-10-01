@@ -2,11 +2,11 @@
   {
     "code": "BP-CHAMBER-01",
     "slug": "bp-chamber-01",
-    "name": "Chamber of Commerce membership",
+    "name": "عضوية الغرفة التجارية",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "الغرفة التجارية",
-    "description": "نتولّى في Business Partner تنفيذ «Chamber of Commerce membership» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «عضوية الغرفة التجارية» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -20,11 +20,11 @@
   {
     "code": "BP-PL-0066",
     "slug": "bp-pl-0066",
-    "name": "Pre‑incorporation consultation",
+    "name": "استشارة ما قبل التأسيس",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "",
-    "description": "نتولّى في Business Partner تنفيذ «Pre‑incorporation consultation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «استشارة ما قبل التأسيس» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -38,11 +38,11 @@
   {
     "code": "BP-SBC-01",
     "slug": "bp-sbc-01",
-    "name": "Saudi Company Formation",
+    "name": "تأسيس شركة سعودية",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "المركز السعودي للأعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Saudi Company Formation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة سعودية» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [
       "Reserved trade name",
       "drafted & notarized Articles of Association",
@@ -100,11 +100,11 @@
   {
     "code": "BP-SBC-04",
     "slug": "bp-sbc-04",
-    "name": "Commercial Registration (CR) issuance",
+    "name": "إصدار سجل تجاري",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "المركز السعودي للأعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Commercial Registration (CR) issuance» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «إصدار سجل تجاري» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -118,11 +118,11 @@
   {
     "code": "BP-SBC-05",
     "slug": "bp-sbc-05",
-    "name": "Company name reservation",
+    "name": "حجز اسم شركة",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "المركز السعودي للأعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Company name reservation» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «حجز اسم شركة» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -284,11 +284,11 @@
   {
     "code": "BP-SBC-14",
     "slug": "bp-sbc-14",
-    "name": "Legal form transformation (sole→LLC / LLC→sole)",
+    "name": "تحويل الشكل القانوني للمنشأة",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "المركز السعودي للأعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Legal form transformation (sole→LLC / LLC→sole)» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «تحويل الشكل القانوني للمنشأة» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -302,11 +302,11 @@
   {
     "code": "BP-SBC-15",
     "slug": "bp-sbc-15",
-    "name": "Articles of Association drafting & notarization support",
+    "name": "صياغة عقد التأسيس ودعم التوثيق",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "المركز السعودي للأعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Articles of Association drafting & notarization support» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «صياغة عقد التأسيس ودعم التوثيق» نيابةً عنك ضمن خدمات تأسيس الشركات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -414,11 +414,11 @@
   {
     "code": "BP-FI-01",
     "slug": "bp-fi-01",
-    "name": "Foreign Investor Company Formation",
+    "name": "تأسيس شركة لمستثمر أجنبي",
     "category": "Foreign Investment",
     "categoryAr": "الاستثمار الأجنبي",
     "govPlatform": "وزارة الاستثمار MISA",
-    "description": "نتولّى في Business Partner تنفيذ «Foreign Investor Company Formation» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «تأسيس شركة لمستثمر أجنبي» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [
       "MISA license",
       "Commercial Registration (CR)",
@@ -521,11 +521,11 @@
   {
     "code": "BP-FI-06",
     "slug": "bp-fi-06",
-    "name": "Branch registration (foreign company)",
+    "name": "تسجيل فرع لشركة أجنبية",
     "category": "Foreign Investment",
     "categoryAr": "الاستثمار الأجنبي",
     "govPlatform": "وزارة الاستثمار MISA",
-    "description": "نتولّى في Business Partner تنفيذ «Branch registration (foreign company)» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «تسجيل فرع لشركة أجنبية» نيابةً عنك ضمن خدمات الاستثمار الأجنبي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -560,11 +560,11 @@
   {
     "code": "BP-PR-02",
     "slug": "bp-pr-02",
-    "name": "Premium Residency Consultation",
+    "name": "استشارة الإقامة المميزة",
     "category": "Premium Residency",
     "categoryAr": "الإقامة المميزة",
     "govPlatform": "الإقامة المميزة",
-    "description": "نتولّى في Business Partner تنفيذ «Premium Residency Consultation» نيابةً عنك ضمن خدمات الإقامة المميزة — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «استشارة الإقامة المميزة» نيابةً عنك ضمن خدمات الإقامة المميزة — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [
       "Eligibility assessment and recommended Premium Residency pathway"
     ],
@@ -580,11 +580,11 @@
   {
     "code": "BP-ABSHER-01",
     "slug": "bp-absher-01",
-    "name": "Absher Business setup",
+    "name": "تفعيل أبشر أعمال",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "أبشر أعمال",
-    "description": "نتولّى في Business Partner تنفيذ «Absher Business setup» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «تفعيل أبشر أعمال» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -744,11 +744,11 @@
   {
     "code": "BP-MUDAD-01",
     "slug": "bp-mudad-01",
-    "name": "Mudad setup (WPS)",
+    "name": "إعداد منصة مدد لنظام حماية الأجور",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "مدد",
-    "description": "نتولّى في Business Partner تنفيذ «Mudad setup (WPS)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «إعداد منصة مدد لنظام حماية الأجور» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -780,11 +780,11 @@
   {
     "code": "BP-QIWA-01",
     "slug": "bp-qiwa-01",
-    "name": "Qiwa setup & onboarding",
+    "name": "إعداد وتفعيل منصة قوى",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "قوى",
-    "description": "نتولّى في Business Partner تنفيذ «Qiwa setup & onboarding» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «إعداد وتفعيل منصة قوى» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -870,11 +870,11 @@
   {
     "code": "BP-SUBL-01",
     "slug": "bp-subl-01",
-    "name": "National Address registration",
+    "name": "التسجيل في العنوان الوطني",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "سُبل",
-    "description": "نتولّى في Business Partner تنفيذ «National Address registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «التسجيل في العنوان الوطني» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -942,11 +942,11 @@
   {
     "code": "BP-ZATCA-04",
     "slug": "bp-zatca-04",
-    "name": "ZATCA VAT registration",
+    "name": "التسجيل في ضريبة القيمة المضافة (زاتكا)",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "الزكاة والضريبة ZATCA",
-    "description": "نتولّى في Business Partner تنفيذ «ZATCA VAT registration» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «التسجيل في ضريبة القيمة المضافة (زاتكا)» نيابةً عنك ضمن خدمات العلاقات الحكومية — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -1180,11 +1180,11 @@
   {
     "code": "BP-REC-04",
     "slug": "bp-rec-04",
-    "name": "Executive Search",
+    "name": "الاستقطاب التنفيذي",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «Executive Search» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «الاستقطاب التنفيذي» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "Percent",
@@ -1198,11 +1198,11 @@
   {
     "code": "BP-REC-05",
     "slug": "bp-rec-05",
-    "name": "Local Recruitment",
+    "name": "التوظيف المحلي",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «Local Recruitment» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «التوظيف المحلي» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "Percent",
@@ -1216,11 +1216,11 @@
   {
     "code": "BP-REC-06",
     "slug": "bp-rec-06",
-    "name": "Bulk Recruitment",
+    "name": "التوظيف الجماعي",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «Bulk Recruitment» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «التوظيف الجماعي» نيابةً عنك ضمن خدمات التوظيف والاستقدام — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "Per Candidate",
@@ -1576,11 +1576,11 @@
   {
     "code": "BP-RE-05",
     "slug": "bp-re-05",
-    "name": "Office Search Service",
+    "name": "خدمة البحث عن مكتب",
     "category": "Real Estate",
     "categoryAr": "العقارات",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «Office Search Service» نيابةً عنك ضمن خدمات العقارات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «خدمة البحث عن مكتب» نيابةً عنك ضمن خدمات العقارات — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [],
     "targetClient": "",
     "pricingModel": "One Time",
@@ -1594,7 +1594,7 @@
   {
     "code": "BP-RE-06",
     "slug": "bp-re-06",
-    "name": "Foreign Property Ownership",
+    "name": "تملّك العقار للأجانب",
     "category": "Real Estate",
     "categoryAr": "العقارات",
     "govPlatform": "الهيئة العامة للعقار (REGA) · منصة عقارات السعودية",
@@ -1671,11 +1671,11 @@
   {
     "code": "BP-AI-01",
     "slug": "bp-ai-01",
-    "name": "AI Business Partner Enterprise",
+    "name": "منظومة الأعمال بالذكاء الاصطناعي (Enterprise)",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «AI Business Partner Enterprise» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «منظومة الأعمال بالذكاء الاصطناعي (Enterprise)» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [
       "Multi-workflow AI automations",
       "document intelligence",
@@ -1694,11 +1694,11 @@
   {
     "code": "BP-AI-02",
     "slug": "bp-ai-02",
-    "name": "AI Agent Setup",
+    "name": "إعداد المستشار الذكي",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
-    "description": "نتولّى في Business Partner تنفيذ «AI Agent Setup» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
+    "description": "نتولّى في Business Partner تنفيذ «إعداد المستشار الذكي» نيابةً عنك ضمن خدمات الأتمتة والذكاء الاصطناعي — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.",
     "deliverables": [
       "Configured WhatsApp AI agent",
       "CRM/email/calendar/document integration",
@@ -2166,7 +2166,7 @@
   {
     "code": "BP-AI-03",
     "slug": "bp-ai-03",
-    "name": "Compliance & obligations agent",
+    "name": "مستشار الامتثال والالتزام",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
@@ -2190,7 +2190,7 @@
   {
     "code": "BP-AI-SMART-EMPLOYEE",
     "slug": "bp-ai-smart-employee",
-    "name": "Specialist smart employee",
+    "name": "الموظف الذكي المتخصص",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
@@ -2215,7 +2215,7 @@
   {
     "code": "BP-AI-04",
     "slug": "bp-ai-04",
-    "name": "Shared services team",
+    "name": "فريق الخدمات المشتركة",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
@@ -2240,7 +2240,7 @@
   {
     "code": "AI-GEN",
     "slug": "ai-gen",
-    "name": "Artificial Intelligence Automation — Bespoke Service",
+    "name": "الأتمتة بالذكاء الاصطناعي — خدمة حسب الطلب",
     "category": "AI Automation",
     "categoryAr": "الأتمتة والذكاء الاصطناعي",
     "govPlatform": "بدون جهة حكومية",
@@ -2258,7 +2258,7 @@
   {
     "code": "CF-GEN",
     "slug": "cf-gen",
-    "name": "Company Formation — Bespoke Service",
+    "name": "تأسيس الشركات — خدمة حسب الطلب",
     "category": "Company Formation",
     "categoryAr": "تأسيس الشركات",
     "govPlatform": "بدون جهة حكومية",
@@ -2276,7 +2276,7 @@
   {
     "code": "GOV-GEN",
     "slug": "gov-gen",
-    "name": "Government Transactions — Bespoke Service",
+    "name": "المعاملات الحكومية — خدمة حسب الطلب",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "بدون جهة حكومية",
@@ -2294,7 +2294,7 @@
   {
     "code": "GR-GEN",
     "slug": "gr-gen",
-    "name": "Government Relations Representative",
+    "name": "مندوب العلاقات الحكومية",
     "category": "Government Relations",
     "categoryAr": "العلاقات الحكومية",
     "govPlatform": "بدون جهة حكومية",
@@ -2312,7 +2312,7 @@
   {
     "code": "HR-GEN",
     "slug": "hr-gen",
-    "name": "Human Resources — Bespoke Service",
+    "name": "الموارد البشرية — خدمة حسب الطلب",
     "category": "HR Services",
     "categoryAr": "الموارد البشرية",
     "govPlatform": "بدون جهة حكومية",
@@ -2330,7 +2330,7 @@
   {
     "code": "PR-GEN",
     "slug": "pr-gen",
-    "name": "Premium Residency — Bespoke Service",
+    "name": "الإقامة المميزة — خدمة حسب الطلب",
     "category": "Premium Residency",
     "categoryAr": "الإقامة المميزة",
     "govPlatform": "بدون جهة حكومية",
@@ -2348,7 +2348,7 @@
   {
     "code": "RE-GEN",
     "slug": "re-gen",
-    "name": "Real Estate — Bespoke Service",
+    "name": "العقارات — خدمة حسب الطلب",
     "category": "Real Estate",
     "categoryAr": "المكاتب ومساحات العمل",
     "govPlatform": "بدون جهة حكومية",
@@ -2366,7 +2366,7 @@
   {
     "code": "REC-GEN",
     "slug": "rec-gen",
-    "name": "Recruitment and Manpower — Bespoke Service",
+    "name": "التوظيف والاستقدام — خدمة حسب الطلب",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
@@ -2384,7 +2384,7 @@
   {
     "code": "SBC-GEN",
     "slug": "sbc-gen",
-    "name": "Shared Services — Bespoke Service",
+    "name": "الخدمات المشتركة — خدمة حسب الطلب",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2402,7 +2402,7 @@
   {
     "code": "SUP-GEN",
     "slug": "sup-gen",
-    "name": "Support and Advisory — Bespoke Service",
+    "name": "الدعم والاستشارات — خدمة حسب الطلب",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2420,7 +2420,7 @@
   {
     "code": "TR-GEN",
     "slug": "tr-gen",
-    "name": "Tourism — Bespoke Service",
+    "name": "السياحة — خدمة حسب الطلب",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2438,7 +2438,7 @@
   {
     "code": "CV-10",
     "slug": "cv-10",
-    "name": "Candidate CV Sourcing",
+    "name": "توفير سير ذاتية لمرشحين",
     "category": "Recruitment",
     "categoryAr": "التوظيف والاستقدام",
     "govPlatform": "بدون جهة حكومية",
@@ -2456,7 +2456,7 @@
   {
     "code": "MA-BRK",
     "slug": "ma-brk",
-    "name": "Mergers and Acquisitions Brokerage",
+    "name": "وساطة اندماج واستحواذ",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2474,7 +2474,7 @@
   {
     "code": "FI-100",
     "slug": "fi-100",
-    "name": "Foreign Investment Setup — 100% Foreign Owned Company",
+    "name": "تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي",
     "category": "Foreign Investment",
     "categoryAr": "الاستثمار الأجنبي",
     "govPlatform": "بدون جهة حكومية",
@@ -2492,7 +2492,7 @@
   {
     "code": "QW-EST",
     "slug": "qw-est",
-    "name": "Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development",
+    "name": "مهمة منصة قوى وفتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية",
     "category": "HR Services",
     "categoryAr": "الموارد البشرية",
     "govPlatform": "بدون جهة حكومية",
@@ -2510,7 +2510,7 @@
   {
     "code": "REV-LAUNCH",
     "slug": "rev-launch",
-    "name": "Business Development — Revenue Operating System — Launch Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2528,7 +2528,7 @@
   {
     "code": "REV-START",
     "slug": "rev-start",
-    "name": "Business Development — Revenue Operating System — Starter Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2546,7 +2546,7 @@
   {
     "code": "REV-GROWTH",
     "slug": "rev-growth",
-    "name": "Business Development — Revenue Operating System — Growth Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2564,7 +2564,7 @@
   {
     "code": "REV-PRO",
     "slug": "rev-pro",
-    "name": "Business Development — Revenue Operating System — Professional Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2582,7 +2582,7 @@
   {
     "code": "REV-TEAM",
     "slug": "rev-team",
-    "name": "Business Development — Revenue Operating System — Dedicated Team Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -2600,7 +2600,7 @@
   {
     "code": "REV-ENT",
     "slug": "rev-ent",
-    "name": "Business Development — Revenue Operating System — Enterprise Package",
+    "name": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى",
     "category": "Business Support",
     "categoryAr": "دعم الأعمال",
     "govPlatform": "بدون جهة حكومية",
@@ -3858,6 +3858,28 @@
     "price": {
       "label": "1,200 ﷼",
       "amount": 1200
+    }
+  },
+  {
+    "code": "BP-SBC-31",
+    "slug": "bp-sbc-31",
+    "name": "تأسيس / قيد مؤسسة فردية جديدة",
+    "category": "Company Formation",
+    "categoryAr": "تأسيس الشركات",
+    "govPlatform": "المركز السعودي للأعمال",
+    "description": "تأسيس مؤسسة فردية جديدة وقيدها في السجل التجاري عبر المركز السعودي للأعمال: نجهّز المتطلبات ونقدّم الطلب ونتابعه حتى الإصدار.",
+    "deliverables": [
+      "تجهيز متطلبات تأسيس المؤسسة وقيدها",
+      "تقديم الطلب ومتابعته عبر المركز السعودي للأعمال",
+      "تسليم السجل بعد إصداره"
+    ],
+    "targetClient": "رواد الأعمال والأفراد الراغبون في بدء نشاط تجاري كمؤسسة فردية",
+    "pricingModel": "One Time",
+    "govFeesSeparate": true,
+    "requiresProposal": false,
+    "price": {
+      "label": "1,500 ﷼",
+      "amount": 1500
     }
   },
   {
