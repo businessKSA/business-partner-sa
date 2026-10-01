@@ -64,7 +64,7 @@ const SYSTEM_INSTRUCTIONS = () => `أنت «باهر» — المساعد الذ
 ${KNOWLEDGE}
 === نهاية قاعدة المعرفة ===`;
 
-// Simple V1 — «مساعد شريك الأعمال»: one intake conversation for the three
+// Simple V1 — «المستشار الذكي من Business Partner»: one intake conversation for the three
 // public services. It understands, structures and sells; it does not hand
 // out a free consulting report. When it has enough it appends a machine
 // block the homepage turns into an editable scope (never shown raw).
@@ -98,7 +98,7 @@ function intakeInstructions(context, lang) {
   const types = four
     ? "CONSULTATION|GOVERNMENT_SERVICE|COMPANY_FORMATION|BUSINESS_DEVELOPMENT"
     : "CONSULTATION|GOVERNMENT_SERVICE|COMPANY_FORMATION";
-  return `أنت «مساعد شريك الأعمال» (Business Partner) على الموقع. ${services}
+  return `أنت «المستشار الذكي من Business Partner» على الموقع. ${services}
 ${INTAKE_CONTEXT[context] || INTAKE_CONTEXT.consulting}
 
 هدفك: افهم → رتّب → بِع → نفّذ. لا تعطِ تقريراً استشارياً مجانياً طويلاً؛ أجب باختصار شديد على أي سؤال عام (جملتان كحد أقصى) ثم اجمع ما تحتاجه لترتيب الطلب.
@@ -377,11 +377,11 @@ export default async function handler(req, res) {
   const focus = (Array.isArray(body.messages) ? body.messages : [])
     .filter((m) => m && typeof m.content === "string")
     .slice(-2).map((m) => m.content).join(" ").slice(0, 1200);
-  // ‏باب تطوير الأعمال: سؤال العميل الأول («مبيعاتنا ضعيفة») قد لا يطابق عنوان
-  // قسم Revenue OS، فيُضاف مفتاح عنوانه إلى تركيز الاختيار. الأبواب الأخرى:
-  // التركيز نفسه بلا إضافة.
+  // ‏قسم Revenue OS في المعرفة «مقيَّد»: لا ينافس الأقسام الأخرى بالدرجات، ويُضمّ
+  // فقط لباب تطوير الأعمال (door) أو لسؤالٍ تدلّ عبارته على نيّته — انظر
+  // api/_knowledge.js. الأبواب الأخرى: الاختيار نفسه حرفاً كما كان.
   const bizdevDoor = isIntake && String(body.context || "") === "bizdev";
-  KNOWLEDGE = pickKnowledge(bizdevDoor ? `${focus} revenue إيرادات` : focus, isAdmin ? 20000 : 9000);
+  KNOWLEDGE = pickKnowledge(focus, isAdmin ? 20000 : 9000, bizdevDoor ? { door: "bizdev" } : {});
 
   const intakeSystem = isIntake ? intakeInstructions(String(body.context || "consulting"), String(body.lang || "ar")) : null;
   let accountSystem = null;
