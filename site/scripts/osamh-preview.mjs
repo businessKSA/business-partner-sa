@@ -32,11 +32,13 @@ for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
   copied++;
 }
 
-const index = path.join(OUT, 'index.html');
-if (fs.existsSync(index)) {
-  const html = fs.readFileSync(index, 'utf8');
+// Every page here is preview-only, so every page must carry noindex — not just
+// the entry point. A page added later without it would otherwise ship indexable.
+for (const entry of fs.readdirSync(OUT)) {
+  if (!entry.endsWith('.html')) continue;
+  const html = fs.readFileSync(path.join(OUT, entry), 'utf8');
   if (!/noindex/i.test(html)) {
-    console.error('Osamh preview: index.html is missing its noindex meta — refusing to publish');
+    console.error(`Osamh preview: ${entry} is missing its noindex meta — refusing to publish`);
     process.exit(1);
   }
 }
