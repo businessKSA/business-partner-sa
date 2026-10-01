@@ -13,7 +13,7 @@
 // GET /api/candidates?feed=jobs   -> Indeed-compatible XML job feed (see jobsFeed below)
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
-import { getSession, sb } from "./_db.js";
+import { getSession } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
@@ -96,6 +96,14 @@ const FIELD_OPTIONS = [
   "خدمات منزلية", "أخرى",
 ];
 
+// نوع الدوام ونمط العمل — خاصيتا select في JOBS_DB. مفصولتان عمداً كما يفصل
+// لنكدإن: «جزئي» نوع تعاقد، و«عن بُعد» مكان عمل. دمجهما يُنتج فلتراً يكذب على
+// باحثٍ عن عمل. القيمة المخزَّنة عربية دائماً لأن نوشن يخزّنها كذلك.
+const JOB_TYPE_PROP = "نوع الدوام";
+const JOB_MODE_PROP = "نمط العمل";
+const JOB_TYPES = ["دوام كامل", "دوام جزئي", "عقد مؤقت", "تدريب تعاوني", "عمل موسمي"];
+const JOB_MODES = ["في الموقع", "عن بُعد", "هجين"];
+
 async function readBody(req) {
   let b = req.body;
   if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
@@ -108,6 +116,94 @@ async function notionFetch(path, method, payload) {
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
     body: payload ? JSON.stringify(payload) : undefined,
   });
+}
+
+// كتابةٌ تشفي نفسها حين يكون الحقل غير موجود في مخطّط نوشن بعد.
+//
+// نوشن يرفض **الصفحة كاملةً** بخطأ 400 إذا حملت خاصيةً ليست في المخطّط. فلو
+// أُرسل «نوع الدوام» قبل إضافته يدوياً في نوشن لتوقّف نشر كل إعلان — عطلٌ
+// أسوأ بكثير من غياب فلتر. لذلك: تُجرَّب الكتابة بالخاصيتين، فإن عاد 400
+// يشكو من خاصية غير موجودة، أُعيدت المحاولة بدونهما وسُجّل السبب في
+// console.warn. فينجح النشر في الحالتين، ويبدأ الحقل يُحفَظ لحظة وجوده في
+// نوشن بلا نشرةٍ جديدة.
+//
+// ما لا يُبتلع: أي 400 لسببٍ آخر (قيمة طويلة، حقل مطلوب ناقص، خاصية أخرى
+// غيّر أحدهم اسمها) يعود كما هو إلى المُنادي ليسجّله ويردّ 502 — الصمت هو ما
+// جعل عطلاً سابقاً في هذا الملف يمرّ بلا أثر.
+const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier/i;
+
+async function notionWriteOptional(path, method, payload, optionalProps, label) {
+  const names = optionalProps.filter((n) => payload.properties && payload.properties[n] != null);
+  const r = await notionFetch(path, method, payload);
+  if (r.ok || !names.length || r.status !== 400) return r;
+  const body = await r.text();
+  if (!MISSING_PROP_RE.test(body)) {
+    // خطأ 400 مختلف — يُعاد نصّه للمُنادي كما هو (الجسم قُرئ مرّة، فيُغلَّف).
+    return { ok: false, status: r.status, text: async () => body, json: async () => { try { return JSON.parse(body); } catch { return {}; } } };
+  }
+  console.warn(`${label}: JOBS_DB لا يحتوي ${names.join(" / ")} بعد — أُعيدت الكتابة بدونها. نوشن قال:`, body.slice(0, 220));
+  const props = { ...payload.properties };
+  for (const n of names) delete props[n];
+  const r2 = await notionFetch(path, method, { ...payload, properties: props });
+  // ما سقط يُعلَن للمُنادي: ردٌّ يقول «حُفظ نوع الدوام» وهو لم يُحفظ كذبةٌ
+  // يراها صاحب العمل في نموذجه.
+  try { r2.droppedProps = names; } catch { /* الرد مُجمَّد — لا يضرّ */ }
+  return r2;
+}
+
+// Notion returns at most 100 rows per query and hides the rest behind a
+// cursor. A query that never follows that cursor therefore truncates
+// *silently*: the extra rows simply are not there — no error, no log, no sign
+// on the page. That is how adverts disappear from a job board without anyone
+// noticing, so every full-table read below goes through this helper.
+//
+// Why 25 pages: Notion caps a page at 100 rows, so 25 pages = 2,500 rows,
+// ~60x the active adverts we have today — room to grow for years. And 25 is
+// small enough to stay a bounded walk: the function's budget is 60s
+// (`maxDuration` for api/candidates.js in vercel.json), a filtered Notion
+// query answers in well under a second, and PAGE_BUDGET_MS stops the walk
+// early anyway. So the loop can never run open-ended if the database grows to
+// thousands. Both stop conditions are logged — a future truncation is loud.
+const MAX_QUERY_PAGES = 25;
+const PAGE_BUDGET_MS = 45000;
+
+// Returns { ok: true, results, truncated } or { ok: false } (already logged;
+// the caller decides how a 502 looks for its route — JSON or plain text).
+async function queryAllRows(dbId, body, label) {
+  const results = [];
+  const deadline = Date.now() + PAGE_BUDGET_MS;
+  let cursor;
+  for (let page = 0; page < MAX_QUERY_PAGES; page++) {
+    let r;
+    // Following the cursor turns one request into up to 25 in a burst, which
+    // is where Notion's rate limit starts to bite — so back off and retry
+    // rather than hand back a half-empty list.
+    for (let attempt = 0; ; attempt++) {
+      r = await notionFetch(`databases/${dbId}/query`, "POST", {
+        page_size: 100,
+        ...body,
+        ...(cursor ? { start_cursor: cursor } : {}),
+      });
+      if (r.ok) break;
+      if (r.status === 429 && attempt < 3 && Date.now() < deadline) {
+        const retryAfter = Number(r.headers.get("retry-after"));
+        await new Promise((resolve) => setTimeout(resolve, retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt)));
+        continue;
+      }
+      console.error(`${label} query error`, r.status, (await r.text()).slice(0, 300));
+      return { ok: false };
+    }
+    const data = await r.json();
+    results.push(...(data.results || []));
+    if (!data.has_more || !data.next_cursor) return { ok: true, results, truncated: false };
+    cursor = data.next_cursor;
+    if (Date.now() > deadline) {
+      console.error(`${label}: page budget (${PAGE_BUDGET_MS}ms) spent after ${results.length} rows — more rows remain in Notion`);
+      return { ok: true, results, truncated: true };
+    }
+  }
+  console.error(`${label}: hit MAX_QUERY_PAGES (${MAX_QUERY_PAGES}) after ${results.length} rows — more rows remain in Notion, raise the cap`);
+  return { ok: true, results, truncated: true };
 }
 
 // Paging through the ~14k-row ATS needs more than the default serverless
@@ -127,8 +223,86 @@ const txt = (p) => {
   return "";
 };
 
-const clip = (s, n = 300) => String(s || "").trim().slice(0, n);
-const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+// معرّف وظيفةٍ مُسوّى للمقارنة. ختم التقديم يحمل ما كان في `?id=` بالرابط،
+// ونوشن يقبل معرّف الصفحة بشرطاته وبلا شرطاته وبأي حالة أحرف — فمقارنةٌ نصية
+// حرفية تُسقط متقدّماً حقيقياً عن إعلانٍ حقيقي لمجرّد اختلاف شكل المعرّف.
+// وما ليس معرّف صفحة (candidate-pool، ومعرّفات وظائف الموقع النصّية) يمرّ
+// كما هو فلا يطابق أي إعلان — وهو المطلوب.
+const jobKey = (s) => String(s || "").trim().toLowerCase().replace(/-/g, "");
+
+// ── الفلترة الواحدة: مَن يملك أي إعلان ───────────────────────────────────
+// كل مسارٍ يعيد بيانات متقدّمين يمرّ من هنا — القائمة (?applicants=1) وملفّ
+// المتقدّم الواحد (?applicant=1&id=…) معاً. استُخرجت من داخل القائمة لسببٍ
+// واحد: المسار الثاني يعيد **نصّ السيرة** ورابط الملف الأصلي، وهما أوسع ممّا
+// تعيده القائمة. ونسخةٌ ثانيةٌ من شرط الملكية في مسارٍ ثانٍ هي بالضبط الطريقة
+// التي غاب بها الشرط أصلاً عن القائمة ثلاثة أسابيع. دالةٌ واحدة، فمن يغيّرها
+// يغيّرها للمسارين.
+//
+// القيم الثلاث مقصودة وكلٌّ منها يعني شيئاً مختلفاً:
+//   null  = بلا حدّ — مالك المنصّة وحده (كما في list-postings).
+//   false = تعذّر السؤال على نوشن → المنادي يُقفل الباب (502)، لا «أظهر الكل».
+//   Map   = مفاتيح إعلاناته المُسوّاة بـjobKey؛ وفارغةٌ تعني: لا يملك إعلاناً.
+async function ownJobsFor(code, owner) {
+  if (owner) return null;
+  if (!code) return new Map();
+  const mine = await queryAllRows(JOBS_DB, {
+    filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
+  }, "applicants ownership");
+  if (!mine.ok) return false;
+  return new Map(mine.results.map((pg) => [jobKey(pg.id), pg.id]));
+}
+
+// ختم التقديم: «العنوان (المعرّف)» في «الوظيفة المتقدم لها»، وللصفوف القديمة
+// السطر نفسه داخل Notes. يُقرأ في موضعٍ واحد كي يكون المفتاح الذي تُفحص به
+// الملكية في ملفّ المتقدّم هو **نفسه** الذي جمعت به القائمة — مفتاحان
+// مختلفان يعنيان ملفاً يُفتح لمن لا تُعرض له بطاقته، أو العكس.
+function applicantStamp(p) {
+  const stamp = txt(p["الوظيفة المتقدم لها"]);
+  const notes = txt(p["Notes"]);
+  let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
+  if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
+  if (!m) return null;
+  const jobTitle = m[1].trim(), jobId = m[2].trim();
+  return { jobTitle, jobId, key: jobKey(jobId) || jobTitle };
+}
+
+// الدرجة: الحقل الرقمي «درجة المطابقة» أولاً، ثم «score N/100» من Notes.
+// والاحتياطي ليس زينة: الحقل الرقمي أُضيف إلى القاعدة ولم يُملأ بعد (صفرٌ من
+// ٢٦٤١٩ صفاً يوم كتابة هذا)، بينما الدرجات المعروضة اليوم كلها نصٌّ في Notes.
+// فاستبدالُه بالحقل وحده كان يُخفي كل درجةٍ قائمة.
+function applicantScore(p) {
+  const n = p["درجة المطابقة"] && typeof p["درجة المطابقة"].number === "number"
+    ? p["درجة المطابقة"].number : null;
+  if (n != null) return { score: n, scoreFrom: "field" };
+  const m = txt(p["Notes"]).match(/score\s*(\d{1,3})\s*\/\s*100/i);
+  return m ? { score: Number(m[1]), scoreFrom: "notes" } : { score: null, scoreFrom: "" };
+}
+
+// السيرة المهيّأة نصّاً. «ATS CV Text» هو موضعها المعلن، لكنها في الواقع
+// تُكتب غالباً في **جسم صفحة** المرشّح بنوشن (أقساماً مرتّبة) — صفٌّ واحد من
+// ٢٦٤١٩ يحمل الحقل مملوءاً. فتُقرأ الكتل كماركداون احتياطياً، وإلا كانت
+// «اعرض السيرة على الموقع» شاشةً فارغة لكل مرشّح تقريباً.
+async function readCvBody(id) {
+  try {
+    let cur = null, guard = 0;
+    const out = [];
+    do {
+      const br = await notionFetch(`blocks/${id}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
+      if (!br.ok) break;
+      const bd = await br.json();
+      for (const blk of bd.results || []) {
+        const t = blk[blk.type];
+        if (!t || !Array.isArray(t.rich_text)) continue;
+        const line = t.rich_text.map((x) => x.plain_text).join("");
+        if (!line.trim()) continue;
+        const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
+        out.push(pre + line);
+      }
+      cur = bd.has_more ? bd.next_cursor : null;
+    } while (cur && ++guard < 5);
+    return out.join("\n");
+  } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); return ""; }
+}
 
 // Mask a name to initials-ish preview (e.g. "محمد العتيبي" -> "م. ا.")
 const maskName = (n) => {
@@ -214,7 +388,7 @@ const OWNER_CODE = process.env.OWNER_DEMO_CODE || "";
 // Resolve a subscription code → { unlocked, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
 // for an ACTIVE row by access code.
-async function resolvePlan(code) {
+export async function resolvePlan(code) {
   if (!code) return { unlocked: false, plan: "" };
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
@@ -258,7 +432,7 @@ const OWNER_EMAIL = (process.env.OWNER_EMAIL || "dr.baher.magnas@gmail.com").toL
 // on every request, never taken from the client: a supplied "org:…" code is
 // always ignored and re-derived here, so it cannot be forged to reach
 // another tenant's postings or the candidate pool.
-async function portalUnlock(req) {
+export async function portalUnlock(req) {
   try {
     const sess = await getSession(req);
     const org = sess && sess.organization;
@@ -269,226 +443,133 @@ async function portalUnlock(req) {
     return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
   } catch { return null; }
 }
+
+// «الدخول ببريد مُثبت» — الجسر بين حساب Business Partner (api/otp.js يثبت ملكية
+// البريد ويصدر الجلسة) وصفّ صاحب العمل في قاعدة أصحاب العمل بنوشن.
+//
+// سبب وجوده: رمز الوصول هو الرمز الحامل الوحيد الذي يفتح بيانات كل المرشحين
+// الشخصية، وكانت البوابة تطلب من صاحب العمل أن يحمله في بريده وحافظته ويلصقه
+// بيده — ومن نسخه مرّة بقي عند من رآه، ولا يُبطَل إلا يدوياً في نوشن. هنا
+// يُستخرج الرمز في الخادم من بريدٍ مُثبت ولا يغادره: المتصفّح يرسل ملفّ جلسته
+// ويكتب code:"self" فقط، ولا يرى الرمز في أي ردّ.
+//
+// البريد يأتي من الجلسة وحدها ولا يُقبل من العميل بحال، والصف يجب أن يكون
+// «مفعّل»: التفعيل قرارٌ يدوي بأمر المالك لا خطوةٌ تلقائية (انظر التعليق
+// الأمني فوق planAr في api/employer.js — المطابقة التلقائية بالبريد كانت
+// تجاوز مصادقة كاملاً).
+// الحالة التي تفتح الوصول — حرفاً بحرف كما في resolvePlan. التفعيل يُكتب
+// بيد إنسان في نوشن، فحرفٌ زائد أو شدّةٌ ناقصة تعني صفّاً لا يُطابَق أبداً.
+// لا يُوسَّع المقارَن هنا (توسيعه قرار مالك)، لكن الحالة المكتوبة تُعاد إلى
+// صاحبها في الرسالة، فيظهر الخطأ المطبعي بدل أن يبقى غائباً.
+const EMP_ACTIVE = "مفعّل";
+
+// يقرأ صفّ صاحب العمل من البريد المُثبت في الجلسة، ويعيد **سبباً صريحاً**
+// حين لا يفتح. الفرق ليس تجميلاً: «لا اشتراك» غير «اشتراكٌ لم يُفعّل بعد»
+// غير «تعذّر السؤال أصلاً» — وبلا تمييزها يقف صاحب العمل أمام جملةٍ واحدة
+// تتّهم اشتراكه بينما العطل في نوشن أو في مفتاحها.
+//
+// ولا تُصفّى «مفعّل» في استعلام نوشن بل هنا: الفلتر كان يخفي الصفّ غير
+// المفعّل فيبدو كأنه غير موجود، فلا نملك ما نقوله لصاحبه.
+//
+// والترتيب بـ created_time تصاعدياً مقصود: page_size:1 بلا ترتيب كان يسلّم
+// صفّاً عشوائياً لمن له أكثر من صفّ بالبريد نفسه — أي لوحةَ شركةٍ غير شركته
+// بلا أي إشارة. الآن: الأقدم دائماً، وتكرار الصفوف المفعّلة يُسجَّل.
+async function employerRowFor(req) {
+  let email = "";
+  try {
+    const sess = await getSession(req);
+    email = String((sess && sess.user && sess.user.email) || "").toLowerCase();
+  } catch (e) {
+    console.error("employer session read", String(e).slice(0, 200));
+    return { email: "", reason: "error" };
+  }
+  if (!email) return { email: "", reason: "no_session" };
+  const query = async (filter) => notionFetch(`databases/${EMP_DB}/query`, "POST", {
+    page_size: 10, filter,
+    sorts: [{ timestamp: "created_time", direction: "ascending" }],
+  });
+  try {
+    let r = await query({ property: "البريد", email: { equals: email } });
+    if (!r.ok) {
+      console.error("employer session lookup", r.status, (await r.text()).slice(0, 200));
+      return { email, reason: "error" };
+    }
+    let rows = (await r.json()).results || [];
+    // بريد الجلسة بحروفٍ صغيرة دائماً (api/otp.js)، أما بريد الصفّ فمكتوبٌ
+    // بيد إنسان في نوشن وقد يحمل حرفاً كبيراً أو مسافةً في طرفه — و`equals`
+    // مطابقةٌ حرفية. صفٌّ مفعّل لا يُطابَق يعني صاحب عملٍ مشتركاً يُقال له
+    // «لا اشتراك لك»، وهو أسوأ ردٍّ ممكن على من دفع. فإن خلت المطابقة
+    // الحرفية، يُسأل مرّة أخرى بـ`contains` (غير حسّاس للحالة) وتُحسم
+    // المطابقة هنا بمقارنةٍ صغيرةٍ بحروفٍ صغيرة — لا توسيع: البريد نفسه
+    // بعينه، مُثبتٌ بالجلسة، لا بريدٌ آخر يحتويه.
+    if (!rows.length) {
+      r = await query({ property: "البريد", email: { contains: email } });
+      if (!r.ok) {
+        console.error("employer session lookup (ci)", r.status, (await r.text()).slice(0, 200));
+        return { email, reason: "error" };
+      }
+      rows = ((await r.json()).results || [])
+        .filter((pg) => txt((pg.properties || {})["البريد"]).trim().toLowerCase() === email);
+    }
+    const active = rows.filter((pg) => txt((pg.properties || {})["الحالة"]) === EMP_ACTIVE);
+    if (active.length > 1) console.warn("employer duplicate active rows", active.length, "— oldest wins");
+    const row = active[0];
+    if (!row) {
+      if (!rows.length) return { email, reason: "none" };
+      const last = rows[rows.length - 1].properties || {};
+      return { email, reason: "pending", status: txt(last["الحالة"]), company: txt(last["اسم الشركة"]) };
+    }
+    const p = row.properties || {};
+    const code = txt(p["رمز الوصول"]);
+    // صفٌّ مفعّل بلا رمز وصول: لوحةٌ تُفتح على لا شيء، وإعلانٌ يُنشر بلا مالك
+    // فلا يظهر في لوحة أحد ولا يصل إشعارٌ لأحد — حدث فعلاً بالرمز BP-HOUSE.
+    // يُقال لصاحبه بدل أن يُعامَل كأنه بلا اشتراك.
+    if (!code) return { email, reason: "nocode", company: txt(p["اسم الشركة"]) };
+    return {
+      email, reason: "ok",
+      account: {
+        unlocked: true, account: true, code,
+        plan: txt(p["الباقة"]),
+        company: txt(p["اسم الشركة"]),
+        owner: email === OWNER_EMAIL,
+      },
+    };
+  } catch (e) {
+    console.error("employerRowFor error", String(e).slice(0, 200));
+    return { email, reason: "error" };
+  }
+}
+
+export async function employerBySession(req) {
+  const r = await employerRowFor(req);
+  return r.reason === "ok" ? r.account : null;
+}
+
 // Business Partner's own careers-page roles — static pages in the generator,
 // not JOBS_DB rows. Ids are the apply slugs the application stamp uses, so
 // applicant grouping lines up with these postings in the console.
 const SITE_ROLES = [
-  { id: "hr-operations-specialist", title: "أخصائي عمليات موارد بشرية وعلاقات حكومية", city: "الرياض", field: "موارد بشرية", description: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.", status: "نشطة", site: true, url: "/ar/careers/hr-operations-specialist" },
-  { id: "recruitment-coordinator", title: "منسق توظيف", city: "الرياض", field: "موارد بشرية", description: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.", status: "نشطة", site: true, url: "/ar/careers/recruitment-coordinator" },
-  { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
+  { id: "hr-operations-specialist", title: "أخصائي عمليات موارد بشرية وعلاقات حكومية", city: "الرياض", field: "موارد بشرية", type: "", mode: "", description: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.", status: "نشطة", site: true, url: "/ar/careers/hr-operations-specialist" },
+  { id: "recruitment-coordinator", title: "منسق توظيف", city: "الرياض", field: "موارد بشرية", type: "", mode: "", description: "تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.", status: "نشطة", site: true, url: "/ar/careers/recruitment-coordinator" },
+  { id: "candidate-pool", title: "قاعدة المرشحين العامة", city: "", field: "عام", type: "", mode: "", description: "التسجيلات العامة في قاعدة المرشحين من الموقع — مرشحون بانتظار مطابقتهم مع وظيفة مناسبة.", status: "نشطة", site: true, url: "/ar/careers#open-jobs" },
 ];
 
 // Job postings: an employer can open more than one, each with its own title/
 // city/description, and pull an AI-screened shortlist against the pool from
 // that description via /api/hire (task:"match") on the client side.
-// Helper: Check if user is admin or has access to organization
-async function checkOrgAccess(req, res, orgId) {
-  try {
-    const sess = await getSession(req);
-    if (!sess || !sess.user) return null;
-    if (!orgId) return sess; // No org check needed
-    // Check if user is member of this organization
-    const members = await sb(`organization_members?organization_id=eq.${orgId}&user_id=eq.${sess.user.id}&status=eq.active`);
-    return members.length > 0 ? sess : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Helper: Check if user is BP staff (admin)
-async function isAdmin(req) {
-  try {
-    const sess = await getSession(req);
-    if (!sess || !sess.user) return false;
-    const users = await sb(`users?id=eq.${sess.user.id}&select=is_bp_staff`);
-    return users.length > 0 && users[0].is_bp_staff === true;
-  } catch { return false; }
-}
-
-// Authenticated job posting (use Supabase, not Notion)
-async function handleAuthPostJob(req, res, b) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const title = clip(b.title, 200);
-  const city = clip(b.city || "الرياض", 120);
-  const description = clip(b.description, 4000);
-  const requirements = clip(b.requirements, 2000);
-  const employmentType = (b.employment_type || "full_time");
-
-  if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
-
-  try {
-    const jobs = await sb("job_postings", {
-      method: "POST",
-      prefer: "return=representation",
-      body: [{
-        organization_id: sess.organizationId,
-        title, description, requirements,
-        city, employment_type: employmentType,
-        experience_level: clip(b.experience_level, 20),
-        salary_min: b.salary_min,
-        salary_max: b.salary_max,
-        posted_by: sess.user.id,
-        status: "active"
-      }]
-    });
-    if (!jobs.length) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "creation_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, job: jobs[0] }));
-  } catch (e) {
-    console.error("auth post job", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated job listing (Supabase, with org filtering)
-async function handleAuthListJobs(req, res, query) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const isAd = await isAdmin(req);
-  const filter = isAd ? "" : `organization_id=eq.${sess.organizationId}&`;
-
-  try {
-    const jobs = await sb(`job_postings?${filter}status=eq.active&order=created_at.desc`);
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, jobs }));
-  } catch (e) {
-    console.error("auth list jobs", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated job application (Supabase)
-async function handleAuthApplyJob(req, res, b) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const jobId = clip(b.job_id, 50);
-  const cvText = clip(b.cv || b.cv_text, 8000);
-  const coverLetter = clip(b.cover_letter, 2000);
-
-  if (!jobId || !cvText) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
-
-  try {
-    // Verify job exists and get organization
-    const jobs = await sb(`job_postings?id=eq.${jobId}&select=id,organization_id`);
-    if (!jobs.length) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "job_not_found" })); }
-    const job = jobs[0];
-
-    const apps = await sb("job_applications", {
-      method: "POST",
-      prefer: "return=representation",
-      body: [{
-        job_posting_id: jobId,
-        organization_id: job.organization_id,
-        applicant_name: clip(b.name || sess.user.full_name || sess.user.email, 120),
-        applicant_email: clip(b.email || sess.user.email, 120),
-        applicant_phone: clip(b.phone, 20),
-        cv_text: cvText,
-        cover_letter: coverLetter,
-        status: "received"
-      }]
-    });
-    if (!apps.length) { res.statusCode = 500; return res.end(JSON.stringify({ ok: false, error: "creation_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, application: apps[0] }));
-  } catch (e) {
-    console.error("auth apply job", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
-// Authenticated applications listing (Supabase, with org filtering)
-async function handleAuthListApplications(req, res, query) {
-  const sess = await getSession(req);
-  if (!sess || !sess.user || !sess.organizationId) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
-
-  const isAd = await isAdmin(req);
-  const filter = isAd ? "" : `organization_id=eq.${sess.organizationId}&`;
-
-  try {
-    const apps = await sb(`job_applications?${filter}order=applied_at.desc`);
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, applications: apps }));
-  } catch (e) {
-    console.error("auth list applications", String(e.message || e).slice(0, 200));
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ ok: false, error: "db_failed" }));
-  }
-}
-
 async function handlePostings(req, res) {
   const b = await readBody(req);
 
-  // Authenticated job operations (new)
-  if (b.action === "auth-post-job") return await handleAuthPostJob(req, res, b);
-  if (b.action === "auth-list-jobs") return await handleAuthListJobs(req, res, "");
-  if (b.action === "auth-apply-job") return await handleAuthApplyJob(req, res, b);
-  if (b.action === "auth-list-applications") return await handleAuthListApplications(req, res, "");
-
-  // PUBLIC job posting and applications (no auth required for basic info)
-  if (b.action === "public-post-job") {
-    const title = clip(b.title, 200);
-    const city = clip(b.city || "الرياض", 120);
-    const description = clip(b.description, 4000);
-    const employerEmail = clip(b.employerEmail, 120);
-    const employerPhone = clip(b.employerPhone, 20);
-    if (!title || !description || !employerEmail) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const code = generateId();
-    const props = {
-      "العنوان الوظيفي": { title: [{ text: { content: title } }] },
-      "رمز صاحب العمل": { rich_text: [{ text: { content: code } }] },
-      "الشركة": { rich_text: [{ text: { content: clip(b.company, 200) } }] },
-      "المدينة": { rich_text: [{ text: { content: city } }] },
-      "الوصف والمتطلبات": { rich_text: [{ text: { content: description } }] },
-      "الحالة": { select: { name: "نشطة" } },
-      "بريد صاحب العمل": { email: employerEmail },
-      "هاتف صاحب العمل": { phone_number: employerPhone },
-      "تاريخ النشر": { date: { start: new Date().toISOString().split("T")[0] } },
-    };
-    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
-    if (!r.ok) { console.error("public job create error", r.status); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const jobId = (await r.json()).id;
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, jobId, code, applyLink: `/apply?job=${jobId}` }));
-  }
-
-  // PUBLIC job application (no auth required)
-  if (b.action === "public-apply-job") {
-    const jobId = clip(b.jobId, 50);
-    const name = clip(b.name, 120);
-    const email = clip(b.email, 120);
-    const phone = clip(b.phone, 20);
-    const cvText = clip(b.cvText || b.cv, 8000);
-    if (!jobId || !name || !email || !phone) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const pgr = await notionFetch(`pages/${jobId}`, "GET");
-    if (!pgr.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "job_not_found" })); }
-    const jobData = await pgr.json();
-    const jobTitle = txt(jobData.properties?.["العنوان الوظيفي"]);
-    const field = guessField(clip(b.role, 200) || jobTitle);
-    const atsProps = {
-      "Candidate Name": { title: [{ text: { content: name } }] },
-      "Email": { email },
-      "Phone": { phone_number: phone },
-      "City": { rich_text: [{ text: { content: clip(b.city, 120) } }] },
-      "Target Role": { rich_text: [{ text: { content: clip(b.role, 200) || jobTitle } }] },
-      "Field": { select: { name: field } },
-      "ATS CV Text": { rich_text: [{ text: { content: cvText } }] },
-    };
-    const atsr = await notionFetch("pages", "POST", { parent: { database_id: DB_ID }, properties: atsProps });
-    if (!atsr.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "application_failed" })); }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, message: "تم استقبال طلبك" }));
-  }
-
   let code = String(b.code || "").trim();
   let unlocked = false, owner = false;
-  if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
+  // code:"self" = «حُلَّ الرمز من جلستي في الخادم». البوابة الجديدة لا تحمل
+  // رمز الوصول ولا تعرضه، فتكتب هذه الكلمة بدلاً منه. تعذّر الحلّ يُفرغ الرمز
+  // ليسقط الطلب إلى مسار جلسة العميل أدناه، لا إلى بحثٍ عن صفٍّ رمزه "self".
+  if (code === "self") {
+    const acc = await employerBySession(req);
+    if (acc) { unlocked = true; owner = !!acc.owner; code = acc.code; }
+    else code = "";
+  } else if (code && !code.startsWith("org:")) ({ unlocked, owner } = await resolvePlan(code));
   if (!unlocked) {
     const pu = await portalUnlock(req);
     if (pu) { unlocked = true; owner = false; code = pu.code; }
@@ -500,6 +581,8 @@ async function handlePostings(req, res) {
     const city = String(b.city || "").trim().slice(0, 120);
     const description = String(b.description || "").trim().slice(0, 4000);
     const field = String(b.field || "").trim();
+    const jobType = String(b.type || "").trim();
+    const jobMode = String(b.mode || "").trim();
     if (!title || !description) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
     const props = {
       "العنوان الوظيفي": { title: [{ text: { content: title } }] },
@@ -510,11 +593,19 @@ async function handlePostings(req, res) {
       "الحالة": { select: { name: "نشطة" } },
     };
     if (FIELD_OPTIONS.includes(field)) props["المجال"] = { select: { name: field } };
-    const r = await notionFetch("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props });
+    // قيمة خارج القائمة (ومنها الفراغ «غير محدّد») تُتجاهل بصمت ولا تُكتب.
+    if (JOB_TYPES.includes(jobType)) props[JOB_TYPE_PROP] = { select: { name: jobType } };
+    if (JOB_MODES.includes(jobMode)) props[JOB_MODE_PROP] = { select: { name: jobMode } };
+    const r = await notionWriteOptional("pages", "POST", { parent: { database_id: JOBS_DB }, properties: props }, [JOB_TYPE_PROP, JOB_MODE_PROP], "posting create");
     if (!r.ok) { console.error("posting create error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
     const page = await r.json();
+    const dropped = r.droppedProps || [];
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, id: page.id, title, city, field, description }));
+    return res.end(JSON.stringify({
+      ok: true, id: page.id, title, city, field, description,
+      type: JOB_TYPES.includes(jobType) && !dropped.includes(JOB_TYPE_PROP) ? jobType : "",
+      mode: JOB_MODES.includes(jobMode) && !dropped.includes(JOB_MODE_PROP) ? jobMode : "",
+    }));
   }
 
   // Edit an existing posting in place. Ownership is enforced server-side:
@@ -535,9 +626,12 @@ async function handlePostings(req, res) {
     if (b.city != null) props["المدينة"] = { rich_text: [{ text: { content: String(b.city).trim().slice(0, 120) } }] };
     if (b.description) props["الوصف والمتطلبات"] = { rich_text: [{ text: { content: String(b.description).trim().slice(0, 4000) } }] };
     if (b.field && FIELD_OPTIONS.includes(String(b.field).trim())) props["المجال"] = { select: { name: String(b.field).trim() } };
+    // كما في «المجال»: قيمة خارج القائمة (والفراغ) لا تُكتب ولا تُغيّر المحفوظ.
+    if (b.type && JOB_TYPES.includes(String(b.type).trim())) props[JOB_TYPE_PROP] = { select: { name: String(b.type).trim() } };
+    if (b.mode && JOB_MODES.includes(String(b.mode).trim())) props[JOB_MODE_PROP] = { select: { name: String(b.mode).trim() } };
     if (b.status === "نشطة" || b.status === "مغلقة") props["الحالة"] = { select: { name: b.status } };
     if (!Object.keys(props).length) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_fields" })); }
-    const r = await notionFetch(`pages/${id}`, "PATCH", { properties: props });
+    const r = await notionWriteOptional(`pages/${id}`, "PATCH", { properties: props }, [JOB_TYPE_PROP, JOB_MODE_PROP], "posting update");
     if (!r.ok) { console.error("posting update error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true }));
@@ -556,22 +650,31 @@ async function handlePostings(req, res) {
   }
 
   if (b.action === "list-postings") {
-    const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
-      page_size: 50,
+    // Same silent cap as the public board had: an employer past 50 adverts
+    // could no longer see — nor close — their oldest ones.
+    const q = await queryAllRows(JOBS_DB, {
       filter: { property: "رمز صاحب العمل", rich_text: { equals: code } },
       sorts: [{ property: "تاريخ النشر", direction: "descending" }],
-    });
-    if (!r.ok) { console.error("postings list error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const data = await r.json();
-    const postings = (data.results || []).map((pg) => {
+    }, "postings list");
+    if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+    const postings = q.results.map((pg) => {
       const p = pg.properties || {};
       return {
         id: pg.id,
         title: txt(p["العنوان الوظيفي"]),
         city: txt(p["المدينة"]),
         field: txt(p["المجال"]),
+        // خاصيةٌ غير موجودة في المخطّط تعطي undefined بسلام، و txt تعيد ""
+        // — فالقراءة آمنة اليوم قبل أن يوجد الحقل في نوشن.
+        type: txt(p[JOB_TYPE_PROP]),
+        mode: txt(p[JOB_MODE_PROP]),
         description: txt(p["الوصف والمتطلبات"]),
         status: txt(p["الحالة"]),
+        // الاستعلام أعلاه يرتّب بـ«تاريخ النشر» ثم لا يعيده، فجدول الوظائف
+        // يرسم صفوفاً مرتّبةً بتاريخٍ لا يراه أحد. والخاصية من نوع
+        // created_time في المخطّط — أي هي pg.created_time نفسه، لا
+        // p["تاريخ النشر"].date.start (معالج ?posting= يقرؤها هكذا).
+        posted: pg.created_time,
       };
     });
     // The platform owner's console also lists the site's own careers-page
@@ -705,28 +808,25 @@ function feedDescription(slug, title, dept, vacancies) {
   return parts.join("");
 }
 async function jobsFeed(res) {
+  // This one already followed the cursor, so nothing was being dropped — but
+  // it was an unbounded `do…while`, i.e. the open loop the cap exists to
+  // prevent. Same helper, same bound, plus 429 backoff.
+  const q = await queryAllRows(WORKSHOP_DB, {
+    filter: { property: "حالة النشر", select: { equals: FEED_PUBLISHED } },
+  }, "jobs feed");
+  if (!q.ok) { res.statusCode = 502; res.setHeader("Content-Type", "text/plain"); return res.end("notion_failed"); }
   const jobs = [];
-  let cursor;
-  do {
-    const r = await notionFetch(`databases/${WORKSHOP_DB}/query`, "POST", {
-      page_size: 100, start_cursor: cursor,
-      filter: { property: "حالة النشر", select: { equals: FEED_PUBLISHED } },
+  for (const pg of q.results) {
+    const p = pg.properties || {};
+    const title = txt(p["الوظيفة"]);
+    const url = txt(p["رابط الوظيفة"]);
+    if (!title || !url) continue;
+    const slug = txt(p["معرف الوظيفة ATS"]) || pg.id;
+    jobs.push({
+      title, url, ref: slug, dept: txt(p["القسم"]), vacancies: txt(p["عدد الشواغر"]),
+      date: new Date(pg.last_edited_time || pg.created_time || Date.now()).toUTCString(),
     });
-    if (!r.ok) { console.error("jobs feed query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; res.setHeader("Content-Type", "text/plain"); return res.end("notion_failed"); }
-    const data = await r.json();
-    for (const pg of data.results || []) {
-      const p = pg.properties || {};
-      const title = txt(p["الوظيفة"]);
-      const url = txt(p["رابط الوظيفة"]);
-      if (!title || !url) continue;
-      const slug = txt(p["معرف الوظيفة ATS"]) || pg.id;
-      jobs.push({
-        title, url, ref: slug, dept: txt(p["القسم"]), vacancies: txt(p["عدد الشواغر"]),
-        date: new Date(pg.last_edited_time || pg.created_time || Date.now()).toUTCString(),
-      });
-    }
-    cursor = data.has_more ? data.next_cursor : undefined;
-  } while (cursor);
+  }
 
   const items = jobs.map((j) => [
     "  <job>",
@@ -768,30 +868,6 @@ export default async function handler(req, res) {
 
   const url0 = new URL(req.url, "http://x");
 
-  // Public single job posting by ID (for apply page)
-  if (url0.searchParams.get("publicJob")) {
-    try {
-      const jobId = clip(url0.searchParams.get("publicJob"), 50);
-      const r = await notionFetch(`pages/${jobId}`, "GET");
-      if (!r.ok) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
-      const p = (await r.json()).properties || {};
-      const posting = {
-        id: jobId,
-        title: txt(p["العنوان الوظيفي"]),
-        company: txt(p["الشركة"]),
-        city: txt(p["المدينة"]),
-        field: txt(p["المجال"]),
-        description: txt(p["الوصف والمتطلبات"]),
-      };
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, posting }));
-    } catch (e) {
-      console.error("public job get error", e);
-      res.statusCode = 500;
-      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
-    }
-  }
-
   // Public Indeed XML job feed — no code/auth (served at /jobs-feed.xml & /indeed.xml).
   if (url0.searchParams.get("feed") === "jobs") {
     try { return await jobsFeed(res); }
@@ -802,14 +878,14 @@ export default async function handler(req, res) {
   // employer-only browse/create/list-postings actions above).
   if (url0.searchParams.get("openJobs") === "1") {
     try {
-      const r = await notionFetch(`databases/${JOBS_DB}/query`, "POST", {
-        page_size: 50,
+      // Every active advert, not just the first page — this used to ask for
+      // one page of 50 and drop the rest without a word.
+      const q = await queryAllRows(JOBS_DB, {
         filter: { property: "الحالة", select: { equals: "نشطة" } },
         sorts: [{ property: "تاريخ النشر", direction: "descending" }],
-      });
-      if (!r.ok) { console.error("open jobs query error", r.status, (await r.text()).slice(0, 300)); res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-      const data = await r.json();
-      const jobs = (data.results || []).map((pg) => {
+      }, "open jobs");
+      if (!q.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const jobs = q.results.map((pg) => {
         const p = pg.properties || {};
         return {
           id: pg.id,
@@ -817,7 +893,11 @@ export default async function handler(req, res) {
           company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
+          type: txt(p[JOB_TYPE_PROP]),
+          mode: txt(p[JOB_MODE_PROP]),
           description: txt(p["الوصف والمتطلبات"]).slice(0, 400),
+          // صفحة /hiring تحسب «قبل ٣ أيام» من هذا الحقل (jbTime) وكان لا يصلها.
+          postedAt: pg.created_time,
         };
       }).filter((j) => j.title);
       res.statusCode = 200;
@@ -853,6 +933,8 @@ export default async function handler(req, res) {
           company: publisherName(),
           city: txt(p["المدينة"]),
           field: txt(p["المجال"]),
+          type: txt(p[JOB_TYPE_PROP]),
+          mode: txt(p[JOB_MODE_PROP]),
           description: txt(p["الوصف والمتطلبات"]),
           postedAt: pg.created_time,
           open: status !== "مغلقة",
@@ -947,11 +1029,24 @@ export default async function handler(req, res) {
   // Resume a previous, still-in-progress scan (see the time-budget note below)
   // instead of re-querying from the start every time.
   const startCursor = (url.searchParams.get("cursor") || "").trim() || null;
-  let unlocked = false, plan = "";
-  if (code && !code.startsWith("org:")) ({ unlocked, plan } = await resolvePlan(code));
+  // `owner` = حساب المنصّة نفسه (بريد المالك أو رمز التجربة البيئي)، وهو
+  // الوحيد الذي يرى ما وراء إعلاناته — كما في handlePostings تماماً. كان
+  // مفقوداً هنا، فلم يكن لمسار GET وسيلةٌ للتمييز أصلاً.
+  let unlocked = false, plan = "", owner = false;
+  // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
+  // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
+  let account = null, empState = null;
+  if (code === "self") {
+    empState = await employerRowFor(req);
+    account = empState.reason === "ok" ? empState.account : null;
+    if (account) { unlocked = true; plan = account.plan; code = account.code; owner = !!account.owner; }
+    else code = "";
+  } else if (code && !code.startsWith("org:")) ({ unlocked, plan, owner = false } = await resolvePlan(code));
   let portal = null;
   if (!unlocked) {
     portal = await portalUnlock(req);
+    // جلسة عميلٍ مفتوحة ليست ملكيةً للمنصّة: تفتح اللوحة برمز org:<id> ولا
+    // تملك إعلاناً واحداً، فلا ترى متقدّمي أحد. owner يبقى false عمداً.
     if (portal) { unlocked = true; plan = portal.plan; code = portal.code; }
   }
 
@@ -962,7 +1057,23 @@ export default async function handler(req, res) {
   // any signed-in client's dashboard opens itself during the platform trial.
   if (url.searchParams.get("validate") === "1") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}) }));
+    // حساب صاحب عمل مُحلّ من الجلسة: يُعاد اسم الشركة ولا يُعاد رمز الوصول —
+    // البوابة لا تحتاجه، وما لا يصل المتصفّح لا يُسرَّب منه.
+    // سبب عدم الفتح يُعاد باسمه ليقوله المتصفّح لصاحبه: none / pending /
+    // nocode / error. ولا يُعاد إلا لمن أثبت ملكية بريده بالجلسة، فهو يتكلّم
+    // عن صفّ صاحبه وحده ولا يكشف لأحدٍ أن بريداً آخر مسجّل أو غير مسجّل.
+    //
+    // ويُعاد كذلك حين يكون الفتح قد جاء من جلسة العميل (portal/open access):
+    // عندها تُفتح البوابة فعلاً، لكن الإعلانات المنشورة برمز الاشتراك لا
+    // تظهر فيها — وهذا هو الصمت الذي يبدو «لوحةً فارغة» بلا سبب، فيُقال.
+    return res.end(JSON.stringify({
+      ok: true, unlocked, plan,
+      ...(account ? { account: true, company: account.company } : {}),
+      ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}),
+      ...(empState && empState.reason !== "ok" && empState.reason !== "no_session"
+        ? { emp: empState.reason, ...(empState.status ? { empStatus: empState.status } : {}) }
+        : {}),
+    }));
   }
 
   // Per-job applicants for the employer console (?applicants=1&code=…).
@@ -975,6 +1086,25 @@ export default async function handler(req, res) {
   if (url.searchParams.get("applicants") === "1") {
     if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
     try {
+      // ── مَن يرى مَن ────────────────────────────────────────────────────
+      // رمزٌ مفعّل كان يكفي لرؤية **كل** متقدّمي **كل** أصحاب العمل بأسمائهم
+      // وبُرُدهم وجوّالاتهم: الاستعلام أدناه يمشي على قاعدة المرشحين كلها،
+      // ولم يكن بعده شرطٌ على مالك الإعلان — بينما جاره list-postings يفلتر
+      // على «رمز صاحب العمل» منذ اليوم الأول. فتُجلب أولاً معرّفات إعلانات
+      // صاحب العمل نفسه، ولا تنجو مجموعةٌ ختمُها خارجها.
+      //
+      // والمالك (owner) يبقى يرى الكل: هو مالك المنصّة، وSITE_ROLES تُدرج
+      // له وحده في list-postings للسبب نفسه.
+      //
+      // وظائف الموقع نفسه (hr-operations-specialist, recruitment-coordinator)
+      // و«candidate-pool» ليست صفوفاً في JOBS_DB ولا رمزَ صاحب عملٍ لها —
+      // فمعرّفاتها لا تُطابق أي إعلان، وتسقط عن غير المالك بالقاعدة نفسها
+      // بلا استثناءٍ مكتوب. وهذا هو المقصود: التسجيل العام في قاعدة المرشحين
+      // ليس «تقدّماً على إعلان» أحد، وتصفّح القاعدة بابٌ آخر له إخفاؤه.
+      //
+      // وتعذّر معرفةُ مَن يملك ماذا = لا أحد يرى شيئاً (502)، لا «أظهر الكل».
+      const ownJobs = await ownJobsFor(code, owner);
+      if (ownJobs === false) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
       let rowsRaw = [];
       let cursor = null, guard = 0;
       // 1,893 people have applied through the site; the old five-page ceiling
@@ -1007,16 +1137,24 @@ export default async function handler(req, res) {
       for (const pg of rowsRaw) {
         const p = pg.properties || {};
         if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) continue;
-        const stamp = txt(p["الوظيفة المتقدم لها"]);
-        const notes = txt(p["Notes"]);
-        let m = stamp ? stamp.match(/^(.*?)\s*\(([^()\n]+)\)\s*$/) : null;
-        if (!m) m = notes.match(/تقديم عبر الموقع — الوظيفة:\s*([^\n(]+?)\s*\(([^()\n]+)\)/);
-        if (!m) continue;
-        let jobTitle = m[1].trim(), jobId = m[2].trim();
-        if (jobId === "candidate-pool") jobTitle = "قاعدة المرشحين العامة";
-        const key = jobId || jobTitle;
+        const st = applicantStamp(p);
+        if (!st) continue;
+        let jobTitle = st.jobTitle, jobId = st.jobId;
+        const key = st.key;
+        // الشرط الذي كان غائباً. ويُطبَّق على الختمين معاً — «الوظيفة المتقدم
+        // لها» والصفوف القديمة المختومة في Notes — لأن كليهما يمرّ من هنا.
+        if (ownJobs && !ownJobs.has(key)) continue;
+        // ومعرّف المجموعة هو معرّف الصفحة كما يكتبه نوشن، لا كما ورد في
+        // الختم: إعلانٌ واحد وصله تقديمان بمعرّفٍ مشروط وآخر بلا شرطات كان
+        // ينقسم مجموعتين، فتعدّ اللوحة (jobMatch) إحداهما صفراً ولا يصل
+        // متقدّموها. التجميع بالمفتاح المُسوّى نفسه الذي تُفحص به الملكية.
+        if (ownJobs && ownJobs.get(key)) jobId = ownJobs.get(key);
+        if (jobKey(jobId) === "candidatepool") jobTitle = "قاعدة المرشحين العامة";
         if (!groups[key]) groups[key] = { jobId, jobTitle, applicants: [] };
-        const scoreM = notes.match(/score\s*(\d{1,3})\s*\/\s*100/i);
+        // ولا نصَّ سيرةٍ هنا. القائمة تعيد كل متقدّمي كل إعلانات صاحب العمل
+        // في ردٍّ واحد، ونصّ السيرة آلاف الأحرف للواحد — فحشوُه يفجّر حجم
+        // الردّ ويُبطئ اللوحة كلها من أجل مرشّحٍ لم يُفتح. يُجلب عند فتحه
+        // وحده من ?applicant=1، ومن داخل الفلترة نفسها.
         groups[key].applicants.push({
           id: pg.id,
           name: txt(p["Candidate Name"]),
@@ -1024,7 +1162,7 @@ export default async function handler(req, res) {
           city: txt(p["City"]),
           nationalityType: txt(p["Nationality Type"]),
           stage: STAGE_KEY[txt(p["Pipeline Stage"])] || "new",
-          score: scoreM ? Number(scoreM[1]) : null,
+          score: applicantScore(p).score,
           registered: pg.created_time,
           experience: (p["Experience Years"] && p["Experience Years"].number) || 0,
           skills: txt(p["Skills"]),
@@ -1039,6 +1177,75 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: true, jobs: Object.values(groups), scanned: rowsRaw.length, truncated }));
     } catch (e) {
       console.error("applicants handler error", e);
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+  }
+
+  // ── ملفّ المتقدّم الواحد للوحة صاحب العمل (?applicant=1&id=…) ──────────
+  // الشاشة تعرض: السيرة المهيّأة نصّاً على الموقع، ورابط الملف الأصلي، ودرجة
+  // المطابقة بمبرّرها، وحالتَي التوطين والامتثال. وهي أوسع ممّا تعيده القائمة
+  // عمداً — ولهذا لها بابها الخاص:
+  //   • حجماً: نصّ سيرةٍ لكل متقدّم في ردٍّ واحد يفجّر حمولة اللوحة، فيُجلب
+  //     نصُّ من فُتح وحده.
+  //   • صلاحيةً: يمرّ من ownJobsFor نفسها، ثم يُطابَق ختمُ هذا الصفّ بإعلانات
+  //     صاحب العمل بنفس المفتاح المُسوّى الذي جمعت به القائمة. مَن لا بطاقة
+  //     له في لوحتك لا ملفّ له فيها.
+  //
+  // ومَن ليس على إعلانه يُعاد له 404 لا 403: «ليس لك» تُخبر السائل أن الصفّ
+  // موجود، فتصير نقطةُ النهاية أداةَ تحقّقٍ من وجود مرشّحٍ بمعرّفه. 404 واحدة
+  // للمعرّف الخاطئ وللمرشّح الذي ليس له، فلا يُقاس بها شيء.
+  if (url.searchParams.get("applicant") === "1") {
+    if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+    const aId = (url.searchParams.get("id") || "").trim();
+    if (!aId) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "no_id" })); }
+    try {
+      const ownJobs = await ownJobsFor(code, owner);
+      if (ownJobs === false) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const page = await notionFetch(`pages/${aId}`, "GET");
+      if (page.status === 404 || page.status === 400) {
+        res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" }));
+      }
+      if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const pdata = await page.json();
+      const p = pdata.properties || {};
+      const notMine = () => { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); };
+      if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return notMine();
+      const st = applicantStamp(p);
+      if (ownJobs && (!st || !ownJobs.has(st.key))) return notMine();
+
+      // السيرة المهيّأة: الحقل، ثم جسم الصفحة. ويُقال مصدرها كي تعرف الواجهة
+      // الفرق بين «لم تُقرأ بعد» و«قُرئت ولا نصّ فيها».
+      let cvText = txt(p["ATS CV Text"]);
+      let cvFrom = cvText ? "field" : "";
+      if (!cvText) { cvText = await readCvBody(aId); cvFrom = cvText ? "page" : ""; }
+
+      const sc = applicantScore(p);
+      res.statusCode = 200;
+      // ولا حقل أوسع من هذه: الاسم والبُرُد والجوّال تعيدها القائمة أصلاً،
+      // وتوسيع المُعاد في نقطةٍ تخصّ البيانات الشخصية قرار مالك لا تحسيناً.
+      return res.end(JSON.stringify({ ok: true, candidate: {
+        id: pdata.id || aId,
+        cvText, cvFrom,
+        // الملف الأصلي كما رفعه المرشّح (api/candidate.js يكتبه في «CV Link»)،
+        // والنسخة المهيّأة مستنداً على Drive. يُعادان كما هما بلا وعدٍ بأنهما
+        // مفتوحان: ملفّات خطّ الإنتاج مملوكة لحساب الشركة على Drive وغير
+        // مشتركة، فمن يفتحها بغير ذلك الحساب يرى «اطلب الصلاحية».
+        cvLink: txt(p["CV Link"]),
+        atsDocUrl: txt(p["ATS CV (Drive)"]),
+        score: sc.score, scoreFrom: sc.scoreFrom,
+        scoreReason: txt(p["مبرر الدرجة"]),
+        scoredFor: txt(p["الوظيفة المُقيَّم عليها"]),
+        scoredAt: p["تاريخ التقييم"] && p["تاريخ التقييم"].date ? p["تاريخ التقييم"].date.start : "",
+        // التوطين والامتثال: مقروءان من حقليهما كما هما، بلا حسابٍ ولا ترجيح.
+        // و٢٢٠ صفاً في القاعدة يحملان فيها قيمتين متناقضتين — يُعرضان معاً
+        // ويُسأل عنهما، ولا تختار الواجهة لصاحب العمل بصمت.
+        saudization: txt(p["التوطين Saudization"]),
+        compliance: txt(p["الامتثال Compliance"]),
+        saudizationDetails: txt(p["تفاصيل التوطين"]),
+      } }));
+    } catch (e) {
+      console.error("applicant detail error", e);
       res.statusCode = 500;
       return res.end(JSON.stringify({ ok: false, error: "server_error" }));
     }
@@ -1062,27 +1269,7 @@ export default async function handler(req, res) {
     // (structured sections), not in the "ATS CV Text" property — read the
     // blocks as a markdown-ish fallback so the site can render the CV inline
     // instead of only offering a file download.
-    if (unlocked && !cand.cvText) {
-      try {
-        let cur = null, guard = 0;
-        const out = [];
-        do {
-          const br = await notionFetch(`blocks/${qId}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
-          if (!br.ok) break;
-          const bd = await br.json();
-          for (const blk of bd.results || []) {
-            const t = blk[blk.type];
-            if (!t || !Array.isArray(t.rich_text)) continue;
-            const line = t.rich_text.map((x) => x.plain_text).join("");
-            if (!line.trim()) continue;
-            const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
-            out.push(pre + line);
-          }
-          cur = bd.has_more ? bd.next_cursor : null;
-        } while (cur && ++guard < 5);
-        if (out.length) cand.cvText = out.join("\n");
-      } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); }
-    }
+    if (unlocked && !cand.cvText) cand.cvText = await readCvBody(qId);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: cand }));
   }

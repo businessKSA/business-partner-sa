@@ -16,20 +16,147 @@
 - حذف المشروعين من Vercel يتم من لوحة Vercel (Project → Settings → Delete) بعد اكتمال الدمج — لا يحذفهما Claude من نفسه، ولا يوقفهما (pause) قبل الدمج حتى لا تنقطع خدمة قائمة.
 - **الوضع الحالي (2026-09-04):** `bp-erp` حُذف من اللوحة ثم من المستودع — بقي مشروعان. أما `bp-quotes` فما زال يشغّل لوحة العروض فعلياً؛ المسار `businesspartner.sa/quotes/*` هو **rewrite** إليه من `vercel.json` الرئيسي، وليس دمجاً. حذفه أو إيقافه الآن يكسر عروض الأسعار والعقود والفواتير حتى تُنقل جداوله ومساراته إلى `api/` + `db/` (المهمة القادمة).
 - شرط التجاهل: `quotes/vercel.json` يبني فقط إذا تغيّر `quotes/` أو `site/assets/data/catalog.json` في مدى الدفعة. لا تحذف `ignoreCommand` منه، ولا تحذف مجلداً هو جذرُ مشروع Vercel قائم — احذف المشروع من اللوحة أولاً (هذا ما جرى مع `erp/`).
-- **المشروع الرئيسي كذلك صار له `ignoreCommand` (2026-09-04):** يبني تلقائياً
-  على `master` و`staging` وفي الإنتاج فقط. أي فرع آخر لا ينشر إلا إذا احتوت
-  رسالة آخر كوميت على العلامة المتفق عليها (انظر `ignoreCommand` في
-  `vercel.json`). هذا هو حل «اللخبطة» وسقف المئة نشرة: الفروع تُدفع بحرية،
-  والمعاينة تُطلب عمداً. لحذفه أثر مباشر على الفاتورة والسقف.
-- **لا تكتب العلامة في رسالة كوميت إلا وأنت تريد نشرة فعلاً.** أول محاولة
-  استعملت `[preview]` فطابقت الكوميت الذي يشرحها نفسه وبنَت بلا داعٍ؛ لذلك صارت
-  العلامة كلمة لا تَرِد في الكلام العادي، والمطابقة نصية `grep -qF` بلا أنماط.
+- **⚠️ فرع العمل هو نفسه فرع الإنتاج في Vercel — ليس `master`.** تُحقِّق منه
+  2026-09-23 من إعدادات المشروع، ومن أن كل نشرات
+  `claude/bpic-marketing-site-jvrnga` تحمل `target: "production"` بينما نشرات
+  الفروع الأخرى `CANCELED`. و`master` فرعٌ لا يُنشر منه شيء، فالدمج فيه ليس
+  آلية النشر. كل دفعة على فرع العمل كانت تصل `businesspartner.sa` خلال دقيقة
+  تقريباً، بلا مراجعة. هذه أخطر حقيقة في المستودع ولم تكن مكتوبة هنا، فضلَّلت
+  جلسةً كاملة ظنّت أن ثمانين كوميتاً محجوزةٌ تنتظر الدمج وهي حيّة أمام العملاء.
+- **المشروع الرئيسي له `ignoreCommand` (2026-09-04):** يبني تلقائياً على
+  `master` و`staging`. أي فرع آخر لا ينشر إلا إذا احتوت رسالة آخر كوميت على
+  العلامة المتفق عليها (انظر `ignoreCommand` في `vercel.json`). هذا هو حل
+  «اللخبطة» وسقف المئة نشرة: الفروع تُدفع بحرية، والنشر يُطلب عمداً. لحذفه أثر
+  مباشر على الفاتورة والسقف.
+- **بوابة الإنتاج (قرار المالك 2026-09-23):** كان الشرط يستثني الإنتاج
+  (`if [ "$VERCEL_ENV" = "production" ]; then exit 1; fi`) — ولأن فرع العمل هو
+  الإنتاج، كان الاستثناء يعني أن **كل** دفعة نشرةٌ حيّة تلقائياً. حُذف
+  الاستثناء، فصار الإنتاج يمرّ بالبوابة نفسها. يوم القرار دفعت جلستان في
+  أربعين دقيقة ونشرتا على موقعٍ حيّ دون أن يعلم المالك؛ البوابة تمنع ذلك.
+  ثم **أُعيد الاستثناء في اليوم نفسه** (`#335`، الكوميت `4a8bccae`): رأت جلسةٌ
+  عشر نشرات إنتاج متتالية بحالة `CANCELED` فقرأتها عطلاً لا قراراً، وفتحت طلباً
+  ودمجته **بنفسها بعد ست ثوانٍ** (`created_at` و`merged_at` في `#335` يشهدان)،
+  بلا مراجعة بشرية. فعادت كل دفعة نشرةً حيّة تسع عشرة ساعة.
+  **أُغلقت البوابة نهائياً بأمر المالك المباشر 2026-09-24 («أغلق»)، وهو قراره
+  للمرة الثانية.** الحالة الفعلية الآن: الاستثناء محذوف، والإنتاج يمرّ بالبوابة
+  نفسها. تحقّقت بمحاكاة الشرط: فرع العمل بلا علامة ⏸️، وبعلامة 🚀،
+  و`master` 🚀، وأي فرع آخر بلا علامة ⏸️.
+  **⚠️ لا تُعِد الاستثناء.** `CANCELED` على فرع العمل هو البوابة تعمل، لا عطلاً
+  يُصلَح — و«Canceled by Ignored Build Step» تُسجَّل success. وإن رأيت ما يقنعك
+  بخلاف ذلك فاسأل المالك ولا تدمج طلبك بنفسك؛ هذه الفقرة نتيجة دورة كاملة من
+  فتحٍ وإغلاق كلّفت يوماً.
+- **لا تكتب العلامة في رسالة كوميت إلا وأنت تريد نشرة فعلاً — وهي تعني الآن
+  نشرة على الموقع الحيّ، لا معاينة.** أول محاولة استعملت `[preview]` فطابقت
+  الكوميت الذي يشرحها نفسه وبنَت بلا داعٍ؛ لذلك صارت العلامة كلمة لا تَرِد في
+  الكلام العادي، والمطابقة نصية `grep -qF` بلا أنماط. بقي اسمها كما هو رغم أن
+  «preview» صارت تسميةً ناقصة، لأن تغييره يُبطل ما تعرفه الجلسات الأخرى.
+- **كيف تنشر عمداً:** ضع العلامة في رسالة الكوميت الذي تريد نشره، بعد
+  `npm run build` كاملاً ومراجعةٍ على `npm run dev`. وللنشر بلا تغييرٍ في
+  الكود: كوميتٌ فارغ يحملها. وبلا علامة، يُدفع العمل ويُراجَع في طلب الدمج
+  ولا يصل عميلاً.
 
 ## 2) فرع واحد و Pull Request واحد
 
-- فرع الإنتاج للعمل: `claude/bpic-marketing-site-jvrnga`، والـ PR المفتوح هو **#271** — لا يُفتح PR آخر لهذا العمل.
+- فرع الإنتاج للعمل: `claude/bpic-marketing-site-jvrnga`، والـ PR المفتوح هو **#325** — لا يُفتح PR آخر لهذا العمل.
+- **#323 دُمج في `master` يوم 2026-09-23** (٨٥ كوميتاً، الدمج `291cca070`)، وفُتح **#325** بديلاً له في الدفعة نفسها. عاد هذا السطر إلى **#323** مرّتين بعد ذلك بسبب `force push` من جلسات أخرى — وكل عودة تعني رقماً منتهياً في سطرٍ وظيفته أن يكون صحيحاً. تحقّق من الرقم على GitHub قبل تعديله، ولا تفترضه.
+- **تاريخ (2026-09-23):** كان **#271** هو الطلب المعتمد، و**دُمج فعلاً** في `master` يوم 2026-09-04 (١٩٥ كوميتاً) — أُغلق بالدمج كما يُغلق أي طلب منجز، لا بالإهمال (`merged_at = 2026-09-04T01:53:07Z`). لكن الدفع استمر على الفرع بعده ثلاثة أسابيع بلا طلب دمج يتتبّعه، فتراكمت ٧١ كوميتاً خارج `master`. فُتح **#323** في 2026-09-23 بقرار المالك لاستعادة التتبّع.
+- **القاعدة المستخلصة:** طلب الدمج ينتهي بالدمج — و**المدموج لا يُعاد استخدامه**. متى دُمج (أو أُغلق) فافتح بديلاً للعمل التالي على الفرع نفسه، وصحّح رقمه هنا **في الدفعة نفسها**؛ رقمٌ منتهٍ في هذا السطر يعني عملاً يتراكم في الظلام.
 - قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/bpic-marketing-site-jvrnga`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
 - **لا تدفع أبداً إلى فرع آخر** دون إذن صريح من المالك.
+
+## 2.6) التطوير في الموقع الجديد وحده (قرار المالك 2026-09-24)
+
+**ممنوع تطوير أي شيء على الموقع القديم إطلاقاً.** كل ميزة وكل تحسين يذهب إلى
+الجديد: `/` · `/catalog` · `/cart` · `/checkout` · `/my` · `/ops` — وما يُبنى
+عبر `SV1.shell()` في `site/scripts/simple-v1*.mjs`.
+
+القديم (`/account` · `/admin` · `/hr/employer/*` · كل ما يحمّل
+`site/assets/js/main.js`) **يعمل ولا يُطوَّر**. المسموح فيه وحده: إصلاح عطلٍ
+يكسر عملاً تجارياً قائماً — لا تحسين ولا ميزة ولا تجميل.
+
+ميزةٌ في القديم يريدها المالك؟ **تُبنى في الجديد**، لا تُحسَّن في مكانها.
+وأي شيء يُضاف لكل الصفحات (عدّاد، ودجت، سكربت) يُضاف في **موضعين**:
+`SV1.shell()` للجديد، و`main.js` للقديم — ونسيان أحدهما هو ما جعل الرئيسية
+الجديدة بلا عدّاد زيارات حتى 2026-09-24.
+
+## 2.7) من يملك ماذا — اقرأ `docs/projects.md` قبل لمس أي ملف
+
+سبعة وثلاثون مشروعاً، لكل واحد مالك ونطاق ملفات **لا يتقاطع مع غيره**. الوكلاء معرَّفون
+في `.claude/agents/`، والخريطة الكاملة في `docs/projects.md`، وخريطة **كل صفحة** إلى وكيلها في `docs/page-ownership.md`.
+
+| الوكيل | يملك |
+|---|---|
+| `platform-engineer` | البناء والنشر والتصميم الموحّد وAzure |
+| `client-portal` | كل صفحة يدخلها **عميل** بحساب، والدفع |
+| `owner-ops` | كل لوحة يدخلها **المالك** أو الفريق |
+| `recruitment` | **مدير التوظيف** — يوزّع على أربعة: `recruitment-employer` (لوحة صاحب العمل والإعلانات) · `recruitment-candidate` (السيرة والإيجنت الباحث) · `recruitment-agencies` (مكاتب الاستقدام) · `recruitment-jobs` (صفحة الوظائف) |
+| `catalog-content` | الكتالوج والأسعار والأوصاف والأدلة |
+| `automation-agents` | n8n وواتساب والمستشارون |
+| `quotes-contracts` | العروض والعقود والتوقيع، ونقل `quotes/` وإغلاقه |
+| `mahfol` | محفول مكفول ورحلات الشركات والمستثمرين |
+| `brokers` | السماسرة المحترفون وعمولاتهم (لم يُبنَ) |
+| `referral` | الإحالة بين العملاء ومكافآتها (لم يُبنَ) |
+| `deals` | منصة الصفقات `/deals` والمطابقة |
+| `b10x` | **منتج** B10X وسعره — لا طبقة التصميم القديمة بالاسم نفسه |
+| `public-site` | الموقع العام: الرئيسية ومن نحن وتواصل والفريق والأخبار والدليل والشروط |
+| `business-development` | تطوير الأعمال كخدمة: الباب الرابع ومستشاره ولوحته Revenue OS وباقات `REV-*` |
+| `worker-housing` | تسكين العمالة: صفحتها ولوحتها وقوالب عروضها وعقودها |
+| `farina` | فارينا (التموين والضيافة): صفحتها ونموذج طلبها إلى Notion والبريد |
+| `document-ai` | وكيل المستندات الذكي: `_docread.js` · `_docagent.js` · بوابته |
+| `compliance` | وكيل الامتثال: مستشاره ولوحته ومركز المخالفات |
+| `shared-services` | فريق الخدمات المشتركة وبوابته وعرضه وعقده |
+| `smart-advisors` | فريق المستشارين المتخصصين كمنتجات وبوابتهم `/portal` |
+| `packages` | الباقات `BP-PKG-*` و`/packages` وربطها بالشراء — وتوحيد سعريها |
+| `cart-checkout` | تصميم السلة والدفع: `/cart` · `/checkout` · Moyasar · تمارا |
+| `company-data` | قاعدة بيانات الشركات `/data` واشتراكها |
+| `erp` | التكامل المحاسبي (الدفترة) وأدوات المال — `erp/` حُذف ولا يُعاد |
+| `baher-support` | ودجت الدعم ومحادثة الموقع |
+| `advisor` | عقل المستشار الذكي: `api/chat.js` والمعرفة |
+| `whatsapp` | الوكيل الذكي على واتساب ولوحة التحكم به |
+| `email` | البريد: Resend ووكيل البريد والمتابعات |
+| `social-media` | منصات التواصل (لا شيء مبنيّ) |
+| `incubators-vc` | الحاضنات والمسرّعات والاستثمار الجريء و`/directory` |
+| `bank-account` | خدمة فتح الحساب البنكي ونموذجها |
+| `real-estate` | منصة العقارات: المكاتب والطلبات والعروض والملاك والوسطاء والأراضي — `_spaces.js` · `workspace.js` · `BP-RE-*` |
+| `moyasar` | بوابة مُيسّر: `_moyasar.js` والطرق والتفعيلات (Apple/Samsung Pay) |
+| `tamara` | تمارا (تقسيط): الإعداد والرمليّة والتسوية |
+| `daftra` | الدفترة: `_daftra.js` — الفاتورة الضريبية عند الدفع والإشعار الدائن |
+| `suppliers-partners` | الشركاء والموردون: التسجيل والتأهيل ولوحتاهما وأوامر العمل والضمان (Escrow) |
+| `bp-ai-platform` | منصة Business Partner AI: CRM وTasks والبريد في Notion، الموجّه الرئيسي، المتابعات، Chat OS |
+
+- **قاعدة الإسناد التي تحسم التداخل:** الصفحة التي يدخلها عميل تتبع
+  `client-portal`، والتي يدخلها المالك تتبع `owner-ops` — مهما كان محتواها.
+- **وكيل المنتج يملك لوحة منتجه محتوىً ومنطقاً، و`client-portal` يملك دخولها
+  وقشرتها** (قرار المالك 2026-09-24: «إيجنت مع لوحتها»). فقسم تطوير الأعمال أو
+  الامتثال أو التسكين داخل `/my` هو لوكيل المنتج فيما يعرضه ويحسبه، ولبوابة
+  العميل فيما يحيط به (الجلسة، الشريط الجانبي، الرفع). اللوحة الجديدة تُبنى في
+  `/my` لا في `/account`.
+- **وكيل لا يكتب خارج نطاقه.** احتاج ملفاً لغيره؟ يقف ويقول: الملف والسبب
+  ومالكه. هذا ما يمنع جلستين من الكتابة على شيء واحد.
+- **صفحة خارج `docs/projects.md` هي الفوضى القادمة** — تُضاف في الدفعة نفسها.
+
+سبب وجود هذا القسم: العمل جرى شهوراً بلا سجلٍّ للملكية، فبُني نظام جديد بجانب
+القديم ولم يُغلق القديم — بوابتا عميل (`/account` و`/my`)، ولوحتا مالك
+(`/admin` و`/ops`)، وثلاث رحلات شراء.
+
+### محادثة المالك الواحدة — الجلسة الرئيسية هي المدير (قرار المالك 2026-09-24)
+
+المالك يكتب طلبه في محادثة واحدة ولا يدير الوكلاء واحداً واحداً. **الجلسة
+الرئيسية هي المدير التنفيذي**، لا وكيلاً في `.claude/agents/` — لأن الوكيل
+الفرعي لا يستطيع تشغيل وكيل آخر، فالتوزيع لا يتم إلا من الجلسة الرئيسية.
+
+1. **صنّف الطلب** بجدول الملكية أعلاه: أي ملف أو صفحة يلمس، فأي وكيل يملكه.
+2. **وزّع** بأداة `Agent` مع `subagent_type` = اسم الوكيل. طلبٌ يمسّ نطاقين
+   يُقسَّم مهمتين لوكيلين، ولا يُعطى كاملاً لأحدهما فيكتب خارج نطاقه.
+   المستقلّتان تُشغَّلان معاً؛ ما يعتمد على نتيجة غيره ينتظرها.
+3. **تحقّق بنفسك** قبل أن تبلّغ: الفرق الفعلي، و`npm run build` و`npm test`.
+   ملخّص الوكيل يقول ما نواه، لا ما فعله.
+4. **بلّغ المالك** بعربية بسيطة وقصيرة: ما تمّ، ما بقي، وقرارٌ واحد إن لزم.
+   لا يُسأل المالك إلا عن: حذف بيانات، تكلفة، نشر على الموقع الحيّ، دمج،
+   أو قرارٍ من «ما يحتاج قرار المالك» في `docs/projects.md`.
+
+وكيلٌ جديد لا يُنشأ إلا لنطاق ملفات لا يملكه أحد من السبعة والثلاثين، ويُضاف إلى الجدول
+أعلاه وإلى `docs/projects.md` في الدفعة نفسها.
 
 ## 2.5) التطوير المحلي أولاً (قرار المالك 2026-09-04)
 
@@ -74,4 +201,6 @@ with `LOCAL_DB=1` (JSON file under `.localdb/`, production Supabase untouched)
 and every integration in a safe mode (`api/_mode.js`). Vercel previews are for
 stable milestones only, never after every change. See `docs/local-development.md`.
 
-**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (#271); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
+**The working branch IS the Vercel production branch (2026-09-23).** `claude/bpic-marketing-site-jvrnga`, not `master`, is what `businesspartner.sa` serves — `master` deploys nothing, so merging into it does not publish. Every push to the working branch used to reach the live site in about a minute, unreviewed; two sessions did exactly that within forty minutes on 2026-09-23. The `ignoreCommand` in `vercel.json` no longer exempts production, so a deployment now happens only when the last commit message carries the agreed marker. Push freely; publish deliberately.
+
+**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/bpic-marketing-site-jvrnga`), one PR (**#325** — #271 merged 2026-09-04 and #323 merged 2026-09-23; a merged PR is never reused, open a new one and update this number in the same push); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.

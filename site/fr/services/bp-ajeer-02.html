@@ -237,9 +237,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
-.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+.sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -255,6 +266,33 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
+<style id="bp-sva-css">
+.bp-sva{border:1px solid #E4E7F0;border-radius:16px;background:#fff;box-shadow:0 12px 34px rgba(11,27,90,.08);overflow:hidden;margin:26px 0;font-family:inherit}
+.bp-sva-hd{padding:18px 20px;border-bottom:1px solid #E4E7F0}
+.bp-sva-hd h3{margin:0 0 6px;color:#0B1B5A;font-size:19px;display:flex;align-items:center;gap:8px}
+.bp-sva-hd p{margin:0;color:#4a4f5e;font-size:13px;line-height:1.7}
+.bp-sva-body{padding:16px 20px;background:#fbfcfe;min-height:150px}
+.bp-sva-q{background:#fff;border:1px solid #E4E7F0;border-radius:12px;padding:11px 14px;font-size:13.5px;color:#1F2430;margin-bottom:10px;max-width:92%;line-height:1.7}
+.bp-sva-a{background:#0B1B5A;color:#fff;border-radius:12px;padding:9px 13px;font-size:13px;margin:0 0 10px auto;max-width:88%;width:fit-content}
+.bp-sva-opts{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.bp-sva-opts button{border:1px solid #cfd6e6;background:#fff;color:#25304d;border-radius:999px;padding:8px 13px;font:inherit;font-size:12.5px;cursor:pointer;line-height:1.4}
+.bp-sva-opts button:hover{border-color:#0B1B5A;color:#0B1B5A}
+.bp-sva-note{display:flex;gap:7px;margin-bottom:12px}
+.bp-sva-note input{flex:1;min-width:0;border:1px solid #E4E7F0;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;outline:none}
+.bp-sva-note input:focus{border-color:#0B1B5A}
+.bp-sva-sum{background:#f3f5fb;border:1px solid #dfe4f2;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.bp-sva-sum dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.bp-sva-sum dt{color:#6b7280;font-size:11.5px;white-space:nowrap}
+.bp-sva-sum dd{margin:0;color:#1F2430;font-weight:600}
+.bp-sva-next{margin:12px 0 0;padding-top:12px;border-top:1px dashed #cfd6e6;font-size:13px;color:#25304d;line-height:1.75}
+.bp-sva-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 18px}
+.bp-sva-acts a,.bp-sva-acts button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:999px;padding:12px 16px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-decoration:none;border:1px solid #E4E7F0;background:#fff;color:#0B1B5A;line-height:1.3;text-align:center}
+.bp-sva-acts .wa{background:#128C4A;border-color:#128C4A;color:#fff;grid-column:1/-1}
+.bp-sva-acts .site{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+.bp-sva-restart{background:none;border:0;color:#6b7280;font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:0 20px 16px}
+.bp-sva-hide{display:none!important}
+@media(max-width:560px){.bp-sva-acts{grid-template-columns:1fr}}
 </style></head>
 <body class="sv1-page"><div class="sv1"><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
@@ -283,14 +321,90 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">Déconnexion</button>
     <a class="sv1-btn primary" href="/fr/#advisor">Démarrer une demande</a>
   </div>
-</div></header><style>.sv1 main a{color:var(--brand,#0B1B5A);text-decoration:revert}.sv1 main a.btn,.sv1 main a.btn-white,.sv1 main a.btn-wa,.sv1 main a[class*="btn"]{text-decoration:none}.sv1 main{display:block;width:100%}</style><main>
+</div></header><script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script><style>.sv1 main a{color:var(--brand,#0B1B5A);text-decoration:revert}.sv1 main a.btn,.sv1 main a.btn-white,.sv1 main a.btn-wa,.sv1 main a[class*="btn"]{text-decoration:none}.sv1 main{display:block;width:100%}</style><main>
   <section class="svc-hero"><div class="container">
     <div class="breadcrumb"><a href="/fr/">Accueil</a> → <a href="/fr/services">Services</a> → <a href="/fr/services/category/government-relations">Relations gouvernementales</a></div>
     <h1>Ajeer contracting permit (Taaqud)</h1>
     <div class="svc-meta"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Relations gouvernementales</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>2–5 business days once documents are complete</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Establishments providing their workforce to others</span><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M10 21v-4h4v4"/></svg>Ajeer (Qiwa)</span></div>
   </div></section>
   <div class="container"><div class="svc-layout">
-    <div class="svc-main">
+    <div class="svc-main"><section class="bp-sva" id="bp-sva" data-code="BP-AJEER-02">
+  <div class="bp-sva-hd"><h3>🤖 Diagnostic intelligent du service</h3><p>Répondez à quelques questions courtes. Nous préparons le résumé de votre demande et l'étape suivante — envoyez-le sur WhatsApp ou démarrez sur le site. Sans inscription.</p></div>
+  <div class="bp-sva-body" id="bp-sva-body" aria-live="polite"></div>
+  <div class="bp-sva-acts bp-sva-hide" id="bp-sva-acts">
+    <a class="wa" id="bp-sva-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">💬 Envoyer ma demande sur WhatsApp</a>
+    <a class="site" id="bp-sva-start" href="/fr/simple-v1#advisor">Démarrer la demande sur le site</a>
+    <a href="tel:0530540231">📞 Appelez-nous</a>
+  </div>
+  <button type="button" class="bp-sva-restart bp-sva-hide" id="bp-sva-restart">Recommencer</button>
+</section>
+<script>(function(){
+var C={"lang":"fr","code":"BP-AJEER-02","name":"Ajeer contracting permit (Taaqud)","platform":"أجير — قوى","category":"Government Relations","entity":true,"door":"government","options":[{"k":"blocked","label":"Le service est bloqué ou un problème est apparu","next":"We review the establishment's status on the platform, identify what is blocking it and the official steps to resolve it, then submit and follow up."},{"k":"execute","label":"Je dois effectuer la démarche","next":"We check the requirements and documents, then prepare, submit and follow the transaction to closure."},{"k":"requirements","label":"Je veux d'abord connaître les exigences","next":"We review your case and send you the requirements and documents before any commitment."},{"k":"managed","label":"Je veux une gestion continue de la plateforme","next":"We define the monthly scope of managing the platform and the tasks it covers, then a quotation reaches you."}],"wa":"https://wa.me/966530540231","tel":"0530540231","start":"/fr/simple-v1#advisor","t":{"hi":"Bonjour 👋 Il s'agit de « Ajeer contracting permit (Taaqud) ». Où en êtes-vous ?","yourRequest":"Votre demande","authority":"Autorité / plateforme","nextStep":"Étape suivante","qUrgency":"Quel est le degré d'urgence ?","aUrgent":"Urgent — aujourd'hui","aWeek":"Sous une semaine","aPlanning":"Je planifie seulement","qEntity":"Avez-vous déjà un registre de commerce ou une entité ?","aYes":"Oui","aNo":"Non","aNotSure":"Je ne sais pas","qNotes":"Souhaitez-vous ajouter un détail ? (facultatif)","notesPh":"Décrivez votre situation…","skip":"Passer","ready":"Le résumé de votre demande est prêt","waIntro":"Bonjour, j'ai besoin de votre aide pour le service suivant :","waState":"Situation","waUrgency":"Urgence","waEntity":"Entité existante","waNotes":"Détails","waEnd":"Merci de me contacter pour déposer et suivre la demande par les voies officielles."}};
+var box=document.getElementById('bp-sva-body'),acts=document.getElementById('bp-sva-acts'),rst=document.getElementById('bp-sva-restart');
+if(!box)return;
+var A={};
+function el(tag,cls,txt){var d=document.createElement(tag);if(cls)d.className=cls;if(txt!=null)d.textContent=txt;return d}
+function ask(text){box.appendChild(el('div','bp-sva-q',text))}
+function said(text){box.appendChild(el('div','bp-sva-a',text))}
+function opts(list,cb){var w=el('div','bp-sva-opts');list.forEach(function(o){var b=el('button',null,o.label);b.type='button';b.onclick=function(){w.remove();said(o.label);cb(o)};w.appendChild(b)});box.appendChild(w);box.scrollTop=box.scrollHeight}
+function step1(){ask(C.t.hi);opts(C.options,function(o){A.state=o.label;A.next=o.next;step2()})}
+function step2(){ask(C.t.qUrgency);opts([{label:C.t.aUrgent},{label:C.t.aWeek},{label:C.t.aPlanning}],function(o){A.urgency=o.label;C.entity?step3():step4()})}
+function step3(){ask(C.t.qEntity);opts([{label:C.t.aYes},{label:C.t.aNo},{label:C.t.aNotSure}],function(o){A.entity=o.label;step4()})}
+function step4(){ask(C.t.qNotes);var w=el('div','bp-sva-note');var i=document.createElement('input');i.type='text';i.placeholder=C.t.notesPh;
+var ok=el('button',null,'✓');ok.type='button';ok.className='';var sk=el('button',null,C.t.skip);sk.type='button';
+var wrap=el('div','bp-sva-opts');wrap.appendChild(ok);wrap.appendChild(sk);
+function done(){A.notes=i.value.trim();w.remove();wrap.remove();if(A.notes)said(A.notes);summary()}
+ok.onclick=done;sk.onclick=function(){i.value='';done()};
+i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();done()}});
+w.appendChild(i);box.appendChild(w);box.appendChild(wrap);i.focus()}
+function row(dl,k,v){if(!v)return;var dt=el('dt',null,k),dd=el('dd',null,v);dl.appendChild(dt);dl.appendChild(dd)}
+function summary(){
+var s=el('div','bp-sva-sum');var dl=document.createElement('dl');
+row(dl,C.t.yourRequest,C.name);row(dl,C.t.authority,C.platform||C.category);row(dl,C.t.waState,A.state);row(dl,C.t.waUrgency,A.urgency);
+if(A.entity)row(dl,C.t.waEntity,A.entity);if(A.notes)row(dl,C.t.waNotes,A.notes);
+s.appendChild(dl);var n=el('div','bp-sva-next');n.innerHTML='<b>'+C.t.nextStep+':</b> '+A.next.replace(/[<>]/g,'');s.appendChild(n);
+box.appendChild(s);ask(C.t.ready);
+var lines=[C.t.waIntro,'',C.t.yourRequest+': '+C.name+(C.code?' ('+C.code+')':'')];
+if(C.platform)lines.push(C.t.authority+': '+C.platform);
+lines.push(C.t.waState+': '+A.state);lines.push(C.t.waUrgency+': '+A.urgency);
+if(A.entity)lines.push(C.t.waEntity+': '+A.entity);
+if(A.notes)lines.push(C.t.waNotes+': '+A.notes);
+lines.push('',C.t.waEnd);
+var wa=document.getElementById('bp-sva-wa');
+var base=C.wa.indexOf('?')>0?C.wa.split('?')[0]:C.wa;
+wa.href=base+'?text='+encodeURIComponent(lines.join('\n'));
+var st=document.getElementById('bp-sva-start');
+try{sessionStorage.setItem('bp_sva_request',JSON.stringify({code:C.code,name:C.name,platform:C.platform,door:C.door,lang:C.lang,answers:A,text:lines.join('\n'),at:Date.now()}))}catch(e){}
+st.href=C.start;
+acts.classList.remove('bp-sva-hide');rst.classList.remove('bp-sva-hide')}
+rst.onclick=function(){box.innerHTML='';acts.classList.add('bp-sva-hide');rst.classList.add('bp-sva-hide');A={};step1()};
+step1();
+})();</script>
       <section><h2>Description du service</h2><p class="lead-p">The Ajeer contracting permit is for an establishment providing its workforce to another, evidencing that its workers are lawfully outside it. We prepare, file and follow the request to a decision.</p></section>
       <section><h2>Documents requis</h2><ul class="doc-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Commercial Registration of both establishments</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Data of the workers covered</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>The contract or agreement between the parties</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Authorised person's details</span></li></ul></section>
       <section><h2>Atouts du service avec Business Partner</h2><ul class="feat-list"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Reviewing your case and confirming the contracting permit fits it</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Preparing both establishments' data and the workers covered</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Filing the permit request and following it to a decision</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"/></svg><span>Handing over the permit with its term and conditions</span></li></ul></section>
@@ -336,14 +450,120 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <div class="sv1-foot-col">
       <h4>Paiements</h4>
       <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.</p>
-      <div class="sv1-foot-links">
-        <a href="/fr/terms">Conditions</a>
-        <a href="/fr/catalog">Tous les services</a>
-      </div>
+    </div>
+  </div>
+
+  <!-- الصفحات التي لا تظهر في الترويسة. الموقع الجديد يربط ست وجهات فقط،
+       فبقيت ثمانٍ وخمسون صفحة بلا بابٍ إليها: منتجات وأدلة وحاسبات ومجلة.
+       تُجمع هنا في ثلاثة أعمدة بخمسة روابط لكل عمود — ما يزيد يصير قائمةً
+       تُتجاهَل. وما لا يُذكر هنا يبقى مقصوداً: اللوحات وبوابات الدخول
+       (يصلها صاحبها برابطه)، والنسخ المحفوظة بلاحقة -classic، وصفحات
+       المنتجات المفردة التي بابها صفحة الكتالوج. -->
+  <div class="sv1-foot-nav">
+    <div class="sv1-foot-navcol">
+      <h5>Services</h5>
+      <a href="/fr/catalog">Tous les services</a>
+      <a href="/fr/packages">Forfaits</a>
+      <a href="/fr/ai-agents">Conseillers IA</a>
+      <a href="/fr/business-development">Développement commercial</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>Ressources</h5>
+      <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
+           صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
+      <a href="/fr/knowledge-center">Knowledge Center</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>Société</h5>
+      <a href="/fr/about">À propos</a>
+      <a href="/fr/contact">Contact</a>
+      <a href="/fr/careers">Carrières</a>
+      <a href="/fr/suppliers">Partenaires</a>
+      <a href="/fr/terms">Conditions</a>
     </div>
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · Tous droits réservés</div>
 </div></footer>
 <a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script></body></html>
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><style>
+.bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
+[dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
+.bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-fab .bps-dot{position:absolute;inset-inline-start:40px;top:8px;width:11px;height:11px;border-radius:50%;background:var(--wa,#25D366);border:2px solid var(--ink,#0B1B5A)}
+.bps-fab.bps-hide{display:none}
+.bps-panel{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483001;width:min(380px,calc(100vw - 24px));height:min(600px,calc(100vh - 40px));background:#fff;border:1px solid var(--line,#E5E9F0);border-radius:20px;box-shadow:0 24px 60px rgba(11,27,90,.28);display:none;flex-direction:column;overflow:hidden}
+.bps-panel.bps-on{display:flex}
+.bps-hd{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--ink,#0B1B5A);color:#fff}
+.bps-hd img{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bps-hd b{font-size:1.02rem;display:block}
+.bps-hd small{font-size:.76rem;opacity:.9;display:flex;align-items:center;gap:5px}
+.bps-hd em{width:7px;height:7px;border-radius:50%;background:var(--wa,#25D366);display:inline-block;font-style:normal}
+.bps-x{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1.05rem;line-height:1}
+.bps-intake{padding:16px;overflow-y:auto}
+.bps-intake .bps-in{width:100%;box-sizing:border-box;margin-bottom:9px;padding:12px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-intake h4{color:var(--ink,#0B1B5A);margin:0 0 12px;font-size:1rem;line-height:1.6;font-weight:700}
+.bps-go{width:100%;padding:13px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:12px;font-family:inherit;font-weight:700;font-size:.98rem;cursor:pointer}
+.bps-note{color:#64748b;font-size:.78rem;margin:10px 2px 0}
+.bps-err{color:#b91c1c;font-size:.82rem;margin-top:8px;display:none}
+.bps-chat{display:none;flex-direction:column;height:100%;min-height:0}
+.bps-msgs{flex:1;overflow-y:auto;padding:15px;background:#f6f8fc;display:flex;flex-direction:column;gap:9px}
+.bps-msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.bps-msg.bps-bot{background:#fff;border:1px solid var(--line,#E5E9F0);color:#1f2430;align-self:flex-start;border-end-start-radius:4px}
+.bps-msg.bps-me{background:var(--ink,#0B1B5A);color:#fff;align-self:flex-end;border-end-end-radius:4px}
+.bps-msg.bps-ty{opacity:.6}
+.bps-wa{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:#eafaf0;color:#0b7a3b;border-top:1px solid var(--line,#E5E9F0);font-size:.85rem;font-weight:600;text-decoration:none}
+.bps-form{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line,#E5E9F0);background:#fff}
+.bps-form input{flex:1;padding:11px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
+.bps-form button{flex:0 0 auto;width:44px;border:0;border-radius:12px;background:var(--ink,#0B1B5A);color:#fff;cursor:pointer;font-size:1.05rem}
+html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
+</style>
+<button class="bps-fab" id="bpsFab" aria-label="Open support chat with Baher"><img src="/assets/img/baher.jpg" alt=""><span class="bps-dot"></span><span>Support</span></button>
+<section class="bps-panel" id="bpsPanel" role="dialog" aria-label="Baher support">
+  <div class="bps-hd"><img src="/assets/img/baher.jpg" alt=""><div><b>Baher</b><small><em></em>Support — online now</small></div><button class="bps-x" id="bpsClose" aria-label="Close">✕</button></div>
+  <div class="bps-intake" id="bpsIntake">
+    <h4>Welcome to Business Partner support 👋 Tell us about yourself so we can help and follow up.</h4>
+    <input class="bps-in" id="bpsName" type="text" placeholder="Full name *" autocomplete="name">
+    <input class="bps-in" id="bpsPhone" type="tel" placeholder="Mobile 05XXXXXXXX *" autocomplete="tel">
+    <button class="bps-go" id="bpsStart">Start support ›</button>
+    <div class="bps-err" id="bpsErr"></div>
+    <p class="bps-note">🔒 Your details are used only to help and follow up on your request.</p>
+  </div>
+  <div class="bps-chat" id="bpsChat">
+    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">Hi 👋 I'm Baher, Business Partner's support assistant. How can we help?</div></div>
+    <a class="bps-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">Or reach the support team on WhatsApp</a>
+    <form class="bps-form" id="bpsForm"><input id="bpsInput" type="text" autocomplete="off" placeholder="Type your message…"><button type="submit" aria-label="Send">➤</button></form>
+  </div>
+</section>
+<script>(function(){var AR=document.documentElement.lang!=='en';var fab=document.getElementById('bpsFab'),panel=document.getElementById('bpsPanel');if(!fab||!panel)return;var msgs=document.getElementById('bpsMsgs'),form=document.getElementById('bpsForm'),input=document.getElementById('bpsInput'),intake=document.getElementById('bpsIntake'),chat=document.getElementById('bpsChat');var sid='';try{sid=sessionStorage.getItem('bps_sid')||''}catch(e){}if(!sid){sid='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{sessionStorage.setItem('bps_sid',sid)}catch(e){}}var contact=null;try{contact=JSON.parse(sessionStorage.getItem('bps_contact')||'null')}catch(e){}var history=[],busy=false;function view(){if(contact){intake.style.display='none';chat.style.display='flex';setTimeout(function(){input.focus()},60)}else{intake.style.display='block';chat.style.display='none'}}function open(){panel.classList.add('bps-on');fab.classList.add('bps-hide');view()}function close(){panel.classList.remove('bps-on');fab.classList.remove('bps-hide')}function add(txt,who){var d=document.createElement('div');d.className='bps-msg '+who;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}fab.onclick=open;document.getElementById('bpsClose').onclick=close;document.getElementById('bpsStart').onclick=function(){var n=document.getElementById('bpsName').value.trim(),p=document.getElementById('bpsPhone').value.trim(),err=document.getElementById('bpsErr');if(!n){err.textContent=AR?'الرجاء إدخال اسمك.':'Enter your name.';err.style.display='block';return}if(!/^(?:\+?966|0)?5\d{8}$/.test(p.replace(/\s/g,''))){err.textContent=AR?'أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).':'Enter a valid Saudi mobile.';err.style.display='block';return}err.style.display='none';contact={name:n,phone:p};try{sessionStorage.setItem('bps_contact',JSON.stringify(contact))}catch(e){}view()};function sync(notify){try{fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},keepalive:true,body:JSON.stringify({type:'advisor-chat',sid:sid,messages:history.slice(-24),notify:!!notify,contact:contact})}).catch(function(){})}catch(e){}}form.onsubmit=function(e){e.preventDefault();var v=input.value.trim();if(!v||busy)return;input.value='';add(v,'bps-me');history.push({role:'user',content:v});busy=true;var ty=add(AR?'يكتب…':'Typing…','bps-bot bps-ty');fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})}).then(function(r){return r.json().catch(function(){return{}})}).then(function(d){ty.remove();var rep=(d&&d.reply)||(AR?'تعذّر الرد الآن. تواصل معنا على واتساب.':'Could not reply now. Reach us on WhatsApp.');add(rep,'bps-bot');history.push({role:'assistant',content:rep});sync(true)}).catch(function(){ty.remove();add(AR?'صار خلل بسيط، جرّب واتساب.':'Something went wrong, try WhatsApp.','bps-bot')}).finally(function(){busy=false;input.focus()})};})();</script></body></html>

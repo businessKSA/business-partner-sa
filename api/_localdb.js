@@ -132,7 +132,7 @@ function makeFilter(col, expr) {
 
 // ------------------------------------------------------------ select trees --
 // "id,ref,users(id,email),documents!inner(organization_id)" → columns + embeds
-function parseSelect(sel) {
+export function parseSelect(sel) {
   if (!sel || sel === "*") return { all: true, cols: [], embeds: [] };
   const cols = [], embeds = [];
   let depth = 0, buf = "";
@@ -153,7 +153,7 @@ function parseSelect(sel) {
   return { all: false, cols, embeds };
 }
 
-const singular = (s) => (s.endsWith("ies") ? s.slice(0, -3) + "y" : s.endsWith("s") ? s.slice(0, -1) : s);
+export const singular = (s) => (s.endsWith("ies") ? s.slice(0, -3) + "y" : s.endsWith("s") ? s.slice(0, -1) : s);
 
 // PostgREST resolves embeds from the real foreign keys; here we infer them
 // from the naming conventions used across db/schema.sql.

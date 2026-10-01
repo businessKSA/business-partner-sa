@@ -30,7 +30,7 @@ let KNOWLEDGE = "";
 import { priceSheetText } from "./_catalog.js";
 import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
-import { azureChat, azureConfigured } from "./_azure.js";
+import { AZURE_KEYS, azureChat, azureConfigured, azureHealth } from "./_azure.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -165,102 +165,18 @@ const maxTokensFor = () => (WANT_LONG ? 2048 : 1024);
 
 // Resolve the first non-empty env var from a list of candidate names.
 const envFrom = (names) => { for (const n of names) { if (process.env[n]) return process.env[n]; } return ""; };
-const GEMINI_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GEMINI_API_KEY", "GEMINI_KEY", "GEMINI_APIKEY", "GEMINI", "BusinessPartnerGimini", "BusinessPartnerGemini"];
-const GROQ_KEYS = ["GROQ_API_KEY", "GROQ_KEY", "GROQ"];
-const OPENAI_KEYS = ["OPENAI_API_KEY", "OPENAI_KEY", "OPENAI"];
-const ANTHROPIC_KEYS = ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY", "CLAUDE_API_KEY"];
 
-async function callGemini(messages, system) {
-  // gemini-2.5-flash was retired: Google answers 404 with «no longer available
-  // to new users … use models/gemini-3.6-flash». The failover hid it — the
-  // chain moved on to the next provider — so the only visible symptom was the
-  // generic «صار خلل بسيط» whenever Gemini was the only configured key.
-  // Override with GEMINI_MODEL when Google moves it again.
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": envFrom(GEMINI_KEYS), "content-type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: system }] },
-      contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-      generationConfig: { maxOutputTokens: maxTokensFor() },
-    }),
-  });
-  if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  return parts.map((p) => p.text || "").join("").trim();
-}
 
-// ‏نموذج Groq الافتراضي. كان llama-3.3-70b-versatile وأوقفته Groq في
-// ٢٠٢٦/٠٨/١٦ على الطبقتين المجانية والمطوِّرة، فصار كل نداءٍ إليه 404
-// «model_not_found» — والمفتاح سليم، والاسم وحده هو الميت. هذا ما أسقط
-// المحادثة يوم ٢٠٢٦/٠٩/٠٨ حين كان مزوّدا Gemini وAnthropic بلا رصيد.
-// البديل الذي توصي به Groq نفسها. ويظل GROQ_MODEL يتقدّم عليه.
-const GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b";
 
-// Groq and OpenAI share the OpenAI chat-completions shape.
-async function callOpenAICompatible(url, apiKey, model, messages, system) {
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokensFor(),
-      messages: [{ role: "system", content: system }, ...messages],
-    }),
-  });
-  if (!r.ok) throw new Error(`${new URL(url).hostname} ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  return (data?.choices?.[0]?.message?.content || "").trim();
-}
 
-const callGroq = (messages, system) =>
-  callOpenAICompatible(
-    "https://api.groq.com/openai/v1/chat/completions",
-    envFrom(GROQ_KEYS),
-    process.env.GROQ_MODEL || GROQ_DEFAULT_MODEL,
-    messages,
-    system
-  );
 
-const callOpenAI = (messages, system) =>
-  callOpenAICompatible(
-    "https://api.openai.com/v1/chat/completions",
-    envFrom(OPENAI_KEYS),
-    process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages,
-    system
-  );
+
 
 // ‏شكل النداء وتفاصيله في api/_azure.js — نسخةٌ هنا ونسخةٌ هناك تعني إصلاحاً
-// يُطبَّق على واحدة فقط، وهذا ما حدث فعلاً مع نشر التفريغ الصوتي.
+// يُطبَّق على واحدة فقط، وهذا ما حدث فعلاً مع نشر التفريغ الصوتي. وعبوره من
+// هناك يمنحه كذلك احتياطية المنطقة الثانية.
 const callAzure = (messages, system) => azureChat({ system, messages, maxTokens: maxTokensFor() });
 
-async function callAnthropic(messages, system) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": envFrom(ANTHROPIC_KEYS),
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      // Dedicated ANTHROPIC_MODEL, not a shared "MODEL" var — see api/hire.js
-      // for why a generic name here is a real, confirmed failure mode.
-      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
-      max_tokens: maxTokensFor(),
-      // Big stable prompt first with a cache breakpoint → cheap cached reads.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-      messages,
-    }),
-  });
-  if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  const data = await r.json();
-  return Array.isArray(data.content)
-    ? data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim()
-    : "";
-}
 
 // وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
 // نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
@@ -290,25 +206,18 @@ async function callN8nBaher(messages) {
   return String(reply).trim();
 }
 
-// Free providers first, then paid, then the keyless n8n agent as a last resort —
-// first provider that answers wins.
+// ‏سياسة المالك (سبتمبر 2026): البنية التحتية على Azure، فلا مزوّدَ غيره.
+// المحادثة كانت آخر مسارٍ يضع Azure أولاً ثم يسقط إلى Google أو OpenAI أو
+// Anthropic — وهي حساباتٌ بلا رصيد أصلاً، فالسقوط إليها ليس إنقاذاً بل تسريب
+// كلام العميل خارج Azure بلا قرارٍ من أحد. حُذفت الأربعة وحُذف معها صمّام
+// DOC_AI_ALLOW_FALLBACK، فصار المنع بنيوياً لا إعدادياً، والصمود منطقةَ
+// Azure ثانية داخل api/_azure.js. ويبقى وكيل n8n احتياطاً بلا مفتاح، ودماغه
+// Azure أيضاً.
 const PROVIDERS = [
-  { name: "azure", keys: null, azure: true, call: callAzure },
-  { name: "gemini", keys: GEMINI_KEYS, call: callGemini },
-  { name: "groq", keys: GROQ_KEYS, call: callGroq },
-  { name: "anthropic", keys: ANTHROPIC_KEYS, call: callAnthropic },
-  { name: "openai", keys: OPENAI_KEYS, call: callOpenAI },
+  { name: "azure", keys: AZURE_KEYS, call: callAzure },
   { name: "baher-n8n", keys: null, call: callN8nBaher },
 ];
-// ‏سياسة المالك (سبتمبر 2026): البنية التحتية على Azure، فلا يُستدعى مزوّدٌ
-// آخر ما دام Azure مُهيّأً — تماماً كما في api/hire.js و api/_docread.js.
-// المحادثة كانت آخر مسارٍ يضع Azure أولاً ثم يسقط إلى Google أو OpenAI أو n8n،
-// وهي حساباتٌ بلا رصيد أصلاً، فالسقوط إليها ليس إنقاذاً بل تسريب كلام العميل
-// خارج Azure بلا قرارٍ من أحد. DOC_AI_ALLOW_FALLBACK=1 يفتح الصمّام عمداً.
-const legacyAllowed = () => String(process.env.DOC_AI_ALLOW_FALLBACK || "").trim() === "1";
-const configured = () => PROVIDERS
-  .filter((p) => (p.azure ? azureConfigured() : !p.keys || !!envFrom(p.keys)))
-  .filter((p) => p.azure || !azureConfigured() || legacyAllowed());
+const configured = () => PROVIDERS.filter((p) => (p.name === "azure" ? azureConfigured() : !p.keys || !!envFrom(p.keys)));
 // The n8n provider carries no key, so `configured()` is never empty and the
 // "missing key" branch never fires: with no keys at all the chain still has one
 // member, it fails, and the customer-facing «صار خلل بسيط» is shown. On a

@@ -836,58 +836,74 @@ create table if not exists wa_agent_gate (
 );
 
 -- ---------------------------------------------------------------------------
--- 2026-09-16: Job recruitment system — integrated ATS for employer portal.
--- Job postings are owned by organizations. Employers can post jobs for their
--- organization; admins see all jobs across all organizations.
+-- إحصائيات الموقع: العدّاد الأول-طرفي (page_hits / site_errors) وواجهاته.
 --
-create table if not exists job_postings (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references organizations(id) on delete cascade,
-  title text not null,
-  description text not null,
-  requirements text,
-  salary_min numeric(10,2),
-  salary_max numeric(10,2),
-  city text not null default 'الرياض',
-  employment_type text not null default 'full_time' check (employment_type in ('full_time','part_time','contract','temporary')),
-  experience_level text check (experience_level in ('entry','mid','senior','executive')),
-  status text not null default 'active' check (status in ('draft','active','closed','archived')),
-  posted_by uuid references users(id),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  closed_at timestamptz
+-- دَينٌ يُسدَّد هنا: هذان الجدولان والواجهات الأربع أُنشئت يدوياً في Supabase
+-- ولم تكن في هذا الملف، فكانت بيئةٌ جديدة تُقلع بلا إحصائيات والكود يعتمد
+-- عليها. التعريفات أدناه منسوخة عن تعريف الإنتاج كما هو اليوم
+-- (2026-09-24) حتى لا يغيّر تشغيلُ هذا الملف شيئاً قائماً.
+--
+-- لا يُكتب هنا اسم ولا بريد ولا IP: `visitor` رمز عشوائي يولّده المتصفح
+-- ويحفظه في localStorage (bp_vid)، وهو وحده ما يجعل «رحلة العميل» ممكنة.
+create table if not exists page_hits (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  kind text not null default 'view',            -- view | click
+  path text not null,
+  name text,                                    -- اسم الزرّ حين kind='click'
+  ref text,                                     -- المصدر (referrer)
+  lang text,
+  device text,
+  visitor text                                  -- رمز عشوائي لكل متصفح
 );
-create index if not exists job_postings_org_idx on job_postings(organization_id);
-create index if not exists job_postings_status_idx on job_postings(status);
+create index if not exists page_hits_at_idx on page_hits(at desc);
+create index if not exists page_hits_path_idx on page_hits(path);
+-- رحلة الزائر تُقرأ بالرمز ثم بالوقت — الفهرس لها وحدها.
+create index if not exists page_hits_visitor_idx on page_hits(visitor, at);
 
--- Job applications — candidates applying to job postings
-create table if not exists job_applications (
-  id uuid primary key default gen_random_uuid(),
-  job_posting_id uuid not null references job_postings(id) on delete cascade,
-  organization_id uuid not null references organizations(id) on delete cascade,
-  applicant_name text not null,
-  applicant_email text not null,
-  applicant_phone text,
-  cv_text text,
-  cover_letter text,
-  status text not null default 'received' check (status in ('received','reviewed','shortlisted','interviewed','offered','rejected','withdrawn')),
-  rating numeric(2,1) check (rating between 1 and 5),
-  notes text,
-  applied_at timestamptz not null default now(),
-  reviewed_at timestamptz,
-  reviewed_by uuid references users(id)
+create table if not exists site_errors (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  path text,
+  message text,
+  source text,
+  ua text
 );
-create index if not exists job_applications_job_idx on job_applications(job_posting_id);
-create index if not exists job_applications_org_idx on job_applications(organization_id);
-create index if not exists job_applications_status_idx on job_applications(status);
-create index if not exists job_applications_email_idx on job_applications(applicant_email);
+create index if not exists site_errors_at_idx on site_errors(at desc);
 
--- Enable RLS for recruitment tables
-alter table job_postings enable row level security;
-alter table job_applications enable row level security;
+-- الواجهات الأربع التي تقرأها لوحة /admin (action=panel-analytics). مداها
+-- ٧–٣٠ يوماً بحكم تعريفها، ولذلك لا تُبنى عليها مدد /ops الأطول (الربع
+-- والنصف والسنة): تلك تُجمَع من الصفوف الخام في api/requests.js.
+create or replace view analytics_daily as
+  select (date_trunc('day', at))::date as d,
+         count(*) filter (where kind = 'view') as views,
+         count(distinct visitor) filter (where kind = 'view') as visitors,
+         count(*) filter (where kind = 'click') as clicks
+    from page_hits
+   where at > now() - interval '30 days'
+   group by 1
+   order by 1 desc;
 
--- Job posting RLS: employers see their org's jobs, admin sees all
-create policy job_postings_org_read on job_postings for select using (organization_id in (select current_org_ids()));
+create or replace view analytics_top_pages as
+  select path, count(*) as views, count(distinct visitor) as visitors
+    from page_hits
+   where kind = 'view' and at > now() - interval '7 days'
+   group by path
+   order by count(*) desc
+   limit 20;
 
--- Job applications RLS: employers see their org's applications, admin sees all
-create policy job_applications_org_read on job_applications for select using (organization_id in (select current_org_ids()));
+create or replace view analytics_top_clicks as
+  select coalesce(name, '؟') as name, count(*) as clicks
+    from page_hits
+   where kind = 'click' and at > now() - interval '7 days'
+   group by coalesce(name, '؟')
+   order by count(*) desc
+   limit 20;
+
+create or replace view analytics_top_refs as
+  select coalesce(nullif(ref, ''), 'مباشر') as ref, count(*) as views
+    from page_hits
+   where kind = 'view' and at > now() - interval '7 days'
+   group by coalesce(nullif(ref, ''), 'مباشر')
+   order by count(*) desc
+   limit 15;
