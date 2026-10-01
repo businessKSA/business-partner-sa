@@ -139,15 +139,21 @@ const applicant = (label, jobId, { cv = "", extra = null } = {}) => {
       "Country": rt(COUNTRY_VALUE),
       "التوطين Saudization": se("مسموح لغير السعوديين"),
       "Pipeline Stage": se("جديد"), "مخفي عن الموقع": cb(false),
-      "الوظيفة المتقدم لها": rt(`إعلان (${jobId})`),
+      // «المقروء» (2026-10-01): حالة القراءة «مكتمل» ونصّ ATS في الحقل — وما سواهما
+      // لا يُقيَّم ولا يُنادى له نموذج. الصفوف غير المقروءة لها اختبارها أدناه.
+      "حالة القراءة": se("مكتمل"),
+      "الوظيفة المتقدم لها": rt(jobId ? `إعلان (${jobId})` : ""),
       "Notes": rt("تقديم عبر الموقع"),
-      "ATS CV Text": rt(cv),
+      "ATS CV Text": rt(cv ? cv + FILL : ""),
       ...(extra || {}),
     },
   });
   return id;
 };
 // قيمٌ مميّزة يسهل البحث عنها في التوجيه — فوجودها فيه فشلٌ صريح.
+// نصّ السيرة يمرّ بفحص الجودة (cvTextQuality): عناوين وسطران لا تكفي — ستّون حرفاً
+// من المضمون على الأقل. تُلحَق هذه الفقرة بكل سيرةٍ في الاختبار كي تبقى «مقروءة».
+const FILL = "\n\nخبرة عملية موثّقة في إعداد القوائم المالية ومراجعة الحسابات وإدارة الذمم الدائنة والمدينة والتسويات البنكية الشهرية لدى شركات متوسطة الحجم في المملكة.";
 const NAT_VALUE = "غير سعودي";
 const RES_VALUE = "خارج السعودية";
 const COUNTRY_VALUE = "الفلبين";
@@ -357,11 +363,16 @@ test("يكتب الحقول الأربعة: الدرجة والمبرّر وال
   assert.ok(row.saved.reason.length > 8);
 });
 
-test("السيرة في جسم الصفحة تُقرأ وتُقيَّم أيضاً — وهو المسار الحقيقي للأغلبية", async () => {
+test("سيرةٌ في جسم الصفحة وحقل ATS فارغ = غير مقروء: لا تُقيَّم ولا يُنادى لها نموذج", async () => {
+  // كانت تُقرأ احتياطياً من الكتل. قرار المالك (2026-10-01): «بلا نصّ ATS» يختفي
+  // تماماً — فالنصّ يجب أن يكون في الحقل نفسه.
+  const beforeAi = aiCalls;
   const r = await score({ postingId: MY_JOB, candidateId: C_BODY }, { sid: SID.employer });
   assert.equal(r.status, 200);
-  assert.equal(r.data.results[0].ok, true);
-  assert.ok(lastPrompt.includes("محاسب — أربع سنوات"), "نصّ السيرة من جسم الصفحة لم يصل المُقيِّم");
+  assert.equal(r.data.results[0].ok, false);
+  assert.equal(r.data.results[0].error, "not_found");
+  assert.equal(aiCalls, beforeAi, "نُودي النموذج على صفٍّ غير مقروء");
+  assert.equal(writesTo(C_BODY).length, 0);
 });
 
 // ═════════════════════════════════════════════════════════ ③ المبرّر إلزامي ══
@@ -527,4 +538,150 @@ test("بلا مرشّح أو بلا وظيفة: 400 صريحة قبل أي ند�
   assert.equal(b.status, 400);
   assert.equal(b.data.error, "no_job");
   assert.equal(aiCalls, beforeAi);
+});
+
+
+// ═══════════════ المقروء، والتصفية الحتمية، والمخزَّن، والثقة (2026-10-01) ═══════════════
+const readingRow = (label, { status = "مكتمل", cv = CV_CLEAN, hidden = false, extra = null } = {}) => applicant(label, null, {
+  cv, extra: { "حالة القراءة": se(status), "مخفي عن الموقع": cb(hidden), ...(extra || {}) },
+});
+
+test("غير المقروء لا يُقيَّم من أي مسار: لا نموذج ولا كتابة ولا أثر", async () => {
+  const bad = [
+    ["PDF مصوَّر", readingRow("غير مقروء", { status: "غير مقروء - PDF مصور" })],
+    ["فشل التحليل", readingRow("فشل", { status: "فشل التحليل" })],
+    ["ناقص", readingRow("ناقص", { status: "ناقص - بيانات غير كافية" })],
+    ["فارغة", readingRow("بلا حالة", { status: "" })],
+    ["مكتمل بلا نصّ ATS", readingRow("بلا نصّ", { cv: "" })],
+    ["مخفي عن الموقع", readingRow("مخفي", { hidden: true })],
+  ];
+  const beforeAi = aiCalls;
+  for (const [why, id] of bad) {
+    // المالك وصاحب العمل كلاهما: لا استثناء لأحد.
+    for (const sid of [SID.owner, SID.employer]) {
+      const r = await score({ postingId: MY_JOB, candidateId: id }, { sid });
+      assert.equal(r.status, 200, why);
+      assert.equal(r.data.results[0].ok, false, `قُيِّم صفٌّ غير مقروء (${why})`);
+      assert.equal(r.data.results[0].error, "not_found", why);
+      assert.equal(r.data.results[0].score, undefined);
+      // وفي وضع «اعرض المخزَّن» كذلك.
+      const pk = await score({ postingId: MY_JOB, candidateId: id, peek: true }, { sid });
+      assert.equal(pk.data.results[0].error, "not_found", why + " (peek)");
+    }
+    assert.equal(writesTo(id).length, 0, `كُتبت درجةٌ في صفٍّ غير مقروء (${why})`);
+  }
+  assert.equal(aiCalls, beforeAi, "نُودي النموذج على صفٍّ غير مقروء");
+});
+
+test("الدفعة أكثر من خمسة: يُقتطع الزائد، وتُقيَّم الخمسة وحدها (اللوحة تقسّم على دفعات)", async () => {
+  const eight = Array.from({ length: 8 }, (_, i) => applicant(`دفعة كبيرة ${i}`, MY_JOB, { cv: CV_CLEAN }));
+  const before = aiCalls;
+  const r = await score({ postingId: MY_JOB, candidates: eight }, { sid: SID.employer });
+  assert.equal(r.data.results.length, 5, "الدفعة لم تُقسَّم عند الخمسة");
+  assert.equal(aiCalls, before + 5);
+  assert.deepEqual(r.data.results.map((x) => x.id), eight.slice(0, 5), "الترتيب لم يُحفظ");
+  // والباقي في الطلب التالي، بلا ازدواجٍ ولا فقد.
+  const r2 = await score({ postingId: MY_JOB, candidates: eight.slice(5) }, { sid: SID.employer });
+  assert.equal(r2.data.results.length, 3);
+});
+
+// ── التصفية الحتمية: تعمل قبل النموذج، ومرشّح القاعدة مغلقٌ بلا مفتاح المالك ──
+const poolRow = (label, extra) => readingRow(label, { extra });
+
+test("مرشّح القاعدة (غير المتقدّم) مرفوض افتراضياً — الحاجز الأصلي قائم", async () => {
+  delete process.env.HIRE_SCORE_POOL;
+  const id = poolRow("قاعدة — بلا مفتاح");
+  const beforeAi = aiCalls;
+  const r = await score({ postingId: MY_JOB, candidateId: id }, { sid: SID.employer });
+  assert.equal(r.data.results[0].ok, false);
+  assert.equal(r.data.results[0].error, "not_found");
+  assert.equal(aiCalls, beforeAi, "سيرة مرشّحٍ لم يتقدّم أُرسلت للنموذج بلا قرار مالك");
+  assert.equal(writesTo(id).length, 0);
+  const st = await fetch0();
+  assert.equal(st.poolScoring, false);
+});
+const fetch0 = async () => {
+  let out = "";
+  const res = { setHeader() {}, set statusCode(_) {}, get statusCode() { return 200; }, end(b) { out = b; } };
+  await handler({ method: "GET", url: "/api/hire", headers: {}, on() {} }, res);
+  return JSON.parse(out);
+};
+
+test("بمفتاح المالك: التصفية الحتمية تسبق النموذج — من لا يمرّ لا يُحرَق عليه نداء", async () => {
+  process.env.HIRE_SCORE_POOL = "1";
+  try {
+    const ok = poolRow("قاعدة — مناسب");
+    const wrongField = poolRow("قاعدة — مجال آخر", { "Field": se("هندسة") });
+    const lowExp = poolRow("قاعدة — خبرة أقل من المطلوب", { "Experience Years": nu(2) });
+    const noExp = poolRow("قاعدة — خبرة غير معروفة", { "Experience Years": nu(null) });
+    const wrongCity = poolRow("قاعدة — مدينة أخرى", { "City": rt("جدة") });
+
+    const beforeAi = aiCalls;
+    const bad = await score({ postingId: MY_JOB, candidates: [wrongField, lowExp, noExp] }, { sid: SID.employer });
+    assert.equal(aiCalls, beforeAi, "نُودي النموذج على من لا يمرّ من التصفية");
+    const [a, b2, c2] = bad.data.results;
+    assert.ok(a.skipped && a.filtered.includes("field"), JSON.stringify(a));
+    assert.ok(b2.skipped && b2.filtered.includes("experience"), JSON.stringify(b2));
+    // الخبرة غير المعروفة على حدٍّ أدنى صلب: لا تُعدّ مستوفاة.
+    assert.ok(c2.skipped && c2.filtered.includes("experience"), JSON.stringify(c2));
+    for (const x of bad.data.results) { assert.equal(x.score, undefined); assert.equal(writesTo(x.id).length, 0); }
+
+    // المدينة تفضيلٌ افتراضاً: مرشّحٌ من جدة يُقيَّم ويُقال إن مدينته ناقصة.
+    const soft = await score({ postingId: MY_JOB, candidateId: wrongCity }, { sid: SID.employer });
+    assert.equal(soft.data.results[0].ok, true);
+    assert.equal(soft.data.results[0].checks.find((k) => k.key === "city").status, "missing");
+    // وبـcityHard تصير شرطاً فتُرفض قبل النموذج.
+    const beforeHard = aiCalls;
+    const hard = await score({ postingId: MY_JOB, candidateId: wrongCity, cityHard: true, rescore: true }, { sid: SID.employer });
+    assert.ok(hard.data.results[0].skipped && hard.data.results[0].filtered.includes("city"));
+    assert.equal(aiCalls, beforeHard);
+
+    // والمناسب يُقيَّم ويُحفظ، ومعه معايير مستوفاة/ناقصة ومستوى ثقة — بلا نسبة.
+    const good = await score({ postingId: MY_JOB, candidateId: ok }, { sid: SID.employer });
+    const g = good.data.results[0];
+    assert.equal(g.ok, true);
+    assert.equal(g.score, 72);
+    assert.ok(g.reason.length > 8);
+    assert.ok(Array.isArray(g.checks) && g.checks.find((k) => k.key === "field").status === "met");
+    assert.ok(["low", "medium", "high"].includes(g.confidence));
+    assert.equal(writesTo(ok).length, 1);
+    // والمرشّح المقروء وحده بلغ هذا: ثقة الصفّ القصير «منخفضة» وتُسمّى سبباً.
+    assert.equal(g.confidence, "low", "سيرةٌ من سطرين عُدّت ثقتها غير منخفضة");
+    assert.ok(g.confidenceWhy.includes("قصير"));
+  } finally { delete process.env.HIRE_SCORE_POOL; }
+});
+
+test("شرط التوطين بوّابةٌ في الشيفرة: يُستبعد قبل النموذج ولا يصل النموذج ولا المبرّر", async () => {
+  process.env.HIRE_SCORE_POOL = "1";
+  try {
+    const nonSaudi = poolRow("قاعدة — غير سعودي", { "Nationality Type": se("غير سعودي") });
+    const saudi = poolRow("قاعدة — سعودي", { "Nationality Type": se("سعودي") });
+    const before = aiCalls;
+    const r = await score({ postingId: MY_JOB, candidates: [nonSaudi, saudi], nat: "سعودي" }, { sid: SID.employer });
+    const [x, y] = r.data.results;
+    assert.ok(x.skipped && x.filtered.includes("nat"), "غير السعودي لم يُستبعد بالشرط");
+    assert.equal(y.ok, true);
+    assert.equal(aiCalls, before + 1, "نُودي النموذج لمن لا يمرّ من شرط التوطين");
+    // الجنسية بوّابةٌ لا درجة: ما وصل التوجيه منها حرف.
+    // («سعودي» وحدها جزءٌ من «السعودية» في التوجيه نفسه، فتُفحص القيمتان المميَّزتان.)
+    for (const forbidden of ["غير سعودي", "Nationality", "الجنسية:", "نوع الجنسية"]) {
+      assert.ok(!lastPrompt.includes(forbidden), `«${forbidden}» دخل توجيه المُقيِّم`);
+    }
+    assert.ok(!lastPrompt.includes("قاعدة — سعودي"), "اسم المرشّح دخل التوجيه");
+  } finally { delete process.env.HIRE_SCORE_POOL; }
+});
+
+test("peek: يعرض المخزَّن بلا نموذج ولا كتابة، ويقول من لم يُقيَّم", async () => {
+  const done = applicant("للـpeek — مُقيَّم", MY_JOB, { cv: CV_CLEAN });
+  const fresh = applicant("للـpeek — لم يُقيَّم", MY_JOB, { cv: CV_CLEAN });
+  await score({ postingId: MY_JOB, candidateId: done }, { sid: SID.employer });
+  const beforeAi = aiCalls, beforeW = patched.length;
+  const r = await score({ postingId: MY_JOB, candidates: [done, fresh], peek: true }, { sid: SID.employer });
+  assert.equal(aiCalls, beforeAi, "peek نادى النموذج");
+  assert.equal(patched.length, beforeW, "peek كتب في نوشن");
+  assert.equal(r.data.results[0].cached, true);
+  assert.equal(r.data.results[0].score, 72);
+  assert.ok(r.data.results[0].reason.length > 8);
+  assert.equal(r.data.results[1].scored, false);
+  assert.equal(r.data.results[1].score, undefined, "درجةٌ من لا شيء");
 });

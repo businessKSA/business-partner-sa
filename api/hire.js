@@ -21,11 +21,15 @@
 
 import { AZURE_KEYS, azureChat, azureConfigured, azureTextDeployment } from "./_azure.js";
 import {
-  employerBySession, ownJobsFor, portalUnlock, resolvePlan, scoringRow, writeScore,
+  checkRow, confidenceOf, deriveCriteria, employerBySession, jobLabelKey, ownJobsFor, portalUnlock, resolvePlan,
+  scoringRow, writeScore,
 } from "./candidates.js";
 import {
   anonSubject, countAnonToday, countToday, employerSubject, limits, logCall, windowEnd,
 } from "./_hiremeter.js";
+// تقييم دفعةٍ من خمسة مرشّحين = قراءة صفحاتٍ ونداءات نموذج، والمهلة الافتراضية
+// للدالة لا تتّسع لذلك. (candidates.js يعلن مهلته بالطريقة نفسها.)
+export const config = { maxDuration: 60 };
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 // Notion access — used to persist per-posting AI matches into the Job Postings
 // DB's "المرشحون المطابقون" relation (postings ↔ ATS candidates).
@@ -416,14 +420,8 @@ const rowMovedSince = (lastEdited, scoredAt) => {
   if (!Number.isFinite(le) || !Number.isFinite(sa)) return false;
   return le - sa > SCORE_GRACE_MS;
 };
-// مفتاح مقارنة الوظيفة: معرّف الصفحة إن كان الوسم «العنوان (المعرّف)»، وإلا
-// النصّ مُسوّى. المعرّف يُجرَّد من شرطاته كما في jobKey بـapi/candidates.js،
-// فشكل المعرّف لا يُنتج «وظيفةً أخرى» فيُعاد نداءٌ بلا داعٍ.
-const jobLabelKey = (s) => {
-  const t = String(s || "").trim();
-  const m = t.match(/\(([^()\n]+)\)\s*$/);
-  return (m ? m[1] : t).toLowerCase().replace(/-/g, "").replace(/\s+/g, " ").trim();
-};
+// مفتاح مقارنة الوظيفة (jobLabelKey) يُستورد من api/candidates.js: هو نفسه الذي
+// تُعرض به الدرجة المحفوظة هناك، فلا نسختان تختلفان في ما يعدّ «الوظيفة نفسها».
 
 // خمسة في الطلب الواحد: كل مرشّحٍ نداءُ نموذجٍ وقراءةُ صفحةٍ (وكتلَ جسمها)،
 // والمهلة الافتراضية للدالة ليست بلا حدّ. اللوحة تطلب دفعةً بعد دفعة.
@@ -443,6 +441,18 @@ function scoreIds(b) {
   return [...new Set(ids)].slice(0, SCORE_MAX_BATCH);
 }
 
+// ── ④ تقييم مرشّحي القاعدة (غير المتقدّمين) — مفتاحٌ مغلق افتراضياً ──────────────
+// الحاجز الأصلي: «يجب أن يكون المرشّح متقدّماً على أحد إعلاناته». ومطابقةُ قاعدةٍ
+// من آلاف السير على إعلانٍ تحتاج أن يُقيَّم فيها من لم يتقدّم، وهذا **تغيير في
+// صلاحية الوصول** وليس تحسيناً — قرار مالك. فيبقى مغلقاً حتى يضبط المالك
+// `HIRE_SCORE_POOL=1`. وحين يُفتح لا يتسع الباب لغير ما يلي: صاحب عملٍ مشترك
+// (لا زائر)، ومرشّحٌ **مقروء** (يُفحص قبل أي قراءة)، ويمرّ من التصفية الحتمية
+// أدناه قبل أن يُنادى نموذج. والدرجة تُحفظ بمفتاح الوظيفة فلا تظهر لإعلانٍ آخر.
+const poolScoringOn = () => process.env.HIRE_SCORE_POOL === "1";
+
+// ── ⑤ مستوى الثقة: confidenceOf في api/candidates.js (الحكم نفسه عند عرض المحفوظ) ──
+const scoreConfidence = (row) => confidenceOf({ cvLen: String((row && row.cvText) || "").trim().length, ...((row && row.brief) || {}) });
+
 async function handleScore(req, res, b, auth) {
   const jsonErr = (status, error, extra) => {
     res.statusCode = status;
@@ -452,7 +462,7 @@ async function handleScore(req, res, b, auth) {
   if (!ids.length) return jsonErr(400, "no_candidate");
 
   // ── الوظيفة المُقيَّم عليها ──────────────────────────────────────────────
-  let jobLabel = "", jobText = "";
+  let jobLabel = "", jobText = "", criteria = null, postingKey = "";
   if (b.postingId) {
     const row = await postingRow(b.postingId);
     if (!row) return jsonErr(502, "notion_failed");
@@ -461,12 +471,18 @@ async function handleScore(req, res, b, auth) {
     // التقييم عليه يكتب في صفوف مرشّحين، وذاك لصاحبه وحده.
     if (!mine) return jsonErr(403, "not_your_posting");
     jobLabel = `${row.title || "إعلان"} (${String(b.postingId).trim()})`;
+    postingKey = jobLabelKey(String(b.postingId));
     jobText = [
       row.title && `المسمّى الوظيفي: ${row.title}`,
       row.field && `المجال: ${row.field}`,
       row.city && `المدينة: ${row.city}`,
       row.description && `الوصف والمتطلبات:\n${row.description}`,
     ].filter(Boolean).join("\n");
+    // معايير التصفية الحتمية من الإعلان نفسه وما يضعه صاحبه بيده (الجنسية كشرط
+    // توطينٍ نظامي، والمدينة شرطاً، وحدّ الخبرة) — تُحسب في الشيفرة وحدها.
+    criteria = deriveCriteria(
+      { title: row.title, city: row.city, field: row.field, description: row.description },
+      { nat: b.nat, cityHard: b.cityHard === true || b.cityHard === "1", minExp: b.minExp });
   } else {
     jobText = String(b.role || b.jobText || "").trim();
     if (!jobText) return jsonErr(400, "no_job");
@@ -480,17 +496,35 @@ async function handleScore(req, res, b, auth) {
   if (ownJobs === false) return jsonErr(502, "notion_failed");
 
   const at = new Date().toISOString();
-  const results = [];
-  for (const id of ids) {
+  const peek = b.peek === true;
+
+  const one = async (id) => {
     const row = await scoringRow(id);
-    if (!row.ok) { results.push({ id, ok: false, error: row.error }); continue; }
+    // غير المقروء يصل هنا «not_found» (scoringRow تفحصه قبل أي شيء): لا يُقيَّم
+    // ولا يُنادى له نموذج ولا يظهر له أثر.
+    if (!row.ok) return { id, ok: false, error: row.error };
     // 404 لا 403، وبالكلمة نفسها التي يعطيها ?applicant=1: «ليس لك» تُخبر
     // السائل أن الصفّ موجود، فتصير النقطة أداةَ تحقّقٍ من وجود مرشّحٍ بمعرّفه.
-    if (ownJobs && (!row.stamp || !ownJobs.has(row.stamp.key))) {
+    const ofMine = !ownJobs || (!!row.stamp && ownJobs.has(row.stamp.key));
+    if (!ofMine && !poolScoringOn()) {
       console.warn("score refused: candidate is not on caller's posting");
-      results.push({ id, ok: false, error: "not_found" });
-      continue;
+      return { id, ok: false, error: "not_found" };
     }
+    const ofThisJob = !!postingKey && !!row.stamp && row.stamp.key === postingKey;
+
+    // ── التصفية الحتمية — قبل أي نداء نموذج ────────────────────────────────
+    // من تقدّم على **هذا** الإعلان يُقيَّم دائماً (اختار صاحب العمل رؤيته). أما
+    // مرشّح القاعدة فيمرّ من المعايير أولاً، ومن لا يمرّ لا يُحرَق عليه نداءٌ.
+    let checks;
+    if (criteria) {
+      const ck = checkRow(criteria, row.gate);
+      checks = ck.checks;
+      if (!ofThisJob && !ck.pass) {
+        return { id: row.id, ok: true, skipped: true, scored: false, filtered: ck.failed, checks };
+      }
+    }
+    const conf = scoreConfidence(row);
+    const meta = { ...(checks ? { checks } : {}), confidence: conf.level, confidenceWhy: conf.why };
 
     const saved = row.saved;
     // المحفوظ يكفي؟ يلزم: درجةٌ في **الحقل** (لا نصٌّ قديم في Notes، فذاك بلا
@@ -503,13 +537,15 @@ async function handleScore(req, res, b, auth) {
       && !!saved.scoredAt
       && !rowMovedSince(row.lastEdited, saved.scoredAt);
     if (fresh) {
-      results.push({
+      return {
         id: row.id, ok: true, cached: true, written: false,
         score: saved.score, reason: saved.reason,
-        scoredFor: saved.scoredFor, scoredAt: saved.scoredAt,
-      });
-      continue;
+        scoredFor: saved.scoredFor, scoredAt: saved.scoredAt, ...meta,
+      };
     }
+    // «اعرض المخزَّن فقط»: لا نموذج ولا كتابة. يُظهر الدرجات الموجودة ويخبر بمن
+    // لم يُقيَّم بعد، دون أن يكلّف شيئاً.
+    if (peek) return { id: row.id, ok: true, scored: false, cached: false, ...meta };
 
     const prompt = buildScorePrompt({ jobText, brief: row.brief, cvText: row.cvText });
     let out = "";
@@ -517,8 +553,7 @@ async function handleScore(req, res, b, auth) {
     try { out = await ai(prompt, 600); }
     catch (e) {
       console.error("score ai failed", String(e).slice(0, 180));
-      results.push({ id: row.id, ok: false, error: "ai_failed" });
-      continue;
+      return { id: row.id, ok: false, error: "ai_failed" };
     }
     await logCall({
       subject: auth.subject, kind: auth.kind, task: "score",
@@ -529,37 +564,40 @@ async function handleScore(req, res, b, auth) {
 
     const parsed = parseScore(out);
     // لا مبرّر (أو مبرّرٌ على أرضٍ محرّمة) ⇒ **لا كتابة ولا درجة تُعاد**.
-    if (parsed.error) { results.push({ id: row.id, ok: false, error: parsed.error }); continue; }
+    if (parsed.error) return { id: row.id, ok: false, error: parsed.error };
     const w = await writeScore(row.id, { score: parsed.score, reason: parsed.reason, jobLabel, at });
     // `written` تعني «في نوشن الآن». ونوشن يرفض الصفحة كاملةً على خاصيةٍ ليست
     // في مخطّطه، فتُعيد notionWriteOptional الكتابة بدون الحقول الأربعة —
     // أي بلا شيء. فلو قيلت «written» هنا لكانت كذبةً يراها صاحب العمل، ويظل
     // يرى لوحةً بلا درجة ولا سبب. تُقال الحقيقة و`pending` تسمّي ما لم يُكتب.
     const stored = !!(w && w.ok) && !((w.dropped || []).length);
-    results.push({
+    return {
       id: row.id, ok: true, cached: false,
       written: stored,
       ...(w && w.ok && (w.dropped || []).length ? { pending: w.dropped } : {}),
       ...(w && !w.ok ? { writeError: w.error } : {}),
       score: parsed.score, reason: parsed.reason,
-      scoredFor: jobLabel, scoredAt: at,
-    });
-  }
+      scoredFor: jobLabel, scoredAt: at, ...meta,
+    };
+  };
+  // على التوازي: خمسة نداءات نموذجٍ متتابعة لا تتّسع لمهلة الدالة، وكلٌّ منها
+  // مستقلٌّ عن الباقي. الترتيب محفوظ (Promise.all).
+  const results = await Promise.all(ids.map(one));
 
   res.statusCode = 200;
   // مرشّحٌ واحد ⇒ الدرجة والمبرّر في أعلى الردّ أيضاً، فلا تُجبر الواجهة على
   // فتح المصفوفة لحالةٍ هي الغالبة.
-  const one = results.length === 1 && results[0].ok ? results[0] : null;
+  const one0 = results.length === 1 && results[0].ok && results[0].score != null ? results[0] : null;
   return res.end(JSON.stringify({
     ok: true, task: "score", scoredFor: jobLabel, results,
-    ...(one ? { score: one.score, reason: one.reason, cached: !!one.cached, written: !!one.written } : {}),
+    ...(one0 ? { score: one0.score, reason: one0.reason, cached: !!one0.cached, written: !!one0.written } : {}),
   }));
 }
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (req.method === "GET") {
-    return res.end(JSON.stringify({ status: "ok", providers: available().map((p) => p.name) }));
+    return res.end(JSON.stringify({ status: "ok", providers: available().map((p) => p.name), poolScoring: poolScoringOn() }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" })); }
   if (!available().length) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "ai_not_configured" })); }

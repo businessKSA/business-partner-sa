@@ -15,6 +15,9 @@
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 import { getSession } from "./_db.js";
 import { bdTrial, openFor } from "./_trial.js";
+// فحص جودة نصّ السيرة (skeleton / garbled / empty): ملكُ recruitment-candidate، يُستورد
+// ولا يُنسخ — فلا يختلف حكمان على «هذه سيرة مقروءة» بين الاستيعاب والعرض.
+import { cvTextQuality } from "./candidate.js";
 
 // Accept the token under any of these env-var names (be forgiving about naming).
 const envFrom = (names) => {
@@ -42,7 +45,10 @@ const WORKSHOP_DB = process.env.NOTION_WORKSHOP_DB || "f83bce33eab7481a8b803495c
 // — 25,000 rows is ~250 round trips, which no page load should be doing. The
 // finished total is parked here and served instantly for a day.
 const METRICS_DB = process.env.NOTION_METRICS_DB || "245f3a1ffb1844b19707bb67120b9605";
-const POOL_METRIC = "حجم قاعدة المواهب";
+// الاسم الجديد عمداً: «حجم قاعدة المواهب» القديم عدّ كل صفٍّ غير مخفي (نحو ٢٦ ألفاً
+// فيها ما لم يُقرأ)، والرقم المخزَّن بالاسم القديم يبقى يُخدَم يوماً كاملاً بعد
+// تغيير الفلتر. فالعدّاد الصادق = المقروء وحده، باسمٍ لا يطابق ما قبله.
+const POOL_METRIC = "المرشحون المقروءون";
 
 // Every advert on the site is published by Business Partner — the end client
 // the role is staffed for is our own commercial detail, not the publisher's
@@ -72,7 +78,7 @@ async function writeCachedCount(total, existingId) {
   const props = {
     "القيمة": { number: total },
     "آخر حساب": { date: { start: new Date().toISOString() } },
-    "ملاحظة": { rich_text: [{ text: { content: "المرشحون غير المخفيين عن الموقع. يُحسب مرة يومياً بعد اكتمال أول مشي كامل." } }] },
+    "ملاحظة": { rich_text: [{ text: { content: "المرشحون المقروءون وحدهم (حالة القراءة «مكتمل» ونصّ ATS غير فارغ) وغير المخفيين عن الموقع. يُحسب مرة يومياً بعد اكتمال أول مشي كامل." } }] },
   };
   try {
     if (existingId) return void (await notionFetch(`pages/${existingId}`, "PATCH", { properties: props }));
@@ -282,30 +288,295 @@ function applicantScore(p) {
   return m ? { score: Number(m[1]), scoreFrom: "notes" } : { score: null, scoreFrom: "" };
 }
 
-// السيرة المهيّأة نصّاً. «ATS CV Text» هو موضعها المعلن، لكنها في الواقع
-// تُكتب غالباً في **جسم صفحة** المرشّح بنوشن (أقساماً مرتّبة) — صفٌّ واحد من
-// ٢٦٤١٩ يحمل الحقل مملوءاً. فتُقرأ الكتل كماركداون احتياطياً، وإلا كانت
-// «اعرض السيرة على الموقع» شاشةً فارغة لكل مرشّح تقريباً.
-async function readCvBody(id) {
-  try {
-    let cur = null, guard = 0;
-    const out = [];
-    do {
-      const br = await notionFetch(`blocks/${id}/children?page_size=100${cur ? `&start_cursor=${cur}` : ""}`, "GET");
-      if (!br.ok) break;
-      const bd = await br.json();
-      for (const blk of bd.results || []) {
-        const t = blk[blk.type];
-        if (!t || !Array.isArray(t.rich_text)) continue;
-        const line = t.rich_text.map((x) => x.plain_text).join("");
-        if (!line.trim()) continue;
-        const pre = /^heading/.test(blk.type) ? "## " : /list_item$/.test(blk.type) ? "- " : "";
-        out.push(pre + line);
-      }
-      cur = bd.has_more ? bd.next_cursor : null;
-    } while (cur && ++guard < 5);
-    return out.join("\n");
-  } catch (e) { console.error("cv body read error", String(e).slice(0, 120)); return ""; }
+// ── «المقروء»: الشرط الواحد الذي يمرّ منه كل مسارٍ يعرض مرشّحاً لصاحب عمل ──────
+// قرار المالك (2026-10-01): ما لم يُقرأ يختفي عند صاحب العمل كأنه غير موجود —
+// حالة القراءة فيها «غير مقروء - PDF مصور» أو «فشل التحليل» أو «ناقص - بيانات
+// غير كافية» أو فارغة، أو بلا نصّ ATS. والإخفاء **عند المصدر**: شرطٌ في
+// استعلام نوشن نفسه (`readableFilters`) لا فرزٌ في الواجهة، ويُعاد فحصه على
+// كل صفٍّ يصل (`isReadable`) لأن الاستعلام يمرّ بمسارات كثيرة وملفّ المرشّح
+// الواحد لا استعلام فيه أصلاً.
+//
+// دالتان لا ثالثة: الاستعلامية (تُدمج في filter) والصفّية (تُفحص على properties).
+// ومن يغيّر معنى «المقروء» يغيّره هنا فيتغيّر في القائمة والمتقدّمين والملفّ
+// والتقييم والمطابقة معاً. ولا يُحذف أي صفٍّ من نوشن — الإخفاء وحده.
+export const READ_OK = "مكتمل";
+export function isReadable(p) {
+  p = p || {};
+  if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return false;
+  if (txt(p["حالة القراءة"]) !== READ_OK) return false;
+  const text = txt(p["ATS CV Text"]).trim();
+  if (text === "") return false;
+  // «مكتمل» وحدها لا تكفي: نحو ٧٪ منها نصٌّ هيكلٌ فارغ (عناوين بلا مضمون) أو
+  // مشوَّه (حروف مقلوبة/رموز استبدال). ما ردّ ok=false لا يظهر ولا يُقيَّم. ولا
+  // يمكن وضعه في استعلام نوشن (حسابٌ على النصّ)، فهو فحصُ الصفّ بعد الجلب — ويلزم
+  // عن ذلك أن صفحةً مصفَّحة قد تعود بأقلّ من limit، وأن الإجمالي المخزَّن حدٌّ أعلى.
+  return cvTextQuality(text).ok;
+}
+export function readableFilters() {
+  return [
+    { property: "مخفي عن الموقع", checkbox: { equals: false } },
+    { property: "حالة القراءة", select: { equals: READ_OK } },
+    { property: "ATS CV Text", rich_text: { is_not_empty: true } },
+  ];
+}
+const andOf = (list) => (list.length === 1 ? list[0] : { and: list });
+
+// مفتاح مقارنة الوظيفة: معرّف الصفحة إن كان الوسم «العنوان (المعرّف)»، وإلا
+// النصّ مُسوّى. المعرّف يُجرَّد من شرطاته كما في jobKey، فشكل المعرّف لا
+// يُنتج «وظيفةً أخرى». يُصدَّر لأن api/hire.js يقارن به «الوظيفة المُقيَّم عليها».
+export const jobLabelKey = (s) => {
+  const t = String(s || "").trim();
+  const m = t.match(/\(([^()\n]+)\)\s*$/);
+  return (m ? m[1] : t).toLowerCase().replace(/-/g, "").replace(/\s+/g, " ").trim();
+};
+
+// درجةٌ محفوظة في صفٍّ مشترك لا تُعرض إلا لمن هي درجةُ وظيفته. الصفّ فيه خانةٌ
+// واحدة للدرجة، فمرشّحٌ قُيِّم على إعلان صاحب عملٍ ثم ظهر عند آخر كان سيحمل إلى
+// الثاني اسمَ إعلان الأول ومبرّرَه. المالك يرى الكل؛ والدرجة القديمة المكتوبة
+// في Notes تتبع ختم التقديم نفسه فتبقى (لا وظيفة مستقلة لها).
+function ownedScore(p, ownJobs) {
+  const sc = applicantScore(p);
+  const none = { score: null, scoreFrom: "", job: "", reason: "", scoredFor: "", scoredAt: "" };
+  if (sc.score == null) return none;
+  if (sc.scoreFrom === "notes") return { ...none, ...sc };
+  const scoredFor = txt(p["الوظيفة المُقيَّم عليها"]);
+  const key = jobLabelKey(scoredFor);
+  if (ownJobs && !(key && ownJobs.has(key))) return none;
+  return {
+    ...sc, job: key, scoredFor,
+    reason: txt(p["مبرر الدرجة"]),
+    scoredAt: p["تاريخ التقييم"] && p["تاريخ التقييم"].date ? p["تاريخ التقييم"].date.start : "",
+  };
+}
+
+// ── مستوى الثقة: يُحسب في الشيفرة من مادة الصفّ لا من النموذج ──────────────────────
+// درجةٌ على سيرةٍ من سطرين وحقولٍ فارغة رقمٌ شاحب مهما بدا حازماً. فيُقال ذلك بجانبها:
+// «منخفضة» حين يقصر النصّ أو تنقص الحقول المنظَّمة، «مرتفعة» حين يكتمل الاثنان. لا نسبة
+// مئوية ولا رقمٌ من عندنا — ثلاث درجاتٍ وسببٌ مكتوب. مُصدَّرة لأن api/hire.js (حين يُقيِّم)
+// وهذه القائمة (حين تعرض المحفوظ) يجب أن يعطيا الحكم نفسه للصفّ نفسه.
+export function confidenceOf(m) {
+  m = m || {};
+  const len = Number(m.cvLen) || 0;
+  const filled = ["role", "field", "city", "experience", "education", "languages", "skills"]
+    .filter((k) => String(m[k] == null ? "" : m[k]).trim()).length;
+  const why = [];
+  if (len < 400) why.push("نصّ السيرة قصير");
+  if (filled < 4) why.push("حقول منظَّمة ناقصة");
+  const level = len < 400 || filled < 4 ? "low" : (len >= 1500 && filled >= 6 ? "high" : "medium");
+  return { level, why: why.join("، ") };
+}
+
+// ── التصفية الحتمية قبل أي نداء نموذج ─────────────────────────────────────────
+// المطابقة لا تُحرق كلفةً على من لا يناسب، والحاجز **شيفرةٌ تحسب** لا توجيهٌ
+// يُطلب من النموذج. ما يدخلها: المدينة، والمجال، وسنوات الخبرة، والجنسية
+// كشرط توطينٍ نظاميّ يضعه صاحب العمل بيده — وكلّها من الحقول المنظَّمة في
+// الصفّ. والجنسية هنا **بوّابةٌ لا درجة**: لا تصل النموذج (scoringRow تسلّم
+// `gate` لهذه الدالة وحدها ولا تضعها في `brief`)، ولا تدخل الدرجة ولا مبرّرها.
+//
+// وما لا يدخلها عمداً: المسمّى. «محاسب أول» و«Accountant» اسمان لشيءٍ واحد ولا
+// يتقاطعان بحرف، وتصفيةٌ نصّية عليهما تُسقط المناسب. يُعرض كمعيار تلميحٍ فقط.
+const CANDIDATE_FIELDS = [
+  "هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية",
+  "ضيافة ومطاعم", "مقاولات وإنشاءات", "صحة وطب", "تعليم", "لوجستيات ونقل", "أخرى",
+  "حكومي وقطاع عام", "زراعة وبيئة", "حرف مهنية وصيانة", "قانون", "تجميل وعناية", "ضيافة وسياحة",
+];
+// «ضيافة وسياحة» في تصنيف الإعلانات و«ضيافة ومطاعم» في قاعدة المرشحين: مجالٌ واحد
+// بتسميتين. بدون الجمع بينهما لا يجد إعلان ضيافةٍ مرشّحاً واحداً من ٤٠٪ من القاعدة.
+const FIELD_ALIASES = [["ضيافة وسياحة", "ضيافة ومطاعم"]];
+export function fieldVariants(f) {
+  const t = String(f || "").trim();
+  if (!t) return [];
+  const g = FIELD_ALIASES.find((a) => a.includes(t));
+  const all = g ? [...g] : [t];
+  return all.filter((x) => CANDIDATE_FIELDS.includes(x));
+}
+
+// تسوية عربية خفيفة (التشكيل والتطويل وأشكال الألف والتاء المربوطة والألف المقصورة).
+export const nzAr = (s) => String(s == null ? "" : s).toLowerCase()
+  .replace(/[\u064B-\u0652\u0640]/g, "")
+  .replace(/[\u0622\u0623\u0625]/g, "\u0627")
+  .replace(/\u0629/g, "\u0647").replace(/\u0649/g, "\u064A")
+  .replace(/\s+/g, " ").trim();
+
+// ── نظافة القيم المعروضة ─────────────────────────────────────────────────────
+// قيمٌ في القاعدة مشتّتة (تدقيق الاستخراج 2026-10-01): «Riyadh» و«الرياض»، و«سعودي»
+// و«سعودية» و«Saudi» و«Saudi Arabia»، و«غير محدد» و«KSA» تُكتب في خانة المدينة.
+// تُوحَّد هنا بدوالّ حتمية، و«غير محدد» وما شابهها = فارغ ولا يُعرض كقيمة.
+const PLACEHOLDERS = new Set([
+  "غير محدد", "غير معروف", "غير متوفر", "غير متاح", "لا يوجد", "لايوجد", "unknown", "n/a", "na", "none",
+  "null", "undefined", "-", "--", "—", "؟", "?",
+].map((x) => nzAr(x)));
+const SAUDI_NAMES = new Set([
+  "ksa", "saudi", "saudi arabia", "saudi arabian", "kingdom of saudi arabia", "السعودية", "سعودية", "سعودي",
+  "المملكة العربية السعودية", "المملكة السعودية", "السعودي",
+].map((x) => nzAr(x)));
+const isPlaceholder = (t) => !nzAr(t) || PLACEHOLDERS.has(nzAr(t));
+
+// المدينة: «Riyadh, KSA» ← «الرياض». يُؤخذ أول جزءٍ ليس قيمةً فارغة ولا اسمَ دولة.
+export function normCity(raw) {
+  const t = String(raw == null ? "" : raw).trim();
+  if (!t || isPlaceholder(t) || SAUDI_NAMES.has(nzAr(t))) return "";
+  const parts = t.split(/[،,\/|\-–]/).map((x) => x.trim()).filter(Boolean);
+  let fallback = "";
+  for (const part of parts.length ? parts : [t]) {
+    const n = nzAr(part);
+    if (!n || PLACEHOLDERS.has(n) || SAUDI_NAMES.has(n)) continue;
+    const g = CITY_GROUPS.find((grp) => grp.some((x) => nzAr(x) === n));
+    if (g) return g[0];
+    if (!fallback) fallback = part;
+  }
+  return fallback;
+}
+// الدولة: فارغٌ للمجهول، و«السعودية» لكل أشكالها.
+export function normCountry(raw) {
+  const t = String(raw == null ? "" : raw).trim();
+  if (!t || isPlaceholder(t)) return "";
+  return SAUDI_NAMES.has(nzAr(t)) ? "السعودية" : t;
+}
+// الجنسية **المكتوبة** (نصٌّ مخمَّن من السيرة) — للعرض وحده. وكل أشكال السعودي تُوحَّد
+// «سعودي». ولا يُبنى عليها توطين: الشرط النظامي من `Nationality Type` (select) وحده.
+export function normNationality(raw) {
+  const t = String(raw == null ? "" : raw).trim();
+  if (!t || isPlaceholder(t)) return "";
+  return SAUDI_NAMES.has(nzAr(t)) ? "سعودي" : t;
+}
+// المهارات: في صفوف الموقع قد تحمل عنوان الوظيفة نفسه أو رابط لينكدإن. مهارةٌ تساوي
+// المسمّى أو رابطٌ ليست مهارة فلا تُعرض.
+export function cleanSkills(raw, titles) {
+  const tset = new Set((titles || []).map(nzAr).filter(Boolean));
+  const seen = new Set(), out = [];
+  for (const x of String(raw == null ? "" : raw).split(/[،,؛;\n|]/)) {
+    const v = x.trim();
+    const n = nzAr(v);
+    if (!n || n.length < 2 || seen.has(n)) continue;
+    if (/^(https?:|www\.)|linkedin\.com|linkedin\s*:/i.test(v)) continue;
+    if (tset.has(n)) continue;
+    seen.add(n);
+    out.push(v);
+  }
+  return out.join(", ");
+}
+
+// مهارات صفٍّ نظيفة (لا مسمّى ولا رابط) — كل ما يعرض المهارات يمرّ منها.
+const skillsOf = (p) => cleanSkills(txt(p["Skills"]), [txt(p["Original Position"]), txt(p["Target Role"]), roleOf(p)]);
+
+// المسمّى المعروض: `Target Role` تخمينٌ آلي للصفوف المستوردة (68% من الصفوف تحمل ٢٥
+// قيمةً فقط، وأخطأ في ~37% من العيّنة المدقَّقة)، فلا يُعرض مسمّىً إلا لمن كتبه
+// المرشّح بنفسه (Source=«الموقع»). وغيرهم: `Original Position` كما ورد في ملفّهم.
+export const SITE_SOURCE = "الموقع";
+export function roleOf(p) {
+  p = p || {};
+  const orig = txt(p["Original Position"]).trim();
+  return txt(p["Source"]) === SITE_SOURCE ? (txt(p["Target Role"]).trim() || orig) : orig;
+}
+// سنوات الخبرة: صفرٌ = «مجهول» (١٠٨٣ صفاً تحمله وهو ليس خبرةً حقيقية). تُعاد null
+// فتُعرض «—» ولا تدخل تصفية الخبرة كأنها صفرٌ حقيقي.
+function expYears(p) {
+  const f = p && p["Experience Years"];
+  let n = null;
+  if (f && typeof f.number === "number") n = f.number;
+  else { const v = parseFloat(txt(f)); n = Number.isFinite(v) ? v : null; }
+  return n != null && n > 0 ? n : null;
+}
+
+// أشكال الكتابة كما تُخزَّن في القاعدة (المدينة نصٌّ حرّ: «جدة» و«Jeddah» كلاهما
+// يرد). تُستعمل خاماً في استعلام نوشن (contains) ومُسوّاةً في المقارنة بالذاكرة.
+const CITY_GROUPS = [
+  ["الرياض", "Riyadh"], ["جدة", "جده", "Jeddah", "Jedda"], ["مكة", "مكه", "مكة المكرمة", "Makkah", "Mecca"],
+  ["المدينة المنورة", "المدينة", "Madinah", "Medina"], ["الدمام", "Dammam"],
+  ["الخبر", "Khobar", "Al Khobar"], ["الظهران", "Dhahran"], ["أبها", "ابها", "Abha"], ["تبوك", "Tabuk"],
+  ["بريدة", "Buraidah"], ["الطائف", "Taif"], ["حائل", "Hail"],
+  ["جازان", "Jazan"], ["نجران", "Najran"], ["ينبع", "Yanbu"], ["الجبيل", "Jubail"],
+];
+export function cityRaw(c) {
+  const t = String(c || "").trim();
+  if (!t) return [];
+  const n = nzAr(t);
+  const g = CITY_GROUPS.find((grp) => grp.some((x) => nzAr(x) === n));
+  return g ? [...new Set([t, ...g])] : [t];
+}
+export const cityVariants = (c) => [...new Set(cityRaw(c).map(nzAr))].filter(Boolean);
+const cityHit = (rowCity, variants) => {
+  const rc = nzAr(rowCity);
+  return !!rc && variants.some((v) => rc.includes(v));
+};
+
+// سنوات الخبرة المطلوبة من نصّ الإعلان: «٥ سنوات خبرة» أو «خمس سنوات خبرة» أو
+// «3+ years of experience». لا يُستخرج رقمٌ إلا وكلمة الخبرة قريبةٌ منه، فـ«دوام
+// ٨ ساعات» و«عقد سنة» ليسا شرط خبرة. ولا يُخترع: ما لم يُجد يعيد null فلا تُطبَّق
+// تصفيةٌ على الخبرة، ويُقال ذلك لصاحب العمل ليكتبه بيده.
+const YEAR_WORDS = {
+  "واحده": 1, "واحد": 1, "سنتين": 2, "سنتان": 2, "اثنتين": 2, "ثلاث": 3, "ثلاثه": 3, "اربع": 4, "اربعه": 4,
+  "خمس": 5, "خمسه": 5, "ست": 6, "سته": 6, "سبع": 7, "سبعه": 7, "ثمان": 8, "ثماني": 8, "ثمانيه": 8,
+  "تسع": 9, "تسعه": 9, "عشر": 10, "عشره": 10,
+};
+export function parseMinYears(text) {
+  const t = nzAr(String(text || "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+  if (!t) return null;
+  const words = Object.keys(YEAR_WORDS).sort((a, b) => b.length - a.length).join("|");
+  const re = new RegExp("(\\d{1,2}|" + words + ")\\s*\\+?\\s*(?:[-–]\\s*\\d{1,2}\\s*)?(?:سنوات|سنه|سنين|اعوام|عاما|عام|years?|yrs?)", "g");
+  let m;
+  while ((m = re.exec(t))) {
+    const from = Math.max(0, m.index - 40), to = Math.min(t.length, m.index + m[0].length + 40);
+    if (!/خبره|experience/.test(t.slice(from, to))) continue;
+    const n = /^\d/.test(m[1]) ? Number(m[1]) : YEAR_WORDS[m[1]];
+    if (Number.isFinite(n) && n >= 1 && n <= 40) return n;
+  }
+  const two = t.match(/(سنتين|سنتان)/);
+  if (two && /خبره/.test(t.slice(Math.max(0, two.index - 40), two.index + 40))) return 2;
+  return null;
+}
+
+// معايير وظيفةٍ واحدة. `opts` من صاحب العمل نفسه: nat (شرط التوطين النظامي)،
+// cityHard (المدينة شرطٌ لا تفضيل)، minExp (يستبدل المستخرج من الوصف).
+export function deriveCriteria(job, opts) {
+  job = job || {}; opts = opts || {};
+  const fv = fieldVariants(job.field);
+  const cv = cityVariants(job.city);
+  const ov = Number(opts.minExp);
+  const minExp = Number.isFinite(ov) && opts.minExp !== "" && opts.minExp !== null && ov >= 0
+    ? Math.min(40, Math.round(ov)) : parseMinYears(job.description);
+  const nat = ["سعودي", "غير سعودي"].includes(opts.nat) ? opts.nat : "";
+  const tokens = nzAr(job.title).split(/[^0-9a-z\u0600-\u06FF]+/).filter((w) => w.length > 2);
+  return {
+    field: fv.length ? String(job.field).trim() : "", fieldVariants: fv,
+    city: cv.length ? String(job.city).trim() : "", cityVariants: cv, cityHard: !!opts.cityHard && cv.length > 0,
+    minExp: minExp && minExp > 0 ? minExp : null,
+    minExpFrom: minExp && minExp > 0 ? (Number.isFinite(ov) && opts.minExp !== "" && opts.minExp !== null ? "owner" : "description") : "",
+    nat, titleTokens: tokens,
+  };
+}
+
+// فحص صفٍّ واحد على المعايير. `g` = { field, city, experience (رقم أو null),
+// role, nationalityType }. يعيد `pass` (الشروط الصلبة وحدها) و`checks` للعرض:
+// كل معيارٍ مستوفى أو ناقص أو غير معروف — ولا نسبة. غير المعروف على معيارٍ صلب
+// فشلٌ: ما لا يُتحقَّق منه لا يُعدّ مستوفى، وهو ما يفعله استعلام نوشن نفسه.
+export function checkRow(c, g) {
+  g = g || {};
+  const checks = [];
+  const add = (key, status, hard, detail) => checks.push({ key, status, hard: !!hard, ...(detail ? { detail } : {}) });
+  if (c.field) {
+    const has = nzAr(g.field);
+    add("field", !has ? "unknown" : (c.fieldVariants.some((v) => nzAr(v) === has) ? "met" : "missing"), true, g.field || "");
+  }
+  if (c.city) {
+    const has = nzAr(g.city);
+    add("city", !has ? "unknown" : (cityHit(g.city, c.cityVariants) ? "met" : "missing"), c.cityHard, g.city || "");
+  }
+  if (c.minExp != null) {
+    const e = typeof g.experience === "number" ? g.experience : (g.experience === "" || g.experience == null ? null : Number(g.experience));
+    add("experience", e == null || !Number.isFinite(e) ? "unknown" : (e >= c.minExp ? "met" : "missing"), true, e == null || !Number.isFinite(e) ? "" : String(e));
+  }
+  if (c.nat) {
+    add("nat", !g.nationalityType ? "unknown" : (g.nationalityType === c.nat ? "met" : "missing"), true);
+  }
+  if (c.titleTokens.length) {
+    const role = nzAr(g.role);
+    const hit = role ? c.titleTokens.filter((w) => role.includes(w)).length : 0;
+    add("title", !role ? "unknown" : (hit > 0 ? "met" : "missing"), false, role ? `${hit}/${c.titleTokens.length}` : "");
+  }
+  const pass = checks.every((k) => !k.hard || k.status === "met");
+  return { pass, failed: checks.filter((k) => k.hard && k.status !== "met").map((k) => k.key), checks };
 }
 
 // ── مادة التقييم: ما يخرج من قاعدة المرشحين إلى المُقيِّم، ولا شيء غيره ────
@@ -333,12 +604,13 @@ export async function scoringRow(id) {
   if (!page.ok) { console.error("scoring row", page.status, (await page.text()).slice(0, 200)); return { ok: false, error: "notion_failed" }; }
   const pdata = await page.json();
   const p = pdata.properties || {};
-  // «مخفي عن الموقع» = سيرةٌ لم تُقرأ أو صفٌّ تحت المراجعة. لا يُعرض ولا يُقيَّم.
-  if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return { ok: false, error: "not_found" };
-  let cvText = txt(p["ATS CV Text"]);
-  let cvFrom = cvText ? "field" : "";
-  if (!cvText) { cvText = await readCvBody(pdata.id || rid); cvFrom = cvText ? "page" : ""; }
+  // غير مقروء (أو مخفي) = لا يُعرض ولا يُقيَّم ولا يُقرأ نصّه: «لا صفّ». الفحص
+  // قبل كل شيء، فلا يُنادى نموذجٌ ولا يُحسب شيءٌ على صفٍّ لا يراه صاحب العمل.
+  if (!isReadable(p)) return { ok: false, error: "not_found" };
+  const cvText = txt(p["ATS CV Text"]);
+  const cvFrom = "field";
   const sc = applicantScore(p);
+  const expN = expYears(p);
   return {
     ok: true,
     id: pdata.id || rid,
@@ -346,14 +618,23 @@ export async function scoringRow(id) {
     // فلا يُعاد نداء النموذج على صفٍّ لم يتحرّك (انظر api/hire.js).
     lastEdited: pdata.last_edited_time || "",
     stamp: applicantStamp(p),
+    // ⚠️ `gate` للتصفية الحتمية في الشيفرة وحدها (checkRow)، ولا يُدخَل في توجيه
+    // النموذج بحال — فيه نوع الجنسية. الحاجز بنيوي: hire.js يبني التوجيه من
+    // `brief` وحده.
+    gate: {
+      field: txt(p["Field"]), city: normCity(txt(p["City"])), experience: expN,
+      role: roleOf(p),
+      nationalityType: txt(p["Nationality Type"]),
+    },
     brief: {
-      role: txt(p["Target Role"]) || txt(p["Original Position"]),
+      role: roleOf(p),
       field: txt(p["Field"]),
-      city: txt(p["City"]),
-      experience: txt(p["Experience Years"]),
+      city: normCity(txt(p["City"])),
+      // صفرٌ = مجهول: لا يُقال للمُقيِّم «خبرته صفر» وهو لا يُعرف.
+      experience: expN == null ? "" : String(expN),
       education: txt(p["Education"]),
       languages: txt(p["Languages"]),
-      skills: txt(p["Skills"]).slice(0, 1500),
+      skills: skillsOf(p).slice(0, 1500),
     },
     cvText, cvFrom,
     saved: {
@@ -425,11 +706,11 @@ function mapCandidate(pg, unlocked, opts) {
   const rec = {
     id: pg.id,
     field: txt(p["Field"]),
-    role: txt(p["Target Role"]) || txt(p["Original Position"]),
-    city: txt(p["City"]),
-    country: txt(p["Country"]),
+    role: roleOf(p),
+    city: normCity(txt(p["City"])),
+    country: normCountry(txt(p["Country"])),
     residenceStatus: txt(p["حالة الإقامة"]),
-    experience: txt(p["Experience Years"]),
+    experience: (() => { const e = expYears(p); return e == null ? "" : String(e); })(),
     education: txt(p["Education"]),
     nationalityType: txt(p["Nationality Type"]),
     availability: txt(p["Availability"]),
@@ -442,11 +723,12 @@ function mapCandidate(pg, unlocked, opts) {
     // office's name, contact and e-mail stay internal and are never sent to a
     // client, on the site or in the console.
     viaPartner: !!txt(p["مكتب الاستقدام"]),
-    skills: opts.full ? txt(p["Skills"]) : txt(p["Skills"]).slice(0, 160),
+    skills: opts.full ? skillsOf(p) : skillsOf(p).slice(0, 160),
     saudization: txt(p["التوطين Saudization"]),
+    // تاريخ التسجيل في القاعدة: للترتيب «الأحدث أولاً» المعروض، وللقائمة كذلك.
+    registered: pg.created_time || "",
   };
   if (opts.full) {
-    rec.registered = pg.created_time || "";
     rec.interviewDate = p["Interview Date"] && p["Interview Date"].date ? p["Interview Date"].date.start : "";
     rec.hiredDate = p["Hired Date"] && p["Hired Date"].date ? p["Hired Date"].date.start : "";
     rec.pipelineStage = txt(p["Pipeline Stage"]);
@@ -454,6 +736,12 @@ function mapCandidate(pg, unlocked, opts) {
     rec.interviewMode = txt(p["Interview Mode"]);
     rec.interviewLink = txt(p["رابط المقابلة"]);
     rec.interviewPlace = txt(p["مكان المقابلة"]);
+    // الحقول المنظَّمة التي تبني منها اللوحة مربّعاتها (2026-10-01): كلّها من
+    // أعمدة القاعدة كما هي، بلا استنتاجٍ من نصّ السيرة. وكلّها مهنيّة؛ لا راتب
+    // ولا درجة ولا حالة مقابلة داخلية.
+    rec.originalPosition = txt(p["Original Position"]).trim();
+    rec.compliance = txt(p["الامتثال Compliance"]);
+    rec.saudizationDetails = txt(p["تفاصيل التوطين"]);
   }
   if (unlocked) {
     rec.name = primary;
@@ -464,9 +752,19 @@ function mapCandidate(pg, unlocked, opts) {
     // only fall back to the raw file when no ATS version exists yet.
     rec.cv = cvAts || cvRaw;
     rec.cvKind = cvAts ? "ats" : (cvRaw ? "raw" : "");
+    if (opts.full) {
+      // الملف الأصلي كما رفعه المرشّح، والنسخة المهيّأة مستنداً — كلٌّ باسمه، كما
+      // يعيدهما ?applicant=1. زرّ «تحميل السيرة الأصلية» يحتاج الأول وحده.
+      rec.cvLink = cvRaw;
+      rec.atsDocUrl = cvAts;
+      rec.nationality = normNationality(txt(p["Nationality"]));
+    }
     // The actual CV text (not just a link to it), so the profile can be
-    // rendered as formatted content on the site itself.
-    rec.cvText = txt(p["ATS CV Text"]);
+    // rendered as formatted content on the site itself. القائمة المصفَّحة
+    // (?limit=) لا تحمله: آلاف الأحرف للصفّ الواحد تفجّر حمولة صفحةٍ فيها مئة
+    // صفّ — يُجلب مع ملفّ الواحد. وبقي في القائمة القديمة (بلا limit) كما كان،
+    // فصفحاتٌ لا نملكها تقرؤه منها.
+    if (opts.full || opts.cvInList) rec.cvText = txt(p["ATS CV Text"]);
   } else {
     rec.name = maskName(primary);
   }
@@ -821,7 +1119,7 @@ async function handlePostings(req, res) {
     const office = txt(props["مكتب الاستقدام"]);
     const officeEmail = txt(props["بريد المكتب"]);
     const candidate = txt(props["Candidate Name"]) || txt(props["Name (EN)"]);
-    const role = txt(props["Target Role"]) || txt(props["مهنة الترشيح"]);
+    const role = roleOf(props) || txt(props["مهنة الترشيح"]);
     const requester = String(b.employer || "").trim().slice(0, 160) || "صاحب عمل";
 
     const patch = {
@@ -1070,7 +1368,7 @@ export default async function handler(req, res) {
       const deadline = Date.now() + 40000;
       let total = 0, cursor = countCursor, truncated = false;
       for (let guard = 0; guard < 300; guard++) {
-        const body = { page_size: 100, filter: { property: "مخفي عن الموقع", checkbox: { equals: false } } };
+        const body = { page_size: 100, filter: andOf(readableFilters()) };
         if (cursor) body.start_cursor = cursor;
         let r;
         for (let attempt = 0; ; attempt++) {
@@ -1211,12 +1509,15 @@ export default async function handler(req, res) {
         const r = await notionFetch(`databases/${DB_ID}/query`, "POST", {
           page_size: 100,
           ...(cursor ? { start_cursor: cursor } : {}),
-          filter: {
-            or: [
+          // المقروء وحده: متقدّمٌ سيرته لم تُقرأ لا يظهر في لوحة أحد ولا يُعدّ
+          // في أي رقم — الشرط في الاستعلام نفسه لا في الواجهة (انظر isReadable).
+          filter: { and: [
+            { or: [
               { property: "الوظيفة المتقدم لها", rich_text: { is_not_empty: true } },
               { property: "Notes", rich_text: { contains: "تقديم عبر الموقع" } },
-            ],
-          },
+            ] },
+            ...readableFilters(),
+          ] },
           sorts: [{ timestamp: "created_time", direction: "descending" }],
         });
         if (!r.ok) { console.error("applicants query error", r.status, (await r.text()).slice(0, 300)); break; }
@@ -1230,7 +1531,7 @@ export default async function handler(req, res) {
       const groups = {};
       for (const pg of rowsRaw) {
         const p = pg.properties || {};
-        if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) continue;
+        if (!isReadable(p)) continue;
         const st = applicantStamp(p);
         if (!st) continue;
         let jobTitle = st.jobTitle, jobId = st.jobId;
@@ -1252,14 +1553,16 @@ export default async function handler(req, res) {
         groups[key].applicants.push({
           id: pg.id,
           name: txt(p["Candidate Name"]),
-          role: txt(p["Target Role"]) || txt(p["Original Position"]),
-          city: txt(p["City"]),
+          role: roleOf(p),
+          city: normCity(txt(p["City"])),
           nationalityType: txt(p["Nationality Type"]),
           stage: STAGE_KEY[txt(p["Pipeline Stage"])] || "new",
-          score: applicantScore(p).score,
+          // الدرجة المحفوظة لوظيفةٍ أخرى ليست لهذا الصاحب (ownedScore)، و`scoreJob`
+          // معرّف وظيفته التي قُيِّم عليها فتقارنها المطابقة بالإعلان المختار.
+          ...(() => { const o = ownedScore(p, ownJobs); return { score: o.score, scoreJob: o.job }; })(),
           registered: pg.created_time,
-          experience: (p["Experience Years"] && p["Experience Years"].number) || 0,
-          skills: txt(p["Skills"]),
+          experience: expYears(p) || 0,
+          skills: skillsOf(p),
           email: txt(p["Email"]),
           phone: txt(p["Phone"]),
           cv: (p["CV Link"] && p["CV Link"].url) || (p["ATS CV (Drive)"] && p["ATS CV (Drive)"].url) || "",
@@ -1304,20 +1607,22 @@ export default async function handler(req, res) {
       const pdata = await page.json();
       const p = pdata.properties || {};
       const notMine = () => { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); };
-      if (p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox) return notMine();
+      // غير المقروء كغير الموجود: 404 نفسها، فلا يُعرف أن الصفّ موجودٌ وغير مقروء.
+      if (!isReadable(p)) return notMine();
       const st = applicantStamp(p);
       if (ownJobs && (!st || !ownJobs.has(st.key))) return notMine();
 
-      // السيرة المهيّأة: الحقل، ثم جسم الصفحة. ويُقال مصدرها كي تعرف الواجهة
-      // الفرق بين «لم تُقرأ بعد» و«قُرئت ولا نصّ فيها».
-      let cvText = txt(p["ATS CV Text"]);
-      let cvFrom = cvText ? "field" : "";
-      if (!cvText) { cvText = await readCvBody(aId); cvFrom = cvText ? "page" : ""; }
+      // السيرة المهيّأة من حقل «ATS CV Text» وحده: لا صفّ مقروءٌ بلا نصّه (isReadable)،
+      // فلا قراءةَ احتياطية من جسم الصفحة.
+      const cvText = txt(p["ATS CV Text"]);
+      const cvFrom = "field";
 
-      const sc = applicantScore(p);
+      const sc = ownedScore(p, ownJobs);
       res.statusCode = 200;
-      // ولا حقل أوسع من هذه: الاسم والبُرُد والجوّال تعيدها القائمة أصلاً،
-      // وتوسيع المُعاد في نقطةٍ تخصّ البيانات الشخصية قرار مالك لا تحسيناً.
+      // الاسم والبُرُد والجوّال تعيدها القائمة أصلاً. وأُضيف هنا (2026-10-01)
+      // الحقول **المهنية** المنظَّمة التي تبني منها اللوحةُ مربّعاتها — بقرار
+      // المالك — بلا راتبٍ ولا حالة مقابلةٍ داخلية. كلّها من أعمدة القاعدة.
+      const ex = expYears(p);
       return res.end(JSON.stringify({ ok: true, candidate: {
         id: pdata.id || aId,
         cvText, cvFrom,
@@ -1328,15 +1633,28 @@ export default async function handler(req, res) {
         cvLink: txt(p["CV Link"]),
         atsDocUrl: txt(p["ATS CV (Drive)"]),
         score: sc.score, scoreFrom: sc.scoreFrom,
-        scoreReason: txt(p["مبرر الدرجة"]),
-        scoredFor: txt(p["الوظيفة المُقيَّم عليها"]),
-        scoredAt: p["تاريخ التقييم"] && p["تاريخ التقييم"].date ? p["تاريخ التقييم"].date.start : "",
+        scoreReason: sc.reason,
+        scoredFor: sc.scoredFor,
+        scoredAt: sc.scoredAt,
         // التوطين والامتثال: مقروءان من حقليهما كما هما، بلا حسابٍ ولا ترجيح.
         // و٢٢٠ صفاً في القاعدة يحملان فيها قيمتين متناقضتين — يُعرضان معاً
         // ويُسأل عنهما، ولا تختار الواجهة لصاحب العمل بصمت.
         saudization: txt(p["التوطين Saudization"]),
         compliance: txt(p["الامتثال Compliance"]),
         saudizationDetails: txt(p["تفاصيل التوطين"]),
+        // الحقول المنظَّمة للوحة:
+        field: txt(p["Field"]),
+        role: roleOf(p),
+        originalPosition: txt(p["Original Position"]).trim(),
+        city: normCity(txt(p["City"])), country: normCountry(txt(p["Country"])),
+        experience: ex == null ? "" : String(ex),
+        education: txt(p["Education"]), languages: txt(p["Languages"]), skills: skillsOf(p),
+        availability: txt(p["Availability"]),
+        nationalityType: txt(p["Nationality Type"]), nationality: normNationality(txt(p["Nationality"])),
+        residenceStatus: txt(p["حالة الإقامة"]),
+        region: txt(p["الخبرة الإقليمية"]),
+        countries: (p["دول الخبرة"] && p["دول الخبرة"].multi_select ? p["دول الخبرة"].multi_select : []).map((o) => o.name),
+        registered: pdata.created_time || "",
       } }));
     } catch (e) {
       console.error("applicant detail error", e);
@@ -1354,44 +1672,192 @@ export default async function handler(req, res) {
     if (page.status === 404) { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); }
     if (!page.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
     const pdata = await page.json();
-    if (pdata.properties && pdata.properties["مخفي عن الموقع"] && pdata.properties["مخفي عن الموقع"].checkbox) {
+    // غير المقروء (أو المخفي) = 404 كأنه غير موجود — الفحص نفسه الذي في القائمة.
+    if (!isReadable(pdata.properties)) {
       res.statusCode = 404;
       return res.end(JSON.stringify({ ok: false, error: "not_found" }));
     }
+    // نصّ السيرة من حقل «ATS CV Text» (mapCandidate يضعه): لا صفّ مقروءٌ بلا نصّه.
     const cand = mapCandidate(pdata, unlocked, { full: true });
-    // The formatted ATS CV usually lives as the candidate PAGE BODY in Notion
-    // (structured sections), not in the "ATS CV Text" property — read the
-    // blocks as a markdown-ish fallback so the site can render the CV inline
-    // instead of only offering a file download.
-    if (unlocked && !cand.cvText) cand.cvText = await readCvBody(qId);
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: cand }));
   }
 
-  // Server-side Notion filter: only the website-sourced / active candidates.
-  // "مخفي عن الموقع" = true means the CV failed to parse / is unreadable — the
-  // ingestion pipeline flags it for review and it must never reach employers.
-  // City/country/field/nationality are pushed into the query too (not just
-  // filtered from the fetched page client-side) so a filtered search doesn't
-  // have to page through the whole ~17k-row database to find a few hundred matches.
-  const notHidden = { property: "مخفي عن الموقع", checkbox: { equals: false } };
-  const andFilters = [notHidden];
-  if (qField) andFilters.push({ property: "Field", select: { equals: qField } });
-  if (qCity) andFilters.push({ property: "City", rich_text: { contains: qCity } });
+  // ── قائمة المرشحين: قاعدة المواهب ──────────────────────────────────────────
+  // «المقروء» وحده يخرج (readableFilters): حالة القراءة «مكتمل» ونصّ ATS غير فارغ
+  // وغير مخفي — شرطٌ في استعلام نوشن نفسه لا فرزٌ بعد الجلب. ومعه المدينة
+  // والمجال والجنسية… كلّها تُدفع إلى الاستعلام (لا تُجلب ثم تُصفّى) كي لا يمشي
+  // طلبٌ مصفّى على القاعدة كلّها بحثاً عن بضع مئات.
+  //
+  // نمطان، والفرق مقصود:
+  //  • مصفَّح (?limit=N): **صفحةٌ واحدة من نوشن** لكل طلب، ومعها nextCursor. هذا ما
+  //    تستعمله بوابة صاحب العمل: تعرض ما وصل فعلاً وتطلب التالي بزرّ، و`q` يُدفع
+  //    إلى نوشن فلا يمسح طلبٌ واحد القاعدة. وهو الوحيد الذي يقبل ?forJob=.
+  //  • قديم (بلا limit): يمشي الصفحات حتى نفاد مهلته ويعيد المؤشّر ليُكمله
+  //    المنادي — كما كان تماماً، لأن صفحاتٍ لا يملكها هذا الملف (main.js وصفحة
+  //    الوظائف العامة) تقرأ منه ردّاً واحداً وتفلتر عليه، ولا يُكسر ما لا يُطلب
+  //    كسره. والمقروء يُطبَّق فيه كذلك.
+  const qEdu = (url.searchParams.get("edu") || "").trim();
+  const qLang = (url.searchParams.get("lang") || "").trim();
+  const qAvail = (url.searchParams.get("avail") || "").trim();
+  const qSort = (url.searchParams.get("sort") || "").trim();
+  const qMinExpRaw = (url.searchParams.get("minExp") || "").trim();
+  const qMinExp = qMinExpRaw !== "" && Number.isFinite(Number(qMinExpRaw)) && Number(qMinExpRaw) >= 0 ? Math.min(40, Number(qMinExpRaw)) : null;
+  const pagedN = Number(url.searchParams.get("limit"));
+  const paged = Number.isFinite(pagedN) && pagedN > 0;
+  const pageSize = paged ? Math.max(1, Math.min(100, Math.round(pagedN))) : 100;
+  const qForJob = (url.searchParams.get("forJob") || "").trim();
+  const qScored = url.searchParams.get("scored") === "1";
+
+  const andFilters = readableFilters();
+  const orOf = (list) => (list.length === 1 ? list[0] : { or: list });
+  let impossible = false;           // مجالٌ لا خيار له في القاعدة ⇒ لا مرشّح، لا خطأ 400
+  let jobCrit = null, jobKey0 = "", ownJobsM = null;
+
+  if (qForJob) {
+    // ?forJob= يكشف مرشّحين بمعايير إعلانٍ بعينه — فهو لصاحب الإعلان وحده: الإعلان
+    // يجب أن يكون في ownJobsFor (والمالك بلا حدّ)، وإلا 404 واحدة للمعرّف الخاطئ
+    // ولإعلان غيره. ولا يُسمح به لزائرٍ مقنَّع.
+    if (!paged) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "limit_required" })); }
+    if (!unlocked) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "locked" })); }
+    try {
+      const ownJobs0 = await ownJobsFor(code, owner);
+      if (ownJobs0 === false) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      jobKey0 = jobKey(qForJob);
+      const notYours = () => { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); };
+      if (ownJobs0 && !ownJobs0.has(jobKey0)) return notYours();
+      const jr = await notionFetch(`pages/${qForJob}`, "GET");
+      if (jr.status === 404 || jr.status === 400) return notYours();
+      if (!jr.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const jp = (await jr.json()).properties || {};
+      jobCrit = deriveCriteria({
+        title: txt(jp["العنوان الوظيفي"]), city: txt(jp["المدينة"]),
+        field: txt(jp["المجال"]), description: txt(jp["الوصف والمتطلبات"]),
+      }, { nat: qNat, cityHard: url.searchParams.get("cityHard") === "1", minExp: qMinExpRaw });
+      ownJobsM = ownJobs0;
+    } catch (e) {
+      console.error("forJob criteria error", String(e).slice(0, 160));
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ ok: false, error: "server_error" }));
+    }
+    if (jobCrit.field) andFilters.push(orOf(jobCrit.fieldVariants.map((f) => ({ property: "Field", select: { equals: f } }))));
+    if (jobCrit.cityHard) andFilters.push(orOf(cityRaw(jobCrit.city).map((c) => ({ property: "City", rich_text: { contains: c } }))));
+    if (jobCrit.minExp != null) andFilters.push({ property: "Experience Years", number: { greater_than_or_equal_to: jobCrit.minExp } });
+    if (jobCrit.nat) andFilters.push({ property: "Nationality Type", select: { equals: jobCrit.nat } });
+    if (qScored) {
+      andFilters.push({ property: "درجة المطابقة", number: { is_not_empty: true } });
+      andFilters.push({ property: "الوظيفة المُقيَّم عليها", rich_text: { contains: qForJob } });
+    }
+  } else {
+    if (qField) {
+      // «ضيافة وسياحة» و«ضيافة ومطاعم» مجالٌ واحد بتسميتين (fieldVariants).
+      const fv = fieldVariants(qField);
+      if (!fv.length) impossible = true;
+      else andFilters.push(orOf(fv.map((f) => ({ property: "Field", select: { equals: f } }))));
+    }
+    if (qCity) andFilters.push(orOf(cityRaw(qCity).map((c) => ({ property: "City", rich_text: { contains: c.toLowerCase() } }))));
+    if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
+    if (qMinExp != null) andFilters.push({ property: "Experience Years", number: { greater_than_or_equal_to: qMinExp } });
+  }
   if (qCountry) andFilters.push({ property: "Country", rich_text: { contains: qCountry } });
-  if (qNat) andFilters.push({ property: "Nationality Type", select: { equals: qNat } });
   // "inside" is every residence state that isn't "outside" — an employer
   // thinking "already here" doesn't care which iqama class it is.
   if (qRes === "داخل السعودية") andFilters.push({ property: "حالة الإقامة", select: { does_not_equal: "خارج السعودية" } });
   else if (qRes) andFilters.push({ property: "حالة الإقامة", select: { equals: qRes } });
   if (qRegion) andFilters.push({ property: "الخبرة الإقليمية", select: { equals: qRegion } });
-  const base = {
-    page_size: 100,
-    sorts: [{ property: "Candidate ID", direction: "descending" }],
-    filter: andFilters.length > 1 ? { and: andFilters } : notHidden,
+  if (["ثانوي", "دبلوم", "بكالوريوس", "ماجستير", "دكتوراه"].includes(qEdu)) andFilters.push({ property: "Education", select: { equals: qEdu } });
+  if (["العربية", "الإنجليزية", "أخرى"].includes(qLang)) andFilters.push({ property: "Languages", multi_select: { contains: qLang } });
+  if (["فوري", "خلال شهر", "خلال 3 أشهر"].includes(qAvail)) andFilters.push({ property: "Availability", select: { equals: qAvail } });
+  // `q` يُدفع إلى نوشن في المصفَّح: المسمّى الأصلي والمهارات، ونصّ السيرة لمن فُتح
+  // له وحده — البحث في نصّ السيرة لزائرٍ مقنَّع يجعل الصفحة أداة تحقّقٍ من محتوى
+  // سيرٍ لا يراها («هل في القاعدة من كتب كذا؟»).
+  if (paged && qText) {
+    const raw = (url.searchParams.get("q") || "").trim();
+    const likes = [
+      { property: "Original Position", rich_text: { contains: raw } },
+      { property: "Skills", rich_text: { contains: raw } },
+    ];
+    if (unlocked) likes.push({ property: "ATS CV Text", rich_text: { contains: raw } });
+    andFilters.push(orOf(likes));
+  }
+  const sorts = qScored
+    ? [{ property: "درجة المطابقة", direction: "descending" }]
+    : qSort === "exp"
+      ? [{ property: "Experience Years", direction: "descending" }, { property: "Candidate ID", direction: "descending" }]
+      : [{ property: "Candidate ID", direction: "descending" }];
+  const base = { page_size: pageSize, sorts, filter: andOf(andFilters) };
+
+  // صفحةٌ واحدة، مع إعادة المحاولة على 429.
+  const queryPage = async (body) => {
+    for (let attempt = 0; ; attempt++) {
+      const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (r.ok) return { ok: true, data: await r.json() };
+      if (r.status === 429 && attempt < 4) {
+        const retryAfter = Number(r.headers.get("retry-after"));
+        await new Promise((resolve) => setTimeout(resolve, retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt)));
+        continue;
+      }
+      console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
+      return { ok: false };
+    }
   };
 
   try {
+    if (impossible) {
+      return res.end(JSON.stringify({ ok: true, unlocked, plan, total: 0, candidates: [], nextCursor: null, done: true, ...(paged ? { poolTotal: null } : {}) }));
+    }
+
+    if (paged) {
+      const r = await queryPage(startCursor ? { ...base, start_cursor: startCursor } : base);
+      if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = r.data;
+      // فحصٌ ثانٍ على كل صفٍّ وصل — الاستعلام شرطٌ، وهذا حارسٌ يمسك ما فاته.
+      const pgs = (data.results || []).filter((pg) => isReadable(pg.properties));
+      let rows = pgs.map((pg) => {
+        const rec = mapCandidate(pg, unlocked);
+        if (jobCrit) {
+          const p = pg.properties || {};
+          rec.checks = checkRow(jobCrit, {
+            field: rec.field, city: rec.city, experience: expYears(p), role: rec.role, nationalityType: rec.nationalityType,
+          }).checks;
+          const st = applicantStamp(p);
+          rec.applied = !!(st && st.key === jobKey0);
+          const o = ownedScore(p, ownJobsM);
+          if (o.score != null && o.job === jobKey0 && o.scoreFrom === "field" && o.reason) {
+            const cf = confidenceOf({ cvLen: txt(p["ATS CV Text"]).trim().length, ...rec });
+            rec.match = { score: o.score, reason: o.reason, at: o.scoredAt, for: o.scoredFor, confidence: cf.level, confidenceWhy: cf.why };
+          }
+        }
+        return rec;
+      });
+      // فلتر مسمّى/كلمة في الذاكرة لا يلزم هنا: q دُفع إلى الاستعلام.
+      const next = data.has_more && data.next_cursor ? data.next_cursor : null;
+      // الإجمالي: نوشن بلا COUNT. فلا يُخمَّن — يُقرأ من العدّاد المخزَّن (يُحسب
+      // مرةً يومياً بمشيٍ كامل ?count=1) وحين تكون القائمة بلا أي فلتر وحدها،
+      // فمع أي فلتر لا إجماليَّ معروف ويبقى العدّ «ما وصل» فقط.
+      const unfiltered = !jobCrit && !startCursor && !qField && !qCity && !qCountry && !qNat && !qRes && !qRegion
+        && !qText && !qEdu && !qLang && !qAvail && qMinExp == null;
+      let poolTotal = null, poolTotalAt = "", poolTotalStale = false;
+      if (unfiltered) {
+        const c = await readCachedCount();
+        if (c) { poolTotal = c.value; poolTotalAt = c.at; poolTotalStale = c.stale; }
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        ok: true, unlocked, plan, total: rows.length, candidates: rows,
+        nextCursor: next, done: !next,
+        poolTotal, ...(poolTotal != null ? { poolTotalAt, poolTotalStale } : {}),
+        ...(jobCrit ? { criteria: {
+          field: jobCrit.field, city: jobCrit.city, cityHard: jobCrit.cityHard,
+          minExp: jobCrit.minExp, minExpFrom: jobCrit.minExpFrom, nat: jobCrit.nat,
+        } } : {}),
+      }));
+    }
+
     // Page through the (filtered) result set so employers see ALL matching
     // candidates, not just the first page (Notion caps a page at 100) — but
     // bounded by a wall-clock time budget, not just a page-count guard: the
@@ -1410,39 +1876,19 @@ export default async function handler(req, res) {
     let truncated = false;
     for (let guard = 0; guard < 300; guard++) {
       const body = cursor ? { ...base, start_cursor: cursor } : base;
-      // A full scan can take 100+ sequential requests against Notion's
-      // ~3 req/s rate limit, so a single 429 mid-scan used to fail the whole
-      // request (that's what "Couldn't query Notion" meant in practice, not
-      // an actual sharing/permission problem). Retry 429s a few times with
-      // backoff (honoring Retry-After when Notion sends one) before giving up.
-      let r, data;
-      for (let attempt = 0; ; attempt++) {
-        r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (r.ok) { data = await r.json(); break; }
-        if (r.status === 429 && attempt < 4 && Date.now() < deadline) {
-          const retryAfter = Number(r.headers.get("retry-after"));
-          const waitMs = retryAfter > 0 ? retryAfter * 1000 : 300 * Math.pow(2, attempt);
-          await new Promise((resolve) => setTimeout(resolve, waitMs));
-          continue;
-        }
-        console.error("Notion query error", r.status, (await r.text()).slice(0, 400));
-        res.statusCode = 502;
-        return res.end(JSON.stringify({ ok: false, error: "notion_failed" }));
-      }
+      const r = await queryPage(body);
+      if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
+      const data = r.data;
       results = results.concat(data.results || []);
       if (!data.has_more || !data.next_cursor) { cursor = null; break; }
       cursor = data.next_cursor;
       if (Date.now() > deadline) { truncated = true; break; }
     }
-    let rows = results.map((pg) => mapCandidate(pg, unlocked));
+    let rows = results.filter((pg) => isReadable(pg.properties)).map((pg) => mapCandidate(pg, unlocked, { cvInList: true }));
 
     // Free-text search across role/skills/field — no clean single Notion
-    // filter for an OR-across-properties "contains", so it's applied here
-    // against the already city/nationality/field-filtered rows from Notion.
+    // filter for an OR-across-properties "contains" on a select, so in the
+    // legacy (un-paged) mode it is applied here against the already filtered rows.
     if (qText) rows = rows.filter((x) => (x.role + " " + x.skills + " " + x.field).toLowerCase().includes(qText));
 
     res.statusCode = 200;
