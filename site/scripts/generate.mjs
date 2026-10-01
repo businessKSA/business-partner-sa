@@ -3255,8 +3255,8 @@ function buildPackages() {
     <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
     <div class="steps-grid">${[
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
-      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
-      [L("Payment is confirmed", "يتأكد الدفع"), L("Online payment activates your subscription instantly; a bank transfer activates it as soon as the receipt is verified.", "الدفع الإلكتروني يفعّل اشتراكك فوراً؛ والتحويل البنكي يفعّله فور التحقق من الإيصال.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.", "ثم ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا.")],
+      [L("Payment is confirmed", "يتأكد الدفع"), L("Your subscription activates the moment the online payment is confirmed.", "يتفعّل اشتراكك فور تأكيد الدفع الإلكتروني.")],
       [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
@@ -5114,7 +5114,7 @@ function buildMahfolTrips() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
-    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
@@ -5629,7 +5629,7 @@ function buildEmployerJoin() {
   <section class="section"><div class="container">
     <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
     ${employerPlanCards({ selectable: true })}
-    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online for instant activation — or by bank transfer and we activate right after verifying it.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً فيتفعّل وصولك فوراً — أو بالتحويل البنكي ونفعّله فور التحقق منه.")}</p>
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا فيتفعّل وصولك فوراً.")}</p>
   </div></section>`;
   return sv1LegacyApp({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
@@ -9272,7 +9272,7 @@ function buildConnect(pre = "/") {
         <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
       </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد تأكيد الدفع نفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -9289,8 +9289,8 @@ function buildConnect(pre = "/") {
       <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
       <div class="jgrid">
         <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة${SHOW_PRICES ? " (500 ﷼/شهرياً للموظف)" : ""}.</span></div>
-        <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
-        <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
+        <div class="jstep"><span class="jn">2</span><b>ادفع إلكترونياً</b><span>أكمل الطلب من السلة وادفع بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا — يصلك رقم طلب مثل BP-506275.</span></div>
+        <div class="jstep"><span class="jn">3</span><b>يتأكد الدفع ونفعّل</b><span>يتأكد الدفع تلقائياً ويُعتمد طلبك — رقم طلبك نفسه يصير كود التفعيل.</span></div>
         <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="${pre}portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
         <div class="jstep"><span class="jn">5</span><b>اشتغل واربط أدواتك</b><span>حادث موظفك بلغتك العادية، واربط Gmail ونوشن وأدواتك من مركز الربط أعلاه.</span></div>
       </div>
@@ -10345,7 +10345,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
         <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online for instant activation, or by bank transfer with the receipt.", "ادفع إلكترونياً فيتفعّل فوراً، أو بتحويل بنكي مع رفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.", "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا فيتفعّل فوراً.")}</p></div>
         <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
