@@ -22,6 +22,8 @@ import { aiText, aiAvailable } from "./hire.js";
 // قارئ المستندات الخاص بنا — ملكُ `document-ai`، يُقرأ منه ولا يُكتب فيه.
 // المُصدَّر وحده، بحدوده كما هي (DOC_MIME_OK, MAX_DOC_BYTES).
 import { readDocumentRaw, DOC_MIME_OK, MAX_DOC_BYTES, azureReady, docIntelReady } from "./_docread.js";
+// المهنة الموحّدة — وحدةٌ صِرفة يشاركها البحث والمطابقة والباك فيل (لا شبكة ولا قاعدة بيانات فيها).
+import { canonicalOccupation, occupationOptionName, CONFIDENCE_AR } from "./_occupations.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -644,24 +646,72 @@ export function rowNationalityKind(props) {
 // نفس نمط `notionWriteOptional` في api/candidates.js.
 const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier/i;
 async function notionWriteOptional(path, method, payload, optionalProps, label) {
-  const names = optionalProps.filter((n) => payload.properties && payload.properties[n] != null);
-  const r = await notion(path, method, payload);
-  if (r.ok || !names.length || r.status !== 400) return r;
-  const body = await r.text();
-  if (!MISSING_PROP_RE.test(body)) {
-    return { ok: false, status: r.status, text: async () => body, json: async () => { try { return JSON.parse(body); } catch { return {}; } } };
+  // نوشن يسمّي **أول** خاصيةٍ غائبة في رسالة الخطأ، فنُسقط المسمّاة وحدها ونعيد المحاولة — لا كلَّ
+  // الخصائص الاختيارية: إعادةُ تسمية «المهنة الموحّدة» لا يجوز أن تُسقط معها حالةَ القراءة والتوطين.
+  // وإن لم تُسمَّ خاصيةٌ منها في الرسالة أُسقطت كلها (السلوك الأول) فلا يضيع طلبٌ حقيقي.
+  let props = { ...payload.properties };
+  const dropped = [];
+  for (let attempt = 0; attempt <= optionalProps.length; attempt++) {
+    const names = optionalProps.filter((n) => props[n] != null);
+    const r = await notion(path, method, { ...payload, properties: props });
+    if (r.ok || !names.length || r.status !== 400) {
+      if (dropped.length) { try { r.droppedProps = dropped; } catch { /* الردّ مُجمَّد — لا يضرّ */ } }
+      return r;
+    }
+    const body = await r.text();
+    if (!MISSING_PROP_RE.test(body)) {
+      return { ok: false, status: r.status, text: async () => body, json: async () => { try { return JSON.parse(body); } catch { return {}; } } };
+    }
+    const named = names.filter((n) => body.includes(n));
+    const drop = named.length ? named : names;
+    console.warn(`${label}: قاعدة المرشحين لا تحتوي ${drop.join(" / ")} — أُعيدت الكتابة بدونها. نوشن قال:`, body.slice(0, 220));
+    props = { ...props };
+    for (const n of drop) { delete props[n]; dropped.push(n); }
   }
-  console.warn(`${label}: قاعدة المرشحين لا تحتوي ${names.join(" / ")} — أُعيدت الكتابة بدونها. نوشن قال:`, body.slice(0, 220));
-  const props = { ...payload.properties };
-  for (const n of names) delete props[n];
-  const r2 = await notion(path, method, { ...payload, properties: props });
-  try { r2.droppedProps = names; } catch { /* الردّ مُجمَّد — لا يضرّ */ }
-  return r2;
+  return notion(path, method, { ...payload, properties: props });
 }
+/* ═════════════════════ المهنة الموحّدة للمتقدّم عبر الموقع ═════════════════════
+ *
+ * جدول المرشّحين يُبحث فيه ويُطابَق على «مهنة» واحدة لكل مرشّح، لا على نصٍّ حرّ
+ * («CDP» و«Chef de Partie» و«شيف قسم» مهنةٌ واحدة). التصنيف في `api/_occupations.js`
+ * (دالةٌ صِرفة)، وهنا الكتابة فقط، على عمودين select في القاعدة (أُضيفا 2026-10-01):
+ * «المهنة الموحّدة» بقيمة «العربي | English»، و«ثقة المهنة» (عالية/متوسطة/منخفضة).
+ *
+ * ⚠️ المصدر هنا **مسمّى كتبه المرشّح عن نفسه** في الاستمارة (`field`)، لا آخر منصبٍ
+ * في سيرته — فالصفّ الجديد لا «Original Position» فيه، ولا نصّ سيرةٍ يُستخرج منه
+ * آخر دورٍ بتاريخ بلا نداء نموذج. لذا تُحجَب الثقة عند «متوسطة» مهما كانت مطابقة
+ * الاسم تامة: هي ثقةٌ في أن الاسم هو هذه المهنة، لا في أنها آخر ما عمل. والباك فيل
+ * (من نصّ السيرة) هو من يرفعها. وعنوان الإعلان المتقدَّم إليه **لا** يُعدّ مسمّى:
+ * من تقدّم لوظيفة «نادل» لم يقل إنه نادل (بخلاف التوطين الذي يكتفي بعنوانٍ بديل).
+ *
+ * وما حُسم لا يُنسخ عليه حسابنا: صفٌّ مهنته مكتوبة (من الباك فيل أو من موظف) لا
+ * تمحوها إعادةُ تقديمٍ بمسمّى آخر. و«غير مصنّف» ليست قراراً بل غيابُ قرار، فيجوز
+ * أن يُستبدل بمهنةٍ حين يتبيّن. والخاصيتان اختياريتان (`STATUS_PROPS`): قاعدةٌ
+ * لا عمودَ فيها لا يسقط معها إنشاء المرشّح.
+ */
+export const OCC_PROP = "المهنة الموحّدة";
+export const OCC_CONF_PROP = "ثقة المهنة";
+export const OCC_PROPS = [OCC_PROP, OCC_CONF_PROP];
+const OCC_NONE = occupationOptionName("unclassified");
+export function applyOccupation(props, title, existingProps, fieldCategory) {
+  const sel = (k) => { const p = existingProps && existingProps[k]; return (p && p.select && p.select.name) || ""; };
+  const cur = sel(OCC_PROP);
+  if (cur && cur !== OCC_NONE) return props;            // مهنةٌ محسومة — لا تُمسّ
+  const t = String(title || "").trim();
+  if (!t) return props;                                  // لم يقل شيئاً ⇒ لا نكتب حتى «غير مصنّف»
+  const calc = canonicalOccupation(t, { field: fieldCategory || "" });
+  if (calc.id === "unclassified" && cur === OCC_NONE) return props;
+  const conf = calc.confidence === "high" ? "medium" : calc.confidence;   // مسمّىً ذكره بنفسه لا آخر منصب
+  props[OCC_PROP] = { select: { name: occupationOptionName(calc.id) } };
+  props[OCC_CONF_PROP] = { select: { name: CONFIDENCE_AR[conf] || CONFIDENCE_AR.low } };
+  return props;
+}
+
 // الخصائص التي يُعاد الكتابة بدونها إن لم تكن في المخطّط. التوطين والامتثال
 // ثلاثُ خصائص قائمة (فُحصت على القاعدة الحقيقية)، لكن إعادة تسمية إحداها
-// بضغطة في نوشن لا يجوز أن تُسقط تقديمَ مرشّحٍ حقيقي.
-const STATUS_PROPS = [READ_PROP, REASON_PROP, ...SAUD_PROPS];
+// بضغطة في نوشن لا يجوز أن تُسقط تقديمَ مرشّحٍ حقيقي. والمهنة الموحّدة عمودان
+// حديثان (2026-10-01) فهما أولى بهذا الحارس.
+const STATUS_PROPS = [READ_PROP, REASON_PROP, ...SAUD_PROPS, ...OCC_PROPS];
 
 // Calls the n8n ATS workflow and waits for its enrichment (CV text extraction,
 // AI screening, Drive storage links) so it can be folded into the same Notion
@@ -1680,6 +1730,8 @@ export default async function handler(req, res) {
       const hadCv = !!((existing.properties && existing.properties["ATS CV Text"] && existing.properties["ATS CV Text"].rich_text) || []).length;
       applyCvReadStatus(props, cvOutcome, hadCv);
       applySaudization(props, saud, natKind, existing.properties);
+      // صفٌّ قائم: مسمّاه المكتوب في القاعدة (Original Position) أصدقُ من مسمّى هذا التقديم.
+      applyOccupation(props, txt(exProps["Original Position"]) || field, existing.properties, fieldCat);
       const r = await notionWriteOptional("pages/" + existing.id, "PATCH", { properties: props }, STATUS_PROPS, "candidate update");
       if (!r.ok) {
         console.error("Notion update error", r.status, (await r.text()).slice(0, 400));
@@ -1700,6 +1752,7 @@ export default async function handler(req, res) {
     applyN8nEnrichment(props, n8n, true);
     applyCvReadStatus(props, cvOutcome, false);
     applySaudization(props, saud, natKind, null);
+    applyOccupation(props, field, null, fieldCat);
     // n8n has already spent most of the budget, so the rewrite only runs inline
     // when there is real time left; otherwise the row is queued and the catch-up
     // pass picks it up. Either way the candidate's mail carries the best CV we
