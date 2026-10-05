@@ -1078,6 +1078,13 @@ function applyCvBoost(props, boost) {
 }
 const CRON_SECRET = (process.env.CRON_SECRET || "").trim();
 const cronOk = (req) => !!CRON_SECRET && String((req.headers && req.headers.authorization) || "") === `Bearer ${CRON_SECRET}`;
+// سرٌّ مستقلٌّ لمشغّلٍ خارجيٍّ (n8n) يقرأ السير على دفعات: يفتح مساري القراءة والاستدراك
+// وحدهما (`extract-cvs` و`occupation-backfill`) ولا يفتح غيرهما. وهو ليس CRON_SECRET عمداً:
+// ضبط CRON_SECRET يشغّل مهامّ الكرون كلّها (نسخ المرشّحين اليومي والنشرة)، وهذا السرّ لا يشغّل
+// إلا قراءة سيرٍ تكتب نصّها في خانتها.
+const RUNNER_SECRET = (process.env.CV_RUNNER_SECRET || "").trim();
+export const runnerOk = (req) => RUNNER_SECRET.length >= 24
+  && String((req.headers && req.headers.authorization) || "") === `Bearer ${RUNNER_SECRET}`;
 const SENT_FLAG = "أُرسلت نسخة المرشح";
 const SENT_DATE = "تاريخ إرسال نسخة المرشح";
 
@@ -1248,7 +1255,7 @@ async function fetchCvBytes(url, ms) {
 
 async function extractPendingCvs(b, res, req) {
   const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
-  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req);
+  const authed = (OWNER_KEY && String(b.key || "").trim() === OWNER_KEY) || cronOk(req) || runnerOk(req);
   if (!authed) return send(403, { ok: false, error: "forbidden" });
   if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
   if (!azureReady()) return send(503, { ok: false, error: "azure_not_configured" });
@@ -1264,6 +1271,9 @@ async function extractPendingCvs(b, res, req) {
         { property: "ATS CV Text", rich_text: { is_empty: true } },
         { property: "CV Link", url: { is_not_empty: true } },
         { property: REASON_PROP, rich_text: { does_not_contain: CATCHUP_MARK } },
+        // applicants=1: من تقدّم على إعلانٍ أولاً — هم من يراهم صاحب العمل في لوحته الآن.
+        ...((b.applicants === true || b.applicants === "1" || b.applicants === "true")
+          ? [{ property: "الوظيفة المتقدم لها", rich_text: { is_not_empty: true } }] : []),
       ],
     },
     sorts: [{ timestamp: "created_time", direction: "descending" }],
@@ -1550,7 +1560,7 @@ async function extractLastRole(exp, timeoutMs) {
 
 async function occupationBackfill(b, res, req) {
   const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
-  if (!ownerAuthed(b, req)) return send(403, { ok: false, error: "forbidden" });
+  if (!ownerAuthed(b, req) && !runnerOk(req)) return send(403, { ok: false, error: "forbidden" });
   if (!NOTION_TOKEN) return send(503, { ok: false, error: "not_configured" });
   const dryRun = boolArg(b.dryRun);
   if (!dryRun && !azureConfigured()) return send(503, { ok: false, error: "azure_not_configured" });
@@ -1655,6 +1665,7 @@ export default async function handler(req, res) {
         key: url.searchParams.get("key") || "",
         limit: url.searchParams.get("limit") || 2,
         dryRun: url.searchParams.get("dryRun") || false,
+        applicants: url.searchParams.get("applicants") || false,
       }, res, req);
     }
     // إصلاحُ الامتثال المتناقض واستدراكُ التوطين: مسارا مالكٍ بنفس مصادقة
