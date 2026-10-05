@@ -220,6 +220,13 @@ unreadable("حالة فارغة", "0560000004", "");
 unreadable("مكتمل بلا نصّ ATS", "0560000005", "مكتمل", { "ATS CV Text": rt("") });
 unreadable("مخفي عن الموقع", "0560000006", "مكتمل", { "مخفي عن الموقع": cb(true) });
 
+// المتقدّم يظهر لصاحب الإعلان **دائماً** ولو لم تُقرأ سيرته (إلا إن أُخفي صراحةً):
+// يوم نُشر فلتر «المقروء» اختفى ١٢٠ من ١٢١ متقدّماً حقيقياً. فهؤلاء يُعدّون هنا
+// متقدّمين ظاهرين، أما قاعدة المواهب والمطابقة فتبقى على «المقروء».
+const HIDDEN_NAME = "غير مقروء — مخفي عن الموقع";
+const UNREAD_VISIBLE = [...UNREADABLE.filter((n) => n !== HIDDEN_NAME), BODY_CV];
+const EMPLOYER_SEES = () => [...EMPLOYERS_OWN, ...UNREAD_VISIBLE];
+
 // ما يعدّه الاختبار «مقروءاً» — مكتوبٌ هنا بيدٍ مستقلةٍ عن api/candidates.js كي لا
 // يقيس الاختبار الكودَ بنفسه.
 const isReadableRow = (r) => !(r.properties["مخفي عن الموقع"] || {}).checkbox
@@ -417,7 +424,7 @@ test("صاحب عمل عادي لا يرى إلا متقدّمي إعلانات�
   assert.equal(status, 200);
   assert.equal(data.ok, true);
 
-  assert.deepEqual(names(data), [...EMPLOYERS_OWN].sort(),
+  assert.deepEqual(names(data), EMPLOYER_SEES().sort(),
     "قائمة المتقدّمين العائدة لصاحب العمل ليست متقدّمي إعلانه بالضبط");
 
   for (const stranger of [...OWNERS_OWN, ...SITE_OWN]) {
@@ -440,7 +447,7 @@ test("المعرّف بلا شرطات، وبأحرف كبيرة، والصفّ 
   for (const who of EMPLOYERS_OWN) {
     assert.ok(names(data).includes(who), `سقط متقدّمٌ حقيقي لإعلانٍ حقيقي: ${who}`);
   }
-  assert.equal(totalApplicants(data), EMPLOYERS_OWN.length);
+  assert.equal(totalApplicants(data), EMPLOYER_SEES().length);
 });
 
 test("الأشكال الثلاثة للمعرّف تندمج في مجموعةٍ واحدة بمعرّف الصفحة القانوني", async () => {
@@ -483,8 +490,8 @@ test("عميل بوابةٍ مسجّل (org:<id>) لا يرى متقدّم أح�
 test("المالك يبقى يرى كل المتقدّمين، ومنهم التسجيلات العامة ووظائف الموقع", async () => {
   const { status, data } = await applicantsFor(SID.owner);
   assert.equal(status, 200);
-  // «يرى الكل» = كل **المقروء**: المالك لا يُستثنى من الإخفاء.
-  const readable = ATS_ROWS.filter(isReadableRow).filter((r) => rtText(r.properties["الوظيفة المتقدم لها"]) !== "" || rtText(r.properties["Notes"]).includes("تقديم عبر الموقع")).length;
+  // «يرى الكل» = كل متقدّمٍ غير مخفي (قُرئت سيرته أو لم تُقرأ).
+  const readable = ATS_ROWS.filter((r) => !(r.properties["مخفي عن الموقع"] || {}).checkbox).filter((r) => rtText(r.properties["الوظيفة المتقدم لها"]) !== "" || rtText(r.properties["Notes"]).includes("تقديم عبر الموقع")).length;
   assert.equal(totalApplicants(data), readable,
     `المالك يرى ${totalApplicants(data)} من ${readable}`);
   for (const who of [...OWNERS_OWN, ...EMPLOYERS_OWN, ...SITE_OWN]) {
@@ -604,14 +611,19 @@ test("⑨ الدرجة القديمة في Notes تبقى تُقرأ (الحقل
   assert.equal(card.score, 64, "البطاقة والملف يعطيان درجتين مختلفتين");
 });
 
-test("⑩ سيرةٌ في جسم الصفحة وحقل ATS فارغ = غير مقروء: تختفي من القائمة والملفّ", async () => {
-  // كانت تُقرأ احتياطياً من الكتل. بقرار المالك (2026-10-01) «بلا نصّ ATS» لا يظهر.
+test("⑩ متقدّمٌ سيرته في جسم الصفحة وحقل ATS فارغ: يظهر، بلا نصّ، وبعلامة «لم تُقرأ»", async () => {
+  // يظهر في القائمة والملفّ (طلبٌ وصل). ولا يُقرأ جسم الصفحة احتياطياً: النصّ فارغ و cvReady=false.
   const { status, data, raw } = await detailFor(SID.employer, idOf(BODY_CV));
-  assert.equal(status, 404);
-  assert.equal(data.error, "not_found");
+  assert.equal(status, 200);
+  assert.equal(data.candidate.cvText, "");
+  assert.equal(data.candidate.cvReady, false);
   assert.ok(!raw.includes("محاسب أول — ثلاث سنوات"), "قُرئ جسم الصفحة لصفٍّ غير مقروء");
   const list = await applicantsFor(SID.employer);
-  assert.ok(!names(list.data).includes(BODY_CV));
+  assert.ok(names(list.data).includes(BODY_CV), "اختفى متقدّمٌ حقيقي لأن سيرته لم تُقرأ");
+  const card = (list.data.jobs[0].applicants || []).find((a) => a.name === BODY_CV);
+  assert.equal(card.cvReady, false);
+  const ok = (list.data.jobs[0].applicants || []).find((a) => a.name === RICH);
+  assert.equal(ok.cvReady, true);
 });
 
 test("⑪ القائمة لا تحمل نصّ سيرةٍ ولا مبرر درجة — الحمولة تبقى صغيرة", async () => {
@@ -645,43 +657,60 @@ test("⑫ غير المقروء لا يخرج من أي مسار — والشر�
     const row = ATS_ROWS.find((r) => (r.properties["Candidate Name"].title[0] || {}).plain_text === x) || ATS_ROWS.find((r) => r.id === x);
     return row.properties["Phone"].phone_number;
   });
-  const leak = (raw, where) => {
-    for (const n of BAD_NAMES) assert.ok(!raw.includes(n), `تسرّب «${n}» من ${where}`);
-    for (const ph0 of phones) assert.ok(!raw.includes(ph0), `تسرّب جوّال صفٍّ غير مقروء من ${where}`);
+  const leak = (raw, where, names0 = BAD_NAMES, phones0 = phones) => {
+    for (const n of names0) assert.ok(!raw.includes(n), `تسرّب «${n}» من ${where}`);
+    for (const ph0 of phones0) assert.ok(!raw.includes(ph0), `تسرّب جوّال صفٍّ غير مقروء من ${where}`);
   };
+  // قائمة المتقدّمين وملفّ المتقدّم: غير المقروء ظاهر (طلبٌ وصل)، والمخفي وحده يختفي.
+  const hiddenRow = ATS_ROWS.find((r) => (r.properties["Candidate Name"].title[0] || {}).plain_text === HIDDEN_NAME);
+  const hiddenPhone = hiddenRow.properties["Phone"].phone_number;
+  const appNames = [HIDDEN_NAME, ...P_BAD.map((id) => ATS_ROWS.find((r) => r.id === id).properties["Candidate Name"].title[0].plain_text)];
+  const appPhones = [hiddenPhone];
   for (const ignore of [false, true]) {
     ignoreAtsFilter = ignore;           // الحارس الثاني: نوشن «نسي» الفلتر
     try {
       const tag = ignore ? " (والمُحاكي تجاهل الفلتر)" : "";
       for (const sid of [SID.employer, SID.owner]) {
-        leak((await applicantsFor(sid)).raw, "قائمة المتقدّمين" + tag);
+        leak((await applicantsFor(sid)).raw, "قائمة المتقدّمين" + tag, appNames, appPhones);
         leak((await poolFor("limit=100", sid)).raw, "قاعدة المواهب المصفَّحة" + tag);
         leak((await poolFor("", sid)).raw, "قاعدة المواهب القديمة" + tag);
         leak((await poolFor(`limit=100&forJob=${EMPLOYER_JOB_ID}`, sid)).raw, "تصفية الإعلان" + tag);
       }
       // ملفّ الواحد: المتقدّم (applicant=1) والقاعدة (id=) والتقييم — 404 كغير الموجود.
       for (const id of [...UNREADABLE, ...P_BAD].map((x) => (x.startsWith("pool-") ? x : idOf(x)))) {
+        const hiddenId = id === idOf(HIDDEN_NAME) || id.startsWith("pool-");
         for (const sid of [SID.employer, SID.owner]) {
           const a = await detailFor(sid, id);
-          assert.equal(a.status, 404, `فُتح ملفّ متقدّمٍ غير مقروء ${id}` + tag);
+          // ملفّ المتقدّم: يُفتح لغير المقروء، ويُغلق للمخفي ولصفوف القاعدة (لا ختم تقديم).
+          assert.equal(a.status, hiddenId ? 404 : 200, `ملفّ المتقدّم ${id}` + tag);
           const b = await invoke({ method: "GET", url: `/api/candidates?id=${id}&code=self`, headers: { cookie: `bp_sid=${sid}` }, on() {} });
           assert.equal(b.status, 404, `فُتح ملفّ قاعدةٍ لغير مقروء ${id}` + tag);
-          leak(a.raw + b.raw, "ملفّ الواحد" + tag);
+          leak(b.raw, "ملفّ القاعدة" + tag);
+          if (hiddenId) leak(a.raw, "ملفّ المتقدّم المخفي" + tag);
         }
       }
     } finally { ignoreAtsFilter = false; }
   }
   // الشروط الثلاثة (+ المخفي) وصلت نوشن في **كل** استعلامٍ على قاعدة المرشحين.
   atsLog.length = 0;
-  await applicantsFor(SID.employer);
   await poolFor("limit=20");
   await poolFor("");
   await poolFor(`limit=20&forJob=${EMPLOYER_JOB_ID}`);
   await invoke({ method: "GET", url: "/api/candidates?count=1", headers: {}, on() {} });
-  assert.ok(atsLog.length >= 5, "لم يُسجَّل استعلام");
+  assert.ok(atsLog.length >= 4, "لم يُسجَّل استعلام");
   for (const body of atsLog) {
     const f = JSON.stringify(body.filter);
     for (const tok of READ_FILTER_TOKENS) assert.ok(f.includes(tok), `استعلامٌ وصل نوشن بلا ${tok}: ${f.slice(0, 200)}`);
+  }
+  // قائمة المتقدّمين: المخفي وحده في الاستعلام — لا شرط قراءة (وإلا اختفى كل من لا نصّ له).
+  atsLog.length = 0;
+  await applicantsFor(SID.employer);
+  assert.ok(atsLog.length >= 1);
+  for (const body of atsLog) {
+    const f = JSON.stringify(body.filter);
+    assert.ok(f.includes('"مخفي عن الموقع"'), "المخفي لا يُستثنى في استعلام المتقدّمين");
+    assert.ok(!f.includes('"ATS CV Text"') && !f.includes('"حالة القراءة"'),
+      "استعلام المتقدّمين يشترط القراءة فيُخفي من لا نصّ له: " + f.slice(0, 200));
   }
 });
 

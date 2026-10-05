@@ -322,6 +322,19 @@ export function readableFilters() {
   ];
 }
 const andOf = (list) => (list.length === 1 ? list[0] : { and: list });
+// من تقدّم على إعلانٍ لصاحب العمل يظهر له **دائماً** — حتى لو لم تُقرأ سيرته بعد.
+// «المقروء» (قرار 2026-10-01) يخصّ قاعدة المواهب والبحث والمطابقة: بنكٌ يتصفّحه
+// صاحب العمل. أما المتقدّم فهو طلبٌ وصله، وإخفاؤه يُضيّع عميلاً حقيقياً: يوم
+// نُشر الفلتر اختفى ١٢٠ من ١٢١ متقدّماً لأن مسار النموذج لم يكن يكتب نصّ ATS.
+// فالمتقدّم لا يُخفى إلا إن أخفاه المالك صراحةً («مخفي عن الموقع»).
+export function applicantVisible(p) {
+  p = p || {};
+  return !(p["مخفي عن الموقع"] && p["مخفي عن الموقع"].checkbox);
+}
+export function applicantFilters() {
+  return [{ property: "مخفي عن الموقع", checkbox: { equals: false } }];
+}
+
 
 // مفتاح مقارنة الوظيفة: معرّف الصفحة إن كان الوسم «العنوان (المعرّف)»، وإلا
 // النصّ مُسوّى. المعرّف يُجرَّد من شرطاته كما في jobKey، فشكل المعرّف لا
@@ -1794,14 +1807,13 @@ export default async function handler(req, res) {
         const r = await notionFetch(`databases/${DB_ID}/query`, "POST", {
           page_size: 100,
           ...(cursor ? { start_cursor: cursor } : {}),
-          // المقروء وحده: متقدّمٌ سيرته لم تُقرأ لا يظهر في لوحة أحد ولا يُعدّ
-          // في أي رقم — الشرط في الاستعلام نفسه لا في الواجهة (انظر isReadable).
+          // كل من تقدّم يظهر (غير المخفي) — قراءة السيرة لا تُخفي طلباً وصل (applicantVisible).
           filter: { and: [
             { or: [
               { property: "الوظيفة المتقدم لها", rich_text: { is_not_empty: true } },
               { property: "Notes", rich_text: { contains: "تقديم عبر الموقع" } },
             ] },
-            ...readableFilters(),
+            ...applicantFilters(),
           ] },
           sorts: [{ timestamp: "created_time", direction: "descending" }],
         });
@@ -1816,7 +1828,7 @@ export default async function handler(req, res) {
       const groups = {};
       for (const pg of rowsRaw) {
         const p = pg.properties || {};
-        if (!isReadable(p)) continue;
+        if (!applicantVisible(p)) continue;
         const st = applicantStamp(p);
         if (!st) continue;
         let jobTitle = st.jobTitle, jobId = st.jobId;
@@ -1851,6 +1863,8 @@ export default async function handler(req, res) {
           email: txt(p["Email"]),
           phone: txt(p["Phone"]),
           cv: (p["CV Link"] && p["CV Link"].url) || (p["ATS CV (Drive)"] && p["ATS CV (Drive)"].url) || "",
+          // false = وصل الطلب ولم تُقرأ السيرة بعد: يظهر المتقدّم، ويُقال إن السيرة قيد القراءة.
+          cvReady: isReadable(p),
         });
       }
       res.statusCode = 200;
@@ -1892,8 +1906,9 @@ export default async function handler(req, res) {
       const pdata = await page.json();
       const p = pdata.properties || {};
       const notMine = () => { res.statusCode = 404; return res.end(JSON.stringify({ ok: false, error: "not_found" })); };
-      // غير المقروء كغير الموجود: 404 نفسها، فلا يُعرف أن الصفّ موجودٌ وغير مقروء.
-      if (!isReadable(p)) return notMine();
+      // المخفي وحده كغير الموجود. وغير المقروء متقدّمٌ حقيقي يُفتح ملفّه (بلا نصّ سيرة).
+      // وصفّ قاعدةٍ غير مقروء (لا ختم تقديم) يبقى كغير الموجود حتى للمالك.
+      if (!applicantVisible(p) || (!isReadable(p) && !applicantStamp(p))) return notMine();
       const st = applicantStamp(p);
       if (ownJobs && (!st || !ownJobs.has(st.key))) return notMine();
 
@@ -1910,7 +1925,7 @@ export default async function handler(req, res) {
       const ex = expYears(p);
       return res.end(JSON.stringify({ ok: true, candidate: {
         id: pdata.id || aId,
-        cvText, cvFrom,
+        cvText, cvFrom, cvReady: isReadable(p),
         // الملف الأصلي كما رفعه المرشّح (api/candidate.js يكتبه في «CV Link»)،
         // والنسخة المهيّأة مستنداً على Drive. يُعادان كما هما بلا وعدٍ بأنهما
         // مفتوحان: ملفّات خطّ الإنتاج مملوكة لحساب الشركة على Drive وغير
