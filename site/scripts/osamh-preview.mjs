@@ -25,11 +25,30 @@ if (!fs.existsSync(SRC)) {
 
 fs.mkdirSync(OUT, { recursive: true });
 
+// Only the public page ships. The interactive prototype in this folder carries
+// the client's own commercial figures — commission rate, monthly revenue,
+// settlement totals — and was kept at an unlinked path while the project's SSO
+// protection was on, which made it genuinely private. That protection was
+// switched off so the public page could be reached without a login, and an
+// unlinked path is NOT private: the prototype became publicly fetchable by
+// anyone holding or guessing the URL. It is not deployed at all any more; it
+// lives in ops/ for the repository, and is shown to the client directly.
+const PUBLISHED = new Set(['index.html']);
+
 let copied = 0;
 for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
-  if (!entry.isFile()) continue;
+  if (!entry.isFile() || !PUBLISHED.has(entry.name)) continue;
   fs.copyFileSync(path.join(SRC, entry.name), path.join(OUT, entry.name));
   copied++;
+}
+
+// Build output is committed in this repository, so a page dropped from
+// PUBLISHED would otherwise survive in the checkout and keep being served.
+for (const entry of fs.readdirSync(OUT)) {
+  if (!PUBLISHED.has(entry)) {
+    fs.rmSync(path.join(OUT, entry), { force: true });
+    console.log(`Osamh preview: removed stale ${entry} from the build output`);
+  }
 }
 
 // Every page here is preview-only, so every page must carry noindex — not just

@@ -113,7 +113,6 @@
     {"source":"/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/business-development-dashboard","destination":"/assets/data/revenue-command-center"},
     {"source":"/","has":[{"type":"host","value":"osamh.businesspartner.sa"}],"destination":"/preview/osamh/index"},
-    {"source":"/prototype-k7m2","has":[{"type":"host","value":"osamh.businesspartner.sa"}],"destination":"/preview/osamh/prototype-k7m2"},
     {"source":"/","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/index"},
     {"source":"/join","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/join"},
     {"source":"/dashboard","has":[{"type":"host","value":"hr.businesspartner.sa"}],"destination":"/ar/portal/dashboard"},
