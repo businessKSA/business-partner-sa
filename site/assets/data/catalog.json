@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-01T17:33:41.061Z",
+  "updatedAt": "2026-10-05T21:14:02.339Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -2516,9 +2516,9 @@
       "category": "AI Automation",
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
       "govPlatform": "بدون جهة حكومية",
-      "pricingModel": "Monthly",
-      "amount": 5000,
-      "priceLabel": "5,000 ﷼ / شهرياً",
+      "pricingModel": "One Time",
+      "amount": 30000,
+      "priceLabel": "30,000 ﷼",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/bp-ai-01"
@@ -2895,8 +2895,8 @@
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
       "govPlatform": "بدون جهة حكومية",
       "pricingModel": "Monthly",
-      "amount": 250,
-      "priceLabel": "250 ﷼ / شهرياً",
+      "amount": 1000,
+      "priceLabel": "1,000 ﷼ / شهرياً",
       "govFeesSeparate": false,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-ai-03"
@@ -2937,8 +2937,8 @@
       "categoryAr": "الأتمتة والذكاء الاصطناعي",
       "govPlatform": "بدون جهة حكومية",
       "pricingModel": "One Time",
-      "amount": null,
-      "priceLabel": "سعر حسب حالتك",
+      "amount": 15000,
+      "priceLabel": "15,000 ﷼",
       "govFeesSeparate": false,
       "requiresProposal": true,
       "url": "https://businesspartner.sa/services/ai-gen"
@@ -3987,8 +3987,8 @@
       "categoryAr": "تأسيس الشركات",
       "govPlatform": "المركز السعودي للأعمال",
       "pricingModel": "One Time",
-      "amount": 1500,
-      "priceLabel": "1,500 ﷼",
+      "amount": 1000,
+      "priceLabel": "1,000 ﷼",
       "govFeesSeparate": true,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-sbc-31"
