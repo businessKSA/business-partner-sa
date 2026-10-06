@@ -22,6 +22,12 @@
     }
   },
   "redirects": [
+    {"source":"/(business-development)","destination":"/catalog","statusCode":302},
+    {"source":"/:lang(ar|fr|zh)/(business-development)","destination":"/:lang/catalog","statusCode":302},
+    {"source":"/:lang(es|hi|ja|ko|ru)/(business-development)","destination":"/catalog","statusCode":302},
+    {"source":"/services/(rev-ent|rev-growth|rev-launch|rev-pro|rev-start|rev-team)","destination":"/catalog","statusCode":302},
+    {"source":"/:lang(ar|fr|zh)/services/(rev-ent|rev-growth|rev-launch|rev-pro|rev-start|rev-team)","destination":"/:lang/catalog","statusCode":302},
+    {"source":"/:lang(es|hi|ja|ko|ru)/services/(rev-ent|rev-growth|rev-launch|rev-pro|rev-start|rev-team)","destination":"/catalog","statusCode":302},
     {
       "source": "/hr/employer",
       "destination": "/employer",

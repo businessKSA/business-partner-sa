@@ -22,6 +22,7 @@
 // العامة، فيراه العميل المسجَّل ولا يراه الزائر — قاعدة واحدة لا استثناء لها.
 import fs from "node:fs";
 import path from "node:path";
+import { visibleCatalogRows } from "./hidden.mjs";
 
 const T = {
   title:  { ar: "الخدمات والباقات", en: "Services & packages", fr: "Services et forfaits", zh: "服务与套餐" },
@@ -96,6 +97,10 @@ export function buildSimpleCatalog(SV1, ctx) {
 
   let raw = { services: [], packages: [] };
   try { raw = JSON.parse(fs.readFileSync(path.resolve("site/assets/data/catalog.json"), "utf8")); } catch {}
+  // ‏catalog.json يُكتب في آخر المولّد، وهذه الصفحة تُبنى قبله — فتقرأ نسخة
+  // البناء السابق. الإخفاء (site/data/hidden.json) يُطبَّق هنا أيضاً حتى لا
+  // يتأخر بناءٍ كاملاً عن الكتالوج.
+  raw = { ...raw, services: visibleCatalogRows(raw.services || []), packages: visibleCatalogRows(raw.packages || []) };
 
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
