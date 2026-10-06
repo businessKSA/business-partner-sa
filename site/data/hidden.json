@@ -1,0 +1,18 @@
+{
+  "_note": "إخفاء مركزي (قرار المالك 2026-10-06). services: أكواد خدمات من services.json أو باقات (مثل revos-launch أو BP-PKG-LAUNCH). pages: أسماء صفحات عامة بلا شرطة بادئة (مثل business-development). أضف الكود أو الاسم هنا ثم شغّل npm run build — لا تعديل في مكان آخر؛ احذفه وابنِ فيعود. الإخفاء للصفحات العامة فقط: لا يُمسّ services.json ولا لوحات العملاء (/my وRevenue OS) ولا /ops ولا api/. الصفحة أو الخدمة المخفية لا تُبنى، ويحوّلها vercel.json بـ302 إلى /catalog (أسطر statusCode:302 في vercel.json يولّدها البناء — لا تكتب بها يدوياً). التفاصيل في رأس site/scripts/hidden.mjs.",
+  "services": [
+    "REV-START",
+    "REV-LAUNCH",
+    "REV-GROWTH",
+    "REV-PRO",
+    "REV-TEAM",
+    "REV-ENT",
+    "revos-connect",
+    "revos-launch",
+    "revos-growth",
+    "revos-professional"
+  ],
+  "pages": [
+    "business-development"
+  ]
+}

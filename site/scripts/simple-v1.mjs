@@ -34,8 +34,10 @@ export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
 // ترحيب ولا نوع طلب ولا شبكة 2×2. true: أربعة أبواب. السبب في features.json.
 // يُقرأ هنا لا في generate.mjs: القيمة لا تخصّ غير هذه الصفحة، فلا يُلمس المولّد.
 import { readFileSync } from "node:fs";
+import { pageVisible } from "./hidden.mjs";
+// الباب لا يظهر أبداً والصفحة مخفية (site/data/hidden.json) حتى لو فُتح المفتاح.
 const BIZDEV_DOOR = (() => {
-  try { return JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
+  try { return pageVisible("business-development") && JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
   catch { return false; }
 })();
 // بطاقة «موظفون على بند التعاقد (EOR)» في الرئيسية (أمر المالك 2026-10-01): العنوان
@@ -739,7 +741,7 @@ export function simpleV1(ctx) {
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
-      <a href="${href("/business-development")}">${t("navBizDev")}</a>
+      ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
       <h5>${t("footKnow")}</h5>

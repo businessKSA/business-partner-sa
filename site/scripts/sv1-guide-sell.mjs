@@ -16,10 +16,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { visibleServices } from "./hidden.mjs";
 
 // رموز الخدمات التي تُبنى لها صفحة فعلاً — من مصدرها site/data/services.json.
 const SERVICE_CODES = new Set(
-  JSON.parse(fs.readFileSync(path.resolve("site/data/services.json"), "utf8"))
+  visibleServices(JSON.parse(fs.readFileSync(path.resolve("site/data/services.json"), "utf8")))
     .map((x) => String(x.code || "").toLowerCase()),
 );
 

@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { visibleServices, visibleCatalogRows, pruneLinks, isHiddenHref, pageVisible, syncVercelRedirects, hasHidden } from "./hidden.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -46,7 +47,16 @@ copyAsset("Facebook Cover Photo.png", "cover.png");
 }
 
 const site = read("data/site.json");
-const services = read("data/services.json");
+// باقاتٌ مخفية (hidden.json → services بكود الباقة): تسقط من /packages والكتالوج
+// والعدّادات، وتسقط المجموعة كلها إن فرغت.
+if (site.packages && Array.isArray(site.packages.groups)) {
+  for (const g of site.packages.groups) g.tiers = visibleCatalogRows(g.tiers || []);
+  site.packages.groups = site.packages.groups.filter((g) => g.tiers.length);
+}
+// يُظهر المقطع فقط إن كانت الصفحة المسمّاة غير مخفية (site/data/hidden.json).
+const ifPage = (name, html) => (pageVisible(name) ? html : "");
+// الخدمات المخفية (site/data/hidden.json) تسقط هنا قبل أي استعمال — راجع hidden.mjs.
+const services = visibleServices(read("data/services.json"));
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
 // Saudi entrepreneurship-ecosystem directory (incubators, accelerators, VCs,
@@ -597,7 +607,7 @@ ${EMBED_SNIPPET}
 // Header menu lives in data/nav.json so the owner can edit it from /admin
 // (same data-driven pattern as services/opportunities). Shape: groups[] of
 // { href, en, ar } with optional items[]/sub[] and megaCategories/megaPackages.
-const navData = read("data/nav.json");
+const navData = pruneLinks(read("data/nav.json"));
 const NAV_GROUPS = Array.isArray(navData.groups) ? navData.groups : [];
 
 // Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
@@ -680,7 +690,7 @@ function header(active, path) {
 
 // Footer content lives in data/footer.json so the owner can edit it from
 // /admin. The contact column + social icons stay driven by site.json.
-const footerData = read("data/footer.json");
+const footerData = pruneLinks(read("data/footer.json"));
 function footer() {
   const c = site.contact;
   const F = footerData;
@@ -1775,7 +1785,7 @@ function buildHome() {
     ["AI", L("Compliance Advisor", "مستشار الامتثال"), L("Tracks obligations, violations, deadlines and remediation paths.", "يراقب الالتزامات والمخالفات والمواعيد ومسارات المعالجة."), u("/compliance-agent")],
     ["AI", L("Document Advisor", "مستشار المستندات"), L("Reads your files, extracts data and checks requirements inside your account.", "يقرأ الملفات ويستخرج البيانات ويتحقق من المتطلبات داخل حسابك."), u("/ai-document-agent")],
     ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/business-development")],
-  ].map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
+  ].filter(([, , , href]) => !isHiddenHref(href)).map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const areas = [
     ["01", L("Company setup & investment", "تأسيس الشركات والاستثمار"), L("Local and foreign setup, licensing, registration and post-formation.", "تأسيس محلي وأجنبي، التراخيص، التسجيل وما بعد التأسيس."), catUrl("Company Formation")],
@@ -1786,7 +1796,7 @@ function buildHome() {
     ["06", L("Housing & relocation", "السكن والانتقال"), L("Worker housing, executive housing, relocation and support services.", "سكن العمالة، السكن التنفيذي، Relocation والخدمات المساندة."), u("/worker-housing")],
     ["07", L("Legal & contracts", "القانونية والعقود"), L("Contracts, agreements and legal reviews tied to operations.", "عقود واتفاقيات ومراجعات قانونية مرتبطة بتشغيل الشركة."), u("/packages") + "#pkg-legal"],
     ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/business-development")],
-  ].map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
+  ].filter(([, , , href]) => !isHiddenHref(href)).map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const svc = `<section class="bph-services" id="bp-services"><div class="bph-wrap">
     <div class="bph-head">
@@ -2167,7 +2177,7 @@ function buildServicesIndex() {
     </div>
     ${groups}
     <p class="svc-empty" id="svcEmpty" hidden>${L("No service matches that — try another word, or ask the advisor and we will point you to the right one.", "لا خدمة تطابق بحثك — جرّب كلمة أخرى، أو اسأل المستشار ونوجّهك للخدمة الصحيحة.")}</p>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
+    ${ifPage("business-development", `<div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>`)}
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>
   <style>
@@ -2761,6 +2771,7 @@ function buildAiAgents() {
       feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
       price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
       acts: `<a class="btn btn-primary" href="${u("/business-development")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+      hide: !pageVisible("business-development"),
     },
     {
       tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),
@@ -2769,7 +2780,7 @@ function buildAiAgents() {
       price: (shared.amount != null ? `<div class="price-amt">${esc(localizeLabel(shared.label))}</div>${guest}` : ""),
       acts: `${cartBtns({ id: "agent-Shared-services-team", code: "BP-AI-04", nameEn: "Shared services team", nameAr: "فريق الخدمات المشتركة", amount: shared.amount, priceLabel: shared.label, kind: "agent" })}<a class="adv-more" href="${u("/shared-services")}">${L("Details", "التفاصيل")}</a>`,
     },
-  ].map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
+  ].filter((c) => !c.hide).map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
 
   const body = `<div class="adv">
   <section class="adv-hero"><div class="wrap">
@@ -11679,7 +11690,7 @@ function buildB10X() {
       ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
       ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
       ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
-      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/business-development")}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], pageVisible("business-development") ? "/business-development" : "")}
       ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
       ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
     </div>
@@ -11715,7 +11726,7 @@ function buildB10X() {
         <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
         <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
     </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+    ${ifPage("business-development", `<div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>`)}
   </div></section>
 
   <section class="section dot-bg" id="mission"><div class="container">
@@ -11909,7 +11920,7 @@ function writeFullSite(pre) {
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}business-development.html`, buildBdaas());
+  if (pageVisible("business-development")) write(`${pre}business-development.html`, buildBdaas());
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
@@ -12247,6 +12258,7 @@ const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employ
   .concat([`/jobs/${WORKSHOP_CAMPAIGN.slug}`])
   .concat(WORKSHOP_JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
+  .filter((p) => !isHiddenHref(p))
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(
     FULLY_READY_LANGS.filter((l) => langPathReady(l, p)).map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)),
   ))
@@ -12325,7 +12337,7 @@ const catalogJson = {
     // the rate buys our closing team — pay a monthly fee alone and the client
     // closes; pay a commission and we close with them. Codes match the cart item
     // ids so the order API's server-side re-pricing can find them.
-    ...[
+    ...visibleCatalogRows([
       { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
         featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
       { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
@@ -12334,7 +12346,7 @@ const catalogJson = {
         featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
       { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
         featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
-    ].map((p) => ({
+    ]).map((p) => ({
       group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
       code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
       priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
@@ -12362,6 +12374,14 @@ const catalogJson = {
   const sameData = previous && JSON.stringify({ ...previous, updatedAt: "" }) === JSON.stringify({ ...catalogJson, updatedAt: "" });
   catalogJson.updatedAt = sameData ? previous.updatedAt : new Date().toISOString();
   write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+}
+
+// الصفحات والخدمات المخفية (site/data/hidden.json): سطور 302 مُدارة في
+// vercel.json تحوّلها إلى /catalog بدل 404. لا يُلمس بقية الملف.
+{
+  const vj = path.resolve(ROOT, "..", "vercel.json");
+  if (fs.existsSync(vj) && syncVercelRedirects(vj)) console.log("vercel.json: أُعيدت كتابة تحويلات 302 للمخفي.");
+  if (hasHidden()) console.log("المخفي (hidden.json) مُطبَّق: الخدمات والصفحات المذكورة لا تُبنى ولا تُدرَج.");
 }
 
 console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);
