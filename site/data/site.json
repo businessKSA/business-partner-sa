@@ -26,9 +26,9 @@
   "whatsappSupport": "0530540231",
   "email": "business@businesspartner.sa",
   "website": "www.businesspartner.sa",
-  "address": "مبنى 2978 · شارع تركي بن عبدالله آل سعود · حي السليمانية · الرياض 12234 · الرقم الفرعي 8630",
+  "address": "مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076",
   "hours": "الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة",
-  "addressEn": "Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630",
+  "addressEn": "Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076",
   "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock"
  },
  "legal": {
@@ -37,16 +37,16 @@
   "cr": "",
   "unified": "7038825860",
   "vat": "312079341500003",
-  "shortAddress": "RHSC2978",
-  "buildingNo": "2978",
-  "secondaryNo": "8630",
-  "postalCode": "12234",
-  "district": "حي السليمانية",
-  "districtEn": "Al Sulaimaniyah Dist.",
-  "street": "تركي بن عبدالله آل سعود",
-  "streetEn": "Turki Ibn Abdullah Aal Saud",
-  "city": "الرياض",
-  "cityEn": "Riyadh"
+  "shortAddress": "RDAA9214",
+  "buildingNo": "9214",
+  "secondaryNo": "5076",
+  "postalCode": "13714",
+  "district": "حي العاصمة",
+  "districtEn": "Al Asemah Dist.",
+  "street": "طريق الملك خالد الفرعي",
+  "streetEn": "King Khaled Branch Road",
+  "city": "الدرعية",
+  "cityEn": "Ad Diriyah"
  },
  "nav": [
   {
