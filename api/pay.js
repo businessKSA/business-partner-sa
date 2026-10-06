@@ -188,7 +188,7 @@ function seal(o) {
 // outside catalog.json. Activation is amount-gated: what cannot be re-priced
 // here falls back to owner review instead of activating on a client's word.
 const FIXED_SKUS = {
-  "agent-compliance-agent": 250,
+  "agent-compliance-agent": 1000,
   "agent-shared-services-team": 1500,
   "companies-data-access": 375,
   "lead-generation": 375,
