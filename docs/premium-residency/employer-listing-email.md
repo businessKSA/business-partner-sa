@@ -1,40 +1,52 @@
-# مسودة مراسلة مركز الإقامة المميزة — إدراج شركة ضمن الشركات المعتمدة
+# مراسلة مركز الإقامة المميزة — كيف نعتمد شركتنا أو شركات عملائنا
 
-> **مسودة لمراجعة المالك — لم تُرسَل.** عنوان المركز غير مدرج هنا عمداً: يُؤخذ
-> من القناة الرسمية المنشورة للمركز (لا يُخمَّن). `[بين قوسين]` = يملؤه المالك.
+**الحالة:** مسودة في Gmail (لم تُرسَل) · المرسَل إليه: `Contactus@PR.gov.sa` (البريد
+الرسمي المنشور في pr.gov.sa) · مبنيّة على ما في `knowledge-base.md`، فالأسئلة
+محدّدة بلغة المركز نفسها («جهة معتمدة» · «خطاب توصية» · «مجالات ذات أولوية»).
+`[بين قوسين]` يملؤه المرسل. اسم العميل النهائي غير مذكور عمداً (سرية العقد).
 
-**إلى:** [بريد مركز الإقامة المميزة الرسمي]
-**الموضوع:** استفسار عن إجراءات إدراج شركة ضمن قائمة الشركات المعتمدة — الإقامة المميزة (مسار الكفاءة الاستثنائية)
+**الموضوع:** استفسار رسمي: آلية اعتماد الشركات كـ«جهة معتمدة» لمنتج إقامة الكفاءة الاستثنائية
 
 السادة/ مركز الإقامة المميزة، السلام عليكم ورحمة الله وبركاته،
 
-نتواصل معكم نيابةً عن شركة **[القوة العاملة — الاسم النظامي]**، سجل تجاري رقم
-**[...]**، وهي شركة سعودية تُسند موظفيها إلى مشاريع تنفيذية لدى عملاء كبار من
-شركات عالمية ومحلية بموجب عقود خدمات سارية.
+نتواصل معكم من **Business Partner** [السجل التجاري: ...]، وهي شركة سعودية متخصصة
+في خدمات الأعمال والإجراءات الحكومية، وتخدم شركات من عملائنا تعمل في مجال
+الخدمات المقدّمة للقطاع الخاص والحكومي، ومنها شركات قوى عاملة تُسنِد كفاءات
+متخصصة إلى مشاريع تنفيذية لدى عملاء كبار بموجب عقود خدمات سارية.
 
-ترغب الشركة في تقديم إقامة مميزة لموظفين ذوي كفاءة استثنائية مسندين لتلك
-المشاريع، وفهمنا أن ذلك يتطلب أن تكون الشركة ضمن قائمة الشركات المعتمدة لديكم.
-نأمل إفادتنا بما يلي:
+اطّلعنا على «الشروط والضوابط والمعايير التفصيلية» لمنتج **إقامة الكفاءة
+الاستثنائية**، وفيها أن عقد العمل يكون مع «جهة معتمدة لدى المركز»، وأن «الجهة
+المعتمدة هي الجهة المستوفية للمعايير المعتمدة لدى المركز». ولم نجد في الصفحات
+العامة معايير الاعتماد ولا آلية التقديم له، فنأمل إفادتنا بما يلي:
 
-1. هل توجد قائمة شركات معتمدة فعلاً لهذا المسار؟ وما شروط الإدراج ومعاييره؟
-2. المستندات المطلوبة من الشركة (وهل تشمل عقود الخدمات مع العملاء الكبار؟ وبأي صيغة؟).
-3. قناة التقديم (منصة إلكترونية أم مراسلة) والجهة المسؤولة عن الطلب.
-4. المدة المتوقعة لدراسة الطلب، والرسوم إن وجدت.
-5. مدة الإدراج وشروط تجديده، وهل يُشترط عدد أدنى من المرشحين.
-6. معايير تأهّل الموظف المرشح بعد إدراج الشركة، وآلية ترشيحه.
-7. هل يمكن ترتيب اجتماع قصير مع المختص لعرض حالتنا؟
+1. **كيف تُعتمد الشركة كجهة معتمدة؟** وما المعايير والمستندات المطلوبة، وهل يتم
+   ذلك عبر البوابة (pr.gov.sa) أم بمراسلة مباشرة، ومن الجهة المسؤولة؟
+2. هل الاعتماد يخصّ **صاحب العمل المتعاقد مباشرةً مع الموظف**، أم يمكن اعتماد
+   **العميل النهائي** الذي يُسنَد إليه الموظف؟ وهل يُقبل عقد عمل لدى شركة تُسنِد
+   موظفيها إلى مشاريع عملائها بموجب عقود خدمات؟
+3. هل يمكن لشركات عملائنا (شركات تابعة أو متعاقدة معنا) التقدّم للاعتماد
+   بصفتها شركات مستقلة؟ وهل يوجد قائمة بالجهات المعتمدة حالياً يمكن الاطلاع عليها،
+   أو آلية للتحقق من اعتماد جهة معيّنة؟
+4. ما **المجالات والتخصصات ذات الأولوية** المعتمدة حالياً، وهل هي منشورة؟ وما
+   صيغة **خطاب التوصية** من جهة العمل وفق إرشادات المركز؟
+5. هل توجد **رسوم** أو مدة دراسة متوقعة لطلب الاعتماد، وما مدة سريان الاعتماد
+   وشروط تجديده؟
+6. هل يمكن للجهة المعتمدة تقديم أكثر من طلب إقامة لموظفيها، وهل هناك حدّ أدنى
+   أو أعلى لعدد المرشحين؟ وهل يجوز لنا التقديم **بصفتنا وكيلاً** عن الجهة
+   وعن الموظفين وفق إجراءات التوكيل النظامية؟
+7. هل يمكن ترتيب اتصال أو اجتماع قصير مع المختص لعرض حالتنا؟
 
-يسعدنا تزويدكم بأي بيانات إضافية، ونشكر لكم حسن تعاونكم.
+يسعدنا تزويدكم بأي بيانات أو مستندات إضافية، ونشكر لكم حسن تعاونكم.
 
-وتفضلوا بقبول فائق الاحترام،
+وتفضلوا بقبول فائق الاحترام والتقدير،
 
-**[اسمك]** — [المسمى] — Business Partner
+**[الاسم]** — [المسمى] — Business Partner
 [الجوال] · [البريد]
 
 ---
 
-**English version (optional)**
+**English version (optional, same questions)**
 
-Subject: Inquiry — listing a company on the approved-companies list, Premium Residency (Exceptional Talent track)
+Subject: Inquiry — how companies become an "Approved Entity" for the Special Talent residency product
 
-Dear Premium Residency Center, we write on behalf of [Company], CR no. [..], which assigns its employees to projects for major clients under active service contracts. The company wishes to sponsor Premium Residency (exceptional talent) for assigned employees and understands it must first be on the center's approved-companies list. Could you advise: (1) whether such a list exists and its criteria; (2) required documents, including whether client contracts are needed; (3) the submission channel and owner; (4) expected review time and any fees; (5) listing validity and renewal; (6) employee eligibility criteria and nomination process; (7) whether a short call can be arranged. Thank you.
+Dear Premium Residency Center, we write from Business Partner [CR no.], serving client companies that second specialised staff to projects for major clients under service contracts. Your detailed conditions for the Special Talent product require an employment contract with an "approved entity" but do not publish the approval criteria. Could you advise: (1) how a company is approved, the criteria, documents and channel; (2) whether approval applies to the contracting employer or can extend to the end client, and whether a secondment/service-contract structure is accepted; (3) whether our client companies may apply independently and whether the approved list can be consulted; (4) the priority fields and the reference-letter format; (5) any fees, review time, validity and renewal; (6) limits on the number of nominees and whether we may act as agent under the legal authorisation procedure; (7) whether a short call can be arranged. Thank you.
