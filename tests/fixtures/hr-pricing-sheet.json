@@ -1,0 +1,792 @@
+{
+ "source": "Owner Google Sheet 'Salary vs Rate Hospitality' exported 2026-10-08",
+ "lumpSum": [
+  {
+   "package": 400.0,
+   "cost": 2547.166667,
+   "rate": 2830.185185,
+   "billableInSheet": 2830.0,
+   "otPerHour": 3.0
+  },
+  {
+   "package": 1400.0,
+   "cost": 3667.166667,
+   "rate": 4074.62963,
+   "billableInSheet": 4080.0,
+   "otPerHour": 10.5
+  },
+  {
+   "package": 2400.0,
+   "cost": 4787.166667,
+   "rate": 5319.074074,
+   "billableInSheet": 5320.0,
+   "otPerHour": 18.0
+  },
+  {
+   "package": 3400.0,
+   "cost": 5907.166667,
+   "rate": 6563.518519,
+   "billableInSheet": 6560.0,
+   "otPerHour": 25.5
+  },
+  {
+   "package": 4400.0,
+   "cost": 7027.166667,
+   "rate": 7807.962963,
+   "billableInSheet": 7810.0,
+   "otPerHour": 33.0
+  },
+  {
+   "package": 5400.0,
+   "cost": 8147.166667,
+   "rate": 9052.407407,
+   "billableInSheet": 9050.0,
+   "otPerHour": 40.5
+  },
+  {
+   "package": 6400.0,
+   "cost": 9267.166667,
+   "rate": 10296.85185,
+   "billableInSheet": 10300.0,
+   "otPerHour": 48.0
+  },
+  {
+   "package": 7400.0,
+   "cost": 10387.16667,
+   "rate": 11541.2963,
+   "billableInSheet": 11540.0,
+   "otPerHour": 55.5
+  },
+  {
+   "package": 8400.0,
+   "cost": 11507.16667,
+   "rate": 12785.74074,
+   "billableInSheet": 12790.0,
+   "otPerHour": 63.0
+  },
+  {
+   "package": 9400.0,
+   "cost": 12627.16667,
+   "rate": 14030.18519,
+   "billableInSheet": 14030.0,
+   "otPerHour": 70.5
+  },
+  {
+   "package": 10400.0,
+   "cost": 13747.16667,
+   "rate": 15274.62963,
+   "billableInSheet": 15280.0,
+   "otPerHour": 78.0
+  },
+  {
+   "package": 11400.0,
+   "cost": 14867.16667,
+   "rate": 16519.07407,
+   "billableInSheet": 16520.0,
+   "otPerHour": 85.5
+  },
+  {
+   "package": 12400.0,
+   "cost": 15987.16667,
+   "rate": 17763.51852,
+   "billableInSheet": 17760.0,
+   "otPerHour": 93.0
+  },
+  {
+   "package": 13400.0,
+   "cost": 17107.16667,
+   "rate": 19007.96296,
+   "billableInSheet": 19010.0,
+   "otPerHour": 100.5
+  },
+  {
+   "package": 14400.0,
+   "cost": 18227.16667,
+   "rate": 20252.40741,
+   "billableInSheet": 20250.0,
+   "otPerHour": 108.0
+  },
+  {
+   "package": 15400.0,
+   "cost": 19347.16667,
+   "rate": 21496.85185,
+   "billableInSheet": 21500.0,
+   "otPerHour": 115.5
+  },
+  {
+   "package": 16400.0,
+   "cost": 20467.16667,
+   "rate": 22741.2963,
+   "billableInSheet": 22740.0,
+   "otPerHour": 123.0
+  },
+  {
+   "package": 17400.0,
+   "cost": 21587.16667,
+   "rate": 23985.74074,
+   "billableInSheet": 23990.0,
+   "otPerHour": 130.5
+  },
+  {
+   "package": 18400.0,
+   "cost": 22707.16667,
+   "rate": 25230.18519,
+   "billableInSheet": 25230.0,
+   "otPerHour": 138.0
+  },
+  {
+   "package": 19400.0,
+   "cost": 23827.16667,
+   "rate": 26474.62963,
+   "billableInSheet": 26480.0,
+   "otPerHour": 145.5
+  },
+  {
+   "package": 20400.0,
+   "cost": 24947.16667,
+   "rate": 27719.07407,
+   "billableInSheet": 27720.0,
+   "otPerHour": 153.0
+  },
+  {
+   "package": 21400.0,
+   "cost": 26067.16667,
+   "rate": 28963.51852,
+   "billableInSheet": 28960.0,
+   "otPerHour": 160.5
+  },
+  {
+   "package": 22400.0,
+   "cost": 27187.16667,
+   "rate": 30207.96296,
+   "billableInSheet": 30210.0,
+   "otPerHour": 168.0
+  },
+  {
+   "package": 23400.0,
+   "cost": 28307.16667,
+   "rate": 31452.40741,
+   "billableInSheet": 31450.0,
+   "otPerHour": 175.5
+  },
+  {
+   "package": 24400.0,
+   "cost": 29427.16667,
+   "rate": 32696.85185,
+   "billableInSheet": 32700.0,
+   "otPerHour": 183.0
+  },
+  {
+   "package": 25400.0,
+   "cost": 30547.16667,
+   "rate": 33941.2963,
+   "billableInSheet": 33940.0,
+   "otPerHour": 190.5
+  },
+  {
+   "package": 26400.0,
+   "cost": 31667.16667,
+   "rate": 35185.74074,
+   "billableInSheet": 35190.0,
+   "otPerHour": 198.0
+  },
+  {
+   "package": 27400.0,
+   "cost": 32787.16667,
+   "rate": 36430.18519,
+   "billableInSheet": 36430.0,
+   "otPerHour": 205.5
+  },
+  {
+   "package": 28400.0,
+   "cost": 33907.16667,
+   "rate": 37674.62963,
+   "billableInSheet": 37680.0,
+   "otPerHour": 213.0
+  },
+  {
+   "package": 29400.0,
+   "cost": 35027.16667,
+   "rate": 38919.07407,
+   "billableInSheet": 38920.0,
+   "otPerHour": 220.5
+  },
+  {
+   "package": 30400.0,
+   "cost": 36147.16667,
+   "rate": 40163.51852,
+   "billableInSheet": 40160.0,
+   "otPerHour": 228.0
+  },
+  {
+   "package": 31400.0,
+   "cost": 37267.16667,
+   "rate": 41407.96296,
+   "billableInSheet": 41410.0,
+   "otPerHour": 235.5
+  },
+  {
+   "package": 32400.0,
+   "cost": 38387.16667,
+   "rate": 42652.40741,
+   "billableInSheet": 42650.0,
+   "otPerHour": 243.0
+  },
+  {
+   "package": 33400.0,
+   "cost": 39507.16667,
+   "rate": 43896.85185,
+   "billableInSheet": 43900.0,
+   "otPerHour": 250.5
+  },
+  {
+   "package": 34400.0,
+   "cost": 40627.16667,
+   "rate": 45141.2963,
+   "billableInSheet": 45140.0,
+   "otPerHour": 258.0
+  },
+  {
+   "package": 35400.0,
+   "cost": 41747.16667,
+   "rate": 46385.74074,
+   "billableInSheet": 46390.0,
+   "otPerHour": 265.5
+  },
+  {
+   "package": 36400.0,
+   "cost": 42867.16667,
+   "rate": 47630.18519,
+   "billableInSheet": 47630.0,
+   "otPerHour": 273.0
+  },
+  {
+   "package": 37400.0,
+   "cost": 43987.16667,
+   "rate": 48874.62963,
+   "billableInSheet": 48880.0,
+   "otPerHour": 280.5
+  },
+  {
+   "package": 38400.0,
+   "cost": 45107.16667,
+   "rate": 50119.07407,
+   "billableInSheet": 50120.0,
+   "otPerHour": 288.0
+  },
+  {
+   "package": 39400.0,
+   "cost": 46227.16667,
+   "rate": 51363.51852,
+   "billableInSheet": 51360.0,
+   "otPerHour": 295.5
+  },
+  {
+   "package": 40400.0,
+   "cost": 47347.16667,
+   "rate": 52607.96296,
+   "billableInSheet": 52610.0,
+   "otPerHour": 303.0
+  },
+  {
+   "package": 41400.0,
+   "cost": 48467.16667,
+   "rate": 53852.40741,
+   "billableInSheet": 53850.0,
+   "otPerHour": 310.5
+  },
+  {
+   "package": 42400.0,
+   "cost": 49587.16667,
+   "rate": 55096.85185,
+   "billableInSheet": 55100.0,
+   "otPerHour": 318.0
+  },
+  {
+   "package": 43400.0,
+   "cost": 50707.16667,
+   "rate": 56341.2963,
+   "billableInSheet": 56340.0,
+   "otPerHour": 325.5
+  },
+  {
+   "package": 44400.0,
+   "cost": 51827.16667,
+   "rate": 57585.74074,
+   "billableInSheet": 57590.0,
+   "otPerHour": 333.0
+  },
+  {
+   "package": 45400.0,
+   "cost": 52947.16667,
+   "rate": 58830.18519,
+   "billableInSheet": 58830.0,
+   "otPerHour": 340.5
+  },
+  {
+   "package": 46400.0,
+   "cost": 54067.16667,
+   "rate": 60074.62963,
+   "billableInSheet": 60080.0,
+   "otPerHour": 348.0
+  },
+  {
+   "package": 47400.0,
+   "cost": 55187.16667,
+   "rate": 61319.07407,
+   "billableInSheet": 61320.0,
+   "otPerHour": 355.5
+  },
+  {
+   "package": 48400.0,
+   "cost": 56307.16667,
+   "rate": 62563.51852,
+   "billableInSheet": 62560.0,
+   "otPerHour": 363.0
+  },
+  {
+   "package": 49400.0,
+   "cost": 57427.16667,
+   "rate": 63807.96296,
+   "billableInSheet": 63810.0,
+   "otPerHour": 370.5
+  },
+  {
+   "package": 50400.0,
+   "cost": 58547.16667,
+   "rate": 65052.40741,
+   "billableInSheet": 65050.0,
+   "otPerHour": 378.0
+  },
+  {
+   "package": 51400.0,
+   "cost": 59667.16667,
+   "rate": 66296.85185,
+   "billableInSheet": 66300.0,
+   "otPerHour": 385.5
+  },
+  {
+   "package": 52400.0,
+   "cost": 60787.16667,
+   "rate": 67541.2963,
+   "billableInSheet": 67540.0,
+   "otPerHour": 393.0
+  },
+  {
+   "package": 53400.0,
+   "cost": 61907.16667,
+   "rate": 68785.74074,
+   "billableInSheet": 68790.0,
+   "otPerHour": 400.5
+  },
+  {
+   "package": 54400.0,
+   "cost": 63027.16667,
+   "rate": 70030.18519,
+   "billableInSheet": 70030.0,
+   "otPerHour": 408.0
+  },
+  {
+   "package": 55400.0,
+   "cost": 64147.16667,
+   "rate": 71274.62963,
+   "billableInSheet": 71280.0,
+   "otPerHour": 415.5
+  },
+  {
+   "package": 56400.0,
+   "cost": 65267.16667,
+   "rate": 72519.07407,
+   "billableInSheet": 72520.0,
+   "otPerHour": 423.0
+  },
+  {
+   "package": 57400.0,
+   "cost": 66387.16667,
+   "rate": 73763.51852,
+   "billableInSheet": 73760.0,
+   "otPerHour": 430.5
+  },
+  {
+   "package": 58400.0,
+   "cost": 67507.16667,
+   "rate": 75007.96296,
+   "billableInSheet": 75010.0,
+   "otPerHour": 438.0
+  },
+  {
+   "package": 59400.0,
+   "cost": 68627.16667,
+   "rate": 76252.40741,
+   "billableInSheet": 76250.0,
+   "otPerHour": 445.5
+  },
+  {
+   "package": 60400.0,
+   "cost": 69747.16667,
+   "rate": 77496.85185,
+   "billableInSheet": 77500.0,
+   "otPerHour": 453.0
+  },
+  {
+   "package": 61400.0,
+   "cost": 70867.16667,
+   "rate": 78741.2963,
+   "billableInSheet": 78740.0,
+   "otPerHour": 460.5
+  },
+  {
+   "package": 62400.0,
+   "cost": 71987.16667,
+   "rate": 79985.74074,
+   "billableInSheet": 79990.0,
+   "otPerHour": 468.0
+  },
+  {
+   "package": 63400.0,
+   "cost": 73107.16667,
+   "rate": 81230.18519,
+   "billableInSheet": 81230.0,
+   "otPerHour": 475.5
+  },
+  {
+   "package": 64400.0,
+   "cost": 74227.16667,
+   "rate": 82474.62963,
+   "billableInSheet": 82480.0,
+   "otPerHour": 483.0
+  },
+  {
+   "package": 65400.0,
+   "cost": 75347.16667,
+   "rate": 83719.07407,
+   "billableInSheet": 83720.0,
+   "otPerHour": 490.5
+  },
+  {
+   "package": 66400.0,
+   "cost": 76467.16667,
+   "rate": 84963.51852,
+   "billableInSheet": 84960.0,
+   "otPerHour": 498.0
+  },
+  {
+   "package": 67400.0,
+   "cost": 77587.16667,
+   "rate": 86207.96296,
+   "billableInSheet": 86210.0,
+   "otPerHour": 505.5
+  },
+  {
+   "package": 68400.0,
+   "cost": 78707.16667,
+   "rate": 87452.40741,
+   "billableInSheet": 87450.0,
+   "otPerHour": 513.0
+  },
+  {
+   "package": 69400.0,
+   "cost": 79827.16667,
+   "rate": 88696.85185,
+   "billableInSheet": 88700.0,
+   "otPerHour": 520.5
+  },
+  {
+   "package": 70400.0,
+   "cost": 80947.16667,
+   "rate": 89941.2963,
+   "billableInSheet": 89940.0,
+   "otPerHour": 528.0
+  },
+  {
+   "package": 71400.0,
+   "cost": 82067.16667,
+   "rate": 91185.74074,
+   "billableInSheet": 91190.0,
+   "otPerHour": 535.5
+  },
+  {
+   "package": 72400.0,
+   "cost": 83187.16667,
+   "rate": 92430.18519,
+   "billableInSheet": 92430.0,
+   "otPerHour": 543.0
+  },
+  {
+   "package": 73400.0,
+   "cost": 84307.16667,
+   "rate": 93674.62963,
+   "billableInSheet": 93680.0,
+   "otPerHour": 550.5
+  },
+  {
+   "package": 74400.0,
+   "cost": 85427.16667,
+   "rate": 94919.07407,
+   "billableInSheet": 94920.0,
+   "otPerHour": 558.0
+  },
+  {
+   "package": 75400.0,
+   "cost": 86547.16667,
+   "rate": 96163.51852,
+   "billableInSheet": 96160.0,
+   "otPerHour": 565.5
+  },
+  {
+   "package": 76400.0,
+   "cost": 87667.16667,
+   "rate": 97407.96296,
+   "billableInSheet": 97410.0,
+   "otPerHour": 573.0
+  },
+  {
+   "package": 77400.0,
+   "cost": 88787.16667,
+   "rate": 98652.40741,
+   "billableInSheet": 98650.0,
+   "otPerHour": 580.5
+  },
+  {
+   "package": 78400.0,
+   "cost": 89907.16667,
+   "rate": 99896.85185,
+   "billableInSheet": 99900.0,
+   "otPerHour": 588.0
+  },
+  {
+   "package": 79400.0,
+   "cost": 91027.16667,
+   "rate": 101141.2963,
+   "billableInSheet": 101140.0,
+   "otPerHour": 595.5
+  },
+  {
+   "package": 80400.0,
+   "cost": 92147.16667,
+   "rate": 102385.7407,
+   "billableInSheet": 102390.0,
+   "otPerHour": 603.0
+  },
+  {
+   "package": 81400.0,
+   "cost": 93267.16667,
+   "rate": 103630.1852,
+   "billableInSheet": 103630.0,
+   "otPerHour": 610.5
+  },
+  {
+   "package": 82400.0,
+   "cost": 94387.16667,
+   "rate": 104874.6296,
+   "billableInSheet": 104880.0,
+   "otPerHour": 618.0
+  },
+  {
+   "package": 83400.0,
+   "cost": 95507.16667,
+   "rate": 106119.0741,
+   "billableInSheet": 106120.0,
+   "otPerHour": 625.5
+  },
+  {
+   "package": 84400.0,
+   "cost": 96627.16667,
+   "rate": 107363.5185,
+   "billableInSheet": 107360.0,
+   "otPerHour": 633.0
+  },
+  {
+   "package": 85400.0,
+   "cost": 97747.16667,
+   "rate": 108607.963,
+   "billableInSheet": 108610.0,
+   "otPerHour": 640.5
+  },
+  {
+   "package": 86400.0,
+   "cost": 98867.16667,
+   "rate": 109852.4074,
+   "billableInSheet": 109850.0,
+   "otPerHour": 648.0
+  },
+  {
+   "package": 87400.0,
+   "cost": 99987.16667,
+   "rate": 111096.8519,
+   "billableInSheet": 111100.0,
+   "otPerHour": 655.5
+  },
+  {
+   "package": 88400.0,
+   "cost": 101107.1667,
+   "rate": 112341.2963,
+   "billableInSheet": 112340.0,
+   "otPerHour": 663.0
+  },
+  {
+   "package": 89400.0,
+   "cost": 102227.1667,
+   "rate": 113585.7407,
+   "billableInSheet": 113590.0,
+   "otPerHour": 670.5
+  },
+  {
+   "package": 90400.0,
+   "cost": 103347.1667,
+   "rate": 114830.1852,
+   "billableInSheet": 114830.0,
+   "otPerHour": 678.0
+  },
+  {
+   "package": 91400.0,
+   "cost": 104467.1667,
+   "rate": 116074.6296,
+   "billableInSheet": 116080.0,
+   "otPerHour": 685.5
+  },
+  {
+   "package": 92400.0,
+   "cost": 105587.1667,
+   "rate": 117319.0741,
+   "billableInSheet": 117320.0,
+   "otPerHour": 693.0
+  },
+  {
+   "package": 93400.0,
+   "cost": 106707.1667,
+   "rate": 118563.5185,
+   "billableInSheet": 118560.0,
+   "otPerHour": 700.5
+  },
+  {
+   "package": 94400.0,
+   "cost": 107827.1667,
+   "rate": 119807.963,
+   "billableInSheet": 119810.0,
+   "otPerHour": 708.0
+  },
+  {
+   "package": 95400.0,
+   "cost": 108947.1667,
+   "rate": 121052.4074,
+   "billableInSheet": 121050.0,
+   "otPerHour": 715.5
+  },
+  {
+   "package": 96400.0,
+   "cost": 110067.1667,
+   "rate": 122296.8519,
+   "billableInSheet": 122300.0,
+   "otPerHour": 723.0
+  },
+  {
+   "package": 97400.0,
+   "cost": 111187.1667,
+   "rate": 123541.2963,
+   "billableInSheet": 123540.0,
+   "otPerHour": 730.5
+  },
+  {
+   "package": 98400.0,
+   "cost": 112307.1667,
+   "rate": 124785.7407,
+   "billableInSheet": 124790.0,
+   "otPerHour": 738.0
+  },
+  {
+   "package": 99400.0,
+   "cost": 113427.1667,
+   "rate": 126030.1852,
+   "billableInSheet": 126030.0,
+   "otPerHour": 745.5
+  },
+  {
+   "package": 100000.0,
+   "cost": 114099.1667,
+   "rate": 126776.8519,
+   "billableInSheet": 126780.0,
+   "otPerHour": 750.0
+  }
+ ],
+ "costPlusShifted": [
+  {
+   "package": 1400.0,
+   "sheetCost": 2072.0,
+   "sheetRate": 2590.0,
+   "costMatchesNextRowPackage": 1500.0
+  },
+  {
+   "package": 2400.0,
+   "sheetCost": 3092.0,
+   "sheetRate": 3865.0,
+   "costMatchesNextRowPackage": 2500.0
+  },
+  {
+   "package": 3400.0,
+   "sheetCost": 4112.0,
+   "sheetRate": 5140.0,
+   "costMatchesNextRowPackage": 3500.0
+  },
+  {
+   "package": 4400.0,
+   "sheetCost": 5132.0,
+   "sheetRate": 6415.0,
+   "costMatchesNextRowPackage": 4500.0
+  },
+  {
+   "package": 5400.0,
+   "sheetCost": 6152.0,
+   "sheetRate": 7690.0,
+   "costMatchesNextRowPackage": 5500.0
+  },
+  {
+   "package": 6400.0,
+   "sheetCost": 7172.0,
+   "sheetRate": 8965.0,
+   "costMatchesNextRowPackage": 6500.0
+  },
+  {
+   "package": 7400.0,
+   "sheetCost": 8192.0,
+   "sheetRate": 10240.0,
+   "costMatchesNextRowPackage": 7500.0
+  },
+  {
+   "package": 8400.0,
+   "sheetCost": 9212.0,
+   "sheetRate": 11515.0,
+   "costMatchesNextRowPackage": 8500.0
+  },
+  {
+   "package": 9400.0,
+   "sheetCost": 10232.0,
+   "sheetRate": 12790.0,
+   "costMatchesNextRowPackage": 9500.0
+  },
+  {
+   "package": 10400.0,
+   "sheetCost": 11252.0,
+   "sheetRate": 14065.0,
+   "costMatchesNextRowPackage": 10500.0
+  },
+  {
+   "package": 11400.0,
+   "sheetCost": 12272.0,
+   "sheetRate": 15340.0,
+   "costMatchesNextRowPackage": 11500.0
+  },
+  {
+   "package": 12400.0,
+   "sheetCost": 13292.0,
+   "sheetRate": 16615.0,
+   "costMatchesNextRowPackage": 12500.0
+  },
+  {
+   "package": 13400.0,
+   "sheetCost": 14312.0,
+   "sheetRate": 17890.0,
+   "costMatchesNextRowPackage": 13500.0
+  }
+ ]
+}
