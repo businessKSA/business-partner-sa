@@ -1,6 +1,7 @@
 // Business Partner — حاسبة تكلفة وتسعير الموظف على بند التعاقد (EOR) وفاتورته الشهرية.
 //
-// يملكه وكيل `eor`. وحدة صِرفة (ESM): لا شبكة ولا قاعدة ولا ملفات ولا ساعة. ملف مساعد يبدأ بـ`_` فلا يُحتسب
+// يملكه وكيل `eor`. وحدة صِرفة (ESM): لا شبكة ولا قاعدة ولا ساعة، ولا قراءة ملفات إلا ما يفوّضه إلى api/_eor-labor.js (بيانات أنظمة العمل الثابتة، تُقرأ مرة
+// وتُخزَّن، والاختبار يمرّر نسخة معدَّلة عبر packageRateConfigFromPricing(pricing, labor)). ملف مساعد يبدأ بـ`_` فلا يُحتسب
 // دالةً جديدة (السقف ١٢). المستدعي (طبقة الـAPI) يقرأ api/_eor-pricing.json ويحوّله بـcostConfigFromPricing
 // ثم يمرّره هنا — فلا رقم في هذا الملف: الهامش والضريبة وقواعد المخصّص وأيام الشهر المتفق عليها كلها من
 // الإعداد الذي يملؤه المالك (CLAUDE.md §4: لا أسعار مخترعة).
@@ -27,6 +28,7 @@
 // تُخرج للعميل سعر البيع (وتفصيلاً بمجموعتين اختياري) دون الهامش أو الراتب الخام أو رسوم المورّد.
 
 import { BILLABLE_STAGES } from "./_eor-flow.js";
+import { saudiLabor, gosiEmployerPct, gosiRegimeFor } from "./_eor-labor.js";
 
 export const ROUNDING_MODE = "half_up_per_line";
 export const COST_VISIBILITY = Object.freeze(["total", "breakdown"]);
@@ -496,7 +498,9 @@ export function insurancePremium(choice, icfg) {
 }
 
 // يحوّل كتلة package_rate من api/_eor-pricing.json إلى إعداد مُطبَّع. القيمة الناقصة/غير الصالحة = null ⇒ تظهر في missing.
-export function packageRateConfigFromPricing(pricing) {
+// labor (اختياري): بيانات أنظمة العمل المطبَّعة من api/_eor-labor.js (الافتراضي: الملف المرجعي)؛ منها حصة التأمينات الاجتماعية للسعودي
+// واستحقاق نهاية الخدمة وأيام الإجازة حين يطلبها إعداد package_rate.saudi بقيمة "labor". الاختبار يمرّر نسخة معدَّلة.
+export function packageRateConfigFromPricing(pricing, labor) {
   const root = isObj(pricing) && isObj(pricing.package_rate) ? pricing.package_rate : null;
   if (!root) return null;
   const ot = (o) => { const x = isObj(o) ? o : {}; return { monthDays: pn(x.month_days), hoursPerDay: pn(x.hours_per_day), multiplier: pn(x.multiplier), extraFactor: pn(x.extra_factor) }; };
@@ -533,6 +537,11 @@ export function packageRateConfigFromPricing(pricing) {
     },
     insurance: insuranceConfigFrom(root.insurance_catalog),
     casual: casualConfigFrom(root.casual),
+    saudi: saudiConfigFrom(root.saudi, {
+      marginOnPrice: pn(L.margin_on_price), step: pn(L.mround_step), insuranceYearly: pn(L.insurance_yearly), overheadMonthly: pn(L.overhead_monthly),
+      endOfServiceMonthsPerYear: pn(L.end_of_service_months_per_year), leaveIncluded: typeof leave.included_in_cost === "boolean" ? leave.included_in_cost : null,
+      leaveDays: pn(leave.days), leaveMonthDays: pn(leave.month_days), overtime: ot(L.overtime),
+    }, labor === undefined ? saudiLabor() : labor),
     costplus: {
       clientVisible: C.client_visible === true,
       marginOnPrice: pn(C.margin_on_price),
@@ -542,6 +551,57 @@ export function packageRateConfigFromPricing(pricing) {
       overtime: ot(C.overtime),
     },
   };
+}
+
+/* ═════════════ تسعير العامل السعودي (package_rate.saudi) ═════════════
+   مسار تكلفة مستقل عن صيغة الأجنبي: بلا رخصة عمل ولا إقامة ولا أجير ولا تأشيرة ولا خروج وعودة ولا تذكرة. بنوده:
+     الراتب + حصة صاحب العمل في التأمينات الاجتماعية + التأمين الطبي (الأساسي أو الفئة المختارة) + الإجازة السنوية
+            + نهاية الخدمة (م84) + المصاريف العامة ،  ثم السعر = MROUND( التكلفة ÷ (1 − الهامش) ، الخطوة ) كصيغة الأجنبي.
+   كل مفتاح في الإعداد: رقمٌ صريح | "lump" (قيمة العامل الأجنبي نفسها) | "labor" (من api/_saudi-labor-data.json عبر api/_eor-labor.js) |
+   null (بعد المراجعة بلا رقم). التأمينات الاجتماعية: نسبة صاحب العمل تُقرأ من الملف بحسب نظام المشترك (جديد بجدول زيادة سنوية
+   | قديم بنسبة ثابتة) وتاريخ سريانها، على الأجر الخاضع (الراتب حتى الحد الأعلى للأجر الخاضع). المشترك القديم نسبته verify:true في
+   الملف ⇒ تُسعَّر إن فتح المالك price_legacy_cohort (وتُعلَّم قراراً مفتوحاً داخلياً) وإلا «بعد المراجعة».
+   ⚠ مراجعة قانونية: الاستنتاج التسعيري لنهاية الخدمة (استحقاق نصف شهر عن كل سنة، م84) وأساس الأجر الخاضع (الراتب كله) تقديران. */
+const otCfg = (o) => { const x = isObj(o) ? o : {}; return { monthDays: pn(x.month_days), hoursPerDay: pn(x.hours_per_day), multiplier: pn(x.multiplier), extraFactor: pn(x.extra_factor) }; };
+function saudiConfigFrom(s, L, labor) {
+  if (!isObj(s)) return null;
+  const lab = isObj(labor) ? labor : {};
+  const gosi = isObj(lab.gosi) ? lab.gosi : null;
+  const val = (v, lumpV, laborV) => (v === "lump" ? lumpV : v === "labor" ? (laborV === undefined ? null : laborV) : pn(v));
+  const al = isObj(s.annual_leave) ? s.annual_leave : {};
+  const si = isObj(s.social_insurance) ? s.social_insurance : {};
+  const eosFromLabor = s.end_of_service_months_per_year === "labor";
+  const leaveFromLabor = al.days === "labor";
+  const open = [];
+  if (eosFromLabor && lab.eosb && lab.eosb.verify) open.push("eosb_unverified");
+  if (leaveFromLabor && lab.leave && lab.leave.verify) open.push("leave_unverified");
+  return {
+    enabled: s.enabled === true,
+    marginOnPrice: val(s.margin_on_price, L.marginOnPrice),
+    step: val(s.mround_step, L.step),
+    insuranceYearly: val(s.insurance_yearly, L.insuranceYearly),
+    overheadMonthly: val(s.overhead_monthly, L.overheadMonthly),
+    endOfServiceMonthsPerYear: val(s.end_of_service_months_per_year, L.endOfServiceMonthsPerYear, lab.eosb ? lab.eosb.monthsPerYearFirst5 : null),
+    leaveIncluded: al.included_in_cost === "lump" ? L.leaveIncluded : typeof al.included_in_cost === "boolean" ? al.included_in_cost : null,
+    leaveDays: val(al.days, L.leaveDays, lab.leave ? lab.leave.days : null),
+    leaveMonthDays: val(al.month_days, L.leaveMonthDays),
+    overtime: s.overtime === "lump" ? L.overtime : otCfg(s.overtime),
+    // التأمينات: المصدر "labor" وحده معتمد (لا نسبة تُكتب في الإعداد)؛ غيره ⇒ gosi = null ⇒ بعد المراجعة.
+    gosi: si.employer_rate === "labor" && gosi && gosi.newSystem && gosi.legacy
+      ? { labor: gosi, wageCap: si.wage_cap === "labor" ? (typeof gosi.wageCap === "number" ? gosi.wageCap : null) : (pn(si.wage_cap) > 0 ? si.wage_cap : null) }
+      : null,
+    priceLegacy: si.price_legacy_cohort === true,
+    rateBasis: si.rate_basis === "peak_in_term" ? "peak_in_term" : "start",
+    openDecisions: open,
+  };
+}
+
+const ISO_D = /^\d{4}-\d{2}-\d{2}$/;
+const validIso = (s) => typeof s === "string" && ISO_D.test(s) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
+function addMonthsIso(iso, n) {
+  const d = new Date(iso + "T00:00:00Z");
+  d.setUTCMonth(d.getUTCMonth() + n);
+  return d.toISOString().slice(0, 10);
 }
 
 /* ═════════════ حدّ الراتب الأدنى + السكن والإعاشة والمواصلات + تفصيل السعر للعميل (قرار المالك 2026-10-08) ═════════════
@@ -620,33 +680,163 @@ export function casualProvisionHalalas(monthlyHalalas, unit, casualCfg) {
   return mulDivHalfUp(monthlyHalalas, 1, days * hrs);
 }
 
-// بنود التفصيل المؤجلة (تُضاف في مهمة لاحقة من بيانات الأنظمة): مفاتيح فقط بلا أرقام. تدخل الآن ضمن «رسوم الخدمة».
-export const DEFERRED_BREAKDOWN = Object.freeze(["end_of_service", "tickets", "leave", "social_insurance", "government_fees"]);
+/* ═════════════ تفصيل السعر الشهري للعميل (قرار المالك 2026-10-08: «لازم يكون واضح للعميل») ═════════════
+   كل سطر مكوّنٌ من مكوّنات صيغة الإكسل نفسها (لا أرقام مشتقة من الأنظمة لهذا المسار حتى يطابق المجموع السعر بالهللة):
+     الراتب · government (رخصة العمل والإقامة وأجير) · insurance (التأمين الطبي) · annual_leave (الإجازة السنوية) · exit_reentry (تأشيرة الخروج والعودة)
+     · joining (التأشيرة ورسوم الانضمام) · end_of_service (استحقاق شهري) · social_insurance (التأمينات الاجتماعية) · return_ticket (إن فُعِّلت)
+     · housing/meals/transport (حين «علينا») · service (= السعر الشهري − مجموع ما سبق؛ يحمل المصاريف العامة والهامش دون تسميتهما).
+   السعودي: الراتب · insurance · annual_leave · end_of_service · social_insurance (حصة صاحب العمل) · service. بلا رسوم حكومية ولا تأشيرات.
+   العميل يرى الاسم والمبلغ فقط: لا نسبة ولا معامل ولا قسط سنوي ولا مرجع نظامي (المراجع أدناه للمراجعين داخلياً).
+
+   مراجع نظامية داخلية (لا تصل العميل أبداً؛ مصدرها api/_saudi-labor-data.json وdocs/saudi-labor-sources.md — تحتاج مراجعة قانونية):
+     government       → المقابل المالي 800 ريال/شهر (9,600 سنوياً) + رسم رخصة العمل 100 (قرار مجلس الوزراء 197 وتاريخ 1438/3/23هـ؛ دليل HRSD 2021)،
+                        ورسم الإقامة (لا مبلغ رسمي في الملف، والرقم المرشّح verify) ورسم منصة أجير.
+                        ⚠ مفتاحا الإكسل residence وwork_permit في كتلة annual_government_fees مسمّيان بالعكس قياساً بالقيم (الأكبر منهما = 9600 مقابل مالي + 100
+                        رسم رخصة العمل، والأصغر = الإقامة) ولهذا يُعرض مجموع الثلاثة سطراً واحداً «رخصة العمل والإقامة وأجير» لا مفصّلاً بتسمية قد تكون خاطئة.
+     annual_leave     → م109 الإجازة السنوية 21 يوماً (30 بعد 5 سنوات)، وم111 بدل الإجازة غير المستعملة.
+     exit_reentry     → أنظمة الجوازات: خروج وعودة مفردة 200 (≤ شهرين) +100/شهر، متعددة 500 (3 أشهر) +200/شهر (م/71 وتاريخ 1444/6/1هـ).
+     joining          → رسوم الاستقدام/التأشيرة (م40(1) نظام العمل: على صاحب العمل). قيمتها السنوية في الإعداد (والجدول الجانبي في الإكسل يخالفها) — قرار المالك.
+     end_of_service   → م84 نصف شهر عن كل سنة من أول 5 سنوات (وشهر بعدها) على الأجر الأخير؛ عقد EOR محدد المدة ينتهي بانتهائه فتُستحق كاملة (م74(2)).
+     social_insurance → الأجنبي: فرع الأخطار المهنية 2% على صاحب العمل (م4(1))؛ السعودي: حصة صاحب العمل من المعاشات وساند والأخطار.
+     return_ticket    → م40(1) تذكرة عودة غير السعودي إلى موطنه بعد انتهاء العلاقة (تعاقدية في الإكسل، مفتاحها return_ticket_yearly). */
+const BREAKDOWN_ORDER = Object.freeze([
+  ["government", "government"], ["insurance", "insurance"], ["annualLeave", "annual_leave"], ["exitReentry", "exit_reentry"],
+  ["joining", "joining"], ["endOfService", "end_of_service"], ["socialInsurance", "social_insurance"], ["returnTicket", "return_ticket"],
+]);
 
 // تفصيل السعر الشهري للموظف الواحد للعميل (قائمة بيضاء حقلاً حقلاً). result: ناتج computePackageRate (lump، ok). plan: provisionPlan (ok).
-// الأسطر: salary · insurance (فئة وشركة كما طُبِّقتا فعلاً) · housing/meals/transport حين «علينا» فقط · service (= الإجمالي − ما قبله).
-// مجموع الأسطر = السعر الشهري الذي يراه العميل بالتمام (الهللة). مغلق (clientBreakdownVisible≠true) ⇒ null.
+// مجموع الأسطر = السعر الشهري الذي يراه العميل بالتمام (الهللة). سطر مكوّنه صفر (كإجازة خارج السعر أو تذكرة عودة غير مفعّلة) لا يظهر.
+// مغلق (clientBreakdownVisible≠true) ⇒ null. وإن خرج «رسوم الخدمة» سالباً (إعداد شاذ) ⇒ null لا تصفير صامت يكسر المجموع.
 export function packageBreakdown(result, plan, cfg) {
   if (!isObj(cfg) || cfg.clientBreakdownVisible !== true || cfg.clientPriceVisible !== true) return null;
   if (!isObj(result) || result.status !== "ok" || result.mode !== "lump" || !isObj(result.internal) || !isObj(result.internal.lines)) return null;
   if (!isObj(plan) || plan.status !== "ok" || !Number.isFinite(result.billable)) return null;
-  const salaryH = sarToHalalas(result.package), insH = sarToHalalas(result.internal.lines.insurance);
-  const billableH = sarToHalalas(result.billable);
-  const serviceH = Math.max(0, billableH - salaryH - insH);
+  const L = result.internal.lines;
   const ins = isObj(result.insurance) ? result.insurance : null;
   const applied = !!ins && ins.status === "applied";
-  const lines = [
-    { key: "salary", amount: salaryH / 100 },
-    { key: "insurance", amount: insH / 100, class: applied && INSURANCE_CLASSES.includes(ins.class) ? ins.class : "basic", insurer: applied ? normalizeInsurerId(ins.insurer) : DEFAULT_INSURER },
-    ...plan.items.map((x) => ({ key: x.key, amount: x.halalas / 100 })),
-    { key: "service", amount: serviceH / 100 },
-  ];
-  return { lines, deferred: [...DEFERRED_BREAKDOWN] };
+  const salaryH = sarToHalalas(result.package);
+  let sumH = salaryH;
+  const lines = [{ key: "salary", amount: salaryH / 100 }];
+  for (const [src, key] of BREAKDOWN_ORDER) {
+    if (typeof L[src] !== "number" || !Number.isFinite(L[src])) continue;
+    const h = sarToHalalas(L[src]);
+    if (!(h > 0)) continue;
+    sumH += h;
+    lines.push(key === "insurance"
+      ? { key, amount: h / 100, class: applied && INSURANCE_CLASSES.includes(ins.class) ? ins.class : "basic", insurer: applied ? normalizeInsurerId(ins.insurer) : DEFAULT_INSURER }
+      : { key, amount: h / 100 });
+  }
+  for (const x of plan.items) lines.push({ key: x.key, amount: x.halalas / 100 });
+  // رسوم الخدمة = السعر الشهري − ما قبله؛ «علينا» مضافة فوق السعر فلا تدخل في طرحه.
+  const serviceH = sarToHalalas(result.billable) - sumH;
+  if (serviceH < 0) return null;
+  lines.push({ key: "service", amount: serviceH / 100 });
+  return { lines };
+}
+
+// لقطة تكلفة داخلية لتنسيبٍ يُثبَّت سعره (الفوترة): سعر الوحدة = السعر الشهري + «علينا»، وتكلفة الوحدة = تكلفة الصيغة + «علينا» تمريراً بالتكلفة
+// (بلا هامش على البنود المضافة) فيبقى الهامش = هامش الصيغة. ⚠ داخلي: لا يصل العميل أبداً (يُحفظ في «مدخلات التسعير» لدى الفريق).
+export function packageCostSnapshot(result, plan) {
+  if (!isObj(result) || result.status !== "ok" || result.mode !== "lump" || !isObj(result.internal) || !isObj(result.internal.lines)) return null;
+  if (!isObj(plan) || plan.status !== "ok" || !Number.isFinite(result.billable)) return null;
+  const lines = {};
+  for (const [k, v] of Object.entries(result.internal.lines)) if (typeof v === "number" && Number.isFinite(v)) lines[k] = sarToHalalas(v);
+  const provisions = {};
+  for (const x of plan.items) provisions[x.key] = x.halalas;
+  const costH = sarToHalalas(result.internal.cost) + plan.totalHalalas;
+  const priceH = sarToHalalas(result.billable) + plan.totalHalalas;
+  return { lines, provisions, costHalalas: costH, priceHalalas: priceH, marginHalalas: priceH - costH };
 }
 
 const OT_FIELDS = ["monthDays", "hoursPerDay", "multiplier", "extraFactor"];
 const otHourOf = (P, o) => (P / (o.monthDays * o.hoursPerDay)) * o.multiplier * o.extraFactor;
 const marginOk = (m) => typeof m === "number" && m >= 0 && m < 1;      // 1 − m يقسم السعر؛ m=1 قسمة على صفر
+
+// ذيل مشترك لمساري lump (الأجنبي والسعودي): اختيار التأمين الطبي ثم السعر والبنية الداخلية. build(insuranceMonthly) → { lines, cost, rate, billable }.
+function finishLump({ mode, workerType, P, currency, o, build, basicInsurance, inp, cfg, separate, extraInternal, warnings }) {
+  const ins = inp.insurance === undefined || inp.insurance === null ? null : insurancePremium(inp.insurance, cfg.insurance);
+  const sel = build(ins && ins.status === "applied" ? ins.monthly : basicInsurance);
+  const { lines, cost, rate, billable } = sel;
+  const out = {
+    status: "ok", mode, workerType, package: P, currency,
+    billable, otHour: r2(otHourOf(P, o)),
+    pendingDecision: false,
+    warnings: Array.isArray(warnings) ? warnings : [],
+    internal: {
+      cost: r2(cost), rate: r2(rate), markup: r2(billable - P), profit: r2(billable - cost), margin: (billable - cost) / billable,
+      lines: Object.fromEntries(Object.entries(lines).map(([k, v]) => [k, r2(v)])), separate: separate || {},
+      ...(extraInternal || {}),
+    },
+  };
+  if (ins) {
+    // ما يخرج للعميل منه: الفئة والحالة والفرق الشهري عن الأساسي (فرق سعرين مقرَّبين) وما طُبِّق من الإضافات — لا أرقام الأقساط.
+    const delta = ins.status === "applied" ? billable - build(basicInsurance).billable : 0;
+    out.insurance = { class: ins.class, status: ins.status, insurer: ins.status === "applied" ? ins.insurer : DEFAULT_INSURER, deltaMonthly: r2(delta), maternity: ins.maternity === true, chronic: ins.chronic === true };
+    out.internal.insurance = ins.status === "applied"
+      ? { ...ins.detail, class: ins.class, monthly: ins.monthly, basicMonthly: r2(basicInsurance), basicBillable: build(basicInsurance).billable }
+      : { class: ins.class, status: ins.status };
+  }
+  return out;
+}
+
+// مسار العامل السعودي (انظر saudiConfigFrom أعلاه). المدخلات الإضافية: firstSubscription (تاريخ أول اشتراك ISO، اختياري: الافتراضي مشترك جديد)،
+// startDate (تاريخ البدء ISO: تاريخ سريان نسبة التأمينات؛ الافتراضي اليوم)، termMonths (مدة العقد إن كان rate_basis = peak_in_term).
+function computeSaudiLump(P, inp, cfg, currency) {
+  const s = isObj(cfg.saudi) ? cfg.saudi : null;
+  if (!s || s.enabled !== true) return { status: "pending_pricing", missing: ["package_rate.saudi.enabled"] };
+  const missing = [];
+  if (!currency) missing.push("package_rate.currency");
+  const need = (key, label) => { if (!(typeof s[key] === "number" && Number.isFinite(s[key]))) missing.push("saudi." + label); };
+  need("marginOnPrice", "margin_on_price"); need("step", "mround_step"); need("insuranceYearly", "insurance_yearly");
+  need("overheadMonthly", "overhead_monthly"); need("endOfServiceMonthsPerYear", "end_of_service_months_per_year");
+  if (typeof s.leaveIncluded !== "boolean") missing.push("saudi.annual_leave.included_in_cost");
+  if (s.leaveIncluded !== false) { need("leaveDays", "annual_leave.days"); need("leaveMonthDays", "annual_leave.month_days"); }
+  const o = isObj(s.overtime) ? s.overtime : {};
+  for (const k of OT_FIELDS) if (!(typeof o[k] === "number" && Number.isFinite(o[k]))) missing.push("saudi.overtime." + k);
+  const g = isObj(s.gosi) ? s.gosi : null;
+  if (!g || !(typeof g.wageCap === "number" && g.wageCap > 0)) missing.push("saudi.social_insurance");
+  const refDate = validIso(inp.startDate) ? inp.startDate : (validIso(inp.config && inp.config.today) ? inp.config.today : (validIso(cfg.today) ? cfg.today : null));
+  if (!refDate) missing.push("saudi.social_insurance.reference_date");
+  const regime = g ? gosiRegimeFor(g.labor, validIso(inp.firstSubscription) ? inp.firstSubscription : "") : "new";
+  if (g && regime === "legacy" && s.priceLegacy !== true) missing.push("saudi.social_insurance.price_legacy_cohort");
+  let pct = null;
+  if (g && refDate) {
+    const terms = Number.isInteger(inp.termMonths) && inp.termMonths > 0 && inp.termMonths <= MAX_CONTRACT_MONTHS ? inp.termMonths : 0;
+    const peakUntil = s.rateBasis === "peak_in_term" && terms ? addMonthsIso(refDate, terms) : undefined;
+    pct = gosiEmployerPct(g.labor, regime, refDate, peakUntil);
+    if (!pct) missing.push("saudi.social_insurance.employer_rate");
+  }
+  if (missing.length) return { status: "pending_pricing", missing };
+  if (!marginOk(s.marginOnPrice)) return { status: "invalid_input", errors: [{ field: "config.saudi.margin_on_price", error: "rate_out_of_range" }] };
+  if (!(s.step > 0) || !(o.monthDays > 0) || !(o.hoursPerDay > 0) || (s.leaveIncluded !== false && !(s.leaveMonthDays > 0))) return { status: "invalid_input", errors: [{ field: "config.saudi", error: "must_be_positive" }] };
+
+  const leaveMonthly = s.leaveIncluded === false ? 0 : ((P / s.leaveMonthDays) * s.leaveDays) / 12;
+  const basicInsurance = s.insuranceYearly / 12;
+  const base = Math.min(P, g.wageCap);                     // الأجر الخاضع: الراتب حتى الحد الأعلى
+  const build = (insuranceMonthly) => {
+    const lines = {
+      package: P,
+      insurance: insuranceMonthly,
+      annualLeave: leaveMonthly,
+      endOfService: (P * s.endOfServiceMonthsPerYear) / 12,
+      socialInsurance: base * (pct.pct / 100),
+      overhead: s.overheadMonthly,
+    };
+    const cost = Object.values(lines).reduce((x, y) => x + y, 0);
+    const rate = cost / (1 - s.marginOnPrice);
+    return { lines, cost, rate, billable: mround(rate, s.step) };
+  };
+  const separate = {};
+  if (s.leaveIncluded === false) separate.annualLeaveMonthlyEquivalent = r2(((P / s.leaveMonthDays) * s.leaveDays) / 12);
+  // قرارات مفتوحة داخلية: نسبة التأمينات غير المؤكدة في الملف (verify) والمشترك القديم وأي استحقاق مأخوذ من بند غير مؤكد.
+  const open = [...s.openDecisions];
+  if (pct.verify) open.push(`gosi_${regime}_rate_unverified`);
+  return finishLump({
+    mode: "lump", workerType: "saudi", P, currency, o, build, basicInsurance, inp, cfg, separate,
+    warnings: open.map((x) => "open_decision:" + x),
+    extraInternal: { gosi: { regime, employerPct: pct.pct, wageCap: g.wageCap, referenceDate: refDate, basis: s.rateBasis }, openDecisions: open },
+  });
+}
 
 // computePackageRate({ mode, package, config }) →
 //   { status:"ok", mode, package, currency, billable, otHour, pendingDecision, warnings:[…],
@@ -671,6 +861,8 @@ export function computePackageRate(input) {
   const missing = [];
   const need = (obj, key, label) => { if (!(typeof obj[key] === "number" && Number.isFinite(obj[key]))) missing.push(label); };
   const currency = typeof cfg.currency === "string" && cfg.currency.trim() ? cfg.currency.trim() : (missing.push("package_rate.currency"), null);
+
+  if (mode === "lump" && inp.workerType === "saudi") return computeSaudiLump(P, inp, cfg, currency);
 
   if (mode === "lump") {
     const c = isObj(cfg.lump) ? cfg.lump : {};
@@ -708,31 +900,10 @@ export function computePackageRate(input) {
       const rate = cost / (1 - c.marginOnPrice);
       return { lines, cost, rate, billable: mround(rate, c.step) };
     };
-    const ins = inp.insurance === undefined || inp.insurance === null ? null : insurancePremium(inp.insurance, cfg.insurance);
-    const sel = build(ins && ins.status === "applied" ? ins.monthly : basicInsurance);
-    const { lines, cost, rate, billable } = sel;
     const separate = {};
     if (c.leaveIncluded === false) separate.annualLeaveMonthlyEquivalent = r2(((P / c.leaveMonthDays) * c.leaveDays) / 12);
     if (c.joiningIncluded === false) separate.joiningMonthlyEquivalent = r2(c.joiningYearly / 12);
-    const out = {
-      status: "ok", mode, package: P, currency,
-      billable, otHour: r2(otHourOf(P, o)),
-      pendingDecision: false,
-      warnings: [],
-      internal: {
-        cost: r2(cost), rate: r2(rate), markup: r2(billable - P), profit: r2(billable - cost), margin: (billable - cost) / billable,
-        lines: Object.fromEntries(Object.entries(lines).map(([k, v]) => [k, r2(v)])), separate,
-      },
-    };
-    if (ins) {
-      // ما يخرج للعميل منه: الفئة والحالة والفرق الشهري عن الأساسي (فرق سعرين مقرَّبين) وما طُبِّق من الإضافات — لا أرقام الأقساط.
-      const delta = ins.status === "applied" ? billable - build(basicInsurance).billable : 0;
-      out.insurance = { class: ins.class, status: ins.status, insurer: ins.status === "applied" ? ins.insurer : DEFAULT_INSURER, deltaMonthly: r2(delta), maternity: ins.maternity === true, chronic: ins.chronic === true };
-      out.internal.insurance = ins.status === "applied"
-        ? { ...ins.detail, class: ins.class, monthly: ins.monthly, basicMonthly: r2(basicInsurance), basicBillable: build(basicInsurance).billable }
-        : { class: ins.class, status: ins.status };
-    }
-    return out;
+    return finishLump({ mode, workerType: "foreign", P, currency, o, build, basicInsurance, inp, cfg, separate });
   }
 
   // costplus — pending_decision

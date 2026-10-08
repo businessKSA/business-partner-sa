@@ -419,7 +419,13 @@ test("create-placement: التحقق والفشل المغلق (سعودي غي�
   await err({ salary: 1e9 }, "salary_invalid");
   await err({ requestRef: "x" }, "request_ref_invalid");
   await err({ vendorId: "bad id!" }, "vendor_invalid");
-  await err({ workerType: "saudi" }, "not_applicable", 409);               // الصيغة للأجنبي وحده حتى يقرر المالك
+  await err({ workerType: "saudi" }, "salary_below_min");                   // السعودي مُسعَّر الآن (الشريحة ب) وراتب 2000 تحت حدّه الأدنى 4000
+  await err({ salary: 300 }, "salary_below_min");                           // الأجنبي: الحدّ 400
+  {
+    const off = clone(PRICING); off.package_rate.saudi.enabled = false;      // مفتاح الإغلاق ⇒ السعودي «غير مُسعَّر» كما كان
+    const r = await A(placeBody({ workerType: "saudi", salary: 5000, employeeNo: "S-OFF" }), OPS, { pricing: off });
+    assert.deepEqual([r.ok, r.error, r.status], [false, "not_applicable", 409]);
+  }
   assert.equal(fake.writes().length, 0, "لا كتابة عند أي رفض");
   assert.equal((await A(placeBody(), OPS)).ok, true);
   await err({}, "duplicate_placement", 409);
@@ -872,4 +878,103 @@ test("الأعمدة الحرفية: مصدر واحد للأسماء، بلا �
   assert.deepEqual(Object.values(B.INVOICE_STATUS_AR), ["مسودة", "صادرة", "مدفوعة", "ملغاة"]);
   assert.deepEqual(Object.values(B.TIMESHEET_STATUS_AR), ["مسودة", "مقدَّمة", "معتمدة من العميل", "مرفوضة"]);
   assert.deepEqual(B.BILLING_DB_ENVS, { placements: "EOR_PLACEMENTS_DB", timesheets: "EOR_TIMESHEETS_DB", invoices: "EOR_INVOICES_DB" });
+});
+
+/* ═════════════ الشريحة ب: التنسيب يثبّت ما رآه العميل (سعر الحزمة + «علينا» + تأمين الفئة) ═════════════ */
+const ALL_US = { housing: "us", meals: "us", transport: "us" };
+const INS_B = { insuranceClass: "B", ageBand: "30-39", gender: "female", maternity: true, chronic: true, insurer: "bupa" };
+async function monthInvoice(fake, A, placeOver, month = "2026-10") {
+  const p = await A(placeBody(placeOver), OPS);
+  assert.equal(p.ok, true, JSON.stringify(p));
+  const s = await A(sheetBody(p.placement.id, { month }), OPS);
+  const ap = await A({ action: "approve-timesheet", timesheetId: s.timesheet.id, version: s.timesheet.version }, AUTH_A);
+  assert.equal(ap.ok, true, JSON.stringify(ap));
+  const g = await A({ action: "generate-invoice", clientId: CL, month }, OPS);
+  assert.equal(g.ok, true, JSON.stringify(g));
+  return { placement: p.placement, invoice: g.invoice };
+}
+
+test("مرجعي: فاتورة شهر لتنسيب بكل الإضافات = ما عُرض في الطلب بالهللة (السكن والإعاشة والمواصلات + تأمين الفئة)", async () => {
+  const items = [{ occupationId: "hosp.waiter", count: 1, nationalities: ["IN"], salary: 2750, gender: "female", ...INS_B }];
+  const shown = await E.handleEor({ action: "price", workerType: "foreign", durationMonths: 12, provisions: ALL_US, startDate: "2026-11-05", items }, { now: NOW, ip: "", pricing: PRICING });
+  const ln = shown.quote.lines[0];
+  assert.equal(ln.status, "priced");
+  const noExtras = await E.handleEor({ action: "price", workerType: "foreign", durationMonths: 12, items: [{ ...items[0], insuranceClass: "basic", ageBand: "" }] }, { now: NOW, ip: "", pricing: PRICING });
+  assert.ok(ln.monthlyPerEmployee > noExtras.quote.lines[0].monthlyPerEmployee + 1500, "الطلب يشمل 1500 «علينا» وتأميناً أعلى");
+
+  const fake = fakeNotion(); const A = api(fake);
+  const { placement, invoice } = await monthInvoice(fake, A, { salary: 2750, provisions: ALL_US, insurance: INS_B });
+  assert.equal(placement.unitPriceHalalas, Math.round(ln.monthlyPerEmployee * 100), "سعر الوحدة المثبَّت = سعر الطلب");
+  assert.equal(invoice.lines[0].unitPriceHalalas, placement.unitPriceHalalas);
+  assert.equal(invoice.lines[0].amountHalalas, Math.round(ln.monthlyPerEmployee * 100), "فاتورة الشهر = ما عُرض");
+  assert.equal(invoice.subtotalHalalas, Math.round(ln.monthlyPerEmployee * 100));
+  assert.equal(invoice.vatHalalas, mdh(invoice.subtotalHalalas * 15, 1, 100));
+  // الأساس بلا إضافات يطابق سعر الطلب الأساسي، والفرق عنه ≥ «علينا» (1500) + فرق التأمين
+  const fake2 = fakeNotion();
+  const b = await monthInvoice(fake2, api(fake2), { salary: 2750 });
+  assert.equal(b.invoice.lines[0].amountHalalas, Math.round(noExtras.quote.lines[0].monthlyPerEmployee * 100));
+  assert.ok(invoice.lines[0].amountHalalas - b.invoice.lines[0].amountHalalas > 150000);
+});
+
+test("لقطة التكلفة الداخلية: مكوّنات التكلفة بالهللة + «علينا» تمريراً بالتكلفة، والهامش = هامش الصيغة، ولا شيء منها لعميل", async () => {
+  const fake = fakeNotion(); const A = api(fake);
+  const base = (await A(placeBody({ employeeNo: "B-1", salary: 2000 }), OPS)).placement;                     // بلا إضافات
+  const full = (await A(placeBody({ employeeNo: "B-2", salary: 2000, provisions: ALL_US }), OPS)).placement;   // + 3 × 500
+  assert.equal(base.unitPriceHalalas, 482000);
+  assert.equal(full.unitPriceHalalas, 482000 + 150000, "سعر الوحدة = سعر الحزمة + السكن والإعاشة والمواصلات");
+  assert.equal(full.costUnitHalalas, base.costUnitHalalas + 150000, "«علينا» تمريراً بالتكلفة بلا هامش");
+  assert.equal(full.unitPriceHalalas - full.costUnitHalalas, base.unitPriceHalalas - base.costUnitHalalas, "الهامش ثابت = هامش الصيغة");
+  const row = [...fake.pages.values()].find((pg) => pg.properties[B.PLACEMENT_PROPS.employeeNo].rich_text[0].plain_text === "B-2");
+  const pi = JSON.parse(row.properties[B.PLACEMENT_PROPS.pricingInput].rich_text.map((x) => x.plain_text).join(""));
+  assert.deepEqual(pi.provisions, { housing: "us", meals: "us", transport: "us" });
+  assert.deepEqual(pi.costSnapshot.provisions, { housing: 50000, meals: 50000, transport: 50000 });
+  assert.equal(pi.costSnapshot.priceHalalas, full.unitPriceHalalas);
+  assert.equal(pi.costSnapshot.costHalalas, full.costUnitHalalas);
+  assert.equal(pi.costSnapshot.marginHalalas, pi.costSnapshot.priceHalalas - pi.costSnapshot.costHalalas);
+  // مكوّنات الصيغة بالهللة عند راتب 2000 (إكسل المالك): حكومي 882.5 · تأمين 50 · إجازة 116.67 · خروج 16.67 · انضمام 250 · نهاية خدمة 83.33 · تأمينات 40 · مصاريف 900
+  assert.deepEqual([pi.costSnapshot.lines.government, pi.costSnapshot.lines.insurance, pi.costSnapshot.lines.annualLeave, pi.costSnapshot.lines.exitReentry, pi.costSnapshot.lines.joining, pi.costSnapshot.lines.endOfService, pi.costSnapshot.lines.socialInsurance, pi.costSnapshot.lines.overhead],
+    [88250, 5000, 11667, 1667, 25000, 8333, 4000, 90000]);
+  // العميل لا يرى تنسيبه بسعر ولا تكلفة ولا لقطة
+  const mine = JSON.stringify(await A({ action: "list-placements" }, AUTH_A));
+  assert.equal(/costSnapshot|pricingInput|costUnit|unitPrice|marginHalalas|priceSource/.test(mine), false);
+  // الفريق: فاتورة الشهر تُظهر هامش الصيغة وحده (التكلفة تشمل «علينا»)
+  const s = await A(sheetBody(full.id), OPS);
+  await A({ action: "approve-timesheet", timesheetId: s.timesheet.id, version: s.timesheet.version }, AUTH_A);
+  const g = await A({ action: "generate-invoice", clientId: CL, month: "2026-10" }, OPS);
+  assert.equal(g.invoice.marginHalalas, base.unitPriceHalalas - base.costUnitHalalas);
+});
+
+test("تنسيب سعودي: يُسعَّر بمساره (4000 فأكثر)، ويُثبَّت سعره والتأمينات والقرار المفتوح في اللقطة، ولا يُقبل تحت الحدّ", async () => {
+  const fake = fakeNotion(); const A = api(fake);
+  const shown = await E.handleEor({ action: "price", workerType: "saudi", durationMonths: 12, startDate: "2026-11-05", provisions: { transport: "us" }, items: [{ count: 1, nationalities: ["SA"], salary: 6000 }] }, { now: NOW, ip: "", pricing: PRICING });
+  const ln = shown.quote.lines[0];
+  assert.equal(ln.status, "priced");
+  const p = await A(placeBody({ workerType: "saudi", employeeNo: "S-1", salary: 6000, startDate: "2026-11-05", provisions: { transport: "us" } }), OPS);
+  assert.equal(p.ok, true, JSON.stringify(p));
+  assert.equal(p.placement.unitPriceHalalas, Math.round(ln.monthlyPerEmployee * 100), "تنسيب السعودي = ما عُرض");
+  // قديم: تاريخ أول اشتراك قبل 2024-07-03 ⇒ 11.75% (قرار مفتوح) وسعر أقل
+  const legacy = await A(placeBody({ workerType: "saudi", employeeNo: "S-2", salary: 6000, startDate: "2026-11-05", provisions: { transport: "us" }, firstSubscriptionDate: "2019-03-01" }), OPS);
+  assert.ok(legacy.placement.unitPriceHalalas < p.placement.unitPriceHalalas);
+  const row = [...fake.pages.values()].find((pg) => pg.properties[B.PLACEMENT_PROPS.employeeNo].rich_text[0].plain_text === "S-2");
+  const pi = JSON.parse(row.properties[B.PLACEMENT_PROPS.pricingInput].rich_text.map((x) => x.plain_text).join(""));
+  assert.equal(pi.workerType, "saudi");
+  assert.equal(pi.firstSubscription, "2019-03-01");
+  assert.deepEqual(pi.openDecisions, ["gosi_legacy_rate_unverified"]);
+  const bad = await A(placeBody({ workerType: "saudi", employeeNo: "S-3", salary: 3999 }), OPS);
+  assert.deepEqual([bad.ok, bad.error, bad.status], [false, "salary_below_min", 400]);
+});
+
+test("العمالة المرنة: تنسيب بالساعة/اليوم/الشهر يثبّت سعر الطلب بما فيه «علينا» الموزَّعة على الوحدة (وتكلفته تمريراً)", async () => {
+  const fake = fakeNotion(); const A = api(fake);
+  for (const [unit, ub, extra] of [["hourly", "hour", {}], ["daily", "day", { hoursPerDay: 8 }], ["monthly", "month", {}]]) {
+    const shown = await E.handleEor({ action: "price", workerType: "foreign", engagementType: "casual", durationUnit: ub === "hour" ? "hour" : ub === "day" ? "day" : "month", durationValue: 10, provisions: ALL_US,
+      items: [{ count: 1, nationalities: ["IN"], salary: 2000, billingUnit: unit, quantity: 10, hoursPerDay: extra.hoursPerDay || null }] }, { now: NOW, ip: "", pricing: PRICING });
+    const u = shown.quote.lines[0].unit;
+    const bare = await A(placeBody({ engagementType: "casual", billingUnit: unit, employeeNo: "C0-" + unit, ...extra }), OPS);
+    const full = await A(placeBody({ engagementType: "casual", billingUnit: unit, employeeNo: "C1-" + unit, provisions: ALL_US, ...extra }), OPS);
+    assert.equal(full.placement.unitPriceHalalas, Math.round(u.unitPrice * 100), unit + ": سعر التنسيب = سعر الطلب");
+    const provH = Math.round(u.provisions.reduce((s, x) => s + x.amount * 100, 0));
+    assert.equal(full.placement.unitPriceHalalas - bare.placement.unitPriceHalalas, provH, unit);
+    assert.equal(full.placement.costUnitHalalas - bare.placement.costUnitHalalas, provH, unit + ": تمريراً بالتكلفة");
+  }
 });

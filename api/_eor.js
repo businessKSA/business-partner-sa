@@ -26,7 +26,8 @@ import { randomInt } from "node:crypto";
 import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
 import { OCCUPATIONS, searchOccupations } from "./_occupations.js";
 import { packageRateConfigFromPricing, computePackageRate, packageClientView, computeCasualRate, casualUnitView, normalizeInsuranceFields, insuranceUiFromConfig, DEFAULT_INSURER, normalizeBillingUnit, normalizeEngagementType, parseUnitQuantity, parseCasualHours, INSURANCE_GENDERS, normalizeProvisions, provisionPlan, provisionDisplayAmounts, packageBreakdown, salaryMinFor, casualProvisionHalalas, PROVISION_KEYS } from "./_eor-cost.js";
-import { isCountryCode, countryNameFromCatalog, resolveOccupationId, occupationRef, isKnownOccupation, cityById, sectorById, isSeniority, seniorityLabel, searchCatalogOccupations, catalogIdsForOld, catalogOccupations, catalogCountries, cleanAssistText, assistSystemPrompt, parseAssistOutput, ASSIST_LIMITS } from "./_eor-form.js";
+import { isCountryCode, countryNameFromCatalog, resolveOccupationId, occupationRef, isKnownOccupation, cityById, sectorById, isSeniority, seniorityLabel, searchCatalogOccupations, catalogIdsForOld, catalogOccupations, catalogCountries, cleanAssistText, assistSystemPrompt, parseAssistOutput, ASSIST_LIMITS, localizationLookup } from "./_eor-form.js";
+import { localizationNotices, localizationModeFrom } from "./_eor-localization.js";
 import { azureChat, azureConfigured } from "./_azure.js";
 import { isBillingAction, handleEorBilling } from "./_eor-billing.js";
 // المسار (api/requests.js) يحسب ctx.auth للإجراءات المحجوزة ويستورد هذين من هنا مع handleEor.
@@ -230,7 +231,8 @@ export function validateEorRequest(body, opts = {}) {
   const b = body && typeof body === "object" && !Array.isArray(body) ? body : null;
   if (!b) return fail("invalid_body");
   const today = riyadhToday(opts.now);
-  const limits = (packageRateConfigFromPricing(opts.pricing !== undefined ? opts.pricing : loadPricing()) || {}).limits || null;
+  const rulesPricing = opts.pricing !== undefined ? opts.pricing : loadPricing();
+  const limits = (packageRateConfigFromPricing(rulesPricing) || {}).limits || null;
 
   const company = oneLine(b.company, EOR_LIMITS.company);
   if (!company) return fail("company_required", "company");
@@ -315,6 +317,13 @@ export function validateEorRequest(body, opts = {}) {
       const min = salaryMinFor(wt, limits);
       if (min !== null && salary < min) return fail("salary_below_min", "items", { index: i, min, workerType: wt });
     }
+    // تاريخ أول اشتراك في التأمينات الاجتماعية (اختياري، للسعودي): يحدّد نظام الاشتراك (جديد/قديم) وبالتالي حصة صاحب العمل. الفاسد يُرفض لا يُهمَل.
+    let firstSubscriptionDate = "";
+    if (it.firstSubscriptionDate != null && it.firstSubscriptionDate !== "") {
+      const f = typeof it.firstSubscriptionDate === "string" ? it.firstSubscriptionDate.trim() : "";
+      if (!isoDate(f) || f > today || f < "1970-01-01") return fail("first_subscription_invalid", "items", { index: i });
+      firstSubscriptionDate = f;
+    }
     // التأمين من خصائص التعاقد (EOR) وحدها؛ والوحدة والكمية من خصائص العمالة المرنة وحدها.
     let extra;
     if (engagementType === "casual") {
@@ -322,7 +331,7 @@ export function validateEorRequest(body, opts = {}) {
       if (!un.ok) return fail(un.error, "items", { index: i });
       extra = un.value;
     } else extra = normalizeInsuranceFields(it);
-    items.push({ occupationId: occ.occupationId, ...(occ.occupationCatalogId ? { occupationCatalogId: occ.occupationCatalogId } : {}), ...(seniority ? { seniority } : {}), count, nationalities: nats, salary, gender: genderOf(it), ...extra });
+    items.push({ occupationId: occ.occupationId, ...(occ.occupationCatalogId ? { occupationCatalogId: occ.occupationCatalogId } : {}), ...(seniority ? { seniority } : {}), count, nationalities: nats, salary, gender: genderOf(it), ...(firstSubscriptionDate ? { firstSubscriptionDate } : {}), ...extra });
   }
 
   let startDate = "";
@@ -334,6 +343,16 @@ export function validateEorRequest(body, opts = {}) {
   const dur = normalizeDuration(b, engagementType);
   if (!dur.ok) return fail("duration_invalid", "durationValue");
   const dm = dur.months;
+
+  // التوطين: المستشار (advise) لا يمنع. وضع block يمنع المهنة المقصورة على السعوديين (100%) إن سرت بعدُ وطُلبت بجنسية غير سعودية
+  // (قرار المالك «منع أم تحويل» مفتوح؛ الافتراضي advise). المهن ذات النسب (لا 100%) لا تُمنع أبداً: النسبة على مستوى الكيان لا الموظف.
+  if (localizationModeFrom(rulesPricing) === "block") {
+    for (const n of localizationNotices(items, { refDate: startDate || today, lookup: localizationLookup })) {
+      if (!n.notice || !n.notice.saudiOnly || n.notice.upcoming) continue;
+      const wt = itemWorkerType(items[n.index], workerType);
+      if (wt === "foreign" || wt === "mixed") return fail("occupation_saudi_only", "items", { index: n.index });
+    }
+  }
 
   if (b.notes != null && typeof b.notes !== "string") return fail("notes_invalid", "notes");
   if (typeof b.notes === "string" && b.notes.length > EOR_LIMITS.notes) return fail("notes_too_long", "notes");
@@ -444,7 +463,7 @@ export function estimateQuote(items, pricing, opts = {}) {
 
 // ═════════════ سعر الحزمة الشهري الفوري (حاسبة المالك — api/_eor-cost.js) ═════════════
 // estimatePackageQuote(items, pricing, opts{ workerType, durationMonths, now })
-//   يُسعِّر كل بندٍ عُرف راتبه بصيغة الإكسل (وضع lump)، للعامل الأجنبي وحده (package_rate.applies_to_worker_types).
+//   يُسعِّر كل بندٍ عُرف راتبه بصيغة الإكسل (وضع lump) للأجنبي، وبمسار التكلفة السعودي (package_rate.saudi) للسعودي؛ والمختلط لا يُسعَّر إلا بتقسيمه.
 //   ما يخرج من هنا آمنٌ للعميل: السعر الشهري للموظف وساعة الإضافي ومجموع البند فقط — لا تكلفة ولا هامش ولا ربح.
 //   كتلة package_rate غائبة/مُغلقة (client_price_visible=false)/خارج الصلاحية ⇒ { status:"pending_pricing" } وحدها.
 //   مدة العقد (durationMonths) معلومةٌ فقط: لا تدخل الحساب (التوزيع على 12/24/36 شهراً غير محسوم عند المالك).
@@ -476,12 +495,16 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
       const min = salaryMinFor(wt, cfg.limits);
       if (min !== null && it.salary < min) { lines.push({ ...line, status: "below_min", minSalary: min }); continue; }
     }
+    // المختلط (سعودي مع أجنبي في بندٍ واحد) لا يُسعَّر: لكل نوع مسار تكلفة مختلف، فيُقسَّم البند إلى بندين (needs_review).
     if (wt === "mixed" || wt === "unknown") { lines.push({ ...line, status: "needs_review" }); continue; }
-    if (!cfg.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
+    // الأجنبي: صيغة الإكسل (applies_to_worker_types)، والسعودي: مساره الخاص package_rate.saudi (مفتاح enabled).
+    if (wt === "saudi" ? !(cfg.saudi && cfg.saudi.enabled === true) : !cfg.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
     if (!isNum(it.salary) || it.salary <= 0) { lines.push({ ...line, status: "needs_salary" }); continue; }
     // اختيار التأمين (اختياري لكل بند): يُمرَّر فقط حين يحمل البند حقوله، والحاسبة تُسقط المجهول إلى «الأساسي».
     const insurance = "insuranceClass" in it ? { insuranceClass: it.insuranceClass, ageBand: it.ageBand, gender: it.gender, maternity: it.maternity, chronic: it.chronic, insurer: it.insurer } : undefined;
-    const res = computePackageRate({ mode: "lump", package: it.salary, insurance, config: { ...cfg, today } });
+    const res = computePackageRate({ mode: "lump", workerType: wt, package: it.salary, insurance, firstSubscription: it.firstSubscriptionDate, startDate: isoDate(opts.startDate) ? opts.startDate : undefined, termMonths: months, config: { ...cfg, today } });
+    // السعودي بإعداد ناقص (قيمة null في package_rate.saudi أو نسبة تأمينات بلا مصدر) ⇒ «بعد المراجعة» لهذا البند وحده؛ لا يُسقط تسعير الأجنبي.
+    if (wt === "saudi" && res.status === "pending_pricing") { lines.push({ ...line, status: "needs_review" }); continue; }
     const view = packageClientView(res, cfg);
     if (view.status !== "ok") return PENDING;      // حاسبة ناقصة أو مغلقة: لا رقم لأي بند
     // السكن والإعاشة والمواصلات «علينا»: قيمة شهرية لكل فرد تُضاف فوق السعر بلا هامش. قيمة ناقصة في الإعداد لبندٍ اختاره العميل ⇒ لا رقم.
@@ -565,7 +588,7 @@ function estimateCasualQuote(list, cfg, today, months, opts, durationOut) {
 }
 
 // يُنظّف بنود طلب السعر (count وnationalities وsalary فقط) — لا مهنة ولا أي بيان تواصل. { ok, items } | { ok:false, ... }
-function normalizePriceItems(rawItems, engagementType) {
+function normalizePriceItems(rawItems, engagementType, nowMs) {
   if (!Array.isArray(rawItems) || !rawItems.length) return fail("items_required", "items");
   if (rawItems.length > EOR_LIMITS.maxItems) return fail("too_many_items", "items");
   const items = [];
@@ -595,7 +618,10 @@ function normalizePriceItems(rawItems, engagementType) {
       if (!un.ok) return fail(un.error, "items", { index: i });
       extra = un.value;
     } else extra = normalizeInsuranceFields(it);
-    items.push({ count, nationalities: nats, salary, gender: genderOf(it), ...extra });
+    // تاريخ أول اشتراك للسعودي (اختياري): الفاسد يُهمَل في التقدير الفوري (الإرسال النهائي يرفضه).
+    const fs = typeof it.firstSubscriptionDate === "string" ? it.firstSubscriptionDate.trim() : "";
+    const firstSubscriptionDate = isoDate(fs) && fs >= "1970-01-01" && fs <= riyadhToday(nowMs) ? fs : "";
+    items.push({ count, nationalities: nats, salary, gender: genderOf(it), ...(firstSubscriptionDate ? { firstSubscriptionDate } : {}), ...extra });
   }
   return { ok: true, items };
 }
@@ -879,10 +905,15 @@ async function defaultNotify(payload) {
 }
 
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666;vertical-align:top">${esc(k)}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
-function teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames) {
+// تنبيه التوطين للفريق (عربي، داخلي): الفئة والنسبة والتاريخ والتقريب. لا رقم قرار ولا رابط (المرجع في الملف المرجعي).
+const LOC_CAT_AR = { marketing: "التسويق", sales: "المبيعات", accounting: "المحاسبة", procurement: "المشتريات", engineering: "الهندسة", project_management: "إدارة المشاريع", admin_support: "المهن الإدارية المساندة", pharmacy: "الصيدلة", dental: "طب الأسنان" };
+export function localizationTeamText(notes) {
+  return (notes || []).map((n) => `بند ${n.item}: ${LOC_CAT_AR[n.category] || n.category} — ${n.saudiOnly ? "مقصورة على السعوديين" : n.percentMax && n.percentMax !== n.percent ? `${n.percent}% إلى ${n.percentMax}%` : `${n.percent}%`} ${n.upcoming ? "يبدأ" : "يسري"} ${n.from}${n.close ? " (تطابق تقريبي)" : ""}${n.verify ? " (يُراجَع)" : ""}`).join("؛ ");
+}
+function teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames, locText) {
   return `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
 <h2 style="color:#0B1B5A">👥 طلب EOR جديد ${esc(ref)}</h2>
-<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("القطاع التفصيلي", v.sectorId && sectorById(v.sectorId) ? `${sectorById(v.sectorId).ar} | ${sectorById(v.sectorId).en}` : "")}${row("السكن والإعاشة والمواصلات", provisionsText(v.provisions))}${row("نوع التعاقد", ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة", durationText(v.durationUnit, v.durationValue, "ar") || (v.durationMonths ? v.durationMonths + " شهراً" : ""))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
+<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("القطاع التفصيلي", v.sectorId && sectorById(v.sectorId) ? `${sectorById(v.sectorId).ar} | ${sectorById(v.sectorId).en}` : "")}${row("السكن والإعاشة والمواصلات", provisionsText(v.provisions))}${row("نوع التعاقد", ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة", durationText(v.durationUnit, v.durationValue, "ar") || (v.durationMonths ? v.durationMonths + " شهراً" : ""))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}${locText ? row("تنبيه التوطين", locText) : ""}</table>
 <h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items, insurerNames))}</pre>
 ${v.notes ? `<h3 style="color:#0B1B5A">ملاحظات</h3><p style="white-space:pre-wrap">${esc(v.notes)}</p>` : ""}
 ${notionUrl ? `<p><a href="${esc(notionUrl)}">فتح الطلب في Notion</a></p>` : ""}</div>`;
@@ -1008,14 +1039,37 @@ export async function handleEor(body, ctx = {}) {
     const wt = String(body.workerType || "");
     if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, wt)) return fail("worker_type_invalid", "workerType");
     const engagement = normalizeEngagementType(body.engagementType);
-    const n = normalizePriceItems(body.items, engagement);
+    const n = normalizePriceItems(body.items, engagement, nowMs);
     if (!n.ok) return n;
     // المدة هنا متساهلة (تقدير فوري): الفاسد يُهمَل ولا يُرفض الطلب. الوحدة/القيمة الجديدتان، وإلا durationMonths القديم.
     const explicitDur = body.durationValue !== undefined && body.durationValue !== null && body.durationValue !== "";
     const dur = explicitDur ? normalizeDuration(body, engagement) : { ok: false };      // الطلب القديم (durationMonths وحده) يبقى على مساره كما كان
     const dm = typeof body.durationMonths === "string" && /^\d+$/.test(body.durationMonths.trim()) ? Number(body.durationMonths.trim()) : body.durationMonths;
     const pricingNow = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
-    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: dur.ok ? dur.months : (Number.isInteger(dm) ? dm : null), durationUnit: dur.ok ? dur.unit : undefined, durationValue: dur.ok ? dur.value : undefined, now: nowMs, engagementType: engagement, provisions: normalizeProvisions(body.provisions) }) };
+    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, startDate: typeof body.startDate === "string" ? body.startDate : undefined, durationMonths: dur.ok ? dur.months : (Number.isInteger(dm) ? dm : null), durationUnit: dur.ok ? dur.unit : undefined, durationValue: dur.ok ? dur.value : undefined, now: nowMs, engagementType: engagement, provisions: normalizeProvisions(body.provisions) }) };
+  }
+
+  // مستشار التوطين: لكل بند (مهنة + جنسيات) تنبيهٌ معلوماتي بنسبة توطين مهنته وتاريخ سريانها إن خضعت لقرار. لا كتابة ولا بريد، ولا مسار حساب ولا مرجع نظامي
+  // في الردّ (الفئة والنسبة والتاريخ والعدد الأدنى فقط). mode: advise (لا منع) | block (يمنع المقصورة على السعوديين عند الإرسال).
+  if (body && typeof body === "object" && body.action === "localization") {
+    const rows = Array.isArray(body.items) ? body.items.slice(0, EOR_LIMITS.maxItems) : [];
+    const today = riyadhToday(nowMs);
+    const sd = typeof body.startDate === "string" && isoDate(body.startDate) && body.startDate >= addDays(today, -1) && body.startDate <= addDays(today, EOR_LIMITS.maxStartDays) ? body.startDate : null;
+    const wt = Object.prototype.hasOwnProperty.call(WORKER_TYPES, String(body.workerType || "")) ? String(body.workerType) : "";
+    const items = rows.map((it) => {
+      const occ = resolveOccupationId(String(it && it.occupationId || ""));
+      const nats = [];
+      if (it && Array.isArray(it.nationalities)) for (const c of it.nationalities.slice(0, EOR_LIMITS.maxNationalities)) { const code = String(c || "").toUpperCase(); if (isNat(code) && !nats.includes(code)) nats.push(code); }
+      return occ.ok ? { occupationId: occ.occupationId, ...(occ.occupationCatalogId ? { occupationCatalogId: occ.occupationCatalogId } : {}), nationalities: nats } : { occupationId: "", nationalities: nats };
+    });
+    const mode = localizationModeFrom(ctx.pricing !== undefined ? ctx.pricing : loadPricing());
+    const notices = localizationNotices(items, { refDate: sd || today, lookup: localizationLookup }).map((n) => {
+      if (!n.notice) return { index: n.index };
+      // في وضع block تُعلَّم الرفض المتوقع (مقصورة سارية وجنسية غير سعودية) لتعرض الصفحة منعاً لا تنبيهاً.
+      const itWt = itemWorkerType(items[n.index], wt);
+      return { index: n.index, ...n.notice, blocked: mode === "block" && n.notice.saudiOnly && !n.notice.upcoming && (itWt === "foreign" || itWt === "mixed") };
+    });
+    return { ok: true, mode, notices };
   }
 
   // إعدادات النموذج التي تحتاجها الواجهة قبل أي سعر: حدّا الراتب الأدنى (سعودي/أجنبي) وقيمة السكن/الإعاشة/المواصلات الشهرية لعرضها بجانب «علينا»،
@@ -1050,7 +1104,7 @@ export async function handleEor(body, ctx = {}) {
   const pcfg = packageRateConfigFromPricing(pricing);
   const insurerNames = insurerNamesOf(pcfg);
   v.items = resolveInsurers(v.items, pcfg);
-  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, durationUnit: v.durationUnit, durationValue: v.durationValue, now: nowMs, engagementType: v.engagementType, provisions: v.provisions });
+  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, startDate: v.startDate || undefined, durationMonths: v.durationMonths, durationUnit: v.durationUnit, durationValue: v.durationValue, now: nowMs, engagementType: v.engagementType, provisions: v.provisions });
   const quoteText = quoteSummaryText(quote) + packageSummaryText(pkg, v.provisions);
 
   // — Notion —
@@ -1058,7 +1112,10 @@ export async function handleEor(body, ctx = {}) {
   const token = ctx.notionToken !== undefined ? ctx.notionToken : envFrom(NOTION_TOKEN_ENV);
   const dbId = ctx.dbId || process.env.NOTION_EOR_DB || EOR_DB_DEFAULT;
   const props = buildProps(ref, v, quoteText, insurerNames);
-  const children = [{ object: "block", type: "code", code: { language: "json", rich_text: rt(JSON.stringify({ ref, ...v, quote }, null, 1)) } }];
+  // تنبيهات التوطين التي رآها العميل (داخلي للفريق): في متن الصفحة وبريد الفريق، لا في أعمدة.
+  const locNotes = localizationNotices(v.items, { refDate: v.startDate || riyadhToday(nowMs), lookup: localizationLookup }).filter((x) => x.notice).map((x) => ({ item: x.index + 1, ...x.notice }));
+  const locText = localizationTeamText(locNotes);
+  const children = [{ object: "block", type: "code", code: { language: "json", rich_text: rt(JSON.stringify({ ref, ...v, quote, ...(locNotes.length ? { localization: locNotes } : {}) }, null, 1)) } }];
   let stored = false, notionUrl = "";
   const doFetch = ctx.fetch || fetch;
   if (dev && !ctx.fetch) {
@@ -1080,7 +1137,7 @@ export async function handleEor(body, ctx = {}) {
   const ownerEmail = ctx.ownerEmail || (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
   const tpl = v.lang === "ar" ? CLIENT_MAIL.ar : CLIENT_MAIL.en;
   const subject = `👥 طلب EOR جديد ${ref} — ${v.company} · ${v.totalCount} موظف`;
-  const html = teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames);
+  const html = teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames, locText);
   const transcript = `👥 طلب EOR جديد (${ref}): عميل (${v.company}) طلب خدمة EOR بعدد ${v.totalCount} موظف — المهن: ${v.items.map((it) => { const o = occupationRef(it.occupationId, it.occupationCatalogId); return `${o ? o.nameAr : it.occupationId} ×${it.count}`; }).join("، ")} — ${v.city} — ${v.contactName} ${v.phone}`;
   const settled = await Promise.allSettled([
     sendEmail(teamEmail, subject, html),

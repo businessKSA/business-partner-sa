@@ -21,6 +21,7 @@ import { createHash } from "node:crypto";
 import {
   mulDivHalfUp, sarToHalalas, packageRateConfigFromPricing, computePackageRate, computeCasualRate, packageSaleMonthlyHalalas,
   normalizeInsuranceFields, normalizeEngagementType, normalizeBillingUnit, parseCasualHours, TIMESHEET_STATUSES,
+  normalizeProvisions, provisionPlan, packageCostSnapshot, salaryMinFor, casualProvisionHalalas,
 } from "./_eor-cost.js";
 import { occupationById } from "./_occupations.js";
 
@@ -675,16 +676,34 @@ async function createPlacement(body, ctx, store, nowMs) {
     if (!Number.isFinite(salary) || salary <= 0 || salary > 100000) throw new Fail(400, "salary_invalid", { field: "salary" });
     const today = riyadhToday(nowMs);
     if (engagement === "contract") {
-      if (!cfgAll.appliesTo.includes(workerType)) throw new Fail(409, "not_applicable");
+      // الأجنبي: صيغة الإكسل (applies_to_worker_types)؛ السعودي: مساره الخاص package_rate.saudi (مفتاح enabled). غير ذلك ⇒ not_applicable.
+      if (workerType === "saudi" ? !(cfgAll.saudi && cfgAll.saudi.enabled === true) : !cfgAll.appliesTo.includes(workerType)) throw new Fail(409, "not_applicable");
+      // الحدّ الأدنى لراتب العقد (قاعدة المالك: السعودي 4000، الأجنبي 400) كما في الطلب.
+      const minSalary = salaryMinFor(workerType, cfgAll.limits);
+      if (minSalary !== null && salary < minSalary) throw new Fail(400, "salary_below_min", { field: "salary", min: minSalary });
       const insurance = isObj(body.insurance) ? normalizeInsuranceFields(body.insurance) : undefined;
-      const res = computePackageRate({ mode: "lump", package: salary, insurance, config: { ...cfgAll, today } });
+      const provisions = normalizeProvisions(body.provisions);
+      const firstSub = typeof body.firstSubscriptionDate === "string" && isoDate(body.firstSubscriptionDate.trim()) ? body.firstSubscriptionDate.trim() : undefined;
+      const termMonths = endDate ? Math.max(1, Math.ceil((dayIndex(endDate) - dayIndex(startDate) + 1) / 30)) : undefined;
+      const res = computePackageRate({ mode: "lump", workerType, package: salary, insurance, firstSubscription: firstSub, startDate, termMonths, config: { ...cfgAll, today } });
       if (res.status === "invalid_input") throw new Fail(400, "salary_invalid", { field: "salary" });
       if (res.status !== "ok" || res.pendingDecision) throw new Fail(409, "pricing_pending");
-      unitPrice = packageSaleMonthlyHalalas(res);
+      // السعر المثبَّت = ما رآه العميل في الطلب بالضبط: سعر الحزمة (بتأمين الفئة المختارة) + السكن/الإعاشة/المواصلات «علينا» (تمريراً بالتكلفة).
+      const plan = provisionPlan(provisions, salary, cfgAll);
+      if (plan.status !== "ok") throw new Fail(409, "pricing_pending");
+      const snap = packageCostSnapshot(res, plan);
+      if (!snap) throw new Fail(409, "pricing_pending");
+      unitPrice = snap.priceHalalas;
       otPrice = sarToHalalas(res.otHour);
-      if (costUnit === null) costUnit = sarToHalalas(res.internal.cost);
+      if (costUnit === null) costUnit = snap.costHalalas;
       currency = res.currency;
-      pricingInput = { source: "config", mode: "lump", salary, ...(insurance ? { insurance } : {}) };
+      // لقطة داخلية للهامش (لا تصل العميل): مكوّنات التكلفة بالهللة والسعر والهامش وقت التنسيب، ومعها القرارات المفتوحة إن وُجدت.
+      pricingInput = {
+        source: "config", mode: "lump", workerType, salary, ...(insurance ? { insurance } : {}),
+        provisions: Object.fromEntries(plan.items.map((x) => [x.key, "us"])), ...(firstSub ? { firstSubscription: firstSub } : {}),
+        costSnapshot: { lines: snap.lines, provisions: snap.provisions, costHalalas: snap.costHalalas, priceHalalas: snap.priceHalalas, marginHalalas: snap.marginHalalas },
+        ...(Array.isArray(res.internal.openDecisions) && res.internal.openDecisions.length ? { openDecisions: res.internal.openDecisions } : {}),
+      };
     } else {
       if (!(cfgAll.casual && cfgAll.casual.appliesTo.includes(workerType))) throw new Fail(409, "not_applicable");
       const hp = parseCasualHours(body.hoursPerDay);
@@ -693,9 +712,16 @@ async function createPlacement(body, ctx, store, nowMs) {
       if (res.status === "invalid_input") throw new Fail(400, "salary_invalid", { field: "salary" });
       if (res.status !== "ok") throw new Fail(409, "pricing_pending");
       unitPrice = unit === "hour" ? res.units.hourlyHalalas : unit === "day" ? res.units.dailyHalalas : res.units.monthlyHalalas;
-      if (costUnit === null) costUnit = unit === "hour" ? res.internal.workerHourlyHalalas : unit === "day" ? res.internal.workerDailyHalalas : res.internal.workerMonthlyHalalas;
+      // السكن/الإعاشة/المواصلات «علينا»: القيمة الشهرية موزَّعة على الوحدة كما في تقدير الطلب (يوم ÷ أيام الشهر، ساعة ÷ أيام × ساعات المرجع) وتمريراً بالتكلفة.
+      const provisions = normalizeProvisions(body.provisions);
+      const plan = provisionPlan(provisions, salary, cfgAll);
+      if (plan.status !== "ok") throw new Fail(409, "pricing_pending");
+      let provH = 0;
+      for (const x of plan.items) { const h = casualProvisionHalalas(x.halalas, billingUnit, cfgAll.casual); if (h === null) throw new Fail(409, "pricing_pending"); provH += h; }
+      unitPrice += provH;
+      if (costUnit === null) costUnit = (unit === "hour" ? res.internal.workerHourlyHalalas : unit === "day" ? res.internal.workerDailyHalalas : res.internal.workerMonthlyHalalas) + provH;
       currency = res.currency;
-      pricingInput = { source: "config", mode: "casual", salary, hoursPerDay: res.hoursPerDay };
+      pricingInput = { source: "config", mode: "casual", salary, hoursPerDay: res.hoursPerDay, ...(plan.items.length ? { provisions: Object.fromEntries(plan.items.map((x) => [x.key, "us"])), provisionsUnitHalalas: provH } : {}) };
       source = "config";
     }
     source = "config";

@@ -226,16 +226,21 @@ test("estimatePackageQuote: أجنبي براتب ⇒ سعر شهري للموظ
   for (const w of ["cost", "margin", "profit", "internal", "rate\"", "4339", "4821"]) assert.equal(leak.includes(w), false, w);
 });
 
-test("estimatePackageQuote: بلا راتب/سعودي/مختلط/غير محسوم لا رقم مخمَّن، والبنود المختلطة partial", () => {
+test("estimatePackageQuote: بلا راتب/مختلط/غير محسوم لا رقم مخمَّن، والسعودي يُسعَّر بمساره (الشريحة ب)، والبنود المختلطة partial", () => {
   const q = E.estimatePackageQuote([IT(1, ["IN"], 2000), IT(2, ["IN"], null), IT(1, ["SA"], 5000), IT(1, ["SA", "IN"], 5000), IT(1, [], 2500)], PRICING, { workerType: "both", now: NOW });
   assert.equal(q.status, "partial");
-  assert.deepEqual(q.lines.map((l) => l.status), ["priced", "needs_salary", "not_applicable", "needs_review", "needs_review"]);
-  assert.equal(q.monthlyTotal, 4820);
-  for (const l of q.lines.slice(1)) assert.equal("monthlyPerEmployee" in l, false);
-  const saudi = E.estimatePackageQuote([IT(1, [], 5000)], PRICING, { workerType: "saudi", now: NOW });
+  assert.deepEqual(q.lines.map((l) => l.status), ["priced", "needs_salary", "priced", "needs_review", "needs_review"]);
+  assert.equal(q.lines[2].monthlyPerEmployee, 7880, "سعودي 5000: تكلفة 7087.5 ÷ 0.9 = 7875 ⇒ MROUND 10");
+  assert.equal(q.monthlyTotal, 4820 + 7880);
+  for (const l of [q.lines[1], q.lines[3], q.lines[4]]) assert.equal("monthlyPerEmployee" in l, false, "المختلط لا يُسعَّر إلا بتقسيم البند");
+  // مفتاح الإغلاق: saudi.enabled=false يعيد السعودي إلى «بعد المراجعة»
+  const off = clone(PRICING); off.package_rate.saudi.enabled = false;
+  const saudi = E.estimatePackageQuote([IT(1, [], 5000)], off, { workerType: "saudi", now: NOW });
   assert.equal(saudi.status, "none");
   assert.equal(saudi.lines[0].status, "not_applicable");
   assert.equal("monthlyTotal" in saudi, false);
+  const nob = clone(PRICING); delete nob.package_rate.saudi;
+  assert.equal(E.estimatePackageQuote([IT(1, [], 5000)], nob, { workerType: "saudi", now: NOW }).lines[0].status, "not_applicable");
 });
 
 test("estimatePackageQuote: بلا إعداد/مغلق/خارج الصلاحية/قائمة فارغة ⇒ { status:'pending_pricing' } فقط", () => {

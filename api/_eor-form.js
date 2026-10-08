@@ -84,6 +84,12 @@ export const isKnownOccupation = (id) => resolveOccupationId(id).ok;
 // المعرّف القديم ← أول مهنة جديدة تقابله (للبحث بالمرادفات الذي يعيد معرّفات قديمة).
 export const catalogIdsForOld = (oldId) => idx().catByOld.get(oldId) || [];
 export const OLD_OCCUPATION_COUNT = OCCUPATIONS.length;
+// أدوات البحث التي يحتاجها مستشار التوطين (api/_eor-localization.js لا يستورد الفهرس): معرّف فهرس؟ · مقابلات المعرّف القديم · المهنة بمعرّفها.
+export const localizationLookup = Object.freeze({
+  isCatalogId: (id) => idx().occ.has(id),
+  catalogIdsForOld: (id) => idx().catByOld.get(id) || [],
+  occupation: (id) => idx().occ.get(id) || null,
+});
 
 /* ═════════════ التطبيع والبحث ═════════════ */
 export function normText(s) {

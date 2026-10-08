@@ -150,8 +150,8 @@ test("نسبة مخصّص بلا راتب لا تُبلَّغ ناقصة مرت�
 
 test("الملف الحقيقي api/_eor-pricing.json (كله null) ⇒ الحاسبة pending_pricing بلا رقم", () => {
   const pricing = JSON.parse(fs.readFileSync(path.join(ROOT, "api/_eor-pricing.json"), "utf8"));
-  // كتلة package_rate (2026-10-08) أرقام إكسل المالك مملوءة عمداً ولها اختباراتها في tests/eor-package-rate.test.mjs؛ وكتلة billing (2026-10-08) افتراضاتها معلَّمة _owner_decision واختباراتها في tests/eor-billing.test.mjs؛ الباقي كله null.
-  const walk = (o) => Object.entries(o).filter(([k]) => k !== "_readme" && k !== "package_rate" && k !== "billing").every(([, v]) => (v && typeof v === "object" ? walk(v) : v === null));
+  // كتلة package_rate (2026-10-08) أرقام إكسل المالك مملوءة عمداً ولها اختباراتها في tests/eor-package-rate.test.mjs؛ وكتلة billing (2026-10-08) افتراضاتها معلَّمة _owner_decision واختباراتها في tests/eor-billing.test.mjs؛ وكتلة localization (وضع التوطين advise|block) اختباراتها في tests/eor-localization.test.mjs؛ الباقي كله null.
+  const walk = (o) => Object.entries(o).filter(([k]) => k !== "_readme" && k !== "package_rate" && k !== "billing" && k !== "localization").every(([, v]) => (v && typeof v === "object" ? walk(v) : v === null));
   assert.ok(walk(pricing), "المالك لم يملأ شيئاً بعد — وإن ملأه تحدَّث هذا الاختبار عمداً");
   const cfg = C.costConfigFromPricing(pricing);
   assert.equal(cfg.marginRate, null);

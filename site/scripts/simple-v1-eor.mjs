@@ -297,7 +297,41 @@ const D = {
   bdIns: ["التأمين الطبي", "Medical insurance", "Assurance médicale", "医疗保险"],
   bdService: ["رسوم الخدمة", "Service fee", "Frais de service", "服务费"],
   bdTotal: ["الإجمالي الشهري للموظف", "Monthly total per employee", "Total mensuel par employé", "每位员工月度合计"],
-  bdNote: ["تقدير أولي. تدخل في رسوم الخدمة حالياً بنود أخرى (كالمستحقات والرسوم الحكومية) إلى أن تُفصَّل في عرض السعر.", "Preliminary estimate. Other items (such as entitlements and government fees) are currently included in the service fee until itemised in the quote.", "Estimation préliminaire. D'autres éléments (indemnités, frais gouvernementaux) sont pour l'instant inclus dans les frais de service jusqu'à leur détail dans l'offre.", "初步估算。其他项目（如应付款项和政府费用）目前包含在服务费中，待报价中另行列明。"],
+  bdNote: ["تقدير أولي. رسوم الخدمة تغطي إدارة التعاقد والتشغيل والمصاريف العامة، والسعر النهائي في عرض السعر.", "Preliminary estimate. The service fee covers contract administration, operations and general expenses; the final price is in the quote.", "Estimation préliminaire. Les frais de service couvrent la gestion du contrat, l'exploitation et les frais généraux ; le prix final figure dans l'offre.", "初步估算。服务费涵盖合同管理、运营及日常开支；最终价格以报价为准。"],
+  pSplit: ["بند يجمع سعوديين وغير سعوديين لا يُسعَّر معاً: قسّمه إلى بندين ليُسعَّر كلٌّ بحسب نوعه.", "A row mixing Saudi and non-Saudi workers cannot be priced together: split it into two rows so each is priced for its type.", "Une ligne mêlant Saoudiens et non-Saoudiens ne peut pas être chiffrée ensemble : scindez-la en deux lignes pour chiffrer chaque type.", "同时包含沙特籍与非沙特籍员工的项目无法合并定价：请拆分为两项，分别按类型定价。"],
+  bdGov: ["رخصة العمل والإقامة وأجير", "Work permit, residence and Ajeer fees", "Permis de travail, résidence et Ajeer", "工作许可、居留及 Ajeer 费用"],
+  bdLeave: ["الإجازة السنوية", "Annual leave", "Congés annuels", "年假"],
+  bdExit: ["تأشيرة الخروج والعودة", "Exit and re-entry visa", "Visa de sortie et de retour", "出入境签证"],
+  bdJoin: ["التأشيرة ورسوم الانضمام", "Visa and joining fees", "Visa et frais d'intégration", "签证及入职费用"],
+  bdEos: ["نهاية الخدمة (استحقاق شهري)", "End of service (monthly accrual)", "Fin de service (provision mensuelle)", "服务终止补偿（按月计提）"],
+  bdSocial: ["التأمينات الاجتماعية", "Social insurance", "Assurances sociales", "社会保险"],
+  bdReturn: ["تذكرة العودة", "Return ticket", "Billet retour", "返程机票"],
+  fsH: ["تاريخ أول اشتراك في التأمينات الاجتماعية (اختياري)", "Date of first social insurance subscription (optional)", "Date de première affiliation aux assurances sociales (facultatif)", "首次参加社会保险的日期（可选）"],
+  fsHelp: ["للسعودي فقط: يحدّد نظام الاشتراك الذي تُحسب عليه حصة صاحب العمل. إن تركته فارغاً افترضنا مشتركاً جديداً.", "Saudi workers only: it sets the contribution regime used for the employer share. If left empty we assume a new subscriber.", "Pour les Saoudiens uniquement : il détermine le régime de cotisation de la part employeur. Vide, nous supposons un nouvel affilié.", "仅限沙特籍员工：决定雇主份额适用的缴费制度。留空则按新参保人处理。"],
+  eFirstSub: ["تاريخ أول اشتراك غير صالح (لا يكون مستقبلياً).", "The first subscription date is not valid (it cannot be in the future).", "La date de première affiliation n'est pas valide (elle ne peut pas être future).", "首次参保日期无效（不能是将来的日期）。"],
+  // ── مستشار التوطين: نصوص معلوماتية حذرة وليست إفتاءً — تحتاج مراجعة قانونية قبل النشر الواسع (انظر api/_eor-localization.js) ──
+  locLead: ["هذه المهنة ضمن {g}، وهي خاضعة لقرار توطين {a} ({w}).", "This occupation is among the {g}, which are subject to a localization decision {a} ({w}).", "Ce métier relève des {g}, soumis à une décision de saoudisation {a} ({w}).", "该职业属于{g}，适用本地化规定，{a}（{w}）。"],
+  locLeadClose: ["قد تقع هذه المهنة ضمن {g}، الخاضعة لقرار توطين {a} ({w}).", "This occupation may fall among the {g}, which are subject to a localization decision {a} ({w}).", "Ce métier peut relever des {g}, soumis à une décision de saoudisation {a} ({w}).", "该职业可能属于{g}，适用本地化规定，{a}（{w}）。"],
+  locAt: ["بنسبة {p}%", "at {p}%", "de {p} %", "比例为 {p}%"],
+  locAtRange: ["بنسبة تتراوح بين {p}% و{q}% بحسب نوع المنشأة", "ranging from {p}% to {q}% depending on the type of establishment", "allant de {p} % à {q} % selon le type d'établissement", "比例在 {p}% 至 {q}% 之间（视机构类型而定）"],
+  locFrom: ["يسري من {d}", "effective from {d}", "en vigueur depuis le {d}", "自 {d} 起生效"],
+  locStarts: ["يبدأ سريانه في {d}", "takes effect on {d}", "entre en vigueur le {d}", "将于 {d} 生效"],
+  locMin: ["قد يلزمك توظيف سعودي حين يعمل لديك {n} عاملين فأكثر في هذه المهن.", "You may need to employ Saudis once {n} or more of your workers are in these occupations.", "Vous pourriez devoir employer des Saoudiens dès que {n} salariés ou plus exercent ces métiers.", "当贵司在这些职业中有 {n} 名及以上员工时，可能需要雇用沙特籍员工。"],
+  locMin1: ["قد يلزمك توظيف سعودي عند أي عامل في هذه المهن.", "You may need to employ a Saudi for any worker in these occupations.", "Vous pourriez devoir employer un Saoudien pour tout salarié exerçant ces métiers.", "这些职业中的任何一名员工都可能需要由沙特籍人员担任。"],
+  locNext: ["وتزداد إلى {p}% من {d}.", "It rises to {p}% from {d}.", "Elle passe à {p} % le {d}.", "自 {d} 起升至 {p}%。"],
+  locOnly: ["هذه المهنة ضمن المهن الإدارية المساندة المقصورة على السعوديين ({w}). قد لا يجوز شغلها بغير سعودي.", "This occupation is among the supporting administrative occupations restricted to Saudis ({w}). It may not be filled by a non-Saudi.", "Ce métier fait partie des métiers administratifs de soutien réservés aux Saoudiens ({w}). Il peut ne pas être occupé par un non-Saoudien.", "该职业属于仅限沙特籍人员的行政辅助类职业（{w}），可能不得由非沙特籍人员担任。"],
+  locReview: ["يُراجَع للتأكد.", "To be confirmed on review.", "À confirmer après examen.", "需核实确认。"],
+  locBlocked: ["لا يمكن إرسال هذا الطلب بجنسية غير سعودية لأن المهنة مقصورة على السعوديين حالياً.", "This request cannot be sent with a non-Saudi nationality because the occupation is currently restricted to Saudis.", "Cette demande ne peut pas être envoyée avec une nationalité non saoudienne : le métier est actuellement réservé aux Saoudiens.", "该职业目前仅限沙特籍人员，因此不能以非沙特国籍提交此申请。"],
+  eSaudiOnly: ["هذه المهنة مقصورة على السعوديين حالياً، فاختر جنسية سعودية أو غيّر المهنة.", "This occupation is currently restricted to Saudis; choose a Saudi nationality or change the occupation.", "Ce métier est actuellement réservé aux Saoudiens ; choisissez une nationalité saoudienne ou changez de métier.", "该职业目前仅限沙特籍人员，请选择沙特国籍或更换职业。"],
+  locCatMarketing: ["مهن التسويق", "marketing occupations", "métiers du marketing", "营销类职业"],
+  locCatSales: ["مهن المبيعات", "sales occupations", "métiers de la vente", "销售类职业"],
+  locCatAccounting: ["المهن المحاسبية", "accounting occupations", "métiers de la comptabilité", "会计类职业"],
+  locCatProcurement: ["مهن المشتريات", "procurement occupations", "métiers des achats", "采购类职业"],
+  locCatEngineering: ["المهن الهندسية", "engineering occupations", "métiers de l'ingénierie", "工程类职业"],
+  locCatProjects: ["مهن إدارة المشاريع", "project-management occupations", "métiers de la gestion de projets", "项目管理类职业"],
+  locCatAdmin: ["المهن الإدارية المساندة", "supporting administrative occupations", "métiers administratifs de soutien", "行政辅助类职业"],
+  locCatPharmacy: ["مهن الصيدلة", "pharmacy occupations", "métiers de la pharmacie", "药学类职业"],
+  locCatDental: ["مهنة طب الأسنان", "dentistry occupations", "métiers de la dentisterie", "牙科类职业"],
   salMinSaudi: ["الحد الأدنى لراتب السعودي {n} ريال أساسي.", "The minimum basic salary for a Saudi is {n} SAR.", "Le salaire de base minimum pour un Saoudien est de {n} SAR.", "沙特籍员工基本工资最低为 {n} 沙特里亚尔。"],
   salMinMixed: ["البند يشمل سعوديين، فالحد الأدنى للراتب {n} ريال أساسي.", "This row includes Saudis, so the minimum basic salary is {n} SAR.", "Cette ligne inclut des Saoudiens : le salaire de base minimum est de {n} SAR.", "该项包含沙特籍员工，基本工资最低为 {n} 沙特里亚尔。"],
   salMinForeign: ["الحد الأدنى لراتب غير السعودي {n} ريال.", "The minimum salary for a non-Saudi is {n} SAR.", "Le salaire minimum pour un non-Saoudien est de {n} SAR.", "非沙特籍员工最低薪资为 {n} 沙特里亚尔。"],
@@ -398,6 +432,27 @@ export function eorCore() {
     return "";
   }
   function fmt(tpl, n) { return String(tpl).replace("{n}", String(n)); }
+  function fill(tpl, m) { return String(tpl).replace(/\{(\w+)\}/g, function (x, k) { return m && m[k] != null ? String(m[k]) : x; }); }
+  function pctStr(n) { return String(Math.round(Number(n) * 100) / 100); }
+  // مستشار التوطين: من تنبيه الخادم (فئة، نسبة، تاريخ، قصر على السعوديين…) إلى نص بلغة الصفحة. لا حساب ولا مرجع: تركيب نصوص جاهزة فقط.
+  // نصوص حذرة وليست إفتاءً (تحتاج مراجعة قانونية)؛ المطابقة التقريبية (close) بصيغة «قد».
+  var LOC_CAT = { marketing: "locCatMarketing", sales: "locCatSales", accounting: "locCatAccounting", procurement: "locCatProcurement", engineering: "locCatEngineering", project_management: "locCatProjects", admin_support: "locCatAdmin", pharmacy: "locCatPharmacy", dental: "locCatDental" };
+  function locMessage(n, tx) {
+    if (!n || typeof n !== "object" || !LOC_CAT[n.category] || typeof n.percent !== "number" || typeof n.from !== "string") return "";
+    var when = fill(n.upcoming ? tx.locStarts : tx.locFrom, { d: n.from });
+    var out;
+    if (n.saudiOnly) {
+      out = fill(tx.locOnly, { w: when });
+      if (n.close) out = fill(tx.locLeadClose, { g: tx[LOC_CAT[n.category]], a: fill(tx.locAt, { p: pctStr(n.percent) }), w: when });
+      if (n.blocked) out += " " + tx.locBlocked;
+      return out + " " + tx.locReview;
+    }
+    var a = typeof n.percentMax === "number" && n.percentMax !== n.percent ? fill(tx.locAtRange, { p: pctStr(n.percent), q: pctStr(n.percentMax) }) : fill(tx.locAt, { p: pctStr(n.percent) });
+    out = fill(n.close ? tx.locLeadClose : tx.locLead, { g: tx[LOC_CAT[n.category]], a: a, w: when });
+    if (typeof n.minWorkers === "number" && n.minWorkers >= 1) out += " " + (n.minWorkers === 1 ? tx.locMin1 : fill(tx.locMin, { n: n.minWorkers }));
+    if (n.next && typeof n.next.percent === "number" && typeof n.next.from === "string") out += " " + fill(tx.locNext, { p: pctStr(n.next.percent), d: n.next.from });
+    return out + " " + tx.locReview;
+  }
   var STR = function (v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; };
   // يُنقّي اقتراح المستشار الذكي بالقوائم البيضاء قبل أي تعبئة (حتى لو أخطأ الخادم). L: { occ, nat, city, sec, sen: خرائط id→1، caps: {unit:max}، maxItems، maxCount، maxNats، maxSalary }.
   function sanitizeSuggestion(sg, L) {
@@ -430,7 +485,7 @@ export function eorCore() {
     out.note = STR(sg.note, 240);
     return out;
   }
-  return { norm: norm, entry: entry, rank: rank, groupRows: groupRows, workerKind: workerKind, salaryMin: salaryMin, fixSalary: fixSalary, deriveWT: deriveWT, presetId: presetId, fmt: fmt, sanitizeSuggestion: sanitizeSuggestion };
+  return { norm: norm, entry: entry, rank: rank, groupRows: groupRows, workerKind: workerKind, salaryMin: salaryMin, fixSalary: fixSalary, deriveWT: deriveWT, presetId: presetId, fmt: fmt, fill: fill, locMessage: locMessage, sanitizeSuggestion: sanitizeSuggestion };
 }
 
 // مستويات الوظيفة بالفرنسية والصينية (الفهرس يحمل العربية والإنجليزية فقط). المعرّفات مطابقة للفهرس (اختبار يقارنها).
@@ -458,7 +513,9 @@ export function buildSimpleEor(sv1, ctx) {
     "durUnitL", "durValL", "dHour", "dDay", "dMonth", "dYear", "pDurTotal", "pDurNote", "insurerL", "insAny",
     "asH", "asBusy", "asUnavail", "asShort", "asNone", "asConfirmH", "asApply", "asDismiss", "asApplied", "asUnres", "asNote",
     "natPh", "natHelp", "natPopular", "natNone", "natMax", "chipRm", "cityPh", "secPh", "eSector", "senH", "senNone", "gU", "gM", "gF",
-    "pvHousing", "pvMeals", "pvTransport", "pvClient", "pvUs", "bdH", "bdSalary", "bdIns", "bdService", "bdTotal", "bdNote",
+    "pvHousing", "pvMeals", "pvTransport", "pvClient", "pvUs", "bdH", "bdSalary", "bdIns", "bdService", "bdTotal", "bdNote", "pSplit", "bdGov", "bdLeave", "bdExit", "bdJoin", "bdEos", "bdSocial", "bdReturn",
+    "fsH", "fsHelp", "eFirstSub", "locLead", "locLeadClose", "locAt", "locAtRange", "locFrom", "locStarts", "locMin", "locMin1", "locNext", "locOnly", "locReview", "locBlocked", "eSaudiOnly",
+    "locCatMarketing", "locCatSales", "locCatAccounting", "locCatProcurement", "locCatEngineering", "locCatProjects", "locCatAdmin", "locCatPharmacy", "locCatDental",
     "salMinSaudi", "salMinMixed", "salMinForeign", "salFixed", "eSalMin", "pHour", "pDay", "pM1", "pM3", "pM6", "pM9", "pY1", "pY2", "pCustom", "eDurNone", "durH", "provH", "sectorH", "city", "start"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
@@ -616,6 +673,8 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-bdrow b{font-size:13px;white-space:nowrap}
 .sv1-eor-bdrow.tot{border-top:1px solid var(--acLine);margin-top:4px;padding-top:6px}
 .sv1-eor-bdnote{margin-top:6px;font-size:11px;color:var(--mut);line-height:1.8}
+.sv1-eor-loc{margin-top:8px;padding:8px 10px;border:1px solid var(--acLine);border-radius:9px;font-size:12px;line-height:1.85;color:var(--t)}
+.sv1-eor-loc.fix{color:var(--warn)}
 .sv1-eor-durcustom{margin-top:10px}
 @media(max-width:860px){.sv1-eor-grid,.sv1-eor-whyg{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-eor-grid,.sv1-eor-whyg,.sv1-eor-dur,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg,.sv1-eor-unitg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
@@ -872,7 +931,7 @@ ${sv1.footer()}`;
       var d = CORE.deriveWT(items.map(function (it) { return it.nats; }));
       if (d) setWT(d);
     }
-    function onNatsChanged() { syncWT(); items.forEach(refreshMin); priceSoon(); }
+    function onNatsChanged() { syncWT(); items.forEach(function (it) { refreshMin(it); syncFS(it); }); priceSoon(); locSoon(); }
 
     // ───── السعر الشهري الفوري: السؤال للخادم وحده ─────
     var priceTimer = null, priceSeq = 0;
@@ -889,6 +948,8 @@ ${sv1.footer()}`;
         if (ln.insurer && ln.insurer !== "any" && INSR_NAME[ln.insurer]) s += " · " + INSR_NAME[ln.insurer];
         return s;
       }
+      var BD = { government: "bdGov", annual_leave: "bdLeave", exit_reentry: "bdExit", joining: "bdJoin", end_of_service: "bdEos", social_insurance: "bdSocial", return_ticket: "bdReturn" };
+      if (BD[k]) return TX[BD[k]];
       return TX[k === "housing" ? "pvHousing" : k === "meals" ? "pvMeals" : "pvTransport"] || k;
     }
     function showPrice(it, line) {
@@ -899,6 +960,8 @@ ${sv1.footer()}`;
         var wk = CORE.workerKind(it.nats, wtVal());
         box.className = "sv1-eor-price hold"; box.textContent = minTextOf(wk, line.minSalary); return;
       }
+      // المختلط (سعودي مع أجنبي) لا يُسعَّر معاً: التوجيه إلى تقسيم البند بدل «بعد المراجعة».
+      if (line.status === "needs_review" && CORE.workerKind(it.nats, wtVal()) === "mixed") { box.className = "sv1-eor-price hold"; box.textContent = TX.pSplit; return; }
       if (line.status !== "priced") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
       var cur = " " + TX.cur;
       if (line.monthlyPerEmployee === undefined) {
@@ -1034,7 +1097,7 @@ ${sv1.footer()}`;
       // وحدة المدة (ساعة/يوم) لا تصلح للتعاقد: تُمسح بدل أن تُحوَّل بصمت إلى شهر.
       if (!c && (unitBefore === "hour" || unitBefore === "day")) $("eorDurValue").value = "";
       buildPresets();
-      items.forEach(function (it) { syncUnit(it); syncIns(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; refreshMin(it); });
+      items.forEach(function (it) { syncUnit(it); syncIns(it); syncFS(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; refreshMin(it); });
       clearPrices(); priceSoon();
     }
     function clearPrices() {
@@ -1046,6 +1109,31 @@ ${sv1.footer()}`;
       ["housing", "meals", "transport"].forEach(function (k) { out[k] = $("eorPV_" + k + "_us").checked ? "us" : "client"; });
       return out;
     }
+    // تاريخ البدء المكتوب إن كان صالحاً (يحدّد تاريخ سريان نسب التأمينات والتوطين)، وتاريخ أول اشتراك المكتوب لبندٍ سعودي (يظهر حقله للسعودي وحده).
+    function startOf() { var v = $("eorStart").value.trim(); return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined; }
+    function fsOf(it) { var v = it.fsIn ? it.fsIn.value.trim() : ""; return !it.fsW.classList.contains("sv1-hide") && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ""; }
+    function syncFS(it) {
+      var k = CORE.workerKind(it.nats, wtVal());
+      it.fsW.classList.toggle("sv1-hide", k !== "saudi" || isCasual());
+    }
+    // مستشار التوطين: السؤال للخادم وحده؛ هنا عرض النص فقط. فشله صامت (تنبيه معلوماتي لا يعطّل النموذج).
+    var locTimer = null, locSeq = 0;
+    function showLoc(it, n) {
+      var box = it.locEl, msgText = n ? CORE.locMessage(n, TX) : "";
+      box.textContent = msgText; box.className = "sv1-eor-loc" + (n && (n.saudiOnly || n.blocked) ? " fix" : "") + (msgText ? "" : " sv1-hide");
+    }
+    function runLoc() {
+      var rows = [], owners = [];
+      items.forEach(function (it) { if (it.occId) { rows.push({ occupationId: it.occId, nationalities: it.nats.slice() }); owners.push(it); } else showLoc(it, null); });
+      if (!rows.length) return;
+      var my = ++locSeq;
+      post({ action: "localization", workerType: wtVal(), startDate: startOf(), items: rows }).then(function (x) {
+        if (my !== locSeq) return;
+        var o = x.o, ns = o && o.ok && Array.isArray(o.notices) ? o.notices : [];
+        owners.forEach(function (it, j) { var n = ns[j]; showLoc(it, n && typeof n.percent === "number" ? n : null); });
+      }).catch(function () {});
+    }
+    function locSoon() { clearTimeout(locTimer); locTimer = setTimeout(runLoc, 300); }
     function runPrice() {
       var wt = wtVal();
       var rows = [], owners = [], anySalary = false, casual = isCasual();
@@ -1057,12 +1145,12 @@ ${sv1.footer()}`;
         if (sal !== null && sal > 0) anySalary = true;
         var io = insOf(it), uq = qtyOf(it);
         rows.push(casual ? { count: n, nationalities: it.nats.slice(), salary: sal, gender: it.gender(), billingUnit: it.uIn.value, quantity: uq.ok ? uq.value : null, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
-          : { count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
+          : Object.assign({ count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }, fsOf(it) ? { firstSubscriptionDate: fsOf(it) } : {})); owners.push(it);
       });
       if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
       var dr = durOf(), dm = durMonths(dr);
       var my = ++priceSeq;
-      post({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt, durationMonths: dm, durationUnit: dr.value ? dr.unit : null, durationValue: dr.value, provisions: provOf(), items: rows })
+      post({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt, startDate: startOf(), durationMonths: dm, durationUnit: dr.value ? dr.unit : null, durationValue: dr.value, provisions: provOf(), items: rows })
         .then(function (x) {
           var o = x.o;
           if (my !== priceSeq || casual !== isCasual()) return;
@@ -1083,7 +1171,8 @@ ${sv1.footer()}`;
         }).catch(function () {});
     }
     function priceSoon() { clearTimeout(priceTimer); priceTimer = setTimeout(runPrice, 350); }
-    ["eorWT1", "eorWT2", "eorWT3"].forEach(function (id) { $(id).addEventListener("change", function () { autoWT = false; items.forEach(refreshMin); priceSoon(); }); });
+    ["eorWT1", "eorWT2", "eorWT3"].forEach(function (id) { $(id).addEventListener("change", function () { autoWT = false; items.forEach(function (it) { refreshMin(it); syncFS(it); }); priceSoon(); locSoon(); }); });
+    $("eorStart").addEventListener("change", function () { priceSoon(); locSoon(); });
     ["eorET1", "eorET2"].forEach(function (id) { $(id).addEventListener("change", applyEngagement); });
     ["housing", "meals", "transport"].forEach(function (k) { ["client", "us"].forEach(function (v) { $("eorPV_" + k + "_" + v).addEventListener("change", priceSoon); }); });
     $("eorET1").checked = true;
@@ -1133,6 +1222,7 @@ ${sv1.footer()}`;
       occIn.setAttribute("aria-autocomplete", "list"); occIn.setAttribute("aria-expanded", "false"); occIn.autocomplete = "off";
       occIn.placeholder = TX.occPh; occIn.maxLength = 80;
       occW.appendChild(occIn);
+      it.locEl = el("div", "sv1-eor-loc sv1-hide"); it.locEl.setAttribute("role", "status"); it.locEl.setAttribute("aria-live", "polite"); occW.appendChild(it.locEl);
       var timer = null, seq = 0;
       var occCombo = combo({
         input: occIn, host: occW, alt: true, emptyText: TX.occNone, minChars: 2, enterFirst: true,
@@ -1149,9 +1239,9 @@ ${sv1.footer()}`;
         });
         it.senIn.value = it.senAllowed.indexOf(prev) >= 0 ? prev : "";
       }
-      function chooseOcc(e) { it.occId = e.id; it.occMask = e.m || 0; occIn.value = e.l; occIn.removeAttribute("aria-invalid"); rebuildSen(); }
+      function chooseOcc(e) { it.occId = e.id; it.occMask = e.m || 0; occIn.value = e.l; occIn.removeAttribute("aria-invalid"); rebuildSen(); locSoon(); }
       occIn.addEventListener("input", function () {
-        it.occId = ""; it.occMask = 0;
+        it.occId = ""; it.occMask = 0; showLoc(it, null);
         var q = occIn.value, res = CORE.rank(OCC_E, q, 8);
         // قلّت النتائج المحلية: اسأل الخادم (يعرف المرادفات: CDP، chef de partie…). فشله صامت.
         if (res.length < 3 && norm(q).length >= 2) {
@@ -1235,6 +1325,14 @@ ${sv1.footer()}`;
       chips.addEventListener("click", function () { try { natIn.focus(); } catch (er) {} });
       it.natIn = natIn;
 
+      // تاريخ أول اشتراك في التأمينات الاجتماعية (للسعودي وحده، اختياري): يحدّد نظام الاشتراك الذي تُحسب عليه حصة صاحب العمل.
+      var fsW = el("div", "full sv1-hide"); fsW.appendChild(el("label", "", TX.fsH));
+      var fsIn = el("input", "sv1-eor-in"); fsIn.type = "date"; fsIn.dir = "ltr";
+      try { var dn = new Date(), pz = function (n) { return (n < 10 ? "0" : "") + n; }; fsIn.max = dn.getFullYear() + "-" + pz(dn.getMonth() + 1) + "-" + pz(dn.getDate()); } catch (e) {}
+      fsIn.addEventListener("change", function () { fsIn.removeAttribute("aria-invalid"); priceSoon(); });
+      fsW.appendChild(fsIn); fsW.appendChild(el("div", "sv1-eor-hint", TX.fsHelp));
+      it.fsW = fsW; it.fsIn = fsIn;
+
       var salW = el("div", "full"); it.salLb = el("label", "", isCasual() ? TX.salaryRef : TX.salary); salW.appendChild(it.salLb);
       var salIn = el("input", "sv1-eor-in"); salIn.type = "number"; salIn.min = "0"; salIn.max = String(LIM.maxSalary); salIn.step = "any"; salIn.inputMode = "decimal"; salIn.dir = "ltr";
       salIn.addEventListener("input", priceSoon);
@@ -1288,14 +1386,14 @@ ${sv1.footer()}`;
       it.xW = el("div", "sv1-eor-insx sv1-hide"); it.xW.appendChild(m.lb); it.xW.appendChild(ch.lb);
       insW.appendChild(insG); insW.appendChild(it.xW); it.insW = insW;
 
-      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(subW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(unW); grid.appendChild(insW);
+      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(subW); grid.appendChild(natW); grid.appendChild(fsW); grid.appendChild(salW); grid.appendChild(unW); grid.appendChild(insW);
       card.appendChild(head); card.appendChild(grid); host.appendChild(card);
       it.card = card;
       rm.addEventListener("click", function () {
         items = items.filter(function (x) { return x !== it; });
         host.removeChild(card); refresh(); onNatsChanged();
       });
-      items.push(it); syncIns(it); refresh(); refreshMin(it);
+      items.push(it); syncIns(it); refresh(); refreshMin(it); syncFS(it);
       return it;
     }
     $("eorAdd").addEventListener("click", function () { var it = addItem(); if (it) it.occIn.focus(); });
@@ -1342,7 +1440,7 @@ ${sv1.footer()}`;
         if (it) fillItem(it, d);
       });
       if (sg.workerType && autoWT) setWT(sg.workerType);
-      syncWT(); refresh(); items.forEach(function (it) { syncIns(it); refreshMin(it); }); priceSoon();
+      syncWT(); refresh(); items.forEach(function (it) { syncIns(it); refreshMin(it); syncFS(it); }); priceSoon(); locSoon();
     }
     function sugLines(sg) {
       var lines = [];
@@ -1405,7 +1503,7 @@ ${sv1.footer()}`;
     }
     function clearMarks() {
       ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorSector", "eorStart", "eorDurValue"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
-      items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); it.qIn.removeAttribute("aria-invalid"); });
+      items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); it.qIn.removeAttribute("aria-invalid"); it.fsIn.removeAttribute("aria-invalid"); });
     }
     function collect() {
       clearMarks();
@@ -1442,6 +1540,11 @@ ${sv1.footer()}`;
         if (casual && !uq.ok) return bad("eQty", it.qIn);
         var base = { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: it.gender() };
         if (it.senIn.value) base.seniority = it.senIn.value;
+        if (!it.fsW.classList.contains("sv1-hide") && it.fsIn.value.trim()) {
+          var fsv = it.fsIn.value.trim();
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(fsv) || (it.fsIn.max && fsv > it.fsIn.max)) return bad("eFirstSub", it.fsIn);
+          base.firstSubscriptionDate = fsv;
+        }
         out.push(casual ? Object.assign(base, { billingUnit: it.uIn.value, quantity: uq.value, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null })
           : Object.assign(base, { ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }));
       }
@@ -1485,7 +1588,7 @@ ${sv1.footer()}`;
           btn.disabled = false;
           if (x.o.ok && x.o.ref) { done(String(x.o.ref)); return; }
           msg.className = "sv1-eor-msg err";
-          msg.textContent = x.s === 429 ? TX.eRate : x.o.error === "salary_below_min" ? TX.eSalMin : TX.eNet;
+          msg.textContent = x.s === 429 ? TX.eRate : x.o.error === "salary_below_min" ? TX.eSalMin : x.o.error === "occupation_saudi_only" ? TX.eSaudiOnly : x.o.error === "first_subscription_invalid" ? TX.eFirstSub : TX.eNet;
         })
         .catch(function () { btn.disabled = false; msg.className = "sv1-eor-msg err"; msg.textContent = TX.eNet; });
     });

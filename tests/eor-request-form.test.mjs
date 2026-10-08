@@ -184,10 +184,10 @@ test("الحدّ الأدنى من الإعداد: تعديل الرقم يغي�
   assert.equal(v(req(["SA"], 1, "saudi"), { pricing: null }).ok, true);
 });
 
-test("السعر الفوري تحت الحدّ: السطر below_min مع الحدّ، بلا سعر؛ وفوقه يُسعَّر (الأجنبي) أو not_applicable (السعودي)", async () => {
+test("السعر الفوري تحت الحدّ: السطر below_min مع الحدّ، بلا سعر؛ وفوقه يُسعَّر (الأجنبي، والسعودي بمساره الخاص)", async () => {
   const r = await price([{ count: 1, nationalities: ["IN"], salary: 300 }, { count: 1, nationalities: ["IN"], salary: 400 }, { count: 1, nationalities: ["SA"], salary: 3000 }, { count: 1, nationalities: ["SA"], salary: 4000 }, { count: 1, nationalities: ["SA", "IN"], salary: 3500 }]);
   const L = r.quote.lines;
-  assert.deepEqual(L.map((l) => l.status), ["below_min", "priced", "below_min", "not_applicable", "below_min"]);
+  assert.deepEqual(L.map((l) => l.status), ["below_min", "priced", "below_min", "priced", "below_min"]);
   assert.deepEqual([L[0].minSalary, L[2].minSalary, L[4].minSalary], [400, 4000, 4000]);
   for (const i of [0, 2, 4]) assert.equal("monthlyPerEmployee" in L[i], false);
   assert.equal(L[1].monthlyPerEmployee > 0, true);
@@ -265,17 +265,19 @@ test("العمالة المرنة: القيمة الشهرية موزَّعة (�
 });
 
 /* ═════════════ تفصيل السعر للعميل ═════════════ */
-test("التفصيل: الراتب + التأمين (الأساسي بشركته وفئته) + «علينا» + رسوم الخدمة = السعر الشهري بالتمام، ومؤجّلات بلا أرقام", async () => {
+test("التفصيل: كل مكوّنات الصيغة سطراً + «علينا» + رسوم الخدمة = السعر الشهري بالتمام (بلا مؤجّلات)", async () => {
   const ln = (await price([{ count: 1, nationalities: ["IN"], salary: 2000 }], { provisions: { housing: "us", transport: "us" } })).quote.lines[0];
   const bd = ln.breakdown;
-  assert.deepEqual(bd.lines.map((x) => x.key), ["salary", "insurance", "housing", "transport", "service"]);
-  assert.equal(bd.lines[0].amount, 2000);
-  assert.deepEqual([bd.lines[1].amount, bd.lines[1].class, bd.lines[1].insurer], [50, "basic", "any"]);
-  assert.equal(bd.lines[4].amount, 4820 - 2000 - 50, "رسوم الخدمة = الإجمالي − ما قبلها (تُستبعد «علينا» لأنها مضافة بعد)");
+  assert.deepEqual(bd.lines.map((x) => x.key), ["salary", "government", "insurance", "annual_leave", "exit_reentry", "joining", "end_of_service", "social_insurance", "housing", "transport", "service"]);
+  const by = Object.fromEntries(bd.lines.map((x) => [x.key, x.amount]));
+  // مكوّنات إكسل المالك حرفياً عند راتب 2000: (9700+650+240)/12 · 600/12 · (2000/30×21)/12 · 200/12 · 3000/12 · 2000/2/12 · 2000×2%
+  assert.deepEqual([by.salary, by.government, by.insurance, by.annual_leave, by.exit_reentry, by.joining, by.end_of_service, by.social_insurance], [2000, 882.5, 50, 116.67, 16.67, 250, 83.33, 40]);
+  assert.deepEqual([bd.lines[2].class, bd.lines[2].insurer], ["basic", "any"]);
+  assert.equal(by.service, 4820 - (2000 + 882.5 + 50 + 116.67 + 16.67 + 250 + 83.33 + 40), "رسوم الخدمة = الإجمالي − مجموع الأسطر (تحمل المصاريف العامة والهامش)");
   const sum = Math.round(bd.lines.reduce((s, x) => s + x.amount * 100, 0));
   assert.equal(sum, Math.round(ln.monthlyPerEmployee * 100), "المجموع = السعر الشهري بالهللة");
-  assert.deepEqual(bd.deferred, ["end_of_service", "tickets", "leave", "social_insurance", "government_fees"]);
-  assert.equal(JSON.stringify(bd).match(/\d/g).length > 0 && bd.deferred.every((k) => typeof k === "string"), true, "المؤجّلات مفاتيح فقط");
+  assert.equal("deferred" in bd, false, "لا مؤجّلات بعد الآن");
+  assert.equal(by.return_ticket, undefined, "تذكرة العودة لا تظهر ما دام return_ticket_yearly = 0");
 });
 
 test("التفصيل مع تأمين طبي: الشركة والفئة كما طُبِّقتا، والقسط الشهري سطر، والمجموع ثابت لكل الفئات والأعمار", async () => {
@@ -290,10 +292,11 @@ test("التفصيل مع تأمين طبي: الشركة والفئة كما ط
     assert.ok(ln.breakdown.lines.find((x) => x.key === "service").amount > 0);
   }
   // فئة تحتاج عمراً بلا عمر ⇒ الأساسي (كما طُبِّق فعلاً)، والفئة العليا ⇒ الأساسي بلا رقم
+  const insOf = (ln) => ln.breakdown.lines.find((x) => x.key === "insurance");
   const na = (await price([{ count: 1, nationalities: ["IN"], salary: 2000, insuranceClass: "B" }])).quote.lines[0];
-  assert.deepEqual([na.breakdown.lines[1].class, na.breakdown.lines[1].amount], ["basic", 50]);
+  assert.deepEqual([insOf(na).class, insOf(na).amount], ["basic", 50]);
   const vip = (await price([{ count: 1, nationalities: ["IN"], salary: 2000, insuranceClass: "quote" }])).quote.lines[0];
-  assert.deepEqual([vip.breakdown.lines[1].class, vip.breakdown.lines[1].amount], ["basic", 50]);
+  assert.deepEqual([insOf(vip).class, insOf(vip).amount], ["basic", 50]);
 });
 
 test("client_breakdown_visible=false يعيد السعر الإجمالي وحده (والغائب/غير true كذلك)", async () => {
@@ -334,7 +337,7 @@ test("canaries: ردّ السعر بالتفصيل المفتوح لا يحمل 
   assert.deepEqual(parsed.breakdown.lines.filter((x) => ["housing", "meals", "transport"].includes(x.key)).map((x) => x.amount), [517.37, 523.41, 529.43], "قيم «علينا» من الإعداد");
   // القسط الشهري للتأمين (قرار المالك: واضح للعميل) هو الرقم الداخلي الوحيد الذي يظهر، باسم «insurance» لا «تكلفة»
   assert.equal(parsed.breakdown.lines.find((x) => x.key === "insurance").amount, internal.insurance.monthly);
-  assert.deepEqual(parsed.breakdown.lines.map((x) => x.key), ["salary", "insurance", "housing", "meals", "transport", "service"]);
+  assert.deepEqual(parsed.breakdown.lines.map((x) => x.key), ["salary", "government", "insurance", "annual_leave", "exit_reentry", "joining", "end_of_service", "social_insurance", "housing", "meals", "transport", "service"]);
 });
 
 test("canaries: casual وform_config وبريد الفريق/العميل/Notion/التنبيه بلا معاملات ولا تكلفة، وبريد العميل بلا أي مبلغ", async () => {
@@ -907,12 +910,18 @@ test("السعر الفوري بجانب الراتب من الخادم: تفص�
   p.sal.value = "2000"; p.sal.fire("input");
   await dom.flush();
   const rows = (box) => dom.byClass(box, "sv1-eor-bdrow").map((r) => r.children.map((c) => c.textContent));
-  assert.deepEqual(rows(p.price).map((r) => r[0]), ["الراتب", "التأمين الطبي — الأساسي", "رسوم الخدمة", "الإجمالي الشهري للموظف", "ساعة الإضافي"]);
-  assert.deepEqual(rows(p.price).map((r) => r[1]), ["2,000 ريال", "50 ريال", "2,770 ريال", "4,820 ريال", "15 ريال"]);
+  const ALL = ["الراتب", "رخصة العمل والإقامة وأجير", "التأمين الطبي — الأساسي", "الإجازة السنوية", "تأشيرة الخروج والعودة", "التأشيرة ورسوم الانضمام", "نهاية الخدمة (استحقاق شهري)", "التأمينات الاجتماعية", "رسوم الخدمة", "الإجمالي الشهري للموظف", "ساعة الإضافي"];
+  assert.deepEqual(rows(p.price).map((r) => r[0]), ALL);
+  assert.deepEqual(rows(p.price).map((r) => r[1]), ["2,000 ريال", "882.5 ريال", "50 ريال", "116.67 ريال", "16.67 ريال", "250 ريال", "83.33 ريال", "40 ريال", "1,380.83 ريال", "4,820 ريال", "15 ريال"]);
+  // مجموع الأسطر المعروضة = الإجمالي المعروض بالتمام (يُقرأ من النص نفسه لا من الخادم)
+  const num = (t) => Math.round(parseFloat(t.replace(/[^\d.]/g, "")) * 100);
+  const parts0 = rows(p.price);
+  assert.equal(parts0.slice(0, 9).reduce((s, r) => s + num(r[1]), 0), num(parts0[9][1]));
+  assert.match(p.price.textContent, /رسوم الخدمة تغطي إدارة التعاقد والتشغيل والمصاريف العامة/);
   // «علينا» تُضيف سطراً مستقلاً وتغيّر الإجمالي (من الخادم لا من الواجهة)
   dom.pick(dom.$("eorPV_housing_us")); dom.pick(dom.$("eorPV_transport_us"));
   await dom.flush();
-  assert.deepEqual(rows(p.price).map((r) => r[0]), ["الراتب", "التأمين الطبي — الأساسي", "السكن", "المواصلات", "رسوم الخدمة", "الإجمالي الشهري للموظف", "ساعة الإضافي"]);
+  assert.deepEqual(rows(p.price).map((r) => r[0]), ALL.slice(0, 8).concat(["السكن", "المواصلات"], ALL.slice(8)));
   assert.equal(rows(p.price).find((r) => r[0] === "الإجمالي الشهري للموظف")[1], "5,820 ريال");
   assert.match(dom.$("eorPriceSum").textContent, /11,640 ريال/);
   // العودة إلى «على العميل» تُسقط السطر
