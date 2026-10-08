@@ -427,7 +427,7 @@ test("canaries: الصفحات الأربع المولَّدة لـ/eor (HTML و
     for (const n of realNums) assert.equal(h.includes(n), false, `${rel}: ${n}`);
     const cfg = h.match(/<script>\(function eorClient[\s\S]*?\)\((\{[\s\S]*?\})\);<\/script>/);
     assert.ok(cfg, rel + " كتلة الإعداد");
-    assert.deepEqual(Object.keys(JSON.parse(cfg[1])).sort(), ["ins", "lang", "lim", "nats", "occ", "tx"], rel + " مفاتيح كتلة الإعداد ثابتة");
+    assert.deepEqual(Object.keys(JSON.parse(cfg[1])).sort(), ["ins", "lang", "lim", "nats", "occ", "tx", "units"], rel + " مفاتيح كتلة الإعداد ثابتة");
     assert.equal(/package_rate|pricing\.json|_eor-pricing/.test(h), false, rel);
   }
 });

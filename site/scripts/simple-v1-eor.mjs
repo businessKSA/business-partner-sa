@@ -16,7 +16,7 @@
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
 
 import { OCCUPATIONS } from "../../api/_occupations.js";
-import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS } from "../../api/_eor.js";
+import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, CASUAL_HOURS } from "../../api/_eor.js";
 
 // ar, en, fr, zh
 const D = {
@@ -68,7 +68,7 @@ const D = {
   q2: ["هل أستطيع تحديد المهن والجنسيات؟", "Can I specify the occupations and nationalities?", "Puis-je préciser les métiers et les nationalités ?", "我可以指定职业和国籍吗？"],
   a2: ["نعم. تحدّد في النموذج المهن والأعداد والجنسيات المطلوبة، ويتواصل معك فريقنا لتأكيد ما يمكن تنفيذه.", "Yes. You list the occupations, numbers and nationalities in the form, and our team contacts you to confirm what can be done.", "Oui. Vous indiquez métiers, effectifs et nationalités dans le formulaire, et notre équipe vous contacte pour confirmer ce qui est faisable.", "可以。您在表单中填写职业、人数和国籍，我们的团队会联系您确认可行的安排。"],
   q3: ["كم السعر؟", "What does it cost?", "Quel est le prix ?", "费用是多少？"],
-  a3: ["إن أدخلت الراتب الشهري المتوقع للموظف في النموذج ظهر لك فوراً سعره الشهري وساعة الإضافي كتقدير أولي. السعر النهائي يُحدَّد في عرض السعر بعد مراجعة طلبك بحسب المهن والأعداد.", "If you enter the employee's expected monthly salary in the form, you instantly see their monthly price and overtime hour as a preliminary estimate. The final price is set in the quote after we review your request, depending on occupations and numbers.", "Si vous saisissez le salaire mensuel prévu dans le formulaire, vous voyez aussitôt le prix mensuel et l'heure supplémentaire à titre d'estimation. Le prix final est fixé dans l'offre après examen de votre demande, selon métiers et effectifs.", "如果您在表单中填写员工的预期月薪，会立即看到其月度价格和加班每小时价格作为初步估算。最终价格在审核您的申请后，根据职业和人数在报价中确定。"],
+  a3: ["إن أدخلت الراتب الشهري المتوقع للموظف في النموذج ظهر لك فوراً سعره الشهري وساعة الإضافي كتقدير أولي. السعر النهائي يُحدَّد في عرض السعر بعد مراجعة طلبك بحسب المهن والأعداد. وللعمالة المرنة تختار التسعير بالساعة أو باليوم أو بالشهر وتدخل الكمية لترى الإجمالي.", "If you enter the employee's expected monthly salary in the form, you instantly see their monthly price and overtime hour as a preliminary estimate. The final price is set in the quote after we review your request, depending on occupations and numbers. For flexible staffing you choose hourly, daily or monthly pricing and enter a quantity to see the total.", "Si vous saisissez le salaire mensuel prévu dans le formulaire, vous voyez aussitôt le prix mensuel et l'heure supplémentaire à titre d'estimation. Le prix final est fixé dans l'offre après examen de votre demande, selon métiers et effectifs. Pour le personnel flexible, vous choisissez une tarification à l'heure, à la journée ou au mois et saisissez une quantité pour voir le total.", "如果您在表单中填写员工的预期月薪，会立即看到其月度价格和加班每小时价格作为初步估算。最终价格在审核您的申请后，根据职业和人数在报价中确定。灵活用工可选择按小时、按天或按月计价，并输入数量查看总额。"],
   q4: ["هل تشمل الخدمة الاستقدام؟", "Does the service include recruitment?", "Le service inclut-il le recrutement ?", "服务包含招聘吗？"],
   a4: ["عند الحاجة وبحسب الحالة. تحدّد في النموذج إن كان الاستقدام لازماً، ونناقش التفاصيل معك دون وعدٍ بنتيجة أو بمدة.", "Where needed and case by case. You tell us in the form whether recruitment is needed and we discuss the details with you, with no promise of an outcome or timeline.", "Au besoin et selon le cas. Vous indiquez dans le formulaire si le recrutement est nécessaire ; nous en discutons sans promesse de résultat ni de délai.", "视情况而定。您在表单中说明是否需要招聘，我们与您讨论细节，不承诺结果或时限。"],
   q5: ["ماذا يحدث بعد إرسال الطلب؟", "What happens after I send the request?", "Que se passe-t-il après l'envoi ?", "提交后会怎样？"],
@@ -107,6 +107,26 @@ const D = {
   pTotal: ["إجمالي شهري تقديري", "Estimated monthly total", "Total mensuel estimé", "预计月度总额"],
   pReview: ["السعر يُحدَّد بعد مراجعة طلبك.", "The price is set after we review your request.", "Le prix est fixé après examen de votre demande.", "价格在审核您的申请后确定。"],
   pNote: ["تقدير أولي غير ملزم. السعر النهائي في عرض السعر، ومدة العقد معلومة فقط ولا تدخل الحساب.", "Preliminary, non-binding estimate. The final price is in the quote, and the contract term is informational only and is not part of the calculation.", "Estimation préliminaire non contraignante. Le prix final figure dans l'offre ; la durée du contrat est indicative et n'entre pas dans le calcul.", "初步估算，不具约束力。最终价格以报价为准；合同期限仅供参考，不计入计算。"],
+  engH: ["نوع التعاقد", "Engagement type", "Type d'engagement", "用工方式"],
+  etContract: ["تعاقد (كفالة، شهري/سنوي)", "Contract (sponsored, monthly/annual)", "Contrat (parrainé, mensuel/annuel)", "合同制（担保，按月/按年）"],
+  etCasual: ["عمالة مرنة (بالساعة/اليوم/الشهر)", "Flexible staffing (hourly/daily/monthly)", "Personnel flexible (à l'heure/jour/mois)", "灵活用工（按小时/天/月）"],
+  etHint: ["العمالة المرنة: عمل مؤقت بحسب الطلب، يُسعَّر بالساعة أو اليوم أو الشهر بدل العقد السنوي.", "Flexible staffing: temporary on-demand work priced per hour, day or month instead of an annual contract.", "Personnel flexible : travail temporaire à la demande, tarifé à l'heure, à la journée ou au mois au lieu d'un contrat annuel.", "灵活用工：按需临时用工，按小时、天或月计价，而非年度合同。"],
+  salaryRef: ["الراتب المرجعي الشهري، ريال (اختياري، يظهر لك السعر فوراً)", "Reference monthly salary, SAR (optional; shows your price instantly)", "Salaire mensuel de référence, SAR (facultatif ; affiche le prix aussitôt)", "参考月薪，沙特里亚尔（可选；立即显示价格）"],
+  hpdH: ["ساعات اليوم", "Hours per day", "Heures par jour", "每天小时数"],
+  hrs: ["ساعات", "hours", "heures", "小时"],
+  unitH: ["وحدة التسعير", "Pricing unit", "Unité de tarification", "计价单位"],
+  uMonthly: ["بالشهر", "Monthly", "Au mois", "按月"],
+  uDaily: ["باليوم", "Daily", "À la journée", "按天"],
+  uHourly: ["بالساعة", "Hourly", "À l'heure", "按小时"],
+  qtyMonthly: ["عدد الأشهر لكل موظف (اختياري)", "Months per employee (optional)", "Mois par employé (facultatif)", "每位员工月数（可选）"],
+  qtyDaily: ["عدد الأيام لكل موظف (اختياري)", "Days per employee (optional)", "Jours par employé (facultatif)", "每位员工天数（可选）"],
+  qtyHourly: ["عدد الساعات لكل موظف (اختياري)", "Hours per employee (optional)", "Heures par employé (facultatif)", "每位员工小时数（可选）"],
+  pUMonthly: ["سعر الشهر", "Price per month", "Prix au mois", "每月价格"],
+  pUDaily: ["سعر اليوم", "Price per day", "Prix à la journée", "每天价格"],
+  pUHourly: ["سعر الساعة", "Price per hour", "Prix à l'heure", "每小时价格"],
+  pUTotal: ["إجمالي الكمية", "Quantity total", "Total pour la quantité", "数量总额"],
+  pUSum: ["إجمالي الكميات المختارة", "Total of the chosen quantities", "Total des quantités choisies", "所选数量总额"],
+  eQty: ["الكمية عدد صحيح موجب ضمن الحد المسموح للوحدة المختارة.", "The quantity must be a positive whole number within the limit for the chosen unit.", "La quantité doit être un entier positif dans la limite de l'unité choisie.", "数量须为所选单位限额内的正整数。"],
   cur: ["ريال", "SAR", "SAR", "SAR"],
   insH: ["التأمين الطبي (اختياري، يظهر أثره على السعر عند إدخال الراتب)", "Medical insurance (optional; its effect on the price shows once you enter the salary)", "Assurance médicale (facultatif ; son effet sur le prix apparaît une fois le salaire saisi)", "医疗保险（可选；填写薪资后会体现在价格中）"],
   gender: ["الجنس", "Gender", "Genre", "性别"],
@@ -186,6 +206,7 @@ export function buildSimpleEor(sv1, ctx) {
     "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eMonths", "eNet", "eRate",
     "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary",
     "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur",
+    "engH", "etContract", "etCasual", "etHint", "salaryRef", "hpdH", "hrs", "unitH", "uMonthly", "uDaily", "uHourly", "qtyMonthly", "qtyDaily", "qtyHourly", "pUMonthly", "pUDaily", "pUHourly", "pUTotal", "pUSum", "eQty",
     "insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
@@ -198,9 +219,12 @@ export function buildSimpleEor(sv1, ctx) {
     genders: INSURANCE_GENDERS.map((k) => [k, t(GENDER_KEY[k])]),
     ageNone: t("ageNone"),
   };
+  // وحدات التسعير: معرّفات وعناوين وسقوف الكمية فقط (لا أرقام أسعار) — الحساب كله على الخادم.
+  const UNIT_KEY = { monthly: ["uMonthly", "qtyMonthly", "pUMonthly"], daily: ["uDaily", "qtyDaily", "pUDaily"], hourly: ["uHourly", "qtyHourly", "pUHourly"] };
+  const UNITS = BILLING_UNITS.map((k) => ({ id: k, name: t(UNIT_KEY[k][0]), qty: t(UNIT_KEY[k][1]), price: t(UNIT_KEY[k][2]), max: UNIT_QUANTITY_MAX[k] }));
   const CFG = {
-    lang: l, tx: TX, occ: OCC, nats: NATS, ins: INS,
-    lim: { maxItems: EOR_LIMITS.maxItems, maxTotal: EOR_LIMITS.maxTotalCount, maxItemCount: EOR_LIMITS.maxItemCount, maxMonths: EOR_LIMITS.maxMonths, maxSalary: EOR_LIMITS.maxSalary, maxNats: EOR_LIMITS.maxNationalities },
+    lang: l, tx: TX, occ: OCC, nats: NATS, ins: INS, units: UNITS,
+    lim: { maxItems: EOR_LIMITS.maxItems, maxTotal: EOR_LIMITS.maxTotalCount, maxItemCount: EOR_LIMITS.maxItemCount, maxMonths: EOR_LIMITS.maxMonths, maxSalary: EOR_LIMITS.maxSalary, maxNats: EOR_LIMITS.maxNationalities, hMin: CASUAL_HOURS.min, hMax: CASUAL_HOURS.max, hDef: CASUAL_HOURS.default },
   };
 
   const CSS = `<style id="sv1-eor-css">
@@ -269,6 +293,9 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-insinfo summary{cursor:pointer;padding:11px 0;font-size:13px;font-weight:500;color:var(--ink)}
 .sv1-eor-insinfo ul{margin:0 0 8px;padding-inline-start:18px;color:var(--t);font-size:12.5px;line-height:1.9}
 .sv1-eor-insinfo p{margin:0 0 12px;color:var(--mut);font-size:11.5px;line-height:1.85}
+.sv1-eor-unit{border-top:1px dashed var(--l);padding-top:10px}
+.sv1-eor-unitg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-eor-unitg>*{min-width:0}
 .sv1-eor-sum{margin-top:12px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:11px;padding:12px 15px;font-size:13px;color:var(--ink)}
 .sv1-eor-sum b{font-family:var(--fm);font-weight:500;font-size:17px;color:var(--ac)}
 .sv1-eor-sum small{display:block;margin-top:4px;color:var(--mut);font-size:11.5px;line-height:1.8}
@@ -285,7 +312,7 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-done .ref{font-family:var(--fm);font-size:20px;color:var(--ac);margin:12px 0 8px;direction:ltr;unicode-bidi:isolate}
 .sv1-eor-done p{font-size:13px;color:var(--mut);line-height:1.9;margin:0 0 16px}
 @media(max-width:860px){.sv1-eor-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-eor-grid,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
+@media(max-width:600px){.sv1-eor-grid,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg,.sv1-eor-unitg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
 </style>`;
 
   const card = (a, b) => `<div class="sv1-eor-card"><h3>${esc(t(a))}</h3><p>${esc(t(b))}</p></div>`;
@@ -349,9 +376,10 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
         </div>
       </fieldset>
       <fieldset><legend>${esc(t("g2"))}</legend>
+        <div style="margin-bottom:16px" role="radiogroup" aria-labelledby="eorETH"><label id="eorETH">${esc(t("engH"))}</label><div class="sv1-eor-radios">${radio("eorET", "contract", "etContract", "eorET1")}${radio("eorET", "casual", "etCasual", "eorET2")}</div><p class="sv1-eor-insnote">${esc(t("etHint"))}</p></div>
         <div class="sv1-eor-cols" style="margin-bottom:16px">
           <div role="radiogroup" aria-labelledby="eorWTH"><label id="eorWTH">${esc(t("wtH"))}</label><div class="sv1-eor-radios">${radio("eorWT", "saudi", "wtSaudi", "eorWT1")}${radio("eorWT", "foreign", "wtForeign", "eorWT2")}${radio("eorWT", "both", "wtBoth", "eorWT3")}</div></div>
-          <div role="radiogroup" aria-labelledby="eorRCH"><label id="eorRCH">${esc(t("rcH"))}</label><div class="sv1-eor-radios">${radio("eorRC", "yes", "rcYes", "eorRC1")}${radio("eorRC", "no", "rcNo", "eorRC2")}${radio("eorRC", "unsure", "rcUnsure", "eorRC3")}</div></div>
+          <div role="radiogroup" aria-labelledby="eorRCH" id="eorRCW"><label id="eorRCH">${esc(t("rcH"))}</label><div class="sv1-eor-radios">${radio("eorRC", "yes", "rcYes", "eorRC1")}${radio("eorRC", "no", "rcNo", "eorRC2")}${radio("eorRC", "unsure", "rcUnsure", "eorRC3")}</div></div>
         </div>
         <label>${esc(t("itemsH"))}</label>
         <div id="eorItems"></div>
@@ -380,7 +408,8 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 ${sv1.footer()}`;
 
   function eorClient(C) {
-    var TX = C.tx, OCC = C.occ, NATS = C.nats, LIM = C.lim, INS = C.ins, LANG = C.lang, AR = LANG === "ar";
+    var TX = C.tx, OCC = C.occ, NATS = C.nats, LIM = C.lim, INS = C.ins, UNITS = C.units, LANG = C.lang, AR = LANG === "ar";
+    var UNIT_BY = {}; UNITS.forEach(function (u) { UNIT_BY[u.id] = u; });
     var API = "/api/requests?__route=eor";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -420,6 +449,15 @@ ${sv1.footer()}`;
       box.classList.remove("sv1-hide");
       if (line.status !== "priced") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
       var cur = " " + TX.cur;
+      if (line.monthlyPerEmployee === undefined) {
+        // العمالة المرنة: سعر الوحدة وإجمالي الكمية كما أعادهما الخادم (لا حساب هنا).
+        var cu = line.unit;
+        if (!cu || !UNIT_BY[cu.billingUnit] || cu.status !== "ok") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
+        box.appendChild(document.createTextNode(UNIT_BY[cu.billingUnit].price + ": ")); box.appendChild(el("b", "", fmtNum(cu.unitPrice))); box.appendChild(document.createTextNode(cur));
+        if (cu.hoursPerDay) box.appendChild(document.createTextNode(" · " + cu.hoursPerDay + " " + TX.hrs));
+        if (cu.total != null) { box.appendChild(el("br", "")); box.appendChild(document.createTextNode(TX.pUTotal + ": ")); box.appendChild(el("b", "", fmtNum(cu.total))); box.appendChild(document.createTextNode(cur)); }
+        return;
+      }
       box.appendChild(document.createTextNode(TX.pMonthly + ": "));
       box.appendChild(el("b", "", fmtNum(line.monthlyPerEmployee))); box.appendChild(document.createTextNode(cur + " · " + TX.pOt + ": "));
       box.appendChild(el("b", "", fmtNum(line.otHour))); box.appendChild(document.createTextNode(cur));
@@ -435,9 +473,10 @@ ${sv1.footer()}`;
     }
     // أعلام الواجهة من الخادم (منطقية فقط): هل يُعرض اختيار التأمين وإضافتاه؟ تُستعمل لإخفاء الحقول لا لحساب شيء.
     var UIF = { selectable: true, addons: true };
+    function isCasual() { var r = document.querySelector('input[name="eorET"]:checked'); return !!r && r.value === "casual"; }
     function syncIns(it) {
       var medical = it.cIn.value === "C" || it.cIn.value === "B" || it.cIn.value === "A";
-      it.insW.classList.toggle("sv1-hide", !UIF.selectable);
+      it.insW.classList.toggle("sv1-hide", !UIF.selectable || isCasual());
       it.mW.classList.toggle("sv1-hide", !(UIF.addons && medical && it.gIn.value === "female"));
       it.chW.classList.toggle("sv1-hide", !(UIF.addons && medical));
       it.xW.classList.toggle("sv1-hide", it.mW.classList.contains("sv1-hide") && it.chW.classList.contains("sv1-hide"));
@@ -447,29 +486,48 @@ ${sv1.footer()}`;
       return { gender: on ? it.gIn.value : "unspecified", ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic",
         maternity: on && UIF.addons && it.mCb.checked && !it.mW.classList.contains("sv1-hide"), chronic: on && UIF.addons && it.chCb.checked && !it.chW.classList.contains("sv1-hide") };
     }
+    // الكمية المكتوبة: فارغة ⇒ null، عدد صحيح موجب ضمن سقف الوحدة ⇒ ok. (فحص مدخلات فقط؛ الخادم يعيد التحقق ويحسب.)
+    function qtyOf(it) {
+      var s = digits(it.qIn.value).trim();
+      if (s === "") return { ok: true, value: null };
+      var n = /^\d+$/.test(s) ? parseInt(s, 10) : 0;
+      return n >= 1 && n <= UNIT_BY[it.uIn.value].max ? { ok: true, value: n } : { ok: false, value: null };
+    }
+    function syncUnit(it) {
+      var u = UNIT_BY[it.uIn.value]; it.qLb.textContent = u.qty; it.qIn.max = String(u.max);
+      it.uW.classList.toggle("sv1-hide", !isCasual()); it.hW.classList.toggle("sv1-hide", !(isCasual() && it.uIn.value === "daily"));
+    }
+    // نوع التعاقد: التعاقد (EOR) كما هو؛ العمالة المرنة تُظهر الوحدة والكمية وساعات اليوم وتُخفي التأمين والاستقدام.
+    function applyEngagement() {
+      var c = isCasual();
+      $("eorRCW").classList.toggle("sv1-hide", c); $("eorInsInfo").classList.toggle("sv1-hide", c);
+      items.forEach(function (it) { syncUnit(it); syncIns(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; });
+      clearPrices(); priceSoon();
+    }
     function clearPrices() {
       items.forEach(function (it) { showPrice(it, null); });
       var sum = $("eorPriceSum"); sum.classList.add("sv1-hide"); sum.textContent = "";
     }
     function runPrice() {
       var wt = document.querySelector('input[name="eorWT"]:checked');
-      var rows = [], owners = [], anySalary = false;
+      var rows = [], owners = [], anySalary = false, casual = isCasual();
       items.forEach(function (it) {
         var n = parseInt(digits(it.countIn.value), 10);
         if (!(n >= 1 && n <= LIM.maxItemCount)) return;
         var ss = digits(it.salIn.value).trim(), sal = null;
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) sal = null; }
         if (sal !== null && sal > 0) anySalary = true;
-        var io = insOf(it);
-        rows.push({ count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
+        var io = insOf(it), uq = qtyOf(it);
+        rows.push(casual ? { count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.ok ? uq.value : null, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
+          : { count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
       });
       if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
       var ms = parseInt(digits($("eorMonths").value), 10);
       var my = ++priceSeq;
       fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "price", workerType: wt.value, durationMonths: ms > 0 ? ms : null, items: rows }) })
+        body: JSON.stringify({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt.value, durationMonths: ms > 0 ? ms : null, items: rows }) })
         .then(function (r) { return r.json(); }).then(function (o) {
-          if (my !== priceSeq) return;
+          if (my !== priceSeq || casual !== isCasual()) return;
           var q = o && o.ok && o.quote;
           if (!q || (q.status !== "ok" && q.status !== "partial" && q.status !== "none")) { clearPrices(); return; }
           if (q.insuranceUi) { UIF.selectable = q.insuranceUi.selectable === true; UIF.addons = q.insuranceUi.addons === true; items.forEach(syncIns); }
@@ -478,12 +536,19 @@ ${sv1.footer()}`;
           var sum = $("eorPriceSum"); sum.textContent = "";
           if (q.monthlyTotal != null) {
             sum.appendChild(document.createTextNode(TX.pTotal + ": ")); sum.appendChild(el("b", "", fmtNum(q.monthlyTotal)));
-            sum.appendChild(document.createTextNode(" " + TX.cur)); sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
+            sum.appendChild(document.createTextNode(" " + TX.cur));
+            sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
+          } else if (q.unitTotal != null) {
+            sum.appendChild(document.createTextNode(TX.pUSum + ": ")); sum.appendChild(el("b", "", fmtNum(q.unitTotal)));
+            sum.appendChild(document.createTextNode(" " + TX.cur));
+            sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
           } else sum.classList.add("sv1-hide");
         }).catch(function () {});
     }
     function priceSoon() { clearTimeout(priceTimer); priceTimer = setTimeout(runPrice, 350); }
     Array.prototype.forEach.call(document.querySelectorAll('input[name="eorWT"]'), function (r) { r.addEventListener("change", priceSoon); });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="eorET"]'), function (r) { r.addEventListener("change", applyEngagement); });
+    $("eorET1").checked = true;
 
     function digits(s) {
       return String(s || "").replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
@@ -601,11 +666,33 @@ ${sv1.footer()}`;
       });
       det.appendChild(sum); det.appendChild(box); natW.appendChild(det);
 
-      var salW = el("div", "full"); salW.appendChild(el("label", "", TX.salary));
+      var salW = el("div", "full"); it.salLb = el("label", "", isCasual() ? TX.salaryRef : TX.salary); salW.appendChild(it.salLb);
       var salIn = el("input", "sv1-eor-in"); salIn.type = "number"; salIn.min = "0"; salIn.max = String(LIM.maxSalary); salIn.step = "any"; salIn.inputMode = "decimal"; salIn.dir = "ltr";
       salIn.addEventListener("input", priceSoon);
       var priceEl = el("div", "sv1-eor-price sv1-hide"); priceEl.setAttribute("role", "status"); priceEl.setAttribute("aria-live", "polite");
       salW.appendChild(salIn); salW.appendChild(priceEl); it.salIn = salIn; it.priceEl = priceEl;
+
+      // العمالة المرنة: وحدة التسعير (ساعة/يوم/شهر) وكميتها لكل موظف وساعات اليوم للوحدة اليومية. العرض والإجمالي من الخادم.
+      var unW = el("div", "full sv1-eor-unit");
+      var unG = el("div", "sv1-eor-unitg");
+      var uW = el("div", ""); uW.appendChild(el("label", "", TX.unitH));
+      var uIn = el("select", "sv1-eor-in");
+      UNITS.forEach(function (u) { var o = el("option", "", u.name); o.value = u.id; uIn.appendChild(o); });
+      uIn.value = "hourly";
+      uW.appendChild(uIn);
+      var qW = el("div", ""); var qLb = el("label", "", ""); qW.appendChild(qLb);
+      var qIn = el("input", "sv1-eor-in"); qIn.type = "number"; qIn.min = "1"; qIn.step = "1"; qIn.inputMode = "numeric"; qIn.dir = "ltr";
+      qW.appendChild(qIn);
+      var hW = el("div", ""); hW.appendChild(el("label", "", TX.hpdH));
+      var hIn = el("select", "sv1-eor-in");
+      for (var hh = LIM.hMin; hh <= LIM.hMax; hh++) { var ho = el("option", "", hh + " " + TX.hrs); ho.value = String(hh); hIn.appendChild(ho); }
+      hIn.value = String(LIM.hDef); hW.appendChild(hIn);
+      unG.appendChild(uW); unG.appendChild(qW); unG.appendChild(hW); unW.appendChild(unG);
+      it.uIn = uIn; it.qIn = qIn; it.qLb = qLb; it.hIn = hIn; it.hW = hW; it.uW = unW;
+      uIn.addEventListener("change", function () { syncUnit(it); priceSoon(); });
+      qIn.addEventListener("input", priceSoon);
+      hIn.addEventListener("change", priceSoon);
+      syncUnit(it);
 
       // التأمين الطبي: الجنس والفئة العمرية وفئة التأمين (+ إضافتا الأمومة والمزمن عند الاقتضاء). الحساب على الخادم.
       var insW = el("div", "full sv1-eor-ins"); insW.appendChild(el("label", "", TX.insH));
@@ -630,7 +717,7 @@ ${sv1.footer()}`;
       it.xW = el("div", "sv1-eor-insx sv1-hide"); it.xW.appendChild(m.lb); it.xW.appendChild(ch.lb);
       insW.appendChild(insG); insW.appendChild(it.xW); it.insW = insW;
 
-      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(insW);
+      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(unW); grid.appendChild(insW);
       card.appendChild(head); card.appendChild(grid); host.appendChild(card);
       it.card = card;
       rm.addEventListener("click", function () {
@@ -657,7 +744,7 @@ ${sv1.footer()}`;
     }
     function clearMarks() {
       ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorStart", "eorMonths"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
-      items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); });
+      items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); it.qIn.removeAttribute("aria-invalid"); });
     }
     function checked(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ""; }
     function collect() {
@@ -672,7 +759,8 @@ ${sv1.footer()}`;
       if (!/^\+?\d{8,15}$/.test(phone)) return bad("ePhone", $("eorPhone"));
       if (!v("eorCity")) return bad("eCity", $("eorCity"));
       var wt = checked("eorWT"); if (!wt) return bad("eWorker", $("eorWT1"));
-      var rc = checked("eorRC"); if (!rc) return bad("eRecruit", $("eorRC1"));
+      var casual = isCasual();
+      var rc = casual ? "no" : checked("eorRC"); if (!rc) return bad("eRecruit", $("eorRC1"));
       if (!items.length) return bad("eItems", $("eorAdd"));
       var out = [], total = 0;
       for (var i = 0; i < items.length; i++) {
@@ -685,8 +773,10 @@ ${sv1.footer()}`;
         if (total > LIM.maxTotal) return bad("eTotal", it.countIn);
         var sal = null, ss = digits(it.salIn.value).trim();
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) return bad("eSalary", it.salIn); }
-        var io = insOf(it);
-        out.push({ occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic });
+        var io = insOf(it), uq = qtyOf(it);
+        if (casual && !uq.ok) return bad("eQty", it.qIn);
+        out.push(casual ? { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.value, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
+          : { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic });
       }
       var start = $("eorStart").value.trim();
       if (start && !/^\d{4}-\d{2}-\d{2}$/.test(start)) return bad("eStart", $("eorStart"));
@@ -695,7 +785,7 @@ ${sv1.footer()}`;
       if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
       return {
         company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
-        workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
+        engagementType: casual ? "casual" : "contract", workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };
     }

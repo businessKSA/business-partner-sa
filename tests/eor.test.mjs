@@ -420,7 +420,7 @@ test("/eor: قائمة المهن المدمجة = id + عربي + إنجليز�
     assert.ok(c.occ.every((o) => Array.isArray(o) && o.length === 3 && typeof o[0] === "string" && typeof o[1] === "string" && typeof o[2] === "string"));
     assert.deepEqual(c.occ.map((o) => o[0]).sort(), OCCUPATIONS.map((o) => o.id).sort());
     assert.equal(c.nats.length, E.NATIONALITIES.length);
-    assert.deepEqual(c.lim, { maxItems: 20, maxTotal: 500, maxItemCount: 500, maxMonths: 60, maxSalary: 100000, maxNats: 10 });
+    assert.deepEqual(c.lim, { maxItems: 20, maxTotal: 500, maxItemCount: 500, maxMonths: 60, maxSalary: 100000, maxNats: 10, hMin: 4, hMax: 12, hDef: 8 });
   }
 });
 

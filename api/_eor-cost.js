@@ -497,6 +497,7 @@ export function packageRateConfigFromPricing(pricing) {
       overtime: ot(L.overtime),
     },
     insurance: insuranceConfigFrom(root.insurance_catalog),
+    casual: casualConfigFrom(root.casual),
     costplus: {
       clientVisible: C.client_visible === true,
       marginOnPrice: pn(C.margin_on_price),
@@ -610,7 +611,7 @@ export function computePackageRate(input) {
   const cost = P * (1 + c.pExtraRate) + c.fixedMonthly;
   const rate = cost / (1 - c.marginOnPrice);
   const billable = mround(rate, c.step);
-  return {
+  const res = {
     status: "ok", mode, package: P, currency,
     billable, otHour: r2(otHourOf(P, o)),
     pendingDecision: true,
@@ -620,6 +621,7 @@ export function computePackageRate(input) {
       lines: { package: P, extra: r2(P * c.pExtraRate), fixed: r2(c.fixedMonthly) }, separate: {},
     },
   };
+  return res;
 }
 
 // ما يراه العميل: السعر الشهري وساعة الإضافي فقط — قائمة بيضاء تُبنى حقلاً حقلاً (لا نسخ كائن ولا حذف حقول).
@@ -650,6 +652,142 @@ export function packageClientView(result, config) {
 // السعر الشهري كهللات صحيحة لتغذية monthlyInvoiceLines (placements[].saleMonthlyHalalas) بالسعر المقرَّب نفسه.
 export function packageSaleMonthlyHalalas(result) {
   return isObj(result) && result.status === "ok" && Number.isFinite(result.billable) ? sarToHalalas(result.billable) : null;
+}
+
+/* ═════════════ العمالة المرنة (Casual): بالساعة / باليوم / بالشهر (تصحيح المالك 2026-10-08) ═════════════
+   خدمة مستقلة عن EOR: عاملٌ يأتي لمهمة ثم يمضي، يُسعَّر بالساعة أو اليوم أو الشهر. EOR (عقد بكفالة، دفع شهري، نهاية خدمة) تبقى بصيغة
+   الإكسل أعلاه كما هي بلا أي تغيير. لا تأمين ولا رسوم حكومية في المرنة. كل رقم من package_rate.casual (قرارات المالك فيه معلَّمة):
+     أجر الساعة المرجعي  = الراتب المرجعي ÷ 30 ÷ 8                                     (reference_month_days / reference_hours_per_day)
+     أجر الساعة للعامل   = المرجعي × hourly_worker_multiplier                           (افتراضي 5: ساعة قيمتها 6 يأخذ العامل 30)
+     أجر اليوم للعامل    = أجر الساعة للعامل (مقرَّباً لهللة) × ساعات اليوم            (4–12، افتراضي 8)
+     أجر الشهر للعامل    = الراتب المرجعي × monthly_worker_multiplier                   (افتراضي 1.0)
+     سعر البيع للعميل    = ما يأخذه العامل × sale_multiplier                            (افتراضي 2.0 «الدبل» = ربح 50% من السعر)
+   حسابٌ صحيح بالهللة (BigInt)، التقريب لأقرب هللة نصفاً لأعلى ويُعرض بخانتين (قرار مفتوح). min_hourly_halalas حدّ أدنى اختياري لسعر بيع الساعة
+   (اليوم لا ينزل عن حدّ الساعة × ساعات اليوم). الفشل مغلق: إعداد ناقص أو فاسد ⇒ pending_pricing بلا رقم.
+   الخصوصية: أجر العامل والمعاملات والربح في internal وحده (computeCasualRate/casualRateForRole للمالك)؛ casualUnitView تُخرج للعميل
+   الوحدة وسعرها فقط. */
+export const BILLING_UNITS = Object.freeze(["monthly", "daily", "hourly"]);
+export const UNIT_QUANTITY_MAX = Object.freeze({ monthly: 36, daily: 3650, hourly: 10000 });
+export const ENGAGEMENT_TYPES = Object.freeze(["contract", "casual"]);
+export const CASUAL_HOURS = Object.freeze({ min: 4, max: 12, default: 8 });      // اختيار العميل لساعات اليوم (واجهة وتحقّق)
+const MAX_CASUAL_MULT = 100;
+
+// قوائم بيضاء؛ المجهول يعود إلى الأكثر أماناً (شهري / تعاقد EOR).
+export function normalizeBillingUnit(v) {
+  const s = typeof v === "string" ? v.trim().toLowerCase() : "";
+  return BILLING_UNITS.find((u) => u === s) || "monthly";
+}
+export function normalizeEngagementType(v) {
+  const s = typeof v === "string" ? v.trim().toLowerCase() : "";
+  return ENGAGEMENT_TYPES.find((u) => u === s) || "contract";
+}
+
+// الكمية لكل موظف (ساعات/أيام/أشهر): غائبة ⇒ { ok:true, value:null }؛ عدد صحيح موجب بسقف الوحدة ⇒ ok؛ غير ذلك ⇒ { ok:false }.
+export function parseUnitQuantity(unit, raw) {
+  if (raw === undefined || raw === null || raw === "") return { ok: true, value: null };
+  const n = typeof raw === "string" && /^\d{1,6}$/.test(raw.trim()) ? Number(raw.trim()) : raw;
+  const max = UNIT_QUANTITY_MAX[normalizeBillingUnit(unit)];
+  return Number.isInteger(n) && n >= 1 && n <= max ? { ok: true, value: n } : { ok: false };
+}
+
+// ساعات اليوم التي يختارها العميل: غائبة ⇒ null (يُستعمل افتراضي الإعداد)؛ عدد صحيح ضمن CASUAL_HOURS وإلا { ok:false }.
+export function parseCasualHours(raw) {
+  if (raw === undefined || raw === null || raw === "") return { ok: true, value: null };
+  const n = typeof raw === "string" && /^\d{1,2}$/.test(raw.trim()) ? Number(raw.trim()) : raw;
+  return Number.isInteger(n) && n >= CASUAL_HOURS.min && n <= CASUAL_HOURS.max ? { ok: true, value: n } : { ok: false };
+}
+
+function casualConfigFrom(c) {
+  if (!isObj(c)) return null;
+  const bad = [];
+  const int = (v, lo, hi, label) => { if (Number.isInteger(v) && v >= lo && v <= hi) return v; bad.push(label); return null; };
+  const mult = (v, label) => { if (typeof v === "number" && Number.isFinite(v) && v > 0 && v <= MAX_CASUAL_MULT) return v; bad.push(label); return null; };
+  const hpd = isObj(c.hours_per_day) ? c.hours_per_day : {};
+  const out = {
+    clientVisible: c.client_visible === true,
+    appliesTo: Array.isArray(c.applies_to_worker_types) ? c.applies_to_worker_types.filter((x) => typeof x === "string") : [],
+    refMonthDays: int(c.reference_month_days, 1, 31, "casual.reference_month_days"),
+    refHoursPerDay: int(c.reference_hours_per_day, 1, 24, "casual.reference_hours_per_day"),
+    hourlyWorkerMult: mult(c.hourly_worker_multiplier, "casual.hourly_worker_multiplier"),
+    monthlyWorkerMult: mult(c.monthly_worker_multiplier, "casual.monthly_worker_multiplier"),
+    saleMult: mult(c.sale_multiplier, "casual.sale_multiplier"),
+    hoursMin: int(hpd.min, 1, 24, "casual.hours_per_day.min"),
+    hoursMax: int(hpd.max, 1, 24, "casual.hours_per_day.max"),
+    hoursDefault: int(hpd.default, 1, 24, "casual.hours_per_day.default"),
+    minHourlyHalalas: null,
+    bad,
+  };
+  if (c.min_hourly_halalas !== undefined && c.min_hourly_halalas !== null) { if (isHalalas(c.min_hourly_halalas)) out.minHourlyHalalas = c.min_hourly_halalas; else bad.push("casual.min_hourly_halalas"); }
+  if (out.hoursMin !== null && out.hoursMax !== null && out.hoursDefault !== null && !(out.hoursMin <= out.hoursDefault && out.hoursDefault <= out.hoursMax)) bad.push("casual.hours_per_day");
+  return out;
+}
+
+// computeCasualRate({ package, hoursPerDay?, config }) — نقيّة. package: الراتب المرجعي الشهري (ريال). config: ناتج packageRateConfigFromPricing.
+//   → { status:"ok", currency, hoursPerDay, units:{ hourlyHalalas, dailyHalalas, monthlyHalalas } (سعر البيع للعميل),
+//       internal:{ referenceHourlyHalalas, workerHourlyHalalas, workerDailyHalalas, workerMonthlyHalalas, profit…, minApplied, … } }
+//   | { status:"pending_pricing", missing } | { status:"invalid_input", errors }
+// ⚠ internal داخلي: لا يُمرَّر إلى العميل — casualUnitView وحدها.
+export function computeCasualRate(input) {
+  const inp = isObj(input) ? input : {};
+  const P = inp.package;
+  if (typeof P !== "number" || !Number.isFinite(P) || P <= 0 || P > MAX_PACKAGE) return { status: "invalid_input", errors: [{ field: "package", error: "out_of_range" }] };
+  const hp = parseCasualHours(inp.hoursPerDay);
+  if (!hp.ok) return { status: "invalid_input", errors: [{ field: "hoursPerDay", error: "out_of_range" }] };
+  const cfg = isObj(inp.config) ? inp.config : null;
+  if (!cfg) return { status: "pending_pricing", missing: ["config.package_rate"] };
+  if (typeof cfg.validFrom === "string" || typeof cfg.validUntil === "string") {
+    const today = typeof cfg.today === "string" ? cfg.today : null;
+    if (today && ((typeof cfg.validFrom === "string" && cfg.validFrom > today) || (typeof cfg.validUntil === "string" && cfg.validUntil < today))) return { status: "pending_pricing", missing: ["config.valid_window"] };
+  }
+  const k = isObj(cfg.casual) ? cfg.casual : null;
+  if (!k) return { status: "pending_pricing", missing: ["package_rate.casual"] };
+  const missing = [...k.bad];
+  const currency = typeof cfg.currency === "string" && cfg.currency.trim() ? cfg.currency.trim() : (missing.push("package_rate.currency"), null);
+  if (missing.length) return { status: "pending_pricing", missing };
+  const h = hp.value === null ? k.hoursDefault : hp.value;
+  if (h < k.hoursMin || h > k.hoursMax) return { status: "pending_pricing", missing: ["casual.hours_per_day"] };
+
+  const Ph = sarToHalalas(P);
+  const refPer = k.refMonthDays * k.refHoursPerDay;
+  const refHourlyExact = mulDivHalfUp(Ph, 1, refPer);                                         // أجر الساعة المرجعي بالهللة (للعرض الداخلي)
+  const workerHourly = mulDivHalfUp(Ph, ppm(k.hourlyWorkerMult), refPer * RATE_SCALE);
+  const workerDaily = workerHourly * h;
+  const workerMonthly = mulDivHalfUp(Ph, ppm(k.monthlyWorkerMult), RATE_SCALE);
+  const sale = (x) => mulDivHalfUp(x, ppm(k.saleMult), RATE_SCALE);
+  let saleHourly = sale(workerHourly), saleDaily = sale(workerDaily);
+  const saleMonthly = sale(workerMonthly);
+  let minApplied = false;
+  if (k.minHourlyHalalas !== null && saleHourly < k.minHourlyHalalas) { saleHourly = k.minHourlyHalalas; saleDaily = Math.max(saleDaily, saleHourly * h); minApplied = true; }
+  return {
+    status: "ok", currency, hoursPerDay: h,
+    units: { hourlyHalalas: saleHourly, dailyHalalas: saleDaily, monthlyHalalas: saleMonthly },
+    internal: {
+      referenceHourlyHalalas: refHourlyExact, workerHourlyHalalas: workerHourly, workerDailyHalalas: workerDaily, workerMonthlyHalalas: workerMonthly,
+      profitHourlyHalalas: saleHourly - workerHourly, profitDailyHalalas: saleDaily - workerDaily, profitMonthlyHalalas: saleMonthly - workerMonthly,
+      profitShareMonthly: saleMonthly > 0 ? (saleMonthly - workerMonthly) / saleMonthly : 0, minApplied,
+    },
+  };
+}
+
+// ما يراه العميل لوحدةٍ واحدة: { status:"ok", unit, unitPrice, hoursPerDay? } (ريال بخانتين) أو { status:"pending_pricing" } وحدها.
+// البوابات: package_rate.client_price_visible وcasual.client_visible. ساعات اليوم يراها العميل (مدخلٌ منه) في الوحدة اليومية فقط.
+export function casualUnitView(result, config, unit) {
+  const PENDING = { status: "pending_pricing" };
+  const cfg = isObj(config) ? config : {};
+  if (!isObj(result) || result.status !== "ok" || !isObj(result.units)) return PENDING;
+  if (cfg.clientPriceVisible !== true || !(isObj(cfg.casual) && cfg.casual.clientVisible === true)) return PENDING;
+  const un = normalizeBillingUnit(unit);
+  const h = un === "daily" ? result.units.dailyHalalas : un === "hourly" ? result.units.hourlyHalalas : result.units.monthlyHalalas;
+  if (!Number.isSafeInteger(h) || h < 0) return PENDING;
+  return { status: "ok", unit: un, unitPrice: h / 100, ...(un === "daily" ? { hoursPerDay: result.hoursPerDay } : {}) };
+}
+
+// حساب العمالة المرنة بدور: ops/system (المالك والفريق) يأخذان النتيجة كاملة بما فيها internal؛ أي دور آخر أو غائب يأخذ casualUnitView وحدها (الشهري)
+// وتفشل مغلقةً إلى pending_pricing. طبقات العميل تستعمل casualUnitView بالوحدة المختارة مباشرةً.
+export function casualRateForRole(input, role) {
+  const res = computeCasualRate(input);
+  if (role === "ops" || role === "system") return res;
+  return casualUnitView(res, isObj(input) ? input.config : null, "monthly");
 }
 
 // نقطة الدخول الوحيدة المعتمدة لمن يطلب حساباً بدور: ops/system (المالك والفريق) يأخذان النتيجة الكاملة بما فيها internal

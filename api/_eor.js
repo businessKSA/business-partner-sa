@@ -25,9 +25,9 @@ import { fileURLToPath } from "node:url";
 import { randomInt } from "node:crypto";
 import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
 import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.js";
-import { packageRateConfigFromPricing, computePackageRate, packageClientView, normalizeInsuranceFields } from "./_eor-cost.js";
+import { packageRateConfigFromPricing, computePackageRate, packageClientView, computeCasualRate, casualUnitView, normalizeInsuranceFields, normalizeBillingUnit, normalizeEngagementType, parseUnitQuantity, parseCasualHours } from "./_eor-cost.js";
 // قوائم اختيار التأمين المسموحة (معرّفات فقط، لا أرقام) — تستوردها صفحة /eor من هنا لا من الحاسبة.
-export { INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS } from "./_eor-cost.js";
+export { INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, ENGAGEMENT_TYPES, CASUAL_HOURS } from "./_eor-cost.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -149,6 +149,16 @@ const riyadhToday = (nowMs) => new Date((nowMs == null ? Date.now() : nowMs) + 3
 const addDays = (iso, n) => new Date(new Date(iso + "T00:00:00Z").getTime() + n * 86400e3).toISOString().slice(0, 10);
 
 /* ═════════════ التحقق من الحمولة ═════════════ */
+// العمالة المرنة: وحدة تسعير البند وكميتها لكل موظف وساعات اليوم. الوحدة بقائمة بيضاء (المجهول ⇒ شهري)، والكمية غائبة ⇒ null أو عدد صحيح موجب بسقف
+// الوحدة، وساعات اليوم غائبة ⇒ null (افتراضي الإعداد) أو عدد صحيح 4–12؛ وإلا { ok:false, error }.
+function readCasualFields(it) {
+  const billingUnit = normalizeBillingUnit(it && it.billingUnit);
+  const q = parseUnitQuantity(billingUnit, it && it.quantity);
+  if (!q.ok) return { ok: false, error: "quantity_invalid" };
+  const h = parseCasualHours(it && it.hoursPerDay);
+  if (!h.ok) return { ok: false, error: "hours_per_day_invalid" };
+  return { ok: true, value: { billingUnit, quantity: q.value, hoursPerDay: billingUnit === "daily" ? h.value : null } };
+}
 const fail = (error, field, extra) => ({ ok: false, status: 400, error, ...(field ? { field } : {}), ...(extra || {}) });
 
 // يُرجع { ok:true, value } أو { ok:false, status:400, error, field }.
@@ -176,6 +186,7 @@ export function validateEorRequest(body, opts = {}) {
     sector = sid;
   }
 
+  const engagementType = normalizeEngagementType(b.engagementType);      // قائمة بيضاء؛ المجهول ⇒ تعاقد (EOR)
   const workerType = String(b.workerType || "");
   if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, workerType)) return fail("worker_type_invalid", "workerType");
   const recruitment = String(b.recruitment || "");
@@ -211,7 +222,14 @@ export function validateEorRequest(body, opts = {}) {
       if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
       salary = Math.round(s * 100) / 100;
     }
-    items.push({ occupationId, count, nationalities: nats, salary, ...normalizeInsuranceFields(it) });
+    // التأمين من خصائص التعاقد (EOR) وحدها؛ والوحدة والكمية من خصائص العمالة المرنة وحدها.
+    let extra;
+    if (engagementType === "casual") {
+      const un = readCasualFields(it);
+      if (!un.ok) return fail(un.error, "items", { index: i });
+      extra = un.value;
+    } else extra = normalizeInsuranceFields(it);
+    items.push({ occupationId, count, nationalities: nats, salary, ...extra });
   }
 
   let startDate = "";
@@ -232,7 +250,7 @@ export function validateEorRequest(body, opts = {}) {
 
   return {
     ok: true,
-    value: { company, contactName, email, phone, city, sector, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
+    value: { company, contactName, email, phone, city, sector, engagementType, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
   };
 }
 
@@ -346,6 +364,7 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
   const today = riyadhToday(opts.now);
   if ((cfg.validFrom && cfg.validFrom > today) || (cfg.validUntil && cfg.validUntil < today)) return PENDING;
   const months = Number.isInteger(opts.durationMonths) && opts.durationMonths > 0 ? opts.durationMonths : null;
+  if (normalizeEngagementType(opts.engagementType) === "casual") return estimateCasualQuote(list, cfg, today, months, opts);
 
   let priced = 0, totalC = 0;
   const lines = [];
@@ -378,8 +397,49 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
   };
 }
 
+// ═════════════ العمالة المرنة (Casual): سعر الوحدة (ساعة/يوم/شهر) وإجمالي الكمية — حاسبة api/_eor-cost.js ═════════════
+// الراتب المرجعي الذي يدخله العميل هو أساس الحساب؛ المعاملات وأجر العامل والربح داخلية. يخرج للعميل: سعر الوحدة وإجمالي الكمية
+// (= سعر الوحدة × الكمية لكل موظف × عدد الموظفين) فقط، وساعات اليوم التي اختارها هو. لا تأمين ولا ساعة إضافي ولا سعر شهري EOR.
+// أي إعداد ناقص/مغلق (package_rate.client_price_visible أو casual.client_visible) ⇒ { status:"pending_pricing" } وحدها.
+function estimateCasualQuote(list, cfg, today, months, opts) {
+  const PENDING = { status: "pending_pricing" };
+  const k = cfg.casual;
+  if (!k) return PENDING;
+  let priced = 0, unitC = 0, complete = true;
+  const lines = [];
+  for (let i = 0; i < list.length; i++) {
+    const it = list[i];
+    const wt = itemWorkerType(it, opts.workerType);
+    const line = { index: i, count: it.count, workerType: wt };
+    if (wt === "mixed" || wt === "unknown") { lines.push({ ...line, status: "needs_review" }); continue; }
+    if (!k.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
+    if (!isNum(it.salary) || it.salary <= 0) { lines.push({ ...line, status: "needs_salary" }); continue; }
+    const res = computeCasualRate({ package: it.salary, hoursPerDay: it.hoursPerDay, config: { ...cfg, today } });
+    const uv = casualUnitView(res, cfg, it.billingUnit);
+    if (uv.status !== "ok") return PENDING;        // حاسبة ناقصة أو مغلقة أو ساعات يوم خارج الإعداد: لا رقم لأي بند
+    const qty = parseUnitQuantity(uv.unit, it.quantity);
+    const quantity = qty.ok ? qty.value : null;
+    const totalU = quantity === null ? null : cents(uv.unitPrice) * quantity * it.count;
+    if (totalU === null) complete = false; else unitC += totalU;
+    priced++;
+    lines.push({ ...line, status: "priced", salary: it.salary, unit: { status: "ok", billingUnit: uv.unit, unitPrice: uv.unitPrice, quantity, ...(uv.hoursPerDay ? { hoursPerDay: uv.hoursPerDay } : {}), total: totalU === null ? null : sar(totalU) } });
+  }
+  const insuranceUi = { selectable: false, addons: false };
+  if (!priced) return { status: "none", engagementType: "casual", currency: cfg.currency, lines, insuranceUi, notice: "estimate_not_an_offer" };
+  return {
+    status: priced === list.length ? "ok" : "partial",
+    engagementType: "casual",
+    currency: cfg.currency,
+    lines,
+    insuranceUi,
+    ...(complete ? { unitTotal: sar(unitC) } : {}),
+    durationMonths: months,
+    notice: "estimate_not_an_offer",
+  };
+}
+
 // يُنظّف بنود طلب السعر (count وnationalities وsalary فقط) — لا مهنة ولا أي بيان تواصل. { ok, items } | { ok:false, ... }
-function normalizePriceItems(rawItems) {
+function normalizePriceItems(rawItems, engagementType) {
   if (!Array.isArray(rawItems) || !rawItems.length) return fail("items_required", "items");
   if (rawItems.length > EOR_LIMITS.maxItems) return fail("too_many_items", "items");
   const items = [];
@@ -403,7 +463,13 @@ function normalizePriceItems(rawItems) {
       if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
       salary = Math.round(s * 100) / 100;
     }
-    items.push({ count, nationalities: nats, salary, ...normalizeInsuranceFields(it) });
+    let extra;
+    if (engagementType === "casual") {
+      const un = readCasualFields(it);
+      if (!un.ok) return fail(un.error, "items", { index: i });
+      extra = un.value;
+    } else extra = normalizeInsuranceFields(it);
+    items.push({ count, nationalities: nats, salary, ...extra });
   }
   return { ok: true, items };
 }
@@ -529,7 +595,7 @@ export function itemsText(items) {
     const o = occupationById(it.occupationId);
     const name = o ? `${o.nameAr} | ${o.nameEn}` : String(it.occupationId);
     const nats = (it.nationalities || []).map((c) => nationalityName(c, "ar")).join("، ") || "غير محدّدة";
-    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}${insuranceText(it)}`;
+    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}${insuranceText(it)}${unitText(it)}`;
   }).join("\n");
 }
 
@@ -548,6 +614,17 @@ function insuranceText(it) {
   return parts.length ? ` — ${parts.join(" — ")}` : "";
 }
 
+// العمالة المرنة كما اختارها العميل (للفريق، عربي): الوحدة والكمية وساعات اليوم. لا سعر ولا معامل ولا أجر عامل.
+const UNIT_AR = { monthly: "شهري", daily: "يومي", hourly: "بالساعة" };
+function unitText(it) {
+  if (!it || typeof it !== "object" || !("billingUnit" in it)) return "";
+  const u = normalizeBillingUnit(it.billingUnit);
+  const q = parseUnitQuantity(u, it.quantity);
+  const qty = q.ok ? q.value : null;
+  const h = u === "daily" ? parseCasualHours(it.hoursPerDay) : { ok: true, value: null };
+  return ` — عمالة مرنة: ${UNIT_AR[u]}${qty !== null ? ` × ${qty} لكل موظف` : ""}${h.ok && h.value !== null ? ` — ${h.value} ساعات يومياً` : ""}`;
+}
+
 function quoteSummaryText(q) {
   if (!q || q.status === "pending_pricing") return "pending_pricing";
   if (q.status === "needs_review") return "needs_review";
@@ -560,10 +637,18 @@ function quoteSummaryText(q) {
 // سطر للفريق عن سعر الحزمة الفوري الذي رآه العميل (ok/partial فقط؛ وإلا لا شيء يُضاف).
 function packageSummaryText(p) {
   if (!p || (p.status !== "ok" && p.status !== "partial")) return "";
+  if (p.engagementType === "casual") {
+    // العمالة المرنة: سعر الوحدة وإجمالي الكمية الذي رآه العميل فقط.
+    const us = p.lines.filter((l) => l.status === "priced" && l.unit && l.unit.status === "ok")
+      .map((l) => `بند ${l.index + 1}: ${UNIT_AR[l.unit.billingUnit]} ${l.unit.unitPrice}${l.unit.quantity !== null ? ` × ${l.unit.quantity} × ${l.count} موظف = ${l.unit.total}` : ""}`);
+    return ` | عمالة مرنة (تقدير للعميل${p.status === "partial" ? "، بنود جزئية" : ""}): ${us.join("؛ ")} ${p.currency} قبل مراجعة الفريق`;
+  }
   return ` | سعر الحزمة (إكسل المالك، تقدير للعميل): شهري ${p.monthlyTotal} ${p.currency}${p.status === "partial" ? " (بنود جزئية)" : ""} قبل مراجعة الفريق`;
 }
 
 /* ═════════════ Notion ═════════════ */
+// قيمتا select «نوع التعاقد» في Notion (العمود اختياري؛ غيابه يُسقَط تلقائياً ويبقى النوع في «بنود المهن» وفي متن الصفحة).
+const ENGAGEMENT_AR = { contract: "تعاقد (EOR)", casual: "عمالة مرنة" };
 const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier|is expected to be/i;
 const chunks = (s, n = 1900) => { const out = []; const str = String(s || ""); for (let i = 0; i < str.length; i += n) out.push(str.slice(i, i + n)); return out; };
 const rt = (s) => chunks(s).map((c) => ({ type: "text", text: { content: c } }));
@@ -578,6 +663,7 @@ function buildProps(ref, v, quoteText) {
     "البريد": { email: v.email },
     "الجوال": { phone_number: v.phone },
     "المدينة": rtProp(v.city),
+    "نوع التعاقد": { select: { name: ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract } },
     "نوع العاملين": { select: { name: WORKER_TYPES[v.workerType] } },
     "الاستقدام": { select: { name: RECRUITMENT_VALUES[v.recruitment] } },
     "عدد الموظفين الكلي": { number: v.totalCount },
@@ -645,7 +731,7 @@ const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666;vertical-align
 function teamEmailHtml(ref, v, quoteText, notionUrl) {
   return `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
 <h2 style="color:#0B1B5A">👥 طلب EOR جديد ${esc(ref)}</h2>
-<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
+<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("نوع التعاقد", ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
 <h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items))}</pre>
 ${v.notes ? `<h3 style="color:#0B1B5A">ملاحظات</h3><p style="white-space:pre-wrap">${esc(v.notes)}</p>` : ""}
 ${notionUrl ? `<p><a href="${esc(notionUrl)}">فتح الطلب في Notion</a></p>` : ""}</div>`;
@@ -688,11 +774,12 @@ export async function handleEor(body, ctx = {}) {
   if (body && typeof body === "object" && body.action === "price") {
     const wt = String(body.workerType || "");
     if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, wt)) return fail("worker_type_invalid", "workerType");
-    const n = normalizePriceItems(body.items);
+    const engagement = normalizeEngagementType(body.engagementType);
+    const n = normalizePriceItems(body.items, engagement);
     if (!n.ok) return n;
     const dm = typeof body.durationMonths === "string" && /^\d+$/.test(body.durationMonths.trim()) ? Number(body.durationMonths.trim()) : body.durationMonths;
     const pricingNow = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
-    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: Number.isInteger(dm) ? dm : null, now: nowMs }) };
+    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: Number.isInteger(dm) ? dm : null, now: nowMs, engagementType: engagement }) };
   }
 
   // الفخّ: حقلٌ مخفيّ لا يملؤه إنسان. نردّ نجاحاً كاذباً ولا نكتب شيئاً.
@@ -708,7 +795,7 @@ export async function handleEor(body, ctx = {}) {
   const ref = typeof ctx.refGen === "function" ? ctx.refGen() : "EOR-" + String(randomInt(100000, 1000000));
   const pricing = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
   const quote = estimateQuote(v.items, pricing, { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, now: nowMs });
-  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, now: nowMs });
+  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, now: nowMs, engagementType: v.engagementType });
   const quoteText = quoteSummaryText(quote) + packageSummaryText(pkg);
 
   // — Notion —
@@ -747,7 +834,7 @@ export async function handleEor(body, ctx = {}) {
     notify({
       source: "eor-request", ref, name: v.contactName, company: v.company, phone: v.phone, email: v.email, city: v.city,
       total: v.totalCount, transcript, url: notionUrl || `${SITE}/ops`,
-      eor: { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, startDate: v.startDate, items: v.items, quote: quoteText },
+      eor: { engagementType: v.engagementType, workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, startDate: v.startDate, items: v.items, quote: quoteText },
     }),
   ]);
   const val = (s) => (s.status === "fulfilled" && s.value ? s.value : { ok: false });
