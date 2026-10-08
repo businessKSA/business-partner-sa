@@ -13,6 +13,10 @@
 // لا ادّعاءات نظامية هنا: نصوص نطاق العمل (buildScopeOfWork) قالبٌ عامّ يُحال فيه إلى
 // «الأنظمة المعمول بها والعقد الموقَّع» دون ذكر موادّ أو أرقام.
 //
+// listVendorDemand(opts) في آخر الملف: يقرأ الطلبات التي وضع المالك عليها «مفتوح للمورّدين» ويعيد لكل بند مهنة
+// **قائمةً بيضاء فقط** (مهنة، عدد، جنسيات، تاريخ بدء، مدة، مجال، منطقة عامة) — بلا اسم المنشأة ولا تواصل ولا سعر
+// ولا ملاحظات. كل حقل يُبنى من قيمة تحقّقنا منها (لا يُنسخ كائن المصدر)، فحقلٌ جديد في الحمولة لا يمرّ تلقائياً.
+//
 // الأخطاء تُرجَع قيماً ({ ok:false, error, status }) لا استثناءات؛ والمستدعي يكتب status كما هو.
 
 import { readFileSync } from "node:fs";
@@ -24,6 +28,7 @@ import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.j
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
+const NOTION_TOKEN_ENV = ["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"];
 const NOTION_VERSION = "2022-06-28";
 const EOR_DB_DEFAULT = "11797acc09724f66a99d5a7576a66976";
 const SITE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
@@ -80,6 +85,42 @@ export const nationalityName = (code, lang = "ar") => {
 
 const OCC_IDS = new Set(OCCUPATIONS.map((o) => o.id));
 
+/* ═════════════ مجال نشاط المنشأة (اختياري) ═════════════
+// الاسم العربي = قيمة select «المجال» في Notion حرفياً، وهي نفسها قيم «المجال» في قاعدة «وظائف صاحب العمل»
+// (نوشن 260d7695…، ٢٦ قيمة، فُحصت 2026-10-08). المعرّف (id) هو ما يسافر في الحمولة، فتغيير نص عرضٍ لا يكسر شيئاً. */
+const S = (id, ar, en, fr, zh) => ({ id, ar, en, fr, zh });
+export const SECTORS = Object.freeze([
+  S("engineering", "هندسة", "Engineering", "Ingénierie", "工程"),
+  S("it", "تقنية معلومات", "Information technology", "Technologies de l'information", "信息技术"),
+  S("sales-marketing", "مبيعات وتسويق", "Sales and marketing", "Ventes et marketing", "销售与市场营销"),
+  S("finance", "محاسبة ومالية", "Accounting and finance", "Comptabilité et finance", "会计与金融"),
+  S("admin", "إداري وسكرتارية", "Administration and secretarial", "Administration et secrétariat", "行政与文秘"),
+  S("hr", "موارد بشرية", "Human resources", "Ressources humaines", "人力资源"),
+  S("hospitality", "ضيافة ومطاعم", "Hospitality and restaurants", "Hôtellerie et restauration", "酒店与餐饮"),
+  S("construction", "مقاولات وإنشاءات", "Contracting and construction", "Entreprise et construction", "承包与建筑"),
+  S("health", "صحة وطب", "Health and medicine", "Santé et médecine", "医疗健康"),
+  S("education", "تعليم", "Education", "Éducation", "教育"),
+  S("logistics", "لوجستيات ونقل", "Logistics and transport", "Logistique et transport", "物流与运输"),
+  S("trades", "حرف مهنية وصيانة", "Skilled trades and maintenance", "Métiers techniques et maintenance", "技工与维修"),
+  S("manufacturing", "تصنيع وصناعة", "Manufacturing and industry", "Fabrication et industrie", "制造与工业"),
+  S("real-estate", "عقارات", "Real estate", "Immobilier", "房地产"),
+  S("legal", "قانون", "Legal", "Juridique", "法律"),
+  S("energy", "طاقة ونفط وغاز", "Energy, oil and gas", "Énergie, pétrole et gaz", "能源、石油与天然气"),
+  S("media", "إعلام وإبداع", "Media and creative", "Médias et création", "媒体与创意"),
+  S("government", "حكومي وقطاع عام", "Government and public sector", "Gouvernement et secteur public", "政府与公共部门"),
+  S("agriculture", "زراعة وبيئة", "Agriculture and environment", "Agriculture et environnement", "农业与环境"),
+  S("retail", "تجزئة وتجارة إلكترونية", "Retail and e-commerce", "Commerce de détail et e-commerce", "零售与电子商务"),
+  S("security", "أمن وسلامة", "Security and safety", "Sécurité", "安保与安全"),
+  S("science", "علوم وأبحاث", "Science and research", "Sciences et recherche", "科学与研究"),
+  S("aviation-maritime", "طيران وبحري", "Aviation and maritime", "Aviation et maritime", "航空与海事"),
+  S("beauty", "تجميل وعناية", "Beauty and personal care", "Beauté et soins", "美容与护理"),
+  S("household", "خدمات منزلية", "Household services", "Services à domicile", "家政服务"),
+  S("other", "أخرى", "Other", "Autre", "其他"),
+]);
+const SECTOR_BY_ID = new Map(SECTORS.map((x) => [x.id, x]));
+const SECTOR_BY_AR = new Map(SECTORS.map((x) => [x.ar, x]));
+export const sectorName = (id, lang = "ar") => { const x = SECTOR_BY_ID.get(id); return x ? (x[lang] || x.en) : ""; };
+
 /* ═════════════ أدوات التنظيف ═════════════ */
 // أحرف تحكّم وأحرف تعديل الاتجاه (تُستعمل في انتحال النصوص) تُحذف؛ \n يبقى في الملاحظات وحدها.
 const CTRL_ONE = /[\u0000-\u001F\u007F\u2028\u2029\u202A-\u202E\u2066-\u2069]/g;
@@ -123,6 +164,14 @@ export function validateEorRequest(body, opts = {}) {
   if (!phone) return fail("phone_invalid", "phone");
   const city = oneLine(b.city, EOR_LIMITS.city);
   if (!city) return fail("city_required", "city");
+
+  // مجال نشاط المنشأة: اختياري. الغائب/الفارغ يبقى صالحاً (الإرسال القديم)، والقيمة غير المعروفة تُرفض لا تُهمَل.
+  let sector = "";
+  if (b.sector != null && b.sector !== "") {
+    const sid = typeof b.sector === "string" ? b.sector.trim() : "";
+    if (!SECTOR_BY_ID.has(sid)) return fail("sector_invalid", "sector");
+    sector = sid;
+  }
 
   const workerType = String(b.workerType || "");
   if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, workerType)) return fail("worker_type_invalid", "workerType");
@@ -180,7 +229,7 @@ export function validateEorRequest(body, opts = {}) {
 
   return {
     ok: true,
-    value: { company, contactName, email, phone, city, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
+    value: { company, contactName, email, phone, city, sector, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
   };
 }
 
@@ -437,6 +486,7 @@ function buildProps(ref, v, quoteText) {
     "تقدير عرض السعر": rtProp(quoteText),
   };
   if (v.startDate) props["تاريخ البدء"] = { date: { start: v.startDate } };
+  if (v.sector && SECTOR_BY_ID.has(v.sector)) props["المجال"] = { select: { name: SECTOR_BY_ID.get(v.sector).ar } };
   if (v.notes) props["ملاحظات"] = rtProp(v.notes);
   return props;
 }
@@ -493,7 +543,7 @@ const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666;vertical-align
 function teamEmailHtml(ref, v, quoteText, notionUrl) {
   return `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
 <h2 style="color:#0B1B5A">👥 طلب EOR جديد ${esc(ref)}</h2>
-<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
+<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
 <h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items))}</pre>
 ${v.notes ? `<h3 style="color:#0B1B5A">ملاحظات</h3><p style="white-space:pre-wrap">${esc(v.notes)}</p>` : ""}
 ${notionUrl ? `<p><a href="${esc(notionUrl)}">فتح الطلب في Notion</a></p>` : ""}</div>`;
@@ -549,7 +599,7 @@ export async function handleEor(body, ctx = {}) {
 
   // — Notion —
   const dev = ctx.dev != null ? ctx.dev : DEV;
-  const token = ctx.notionToken !== undefined ? ctx.notionToken : envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
+  const token = ctx.notionToken !== undefined ? ctx.notionToken : envFrom(NOTION_TOKEN_ENV);
   const dbId = ctx.dbId || process.env.NOTION_EOR_DB || EOR_DB_DEFAULT;
   const props = buildProps(ref, v, quoteText);
   const children = [{ object: "block", type: "code", code: { language: "json", rich_text: rt(JSON.stringify({ ref, ...v, quote }, null, 1)) } }];
@@ -595,4 +645,182 @@ export async function handleEor(body, ctx = {}) {
   }
   if (!stored) console.error("eor: Notion write failed — delivered by email/notify only", ref);
   return { ok: true, ref };
+}
+
+/* ═════════════ طلبات مجهولة العميل لبوابة المورّدين ═════════════
+// المصدر: صفوف قاعدة «BP EOR Requests» التي وضع المالك عليها «مفتوح للمورّدين» وحالتها ليست «مغلق».
+// الناتج لكل بند مهنة هذه الحقول فقط (VENDOR_ITEM_FIELDS). لا يمرّ شيء آخر: لا المنشأة ولا التواصل ولا البريد ولا الجوال
+// ولا الملاحظات ولا الراتب المتوقع ولا تقدير السعر ولا عنوان. كل قيمة تُبنى من مدخلٍ تحقّقنا منه (تصنيف المهن، قائمة الجنسيات،
+// قائمة المجالات، تاريخ ISO، أعداد صحيحة، قائمة مدن عامة) — لا يُنسخ كائن المصدر ولا يُمرَّر نصٌّ حرّ من العميل. */
+const PROP_OPEN = "مفتوح للمورّدين";
+const PROP_LAUNCH = "تاريخ الإطلاق";
+export const VENDOR_ITEM_FIELDS = Object.freeze(["ref", "itemId", "occupationId", "nameAr", "nameEn", "count", "nationalities", "startDate", "durationMonths", "sector", "region"]);
+export const VENDOR_DEMAND_MAX = 100;
+const VENDOR_MAX_PAGES = 5;          // ٥٠٠ صفٍّ كحدّ أقصى للمسح قبل الترتيب
+const VENDOR_BODY_PARALLEL = 5;
+const REF_RE = /^[A-Za-z0-9][A-Za-z0-9-]{2,39}$/;
+
+// المدينة حقلٌ حرّ قد يحمل عنواناً («الرياض، حي الملقا، شارع…»). لا نعرضه أبداً: نعرض مدينة من هذه القائمة فقط إذا كان
+// الحقل كله اسمها وحدها (بعد التطبيع)، وإلا «السعودية».
+const COUNTRY_REGION = "السعودية";
+const CITY_GROUPS = [
+  ["الرياض", "riyadh"], ["جدة", "jeddah", "jedda"], ["مكة المكرمة", "مكة", "makkah", "mecca"], ["المدينة المنورة", "المدينة", "madinah", "medina"],
+  ["الدمام", "dammam"], ["الخبر", "khobar", "al khobar"], ["الظهران", "dhahran"], ["الجبيل", "jubail"], ["الأحساء", "الاحساء", "hofuf", "al ahsa", "ahsa"],
+  ["القطيف", "qatif"], ["الطائف", "taif"], ["تبوك", "tabuk"], ["أبها", "abha"], ["خميس مشيط", "khamis mushait"], ["بريدة", "buraydah", "buraidah"],
+  ["حائل", "hail"], ["نجران", "najran"], ["جازان", "jazan", "jizan"], ["ينبع", "yanbu"], ["الخرج", "kharj", "al kharj"], ["رابغ", "rabigh"],
+  ["العلا", "alula", "al ula"], ["نيوم", "neom"], ["الباحة", "baha", "al baha"], ["عرعر", "arar"], ["سكاكا", "sakaka"], ["الجوف", "jouf", "al jouf"],
+];
+const normCity = (s) => String(s == null ? "" : s).toLowerCase().replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي")
+  .replace(/[^\p{L}\p{N} ]/gu, " ").replace(/\s+/g, " ").trim();
+const CITY_BY_KEY = new Map();
+for (const g of CITY_GROUPS) for (const k of g) CITY_BY_KEY.set(normCity(k), g[0]);
+export function publicRegion(city) {
+  const key = normCity(city).replace(/^(مدينه|city of) /, "").replace(/ city$/, "");
+  return CITY_BY_KEY.get(key) || COUNTRY_REGION;
+}
+
+const plainText = (p) => {
+  if (!p) return "";
+  const arr = p.rich_text || p.title;
+  return Array.isArray(arr) ? arr.map((x) => (x && (x.plain_text != null ? x.plain_text : x.text && x.text.content)) || "").join("") : "";
+};
+const OCC_BY_LABEL = (() => {
+  const m = new Map();
+  for (const o of OCCUPATIONS) { const k = `${o.nameAr} | ${o.nameEn}`; m.set(k, m.has(k) ? null : o.id); }
+  return m;
+})();
+const NAT_BY_AR = new Map(NATIONALITIES.map((n) => [n.ar, n.code]));
+
+// بند مهنة واحد من مدخلٍ غير موثوق → { occupationId, count, nationalities } أو null. لا شيء آخر يبقى من المدخل.
+function cleanItem(it) {
+  if (!it || typeof it !== "object") return null;
+  const occupationId = typeof it.occupationId === "string" ? it.occupationId : "";
+  if (!OCC_IDS.has(occupationId)) return null;
+  const count = it.count;
+  if (!Number.isInteger(count) || count < 1 || count > EOR_LIMITS.maxItemCount) return null;
+  const nats = [];
+  if (Array.isArray(it.nationalities)) {
+    for (const c of it.nationalities) {
+      const code = typeof c === "string" ? c.toUpperCase() : "";
+      if (NAT_BY_CODE.has(code) && !nats.includes(code) && nats.length < EOR_LIMITS.maxNationalities) nats.push(code);
+    }
+  }
+  return { occupationId, count, nationalities: nats };
+}
+
+// بنود العمود النصّي «بنود المهن» (احتياط حين لا تتوفر كتلة JSON): سطر لكل بند كما كتبه itemsText. الراتب في آخر السطر يُهمَل.
+function itemsFromText(text) {
+  const out = [];
+  for (const line of String(text || "").split("\n")) {
+    const m = line.match(/^\s*(\d{1,3})\)\s*(.+?)\s+—\s+العدد:\s*(\d{1,3})(?:\s+—\s+الجنسيات:\s*([^—]*))?/);
+    if (!m) continue;
+    const id = OCC_BY_LABEL.get(m[2].trim());
+    if (!id) continue;
+    const nats = (m[4] || "").split("،").map((x) => NAT_BY_AR.get(x.trim())).filter(Boolean);
+    const it = cleanItem({ occupationId: id, count: Number(m[3]), nationalities: nats });
+    if (it) out.push({ index: Number(m[1]), ...it });
+  }
+  return out;
+}
+
+// كتلة JSON التي يكتبها handleEor أول جسم الصفحة. null إن غابت أو فسدت.
+async function readBodyPayload(doFetch, headers, pageId) {
+  try {
+    const r = await doFetch(`https://api.notion.com/v1/blocks/${encodeURIComponent(pageId)}/children?page_size=20`, { method: "GET", headers });
+    if (!r.ok) return null;
+    const j = await r.json();
+    for (const b of (j && j.results) || []) {
+      if (b && b.type === "code" && b.code && Array.isArray(b.code.rich_text)) {
+        try {
+          const o = JSON.parse(b.code.rich_text.map((x) => (x && (x.plain_text != null ? x.plain_text : x.text && x.text.content)) || "").join(""));
+          if (o && typeof o === "object" && Array.isArray(o.items)) return o;
+        } catch { /* كتلة أخرى */ }
+      }
+    }
+  } catch { /* احتياط العمود */ }
+  return null;
+}
+
+const validIso = (s) => (typeof s === "string" && isoDate(s) ? s : "");
+const validMonths = (n) => (Number.isInteger(n) && n >= EOR_LIMITS.minMonths && n <= EOR_LIMITS.maxMonths ? n : null);
+
+// listVendorDemand(opts) → { ok:true, items:[…] } | { ok:false, error }.   لا يرمي استثناءً أبداً.
+//   opts: fetch (قابل للحقن)، notionToken، dbId، limit (≤ 100).
+//   الأحدث أولاً: بتاريخ الإطلاق إن وُضع وإلا بتاريخ الاستلام.
+export async function listVendorDemand(opts = {}) {
+  try {
+    const token = opts.notionToken !== undefined ? opts.notionToken : envFrom(NOTION_TOKEN_ENV);
+    if (!token) return { ok: false, error: "not_configured" };
+    const dbId = opts.dbId || process.env.NOTION_EOR_DB || EOR_DB_DEFAULT;
+    const doFetch = opts.fetch || fetch;
+    const limit = Number.isInteger(opts.limit) && opts.limit > 0 ? Math.min(opts.limit, VENDOR_DEMAND_MAX) : VENDOR_DEMAND_MAX;
+    const headers = { Authorization: `Bearer ${token}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" };
+
+    const rows = [];
+    let cursor = "";
+    for (let page = 0; page < VENDOR_MAX_PAGES; page++) {
+      const r = await doFetch(`https://api.notion.com/v1/databases/${encodeURIComponent(dbId)}/query`, {
+        method: "POST", headers,
+        body: JSON.stringify({
+          filter: { and: [{ property: PROP_OPEN, checkbox: { equals: true } }, { property: "الحالة", select: { does_not_equal: "مغلق" } }] },
+          sorts: [{ timestamp: "created_time", direction: "descending" }],
+          page_size: 100, ...(cursor ? { start_cursor: cursor } : {}),
+        }),
+      });
+      if (!r.ok) { console.error("eor vendor-demand notion error", r.status); return { ok: false, error: "notion_unavailable" }; }
+      const j = await r.json();
+      for (const x of (j && j.results) || []) rows.push(x);
+      if (!j || !j.has_more || !j.next_cursor) break;
+      cursor = String(j.next_cursor);
+    }
+
+    // نعيد التحقق محلياً — الفلتر في الاستعلام لا يُعتمد وحده — ثم نرتّب الأحدث أولاً.
+    const eligible = [];
+    for (const row of rows) {
+      const p = (row && row.properties) || {};
+      if (!row || row.archived || row.in_trash) continue;
+      if (!(p[PROP_OPEN] && p[PROP_OPEN].checkbox === true)) continue;
+      const status = p["الحالة"] && p["الحالة"].select ? p["الحالة"].select.name : "";
+      if (status === "مغلق") continue;
+      const ref = plainText(p["رقم مرجعي"]).trim();
+      if (!REF_RE.test(ref) || typeof row.id !== "string") continue;
+      const launch = p[PROP_LAUNCH] && p[PROP_LAUNCH].date ? Date.parse(p[PROP_LAUNCH].date.start) : NaN;
+      const created = Date.parse(row.created_time);
+      eligible.push({ row, p, ref, at: Number.isFinite(launch) ? launch : Number.isFinite(created) ? created : 0 });
+    }
+    eligible.sort((a, b) => b.at - a.at);
+
+    const items = [];
+    for (let i = 0; i < eligible.length && items.length < limit; i += VENDOR_BODY_PARALLEL) {
+      const batch = eligible.slice(i, i + VENDOR_BODY_PARALLEL);
+      const bodies = await Promise.all(batch.map((e) => readBodyPayload(doFetch, headers, e.row.id)));
+      batch.forEach((e, k) => {
+        const body = bodies[k];
+        const p = e.p;
+        // مصدر البنود: كتلة JSON إن وُجدت، وإلا العمود النصّي.
+        const src = body
+          ? body.items.slice(0, EOR_LIMITS.maxItems).map((it, idx) => { const c = cleanItem(it); return c ? { index: idx + 1, ...c } : null; }).filter(Boolean)
+          : itemsFromText(plainText(p["بنود المهن"]));
+        const colStart = p["تاريخ البدء"] && p["تاريخ البدء"].date ? p["تاريخ البدء"].date.start : "";
+        const colMonths = typeof p["المدة (أشهر)"]?.number === "number" ? p["المدة (أشهر)"].number : null;
+        const colSector = p["المجال"] && p["المجال"].select ? SECTOR_BY_AR.get(p["المجال"].select.name) : null;
+        const startDate = validIso(body && body.startDate) || validIso(String(colStart || "").slice(0, 10));
+        const durationMonths = validMonths(body && body.durationMonths) ?? validMonths(colMonths);
+        const sector = body && typeof body.sector === "string" && SECTOR_BY_ID.has(body.sector) ? body.sector : colSector ? colSector.id : "";
+        const region = publicRegion(body && typeof body.city === "string" ? body.city : plainText(p["المدينة"]));
+        for (const it of src) {
+          const o = occupationById(it.occupationId);
+          if (!o) continue;
+          items.push({
+            ref: e.ref, itemId: `${e.ref}-${it.index}`, occupationId: it.occupationId, nameAr: o.nameAr, nameEn: o.nameEn,
+            count: it.count, nationalities: it.nationalities, startDate, durationMonths, sector, region,
+          });
+        }
+      });
+    }
+    return { ok: true, items: items.slice(0, limit) };
+  } catch (e) {
+    console.error("eor vendor-demand exception", String((e && e.message) || e).slice(0, 120));
+    return { ok: false, error: "unavailable" };
+  }
 }

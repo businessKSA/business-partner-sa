@@ -426,7 +426,9 @@ test("/eor: قائمة المهن المدمجة = id + عربي + إنجليز�
 
 test("الصفحة العامة لا تحوي أي شيء من الخريطة الخاصة (_occupation-map.json)", () => {
   const map = JSON.parse(fs.readFileSync(path.join(ROOT, "api/_occupation-map.json"), "utf8"));
-  const publicNames = OCCUPATIONS.map((o) => (o.id + " " + o.nameAr + " " + o.nameEn).toLowerCase()).join(" ");
+  // أسماء المجالات (SECTORS) عامّة ومعروضة في القائمة عمداً؛ بعضها مفتاحٌ شائع في الخريطة («human resources») فلا يُعدّ تسرّباً.
+  const publicNames = OCCUPATIONS.map((o) => (o.id + " " + o.nameAr + " " + o.nameEn).toLowerCase()).join(" ")
+    + " " + E.SECTORS.map((x) => [x.ar, x.en, x.fr, x.zh].join(" ")).join(" ").toLowerCase();
   const secrets = Object.keys(map.map).filter((k) => k.length >= 10 && !publicNames.includes(k)).slice(0, 2000);
   assert.ok(secrets.length > 500, "عيّنة كافية من المسمّيات الخاصة");
   for (const lang of Object.keys(PAGES)) {
@@ -451,3 +453,88 @@ test("api/_eor.js ملف مساعد (يبدأ بـ_) ولا ملف api/ جديد
   assert.ok(fns.length <= 12, `الدوال ${fns.length}`);
   assert.ok(!fns.includes("eor.js"));
 });
+
+/* ───────────── مجال نشاط المنشأة (sector) ───────────── */
+// قيم select «المجال» الفعلية في Notion (قاعدة «وظائف صاحب العمل»)، فُحصت 2026-10-08. لا نخترع قيماً.
+const NOTION_FIELD_VALUES = ["هندسة", "تقنية معلومات", "مبيعات وتسويق", "محاسبة ومالية", "إداري وسكرتارية", "موارد بشرية", "ضيافة ومطاعم", "مقاولات وإنشاءات", "صحة وطب", "تعليم", "لوجستيات ونقل", "أخرى", "حرف مهنية وصيانة", "تصنيع وصناعة", "عقارات", "قانون", "طاقة ونفط وغاز", "إعلام وإبداع", "حكومي وقطاع عام", "زراعة وبيئة", "تجزئة وتجارة إلكترونية", "أمن وسلامة", "علوم وأبحاث", "طيران وبحري", "تجميل وعناية", "خدمات منزلية"];
+
+test("SECTORS: ٢٦ مجالاً = قيم Notion حرفياً، بمعرّفات فريدة وأربع لغات لكل مجال", () => {
+  assert.equal(E.SECTORS.length, 26);
+  assert.deepEqual([...E.SECTORS.map((x) => x.ar)].sort(), [...NOTION_FIELD_VALUES].sort());
+  assert.equal(new Set(E.SECTORS.map((x) => x.id)).size, 26);
+  for (const x of E.SECTORS) {
+    assert.match(x.id, /^[a-z]+(-[a-z]+)*$/);
+    for (const l of ["ar", "en", "fr", "zh"]) assert.ok(typeof x[l] === "string" && x[l].trim(), `${x.id}.${l}`);
+    assert.equal(E.sectorName(x.id, "ar"), x.ar);
+  }
+  assert.equal(E.sectorName("nope", "ar"), "");
+});
+
+test("sector اختياري: الغائب والفارغ وnull يبقون صالحين (الإرسال القديم)، والقيمة المعروفة تُحفظ", () => {
+  const old = good(); delete old.sector;
+  const r0 = v(old);
+  assert.equal(r0.ok, true); assert.equal(r0.value.sector, "");
+  for (const s of ["", null, undefined, "  "]) {
+    if (s === "  ") { bad(good({ sector: s }), "sector_invalid"); continue; }
+    const r = v(good({ sector: s })); assert.equal(r.ok, true); assert.equal(r.value.sector, "");
+  }
+  assert.equal(v(good({ sector: "hospitality" })).value.sector, "hospitality");
+  assert.equal(v(good({ sector: " hospitality " })).value.sector, "hospitality");
+  for (const s of E.SECTORS) assert.equal(v(good({ sector: s.id })).value.sector, s.id);
+});
+
+test("sector غير معروف يُرفض (لا يُهمَل بصمت): اسم عربي، نص حر، رقم، مصفوفة، كائن", () => {
+  for (const s of ["ضيافة ومطاعم", "Hospitality", "x", 5, ["hospitality"], { id: "it" }, true, "it;drop"]) bad(good({ sector: s }), "sector_invalid");
+  assert.equal(v(good({ sector: "x" })).field, "sector");
+});
+
+test("المعالج يكتب «المجال» select بالاسم العربي، والحمولة الكاملة تحمل المعرّف، وبلا sector لا عمود", async () => {
+  const a = rig();
+  assert.equal((await E.handleEor(good({ sector: "hospitality" }), a.ctx)).ok, true);
+  const props = a.calls.fetch[0].body.properties;
+  assert.deepEqual(props["المجال"], { select: { name: "ضيافة ومطاعم" } });
+  const json = JSON.parse(a.calls.fetch[0].body.children[0].code.rich_text.map((x) => x.text.content).join(""));
+  assert.equal(json.sector, "hospitality");
+  assert.match(a.calls.mail.find((m) => m.to === "team@test.local").html, /ضيافة ومطاعم/);
+
+  const b = rig();
+  assert.equal((await E.handleEor(good(), b.ctx)).ok, true);          // good() بلا sector = الإرسال القديم
+  assert.equal(b.calls.fetch[0].body.properties["المجال"], undefined);
+  assert.equal(JSON.parse(b.calls.fetch[0].body.children[0].code.rich_text.map((x) => x.text.content).join("")).sector, "");
+
+  const c = rig();
+  const r = await E.handleEor(good({ sector: "bogus" }), c.ctx);
+  assert.deepEqual([r.ok, r.status, r.error, r.field], [false, 400, "sector_invalid", "sector"]);
+  assert.equal(c.calls.fetch.length + c.calls.mail.length + c.calls.notify.length, 0);
+});
+
+test("عمود «المجال» غائب في Notion: يُسقَط وحده ويُحفظ الطلب", async () => {
+  const seen = [];
+  const { ctx } = rig({
+    fetch: async (url, init) => {
+      const body = JSON.parse(init.body); seen.push(body);
+      return body.properties["المجال"] ? resp(400, { message: "المجال is not a property that exists." }) : resp(200, { id: "abc" });
+    },
+  });
+  assert.equal((await E.handleEor(good({ sector: "it" }), ctx)).ok, true);
+  assert.equal(seen.length, 2);
+  assert.equal(seen[1].properties["المجال"], undefined);
+  assert.ok(seen[1].properties["المنشأة"] && seen[1].properties["بنود المهن"]);
+});
+
+for (const lang of Object.keys(PAGES)) {
+  test(`/eor (${lang}): قائمة «مجال النشاط» ٢٦ مجالاً + «غير محدد»، بتسميات اللغة، والإرسال يحمل sector`, () => {
+    const h = page(lang);
+    const m = h.match(/<select class="sv1-eor-in" id="eorSector">(.*?)<\/select>/s);
+    assert.ok(m, "select موجود");
+    const opts = [...m[1].matchAll(/<option value="([^"]*)">([^<]*)<\/option>/g)].map((x) => [x[1], x[2]]);
+    assert.equal(opts.length, 27);
+    assert.equal(opts[0][0], "");
+    assert.deepEqual(opts.slice(1).map((o) => o[0]), E.SECTORS.map((x) => x.id));
+    const decode = (s) => s.replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+    assert.deepEqual(opts.slice(1).map((o) => decode(o[1])), E.SECTORS.map((x) => x[lang]));
+    const label = h.match(/<label for="eorSector">([^<]*)<\/label>/);
+    assert.ok(label && label[1].trim(), "تسمية");
+    assert.ok(/sector: \$\("eorSector"\)\.value/.test(h), "الحمولة تحمل sector");
+  });
+}

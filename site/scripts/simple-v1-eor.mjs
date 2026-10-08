@@ -14,7 +14,7 @@
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
 
 import { OCCUPATIONS } from "../../api/_occupations.js";
-import { NATIONALITIES, EOR_LIMITS } from "../../api/_eor.js";
+import { NATIONALITIES, EOR_LIMITS, SECTORS } from "../../api/_eor.js";
 
 // ar, en, fr, zh
 const D = {
@@ -81,6 +81,8 @@ const D = {
   email: ["البريد الإلكتروني", "E-mail", "E-mail", "电子邮箱"],
   phone: ["الجوال", "Mobile", "Mobile", "手机号"],
   city: ["المدينة", "City", "Ville", "城市"],
+  sectorH: ["مجال نشاط المنشأة (اختياري)", "Your organization's business sector (optional)", "Secteur d'activité de votre organisation (facultatif)", "机构所属行业（可选）"],
+  sectorNone: ["غير محدد", "Not specified", "Non précisé", "未指定"],
   wtH: ["نوع العاملين", "Type of workers", "Type de travailleurs", "员工类型"],
   wtSaudi: ["سعوديون", "Saudi", "Saoudiens", "沙特籍"],
   wtForeign: ["أجانب", "Foreign", "Étrangers", "外籍"],
@@ -264,6 +266,7 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
           <div><label for="eorEmail">${esc(t("email"))}</label><input class="sv1-eor-in" id="eorEmail" type="email" maxlength="${EOR_LIMITS.email}" autocomplete="email" dir="ltr"></div>
           <div><label for="eorPhone">${esc(t("phone"))}</label><input class="sv1-eor-in" id="eorPhone" inputmode="tel" maxlength="24" autocomplete="tel" dir="ltr"></div>
           <div><label for="eorCity">${esc(t("city"))}</label><input class="sv1-eor-in" id="eorCity" maxlength="${EOR_LIMITS.city}" autocomplete="address-level2"></div>
+          <div><label for="eorSector">${esc(t("sectorH"))}</label><select class="sv1-eor-in" id="eorSector"><option value="">${esc(t("sectorNone"))}</option>${SECTORS.map((x) => `<option value="${esc(x.id)}">${esc(x[l] || x.en)}</option>`).join("")}</select></div>
         </div>
       </fieldset>
       <fieldset><legend>${esc(t("g2"))}</legend>
@@ -506,7 +509,7 @@ ${sv1.footer()}`;
       var mo = /^\d+$/.test(ms) ? parseInt(ms, 10) : 0;
       if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
       return {
-        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"),
+        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
         workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };

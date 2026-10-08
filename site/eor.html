@@ -432,6 +432,7 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div><label for="eorEmail">E-mail</label><input class="sv1-eor-in" id="eorEmail" type="email" maxlength="160" autocomplete="email" dir="ltr"></div>
           <div><label for="eorPhone">Mobile</label><input class="sv1-eor-in" id="eorPhone" inputmode="tel" maxlength="24" autocomplete="tel" dir="ltr"></div>
           <div><label for="eorCity">City</label><input class="sv1-eor-in" id="eorCity" maxlength="60" autocomplete="address-level2"></div>
+          <div><label for="eorSector">Your organization's business sector (optional)</label><select class="sv1-eor-in" id="eorSector"><option value="">Not specified</option><option value="engineering">Engineering</option><option value="it">Information technology</option><option value="sales-marketing">Sales and marketing</option><option value="finance">Accounting and finance</option><option value="admin">Administration and secretarial</option><option value="hr">Human resources</option><option value="hospitality">Hospitality and restaurants</option><option value="construction">Contracting and construction</option><option value="health">Health and medicine</option><option value="education">Education</option><option value="logistics">Logistics and transport</option><option value="trades">Skilled trades and maintenance</option><option value="manufacturing">Manufacturing and industry</option><option value="real-estate">Real estate</option><option value="legal">Legal</option><option value="energy">Energy, oil and gas</option><option value="media">Media and creative</option><option value="government">Government and public sector</option><option value="agriculture">Agriculture and environment</option><option value="retail">Retail and e-commerce</option><option value="security">Security and safety</option><option value="science">Science and research</option><option value="aviation-maritime">Aviation and maritime</option><option value="beauty">Beauty and personal care</option><option value="household">Household services</option><option value="other">Other</option></select></div>
         </div>
       </fieldset>
       <fieldset><legend>Workers needed</legend>
@@ -760,7 +761,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       var mo = /^\d+$/.test(ms) ? parseInt(ms, 10) : 0;
       if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
       return {
-        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"),
+        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
         workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };

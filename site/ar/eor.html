@@ -432,6 +432,7 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div><label for="eorEmail">البريد الإلكتروني</label><input class="sv1-eor-in" id="eorEmail" type="email" maxlength="160" autocomplete="email" dir="ltr"></div>
           <div><label for="eorPhone">الجوال</label><input class="sv1-eor-in" id="eorPhone" inputmode="tel" maxlength="24" autocomplete="tel" dir="ltr"></div>
           <div><label for="eorCity">المدينة</label><input class="sv1-eor-in" id="eorCity" maxlength="60" autocomplete="address-level2"></div>
+          <div><label for="eorSector">مجال نشاط المنشأة (اختياري)</label><select class="sv1-eor-in" id="eorSector"><option value="">غير محدد</option><option value="engineering">هندسة</option><option value="it">تقنية معلومات</option><option value="sales-marketing">مبيعات وتسويق</option><option value="finance">محاسبة ومالية</option><option value="admin">إداري وسكرتارية</option><option value="hr">موارد بشرية</option><option value="hospitality">ضيافة ومطاعم</option><option value="construction">مقاولات وإنشاءات</option><option value="health">صحة وطب</option><option value="education">تعليم</option><option value="logistics">لوجستيات ونقل</option><option value="trades">حرف مهنية وصيانة</option><option value="manufacturing">تصنيع وصناعة</option><option value="real-estate">عقارات</option><option value="legal">قانون</option><option value="energy">طاقة ونفط وغاز</option><option value="media">إعلام وإبداع</option><option value="government">حكومي وقطاع عام</option><option value="agriculture">زراعة وبيئة</option><option value="retail">تجزئة وتجارة إلكترونية</option><option value="security">أمن وسلامة</option><option value="science">علوم وأبحاث</option><option value="aviation-maritime">طيران وبحري</option><option value="beauty">تجميل وعناية</option><option value="household">خدمات منزلية</option><option value="other">أخرى</option></select></div>
         </div>
       </fieldset>
       <fieldset><legend>العاملون المطلوبون</legend>
@@ -760,7 +761,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       var mo = /^\d+$/.test(ms) ? parseInt(ms, 10) : 0;
       if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
       return {
-        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"),
+        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
         workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };

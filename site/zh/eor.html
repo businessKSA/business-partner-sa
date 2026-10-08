@@ -432,6 +432,7 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div><label for="eorEmail">电子邮箱</label><input class="sv1-eor-in" id="eorEmail" type="email" maxlength="160" autocomplete="email" dir="ltr"></div>
           <div><label for="eorPhone">手机号</label><input class="sv1-eor-in" id="eorPhone" inputmode="tel" maxlength="24" autocomplete="tel" dir="ltr"></div>
           <div><label for="eorCity">城市</label><input class="sv1-eor-in" id="eorCity" maxlength="60" autocomplete="address-level2"></div>
+          <div><label for="eorSector">机构所属行业（可选）</label><select class="sv1-eor-in" id="eorSector"><option value="">未指定</option><option value="engineering">工程</option><option value="it">信息技术</option><option value="sales-marketing">销售与市场营销</option><option value="finance">会计与金融</option><option value="admin">行政与文秘</option><option value="hr">人力资源</option><option value="hospitality">酒店与餐饮</option><option value="construction">承包与建筑</option><option value="health">医疗健康</option><option value="education">教育</option><option value="logistics">物流与运输</option><option value="trades">技工与维修</option><option value="manufacturing">制造与工业</option><option value="real-estate">房地产</option><option value="legal">法律</option><option value="energy">能源、石油与天然气</option><option value="media">媒体与创意</option><option value="government">政府与公共部门</option><option value="agriculture">农业与环境</option><option value="retail">零售与电子商务</option><option value="security">安保与安全</option><option value="science">科学与研究</option><option value="aviation-maritime">航空与海事</option><option value="beauty">美容与护理</option><option value="household">家政服务</option><option value="other">其他</option></select></div>
         </div>
       </fieldset>
       <fieldset><legend>所需员工</legend>
@@ -760,7 +761,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       var mo = /^\d+$/.test(ms) ? parseInt(ms, 10) : 0;
       if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
       return {
-        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"),
+        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
         workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };
